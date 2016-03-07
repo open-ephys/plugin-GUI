@@ -30,11 +30,12 @@
 
 class AudioNode;
 class AudioComponent;
+class MaterialSliderLookAndFeel;
 
 /**
-	Toggles audio output on and off.
+  Toggles audio output on and off.
 
-	@see AudioNode, AudioEditor
+  @see AudioNode, AudioEditor
 
 */
 class MuteButton : public ImageButton
@@ -46,9 +47,9 @@ public:
 
 
 /**
-	Used to show and hide the AudioConfigurationWindow.
+  Used to show and hide the AudioConfigurationWindow.
 
-	@see AudioNode, AudioEditor
+  @see AudioNode, AudioEditor
 
 */
 class AudioWindowButton : public Button
@@ -63,15 +64,14 @@ public:
 
 
 private:
-    Font font;
     String textString;
 };
 
 
 /**
-	Allows the user to access audio output settings.
+  Allows the user to access audio output settings.
 
-	@see AudioNode, AudioEditor
+  @see AudioNode, AudioEditor
 
 */
 class AudioConfigurationWindow : public DocumentWindow
@@ -91,9 +91,9 @@ private:
 };
 
 /**
-	Holds the interface for editing audio output parameters.
+  Holds the interface for editing audio output parameters.
 
-	@see AudioNode
+  @see AudioNode
 
 */
 class AudioEditor : public AudioProcessorEditor
@@ -134,6 +134,8 @@ private:
 
     ScopedPointer<Slider> volumeSlider;
     ScopedPointer<Slider> noiseGateSlider;
+
+    SharedResourcePointer<MaterialSliderLookAndFeel> materialSliderLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
 };

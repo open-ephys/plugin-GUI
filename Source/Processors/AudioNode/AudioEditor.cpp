@@ -24,17 +24,25 @@
 #include "AudioEditor.h"
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
+#include "../../UI/LookAndFeel/MaterialSliderLookAndFeel.h"
+
+
+static const Colour COLOUR_SLIDER_TRACK         (Colour::fromRGB (92, 92, 92));
+static const Colour COLOUR_SLIDER_TRACK_FILL    (Colour::fromRGB (255, 255, 255));
+
+static const Font FONT_LABEL ("Small Text", 12, Font::plain);
+
 
 MuteButton::MuteButton()
     : ImageButton ("MuteButton")
 {
     Image offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
-    Image onimage = ImageCache::getFromMemory   (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
+    Image onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
 
     setImages (false, true, true,
                offimage, 1.0f, Colours::white.withAlpha (0.0f),
                offimage, 1.0f, Colours::black.withAlpha (0.0f),
-               onimage,  1.0f, Colours::white.withAlpha (0.0f));
+               onimage,  1.0f, Colours::lightgrey);
 
     setClickingTogglesState (true);
 
@@ -52,8 +60,7 @@ AudioWindowButton::AudioWindowButton()
 {
     setClickingTogglesState (true);
 
-    font = Font ("Small Text", 12, Font::plain);
-    textString = "AUDIO";
+    textString = ":AUDIO";
     setTooltip ("Change the buffer size");
 }
 
@@ -70,8 +77,10 @@ void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
     else
         g.setColour (Colours::lightgrey);
 
-    g.setFont (font);
-    g.drawSingleLineText (textString, 0, 15);
+    const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
+    auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
+    g.setFont (FONT_LABEL);
+    g.drawSingleLineText (textToDraw, 0, 15);
 }
 
 
@@ -99,18 +108,27 @@ AudioEditor::AudioEditor (AudioNode* owner)
     addAndMakeVisible (audioWindowButton);
 
     volumeSlider = new Slider ("Volume Slider");
-    volumeSlider->setRange (0,100,1);
-    volumeSlider->addListener (this);
+    volumeSlider->setSliderStyle (Slider::LinearHorizontal);
     volumeSlider->setTextBoxStyle (Slider::NoTextBox,
                                    false, 0, 0);
-    volumeSlider->setColour (Slider::trackColourId, Colours::yellow);
+    volumeSlider->setRange (0, 100, 1);
+    volumeSlider->setColour (Slider::backgroundColourId, COLOUR_SLIDER_TRACK);
+    volumeSlider->setColour (Slider::trackColourId,      COLOUR_SLIDER_TRACK_FILL);
+    volumeSlider->setColour (Slider::thumbColourId,      COLOUR_SLIDER_TRACK_FILL);
+    volumeSlider->setLookAndFeel (materialSliderLookAndFeel);
+    volumeSlider->addListener (this);
     addAndMakeVisible (volumeSlider);
 
     noiseGateSlider = new Slider ("Noise Gate Slider");
-    noiseGateSlider->setRange (0,100,1);
-    noiseGateSlider->addListener (this);
+    volumeSlider->setSliderStyle (Slider::LinearHorizontal);
     noiseGateSlider->setTextBoxStyle (Slider::NoTextBox,
                                       false, 0, 0);
+    noiseGateSlider->setRange (0,100,1);
+    noiseGateSlider->setColour (Slider::backgroundColourId, COLOUR_SLIDER_TRACK);
+    noiseGateSlider->setColour (Slider::trackColourId,      COLOUR_SLIDER_TRACK_FILL);
+    noiseGateSlider->setColour (Slider::thumbColourId,      COLOUR_SLIDER_TRACK_FILL);
+    noiseGateSlider->setLookAndFeel (materialSliderLookAndFeel);
+    noiseGateSlider->addListener (this);
     addAndMakeVisible (noiseGateSlider);
 }
 
@@ -122,14 +140,24 @@ AudioEditor::~AudioEditor()
 
 void AudioEditor::resized()
 {
-    const int height        = getHeight();
-    const int sliderWidth   = 50;
-    const int sliderHeight  = height - 5;
+    const int width          = getWidth();
+    const int height         = getHeight();
 
-    muteButton->setBounds           (0, 5, 30, 25);
-    volumeSlider->setBounds         (35, 8, sliderWidth, sliderHeight);
-    noiseGateSlider->setBounds      (85, 8, sliderWidth, sliderHeight);
-    audioWindowButton->setBounds    (140, 5, 200, height);
+    // Since width of the label on button is always the same, we should reserve it.
+    const bool isLatencyLabelVisible = width >= 450;
+    const int audioWindowButtonWidth = isLatencyLabelVisible ? 110 : 60;
+    const int gateLabelWidth         = 45;
+
+    const int availableWidth = width - audioWindowButtonWidth - gateLabelWidth;
+    const int sliderWidth    = availableWidth * 0.4;
+    const int sliderHeight   = height - 6;
+    const int sliderY        = (height - sliderHeight) / 2;
+    const int margin         = availableWidth * 0.03;
+
+    muteButton->setBounds           (margin, 5, 20, 20);
+    volumeSlider->setBounds         (margin + 30, sliderY, sliderWidth, sliderHeight);
+    noiseGateSlider->setBounds      (volumeSlider->getRight() + margin + gateLabelWidth, sliderY, sliderWidth, sliderHeight);
+    audioWindowButton->setBounds    (width - audioWindowButtonWidth + 2, 5, audioWindowButtonWidth, height);
 }
 
 
@@ -143,7 +171,7 @@ bool AudioEditor::keyPressed (const KeyPress& key)
 void AudioEditor::updateBufferSizeText()
 {
     String t = String (AccessClass::getAudioComponent()->getBufferSizeMs());
-    t += " ms";
+    t = "Latency: " + t + " ms";
 
     audioWindowButton->setText (t);
 }
@@ -221,10 +249,12 @@ void AudioEditor::sliderValueChanged (Slider* slider)
 
 void AudioEditor::paint (Graphics& g)
 {
-    g.setColour (Colours::grey);
-    g.setFont (10);
-    g.drawText ("VOLUME:", 40, 1, 50, 10, Justification::left, false);
-    g.drawText ("GATE:", 90, 1, 50, 10, Justification::left, false);
+    g.fillAll (Colours::green);
+
+    const int margin = getWidth() * 0.03;
+    g.setColour (Colours::lightgrey);
+    g.setFont (FONT_LABEL);
+    g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 }
 
 

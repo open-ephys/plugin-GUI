@@ -29,6 +29,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Processors/RecordNode/RecordEngine.h"
 #include "../Processors/PluginManager/PluginManager.h"
 
+
+const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
+const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
+
+
 PlayButton::PlayButton()
     : DrawableButton("PlayButton", DrawableButton::ImageFitted)
 {
@@ -580,8 +585,8 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint(Graphics& g)
 {
-    g.setColour(backgroundColour);
-    g.fillRect(0,0,getWidth(),getHeight());
+    g.setColour (backgroundColour);
+    g.fillRect (0, 0, getWidth(), getHeight());
 
     if (open)
     {
@@ -590,7 +595,6 @@ void ControlPanel::paint(Graphics& g)
         g.fillPath(p1);
         g.fillPath(p2);
     }
-
 }
 
 void ControlPanel::resized()
@@ -598,30 +602,17 @@ void ControlPanel::resized()
     int w = getWidth();
     int h = 32; //getHeight();
 
-    if (playButton != 0)
+    if (w > 330)
     {
-        if (w > 330)
-            playButton->setBounds(w-h*10,5,h-5,h-10);
-        \
-        else
-            playButton->setBounds(5,5,h-5,h-10);
-        \
+        playButton->setBounds   (w - h * 10,     5, h - 5,       h - 10);
+        recordButton->setBounds (w - h * 9,      5, h - 5,       h - 10);
+        masterClock->setBounds  (w - h * 7 - 15, 0, h * 7 - 15,  h);
     }
-
-    if (recordButton != 0)
+    else
     {
-        if (w > 330)
-            recordButton->setBounds(w-h*9,5,h-5,h-10);
-        else
-            recordButton->setBounds(5+h,5,h-5,h-10);
-    }
-
-    if (masterClock != 0)
-    {
-        if (w > 330)
-            masterClock->setBounds(w-h*7-15,0,h*7-15,h);
-        else
-            masterClock->setBounds(5+h*2+15,0,h*7-15,h);
+        playButton->setBounds   (5,              5, h - 5,      h - 10);
+        recordButton->setBounds (5 + h,          5, h - 5,      h - 10);
+        masterClock->setBounds  (5 + h * 2 + 15, 0, h * 7 - 15, h);
     }
 
     int offset1 = 750 - getWidth();
@@ -632,46 +623,56 @@ void ControlPanel::resized()
     if (offset2 > h)
         offset2 = h;
 
-    if (cpuMeter != 0)
+    if (getWidth() < 750 && getWidth() >= 570)
     {
-
-        if (getWidth() < 750 && getWidth() >= 570)
-            cpuMeter->setBounds(8,h/4+offset1,h*3,h/2);
-        else if (getWidth() < 570)
-            cpuMeter->setBounds(8,h/4+offset1+offset2,h*3,h/2);
-        else
-            cpuMeter->setBounds(8,h/4,h*3,h/2);
+        cpuMeter->setBounds  (8,            h /4 + offset1, h * 3, h / 2);
+        diskMeter->setBounds (16 + h * 3,   h /4 + offset1, h * 3, h / 2);
+    }
+    else if (getWidth() < 570)
+    {
+        cpuMeter->setBounds  (8,          h / 4 + offset1 + offset2, h * 3, h / 2);
+        diskMeter->setBounds (16 + h * 3, h / 4 + offset1 + offset2, h * 3, h / 2);
+    }
+    else
+    {
+        cpuMeter->setBounds  (8,          h / 4, h * 3, h / 2);
+        diskMeter->setBounds (16 + h * 3, h / 4, h * 3, h / 2);
     }
 
-    if (diskMeter != 0)
+    if (audioEditor)
     {
-        if (getWidth() < 750 && getWidth() >= 570)
-            diskMeter->setBounds(16+h*3,h/4+offset1,h*3,h/2);
-        else if (getWidth() < 570)
-            diskMeter->setBounds(16+h*3,h/4+offset1+offset2,h*3,h/2);
-        else
-            diskMeter->setBounds(16+h*3,h/4,h*3,h/2);
+        const bool isThereElementOnLeft = diskMeter->getBounds().getY() <= h;
+        const bool isSecondRowAvailable = diskMeter->getBounds().getY() >= 2 * h;
+        const int leftElementWidth  = diskMeter->getBounds().getRight();
+        const int rightElementWidth = w - playButton->getBounds().getX();
 
+        int maxAvailableWidthForEditor = w;
+        if (isThereElementOnLeft)
+            maxAvailableWidthForEditor -= leftElementWidth + rightElementWidth;
+        else if (! isSecondRowAvailable)
+            maxAvailableWidthForEditor -= rightElementWidth;
+
+        const bool isEnoughSpaceForFullSize = maxAvailableWidthForEditor >= SIZE_AUDIO_EDITOR_MAX_WIDTH;
+
+        const int rowIndex = (! isThereElementOnLeft && isSecondRowAvailable) ? 1 : 0;
+
+        const int editorWidth = isEnoughSpaceForFullSize
+                                 ? SIZE_AUDIO_EDITOR_MAX_WIDTH
+                                 : maxAvailableWidthForEditor * 0.95;
+        const int editorX     = (rowIndex != 0)
+                                    ? (w - editorWidth) / 2
+                                    : isThereElementOnLeft
+                                        ? leftElementWidth + (maxAvailableWidthForEditor - editorWidth) / 2
+                                        : (maxAvailableWidthForEditor - editorWidth) / 2;
+        const int editorY     = (rowIndex == 0 ) ? 0 : offset1;
+        audioEditor->setBounds (editorX, editorY, editorWidth, h);
     }
 
-    if (audioEditor != 0)
-    {
-        if (getWidth() < 750 && getWidth() >= 570)
-            audioEditor->setBounds(w-526,0,h*8,h);
-        else if (getWidth() < 570)
-            audioEditor->setBounds(8,0+offset2,h*8,h);
-        else
-            audioEditor->setBounds(h*7,0,h*8,h);
-    }
 
-
-    if (cpb != 0)
-    {
-        if (open)
-            cpb->setBounds(w-28,getHeight()-5-h*2+10,h-10,h-10);
-        else
-            cpb->setBounds(w-28,getHeight()-5-h+10,h-10,h-10);
-    }
+    if (open)
+        cpb->setBounds(w-28,getHeight()-5-h*2+10,h-10,h-10);
+    else
+        cpb->setBounds(w-28,getHeight()-5-h+10,h-10,h-10);
 
     createPaths();
 
@@ -755,7 +756,7 @@ void ControlPanel::stopRecording()
 
     masterClock->stopRecording();
     newDirectoryButton->setEnabledState(true);
-    backgroundColour = Colour(58,58,58);
+    backgroundColour = Colour (51, 51, 51);
 
     prependText->setEditable(true);
     appendText->setEditable(true);
@@ -768,7 +769,6 @@ void ControlPanel::stopRecording()
 void ControlPanel::buttonClicked(Button* button)
 
 {
-
     if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
         graph->getRecordNode()->newDirectoryNeeded = true;
@@ -778,7 +778,6 @@ void ControlPanel::buttonClicked(Button* button)
         dateText->setColour(Label::textColourId, Colours::grey);
 
         return;
-
     }
 
     if (button == playButton)
