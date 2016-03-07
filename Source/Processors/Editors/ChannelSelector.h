@@ -47,7 +47,7 @@ class EditorButton;
  */
 
 
-class ChannelSelector : public Component,
+class PLUGIN_API ChannelSelector : public Component,
 public Button::Listener,
 public Timer
 {

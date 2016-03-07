@@ -1261,6 +1261,9 @@ const String EditorViewport::saveState(File fileToUse)
     XmlElement* version = info->createNewChildElement("VERSION");
     version->addTextElement(JUCEApplication::getInstance()->getApplicationVersion());
 
+	XmlElement* pluginAPIVersion = info->createNewChildElement("PLUGIN_API_VERSION");
+	pluginAPIVersion->addTextElement(String(PLUGIN_API_VER));
+
     Time currentTime = Time::getCurrentTime();
 
     XmlElement* date = info->createNewChildElement("DATE");
@@ -1438,8 +1441,9 @@ const String EditorViewport::loadState(File fileToLoad)
     }
 
     bool sameVersion = false;
+	bool pluginAPI = false;
     String versionString;
-
+	
     forEachXmlChildElement(*xml, element)
     {
         if (element->hasTagName("INFO"))
@@ -1455,6 +1459,13 @@ const String EditorViewport::loadState(File fileToLoad)
                     if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
                         sameVersion = true;
                 }
+				else if (element2->hasTagName("PLUGIN_API_VERSION"))
+				{
+					//API version should be the same between the same binary release and, in any case, do not necessarily
+					//change processor configurations. We simply check if the save file has been written from a plugin
+					//capable build, as the save format itself is different.
+					pluginAPI = true;
+				}
             }
             break;
         }
@@ -1484,6 +1495,14 @@ const String EditorViewport::loadState(File fileToLoad)
             return "Failed To Open " + fileToLoad.getFileName();
 
     }
+	if (!pluginAPI)
+	{
+		String responseString = "Your configuration file was saved from a non-plugin version of the GUI.\n";
+		responseString += "Save files from non-plugin versions are incompatible with the current load system.\n";
+		responseString += "The chain file will not load.";
+		AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Non-plugin save file", responseString);
+		return "Failed To Open " + fileToLoad.getFileName();
+	}
     clearSignalChain();
 
     String description;// = " ";
