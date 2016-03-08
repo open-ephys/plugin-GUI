@@ -62,7 +62,8 @@ SpikeDetector::SpikeDetector()
         electrodeCounter.add(0);
     }
 
-    spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
+    //spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
+	spikeBuffer.malloc(MAX_SPIKE_BUFFER_LEN);
 
 }
 
@@ -235,9 +236,9 @@ int SpikeDetector::getChannel(int index, int i)
     return *(electrodes[index]->channels+i);
 }
 
-Array<SimpleElectrode*> SpikeDetector::getElectrodes()
+void SpikeDetector::getElectrodes(Array<SimpleElectrode*>& electrodeArray)
 {
-    return electrodes;
+	electrodeArray.addArray(electrodes);
 }
 
 SimpleElectrode* SpikeDetector::setCurrentElectrodeIndex(int i)

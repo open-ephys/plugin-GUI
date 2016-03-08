@@ -88,15 +88,18 @@ private:
     /** Holds data that has been converted from float to int16 before
         saving.
     */
-    int16* continuousDataIntegerBuffer;
+	HeapBlock<int16> continuousDataIntegerBuffer;
+    //int16* continuousDataIntegerBuffer;
 
     /** Holds data that has been converted from float to int16 before
         saving.
     */
-    float* continuousDataFloatBuffer;
+	HeapBlock<float> continuousDataFloatBuffer;
+    //float* continuousDataFloatBuffer;
 
     /** Used to indicate the end of each record */
-    char* recordMarker;
+	HeapBlock<char> recordMarker;
+    //char* recordMarker;
 
     AudioSampleBuffer zeroBuffer;
 

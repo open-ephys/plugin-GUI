@@ -332,7 +332,8 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-        Array<SimpleElectrode*> electrodes = processor->getElectrodes();
+		Array<SimpleElectrode*> electrodes;
+		processor->getElectrodes(electrodes);
 
         for (int i = 0; i < electrodes.size(); i++)
         {

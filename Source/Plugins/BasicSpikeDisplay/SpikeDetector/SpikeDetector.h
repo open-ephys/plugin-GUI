@@ -136,7 +136,7 @@ public:
     StringArray getElectrodeNames();
 
     /** Returns array of electrodes. */
-    Array<SimpleElectrode*> getElectrodes();
+	void getElectrodes(Array<SimpleElectrode*>& electrodeArray);
 
     /** Returns array of electrodes. */
     SimpleElectrode* getActiveElectrode();
@@ -176,10 +176,11 @@ private:
     int currentChannelIndex;
     int currentIndex;
 
-    uint8_t* spikeBuffer;///[256];
+   // uint8_t* spikeBuffer;///[256];
+	HeapBlock<uint8_t> spikeBuffer;
     int64 timestamp;
 
-    Array<SimpleElectrode*> electrodes;
+    OwnedArray<SimpleElectrode> electrodes;
     int uniqueID;
 
     // void createSpikeEvent(int& peakIndex,

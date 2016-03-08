@@ -29,10 +29,14 @@ OriginalRecording::OriginalRecording() : separateFiles(false),
     recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000),
     eventFile(nullptr), messageFile(nullptr), lastProcId(0)
 {
-    continuousDataIntegerBuffer = new int16[10000];
+    /*continuousDataIntegerBuffer = new int16[10000];
     continuousDataFloatBuffer = new float[10000];
 
-    recordMarker = new char[10];
+    recordMarker = new char[10];*/
+	continuousDataIntegerBuffer.malloc(10000);
+	continuousDataFloatBuffer.malloc(10000);
+	recordMarker.malloc(10);
+
     for (int i = 0; i < 9; i++)
     {
         recordMarker[i] = i;
@@ -53,9 +57,9 @@ OriginalRecording::~OriginalRecording()
     {
         if (spikeFileArray[i] != nullptr) fclose(spikeFileArray[i]);
     }
-    delete continuousDataFloatBuffer;
+ /*   delete continuousDataFloatBuffer;
     delete continuousDataIntegerBuffer;
-    delete recordMarker;
+    delete recordMarker;*/
 }
 
 String OriginalRecording::getEngineID()
