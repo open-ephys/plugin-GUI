@@ -251,6 +251,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(drawMethodButton);
     
     // two sliders for the two histogram components of the supersampled plotting mode
+    // todo: rename these
     histogramSlider = new Slider;
     histogramSlider->setRange (0, 1);
     histogramSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
@@ -262,6 +263,17 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     supersampleSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
     supersampleSlider->addListener(this);
     addAndMakeVisible (supersampleSlider);
+    
+    sliderALabel = new Label("Brightness","Brightness");
+    sliderALabel->setFont(Font("Small Text", 13, Font::plain));
+    sliderALabel->setColour(Label::textColourId,Colour(150,150,150));
+    addAndMakeVisible(sliderALabel);
+    
+    sliderBLabel = new Label("Min. brightness","Min. brightness");
+    sliderBLabel->setFont(Font("Small Text", 13, Font::plain));
+    sliderBLabel->setColour(Label::textColourId,Colour(150,150,150));
+    addAndMakeVisible(sliderBLabel);
+    
     
     //ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
     drawClipWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
@@ -369,16 +381,16 @@ void LfpDisplayCanvas::resized()
     rangeSelection->setBounds(5,getHeight()-30,80,25);
     timebaseSelection->setBounds(175,getHeight()-30,60,25);
     
-    spreadSelection->setBounds(260,getHeight()-30,60,25);
-    overlapSelection->setBounds(340,getHeight()-30,60,25);
+    spreadSelection->setBounds(245,getHeight()-30,60,25);
+    overlapSelection->setBounds(315,getHeight()-30,60,25);
     
     colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
 
     invertInputButton->setBounds(750,getHeight()-50,100,22);
     drawMethodButton->setBounds(750,getHeight()-25,100,22);
-    pauseButton->setBounds(880,getHeight()-50,50,44);
+    pauseButton->setBounds(860,getHeight()-50,50,44);
 
-    drawClipWarningButton->setBounds(410,getHeight()-30,20,20);
+    drawClipWarningButton->setBounds(410-27,getHeight()-30,20,20);
     
     for (int i = 0; i < 8; i++)
     {
@@ -386,8 +398,12 @@ void LfpDisplayCanvas::resized()
         eventDisplayInterfaces[i]->repaint();
     }
     
-    histogramSlider->setBounds(1000,getHeight()-50,100,22);
-    supersampleSlider->setBounds(1000,getHeight()-25,100,22);
+    histogramSlider->setBounds(920,getHeight()-50,100,22);
+    sliderALabel->setBounds(1020, getHeight()-50, 180, 22);
+    
+    supersampleSlider->setBounds(920,getHeight()-25,100,22);
+    sliderBLabel->setBounds(1020, getHeight()-25, 180, 22);
+
     
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
@@ -1076,10 +1092,10 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.setColour(Colour(100,100,100));
 
     g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Timebase(s)",155,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Size(px)",260,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Clip",350,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Warn",410,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Timebase(s)",140,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Size(px)",240,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Clip",315,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Warn",375,getHeight()-55,300,20,Justification::left, false);
     
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
@@ -1091,7 +1107,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     if(drawClipWarning)
     {
         g.setColour(Colours::white);
-        g.fillRoundedRectangle(408,getHeight()-30-2,24,24,6.0f);
+        g.fillRoundedRectangle(408-27,getHeight()-30-2,24,24,6.0f);
     }
 
 }

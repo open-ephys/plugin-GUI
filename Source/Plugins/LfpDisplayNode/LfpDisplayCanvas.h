@@ -179,6 +179,9 @@ private:
     
     ScopedPointer<Slider> histogramSlider;
     ScopedPointer<Slider> supersampleSlider;
+    
+    ScopedPointer<Label> sliderALabel;
+    ScopedPointer<Label> sliderBLabel;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
