@@ -42,74 +42,66 @@
 */
 
 class FileReader : public GenericProcessor
-
 {
 public:
-
     FileReader();
     ~FileReader();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void setParameter (int parameterIndex, float newValue);
 
     AudioProcessorEditor* createEditor();
 
-    bool hasEditor() const
-    {
-        return true;
-    }
+    // We should make all these override methods as constant
+    // so we also need to refactor GenericProcessor and appropriate plugins
+    bool hasEditor()                const       override { return true; }
+    bool isSource()                 /* const */ override { return true; }
+    bool generatesTimestamps()      /* const */ override { return true; }
+    bool isReady()                  /* const */ override;
 
-    void updateSettings();
+    int getNumHeadstageOutputs()        /* const */ override;
+    int getNumEventChannels()           /* const */ override;
+    float getDefaultSampleRate()        /* const */ override;
+    float getBitVolts (Channel* chan)   /* const */ override;
 
-    bool isReady();
+    void updateSettings()       override;
+    void enabledState (bool t)  override;
 
-    bool isSource()
-    {
-        return true;
-    }
+    String getFile() const;
+    bool setFile (String fullpath);
 
-	bool generatesTimestamps()
-	{
-		return true;
-	}
+    bool isFileSupported          (const String& filename) const;
+    bool isFileExtensionSupported (const String& ext) const;
 
-    void enabledState(bool t);
-
-    float getDefaultSampleRate();
-    int getNumHeadstageOutputs();
-    int getNumEventChannels();
-    float getBitVolts(Channel* chan);
-
-    bool setFile(String fullpath);
-    String getFile();
 
 private:
+    void setActiveRecording (int index);
+
+    unsigned int samplesToMilliseconds (int64 samples)  const;
+    int64 millisecondsToSamples (unsigned int ms)       const;
+
 
     int64 timestamp;
 
     float currentSampleRate;
     int currentNumChannels;
+    int64 currentSample;
     int64 currentNumSamples;
     int64 startSample;
     int64 stopSample;
     Array<RecordedChannelInfo> channelInfo;
 
-    int64 currentSample;
-
-    int counter; // for testing purposes only
+    // for testing purposes only
+    int counter;
 
     ScopedPointer<FileSource> input;
 
     HeapBlock<int16> readBuffer;
 
-	HashMap<String, int> supportedExtensions;
+    HashMap<String, int> supportedExtensions;
 
-    void setActiveRecording(int index);
-    unsigned int samplesToMilliseconds(int64 samples);
-    int64 millisecondsToSamples(unsigned int ms);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
-
 };
 
 
