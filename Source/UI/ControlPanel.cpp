@@ -641,7 +641,7 @@ void ControlPanel::resized()
             break;
     }
 
-    Rectangle<int> meterBounds (meterComponentsMargin, meterComponentsY, meterComponentsWidth, meterComponentsHeight);
+    juce::Rectangle<int> meterBounds (meterComponentsMargin, meterComponentsY, meterComponentsWidth, meterComponentsHeight);
     cpuMeter->setBounds  (meterBounds);
     diskMeter->setBounds (meterBounds.translated (meterComponentsWidth + meterComponentsMargin, 0));
     // ====================================================================
