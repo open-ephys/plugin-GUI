@@ -140,25 +140,31 @@ private:
 	EditorButton* paramsButton;
 	EditorButton* allButton;
 	EditorButton* noneButton;
-	EditorButton* selectButtonParam;
-	EditorButton* deselectButtonParam;
-	EditorButton* selectButtonRecord;
-	EditorButton* deselectButtonRecord;
-	EditorButton* selectButtonAudio;
-	EditorButton* deselectButtonAudio;
+	EditorButton* selectButtonParam;   //Select Channels in parameter tab
+	EditorButton* deselectButtonParam; //Deselect Channels in parameter tab
+	EditorButton* selectButtonRecord;  //Select Channels in record tab
+	EditorButton* deselectButtonRecord;//Deselect Channels in record tab
+	EditorButton* selectButtonAudio;   //Select Channels in audio tab
+	EditorButton* deselectButtonAudio; //Deselect Channels in audio tab
 
 	/** An array of ChannelSelectorButtons used to select the channels that
-	will be updated when a parameter is changed. */
+	will be updated when a parameter is changed. 
+	paramBox: TextBox where user input is taken for param tab.
+	*/
 	Array<ChannelSelectorButton*> parameterButtons;
 	ChannelSelectorBox* paramBox;
 	
 	/** An array of ChannelSelectorButtons used to select the channels that
-	are sent to the audio monitor. */
+	are sent to the audio monitor. 
+	audioBox: TextBox where user input is taken for audio tab
+	*/
 	Array<ChannelSelectorButton*> audioButtons;
 	ChannelSelectorBox* audioBox;
 
 	/** An array of ChannelSelectorButtons used to select the channels that
-	will be written to disk when the record button is pressed. */
+	will be written to disk when the record button is pressed. 
+	recordBox: TextBox where user input is taken for record tab
+	*/
 	Array<ChannelSelectorButton*> recordButtons;
 	ChannelSelectorBox* recordBox;
 
@@ -297,12 +303,15 @@ private:
 	bool isActive;
 };
 
+/*
+  A textbox within the channelSelector to select multiple channels at a time.
+*/
 class ChannelSelectorBox :public TextEditor{
 public:
 	ChannelSelectorBox();
 	~ChannelSelectorBox();
-	std::vector<int> getBoxInfo(int len);
-	int convertToInteger(std::string s);
+	std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
+	int convertToInteger(std::string s);   // Conversion of string to integer.
 };
 
 #endif  // __CHANNELSELECTOR_H_68124E35__

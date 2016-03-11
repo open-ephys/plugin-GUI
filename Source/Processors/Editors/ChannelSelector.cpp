@@ -246,15 +246,25 @@ void ChannelSelector::refreshButtonBoundaries()
 
 	int w = getWidth() / 3;
 	int h = 15;
-
+	
+	
+	/*
+	   definition of textbox
+	*/
 	paramBox->setBounds(px, py+20, 90, 20); addAndMakeVisible(paramBox);
 	recordBox->setBounds(rx, ry+20, 90, 20); addAndMakeVisible(recordBox);
 	audioBox->setBounds(ax, ay+20, 90, 20); addAndMakeVisible(audioBox);
 
+	/*
+	  audio,record and param tabs
+	*/
 	audioButton->setBounds(0, 0, w, h);
 	recordButton->setBounds(w, 0, w, h);
 	paramsButton->setBounds(w * 2, 0, w, h);
 
+	/*
+	  select and deselect button under each tab
+	*/
 	selectButtonParam->setBounds(px + 95, py + 20, 20, 20);
 	deselectButtonParam->setBounds(px + 117, py + 20, 20, 20);
 
@@ -660,7 +670,7 @@ void ChannelSelector::buttonClicked(Button* button)
 			editor->channelChanged(-1);
 		}
 	}
-	else if (button == selectButtonParam){
+	else if (button == selectButtonParam){  // select channels in parameter tab
 		selectButtonParam->removeListener(this);
 		deselectButtonParam->removeListener(this);
 		std::vector<int> getBoxList;
@@ -681,7 +691,7 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonParam->addListener(this);
 		deselectButtonParam->addListener(this);
 	}
-	else if (button == selectButtonRecord){
+	else if (button == selectButtonRecord){  // select channels in record tab
 		selectButtonRecord->removeListener(this);
 		deselectButtonRecord->removeListener(this);
 		std::vector<int> getBoxList;
@@ -702,7 +712,7 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonRecord->addListener(this);
 		deselectButtonRecord->addListener(this);
 	}
-	else if (button == selectButtonAudio){
+	else if (button == selectButtonAudio){ // select channels in audio tab
 		selectButtonAudio->removeListener(this);
 		deselectButtonAudio->removeListener(this);
 		std::vector<int> getBoxList;
@@ -723,7 +733,7 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonAudio->addListener(this);
 		deselectButtonAudio->addListener(this);
 	}
-	else if (button == deselectButtonParam){
+	else if (button == deselectButtonParam){  // deselect channels in param tab
 		selectButtonParam->removeListener(this);
 		deselectButtonParam->removeListener(this);
 		std::vector<int> getBoxList;
@@ -744,7 +754,7 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonParam->addListener(this);
 		deselectButtonParam->addListener(this);
 	}
-	else if (button == deselectButtonRecord){
+	else if (button == deselectButtonRecord){  // deselect channels in record tab
 		selectButtonRecord->removeListener(this);
 		deselectButtonRecord->removeListener(this);
 		std::vector<int> getBoxList;
@@ -765,7 +775,7 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonRecord->addListener(this);
 		deselectButtonRecord->addListener(this);
 	}
-	else if (button == deselectButtonAudio){
+	else if (button == deselectButtonAudio){    // deselect channels in audio tab
 		selectButtonAudio->removeListener(this);
 		deselectButtonAudio->removeListener(this);
 		std::vector<int> getBoxList;
@@ -1151,14 +1161,21 @@ void ChannelSelectorRegion::paint(Graphics& g)
 	// g.fillAll(Colours::white);
 }
 
+
+/*
+  Constructor and Destructor of ChannelSelectorBox.
+*/
 ChannelSelectorBox::ChannelSelectorBox(){
-	setMultiLine(false, true);
-	setReturnKeyStartsNewLine(false);
+	setMultiLine(false, true);                   // No multi lines.
+	setReturnKeyStartsNewLine(false);            // Return key donot start a new line.
 	setTabKeyUsedAsCharacter(false);
 }
 
 ChannelSelectorBox::~ChannelSelectorBox(){}
 
+/*
+  convert a string to integer.
+*/
 int ChannelSelectorBox::convertToInteger(std::string s){
 	if (s.size() > 9){
 		return INT_MAX;
@@ -1174,6 +1191,13 @@ int ChannelSelectorBox::convertToInteger(std::string s){
 	return j;
 }
 
+
+/*
+   TextBox to take input. Valid formats:
+   1. [ : ]  -> select/deselect all channels
+   2. [ a : b]  -> select/deselect all channels from a to b.
+   3. [ a : c : b] -> select/deselect all channels from a to b such that the difference between in each consecutive selected channel is c.
+*/
 std::vector<int> ChannelSelectorBox::getBoxInfo(int len){
 	std::string s = getText().toStdString();
 	std::vector<std::string> parsed;
