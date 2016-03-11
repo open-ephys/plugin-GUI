@@ -26,7 +26,7 @@
 #endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainWindow.h"
-#include "UI/CustomLookAndFeel.h"
+#include "UI/LookAndFeel/CustomLookAndFeel.h"
 
 #include <stdio.h>
 #include <fstream>
