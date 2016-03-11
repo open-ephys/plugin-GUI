@@ -117,13 +117,14 @@ OBJECTS := \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
+  $(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o \
+  $(OBJDIR)/CustomLookAndFeel_fcb2406a.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
   $(OBJDIR)/SignalChainManager_d2b643f0.o \
   $(OBJDIR)/EditorViewport_1d991caf.o \
   $(OBJDIR)/ProcessorList_1ad3f3de.o \
-  $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
@@ -493,6 +494,16 @@ $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/Matla
 	@echo "Compiling MatlabLikePlot.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o: ../../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MaterialSliderLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/CustomLookAndFeel_fcb2406a.o: ../../Source/UI/LookAndFeel/CustomLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling CustomLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling CustomArrowButton.cpp"
@@ -521,11 +532,6 @@ $(OBJDIR)/EditorViewport_1d991caf.o: ../../Source/UI/EditorViewport.cpp
 $(OBJDIR)/ProcessorList_1ad3f3de.o: ../../Source/UI/ProcessorList.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorList.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/CustomLookAndFeel_53a8fcdb.o: ../../Source/UI/CustomLookAndFeel.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling CustomLookAndFeel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/InfoLabel_a2051bf4.o: ../../Source/UI/InfoLabel.cpp
