@@ -1210,12 +1210,15 @@ ChannelSelectorBox::~ChannelSelectorBox()
 */
 int ChannelSelectorBox::convertToInteger(std::string s)
 {
-	if (s.size() > 9){
+	if (s.size() > 9)
+	{
 		return INT_MAX;
 	}
 	char ar[20]; int i,j=0;
-	for (i = 0; i < s.size(); i++){
-		if (s[i] >= 48 && s[i] <= 57){
+	for (i = 0; i < s.size(); i++)
+	{
+		if (s[i] >= 48 && s[i] <= 57)
+		{
 			ar[j] = s[i]; j++;
 		}
 	}
