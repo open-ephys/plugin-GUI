@@ -31,476 +31,482 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../UI/GraphViewer.h"
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
-eventsOnly(false), paramsToggled(true), paramsActive(true),
-recActive(true), radioStatus(false), isNotSink(createButtons),
-moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
+    eventsOnly(false), paramsToggled(true), paramsActive(true),
+    recActive(true), radioStatus(false), isNotSink(createButtons),
+    moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
 
-	// initialize buttons
-	audioButton = new EditorButton("AUDIO", titleFont);
-	audioButton->addListener(this);
-	addAndMakeVisible(audioButton);
-	if (!createButtons)
-		audioButton->setState(false);
+    // initialize buttons
+    audioButton = new EditorButton("AUDIO", titleFont);
+    audioButton->addListener(this);
+    addAndMakeVisible(audioButton);
+    if (!createButtons)
+        audioButton->setState(false);
 
-	recordButton = new EditorButton("REC", titleFont);
-	recordButton->addListener(this);
-	addAndMakeVisible(recordButton);
-	if (!createButtons)
-		recordButton->setState(false);
+    recordButton = new EditorButton("REC", titleFont);
+    recordButton->addListener(this);
+    addAndMakeVisible(recordButton);
+    if (!createButtons)
+        recordButton->setState(false);
 
-	paramsButton = new EditorButton("PARAM", titleFont);
-	paramsButton->addListener(this);
-	addAndMakeVisible(paramsButton);
+    paramsButton = new EditorButton("PARAM", titleFont);
+    paramsButton->addListener(this);
+    addAndMakeVisible(paramsButton);
 
-	paramsButton->setToggleState(true, dontSendNotification);
+    paramsButton->setToggleState(true, dontSendNotification);
 
-	audioButtons.clear();
-	recordButtons.clear();
+    audioButtons.clear();
+    recordButtons.clear();
 
-	// set button layout parameters
-	parameterOffset = 0;
-	recordOffset = getDesiredWidth();
-	audioOffset = getDesiredWidth() * 2;
+    // set button layout parameters
+    parameterOffset = 0;
+    recordOffset = getDesiredWidth();
+    audioOffset = getDesiredWidth() * 2;
 
-	parameterButtons.clear();
+    parameterButtons.clear();
 
-	allButton = new EditorButton("all", titleFont);
-	allButton->addListener(this);
-	addAndMakeVisible(allButton);
+    allButton = new EditorButton("all", titleFont);
+    allButton->addListener(this);
+    addAndMakeVisible(allButton);
 
-	noneButton = new EditorButton("none", titleFont);
-	noneButton->addListener(this);
-	addAndMakeVisible(noneButton);
+    noneButton = new EditorButton("none", titleFont);
+    noneButton->addListener(this);
+    addAndMakeVisible(noneButton);
 
-	selectButtonParam = new EditorButton("+", titleFont);
-	selectButtonParam->addListener(this);
-	addAndMakeVisible(selectButtonParam);
+    selectButtonParam = new EditorButton("+", titleFont);
+    selectButtonParam->addListener(this);
+    addAndMakeVisible(selectButtonParam);
 
-	deselectButtonParam = new EditorButton("-", titleFont);
-	deselectButtonParam->addListener(this);
-	addAndMakeVisible(deselectButtonParam);
+    deselectButtonParam = new EditorButton("-", titleFont);
+    deselectButtonParam->addListener(this);
+    addAndMakeVisible(deselectButtonParam);
 
-	selectButtonRecord = new EditorButton("+", titleFont);
-	selectButtonRecord->addListener(this);
-	addAndMakeVisible(selectButtonRecord);
+    selectButtonRecord = new EditorButton("+", titleFont);
+    selectButtonRecord->addListener(this);
+    addAndMakeVisible(selectButtonRecord);
 
-	deselectButtonRecord = new EditorButton("-", titleFont);
-	deselectButtonRecord->addListener(this);
-	addAndMakeVisible(deselectButtonRecord);
+    deselectButtonRecord = new EditorButton("-", titleFont);
+    deselectButtonRecord->addListener(this);
+    addAndMakeVisible(deselectButtonRecord);
 
-	selectButtonAudio = new EditorButton("+", titleFont);
-	selectButtonAudio->addListener(this);
-	addAndMakeVisible(selectButtonAudio);
+    selectButtonAudio = new EditorButton("+", titleFont);
+    selectButtonAudio->addListener(this);
+    addAndMakeVisible(selectButtonAudio);
 
-	deselectButtonAudio = new EditorButton("-", titleFont);
-	deselectButtonAudio->addListener(this);
-	addAndMakeVisible(deselectButtonAudio);
+    deselectButtonAudio = new EditorButton("-", titleFont);
+    deselectButtonAudio->addListener(this);
+    addAndMakeVisible(deselectButtonAudio);
 
-	channelSelectorRegion = new ChannelSelectorRegion(this);
-	//channelSelectorRegion->setBounds(0,20,0,getHeight()-35);
-	addAndMakeVisible(channelSelectorRegion);
-	channelSelectorRegion->toBack();
+    channelSelectorRegion = new ChannelSelectorRegion(this);
+    //channelSelectorRegion->setBounds(0,20,0,getHeight()-35);
+    addAndMakeVisible(channelSelectorRegion);
+    channelSelectorRegion->toBack();
 
-	paramBox = new ChannelSelectorBox();
-	recordBox = new ChannelSelectorBox();
-	audioBox = new ChannelSelectorBox();
+    paramBox = new ChannelSelectorBox();
+    recordBox = new ChannelSelectorBox();
+    audioBox = new ChannelSelectorBox();
 
-	numColumnsLessThan100 = 8;
-	numColumnsGreaterThan100 = 6;
+    numColumnsLessThan100 = 8;
+    numColumnsGreaterThan100 = 6;
 
 }
 
 ChannelSelector::~ChannelSelector()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 
 }
 
 void ChannelSelector::paint(Graphics& g)
 {
-	ColourGradient grad1 = ColourGradient(Colours::black.withAlpha(0.8f), 0.0, 0.0,
-		Colours::black.withAlpha(0.1f), 0.0, 25.0f,
-		false);
-	g.setGradientFill(grad1);
-	g.fillRect(0, 15, getWidth(), getHeight() - 30);
+    ColourGradient grad1 = ColourGradient(Colours::black.withAlpha(0.8f), 0.0, 0.0,
+                                          Colours::black.withAlpha(0.1f), 0.0, 25.0f,
+                                          false);
+    g.setGradientFill(grad1);
+    g.fillRect(0, 15, getWidth(), getHeight() - 30);
 
-	ColourGradient grad2 = ColourGradient(Colours::black.withAlpha(0.2f), 0.0, 0.0,
-		Colours::black.withAlpha(0.0f), 5.0f, 0.0f,
-		false);
-	g.setGradientFill(grad2);
-	g.fillRect(0, 15, getWidth(), getHeight() - 30);
+    ColourGradient grad2 = ColourGradient(Colours::black.withAlpha(0.2f), 0.0, 0.0,
+                                          Colours::black.withAlpha(0.0f), 5.0f, 0.0f,
+                                          false);
+    g.setGradientFill(grad2);
+    g.fillRect(0, 15, getWidth(), getHeight() - 30);
 
-	ColourGradient grad3 = ColourGradient(Colours::black.withAlpha(0.2f), (float)getDesiredWidth(), 0.0,
-		Colours::black.withAlpha(0.0f), (float)getDesiredWidth() - 5.0f, 0.0f,
-		false);
-	g.setGradientFill(grad3);
-	g.fillRect(0, 15, getWidth(), getHeight() - 30);
+    ColourGradient grad3 = ColourGradient(Colours::black.withAlpha(0.2f), (float)getDesiredWidth(), 0.0,
+                                          Colours::black.withAlpha(0.0f), (float)getDesiredWidth() - 5.0f, 0.0f,
+                                          false);
+    g.setGradientFill(grad3);
+    g.fillRect(0, 15, getWidth(), getHeight() - 30);
 }
 
 
 void ChannelSelector::setNumChannels(int numChans)
 {
 
-	int difference = numChans - parameterButtons.size();
+    int difference = numChans - parameterButtons.size();
 
-	// std::cout << difference << " buttons needed." << std::endl;
+    // std::cout << difference << " buttons needed." << std::endl;
 
-	if (difference > 0)
-	{
-		for (int n = 0; n < difference; n++)
-		{
-			addButton();
-		}
-	}
-	else if (difference < 0)
-	{
-		for (int n = 0; n < -difference; n++)
-		{
-			removeButton();
-		}
-	}
+    if (difference > 0)
+    {
+        for (int n = 0; n < difference; n++)
+        {
+            addButton();
+        }
+    }
+    else if (difference < 0)
+    {
+        for (int n = 0; n < -difference; n++)
+        {
+            removeButton();
+        }
+    }
 
-	//Reassign numbers according to the actual channels (useful for channel mapper)
-	for (int n = 0; n < parameterButtons.size(); n++)
-	{
-		int num = ((GenericEditor*)getParentComponent())->getChannel(n)->nodeIndex;
-		parameterButtons[n]->setChannel(n + 1, num + 1);
-		if (isNotSink)
-		{
-			recordButtons[n]->setChannel(n + 1, num + 1);
-			audioButtons[n]->setChannel(n + 1, num + 1);
-		}
-	}
+    //Reassign numbers according to the actual channels (useful for channel mapper)
+    for (int n = 0; n < parameterButtons.size(); n++)
+    {
+        int num = ((GenericEditor*)getParentComponent())->getChannel(n)->nodeIndex;
+        parameterButtons[n]->setChannel(n + 1, num + 1);
+        if (isNotSink)
+        {
+            recordButtons[n]->setChannel(n + 1, num + 1);
+            audioButtons[n]->setChannel(n + 1, num + 1);
+        }
+    }
 
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 
 }
 
 int ChannelSelector::getNumChannels()
 {
-	return parameterButtons.size();
+    return parameterButtons.size();
 }
 
 void ChannelSelector::shiftChannelsVertical(float amount)
 {
 
-	if (parameterButtons.size() > 16)
-	{
-		offsetUD -= amount * 10;
-		offsetUD = jmin(offsetUD, 0.0f);
-		offsetUD = jmax(offsetUD, (float)-overallHeight);
-	}
+    if (parameterButtons.size() > 16)
+    {
+        offsetUD -= amount * 10;
+        offsetUD = jmin(offsetUD, 0.0f);
+        offsetUD = jmax(offsetUD, (float)-overallHeight);
+    }
 
-	//std::cout << "offsetUD = " << offsetUD << std::endl;
+    //std::cout << "offsetUD = " << offsetUD << std::endl;
 
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 
 }
 
 void ChannelSelector::refreshButtonBoundaries()
 {
 
-	channelSelectorRegion->setBounds(0, 20, getWidth(), getHeight() - 35);
+    channelSelectorRegion->setBounds(0, 20, getWidth(), getHeight() - 35);
 
-	int rowHeight = 14,px,py,rx,ry,ax,ay;
-	int column = 0;
-	int row = 0;
-	int nColumns;
+    int rowHeight = 14,px,py,rx,ry,ax,ay;
+    int column = 0;
+    int row = 0;
+    int nColumns;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
 
-		if (i < 96)
-			nColumns = numColumnsLessThan100;
-		else
-			nColumns = numColumnsGreaterThan100;
+        if (i < 96)
+            nColumns = numColumnsLessThan100;
+        else
+            nColumns = numColumnsGreaterThan100;
 
-		int columnWidth = getDesiredWidth() / (nColumns + 1) + 1;
+        int columnWidth = getDesiredWidth() / (nColumns + 1) + 1;
 
-		int xLoc = columnWidth / 2 + offsetLR + columnWidth*column;
-		int yLoc = row * rowHeight + offsetUD + 25;
-		if (i == 0)
-		{
-			px = xLoc; py = yLoc - 25;
-			rx = xLoc - getDesiredWidth(); ry = yLoc - 25;
-			ax = xLoc - getDesiredWidth() * 2; ay = yLoc - 25;
-		}
-		parameterButtons[i]->setBounds(xLoc, yLoc, columnWidth, rowHeight);
+        int xLoc = columnWidth / 2 + offsetLR + columnWidth*column;
+        int yLoc = row * rowHeight + offsetUD + 25;
+        if (i == 0)
+        {
+            px = xLoc;
+            py = yLoc - 25;
+            rx = xLoc - getDesiredWidth();
+            ry = yLoc - 25;
+            ax = xLoc - getDesiredWidth() * 2;
+            ay = yLoc - 25;
+        }
+        parameterButtons[i]->setBounds(xLoc, yLoc, columnWidth, rowHeight);
 
-		if (isNotSink)
-		{
-			recordButtons[i]->setBounds(xLoc - getDesiredWidth(), yLoc, columnWidth, rowHeight);
-			audioButtons[i]->setBounds(xLoc - getDesiredWidth() * 2, yLoc, columnWidth, rowHeight);
-		}
+        if (isNotSink)
+        {
+            recordButtons[i]->setBounds(xLoc - getDesiredWidth(), yLoc, columnWidth, rowHeight);
+            audioButtons[i]->setBounds(xLoc - getDesiredWidth() * 2, yLoc, columnWidth, rowHeight);
+        }
 
-		column++;
+        column++;
 
-		if (column >= nColumns)
-		{
-			column = 0;
-			row++;
-			overallHeight = row * rowHeight;
-		}
+        if (column >= nColumns)
+        {
+            column = 0;
+            row++;
+            overallHeight = row * rowHeight;
+        }
 
-	}
+    }
 
-	int w = getWidth() / 3;
-	int h = 15;
-	
-	
-	/*
-	   definition of textbox
-	*/
-	paramBox->setBounds(px, py+20, 90, 20); addAndMakeVisible(paramBox);
-	recordBox->setBounds(rx, ry+20, 90, 20); addAndMakeVisible(recordBox);
-	audioBox->setBounds(ax, ay+20, 90, 20); addAndMakeVisible(audioBox);
+    int w = getWidth() / 3;
+    int h = 15;
 
-	/*
-	  audio,record and param tabs
-	*/
-	audioButton->setBounds(0, 0, w, h);
-	recordButton->setBounds(w, 0, w, h);
-	paramsButton->setBounds(w * 2, 0, w, h);
 
-	/*
-	  select and deselect button under each tab
-	*/
-	selectButtonParam->setBounds(px + 95, py + 20, 20, 20);
-	deselectButtonParam->setBounds(px + 117, py + 20, 20, 20);
+    /*
+       definition of textbox
+    */
+    paramBox->setBounds(px, py+20, 90, 20);
+    addAndMakeVisible(paramBox);
+    recordBox->setBounds(rx, ry+20, 90, 20);
+    addAndMakeVisible(recordBox);
+    audioBox->setBounds(ax, ay+20, 90, 20);
+    addAndMakeVisible(audioBox);
 
-	selectButtonRecord->setBounds(rx + 95, ry + 20, 20, 20);
-	deselectButtonRecord->setBounds(rx + 117, ry + 20, 20, 20);
+    /*
+      audio,record and param tabs
+    */
+    audioButton->setBounds(0, 0, w, h);
+    recordButton->setBounds(w, 0, w, h);
+    paramsButton->setBounds(w * 2, 0, w, h);
 
-	selectButtonAudio->setBounds(ax + 95, ay + 20, 20, 20);
-	deselectButtonAudio->setBounds(ax + 117, ay + 20, 20, 20);
-	/*
-	  All and None buttons
-	*/
-	allButton->setBounds(0, getHeight() - 15, getWidth() / 2, 15);
-	noneButton->setBounds(getWidth() / 2, getHeight() - 15, getWidth() / 2, 15);
+    /*
+      select and deselect button under each tab
+    */
+    selectButtonParam->setBounds(px + 95, py + 20, 20, 20);
+    deselectButtonParam->setBounds(px + 117, py + 20, 20, 20);
+
+    selectButtonRecord->setBounds(rx + 95, ry + 20, 20, 20);
+    deselectButtonRecord->setBounds(rx + 117, ry + 20, 20, 20);
+
+    selectButtonAudio->setBounds(ax + 95, ay + 20, 20, 20);
+    deselectButtonAudio->setBounds(ax + 117, ay + 20, 20, 20);
+    /*
+      All and None buttons
+    */
+    allButton->setBounds(0, getHeight() - 15, getWidth() / 2, 15);
+    noneButton->setBounds(getWidth() / 2, getHeight() - 15, getWidth() / 2, 15);
 
 }
 
 void ChannelSelector::resized()
 {
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 }
 
 void ChannelSelector::timerCallback()
 {
 
-	//std::cout << desiredOffset - offsetLR << std::endl;
+    //std::cout << desiredOffset - offsetLR << std::endl;
 
-	if (offsetLR != desiredOffset)
-	{
-		if (desiredOffset - offsetLR > 0)
-		{
-			offsetLR += 25; // be careful what you set this value to!
-			// if it's not a multiple of the desired
-			// width, things could go badly!
-		}
-		else
-		{
-			offsetLR -= 25;
-		}
+    if (offsetLR != desiredOffset)
+    {
+        if (desiredOffset - offsetLR > 0)
+        {
+            offsetLR += 25; // be careful what you set this value to!
+            // if it's not a multiple of the desired
+            // width, things could go badly!
+        }
+        else
+        {
+            offsetLR -= 25;
+        }
 
-	}
-	else
-	{
-		stopTimer();
-	}
+    }
+    else
+    {
+        stopTimer();
+    }
 
-	refreshButtonBoundaries();
+    refreshButtonBoundaries();
 
 }
 
 void ChannelSelector::addButton()
 {
 
-	int size = parameterButtons.size();
+    int size = parameterButtons.size();
 
-	ChannelSelectorButton* b = new ChannelSelectorButton(size + 1, PARAMETER, titleFont);
-	parameterButtons.add(b);
-	channelSelectorRegion->addAndMakeVisible(b);
+    ChannelSelectorButton* b = new ChannelSelectorButton(size + 1, PARAMETER, titleFont);
+    parameterButtons.add(b);
+    channelSelectorRegion->addAndMakeVisible(b);
 
-	if (paramsToggled)
-		b->setToggleState(true, dontSendNotification);
-	else
-		b->setToggleState(false, dontSendNotification);
+    if (paramsToggled)
+        b->setToggleState(true, dontSendNotification);
+    else
+        b->setToggleState(false, dontSendNotification);
 
-	if (!paramsActive)
-		b->setActive(false);
+    if (!paramsActive)
+        b->setActive(false);
 
-	b->addListener(this);
+    b->addListener(this);
 
-	if (isNotSink)
-	{
-		ChannelSelectorButton* br = new ChannelSelectorButton(size + 1, RECORD, titleFont);
-		recordButtons.add(br);
-		channelSelectorRegion->addAndMakeVisible(br);
-		br->addListener(this);
+    if (isNotSink)
+    {
+        ChannelSelectorButton* br = new ChannelSelectorButton(size + 1, RECORD, titleFont);
+        recordButtons.add(br);
+        channelSelectorRegion->addAndMakeVisible(br);
+        br->addListener(this);
 
-		ChannelSelectorButton* ba = new ChannelSelectorButton(size + 1, AUDIO, titleFont);
-		audioButtons.add(ba);
-		channelSelectorRegion->addAndMakeVisible(ba);
-		ba->addListener(this);
-	}
+        ChannelSelectorButton* ba = new ChannelSelectorButton(size + 1, AUDIO, titleFont);
+        audioButtons.add(ba);
+        channelSelectorRegion->addAndMakeVisible(ba);
+        ba->addListener(this);
+    }
 }
 
 void ChannelSelector::removeButton()
 {
-	int size = parameterButtons.size();
+    int size = parameterButtons.size();
 
-	ChannelSelectorButton* b = parameterButtons.remove(size - 1);
-	channelSelectorRegion->removeChildComponent(b);
-	deleteAndZero(b);
+    ChannelSelectorButton* b = parameterButtons.remove(size - 1);
+    channelSelectorRegion->removeChildComponent(b);
+    deleteAndZero(b);
 
-	if (isNotSink)
-	{
-		ChannelSelectorButton* br = recordButtons.remove(size - 1);
-		channelSelectorRegion->removeChildComponent(br);
-		deleteAndZero(br);
+    if (isNotSink)
+    {
+        ChannelSelectorButton* br = recordButtons.remove(size - 1);
+        channelSelectorRegion->removeChildComponent(br);
+        deleteAndZero(br);
 
-		ChannelSelectorButton* ba = audioButtons.remove(size - 1);
-		channelSelectorRegion->removeChildComponent(ba);
-		deleteAndZero(ba);
-	}
+        ChannelSelectorButton* ba = audioButtons.remove(size - 1);
+        channelSelectorRegion->removeChildComponent(ba);
+        deleteAndZero(ba);
+    }
 }
 
 Array<int> ChannelSelector::getActiveChannels()
 {
-	Array<int> a;
+    Array<int> a;
 
-	if (!eventsOnly)
-	{
-		for (int i = 0; i < parameterButtons.size(); i++)
-		{
-			if (parameterButtons[i]->getToggleState())
-				a.add(i);
-		}
-	}
-	else
-	{
-		a.add(0);
-	}
+    if (!eventsOnly)
+    {
+        for (int i = 0; i < parameterButtons.size(); i++)
+        {
+            if (parameterButtons[i]->getToggleState())
+                a.add(i);
+        }
+    }
+    else
+    {
+        a.add(0);
+    }
 
-	return a;
+    return a;
 }
 
 void ChannelSelector::setActiveChannels(Array<int> a)
 {
 
-	//std::cout << "Setting active channels!" << std::endl;
+    //std::cout << "Setting active channels!" << std::endl;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setToggleState(false, dontSendNotification);
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setToggleState(false, dontSendNotification);
+    }
 
-	for (int i = 0; i < a.size(); i++)
-	{
-		if (a[i] < parameterButtons.size())
-		{
-			parameterButtons[a[i]]->setToggleState(true, dontSendNotification);
-		}
-	}
+    for (int i = 0; i < a.size(); i++)
+    {
+        if (a[i] < parameterButtons.size())
+        {
+            parameterButtons[a[i]]->setToggleState(true, dontSendNotification);
+        }
+    }
 }
 
 void ChannelSelector::inactivateButtons()
 {
 
-	paramsActive = false;
+    paramsActive = false;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setActive(false);
-		parameterButtons[i]->repaint();
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setActive(false);
+        parameterButtons[i]->repaint();
+    }
 }
 
 void ChannelSelector::activateButtons()
 {
 
-	paramsActive = true;
+    paramsActive = true;
 
-	for (int i = 0; i < parameterButtons.size(); i++)
-	{
-		parameterButtons[i]->setActive(true);
-		parameterButtons[i]->repaint();
-	}
+    for (int i = 0; i < parameterButtons.size(); i++)
+    {
+        parameterButtons[i]->setActive(true);
+        parameterButtons[i]->repaint();
+    }
 
 }
 
 void ChannelSelector::inactivateRecButtons()
 {
 
-	recActive = false;
+    recActive = false;
 
-	for (int i = 0; i < recordButtons.size(); i++)
-	{
-		recordButtons[i]->setActive(false);
-		recordButtons[i]->repaint();
-	}
+    for (int i = 0; i < recordButtons.size(); i++)
+    {
+        recordButtons[i]->setActive(false);
+        recordButtons[i]->repaint();
+    }
 }
 
 void ChannelSelector::activateRecButtons()
 {
 
-	recActive = true;
+    recActive = true;
 
-	for (int i = 0; i < recordButtons.size(); i++)
-	{
-		recordButtons[i]->setActive(true);
-		recordButtons[i]->repaint();
-	}
+    for (int i = 0; i < recordButtons.size(); i++)
+    {
+        recordButtons[i]->setActive(true);
+        recordButtons[i]->repaint();
+    }
 
 }
 
 void ChannelSelector::refreshParameterColors()
 {
-	GenericEditor* p = dynamic_cast<GenericEditor*>(getParentComponent());
-	p->updateParameterButtons(-1);
+    GenericEditor* p = dynamic_cast<GenericEditor*>(getParentComponent());
+    p->updateParameterButtons(-1);
 }
 
 void ChannelSelector::paramButtonsToggledByDefault(bool t)
 {
-	paramsToggled = t;
+    paramsToggled = t;
 }
 
 void ChannelSelector::startAcquisition()
 {
-	acquisitionIsActive = true;
+    acquisitionIsActive = true;
 }
 
 void ChannelSelector::stopAcquisition()
 {
-	acquisitionIsActive = false;
+    acquisitionIsActive = false;
 }
 
 void ChannelSelector::setRadioStatus(bool radioOn)
 {
 
-	if (radioStatus != radioOn)
-	{
+    if (radioStatus != radioOn)
+    {
 
-		radioStatus = radioOn;
+        radioStatus = radioOn;
 
-		for (int i = 0; i < parameterButtons.size(); i++)
-		{
-			if (radioOn)
-			{
-				parameterButtons[i]->setToggleState(false, dontSendNotification);
-				parameterButtons[i]->setRadioGroupId(999);
-			}
-			else
-			{
-				parameterButtons[i]->setToggleState(false, dontSendNotification);
-				parameterButtons[i]->setRadioGroupId(0);
-			}
-		}
+        for (int i = 0; i < parameterButtons.size(); i++)
+        {
+            if (radioOn)
+            {
+                parameterButtons[i]->setToggleState(false, dontSendNotification);
+                parameterButtons[i]->setRadioGroupId(999);
+            }
+            else
+            {
+                parameterButtons[i]->setToggleState(false, dontSendNotification);
+                parameterButtons[i]->setRadioGroupId(0);
+            }
+        }
 
-	}
+    }
 
 
 
@@ -509,389 +515,407 @@ void ChannelSelector::setRadioStatus(bool radioOn)
 bool ChannelSelector::getParamStatus(int chan)
 {
 
-	if (chan >= 0 && chan < parameterButtons.size())
-		return parameterButtons[chan]->getToggleState();
-	else
-		return false;
+    if (chan >= 0 && chan < parameterButtons.size())
+        return parameterButtons[chan]->getToggleState();
+    else
+        return false;
 
 }
 
 bool ChannelSelector::getRecordStatus(int chan)
 {
 
-	if (chan >= 0 && chan < recordButtons.size())
-		return recordButtons[chan]->getToggleState();
-	else
-		return false;
+    if (chan >= 0 && chan < recordButtons.size())
+        return recordButtons[chan]->getToggleState();
+    else
+        return false;
 
 }
 
 bool ChannelSelector::getAudioStatus(int chan)
 {
 
-	if (chan >= 0 && chan < audioButtons.size())
-		return audioButtons[chan]->getToggleState();
-	else
-		return false;
+    if (chan >= 0 && chan < audioButtons.size())
+        return audioButtons[chan]->getToggleState();
+    else
+        return false;
 
 }
 
 void ChannelSelector::setParamStatus(int chan, bool b)
 {
 
-	if (chan >= 0 && chan < parameterButtons.size())
-		parameterButtons[chan]->setToggleState(b, sendNotification);
+    if (chan >= 0 && chan < parameterButtons.size())
+        parameterButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
 void ChannelSelector::setRecordStatus(int chan, bool b)
 {
 
-	if (chan >= 0 && chan < recordButtons.size())
-		recordButtons[chan]->setToggleState(b, sendNotification);
+    if (chan >= 0 && chan < recordButtons.size())
+        recordButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
 void ChannelSelector::setAudioStatus(int chan, bool b)
 {
 
-	if (chan >= 0 && chan < audioButtons.size())
-		audioButtons[chan]->setToggleState(b, sendNotification);
+    if (chan >= 0 && chan < audioButtons.size())
+        audioButtons[chan]->setToggleState(b, sendNotification);
 
 }
 
 void ChannelSelector::clearAudio()
 {
-	for (int chan = 0; chan < audioButtons.size(); chan++)
-		audioButtons[chan]->setToggleState(false, sendNotification);
+    for (int chan = 0; chan < audioButtons.size(); chan++)
+        audioButtons[chan]->setToggleState(false, sendNotification);
 }
 
 int ChannelSelector::getDesiredWidth()
 {
-	return 150;
+    return 150;
 }
 
 void ChannelSelector::buttonClicked(Button* button)
 {
-	//checkChannelSelectors();
-	if (button == paramsButton)
-	{
-		// make sure param buttons are visible
-		allButton->setState(true);
-		desiredOffset = parameterOffset;
-		startTimer(20);
-		return;
-	}
-	else if (button == audioButton)
-	{
-		// make sure audio buttons are visible
+    //checkChannelSelectors();
+    if (button == paramsButton)
+    {
+        // make sure param buttons are visible
+        allButton->setState(true);
+        desiredOffset = parameterOffset;
+        startTimer(20);
+        return;
+    }
+    else if (button == audioButton)
+    {
+        // make sure audio buttons are visible
 
-		if (audioButton->getState())
-		{
-			allButton->setState(false);
+        if (audioButton->getState())
+        {
+            allButton->setState(false);
 
-			desiredOffset = audioOffset;
-			startTimer(20);
-		}
-		else
-		{
-			paramsButton->setToggleState(true, dontSendNotification);
-		}
-		return;
-	}
-	else if (button == recordButton)
-	{
-		// make sure record buttons are visible;
-		if (recordButton->getState())
-		{
-			allButton->setState(true);
-			desiredOffset = recordOffset;
-			startTimer(20);
-		}
-		else
-		{
-			paramsButton->setToggleState(true, dontSendNotification);
-		}
-		return;
-	}
-	else if (button == allButton)
-	{
-		// select all active buttons
-		if (offsetLR == recordOffset)
-		{
-
-
-			for (int i = 0; i < recordButtons.size(); i++)
-			{
-				recordButtons[i]->setToggleState(true, sendNotification);
-			}
-
-		}
-		else if (offsetLR == parameterOffset)
-		{
+            desiredOffset = audioOffset;
+            startTimer(20);
+        }
+        else
+        {
+            paramsButton->setToggleState(true, dontSendNotification);
+        }
+        return;
+    }
+    else if (button == recordButton)
+    {
+        // make sure record buttons are visible;
+        if (recordButton->getState())
+        {
+            allButton->setState(true);
+            desiredOffset = recordOffset;
+            startTimer(20);
+        }
+        else
+        {
+            paramsButton->setToggleState(true, dontSendNotification);
+        }
+        return;
+    }
+    else if (button == allButton)
+    {
+        // select all active buttons
+        if (offsetLR == recordOffset)
+        {
 
 
-			for (int i = 0; i < parameterButtons.size(); i++)
-			{
-				parameterButtons[i]->setToggleState(true, sendNotification);
-			}
-		}
-		else if (offsetLR == audioOffset)
-		{
-			// do nothing--> button is disabled
-		}
-	}
-	else if (button == noneButton)
-	{
-		// deselect all active buttons
-		if (offsetLR == recordOffset)
-		{
-			for (int i = 0; i < recordButtons.size(); i++)
-			{
-				recordButtons[i]->setToggleState(false, sendNotification);
-			}
-		}
-		else if (offsetLR == parameterOffset)
-		{
-			for (int i = 0; i < parameterButtons.size(); i++)
-			{
-				parameterButtons[i]->setToggleState(false, sendNotification);
-			}
-		}
-		else if (offsetLR == audioOffset)
-		{
-			for (int i = 0; i < audioButtons.size(); i++)
-			{
-				audioButtons[i]->setToggleState(false, sendNotification);
-			}
-		}
+            for (int i = 0; i < recordButtons.size(); i++)
+            {
+                recordButtons[i]->setToggleState(true, sendNotification);
+            }
 
-		if (radioStatus) // if radio buttons are active
-		{
-			// send a message to parent
-			GenericEditor* editor = (GenericEditor*)getParentComponent();
-			editor->channelChanged(-1);
-		}
-	}
-	else if (button == selectButtonParam)
-	{                                                               // select channels in parameter tab
-		selectButtonParam->removeListener(this);
-		deselectButtonParam->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = paramBox->getBoxInfo(parameterButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonParam->addListener(this);
-			deselectButtonParam->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				parameterButtons[fa]->setToggleState(true, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonParam->addListener(this);
-		deselectButtonParam->addListener(this);
-	}
-	else if (button == selectButtonRecord)
-	{                                                         // select channels in record tab
-		selectButtonRecord->removeListener(this);
-		deselectButtonRecord->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = recordBox->getBoxInfo(recordButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonRecord->addListener(this);
-			deselectButtonRecord->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				recordButtons[fa]->setToggleState(true, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonRecord->addListener(this);
-		deselectButtonRecord->addListener(this);
-	}
-	else if (button == selectButtonAudio)
-	{                                                        // select channels in audio tab
-		selectButtonAudio->removeListener(this);
-		deselectButtonAudio->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = audioBox->getBoxInfo(audioButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonAudio->addListener(this);
-			deselectButtonAudio->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				audioButtons[fa]->setToggleState(true, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonAudio->addListener(this);
-		deselectButtonAudio->addListener(this);
-	}
-	else if (button == deselectButtonParam)
-	{                                                           // deselect channels in param tab
-		selectButtonParam->removeListener(this);
-		deselectButtonParam->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = paramBox->getBoxInfo(parameterButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonParam->addListener(this);
-			deselectButtonParam->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				parameterButtons[fa]->setToggleState(false, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonParam->addListener(this);
-		deselectButtonParam->addListener(this);
-	}
-	else if (button == deselectButtonRecord)
-	{                                                          // deselect channels in record tab
-		selectButtonRecord->removeListener(this);
-		deselectButtonRecord->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = recordBox->getBoxInfo(recordButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonRecord->addListener(this);
-			deselectButtonRecord->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				recordButtons[fa]->setToggleState(false, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonRecord->addListener(this);
-		deselectButtonRecord->addListener(this);
-	}
-	else if (button == deselectButtonAudio)
-	{                                                     // deselect channels in audio tab
-		selectButtonAudio->removeListener(this);
-		deselectButtonAudio->removeListener(this);
-		std::vector<int> getBoxList;
-		int fa, lim, comd, i, j;
-		getBoxList = audioBox->getBoxInfo(audioButtons.size());
-		if (getBoxList.size() < 3)
-		{
-			selectButtonAudio->addListener(this);
-			deselectButtonAudio->addListener(this); return;
-		}
-		i = 0;
-		while (i <= getBoxList.size() - 3)
-		{
-			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd)
-			{
-				audioButtons[fa]->setToggleState(false, sendNotification);
-			}
-			i += 3;
-		}
-		selectButtonAudio->addListener(this);
-		deselectButtonAudio->addListener(this);
-	}
-	else
-	{
-
-		ChannelSelectorButton* b = (ChannelSelectorButton*)button;
-
-		if (b->getType() == AUDIO)
-		{
-			// get audio node, and inform it of the change
-			GenericEditor* editor = (GenericEditor*)getParentComponent();
-
-			Channel* ch = editor->getChannel(b->getChannel() - 1);
-			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-			bool status = b->getToggleState();
-
-			std::cout << "Requesting audio monitor for channel " << ch->nodeIndex + 1 << std::endl;
-
-			if (acquisitionIsActive) // use setParameter to change parameter safely
-			{
-				AccessClass::getProcessorGraph()->
-					getAudioNode()->setChannelStatus(ch, status);
-			}
-			else     // change parameter directly
-			{
-				ch->isMonitored = status;
-			}
+        }
+        else if (offsetLR == parameterOffset)
+        {
 
 
-		}
-		else if (b->getType() == RECORD)
-		{
-			// get record node, and inform it of the change
-			GenericEditor* editor = (GenericEditor*)getParentComponent();
+            for (int i = 0; i < parameterButtons.size(); i++)
+            {
+                parameterButtons[i]->setToggleState(true, sendNotification);
+            }
+        }
+        else if (offsetLR == audioOffset)
+        {
+            // do nothing--> button is disabled
+        }
+    }
+    else if (button == noneButton)
+    {
+        // deselect all active buttons
+        if (offsetLR == recordOffset)
+        {
+            for (int i = 0; i < recordButtons.size(); i++)
+            {
+                recordButtons[i]->setToggleState(false, sendNotification);
+            }
+        }
+        else if (offsetLR == parameterOffset)
+        {
+            for (int i = 0; i < parameterButtons.size(); i++)
+            {
+                parameterButtons[i]->setToggleState(false, sendNotification);
+            }
+        }
+        else if (offsetLR == audioOffset)
+        {
+            for (int i = 0; i < audioButtons.size(); i++)
+            {
+                audioButtons[i]->setToggleState(false, sendNotification);
+            }
+        }
 
-			Channel* ch = editor->getChannel(b->getChannel() - 1);
-			//int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-			bool status = b->getToggleState();
+        if (radioStatus) // if radio buttons are active
+        {
+            // send a message to parent
+            GenericEditor* editor = (GenericEditor*)getParentComponent();
+            editor->channelChanged(-1);
+        }
+    }
+    else if (button == selectButtonParam)
+    {   // select channels in parameter tab
+        selectButtonParam->removeListener(this);
+        deselectButtonParam->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = paramBox->getBoxInfo(parameterButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonParam->addListener(this);
+            deselectButtonParam->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                parameterButtons[fa]->setToggleState(true, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonParam->addListener(this);
+        deselectButtonParam->addListener(this);
+    }
+    else if (button == selectButtonRecord)
+    {   // select channels in record tab
+        selectButtonRecord->removeListener(this);
+        deselectButtonRecord->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = recordBox->getBoxInfo(recordButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonRecord->addListener(this);
+            deselectButtonRecord->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                recordButtons[fa]->setToggleState(true, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonRecord->addListener(this);
+        deselectButtonRecord->addListener(this);
+    }
+    else if (button == selectButtonAudio)
+    {   // select channels in audio tab
+        selectButtonAudio->removeListener(this);
+        deselectButtonAudio->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = audioBox->getBoxInfo(audioButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonAudio->addListener(this);
+            deselectButtonAudio->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                audioButtons[fa]->setToggleState(true, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonAudio->addListener(this);
+        deselectButtonAudio->addListener(this);
+    }
+    else if (button == deselectButtonParam)
+    {   // deselect channels in param tab
+        selectButtonParam->removeListener(this);
+        deselectButtonParam->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = paramBox->getBoxInfo(parameterButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonParam->addListener(this);
+            deselectButtonParam->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                parameterButtons[fa]->setToggleState(false, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonParam->addListener(this);
+        deselectButtonParam->addListener(this);
+    }
+    else if (button == deselectButtonRecord)
+    {   // deselect channels in record tab
+        selectButtonRecord->removeListener(this);
+        deselectButtonRecord->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = recordBox->getBoxInfo(recordButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonRecord->addListener(this);
+            deselectButtonRecord->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                recordButtons[fa]->setToggleState(false, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonRecord->addListener(this);
+        deselectButtonRecord->addListener(this);
+    }
+    else if (button == deselectButtonAudio)
+    {   // deselect channels in audio tab
+        selectButtonAudio->removeListener(this);
+        deselectButtonAudio->removeListener(this);
+        std::vector<int> getBoxList;
+        int fa, lim, comd, i, j;
+        getBoxList = audioBox->getBoxInfo(audioButtons.size());
+        if (getBoxList.size() < 3)
+        {
+            selectButtonAudio->addListener(this);
+            deselectButtonAudio->addListener(this);
+            return;
+        }
+        i = 0;
+        while (i <= getBoxList.size() - 3)
+        {
+            fa = getBoxList[i];
+            lim = getBoxList[i + 1];
+            comd = getBoxList[i + 2];
+            for (; fa <= lim; fa += comd)
+            {
+                audioButtons[fa]->setToggleState(false, sendNotification);
+            }
+            i += 3;
+        }
+        selectButtonAudio->addListener(this);
+        deselectButtonAudio->addListener(this);
+    }
+    else
+    {
 
-			if (acquisitionIsActive) // use setParameter to change parameter safely
-			{
-				AccessClass::getProcessorGraph()->
-					getRecordNode()->
-					setChannelStatus(ch, status);
-			}
-			else     // change parameter directly
-			{
-				//std::cout << "Setting record status for channel " << b->getChannel() << std::endl;
-				ch->setRecordState(status);
-			}
+        ChannelSelectorButton* b = (ChannelSelectorButton*)button;
 
-			AccessClass::getGraphViewer()->repaint();
+        if (b->getType() == AUDIO)
+        {
+            // get audio node, and inform it of the change
+            GenericEditor* editor = (GenericEditor*)getParentComponent();
 
-		}
-		else // parameter type
-		{
+            Channel* ch = editor->getChannel(b->getChannel() - 1);
+            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+            bool status = b->getToggleState();
 
-			GenericEditor* editor = (GenericEditor*)getParentComponent();
-			editor->channelChanged(b->getChannel() - 1);
+            std::cout << "Requesting audio monitor for channel " << ch->nodeIndex + 1 << std::endl;
 
-			// do nothing
-			if (radioStatus) // if radio buttons are active
-			{
-				// send a message to parent
-				GenericEditor* editor = (GenericEditor*)getParentComponent();
-				editor->channelChanged(b->getChannel());
-			}
-		}
+            if (acquisitionIsActive) // use setParameter to change parameter safely
+            {
+                AccessClass::getProcessorGraph()->
+                getAudioNode()->setChannelStatus(ch, status);
+            }
+            else     // change parameter directly
+            {
+                ch->isMonitored = status;
+            }
 
-	}
-	refreshParameterColors();
+
+        }
+        else if (b->getType() == RECORD)
+        {
+            // get record node, and inform it of the change
+            GenericEditor* editor = (GenericEditor*)getParentComponent();
+
+            Channel* ch = editor->getChannel(b->getChannel() - 1);
+            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
+            bool status = b->getToggleState();
+
+            if (acquisitionIsActive) // use setParameter to change parameter safely
+            {
+                AccessClass::getProcessorGraph()->
+                getRecordNode()->
+                setChannelStatus(ch, status);
+            }
+            else     // change parameter directly
+            {
+                //std::cout << "Setting record status for channel " << b->getChannel() << std::endl;
+                ch->setRecordState(status);
+            }
+
+            AccessClass::getGraphViewer()->repaint();
+
+        }
+        else // parameter type
+        {
+
+            GenericEditor* editor = (GenericEditor*)getParentComponent();
+            editor->channelChanged(b->getChannel() - 1);
+
+            // do nothing
+            if (radioStatus) // if radio buttons are active
+            {
+                // send a message to parent
+                GenericEditor* editor = (GenericEditor*)getParentComponent();
+                editor->channelChanged(b->getChannel());
+            }
+        }
+
+    }
+    refreshParameterColors();
 }
 
 
@@ -901,29 +925,29 @@ void ChannelSelector::buttonClicked(Button* button)
 EditorButton::EditorButton(const String& name, Font& f) : Button(name)
 {
 
-	isEnabled = true;
+    isEnabled = true;
 
-	buttonFont = f;
-	buttonFont.setHeight(10);
+    buttonFont = f;
+    buttonFont.setHeight(10);
 
-	if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
-	{
-		setRadioGroupId(999);
-		setClickingTogglesState(true);
-	}
+    if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
+    {
+        setRadioGroupId(999);
+        setClickingTogglesState(true);
+    }
 
-	selectedGrad = ColourGradient(Colour(240, 179, 12), 0.0, 0.0,
-		Colour(207, 160, 33), 0.0, 20.0f,
-		false);
-	selectedOverGrad = ColourGradient(Colour(209, 162, 33), 0.0, 5.0f,
-		Colour(190, 150, 25), 0.0, 0.0f,
-		false);
-	neutralGrad = ColourGradient(Colour(220, 220, 220), 0.0, 0.0,
-		Colour(170, 170, 170), 0.0, 20.0f,
-		false);
-	neutralOverGrad = ColourGradient(Colour(180, 180, 180), 0.0, 5.0f,
-		Colour(150, 150, 150), 0.0, 0.0,
-		false);
+    selectedGrad = ColourGradient(Colour(240, 179, 12), 0.0, 0.0,
+                                  Colour(207, 160, 33), 0.0, 20.0f,
+                                  false);
+    selectedOverGrad = ColourGradient(Colour(209, 162, 33), 0.0, 5.0f,
+                                      Colour(190, 150, 25), 0.0, 0.0f,
+                                      false);
+    neutralGrad = ColourGradient(Colour(220, 220, 220), 0.0, 0.0,
+                                 Colour(170, 170, 170), 0.0, 20.0f,
+                                 false);
+    neutralOverGrad = ColourGradient(Colour(180, 180, 180), 0.0, 5.0f,
+                                     Colour(150, 150, 150), 0.0, 0.0,
+                                     false);
 
 
 }
@@ -932,124 +956,124 @@ EditorButton::~EditorButton() {}
 
 bool EditorButton::getState()
 {
-	return isEnabled;
+    return isEnabled;
 }
 
 void EditorButton::setState(bool state)
 {
-	isEnabled = state;
+    isEnabled = state;
 
-	if (!state)
-	{
-		removeListener((Button::Listener*) getParentComponent());
-	}
-	else
-	{
-		addListener((Button::Listener*) getParentComponent());
-	}
+    if (!state)
+    {
+        removeListener((Button::Listener*) getParentComponent());
+    }
+    else
+    {
+        addListener((Button::Listener*) getParentComponent());
+    }
 
-	repaint();
+    repaint();
 }
 
 void EditorButton::resized()
 {
-	// float radius = 5.0f;
-	float width = (float)getWidth();
-	float height = (float)getHeight();
+    // float radius = 5.0f;
+    float width = (float)getWidth();
+    float height = (float)getHeight();
 
-	if (getName().equalsIgnoreCase("AUDIO"))
-	{
-		//outlinePath.startNewSubPath(0, height);
-		outlinePath.lineTo(0, 0);//radius);
-		//outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
+    if (getName().equalsIgnoreCase("AUDIO"))
+    {
+        //outlinePath.startNewSubPath(0, height);
+        outlinePath.lineTo(0, 0);//radius);
+        //outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi );
 
-		outlinePath.lineTo(width, 0);//getHeight());
+        outlinePath.lineTo(width, 0);//getHeight());
 
-		outlinePath.lineTo(width, height);
+        outlinePath.lineTo(width, height);
 
-		outlinePath.lineTo(0, height);
-		//outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
-		//outlinePath.lineTo(0, radius);
-		outlinePath.closeSubPath();
+        outlinePath.lineTo(0, height);
+        //outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+        //outlinePath.lineTo(0, radius);
+        outlinePath.closeSubPath();
 
-	}
-	else if (getName().equalsIgnoreCase("PARAM"))
-	{
-		//outlinePath.startNewSubPath(0, 0);
+    }
+    else if (getName().equalsIgnoreCase("PARAM"))
+    {
+        //outlinePath.startNewSubPath(0, 0);
 
-		outlinePath.lineTo(width, 0);
+        outlinePath.lineTo(width, 0);
 
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-		outlinePath.lineTo(getWidth(), height);
+        outlinePath.lineTo(getWidth(), height);
 
-		//outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+        //outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
-		outlinePath.lineTo(0, height);
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
+        outlinePath.lineTo(0, height);
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
 
 
-	}
-	else if (getName().equalsIgnoreCase("REC"))
-	{
+    }
+    else if (getName().equalsIgnoreCase("REC"))
+    {
 
-		outlinePath.addRectangle(0, 0, getWidth(), getHeight());
+        outlinePath.addRectangle(0, 0, getWidth(), getHeight());
 
-	}
-	else if (getName().equalsIgnoreCase("all"))
-	{
+    }
+    else if (getName().equalsIgnoreCase("all"))
+    {
 
-		//outlinePath.startNewSubPath(0, 0);
+        //outlinePath.startNewSubPath(0, 0);
 
-		outlinePath.lineTo(width, 0);
+        outlinePath.lineTo(width, 0);
 
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-		outlinePath.lineTo(width, height);
+        outlinePath.lineTo(width, height);
 
-		//outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+        //outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
-		outlinePath.lineTo(0, height);
-		//outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
+        outlinePath.lineTo(0, height);
+        //outlinePath.addArc(0, height-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
 
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
 
-	}
-	else if (getName().equalsIgnoreCase("none"))
-	{
+    }
+    else if (getName().equalsIgnoreCase("none"))
+    {
 
-		//outlinePath.startNewSubPath(0, 0);
+        //outlinePath.startNewSubPath(0, 0);
 
-		outlinePath.lineTo(width, 0);
+        outlinePath.lineTo(width, 0);
 
-		//outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
+        //outlinePath.addArc(width-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
 
-		outlinePath.lineTo(width, height);
+        outlinePath.lineTo(width, height);
 
-		//outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
+        //outlinePath.addArc(width-radius*2, height-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
 
-		outlinePath.lineTo(0, height);
+        outlinePath.lineTo(0, height);
 
-		outlinePath.lineTo(0, 0);
-		//outlinePath.closeSubPath();
+        outlinePath.lineTo(0, 0);
+        //outlinePath.closeSubPath();
 
-	}
-	else if (getName().equalsIgnoreCase("+") )
-	{
-		outlinePath.lineTo(width, 0);
-		outlinePath.lineTo(width, height);
-		outlinePath.lineTo(0, height);
-		outlinePath.lineTo(0, 0);
-	}
-	else if (getName().equalsIgnoreCase("-") )
-	{
-		outlinePath.lineTo(width, 0);
-		outlinePath.lineTo(width, height);
-		outlinePath.lineTo(0, height);
-		outlinePath.lineTo(0, 0);
-	}
+    }
+    else if (getName().equalsIgnoreCase("+") )
+    {
+        outlinePath.lineTo(width, 0);
+        outlinePath.lineTo(width, height);
+        outlinePath.lineTo(0, height);
+        outlinePath.lineTo(0, 0);
+    }
+    else if (getName().equalsIgnoreCase("-") )
+    {
+        outlinePath.lineTo(width, 0);
+        outlinePath.lineTo(width, height);
+        outlinePath.lineTo(0, height);
+        outlinePath.lineTo(0, 0);
+    }
 
 }
 
@@ -1057,137 +1081,137 @@ void EditorButton::resized()
 void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
-	g.setColour(Colours::grey);
-	g.fillPath(outlinePath);
+    g.setColour(Colours::grey);
+    g.fillPath(outlinePath);
 
-	if (getToggleState())
-	{
-		if (isMouseOver && isEnabled)
-			g.setGradientFill(selectedOverGrad);
-		else
-			g.setGradientFill(selectedGrad);
-	}
-	else
-	{
-		if (isMouseOver && isEnabled)
-			g.setGradientFill(neutralOverGrad);
-		else
-			g.setGradientFill(neutralGrad);
-	}
+    if (getToggleState())
+    {
+        if (isMouseOver && isEnabled)
+            g.setGradientFill(selectedOverGrad);
+        else
+            g.setGradientFill(selectedGrad);
+    }
+    else
+    {
+        if (isMouseOver && isEnabled)
+            g.setGradientFill(neutralOverGrad);
+        else
+            g.setGradientFill(neutralGrad);
+    }
 
-	AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth()) / 2.0f,
-		float(getHeight()) / 2.0f);
-	g.fillPath(outlinePath, a);
+    AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth()) / 2.0f,
+                        float(getHeight()) / 2.0f);
+    g.fillPath(outlinePath, a);
 
-	buttonFont.setHeight(10.0f);
-	int stringWidth = buttonFont.getStringWidth(getName());
+    buttonFont.setHeight(10.0f);
+    int stringWidth = buttonFont.getStringWidth(getName());
 
-	g.setFont(buttonFont);
+    g.setFont(buttonFont);
 
-	if (isEnabled)
-		g.setColour(Colours::darkgrey);
-	else
-		g.setColour(Colours::lightgrey);
+    if (isEnabled)
+        g.setColour(Colours::darkgrey);
+    else
+        g.setColour(Colours::lightgrey);
 
-	g.drawSingleLineText(getName(), getWidth() / 2 - stringWidth / 2, 11);
+    g.drawSingleLineText(getName(), getWidth() / 2 - stringWidth / 2, 11);
 
 }
 
 
 ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : Button("name")
 {
-	isActive = true;
-	num = num_;
-	displayNum = num_;
-	type = type_;
+    isActive = true;
+    num = num_;
+    displayNum = num_;
+    type = type_;
 
-	setClickingTogglesState(true);
+    setClickingTogglesState(true);
 
-	buttonFont = f;
-	buttonFont.setHeight(10);
+    buttonFont = f;
+    buttonFont.setHeight(10);
 }
 
 ChannelSelectorButton::~ChannelSelectorButton() {}
 
 int ChannelSelectorButton::getType()
 {
-	return type;
+    return type;
 }
 
 int ChannelSelectorButton::getChannel()
 {
-	return num;
+    return num;
 }
 
 void ChannelSelectorButton::setChannel(int n)
 {
-	num = n;
-	displayNum = n;
+    num = n;
+    displayNum = n;
 }
 void ChannelSelectorButton::setChannel(int n, int d)
 {
-	num = n;
-	displayNum = d;
+    num = n;
+    displayNum = d;
 }
 
 void ChannelSelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	if (isActive)
-	{
-		if (getToggleState() == true)
-			g.setColour(Colours::orange);
-		else
-			g.setColour(Colours::darkgrey);
+    if (isActive)
+    {
+        if (getToggleState() == true)
+            g.setColour(Colours::orange);
+        else
+            g.setColour(Colours::darkgrey);
 
-		if (isMouseOver)
-			g.setColour(Colours::white);
-	}
-	else
-	{
-		if (getToggleState() == true)
-			g.setColour(Colours::yellow);
-		else
-			g.setColour(Colours::lightgrey);
-	}
+        if (isMouseOver)
+            g.setColour(Colours::white);
+    }
+    else
+    {
+        if (getToggleState() == true)
+            g.setColour(Colours::yellow);
+        else
+            g.setColour(Colours::lightgrey);
+    }
 
-	// g.fillRect(0,0,getWidth(),getHeight());
+    // g.fillRect(0,0,getWidth(),getHeight());
 
-	g.setFont(buttonFont);
+    g.setFont(buttonFont);
 
-	// g.drawRect(0,0,getWidth(),getHeight(),1.0);
+    // g.drawRect(0,0,getWidth(),getHeight(),1.0);
 
-	g.drawText(String(displayNum), 0, 0, getWidth(), getHeight(), Justification::centred, true);
+    g.drawText(String(displayNum), 0, 0, getWidth(), getHeight(), Justification::centred, true);
 }
 
 void ChannelSelectorButton::setActive(bool t)
 {
-	isActive = t;
-	setClickingTogglesState(t);
+    isActive = t;
+    setClickingTogglesState(t);
 }
 
 ChannelSelectorRegion::ChannelSelectorRegion(ChannelSelector* cs)
 {
-	channelSelector = cs;
+    channelSelector = cs;
 
-	addMouseListener((MouseListener*) this, true);
+    addMouseListener((MouseListener*) this, true);
 }
 
 ChannelSelectorRegion::~ChannelSelectorRegion()
 {
-	deleteAllChildren();
+    deleteAllChildren();
 }
 
 void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
-	const MouseWheelDetails& wheel)
+        const MouseWheelDetails& wheel)
 {
 
-	// std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
-	channelSelector->shiftChannelsVertical(-wheel.deltaY);
+    // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
+    channelSelector->shiftChannelsVertical(-wheel.deltaY);
 }
 
 void ChannelSelectorRegion::paint(Graphics& g)
 {
-	// g.fillAll(Colours::white);
+    // g.fillAll(Colours::white);
 }
 
 
@@ -1196,13 +1220,13 @@ void ChannelSelectorRegion::paint(Graphics& g)
 */
 ChannelSelectorBox::ChannelSelectorBox()
 {
-	setMultiLine(false, true);                   // No multi lines.
-	setReturnKeyStartsNewLine(false);            // Return key donot start a new line.
-	setTabKeyUsedAsCharacter(false);
-	setTooltip("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
+    setMultiLine(false, true);                   // No multi lines.
+    setReturnKeyStartsNewLine(false);            // Return key donot start a new line.
+    setTabKeyUsedAsCharacter(false);
+    setTooltip("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
 }
 
-ChannelSelectorBox::~ChannelSelectorBox() 
+ChannelSelectorBox::~ChannelSelectorBox()
 {
 
 }
@@ -1212,21 +1236,23 @@ ChannelSelectorBox::~ChannelSelectorBox()
 */
 int ChannelSelectorBox::convertToInteger(std::string s)
 {
-	if (s.size() > 9)
-	{
-		return INT_MAX;
-	}
-	char ar[20]; int i,j=0;
-	for (i = 0; i < s.size(); i++)
-	{
-		if (s[i] >= 48 && s[i] <= 57)
-		{
-			ar[j] = s[i]; j++;
-		}
-	}
-	ar[j] = '\0';
-	j = atoi(ar);
-	return j;
+    if (s.size() > 9)
+    {
+        return INT_MAX;
+    }
+    char ar[20];
+    int i,j=0;
+    for (i = 0; i < s.size(); i++)
+    {
+        if (s[i] >= 48 && s[i] <= 57)
+        {
+            ar[j] = s[i];
+            j++;
+        }
+    }
+    ar[j] = '\0';
+    j = atoi(ar);
+    return j;
 }
 
 
@@ -1238,81 +1264,86 @@ int ChannelSelectorBox::convertToInteger(std::string s)
 */
 std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
 {
-	std::string s = getText().toStdString();
-	std::vector<std::string> parsed;
-	std::vector<int> finalList,colonNum;
-	finalList.clear();
-	int i, j, k, a, otherChar = 0, b, openb = 0, closeb = 0;
-	
-	for (i = 0; i < s.size(); i++)         // Fetch the box ([a:b:c]) from the string.
-	{
-		if (s[i] == ':')
-		{
-			colonNum.push_back(i);
-		}
-		else if (s[i] == '[')
-		{
-			openb++;
-		}
-		else if (s[i] == ']')
-		{
-			closeb++; break;
-		}
-		else if (s[i] < 48 && s[i]>57 && s[i] != 32)
-		{
-			otherChar++;
-		}
-	}
+    std::string s = getText().toStdString();
+    std::vector<std::string> parsed;
+    std::vector<int> finalList,colonNum;
+    finalList.clear();
+    int i, j, k, a, otherChar = 0, b, openb = 0, closeb = 0;
 
-	if (colonNum.size() > 2 || colonNum.size() < 1 || openb != 1 || closeb != 1 || otherChar > 0)    // If proper syntax not maintained, return.
-	{
-		return finalList;
-	}
+    for (i = 0; i < s.size(); i++)         // Fetch the box ([a:b:c]) from the string.
+    {
+        if (s[i] == ':')
+        {
+            colonNum.push_back(i);
+        }
+        else if (s[i] == '[')
+        {
+            openb++;
+        }
+        else if (s[i] == ']')
+        {
+            closeb++;
+            break;
+        }
+        else if (s[i] < 48 && s[i]>57 && s[i] != 32)
+        {
+            otherChar++;
+        }
+    }
 
-	if (colonNum.size() == 1)              // Case when input is in the form [a:b]
-	{
-		a = convertToInteger(s.substr(0, colonNum[0] + 1));
-		b = convertToInteger(s.substr(colonNum[0], s.size() - colonNum[0] + 1));
-		if (a > len || b > len || a > b)
-		{ 
-			return finalList; 
-		}
-		if (a == 0)
-		{ 
-			a = 1; 
-		}
-		if (b == 0)
-		{ 
-			b = len; 
-		}
-		finalList.push_back(a - 1); finalList.push_back(b - 1); finalList.push_back(1);
-		return finalList;
-	}
-	else if (colonNum.size() == 2)              // Case when input is in the form [a:b:c]
-	{
-		a = convertToInteger(s.substr(0, colonNum[0] + 1));
-		k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
-		b = convertToInteger(s.substr(colonNum[1], s.size() - colonNum[1] + 1));
-		if (k == 0)
-		{ 
-			k = 1; 
-		}
-		if (a == 0)
-		{ 
-			a = 1; 
-		}
-		if (b == 0)
-		{ 
-			b = len; 
-		}
+    if (colonNum.size() > 2 || colonNum.size() < 1 || openb != 1 || closeb != 1 || otherChar > 0)    // If proper syntax not maintained, return.
+    {
+        return finalList;
+    }
 
-		if (a > len || b > len || a > b)
-		{ 
-			return finalList; 
-		}
-		finalList.push_back(a - 1); finalList.push_back(b - 1); finalList.push_back(k);
-		return finalList;
-	}
-	
-	return finalList;
+    if (colonNum.size() == 1)              // Case when input is in the form [a:b]
+    {
+        a = convertToInteger(s.substr(0, colonNum[0] + 1));
+        b = convertToInteger(s.substr(colonNum[0], s.size() - colonNum[0] + 1));
+        if (a > len || b > len || a > b)
+        {
+            return finalList;
+        }
+        if (a == 0)
+        {
+            a = 1;
+        }
+        if (b == 0)
+        {
+            b = len;
+        }
+        finalList.push_back(a - 1);
+        finalList.push_back(b - 1);
+        finalList.push_back(1);
+        return finalList;
+    }
+    else if (colonNum.size() == 2)              // Case when input is in the form [a:b:c]
+    {
+        a = convertToInteger(s.substr(0, colonNum[0] + 1));
+        k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
+        b = convertToInteger(s.substr(colonNum[1], s.size() - colonNum[1] + 1));
+        if (k == 0)
+        {
+            k = 1;
+        }
+        if (a == 0)
+        {
+            a = 1;
+        }
+        if (b == 0)
+        {
+            b = len;
+        }
+
+        if (a > len || b > len || a > b)
+        {
+            return finalList;
+        }
+        finalList.push_back(a - 1);
+        finalList.push_back(b - 1);
+        finalList.push_back(k);
+        return finalList;
+    }
+
+    return finalList;
 }

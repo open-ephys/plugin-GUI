@@ -49,166 +49,166 @@ channels to be selected for different purposes.
 
 
 class PLUGIN_API ChannelSelector : public Component,
-	public Button::Listener,
-	public Timer
+    public Button::Listener,
+    public Timer
 {
 public:
 
-	/** constructor */
-	ChannelSelector(bool createButtons, Font& titleFont);
+    /** constructor */
+    ChannelSelector(bool createButtons, Font& titleFont);
 
-	/** destructor */
-	~ChannelSelector();
+    /** destructor */
+    ~ChannelSelector();
 
-	/** button callback */
-	void buttonClicked(Button* button);
+    /** button callback */
+    void buttonClicked(Button* button);
 
-	/** Return an array of selected channels. */
-	Array<int> getActiveChannels();
+    /** Return an array of selected channels. */
+    Array<int> getActiveChannels();
 
-	/** Set the selected channels. */
-	void setActiveChannels(Array<int>);
+    /** Set the selected channels. */
+    void setActiveChannels(Array<int>);
 
-	/** Set the total number of channels. */
-	void setNumChannels(int);
+    /** Set the total number of channels. */
+    void setNumChannels(int);
 
-	/** get the total number of channels. */
-	int getNumChannels();
+    /** get the total number of channels. */
+    int getNumChannels();
 
-	/** Return whether a particular channel should be recording. */
-	bool getRecordStatus(int chan);
+    /** Return whether a particular channel should be recording. */
+    bool getRecordStatus(int chan);
 
-	/** Return whether a particular channel should be monitored. */
-	bool getAudioStatus(int chan);
+    /** Return whether a particular channel should be monitored. */
+    bool getAudioStatus(int chan);
 
-	/** Return whether a particular channel is selected for editing parameters. */
-	bool getParamStatus(int chan);
+    /** Return whether a particular channel is selected for editing parameters. */
+    bool getParamStatus(int chan);
 
-	/** Set whether a particular channel should be recording. */
-	void setRecordStatus(int, bool);
+    /** Set whether a particular channel should be recording. */
+    void setRecordStatus(int, bool);
 
-	/** Set whether a particular channel should be monitored. */
-	void setAudioStatus(int, bool);
+    /** Set whether a particular channel should be monitored. */
+    void setAudioStatus(int, bool);
 
-	/** Sets all audio monitors to 'false' */
-	void clearAudio();
+    /** Sets all audio monitors to 'false' */
+    void clearAudio();
 
-	/** Set whether a particular channel is selected for editing parameters. */
-	void setParamStatus(int, bool);
+    /** Set whether a particular channel is selected for editing parameters. */
+    void setParamStatus(int, bool);
 
-	/** Return component's desired width. */
-	int getDesiredWidth();
+    /** Return component's desired width. */
+    int getDesiredWidth();
 
-	/** Called prior to the start of data acquisition.*/
-	void startAcquisition();
+    /** Called prior to the start of data acquisition.*/
+    void startAcquisition();
 
-	/** Called immediately after data acquisition ends.*/
-	void stopAcquisition();
+    /** Called immediately after data acquisition ends.*/
+    void stopAcquisition();
 
-	/** Inactivates all the ChannelSelectorButtons under the "param" tab.*/
-	void inactivateButtons();
+    /** Inactivates all the ChannelSelectorButtons under the "param" tab.*/
+    void inactivateButtons();
 
-	/** Activates all the ChannelSelectorButtons under the "param" tab.*/
-	void activateButtons();
+    /** Activates all the ChannelSelectorButtons under the "param" tab.*/
+    void activateButtons();
 
-	/** Inactivates all the ChannelSelectorButtons under the "rec" tab.*/
-	void inactivateRecButtons();
+    /** Inactivates all the ChannelSelectorButtons under the "rec" tab.*/
+    void inactivateRecButtons();
 
-	/** Activates all the ChannelSelectorButtons under the "rec" tab.*/
-	void activateRecButtons();
+    /** Activates all the ChannelSelectorButtons under the "rec" tab.*/
+    void activateRecButtons();
 
-	/** Refreshes Parameter Colors on change*/
-	void refreshParameterColors();
+    /** Refreshes Parameter Colors on change*/
+    void refreshParameterColors();
 
-	/** Controls the behavior of ChannelSelectorButtons; they can either behave
-	like radio buttons (only one selected at a time) or like toggle buttons (an
-	arbitrary number can be selected at once).*/
-	void setRadioStatus(bool);
+    /** Controls the behavior of ChannelSelectorButtons; they can either behave
+    like radio buttons (only one selected at a time) or like toggle buttons (an
+    arbitrary number can be selected at once).*/
+    void setRadioStatus(bool);
 
-	void paramButtonsToggledByDefault(bool t);
-	//void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
+    void paramButtonsToggledByDefault(bool t);
+    //void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
 
-	/** Used to scroll channels */
-	void shiftChannelsVertical(float amount);
+    /** Used to scroll channels */
+    void shiftChannelsVertical(float amount);
 
-	bool eventsOnly;
+    bool eventsOnly;
 
 private:
 
-	EditorButton* audioButton;
-	EditorButton* recordButton;
-	EditorButton* paramsButton;
-	EditorButton* allButton;
-	EditorButton* noneButton;
-	EditorButton* selectButtonParam;   //Select Channels in parameter tab
-	EditorButton* deselectButtonParam; //Deselect Channels in parameter tab
-	EditorButton* selectButtonRecord;  //Select Channels in record tab
-	EditorButton* deselectButtonRecord;//Deselect Channels in record tab
-	EditorButton* selectButtonAudio;   //Select Channels in audio tab
-	EditorButton* deselectButtonAudio; //Deselect Channels in audio tab
+    EditorButton* audioButton;
+    EditorButton* recordButton;
+    EditorButton* paramsButton;
+    EditorButton* allButton;
+    EditorButton* noneButton;
+    EditorButton* selectButtonParam;   //Select Channels in parameter tab
+    EditorButton* deselectButtonParam; //Deselect Channels in parameter tab
+    EditorButton* selectButtonRecord;  //Select Channels in record tab
+    EditorButton* deselectButtonRecord;//Deselect Channels in record tab
+    EditorButton* selectButtonAudio;   //Select Channels in audio tab
+    EditorButton* deselectButtonAudio; //Deselect Channels in audio tab
 
-	/** An array of ChannelSelectorButtons used to select the channels that
-	will be updated when a parameter is changed. 
-	paramBox: TextBox where user input is taken for param tab.
-	*/
-	Array<ChannelSelectorButton*> parameterButtons;
-	ChannelSelectorBox* paramBox;
-	
-	/** An array of ChannelSelectorButtons used to select the channels that
-	are sent to the audio monitor. 
-	audioBox: TextBox where user input is taken for audio tab
-	*/
-	Array<ChannelSelectorButton*> audioButtons;
-	ChannelSelectorBox* audioBox;
+    /** An array of ChannelSelectorButtons used to select the channels that
+    will be updated when a parameter is changed.
+    paramBox: TextBox where user input is taken for param tab.
+    */
+    Array<ChannelSelectorButton*> parameterButtons;
+    ChannelSelectorBox* paramBox;
 
-	/** An array of ChannelSelectorButtons used to select the channels that
-	will be written to disk when the record button is pressed. 
-	recordBox: TextBox where user input is taken for record tab
-	*/
-	Array<ChannelSelectorButton*> recordButtons;
-	ChannelSelectorBox* recordBox;
+    /** An array of ChannelSelectorButtons used to select the channels that
+    are sent to the audio monitor.
+    audioBox: TextBox where user input is taken for audio tab
+    */
+    Array<ChannelSelectorButton*> audioButtons;
+    ChannelSelectorBox* audioBox;
 
-	bool paramsToggled;
-	bool paramsActive;
-	bool recActive;
-	bool radioStatus;
+    /** An array of ChannelSelectorButtons used to select the channels that
+    will be written to disk when the record button is pressed.
+    recordBox: TextBox where user input is taken for record tab
+    */
+    Array<ChannelSelectorButton*> recordButtons;
+    ChannelSelectorBox* recordBox;
 
-	bool isNotSink;
-	bool moveRight;
-	bool moveLeft;
+    bool paramsToggled;
+    bool paramsActive;
+    bool recActive;
+    bool radioStatus;
 
-	int offsetLR;
-	float offsetUD;
+    bool isNotSink;
+    bool moveRight;
+    bool moveLeft;
 
-	int numColumnsLessThan100;
-	int numColumnsGreaterThan100;
-	int overallHeight;
+    int offsetLR;
+    float offsetUD;
 
-	int parameterOffset;
-	int audioOffset;
-	int recordOffset;
+    int numColumnsLessThan100;
+    int numColumnsGreaterThan100;
+    int overallHeight;
 
-	int desiredOffset;
+    int parameterOffset;
+    int audioOffset;
+    int recordOffset;
 
-	void resized();
+    int desiredOffset;
 
-	void addButton();
-	void removeButton();
-	void refreshButtonBoundaries();
+    void resized();
 
-	/** Controls the speed of animations. */
-	void timerCallback();
+    void addButton();
+    void removeButton();
+    void refreshButtonBoundaries();
 
-	/** Draws the ChannelSelector. */
-	void paint(Graphics& g);
+    /** Controls the speed of animations. */
+    void timerCallback();
 
-	Font& titleFont;
+    /** Draws the ChannelSelector. */
+    void paint(Graphics& g);
 
-	enum { AUDIO, RECORD, PARAMETER };
+    Font& titleFont;
 
-	bool acquisitionIsActive;
+    enum { AUDIO, RECORD, PARAMETER };
 
-	ChannelSelectorRegion* channelSelectorRegion;
+    bool acquisitionIsActive;
+
+    ChannelSelectorRegion* channelSelectorRegion;
 
 };
 
@@ -224,26 +224,26 @@ between tabs of all the channels.
 class EditorButton : public Button
 {
 public:
-	EditorButton(const String& name, Font& f);
-	~EditorButton();
+    EditorButton(const String& name, Font& f);
+    ~EditorButton();
 
-	bool getState();
+    bool getState();
 
-	void setState(bool state);
+    void setState(bool state);
 
 private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-	void resized();
+    void resized();
 
-	Path outlinePath;
+    Path outlinePath;
 
-	int type;
-	Font buttonFont;
+    int type;
+    Font buttonFont;
 
-	bool isEnabled;
+    bool isEnabled;
 
-	ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
+    ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
 };
 
 /**
@@ -257,15 +257,15 @@ Holds the ChannelSelector buttons.
 class ChannelSelectorRegion : public Component
 {
 public:
-	ChannelSelectorRegion(ChannelSelector* cs);
-	~ChannelSelectorRegion();
+    ChannelSelectorRegion(ChannelSelector* cs);
+    ~ChannelSelectorRegion();
 
-	/** Allows the user to scroll the channels if they are not all visible.*/
-	void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
-	void paint(Graphics& g);
+    /** Allows the user to scroll the channels if they are not all visible.*/
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void paint(Graphics& g);
 
 private:
-	ChannelSelector* channelSelector;
+    ChannelSelector* channelSelector;
 
 };
 
@@ -280,26 +280,26 @@ A button within the ChannelSelector representing an individual channel.
 class ChannelSelectorButton : public Button
 {
 public:
-	ChannelSelectorButton(int num, int type, Font& f);
-	~ChannelSelectorButton();
+    ChannelSelectorButton(int num, int type, Font& f);
+    ~ChannelSelectorButton();
 
-	int getType();
-	int getChannel();
-	//Channel* getChannel() {return ch;}
-	void setActive(bool t);
-	void setChannel(int n);
-	void setChannel(int n, int d);
+    int getType();
+    int getChannel();
+    //Channel* getChannel() {return ch;}
+    void setActive(bool t);
+    void setChannel(int n);
+    void setChannel(int n, int d);
 
 private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-	//Channel* ch;
+    //Channel* ch;
 
-	int type;
-	int num;
-	int displayNum;
-	Font buttonFont;
-	bool isActive;
+    int type;
+    int num;
+    int displayNum;
+    Font buttonFont;
+    bool isActive;
 };
 
 /*
@@ -308,11 +308,11 @@ private:
 class ChannelSelectorBox :public TextEditor
 {
 public:
-	ChannelSelectorBox();
-	~ChannelSelectorBox();
+    ChannelSelectorBox();
+    ~ChannelSelectorBox();
 
-	std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
-	int convertToInteger(std::string s);   // Conversion of string to integer.
+    std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
+    int convertToInteger(std::string s);   // Conversion of string to integer.
 };
 
 #endif  // __CHANNELSELECTOR_H_68124E35__
