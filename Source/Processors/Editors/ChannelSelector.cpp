@@ -1036,13 +1036,15 @@ void EditorButton::resized()
 		//outlinePath.closeSubPath();
 
 	}
-	else if (getName().equalsIgnoreCase("+")){
+	else if (getName().equalsIgnoreCase("+") )
+	{
 		outlinePath.lineTo(width, 0);
 		outlinePath.lineTo(width, height);
 		outlinePath.lineTo(0, height);
 		outlinePath.lineTo(0, 0);
 	}
-	else if (getName().equalsIgnoreCase("-")){
+	else if (getName().equalsIgnoreCase("-") )
+	{
 		outlinePath.lineTo(width, 0);
 		outlinePath.lineTo(width, height);
 		outlinePath.lineTo(0, height);
