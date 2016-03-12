@@ -256,7 +256,6 @@ Holds the ChannelSelector buttons.
 
 class ChannelSelectorRegion : public Component
 {
-
 public:
 	ChannelSelectorRegion(ChannelSelector* cs);
 	~ChannelSelectorRegion();
@@ -306,10 +305,12 @@ private:
 /*
   A textbox within the channelSelector to select multiple channels at a time.
 */
-class ChannelSelectorBox :public TextEditor{
+class ChannelSelectorBox :public TextEditor
+{
 public:
 	ChannelSelectorBox();
 	~ChannelSelectorBox();
+
 	std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
 	int convertToInteger(std::string s);   // Conversion of string to integer.
 };

@@ -220,7 +220,8 @@ void ChannelSelector::refreshButtonBoundaries()
 
 		int xLoc = columnWidth / 2 + offsetLR + columnWidth*column;
 		int yLoc = row * rowHeight + offsetUD + 25;
-		if (i == 0){
+		if (i == 0)
+		{
 			px = xLoc; py = yLoc - 25;
 			rx = xLoc - getDesiredWidth(); ry = yLoc - 25;
 			ax = xLoc - getDesiredWidth() * 2; ay = yLoc - 25;
@@ -273,7 +274,9 @@ void ChannelSelector::refreshButtonBoundaries()
 
 	selectButtonAudio->setBounds(ax + 95, ay + 20, 20, 20);
 	deselectButtonAudio->setBounds(ax + 117, ay + 20, 20, 20);
-
+	/*
+	  All and None buttons
+	*/
 	allButton->setBounds(0, getHeight() - 15, getWidth() / 2, 15);
 	noneButton->setBounds(getWidth() / 2, getHeight() - 15, getWidth() / 2, 15);
 
@@ -670,20 +673,24 @@ void ChannelSelector::buttonClicked(Button* button)
 			editor->channelChanged(-1);
 		}
 	}
-	else if (button == selectButtonParam){  // select channels in parameter tab
+	else if (button == selectButtonParam)
+	{                                                               // select channels in parameter tab
 		selectButtonParam->removeListener(this);
 		deselectButtonParam->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = paramBox->getBoxInfo(parameterButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonParam->addListener(this);
 			deselectButtonParam->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				parameterButtons[fa]->setToggleState(true, sendNotification);
 			}
 			i += 3;
@@ -691,20 +698,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonParam->addListener(this);
 		deselectButtonParam->addListener(this);
 	}
-	else if (button == selectButtonRecord){  // select channels in record tab
+	else if (button == selectButtonRecord)
+	{                                                         // select channels in record tab
 		selectButtonRecord->removeListener(this);
 		deselectButtonRecord->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = recordBox->getBoxInfo(recordButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonRecord->addListener(this);
 			deselectButtonRecord->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				recordButtons[fa]->setToggleState(true, sendNotification);
 			}
 			i += 3;
@@ -712,20 +723,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonRecord->addListener(this);
 		deselectButtonRecord->addListener(this);
 	}
-	else if (button == selectButtonAudio){ // select channels in audio tab
+	else if (button == selectButtonAudio)
+	{                                                        // select channels in audio tab
 		selectButtonAudio->removeListener(this);
 		deselectButtonAudio->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = audioBox->getBoxInfo(audioButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonAudio->addListener(this);
 			deselectButtonAudio->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				audioButtons[fa]->setToggleState(true, sendNotification);
 			}
 			i += 3;
@@ -733,20 +748,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonAudio->addListener(this);
 		deselectButtonAudio->addListener(this);
 	}
-	else if (button == deselectButtonParam){  // deselect channels in param tab
+	else if (button == deselectButtonParam)
+	{                                                           // deselect channels in param tab
 		selectButtonParam->removeListener(this);
 		deselectButtonParam->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = paramBox->getBoxInfo(parameterButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonParam->addListener(this);
 			deselectButtonParam->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				parameterButtons[fa]->setToggleState(false, sendNotification);
 			}
 			i += 3;
@@ -754,20 +773,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonParam->addListener(this);
 		deselectButtonParam->addListener(this);
 	}
-	else if (button == deselectButtonRecord){  // deselect channels in record tab
+	else if (button == deselectButtonRecord)
+	{                                                          // deselect channels in record tab
 		selectButtonRecord->removeListener(this);
 		deselectButtonRecord->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = recordBox->getBoxInfo(recordButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonRecord->addListener(this);
 			deselectButtonRecord->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				recordButtons[fa]->setToggleState(false, sendNotification);
 			}
 			i += 3;
@@ -775,20 +798,24 @@ void ChannelSelector::buttonClicked(Button* button)
 		selectButtonRecord->addListener(this);
 		deselectButtonRecord->addListener(this);
 	}
-	else if (button == deselectButtonAudio){    // deselect channels in audio tab
+	else if (button == deselectButtonAudio)
+	{                                                     // deselect channels in audio tab
 		selectButtonAudio->removeListener(this);
 		deselectButtonAudio->removeListener(this);
 		std::vector<int> getBoxList;
 		int fa, lim, comd, i, j;
 		getBoxList = audioBox->getBoxInfo(audioButtons.size());
-		if (getBoxList.size() < 3){
+		if (getBoxList.size() < 3)
+		{
 			selectButtonAudio->addListener(this);
 			deselectButtonAudio->addListener(this); return;
 		}
 		i = 0;
-		while (i <= getBoxList.size() - 3){
+		while (i <= getBoxList.size() - 3)
+		{
 			fa = getBoxList[i]; lim = getBoxList[i + 1]; comd = getBoxList[i + 2];
-			for (; fa <= lim; fa += comd){
+			for (; fa <= lim; fa += comd)
+			{
 				audioButtons[fa]->setToggleState(false, sendNotification);
 			}
 			i += 3;
@@ -1165,18 +1192,24 @@ void ChannelSelectorRegion::paint(Graphics& g)
 /*
   Constructor and Destructor of ChannelSelectorBox.
 */
-ChannelSelectorBox::ChannelSelectorBox(){
+ChannelSelectorBox::ChannelSelectorBox()
+{
 	setMultiLine(false, true);                   // No multi lines.
 	setReturnKeyStartsNewLine(false);            // Return key donot start a new line.
 	setTabKeyUsedAsCharacter(false);
+	setTooltip("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
 }
 
-ChannelSelectorBox::~ChannelSelectorBox(){}
+ChannelSelectorBox::~ChannelSelectorBox() 
+{
+
+}
 
 /*
   convert a string to integer.
 */
-int ChannelSelectorBox::convertToInteger(std::string s){
+int ChannelSelectorBox::convertToInteger(std::string s)
+{
 	if (s.size() > 9){
 		return INT_MAX;
 	}
@@ -1198,50 +1231,80 @@ int ChannelSelectorBox::convertToInteger(std::string s){
    2. [ a : b]  -> select/deselect all channels from a to b.
    3. [ a : c : b] -> select/deselect all channels from a to b such that the difference between in each consecutive selected channel is c.
 */
-std::vector<int> ChannelSelectorBox::getBoxInfo(int len){
+std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
+{
 	std::string s = getText().toStdString();
 	std::vector<std::string> parsed;
 	std::vector<int> finalList,colonNum;
 	finalList.clear();
 	int i, j, k, a, otherChar = 0, b, openb = 0, closeb = 0;
 	
-	for (i = 0; i < s.size(); i++){
-		if (s[i] == ':'){
+	for (i = 0; i < s.size(); i++)         // Fetch the box ([a:b:c]) from the string.
+	{
+		if (s[i] == ':')
+		{
 			colonNum.push_back(i);
 		}
-		else if (s[i] == '['){
+		else if (s[i] == '[')
+		{
 			openb++;
 		}
-		else if (s[i] == ']'){
+		else if (s[i] == ']')
+		{
 			closeb++; break;
 		}
-		else if (s[i] < 48 && s[i]>57 && s[i] != 32){
+		else if (s[i] < 48 && s[i]>57 && s[i] != 32)
+		{
 			otherChar++;
 		}
 	}
 
-	if (colonNum.size() > 2 || colonNum.size() < 1 || openb != 1 || closeb != 1 || otherChar > 0){
+	if (colonNum.size() > 2 || colonNum.size() < 1 || openb != 1 || closeb != 1 || otherChar > 0)    // If proper syntax not maintained, return.
+	{
 		return finalList;
 	}
 
-	if (colonNum.size() == 1){
+	if (colonNum.size() == 1)              // Case when input is in the form [a:b]
+	{
 		a = convertToInteger(s.substr(0, colonNum[0] + 1));
 		b = convertToInteger(s.substr(colonNum[0], s.size() - colonNum[0] + 1));
-		if (a > len || b > len || a > b){ return finalList; }
-		if (a == 0){ a = 1; }
-		if (b == 0){ b = len; }
+		if (a > len || b > len || a > b)
+		{ 
+			return finalList; 
+		}
+		if (a == 0)
+		{ 
+			a = 1; 
+		}
+		if (b == 0)
+		{ 
+			b = len; 
+		}
 		finalList.push_back(a - 1); finalList.push_back(b - 1); finalList.push_back(1);
 		return finalList;
 	}
-	else if (colonNum.size() == 2){
+	else if (colonNum.size() == 2)              // Case when input is in the form [a:b:c]
+	{
 		a = convertToInteger(s.substr(0, colonNum[0] + 1));
 		k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
 		b = convertToInteger(s.substr(colonNum[1], s.size() - colonNum[1] + 1));
-		if (k == 0){ k = 1; }
-		if (a == 0){ a = 1; }
-		if (b == 0){ b = len; }
+		if (k == 0)
+		{ 
+			k = 1; 
+		}
+		if (a == 0)
+		{ 
+			a = 1; 
+		}
+		if (b == 0)
+		{ 
+			b = len; 
+		}
 
-		if (a > len || b > len || a > b){ return finalList; }
+		if (a > len || b > len || a > b)
+		{ 
+			return finalList; 
+		}
 		finalList.push_back(a - 1); finalList.push_back(b - 1); finalList.push_back(k);
 		return finalList;
 	}
