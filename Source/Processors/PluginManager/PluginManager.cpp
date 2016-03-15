@@ -230,6 +230,11 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			fileSourcePlugins.add(info);
 			break;
 		}
+		default:
+		{
+			std::cerr << pluginLoc << " invalid plugin type: " << pInfo.type << std::endl;
+			break;
+		}
 		}
 	}
 	return lib.numPlugins;
