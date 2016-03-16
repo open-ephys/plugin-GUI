@@ -111,6 +111,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     rangeSteps[AUX_CHANNEL] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
+    
+    
 
     tbut = new UtilityButton("AUX",Font("Small Text", 9, Font::plain));
     tbut->setEnabledState(true);
@@ -187,6 +189,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     selectedOverlap = 4;
     selectedOverlapValue = overlaps[selectedOverlap-1];
 
+    saturationThresholds.add("0.5");
+    saturationThresholds.add("100");
+    saturationThresholds.add("1000");
+    saturationThresholds.add("5000");
+    selectedSaturation = 3;
+    selectedSaturationValue = saturationThresholds[selectedSaturation-1];
+    
     
     colorGroupings.add("1");
     colorGroupings.add("2");
@@ -225,6 +234,14 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     overlapSelection->setEditableText(true);
     addAndMakeVisible(overlapSelection);
     
+    saturationWarningSelection = new ComboBox("Sat.Warn");
+    saturationWarningSelection->addItemList(saturationThresholds, 1);
+    saturationWarningSelection->setSelectedId(selectedSaturation,sendNotification);
+    saturationWarningSelection->addListener(this);
+    saturationWarningSelection->setEditableText(true);
+    addAndMakeVisible(saturationWarningSelection);
+    
+    
     colorGroupingSelection = new ComboBox("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
     colorGroupingSelection->setSelectedId(1,sendNotification);
@@ -252,17 +269,17 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     
     // two sliders for the two histogram components of the supersampled plotting mode
     // todo: rename these
-    histogramSlider = new Slider;
-    histogramSlider->setRange (0, 1);
-    histogramSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-    histogramSlider->addListener(this);
-    addAndMakeVisible (histogramSlider);
+    brightnessSliderA = new Slider;
+    brightnessSliderA->setRange (0, 1);
+    brightnessSliderA->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
+    brightnessSliderA->addListener(this);
+    addAndMakeVisible (brightnessSliderA);
     
-    supersampleSlider = new Slider;
-    supersampleSlider->setRange (0, 1);
-    supersampleSlider->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-    supersampleSlider->addListener(this);
-    addAndMakeVisible (supersampleSlider);
+    brightnessSliderB = new Slider;
+    brightnessSliderB->setRange (0, 1);
+    brightnessSliderB->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
+    brightnessSliderB->addListener(this);
+    addAndMakeVisible (brightnessSliderB);
     
     sliderALabel = new Label("Brightness","Brightness");
     sliderALabel->setFont(Font("Small Text", 13, Font::plain));
@@ -287,7 +304,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     
     
     //ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
-    drawSaturateWarningButton = new UtilityButton("drawSaturateWarning", Font("Small Text", 13, Font::plain));
+    drawSaturateWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
     drawSaturateWarningButton->setRadius(5.0f);
     drawSaturateWarningButton->setEnabledState(true);
     drawSaturateWarningButton->setCorners(true, true, true, true);
@@ -382,15 +399,18 @@ void LfpDisplayCanvas::resized()
     timebaseSelection->setBounds(175,getHeight()-30,60,25);
     
     spreadSelection->setBounds(245,getHeight()-30,60,25);
-    overlapSelection->setBounds(315,getHeight()-30,60,25);
     
-    colorGroupingSelection->setBounds(620,getHeight()-30,100,25);
+    overlapSelection->setBounds(315,getHeight()-30,60,25);
+    drawClipWarningButton->setBounds(410-30,getHeight()-29,20,20);
+    
+    colorGroupingSelection->setBounds(620,getHeight()-30,60,25);
 
     invertInputButton->setBounds(750,getHeight()-50,100,22);
     drawMethodButton->setBounds(750,getHeight()-25,100,22);
     pauseButton->setBounds(860,getHeight()-50,50,44);
 
-    drawClipWarningButton->setBounds(410-27,getHeight()-30,20,20);
+    saturationWarningSelection->setBounds(315+90,getHeight()-30,60,25);
+    drawSaturateWarningButton->setBounds(410-30+90,getHeight()-29,20,20);
     
     for (int i = 0; i < 8; i++)
     {
@@ -398,10 +418,10 @@ void LfpDisplayCanvas::resized()
         eventDisplayInterfaces[i]->repaint();
     }
     
-    histogramSlider->setBounds(920,getHeight()-50,100,22);
+    brightnessSliderA->setBounds(920,getHeight()-50,100,22);
     sliderALabel->setBounds(1020, getHeight()-50, 180, 22);
     
-    supersampleSlider->setBounds(920,getHeight()-25,100,22);
+    brightnessSliderB->setBounds(920,getHeight()-25,100,22);
     sliderBLabel->setBounds(1020, getHeight()-25, 180, 22);
 
     
@@ -517,6 +537,15 @@ void LfpDisplayCanvas::buttonClicked(Button* b)
     if (b == drawClipWarningButton)
     {
         drawClipWarning = b->getToggleState();
+        
+        fullredraw=true;
+        repaint();
+        refresh();
+        return;
+    }
+    if (b == drawSaturateWarningButton)
+    {
+        drawSaturationWarning = b->getToggleState();
         
         fullredraw=true;
         repaint();
@@ -680,6 +709,42 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         refresh();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
+    else if (cb == saturationWarningSelection)
+    {
+        if (cb->getSelectedId())
+        {
+            selectedSaturationValueFloat=(saturationThresholds[cb->getSelectedId()-1].getFloatValue());
+        }
+        else
+        {
+            float selectedSaturationValueFloat = cb->getText().getFloatValue();
+            if (selectedSaturationValueFloat)
+            {
+                if (selectedSaturationValueFloat < 0)
+                {
+                    cb->setSelectedId(1,dontSendNotification);
+                    selectedSaturationValueFloat = saturationThresholds[0].getFloatValue();
+                }
+                else
+                {
+                    cb->setText(String(selectedSaturationValueFloat),dontSendNotification);
+                }
+            }
+            else
+            {
+               // cb->setSelectedId(1,dontSendNotification);
+                //selectedSaturationValueFloat = saturationThresholds[0].getFloatValue();
+
+            }
+        }
+        selectedSpread = cb->getSelectedId();
+        selectedSpreadValue = cb->getText();
+        lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
+        fullredraw = true; //issue full redraw
+        repaint();
+        refresh();
+        std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
+    }
     else if (cb == overlapSelection)
     {
         if (cb->getSelectedId())
@@ -725,6 +790,7 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         refresh();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
+
     else if (cb == colorGroupingSelection)
     {
         // set color grouping hre
@@ -741,10 +807,10 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 
 void LfpDisplayCanvas::sliderValueChanged(Slider* sl)
 {
-    if (sl == histogramSlider)
+    if (sl == brightnessSliderA)
     histogramParameterA = sl->getValue();
 
-    if (sl == supersampleSlider)
+    if (sl == brightnessSliderB)
     histogramParameterB = sl->getValue();
     
     fullredraw=true;
@@ -1095,7 +1161,10 @@ void LfpDisplayCanvas::paint(Graphics& g)
     g.drawText("Timebase(s)",140,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Size(px)",240,getHeight()-55,300,20,Justification::left, false);
     g.drawText("Clip",315,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Warn",375,getHeight()-55,300,20,Justification::left, false);
+    g.drawText("Warn",373,getHeight()-55,300,20,Justification::left, false);
+    
+    g.drawText("Sat.Warn.",315+105,getHeight()-55,300,20,Justification::left, false);
+    //g.drawText("Warn",375+90,getHeight()-55,300,20,Justification::left, false);
     
     g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
 
@@ -1107,8 +1176,15 @@ void LfpDisplayCanvas::paint(Graphics& g)
     if(drawClipWarning)
     {
         g.setColour(Colours::white);
-        g.fillRoundedRectangle(408-27,getHeight()-30-2,24,24,6.0f);
+        g.fillRoundedRectangle(408-30,getHeight()-30-1,24,24,6.0f);
     }
+    
+    if(drawSaturationWarning)
+    {
+        g.setColour(Colours::red);
+        g.fillRoundedRectangle(408-30+90,getHeight()-30-1,24,24,6.0f);
+    }
+    
 
 }
 
@@ -1977,6 +2053,9 @@ void LfpChannelDisplay::pxPaint()
         int jfrom_wholechannel= (int) (getY()+center-channelHeight/2)+1 +0 ;
         int jto_wholechannel= (int) (getY()+center+channelHeight/2) -0;
     
+        int jfrom_wholechannel_almost= (int) (getY()+center-channelHeight/3)+1 +0 ; // a bit less tall, for saturation warnings
+        int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
+        
         
         // max and min of channel, this is the range where actual data is drawn
         int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvas->channelOverlapFactor)+1  ;
@@ -2062,14 +2141,22 @@ void LfpChannelDisplay::pxPaint()
             // set max-min range for plotting, used in all methods
             double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
             double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
+            
+            double a_raw = canvas->getYCoordMax(chan, i);
+            double b_raw = canvas->getYCoordMin(chan, i);
+            double from_raw=0; double to_raw=0;
+            
             //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
             if (a<b)
             {
                 from = (a); to = (b);
+                from_raw = (a_raw); to_raw = (b_raw);
+
             }
             else
             {
                 from = (b); to = (a);
+                from_raw = (b_raw); to_raw = (a_raw);
             }
             
             // start by clipping so that we're not populating pixels that we dont want to plot
@@ -2083,7 +2170,11 @@ void LfpChannelDisplay::pxPaint()
             if (to < lm) {to = lm; clipWarningLo=true;};
             
             
-            
+            // test if raw data is clipped for displaying saturation warning
+            if (from_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
+            if (to_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
+            if (from_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
+            if (to_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
             
             
             from=from+getHeight()/2;       // so the plot is centered in the channeldisplay
@@ -2145,10 +2236,9 @@ void LfpChannelDisplay::pxPaint()
                     }
                     
                     
-                    
-                    for (int s = 0; s < samplerange; s ++)  // plot histogram one pixel per bin
+                    for (int s = 0; s <= samplerange; s ++)  // plot histogram one pixel per bin
                     {
-                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(0.5+canvas->histogramParameterA);
+                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.5+canvas->histogramParameterA));
                         if (a>1.0f) {a=1.0f;};
                         if (a<0.0f) {a=0.0f;};
                         
@@ -2232,6 +2322,43 @@ void LfpChannelDisplay::pxPaint()
             clipWarningHi=false;
             clipWarningLo=false;
             }
+            
+            
+            if (canvas->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
+            {
+                
+                if(saturateWarningHi || saturateWarningLo) {
+                    
+                    
+                    
+                    
+                    for (int k=jfrom_wholechannel_almost; k<=jto_wholechannel_almost; k++){ // draw line
+                        Colour thiscolour=Colour(255,0,0);
+                        if (fmod((i+k)*5,100)>50){
+                            thiscolour=Colour(0,0,0);
+                        }
+                        bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
+                    };
+                        
+                        //bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(Colour(fmod((i+k)/100,255),0,0),0.5f));
+
+                    
+                    //for (int j=0; j<=10; j++)
+                    //{
+                        //int clipmarker = jto_wholechannel_clip;
+                        
+                        //if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                         //   bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,0,0));
+                        //}
+                    //}
+                }
+                
+                
+                saturateWarningHi=false;
+                saturateWarningLo=false;
+            }
+
+            
         } // for i (x pixels)
         
     } // isenabled

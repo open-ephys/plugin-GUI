@@ -128,8 +128,11 @@ public:
     Array<bool> isChannelEnabled;
     
     bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
-    bool  drawSaturateWarning; // optionally raise hell if the actual data is saturating
+    bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
+    
+    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the genreal plugin parameter overhaul.
 
+    
     int nChans;
 
 private:
@@ -143,7 +146,7 @@ private:
 
     static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 200; // maximum samples considered for drawing each pixel
+    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for drawing each pixel
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
@@ -165,9 +168,11 @@ private:
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
-    ScopedPointer<ComboBox> overlapSelection;
     
+    ScopedPointer<ComboBox> overlapSelection;
     ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
+    
+    ScopedPointer<ComboBox> saturationWarningSelection;
     ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
     
     ScopedPointer<ComboBox> colorGroupingSelection;
@@ -177,8 +182,8 @@ private:
     OwnedArray<UtilityButton> typeButtons;
     
     
-    ScopedPointer<Slider> histogramSlider;
-    ScopedPointer<Slider> supersampleSlider;
+    ScopedPointer<Slider> brightnessSliderA;
+    ScopedPointer<Slider> brightnessSliderB;
     
     ScopedPointer<Label> sliderALabel;
     ScopedPointer<Label> sliderBLabel;
@@ -188,6 +193,8 @@ private:
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
     StringArray overlaps; //
+    StringArray saturationThresholds; //default values for when different amplifiers saturate
+
     
     ChannelType selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
@@ -205,6 +212,10 @@ private:
 
     int selectedOverlap;
     String selectedOverlapValue;
+    
+    int selectedSaturation; // for saturation warning
+    String selectedSaturationValue;
+
     
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
