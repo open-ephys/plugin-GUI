@@ -701,11 +701,13 @@ void SpikeHistogramPlot::resized()
     float width = (float)getWidth()-10;
     float height = (float) getHeight()-25;
 
-    float axesWidth, axesHeight;
+    float axesWidth = 0;
+    float axesHeight = 0;
 
     // to compute the axes positions we need to know how many columns of proj and wave axes should exist
     // using these two values we can calculate the positions of all of the sub axes
-    int nProjCols, nWaveCols;
+    int nProjCols = 0;
+    int nWaveCols = 0;
 
     switch (plotType)
     {
@@ -755,7 +757,7 @@ void SpikeHistogramPlot::modifyRange(std::vector<float> values)
     {
         for (int k = 0; k < NUM_RANGE; k++)
         {
-            if (abs(values[index] - range_array[k]) < 0.1)
+            if (std::abs(values[index] - range_array[k]) < 0.1)
             {
                 newIndex = k;
                 break;
@@ -777,7 +779,7 @@ void SpikeHistogramPlot::modifyRange(int index,bool up)
     String label;
     for (int k = 0; k < NUM_RANGE; k++)
     {
-        if (abs(ranges[index] - range_array[k]) < 0.1)
+        if (std::abs(ranges[index] - range_array[k]) < 0.1)
         {
             int newIndex;
             if (up)
@@ -1007,7 +1009,7 @@ double GenericDrawAxes::ad16ToUv(int x, int gain)
 // --------------------------------------------------
 
 
-WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(channel),  electrodeID(electrodeID_),
+WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrodeID_, int _channel) : GenericDrawAxes(_channel),  electrodeID(electrodeID_),
     signalFlipped(false),
     channel(_channel),
     drawGrid(true),

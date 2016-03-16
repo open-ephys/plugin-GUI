@@ -2,7 +2,6 @@
 LIBNAME := $(notdir $(CURDIR))
 OBJDIR := $(OBJDIR)/$(LIBNAME)
 TARGET := $(LIBNAME).so
-OS := $(shell uname)
 
 SRC_DIR := ${shell find ./ -type d -print}
 VPATH := $(SOURCE_DIRS)
@@ -10,10 +9,6 @@ VPATH := $(SOURCE_DIRS)
 SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
-ifeq ($(OS),Darwin)
-CXXFLAGS := $(CXXFLAGS) -I/opt/local/include 
-LDFLAGS := $(LDFLAGS) -L/opt/local/lib  
-endif
 CXXFLAGS := $(CXXFLAGS) -D "ZEROMQ"
 LDFLAGS := $(LDFLAGS) -lzmq
 

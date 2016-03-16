@@ -1,0 +1,220 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F558461C9B12730035F88B /* ChannelMappingEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558401C9B12730035F88B /* ChannelMappingEditor.cpp */; };
+		E1F558471C9B12730035F88B /* ChannelMappingNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558421C9B12730035F88B /* ChannelMappingNode.cpp */; };
+		E1F558491C9B12730035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558451C9B12730035F88B /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F558321C9B11E80035F88B /* ChannelMappingNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChannelMappingNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F558351C9B11E80035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F5583C1C9B12240035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F5583D1C9B12240035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F5583E1C9B12240035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F558401C9B12730035F88B /* ChannelMappingEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChannelMappingEditor.cpp; sourceTree = "<group>"; };
+		E1F558411C9B12730035F88B /* ChannelMappingEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChannelMappingEditor.h; sourceTree = "<group>"; };
+		E1F558421C9B12730035F88B /* ChannelMappingNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChannelMappingNode.cpp; sourceTree = "<group>"; };
+		E1F558431C9B12730035F88B /* ChannelMappingNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChannelMappingNode.h; sourceTree = "<group>"; };
+		E1F558451C9B12730035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F5582F1C9B11E80035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F558291C9B11E80035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F5583B1C9B12240035F88B /* Config */,
+				E1F558341C9B11E80035F88B /* ChannelMappingNode */,
+				E1F558331C9B11E80035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F558331C9B11E80035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558321C9B11E80035F88B /* ChannelMappingNode.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F558341C9B11E80035F88B /* ChannelMappingNode */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5583F1C9B12730035F88B /* Source */,
+				E1F558351C9B11E80035F88B /* Info.plist */,
+			);
+			path = ChannelMappingNode;
+			sourceTree = "<group>";
+		};
+		E1F5583B1C9B12240035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5583C1C9B12240035F88B /* Plugin.xcconfig */,
+				E1F5583D1C9B12240035F88B /* Plugin_Debug.xcconfig */,
+				E1F5583E1C9B12240035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F5583F1C9B12730035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558411C9B12730035F88B /* ChannelMappingEditor.h */,
+				E1F558401C9B12730035F88B /* ChannelMappingEditor.cpp */,
+				E1F558431C9B12730035F88B /* ChannelMappingNode.h */,
+				E1F558421C9B12730035F88B /* ChannelMappingNode.cpp */,
+				E1F558451C9B12730035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/ChannelMappingNode;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F558311C9B11E80035F88B /* ChannelMappingNode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F558381C9B11E80035F88B /* Build configuration list for PBXNativeTarget "ChannelMappingNode" */;
+			buildPhases = (
+				E1F5582E1C9B11E80035F88B /* Sources */,
+				E1F5582F1C9B11E80035F88B /* Frameworks */,
+				E1F558301C9B11E80035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChannelMappingNode;
+			productName = ChannelMappingNode;
+			productReference = E1F558321C9B11E80035F88B /* ChannelMappingNode.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F5582A1C9B11E80035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F558311C9B11E80035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F5582D1C9B11E80035F88B /* Build configuration list for PBXProject "ChannelMappingNode" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F558291C9B11E80035F88B;
+			productRefGroup = E1F558331C9B11E80035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F558311C9B11E80035F88B /* ChannelMappingNode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F558301C9B11E80035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F5582E1C9B11E80035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F558471C9B12730035F88B /* ChannelMappingNode.cpp in Sources */,
+				E1F558461C9B12730035F88B /* ChannelMappingEditor.cpp in Sources */,
+				E1F558491C9B12730035F88B /* OpenEphysLib.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F558361C9B11E80035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F5583D1C9B12240035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F558371C9B11E80035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F5583E1C9B12240035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F558391C9B11E80035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = ChannelMappingNode/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.ChannelMappingNode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F5583A1C9B11E80035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = ChannelMappingNode/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.ChannelMappingNode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F5582D1C9B11E80035F88B /* Build configuration list for PBXProject "ChannelMappingNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F558361C9B11E80035F88B /* Debug */,
+				E1F558371C9B11E80035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F558381C9B11E80035F88B /* Build configuration list for PBXNativeTarget "ChannelMappingNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F558391C9B11E80035F88B /* Debug */,
+				E1F5583A1C9B11E80035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F5582A1C9B11E80035F88B /* Project object */;
+}

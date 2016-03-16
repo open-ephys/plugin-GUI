@@ -1,0 +1,220 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F559D51C9B40FF0035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559CF1C9B40FF0035F88B /* OpenEphysLib.cpp */; };
+		E1F559D61C9B40FF0035F88B /* SerialInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559D01C9B40FF0035F88B /* SerialInput.cpp */; };
+		E1F559D71C9B40FF0035F88B /* SerialInputEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559D21C9B40FF0035F88B /* SerialInputEditor.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F559C01C9B40A10035F88B /* SerialInput.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SerialInput.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F559C31C9B40A10035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F559CA1C9B40DA0035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F559CB1C9B40DA0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F559CC1C9B40DA0035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F559CF1C9B40FF0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F559D01C9B40FF0035F88B /* SerialInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SerialInput.cpp; sourceTree = "<group>"; };
+		E1F559D11C9B40FF0035F88B /* SerialInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SerialInput.h; sourceTree = "<group>"; };
+		E1F559D21C9B40FF0035F88B /* SerialInputEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SerialInputEditor.cpp; sourceTree = "<group>"; };
+		E1F559D31C9B40FF0035F88B /* SerialInputEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SerialInputEditor.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F559BD1C9B40A10035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F559B71C9B40A10035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F559C91C9B40DA0035F88B /* Config */,
+				E1F559C21C9B40A10035F88B /* SerialInput */,
+				E1F559C11C9B40A10035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F559C11C9B40A10035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559C01C9B40A10035F88B /* SerialInput.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F559C21C9B40A10035F88B /* SerialInput */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559CD1C9B40FF0035F88B /* Source */,
+				E1F559C31C9B40A10035F88B /* Info.plist */,
+			);
+			path = SerialInput;
+			sourceTree = "<group>";
+		};
+		E1F559C91C9B40DA0035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559CA1C9B40DA0035F88B /* Plugin.xcconfig */,
+				E1F559CB1C9B40DA0035F88B /* Plugin_Debug.xcconfig */,
+				E1F559CC1C9B40DA0035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F559CD1C9B40FF0035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559D11C9B40FF0035F88B /* SerialInput.h */,
+				E1F559D01C9B40FF0035F88B /* SerialInput.cpp */,
+				E1F559D31C9B40FF0035F88B /* SerialInputEditor.h */,
+				E1F559D21C9B40FF0035F88B /* SerialInputEditor.cpp */,
+				E1F559CF1C9B40FF0035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/SerialInput;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F559BF1C9B40A10035F88B /* SerialInput */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F559C61C9B40A10035F88B /* Build configuration list for PBXNativeTarget "SerialInput" */;
+			buildPhases = (
+				E1F559BC1C9B40A10035F88B /* Sources */,
+				E1F559BD1C9B40A10035F88B /* Frameworks */,
+				E1F559BE1C9B40A10035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SerialInput;
+			productName = SerialInput;
+			productReference = E1F559C01C9B40A10035F88B /* SerialInput.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F559B81C9B40A10035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F559BF1C9B40A10035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F559BB1C9B40A10035F88B /* Build configuration list for PBXProject "SerialInput" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F559B71C9B40A10035F88B;
+			productRefGroup = E1F559C11C9B40A10035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F559BF1C9B40A10035F88B /* SerialInput */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F559BE1C9B40A10035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F559BC1C9B40A10035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F559D71C9B40FF0035F88B /* SerialInputEditor.cpp in Sources */,
+				E1F559D61C9B40FF0035F88B /* SerialInput.cpp in Sources */,
+				E1F559D51C9B40FF0035F88B /* OpenEphysLib.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F559C41C9B40A10035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559CB1C9B40DA0035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F559C51C9B40A10035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559CC1C9B40DA0035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F559C71C9B40A10035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SerialInput/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.SerialInput";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F559C81C9B40A10035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SerialInput/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.SerialInput";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F559BB1C9B40A10035F88B /* Build configuration list for PBXProject "SerialInput" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559C41C9B40A10035F88B /* Debug */,
+				E1F559C51C9B40A10035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F559C61C9B40A10035F88B /* Build configuration list for PBXNativeTarget "SerialInput" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559C71C9B40A10035F88B /* Debug */,
+				E1F559C81C9B40A10035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F559B81C9B40A10035F88B /* Project object */;
+}
