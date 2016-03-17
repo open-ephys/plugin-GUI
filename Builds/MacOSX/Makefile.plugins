@@ -22,7 +22,7 @@ ifeq ($(CONFIG),Debug)
 
   CPPFLAGS := $(DEPFLAGS) -D "DEBUG=1" -D "_DEBUG=1" -D "OEPLUGIN" -D "JUCER_XCODE_MAC_F6D2F4CF=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I $(CURDIR)/../../Source/Plugins/Headers
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -g -std=c++0x -fPIC
-  CXXFLAGS += $(CFLAGS)
+  CXXFLAGS += $(CFLAGS) -Wno-inconsistent-missing-override
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -ldl -lpthread -ldl -fPIC -rdynamic -dynamiclib -undefined dynamic_lookup
   LDDEPS :=
   RESFLAGS := -D "DEBUG=1" -D "_DEBUG=1" -D "OEPLUGIN" -D "JUCER_XCODE_MAC_F6D2F4CF=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I $(CURDIR)/../../Source/Plugins/Headers
@@ -41,7 +41,7 @@ ifeq ($(CONFIG),Release)
 
   CPPFLAGS := $(DEPFLAGS) -D "NDEBUG=1" -D "OEPLUGIN" -D "JUCER_XCODE_MAC_F6D2F4CF=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I $(CURDIR)/../../Source/Plugins/Headers
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -g -std=c++0x -fPIC 
-  CXXFLAGS += $(CFLAGS)
+  CXXFLAGS += $(CFLAGS) -Wno-inconsistent-missing-override
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -ldl -lpthread -ldl -fPIC -rdynamic -dynamiclib -undefined dynamic_lookup
   LDDEPS1 :=
   RESFLAGS := -D "NDEBUG=1" -D "OEPLUGIN" -D "JUCER_XCODE_MAC_F6D2F4CF=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers

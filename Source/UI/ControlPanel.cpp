@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
-const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
+//const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
 
 PlayButton::PlayButton()
