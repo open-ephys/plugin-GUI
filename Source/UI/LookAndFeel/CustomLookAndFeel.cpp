@@ -22,7 +22,7 @@
 */
 
 #include "CustomLookAndFeel.h"
-#include "CustomArrowButton.h"
+#include "../CustomArrowButton.h"
 
 CustomLookAndFeel::CustomLookAndFeel() :
     // third argument to MIS means don't copy the binary data to make a new stream
