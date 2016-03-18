@@ -37,8 +37,8 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 {
 
     // initialize buttons
-	audioButton = new EditorButton("AUDIO", titleFont);
-	audioButton->addListener(this);
+    audioButton = new EditorButton("AUDIO", titleFont);
+    audioButton->addListener(this);
     addAndMakeVisible(audioButton);
     if (!createButtons)
         audioButton->setState(false);
@@ -1238,22 +1238,22 @@ int ChannelSelectorBox::convertToInteger(std::string s)
 {
     char ar[20];
     int i,j,k=0;
-	for (i = 0; i < s.size(); i++)
-	{
-		if ((int)s[i] != 32)
-		{
-			break;
-		}
-	}
-	for (j = s.size() - 1; j >= 0; j--)
-	{
-		if ((int)s[j] != 32)
-		{
-			break;
-		}
-	}
-	
-	for (; i <= j; i++)
+    for (i = 0; i < s.size(); i++)   //trim whitespace from front
+    {
+        if ((int)s[i] != 32)
+        {
+            break;
+        }
+    }
+    for (j = s.size() - 1; j >= 0; j--)   //trim whitespaces from end
+    {
+        if ((int)s[j] != 32)
+        {
+            break;
+        }
+    }
+
+    for (; i <= j; i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
         {
@@ -1279,100 +1279,105 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
     std::vector<std::string> parsed;
     std::vector<int> finalList,colonNum,boxList;
     finalList.clear();
-	int i, j, k, a, otherChar = 0, b, x;
+    int i, j, k, a, otherChar = 0, b, x;
 
-	for (i = 0; i < s.size(); i++)
-	{
-		if (s[i] == '[')
-		{
-			boxList.push_back(i);
-			j = i + 1;
-			for (; j < s.size(); j++)
-			{
-				if (s[j] == ']')
-				{
-					boxList.push_back(j); break;
-				}
-			}
-			i = j;
-		}
-	}
+    for (i = 0; i < s.size(); i++)  //fetch all valid ranges from text box
+    {
+        if (s[i] == '[')
+        {
+            boxList.push_back(i);
+            j = i + 1;
+            for (; j < s.size(); j++)
+            {
+                if (s[j] == ']')
+                {
+                    boxList.push_back(j);
+                    break;
+                }
+            }
+            i = j;
+        }
+    }
 
-	if (boxList.size() % 2 != 0)
-	{
-		boxList.pop_back();
-	}
+    if (boxList.size() % 2 != 0)
+    {
+        boxList.pop_back();
+    }
 
-	for (i = 0; i < boxList.size(); i+=2)
-	{
-		colonNum.clear(); otherChar = 0;
-		for (x = boxList[i] + 1; x < boxList[i + 1]; x++)
-		{
-			if (s[x] == ':')
-			{
-				colonNum.push_back(x);
-			}
-			else if ((int)s[x] == 32)
-			{
-				continue;
-			}
-			else if (((int)s[x] < 48 ||  (int)s[x]>57))
-			{
-				otherChar++;
-			}
-		}
-		if (colonNum.size()>2 || colonNum.size() < 1 || otherChar > 0)
-		{
-			continue;
-		}
+    /*
+    for each valid ranges fetch the start value, end value, common difference.
+    */
+    for (i = 0; i < boxList.size(); i+=2)
+    {
+        colonNum.clear();
+        otherChar = 0;
+        for (x = boxList[i] + 1; x < boxList[i + 1]; x++)
+        {
+            if (s[x] == ':')
+            {
+                colonNum.push_back(x);
+            }
+            else if ((int)s[x] == 32)
+            {
+                continue;
+            }
+            else if (((int)s[x] < 48 ||  (int)s[x]>57))
+            {
+                otherChar++;
+            }
+        }
+        if (colonNum.size()>2 || colonNum.size() < 1 || otherChar > 0)
+        {
+            continue;
+        }
 
-		if (colonNum.size() == 1)
-		{
-			a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
-			b = convertToInteger(s.substr(colonNum[0], boxList[i+1] - colonNum[0] + 1));
-			if (a == 0)
-			{
-				a = 1;
-			}
-			if (b == 0)
-			{
-				b = len;
-			}
-			if (a > len || b > len || a > b)
-			{
-				continue;
-			}
-			finalList.push_back(a - 1);
-			finalList.push_back(b - 1);
-			finalList.push_back(1);
-		}
-		else if (colonNum.size() == 2)
-		{
-			a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
-			k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
-			b = convertToInteger(s.substr(colonNum[1], boxList[i+1] - colonNum[1] + 1));
-			if (k == 0)
-			{
-				k = 1;
-			}
-			if (a == 0)
-			{
-				a = 1;
-			}
-			if (b == 0)
-			{
-				b = len;
-			}
+        if (colonNum.size() == 1)         //when range is of form [x:y]
+        {
+            a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
+            b = convertToInteger(s.substr(colonNum[0], boxList[i+1] - colonNum[0] + 1));
+            if (a == 0)
+            {
+                a = 1;
+            }
+            if (b == 0)
+            {
+                b = len;
+            }
+            if (a > len || b > len || a > b)
+            {
+                continue;
+            }
+            finalList.push_back(a - 1);
+            finalList.push_back(b - 1);
+            finalList.push_back(1);
+        }
+        else if (colonNum.size() == 2)    //when range is of form [x:k:y]
+        {
+            a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
+            k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
+            b = convertToInteger(s.substr(colonNum[1], boxList[i+1] - colonNum[1] + 1));
+            if (k == 0)
+            {
+                k = 1;
+            }
+            if (a == 0)
+            {
+                a = 1;
+            }
+            if (b == 0)
+            {
+                b = len;
+            }
 
-			if (a > len || b > len || a > b)
-			{
-				continue;
-			}
-			finalList.push_back(a - 1);
-			finalList.push_back(b - 1);
-			finalList.push_back(k);
-		}
-	}
+            if (a > len || b > len || a > b)
+            {
+                continue;
+            }
+            finalList.push_back(a - 1);
+            finalList.push_back(b - 1);
+            finalList.push_back(k);
+        }
+    }
 
     return finalList;
 }
