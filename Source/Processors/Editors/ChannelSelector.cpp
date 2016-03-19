@@ -1252,7 +1252,10 @@ int ChannelSelectorBox::convertToInteger(std::string s)
             break;
         }
     }
-
+    if (j - i > 8)
+    {
+        return 0;
+    }
     for (; i <= j; i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
@@ -1297,6 +1300,27 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
             }
             i = j;
         }
+        else if ((int)s[i] >= 48 && (int)s[i] <= 57)   // when input is given for a single channel without square brackets.
+        {
+            j = i;
+            for (; j < s.size(); j++)
+            {
+                if ((int)s[j] > 57 || (int)s[j] < 48)
+                {
+                    break;
+                }
+            }
+            a = convertToInteger(s.substr(i, j - i + 1));
+            if (a == 0 || a > len)
+            {
+                i = j;
+                continue;
+            }
+            finalList.push_back(a - 1);
+            finalList.push_back(a - 1);
+            finalList.push_back(1);
+            i = j;
+        }
     }
 
     if (boxList.size() % 2 != 0)
@@ -1326,7 +1350,7 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
                 otherChar++;
             }
         }
-        if (colonNum.size()>2 || colonNum.size() < 1 || otherChar > 0)
+        if (colonNum.size()>2 || otherChar > 0)
         {
             continue;
         }
@@ -1377,7 +1401,17 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
             finalList.push_back(b - 1);
             finalList.push_back(k);
         }
+        else if (colonNum.size() == 0)      // when range is of form [x]
+        {
+            a = convertToInteger(s.substr(boxList[i], boxList[i + 1] - boxList[i] + 1));
+            if (a == 0)
+            {
+                continue;
+            }
+            finalList.push_back(a - 1);
+            finalList.push_back(a - 1);
+            finalList.push_back(1);
+        }
     }
-
     return finalList;
 }

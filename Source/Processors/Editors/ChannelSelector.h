@@ -35,7 +35,7 @@ class ChannelSelectorRegion;
 class ChannelSelectorButton;
 class EditorButton;
 class ChannelSelectorBox;
-
+class ShowAlertMessage;
 /**
 
 Automatically creates an interactive editor for selecting channels.
@@ -314,5 +314,4 @@ public:
     std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
     int convertToInteger(std::string s);   // Conversion of string to integer.
 };
-
 #endif  // __CHANNELSELECTOR_H_68124E35__
