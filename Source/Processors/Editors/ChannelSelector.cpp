@@ -696,7 +696,7 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
     isEnabled = true;
     
     buttonFont = f;
-    buttonFont.setHeight(10);
+    buttonFont.setHeight (11);
     
     if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
     {
@@ -834,10 +834,10 @@ void EditorButton::resized()
 
 void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    
+
     g.setColour(Colours::grey);
     g.fillPath(outlinePath);
-    
+
     if (getToggleState())
     {
         if (isMouseOver && isEnabled)
@@ -852,23 +852,22 @@ void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
         else
             g.setGradientFill(neutralGrad);
     }
-    
+
     AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
                                                float(getHeight())/2.0f);
     g.fillPath(outlinePath, a);
-    
-    buttonFont.setHeight(10.0f);
-    int stringWidth = buttonFont.getStringWidth(getName());
-    
-    g.setFont(buttonFont);
-    
+
+    auto buttonName = getName().toUpperCase();
+    int stringWidth = buttonFont.getStringWidth (buttonName);
+
+    g.setFont (buttonFont);
+
     if (isEnabled)
         g.setColour(Colours::darkgrey);
     else
         g.setColour(Colours::lightgrey);
-    
-    g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 11);
-    
+
+    g.drawSingleLineText (buttonName, getWidth() / 2 - stringWidth / 2, 11);
 }
 
 
@@ -878,11 +877,11 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
     num = num_;
     displayNum = num_;
     type = type_;
-    
+
     setClickingTogglesState(true);
-    
+
     buttonFont = f;
-    buttonFont.setHeight(10);
+    buttonFont.setHeight (11);
 }
 
 ChannelSelectorButton::~ChannelSelectorButton() {}
