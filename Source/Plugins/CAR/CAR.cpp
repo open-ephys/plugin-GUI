@@ -27,12 +27,11 @@
 
 
 CAR::CAR()
-    : GenericProcessor("Common Avg Ref") //, threshold(200.0), state(true)
-
+    : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
 {
     parameters.add (Parameter ("Gain (%)", 0.0, 100.0, 100.0, 0));
 
-    avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
+    m_avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
 }
 
 
@@ -56,35 +55,60 @@ void CAR::setParameter (int parameterIndex, float newValue)
 
 void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
-    const int nChannels   = buffer.getNumChannels();
-    const int numSamples  = buffer.getNumSamples();
+    const int numSamples            = buffer.getNumSamples();
+    const int numReferenceChannels  = m_referenceChannels.size();
+    const int numAffectedChannels   = m_affectedChannels.size();
+
+    // There are no sense to do any processing if either number of reference or affected channels is zero.
+    if (! numReferenceChannels
+        || ! numAffectedChannels)
+    {
+        return;
+    }
+
+    m_avgBuffer.clear();
+
+    for (int i = 0; i < numReferenceChannels; ++i)
+    {
+        m_avgBuffer.addFrom (0,                         // destChannel
+                             0,                         // destStartSample
+                             buffer,                    // source
+                             m_referenceChannels[i],    // sourceChannel
+                             0,                         // sourceStartSample
+                             numSamples,                // numSamples
+                             1.0f);                     // gain to apply
+    }
+
+    m_avgBuffer.applyGain (1.0f / float (numReferenceChannels));
+
 
     // just use channel 0, since we can't have individual channel settings at the moment
     const float gain = -1.0f * float (getParameterVar (0, 0)) / 100.0f;
 
-    avgBuffer.clear();
-
-    for (int channel = 0; channel < nChannels; ++channel)
+    for (int i = 0; i < numAffectedChannels; ++i)
     {
-        avgBuffer.addFrom (0,                       // destChannel
-                           0,                       // destStartSample
-                           buffer,                  // source
-                           channel,                 // sourceChannel
-                           0,                       // sourceStartSample
-                           numSamples,              // numSamples
-                           1.0f);                   // gain to apply
+        buffer.addFrom (m_affectedChannels[i],  // destChannel
+                        0,                      // destStartSample
+                        m_avgBuffer,            // source
+                        0,                      // sourceChannel
+                        0,                      // sourceStartSample
+                        numSamples,             // numSamples
+                        gain);                  // gain to apply
     }
+}
 
-    avgBuffer.applyGain (1.0f / float (nChannels));
 
-    for (int channel = 0; channel < nChannels; ++channel)
-    {
-        buffer.addFrom (channel,        // destChannel
-                        0,              // destStartSample
-                        avgBuffer,      // source
-                        0,              // sourceChannel
-                        0,              // sourceStartSample
-                        numSamples,     // numSamples
-                        gain);          // gain to apply
-    }
+void CAR::setReferenceChannels (const Array<int> newReferenceChannels)
+{
+    const ScopedLock myScopedLock (objectLock);
+
+    m_referenceChannels = Array (newReferenceChannels);
+}
+
+
+void CAR::setAffectedChannels (const Array<int> newAffectedChannels)
+{
+    const ScopedLock myScopedLock (objectLock);
+
+    m_affectedChannels = Array (newAffectedChannels);
 }

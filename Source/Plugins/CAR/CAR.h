@@ -77,11 +77,32 @@ public:
         other way, the application will crash.  */
     void setParameter (int parameterIndex, float newValue) override;
 
+    Array<int> getReferenceChannels() const     { return m_referenceChannels; }
+    Array<int> getAffectedChannels()  const     { return m_affectedChannels; }
+
+    void setReferenceChannels (const Array<int>& newReferenceChannels);
+    void setAffectedChannels  (const Array<int>& newAffectedChannels);
 
 private:
-    AudioSampleBuffer avgBuffer;
+    AudioSampleBuffer m_avgBuffer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CAR);
+    /** We should add this for safety to prevent any app crashes or invalid data processing.
+        Since we use m_referenceChannels and m_affectedChannels arrays in the process() function,
+        which works in audioThread, we may stumble upon the situation when we start changing
+        either reference or affected channels by copying array and in the middle of copying process
+        we will be interrupted by audioThread. So it most probably will lead to app crash or
+        processing incorrect channels.
+    */
+    CriticalSection objectLock;
+
+    /** Array of channels which will be used to calculate mean signal. */
+    Array<int> m_referenceChannels;
+
+    /** Array of channels that will be affected by adding/substracting of mean signal of reference channels */
+    Array<int> m_affectedChannels;
+
+    // ==================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CAR);
 };
 
 
