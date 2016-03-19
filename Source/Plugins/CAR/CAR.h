@@ -36,18 +36,16 @@
     This is a simple filter that subtracts the average of all other channels from 
     each channel. The gain parameter allows you to subtract a percentage of the total avg.
 
-	See Ludwig et al. 2009 Using a common average reference to improve cortical
-	neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
-	discussion
+    See Ludwig et al. 2009 Using a common average reference to improve cortical
+    neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
+    discussion
 
-	
+
 */
 
 class CAR : public GenericProcessor
-
 {
 public:
-
     /** The class constructor, used to initialize any members. */
     CAR();
 
@@ -55,16 +53,10 @@ public:
     ~CAR();
 
     /** Determines whether the processor is treated as a source. */
-    bool isSource()
-    {
-        return false;
-    }
+    bool isSource() override { return false; }
 
     /** Determines whether the processor is treated as a sink. */
-    bool isSink()
-    {
-        return false;
-    }
+    bool isSink()   override { return false; }
 
     /** Defines the functionality of the processor.
 
@@ -78,21 +70,19 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
          */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
     /** Any variables used by the "process" function _must_ be modified only through
         this method while data acquisition is active. If they are modified in any
         other way, the application will crash.  */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    AudioSampleBuffer avgBuffer;
 
 private:
+    AudioSampleBuffer avgBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CAR);
-
 };
-
 
 
 
