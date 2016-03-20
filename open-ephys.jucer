@@ -507,7 +507,17 @@
         </GROUP>
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
+        <GROUP id="{0CCF438B-DD41-FC9E-7C68-3079F4BCB2D2}" name="Utils">
+          <FILE id="GFX1Tc" name="ButtonGroupManager.cpp" compile="1" resource="0"
+                file="Source/UI/Utils/ButtonGroupManager.cpp"/>
+          <FILE id="AIybG9" name="ButtonGroupManager.h" compile="0" resource="0"
+                file="Source/UI/Utils/ButtonGroupManager.h"/>
+        </GROUP>
         <GROUP id="{4DEE2319-EFDC-8525-9E6D-CC2453D07E6A}" name="LookAndFeel">
+          <FILE id="GLPszU" name="MaterialButtonLookAndFeel.cpp" compile="1"
+                resource="0" file="Source/UI/LookAndFeel/MaterialButtonLookAndFeel.cpp"/>
+          <FILE id="VZAIuz" name="MaterialButtonLookAndFeel.h" compile="0" resource="0"
+                file="Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"/>
           <FILE id="kKrq6c" name="MaterialSliderLookAndFeel.cpp" compile="1"
                 resource="0" file="Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp"/>
           <FILE id="IzNTEQ" name="MaterialSliderLookAndFeel.h" compile="0" resource="0"
