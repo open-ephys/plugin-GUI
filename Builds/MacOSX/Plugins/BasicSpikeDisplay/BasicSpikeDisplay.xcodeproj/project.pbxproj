@@ -1,0 +1,254 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F558051C9B0DAC0035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557F71C9B0DAC0035F88B /* OpenEphysLib.cpp */; };
+		E1F558061C9B0DAC0035F88B /* SpikeDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557F91C9B0DAC0035F88B /* SpikeDetector.cpp */; };
+		E1F558071C9B0DAC0035F88B /* SpikeDetectorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557FB1C9B0DAC0035F88B /* SpikeDetectorEditor.cpp */; };
+		E1F558081C9B0DAC0035F88B /* SpikeDisplayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557FE1C9B0DAC0035F88B /* SpikeDisplayCanvas.cpp */; };
+		E1F558091C9B0DAC0035F88B /* SpikeDisplayEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558001C9B0DAC0035F88B /* SpikeDisplayEditor.cpp */; };
+		E1F5580A1C9B0DAC0035F88B /* SpikeDisplayNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558021C9B0DAC0035F88B /* SpikeDisplayNode.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F557E81C9B0C600035F88B /* BasicSpikeDisplay.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BasicSpikeDisplay.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F557EB1C9B0C600035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F557F21C9B0CA90035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F557F31C9B0CA90035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F557F41C9B0CA90035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F557F71C9B0DAC0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F557F91C9B0DAC0035F88B /* SpikeDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetector.cpp; sourceTree = "<group>"; };
+		E1F557FA1C9B0DAC0035F88B /* SpikeDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeDetector.h; sourceTree = "<group>"; };
+		E1F557FB1C9B0DAC0035F88B /* SpikeDetectorEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorEditor.cpp; sourceTree = "<group>"; };
+		E1F557FC1C9B0DAC0035F88B /* SpikeDetectorEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeDetectorEditor.h; sourceTree = "<group>"; };
+		E1F557FE1C9B0DAC0035F88B /* SpikeDisplayCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDisplayCanvas.cpp; sourceTree = "<group>"; };
+		E1F557FF1C9B0DAC0035F88B /* SpikeDisplayCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeDisplayCanvas.h; sourceTree = "<group>"; };
+		E1F558001C9B0DAC0035F88B /* SpikeDisplayEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDisplayEditor.cpp; sourceTree = "<group>"; };
+		E1F558011C9B0DAC0035F88B /* SpikeDisplayEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeDisplayEditor.h; sourceTree = "<group>"; };
+		E1F558021C9B0DAC0035F88B /* SpikeDisplayNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDisplayNode.cpp; sourceTree = "<group>"; };
+		E1F558031C9B0DAC0035F88B /* SpikeDisplayNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeDisplayNode.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F557E51C9B0C600035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F557DF1C9B0C600035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F557F11C9B0CA90035F88B /* Config */,
+				E1F557EA1C9B0C600035F88B /* BasicSpikeDisplay */,
+				E1F557E91C9B0C600035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F557E91C9B0C600035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557E81C9B0C600035F88B /* BasicSpikeDisplay.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F557EA1C9B0C600035F88B /* BasicSpikeDisplay */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557F51C9B0DAC0035F88B /* Source */,
+				E1F557EB1C9B0C600035F88B /* Info.plist */,
+			);
+			path = BasicSpikeDisplay;
+			sourceTree = "<group>";
+		};
+		E1F557F11C9B0CA90035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557F21C9B0CA90035F88B /* Plugin.xcconfig */,
+				E1F557F31C9B0CA90035F88B /* Plugin_Debug.xcconfig */,
+				E1F557F41C9B0CA90035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F557F51C9B0DAC0035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557F81C9B0DAC0035F88B /* SpikeDetector */,
+				E1F557FD1C9B0DAC0035F88B /* SpikeDisplayNode */,
+				E1F557F71C9B0DAC0035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/BasicSpikeDisplay;
+			sourceTree = "<group>";
+		};
+		E1F557F81C9B0DAC0035F88B /* SpikeDetector */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557FA1C9B0DAC0035F88B /* SpikeDetector.h */,
+				E1F557F91C9B0DAC0035F88B /* SpikeDetector.cpp */,
+				E1F557FC1C9B0DAC0035F88B /* SpikeDetectorEditor.h */,
+				E1F557FB1C9B0DAC0035F88B /* SpikeDetectorEditor.cpp */,
+			);
+			path = SpikeDetector;
+			sourceTree = "<group>";
+		};
+		E1F557FD1C9B0DAC0035F88B /* SpikeDisplayNode */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557FF1C9B0DAC0035F88B /* SpikeDisplayCanvas.h */,
+				E1F557FE1C9B0DAC0035F88B /* SpikeDisplayCanvas.cpp */,
+				E1F558011C9B0DAC0035F88B /* SpikeDisplayEditor.h */,
+				E1F558001C9B0DAC0035F88B /* SpikeDisplayEditor.cpp */,
+				E1F558031C9B0DAC0035F88B /* SpikeDisplayNode.h */,
+				E1F558021C9B0DAC0035F88B /* SpikeDisplayNode.cpp */,
+			);
+			path = SpikeDisplayNode;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F557E71C9B0C600035F88B /* BasicSpikeDisplay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F557EE1C9B0C600035F88B /* Build configuration list for PBXNativeTarget "BasicSpikeDisplay" */;
+			buildPhases = (
+				E1F557E41C9B0C600035F88B /* Sources */,
+				E1F557E51C9B0C600035F88B /* Frameworks */,
+				E1F557E61C9B0C600035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BasicSpikeDisplay;
+			productName = BasicSpikeDisplay;
+			productReference = E1F557E81C9B0C600035F88B /* BasicSpikeDisplay.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F557E01C9B0C600035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F557E71C9B0C600035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F557E31C9B0C600035F88B /* Build configuration list for PBXProject "BasicSpikeDisplay" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F557DF1C9B0C600035F88B;
+			productRefGroup = E1F557E91C9B0C600035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F557E71C9B0C600035F88B /* BasicSpikeDisplay */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F557E61C9B0C600035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F557E41C9B0C600035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F558071C9B0DAC0035F88B /* SpikeDetectorEditor.cpp in Sources */,
+				E1F558091C9B0DAC0035F88B /* SpikeDisplayEditor.cpp in Sources */,
+				E1F5580A1C9B0DAC0035F88B /* SpikeDisplayNode.cpp in Sources */,
+				E1F558081C9B0DAC0035F88B /* SpikeDisplayCanvas.cpp in Sources */,
+				E1F558051C9B0DAC0035F88B /* OpenEphysLib.cpp in Sources */,
+				E1F558061C9B0DAC0035F88B /* SpikeDetector.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F557EC1C9B0C600035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F557F31C9B0CA90035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F557ED1C9B0C600035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F557F41C9B0CA90035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F557EF1C9B0C600035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BasicSpikeDisplay/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.BasicSpikeDisplay";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F557F01C9B0C600035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BasicSpikeDisplay/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.BasicSpikeDisplay";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F557E31C9B0C600035F88B /* Build configuration list for PBXProject "BasicSpikeDisplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F557EC1C9B0C600035F88B /* Debug */,
+				E1F557ED1C9B0C600035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F557EE1C9B0C600035F88B /* Build configuration list for PBXNativeTarget "BasicSpikeDisplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F557EF1C9B0C600035F88B /* Debug */,
+				E1F557F01C9B0C600035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F557E01C9B0C600035F88B /* Project object */;
+}

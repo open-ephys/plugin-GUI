@@ -507,10 +507,8 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 		status += CoreServices::RecordNode::getExperimentNumber();
 		return status;
 	}
-	else
-	{
-	    return String("NotHandled");
-	}
+    
+    return String("NotHandled");
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,

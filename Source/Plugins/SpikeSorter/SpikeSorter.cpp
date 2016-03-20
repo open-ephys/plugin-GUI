@@ -1464,8 +1464,8 @@ std::vector<int> SpikeSorter::getElectrodeChannels(int ID)
                 ch[j] = electrodes[k]->channels[j];
             }
 
-            return ch;
             mut.exit();
+            return ch;
         }
 
 
@@ -1861,7 +1861,7 @@ void ContinuousCircularBuffer::update(AudioSampleBuffer& buffer, int64 hardware_
     // we don't start from zero because of subsampling issues.
     // previous packet may not have ended exactly at the last given sample.
     int k = leftover_k;
-    int lastUsedSample;
+    int lastUsedSample = 0;
     for (; k < numpts; k+=subSampling)
     {
         lastUsedSample = k;
@@ -1899,7 +1899,7 @@ void ContinuousCircularBuffer::update(std::vector<std::vector<bool>> contdata, i
     // we don't start from zero because of subsampling issues.
     // previous packet may not have ended exactly at the last given sample.
     int k = leftover_k;
-    int lastUsedSample;
+    int lastUsedSample = 0;
     for (; k < numpts; k+=subSampling)
     {
         lastUsedSample = k;

@@ -368,10 +368,10 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         probeMenu.addSubMenu("Depth probe", depthprobeMenu,true);
 
         const int result = probeMenu.show();
-        int nChansPerElectrode;
-        int nElectrodes;
-        double interelectrodeDistance=0;
-        double firstElectrodeOffset ;
+        int nChansPerElectrode = 0;
+        int nElectrodes = 0;
+        double interelectrodeDistance = 0;
+        double firstElectrodeOffset = 0;
         int numProbes = numElectrodes->getText().getIntValue();
         String ProbeType;
 
