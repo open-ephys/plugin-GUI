@@ -1,0 +1,226 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F5590C1C9B28660035F88B /* LfpDisplayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559041C9B28660035F88B /* LfpDisplayCanvas.cpp */; };
+		E1F5590D1C9B28660035F88B /* LfpDisplayEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559061C9B28660035F88B /* LfpDisplayEditor.cpp */; };
+		E1F5590E1C9B28660035F88B /* LfpDisplayNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559081C9B28660035F88B /* LfpDisplayNode.cpp */; };
+		E1F559101C9B28660035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5590B1C9B28660035F88B /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F558F61C9B28060035F88B /* LfpDisplayNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LfpDisplayNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F558F91C9B28060035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F559001C9B28400035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F559011C9B28400035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F559021C9B28400035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F559041C9B28660035F88B /* LfpDisplayCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LfpDisplayCanvas.cpp; sourceTree = "<group>"; };
+		E1F559051C9B28660035F88B /* LfpDisplayCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LfpDisplayCanvas.h; sourceTree = "<group>"; };
+		E1F559061C9B28660035F88B /* LfpDisplayEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LfpDisplayEditor.cpp; sourceTree = "<group>"; };
+		E1F559071C9B28660035F88B /* LfpDisplayEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LfpDisplayEditor.h; sourceTree = "<group>"; };
+		E1F559081C9B28660035F88B /* LfpDisplayNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LfpDisplayNode.cpp; sourceTree = "<group>"; };
+		E1F559091C9B28660035F88B /* LfpDisplayNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LfpDisplayNode.h; sourceTree = "<group>"; };
+		E1F5590B1C9B28660035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F558F31C9B28060035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F558ED1C9B28060035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F558FF1C9B28400035F88B /* Config */,
+				E1F558F81C9B28060035F88B /* LfpDisplayNode */,
+				E1F558F71C9B28060035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F558F71C9B28060035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558F61C9B28060035F88B /* LfpDisplayNode.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F558F81C9B28060035F88B /* LfpDisplayNode */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559031C9B28660035F88B /* Source */,
+				E1F558F91C9B28060035F88B /* Info.plist */,
+			);
+			path = LfpDisplayNode;
+			sourceTree = "<group>";
+		};
+		E1F558FF1C9B28400035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559001C9B28400035F88B /* Plugin.xcconfig */,
+				E1F559011C9B28400035F88B /* Plugin_Debug.xcconfig */,
+				E1F559021C9B28400035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F559031C9B28660035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559051C9B28660035F88B /* LfpDisplayCanvas.h */,
+				E1F559041C9B28660035F88B /* LfpDisplayCanvas.cpp */,
+				E1F559071C9B28660035F88B /* LfpDisplayEditor.h */,
+				E1F559061C9B28660035F88B /* LfpDisplayEditor.cpp */,
+				E1F559091C9B28660035F88B /* LfpDisplayNode.h */,
+				E1F559081C9B28660035F88B /* LfpDisplayNode.cpp */,
+				E1F5590B1C9B28660035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/LfpDisplayNode;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F558F51C9B28060035F88B /* LfpDisplayNode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F558FC1C9B28060035F88B /* Build configuration list for PBXNativeTarget "LfpDisplayNode" */;
+			buildPhases = (
+				E1F558F21C9B28060035F88B /* Sources */,
+				E1F558F31C9B28060035F88B /* Frameworks */,
+				E1F558F41C9B28060035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LfpDisplayNode;
+			productName = LfpDisplayNode;
+			productReference = E1F558F61C9B28060035F88B /* LfpDisplayNode.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F558EE1C9B28060035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F558F51C9B28060035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F558F11C9B28060035F88B /* Build configuration list for PBXProject "LfpDisplayNode" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F558ED1C9B28060035F88B;
+			productRefGroup = E1F558F71C9B28060035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F558F51C9B28060035F88B /* LfpDisplayNode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F558F41C9B28060035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F558F21C9B28060035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F5590D1C9B28660035F88B /* LfpDisplayEditor.cpp in Sources */,
+				E1F559101C9B28660035F88B /* OpenEphysLib.cpp in Sources */,
+				E1F5590C1C9B28660035F88B /* LfpDisplayCanvas.cpp in Sources */,
+				E1F5590E1C9B28660035F88B /* LfpDisplayNode.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F558FA1C9B28060035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559011C9B28400035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F558FB1C9B28060035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559021C9B28400035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F558FD1C9B28060035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = LfpDisplayNode/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.LfpDisplayNode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F558FE1C9B28060035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = LfpDisplayNode/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.LfpDisplayNode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F558F11C9B28060035F88B /* Build configuration list for PBXProject "LfpDisplayNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F558FA1C9B28060035F88B /* Debug */,
+				E1F558FB1C9B28060035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F558FC1C9B28060035F88B /* Build configuration list for PBXNativeTarget "LfpDisplayNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F558FD1C9B28060035F88B /* Debug */,
+				E1F558FE1C9B28060035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F558EE1C9B28060035F88B /* Project object */;
+}

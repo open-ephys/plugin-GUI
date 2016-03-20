@@ -1,0 +1,234 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F559741C9B3BF80035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5596B1C9B3BF80035F88B /* OpenEphysLib.cpp */; };
+		E1F559751C9B3BF80035F88B /* PulsePalOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5596C1C9B3BF80035F88B /* PulsePalOutput.cpp */; };
+		E1F559761C9B3BF80035F88B /* PulsePalOutputEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5596E1C9B3BF80035F88B /* PulsePalOutputEditor.cpp */; };
+		E1F559771C9B3BF80035F88B /* PulsePal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559711C9B3BF80035F88B /* PulsePal.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F5595C1C9B3B990035F88B /* PulsePalOutput.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulsePalOutput.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F5595F1C9B3B990035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F559661C9B3BD50035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F559671C9B3BD50035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F559681C9B3BD50035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F5596B1C9B3BF80035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F5596C1C9B3BF80035F88B /* PulsePalOutput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PulsePalOutput.cpp; sourceTree = "<group>"; };
+		E1F5596D1C9B3BF80035F88B /* PulsePalOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulsePalOutput.h; sourceTree = "<group>"; };
+		E1F5596E1C9B3BF80035F88B /* PulsePalOutputEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PulsePalOutputEditor.cpp; sourceTree = "<group>"; };
+		E1F5596F1C9B3BF80035F88B /* PulsePalOutputEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulsePalOutputEditor.h; sourceTree = "<group>"; };
+		E1F559711C9B3BF80035F88B /* PulsePal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PulsePal.cpp; sourceTree = "<group>"; };
+		E1F559721C9B3BF80035F88B /* PulsePal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PulsePal.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F559591C9B3B990035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F559531C9B3B990035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F559651C9B3BD50035F88B /* Config */,
+				E1F5595E1C9B3B990035F88B /* PulsePalOutput */,
+				E1F5595D1C9B3B990035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F5595D1C9B3B990035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5595C1C9B3B990035F88B /* PulsePalOutput.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F5595E1C9B3B990035F88B /* PulsePalOutput */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559691C9B3BF80035F88B /* Source */,
+				E1F5595F1C9B3B990035F88B /* Info.plist */,
+			);
+			path = PulsePalOutput;
+			sourceTree = "<group>";
+		};
+		E1F559651C9B3BD50035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559661C9B3BD50035F88B /* Plugin.xcconfig */,
+				E1F559671C9B3BD50035F88B /* Plugin_Debug.xcconfig */,
+				E1F559681C9B3BD50035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F559691C9B3BF80035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559701C9B3BF80035F88B /* serial */,
+				E1F5596D1C9B3BF80035F88B /* PulsePalOutput.h */,
+				E1F5596C1C9B3BF80035F88B /* PulsePalOutput.cpp */,
+				E1F5596F1C9B3BF80035F88B /* PulsePalOutputEditor.h */,
+				E1F5596E1C9B3BF80035F88B /* PulsePalOutputEditor.cpp */,
+				E1F5596B1C9B3BF80035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/PulsePalOutput;
+			sourceTree = "<group>";
+		};
+		E1F559701C9B3BF80035F88B /* serial */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559721C9B3BF80035F88B /* PulsePal.h */,
+				E1F559711C9B3BF80035F88B /* PulsePal.cpp */,
+			);
+			path = serial;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F5595B1C9B3B990035F88B /* PulsePalOutput */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F559621C9B3B990035F88B /* Build configuration list for PBXNativeTarget "PulsePalOutput" */;
+			buildPhases = (
+				E1F559581C9B3B990035F88B /* Sources */,
+				E1F559591C9B3B990035F88B /* Frameworks */,
+				E1F5595A1C9B3B990035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PulsePalOutput;
+			productName = PulsePalOutput;
+			productReference = E1F5595C1C9B3B990035F88B /* PulsePalOutput.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F559541C9B3B990035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F5595B1C9B3B990035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F559571C9B3B990035F88B /* Build configuration list for PBXProject "PulsePalOutput" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F559531C9B3B990035F88B;
+			productRefGroup = E1F5595D1C9B3B990035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F5595B1C9B3B990035F88B /* PulsePalOutput */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F5595A1C9B3B990035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F559581C9B3B990035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F559751C9B3BF80035F88B /* PulsePalOutput.cpp in Sources */,
+				E1F559771C9B3BF80035F88B /* PulsePal.cpp in Sources */,
+				E1F559741C9B3BF80035F88B /* OpenEphysLib.cpp in Sources */,
+				E1F559761C9B3BF80035F88B /* PulsePalOutputEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F559601C9B3B990035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559671C9B3BD50035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F559611C9B3B990035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559681C9B3BD50035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F559631C9B3B990035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PulsePalOutput/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.PulsePalOutput";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F559641C9B3B990035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PulsePalOutput/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.PulsePalOutput";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F559571C9B3B990035F88B /* Build configuration list for PBXProject "PulsePalOutput" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559601C9B3B990035F88B /* Debug */,
+				E1F559611C9B3B990035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F559621C9B3B990035F88B /* Build configuration list for PBXNativeTarget "PulsePalOutput" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559631C9B3B990035F88B /* Debug */,
+				E1F559641C9B3B990035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F559541C9B3B990035F88B /* Project object */;
+}

@@ -332,14 +332,12 @@ Array<int> ChannelSelector::getActiveChannels()
 
 void ChannelSelector::setActiveChannels(Array<int> a)
 {
-    
     //std::cout << "Setting active channels!" << std::endl;
-    
     for (int i = 0; i < parameterButtons.size(); i++)
     {
         parameterButtons[i]->setToggleState(false, dontSendNotification);
     }
-    
+
     for (int i = 0; i < a.size(); i++)
     {
         if (a[i] < parameterButtons.size())
@@ -669,10 +667,9 @@ void ChannelSelector::buttonClicked(Button* button)
         }
         else // parameter type
         {
-            
             GenericEditor* editor = (GenericEditor*) getParentComponent();
             editor->channelChanged(b->getChannel()-1);
-            
+
             // do nothing
             if (radioStatus) // if radio buttons are active
             {
@@ -680,8 +677,10 @@ void ChannelSelector::buttonClicked(Button* button)
                 GenericEditor* editor = (GenericEditor*) getParentComponent();
                 editor->channelChanged(b->getChannel());
             }
+
+            m_listeners.call (&ChannelSelector::Listener::channelSelectionChanged,
+                              b->getChannel() - 1, b->getToggleState());
         }
-        
     }
     refreshParameterColors();
 }
@@ -696,7 +695,7 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
     isEnabled = true;
     
     buttonFont = f;
-    buttonFont.setHeight(10);
+    buttonFont.setHeight (11);
     
     if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
     {
@@ -834,10 +833,10 @@ void EditorButton::resized()
 
 void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    
+
     g.setColour(Colours::grey);
     g.fillPath(outlinePath);
-    
+
     if (getToggleState())
     {
         if (isMouseOver && isEnabled)
@@ -852,23 +851,22 @@ void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
         else
             g.setGradientFill(neutralGrad);
     }
-    
+
     AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
                                                float(getHeight())/2.0f);
     g.fillPath(outlinePath, a);
-    
-    buttonFont.setHeight(10.0f);
-    int stringWidth = buttonFont.getStringWidth(getName());
-    
-    g.setFont(buttonFont);
-    
+
+    auto buttonName = getName().toUpperCase();
+    int stringWidth = buttonFont.getStringWidth (buttonName);
+
+    g.setFont (buttonFont);
+
     if (isEnabled)
         g.setColour(Colours::darkgrey);
     else
         g.setColour(Colours::lightgrey);
-    
-    g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 11);
-    
+
+    g.drawSingleLineText (buttonName, getWidth() / 2 - stringWidth / 2, 11);
 }
 
 
@@ -878,11 +876,11 @@ ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : But
     num = num_;
     displayNum = num_;
     type = type_;
-    
+
     setClickingTogglesState(true);
-    
+
     buttonFont = f;
-    buttonFont.setHeight(10);
+    buttonFont.setHeight (11);
 }
 
 ChannelSelectorButton::~ChannelSelectorButton() {}
@@ -965,5 +963,5 @@ void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
 
 void ChannelSelectorRegion::paint(Graphics& g)
 {
-    // g.fillAll(Colours::white);
+    // g.fillAll(Colours::white;
 }

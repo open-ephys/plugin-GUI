@@ -32,3 +32,6 @@ which should use VisualizerEditorHeaders.
 #include "../../Processors/Editors/ImageIcon.h"
 #include "../../Processors/Editors/ElectrodeButtons.h"
 #include "../../Processors/Editors/ChannelSelector.h"
+
+
+

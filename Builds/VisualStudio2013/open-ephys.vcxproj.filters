@@ -98,6 +98,9 @@
     <Filter Include="open-ephys\Source\UI">
       <UniqueIdentifier>{717A0FE3-E079-E4BD-8F50-15A1953825C5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\UI\Utils">
+      <UniqueIdentifier>{DC42A3E4-435B-C857-DF58-C5BB3E866E6B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\UI\LookAndFeel">
       <UniqueIdentifier>{82473DF0-9747-E952-2C6D-DAC4DD6B3807}</UniqueIdentifier>
     </Filter>
@@ -597,6 +600,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp">
       <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
@@ -2090,6 +2099,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h">
       <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
