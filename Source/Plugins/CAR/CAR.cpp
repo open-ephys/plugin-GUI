@@ -1,9 +1,8 @@
-
 /*
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,7 +22,9 @@
 */
 
 #include <stdio.h>
+
 #include "CAR.h"
+#include "CAREditor.h"
 
 
 CAR::CAR()
@@ -37,6 +38,13 @@ CAR::CAR()
 
 CAR::~CAR()
 {
+}
+
+
+AudioProcessorEditor* CAR::createEditor()
+{
+    editor = new CAREditor (this, true);
+    return editor;
 }
 
 
@@ -98,17 +106,36 @@ void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 }
 
 
-void CAR::setReferenceChannels (const Array<int> newReferenceChannels)
+void CAR::setReferenceChannels (const Array<int>& newReferenceChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
-    m_referenceChannels = Array (newReferenceChannels);
+    m_referenceChannels = Array<int> (newReferenceChannels);
 }
 
 
-void CAR::setAffectedChannels (const Array<int> newAffectedChannels)
+void CAR::setAffectedChannels (const Array<int>& newAffectedChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
-    m_affectedChannels = Array (newAffectedChannels);
+    m_affectedChannels = Array<int> (newAffectedChannels);
 }
+
+
+void CAR::setReferenceChannelState (int channel, bool newState)
+{
+    if (! newState)
+        m_referenceChannels.removeFirstMatchingValue (channel);
+    else
+        m_referenceChannels.add (channel);
+}
+
+
+void CAR::setAffectedChannelState (int channel, bool newState)
+{
+    if (! newState)
+        m_affectedChannels.removeFirstMatchingValue (channel);
+    else
+        m_affectedChannels.add (channel);
+}
+

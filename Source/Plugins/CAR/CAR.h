@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -77,11 +77,18 @@ public:
         other way, the application will crash.  */
     void setParameter (int parameterIndex, float newValue) override;
 
+    /** Creates the CAREditor. */
+    AudioProcessorEditor* createEditor() override;
+
     Array<int> getReferenceChannels() const     { return m_referenceChannels; }
     Array<int> getAffectedChannels()  const     { return m_affectedChannels; }
 
     void setReferenceChannels (const Array<int>& newReferenceChannels);
     void setAffectedChannels  (const Array<int>& newAffectedChannels);
+
+    void setReferenceChannelState (int channel, bool newState);
+    void setAffectedChannelState  (int channel, bool newState);
+
 
 private:
     AudioSampleBuffer m_avgBuffer;

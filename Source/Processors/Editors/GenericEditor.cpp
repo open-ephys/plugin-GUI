@@ -280,6 +280,12 @@ void GenericEditor::setEnabledState(bool t)
     isEnabled = p->enabledState();
 }
 
+void GenericEditor::setDesiredWidth (int width)
+{
+    desiredWidth = width;
+    repaint();
+}
+
 void GenericEditor::startRecording()
 {
     if (channelSelector != 0)
@@ -1394,3 +1400,4 @@ void ThresholdSlider::setValues(Array<double> v)
 {
 	valueArray = v;
 }
+

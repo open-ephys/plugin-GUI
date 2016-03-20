@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -21,17 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-/*
-This header contains all the headers needed by processor editors, including buttons and icons.
-Should be included in the source files which declare an editor class, except those for Visualization processors,
-which should use VisualizerEditorHeaders.
+/**
+    This header contains all needed UI utuility components for plugins.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
-#include "../../Processors/Editors/ImageIcon.h"
-#include "../../Processors/Editors/ElectrodeButtons.h"
-#include "../../Processors/Editors/ChannelSelector.h"
-
-
-
+#include "../../UI/Utils/ButtonGroupManager.h"

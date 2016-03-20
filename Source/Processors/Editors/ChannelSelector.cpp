@@ -332,14 +332,12 @@ Array<int> ChannelSelector::getActiveChannels()
 
 void ChannelSelector::setActiveChannels(Array<int> a)
 {
-    
     //std::cout << "Setting active channels!" << std::endl;
-    
     for (int i = 0; i < parameterButtons.size(); i++)
     {
         parameterButtons[i]->setToggleState(false, dontSendNotification);
     }
-    
+
     for (int i = 0; i < a.size(); i++)
     {
         if (a[i] < parameterButtons.size())
@@ -669,10 +667,9 @@ void ChannelSelector::buttonClicked(Button* button)
         }
         else // parameter type
         {
-            
             GenericEditor* editor = (GenericEditor*) getParentComponent();
             editor->channelChanged(b->getChannel()-1);
-            
+
             // do nothing
             if (radioStatus) // if radio buttons are active
             {
@@ -680,8 +677,10 @@ void ChannelSelector::buttonClicked(Button* button)
                 GenericEditor* editor = (GenericEditor*) getParentComponent();
                 editor->channelChanged(b->getChannel());
             }
+
+            m_listeners.call (&ChannelSelector::Listener::channelSelectionChanged,
+                              b->getChannel() - 1, b->getToggleState());
         }
-        
     }
     refreshParameterColors();
 }
@@ -964,5 +963,5 @@ void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
 
 void ChannelSelectorRegion::paint(Graphics& g)
 {
-    // g.fillAll(Colours::white);
+    // g.fillAll(Colours::white;
 }
