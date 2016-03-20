@@ -47,18 +47,23 @@ class EditorButton;
  */
 
 
-class PLUGIN_API ChannelSelector : public Component,
-public Button::Listener,
-public Timer
+class PLUGIN_API ChannelSelector : public Component
+                                 , public Button::Listener
+                                 , public Timer
 {
 public:
-    
-    /** constructor */
+    class PLUGIN_API Listener
+    {
+    public:
+        virtual void channelSelectionChanged (int channel, bool newState) = 0;
+    };
+
     ChannelSelector(bool createButtons, Font& titleFont);
-    
-    /** destructor */
     ~ChannelSelector();
-    
+
+    void addListener    (Listener* listener) { m_listeners.add (listener); }
+    void removeListener (Listener* listener) { m_listeners.remove (listener); }
+
     /** button callback */
     void buttonClicked(Button* button);
     
@@ -151,7 +156,9 @@ private:
     /** An array of ChannelSelectorButtons used to select the channels that
      will be written to disk when the record button is pressed. */
     Array<ChannelSelectorButton*> recordButtons;
-    
+
+    ListenerList<Listener> m_listeners;
+
     bool paramsToggled;
     bool paramsActive;
     bool recActive;
