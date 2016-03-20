@@ -1237,32 +1237,18 @@ ChannelSelectorBox::~ChannelSelectorBox()
 int ChannelSelectorBox::convertToInteger(std::string s)
 {
     char ar[20];
-    int i,j,k=0;
-    for (i = 0; i < s.size(); i++)   //trim whitespace from front
-    {
-        if ((int)s[i] != 32)
-        {
-            break;
-        }
-    }
-    for (j = s.size() - 1; j >= 0; j--)   //trim whitespaces from end
-    {
-        if ((int)s[j] != 32)
-        {
-            break;
-        }
-    }
-    if (j - i > 8)
-    {
-        return 0;
-    }
-    for (; i <= j; i++)
+    int i, j, k = 0;
+    for (i = 0; i < s.size(); i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
         {
             ar[k] = s[i];
             k++;
         }
+    }
+    if (k>7)
+    {
+        return 1000000;
     }
     ar[k] = '\0';
     k = atoi(ar);
@@ -1278,87 +1264,88 @@ int ChannelSelectorBox::convertToInteger(std::string s)
 */
 std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
 {
-    std::string s = getText().toStdString();
-    std::vector<std::string> parsed;
-    std::vector<int> finalList,colonNum,boxList;
-    finalList.clear();
-    int i, j, k, a, otherChar = 0, b, x;
-
-    for (i = 0; i < s.size(); i++)  //fetch all valid ranges from text box
+    std::string s = ",";
+    s += getText().toStdString();
+    std::vector<int> finalList,separator,rangeseparator;
+    int i, j, a, b, k, openb, closeb, otherchar,x,y;
+    s += ",";
+    for (i = 0; i < s.size(); i++)      //split string by ' , ' or ' ; ' 
     {
-        if (s[i] == '[')
+        if (s[i] == ';' || s[i] == ',')
         {
-            boxList.push_back(i);
-            j = i + 1;
-            for (; j < s.size(); j++)
-            {
-                if (s[j] == ']')
-                {
-                    boxList.push_back(j);
-                    break;
-                }
-            }
-            i = j;
+            separator.push_back(i);
         }
-        else if ((int)s[i] >= 48 && (int)s[i] <= 57)   // when input is given for a single channel without square brackets.
+    }
+    for (i = 0; i < separator.size()-1; i++)  // split ranges by ' : ' or ' - '
+    {
+        j = k = separator[i] + 1;
+        openb = closeb = otherchar = 0;
+        rangeseparator.clear();
+        for (; j < separator[i + 1]; j++)
         {
-            j = i;
-            for (; j < s.size(); j++)
+            if (s[j] == '-' || s[j] == ':')
             {
-                if ((int)s[j] > 57 || (int)s[j] < 48)
-                {
-                    break;
-                }
+                rangeseparator.push_back(j);
             }
-            a = convertToInteger(s.substr(i, j - i + 1));
-            if (a == 0 || a > len)
+            else if (((int)s[j] == 32))
             {
-                i = j;
+                continue;
+            }
+            else if (s[j] == '[' || s[j] == '{' || s[j] == '(')
+            {
+                openb++;
+            }
+            else if (s[j] == ']' || s[j] == '}' || s[j] == ')')
+            {
+                closeb++;
+            }
+            else if ( (int)s[j] > 57 || (int)s[j] < 48)
+            {
+                otherchar++;
+            }
+        }
+
+        if (openb != closeb || openb > 1 || closeb > 1 || otherchar > 0)  //Invalid input
+        {
+            continue;
+        }
+        
+        
+        for (x = separator[i] + 1; x < separator[i + 1]; x++)       //trim whitespace and brackets from front
+        {
+            if (((int)s[x] >= 48 && (int)s[x] <= 57) || s[x] == ':' || s[x] == '-')
+            {
+                break;
+            }
+        }
+        for (y = separator[i + 1] - 1; y > separator[i]; y--)       //trim whitespace and brackets from end
+        {
+            if (((int)s[y] >= 48 && (int)s[y] <= 57) || s[y] == ':' || s[y] == '-')
+            {
+                break;
+            }
+        }
+        if (x > y)
+        {
+            continue;
+        }
+
+
+        if (rangeseparator.size() == 0)   //syntax of form - x or [x]
+        {
+            a = convertToInteger(s.substr(x, y - x + 1));
+            if (a == 0||a>len)
+            {
                 continue;
             }
             finalList.push_back(a - 1);
             finalList.push_back(a - 1);
             finalList.push_back(1);
-            i = j;
         }
-    }
-
-    if (boxList.size() % 2 != 0)
-    {
-        boxList.pop_back();
-    }
-
-    /*
-    for each valid ranges fetch the start value, end value, common difference.
-    */
-    for (i = 0; i < boxList.size(); i+=2)
-    {
-        colonNum.clear();
-        otherChar = 0;
-        for (x = boxList[i] + 1; x < boxList[i + 1]; x++)
+        else if (rangeseparator.size() == 1) // syntax of type - x-y or [x-y]
         {
-            if (s[x] == ':')
-            {
-                colonNum.push_back(x);
-            }
-            else if ((int)s[x] == 32)
-            {
-                continue;
-            }
-            else if (((int)s[x] < 48 ||  (int)s[x]>57))
-            {
-                otherChar++;
-            }
-        }
-        if (colonNum.size()>2 || otherChar > 0)
-        {
-            continue;
-        }
-
-        if (colonNum.size() == 1)         //when range is of form [x:y]
-        {
-            a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
-            b = convertToInteger(s.substr(colonNum[0], boxList[i+1] - colonNum[0] + 1));
+            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
+            b = convertToInteger(s.substr(rangeseparator[0], y - rangeseparator[0] + 1));
             if (a == 0)
             {
                 a = 1;
@@ -1367,7 +1354,7 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
             {
                 b = len;
             }
-            if (a > len || b > len || a > b)
+            if (a > b || a > len || b > len)
             {
                 continue;
             }
@@ -1375,15 +1362,11 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
             finalList.push_back(b - 1);
             finalList.push_back(1);
         }
-        else if (colonNum.size() == 2)    //when range is of form [x:k:y]
+        else if (rangeseparator.size() == 2)   // syntax of type [x:y:z] or x-y-z
         {
-            a = convertToInteger(s.substr(boxList[i], colonNum[0] - boxList[i] + 1));
-            k = convertToInteger(s.substr(colonNum[0], colonNum[1] - colonNum[0] + 1));
-            b = convertToInteger(s.substr(colonNum[1], boxList[i+1] - colonNum[1] + 1));
-            if (k == 0)
-            {
-                k = 1;
-            }
+            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
+            k = convertToInteger(s.substr(rangeseparator[0], rangeseparator[1] - rangeseparator[0] + 1));
+            b = convertToInteger(s.substr(rangeseparator[1], y - rangeseparator[1] + 1));
             if (a == 0)
             {
                 a = 1;
@@ -1392,25 +1375,17 @@ std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
             {
                 b = len;
             }
-
-            if (a > len || b > len || a > b)
+            if (k == 0)
+            {
+                k = 1;
+            }
+            if (a > b || a > len || b > len)
             {
                 continue;
             }
             finalList.push_back(a - 1);
             finalList.push_back(b - 1);
             finalList.push_back(k);
-        }
-        else if (colonNum.size() == 0)      // when range is of form [x]
-        {
-            a = convertToInteger(s.substr(boxList[i], boxList[i + 1] - boxList[i] + 1));
-            if (a == 0)
-            {
-                continue;
-            }
-            finalList.push_back(a - 1);
-            finalList.push_back(a - 1);
-            finalList.push_back(1);
         }
     }
     return finalList;
