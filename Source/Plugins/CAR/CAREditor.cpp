@@ -24,16 +24,20 @@
 #include "CAREditor.h"
 #include "CAR.h"
 #include "../../UI/LookAndFeel/MaterialButtonLookAndFeel.h"
+#include "../../Processors/Parameter/ParameterEditor.h"
 
 
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
+
+static const Font FONT_LABELS ("Default", 13.f, Font::plain);
 
 
 CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
     , m_channelSelectorButtonManager (new ButtonGroupManager)
+    , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, FONT_LABELS))
 {
     TextButton* referenceChannelsButton = new TextButton ("Reference", "Switch to reference channels");
     referenceChannelsButton->setToggleState (true, dontSendNotification);
@@ -58,6 +62,11 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     m_channelSelectorButtonManager->setAccentColour     (COLOUR_ACCENT);
     addAndMakeVisible (m_channelSelectorButtonManager);
 
+    m_gainSlider->setColour (Slider::rotarySliderFillColourId, Colour::fromRGB (255, 193, 7));
+    m_gainSlider->setName ("Gain (%)");
+    m_gainSlider->addListener (this);
+    addAndMakeVisible (m_gainSlider);
+
     channelSelector->paramButtonsToggledByDefault (false);
     channelSelector->addListener (this);
 
@@ -65,9 +74,30 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
 }
 
 
+void CAREditor::paint (Graphics& g)
+{
+    GenericEditor::paint (g);
+
+    // Draw slider's label
+    // ========================================================================
+    g.setColour (Colours::darkgrey);
+    g.setFont (FONT_LABELS);
+
+    auto gainSliderBounds = m_gainSlider->getBounds();
+    g.drawText (m_gainSlider->getName().toUpperCase(),
+                gainSliderBounds.getX(), gainSliderBounds.getBottom() - 15,
+                gainSliderBounds.getWidth(), 30,
+                Justification::centred,
+                false);
+    // ========================================================================
+}
+
+
 void CAREditor::resized()
 {
     m_channelSelectorButtonManager->setBounds (110, 50, 150, 36);
+
+    m_gainSlider->setBounds (15, 30, 80, 80);
 
     GenericEditor::resized();
 }
@@ -107,4 +137,12 @@ void CAREditor::channelSelectionChanged (int channel, bool newState)
     {
         processor->setAffectedChannelState (channel, newState);
     }
+}
+
+
+void CAREditor::sliderEvent (Slider* sliderWhichValueHasChanged)
+{
+    auto processor = static_cast<CAR*> (getProcessor());
+
+    processor->setGainLevel ( (float)sliderWhichValueHasChanged->getValue());
 }

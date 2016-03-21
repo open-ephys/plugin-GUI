@@ -26,6 +26,7 @@
 
 
 class MaterialButtonLookAndFeel;
+class ParameterSlider;
 
 
 /**
@@ -41,7 +42,8 @@ public:
 
     // Component methods
     // =========================================================
-    void resized() override;
+    void paint (Graphics& g) override;
+    void resized()           override;
 
     // Button::Listener methods
     // ==========================================================
@@ -50,6 +52,11 @@ public:
     // ChannelSelector::Listener methods
     // =========================================================
     void channelSelectionChanged (int channel, bool newState) override;
+
+    // GenericEditor methods
+    // =========================================================
+    /** This methods is called when any sliders that we are listen for change their values */
+    void sliderEvent (Slider* sliderWhichValueHasChanged) override;
 
 
 private:
@@ -61,7 +68,8 @@ private:
 
     ChannelsType m_currentChannelsView;
 
-    ScopedPointer<ButtonGroupManager> m_channelSelectorButtonManager;
+    ScopedPointer<ButtonGroupManager>   m_channelSelectorButtonManager;
+    ScopedPointer<ParameterSlider>      m_gainSlider;
 
     // LookAndFeel
     SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
