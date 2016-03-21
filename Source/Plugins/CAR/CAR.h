@@ -73,7 +73,7 @@ public:
     void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
     /** Returns the current gain level that is set in the processor */
-    float getGainLevel() const { return m_gainLevel; }
+    float getGainLevel();
 
     /** Sets the new gain level that will be used in the processor */
     void setGainLevel (float newGain);
@@ -92,7 +92,7 @@ public:
 
 
 private:
-    float m_gainLevel;
+    LinearSmoothedValueAtomic<float> m_gainLevel;
 
     AudioSampleBuffer m_avgBuffer;
 
