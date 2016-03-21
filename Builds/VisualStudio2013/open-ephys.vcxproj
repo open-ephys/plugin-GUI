@@ -1471,6 +1471,7 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Biquad.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Butterworth.h"/>

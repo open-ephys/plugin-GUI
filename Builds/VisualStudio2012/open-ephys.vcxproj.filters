@@ -1896,6 +1896,9 @@
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h">
+      <Filter>open-ephys\Source\Processors\Dsp</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>
     </ClInclude>
