@@ -30,14 +30,14 @@
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-static const Font FONT_LABELS ("Default", 14.f, Font::plain);
+static const Font FONT_LABELS ("Default", 13.f, Font::plain);
 
 
 CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
     , m_channelSelectorButtonManager (new ButtonGroupManager)
-    , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, Font ("Default", 14.f, Font::plain)))
+    , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, FONT_LABELS))
 {
     TextButton* referenceChannelsButton = new TextButton ("Reference", "Switch to reference channels");
     referenceChannelsButton->setToggleState (true, dontSendNotification);
@@ -62,6 +62,7 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     m_channelSelectorButtonManager->setAccentColour     (COLOUR_ACCENT);
     addAndMakeVisible (m_channelSelectorButtonManager);
 
+    m_gainSlider->setColour (Slider::rotarySliderFillColourId, Colour::fromRGB (255, 193, 7));
     m_gainSlider->setName ("Gain (%)");
     m_gainSlider->addListener (this);
     addAndMakeVisible (m_gainSlider);
