@@ -1,0 +1,220 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F559961C9B3DD90035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559901C9B3DD90035F88B /* OpenEphysLib.cpp */; };
+		E1F559971C9B3DD90035F88B /* RecordControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559911C9B3DD90035F88B /* RecordControl.cpp */; };
+		E1F559981C9B3DD90035F88B /* RecordControlEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559931C9B3DD90035F88B /* RecordControlEditor.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F559811C9B3D760035F88B /* RecordControl.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecordControl.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F559841C9B3D760035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F5598B1C9B3DAE0035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F5598C1C9B3DAE0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F5598D1C9B3DAE0035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F559901C9B3DD90035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F559911C9B3DD90035F88B /* RecordControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecordControl.cpp; sourceTree = "<group>"; };
+		E1F559921C9B3DD90035F88B /* RecordControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordControl.h; sourceTree = "<group>"; };
+		E1F559931C9B3DD90035F88B /* RecordControlEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecordControlEditor.cpp; sourceTree = "<group>"; };
+		E1F559941C9B3DD90035F88B /* RecordControlEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordControlEditor.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F5597E1C9B3D760035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F559781C9B3D760035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F5598A1C9B3DAE0035F88B /* Config */,
+				E1F559831C9B3D760035F88B /* RecordControl */,
+				E1F559821C9B3D760035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F559821C9B3D760035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559811C9B3D760035F88B /* RecordControl.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F559831C9B3D760035F88B /* RecordControl */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5598E1C9B3DD90035F88B /* Source */,
+				E1F559841C9B3D760035F88B /* Info.plist */,
+			);
+			path = RecordControl;
+			sourceTree = "<group>";
+		};
+		E1F5598A1C9B3DAE0035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5598B1C9B3DAE0035F88B /* Plugin.xcconfig */,
+				E1F5598C1C9B3DAE0035F88B /* Plugin_Debug.xcconfig */,
+				E1F5598D1C9B3DAE0035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F5598E1C9B3DD90035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559921C9B3DD90035F88B /* RecordControl.h */,
+				E1F559911C9B3DD90035F88B /* RecordControl.cpp */,
+				E1F559941C9B3DD90035F88B /* RecordControlEditor.h */,
+				E1F559931C9B3DD90035F88B /* RecordControlEditor.cpp */,
+				E1F559901C9B3DD90035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/RecordControl;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F559801C9B3D760035F88B /* RecordControl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F559871C9B3D760035F88B /* Build configuration list for PBXNativeTarget "RecordControl" */;
+			buildPhases = (
+				E1F5597D1C9B3D760035F88B /* Sources */,
+				E1F5597E1C9B3D760035F88B /* Frameworks */,
+				E1F5597F1C9B3D760035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RecordControl;
+			productName = RecordControl;
+			productReference = E1F559811C9B3D760035F88B /* RecordControl.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F559791C9B3D760035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F559801C9B3D760035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F5597C1C9B3D760035F88B /* Build configuration list for PBXProject "RecordControl" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F559781C9B3D760035F88B;
+			productRefGroup = E1F559821C9B3D760035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F559801C9B3D760035F88B /* RecordControl */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F5597F1C9B3D760035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F5597D1C9B3D760035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F559961C9B3DD90035F88B /* OpenEphysLib.cpp in Sources */,
+				E1F559971C9B3DD90035F88B /* RecordControl.cpp in Sources */,
+				E1F559981C9B3DD90035F88B /* RecordControlEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F559851C9B3D760035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F5598C1C9B3DAE0035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F559861C9B3D760035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F5598D1C9B3DAE0035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F559881C9B3D760035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = RecordControl/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.RecordControl";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F559891C9B3D760035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = RecordControl/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.RecordControl";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F5597C1C9B3D760035F88B /* Build configuration list for PBXProject "RecordControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559851C9B3D760035F88B /* Debug */,
+				E1F559861C9B3D760035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F559871C9B3D760035F88B /* Build configuration list for PBXNativeTarget "RecordControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559881C9B3D760035F88B /* Debug */,
+				E1F559891C9B3D760035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F559791C9B3D760035F88B /* Project object */;
+}

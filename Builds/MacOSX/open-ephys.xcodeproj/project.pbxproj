@@ -2837,10 +2837,12 @@
 					CAB9D9DEF279F93132B45F90,
 					CA4DCF67B48352BE633A616D,
 					512D7D16D0A95BDD0D6D6E45, ); runOnlyForDeploymentPostprocessing = 0; };
+		51D24AA2F6AD5542880D67DB = {isa = PBXShellScriptBuildPhase; buildActionMask = 2147483647; files = (  ); runOnlyForDeploymentPostprocessing = 0; name = "Post-build script"; shellPath = /bin/sh; shellScript = "# Copy Rhythm-related files to application bundle's Resources folder\nsrcdir=\"${PROJECT_DIR}/../../Resources\"\ndstdir=\"${CONFIGURATION_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n/usr/bin/rsync -a \"$srcdir/Bitfiles/rhd2000.bit\" \"$srcdir/Bitfiles/rhd2000_usb3.bit\" \"$srcdir/DLLs/libokFrontPanel.dylib\" \"$dstdir\""; };
 		609761DEC9151D2CDD50270C = {isa = PBXNativeTarget; buildConfigurationList = B0259CB1FA28CEC89ED4FA14; buildPhases = (
 					256EEB2E7946EFA9B0774D25,
 					0C1B429379FBBA77A635B49A,
-					7BE915E5A64C787EBF13A8E7, ); buildRules = ( ); dependencies = ( ); name = "open-ephys"; productName = "open-ephys"; productReference = 99E1BC08B886CFDD2CCFD462; productInstallPath = "$(HOME)/Applications"; productType = "com.apple.product-type.application"; };
+					7BE915E5A64C787EBF13A8E7,
+					51D24AA2F6AD5542880D67DB, ); buildRules = ( ); dependencies = ( ); name = "open-ephys"; productName = "open-ephys"; productReference = 99E1BC08B886CFDD2CCFD462; productInstallPath = "$(HOME)/Applications"; productType = "com.apple.product-type.application"; };
 		41375E3272D6505F75FDEEEB = {isa = PBXProject; buildConfigurationList = 3B096175C0B17BFA58475A08; attributes = { LastUpgradeCheck = 0440; }; compatibilityVersion = "Xcode 3.2"; hasScannedForEncodings = 0; mainGroup = A7589AF92E6E958E1F866761; projectDirPath = ""; projectRoot = ""; targets = ( 609761DEC9151D2CDD50270C ); };
 	};
 	rootObject = 41375E3272D6505F75FDEEEB;
