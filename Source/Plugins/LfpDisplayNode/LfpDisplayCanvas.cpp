@@ -2238,7 +2238,7 @@ void LfpChannelDisplay::pxPaint()
                     
                     for (int s = 0; s <= samplerange; s ++)  // plot histogram one pixel per bin
                     {
-                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.5+canvas->histogramParameterA));
+                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.2+canvas->histogramParameterA));
                         if (a>1.0f) {a=1.0f;};
                         if (a<0.0f) {a=0.0f;};
                         
@@ -2330,12 +2330,10 @@ void LfpChannelDisplay::pxPaint()
                 if(saturateWarningHi || saturateWarningLo) {
                     
                     
-                    
-                    
                     for (int k=jfrom_wholechannel_almost; k<=jto_wholechannel_almost; k++){ // draw line
                         Colour thiscolour=Colour(255,0,0);
-                        if (fmod((i+k)*5,100)>50){
-                            thiscolour=Colour(0,0,0);
+                        if (fmod((i+k),100)>50){
+                            thiscolour=Colour(255,255,255);
                         }
                         bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
                     };
@@ -2353,8 +2351,7 @@ void LfpChannelDisplay::pxPaint()
                     //}
                 }
                 
-                
-                saturateWarningHi=false;
+                saturateWarningHi=false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
                 saturateWarningLo=false;
             }
 
