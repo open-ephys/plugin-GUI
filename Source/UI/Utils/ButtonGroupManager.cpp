@@ -42,8 +42,8 @@ ButtonGroupManager::ButtonGroupManager()
     : m_isRadioButtonMode   (true)
     , m_isShowDividers      (true)
     , m_selectedButtonIdx   (0)
-    , m_currentButtonLineX  (0.f)
     , m_desiredButtonLineX  (0.f)
+    , m_currentButtonLineX  (0.f)
     , m_animationStepX      (0.f)
     , m_buttonListener      (nullptr)
     , m_backgroundColour    (Colour (0x0))
@@ -71,7 +71,7 @@ void ButtonGroupManager::paint (Graphics& g)
 
 void ButtonGroupManager::paintOverChildren (Graphics& g)
 {
-    const int width  = getWidth();
+    //const int width  = getWidth();
     const int height = getHeight();
 
     // Draw dividers between buttons
