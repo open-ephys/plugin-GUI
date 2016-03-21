@@ -30,8 +30,6 @@
 CAR::CAR()
     : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
 {
-    parameters.add (Parameter ("Gain (%)", 0.0, 100.0, 100.0, 0));
-
     m_avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
 }
 
@@ -48,16 +46,9 @@ AudioProcessorEditor* CAR::createEditor()
 }
 
 
-void CAR::setParameter (int parameterIndex, float newValue)
+void CAR::setGainLevel (float newGain)
 {
-    editor->updateParameterButtons (parameterIndex);
-    // std::cout << "Setting CAR Gain" << std::endl;
-
-    if (currentChannel >= 0)
-    {
-        Parameter& p =  parameters.getReference (parameterIndex);
-        p.setValue (newValue, currentChannel);
-    }
+    m_gainLevel = newGain;
 }
 
 
@@ -89,9 +80,7 @@ void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 
     m_avgBuffer.applyGain (1.0f / float (numReferenceChannels));
 
-
-    // just use channel 0, since we can't have individual channel settings at the moment
-    const float gain = -1.0f * float (getParameterVar (0, 0)) / 100.0f;
+    const float gain = -1.0f * m_gainLevel / 100.f;
 
     for (int i = 0; i < numAffectedChannels; ++i)
     {

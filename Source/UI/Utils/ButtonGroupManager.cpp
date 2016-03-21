@@ -162,8 +162,7 @@ void ButtonGroupManager::timerCallback()
 void ButtonGroupManager::addButton (TextButton* newButton)
 {
     newButton->addListener (this);
-
-        newButton->setLookAndFeel (m_buttonsLookAndFeel);
+    newButton->setLookAndFeel (m_buttonsLookAndFeel);
 
     addAndMakeVisible (newButton);
     m_buttons.add (newButton);

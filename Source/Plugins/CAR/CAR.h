@@ -72,10 +72,11 @@ public:
          */
     void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
-    /** Any variables used by the "process" function _must_ be modified only through
-        this method while data acquisition is active. If they are modified in any
-        other way, the application will crash.  */
-    void setParameter (int parameterIndex, float newValue) override;
+    /** Returns the current gain level that is set in the processor */
+    float getGainLevel() const { return m_gainLevel; }
+
+    /** Sets the new gain level that will be used in the processor */
+    void setGainLevel (float newGain);
 
     /** Creates the CAREditor. */
     AudioProcessorEditor* createEditor() override;
@@ -91,6 +92,8 @@ public:
 
 
 private:
+    float m_gainLevel;
+
     AudioSampleBuffer m_avgBuffer;
 
     /** We should add this for safety to prevent any app crashes or invalid data processing.
