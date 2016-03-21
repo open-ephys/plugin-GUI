@@ -7,11 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E15DCF7A1CA0676B00332C3A /* CAREditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15DCF781CA0676B00332C3A /* CAREditor.cpp */; };
 		E1F558261C9B105C0035F88B /* CAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558221C9B105C0035F88B /* CAR.cpp */; };
 		E1F558281C9B105C0035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558251C9B105C0035F88B /* OpenEphysLib.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E15DCF781CA0676B00332C3A /* CAREditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAREditor.cpp; sourceTree = "<group>"; };
+		E15DCF791CA0676B00332C3A /* CAREditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAREditor.h; sourceTree = "<group>"; };
 		E1F558141C9B0FCA0035F88B /* CAR.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CAR.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558171C9B0FCA0035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1F5581E1C9B10190035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
@@ -75,6 +78,8 @@
 			children = (
 				E1F558231C9B105C0035F88B /* CAR.h */,
 				E1F558221C9B105C0035F88B /* CAR.cpp */,
+				E15DCF791CA0676B00332C3A /* CAREditor.h */,
+				E15DCF781CA0676B00332C3A /* CAREditor.cpp */,
 				E1F558251C9B105C0035F88B /* OpenEphysLib.cpp */,
 			);
 			name = Source;
@@ -148,6 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1F558281C9B105C0035F88B /* OpenEphysLib.cpp in Sources */,
+				E15DCF7A1CA0676B00332C3A /* CAREditor.cpp in Sources */,
 				E1F558261C9B105C0035F88B /* CAR.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

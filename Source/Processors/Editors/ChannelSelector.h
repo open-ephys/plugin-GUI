@@ -55,6 +55,7 @@ public:
     class PLUGIN_API Listener
     {
     public:
+        virtual ~Listener() { }
         virtual void channelSelectionChanged (int channel, bool newState) = 0;
     };
 
