@@ -292,6 +292,8 @@
                 file="Source/Processors/PlaceholderProcessor/PlaceholderProcessor.h"/>
         </GROUP>
         <GROUP id="{9F37E2FD-6871-8370-4C11-5C97DF132390}" name="Dsp">
+          <FILE id="g34Roi" name="LinearSmoothedValueAtomic.cpp" compile="1"
+                resource="0" file="Source/Processors/Dsp/LinearSmoothedValueAtomic.cpp"/>
           <FILE id="mwFwwT" name="LinearSmoothedValueAtomic.h" compile="0" resource="0"
                 file="Source/Processors/Dsp/LinearSmoothedValueAtomic.h"/>
           <FILE id="qWmKwI" name="Bessel.cpp" compile="1" resource="0" file="Source/Processors/Dsp/Bessel.cpp"/>

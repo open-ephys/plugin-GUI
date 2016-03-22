@@ -265,6 +265,7 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Biquad.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Butterworth.cpp"/>

@@ -421,6 +421,9 @@
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp">
+      <Filter>open-ephys\Source\Processors\Dsp</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>
     </ClCompile>

@@ -52,69 +52,25 @@ class PLUGIN_API  LinearSmoothedValueAtomic
 {
 public:
     /** Constructor. */
-    LinearSmoothedValueAtomic() noexcept
-        : currentValue  (0)
-        , target        (0)
-        , step          (0)
-        , countdown     (0)
-        , stepsToTarget (0)
-    {
-    }
+    LinearSmoothedValueAtomic() noexcept;
 
     /** Constructor. */
-    LinearSmoothedValueAtomic (FloatType initialValue) noexcept
-        : currentValue  (initialValue)
-        , target        (initialValue)
-        , step          (0)
-        , countdown     (0)
-        , stepsToTarget (0)
-    {
-    }
+    LinearSmoothedValueAtomic (FloatType initialValue) noexcept;
 
     //==========================================================================
     /** Reset to a new sample rate and ramp length. */
-    void reset (double sampleRate, double rampLengthInSeconds) noexcept
-    {
-        jassert (sampleRate > 0 && rampLengthInSeconds >= 0);
-        stepsToTarget = (int) std::floor (rampLengthInSeconds * sampleRate);
-        currentValue = target;
-        countdown = 0;
-    }
+    void reset (double sampleRate, double rampLengthInSeconds) noexcept;
 
     //==========================================================================
     /** Set a new target value. */
-    void setValue (FloatType newValue) noexcept
-    {
-        target.store (newValue);
-    }
+    void setValue (FloatType newValue) noexcept;
 
     //==========================================================================
-    void updateTarget() noexcept
-    {
-        FloatType newTarget = target.load();
-        if (newTarget != currentTarget)
-        {
-            currentTarget = newTarget;
-            countdown = stepsToTarget;
-
-            if (countdown <= 0)
-                currentValue = currentTarget;
-            else
-                step = (currentTarget - currentValue) / (FloatType) countdown;
-        }
-    }
+    void updateTarget() noexcept;
 
     //==========================================================================
     /** Compute the next value. */
-    FloatType getNextValue() noexcept
-    {
-        if (countdown <= 0)
-            return currentTarget;
-
-        --countdown;
-        currentValue += step;
-        return currentValue;
-    }
+    FloatType getNextValue() noexcept;
 
 
 private:
