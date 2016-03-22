@@ -162,13 +162,13 @@ void FilterEditor::labelTextChanged(Label* label)
 
 }
 
-void FilterEditor::channelChanged(int chan)
+void FilterEditor::channelChanged (int channel, bool /*newState*/)
 {
     FilterNode* fn = (FilterNode*) getProcessor();
 
-    highCutValue->setText(String(fn->getHighCutValueForChannel(chan)), dontSendNotification);
-    lowCutValue->setText(String(fn->getLowCutValueForChannel(chan)), dontSendNotification);
-    applyFilterOnChan->setToggleState(fn->getBypassStatusForChannel(chan), dontSendNotification);
+    highCutValue->setText (String (fn->getHighCutValueForChannel (channel)), dontSendNotification);
+    lowCutValue->setText  (String (fn->getLowCutValueForChannel  (channel)), dontSendNotification);
+    applyFilterOnChan->setToggleState (fn->getBypassStatusForChannel (channel), dontSendNotification);
 
 }
 

@@ -612,14 +612,14 @@ void ChannelMappingEditor::setChannelReference(ElectrodeButton* button)
 
 }
 
-void ChannelMappingEditor::channelChanged(int chan)
+void ChannelMappingEditor::channelChanged (int channel, bool /*newState*/)
 {
-    if (!reorderActive)
+    if (! reorderActive)
     {
-        setConfigured(true);
-        getProcessor()->setCurrentChannel(chan-1);
-        getProcessor()->setParameter(2,selectedReference);
-        referenceChannels.set(selectedReference,chan-1);
+        setConfigured (true);
+        getProcessor()->setCurrentChannel (channel - 1);
+        getProcessor()->setParameter (2, selectedReference);
+        referenceChannels.set (selectedReference, channel - 1);
     }
 }
 

@@ -35,7 +35,6 @@ class ParameterSlider;
    @see CAR
 */
 class CAREditor : public GenericEditor
-                , private ChannelSelector::Listener
 {
 public:
     CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors);
@@ -49,14 +48,11 @@ public:
     // ==========================================================
     void buttonClicked (Button* buttonThatWasClicked) override;
 
-    // ChannelSelector::Listener methods
-    // =========================================================
-    void channelSelectionChanged (int channel, bool newState) override;
-
     // GenericEditor methods
     // =========================================================
     /** This methods is called when any sliders that we are listen for change their values */
     void sliderEvent (Slider* sliderWhichValueHasChanged) override;
+    void channelChanged (int channel, bool newState) override;
 
 
 private:

@@ -1158,7 +1158,7 @@ void GenericEditor::updateSettings() {}
 
 void GenericEditor::updateVisualizer() {}
 
-void GenericEditor::channelChanged(int chan) {}
+void GenericEditor::channelChanged (int channel, bool newState) {}
 
 void GenericEditor::saveCustomParameters(XmlElement* xml) { }
 

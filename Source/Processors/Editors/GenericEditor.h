@@ -234,7 +234,7 @@ public:
     virtual void updateVisualizer();
 
     /** Used by SpikeDetectorEditor. */
-    virtual void channelChanged(int chan);
+    virtual void channelChanged (int channel, bool newState);
 
     /** Returns all selected channels from the ChannelSelector. */
     Array<int> getActiveChannels();

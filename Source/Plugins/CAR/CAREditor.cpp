@@ -68,7 +68,6 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     addAndMakeVisible (m_gainSlider);
 
     channelSelector->paramButtonsToggledByDefault (false);
-    channelSelector->addListener (this);
 
     setDesiredWidth (280);
 }
@@ -126,7 +125,7 @@ void CAREditor::buttonClicked (Button* buttonThatWasClicked)
 }
 
 
-void CAREditor::channelSelectionChanged (int channel, bool newState)
+void CAREditor::channelChanged (int channel, bool newState)
 {
     auto processor = static_cast<CAR*> (getProcessor());
     if (m_currentChannelsView == REFERENCE_CHANNELS)

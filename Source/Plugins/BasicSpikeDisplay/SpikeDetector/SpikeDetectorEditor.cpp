@@ -383,7 +383,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
 }
 
-void SpikeDetectorEditor::channelChanged(int chan)
+void SpikeDetectorEditor::channelChanged (int channel, bool /*newState*/)
 {
 
     if (electrodeEditorButtons[0]->getToggleState()) // editing is active
@@ -394,13 +394,13 @@ void SpikeDetectorEditor::channelChanged(int chan)
         {
             if (electrodeButtons[i]->getToggleState())
             {
-                electrodeButtons[i]->setChannelNum(chan);
+                electrodeButtons[i]->setChannelNum (channel);
                 electrodeButtons[i]->repaint();
 
                 SpikeDetector* processor = (SpikeDetector*) getProcessor();
                 processor->setChannel(electrodeList->getSelectedItemIndex(),
                                       i,
-                                      chan-1);
+                                      channel - 1);
             }
         }
     }

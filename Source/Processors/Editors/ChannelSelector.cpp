@@ -610,7 +610,7 @@ void ChannelSelector::buttonClicked(Button* button)
         {
             // send a message to parent
             GenericEditor* editor = (GenericEditor*) getParentComponent();
-            editor->channelChanged(-1);
+            editor->channelChanged (-1, false);
         }
     }
     else
@@ -668,18 +668,15 @@ void ChannelSelector::buttonClicked(Button* button)
         else // parameter type
         {
             GenericEditor* editor = (GenericEditor*) getParentComponent();
-            editor->channelChanged(b->getChannel()-1);
+            editor->channelChanged (b->getChannel() - 1, b->getToggleState());
 
             // do nothing
             if (radioStatus) // if radio buttons are active
             {
                 // send a message to parent
                 GenericEditor* editor = (GenericEditor*) getParentComponent();
-                editor->channelChanged(b->getChannel());
+                editor->channelChanged (b->getChannel(), b->getToggleState());
             }
-
-            m_listeners.call (&ChannelSelector::Listener::channelSelectionChanged,
-                              b->getChannel() - 1, b->getToggleState());
         }
     }
     refreshParameterColors();
