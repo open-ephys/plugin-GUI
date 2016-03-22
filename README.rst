@@ -10,6 +10,8 @@ Everything is written in C++, with the help of the Juce_ library. Juce is lightw
 
 Installation instructions specific for the plugin GUI can be found here: https://open-ephys.atlassian.net/wiki/display/OEW/Plugin+architecture
 
+The two most important branches are **master**, for stable releases of tested versions, and **development** for newer, less tested versions (pull request belong here). If you don't need the latest features use the master branch or, equivalently, download the binaries.
+
 We recommend reading through the wiki_ before attempting to make any changes. For pull requests look at our guidelines regarding the `different branches`_.
 
 If you want to add files to the core GUI, you'll have to do that through the "Introjucer," using the "open-ephys.jucer" file. The Introjucer makefiles are located in the JuceLibraryCode/Introjucer/Builds folder, or as part of the Juce source_.
