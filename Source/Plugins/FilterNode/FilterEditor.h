@@ -52,7 +52,7 @@ public:
 
     void setDefaults(double lowCut, double highCut);
 
-    void channelChanged(int chan);
+    void channelChanged (int chan, bool newState);
 
 private:
 

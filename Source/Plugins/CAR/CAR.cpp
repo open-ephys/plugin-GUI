@@ -46,9 +46,16 @@ AudioProcessorEditor* CAR::createEditor()
 }
 
 
+float CAR::getGainLevel()
+{
+    m_gainLevel.updateTarget();
+    return m_gainLevel.getNextValue();
+}
+
+
 void CAR::setGainLevel (float newGain)
 {
-    m_gainLevel = newGain;
+    m_gainLevel.setValue (newGain);
 }
 
 
@@ -80,7 +87,8 @@ void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 
     m_avgBuffer.applyGain (1.0f / float (numReferenceChannels));
 
-    const float gain = -1.0f * m_gainLevel / 100.f;
+    m_gainLevel.updateTarget();
+    const float gain = -1.0f * m_gainLevel.getNextValue() / 100.f;
 
     for (int i = 0; i < numAffectedChannels; ++i)
     {

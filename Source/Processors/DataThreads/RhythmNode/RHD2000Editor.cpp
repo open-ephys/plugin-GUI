@@ -867,16 +867,15 @@ void RHD2000Editor::buttonEvent(Button* button)
 
 }
 
-void RHD2000Editor::channelChanged(int chan)
+void RHD2000Editor::channelChanged (int channel, bool /*newState*/)
 {
     for (int i = 0; i < 2; i++)
     {
         if (electrodeButtons[i]->getToggleState())
         {
-            electrodeButtons[i]->setChannelNum(chan);
+            electrodeButtons[i]->setChannelNum (channel);
             electrodeButtons[i]->repaint();
-            board->setDACchannel(i, chan);
-
+            board->setDACchannel (i, channel);
         }
     }
 }

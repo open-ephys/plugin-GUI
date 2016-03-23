@@ -57,6 +57,7 @@ OBJECTS := \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o \
   $(OBJDIR)/PlaceholderProcessor_167f09aa.o \
+  $(OBJDIR)/LinearSmoothedValueAtomic_df1e5b97.o \
   $(OBJDIR)/Bessel_7e54cb27.o \
   $(OBJDIR)/Biquad_622c856b.o \
   $(OBJDIR)/Butterworth_6aca939b.o \
@@ -194,6 +195,11 @@ $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o: ../../Source/Processors/Placeho
 $(OBJDIR)/PlaceholderProcessor_167f09aa.o: ../../Source/Processors/PlaceholderProcessor/PlaceholderProcessor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PlaceholderProcessor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LinearSmoothedValueAtomic_df1e5b97.o: ../../Source/Processors/Dsp/LinearSmoothedValueAtomic.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LinearSmoothedValueAtomic.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Bessel_7e54cb27.o: ../../Source/Processors/Dsp/Bessel.cpp

@@ -37,6 +37,7 @@ enum ChannelType {HEADSTAGE_CHANNEL = 0, AUX_CHANNEL = 1, ADC_CHANNEL = 2, EVENT
 #include "../Channel/Channel.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/PluginClass.h"
+#include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
 
 #include <time.h>
 #include <stdio.h>
