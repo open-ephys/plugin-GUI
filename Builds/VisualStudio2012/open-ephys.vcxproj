@@ -322,6 +322,7 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp"/>
+    <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp"/>
@@ -1537,6 +1538,7 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h"/>
+    <ClInclude Include="..\..\Source\UI\Utils\LinearButtonGroupManager.h"/>
     <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h"/>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h"/>

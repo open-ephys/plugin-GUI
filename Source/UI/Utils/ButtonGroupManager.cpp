@@ -31,26 +31,13 @@ static const Colour COLOUR_BORDER  (Colour::fromRGB (189, 189, 189));
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 
 
-static bool inline areEqualValues (float p1, float p2)
-{
-    const float epsilon = 0.001f;
-    return fabs (p2 - p1) < epsilon;
-}
-
-
 ButtonGroupManager::ButtonGroupManager()
     : m_isRadioButtonMode   (true)
-    , m_isShowDividers      (true)
-    , m_selectedButtonIdx   (0)
-    , m_desiredButtonLineX  (0.f)
-    , m_currentButtonLineX  (0.f)
-    , m_animationStepX      (0.f)
     , m_buttonListener      (nullptr)
-    , m_backgroundColour    (Colour (0x0))
-    , m_accentColour        (Colours::white)
-    , m_outlineColour       (COLOUR_BORDER)
     , m_buttonsLookAndFeel  (nullptr)
 {
+    setColour (backgroundColourId,  Colour (0x0));
+    setColour (outlineColourId,     COLOUR_BORDER);
 }
 
 
@@ -60,62 +47,18 @@ void ButtonGroupManager::paint (Graphics& g)
     const float cornerSize = 3.f;
 
     // Fill background
-    g.setColour (m_backgroundColour);
+    g.setColour (findColour (backgroundColourId));
     g.fillRoundedRectangle (floatLocalBounds.reduced (1, 1), cornerSize);
 
     // Draw border
-    g.setColour (m_outlineColour);
+    g.setColour (findColour (outlineColourId));
     g.drawRoundedRectangle (floatLocalBounds, cornerSize, 1.f);
 }
 
 
-void ButtonGroupManager::paintOverChildren (Graphics& g)
+void ButtonGroupManager::colourChanged()
 {
-    //const int width  = getWidth();
-    const int height = getHeight();
-
-    // Draw dividers between buttons
-    if (m_isShowDividers)
-    {
-        g.setColour (COLOUR_DIVIDER);
-
-        const int dividerOffsetY = 5;
-        const int numDividers    = m_buttons.size() - 1;
-
-        for (int i = 0; i < numDividers; ++i)
-        {
-            int dividerX = m_buttons[i]->getRight();
-            g.drawVerticalLine (dividerX, dividerOffsetY, height - dividerOffsetY);
-        }
-    }
-
-    // Draw line which displays current selected button
-    g.setColour (m_accentColour);
-    if (m_isRadioButtonMode)
-    {
-        const int lineWidth  = m_buttons[m_selectedButtonIdx]->getBounds().getWidth();
-        const int lineHeight = 3;
-        g.fillRect ( (int)m_currentButtonLineX, height - lineHeight - 1, lineWidth, lineHeight);
-    }
-}
-
-
-void ButtonGroupManager::resized()
-{
-    const int width     = getWidth();
-    const int height    = getHeight();
-
-    const int numButtons = m_buttons.size();
-    const int buttonWidth = width / numButtons;
-
-    // Set bounds for each button
-    juce::Rectangle<int> buttonBounds (0, 0, buttonWidth, height);
-    for (int i = 0; i < numButtons; ++i)
-    {
-        m_buttons[i]->setBounds (buttonBounds);
-
-        buttonBounds.translate (buttonWidth, 0);
-    }
+    repaint();
 }
 
 
@@ -123,43 +66,22 @@ void ButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 {
     if (m_buttonListener != nullptr)
         m_buttonListener->buttonClicked (buttonThatWasClicked);
-
-    if (m_isRadioButtonMode)
-    {
-        stopTimer();
-        m_desiredButtonLineX = buttonThatWasClicked->getBounds().getX();
-        m_selectedButtonIdx  = m_buttons.indexOf (static_cast<TextButton*> (buttonThatWasClicked));
-
-        const float numAnimationSteps = 10.f;
-        m_animationStepX = (m_desiredButtonLineX - m_currentButtonLineX) / numAnimationSteps;
-        //std::cout << "== Calculation: Animation step: " << m_animationStepX << std::endl;
-
-        startTimer (30);
-    }
 }
 
 
-void ButtonGroupManager::timerCallback()
+int ButtonGroupManager::getNumButtons() const
 {
-    // Move line which displays current selected button
-    if (! areEqualValues (m_currentButtonLineX, m_desiredButtonLineX))
-    {
-        //std::cout << "Current X: " << m_currentButtonLineX << std::endl;
-        //std::cout << "Desiredd X: " << m_desiredButtonLineX << std::endl;
-        m_currentButtonLineX += m_animationStepX;
-    }
-    else
-    {
-        //std::cout <<"Timer stopped" << std::endl;
-        m_animationStepX = 0;
-        stopTimer();
-    }
-
-    repaint();
+    return m_buttons.size();
 }
 
 
-void ButtonGroupManager::addButton (TextButton* newButton)
+bool ButtonGroupManager::isRadioButtonMode() const
+{
+    return m_isRadioButtonMode;
+}
+
+
+void ButtonGroupManager::addButton (Button* newButton)
 {
     newButton->addListener (this);
     newButton->setLookAndFeel (m_buttonsLookAndFeel);
@@ -207,19 +129,9 @@ void ButtonGroupManager::setButtonsLookAndFeel (LookAndFeel* newButtonsLookAndFe
 {
     m_buttonsLookAndFeel = newButtonsLookAndFeel;
 
-    std::for_each (m_buttons.begin(), m_buttons.end(), [this] (TextButton* button)
+    std::for_each (m_buttons.begin(), m_buttons.end(), [this] (Button* button)
                     { button->setLookAndFeel (m_buttonsLookAndFeel); });
 
-    repaint();
-}
-
-
-void ButtonGroupManager::setShowDividers (bool isShow)
-{
-    if (isShow == m_isShowDividers)
-        return;
-
-    m_isShowDividers = isShow;
     repaint();
 }
 
@@ -227,28 +139,4 @@ void ButtonGroupManager::setShowDividers (bool isShow)
 void ButtonGroupManager::setButtonListener (Button::Listener* newListener)
 {
     m_buttonListener = newListener;
-}
-
-
-void ButtonGroupManager::setBackgroundColour (Colour bgColour)
-{
-    m_backgroundColour = bgColour;
-
-    repaint();
-}
-
-
-void ButtonGroupManager::setAccentColour (Colour accentColour)
-{
-    m_accentColour = accentColour;
-
-    repaint();
-}
-
-
-void ButtonGroupManager::setOutlineColour (Colour outlineColour)
-{
-    m_outlineColour = outlineColour;
-
-    repaint();
 }

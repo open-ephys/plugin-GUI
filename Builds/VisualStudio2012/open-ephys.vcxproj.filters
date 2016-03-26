@@ -604,6 +604,9 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp">
       <Filter>open-ephys\Source\UI\Utils</Filter>
     </ClCompile>
@@ -2105,6 +2108,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\Utils\LinearButtonGroupManager.h">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h">
       <Filter>open-ephys\Source\UI\Utils</Filter>

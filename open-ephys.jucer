@@ -513,6 +513,10 @@
       </GROUP>
       <GROUP id="RNGb1yR" name="UI">
         <GROUP id="{0CCF438B-DD41-FC9E-7C68-3079F4BCB2D2}" name="Utils">
+          <FILE id="cF8nWd" name="LinearButtonGroupManager.cpp" compile="1" resource="0"
+                file="Source/UI/Utils/LinearButtonGroupManager.cpp"/>
+          <FILE id="BNeEun" name="LinearButtonGroupManager.h" compile="0" resource="0"
+                file="Source/UI/Utils/LinearButtonGroupManager.h"/>
           <FILE id="GFX1Tc" name="ButtonGroupManager.cpp" compile="1" resource="0"
                 file="Source/UI/Utils/ButtonGroupManager.cpp"/>
           <FILE id="AIybG9" name="ButtonGroupManager.h" compile="0" resource="0"

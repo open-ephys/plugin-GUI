@@ -64,8 +64,8 @@ private:
 
     ChannelsType m_currentChannelsView;
 
-    ScopedPointer<ButtonGroupManager>   m_channelSelectorButtonManager;
-    ScopedPointer<ParameterSlider>      m_gainSlider;
+    ScopedPointer<LinearButtonGroupManager> m_channelSelectorButtonManager;
+    ScopedPointer<ParameterSlider>          m_gainSlider;
 
     // LookAndFeel
     SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
