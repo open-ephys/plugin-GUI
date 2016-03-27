@@ -387,14 +387,14 @@ public:
 
 private:
 
-    String name {"Clock Divider"};
-    String lastDivideRatioString {"1"};
+    String name;
+    String lastDivideRatioString;
 
     RHD2000Thread * board;
     RHD2000Editor * editor;
 
     ScopedPointer<Label> divideRatioSelection;
-    int actualDivideRatio {1};
+    int actualDivideRatio;
 
 };
 #endif  // __RHD2000EDITOR_H_2AD3C591__
