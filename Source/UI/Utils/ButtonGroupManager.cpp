@@ -91,7 +91,6 @@ void ButtonGroupManager::addButton (Button* newButton)
 
     if (m_isRadioButtonMode)
     {
-        newButton->setClickingTogglesState (true);
         newButton->setRadioGroupId (1);
     }
 
