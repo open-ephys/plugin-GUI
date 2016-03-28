@@ -17,10 +17,6 @@
 #  mostly conforms to that of the Juce library
 #  (www.juce.com/wiki/index.php/Coding_Standards).
 #
-#  The biggest difference is with parentheses after functions: Juce uses "foo
-#  (bar)" except when there's no arguments (e.g. "foo()"), whereas here we
-#  enforce "foo(bar)" and "foo()."
-#
 #  Some documentation of the options is provided here for convenience.  For full
 #  options documentation, go to astyle.sourceforge.net/astyle.html.
 
@@ -56,14 +52,18 @@ min-conditional-indent=0
 # --don't limit this---->bar);
 max-instatement-indent=80
 
-# Remove spaces in and around parentheses (except in front of "headers;" see the
-# next rule for that exception).
-# Note, this differs from the Juce style!
-# Example: foo ( bar, baz ); -> foo(bar, baz);)
-unpad-paren
+# Insert space padding around the first parenthesis in a series on the outside only.
+# Parentheses that are empty will not be padded.
+--pad-first-paren-out
 
 # insert a space after if, while, for, etc.
 --pad-header
+
+# Insert space padding around operators.
+--pad-oper
+
+# Pad empty lines around header blocks (e.g. 'if', 'for', 'while'...).
+--break-blocks
 
 # Pointer/reference operators go next to the type (on the left).
 align-pointer=type
