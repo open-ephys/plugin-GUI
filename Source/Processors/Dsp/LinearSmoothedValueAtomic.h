@@ -86,4 +86,72 @@ private:
 };
 
 
+template <typename FloatType>
+LinearSmoothedValueAtomic<FloatType>::LinearSmoothedValueAtomic() noexcept
+    : target        (0)
+    , currentValue  (0)
+    , step          (0)
+    , countdown     (0)
+    , stepsToTarget (0)
+{
+}
+
+
+template <typename FloatType>
+LinearSmoothedValueAtomic<FloatType>::LinearSmoothedValueAtomic (FloatType initialValue) noexcept
+    : target        (initialValue)
+    , currentValue  (initialValue)
+    , step          (0)
+    , countdown     (0)
+    , stepsToTarget (0)
+{
+}
+
+
+template<typename FloatType>
+void LinearSmoothedValueAtomic<FloatType>::reset (double sampleRate, double rampLengthInSeconds) noexcept
+{
+    jassert (sampleRate > 0 && rampLengthInSeconds >= 0);
+    stepsToTarget = (int) std::floor (rampLengthInSeconds * sampleRate);
+    currentValue = target;
+    countdown = 0;
+}
+
+
+template<typename FloatType>
+void LinearSmoothedValueAtomic<FloatType>::setValue (FloatType newValue) noexcept
+{
+    target.store (newValue);
+}
+
+
+template<typename FloatType>
+void LinearSmoothedValueAtomic<FloatType>::updateTarget() noexcept
+{
+    FloatType newTarget = target.load();
+    if (newTarget != currentTarget)
+    {
+        currentTarget = newTarget;
+        countdown = stepsToTarget;
+
+        if (countdown <= 0)
+            currentValue = currentTarget;
+        else
+            step = (currentTarget - currentValue) / (FloatType) countdown;
+    }
+}
+
+
+template<typename FloatType>
+FloatType LinearSmoothedValueAtomic<FloatType>::getNextValue() noexcept
+{
+    if (countdown <= 0)
+        return currentTarget;
+
+    --countdown;
+    currentValue += step;
+    return currentValue;
+}
+
+
 #endif   // JUCE_LINEARSMOOTHEDVALUE_H_INCLUDED
