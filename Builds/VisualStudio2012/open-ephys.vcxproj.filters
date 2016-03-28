@@ -8,6 +8,9 @@
     <Filter Include="open-ephys\Resources">
       <UniqueIdentifier>{4FB3688D-1CC4-C459-F92E-F1764A198374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Resources\Icons">
+      <UniqueIdentifier>{675098C0-65B1-49FA-E68F-4DFD81A91FE3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Resources\Fonts">
       <UniqueIdentifier>{1DC91498-AFB8-F53B-37B4-DA354ACC7637}</UniqueIdentifier>
     </Filter>
@@ -3506,6 +3509,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\Icons\icon-large.png">
+      <Filter>open-ephys\Resources\Icons</Filter>
+    </None>
+    <None Include="..\..\Resources\Icons\icon-small.png">
+      <Filter>open-ephys\Resources\Icons</Filter>
+    </None>
     <None Include="..\..\Resources\Fonts\cpmono-black-serialized">
       <Filter>open-ephys\Resources\Fonts</Filter>
     </None>
@@ -3739,6 +3748,9 @@
     </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_video\juce_module_info">
       <Filter>Juce Modules\juce_video</Filter>
+    </None>
+    <None Include=".\icon.ico">
+      <Filter>Juce Library Code</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
