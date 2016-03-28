@@ -2029,7 +2029,7 @@ void PCAjob::computeCov()
             cov[j][i] = sum / (dim-1);
         }
     }
-    delete mean;
+    delete[] mean;
 
     // delete covariances
     //for (int k = 0; k < dim; k++)

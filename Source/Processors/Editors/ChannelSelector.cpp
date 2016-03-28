@@ -684,7 +684,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonParam->removeListener(this);
         deselectButtonParam->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = paramBox->getBoxInfo(parameterButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -712,7 +712,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonRecord->removeListener(this);
         deselectButtonRecord->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = recordBox->getBoxInfo(recordButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -740,7 +740,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonAudio->removeListener(this);
         deselectButtonAudio->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = audioBox->getBoxInfo(audioButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -768,7 +768,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonParam->removeListener(this);
         deselectButtonParam->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = paramBox->getBoxInfo(parameterButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -796,7 +796,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonRecord->removeListener(this);
         deselectButtonRecord->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = recordBox->getBoxInfo(recordButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -824,7 +824,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonAudio->removeListener(this);
         deselectButtonAudio->removeListener(this);
         std::vector<int> getBoxList;
-        int fa, lim, comd, i, j;
+        int fa, lim, comd, i;
         getBoxList = audioBox->getBoxInfo(audioButtons.size());
         if (getBoxList.size() < 3)
         {
@@ -1239,7 +1239,7 @@ ChannelSelectorBox::~ChannelSelectorBox()
 int ChannelSelectorBox::convertToInteger(std::string s)
 {
     char ar[20];
-    int i, j, k = 0;
+    int i, k = 0;
     for (i = 0; i < s.size(); i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
