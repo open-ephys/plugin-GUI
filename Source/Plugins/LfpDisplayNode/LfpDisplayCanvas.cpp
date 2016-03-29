@@ -814,7 +814,7 @@ void LfpDisplayCanvas::sliderValueChanged(Slider* sl)
     histogramParameterB = sl->getValue();
     
     fullredraw=true;
-    repaint();
+    //repaint();
     refresh();
 
 }
@@ -1665,7 +1665,7 @@ void LfpDisplay::refresh()
             if (canvas->fullredraw)
             {
                 channels[i]->fullredraw = true;
-                //channels[i]->repaint(); // old paint method
+                
                 channels[i]->pxPaint();
                 channelInfo[i]->repaint();
                 
@@ -1691,7 +1691,7 @@ void LfpDisplay::refresh()
     {
         repaint(0,topBorder,getWidth(),bottomBorder-topBorder);
     }else{
-        repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder);
+        //repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder); // doesntb seem to be needed and results in duplicate repaint calls
     }
     
     canvas->fullredraw = false;
