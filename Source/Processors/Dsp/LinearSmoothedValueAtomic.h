@@ -48,7 +48,7 @@
 
 //==============================================================================
 template<typename FloatType>
-class PLUGIN_API  LinearSmoothedValueAtomic
+class LinearSmoothedValueAtomic
 {
 public:
     /** Constructor. */
