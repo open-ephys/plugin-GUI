@@ -571,6 +571,12 @@
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.cpp">
       <Filter>open-ephys\Source\Processors\ProcessorGraph</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\DataQueue.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordThread.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
@@ -2072,6 +2078,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.h">
       <Filter>open-ephys\Source\Processors\ProcessorGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\DataQueue.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\EventQueue.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordThread.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>

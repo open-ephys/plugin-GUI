@@ -25,7 +25,7 @@
 #include "HDF5FileFormat.h"
 
 #ifndef CHUNK_XSIZE
-#define CHUNK_XSIZE 640
+#define CHUNK_XSIZE 2048
 #endif
 
 #ifndef EVENT_CHUNK_SIZE
@@ -97,7 +97,7 @@ int HDF5FileBase::open(bool newfile, int nChans)
 		FileAccPropList props = FileAccPropList::DEFAULT;
 		if (nChans > 0)
 		{
-			props.setCache(0, 809, 8 * 2 * 640 * nChans, 1);
+			props.setCache(0, 809, 8 * 2 * CHUNK_XSIZE * nChans, 1);
 			//std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
 		}
 
@@ -710,6 +710,15 @@ void KWDFile::writeRowData(int16* data, int nSamples)
     }
     CHECK_ERROR(recdata->writeDataRow(curChan,nSamples,I16,data));
     curChan++;
+}
+
+void KWDFile::writeRowData(int16* data, int nSamples, int channel)
+{
+	if (channel >= 0 && channel < nChannels)
+	{
+		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, I16, data));
+		curChan = channel;
+	}
 }
 
 //KWE File
