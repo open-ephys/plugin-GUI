@@ -261,6 +261,7 @@
     <ClCompile Include="..\..\Source\AccessClass.cpp" />
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp" />
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp" />
+    <ClCompile Include="..\..\Source\Processors\Editors\ListSliceParser.cpp" />
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp" />
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp" />
@@ -1464,6 +1465,7 @@
     <ClInclude Include="..\..\Source\AccessClass.h" />
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h" />
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h" />
+    <ClInclude Include="..\..\Source\Processors\Editors\ListSliceParser.h" />
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h" />
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h" />
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h" />
