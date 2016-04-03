@@ -1437,8 +1437,11 @@ void AudioInterface::paint(Graphics& g)
 // Clock Divider options
 ClockDivideInterface::ClockDivideInterface(RHD2000Thread* board_,
                                            RHD2000Editor* editor_) :
-   board(board_)
+   name("Clock Divider")
+ , lastDivideRatioString("1")
+ , board(board_)
  , editor(editor_)
+ , actualDivideRatio(1)
  
 {
     divideRatioSelection = new Label("Clock Divide", lastDivideRatioString); 

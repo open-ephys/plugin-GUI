@@ -2007,6 +2007,8 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\Icons\icon-large.png"/>
+    <None Include="..\..\Resources\Icons\icon-small.png"/>
     <None Include="..\..\Resources\Fonts\cpmono-black-serialized"/>
     <None Include="..\..\Resources\Fonts\cpmono-bold-serialized"/>
     <None Include="..\..\Resources\Fonts\cpmono-extralight-serialized"/>
@@ -2085,6 +2087,7 @@
     <None Include="..\..\JuceLibraryCode\modules\juce_gui_extra\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_opengl\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_video\juce_module_info"/>
+    <None Include=".\icon.ico"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\resources.rc"/>
