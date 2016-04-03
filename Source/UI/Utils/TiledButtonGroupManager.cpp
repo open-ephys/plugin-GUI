@@ -140,7 +140,8 @@ void TiledButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
     // Default selection
     else
     {
-        buttonThatWasClicked->setToggleState (! buttonThatWasClicked->getToggleState(), dontSendNotification);
+        // Do nothing for now, it's toggled on/off by default
+        //buttonThatWasClicked->setToggleState (! buttonThatWasClicked->getToggleState(), dontSendNotification);
     }
 
     // Notify the listener
