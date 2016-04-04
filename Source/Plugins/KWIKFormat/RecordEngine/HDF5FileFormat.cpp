@@ -506,6 +506,8 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
 
 HDF5RecordingData::~HDF5RecordingData()
 {
+	//Safety
+	dSet->flush(H5F_SCOPE_GLOBAL);
 }
 int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data)
 {
