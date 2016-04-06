@@ -552,6 +552,30 @@ void ControlPanel::updateRecordEngineList()
 		recordSelector->setSelectedId(selectedEngine, sendNotification);
 }
 
+String ControlPanel::getSelectedRecordEngineId()
+{
+	return recordEngines[recordSelector->getSelectedId() - 1]->getID();
+}
+
+bool ControlPanel::setSelectedRecordEngineId(String id)
+{
+	if (getAcquisitionState())
+	{
+		return false;
+	}
+
+	int nEngines = recordEngines.size();
+	for (int i = 0; i < nEngines; ++i)
+	{
+		if (recordEngines[i]->getID() == id)
+		{
+			recordSelector->setSelectedId(i + 1, sendNotificationSync);
+			return true;
+		}
+	}
+	return false;
+}
+
 void ControlPanel::createPaths()
 {
     /*  int w = getWidth() - 325;

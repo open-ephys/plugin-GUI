@@ -127,6 +127,7 @@ public:
     void stopRecording();
     void writeBlockData(int16* data, int nSamples);
     void writeRowData(int16* data, int nSamples);
+	void writeRowData(int16* data, int nSamples, int channel);
     String getFileName();
 
 protected:

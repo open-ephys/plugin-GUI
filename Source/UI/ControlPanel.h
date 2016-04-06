@@ -365,6 +365,10 @@ public:
 
     void updateRecordEngineList();
 
+	String getSelectedRecordEngineId();
+
+	bool setSelectedRecordEngineId(String id);
+
     ScopedPointer<RecordButton> recordButton;
 private:
     ScopedPointer<PlayButton> playButton;

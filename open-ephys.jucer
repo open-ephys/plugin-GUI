@@ -474,6 +474,12 @@
                 file="Source/Processors/ProcessorGraph/ProcessorGraph.h"/>
         </GROUP>
         <GROUP id="{72D807AC-44A0-1F7A-8699-22225876FE9A}" name="RecordNode">
+          <FILE id="WQxge0" name="DataQueue.cpp" compile="1" resource="0" file="Source/Processors/RecordNode/DataQueue.cpp"/>
+          <FILE id="cZPfsG" name="DataQueue.h" compile="0" resource="0" file="Source/Processors/RecordNode/DataQueue.h"/>
+          <FILE id="mcvfV8" name="EventQueue.h" compile="0" resource="0" file="Source/Processors/RecordNode/EventQueue.h"/>
+          <FILE id="r8K6Sh" name="RecordThread.cpp" compile="1" resource="0"
+                file="Source/Processors/RecordNode/RecordThread.cpp"/>
+          <FILE id="Q8yVpr" name="RecordThread.h" compile="0" resource="0" file="Source/Processors/RecordNode/RecordThread.h"/>
           <FILE id="deQ9TU" name="EngineConfigWindow.cpp" compile="1" resource="0"
                 file="Source/Processors/RecordNode/EngineConfigWindow.cpp"/>
           <FILE id="iSAT0P" name="EngineConfigWindow.h" compile="0" resource="0"

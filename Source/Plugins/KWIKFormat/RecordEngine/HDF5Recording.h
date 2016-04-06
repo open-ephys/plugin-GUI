@@ -33,17 +33,16 @@ public:
     HDF5Recording();
     ~HDF5Recording();
     String getEngineID();
-    void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
-    void closeFiles();
-    void writeData(AudioSampleBuffer& buffer);
-    void writeEvent(int eventType, MidiMessage& event, int samplePosition);
-    void addChannel(int index, Channel* chan);
-    void addSpikeElectrode(int index, SpikeRecordInfo* elec);
-    void writeSpike(const SpikeObject& spike, int electrodeIndex);
-    void registerProcessor(GenericProcessor* processor);
-    void resetChannels();
-    //oid updateTimeStamp(int64 timestamp);
-    void startAcquisition();
+    void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
+	void closeFiles() override;
+	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
+	void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) override;
+	void addChannel(int index, const Channel* chan) override;
+	void addSpikeElectrode(int index,const  SpikeRecordInfo* elec) override;
+	void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
+	void registerProcessor(const GenericProcessor* processor) override;
+	void resetChannels() override;
+	void startAcquisition() override;
 
     static RecordEngineManager* getEngineManager();
 private:
@@ -52,6 +51,7 @@ private:
 
     Array<int> processorMap;
 	Array<int> channelsPerProcessor;
+	Array<int> recordedChanToKWDChan;
     OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<Array<float>> sampleRatesArray;
     OwnedArray<KWDFile> fileArray;
