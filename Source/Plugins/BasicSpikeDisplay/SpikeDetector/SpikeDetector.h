@@ -48,6 +48,7 @@ struct SimpleElectrode
 };
 
 class SpikeDetectorEditor;
+class DetectorCircularBuffer;
 
 /**
 
@@ -101,7 +102,8 @@ public:
 
     /** a buffer for storing samples in a continuous circular buffer
         for calculating dynamic threshold */
-    DetectorCircularBuffer detectorObject;
+    
+    DetectorCircularBuffer *detectorBuffers;
 
     // CREATE AND DELETE ELECTRODES //
 
@@ -208,7 +210,7 @@ private:
 };
 
 
-class ContinuousCircularBuffer
+class DetectorCircularBuffer
 {
 public:
     ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
