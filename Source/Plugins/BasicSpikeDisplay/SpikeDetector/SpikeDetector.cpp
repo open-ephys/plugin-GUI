@@ -462,7 +462,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // increment at start of getNextSample()
 
         int nSamples = getNumSamples(*electrode->channels);
-
+/*
         "copy all the nsamples of all channels here  and also set the dynamic threshold here because i will be  using threshold  here"
         "nSamples stores number for all samples    samplesAvailable() ensures that some part resides in overflowbuffer"
         "read about process() in genereic profcessor.h "
@@ -472,7 +472,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
             
         }
 
-
+*/
         // cycle through samples
         while (samplesAvailable(nSamples))
         {
