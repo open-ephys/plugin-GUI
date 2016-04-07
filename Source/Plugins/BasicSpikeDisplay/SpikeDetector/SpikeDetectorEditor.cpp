@@ -392,7 +392,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     {
         if(button->getToggleState())
         {
-            std:cout<<" setting dynamic threshold for all channels";
+            std::cout<<" setting dynamic threshold for all channels";
         }
         else if(!button->getToggleState())
         {
