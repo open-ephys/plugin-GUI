@@ -37,7 +37,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     Typeface::Ptr typeface = new CustomTypeface(mis);
     font = Font(typeface);
 
-    desiredWidth = 300;
+    desiredWidth = 350;
 
     electrodeTypes = new ComboBox("Electrode Types");
 
@@ -104,8 +104,14 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     e3->setBounds(130,110,70,10);
     electrodeEditorButtons.add(e3);
 
+    ElectrodeEditorButton* e4 = new ElectrodeEditorButton("DTHR", font);
+    e4->addListener(this);
+    //addAndMakeVisible(e4);
+    e4->setBounds(200,110,70,10);
+    electrodeEditorButtons.add(e4);
+    
     thresholdSlider = new ThresholdSlider(font);
-    thresholdSlider->setBounds(200,35,75,75);
+    thresholdSlider->setBounds(250,35,75,75);
     addAndMakeVisible(thresholdSlider);
     thresholdSlider->addListener(this);
     thresholdSlider->setActive(false);
@@ -115,7 +121,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     thresholdLabel = new Label("Name","Threshold");
     font.setHeight(10);
     thresholdLabel->setFont(font);
-    thresholdLabel->setBounds(202, 105, 95, 15);
+    thresholdLabel->setBounds(252, 105, 95, 15);
     thresholdLabel->setColour(Label::textColourId, Colours::grey);
     addAndMakeVisible(thresholdLabel);
 
@@ -209,10 +215,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
             std::cout << "Disabling channel " << channelNum <<
                       " of electrode " << electrodeNum << std::endl;
-
         }
-
-
     }
 
 
@@ -281,6 +284,12 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     {
 
         Array<int> activeChannels;
+        
+        if(button->getToggleState())
+        {
+            addAndMakeVisible(electrodeEditorButtons[3]);
+     //       electrodeEditorButtons[3]->setToggleState(false, dontSendNotification);
+        }    
 
         for (int i = 0; i < electrodeButtons.size(); i++)
         {
@@ -290,6 +299,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 electrodeButtons[i]->setRadioGroupId(299);
                 channelSelector->activateButtons();
                 channelSelector->setRadioStatus(true);
+            
             }
             else
             {
@@ -377,6 +387,10 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 		CoreServices::highlightEditor(this);
 
         return;
+    }
+    else if(button == electrodeEditorButtons[3]) // DYNAMIC THRESH
+    {
+        std::cout<<"Dynamic threshold button clicked";
     }
 
 

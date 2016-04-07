@@ -181,7 +181,7 @@ void SpikeSorter::updateSettings()
     if (channelBuffers != nullptr)
         delete channelBuffers;
 
-    double SamplingRate = getSampleRate();;
+    double SamplingRate = getSampleRate();
     double ContinuousBufferLengthSec = 5;
     channelBuffers = new ContinuousCircularBuffer(numChannels,SamplingRate,1, ContinuousBufferLengthSec);
 
@@ -1787,7 +1787,6 @@ Histogram::~Histogram()
 
 
 // ===================================================
-
 void ContinuousCircularBuffer::reallocate(int NumCh)
 {
     numCh =NumCh;

@@ -99,6 +99,9 @@ public:
         transitions between callbacks. */
     AudioSampleBuffer overflowBuffer;
 
+    /** a buffer for storing samples in a continuous circular buffer
+        for calculating dynamic threshold */
+    DetectorCircularBuffer detectorObject;
 
     // CREATE AND DELETE ELECTRODES //
 
@@ -205,5 +208,23 @@ private:
 };
 
 
+class ContinuousCircularBuffer
+{
+public:
+    ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
+    void reallocate(int N);
+    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
+    int GetPtr();
+    int numCh;
+    double samplingRate;
+    CriticalSection mut;
+    int numSamplesInBuf;
+    int ptr;
+    int bufLen;
+
+    std::vector<std::vector<float> > Buf;
+};
 
 #endif  // __SPIKEDETECTOR_H_3F920F95__
