@@ -25,21 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 
-ListSliceParser::ListSliceParser(std::string s)
-{
-    defaultString = s;
-}
-
-ListSliceParser::~ListSliceParser()
-{
-
-}
-
-int ListSliceParser::convertToInteger(std::string s)
+int ListSliceParser::convertToInteger(String s)
 {
     char ar[20];
     int i, j, k = 0;
-    for (i = 0; i < s.size(); i++)
+    for (i = 0; i < s.length(); i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
         {
@@ -56,18 +46,18 @@ int ListSliceParser::convertToInteger(std::string s)
     return k;
 }
 
-std::vector<int> ListSliceParser::parseStringIntoRange(std::string textBoxInfo,int rangeValue)
+Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeValue)
 {
-    std::string s = ",";
+    String s = ",";
     s += textBoxInfo;
-    std::vector<int> finalList, separator, rangeseparator;
+    Array<int> finalList, separator, rangeseparator;
     int i, j, a, b, k, openb, closeb, otherchar, x, y;
     s += ",";
-    for (i = 0; i < s.size(); i++)      //split string by ' , ' or ' ; '
+    for (i = 0; i < s.length(); i++)      //split string by ' , ' or ' ; '
     {
         if (s[i] == ';' || s[i] == ',')
         {
-            separator.push_back(i);
+            separator.add(i);
         }
     }
     for (i = 0; i < separator.size() - 1; i++)  // split ranges by ' : ' or ' - '
@@ -79,7 +69,7 @@ std::vector<int> ListSliceParser::parseStringIntoRange(std::string textBoxInfo,i
         {
             if (s[j] == '-' || s[j] == ':')
             {
-                rangeseparator.push_back(j);
+                rangeseparator.add(j);
             }
             else if (((int)s[j] == 32))
             {
@@ -127,19 +117,19 @@ std::vector<int> ListSliceParser::parseStringIntoRange(std::string textBoxInfo,i
 
         if (rangeseparator.size() == 0)   //syntax of form - x or [x]
         {
-            a = convertToInteger(s.substr(x, y - x + 1));
+            a = convertToInteger(s.substring(x, y + 1));
             if (a == 0 || a>rangeValue)
             {
                 continue;
             }
-            finalList.push_back(a - 1);
-            finalList.push_back(a - 1);
-            finalList.push_back(1);
+            finalList.add(a - 1);
+            finalList.add(a - 1);
+            finalList.add(1);
         }
         else if (rangeseparator.size() == 1) // syntax of type - x-y or [x-y]
         {
-            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
-            b = convertToInteger(s.substr(rangeseparator[0], y - rangeseparator[0] + 1));
+            a = convertToInteger(s.substring(x, rangeseparator[0]));
+            b = convertToInteger(s.substring(rangeseparator[0], y + 1));
             if (a == 0)
             {
                 a = 1;
@@ -152,15 +142,15 @@ std::vector<int> ListSliceParser::parseStringIntoRange(std::string textBoxInfo,i
             {
                 continue;
             }
-            finalList.push_back(a - 1);
-            finalList.push_back(b - 1);
-            finalList.push_back(1);
+            finalList.add(a - 1);
+            finalList.add(b - 1);
+            finalList.add(1);
         }
         else if (rangeseparator.size() == 2)   // syntax of type [x:y:z] or x-y-z
         {
-            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
-            k = convertToInteger(s.substr(rangeseparator[0], rangeseparator[1] - rangeseparator[0] + 1));
-            b = convertToInteger(s.substr(rangeseparator[1], y - rangeseparator[1] + 1));
+            a = convertToInteger(s.substring(x, rangeseparator[0] + 1));
+            k = convertToInteger(s.substring(rangeseparator[0], rangeseparator[1]));
+            b = convertToInteger(s.substring(rangeseparator[1], y + 1));
             if (a == 0)
             {
                 a = 1;
@@ -177,9 +167,9 @@ std::vector<int> ListSliceParser::parseStringIntoRange(std::string textBoxInfo,i
             {
                 continue;
             }
-            finalList.push_back(a - 1);
-            finalList.push_back(b - 1);
-            finalList.push_back(k);
+            finalList.add(a - 1);
+            finalList.add(b - 1);
+            finalList.add(k);
         }
     }
     return finalList;

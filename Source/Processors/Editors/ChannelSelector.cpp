@@ -581,7 +581,7 @@ int ChannelSelector::getDesiredWidth()
 void ChannelSelector::buttonClicked(Button* button)
 {
     //checkChannelSelectors();
-    ListSliceParser* sp = new ListSliceParser("");
+    ListSliceParser sp;
     if (button == paramsButton)
     {
         // make sure param buttons are visible
@@ -686,7 +686,7 @@ void ChannelSelector::buttonClicked(Button* button)
         selectButtonParam->removeListener(this);
         deselectButtonParam->removeListener(this);
         int fa, lim, comd, i, j;
-        std::vector<int> getBoxList = sp->parseStringIntoRange(paramBox->getText().toStdString(),parameterButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(paramBox->getText(),parameterButtons.size());
         if (getBoxList.size() < 3)
         {
             selectButtonParam->addListener(this);
@@ -712,7 +712,7 @@ void ChannelSelector::buttonClicked(Button* button)
     {   // select channels in record tab
         selectButtonRecord->removeListener(this);
         deselectButtonRecord->removeListener(this);
-        std::vector<int> getBoxList = sp->parseStringIntoRange(recordBox->getText().toStdString(), recordButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(recordBox->getText(), recordButtons.size());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
@@ -739,7 +739,7 @@ void ChannelSelector::buttonClicked(Button* button)
     {   // select channels in audio tab
         selectButtonAudio->removeListener(this);
         deselectButtonAudio->removeListener(this);
-        std::vector<int> getBoxList = sp->parseStringIntoRange(audioBox->getText().toStdString(), audioButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(audioBox->getText(), audioButtons.size());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
@@ -766,7 +766,7 @@ void ChannelSelector::buttonClicked(Button* button)
     {   // deselect channels in param tab
         selectButtonParam->removeListener(this);
         deselectButtonParam->removeListener(this);
-        std::vector<int> getBoxList = sp->parseStringIntoRange(paramBox->getText().toStdString(), parameterButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(paramBox->getText(), parameterButtons.size());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
@@ -793,7 +793,7 @@ void ChannelSelector::buttonClicked(Button* button)
     {   // deselect channels in record tab
         selectButtonRecord->removeListener(this);
         deselectButtonRecord->removeListener(this);
-        std::vector<int> getBoxList = sp->parseStringIntoRange(recordBox->getText().toStdString(), recordButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(recordBox->getText(), recordButtons.size());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
@@ -820,7 +820,7 @@ void ChannelSelector::buttonClicked(Button* button)
     {   // deselect channels in audio tab
         selectButtonAudio->removeListener(this);
         deselectButtonAudio->removeListener(this);
-        std::vector<int> getBoxList = sp->parseStringIntoRange(audioBox->getText().toStdString(), audioButtons.size());
+        Array<int> getBoxList = sp.parseStringIntoRange(audioBox->getText(), audioButtons.size());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {

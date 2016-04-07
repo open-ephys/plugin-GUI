@@ -38,12 +38,11 @@ The range can be of one of the following type:
 class ListSliceParser
 {
 public:
-    ListSliceParser(std::string s);
-    ~ListSliceParser();
-    std::vector<int> parseStringIntoRange(std::string textBoxInfo,int rangeValue);
+    //ListSliceParser();
+    //~ListSliceParser();
+    static Array<int> parseStringIntoRange(String textBoxInfo,int rangeValue);
 private:
-    std::string defaultString;
-    int convertToInteger(std::string s);        //Changes string to int. Make this public if you want to use it outside this class.
+    static int convertToInteger(String s);        //Changes string to int. Make this public if you want to use it outside this class.
 };
 
 
