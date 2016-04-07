@@ -27,8 +27,8 @@
 SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
-      channelBuffer(2,100),overflowBufferSize(100),
-      currentElectrode(-1), uniqueID(0)
+      overflowBufferSize(100),currentElectrode(-1), 
+      uniqueID(0)
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
