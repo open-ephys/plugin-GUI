@@ -106,7 +106,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
 
     ElectrodeEditorButton* e4 = new ElectrodeEditorButton("DTHR", font);
     e4->addListener(this);
-    //addAndMakeVisible(e4);
+    addAndMakeVisible(e4);
     e4->setBounds(200,110,70,10);
     electrodeEditorButtons.add(e4);
     
@@ -390,7 +390,15 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     }
     else if(button == electrodeEditorButtons[3]) // DYNAMIC THRESH
     {
-        std::cout<<"Dynamic threshold button clicked";
+        if(button->getToggleState())
+        {
+            std:cout<<" setting dynamic threshold for all channels";
+        }
+        else if(!button->getToggleState())
+        {
+            std::cout<<"setting default threshold for all channels";
+            // this may be improved , set the threshold corresponding to one on the slider,,
+        }
     }
 
 

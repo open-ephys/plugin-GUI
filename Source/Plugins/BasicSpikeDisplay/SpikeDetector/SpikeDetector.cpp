@@ -85,7 +85,7 @@ void SpikeDetector::updateSettings()
     if (getNumInputs() > 0)
         {
             overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
-            detectorObject.Buffers(getNumInputs(), "size to be decided");
+          //  detectorObject.Buffers(getNumInputs(), "size to be decided");
         }
 
     for (int i = 0; i < electrodes.size(); i++)
