@@ -763,7 +763,7 @@ void SpikeDetector::loadCustomParametersFromXml()
     }
 
 }
-
+/*
 void DetectorCircularBuffer::reallocate(int NumCh)
 {
     numCh =NumCh;
@@ -816,44 +816,6 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numpts)
     }
 
 
-    mut.exit();
-
-}
-
-
-void DetectorCircularBuffer::update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts)
-{
-    mut.enter();
-
-    // we don't start from zero because of subsampling issues.
-    // previous packet may not have ended exactly at the last given sample.
-    int k = leftover_k;
-    int lastUsedSample;
-    for (; k < numpts; k+=subSampling)
-    {
-        lastUsedSample = k;
-        valid[ptr] = true;
-        hardwareTS[ptr] = hardware_ts + k;
-        softwareTS[ptr] = software_ts + int64(float(k) / samplingRate * numTicksPerSecond);
-
-        for (int ch = 0; ch < numCh; ch++)
-        {
-            Buf[ch][ptr] = contdata[ch][k];
-        }
-        ptr++;
-        if (ptr == bufLen)
-        {
-            ptr = 0;
-        }
-        numSamplesInBuf++;
-        if (numSamplesInBuf >= bufLen)
-        {
-            numSamplesInBuf = bufLen;
-        }
-    }
-
-    int numMissedSamples = (numpts-1)-lastUsedSample;
-    leftover_k =subSampling-numMissedSamples-1;
     mut.exit();
 
 }
@@ -927,3 +889,4 @@ double DetectorCircularBuffer::findThresholdForChannel(int channel)
 
   return NewThres;
 }
+*/

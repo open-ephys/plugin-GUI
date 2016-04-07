@@ -209,7 +209,7 @@ private:
 
 };
 
-
+/*
 class DetectorCircularBuffer
 {
 public:
@@ -228,5 +228,5 @@ public:
 
     std::vector<std::vector<float> > Buf;
 };
-
+*/
 #endif  // __SPIKEDETECTOR_H_3F920F95__
