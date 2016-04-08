@@ -285,12 +285,6 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         Array<int> activeChannels;
         
-        if(button->getToggleState())
-        {
-            addAndMakeVisible(electrodeEditorButtons[3]);
-     //       electrodeEditorButtons[3]->setToggleState(false, dontSendNotification);
-        }    
-
         for (int i = 0; i < electrodeButtons.size(); i++)
         {
             if (button->getToggleState())
@@ -392,12 +386,56 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     {
         if(button->getToggleState())
         {
-            std::cout<<" setting dynamic threshold for all channels";
+            std::cout<<" setting dynamic threshold for all channels"<<std::endl;
+            // need to think of cases when Edit or delete is clicked and so on
+               
+            /**
+
+                i think implementing dynamic threshold for particular channels is cumbersome,
+                needing to click DTHR for every electrode, its implememntation is bit difficult,
+                and i dont think it is of much use,
+                all electrodes should be thereby have dynamic threshold or default threshold collectively,
+                rather than some having dynamic and some other having default 
+             **/
+            
+            float dynamicThreshold =  processor->getDynamicThreshold();
+
+            Array<SimpleElectrode*> electrodes;
+            processor->getElectrodes(electrodes);
+
+            for (int i = 0; i < electrodes.size(); i++)
+            {
+                for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
+                {
+                    processor->setChannelThreshold(i, *(electrode->channels+chan), dynamicThreshold);   
+                }
+            }
+
+
         }
         else if(!button->getToggleState())
         {
-            std::cout<<"setting default threshold for all channels";
-            // this may be improved , set the threshold corresponding to one on the slider,,
+            std::cout<<"setting default threshold for all channels"<<std::endl;
+
+            int defaultThreshold = processor->getDefaultThreshold();
+            
+            for (int i = 0; i < electrodes.size(); i++)
+            {
+                for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
+                {
+                    processor->setChannelThreshold(i, *(electrode->channels+chan),defaultThreshold);   
+                }
+            }
+
+            /*
+            *
+            *        
+            *
+             this may be improved , set the threshold corresponding to one on the slider,, instead of default threshold
+            *
+            *
+            *
+            */
         }
     }
 
