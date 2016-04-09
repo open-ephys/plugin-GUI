@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "../../UI/Utils/TiledButtonGroupManager.h"
 
 #include "../Channel/Channel.h"
 
@@ -151,21 +152,21 @@ private:
     will be updated when a parameter is changed.
     paramBox: TextBox where user input is taken for param tab.
     */
-    Array<ChannelSelectorButton*> parameterButtons;
+    TiledButtonGroupManager parameterButtonsManager;
     ChannelSelectorBox* paramBox;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     are sent to the audio monitor.
     audioBox: TextBox where user input is taken for audio tab
     */
-    Array<ChannelSelectorButton*> audioButtons;
+    TiledButtonGroupManager audioButtonsManager;
     ChannelSelectorBox* audioBox;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     will be written to disk when the record button is pressed.
     recordBox: TextBox where user input is taken for record tab
     */
-    Array<ChannelSelectorButton*> recordButtons;
+    TiledButtonGroupManager recordButtonsManager;
     ChannelSelectorBox* recordBox;
 
     bool paramsToggled;

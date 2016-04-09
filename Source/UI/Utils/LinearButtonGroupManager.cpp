@@ -82,6 +82,8 @@ void LinearButtonGroupManager::paintOverChildren (Graphics& g)
 
 void LinearButtonGroupManager::resized()
 {
+    ButtonGroupManager::resized();
+
     const int width     = getWidth();
     const int height    = getHeight();
 

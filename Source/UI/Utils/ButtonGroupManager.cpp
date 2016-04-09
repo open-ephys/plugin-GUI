@@ -32,12 +32,18 @@ static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 
 
 ButtonGroupManager::ButtonGroupManager()
-    : m_isRadioButtonMode   (true)
-    , m_buttonListener      (nullptr)
-    , m_buttonsLookAndFeel  (nullptr)
+    : m_isRadioButtonMode       (true)
+    , m_buttonListener          (nullptr)
+    , m_buttonsLookAndFeel      (nullptr)
+    , m_componentProxyHandler   (new Component)
 {
     setColour (backgroundColourId,  Colour (0x0));
     setColour (outlineColourId,     COLOUR_BORDER);
+
+
+    addAndMakeVisible (m_buttonsViewport);
+    m_buttonsViewport.setViewedComponent (m_componentProxyHandler, false);
+    m_buttonsViewport.setScrollBarsShown (false, false, true, false);
 }
 
 
@@ -59,6 +65,21 @@ void ButtonGroupManager::paint (Graphics& g)
     // Draw border
     g.setColour (findColour (outlineColourId));
     g.drawRoundedRectangle (floatLocalBounds, cornerSize, 1.f);
+}
+
+
+void ButtonGroupManager::resized()
+{
+    const int width  = getWidth();
+    const int height = getHeight();
+
+    if (m_buttons.size())
+        m_componentProxyHandler->setBounds (0, 0, width, jmax (height,
+                                                               m_buttons[m_buttons.size() - 1]->getBounds().getBottom()));
+    else
+        m_componentProxyHandler->setBounds (0, 0, width, height);
+
+    m_buttonsViewport.setBounds (0, 0, getWidth(), getHeight());
 }
 
 
@@ -100,7 +121,7 @@ void ButtonGroupManager::addButton (Button* newButton)
     newButton->addListener (this);
     newButton->setLookAndFeel (m_buttonsLookAndFeel);
 
-    addAndMakeVisible (newButton);
+    m_componentProxyHandler->addAndMakeVisible (newButton);
     m_buttons.add (newButton);
 
     if (m_isRadioButtonMode)

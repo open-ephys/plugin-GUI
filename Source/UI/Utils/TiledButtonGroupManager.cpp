@@ -45,6 +45,8 @@ TiledButtonGroupManager::TiledButtonGroupManager()
 
 void TiledButtonGroupManager::resized()
 {
+    ButtonGroupManager::resized();
+
     const int width = getWidth();
 
     if (! width)
@@ -162,10 +164,16 @@ void TiledButtonGroupManager::addButton (Button* newButton)
 
 int TiledButtonGroupManager::getIndexOfButtonAtPosition (Point<int> position) const
 {
+
     const int numButtons = m_buttons.size();
+    const int viewPositionX = m_buttonsViewport.getViewPositionX();
+    const int viewPositionY = m_buttonsViewport.getViewPositionY();
+
+    //DBG ("Down Y position: " + String (position.translated (viewPositionX, viewPositionY).getY()));
+
     for (int i = 0; i < numButtons; ++i)
     {
-        if (m_buttons[i]->getBounds().contains (position))
+        if (m_buttons[i]->getBounds().contains (position.translated (viewPositionX, viewPositionY)))
             return i;
     }
 

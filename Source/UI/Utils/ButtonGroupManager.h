@@ -62,7 +62,7 @@ public:
 
     /** All component, that inherit ButtonGroupManager should override the resized() method
         in order to control buttons positioning inside it */
-    virtual void resized() = 0;
+    virtual void resized();
     // ===========================================================
 
     // Button::Listener methods
@@ -108,6 +108,14 @@ protected:
 
     /** Pointer to the LookAndFeel which will be used for each button */
     LookAndFeel* m_buttonsLookAndFeel;
+
+    /** Viewport whick will show appropriate buttons */
+    Viewport m_buttonsViewport;
+
+    /** We will instead all of our buttons to this component instead of current object
+        to be sure that we can use it with viewport support - it will be easy to show
+        a very big quantity of buttons with scrolling feature */
+    ScopedPointer<Component> m_componentProxyHandler;
 
     /** An array which stores buttons that will be managed by this class */
     OwnedArray<Button> m_buttons;
