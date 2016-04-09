@@ -41,6 +41,12 @@ ButtonGroupManager::ButtonGroupManager()
 }
 
 
+ButtonGroupManager::~ButtonGroupManager()
+{
+    m_buttons.clear();
+}
+
+
 void ButtonGroupManager::paint (Graphics& g)
 {
     auto floatLocalBounds = getLocalBounds().toFloat();
@@ -75,6 +81,14 @@ int ButtonGroupManager::getNumButtons() const
 }
 
 
+Button* ButtonGroupManager::getButtonAt (int index) const
+{
+    jassert (index >= 0 && index < m_buttons.size());
+
+    return m_buttons[index];
+}
+
+
 bool ButtonGroupManager::isRadioButtonMode() const
 {
     return m_isRadioButtonMode;
@@ -103,6 +117,7 @@ void ButtonGroupManager::removeButton (int index)
     if (index < 0
         || index >= m_buttons.size())
     {
+        jassertfalse;
         return;
     }
 

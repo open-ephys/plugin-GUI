@@ -118,6 +118,7 @@ OBJECTS := \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
+  $(OBJDIR)/TiledButtonGroupManager_e05788a6.o \
   $(OBJDIR)/LinearButtonGroupManager_ea5cb5bf.o \
   $(OBJDIR)/ButtonGroupManager_75d0fbfa.o \
   $(OBJDIR)/MaterialButtonLookAndFeel_d7d19ba2.o \
@@ -501,6 +502,11 @@ $(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObj
 $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/MatlabLikePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MatlabLikePlot.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TiledButtonGroupManager_e05788a6.o: ../../Source/UI/Utils/TiledButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TiledButtonGroupManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LinearButtonGroupManager_ea5cb5bf.o: ../../Source/UI/Utils/LinearButtonGroupManager.cpp

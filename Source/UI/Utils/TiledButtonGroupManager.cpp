@@ -22,22 +22,24 @@
 */
 
 #include "TiledButtonGroupManager.h"
-#include "../MaterialButtonLookAndFeel.h"
+#include "../LookAndFeel/MaterialButtonLookAndFeel.h"
 
 #include <algorithm>
 
 
 TiledButtonGroupManager::TiledButtonGroupManager()
-    : m_firstSelectedButtonIdx    (-1)
-    , m_lastSelectedButtonIdx     (-1)
-    , m_isToggleOnMode            (true)
-    , m_isDraggingMouseNow        (false)
-    , m_isSelectButtonsByDragging (false)
-    , m_buttonWidth               (0)
-    , m_buttonHeight              (0)
+    : m_buttonWidth                 (10)
+    , m_buttonHeight                (10)
+    , m_minPaddingForButtons        (5)
+    , m_firstSelectedButtonIdx      (-1)
+    , m_lastSelectedButtonIdx       (-1)
+    , m_isToggleOnMode              (true)
+    , m_isDraggingMouseNow          (false)
+    , m_isSelectButtonsByDragging   (false)
+    , m_materialButtonsLookAndFeel  (new MaterialButtonLookAndFeel)
 {
     setRadioButtonMode (false);
-    setButtonsLookAndFeel (new MaterialButtonLookAndFeel);
+    setButtonsLookAndFeel (m_materialButtonsLookAndFeel);
 }
 
 
@@ -48,9 +50,9 @@ void TiledButtonGroupManager::resized()
     if (! width)
         return;
 
-    const int minPadding = 5;
-    const int numButtonsInTheRow = width / (m_buttonWidth + minPadding);
-    const int padding = jmax (minPadding, (width - numButtonsInTheRow * m_buttonWidth) / (numButtonsInTheRow - 1));
+    const int numButtonsInTheRow = width / (m_buttonWidth + m_minPaddingForButtons);
+    const int padding = jmax (m_minPaddingForButtons,
+                              (width - numButtonsInTheRow * m_buttonWidth) / (numButtonsInTheRow - 1));
 
     juce::Rectangle<int> buttonBounds (0, 0, m_buttonWidth, m_buttonHeight);
     const int numButtons = m_buttons.size();
@@ -158,7 +160,7 @@ void TiledButtonGroupManager::addButton (Button* newButton)
 }
 
 
-int TiledButtonGroupManager::getIndexOfButtonAtPosition (Point<int> position)
+int TiledButtonGroupManager::getIndexOfButtonAtPosition (Point<int> position) const
 {
     const int numButtons = m_buttons.size();
     for (int i = 0; i < numButtons; ++i)
@@ -171,7 +173,7 @@ int TiledButtonGroupManager::getIndexOfButtonAtPosition (Point<int> position)
 }
 
 
-bool TiledButtonGroupManager::isFastSelectionModeEnabled()
+bool TiledButtonGroupManager::isFastSelectionModeEnabled() const
 {
     return m_isSelectButtonsByDragging;
 }
@@ -190,6 +192,14 @@ void TiledButtonGroupManager::setButtonSize (int buttonWidth, int buttonHeight)
 
     std::for_each (m_buttons.begin(), m_buttons.end(),
                    [=] (Button* button) { button->setSize (buttonWidth, buttonHeight); });
+
+    resized();
+}
+
+
+void TiledButtonGroupManager::setMinPaddingBetweenButtons (int minPadding)
+{
+    m_minPaddingForButtons = minPadding;
 
     resized();
 }

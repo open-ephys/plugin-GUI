@@ -55,10 +55,10 @@ public:
 
     // Button::Listener methods
     // ===========================================================
-    void buttonClicked (Button* buttonThatWasClicked);
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
     /** Returns whether fast selection mode (toggle on or off buttons by dragging mouse) is enabled or not */
-    bool isFastSelectionModeEnabled();
+    bool isFastSelectionModeEnabled() const;
 
     /** Sets whether fast selection mode (toggle on or off buttons by dragging mouse) will be enabled */
     void setFastSelectionModeEnabled (bool isFastSelectionMode);
@@ -66,26 +66,32 @@ public:
     /** Sets the size of each button */
     void setButtonSize (int buttonWidth, int buttonHeight);
 
+    /** Sets the minimal padding which used will be used around buttons */
+    void setMinPaddingBetweenButtons (int minPadding);
+
     /** Add button to the array of buttons to manage it.
 
         This class controls ownership of buttons.
     */
-    void addButton (Button* newButton);
+    void addButton (Button* newButton) override;
 
 
 private:
     // Returns the index of button at given position.
     // If nothing found at this position - returns -1.
-    int getIndexOfButtonAtPosition (Point<int> position);
+    int getIndexOfButtonAtPosition (Point<int> position) const;
 
     int m_buttonWidth;
     int m_buttonHeight;
+    int m_minPaddingForButtons;
 
     int m_firstSelectedButtonIdx;
     int m_lastSelectedButtonIdx;
     bool m_isToggleOnMode;
     bool m_isDraggingMouseNow;
     bool m_isSelectButtonsByDragging;
+
+    ScopedPointer<LookAndFeel> m_materialButtonsLookAndFeel;
 
     // ===========================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TiledButtonGroupManager)

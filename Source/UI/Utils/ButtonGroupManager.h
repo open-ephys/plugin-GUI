@@ -39,6 +39,7 @@ class PLUGIN_API ButtonGroupManager : public Component
 {
 public:
     ButtonGroupManager();
+    virtual ~ButtonGroupManager();
 
     //==============================================================================
     /** A set of colour IDs to use to change the colour of various aspects of the button.
@@ -70,6 +71,9 @@ public:
 
     /** Returns the number of stored buttons. */
     int getNumButtons() const;
+
+    /** Returns the button at the given index */
+    Button* getButtonAt (int index) const;
 
     /** Return whether all managed buttons are in the radiobutton mode now */
     bool isRadioButtonMode() const;
