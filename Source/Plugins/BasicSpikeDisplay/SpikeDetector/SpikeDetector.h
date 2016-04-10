@@ -127,6 +127,8 @@ public:
 
     std::vector<float> DTHR;
 
+    float getDynamciThreshold(int chan);
+
     // CREATE AND DELETE ELECTRODES //
 
     /** Adds an electrode with n channels to be processed. */

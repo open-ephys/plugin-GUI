@@ -786,6 +786,12 @@ void SpikeDetector::loadCustomParametersFromXml()
 
 }
 
+float SpikeDetector::getDynamicThreshold(int Chann)
+{
+    return DTHR[Chann];
+}
+
+
 void DetectorCircularBuffer::reallocate(int NumCh)
 {
     numChannels =NumCh;
@@ -838,7 +844,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
     }
     if(numSamplesInBuf > bufLen)
     {
-        numSamplesInBuf = buflen;
+        numSamplesInBuf = bufLen;
     }
     mut.exit();
 }
@@ -846,27 +852,22 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
 
 float DetectorCircularBuffer::findDynamciThresholdForChannels(int channel)
 {
-    std::vector<float> tempBuffer(bufLen);
+    std::vector<float> tempBuffer;
+    tempBuffer.resize(bufLen);
     //now copying contents of the original buffer into the temporary buffer,,
 
-    for(int i=0; i<bufLen; i++)
+    for(int i = 0; i < bufLen; i++)
         tempBuffer[i] = fabs(Buf[channel][i]);
 
 
   std::sort(tempBuffer.begin(), tempbuffer.begin()+tempBuffer.size());           //(12 32 45 71)26 80 53 33
 
 
-  int Middle = LongArray.size() / 2;
+  int Middle = tempBuffer.size() / 2;
   float Median = tempBuffer[Middle];
   double NewThres = -4.0F * Median / 0.675F;
   return NewThres;
 }
-
-float DetectorCircularBuffer::getDynamicThreshold(int Chann)
-{
-    return DTHR[Chann];
-}
-
 
 int DetectorCircularBuffer::GetPtr()
 {
