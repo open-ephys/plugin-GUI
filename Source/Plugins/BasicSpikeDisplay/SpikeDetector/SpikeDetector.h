@@ -213,7 +213,7 @@ private:
 class DetectorCircularBuffer
 {
 public:
-    DetectorCircularBuffer(int numChannels, int bufferlength);
+    DetectorCircularBuffer();
     void reallocate(int N);
     void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
     void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
