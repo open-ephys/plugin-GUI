@@ -91,11 +91,6 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     deselectButtonAudio->addListener(this);
     addAndMakeVisible(deselectButtonAudio);
 
-    channelSelectorRegion = new ChannelSelectorRegion(this);
-    //channelSelectorRegion->setBounds(0,20,0,getHeight()-35);
-    //addAndMakeVisible(channelSelectorRegion);
-    //channelSelectorRegion->toBack();
-
     addAndMakeVisible (paramBox  = new ChannelSelectorBox);
     addAndMakeVisible (recordBox = new ChannelSelectorBox);
     addAndMakeVisible (audioBox  = new ChannelSelectorBox);
@@ -220,8 +215,6 @@ void ChannelSelector::shiftChannelsVertical(float amount)
 
 void ChannelSelector::refreshButtonBoundaries()
 {
-    channelSelectorRegion->setBounds(0, 20, getWidth(), getHeight() - 35);
-
     int column = 0;
     int row = 0;
     int nColumns;
@@ -322,9 +315,6 @@ void ChannelSelector::addButton()
     ChannelSelectorButton* b = new ChannelSelectorButton (size + 1, PARAMETER, titleFont);
     parameterButtonsManager.addButton (b);
 
-    // TODO
-    //channelSelectorRegion->addAndMakeVisible(b);
-
     if (paramsToggled)
         b->setToggleState(true, dontSendNotification);
     else
@@ -337,13 +327,9 @@ void ChannelSelector::addButton()
     {
         ChannelSelectorButton* br = new ChannelSelectorButton(size + 1, RECORD, titleFont);
         recordButtonsManager.addButton (br);
-        //channelSelectorRegion->addAndMakeVisible(br);
-        //br->addListener(this);
 
         ChannelSelectorButton* ba = new ChannelSelectorButton(size + 1, AUDIO, titleFont);
         audioButtonsManager.addButton (ba);
-        //channelSelectorRegion->addAndMakeVisible(ba);
-        //ba->addListener(this);
     }
 }
 
@@ -352,16 +338,11 @@ void ChannelSelector::removeButton()
     int size = parameterButtonsManager.getNumButtons();
 
     parameterButtonsManager.removeButton (size - 1);
-    // TODO
-    // channelSelectorRegion->removeChildComponent(b);
 
     if (isNotSink)
     {
         recordButtonsManager.removeButton (size - 1);
-        //channelSelectorRegion->removeChildComponent(br);
-
-        audioButtonsManager.removeButton (size - 1);
-        //channelSelectorRegion->removeChildComponent(ba);
+        audioButtonsManager.removeButton  (size - 1);
     }
 }
 
@@ -1156,31 +1137,6 @@ void ChannelSelectorButton::setActive(bool t)
 {
     isActive = t;
     setClickingTogglesState(t);
-}
-
-ChannelSelectorRegion::ChannelSelectorRegion(ChannelSelector* cs)
-{
-    channelSelector = cs;
-
-    addMouseListener((MouseListener*) this, true);
-}
-
-ChannelSelectorRegion::~ChannelSelectorRegion()
-{
-    deleteAllChildren();
-}
-
-void ChannelSelectorRegion::mouseWheelMove(const MouseEvent& event,
-        const MouseWheelDetails& wheel)
-{
-
-    // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
-    channelSelector->shiftChannelsVertical(-wheel.deltaY);
-}
-
-void ChannelSelectorRegion::paint(Graphics& g)
-{
-    // g.fillAll(Colours::white);
 }
 
 

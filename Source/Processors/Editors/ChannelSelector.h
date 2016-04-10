@@ -247,28 +247,6 @@ private:
     ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
 };
 
-/**
-
-Holds the ChannelSelector buttons.
-
-@see ChannelSelector
-
-*/
-
-class ChannelSelectorRegion : public Component
-{
-public:
-    ChannelSelectorRegion(ChannelSelector* cs);
-    ~ChannelSelectorRegion();
-
-    /** Allows the user to scroll the channels if they are not all visible.*/
-    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
-    void paint(Graphics& g);
-
-private:
-    ChannelSelector* channelSelector;
-
-};
 
 /**
 
