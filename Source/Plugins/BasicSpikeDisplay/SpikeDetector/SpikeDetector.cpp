@@ -825,7 +825,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
     mut.enter();
     for (int k = 0; k < numSamples; k++)
     {
-        if(ptr == BufLen)
+        if(ptr == bufLen)
         {   
             ptr = 0;
         }
@@ -837,9 +837,9 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
         ptr++; 
         numSamplesInBuf++;
     }
-    if(numSamplesInBuf > BufLen)
+    if(numSamplesInBuf > bufLen)
     {
-        numSamplesInBuf = Buflen;
+        numSamplesInBuf = buflen;
     }
     mut.exit();
 }
