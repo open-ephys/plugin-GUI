@@ -788,7 +788,7 @@ void SpikeDetector::loadCustomParametersFromXml()
 
 float SpikeDetector::getDynamicThreshold(int chan)
 {
-    return DTHR[Chann];
+    return DTHR[chan];
 }
 
 
