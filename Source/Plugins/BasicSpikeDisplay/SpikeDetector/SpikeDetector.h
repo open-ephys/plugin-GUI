@@ -52,7 +52,7 @@ class SpikeDetectorEditor;
 class DetectorCircularBuffer
 {
 public:
-    DetectorCircularBuffer();
+    DetectorCircularBuffer(int ch, float secs, double srate);
     void reallocate(int N);
     void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();

@@ -28,7 +28,7 @@ SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100),currentElectrode(-1), 
-      uniqueID(0)
+      uniqueID(0), detectorBuffers(2,2.0f, getSampleRate())
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
@@ -463,7 +463,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     detectorBuffers.reallocate(detectorBuffers.numChannels);
 
     DTHR.clear();
-    DTHR.resize(numChannels);
+    DTHR.resize(detectorBuffers.numChannels);
     
     for(int i =0; i < electrodes.size();i++)
     {
@@ -492,7 +492,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
 */
         
-            detectorBuffers.update(Buffer, nSamples);
+            detectorBuffers.update(buffer, nSamples);
         
 
         // cycle through samples
@@ -788,9 +788,9 @@ void SpikeDetector::loadCustomParametersFromXml()
 
 void DetectorCircularBuffer::reallocate(int NumCh)
 {
-    numCh =NumCh;
-    Buf.resize(numCh);
-    for (int k=0; k< numCh; k++)
+    numChannels =NumCh;
+    Buf.resize(numChannels);
+    for (int k = 0;k < numChannels; k++)
     {
         Buf[k].resize(bufLen);
     }
@@ -800,13 +800,12 @@ void DetectorCircularBuffer::reallocate(int NumCh)
 }
 
 
-DetectorCircularBuffer::DetectorCircularBuffer()
+DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, double samRate)
 {
     samplingRate = getSampleRate();
-    float NumSecInBuffer = 2.0f;
-    int numSamplesToHoldPerChannel = (int)(SamplingRate * NumSecInBuffer);
+    int numSamplesToHoldPerChannel = (int)(samplingRate * NumSecInBuffer);
     
-    numCh = 2;
+    numChannels = 2;
     Buf.resize(numCh);
 
 
