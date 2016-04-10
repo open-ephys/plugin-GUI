@@ -808,7 +808,7 @@ void DetectorCircularBuffer::reallocate(int NumCh)
 
 DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, double samRate, float thresh)
 {
-    samplingRate = getSampleRate();
+    samplingRate = samRate;
     int numSamplesToHoldPerChannel = (int)(samplingRate * NumSecInBuffer);
     
     numChannels = 2;
@@ -837,7 +837,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
         
         for(int ch = 0; ch < numChannels; ch++)
         {
-            Buf[ch][ptr] = *(buffer->getReadPointer(ch,k));    
+            Buf[ch][ptr] = *(buffer.getReadPointer(ch,k));    
         }
         ptr++; 
         numSamplesInBuf++;
