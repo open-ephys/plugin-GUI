@@ -127,7 +127,7 @@ public:
 
     std::vector<float> DTHR;
 
-    float getDynamciThreshold(int chan);
+    float getDynamicThreshold(int chan);
 
     // CREATE AND DELETE ELECTRODES //
 
