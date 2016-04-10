@@ -800,13 +800,13 @@ void DetectorCircularBuffer::reallocate(int NumCh)
 }
 
 
-DetectorCircularBuffer::DetectorCircularBuffer(int NumCh, float NumSecInBuffer)
+DetectorCircularBuffer::DetectorCircularBuffer()
 {
-    
     samplingRate = getSampleRate();
-    int numSamplesToHoldPerChannel = (SamplingRate * NumSecInBuffer);
+    float NumSecInBuffer = 2.0f;
+    int numSamplesToHoldPerChannel = (int)(SamplingRate * NumSecInBuffer);
     
-    numCh =NumCh;
+    numCh = 2;
     Buf.resize(numCh);
 
 
