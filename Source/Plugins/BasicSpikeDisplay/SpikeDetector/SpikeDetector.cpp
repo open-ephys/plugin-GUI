@@ -28,7 +28,7 @@ SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100),currentElectrode(-1), 
-      uniqueID(0)
+      uniqueID(0),detectorBuffers(2,2)
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
@@ -81,7 +81,6 @@ AudioProcessorEditor* SpikeDetector::createEditor()
 
 void SpikeDetector::updateSettings()
 {
-
     if (getNumInputs() > 0)
         {
             overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
@@ -450,6 +449,29 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 
+    /**
+        i want to maintain the buflen as samplerate * number of secs in buffer..
+    */
+    detectorBuffers.bufLen = sampleRateForElectrode * 2;
+
+    int totalChannels = 0;
+    for(int i = 0; i < electrodes.size(); i++)
+    {
+        totalChannels += electrodes[i]->numChannels;
+    }
+    DetectorCircularBuffer.numChannels = totalChannels;
+    detectorBuffers.reallocate(numChannels);
+
+    DTHR.clear();
+    DTHR.resize(numChannels);
+    
+    for(int i =0; i < electrodes.size();i++)
+    {
+        for(int chan = 0; chan < electrodes[i]->numChannels ; chan++)
+        {
+            DTHR[i] = detectorBuffers.findDynamciThresholdForChannels(*(electrodes[i]+ chan));
+        }
+    }
     for (int i = 0; i < electrodes.size(); i++)
     {
 
@@ -462,17 +484,17 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // increment at start of getNextSample()
 
         int nSamples = getNumSamples(*electrode->channels);
+        // number of samples in all channels of electrode is same this gets nsamples from one particular channel ,
 /*
         "copy all the nsamples of all channels here  and also set the dynamic threshold here because i will be  using threshold  here"
         "nSamples stores number for all samples    samplesAvailable() ensures that some part resides in overflowbuffer"
-        "read about process() in genereic profcessor.h "
-        
-        while(samplesAvailable(nSamples))
-        {
-            
-        }
+        "read about process() in GenereicProcessor.h "
 
 */
+        
+            detectorBuffers.update(Buffer, nSamples);
+        
+
         // cycle through samples
         while (samplesAvailable(nSamples))
         {
@@ -763,7 +785,7 @@ void SpikeDetector::loadCustomParametersFromXml()
     }
 
 }
-/*
+
 void DetectorCircularBuffer::reallocate(int NumCh)
 {
     numCh =NumCh;
@@ -778,11 +800,12 @@ void DetectorCircularBuffer::reallocate(int NumCh)
 }
 
 
-DetectorCircularBuffer::DetectorCircularBuffer(int NumCh, float SamplingRate, float NumSecInBuffer)
+DetectorCircularBuffer::DetectorCircularBuffer(int NumCh, float NumSecInBuffer)
 {
     
-    int numSamplesToHoldPerChannel = (int)(SamplingRate * NumSecInBuffer / SubSampling);
-    samplingRate = SamplingRate;
+    samplingRate = getSampleRate();
+    int numSamplesToHoldPerChannel = (SamplingRate * NumSecInBuffer);
+    
     numCh =NumCh;
     Buf.resize(numCh);
 
@@ -796,28 +819,52 @@ DetectorCircularBuffer::DetectorCircularBuffer(int NumCh, float SamplingRate, fl
     ptr = 0; // points to a valid position in the buffer.
 }
 
-void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numpts)
+void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
 {
     mut.enter();
-
-    for (int ch = 0; ch < numCh; ch++)
+    for (int k = 0; k < numSamples; k++)
     {
-        Buf[ch][ptr] = *(buffer.getReadPointer(ch,k));
+        if(ptr == BufLen)
+        {   
+            ptr = 0;
+        }
+        
+        for(int ch = 0; ch < numChannels; ch++)
+        {
+            Buf[ch][ptr] = *(buffer->getReadPointer(ch,k));    
+        }
+        ptr++; 
+        numSamplesInBuf++;
     }
-    ptr++;
-    if (ptr == bufLen)
+    if(numSamplesInBuf > BufLen)
     {
-        ptr = 0;
+        numSamplesInBuf = Buflen;
     }
-    numSamplesInBuf++;
-    if (numSamplesInBuf >= bufLen)
-    {
-        numSamplesInBuf = bufLen;
-    }
-
-
     mut.exit();
+}
 
+
+float DetectorCircularBuffer::findDynamciThresholdForChannels(int channel)
+{
+    std::vector<float> tempBuffer(bufLen);
+    //now copying contents of the original buffer into the temporary buffer,,
+
+    for(int i=0; i<bufLen; i++)
+        tempBuffer[i] = fabs(Buf[channel][i]);
+
+
+  std::sort(tempBuffer.begin(), tempbuffer.begin()+tempBuffer.size());           //(12 32 45 71)26 80 53 33
+
+
+  int Middle = LongArray.size() / 2;
+  float Median = tempBuffer[Middle];
+  double NewThres = -4.0F * Median / 0.675F;
+  return NewThres;
+}
+
+float DetectorCircularBuffer::getDynamicThreshold(int Chann)
+{
+    return DTHR[Chann];
 }
 
 
@@ -827,66 +874,3 @@ int DetectorCircularBuffer::GetPtr()
 }
 
 
-std::vector<double> DetectorCircularBuffer::getDataArray(int channel, int N)
-{
-  std::vector<double> LongArray;
-  LongArray.resize(N);
-  mut.enter();
-
-            int p = ptr - 1;
-            for (int k = 0; k < N; k++)
-            {
-                if (p < 0)
-                    p = bufLen - 1;
-               LongArray[k] = Buf[channel][p];
-                p--;
-            }
-            mut.exit();
-            return LongArray;
-}
-
-void DetectorCircularBuffer::addDataToBuffer(std::vector<std::vector<double>> Data)
-{
-  mut.enter();
-  int iNumPoints = getNumSamples("channel");
-  for (int k = 0; k < iNumPoints; k++)
-  {
-      for (int ch = 0; ch < numCh; ch++)
-      {
-            Buf[ch][ptr] = *(buffer.getReadPointer(ch,k));
-      }
-      ptr++;
-
-      if (ptr == bufLen)
-      {
-          ptr = 0;
-      }
-      numSamplesInBuf++;
-      if (numSamplesInBuf >= bufLen)
-      {
-          numSamplesInBuf = bufLen;
-      }
-  }
-  mut.exit();
-}
-
-
-double DetectorCircularBuffer::findThresholdForChannel(int channel)
-{
-  // Run median on analog input
-  double numSamplesPerSecond = 30000;
-  std::vector<double> LongArray = getDataArray(channel, numSamplesPerSecond*5);
-
-  for (int k = 0; k < LongArray.size(); k++)
-      LongArray[k] = fabs(LongArray[k]);
-
-  std::sort (LongArray.begin(), LongArray.begin()+LongArray.size());           //(12 32 45 71)26 80 53 33
-
-
-  int Middle = LongArray.size() / 2;
-  double Median = LongArray[Middle];
-  double NewThres = -4.0F * Median / 0.675F;
-
-  return NewThres;
-}
-*/

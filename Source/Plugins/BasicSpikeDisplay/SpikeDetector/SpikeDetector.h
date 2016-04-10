@@ -59,7 +59,6 @@ class DetectorCircularBuffer;
 */
 
 class SpikeDetector : public GenericProcessor
-
 {
 public:
 
@@ -103,7 +102,9 @@ public:
     /** a buffer for storing samples in a continuous circular buffer
         for calculating dynamic threshold */
     
-    DetectorCircularBuffer *detectorBuffers;
+    DetectorCircularBuffer detectorBuffers;
+
+    std::vector<float> DTHR;
 
     // CREATE AND DELETE ELECTRODES //
 
@@ -209,17 +210,16 @@ private:
 
 };
 
-/*
 class DetectorCircularBuffer
 {
 public:
-    ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
+    DetectorCircularBuffer(int numChannels, int bufferlength);
     void reallocate(int N);
     void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
     void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
     void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
     int GetPtr();
-    int numCh;
+    int numChannels;
     double samplingRate;
     CriticalSection mut;
     int numSamplesInBuf;
@@ -228,5 +228,5 @@ public:
 
     std::vector<std::vector<float> > Buf;
 };
-*/
+
 #endif  // __SPIKEDETECTOR_H_3F920F95__
