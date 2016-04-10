@@ -57,7 +57,6 @@ public:
     void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();
     float findDynamciThresholdForChannels(int channel);
-    float getDynamicThreshold(int Chann);
 
     int numChannels;
     double samplingRate;
