@@ -48,7 +48,26 @@ struct SimpleElectrode
 };
 
 class SpikeDetectorEditor;
-class DetectorCircularBuffer;
+
+class DetectorCircularBuffer
+{
+public:
+    DetectorCircularBuffer();
+    void reallocate(int N);
+    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
+    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
+    int GetPtr();
+    int numChannels;
+    double samplingRate;
+    CriticalSection mut;
+    int numSamplesInBuf;
+    int ptr;
+    int bufLen;
+
+    std::vector<std::vector<float> > Buf;
+};
+
 
 /**
 
@@ -210,23 +229,5 @@ private:
 
 };
 
-class DetectorCircularBuffer
-{
-public:
-    DetectorCircularBuffer();
-    void reallocate(int N);
-    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
-    int GetPtr();
-    int numChannels;
-    double samplingRate;
-    CriticalSection mut;
-    int numSamplesInBuf;
-    int ptr;
-    int bufLen;
-
-    std::vector<std::vector<float> > Buf;
-};
 
 #endif  // __SPIKEDETECTOR_H_3F920F95__
