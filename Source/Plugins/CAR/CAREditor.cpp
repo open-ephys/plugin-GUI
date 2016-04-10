@@ -36,10 +36,11 @@ static const Font FONT_LABELS ("Default", 13.f, Font::plain);
 CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
-    , m_channelSelectorButtonManager (new ButtonGroupManager)
+    , m_channelSelectorButtonManager (new LinearButtonGroupManager)
     , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, FONT_LABELS))
 {
     TextButton* referenceChannelsButton = new TextButton ("Reference", "Switch to reference channels");
+    referenceChannelsButton->setClickingTogglesState (true);
     referenceChannelsButton->setToggleState (true, dontSendNotification);
     referenceChannelsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     referenceChannelsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
@@ -47,6 +48,7 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     referenceChannelsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
 
     TextButton* affectedChannelsButton  = new TextButton ("Affected", "Switch to affected channels");
+    affectedChannelsButton->setClickingTogglesState (true);
     affectedChannelsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     affectedChannelsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
     affectedChannelsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
@@ -57,9 +59,9 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     m_channelSelectorButtonManager->setRadioButtonMode (true);
     m_channelSelectorButtonManager->setButtonListener (this);
     m_channelSelectorButtonManager->setButtonsLookAndFeel (m_materialButtonLookAndFeel);
-    m_channelSelectorButtonManager->setBackgroundColour (Colours::white);
-    m_channelSelectorButtonManager->setOutlineColour    (Colour (0x0));
-    m_channelSelectorButtonManager->setAccentColour     (COLOUR_ACCENT);
+    m_channelSelectorButtonManager->setColour (ButtonGroupManager::backgroundColourId,   Colours::white);
+    m_channelSelectorButtonManager->setColour (ButtonGroupManager::outlineColourId,      Colour (0x0));
+    m_channelSelectorButtonManager->setColour (LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
     addAndMakeVisible (m_channelSelectorButtonManager);
 
     m_gainSlider->setColour (Slider::rotarySliderFillColourId, Colour::fromRGB (255, 193, 7));

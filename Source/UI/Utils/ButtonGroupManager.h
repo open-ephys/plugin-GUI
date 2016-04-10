@@ -29,41 +29,63 @@
 
 /**
 
-    This class provides possibility to store buttons with radiobutton behaviour in the single
-    component - button manager. It is responsible for positioning of buttons, any animations
-    during switching, etc.
+    This class provides is a base class for other ButtonGroupManagers.
+    It stores set of buttons inside and responsible for positioning of buttons, lookAndFeel, any animations.
 
-    All buttons will be stored in horizontal (for now) box - like component.
-
+    @see LinearButtonGroupManager
 */
 class PLUGIN_API ButtonGroupManager : public Component
                                     , public Button::Listener
-                                    , private Timer
 {
 public:
     ButtonGroupManager();
+    virtual ~ButtonGroupManager();
+
+    //==============================================================================
+    /** A set of colour IDs to use to change the colour of various aspects of the button.
+
+        These constants can be used either via the Component::setColour(), or LookAndFeel::setColour()
+        methods.
+
+        @see Component::setColour, Component::findColour, LookAndFeel::setColour, LookAndFeel::findColour
+    */
+    enum ColourIds
+    {
+        backgroundColourId              = 0x1000100,  /**< The colour used to fill the buttons' manager background. */
+        outlineColourId                 = 0x1000101,  /**< The colour used for the outline of button manager. */
+    };
 
     // Component methods
     // ===========================================================
-    void paint              (Graphics& g) override;
-    void paintOverChildren  (Graphics& g) override;
-    void resized() override;
+    void paint (Graphics& g)    override;
+    void colourChanged()        override;
+
+    /** All component, that inherit ButtonGroupManager should override the resized() method
+        in order to control buttons positioning inside it */
+    virtual void resized();
+    // ===========================================================
 
     // Button::Listener methods
     // ===========================================================
     void buttonClicked (Button* buttonThatWasClicked) override;
 
     /** Returns the number of stored buttons. */
-    int getNumButtons() const { return m_buttons.size(); }
+    int getNumButtons() const;
+
+    /** Returns the button at the given index */
+    Button* getButtonAt (int index) const;
 
     /** Return whether all managed buttons are in the radiobutton mode now */
-    bool isRadioButtonMode() const { return m_isRadioButtonMode; }
+    bool isRadioButtonMode() const;
 
     /** Add button to the array of buttons to manage it.
 
         This class controls ownership of buttons.
+
+        Can be overriden by other buttons to change behaviour of the way, how buttons are added,
+        e.g. use decorators for some buttons, etc.
     */
-    void addButton (TextButton* newButton);
+    virtual void addButton (Button* newButton);
 
     /** Remove button from the manager array buttons */
     void removeButton (int index);
@@ -74,51 +96,32 @@ public:
     /** Sets custom LookAndFeel for each button */
     void setButtonsLookAndFeel (LookAndFeel* newButtonLookAndFeel);
 
-    /** Sets whether dividers between buttons will be visible or not */
-    void setShowDividers (bool isShow);
-
     /** Sets the listener that will receive events from buttons */
     void setButtonListener (Button::Listener* newButtonListener);
 
-    /** Sets the background colour for component */
-    void setBackgroundColour (Colour bgColour);
 
-    /** Sets the accent colour for component which will be used
-        as colour of underline which displays current selected button */
-    void setAccentColour (Colour accentColour);
-
-    /** Sets the outline colour for component */
-    void setOutlineColour (Colour outlineColour);
-
-
-private:
-    // Timer methods
-    // ===========================================================
-    void timerCallback() override;
-
+protected:
     /** Displays if radiobutton mode is used for each button */
     bool m_isRadioButtonMode;
-    bool m_isShowDividers;
-
-    /** Stores an index of currently selected button.
-        That variable become useless in the non-radiobutton mode.
-    */
-    int m_selectedButtonIdx;
-    float m_desiredButtonLineX;
-    float m_currentButtonLineX;
-    float m_animationStepX;
 
     Button::Listener* m_buttonListener;
-
-    Colour m_backgroundColour;
-    Colour m_accentColour;
-    Colour m_outlineColour;
 
     /** Pointer to the LookAndFeel which will be used for each button */
     LookAndFeel* m_buttonsLookAndFeel;
 
+    /** Viewport whick will show appropriate buttons */
+    Viewport m_buttonsViewport;
+
+    /** We will instead all of our buttons to this component instead of current object
+        to be sure that we can use it with viewport support - it will be easy to show
+        a very big quantity of buttons with scrolling feature */
+    ScopedPointer<Component> m_componentProxyHandler;
+
     /** An array which stores buttons that will be managed by this class */
-    OwnedArray<TextButton> m_buttons;
+    OwnedArray<Button> m_buttons;
+
+    // ===========================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ButtonGroupManager)
 };
 
 

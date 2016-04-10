@@ -124,7 +124,7 @@ void CAR::setReferenceChannelState (int channel, bool newState)
     if (! newState)
         m_referenceChannels.removeFirstMatchingValue (channel);
     else
-        m_referenceChannels.add (channel);
+        m_referenceChannels.addIfNotAlreadyThere (channel);
 }
 
 
