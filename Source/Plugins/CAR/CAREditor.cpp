@@ -40,6 +40,7 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, FONT_LABELS))
 {
     TextButton* referenceChannelsButton = new TextButton ("Reference", "Switch to reference channels");
+    referenceChannelsButton->setClickingTogglesState (true);
     referenceChannelsButton->setToggleState (true, dontSendNotification);
     referenceChannelsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     referenceChannelsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
@@ -47,6 +48,7 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
     referenceChannelsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
 
     TextButton* affectedChannelsButton  = new TextButton ("Affected", "Switch to affected channels");
+    affectedChannelsButton->setClickingTogglesState (true);
     affectedChannelsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     affectedChannelsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
     affectedChannelsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
