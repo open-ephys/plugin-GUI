@@ -384,6 +384,11 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     }
     else if(button == electrodeEditorButtons[3]) // DYNAMIC THRESH
     {
+        
+        SpikeDetector* processor = (SpikeDetector*) getProcessor();
+        Array<SimpleElectrode*> electrodes;
+        processor->getElectrodes(electrodes);
+
         if(button->getToggleState())
         {
             std::cout<<" setting dynamic threshold for all channels"<<std::endl;
@@ -398,10 +403,6 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 rather than some having dynamic and some other having default 
              **/
             
-        
-            Array<SimpleElectrode*> electrodes;
-            processor->getElectrodes(electrodes);
-
             for (int i = 0; i < electrodes.size(); i++)
             {
                 for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
