@@ -408,7 +408,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
                 {
                     int theChannel = *(electrodes[i]->channels + chan);
-                    float dynamicThreshold = processor->detectorBuffers.getDynamicThreshold(theChannel);
+                    float dynamicThreshold = processor->getDynamicThreshold(theChannel);
                     processor->setChannelThreshold(i, theChannel, dynamicThreshold);   
                 }
             }
