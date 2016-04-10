@@ -98,6 +98,9 @@
     <Filter Include="open-ephys\Source\UI">
       <UniqueIdentifier>{717A0FE3-E079-E4BD-8F50-15A1953825C5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\UI\LookAndFeel">
+      <UniqueIdentifier>{82473DF0-9747-E952-2C6D-DAC4DD6B3807}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
     </Filter>
@@ -595,6 +598,12 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
@@ -611,9 +620,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\ProcessorList.cpp">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\InfoLabel.cpp">
@@ -2085,6 +2091,12 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
@@ -2101,9 +2113,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\ProcessorList.h">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\InfoLabel.h">
