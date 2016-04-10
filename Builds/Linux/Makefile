@@ -106,6 +106,8 @@ OBJECTS := \
   $(OBJDIR)/ParameterEditor_112258eb.o \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
   $(OBJDIR)/ProcessorGraph_8c3a250a.o \
+  $(OBJDIR)/DataQueue_d6cc297a.o \
+  $(OBJDIR)/RecordThread_fb797372.o \
   $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
@@ -442,6 +444,16 @@ $(OBJDIR)/Parameter_b3e5ac9e.o: ../../Source/Processors/Parameter/Parameter.cpp
 $(OBJDIR)/ProcessorGraph_8c3a250a.o: ../../Source/Processors/ProcessorGraph/ProcessorGraph.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorGraph.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/DataQueue_d6cc297a.o: ../../Source/Processors/RecordNode/DataQueue.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling DataQueue.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordThread_fb797372.o: ../../Source/Processors/RecordNode/RecordThread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordThread.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp

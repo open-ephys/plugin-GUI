@@ -140,3 +140,8 @@ bool FileSource::OpenFile (File file)
 
     return fileOpened;
 }
+
+bool FileSource::isReady()
+{
+	return true;
+}
