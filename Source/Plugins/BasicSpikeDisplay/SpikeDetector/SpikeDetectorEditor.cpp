@@ -409,7 +409,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 {
                     int theChannel = *(electrodes[i]->numChannels + chan);
                     float dynamicThreshold = processor->detectorBuffers.getDynamicThreshold(theChannel);
-                    processor->setChannelThreshold(i, *(electrode->channels+chan), dynamicThreshold);   
+                    processor->setChannelThreshold(i, *(electrodes[i]->channels+chan), dynamicThreshold);   
                 }
             }
         }
@@ -418,13 +418,13 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         {
             std::cout<<"setting default threshold for all channels"<<std::endl;
 
-            float defaultThreshold = processor->getDefaultThreshold();
+            float defaultThreshold = processor->detectorBuffers.defthresh;
             
             for (int i = 0; i < electrodes.size(); i++)
             {
                 for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
                 {
-                    processor->setChannelThreshold(i, *(electrode->channels+chan),defaultThreshold);   
+                    processor->setChannelThreshold(i, *(electrodes[i]->channels+chan), defaultThreshold);   
                 }
             }
 

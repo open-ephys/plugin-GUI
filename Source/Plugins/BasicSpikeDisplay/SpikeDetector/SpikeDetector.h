@@ -64,6 +64,7 @@ public:
     int numSamplesInBuf;
     int ptr;
     int bufLen;
+    float defthresh;
 
     std::vector<std::vector<float> > Buf;
 };

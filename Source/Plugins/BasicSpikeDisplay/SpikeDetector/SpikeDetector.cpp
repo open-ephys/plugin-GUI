@@ -817,6 +817,7 @@ DetectorCircularBuffer::DetectorCircularBuffer()
 
     numSamplesInBuf = 0;
     ptr = 0; // points to a valid position in the buffer.
+    defthresh = getDefaultThreshold();
 }
 
 void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
