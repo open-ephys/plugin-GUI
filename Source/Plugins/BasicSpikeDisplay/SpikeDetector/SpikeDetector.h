@@ -102,7 +102,7 @@ public:
     /** a buffer for storing samples in a continuous circular buffer
         for calculating dynamic threshold */
     
-    DetectorCircularBuffer detectorBuffers;
+    DetectorCircularBuffer detectorBuffers(2,2);
 
     std::vector<float> DTHR;
 
