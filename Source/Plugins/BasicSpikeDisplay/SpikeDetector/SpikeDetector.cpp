@@ -459,8 +459,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     {
         totalChannels += electrodes[i]->numChannels;
     }
-    DetectorCircularBuffer.numChannels = totalChannels;
-    detectorBuffers.reallocate(numChannels);
+    detectorBuffers.numChannels = totalChannels;
+    detectorBuffers.reallocate(detectorBuffers.numChannels);
 
     DTHR.clear();
     DTHR.resize(numChannels);
@@ -469,7 +469,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     {
         for(int chan = 0; chan < electrodes[i]->numChannels ; chan++)
         {
-            DTHR[i] = detectorBuffers.findDynamciThresholdForChannels(*(electrodes[i]+ chan));
+            DTHR[i] = detectorBuffers.findDynamciThresholdForChannels(*(electrodes[i]->channels + chan));
         }
     }
     for (int i = 0; i < electrodes.size(); i++)
