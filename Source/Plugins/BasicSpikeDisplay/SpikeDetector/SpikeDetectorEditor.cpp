@@ -389,7 +389,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         Array<SimpleElectrode*> electrodes;
         processor->getElectrodes(electrodes);
 
-        if(button->getToggleState())
+        if(!button->getToggleState())
         {
             std::cout<<" setting dynamic threshold for all channels"<<std::endl;
             // need to think of cases when Edit or delete is clicked and so on
@@ -414,7 +414,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
             }
         }
 
-        else if(!button->getToggleState())
+        else if(button->getToggleState())
         {
             std::cout<<"setting default threshold for all channels"<<std::endl;
 
