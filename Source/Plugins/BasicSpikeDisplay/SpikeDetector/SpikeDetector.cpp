@@ -28,7 +28,7 @@ SpikeDetector::SpikeDetector()
     : GenericProcessor("Spike Detector"),
       overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100),currentElectrode(-1), 
-      uniqueID(0), detectorBuffers(2,2.0f, getSampleRate())
+      uniqueID(0), detectorBuffers(2,2.0f, getSampleRate(), getDefaultThreshold())
 {
     //// the standard form:
     electrodeTypes.add("single electrode");
@@ -806,7 +806,7 @@ void DetectorCircularBuffer::reallocate(int NumCh)
 }
 
 
-DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, double samRate)
+DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, double samRate, float thresh)
 {
     samplingRate = getSampleRate();
     int numSamplesToHoldPerChannel = (int)(samplingRate * NumSecInBuffer);
@@ -822,10 +822,10 @@ DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, 
 
     numSamplesInBuf = 0;
     ptr = 0; // points to a valid position in the buffer.
-    defthresh = getDefaultThreshold();
+    defthresh = thresh;
 }
 
-void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numsamples)
+void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
 {
     mut.enter();
     for (int k = 0; k < numSamples; k++)
@@ -860,7 +860,7 @@ float DetectorCircularBuffer::findDynamciThresholdForChannels(int channel)
         tempBuffer[i] = fabs(Buf[channel][i]);
 
 
-  std::sort(tempBuffer.begin(), tempbuffer.begin()+tempBuffer.size());           //(12 32 45 71)26 80 53 33
+  std::sort(tempBuffer.begin(), tempBuffer.begin()+tempBuffer.size());           //(12 32 45 71)26 80 53 33
 
 
   int Middle = tempBuffer.size() / 2;
