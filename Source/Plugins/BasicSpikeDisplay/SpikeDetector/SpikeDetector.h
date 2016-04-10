@@ -54,10 +54,11 @@ class DetectorCircularBuffer
 public:
     DetectorCircularBuffer();
     void reallocate(int N);
-    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
+    void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();
+    float findDynamciThresholdForChannels(int channel);
+    float getDynamicThreshold(int Chann);
+
     int numChannels;
     double samplingRate;
     CriticalSection mut;
