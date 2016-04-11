@@ -56,7 +56,7 @@ public:
     void reallocate(int N);
     void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();
-    float findDynamciThresholdForChannels(int channel);
+    float findDynamicThresholdForChannels(int channel);
 
     int numChannels;
     double samplingRate;

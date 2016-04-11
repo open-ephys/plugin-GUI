@@ -64,7 +64,7 @@ SpikeDetector::SpikeDetector()
 
     //spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
 	spikeBuffer.malloc(MAX_SPIKE_BUFFER_LEN);
-
+    std::cout<<"the sampling rate for electrode "<<getSampleRate()<<std::endl;
 }
 
 SpikeDetector::~SpikeDetector()
@@ -469,7 +469,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     {
         for(int chan = 0; chan < electrodes[i]->numChannels ; chan++)
         {
-            DTHR[i] = detectorBuffers.findDynamciThresholdForChannels(*(electrodes[i]->channels + chan));
+            DTHR[i] = detectorBuffers.findDynamicThresholdForChannels(*(electrodes[i]->channels + chan));
         }
     }
     for (int i = 0; i < electrodes.size(); i++)
@@ -850,7 +850,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
 }
 
 
-float DetectorCircularBuffer::findDynamciThresholdForChannels(int channel)
+float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
 {
     std::vector<float> tempBuffer;
     tempBuffer.resize(bufLen);
