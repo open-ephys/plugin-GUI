@@ -498,7 +498,7 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
         this->size[2] = 1;
 
     this->xChunkSize = chunk[0];
-    this->xPos = dims[0];
+    this->xPos = 0;
     this->dSet = dataSet;
     this->rowXPos.clear();
     this->rowXPos.insertMultiple(0,0,this->size[1]);
@@ -663,6 +663,8 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     this->multiSample = info->multiSample;
     uint8 mSample = info->multiSample ? 1 : 0;
 
+	ScopedPointer<HDF5RecordingData> bitVoltsSet;
+
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
     CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
@@ -671,7 +673,10 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
-    CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
+   // CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
+	bitVoltsSet = createDataSet(F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
+	bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
+	
     CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
     CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
