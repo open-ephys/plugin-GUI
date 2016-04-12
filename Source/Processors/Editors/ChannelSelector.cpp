@@ -215,11 +215,11 @@ void ChannelSelector::shiftChannelsVertical(float amount)
 
 void ChannelSelector::refreshButtonBoundaries()
 {
-    int column = 0;
-    int row = 0;
-    int nColumns;
+    //int column = 0;
+    //int row = 0;
+    //int nColumns;
 
-    const int numButtons    = parameterButtonsManager.getNumButtons();
+    //const int numButtons    = parameterButtonsManager.getNumButtons();
     const int columnWidth   = getDesiredWidth() / (numColumnsGreaterThan100 + 1) + 1;
     const int rowHeight     = 14;
 
