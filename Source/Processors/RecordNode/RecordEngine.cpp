@@ -44,6 +44,10 @@ void RecordEngine::registerProcessor(const GenericProcessor* processor) {}
 
 void RecordEngine::addChannel(int index, const Channel* chan) {}
 
+void RecordEngine::startChannelBlock() {}
+
+void RecordEngine::endChannelBlock() {}
+
 Channel* RecordEngine::getChannel(int index) const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->getDataChannel(index);

@@ -114,6 +114,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	Array<CircularBufferIndexes> idx;
 	m_dataQueue->startRead(idx, timestamps, maxSamples);
 	EVERY_ENGINE->updateTimestamps(timestamps);
+	EVERY_ENGINE->startChannelBlock();
 	for (int chan = 0; chan < m_numChannels; ++chan)
 	{
 		if (idx[chan].size1 > 0)
@@ -128,6 +129,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		}
 	}
 	m_dataQueue->stopRead();
+	EVERY_ENGINE->endChannelBlock();
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);

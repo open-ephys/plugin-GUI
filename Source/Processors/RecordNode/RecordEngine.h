@@ -73,10 +73,12 @@ public:
 		3-(updateTimestamps*)
     	4-openFiles*
     During recording: (RecordThread loop)
-    	1-(updateTimestamps*)
-		2-writeData*
-		3-writeEvent* (if needed)
-		4-writeSpike* (if needed)
+    	1-(updateTimestamps*) (can be called in a per-channel basis when the circular buffer wraps)
+		2-startChannelBlock*
+		3-writeData* (per channel. Can be called more than once to account for the circular buffer wrap)
+		4-endChannelBlock*
+		4-writeEvent* (if needed)
+		5-writeSpike* (if needed)
     When recording stops:
     	closeFiles*
 
@@ -97,10 +99,18 @@ public:
     */
     virtual void closeFiles() = 0;
 
+	/** Called by the record thread before it starts writing the channels to disk
+	*/
+	virtual void startChannelBlock();
+
     /** Write continuous data for a channel. The raw buffer pointer is passed for speed, 
 		care must be taken to only read the specified number of bytes.
     */
     virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
+
+	/** Called by the record thread after it has written a channel block
+	*/
+	virtual void endChannelBlock();
 
     /** Write a single event to disk.
     */
