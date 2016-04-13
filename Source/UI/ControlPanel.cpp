@@ -426,17 +426,17 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addChildComponent(newDirectoryButton);
 
 
-    File executable = File::getSpecialLocation(File::currentExecutableFile);
-
 #if defined(__APPLE__)
-    const String executableDirectory =
-        executable.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getFullPathName();
+    const File dataDirectory = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("open-ephys");
+    if (!dataDirectory.isDirectory()) {
+        dataDirectory.createDirectory();
+    }
 #else
-    const String executableDirectory = executable.getParentDirectory().getFullPathName();
+    const File dataDirectory = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
 #endif
 
     filenameComponent = new FilenameComponent("folder selector",
-                                              executableDirectory,
+                                              dataDirectory.getFullPathName(),
                                               true,
                                               true,
                                               true,
