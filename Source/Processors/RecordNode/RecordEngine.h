@@ -59,7 +59,7 @@ class PLUGIN_API RecordEngine
 public:
     RecordEngine();
     virtual ~RecordEngine();
-    virtual String getEngineID() =0;
+    virtual String getEngineID() const =0;
 
     /** All the public methods (except registerManager) are called by RecordNode or RecordingThread:
     When acquisition starts (in the specified order):

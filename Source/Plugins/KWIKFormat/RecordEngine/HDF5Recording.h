@@ -32,7 +32,7 @@ class HDF5Recording : public RecordEngine
 public:
     HDF5Recording();
     ~HDF5Recording();
-    String getEngineID();
+    String getEngineID() const override;
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
@@ -43,6 +43,8 @@ public:
 	void registerProcessor(const GenericProcessor* processor) override;
 	void resetChannels() override;
 	void startAcquisition() override;
+	void startChannelBlock() override;
+	void endChannelBlock() override;
 
     static RecordEngineManager* getEngineManager();
 private:
@@ -54,6 +56,8 @@ private:
 	Array<int> recordedChanToKWDChan;
     OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<Array<float>> sampleRatesArray;
+	OwnedArray<Array<int64>> channelTimestampArray;
+	Array<int> channelLeftOverSamples;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWEFile> eventFile;

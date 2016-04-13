@@ -128,6 +128,7 @@ public:
     void writeBlockData(int16* data, int nSamples);
     void writeRowData(int16* data, int nSamples);
 	void writeRowData(int16* data, int nSamples, int channel);
+	void writeTimestamps(int64* ts, int nTs, int channel);
     String getFileName();
 
 protected:
@@ -140,6 +141,7 @@ private:
     String filename;
     bool multiSample;
     ScopedPointer<HDF5RecordingData> recdata;
+	ScopedPointer<HDF5RecordingData> tsData;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWDFile);
 };

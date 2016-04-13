@@ -23,6 +23,8 @@
 
 #include "HDF5Recording.h"
 #define MAX_BUFFER_SIZE 10000
+#define CHANNEL_TIMESTAMP_PREALLOC_SIZE 16
+#define TIMESTAMP_EACH_NSAMPLES 1024
 
 HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false)
 {
@@ -37,7 +39,7 @@ HDF5Recording::~HDF5Recording()
     delete intBuffer;
 }
 
-String HDF5Recording::getEngineID()
+String HDF5Recording::getEngineID() const
 {
     return "KWIK";
 }
@@ -73,6 +75,8 @@ void HDF5Recording::resetChannels()
     processorMap.clear();
     infoArray.clear();
 	recordedChanToKWDChan.clear();
+	channelLeftOverSamples.clear();
+	channelTimestampArray.clear();
     if (spikesFile)
         spikesFile->resetChannels();
 }
@@ -129,31 +133,11 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
 		int procPos = processorRecPos[index];
 		recordedChanToKWDChan.add(procPos);
 		processorRecPos.set(index, procPos+1);
+		channelTimestampArray.add(new Array<int64>);
+		channelTimestampArray.getLast()->ensureStorageAllocated(CHANNEL_TIMESTAMP_PREALLOC_SIZE);
+		channelLeftOverSamples.add(0);
 	} 
-#if 0
-    for (int i = 0; i < processorMap.size(); i++)
-    {
-        int index = processorMap[i];
-        if (getChannel(i)->getRecordState())
-        {
-			if (!fileArray[index]->isOpen())
-            {
-                fileArray[index]->initFile(getChannel(i)->nodeId,basepath);
-                if (hasAcquired)
-                    infoArray[index]->start_time = (*timestamps)[getChannel(i)->sourceNodeId]; //the timestamps of the first channel
-                else
-                    infoArray[index]->start_time = 0;
-            }
-			channelsPerProcessor.set(index, channelsPerProcessor[index] + 1);
-            bitVoltsArray[index]->add(getChannel(i)->bitVolts);
-            sampleRatesArray[index]->add(getChannel(i)->sampleRate);
-            if (getChannel(i)->sampleRate != infoArray[index]->sample_rate)
-            {
-                infoArray[index]->multiSample = true;
-            }
-        }
-    }
-#endif
+
     for (int i = 0; i < fileArray.size(); i++)
     {
 		if ((!fileArray[i]->isOpen()) && (fileArray[i]->isReadyToOpen()))
@@ -196,6 +180,18 @@ void HDF5Recording::closeFiles()
         }
 		channelsPerProcessor.set(i, 0);
     }
+	recordedChanToKWDChan.clear();
+	channelTimestampArray.clear();
+	channelLeftOverSamples.clear();
+}
+
+void HDF5Recording::startChannelBlock()
+{
+	int nCh = channelTimestampArray.size();
+	for (int i = 0; i < nCh; ++i)
+	{
+		channelTimestampArray[i]->clearQuick();
+	}
 }
 
 void HDF5Recording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
@@ -208,6 +204,48 @@ void HDF5Recording::writeData(int writeChannel, int realChannel, const float* bu
 	fileArray[index]->writeRowData(intBuffer, size, recordedChanToKWDChan[writeChannel]);
 //	int64 t2 = Time::getHighResolutionTicks();
 //	std::cout << "record time: " << float(t2 - t1) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
+	int64 sampleOffset = channelLeftOverSamples[writeChannel];
+	if (writeChannel == 0)
+		std::cout << "Write " << size << " off " << sampleOffset << " ts " << getTimestamp(realChannel) << " - ";
+	if (sampleOffset + size >= TIMESTAMP_EACH_NSAMPLES)
+	{
+		int64 currentTimestamp = getTimestamp(realChannel);
+		if (sampleOffset > 0)
+		{
+			currentTimestamp = getTimestamp(realChannel) + TIMESTAMP_EACH_NSAMPLES - sampleOffset;
+		}
+
+		for (int samp = 0; samp < size; samp += TIMESTAMP_EACH_NSAMPLES)
+		{
+			if (writeChannel == 0)
+				std::cout << "w: " << currentTimestamp << " ";
+			channelTimestampArray[writeChannel]->add(currentTimestamp);
+			currentTimestamp += TIMESTAMP_EACH_NSAMPLES;
+		}
+
+		channelLeftOverSamples.set(writeChannel, (size + sampleOffset) % TIMESTAMP_EACH_NSAMPLES);
+	}
+	else
+	{
+		channelLeftOverSamples.set(writeChannel, sampleOffset + size);
+	}
+	if (writeChannel == 0)
+		std::cout << std::endl;
+}
+
+void HDF5Recording::endChannelBlock()
+{
+	int nCh = channelTimestampArray.size();
+	for (int ch = 0; ch < nCh; ++ch)
+	{
+		int tsSize = channelTimestampArray[ch]->size();
+		if (tsSize > 0)
+		{
+			int realChan = getRealChannel(ch);
+			int index = processorMap[getChannel(realChan)->recordIndex];
+			fileArray[index]->writeTimestamps(channelTimestampArray[ch]->getRawDataPointer(), tsSize, ch);
+		}
+	}
 }
 
 void HDF5Recording::writeEvent(int eventType, const MidiMessage& event, int64 timestamp)

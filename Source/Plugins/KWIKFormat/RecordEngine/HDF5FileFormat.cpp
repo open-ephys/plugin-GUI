@@ -40,6 +40,10 @@
 #define SPIKE_CHUNK_YSIZE 40
 #endif
 
+#ifndef TIMESTAMP_CHUNK_SIZE
+#define TIMESTAMP_CHUNK_SIZE 4
+#endif
+
 #define MAX_TRANSFORM_SIZE 512
 
 #define MAX_STR_SIZE 256
@@ -675,13 +679,21 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
    // CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
 	bitVoltsSet = createDataSet(F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
-	bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
+	if (bitVoltsSet.get())
+		bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
+	else
+		std::cerr << "Error creating bitvolts data set" << std::endl;
 	
     CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
     CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
+
+	tsData = createDataSet(I64, 0, nChannels, TIMESTAMP_CHUNK_SIZE, recordPath + "/application_data/timestamps");
+	if (!tsData.get())
+		std::cerr << "Error creating timestamps data set" << std::endl;
+
     curChan = nChannels;
 }
 
@@ -694,6 +706,7 @@ void KWDFile::stopRecording()
     CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
     //ScopedPointer does the deletion and destructors the closings
     recdata = nullptr;
+	tsData = nullptr;
 }
 
 int KWDFile::createFileStructure()
@@ -725,6 +738,14 @@ void KWDFile::writeRowData(int16* data, int nSamples, int channel)
 	{
 		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, I16, data));
 		curChan = channel;
+	}
+}
+
+void KWDFile::writeTimestamps(int64* ts, int nTs, int channel)
+{
+	if (channel >= 0 && channel < nChannels)
+	{
+		CHECK_ERROR(tsData->writeDataRow(channel, nTs, I64, ts));
 	}
 }
 
