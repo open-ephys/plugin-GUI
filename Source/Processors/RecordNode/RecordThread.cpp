@@ -100,7 +100,7 @@ void RecordThread::run()
 	//4-Before closing the thread, try to write the remaining samples
 	if (!closeEarly)
 	{
-		writeData(dataBuffer, -1, -1, -1);
+		writeData(dataBuffer, -1, -1, -1, true);
 
 		std::cout << "Closing files" << std::endl;
 		//5-Close files
