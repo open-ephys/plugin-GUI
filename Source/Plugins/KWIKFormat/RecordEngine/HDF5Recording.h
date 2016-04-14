@@ -62,8 +62,11 @@ private:
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWEFile> eventFile;
     ScopedPointer<KWXFile> spikesFile;
-    float* scaledBuffer;
-    int16* intBuffer;
+	HeapBlock<float> scaledBuffer;
+	HeapBlock<int16> intBuffer;
+	int bufferSize;
+    //float* scaledBuffer;
+    //int16* intBuffer;
 
     bool hasAcquired;
 

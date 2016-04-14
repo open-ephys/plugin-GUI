@@ -334,7 +334,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
     {
 
 
-        // std::cout << "STOP RECORDING." << std::endl;
+        std::cout << "STOP RECORDING." << std::endl;
 
         if (isRecording)
         {
@@ -345,7 +345,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 			m_recordThread->waitForThreadToExit(2000);
 			while (m_recordThread->isThreadRunning())
 			{
-				
+				std::cerr << "RecordEngine timeout" << std::endl;
 				if (AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Record Thread timeout",
 					"The recording thread is taking too long to close.\nThis could mean there is still data waiting to be written in the buffer, but it normally "
 					"shouldn't take this long.\nYou can either wait a bit more or forcefully close the thread. Note that data might be lost or corrupted"

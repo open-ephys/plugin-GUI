@@ -44,8 +44,8 @@
 #define REGISTER_59_MISO_B  58
 #define RHD2132_16CH_OFFSET 8
 
-//#define DEBUG_EMULATE_HEADSTAGES 8
-//#define DEBUG_EMULATE_64CH
+#define DEBUG_EMULATE_HEADSTAGES 8
+#define DEBUG_EMULATE_64CH
 
 #define INIT_STEP ( evalBoard->isUSB3() ? 256 : 60)
 
@@ -188,10 +188,10 @@ RHD2000Thread::~RHD2000Thread()
 
     //deleteAndZero(dataBlock);
 
-    delete dacStream;
-    delete dacChannels;
-    delete dacThresholds;
-    delete dacChannelsToUpdate;
+    delete[] dacStream;
+    delete[] dacChannels;
+    delete[] dacThresholds;
+    delete[] dacChannelsToUpdate;
 
 }
 

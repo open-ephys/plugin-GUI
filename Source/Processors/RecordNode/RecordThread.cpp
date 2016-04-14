@@ -96,11 +96,13 @@ void RecordThread::run()
 	{
 		writeData(dataBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
 	}
+	std::cout << "Exiting record thread" << std::endl;
 	//4-Before closing the thread, try to write the remaining samples
 	if (!closeEarly)
 	{
 		writeData(dataBuffer, -1, -1, -1);
 
+		std::cout << "Closing files" << std::endl;
 		//5-Close files
 		EVERY_ENGINE->closeFiles();
 	}

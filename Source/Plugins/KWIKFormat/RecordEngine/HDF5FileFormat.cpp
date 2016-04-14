@@ -893,18 +893,17 @@ KWXFile::KWXFile(String basename) : HDF5FileBase()
 {
     initFile(basename);
     numElectrodes=0;
-    transformVector = new int16[MAX_TRANSFORM_SIZE];
+    transformVector.malloc(MAX_TRANSFORM_SIZE);
 }
 
 KWXFile::KWXFile() : HDF5FileBase()
 {
     numElectrodes=0;
-    transformVector = new int16[MAX_TRANSFORM_SIZE];
+    transformVector.malloc(MAX_TRANSFORM_SIZE);
 }
 
 KWXFile::~KWXFile()
 {
-    delete transformVector;
 }
 
 String KWXFile::getFileName()

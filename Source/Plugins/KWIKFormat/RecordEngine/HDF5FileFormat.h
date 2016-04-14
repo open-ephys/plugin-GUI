@@ -205,7 +205,8 @@ private:
     OwnedArray<HDF5RecordingData> timeStamps;
     Array<int> channelArray;
     int numElectrodes;
-    int16* transformVector;
+	HeapBlock<int16> transformVector;
+    //int16* transformVector;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWXFile);
 };

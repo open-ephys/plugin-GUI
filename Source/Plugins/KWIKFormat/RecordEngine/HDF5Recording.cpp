@@ -22,21 +22,19 @@
  */
 
 #include "HDF5Recording.h"
-#define MAX_BUFFER_SIZE 10000
+#define MAX_BUFFER_SIZE 40960
 #define CHANNEL_TIMESTAMP_PREALLOC_SIZE 16
 #define TIMESTAMP_EACH_NSAMPLES 1024
 
-HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false)
+HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false), bufferSize(MAX_BUFFER_SIZE)
 {
     //timestamp = 0;
-    scaledBuffer = new float[MAX_BUFFER_SIZE];
-    intBuffer = new int16[MAX_BUFFER_SIZE];
+    scaledBuffer.malloc(MAX_BUFFER_SIZE);
+    intBuffer.malloc(MAX_BUFFER_SIZE);
 }
 
 HDF5Recording::~HDF5Recording()
-{
-    delete scaledBuffer;
-    delete intBuffer;
+{	
 }
 
 String HDF5Recording::getEngineID() const
@@ -67,6 +65,9 @@ void HDF5Recording::registerProcessor(const GenericProcessor* proc)
 
 void HDF5Recording::resetChannels()
 {
+	scaledBuffer.malloc(MAX_BUFFER_SIZE);
+	intBuffer.malloc(MAX_BUFFER_SIZE);
+	bufferSize = MAX_BUFFER_SIZE;
     processorIndex = -1;
     fileArray.clear();
 	channelsPerProcessor.clear();
@@ -173,6 +174,7 @@ void HDF5Recording::closeFiles()
     {
         if (fileArray[i]->isOpen())
         {
+			std::cout << "Closed file " << i << std::endl;
             fileArray[i]->stopRecording();
             fileArray[i]->close();
             bitVoltsArray[i]->clear();
@@ -196,11 +198,18 @@ void HDF5Recording::startChannelBlock()
 
 void HDF5Recording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
+	if (size > bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on reset.
+	{
+		std::cerr << "Write buffer overrun, resizing to" << size << std::endl;
+		bufferSize = size;
+		scaledBuffer.malloc(size);
+		intBuffer.malloc(size);
+	}
 	double multFactor = 1 / (float(0x7fff) * getChannel(realChannel)->bitVolts);
 	int index = processorMap[getChannel(realChannel)->recordIndex];
-	FloatVectorOperations::copyWithMultiply(scaledBuffer, buffer, multFactor, size);
-	AudioDataConverters::convertFloatToInt16LE(scaledBuffer, intBuffer, size);
-	fileArray[index]->writeRowData(intBuffer, size, recordedChanToKWDChan[writeChannel]);
+	FloatVectorOperations::copyWithMultiply(scaledBuffer.getData(), buffer, multFactor, size);
+	AudioDataConverters::convertFloatToInt16LE(scaledBuffer.getData(), intBuffer.getData(), size);
+	fileArray[index]->writeRowData(intBuffer.getData(), size, recordedChanToKWDChan[writeChannel]);
 
 	int sampleOffset = channelLeftOverSamples[writeChannel];
 	int blockStart = sampleOffset;
