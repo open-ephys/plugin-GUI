@@ -476,7 +476,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
             DTHR[i] = detectorBuffers.findDynamicThresholdForChannels(*(electrodes[i]->channels + chan));
         }
     }
-    std::cout<<"Successfully passed the loop for calculating dynamic threshold"std::endl;
+    std::cout<<"Successfully passed the loop for calculating dynamic threshold"<<std::endl;
     for (int i = 0; i < electrodes.size(); i++)
     {
 
