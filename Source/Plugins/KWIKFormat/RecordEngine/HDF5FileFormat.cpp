@@ -668,6 +668,7 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     uint8 mSample = info->multiSample ? 1 : 0;
 
 	ScopedPointer<HDF5RecordingData> bitVoltsSet;
+	ScopedPointer<HDF5RecordingData> sampleRateSet;
 
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
@@ -685,7 +686,13 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
 		std::cerr << "Error creating bitvolts data set" << std::endl;
 	
     CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
-    CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
+    //CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
+	sampleRateSet = createDataSet(F32, info->channelSampleRates.size(), 0, recordPath + "/application_data/channel_sample_rates");
+	if (sampleRateSet.get())
+		sampleRateSet->writeDataBlock(info->channelSampleRates.size(), F32, info->channelSampleRates.getRawDataPointer());
+	else
+		std::cerr << "Error creating sample rates data set" << std::endl;
+
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
