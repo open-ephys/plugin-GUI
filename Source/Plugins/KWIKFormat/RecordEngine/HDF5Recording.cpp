@@ -186,11 +186,14 @@ void HDF5Recording::closeFiles()
 	recordedChanToKWDChan.clear();
 	channelTimestampArray.clear();
 	channelLeftOverSamples.clear();
+	scaledBuffer.malloc(MAX_BUFFER_SIZE);
+	intBuffer.malloc(MAX_BUFFER_SIZE);
+	bufferSize = MAX_BUFFER_SIZE;
 }
 
 void HDF5Recording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
-	if (size > bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on reset.
+	if (size > bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on flie close and reset.
 	{
 		std::cerr << "Write buffer overrun, resizing to" << size << std::endl;
 		bufferSize = size;
