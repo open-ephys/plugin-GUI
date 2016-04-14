@@ -384,11 +384,6 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     }
     else if(button == electrodeEditorButtons[3]) // DYNAMIC THRESH
     {
-        if (acquisitionIsActive)
-        {
-            CoreServices::sendStatusMessage("Stop acquisition before adding electrodes.");
-            return;
-        }
 
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
         Array<SimpleElectrode*> electrodes;
