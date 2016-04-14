@@ -461,9 +461,11 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         totalChannels += electrodes[i]->numChannels;
     }
     detectorBuffers.numChannels = totalChannels;
-    detectorBuffers.reallocate(detectorBuffers.numChannels, getSampleRate(), 2.0F);
+    detectorBuffers.reallocate(detectorBuffers.numChannels, getSampleRate(), 2);
 
     std::cout<<"In process function,, the sampling rate of the electrode is == "<<getSampleRate()<<std::endl;
+    
+    // This vector holds Dynamic Threshold for all channels.   
     DTHR.clear();
     DTHR.resize(detectorBuffers.numChannels);
 
@@ -471,9 +473,9 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     
     for(int i =0; i<electrodes.size(); i++)
     {
-        for(int chan = 0;  chan < electrodes[i]->numChannels; i++)
+        for(int chan = 0;  chan < electrodes[i]->numChannels; chan++)
         {
-            std::cout<<"the electrode number is  "<<electrodes[i]<<" the channel number is " << *(electrodes[i]->channels + chan)<<std::endl;
+            std::cout<<"the electrode number is  "<<*electrodes[i]<<" the channel number is " << *(electrodes[i]->channels + chan)<<std::endl;
         }
     }
 
