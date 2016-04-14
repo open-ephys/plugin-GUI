@@ -53,7 +53,7 @@ class DetectorCircularBuffer
 {
 public:
     DetectorCircularBuffer(int ch, float secs, double srate, float thresh);
-    void reallocate(int N);
+    void reallocate(int N, double samRate, float secondsinBuffer);
     void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();
     float findDynamicThresholdForChannels(int channel);

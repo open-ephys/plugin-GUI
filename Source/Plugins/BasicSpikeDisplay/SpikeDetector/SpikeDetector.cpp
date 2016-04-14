@@ -308,6 +308,7 @@ void SpikeDetector::setParameter(int parameterIndex, float newValue)
         else
             *(electrodes[currentElectrode]->isActive+currentChannelIndex) = true;
     }
+
 }
 
 
@@ -460,8 +461,9 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         totalChannels += electrodes[i]->numChannels;
     }
     detectorBuffers.numChannels = totalChannels;
-    detectorBuffers.reallocate(detectorBuffers.numChannels);
+    detectorBuffers.reallocate(detectorBuffers.numChannels, getSampleRate(), 2.0F);
 
+    std::cout<<"In process function,, the sampling rate of the electrode is == "<<getSampleRate()<<std::endl;
     DTHR.clear();
     DTHR.resize(detectorBuffers.numChannels);
     
@@ -792,8 +794,12 @@ float SpikeDetector::getDynamicThreshold(int chan)
 }
 
 
-void DetectorCircularBuffer::reallocate(int NumCh)
+void DetectorCircularBuffer::reallocate(int NumCh, double samRate, float secondsinbuf)
 {
+    samplingRate = samRate;
+    int numSamplesToHoldPerChannel = (int)(samplingRate * secondsinbuf);
+    
+    bufLen = numSamplesToHoldPerChannel;
     mut.enter();
     numChannels =NumCh;
     Buf.resize(numChannels);
@@ -818,7 +824,7 @@ DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, 
 
     for (int k=0; k< numChannels; k++)
     {
-        Buf[k].resize(numSamplesToHoldPerChannel);
+        Buf[k].resize(bufLen);
     }
 
     numSamplesInBuf = 0;
@@ -856,20 +862,20 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
 float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
 {
     std::vector<float> tempBuffer;
-    tempBuffer.resize(bufLen);
+    tempBuffer.resize(numSamplesInBuf);
     //now copying contents of the original buffer into the temporary buffer,,
 
     mut.enter();
-    for(int i = 0; i < bufLen; i++)
+    for(int i = 0; i < numSamplesInBuf; i++)
         tempBuffer[i] = fabs(Buf[channel][i]);
     mut.exit();
 
-  std::sort(tempBuffer.begin(), tempBuffer.begin()+tempBuffer.size());           //(12 32 45 71)26 80 53 33
+  std::sort(tempBuffer.begin(), tempBuffer.begin()+ numSamplesInBuf);           //(12 32 45 71)26 80 53 33
 
 
   int Middle = tempBuffer.size() / 2;
   float Median = tempBuffer[Middle];
-  double NewThres = -4.0F * Median / 0.675F;
+  float NewThres = -4.0F * Median / 0.675F;
   return NewThres;
 }
 
