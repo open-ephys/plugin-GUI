@@ -110,13 +110,13 @@ void RecordThread::run()
 	m_receivedFirstBlock = false;
 }
 
-void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes)
+void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
 {
 	Array<int64> timestamps;
 	Array<CircularBufferIndexes> idx;
 	m_dataQueue->startRead(idx, timestamps, maxSamples);
 	EVERY_ENGINE->updateTimestamps(timestamps);
-	EVERY_ENGINE->startChannelBlock();
+	EVERY_ENGINE->startChannelBlock(lastBlock);
 	for (int chan = 0; chan < m_numChannels; ++chan)
 	{
 		if (idx[chan].size1 > 0)
@@ -131,7 +131,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		}
 	}
 	m_dataQueue->stopRead();
-	EVERY_ENGINE->endChannelBlock();
+	EVERY_ENGINE->endChannelBlock(lastBlock);
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);

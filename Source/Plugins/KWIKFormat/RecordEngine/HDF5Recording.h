@@ -43,8 +43,7 @@ public:
 	void registerProcessor(const GenericProcessor* processor) override;
 	void resetChannels() override;
 	void startAcquisition() override;
-	void startChannelBlock() override;
-	void endChannelBlock() override;
+	void endChannelBlock(bool lastBlock) override;
 
     static RecordEngineManager* getEngineManager();
 private:

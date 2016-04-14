@@ -41,7 +41,7 @@
 #endif
 
 #ifndef TIMESTAMP_CHUNK_SIZE
-#define TIMESTAMP_CHUNK_SIZE 4
+#define TIMESTAMP_CHUNK_SIZE 16
 #endif
 
 #define MAX_TRANSFORM_SIZE 512
@@ -101,7 +101,7 @@ int HDF5FileBase::open(bool newfile, int nChans)
 		FileAccPropList props = FileAccPropList::DEFAULT;
 		if (nChans > 0)
 		{
-			props.setCache(0, 809, 8 * 2 * CHUNK_XSIZE * nChans, 1);
+			props.setCache(0, 1667, 2 * 8 * 2 * CHUNK_XSIZE * nChans, 1);
 			//std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
 		}
 

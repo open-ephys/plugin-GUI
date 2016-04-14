@@ -101,7 +101,7 @@ public:
 
 	/** Called by the record thread before it starts writing the channels to disk
 	*/
-	virtual void startChannelBlock();
+	virtual void startChannelBlock(bool lastBlock);
 
     /** Write continuous data for a channel. The raw buffer pointer is passed for speed, 
 		care must be taken to only read the specified number of bytes.
@@ -110,7 +110,7 @@ public:
 
 	/** Called by the record thread after it has written a channel block
 	*/
-	virtual void endChannelBlock();
+	virtual void endChannelBlock(bool lastBlock);
 
     /** Write a single event to disk.
     */

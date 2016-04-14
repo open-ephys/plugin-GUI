@@ -23,7 +23,8 @@
 
 #include "HDF5Recording.h"
 #define MAX_BUFFER_SIZE 40960
-#define CHANNEL_TIMESTAMP_PREALLOC_SIZE 16
+#define CHANNEL_TIMESTAMP_PREALLOC_SIZE 128
+#define CHANNEL_TIMESTAMP_MIN_WRITE	32
 #define TIMESTAMP_EACH_NSAMPLES 1024
 
 HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false), bufferSize(MAX_BUFFER_SIZE)
@@ -187,15 +188,6 @@ void HDF5Recording::closeFiles()
 	channelLeftOverSamples.clear();
 }
 
-void HDF5Recording::startChannelBlock()
-{
-	int nCh = channelTimestampArray.size();
-	for (int i = 0; i < nCh; ++i)
-	{
-		channelTimestampArray[i]->clearQuick();
-	}
-}
-
 void HDF5Recording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
 	if (size > bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on reset.
@@ -232,17 +224,18 @@ void HDF5Recording::writeData(int writeChannel, int realChannel, const float* bu
 	channelLeftOverSamples.set(writeChannel, (size + sampleOffset) % TIMESTAMP_EACH_NSAMPLES);
 }
 
-void HDF5Recording::endChannelBlock()
+void HDF5Recording::endChannelBlock(bool lastBlock)
 {
 	int nCh = channelTimestampArray.size();
 	for (int ch = 0; ch < nCh; ++ch)
 	{
 		int tsSize = channelTimestampArray[ch]->size();
-		if (tsSize > 0)
+		if ((tsSize > 0) && ((tsSize > CHANNEL_TIMESTAMP_MIN_WRITE) || lastBlock))
 		{
 			int realChan = getRealChannel(ch);
 			int index = processorMap[getChannel(realChan)->recordIndex];
 			fileArray[index]->writeTimestamps(channelTimestampArray[ch]->getRawDataPointer(), tsSize, ch);
+			channelTimestampArray[ch]->clearQuick();
 		}
 	}
 }
