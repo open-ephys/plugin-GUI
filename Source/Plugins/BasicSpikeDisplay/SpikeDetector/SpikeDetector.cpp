@@ -506,7 +506,6 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         sampleIndex = electrode->lastBufferIndex - 1; // subtract 1 to account for
         // increment at start of getNextSample()
 
-        int nSamples = getNumSamples(*electrode->channels);
         // number of samples in all channels of electrode is same this gets nsamples from one particular channel ,
 /*
         "copy all the nsamples of all channels here  and also set the dynamic threshold here because i will be  using threshold  here"
