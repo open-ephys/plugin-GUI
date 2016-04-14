@@ -467,8 +467,24 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     DTHR.clear();
     DTHR.resize(detectorBuffers.numChannels);
 
-    std::cout<<"resizing done properly"<<std::endl;
+    std::cout<<"resizing of detectorBuffers done properly and now printing channels with electrodes" <<std::endl;
     
+    for(int i =0; i<electrodes.size(); i++)
+    {
+        for(int chan = 0;  chan < electrodes[i]->numChannels; i++)
+        {
+            std::cout<<"the electrode number is  "<<electrodes[i]<<" the channel number is " << *(electrodes[i]->channels + chan)<<std::endl;
+        }
+    }
+
+    std::cout<<"Successfully printed all channels"<<std::endl;
+
+    detectorBuffers.update(buffer, nSamples);
+
+    std::cout<<"updated the detector buffers with fresh batch of samples"<<std::endl;
+    std::cout<<"number of samples in buffer == "<<detectorBuffers.numSamplesInBuf<<std::endl;
+    std::cout<<"now entering loop for finding dynamic thresholds for all channels"<<std::endl;
+
     for(int i =0; i < electrodes.size();i++)
     {
         for(int chan = 0; chan < electrodes[i]->numChannels ; chan++)
@@ -476,6 +492,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
             DTHR[i] = detectorBuffers.findDynamicThresholdForChannels(*(electrodes[i]->channels + chan));
         }
     }
+    
     std::cout<<"Successfully passed the loop for calculating dynamic threshold"<<std::endl;
     for (int i = 0; i < electrodes.size(); i++)
     {
@@ -496,8 +513,6 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         "read about process() in GenereicProcessor.h "
 
 */
-        
-            detectorBuffers.update(buffer, nSamples);
         
 
         // cycle through samples
