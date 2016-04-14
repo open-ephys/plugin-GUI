@@ -196,41 +196,31 @@ void HDF5Recording::startChannelBlock()
 
 void HDF5Recording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
-//	int64 t1 = Time::getHighResolutionTicks();
 	double multFactor = 1 / (float(0x7fff) * getChannel(realChannel)->bitVolts);
 	int index = processorMap[getChannel(realChannel)->recordIndex];
 	FloatVectorOperations::copyWithMultiply(scaledBuffer, buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(scaledBuffer, intBuffer, size);
 	fileArray[index]->writeRowData(intBuffer, size, recordedChanToKWDChan[writeChannel]);
-//	int64 t2 = Time::getHighResolutionTicks();
-//	std::cout << "record time: " << float(t2 - t1) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
-	int64 sampleOffset = channelLeftOverSamples[writeChannel];
-	if (writeChannel == 0)
-		std::cout << "Write " << size << " off " << sampleOffset << " ts " << getTimestamp(realChannel) << " - ";
-	if (sampleOffset + size >= TIMESTAMP_EACH_NSAMPLES)
-	{
-		int64 currentTimestamp = getTimestamp(realChannel);
-		if (sampleOffset > 0)
-		{
-			currentTimestamp = getTimestamp(realChannel) + TIMESTAMP_EACH_NSAMPLES - sampleOffset;
-		}
 
-		for (int samp = 0; samp < size; samp += TIMESTAMP_EACH_NSAMPLES)
-		{
-			if (writeChannel == 0)
-				std::cout << "w: " << currentTimestamp << " ";
-			channelTimestampArray[writeChannel]->add(currentTimestamp);
-			currentTimestamp += TIMESTAMP_EACH_NSAMPLES;
-		}
+	int sampleOffset = channelLeftOverSamples[writeChannel];
+	int blockStart = sampleOffset;
+	int64 currentTS = getTimestamp(realChannel);
 
-		channelLeftOverSamples.set(writeChannel, (size + sampleOffset) % TIMESTAMP_EACH_NSAMPLES);
-	}
-	else
+	if (sampleOffset > 0)
 	{
-		channelLeftOverSamples.set(writeChannel, sampleOffset + size);
+		currentTS += TIMESTAMP_EACH_NSAMPLES - sampleOffset;
+		blockStart += TIMESTAMP_EACH_NSAMPLES - sampleOffset;
 	}
-	if (writeChannel == 0)
-		std::cout << std::endl;
+	
+	for (int i = 0; i < size; i += TIMESTAMP_EACH_NSAMPLES)
+	{
+		if ((blockStart + i) < (sampleOffset + size))
+		{
+			channelTimestampArray[writeChannel]->add(currentTS);
+			currentTS += TIMESTAMP_EACH_NSAMPLES;
+		}
+	}
+	channelLeftOverSamples.set(writeChannel, (size + sampleOffset) % TIMESTAMP_EACH_NSAMPLES);
 }
 
 void HDF5Recording::endChannelBlock()
