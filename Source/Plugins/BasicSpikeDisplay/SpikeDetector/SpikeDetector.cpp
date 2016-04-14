@@ -479,7 +479,8 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
     std::cout<<"Successfully printed all channels"<<std::endl;
 
-    detectorBuffers.update(buffer, nSamples);
+    int numberOfSamples = getNumSamples(*electrode->channels);
+    detectorBuffers.update(buffer, numberOfSamples);
 
     std::cout<<"updated the detector buffers with fresh batch of samples"<<std::endl;
     std::cout<<"number of samples in buffer == "<<detectorBuffers.numSamplesInBuf<<std::endl;
@@ -492,7 +493,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
             DTHR[i] = detectorBuffers.findDynamicThresholdForChannels(*(electrodes[i]->channels + chan));
         }
     }
-    
+
     std::cout<<"Successfully passed the loop for calculating dynamic threshold"<<std::endl;
     for (int i = 0; i < electrodes.size(); i++)
     {
@@ -514,7 +515,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
 */
         
-
+        int nSamples = getNumSamples(*electrode->channels);
         // cycle through samples
         while (samplesAvailable(nSamples))
         {
