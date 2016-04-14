@@ -101,13 +101,13 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     ElectrodeEditorButton* e3 = new ElectrodeEditorButton("DELETE",font);
     e3->addListener(this);
     addAndMakeVisible(e3);
-    e3->setBounds(130,110,70,10);
+    e3->setBounds(200,110,70,10);
     electrodeEditorButtons.add(e3);
 
     ElectrodeEditorButton* e4 = new ElectrodeEditorButton("DTHR", font);
     e4->addListener(this);
     addAndMakeVisible(e4);
-    e4->setBounds(200,110,70,10);
+    e4->setBounds(130,110,70,10);
     electrodeEditorButtons.add(e4);
     
     thresholdSlider = new ThresholdSlider(font);

@@ -811,11 +811,10 @@ DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, 
     samplingRate = samRate;
     int numSamplesToHoldPerChannel = (int)(samplingRate * NumSecInBuffer);
     
-    numChannels = 2;
-    Buf.resize(numCh);
+    numChannels = numCh;
+    Buf.resize(numChannels);
 
-
-    for (int k=0; k< numCh; k++)
+    for (int k=0; k< numChannels; k++)
     {
         Buf[k].resize(numSamplesToHoldPerChannel);
     }
