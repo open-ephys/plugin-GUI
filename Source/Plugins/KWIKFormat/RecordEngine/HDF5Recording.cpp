@@ -237,7 +237,7 @@ void HDF5Recording::endChannelBlock(bool lastBlock)
 		{
 			int realChan = getRealChannel(ch);
 			int index = processorMap[getChannel(realChan)->recordIndex];
-			fileArray[index]->writeTimestamps(channelTimestampArray[ch]->getRawDataPointer(), tsSize, ch);
+			fileArray[index]->writeTimestamps(channelTimestampArray[ch]->getRawDataPointer(), tsSize, recordedChanToKWDChan[ch]);
 			channelTimestampArray[ch]->clearQuick();
 		}
 	}
