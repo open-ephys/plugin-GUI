@@ -96,11 +96,13 @@ void RecordThread::run()
 	{
 		writeData(dataBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
 	}
+	std::cout << "Exiting record thread" << std::endl;
 	//4-Before closing the thread, try to write the remaining samples
 	if (!closeEarly)
 	{
-		writeData(dataBuffer, -1, -1, -1);
+		writeData(dataBuffer, -1, -1, -1, true);
 
+		std::cout << "Closing files" << std::endl;
 		//5-Close files
 		EVERY_ENGINE->closeFiles();
 	}
@@ -108,12 +110,13 @@ void RecordThread::run()
 	m_receivedFirstBlock = false;
 }
 
-void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes)
+void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
 {
 	Array<int64> timestamps;
 	Array<CircularBufferIndexes> idx;
 	m_dataQueue->startRead(idx, timestamps, maxSamples);
 	EVERY_ENGINE->updateTimestamps(timestamps);
+	EVERY_ENGINE->startChannelBlock(lastBlock);
 	for (int chan = 0; chan < m_numChannels; ++chan)
 	{
 		if (idx[chan].size1 > 0)
@@ -128,6 +131,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		}
 	}
 	m_dataQueue->stopRead();
+	EVERY_ENGINE->endChannelBlock(lastBlock);
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);

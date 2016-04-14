@@ -62,7 +62,7 @@ OriginalRecording::~OriginalRecording()
     delete recordMarker;*/
 }
 
-String OriginalRecording::getEngineID()
+String OriginalRecording::getEngineID() const
 {
     return "OPENEPHYS";
 }

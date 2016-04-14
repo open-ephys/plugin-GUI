@@ -52,7 +52,7 @@ public:
 	void forceCloseFiles();
 
 private:
-	void writeData(const AudioSampleBuffer& buffer, int maxSamples, int maxEvents, int maxSpikes);
+	void writeData(const AudioSampleBuffer& buffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
 
 	const OwnedArray<RecordEngine>& m_engineArray;
 	Array<int> m_channelArray;
