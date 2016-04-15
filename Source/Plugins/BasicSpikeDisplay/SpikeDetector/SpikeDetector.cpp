@@ -475,11 +475,12 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
     //detectorBuffers.update(buffer, numberOfSamples);
     
     std::cout<<"updated the detector buffers with fresh batch of samples"<<std::endl;
-    std::cout<<"number of samples in buffer == "<<detectorBuffers.numSamplesInBuf<<std::endl;
     std::cout<<"now entering loop for finding dynamic thresholds for all channels"<<std::endl;
 
     int numberOfSamples = getNumSamples(*electrodes[0]->channels);
     detectorBuffers.update(buffer, numberOfSamples);
+    std::cout<<"number of samples in buffer == "<<detectorBuffers.numSamplesInBuf<<std::endl;
+    std::cout<<"the designates buffer length is=== "<<detectorBuffers.bufLen<<std::endl;
 
     for(int i =0; i < electrodes.size();i++)
     {
