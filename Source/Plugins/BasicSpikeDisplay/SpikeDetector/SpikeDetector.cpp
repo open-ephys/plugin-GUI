@@ -440,7 +440,7 @@ void SpikeDetector::handleEvent(int eventType, MidiMessage& event, int sampleNum
 }
 
 void SpikeDetector::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events)
+                             MidiBuffer& events)
 {
 
     // cycle through electrodes
@@ -471,28 +471,22 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
 
     std::cout<<"resizing of detectorBuffers done properly and now printing channels with electrodes" <<std::endl;
     
-    for(int i =0; i<electrodes.size(); i++)
-    {
-        for(int chan = 0;  chan < electrodes[i]->numChannels; chan++)
-        {
-            std::cout<<"the electrode number is  "<<*electrodes[i]<<" the channel number is " << *(electrodes[i]->channels + chan)<<std::endl;
-        }
-    }
 
-    std::cout<<"Successfully printed all channels"<<std::endl;
-
-    int numberOfSamples = getNumSamples(*electrode->channels);
-    detectorBuffers.update(buffer, numberOfSamples);
-
+    //detectorBuffers.update(buffer, numberOfSamples);
+    
     std::cout<<"updated the detector buffers with fresh batch of samples"<<std::endl;
     std::cout<<"number of samples in buffer == "<<detectorBuffers.numSamplesInBuf<<std::endl;
     std::cout<<"now entering loop for finding dynamic thresholds for all channels"<<std::endl;
+
+    int numberOfSamples = getNumSamples(*electrodes[0]->channels);
+    detectorBuffers.update(buffer, numberOfSamples);
 
     for(int i =0; i < electrodes.size();i++)
     {
         for(int chan = 0; chan < electrodes[i]->numChannels ; chan++)
         {
-            DTHR[i] = detectorBuffers.findDynamicThresholdForChannels(*(electrodes[i]->channels + chan));
+            int theChannel = *(electrodes[i]->channels + chan);
+            DTHR[theChannel] = detectorBuffers.findDynamicThresholdForChannels(theChannel);
         }
     }
 
@@ -511,7 +505,7 @@ void SpikeDetector::process(AudioSampleBuffer& buffer,
         // number of samples in all channels of electrode is same this gets nsamples from one particular channel ,
 /*
         "copy all the nsamples of all channels here  and also set the dynamic threshold here because i will be  using threshold  here"
-        "nSamples stores number for all samples    samplesAvailable() ensures that some part resides in overflowbuffer"
+        "nSamples stores number for all samples samplesAvailable() ensures that some part resides in overflowbuffer"
         "read about process() in GenereicProcessor.h "
 
 */
@@ -864,7 +858,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
         
         for(int ch = 0; ch < numChannels; ch++)
         {
-            Buf[ch][ptr] = *(buffer.getReadPointer(ch,k));    
+            Buf[ch][ptr] = *(buffer.getReadPointer(ch,index));    
         }
         ptr++; 
         numSamplesInBuf++;
@@ -875,9 +869,6 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
     }
     mut.exit();
 }
-
-
-
 
 float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
 {
