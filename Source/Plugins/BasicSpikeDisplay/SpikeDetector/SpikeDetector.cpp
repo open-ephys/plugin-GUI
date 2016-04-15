@@ -858,7 +858,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
         
         for(int ch = 0; ch < numChannels; ch++)
         {
-            Buf[ch][ptr] = *(buffer.getReadPointer(ch,index));    
+            Buf[ch][ptr] = *(buffer.getReadPointer(ch,k));    
         }
         ptr++; 
         numSamplesInBuf++;
