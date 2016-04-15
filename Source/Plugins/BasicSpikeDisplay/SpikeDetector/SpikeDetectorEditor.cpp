@@ -402,14 +402,15 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
                 all electrodes should be thereby have dynamic threshold or default threshold collectively,
                 rather than some having dynamic and some other having default 
              **/
-            
+            std::cout<<"DTHR button clicked ,, setting dynamic threshold for all elctrodes,, and all channels"<<std::endl;
             for (int i = 0; i < electrodes.size(); i++)
             {
                 for(int chan = 0; chan < electrodes[i]->numChannels; chan++)
                 {
                     int theChannel = *(electrodes[i]->channels + chan);
                     float dynamicThreshold = processor->getDynamicThreshold(theChannel);
-                    processor->setChannelThreshold(i, theChannel, dynamicThreshold);   
+                    processor->setChannelThreshold(i, theChannel, dynamicThreshold);
+                    std::cout<<"In DTHR button loop Setting electrode number " << i <<" channel number "<< theChannel << "the dynamic threshold is "<< dynamicThreshold<<std::endl;    
                 }
             }
         }

@@ -891,7 +891,7 @@ float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
 
   int Middle = tempBuffer.size() / 2;
   float Median = tempBuffer[Middle];
-  float NewThres = -4.0F * Median / 0.675F;
+  float NewThres = 4.0F * Median / 0.675F;
   return NewThres;
 }
 
