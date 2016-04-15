@@ -873,6 +873,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
     }
     mut.exit();
     std::cout<<"Hey, calling from UPDATE Function the number of samples in the buffer"<<numSamplesInBuf<<std::endl;
+    std::cout<<"Hey, calling from UPDATE Function ptr position is "<<ptr<<std::endl;
 }
 
 float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
