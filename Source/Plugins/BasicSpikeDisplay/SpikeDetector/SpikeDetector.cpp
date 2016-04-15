@@ -806,6 +806,7 @@ void SpikeDetector::loadCustomParametersFromXml()
 float SpikeDetector::getDynamicThreshold(int chan)
 {
     return DTHR[chan];
+    std::cout<<"the threshold for " << channel <<"  is "<<DTHR[chan]<<std::endl;
 }
 
 
@@ -850,6 +851,8 @@ DetectorCircularBuffer::DetectorCircularBuffer(int numCh, float NumSecInBuffer, 
 void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
 {
     mut.enter();
+    std::cout<<"IN UPDATE FUNCTION"<<std::endl;
+    std::cout<<"the number of samples in the buffer to be added " <<numSamples<<std::endl;
     for (int k = 0; k < numSamples; k++)
     {
         if(ptr == bufLen)
@@ -869,6 +872,7 @@ void DetectorCircularBuffer::update(AudioSampleBuffer& buffer, int numSamples)
         numSamplesInBuf = bufLen;
     }
     mut.exit();
+    std::cout<<"Hey, calling from UPDATE Function the number of samples in the buffer"<<numSamplesInBuf<<std::endl;
 }
 
 float DetectorCircularBuffer::findDynamicThresholdForChannels(int channel)
