@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 
-int ListSliceParser::convertToInteger(String s)
+int ListSliceParser::convertStringToInteger (String s)
 {
     char ar[20];
     int i, j, k = 0;
@@ -45,6 +45,7 @@ int ListSliceParser::convertToInteger(String s)
     k = atoi(ar);
     return k;
 }
+
 
 Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeValue)
 {
@@ -117,7 +118,7 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
 
         if (rangeseparator.size() == 0)   //syntax of form - x or [x]
         {
-            a = convertToInteger(s.substring(x, y + 1));
+            a = convertStringToInteger (s.substring (x, y + 1));
             if (a == 0 || a>rangeValue)
             {
                 continue;
@@ -128,8 +129,8 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
         }
         else if (rangeseparator.size() == 1) // syntax of type - x-y or [x-y]
         {
-            a = convertToInteger(s.substring(x, rangeseparator[0]));
-            b = convertToInteger(s.substring(rangeseparator[0], y + 1));
+            a = convertStringToInteger (s.substring (x, rangeseparator[0]));
+            b = convertStringToInteger (s.substring (rangeseparator[0] + 1, y + 1));
             if (a == 0)
             {
                 a = 1;
@@ -148,9 +149,10 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
         }
         else if (rangeseparator.size() == 2)   // syntax of type [x:y:z] or x-y-z
         {
-            a = convertToInteger(s.substring(x, rangeseparator[0] + 1));
-            k = convertToInteger(s.substring(rangeseparator[0], rangeseparator[1]));
-            b = convertToInteger(s.substring(rangeseparator[1], y + 1));
+            a = convertStringToInteger (s.substring (x, rangeseparator[0] + 1));
+            k = convertStringToInteger (s.substring (rangeseparator[0] + 1, rangeseparator[1]));
+            b = convertStringToInteger (s.substring (rangeseparator[1] + 1, y + 1));
+
             if (a == 0)
             {
                 a = 1;

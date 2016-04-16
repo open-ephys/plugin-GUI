@@ -51,10 +51,8 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/CoreServices_8f7d6f26.o \
-  $(OBJDIR)/AccessClass_de9602d5.o \
-  $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
+  $(OBJDIR)/PracticalSocket_2574ecc8.o \
   $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o \
   $(OBJDIR)/PlaceholderProcessor_167f09aa.o \
   $(OBJDIR)/LinearSmoothedValueAtomic_df1e5b97.o \
@@ -90,7 +88,6 @@ OBJECTS := \
   $(OBJDIR)/rhd2000registers_6b59b998.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
-  $(OBJDIR)/ListSliceParser_dfcd8ec5.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
   $(OBJDIR)/ElectrodeButtons_a6064cc.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
@@ -137,8 +134,11 @@ OBJECTS := \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
   $(OBJDIR)/UIComponent_d667ba37.o \
-  $(OBJDIR)/MainWindow_499ac812.o \
+  $(OBJDIR)/ListSliceParser_b811bc36.o \
+  $(OBJDIR)/AccessClass_de9602d5.o \
+  $(OBJDIR)/CoreServices_8f7d6f26.o \
   $(OBJDIR)/Main_90ebc5c2.o \
+  $(OBJDIR)/MainWindow_499ac812.o \
   $(OBJDIR)/BinaryData_ce4232d4.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
@@ -172,24 +172,14 @@ strip:
 	@echo Stripping open-ephys
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/CoreServices_8f7d6f26.o: ../../Source/CoreServices.cpp
+$(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling CoreServices.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/AccessClass_de9602d5.o: ../../Source/AccessClass.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling AccessClass.cpp"
+	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PracticalSocket_2574ecc8.o: ../../Source/Network/PracticalSocket.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PracticalSocket.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/AudioComponent_521bd9c9.o: ../../Source/Audio/AudioComponent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling AudioComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o: ../../Source/Processors/PlaceholderProcessor/PlaceholderProcessorEditor.cpp
@@ -365,11 +355,6 @@ $(OBJDIR)/DataBuffer_6ae4f549.o: ../../Source/Processors/DataThreads/DataBuffer.
 $(OBJDIR)/DataThread_b2a47a13.o: ../../Source/Processors/DataThreads/DataThread.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling DataThread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ListSliceParser_dfcd8ec5.o: ../../Source/Processors/Editors/ListSliceParser.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ListSliceParser.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp
@@ -602,14 +587,29 @@ $(OBJDIR)/UIComponent_d667ba37.o: ../../Source/UI/UIComponent.cpp
 	@echo "Compiling UIComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MainWindow_499ac812.o: ../../Source/MainWindow.cpp
+$(OBJDIR)/ListSliceParser_b811bc36.o: ../../Source/Utils/ListSliceParser.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MainWindow.cpp"
+	@echo "Compiling ListSliceParser.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/AccessClass_de9602d5.o: ../../Source/AccessClass.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AccessClass.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/CoreServices_8f7d6f26.o: ../../Source/CoreServices.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling CoreServices.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MainWindow_499ac812.o: ../../Source/MainWindow.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MainWindow.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp

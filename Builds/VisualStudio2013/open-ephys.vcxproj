@@ -259,10 +259,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\CoreServices.cpp"/>
-    <ClCompile Include="..\..\Source\AccessClass.cpp"/>
-    <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp"/>
@@ -298,7 +296,6 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Editors\ListSliceParser.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
@@ -345,8 +342,11 @@
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp"/>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp"/>
     <ClCompile Include="..\..\Source\UI\UIComponent.cpp"/>
-    <ClCompile Include="..\..\Source\MainWindow.cpp"/>
+    <ClCompile Include="..\..\Source\Utils\ListSliceParser.cpp"/>
+    <ClCompile Include="..\..\Source\AccessClass.cpp"/>
+    <ClCompile Include="..\..\Source\CoreServices.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
+    <ClCompile Include="..\..\Source\MainWindow.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1471,10 +1471,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\CoreServices.h"/>
-    <ClInclude Include="..\..\Source\AccessClass.h"/>
-    <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h"/>
@@ -1518,7 +1516,6 @@
     <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h"/>
-    <ClInclude Include="..\..\Source\Processors\Editors\ListSliceParser.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
@@ -1566,6 +1563,9 @@
     <ClInclude Include="..\..\Source\UI\DataViewport.h"/>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h"/>
     <ClInclude Include="..\..\Source\UI\UIComponent.h"/>
+    <ClInclude Include="..\..\Source\Utils\ListSliceParser.h"/>
+    <ClInclude Include="..\..\Source\AccessClass.h"/>
+    <ClInclude Include="..\..\Source\CoreServices.h"/>
     <ClInclude Include="..\..\Source\MainWindow.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioSampleBuffer.h"/>

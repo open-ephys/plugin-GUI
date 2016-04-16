@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ChannelSelector.h"
-#include "ListSliceParser.h"
 #include <math.h>
 
 #include "../../AccessClass.h"
@@ -30,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../AudioNode/AudioNode.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/GraphViewer.h"
+#include "../../Utils/ListSliceParser.h"
+
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     eventsOnly(false), paramsToggled(true), paramsActive(true),
@@ -533,7 +534,6 @@ int ChannelSelector::getDesiredWidth()
 void ChannelSelector::buttonClicked(Button* button)
 {
     //checkChannelSelectors();
-    ListSliceParser sp;
     if (button == paramsButton)
     {
         // make sure param buttons are visible
@@ -630,16 +630,11 @@ void ChannelSelector::buttonClicked(Button* button)
         }
     }
     else if (button == selectButtonParam)
-    {   // select channels in parameter tab
-        selectButtonParam->removeListener(this);
-        deselectButtonParam->removeListener(this);
-
+    {
         int fa, lim, comd, i, j;
         Array<int> getBoxList = ListSliceParser::parseStringIntoRange (paramBox->getText(), parameterButtonsManager.getNumButtons());
         if (getBoxList.size() < 3)
         {
-            selectButtonParam->addListener(this);
-            deselectButtonParam->addListener(this);
             return;
         }
         i = 0;
@@ -654,20 +649,13 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonParam->addListener(this);
-        deselectButtonParam->addListener(this);
     }
     else if (button == selectButtonRecord)
-    {   // select channels in record tab
-        selectButtonRecord->removeListener(this);
-        deselectButtonRecord->removeListener(this);
-
+    {
         Array<int> getBoxList = ListSliceParser::parseStringIntoRange (recordBox->getText(), recordButtonsManager.getNumButtons());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
-            selectButtonRecord->addListener(this);
-            deselectButtonRecord->addListener(this);
             return;
         }
         i = 0;
@@ -682,20 +670,13 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonRecord->addListener(this);
-        deselectButtonRecord->addListener(this);
     }
     else if (button == selectButtonAudio)
-    {   // select channels in audio tab
-        selectButtonAudio->removeListener(this);
-        deselectButtonAudio->removeListener(this);
-
+    {
         Array<int> getBoxList = ListSliceParser::parseStringIntoRange (audioBox->getText(), audioButtonsManager.getNumButtons());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
-            selectButtonAudio->addListener(this);
-            deselectButtonAudio->addListener(this);
             return;
         }
         i = 0;
@@ -710,20 +691,13 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonAudio->addListener(this);
-        deselectButtonAudio->addListener(this);
     }
     else if (button == deselectButtonParam)
-    {   // deselect channels in param tab
-        selectButtonParam->removeListener(this);
-        deselectButtonParam->removeListener(this);
-
-        Array<int> getBoxList = sp.parseStringIntoRange(paramBox->getText(), parameterButtonsManager.getNumButtons());
+    {
+        Array<int> getBoxList = ListSliceParser::parseStringIntoRange (paramBox->getText(), parameterButtonsManager.getNumButtons());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
-            selectButtonParam->addListener(this);
-            deselectButtonParam->addListener(this);
             return;
         }
         i = 0;
@@ -738,20 +712,13 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonParam->addListener(this);
-        deselectButtonParam->addListener(this);
     }
     else if (button == deselectButtonRecord)
-    {   // deselect channels in record tab
-        selectButtonRecord->removeListener(this);
-        deselectButtonRecord->removeListener(this);
-
-        Array<int> getBoxList = sp.parseStringIntoRange (recordBox->getText(), recordButtonsManager.getNumButtons());
+    {
+        Array<int> getBoxList = ListSliceParser::parseStringIntoRange (recordBox->getText(), recordButtonsManager.getNumButtons());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
-            selectButtonRecord->addListener(this);
-            deselectButtonRecord->addListener(this);
             return;
         }
         i = 0;
@@ -766,20 +733,13 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonRecord->addListener(this);
-        deselectButtonRecord->addListener(this);
     }
     else if (button == deselectButtonAudio)
-    {   // deselect channels in audio tab
-        selectButtonAudio->removeListener(this);
-        deselectButtonAudio->removeListener(this);
-
-        Array<int> getBoxList = sp.parseStringIntoRange (audioBox->getText(), audioButtonsManager.getNumButtons());
+    {
+        Array<int> getBoxList = ListSliceParser::parseStringIntoRange (audioBox->getText(), audioButtonsManager.getNumButtons());
         int fa, lim, comd, i, j;
         if (getBoxList.size() < 3)
         {
-            selectButtonAudio->addListener(this);
-            deselectButtonAudio->addListener(this);
             return;
         }
         i = 0;
@@ -794,12 +754,9 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             i += 3;
         }
-        selectButtonAudio->addListener(this);
-        deselectButtonAudio->addListener(this);
     }
     else
     {
-
         ChannelSelectorButton* b = (ChannelSelectorButton*)button;
 
         if (b->getType() == AUDIO)
@@ -822,8 +779,6 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 ch->isMonitored = status;
             }
-
-
         }
         else if (b->getType() == RECORD)
         {

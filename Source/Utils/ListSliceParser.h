@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __LISTSPICEPARSER_H_
 #define __LISTSPICEPARSER_H_
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 class ListSliceParser;
 
@@ -38,11 +38,11 @@ The range can be of one of the following type:
 class ListSliceParser
 {
 public:
-    //ListSliceParser();
-    //~ListSliceParser();
-    static Array<int> parseStringIntoRange(String textBoxInfo,int rangeValue);
+    static Array<int> parseStringIntoRange (String textBoxInfo,int rangeValue);
+
+
 private:
-    static int convertToInteger(String s);        //Changes string to int. Make this public if you want to use it outside this class.
+    static int convertStringToInteger (String s);
 };
 
 
