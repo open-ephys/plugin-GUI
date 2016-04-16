@@ -805,8 +805,14 @@ void SpikeDetector::loadCustomParametersFromXml()
 
 float SpikeDetector::getDynamicThreshold(int chan)
 {
-    return DTHR[chan];
-    std::cout<<"the threshold for channel  " << chan <<"  is "<<DTHR[chan]<<std::endl;
+    float value = (DTHR,chan);
+}
+
+float DetectorCircularBuffer::dynamicThresholdRetrieval(const std::vector<float>& Vec,int channel)
+{
+    mut.enter();
+    return Vec[chan];
+    mut.exit();
 }
 
 

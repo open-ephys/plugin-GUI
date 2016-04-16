@@ -57,6 +57,7 @@ public:
     void update(AudioSampleBuffer& buffer, int numpts);
     int GetPtr();
     float findDynamicThresholdForChannels(int channel);
+    float dynamicThresholdRetrieval(const std::vector<float>& v,int channel);
 
     int numChannels;
     double samplingRate;
