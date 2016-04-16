@@ -812,7 +812,7 @@ float SpikeDetector::getDynamicThreshold(int chan)
 float DetectorCircularBuffer::dynamicThresholdRetrieval(const std::vector<float>& Vec,int channel)
 {
     mut.enter();
-    return Vec[chan];
+    return Vec[channel];
     mut.exit();
 }
 
