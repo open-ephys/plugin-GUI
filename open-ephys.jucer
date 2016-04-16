@@ -409,6 +409,10 @@
           <FILE id="McgNvuR" name="DataThread.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataThread.h"/>
         </GROUP>
         <GROUP id="AqvwO6w" name="Editors">
+          <FILE id="Sx7zQL" name="ListSliceParser.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ListSliceParser.cpp"/>
+          <FILE id="T2PhG1" name="ListSliceParser.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ListSliceParser.h"/>
           <FILE id="F68NQ3" name="ChannelSelector.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ChannelSelector.cpp"/>
           <FILE id="cOToxV" name="ChannelSelector.h" compile="0" resource="0"

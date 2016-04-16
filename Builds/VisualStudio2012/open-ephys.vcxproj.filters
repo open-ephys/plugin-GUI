@@ -523,6 +523,9 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ListSliceParser.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
@@ -2036,6 +2039,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ListSliceParser.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>

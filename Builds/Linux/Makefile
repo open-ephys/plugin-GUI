@@ -90,6 +90,7 @@ OBJECTS := \
   $(OBJDIR)/rhd2000registers_6b59b998.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
+  $(OBJDIR)/ListSliceParser_dfcd8ec5.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
   $(OBJDIR)/ElectrodeButtons_a6064cc.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
@@ -364,6 +365,11 @@ $(OBJDIR)/DataBuffer_6ae4f549.o: ../../Source/Processors/DataThreads/DataBuffer.
 $(OBJDIR)/DataThread_b2a47a13.o: ../../Source/Processors/DataThreads/DataThread.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling DataThread.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ListSliceParser_dfcd8ec5.o: ../../Source/Processors/Editors/ListSliceParser.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ListSliceParser.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp
