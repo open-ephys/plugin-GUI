@@ -966,8 +966,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
         //               << valuesNeeded << " : " 
         //               << ratio 
         //                             << std::endl;
-
-        if (valuesNeeded > 0 && valuesNeeded < 10000)
+        
+        if (valuesNeeded > 0 && valuesNeeded < 100000)
         {
             for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
             {
@@ -980,7 +980,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
                     screenBuffer->clear(channel, sbi, 1);
                     screenBufferMin->clear(channel, sbi, 1);
-                    screenBufferMean->clear(channel, sbi, 1);
+                    //screenBufferMean->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
                      dbi %= displayBufferSize; // just to be sure
@@ -1002,7 +1002,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
                     float sample_max   = -10000000;
-                    float sample_mean  =  0;
+                    //float sample_mean  =  0;
                     
                     int nextpix = (dbi +(int)ratio) % displayBufferSize; //  position to next pixels index
                     
@@ -1010,7 +1010,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     for (int j = dbi; j <= nextpix; j++)
                     {
                         float sample_current = displayBuffer->getSample(channel, j);
-                        sample_mean = sample_mean + sample_current;
+                        //sample_mean = sample_mean + sample_current;
 
                         if (sample_min>sample_current)
                         {
@@ -1041,8 +1041,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
                             }else{
                                 sampleCountPerPixel[sbi]=0;
                             }
-                            sample_mean = sample_mean/c;
-                            screenBufferMean->addSample(channel, sbi, sample_mean*gain);
+                            //sample_mean = sample_mean/c;
+                            //screenBufferMean->addSample(channel, sbi, sample_mean*gain);
                             screenBufferMin->addSample(channel, sbi, sample_min*gain);
                             screenBufferMax->addSample(channel, sbi, sample_max*gain);
                     }
