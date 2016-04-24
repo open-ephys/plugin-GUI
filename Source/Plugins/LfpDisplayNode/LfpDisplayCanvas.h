@@ -46,10 +46,10 @@ class LfpViewport;
 */
 
 class LfpDisplayCanvas : public Visualizer,
-    public Slider::Listener,
     public ComboBox::Listener,
     public Button::Listener,
     public KeyListener
+
 {
 public:
     LfpDisplayCanvas(LfpDisplayNode* n);
@@ -74,11 +74,6 @@ public:
     void resized();
 
     int getChannelHeight();
-    
-    float channelOverlapFactor;
-
-    float histogramParameterA;
-    float histogramParameterB;
 
     int getNumChannels();
     bool getInputInvertedState();
@@ -86,10 +81,7 @@ public:
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
-    
-    const float *getSamplesPerPixel(int chan, int px);
-    const int getSampleCountPerPixel(int px);
-    
+
     const float getYCoordMin(int chan, int samp);
     const float getYCoordMean(int chan, int samp);
     const float getYCoordMax(int chan, int samp);
@@ -99,14 +91,7 @@ public:
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
-    
-    /** Handles slider events for all editors. */
-    void sliderValueChanged(Slider* sl);
-    
-    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
-     of GenericEditor should modify this method only.*/
-    void sliderEvent(Slider* sl);
-    
+
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
 
@@ -122,21 +107,15 @@ public:
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
-    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
+    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for ach ch display;
     static const int leftmargin=50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
-    
-    bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
-    bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
-    
-    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the genreal plugin parameter overhaul.
 
-    
     int nChans;
 
 private:
-    
+
     Array<float> sampleRate;
     float timebase;
     float displayGain;
@@ -146,7 +125,6 @@ private:
 
     static const int MAX_N_CHAN = 2048;  // maximum number of channels
     static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for drawing each pixel
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
@@ -168,34 +146,17 @@ private:
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
-    
-    ScopedPointer<ComboBox> overlapSelection;
-    ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
-    
-    ScopedPointer<ComboBox> saturationWarningSelection;
-    ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
-    
     ScopedPointer<ComboBox> colorGroupingSelection;
     ScopedPointer<UtilityButton> invertInputButton;
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
     OwnedArray<UtilityButton> typeButtons;
-    
-    
-    ScopedPointer<Slider> brightnessSliderA;
-    ScopedPointer<Slider> brightnessSliderB;
-    
-    ScopedPointer<Label> sliderALabel;
-    ScopedPointer<Label> sliderBLabel;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
-    StringArray overlaps; //
-    StringArray saturationThresholds; //default values for when different amplifiers saturate
 
-    
     ChannelType selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
@@ -210,13 +171,6 @@ private:
     int selectedTimebase;
     String selectedTimebaseValue;
 
-    int selectedOverlap;
-    String selectedOverlapValue;
-    
-    int selectedSaturation; // for saturation warning
-    String selectedSaturationValue;
-
-    
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
     void refreshScreenBuffer();
@@ -226,10 +180,6 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
-    
-    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    float*** samplesPerPixel;
-    int sampleCountPerPixel[MAX_N_SAMP];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
@@ -262,9 +212,6 @@ class LfpDisplay : public Component
 public:
     LfpDisplay(LfpDisplayCanvas*, Viewport*);
     ~LfpDisplay();
-    
-    Image lfpChannelBitmap; // plot as bitmap instead of separately setting pixels
-    // this is done purely for the preformance improvement
 
     void setNumChannels(int numChannels);
     int getNumChannels();
@@ -306,8 +253,6 @@ public:
 
     bool getSingleChannelState();
 
-    Colour backgroundColour;
-    
     Array<Colour> channelColours;
 
     Array<LfpChannelDisplay*> channels;
@@ -316,10 +261,7 @@ public:
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
 
-    
 private:
-    
-    
     void toggleSingleChannel(int chan);
     int singleChan;
 	Array<bool> savedChannelState;
@@ -344,14 +286,7 @@ public:
     LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
     ~LfpChannelDisplay();
 
-    void resized();
-    
     void paint(Graphics& g);
-    
-    void pxPaint(); // like paint, but just populate lfpChannelBitmap
-                    // needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
-                    // because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are dawn, so cant do it per channel)
-                
 
     void select();
     void deselect();
@@ -392,7 +327,6 @@ public:
 
 protected:
 
-    
     LfpDisplayCanvas* canvas;
     LfpDisplay* display;
 
@@ -419,8 +353,6 @@ protected:
 
     ChannelType type;
     String typeStr;
-    
-    
 
 };
 
