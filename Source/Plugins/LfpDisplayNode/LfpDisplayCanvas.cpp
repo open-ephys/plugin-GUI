@@ -2355,25 +2355,15 @@ void LfpChannelDisplay::pxPaint()
                 if(saturateWarningHi || saturateWarningLo) {
                     
                     
-                    for (int k=jfrom_wholechannel_almost; k<=jto_wholechannel_almost; k++){ // draw line
+                    for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
                         Colour thiscolour=Colour(255,0,0);
-                        if (fmod((i+k),100)>50){
+                        if (fmod((i+k),50)>25){
                             thiscolour=Colour(255,255,255);
                         }
-                        bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
+                        if(k>0 & k<display->lfpChannelBitmap.getHeight()){
+                            bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
+                        }
                     };
-                        
-                        //bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(Colour(fmod((i+k)/100,255),0,0),0.5f));
-
-                    
-                    //for (int j=0; j<=10; j++)
-                    //{
-                        //int clipmarker = jto_wholechannel_clip;
-                        
-                        //if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
-                         //   bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,0,0));
-                        //}
-                    //}
                 }
                 
                 saturateWarningHi=false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
