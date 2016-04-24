@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
 
+using namespace LfpDisplayNodeBeta;
+
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
      timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
     processor(processor_), selectedChannelType(HEADSTAGE_CHANNEL)

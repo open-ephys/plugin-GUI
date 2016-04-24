@@ -23,6 +23,8 @@
 
 #include "LfpDisplayEditor.h"
 
+using namespace LfpDisplayNodeBeta;
+
 
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : VisualizerEditor(parentNode, useDefaultParameterEditors)

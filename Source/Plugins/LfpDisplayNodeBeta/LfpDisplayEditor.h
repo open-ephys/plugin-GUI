@@ -33,6 +33,7 @@
 #include "LfpDisplayCanvas.h"
 #include "../../Processors/Editors/VisualizerEditor.h"
 
+namespace LfpDisplayNodeBeta { 
 class Visualizer;
 
 /**
@@ -59,5 +60,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 
 };
-
+};
 #endif  // __LFPDISPLAYEDITOR_H_3438800D__

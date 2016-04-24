@@ -28,6 +28,8 @@
 #include "../../Processors/Visualization/Visualizer.h"
 #define CHANNEL_TYPES 3
 
+namespace LfpDisplayNodeBeta { 
+
 class LfpDisplayNode;
 
 class LfpTimescale;
@@ -480,6 +482,6 @@ public:
 private:
     LfpDisplayCanvas* canvas;
 };
-
+};
 
 #endif  // __LFPDISPLAYCANVAS_H_B711873A__

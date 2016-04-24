@@ -25,6 +25,8 @@
 #include "LfpDisplayCanvas.h"
 #include <stdio.h>
 
+using namespace LfpDisplayNodeBeta;
+
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor("LFP Viewer Beta"),
       displayGain(1), bufferLength(5.0f),
