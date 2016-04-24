@@ -420,10 +420,11 @@ void LfpDisplayCanvas::resized()
     
     brightnessSliderA->setBounds(920,getHeight()-50,100,22);
     sliderALabel->setBounds(1020, getHeight()-50, 180, 22);
+    brightnessSliderA->setValue(0.9); //set default value
     
     brightnessSliderB->setBounds(920,getHeight()-25,100,22);
     sliderBLabel->setBounds(1020, getHeight()-25, 180, 22);
-
+    brightnessSliderB->setValue(0.1); //set default value
     
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
@@ -2109,10 +2110,28 @@ void LfpChannelDisplay::pxPaint()
         for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
         {
             
-            int zeromarker = getY()+center;
-            if(zeromarker>0 & zeromarker<display->lfpChannelBitmap.getHeight()){
-                if ( bdLfpChannelBitmap.getPixelColour(i,zeromarker) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
-                    bdLfpChannelBitmap.setPixelColour(i,zeromarker,Colour(50,50,50));
+            //draw zero line
+            int m = getY()+center;
+            if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
+                    bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+                }
+            }
+            
+            //draw range margers
+            if (isSelected)
+            {
+                m = getY()+center+channelHeight/2;
+                if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
+                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+                    }
+                }
+                m = getY()+center-channelHeight/2;
+                if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
+                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+                    }
                 }
             }
             
