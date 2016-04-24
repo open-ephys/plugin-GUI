@@ -79,6 +79,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     voltageRanges[HEADSTAGE_CHANNEL].add("2000");
     voltageRanges[HEADSTAGE_CHANNEL].add("5000");
     voltageRanges[HEADSTAGE_CHANNEL].add("10000");
+    voltageRanges[HEADSTAGE_CHANNEL].add("15000");
     selectedVoltageRange[HEADSTAGE_CHANNEL] = 8;
     rangeGain[HEADSTAGE_CHANNEL] = 1; //uV
     rangeSteps[HEADSTAGE_CHANNEL] = 10;
