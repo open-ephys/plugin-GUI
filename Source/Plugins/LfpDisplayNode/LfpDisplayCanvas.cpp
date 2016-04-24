@@ -193,7 +193,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     saturationThresholds.add("100");
     saturationThresholds.add("1000");
     saturationThresholds.add("5000");
-    selectedSaturation = 3;
+    saturationThresholds.add("6389");
+    
+    selectedSaturation = 5;
     selectedSaturationValue = saturationThresholds[selectedSaturation-1];
     
     
@@ -639,8 +641,8 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
                 }
                 else if (vRange > voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue())
                 {
-                    cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
-                    vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
+                   // cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
+                   // vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
                 }
                 else
                 {
@@ -718,9 +720,10 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
         }
         else
         {
-            float selectedSaturationValueFloat = cb->getText().getFloatValue();
+            selectedSaturationValueFloat = cb->getText().getFloatValue();
             if (selectedSaturationValueFloat)
             {
+                 std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
                 if (selectedSaturationValueFloat < 0)
                 {
                     cb->setSelectedId(1,dontSendNotification);
@@ -728,7 +731,7 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
                 }
                 else
                 {
-                    cb->setText(String(selectedSaturationValueFloat),dontSendNotification);
+                  //  cb->setText(String(selectedSaturationValueFloat),dontSendNotification);
                 }
             }
             else
@@ -738,9 +741,9 @@ void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 
             }
         }
-        selectedSpread = cb->getSelectedId();
-        selectedSpreadValue = cb->getText();
-        lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
+       // selectedSpread = cb->getSelectedId();
+       // selectedSpreadValue = cb->getText();
+       // lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
         fullredraw = true; //issue full redraw
         repaint();
         refresh();
@@ -1007,7 +1010,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     
                     if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
                         //std::cout << "np " ;
-                        nextpix=dbi+1;
+                        nextpix=dbi;
                     }
                    
                     for (int j = dbi; j <= nextpix; j++)
