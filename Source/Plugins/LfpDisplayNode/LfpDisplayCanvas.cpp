@@ -1134,7 +1134,7 @@ void LfpDisplayCanvas::paint(Graphics& g)
     //std::cout << "Painting" << std::endl;
 
     //g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
-    g.setColour(Colour(0,18,43)); //background color
+    g.setColour(lfpDisplay->backgroundColour); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
     g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
@@ -1461,6 +1461,8 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
     //    channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
     //}
 
+    backgroundColour = Colour(0,18,43);
+    
     //hand-built palette
     channelColours.add(Colour(224,185,36));
     channelColours.add(Colour(214,210,182));
@@ -1650,13 +1652,13 @@ void LfpDisplay::refresh()
     // clear appropriate section of the bitmap --
     // we need to do this before each channel draws its new section of data into lfpChannelBitmap
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+    gLfpChannelBitmap.setColour(backgroundColour); //background color
 
     if (canvas->fullredraw)
     {
         gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
     } else {
-        gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+        gLfpChannelBitmap.setColour(backgroundColour); //background color
 
         gLfpChannelBitmap.fillRect(fillfrom,0, (fillto-fillfrom)+1, getHeight());
     };
@@ -2117,24 +2119,24 @@ void LfpChannelDisplay::pxPaint()
             //draw zero line
             int m = getY()+center;
             if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
+                if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
                     bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
                 }
             }
             
-            //draw range margers
+            //draw range markers
             if (isSelected)
             {
                 m = getY()+center+channelHeight/2;
                 if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
-                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
+                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
                     }
                 }
                 m = getY()+center-channelHeight/2;
                 if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == Colour(0,0,0) ) { // make sure we're not drawing over an existing plot from another channel
-                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
+                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
                     }
                 }
             }

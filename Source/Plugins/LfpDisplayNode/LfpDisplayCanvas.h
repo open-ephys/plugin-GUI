@@ -306,6 +306,8 @@ public:
 
     bool getSingleChannelState();
 
+    Colour backgroundColour;
+    
     Array<Colour> channelColours;
 
     Array<LfpChannelDisplay*> channels;
