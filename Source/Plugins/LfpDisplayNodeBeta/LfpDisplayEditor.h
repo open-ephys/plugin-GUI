@@ -33,8 +33,9 @@
 #include "LfpDisplayCanvas.h"
 #include "../../Processors/Editors/VisualizerEditor.h"
 
-namespace LfpDisplayNodeBeta { 
 class Visualizer;
+
+namespace LfpDisplayNodeBeta { 
 
 /**
 

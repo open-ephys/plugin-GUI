@@ -29,9 +29,11 @@
 #include "../../Processors/Editors/VisualizerEditor.h"
 #include "../../Processors/GenericProcessor/GenericProcessor.h"
 
-namespace LfpDisplayNodeBeta { 
+
 class DataViewport;
 
+namespace LfpDisplayNodeBeta { 
+    
 /**
 
   Holds data in a displayBuffer to be used by the LfpDisplayCanvas
