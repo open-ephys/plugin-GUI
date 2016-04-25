@@ -32,12 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace Plugin;
+using namespace LfpDisplayNodeBeta;
+
 #define NUM_PLUGINS 1
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "LFP viewer";
+	info->name = "LFP viewer Beta";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -48,9 +50,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::ProcessorPlugin;
-		info->processor.name = "LFP Viewer";
+		info->processor.name = "LFP Viewer Beta";
 		info->processor.type = Plugin::SinkProcessor;
-		info->processor.creator = &(Plugin::createProcessor<LfpDisplayNode>);
+		info->processor.creator = &(Plugin::createProcessor<LfpDisplayNodeBeta::LfpDisplayNode>);
 		break;
 	default:
 		return -1;
