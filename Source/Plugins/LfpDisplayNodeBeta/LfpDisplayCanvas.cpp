@@ -942,10 +942,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         int nSamples =  index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
-        if (nSamples < 0) // buffer has reset to 0
+        if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
         {
             nSamples = (displayBufferSize - dbi) + index +1;
-             std::cout << "nsamples 0 " ;
+             //std::cout << "nsamples 0 " ;
         }
 
         //if (channel == 15 || channel == 16)
