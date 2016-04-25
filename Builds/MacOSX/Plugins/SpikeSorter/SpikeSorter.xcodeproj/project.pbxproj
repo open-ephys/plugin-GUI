@@ -1,0 +1,232 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F559FA1C9B428E0035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559F01C9B428E0035F88B /* OpenEphysLib.cpp */; };
+		E1F559FB1C9B428E0035F88B /* SpikeSortBoxes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559F11C9B428E0035F88B /* SpikeSortBoxes.cpp */; };
+		E1F559FC1C9B428E0035F88B /* SpikeSorter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559F31C9B428E0035F88B /* SpikeSorter.cpp */; };
+		E1F559FD1C9B428E0035F88B /* SpikeSorterCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559F51C9B428E0035F88B /* SpikeSorterCanvas.cpp */; };
+		E1F559FE1C9B428E0035F88B /* SpikeSorterEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F559F71C9B428E0035F88B /* SpikeSorterEditor.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F559E11C9B42270035F88B /* SpikeSorter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpikeSorter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F559E41C9B42270035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F559EB1C9B42650035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F559EC1C9B42650035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F559ED1C9B42650035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F559F01C9B428E0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F559F11C9B428E0035F88B /* SpikeSortBoxes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeSortBoxes.cpp; sourceTree = "<group>"; };
+		E1F559F21C9B428E0035F88B /* SpikeSortBoxes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeSortBoxes.h; sourceTree = "<group>"; };
+		E1F559F31C9B428E0035F88B /* SpikeSorter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeSorter.cpp; sourceTree = "<group>"; };
+		E1F559F41C9B428E0035F88B /* SpikeSorter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeSorter.h; sourceTree = "<group>"; };
+		E1F559F51C9B428E0035F88B /* SpikeSorterCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeSorterCanvas.cpp; sourceTree = "<group>"; };
+		E1F559F61C9B428E0035F88B /* SpikeSorterCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeSorterCanvas.h; sourceTree = "<group>"; };
+		E1F559F71C9B428E0035F88B /* SpikeSorterEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeSorterEditor.cpp; sourceTree = "<group>"; };
+		E1F559F81C9B428E0035F88B /* SpikeSorterEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpikeSorterEditor.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F559DE1C9B42270035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F559D81C9B42270035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F559EA1C9B42650035F88B /* Config */,
+				E1F559E31C9B42270035F88B /* SpikeSorter */,
+				E1F559E21C9B42270035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F559E21C9B42270035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559E11C9B42270035F88B /* SpikeSorter.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F559E31C9B42270035F88B /* SpikeSorter */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559EE1C9B428E0035F88B /* Source */,
+				E1F559E41C9B42270035F88B /* Info.plist */,
+			);
+			path = SpikeSorter;
+			sourceTree = "<group>";
+		};
+		E1F559EA1C9B42650035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559EB1C9B42650035F88B /* Plugin.xcconfig */,
+				E1F559EC1C9B42650035F88B /* Plugin_Debug.xcconfig */,
+				E1F559ED1C9B42650035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F559EE1C9B428E0035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F559F21C9B428E0035F88B /* SpikeSortBoxes.h */,
+				E1F559F11C9B428E0035F88B /* SpikeSortBoxes.cpp */,
+				E1F559F41C9B428E0035F88B /* SpikeSorter.h */,
+				E1F559F31C9B428E0035F88B /* SpikeSorter.cpp */,
+				E1F559F61C9B428E0035F88B /* SpikeSorterCanvas.h */,
+				E1F559F51C9B428E0035F88B /* SpikeSorterCanvas.cpp */,
+				E1F559F81C9B428E0035F88B /* SpikeSorterEditor.h */,
+				E1F559F71C9B428E0035F88B /* SpikeSorterEditor.cpp */,
+				E1F559F01C9B428E0035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/SpikeSorter;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F559E01C9B42270035F88B /* SpikeSorter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F559E71C9B42270035F88B /* Build configuration list for PBXNativeTarget "SpikeSorter" */;
+			buildPhases = (
+				E1F559DD1C9B42270035F88B /* Sources */,
+				E1F559DE1C9B42270035F88B /* Frameworks */,
+				E1F559DF1C9B42270035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpikeSorter;
+			productName = SpikeSorter;
+			productReference = E1F559E11C9B42270035F88B /* SpikeSorter.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F559D91C9B42270035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F559E01C9B42270035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F559DC1C9B42270035F88B /* Build configuration list for PBXProject "SpikeSorter" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F559D81C9B42270035F88B;
+			productRefGroup = E1F559E21C9B42270035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F559E01C9B42270035F88B /* SpikeSorter */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F559DF1C9B42270035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F559DD1C9B42270035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F559FB1C9B428E0035F88B /* SpikeSortBoxes.cpp in Sources */,
+				E1F559FD1C9B428E0035F88B /* SpikeSorterCanvas.cpp in Sources */,
+				E1F559FA1C9B428E0035F88B /* OpenEphysLib.cpp in Sources */,
+				E1F559FE1C9B428E0035F88B /* SpikeSorterEditor.cpp in Sources */,
+				E1F559FC1C9B428E0035F88B /* SpikeSorter.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F559E51C9B42270035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559EC1C9B42650035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F559E61C9B42270035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F559ED1C9B42650035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F559E81C9B42270035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SpikeSorter/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.SpikeSorter";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F559E91C9B42270035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SpikeSorter/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.SpikeSorter";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F559DC1C9B42270035F88B /* Build configuration list for PBXProject "SpikeSorter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559E51C9B42270035F88B /* Debug */,
+				E1F559E61C9B42270035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F559E71C9B42270035F88B /* Build configuration list for PBXNativeTarget "SpikeSorter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F559E81C9B42270035F88B /* Debug */,
+				E1F559E91C9B42270035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F559D91C9B42270035F88B /* Project object */;
+}

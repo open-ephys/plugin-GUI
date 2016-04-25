@@ -25,7 +25,7 @@
 #include "HDF5FileFormat.h"
 
 #ifndef CHUNK_XSIZE
-#define CHUNK_XSIZE 640
+#define CHUNK_XSIZE 2048
 #endif
 
 #ifndef EVENT_CHUNK_SIZE
@@ -38,6 +38,10 @@
 
 #ifndef SPIKE_CHUNK_YSIZE
 #define SPIKE_CHUNK_YSIZE 40
+#endif
+
+#ifndef TIMESTAMP_CHUNK_SIZE
+#define TIMESTAMP_CHUNK_SIZE 16
 #endif
 
 #define MAX_TRANSFORM_SIZE 512
@@ -97,7 +101,7 @@ int HDF5FileBase::open(bool newfile, int nChans)
 		FileAccPropList props = FileAccPropList::DEFAULT;
 		if (nChans > 0)
 		{
-			props.setCache(0, 809, 8 * 2 * 640 * nChans, 1);
+			props.setCache(0, 1667, 2 * 8 * 2 * CHUNK_XSIZE * nChans, 1);
 			//std::cout << "opening HDF5 " << getFileName() << " with nchans: " << nChans << std::endl;
 		}
 
@@ -498,7 +502,7 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
         this->size[2] = 1;
 
     this->xChunkSize = chunk[0];
-    this->xPos = dims[0];
+    this->xPos = 0;
     this->dSet = dataSet;
     this->rowXPos.clear();
     this->rowXPos.insertMultiple(0,0,this->size[1]);
@@ -506,6 +510,8 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
 
 HDF5RecordingData::~HDF5RecordingData()
 {
+	//Safety
+	dSet->flush(H5F_SCOPE_GLOBAL);
 }
 int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data)
 {
@@ -661,6 +667,9 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     this->multiSample = info->multiSample;
     uint8 mSample = info->multiSample ? 1 : 0;
 
+	ScopedPointer<HDF5RecordingData> bitVoltsSet;
+	ScopedPointer<HDF5RecordingData> sampleRateSet;
+
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
     CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
@@ -669,12 +678,29 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5Recordin
     CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
     CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
-    CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
+   // CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
+	bitVoltsSet = createDataSet(F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
+	if (bitVoltsSet.get())
+		bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
+	else
+		std::cerr << "Error creating bitvolts data set" << std::endl;
+	
     CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
-    CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
+    //CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
+	sampleRateSet = createDataSet(F32, info->channelSampleRates.size(), 0, recordPath + "/application_data/channel_sample_rates");
+	if (sampleRateSet.get())
+		sampleRateSet->writeDataBlock(info->channelSampleRates.size(), F32, info->channelSampleRates.getRawDataPointer());
+	else
+		std::cerr << "Error creating sample rates data set" << std::endl;
+
     recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
+
+	tsData = createDataSet(I64, 0, nChannels, TIMESTAMP_CHUNK_SIZE, recordPath + "/application_data/timestamps");
+	if (!tsData.get())
+		std::cerr << "Error creating timestamps data set" << std::endl;
+
     curChan = nChannels;
 }
 
@@ -687,6 +713,7 @@ void KWDFile::stopRecording()
     CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
     //ScopedPointer does the deletion and destructors the closings
     recdata = nullptr;
+	tsData = nullptr;
 }
 
 int KWDFile::createFileStructure()
@@ -710,6 +737,23 @@ void KWDFile::writeRowData(int16* data, int nSamples)
     }
     CHECK_ERROR(recdata->writeDataRow(curChan,nSamples,I16,data));
     curChan++;
+}
+
+void KWDFile::writeRowData(int16* data, int nSamples, int channel)
+{
+	if (channel >= 0 && channel < nChannels)
+	{
+		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, I16, data));
+		curChan = channel;
+	}
+}
+
+void KWDFile::writeTimestamps(int64* ts, int nTs, int channel)
+{
+	if (channel >= 0 && channel < nChannels)
+	{
+		CHECK_ERROR(tsData->writeDataRow(channel, nTs, I64, ts));
+	}
 }
 
 //KWE File
@@ -856,18 +900,17 @@ KWXFile::KWXFile(String basename) : HDF5FileBase()
 {
     initFile(basename);
     numElectrodes=0;
-    transformVector = new int16[MAX_TRANSFORM_SIZE];
+    transformVector.malloc(MAX_TRANSFORM_SIZE);
 }
 
 KWXFile::KWXFile() : HDF5FileBase()
 {
     numElectrodes=0;
-    transformVector = new int16[MAX_TRANSFORM_SIZE];
+    transformVector.malloc(MAX_TRANSFORM_SIZE);
 }
 
 KWXFile::~KWXFile()
 {
-    delete transformVector;
 }
 
 String KWXFile::getFileName()

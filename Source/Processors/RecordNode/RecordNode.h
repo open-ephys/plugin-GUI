@@ -26,18 +26,23 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 #include <map>
+#include <atomic>
 
 
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Channel/Channel.h"
+#include "EventQueue.h"
 
-
-#define HEADER_SIZE 1024
-#define BLOCK_LENGTH 1024
+#define WRITE_BLOCK_LENGTH 1024
+#define DATA_BUFFER_NBLOCKS 300
+#define EVENT_BUFFER_NEVENTS 512
+#define SPIKE_BUFFER_NSPIKES 512
 
 struct SpikeRecordInfo;
 struct SpikeObject;
 class RecordEngine;
+class RecordThread;
+class DataQueue;
 
 /**
 
@@ -92,9 +97,6 @@ public:
     /** returns channel names and whether we record them */
     void getChannelNamesAndRecordingStatus(StringArray& names, Array<bool>& recording);
 
-    /** update channel name */
-    void updateChannelName(int channelIndex, String newname);
-
     /** Get channel stored in channelPointers array
     */
     Channel* getDataChannel(int index);
@@ -132,10 +134,6 @@ public:
         return rootFolder;
     }
 
-    void appendTrialNumber(bool);
-
-    void updateTrialNumber();
-
     /** Adds a Record Engine to use
     */
     void registerRecordEngine(RecordEngine* engine);
@@ -163,8 +161,7 @@ public:
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
 
-    bool isRecording;
-    bool allFilesOpened;
+    std::atomic<bool> isRecording;
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
@@ -173,7 +170,7 @@ private:
 
     /** Keep the RecordNode informed of acquisition and record states.
     */
-    bool isProcessing, signalFilesShouldClose;
+    bool isProcessing;
 
     /** User-selectable directory for saving data files. Currently
         defaults to the user's home directory.
@@ -196,15 +193,13 @@ private:
     */
     Time timer;
 
-    /** Closes all open files after recording has finished.
-    */
-    void closeAllFiles();
-
     /** Pointers to all continuous channels */
     Array<Channel*> channelPointers;
 
     /** Pointers to all event channels */
     Array<Channel*> eventChannelPointers;
+
+	Array<int> channelMap;
 
     OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
 
@@ -213,41 +208,22 @@ private:
     int experimentNumber;
     bool hasRecorded;
     bool settingsNeeded;
-
+	std::atomic<bool> setFirstBlock;
     /** Generates a default directory name, based on the current date and time */
     String generateDirectoryName();
 
     /** Cycle through the event buffer, looking for data to save */
     void handleEvent(int eventType, MidiMessage& event, int samplePos);
 
-    /** Object for holding information about the events file */
-    Channel* eventChannel;
-
-    /** Method for writing continuous buffers to disk.
-    */
-    void writeContinuousBuffer(const float* data, int nSamples, int channel);
-
-    /** Method for writing event buffers to disk.
-    */
-    void writeEventBuffer(MidiMessage& event, int samplePos);
-
-    void writeRecordMarker(FILE*);
-    void writeTimestampAndSampleCount(FILE*);
-
-    /** Used to indicate the end of each record */
-    char* recordMarker;
-
-    CriticalSection diskWriteLock;
-
-    Array<String> modifiedChannelNames;
-    Array<int> modifiedChannelInd;
-
-    bool appendTrialNum;
-    int trialNum;
-
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
 
+	ScopedPointer<RecordThread> m_recordThread;
+	ScopedPointer<DataQueue> m_dataQueue;
+	ScopedPointer<EventMsgQueue> m_eventQueue;
+	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
+	
+	Array<int> m_recordedChannelMap;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

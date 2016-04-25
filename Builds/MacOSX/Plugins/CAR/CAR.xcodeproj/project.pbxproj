@@ -1,0 +1,220 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E15DCF7A1CA0676B00332C3A /* CAREditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15DCF781CA0676B00332C3A /* CAREditor.cpp */; };
+		E1F558261C9B105C0035F88B /* CAR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558221C9B105C0035F88B /* CAR.cpp */; };
+		E1F558281C9B105C0035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558251C9B105C0035F88B /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E15DCF781CA0676B00332C3A /* CAREditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAREditor.cpp; sourceTree = "<group>"; };
+		E15DCF791CA0676B00332C3A /* CAREditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAREditor.h; sourceTree = "<group>"; };
+		E1F558141C9B0FCA0035F88B /* CAR.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CAR.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F558171C9B0FCA0035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F5581E1C9B10190035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F5581F1C9B10190035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F558201C9B10190035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F558221C9B105C0035F88B /* CAR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAR.cpp; sourceTree = "<group>"; };
+		E1F558231C9B105C0035F88B /* CAR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAR.h; sourceTree = "<group>"; };
+		E1F558251C9B105C0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F558111C9B0FCA0035F88B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F5580B1C9B0FCA0035F88B = {
+			isa = PBXGroup;
+			children = (
+				E1F5581D1C9B10190035F88B /* Config */,
+				E1F558161C9B0FCA0035F88B /* CAR */,
+				E1F558151C9B0FCA0035F88B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F558151C9B0FCA0035F88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558141C9B0FCA0035F88B /* CAR.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F558161C9B0FCA0035F88B /* CAR */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558211C9B105C0035F88B /* Source */,
+				E1F558171C9B0FCA0035F88B /* Info.plist */,
+			);
+			path = CAR;
+			sourceTree = "<group>";
+		};
+		E1F5581D1C9B10190035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F5581E1C9B10190035F88B /* Plugin.xcconfig */,
+				E1F5581F1C9B10190035F88B /* Plugin_Debug.xcconfig */,
+				E1F558201C9B10190035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F558211C9B105C0035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F558231C9B105C0035F88B /* CAR.h */,
+				E1F558221C9B105C0035F88B /* CAR.cpp */,
+				E15DCF791CA0676B00332C3A /* CAREditor.h */,
+				E15DCF781CA0676B00332C3A /* CAREditor.cpp */,
+				E1F558251C9B105C0035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/CAR;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F558131C9B0FCA0035F88B /* CAR */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F5581A1C9B0FCA0035F88B /* Build configuration list for PBXNativeTarget "CAR" */;
+			buildPhases = (
+				E1F558101C9B0FCA0035F88B /* Sources */,
+				E1F558111C9B0FCA0035F88B /* Frameworks */,
+				E1F558121C9B0FCA0035F88B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CAR;
+			productName = CAR;
+			productReference = E1F558141C9B0FCA0035F88B /* CAR.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F5580C1C9B0FCA0035F88B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F558131C9B0FCA0035F88B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1F5580F1C9B0FCA0035F88B /* Build configuration list for PBXProject "CAR" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F5580B1C9B0FCA0035F88B;
+			productRefGroup = E1F558151C9B0FCA0035F88B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F558131C9B0FCA0035F88B /* CAR */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F558121C9B0FCA0035F88B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F558101C9B0FCA0035F88B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F558281C9B105C0035F88B /* OpenEphysLib.cpp in Sources */,
+				E15DCF7A1CA0676B00332C3A /* CAREditor.cpp in Sources */,
+				E1F558261C9B105C0035F88B /* CAR.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F558181C9B0FCA0035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F5581F1C9B10190035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F558191C9B0FCA0035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F558201C9B10190035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F5581B1C9B0FCA0035F88B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = CAR/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.CAR";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F5581C1C9B0FCA0035F88B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = CAR/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.CAR";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F5580F1C9B0FCA0035F88B /* Build configuration list for PBXProject "CAR" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F558181C9B0FCA0035F88B /* Debug */,
+				E1F558191C9B0FCA0035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F5581A1C9B0FCA0035F88B /* Build configuration list for PBXNativeTarget "CAR" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F5581B1C9B0FCA0035F88B /* Debug */,
+				E1F5581C1C9B0FCA0035F88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F5580C1C9B0FCA0035F88B /* Project object */;
+}

@@ -54,6 +54,8 @@ Parameter::Parameter(const String& name_, float low, float high,
     isBool = false;
     isDisc = false;
 
+    // Initialize default value
+    values.set (0, defaultValue);
 }
 
 Parameter::Parameter(const String& name_, Array<var> a, int defaultVal,

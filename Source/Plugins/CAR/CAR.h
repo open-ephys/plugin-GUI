@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -36,18 +36,16 @@
     This is a simple filter that subtracts the average of all other channels from 
     each channel. The gain parameter allows you to subtract a percentage of the total avg.
 
-	See Ludwig et al. 2009 Using a common average reference to improve cortical
-	neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
-	discussion
+    See Ludwig et al. 2009 Using a common average reference to improve cortical
+    neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
+    discussion
 
-	
+
 */
 
 class CAR : public GenericProcessor
-
 {
 public:
-
     /** The class constructor, used to initialize any members. */
     CAR();
 
@@ -55,16 +53,10 @@ public:
     ~CAR();
 
     /** Determines whether the processor is treated as a source. */
-    bool isSource()
-    {
-        return false;
-    }
+    bool isSource() override { return false; }
 
     /** Determines whether the processor is treated as a sink. */
-    bool isSink()
-    {
-        return false;
-    }
+    bool isSink()   override { return false; }
 
     /** Defines the functionality of the processor.
 
@@ -78,21 +70,50 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
          */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
-    /** Any variables used by the "process" function _must_ be modified only through
-        this method while data acquisition is active. If they are modified in any
-        other way, the application will crash.  */
-    void setParameter(int parameterIndex, float newValue);
+    /** Returns the current gain level that is set in the processor */
+    float getGainLevel();
 
-    AudioSampleBuffer avgBuffer;
+    /** Sets the new gain level that will be used in the processor */
+    void setGainLevel (float newGain);
+
+    /** Creates the CAREditor. */
+    AudioProcessorEditor* createEditor() override;
+
+    Array<int> getReferenceChannels() const     { return m_referenceChannels; }
+    Array<int> getAffectedChannels()  const     { return m_affectedChannels; }
+
+    void setReferenceChannels (const Array<int>& newReferenceChannels);
+    void setAffectedChannels  (const Array<int>& newAffectedChannels);
+
+    void setReferenceChannelState (int channel, bool newState);
+    void setAffectedChannelState  (int channel, bool newState);
+
 
 private:
+    LinearSmoothedValueAtomic<float> m_gainLevel;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CAR);
+    AudioSampleBuffer m_avgBuffer;
 
+    /** We should add this for safety to prevent any app crashes or invalid data processing.
+        Since we use m_referenceChannels and m_affectedChannels arrays in the process() function,
+        which works in audioThread, we may stumble upon the situation when we start changing
+        either reference or affected channels by copying array and in the middle of copying process
+        we will be interrupted by audioThread. So it most probably will lead to app crash or
+        processing incorrect channels.
+    */
+    CriticalSection objectLock;
+
+    /** Array of channels which will be used to calculate mean signal. */
+    Array<int> m_referenceChannels;
+
+    /** Array of channels that will be affected by adding/substracting of mean signal of reference channels */
+    Array<int> m_affectedChannels;
+
+    // ==================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CAR);
 };
-
 
 
 

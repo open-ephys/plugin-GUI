@@ -80,7 +80,7 @@ bool FileReader::isReady() /* const */
     }
     else
     {
-        return true;
+        return input->isReady();
     }
 }
 

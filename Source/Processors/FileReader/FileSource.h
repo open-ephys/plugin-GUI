@@ -27,11 +27,13 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+
 struct RecordedChannelInfo
 {
     String name;
     float bitVolts;
 };
+
 
 class PLUGIN_API FileSource
 {
@@ -39,30 +41,33 @@ public:
     FileSource();
     virtual ~FileSource();
 
-    int getNumRecords();
-    String getRecordName(int index);
+    int getNumRecords()     const;
+    int getActiveRecord()   const;
 
-    int getActiveRecord();
-    void setActiveRecord(int index);
+    String getRecordName (int index) const;
 
-    float getRecordSampleRate(int index);
-    int getRecordNumChannels(int index);
-    int64 getRecordNumSamples(int index);
+    float getRecordSampleRate   (int index) const;
+    int getRecordNumChannels    (int index) const;
+    int64 getRecordNumSamples   (int index) const;
 
-    float getActiveSampleRate();
-    int getActiveNumChannels();
-    int64 getActiveNumSamples();
+    float getActiveSampleRate() const;
+    int getActiveNumChannels()  const;
+    int64 getActiveNumSamples() const;
 
-    RecordedChannelInfo getChannelInfo(int recordIndex, int channel);
-    RecordedChannelInfo getChannelInfo(int channel);
+    RecordedChannelInfo getChannelInfo (int recordIndex, int channel) const;
+    RecordedChannelInfo getChannelInfo (int channel) const;
 
-    bool OpenFile(File file);
-    bool fileIsOpened();
-    String getFileName();
+    void setActiveRecord (int index);
 
-    virtual int readData(int16* buffer, int nSamples) =0;
-    virtual void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)=0;
-    virtual void seekTo(int64 sample) =0;
+    bool OpenFile (File file);
+    bool isFileOpened()  const;
+    String getFileName() const;
+
+    virtual int readData (int16* buffer, int nSamples) = 0;
+    virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples) = 0;
+    virtual void seekTo (int64 sample) = 0;
+
+	virtual bool isReady();
 
 protected:
     struct RecordInfo
@@ -79,14 +84,14 @@ protected:
     int activeRecord;
     String filename;
 
+
 private:
-    virtual bool Open(File file)=0;
-    virtual void fillRecordInfo()=0;
-    virtual void updateActiveRecord()=0;
+    virtual bool Open (File file) = 0;
+    virtual void fillRecordInfo() = 0;
+    virtual void updateActiveRecord() = 0;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileSource);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileSource);
 };
-
 
 
 #endif  // FILESOURCE_H_INCLUDED

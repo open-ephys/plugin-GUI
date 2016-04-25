@@ -368,10 +368,10 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         probeMenu.addSubMenu("Depth probe", depthprobeMenu,true);
 
         const int result = probeMenu.show();
-        int nChansPerElectrode;
-        int nElectrodes;
-        double interelectrodeDistance=0;
-        double firstElectrodeOffset ;
+        int nChansPerElectrode = 0;
+        int nElectrodes = 0;
+        double interelectrodeDistance = 0;
+        double firstElectrodeOffset = 0;
         int numProbes = numElectrodes->getText().getIntValue();
         String ProbeType;
 
@@ -494,42 +494,43 @@ void SpikeSorterEditor::setThresholdValue(int channel, double threshold)
     repaint();
 }
 
-void SpikeSorterEditor::channelChanged(int chan)
+void SpikeSorterEditor::channelChanged (int channel, bool newState)
 {
     //std::cout << "New channel: " << chan << std::endl;
-    if (chan <=0)
+    if (channel <= 0)
         return;
 
-    for (int i = 0; i < electrodeButtons.size(); i++)
+    const int numElectrodeButtons = electrodeButtons.size();
+    for (int i = 0; i < numElectrodeButtons; ++i)
     {
         if (electrodeButtons[i]->getToggleState())
         {
-            electrodeButtons[i]->setChannelNum(chan);
+            electrodeButtons[i]->setChannelNum (channel);
             electrodeButtons[i]->repaint();
+
             Array<int> a;
-            a.add(chan-1);
-            channelSelector->setActiveChannels(a);
+            a.add (channel - 1);
+            channelSelector->setActiveChannels (a);
+
             SpikeSorter* processor = (SpikeSorter*) getProcessor();
             processor->setChannel(electrodeList->getSelectedItemIndex(),
                                   i,
-                                  chan-1);
+                                  channel - 1);
 
             // if DAC is selected, update the mapping.
-            int dacchannel = dacCombo->getSelectedId()-2;
+            int dacchannel = dacCombo->getSelectedId() - 2;
             if (dacchannel >=0)
             {
-                processor->assignDACtoChannel(dacchannel, chan-1);
+                processor->assignDACtoChannel (dacchannel, channel - 1);
             }
             if (processor->getAutoDacAssignmentStatus())
             {
-                processor->assignDACtoChannel(0,chan-1);
-                processor->assignDACtoChannel(1,chan-1);
+                processor->assignDACtoChannel (0, channel - 1);
+                processor->assignDACtoChannel (1, channel - 1);
                 break;
             }
-
         }
     }
-
 }
 
 int SpikeSorterEditor::getSelectedElectrode()

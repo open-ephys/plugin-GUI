@@ -1753,7 +1753,7 @@ float PCAjob::pythag(float a, float b)
 int PCAjob::svdcmp(float** a, int nRows, int nCols, float* w, float** v)
 {
 
-    int flag, i, its, j, jj, k, l, nm;
+    int flag, i, its, j, jj, k, l = 0, nm = 0;
     float anorm, c, f, g, h, s, scale, x, y, z, *rv1;
 
     rv1 = new float[nCols];
@@ -2029,7 +2029,7 @@ void PCAjob::computeCov()
             cov[j][i] = sum / (dim-1);
         }
     }
-    delete mean;
+    delete[] mean;
 
     // delete covariances
     //for (int k = 0; k < dim; k++)

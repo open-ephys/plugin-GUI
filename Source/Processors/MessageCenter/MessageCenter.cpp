@@ -134,7 +134,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
                  0,
                  0,
                  0,
-                 data.length() + 1, //It doesn't hurt to send the end-string null and can help avoid issues
+                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
                  (uint8*)data.getAddress());
 
         needsToSendTimestampMessage = false;
@@ -153,7 +153,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
                  0,
                  0,
                  0,
-                 data.length()+1, //It doesn't hurt to send the end-string null and can help avoid issues
+                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
                  (uint8*) data.getAddress());
 
         newEventAvailable = false;

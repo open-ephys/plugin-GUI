@@ -1,0 +1,244 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F557DB1C9B06500035F88B /* EventBroadcaster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557D51C9B06500035F88B /* EventBroadcaster.cpp */; };
+		E1F557DC1C9B06500035F88B /* EventBroadcasterEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557D71C9B06500035F88B /* EventBroadcasterEditor.cpp */; };
+		E1F557DE1C9B06500035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F557DA1C9B06500035F88B /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1C3F9781C99A20D00719A9F /* EventBroadcaster.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EventBroadcaster.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1C3F97B1C99A20D00719A9F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F557C21C9B020A0035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
+		E1F557C31C9B020A0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F557C41C9B020A0035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F557D51C9B06500035F88B /* EventBroadcaster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventBroadcaster.cpp; sourceTree = "<group>"; };
+		E1F557D61C9B06500035F88B /* EventBroadcaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventBroadcaster.h; sourceTree = "<group>"; };
+		E1F557D71C9B06500035F88B /* EventBroadcasterEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventBroadcasterEditor.cpp; sourceTree = "<group>"; };
+		E1F557D81C9B06500035F88B /* EventBroadcasterEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventBroadcasterEditor.h; sourceTree = "<group>"; };
+		E1F557DA1C9B06500035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1C3F9751C99A20D00719A9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1C3F96F1C99A20D00719A9F = {
+			isa = PBXGroup;
+			children = (
+				E1F557C11C9B020A0035F88B /* Config */,
+				E1C3F97A1C99A20D00719A9F /* EventBroadcaster */,
+				E1C3F9791C99A20D00719A9F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1C3F9791C99A20D00719A9F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1C3F9781C99A20D00719A9F /* EventBroadcaster.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1C3F97A1C99A20D00719A9F /* EventBroadcaster */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557D41C9B06500035F88B /* Source */,
+				E1C3F97B1C99A20D00719A9F /* Info.plist */,
+			);
+			path = EventBroadcaster;
+			sourceTree = "<group>";
+		};
+		E1F557C11C9B020A0035F88B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557C21C9B020A0035F88B /* Plugin.xcconfig */,
+				E1F557C31C9B020A0035F88B /* Plugin_Debug.xcconfig */,
+				E1F557C41C9B020A0035F88B /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F557D41C9B06500035F88B /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F557D61C9B06500035F88B /* EventBroadcaster.h */,
+				E1F557D51C9B06500035F88B /* EventBroadcaster.cpp */,
+				E1F557D81C9B06500035F88B /* EventBroadcasterEditor.h */,
+				E1F557D71C9B06500035F88B /* EventBroadcasterEditor.cpp */,
+				E1F557DA1C9B06500035F88B /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/EventBroadcaster;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1C3F9771C99A20D00719A9F /* EventBroadcaster */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1C3F97E1C99A20D00719A9F /* Build configuration list for PBXNativeTarget "EventBroadcaster" */;
+			buildPhases = (
+				E1C3F9741C99A20D00719A9F /* Sources */,
+				E1C3F9751C99A20D00719A9F /* Frameworks */,
+				E1C3F9761C99A20D00719A9F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EventBroadcaster;
+			productName = EventBroadcaster;
+			productReference = E1C3F9781C99A20D00719A9F /* EventBroadcaster.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1C3F9701C99A20D00719A9F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1C3F9771C99A20D00719A9F = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = E1C3F9731C99A20D00719A9F /* Build configuration list for PBXProject "EventBroadcaster" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1C3F96F1C99A20D00719A9F;
+			productRefGroup = E1C3F9791C99A20D00719A9F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1C3F9771C99A20D00719A9F /* EventBroadcaster */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1C3F9761C99A20D00719A9F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1C3F9741C99A20D00719A9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F557DC1C9B06500035F88B /* EventBroadcasterEditor.cpp in Sources */,
+				E1F557DB1C9B06500035F88B /* EventBroadcaster.cpp in Sources */,
+				E1F557DE1C9B06500035F88B /* OpenEphysLib.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1C3F97C1C99A20D00719A9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F557C31C9B020A0035F88B /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1C3F97D1C99A20D00719A9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F557C41C9B020A0035F88B /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1C3F97F1C99A20D00719A9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					ZEROMQ,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/include,
+				);
+				INFOPLIST_FILE = EventBroadcaster/Info.plist;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					/opt/local/lib/libzmq.a,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.EventBroadcaster";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1C3F9801C99A20D00719A9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					ZEROMQ,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/include,
+				);
+				INFOPLIST_FILE = EventBroadcaster/Info.plist;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					/opt/local/lib/libzmq.a,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.EventBroadcaster";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1C3F9731C99A20D00719A9F /* Build configuration list for PBXProject "EventBroadcaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1C3F97C1C99A20D00719A9F /* Debug */,
+				E1C3F97D1C99A20D00719A9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1C3F97E1C99A20D00719A9F /* Build configuration list for PBXNativeTarget "EventBroadcaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1C3F97F1C99A20D00719A9F /* Debug */,
+				E1C3F9801C99A20D00719A9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1C3F9701C99A20D00719A9F /* Project object */;
+}
