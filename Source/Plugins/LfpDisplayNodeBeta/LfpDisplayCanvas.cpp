@@ -945,7 +945,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
         {
             nSamples = (displayBufferSize - dbi) + index +1;
-             //std::cout << "nsamples 0 " ;
+           //  std::cout << "nsamples 0 " ;
         }
 
         //if (channel == 15 || channel == 16)
@@ -1012,10 +1012,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     
                     int nextpix = (dbi +(int)ratio +1) % (displayBufferSize+1); //  position to next pixels index
                     
-                    //if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
+                    if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
                     //    std::cout << "np " ;
-                        //nextpix=dbi;
-                    //}
+                        nextpix=dbi;
+                    }
                    
                     for (int j = dbi; j <= nextpix; j++)
                     {

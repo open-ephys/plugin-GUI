@@ -29,7 +29,7 @@ using namespace LfpDisplayNodeBeta;
 
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor("LFP Viewer Beta"),
-      displayGain(1), bufferLength(5.0f),
+      displayGain(1), bufferLength(20.0f),
       abstractFifo(100)
 {
     //std::cout << " LFPDisplayNodeConstructor" << std::endl;
