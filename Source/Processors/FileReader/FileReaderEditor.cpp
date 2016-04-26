@@ -36,7 +36,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
 {
-    lastFilePath = File::getCurrentWorkingDirectory();
+    lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 
     fileButton = new UtilityButton ("F:", Font ("Small Text", 13, Font::plain));
     fileButton->addListener (this);

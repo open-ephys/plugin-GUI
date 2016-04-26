@@ -182,8 +182,6 @@ void MainWindow::loadWindowBounds()
 	std::cout << "Loading window bounds." << std::endl;
 	std::cout << std::endl;
 
-	//File file = File::getCurrentWorkingDirectory().getChildFile("windowState.xml");
-
 	File file = getSavedStateDirectory().getChildFile("windowState.xml");
 
 	XmlDocument doc(file);

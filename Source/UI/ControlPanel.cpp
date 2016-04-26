@@ -427,10 +427,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
 
 
 #if defined(__APPLE__)
-    const File dataDirectory = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("open-ephys");
-    if (!dataDirectory.isDirectory()) {
-        dataDirectory.createDirectory();
-    }
+    const File dataDirectory = CoreServices::getDefaultUserSaveDirectory();
 #else
     const File dataDirectory = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
 #endif

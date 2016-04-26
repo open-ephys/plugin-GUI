@@ -159,5 +159,18 @@ const char* getApplicationResource(const char* name, int& size)
 {
 	return BinaryData::getNamedResource(name, size);
 }
+    
+File getDefaultUserSaveDirectory()
+{
+#if defined(__APPLE__)
+    File dir = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("open-ephys");
+    if (!dir.isDirectory()) {
+        dir.createDirectory();
+    }
+    return std::move(dir);
+#else
+    return File::getCurrentWorkingDirectory();
+#endif
+}
 
 };
