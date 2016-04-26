@@ -553,7 +553,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
         if (!acquisitionIsActive)
         {
             FileChooser fc("Choose the file name...",
-                               File::getCurrentWorkingDirectory(),
+                               CoreServices::getDefaultUserSaveDirectory(),
                                "*",
                                true);
 
@@ -576,7 +576,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
         if (!acquisitionIsActive)
         {
             FileChooser fc("Choose a file to load...",
-                               File::getCurrentWorkingDirectory(),
+                               CoreServices::getDefaultUserSaveDirectory(),
                                "*",
                                true);
 

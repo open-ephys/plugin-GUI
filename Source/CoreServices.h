@@ -104,6 +104,9 @@ PLUGIN_API int addSpikeElectrode(SpikeRecordInfo* elec);
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);
+    
+/** Gets the default directory for user-initiated file saving/loading */
+PLUGIN_API File getDefaultUserSaveDirectory();
 
 };
 

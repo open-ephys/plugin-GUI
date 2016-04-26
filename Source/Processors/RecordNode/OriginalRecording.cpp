@@ -450,7 +450,7 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
 {
 	int samplesWritten = 0;
 
-	int sourceNodeId = getChannel(realChannel)->sourceNodeId;
+	//int sourceNodeId = getChannel(realChannel)->sourceNodeId;
 
 	//TODO: optimize. Now we use realchannel, we should optimize the whole thing to only use recorded channels
 	samplesSinceLastTimestamp.set(realChannel, 0);

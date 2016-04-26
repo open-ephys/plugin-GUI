@@ -531,7 +531,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 		case openConfiguration:
 			{
 				FileChooser fc("Choose a file to load...",
-						File::getCurrentWorkingDirectory(),
+						CoreServices::getDefaultUserSaveDirectory(),
 						"*",
 						true);
 
@@ -557,7 +557,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				else
 				{
 					FileChooser fc("Choose the file name...",
-							File::getCurrentWorkingDirectory(),
+							CoreServices::getDefaultUserSaveDirectory(),
 							"*",
 							true);
 
@@ -580,7 +580,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 			{
 
 				FileChooser fc("Choose the file name...",
-						File::getCurrentWorkingDirectory(),
+						CoreServices::getDefaultUserSaveDirectory(),
 						"*",
 						true);
 
