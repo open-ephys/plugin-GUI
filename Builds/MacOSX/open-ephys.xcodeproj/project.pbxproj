@@ -2690,12 +2690,12 @@
 					"JUCE_APP_VERSION=0.4.0",
 					"JUCE_APP_VERSION_HEX=0x400", );
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");
+				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = ("$(inherited)", "\"/opt/local/lib\"", "\"/usr/local/lib\"");
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
-				OTHER_CPLUSPLUSFLAGS = "-fPIC -Wno-inconsistent-missing-override";
+				OTHER_CPLUSPLUSFLAGS = "-fPIC -Wpartial-availability -Wno-inconsistent-missing-override";
 				OTHER_LDFLAGS = "-ldl -fPIC -rdynamic";
 				SDKROOT_ppc = macosx10.5; }; name = Debug; };
 		7A6F9B742B69F66DC3E29FA8 = {isa = XCBuildConfiguration; buildSettings = {
@@ -2714,12 +2714,12 @@
 					"JUCE_APP_VERSION_HEX=0x400", );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "/opt/local/include", "/usr/local/include", "$(inherited)");
+				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = ("$(inherited)", "\"/opt/local/lib\"", "\"/usr/local/lib\"");
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
-				OTHER_CPLUSPLUSFLAGS = "-fPIC -Wno-inconsistent-missing-override";
+				OTHER_CPLUSPLUSFLAGS = "-fPIC -Wpartial-availability -Wno-inconsistent-missing-override";
 				OTHER_LDFLAGS = "-ldl -fPIC -rdynamic";
 				SDKROOT_ppc = macosx10.5; }; name = Release; };
 		C8018C9A4DA633CA60663294 = {isa = XCBuildConfiguration; buildSettings = {

@@ -27,7 +27,7 @@
 #define CHANNEL_TIMESTAMP_MIN_WRITE	32
 #define TIMESTAMP_EACH_NSAMPLES 1024
 
-HDF5Recording::HDF5Recording() : processorIndex(-1), hasAcquired(false), bufferSize(MAX_BUFFER_SIZE)
+HDF5Recording::HDF5Recording() : processorIndex(-1), bufferSize(MAX_BUFFER_SIZE), hasAcquired(false)
 {
     //timestamp = 0;
     scaledBuffer.malloc(MAX_BUFFER_SIZE);

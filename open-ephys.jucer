@@ -13,18 +13,16 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
                extraLinkerFlags="-ldl -fPIC -rdynamic" objCExtraSuffix="fea2mT"
-               extraDefs="" extraCompilerFlags="-fPIC -Wno-inconsistent-missing-override"
+               extraDefs="" extraCompilerFlags="-fPIC -Wpartial-availability -Wno-inconsistent-missing-override"
                postbuildCommand="# Copy Rhythm-related files to application bundle's Resources folder&#10;srcdir=&quot;${PROJECT_DIR}/../../Resources&quot;&#10;dstdir=&quot;${CONFIGURATION_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}&quot;&#10;/usr/bin/rsync -a &quot;$srcdir/Bitfiles/rhd2000.bit&quot; &quot;$srcdir/Bitfiles/rhd2000_usb3.bit&quot; &quot;$srcdir/DLLs/libokFrontPanel.dylib&quot; &quot;$dstdir&quot;"
                smallIcon="txUyO4" bigIcon="nFMauU">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       headerPath="/opt/local/include&#10;/usr/local/include" libraryPath="/opt/local/lib&#10;/usr/local/lib"
-                       defines=""/>
+                       osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
+                       headerPath="" libraryPath="" defines=""/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
-                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       headerPath="/opt/local/include&#10;/usr/local/include" libraryPath="/opt/local/lib&#10;/usr/local/lib"
-                       defines=""/>
+                       osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
+                       headerPath="" libraryPath="" defines=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
