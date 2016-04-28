@@ -230,6 +230,20 @@
                ReferencedContainer = "container:Plugins/SpikeSorter/SpikeSorter.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D3E60EE41CD19893003FDF5C"
+               BuildableName = "LfpDisplayNodeBeta.bundle"
+               BlueprintName = "LfpDisplayNodeBeta"
+               ReferencedContainer = "container:Plugins/LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
