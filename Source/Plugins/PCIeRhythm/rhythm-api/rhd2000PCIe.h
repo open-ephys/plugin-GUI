@@ -107,9 +107,12 @@ namespace PCIeRhythm {
 
 		bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
 		bool readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples = -1);
-		bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
+		bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue, int nSamples = -1);
 
-		void flush();
+		bool openPipe();
+		void closePipe();
+
+		//void flush();
 
 
 	private:

@@ -67,6 +67,7 @@ void rhd2000PCIe::writeRegister(controlAddr reg, int16_t value, int16_t mask)
 	{
 		int16_t curVal;
 		int rd = Read(fidControl, &curVal, 2);
+		if (rd < 2)
 		{
 			std::cerr << "Unsuccesful read to control addr " << regAddr << " code: " << rd << std::endl;
 			return;
@@ -125,17 +126,32 @@ bool rhd2000PCIe::open()
 		return false;
 	}
 
+	std::cout << "Device files opened" << std::endl;
+	return true;
+}
+
+bool rhd2000PCIe::openPipe()
+{
 	fidFIFO = Open("\\\\.\\xillybus_neural_data_32", O_RDONLY | O_BINARY);
 	if (fidFIFO < 0)
 	{
 		std:cerr << "Error opening data FIFO" << std::endl;
-		Close(fidControl);
-		Close(fidStatus);
-		fidControl = -1;
-		fidStatus = -1;
+		return false;
 	}
-	std::cout << "Device files opened" << std::endl;
+	std::cout << "Pipe opened" << std::endl;
 	return true;
+}
+
+void rhd2000PCIe::closePipe()
+{
+	if (fidFIFO >= 0)
+	{
+		Close(fidFIFO);
+		fidFIFO = -1;
+		std::cout << "Pipe closed" << std::endl;
+	}
+	else
+		std::cerr << "ERROR: pipe already closed" << std::endl;
 }
 
 // Initialize Rhythm FPGA to default starting values.
@@ -143,7 +159,7 @@ void rhd2000PCIe::initialize()
 {
 	int i;
 
-	resetBoard();
+	//resetBoard();
 	setSampleRate(SampleRate30000Hz);
 	selectAuxCommandBank(PortA, AuxCmd1, 0);
 	selectAuxCommandBank(PortB, AuxCmd1, 0);
@@ -255,76 +271,78 @@ bool rhd2000PCIe::setSampleRate(AmplifierSampleRate newSampleRate)
 	// pulse DCM_prog_trigger high (e.g., using an okTriggerIn module).  If this module is reset, it
 	// reverts to a per-channel sampling rate of 30.0 kS/s.
 
-	unsigned long M, D;
-
+	unsigned long M, O, D;
+	D = 0;
 	switch (newSampleRate) {
 	case SampleRate1000Hz:
 		M = 7;
-		D = 125;
+		O = 125;
 		break;
 	case SampleRate1250Hz:
 		M = 7;
-		D = 100;
+		O = 100;
 		break;
 	case SampleRate1500Hz:
 		M = 21;
-		D = 250;
+		O = 125;
+		D = 0x8000;
 		break;
 	case SampleRate2000Hz:
 		M = 14;
-		D = 125;
+		O = 125;
 		break;
 	case SampleRate2500Hz:
 		M = 35;
-		D = 250;
+		O = 125;
+		D = 0x8000;
 		break;
 	case SampleRate3000Hz:
 		M = 21;
-		D = 125;
+		O = 125;
 		break;
 	case SampleRate3333Hz:
 		M = 14;
-		D = 75;
+		O = 75;
 		break;
 	case SampleRate4000Hz:
 		M = 28;
-		D = 125;
+		O = 125;
 		break;
 	case SampleRate5000Hz:
 		M = 7;
-		D = 25;
+		O = 25;
 		break;
 	case SampleRate6250Hz:
 		M = 7;
-		D = 20;
+		O = 20;
 		break;
 	case SampleRate8000Hz:
-		M = 112;
-		D = 250;
+		M = 56;
+		O = 125;
 		break;
 	case SampleRate10000Hz:
 		M = 14;
-		D = 25;
+		O = 25;
 		break;
 	case SampleRate12500Hz:
 		M = 7;
-		D = 10;
+		O = 10;
 		break;
 	case SampleRate15000Hz:
 		M = 21;
-		D = 25;
+		O = 25;
 		break;
 	case SampleRate20000Hz:
 		M = 28;
-		D = 25;
+		O = 25;
 		break;
 	case SampleRate25000Hz:
 		M = 35;
-		D = 25;
+		O = 25;
 		break;
 	case SampleRate30000Hz:
 		M = 42;
-		D = 25;
+		O = 25;
 		break;
 	default:
 		return(false);
@@ -336,7 +354,7 @@ bool rhd2000PCIe::setSampleRate(AmplifierSampleRate newSampleRate)
 	while (isDcmProgDone() == false) {}
 
 	// Reprogram clock synthesizer
-	writeRegister(DataFreqPll, (256 * M + D));
+	writeRegister(DataFreqPll, D+ ((M<<8)&0x7F00) + (O&0x00FF));
 
 	// Wait for DataClkLocked = 1 before allowing data acquisition to continue
 	while (isDataClockLocked() == false) {}
@@ -456,7 +474,7 @@ void rhd2000PCIe::uploadCommandList(const vector<int> &commandList, AuxCmdSlot a
 
 	for (i = 0; i < commandList.size(); ++i) {
 		int16_t value = commandList[i];
-		int wd = Write(fidControl, &value, 2);
+		int wd = Write(fidMem, &value, 2);
 		if (wd < 2)
 		{
 			std::cerr << "Error writing auxcmd " << auxCommandSlot << " index " << i << std::endl;
@@ -865,6 +883,7 @@ bool rhd2000PCIe::isStreamEnabled(int streamIndex)
 bool rhd2000PCIe::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
 {
 	unsigned int numBytesToRead;
+	unsigned int numread = 0;
 
 	numBytesToRead = 2 * Rhd2000DataBlock::calculateDataBlockSizeInWords(numDataStreams, nSamples);
 
@@ -875,21 +894,20 @@ bool rhd2000PCIe::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
 		return false;
 	}
 
-	int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+	do {
+		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-	if (nr < 0)
-	{
-		std::cerr << "Error reading from pipe" << std::endl;
-	}
-	else if (nr < numBytesToRead)
-	{
-		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
-	}
+		if (nr < 0)
+		{
+			std::cerr << "Error reading from pipe" << std::endl;
+		}
+		numread += nr;
+	} while (numread < numBytesToRead);
 
 	*bufferPtr = dataBuffer;
 	return true;
 }
-
+/*
 void rhd2000PCIe::flush()
 {
 	int nr = 0;
@@ -899,7 +917,7 @@ void rhd2000PCIe::flush()
 
 	} while (nr > 0);
 
-}
+}*/
 
 // Read data block from the USB interface, if one is available.  Returns true if data block
 // was available.
@@ -907,6 +925,7 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 {
 	unsigned int numBytesToRead;
 	long res;
+	unsigned int numread = 0;
 
 	numBytesToRead = 2 * dataBlock->calculateDataBlockSizeInWords(numDataStreams, nSamples);
 
@@ -916,16 +935,17 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 		return false;
 	}
 
-	int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+	do {
+		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-	if (nr < 0)
-	{
-		std::cerr << "Error reading from pipe" << std::endl;
-	}
-	else if (nr < numBytesToRead)
-	{
-		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
-	}
+		if (nr < 0)
+		{
+			std::cerr << "Error reading from pipe" << std::endl;
+			break;
+		}
+		numread += nr;
+	} while (numread < numBytesToRead);
+	
 
 	dataBlock->fillFromUsbBuffer(dataBuffer, 0, numDataStreams, nSamples);
 
@@ -934,14 +954,16 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 
 // Reads a certain number of USB data blocks, if the specified number is available, and appends them
 // to queue.  Returns true if data blocks were available.
-bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue)
+bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue, int nSamples)
 {
 	unsigned int numWordsToRead, numBytesToRead;
 	int i;
+	unsigned int numread = 0;
 	Rhd2000DataBlock *dataBlock;
+	
+	if (nSamples < 1) nSamples = SAMPLES_PER_DATA_BLOCK_PCIE;
 
-
-	numWordsToRead = numBlocks * dataBlock->calculateDataBlockSizeInWords(numDataStreams);
+	numWordsToRead = numBlocks * dataBlock->calculateDataBlockSizeInWords(numDataStreams, nSamples);
 
 
 	numBytesToRead = 2 * numWordsToRead;
@@ -952,18 +974,17 @@ bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQue
 		return false;
 	}
 
-	int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+	do {
+		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-	if (nr < 0)
-	{
-		std::cerr << "Error reading from pipe" << std::endl;
-	}
-	else if (nr < numBytesToRead)
-	{
-		cerr << "CRITICAL: Timeout on pipe read. Check block and buffer sizes." << endl;
-	}
+		if (nr < 0)
+		{
+			std::cerr << "Error reading from pipe" << std::endl;
+		}
+		numread += nr;
+	} while (numread < numBytesToRead);
 
-	dataBlock = new Rhd2000DataBlock(numDataStreams);
+	dataBlock = new Rhd2000DataBlock(numDataStreams, nSamples);
 	for (i = 0; i < numBlocks; ++i) {
 		dataBlock->fillFromUsbBuffer(dataBuffer, i, numDataStreams);
 		dataQueue.push(*dataBlock);

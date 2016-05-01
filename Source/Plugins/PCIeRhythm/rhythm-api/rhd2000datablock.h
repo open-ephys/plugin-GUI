@@ -33,7 +33,7 @@ namespace PCIeRhythm {
 	class Rhd2000DataBlock
 	{
 	public:
-		Rhd2000DataBlock(int numDataStreams);
+		Rhd2000DataBlock(int numDataStreams, int nSamples = SAMPLES_PER_DATA_BLOCK_PCIE);
 
 		vector<unsigned int> timeStamp;
 		vector<vector<vector<int> > > amplifierData;

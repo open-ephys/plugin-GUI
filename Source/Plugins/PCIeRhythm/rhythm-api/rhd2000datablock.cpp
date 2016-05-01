@@ -32,7 +32,7 @@ using namespace PCIeRhythm;
 // from a Rhythm FPGA interface controlling up to eight RHD2000 chips.
 
 // Constructor.  Allocates memory for data block.
-Rhd2000DataBlock::Rhd2000DataBlock(int numDataStreams) : samplesPerBlock(SAMPLES_PER_DATA_BLOCK_PCIE)
+Rhd2000DataBlock::Rhd2000DataBlock(int numDataStreams, int nSamples) : samplesPerBlock(nSamples)
 {
     allocateUIntArray1D(timeStamp, samplesPerBlock);
 	allocateIntArray3D(amplifierData, numDataStreams, 32, samplesPerBlock);

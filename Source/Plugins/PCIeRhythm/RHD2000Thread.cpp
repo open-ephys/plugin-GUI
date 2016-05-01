@@ -46,6 +46,7 @@
 
 //#define DEBUG_EMULATE_HEADSTAGES 8
 //#define DEBUG_EMULATE_64CH
+//#define DEBUG_REAL_HEADSTAGE 5
 
 #define INIT_STEP 256
 
@@ -277,6 +278,7 @@ void RHD2000Thread::initializeBoard()
 
     // Initialize the board
     std::cout << "Initializing acquisition board." << std::endl;
+	evalBoard->openPipe();
     evalBoard->initialize();
     // This applies the following settings:
     //  - sample rate to 30 kHz
@@ -319,7 +321,7 @@ void RHD2000Thread::initializeBoard()
 
     // Read the resulting single data block from the USB interface. We don't
     // need to do anything with this, since it was only used for ADC calibration
-    ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+    ScopedPointer<Rhd2000DataBlock> dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), INIT_STEP);
 
 	evalBoard->readDataBlock(dataBlock, INIT_STEP);
     // Now that ADC calibration has been performed, we switch to the command sequence
@@ -333,7 +335,7 @@ void RHD2000Thread::initializeBoard()
 	evalBoard->selectAuxCommandBank(rhd2000PCIe::PortD, rhd2000PCIe::AuxCmd3,
                                     fastSettleEnabled ? 2 : 1);
 
-
+	evalBoard->closePipe();
 
 }
 
@@ -347,7 +349,7 @@ void RHD2000Thread::scanPorts()
 	impedanceThread->stopThreadSafely();
 	//Clear previous known streams
 	enabledStreams.clear();
-
+	evalBoard->openPipe();
 	// Scan SPI ports
 
 	int delay, hs, id;
@@ -422,7 +424,7 @@ void RHD2000Thread::scanPorts()
 	evalBoard->setContinuousRunMode(false);
 
 	ScopedPointer<Rhd2000DataBlock> dataBlock =
-		new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
+		new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams(), INIT_STEP);
 
 	Array<int> sumGoodDelays;
 	sumGoodDelays.insertMultiple(0, 0, 8);
@@ -494,12 +496,12 @@ void RHD2000Thread::scanPorts()
 	//std::cout << std::endl;
 
 #if DEBUG_EMULATE_HEADSTAGES > 0
-	if (tmpChipId[0] > 0)
+	if (tmpChipId[DEBUG_REAL_HEADSTAGE] > 0)
 	{
 		int chipIdx = 0;
 		for (int hs = 0; hs < DEBUG_EMULATE_HEADSTAGES && hs < MAX_NUM_HEADSTAGES ; ++hs)
 		{
-			if (enabledStreams.size() < MAX_NUM_DATA_STREAMS(evalBoard->isUSB3()))
+			if (enabledStreams.size() < MAX_NUM_DATA_STREAMS)
 			{
 #ifdef DEBUG_EMULATE_64CH
 				chipId.set(chipIdx++,CHIP_ID_RHD2164);
@@ -513,7 +515,7 @@ void RHD2000Thread::scanPorts()
 		}
 		for (int i = 0; i < enabledStreams.size(); i++)
 		{
-			enabledStreams.set(i,Rhd2000EvalBoard::PortA1);
+			enabledStreams.set(i,(rhd2000PCIe::BoardDataSource)DEBUG_REAL_HEADSTAGE);
 		}
 	}
         
@@ -591,6 +593,7 @@ void RHD2000Thread::scanPorts()
         evalBoard->estimateCableLengthMeters(max(optimumDelay[6],optimumDelay[7]));
 
     setSampleRate(savedSampleRateIndex); // restore saved sample rate
+	evalBoard->closePipe();
     //updateRegisters();
     newScan = true;
 }
@@ -1321,7 +1324,7 @@ bool RHD2000Thread::startAcquisition()
         // evalBoard->setContinuousRunMode(false);
         //  evalBoard->setMaxTimeStep(0);
         std::cout << "Flushing FIFO." << std::endl;
-        evalBoard->flush();
+        evalBoard->openPipe();
         evalBoard->setContinuousRunMode(true);
 		//evalBoard->printFIFOmetrics();
         evalBoard->run();
@@ -1365,7 +1368,7 @@ bool RHD2000Thread::stopAcquisition()
         evalBoard->setContinuousRunMode(false);
         evalBoard->setMaxTimeStep(0);
         std::cout << "Flushing FIFO." << std::endl;
-        evalBoard->flush();
+		evalBoard->closePipe();
         //   evalBoard->setContinuousRunMode(true);
         //   evalBoard->run();
 
@@ -2073,6 +2076,7 @@ void RHDImpedanceMeasure::run()
 	ed = (RHD2000Editor*)board->sn->editor.get();
 	if (data == nullptr)
 		return;
+	board->evalBoard->openPipe();
 	runImpedanceMeasurement();
 	restoreFPGA();
 	ed->triggerAsyncUpdate();
@@ -2159,7 +2163,7 @@ void RHDImpedanceMeasure::runImpedanceMeasurement()
 
 	CHECK_EXIT;
 	board->evalBoard->setContinuousRunMode(false);
-	board->evalBoard->setMaxTimeStep(SAMPLES_PER_DATA_BLOCK_PCIE * numBlocks);
+	board->evalBoard->setMaxTimeStep(INIT_STEP * numBlocks);
 
 	// Create matrices of doubles of size (numStreams x 32 x 3) to store complex amplitudes
 	// of all amplifier channels (32 on each data stream) at three different Cseries values.
@@ -2361,7 +2365,7 @@ void RHDImpedanceMeasure::restoreFPGA()
 {
 	board->evalBoard->setContinuousRunMode(false);
 	board->evalBoard->setMaxTimeStep(0);
-	board->evalBoard->flush();
+	board->evalBoard->closePipe();
 
 	// Switch back to flatline
 	board->evalBoard->selectAuxCommandBank(rhd2000PCIe::PortA, rhd2000PCIe::AuxCmd1, 0);
