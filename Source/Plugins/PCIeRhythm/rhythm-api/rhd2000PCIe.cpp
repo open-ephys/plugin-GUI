@@ -897,9 +897,15 @@ bool rhd2000PCIe::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
 	do {
 		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-		if (nr < 0)
+		if (nr == 0)
+		{
+			std::cout << "DMA buffer overflow. Stop acquisition" << std::endl;
+			return false;
+		}
+		else if (nr < 0)
 		{
 			std::cerr << "Error reading from pipe" << std::endl;
+			return false;
 		}
 		numread += nr;
 	} while (numread < numBytesToRead);
@@ -938,10 +944,15 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	do {
 		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-		if (nr < 0)
+		if (nr == 0)
+		{
+			std::cout << "DMA buffer overflow. Stop acquisition" << std::endl;
+			return false;
+		}
+		else if (nr < 0)
 		{
 			std::cerr << "Error reading from pipe" << std::endl;
-			break;
+			return false;
 		}
 		numread += nr;
 	} while (numread < numBytesToRead);
@@ -977,9 +988,16 @@ bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQue
 	do {
 		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
 
-		if (nr < 0)
+		if (nr == 0)
+		{
+			std::cout << "DMA buffer overflow. Stop acquisition" << std::endl;
+			return false;
+
+		}
+		else if (nr < 0)
 		{
 			std::cerr << "Error reading from pipe" << std::endl;
+			return false;
 		}
 		numread += nr;
 	} while (numread < numBytesToRead);
@@ -992,4 +1010,9 @@ bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQue
 	delete dataBlock;
 
 	return true;
+}
+
+void rhd2000PCIe::setOuputSigs(int sigs)
+{
+	writeRegister(AuxOutputs, sigs);
 }

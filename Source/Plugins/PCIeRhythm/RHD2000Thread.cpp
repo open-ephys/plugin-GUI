@@ -44,6 +44,8 @@
 #define REGISTER_59_MISO_B  58
 #define RHD2132_16CH_OFFSET 8
 
+#define THRESHOLD_CHECK 1.0f
+
 //#define DEBUG_EMULATE_HEADSTAGES 8
 //#define DEBUG_EMULATE_64CH
 //#define DEBUG_REAL_HEADSTAGE 5
@@ -1304,7 +1306,7 @@ bool RHD2000Thread::startAcquisition()
     dataBlock = new Rhd2000DataBlock(evalBoard->getNumEnabledDataStreams());
 
     std::cout << "Expecting " << getNumChannels() << " channels." << std::endl;
-
+	lastThreshold = false;
     //memset(filter_states,0,256*sizeof(double));
 
     /*int ledArray[8] = {1, 1, 0, 0, 0, 0, 0, 0};
@@ -1354,14 +1356,17 @@ bool RHD2000Thread::stopAcquisition()
 
     }
 
-    if (waitForThreadToExit(500))
-    {
-        std::cout << "Thread exited." << std::endl;
-    }
-    else
-    {
-        std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
-    }
+	if (getThreadId() != getCurrentThreadId())
+	{
+		if (waitForThreadToExit(500))
+		{
+			std::cout << "Thread exited." << std::endl;
+		}
+		else
+		{
+			std::cout << "Thread failed to exit, continuing anyway..." << std::endl;
+		}
+	}
 
     if (deviceFound)
     {
@@ -1406,6 +1411,12 @@ bool RHD2000Thread::updateBuffer()
 		bool return_code;
 
 		return_code = evalBoard->readRawDataBlock(&bufferPtr);
+		if (!return_code)
+		{
+			MessageManagerLock lockM;
+			CoreServices::setAcquisitionStatus(false);
+			return true;
+		}
 
 		int index = 0;
 		int auxIndex, chanIndex;
@@ -1443,6 +1454,8 @@ bool RHD2000Thread::updateBuffer()
 					channel++;
 					thisSample[channel] = float(*(uint16*)(bufferPtr + chanIndex) - 32768)*0.195f;
 					chanIndex += 2*numStreams;
+					if (dataStream == 0 && chan == 0) //First channel of the first enabled stream
+						checkThreshold(thisSample[channel]);
 				}
 			}
 			index += 64 * numStreams;
@@ -1625,6 +1638,17 @@ bool RHD2000Thread::updateBuffer()
 	
     return true;
 
+}
+
+void RHD2000Thread::checkThreshold(float s)
+{
+	bool check = (s > THRESHOLD_CHECK);
+	if (!check != !lastThreshold)
+	{
+		//std::cout << "SIG" << std::endl;
+		lastThreshold = check;
+		evalBoard->setOuputSigs(check ? 0x0001 : 0x0000);
+	}
 }
 
 int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)

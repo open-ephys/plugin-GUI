@@ -112,6 +112,8 @@ namespace PCIeRhythm {
 		bool openPipe();
 		void closePipe();
 
+		void setOuputSigs(int sigs);
+
 		//void flush();
 
 
@@ -138,6 +140,7 @@ namespace PCIeRhythm {
 			DataStreamSel9ABC = 0x28,
 			DataStreamSelDEF10 = 0x2A,
 			DataStreamEn = 0x2C,
+			AuxOutputs = 0x2E,
 			StartTrigger = 0x3E
 		};
 		enum statusAddr {

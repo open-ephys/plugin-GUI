@@ -207,6 +207,10 @@ namespace PCIeRhythm {
 		ScopedPointer<RHDImpedanceMeasure> impedanceThread;
 		bool ledsEnabled;
 
+		bool lastThreshold;
+
+		void checkThreshold(float s);
+
 		// Sync ouput divide factor
 		uint16 clockDivideFactor;
 
