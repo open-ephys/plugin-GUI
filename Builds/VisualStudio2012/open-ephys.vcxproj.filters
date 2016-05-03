@@ -3713,6 +3713,9 @@
     <None Include="..\..\Resources\Images\Icons\IntanIcon.png">
       <Filter>open-ephys\Resources\Images\Icons</Filter>
     </None>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow.png">
+      <Filter>open-ephys\Resources\Images\Buttons</Filter>
+    </None>
     <None Include="..\..\Resources\Images\Buttons\muteoff.png">
       <Filter>open-ephys\Resources\Images\Buttons</Filter>
     </None>

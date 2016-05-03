@@ -2076,6 +2076,7 @@
     <None Include="..\..\Resources\Images\Icons\DefaultDataSource.png"/>
     <None Include="..\..\Resources\Images\Icons\FileReaderIcon.png"/>
     <None Include="..\..\Resources\Images\Icons\IntanIcon.png"/>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow.png"/>
     <None Include="..\..\Resources\Images\Buttons\muteoff.png"/>
     <None Include="..\..\Resources\Images\Buttons\muteon.png"/>
     <None Include="..\..\Resources\Images\Buttons\MergerA-01.png"/>
