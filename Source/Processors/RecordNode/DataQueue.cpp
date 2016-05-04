@@ -24,12 +24,12 @@
 #include "DataQueue.h"
 
 DataQueue::DataQueue(int blockSize, int nBlocks) :
-m_blockSize(blockSize),
-m_numBlocks(nBlocks),
-m_maxSize(blockSize*nBlocks),
-m_readInProgress(false),
+m_buffer(0, blockSize*nBlocks),
 m_numChans(0),
-m_buffer(0, blockSize*nBlocks)
+m_blockSize(blockSize),
+m_readInProgress(false),
+m_numBlocks(nBlocks),
+m_maxSize(blockSize*nBlocks)
 {}
 
 DataQueue::~DataQueue()

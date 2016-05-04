@@ -1231,7 +1231,7 @@ const String EditorViewport::saveState(File fileToUse)
     currentFile = fileToUse;
 
     // FileChooser fc("Choose the file to save...",
-    //                File::getCurrentWorkingDirectory(),
+    //                CoreServices::getDefaultUserSaveDirectory(),
     //                "*",
     //                true);
 
@@ -1411,7 +1411,7 @@ const String EditorViewport::loadState(File fileToLoad)
 {
 
     // FileChooser fc("Choose a file to load...",
-    //                File::getCurrentWorkingDirectory(),
+    //                CoreServices::getDefaultUserSaveDirectory(),
     //                "*.xml",
     //                true);
 
