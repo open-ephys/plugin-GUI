@@ -36,7 +36,7 @@ static const Colour COLOUR_DROPDOWN_BUTTON_BG   (Colour::fromRGB (48, 63, 159));
 
 static const Font FONT_DEFAULT ("Arial", 12.f, Font::plain);
 
-static const int SIZE_DROPDOWN_ARROW            = 10;
+static const int SIZE_DROPDOWN_ARROW            = 16;
 static const int DURATION_ANIMATION_COLLAPSE_MS = 200;
 
 
@@ -112,14 +112,18 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     parameterSlicerChannelSelector.setListener  (this);
 
     // Set just initial y for each slicer
-    const int headerHeight = 10;
-    audioSlicerChannelSelector.setBounds        (audioSlicerChannelSelector.getBounds().withY (headerHeight));
-    recordSlicerChannelSelector.setBounds       (recordSlicerChannelSelector.getBounds().withY (headerHeight));
-    parameterSlicerChannelSelector.setBounds    (parameterSlicerChannelSelector.getBounds().withY (headerHeight));
+    const int slicerChannelSelectorY = 10;
+    audioSlicerChannelSelector.setBounds        (audioSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
+    recordSlicerChannelSelector.setBounds       (recordSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
+    parameterSlicerChannelSelector.setBounds    (parameterSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
 
     addAndMakeVisible (audioSlicerChannelSelector);
     addAndMakeVisible (recordSlicerChannelSelector);
     addAndMakeVisible (parameterSlicerChannelSelector);
+
+    audioSlicerChannelSelector.toBack();
+    recordSlicerChannelSelector.toBack();
+    parameterSlicerChannelSelector.toBack();
     // ====================================================================
 
 
@@ -237,9 +241,6 @@ void ChannelSelector::refreshButtonBoundaries()
     recordButtonsManager.setButtonSize     (columnWidth, rowHeight);
     parameterButtonsManager.setButtonSize  (columnWidth, rowHeight);
 
-    //const int headerHeight = 25;
-    //const int xLoc = columnWidth / 2 + offsetLR;
-    //const int yLoc = offsetUD + headerHeight;
     const int xLoc = offsetLR + 3;
 
     juce::Rectangle<int> slicerSelectorBounds (xLoc - 2, 0, getDesiredWidth(), 0);
@@ -279,13 +280,6 @@ void ChannelSelector::refreshButtonBoundaries()
                                          audioButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : audioButtonsManager.getY(),
                                          buttonsManagerWidth,
                                          getHeight() - audioButtonsManager.getY() - tabButtonHeight);
-
-    //juce::Rectangle<int> buttonManagerBounds (xLoc, parameterSlicerChannelSelector.getBottom(), getDesiredWidth() - 6, getHeight() - parameterSlicerChannelSelector.getBottom()- tabButtonHeight);
-    //parameterButtonsManager.setBounds (buttonManagerBounds);
-    //buttonManagerBounds.translate (- getDesiredWidth(), 0);
-    //recordButtonsManager.setBounds    (buttonManagerBounds);
-    //buttonManagerBounds.translate (- getDesiredWidth(), 0);
-    //audioButtonsManager.setBounds     (buttonManagerBounds);
     // ===================================================================================================
 
     /*
@@ -777,12 +771,9 @@ void ChannelSelector::channelSelectorCollapsedStateChanged (SlicerChannelSelecto
         yPos += SlicerChannelSelectorComponent::MAX_HEIGHT - 20;
 
     const int height = getHeight() - yPos - tabButtonHeight;
-    //buttonsManager->setBounds (buttonsManager->getX(),      yPos,
-    //                           buttonsManager->getWidth(),  height);
+    const juce::Rectangle<int> finalBounds (buttonsManager->getX(), yPos, buttonsManager->getWidth(), height);
 
     auto& componentAnimator = Desktop::getInstance().getAnimator();
-
-    juce::Rectangle<int> finalBounds (buttonsManager->getX(), yPos, buttonsManager->getWidth(), height);
     componentAnimator.animateComponent (buttonsManager, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, false, 1.0, 1.0);
 }
 
@@ -1060,32 +1051,42 @@ void ChannelSelectorButton::setActive(bool t)
 SlicerChannelSelectorComponent::SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
                                                                 const String& componentName)
     : m_channelsType                (channelsType)
+    , m_isCollapsed                 (true)
+    , m_dropdownArrowImage          (ImageCache::getFromMemory (BinaryData::dropdown_arrow_rotated_png,
+                                                                BinaryData::dropdown_arrow_rotated_pngSize))
+    , m_dropdownArrowImageCollapsed (ImageCache::getFromMemory (BinaryData::dropdown_arrow_png,
+                                                                BinaryData::dropdown_arrow_pngSize))
+
 {
     m_channelSelectorTextEditor = new TextEditor;
     m_channelSelectorTextEditor->setMultiLine (false, true);
     m_channelSelectorTextEditor->setReturnKeyStartsNewLine (false);
     m_channelSelectorTextEditor->setTabKeyUsedAsCharacter (false);
     m_channelSelectorTextEditor->setTooltip ("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
+    m_channelSelectorTextEditor->addKeyListener (this);
     addAndMakeVisible (m_channelSelectorTextEditor);
 
     m_selectChannelsButton = new EditorButton ("+", FONT_DEFAULT);
     m_selectChannelsButton->setComponentID ("Select channels button");
+    m_selectChannelsButton->setClickingTogglesState (false);
     m_selectChannelsButton->addListener (this);
     addAndMakeVisible (m_selectChannelsButton);
 
     m_deselectChannelsButton = new EditorButton ("-", FONT_DEFAULT);
     m_deselectChannelsButton->setComponentID ("Deselect channels button");
+    m_deselectChannelsButton->setClickingTogglesState (false);
     m_deselectChannelsButton->addListener (this);
     addAndMakeVisible (m_deselectChannelsButton);
 
     m_showComponentButton = new ImageButton;
     m_showComponentButton->setImages (false, true, true,
-        ImageCache::getFromMemory (BinaryData::dropdown_arrow_png, BinaryData::dropdown_arrow_pngSize), 1.f, Colour (0x0),
-        Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
-        Image::null, 1.f,   Colour (0x0));
-    m_showComponentButton->setClickingTogglesState (true);
+                                      m_dropdownArrowImageCollapsed, 1.f, Colours::white,
+                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image::null, 1.f, Colours::white);
     m_showComponentButton->addListener (this);
     addAndMakeVisible (m_showComponentButton);
+
+    addKeyListener (this);
 
     setSize (0, SIZE_DROPDOWN_ARROW);
 }
@@ -1097,13 +1098,11 @@ void SlicerChannelSelectorComponent::paint (Graphics& g)
     const int height = getHeight();
 
     // Draw horizontal line at the bottom of component at the center of arrow
-    g.setColour (Colours::black);
-    g.drawHorizontalLine (height - SIZE_DROPDOWN_ARROW / 2, 0, width);
-
-    // Draw bg for dropdown button
-    //g.setColour (COLOUR_DROPDOWN_BUTTON_BG);
-    //g.fillEllipse ( float(width - SIZE_DROPDOWN_ARROW) / 2, float (height - SIZE_DROPDOWN_ARROW),
-    //                float (SIZE_DROPDOWN_ARROW), float (SIZE_DROPDOWN_ARROW));
+    if (! m_isCollapsed)
+    {
+        g.setColour (Colours::black);
+        g.drawHorizontalLine (height - SIZE_DROPDOWN_ARROW + 1, 0, width);
+    }
 }
 
 
@@ -1112,17 +1111,17 @@ void SlicerChannelSelectorComponent::resized()
     const int width  = getWidth();
     const int height = getHeight();
     const int margin = 5;
-    const int textEditorHeight = 20;
+    const int textEditorHeight = 15;
 
     m_channelSelectorTextEditor->setBounds (margin, height - SIZE_DROPDOWN_ARROW - margin - textEditorHeight,
-                                            85, textEditorHeight);
+                                            95, textEditorHeight);
 
-    juce::Rectangle<int> selectionControlBounds (95, m_channelSelectorTextEditor->getY(), 20, 20);
+    juce::Rectangle<int> selectionControlBounds (110, m_channelSelectorTextEditor->getY(), 15, 15);
     m_selectChannelsButton->setBounds    (selectionControlBounds);
-    m_deselectChannelsButton->setBounds  (selectionControlBounds.translated (22, 0));
+    m_deselectChannelsButton->setBounds  (selectionControlBounds.translated (20, 0));
 
-    m_showComponentButton->setBounds ( (width - SIZE_DROPDOWN_ARROW) / 2, height - SIZE_DROPDOWN_ARROW,
-                                       SIZE_DROPDOWN_ARROW, SIZE_DROPDOWN_ARROW);
+    m_showComponentButton->setBounds ( (width - SIZE_DROPDOWN_ARROW) / 2 - 3, height - SIZE_DROPDOWN_ARROW,
+                                       25, SIZE_DROPDOWN_ARROW);
 }
 
 
@@ -1130,26 +1129,7 @@ void SlicerChannelSelectorComponent::buttonClicked (Button* buttonThatWasClicked
 {
     if (buttonThatWasClicked == m_showComponentButton)
     {
-        // Rotate arrow button by 180 degrees
-        //m_showComponentButton->setTransform (AffineTransform::rotation (float_Pi / 2));
-
-        auto& componentAnimator = Desktop::getInstance().getAnimator();
-
-        const bool shouldCollapseComponent = ! m_showComponentButton->getToggleState();
-        // Show full component
-        if (! shouldCollapseComponent)
-        {
-            juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), MAX_HEIGHT);
-            componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
-        }
-        // Collapse component
-        else
-        {
-            juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), SIZE_DROPDOWN_ARROW);
-            componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
-        }
-
-        m_controlsButtonListener->channelSelectorCollapsedStateChanged (this, shouldCollapseComponent);
+        setCollapsed (! m_isCollapsed);
     }
     else if (buttonThatWasClicked == m_selectChannelsButton)
     {
@@ -1159,6 +1139,51 @@ void SlicerChannelSelectorComponent::buttonClicked (Button* buttonThatWasClicked
     {
         m_controlsButtonListener->changeChannelsSelectionButtonClicked (this, buttonThatWasClicked, false);
     }
+}
+
+
+bool SlicerChannelSelectorComponent::keyPressed (const KeyPress& key, Component* originatingComponent)
+{
+    // Collapse component by clicking "ESC" key either on component or in the TextEditor
+    if ( (dynamic_cast<TextEditor*> (originatingComponent) != nullptr
+            || originatingComponent == this)
+        && key.isKeyCode (KeyPress::escapeKey))
+    {
+        setCollapsed (true);
+    }
+
+    return false;
+}
+
+
+void SlicerChannelSelectorComponent::setCollapsed (bool isCollapsed)
+{
+    m_isCollapsed = isCollapsed;
+
+    auto& componentAnimator = Desktop::getInstance().getAnimator();
+
+    // Show full component
+    if (! m_isCollapsed)
+    {
+        juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), MAX_HEIGHT);
+        componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
+    }
+    // Collapse component
+    else
+    {
+        juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), SIZE_DROPDOWN_ARROW);
+        componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
+    }
+
+    // Change buttons image (just a quick hack)
+    m_showComponentButton->setImages (false, true, true,
+                                      m_isCollapsed
+                                      ? m_dropdownArrowImageCollapsed
+                                      : m_dropdownArrowImage, 1.f, Colours::white,
+                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image::null, 1.f, Colours::white);
+
+    m_controlsButtonListener->channelSelectorCollapsedStateChanged (this, m_isCollapsed);
 }
 
 

@@ -54,6 +54,7 @@ enum ChannelsType
 */
 class SlicerChannelSelectorComponent    : public Component
                                         , public Button::Listener
+                                        , public KeyListener
 {
 public:
     SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
@@ -75,11 +76,16 @@ public:
 
     void buttonClicked (Button* buttonThatWasClicked) override;
 
+    bool keyPressed (const KeyPress& key, Component* originatingComponent) override;
+
     /** Returns the conetent of the channel selector text editor */
     String getText() const;
 
     /** Returns the type of the channels on which the component affects */
     Channels::ChannelsType getChannelsType() const;
+
+    /** Either collapse or show full component */
+    void setCollapsed (bool isCollapsed);
 
     /** Sets a listener who will handle clicks of control buttons,
         like "Select channels button", "Deselect channels button, etc. */
@@ -89,6 +95,11 @@ public:
 
 private:
     Channels::ChannelsType m_channelsType;
+
+    bool m_isCollapsed;
+
+    const Image m_dropdownArrowImage;
+    const Image m_dropdownArrowImageCollapsed;
 
     /** Stores a pointer to the button listner which will handle clicks
         of control buttons (e.g. "Select/Deselect" channels buttons) */

@@ -250,6 +250,8 @@
           <FILE id="hlohT6y" name="IntanIcon.png" compile="0" resource="1" file="Resources/Images/Icons/IntanIcon.png"/>
         </GROUP>
         <GROUP id="9berx08" name="Buttons">
+          <FILE id="jKZDwJ" name="dropdown_arrow_rotated.png" compile="0" resource="1"
+                file="Resources/Images/Buttons/dropdown_arrow_rotated.png"/>
           <FILE id="bqLa9W" name="dropdown_arrow.png" compile="0" resource="1"
                 file="Resources/Images/Buttons/dropdown_arrow.png"/>
           <FILE id="22YR8gp" name="muteoff.png" compile="0" resource="1" file="Resources/Images/Buttons/muteoff.png"/>
