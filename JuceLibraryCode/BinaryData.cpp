@@ -11564,8 +11564,431 @@ static const unsigned char temp_binary_data_54[] =
 
 const char* IntanIcon_png = (const char*) temp_binary_data_54;
 
-//================== muteoff.png ==================
+//================== dropdown_arrow_rotated.png ==================
 static const unsigned char temp_binary_data_55[] =
+"\x89PNG\r\n"
+"\x1a\n"
+"\0\0\0\rIHDR\0\0\0\x19\0\0\0\x13\x08\x06\0\0\0""er\xa6\x05\0\0\0\tpHYs\0\0\x0b\x13\0\0\x0b\x13\x01\0\x9a\x9c\x18\0\0""F\xf3iTXtXML:com.adobe.xmp\0\0\0\0\0<?xpacket begin=\"\xef\xbb\xbf\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n"
+"<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.5-c014 79.151481, 2013/03/13-12:09:15        \">\n"
+"   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+"      <rdf:Description rdf:about=\"\"\n"
+"            xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"\n"
+"            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"            xmlns:photoshop=\"http://ns.adobe.com/photoshop/1.0/\"\n"
+"            xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\"\n"
+"            xmlns:stEvt=\"http://ns.adobe.com/xap/1.0/sType/ResourceEvent#\"\n"
+"            xmlns:stRef=\"http://ns.adobe.com/xap/1.0/sType/ResourceRef#\"\n"
+"            xmlns:tiff=\"http://ns.adobe.com/tiff/1.0/\"\n"
+"            xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">\n"
+"         <xmp:CreatorTool>Adobe Photoshop CC (Windows)</xmp:CreatorTool>\n"
+"         <xmp:CreateDate>2016-05-04T01:30:22+04:00</xmp:CreateDate>\n"
+"         <xmp:ModifyDate>2016-05-03T22:54:19+04:00</xmp:ModifyDate>\n"
+"         <xmp:MetadataDate>2016-05-03T22:54:19+04:00</xmp:MetadataDate>\n"
+"         <dc:format>image/png</dc:format>\n"
+"         <photoshop:ColorMode>3</photoshop:ColorMode>\n"
+"         <photoshop:DocumentAncestors>\n"
+"            <rdf:Bag>\n"
+"               <rdf:li>xmp.did:e55801f1-78e0-674f-95fa-a084e68321c1</rdf:li>\n"
+"            </rdf:Bag>\n"
+"         </photoshop:DocumentAncestors>\n"
+"         <xmpMM:InstanceID>xmp.iid:57c7f820-67a6-8e41-a12f-5fbeb70d1d23</xmpMM:InstanceID>\n"
+"         <xmpMM:DocumentID>xmp.did:587cf0f8-7594-5d44-ab0e-5467b836bfdb</xmpMM:DocumentID>\n"
+"         <xmpMM:OriginalDocumentID>xmp.did:e55801f1-78e0-674f-95fa-a084e68321c1</xmpMM:OriginalDocumentID>\n"
+"         <xmpMM:History>\n"
+"            <rdf:Seq>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>created</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:e55801f1-78e0-674f-95fa-a084e68321c1</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-04T01:30:22+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:2bf836f0-6031-534c-840d-f04dac567380</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T21:43:10+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:19c139bf-8432-da48-bae3-aa6884501d04</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T22:54:04+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>converted</stEvt:action>\n"
+"                  <stEvt:parameters>from image/png to application/vnd.adobe.photoshop</stEvt:parameters>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>derived</stEvt:action>\n"
+"                  <stEvt:parameters>converted from image/png to application/vnd.adobe.photoshop</stEvt:parameters>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:587cf0f8-7594-5d44-ab0e-5467b836bfdb</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T22:54:04+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:14893ad7-d4be-6349-a4dc-a66328aab66b</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T22:54:19+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>converted</stEvt:action>\n"
+"                  <stEvt:parameters>from application/vnd.adobe.photoshop to image/png</stEvt:parameters>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>derived</stEvt:action>\n"
+"                  <stEvt:parameters>converted from application/vnd.adobe.photoshop to image/png</stEvt:parameters>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:57c7f820-67a6-8e41-a12f-5fbeb70d1d23</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T22:54:19+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"            </rdf:Seq>\n"
+"         </xmpMM:History>\n"
+"         <xmpMM:DerivedFrom rdf:parseType=\"Resource\">\n"
+"            <stRef:instanceID>xmp.iid:14893ad7-d4be-6349-a4dc-a66328aab66b</stRef:instanceID>\n"
+"            <stRef:documentID>xmp.did:587cf0f8-7594-5d44-ab0e-5467b836bfdb</stRef:documentID>\n"
+"            <stRef:originalDocumentID>xmp.did:e55801f1-78e0-674f-95fa-a084e68321c1</stRef:originalDocumentID>\n"
+"         </xmpMM:DerivedFrom>\n"
+"         <tiff:Orientation>1</tiff:Orientation>\n"
+"         <tiff:XResolution>720000/10000</tiff:XResolution>\n"
+"         <tiff:YResolution>720000/10000</tiff:YResolution>\n"
+"         <tiff:ResolutionUnit>2</tiff:ResolutionUnit>\n"
+"         <exif:ColorSpace>65535</exif:ColorSpace>\n"
+"         <exif:PixelXDimension>25</exif:PixelXDimension>\n"
+"         <exif:PixelYDimension>19</exif:PixelYDimension>\n"
+"      </rdf:Description>\n"
+"   </rdf:RDF>\n"
+"</x:xmpmeta>\n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                            \n"
+"<?xpacket end=\"w\"?>]\xb0\xf6\xf3\0\0\0 cHRM\0\0z%\0\0\x80\x83\0\0\xf9\xff\0\0\x80\xe9\0\0u0\0\0\xea`\0\0:\x98\0\0\x17o\x92_\xc5""F\0\0\x01~IDATx\xda\xc4\x95\xcf+DQ\x1c\xc5\xaf\x8d\x95""D\tQ\x16""6\xc8\xc2\xf8\xd1\xa8\xd9\x98\x85\x1f;\x19\x0b\x0b\xc9"
+"'\"56vSV\xf6\"MC\xb1\x99\xad\x92\r;\x91\x92\xfc\x0b\xcaV\t%\x0b+\xd1<\x9b\xf3\xea\xdbt\xdf\x9bY\x18\x16g\xf1\xbe\xe7|\xcf\xb9\xf7\xbe\xef}\xcf\x05""A\xe0j\r\xf7\xa7!@#P\x02\x82_@\t\xf0\x86\xb4\x1b\xc1\x1c\x90\x01""f\x80i`\n"
+"\x18\x07\xc6\x80\x14\x90\x04\x86\x81! \x01\x0c\n"
+"\t\xe0""C>\xdd\xbe\x90""E\x91\xe7\x80\x8b\xc0*\xf0&\xc3(\xcd\xbe|\xd6}!;\"7#\x9a\x97\xcb\x8e$\x15\xa1[\x12\x9f\xf7\x85\x14""Ef\xab\x08\x08\x91\xf4h3\xe2\x8a\xbe\x90=\x91\xb9\xb2\xa6\x05""cz\x01\x8c\x02\xaf\xa6""6R\xa6\x0f\x8f\xbd\xe0\x0bY\x11yb\x1a\xd6"
+"\x8c\xd9\xb5\xa9\xb7\x02\x8f\x86K\x1bnW\xb5\r_H\x97\xc8O\x89\xd3\xc6\xe4\xc6s,\xcd\xc0\xb3\xd1t\xa8\xfe\xa2\xe7>_\x88\x03.%\xd8\x02\x9a\xb4\xfa\x87\x98Ij\x03\x9e\x80<P\xaf\xe9\x0b\x80\xfb\xa8{\xe2\x80\x01\xb3\xb2\x9e\x08\xe3\x86\x88z\x0b\xf0\xad\xde\xc9"
+"\xb8\x10\xa7U\x05\xbaT\xfd""1\xbb\xb0\xe8""4\xef\xe8""4\xac\xc7\x85""8\xe0\xcc\xec(\x07\xd4\xc5\x04""d\x81/io-W)\xc4\x01\x07&\xe8\x1d""8\x92\xe1\xbc\xa6\xae\xa0\xf7\x11j\x8e\xcb=\xaa\tq\xc0\x04pU\xe1""cx\x07\xcc\xfa\xfa\xab\r\t\xd1\xab\xc9\xd9\x06\x0e"
+"u\x17\xb2\x1a\x94\xc8\xbe\xff\xf9\x9f\xd4\x12?\x03\0]\xd5\xba\xd3\xeb\x10q\xb8\0\0\0\0IEND\xae""B`\x82";
+
+const char* dropdown_arrow_rotated_png = (const char*) temp_binary_data_55;
+
+//================== dropdown_arrow.png ==================
+static const unsigned char temp_binary_data_56[] =
+"\x89PNG\r\n"
+"\x1a\n"
+"\0\0\0\rIHDR\0\0\0\x19\0\0\0\x13\x08\x06\0\0\0""er\xa6\x05\0\0\0\tpHYs\0\0\x0b\x13\0\0\x0b\x13\x01\0\x9a\x9c\x18\0\0;\x84iTXtXML:com.adobe.xmp\0\0\0\0\0<?xpacket begin=\"\xef\xbb\xbf\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n"
+"<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.5-c014 79.151481, 2013/03/13-12:09:15        \">\n"
+"   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+"      <rdf:Description rdf:about=\"\"\n"
+"            xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"\n"
+"            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"            xmlns:photoshop=\"http://ns.adobe.com/photoshop/1.0/\"\n"
+"            xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\"\n"
+"            xmlns:stEvt=\"http://ns.adobe.com/xap/1.0/sType/ResourceEvent#\"\n"
+"            xmlns:tiff=\"http://ns.adobe.com/tiff/1.0/\"\n"
+"            xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">\n"
+"         <xmp:CreatorTool>Adobe Photoshop CC (Windows)</xmp:CreatorTool>\n"
+"         <xmp:CreateDate>2016-05-04T01:30:22+04:00</xmp:CreateDate>\n"
+"         <xmp:ModifyDate>2016-05-03T21:43:10+04:00</xmp:ModifyDate>\n"
+"         <xmp:MetadataDate>2016-05-03T21:43:10+04:00</xmp:MetadataDate>\n"
+"         <dc:format>image/png</dc:format>\n"
+"         <photoshop:ColorMode>3</photoshop:ColorMode>\n"
+"         <xmpMM:InstanceID>xmp.iid:4a9f3273-e9d1-3d45-9aff-d62e71069b8f</xmpMM:InstanceID>\n"
+"         <xmpMM:DocumentID>xmp.did:e55801f1-78e0-674f-95fa-a084e68321c1</xmpMM:DocumentID>\n"
+"         <xmpMM:OriginalDocumentID>xmp.did:e55801f1-78e0-674f-95fa-a084e68321c1</xmpMM:OriginalDocumentID>\n"
+"         <xmpMM:History>\n"
+"            <rdf:Seq>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>created</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:e55801f1-78e0-674f-95fa-a084e68321c1</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-04T01:30:22+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:2bf836f0-6031-534c-840d-f04dac567380</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T21:43:10+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"               <rdf:li rdf:parseType=\"Resource\">\n"
+"                  <stEvt:action>saved</stEvt:action>\n"
+"                  <stEvt:instanceID>xmp.iid:4a9f3273-e9d1-3d45-9aff-d62e71069b8f</stEvt:instanceID>\n"
+"                  <stEvt:when>2016-05-03T21:43:10+04:00</stEvt:when>\n"
+"                  <stEvt:softwareAgent>Adobe Photoshop CC (Windows)</stEvt:softwareAgent>\n"
+"                  <stEvt:changed>/</stEvt:changed>\n"
+"               </rdf:li>\n"
+"            </rdf:Seq>\n"
+"         </xmpMM:History>\n"
+"         <tiff:Orientation>1</tiff:Orientation>\n"
+"         <tiff:XResolution>720000/10000</tiff:XResolution>\n"
+"         <tiff:YResolution>720000/10000</tiff:YResolution>\n"
+"         <tiff:ResolutionUnit>2</tiff:ResolutionUnit>\n"
+"         <exif:ColorSpace>65535</exif:ColorSpace>\n"
+"         <exif:PixelXDimension>25</exif:PixelXDimension>\n"
+"         <exif:PixelYDimension>19</exif:PixelYDimension>\n"
+"      </rdf:Description>\n"
+"   </rdf:RDF>\n"
+"</x:xmpmeta>\n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                                                                                                    \n"
+"                            \n"
+"<?xpacket end=\"w\"?>G\xdfs\xf0\0\0\0 cHRM\0\0z%\0\0\x80\x83\0\0\xf9\xff\0\0\x80\xe9\0\0u0\0\0\xea`\0\0:\x98\0\0\x17o\x92_\xc5""F\0\0\x01\x86IDATx\xda\xc4\xd5\xb1K\x95Q\x18\xc7\xf1\xe3\xd2\x14R \x15\t\r-%\rj\x89\x82K\x0e\xa9[\xa4\x83""CH\x1f\x12""E\xb8"
+"-nBS{\x14!\x16\xe4\xe2*H\x8bnb\x08\x12\xfd\x0b\x82k\x10\x1a""DCS\x14\xbe.\xcf\x85\xc3\xe5\xbc\xd7;d\r\xcfp\x9e\xdfs~\xdfs\xce{\x9e\xf3\xa6\xaa\xaa\xd2yG\xfa\xa7\x10t\xe3\x04\xd5_\x88\x13\x14!\xd7\xb2\x82\x19L\xe1\x11\x1e""b\x12\x0fp\x1f\xa3\x18\xc6=\xdc"
+"\xc5\0\x06#\x06\xf0""3|n\x96 OB\xdc""F\xc2\x05\xac\xe0+\xae""F\xae\x14\x87\xd8\xc3\xa5\x18\xbf\r\x9fg%\xc8\xab\x10\x9fG\xf1\xf5l\xfbG\xb8\\\0\xecg5c\x91{\x1a\xe3\x95\x12""d=\xc4""Ff2\x96\x99|\xc1\x95L\xdb\xcb\xb4\xc5,?\x15\xb9\xf5\x12\xe4M\x88\xcb-\xab"
+"\x1d\xca\xcc\xbe""a\x04;Yn\xb6\xa5\xbey\xec\xab%\xc8|\x88\x9b\x85""c\x19\xae\xb9""Es\x85\xda\xd7\xa1-\x95 7B\xfcU\xf3\x81G;\0$\x1c\x87\xdeW\x82$\xec""F\xc1\x8b\x1a\x83""A|\xc7""B\x8d\xbe\x10\xf3\x0f\xea\xfa$\xa1?[\xe9\xad\x1a\xa3\x8b""5\xf9\x1e\xfc\x89"
+"\xb9\x13\xed )z\xa3\x8a\xa6\xba\xd3\xa6?\xf2\xe8\x8d\xdbW\xe1""C3\xdf\x0e\x92\xb0\x95\xedh\x19]m\0\r\xfc\x8e\xdaO\xb9v\x16$\xe1]\x06\xfa\x81\xb5""0|\x1c}\xb1\x1a\xaf""A\xb3""f\xa3\xd5\xa3\x13H\xc2""8>\x9e\xf1\x18~\xc6ti~\xa7\x90""f\xdc\x8e\x9b\xf3\x12"
+"\xef\xa3\x17\x1aqQj\xe7\xfd\x9f\xff\xc9y\xc6\xe9\0\xe3\x7f\xba\xd3\x98\x12\xde\xcc\0\0\0\0IEND\xae""B`\x82";
+
+const char* dropdown_arrow_png = (const char*) temp_binary_data_56;
+
+//================== muteoff.png ==================
+static const unsigned char temp_binary_data_57[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,36,0,0,0,36,8,6,0,0,0,225,0,152,152,0,0,0,6,98,75,71,68,0,0,0,0,0,0,249,67,187,127,0,0,0,9,112,72,89,115,0,0,0,72,0,0,0,72,0,70,201,107,62,0,0,0,9,118,112,65,103,0,0,0,36,0,0,0,36,0,120,7,27,143,0,0,
 1,159,73,68,65,84,88,195,237,151,191,43,70,81,24,199,191,143,228,205,46,165,68,249,49,25,12,36,155,178,40,131,50,51,26,109,12,54,202,36,254,16,98,80,76,98,80,72,202,106,144,196,138,209,207,197,199,224,190,117,122,58,247,250,121,239,85,222,239,116,190,
 223,158,115,206,231,158,247,237,222,231,72,53,213,244,7,5,52,150,205,224,129,30,128,13,96,180,44,128,121,231,67,29,2,253,133,194,0,184,236,213,65,61,3,211,133,193,68,128,58,129,37,224,209,129,45,22,2,227,129,130,154,54,224,192,65,205,228,14,147,6,148,
@@ -11575,10 +11998,10 @@ static const unsigned char temp_binary_data_55[] =
 22,84,70,109,5,88,203,173,253,72,131,74,169,233,2,142,28,251,239,55,104,49,40,151,119,3,43,20,217,194,122,40,151,149,211,228,135,80,206,135,42,246,26,148,2,88,238,69,49,2,244,183,174,210,53,253,43,189,1,81,184,172,245,143,151,83,182,0,0,0,0,73,69,78,
 68,174,66,96,130,0,0 };
 
-const char* muteoff_png = (const char*) temp_binary_data_55;
+const char* muteoff_png = (const char*) temp_binary_data_57;
 
 //================== muteon.png ==================
-static const unsigned char temp_binary_data_56[] =
+static const unsigned char temp_binary_data_58[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,36,0,0,0,36,8,6,0,0,0,225,0,152,152,0,0,0,6,98,75,71,68,0,0,0,0,0,0,249,67,187,127,0,0,0,9,112,72,89,115,0,0,0,72,0,0,0,72,0,70,201,107,62,0,0,0,9,118,112,65,103,0,0,0,36,0,0,0,36,0,120,7,27,143,0,0,
 2,8,73,68,65,84,88,195,237,214,177,107,20,65,20,199,241,223,211,144,144,216,218,40,162,16,17,68,11,49,136,216,152,84,18,180,16,173,44,252,7,98,146,78,11,187,8,86,65,16,4,241,252,11,196,194,74,173,34,22,66,68,17,236,44,44,3,118,10,86,230,162,22,249,90,
 100,23,30,207,185,157,59,111,39,141,247,170,217,183,111,118,62,59,187,179,179,210,40,70,81,32,0,3,230,134,232,63,217,54,166,3,108,3,11,255,120,141,77,224,25,112,169,13,208,108,133,161,95,20,176,18,142,125,188,5,206,12,139,90,232,23,5,172,0,132,220,118,
@@ -11589,10 +12012,10 @@ static const unsigned char temp_binary_data_56[] =
 107,66,77,50,236,230,154,67,245,168,91,102,192,223,225,214,80,61,106,78,2,95,154,182,153,98,168,144,63,14,60,96,231,103,44,187,247,21,65,133,92,252,201,255,13,60,217,213,199,23,142,125,188,3,102,170,252,98,64,205,22,67,5,208,22,240,28,184,24,87,147,67,
 117,104,115,165,101,64,83,153,243,115,187,134,25,197,127,23,127,0,12,214,29,49,254,250,119,179,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* muteon_png = (const char*) temp_binary_data_56;
+const char* muteon_png = (const char*) temp_binary_data_58;
 
 //================== MergerA-01.png ==================
-static const unsigned char temp_binary_data_57[] =
+static const unsigned char temp_binary_data_59[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,69,0,0,1,169,8,6,0,0,0,131,16,66,165,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,
 100,121,113,201,101,60,0,0,21,118,73,68,65,84,120,218,236,221,189,111,93,71,122,7,224,33,205,133,100,55,75,195,69,108,96,131,28,117,74,82,136,238,210,36,190,238,220,45,221,109,170,92,117,73,181,218,46,157,168,191,64,18,130,0,219,241,170,76,37,186,220,
 138,87,221,22,73,72,45,16,239,166,226,81,103,87,146,58,17,145,172,204,240,156,107,82,50,181,226,199,189,119,230,156,243,60,192,64,194,98,23,246,190,188,31,63,190,243,158,153,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -11670,10 +12093,10 @@ static const unsigned char temp_binary_data_57[] =
 248,195,31,30,43,12,66,17,148,105,26,154,109,180,127,89,116,32,18,138,24,98,32,26,159,252,207,126,241,139,191,60,90,127,252,246,219,240,242,229,255,41,18,66,17,148,97,18,215,111,98,24,186,179,204,71,246,189,163,25,108,32,154,249,139,79,63,13,127,253,
 55,127,27,254,251,191,254,83,48,66,40,130,124,82,39,232,183,113,253,99,12,67,15,114,28,238,248,255,2,12,0,160,41,104,168,212,59,220,159,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* MergerA01_png = (const char*) temp_binary_data_57;
+const char* MergerA01_png = (const char*) temp_binary_data_59;
 
 //================== MergerA-02.png ==================
-static const unsigned char temp_binary_data_58[] =
+static const unsigned char temp_binary_data_60[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,69,0,0,1,169,8,6,0,0,0,131,16,66,165,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,
 100,121,113,201,101,60,0,0,21,221,73,68,65,84,120,218,236,221,207,143,220,229,125,192,241,199,6,20,145,3,24,113,104,14,84,76,14,68,42,145,98,71,109,165,68,106,203,112,171,0,41,246,49,39,236,219,70,171,85,234,191,0,175,170,168,205,41,187,26,141,58,55,
 102,149,246,18,21,177,72,148,156,130,191,62,1,39,198,28,210,10,34,49,78,140,212,139,221,129,74,56,17,152,246,251,236,124,7,111,28,227,95,187,51,207,243,253,62,175,151,52,26,43,34,96,127,118,215,251,222,231,121,190,223,239,145,0,29,55,24,142,94,174,223,
@@ -11753,10 +12176,10 @@ static const unsigned char temp_binary_data_58[] =
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,7,243,255,2,12,0,244,180,87,201,128,90,137,162,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* MergerA02_png = (const char*) temp_binary_data_58;
+const char* MergerA02_png = (const char*) temp_binary_data_60;
 
 //================== MergerB-01.png ==================
-static const unsigned char temp_binary_data_59[] =
+static const unsigned char temp_binary_data_61[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,69,0,0,1,169,8,6,0,0,0,131,16,66,165,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,
 100,121,113,201,101,60,0,0,22,71,73,68,65,84,120,218,236,221,193,110,92,215,125,192,225,35,195,64,150,97,158,160,147,39,16,253,4,30,111,219,2,161,159,32,163,29,1,130,144,252,4,146,94,160,148,58,24,100,18,47,56,68,187,106,211,74,6,28,103,149,112,180,106,
 187,210,72,221,217,5,60,130,232,165,108,102,99,67,128,1,245,156,185,119,68,202,162,109,82,26,206,57,247,222,239,67,47,168,4,110,98,255,69,101,126,60,231,220,123,67,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -11837,10 +12260,10 @@ static const unsigned char temp_binary_data_59[] =
 90,156,33,18,68,136,34,40,194,36,100,60,119,36,138,232,108,24,185,195,12,81,4,197,154,214,113,52,21,69,112,201,254,254,31,254,241,240,179,63,125,218,55,9,68,17,20,109,30,214,248,42,17,81,68,23,221,138,215,77,99,64,20,65,99,164,67,217,31,94,246,182,218,
 187,230,76,199,92,248,185,69,0,100,51,13,107,124,50,182,40,66,16,1,80,154,73,200,240,14,53,81,132,32,2,160,4,199,117,12,221,205,117,247,217,255,11,48,0,4,145,141,135,126,85,212,174,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* MergerB01_png = (const char*) temp_binary_data_59;
+const char* MergerB01_png = (const char*) temp_binary_data_61;
 
 //================== MergerB-02.png ==================
-static const unsigned char temp_binary_data_60[] =
+static const unsigned char temp_binary_data_62[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,69,0,0,1,169,8,6,0,0,0,131,16,66,165,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,
 100,121,113,201,101,60,0,0,18,109,73,68,65,84,120,218,236,221,253,109,28,199,25,192,225,161,97,88,127,90,174,192,231,10,76,87,224,77,5,145,42,48,85,129,237,10,44,86,16,177,2,31,43,200,165,2,175,42,200,169,2,173,42,200,249,207,0,1,156,27,237,94,72,43,
 148,248,117,119,243,238,204,243,0,7,25,65,128,216,175,201,240,199,249,216,253,60,65,253,126,221,126,206,140,129,154,125,254,228,137,33,48,87,203,237,231,242,63,255,254,119,95,252,251,200,191,11,4,17,0,71,182,153,98,232,98,27,67,67,152,95,46,252,123,65,
@@ -11907,10 +12330,10 @@ static const unsigned char temp_binary_data_60[] =
 0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,
 16,69,0,0,162,8,0,64,20,1,0,136,34,0,0,81,4,0,32,138,0,0,68,17,0,128,40,2,0,16,69,0,0,181,248,175,0,3,0,94,88,236,111,126,120,246,51,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* MergerB02_png = (const char*) temp_binary_data_60;
+const char* MergerB02_png = (const char*) temp_binary_data_62;
 
 //================== PipelineA-01.png ==================
-static const unsigned char temp_binary_data_61[] =
+static const unsigned char temp_binary_data_63[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,49,0,0,1,169,8,6,0,0,0,124,178,103,71,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,
 97,100,121,113,201,101,60,0,0,20,161,73,68,65,84,120,218,236,221,77,118,220,198,213,6,224,82,236,121,232,89,102,129,87,96,122,5,106,175,192,202,10,212,90,129,153,21,136,90,1,165,21,176,51,250,134,162,71,223,80,240,10,68,205,50,19,178,2,209,179,204,148,
 174,3,180,217,110,145,84,55,8,116,85,1,207,115,78,29,57,63,199,150,47,33,246,203,91,183,80,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,22,190,81,2,128,193,124,92,175,39,235,245,239,245,250,175,114,0,0,165,248,220,173,79,235,
@@ -11985,10 +12408,10 @@ static const unsigned char temp_binary_data_61[] =
 0,132,24,40,73,28,224,125,17,12,242,2,8,49,80,88,128,137,91,72,6,121,1,132,24,40,138,147,72,0,66,12,20,25,96,174,148,1,64,136,129,210,2,204,74,25,0,132,24,40,201,107,1,6,96,222,188,39,134,18,197,240,242,66,25,0,230,77,39,6,1,6,0,33,6,4,24,0,132,24,16,
 96,0,16,98,16,96,0,152,154,111,149,128,204,57,70,13,192,157,116,98,16,96,0,40,210,255,4,24,0,27,12,93,110,21,245,184,159,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* PipelineA01_png = (const char*) temp_binary_data_61;
+const char* PipelineA01_png = (const char*) temp_binary_data_63;
 
 //================== PipelineA-02.png ==================
-static const unsigned char temp_binary_data_62[] =
+static const unsigned char temp_binary_data_64[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,49,0,0,1,169,8,6,0,0,0,124,178,103,71,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,
 97,100,121,113,201,101,60,0,0,25,18,73,68,65,84,120,218,236,221,191,114,28,199,157,192,241,214,149,67,178,12,101,167,75,52,10,200,84,36,93,133,2,18,97,121,14,233,42,83,145,228,72,96,157,157,185,78,160,99,203,36,66,251,2,146,137,47,228,224,94,64,240,19,
 104,20,1,133,132,208,19,104,239,9,4,63,1,111,154,59,123,128,36,252,217,157,253,51,221,51,159,79,213,214,74,182,69,139,63,146,139,47,122,122,166,67,8,225,173,151,87,74,175,91,183,111,191,125,93,254,207,15,71,199,39,247,2,0,92,225,189,230,11,7,36,225,206,
@@ -12080,10 +12503,10 @@ static const unsigned char temp_binary_data_62[] =
 25,5,136,24,128,212,157,133,243,243,140,198,198,1,34,6,32,117,49,88,28,9,0,34,6,32,27,85,152,172,186,28,26,5,136,24,128,28,148,77,188,156,26,5,136,24,128,212,77,143,4,40,237,119,1,17,3,144,131,24,44,251,110,145,6,17,3,144,139,170,137,151,202,40,64,196,
 0,228,160,12,142,4,0,17,3,144,137,24,44,142,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,210,240,127,2,12,0,195,72,32,13,219,83,201,41,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* PipelineA02_png = (const char*) temp_binary_data_62;
+const char* PipelineA02_png = (const char*) temp_binary_data_64;
 
 //================== PipelineB-01.png ==================
-static const unsigned char temp_binary_data_63[] =
+static const unsigned char temp_binary_data_65[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,49,0,0,1,169,8,6,0,0,0,124,178,103,71,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,
 97,100,121,113,201,101,60,0,0,23,202,73,68,65,84,120,218,236,221,191,111,164,199,125,192,225,177,99,56,141,4,159,75,167,241,186,184,107,69,157,1,130,108,196,85,107,5,208,165,58,5,72,34,30,98,215,186,75,109,231,142,165,227,66,199,198,46,245,242,47,16,
 13,196,85,18,248,149,155,93,108,99,10,112,106,189,174,148,146,130,221,43,239,104,223,21,87,247,131,183,187,220,221,153,217,247,121,128,5,37,69,145,229,239,209,224,231,102,230,125,39,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,
@@ -12170,10 +12593,10 @@ static const unsigned char temp_binary_data_63[] =
 175,127,249,203,162,231,100,4,12,0,223,240,55,237,231,137,49,144,218,31,254,240,73,248,235,95,255,18,14,14,14,5,12,0,34,134,178,252,239,159,254,20,254,239,243,207,195,221,31,223,13,223,253,238,223,206,254,114,124,140,250,196,116,0,120,145,47,125,124,
 114,250,220,190,115,231,203,255,250,239,255,249,114,52,158,28,251,159,39,0,47,243,255,2,12,0,38,140,193,224,172,166,247,238,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* PipelineB01_png = (const char*) temp_binary_data_63;
+const char* PipelineB01_png = (const char*) temp_binary_data_65;
 
 //================== PipelineB-02.png ==================
-static const unsigned char temp_binary_data_64[] =
+static const unsigned char temp_binary_data_66[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,49,0,0,1,169,8,6,0,0,0,124,178,103,71,0,0,0,9,112,72,89,115,0,0,46,35,0,0,46,35,1,120,165,63,118,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,
 97,100,121,113,201,101,60,0,0,20,155,73,68,65,84,120,218,236,221,189,122,28,71,118,6,224,162,54,217,141,4,101,155,169,121,5,132,50,103,28,101,206,22,190,130,29,101,206,12,103,206,22,186,2,72,87,192,209,21,16,190,2,54,51,103,4,51,109,132,118,182,142,72,
 101,206,184,93,238,30,99,22,4,64,204,95,119,157,238,247,125,158,122,160,213,15,151,60,232,25,124,83,117,170,234,89,74,233,83,130,242,124,108,199,247,237,184,86,10,0,238,243,76,136,161,240,32,243,67,59,174,148,2,0,33,134,136,114,144,89,41,3,0,66,12,130,
@@ -12248,7 +12671,7 @@ static const unsigned char temp_binary_data_64[] =
 228,45,210,23,73,191,11,0,16,36,196,184,18,0,0,8,21,98,242,146,209,66,105,1,128,8,33,38,247,187,92,38,253,46,0,64,144,16,227,74,0,0,32,84,136,201,253,46,103,202,7,0,68,9,49,185,223,229,84,217,0,128,8,33,102,125,37,64,165,92,0,64,132,16,179,238,119,1,
 0,8,17,98,114,191,203,66,105,0,128,40,33,198,149,0,0,64,24,174,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,202,241,119,1,6,0,159,157,76,71,98,187,78,10,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* PipelineB02_png = (const char*) temp_binary_data_64;
+const char* PipelineB02_png = (const char*) temp_binary_data_66;
 
 
 const char* getNamedResource (const char*, int&) throw();
@@ -12316,6 +12739,8 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x6189efd0:  numBytes = 14143; return DefaultDataSource_png;
         case 0x3862b802:  numBytes = 3650; return FileReaderIcon_png;
         case 0xe67215bf:  numBytes = 16352; return IntanIcon_png;
+        case 0x704e0b6f:  numBytes = 18679; return dropdown_arrow_rotated_png;
+        case 0x70494645:  numBytes = 15760; return dropdown_arrow_png;
         case 0xd9760f20:  numBytes = 532; return muteoff_png;
         case 0x7b0e8322:  numBytes = 637; return muteon_png;
         case 0xe26621d2:  numBytes = 5609; return MergerA01_png;
@@ -12390,6 +12815,8 @@ const char* namedResourceList[] =
     "DefaultDataSource_png",
     "FileReaderIcon_png",
     "IntanIcon_png",
+    "dropdown_arrow_rotated_png",
+    "dropdown_arrow_png",
     "muteoff_png",
     "muteon_png",
     "MergerA01_png",
