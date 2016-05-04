@@ -211,6 +211,8 @@ namespace PCIeRhythm {
 
 		void checkThreshold(float s);
 
+		int auxSamp;
+
 		// Sync ouput divide factor
 		uint16 clockDivideFactor;
 

@@ -1307,6 +1307,7 @@ bool RHD2000Thread::startAcquisition()
 
     std::cout << "Expecting " << getNumChannels() << " channels." << std::endl;
 	lastThreshold = false;
+	auxSamp = 0;
     //memset(filter_states,0,256*sizeof(double));
 
     /*int ledArray[8] = {1, 1, 0, 0, 0, 0, 0, 0};
@@ -1465,7 +1466,8 @@ bool RHD2000Thread::updateBuffer()
 			{
 				if (chipId[dataStream] != CHIP_ID_RHD2164_B)
 				{
-					int auxNum = (samp+3) % 4;
+					int auxNum = (auxSamp+3) % 4;
+					auxSamp = (++auxSamp) % 4;
 					if (auxNum < 3)
 					{
 						auxSamples[dataStream][auxNum] = float(*(uint16*)(bufferPtr + auxIndex) - 32768)*0.0000374;
