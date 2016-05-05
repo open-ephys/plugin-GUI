@@ -248,7 +248,7 @@ Array<int> RHD2000Thread::getDACchannels()
 }
 bool RHD2000Thread::openBoard()
 {
-    if (evalBoard->open())
+    if (evalBoard->openBoard())
     {
         deviceFound = true;
     }

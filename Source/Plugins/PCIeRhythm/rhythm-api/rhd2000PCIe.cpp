@@ -4,22 +4,43 @@
 #include <fstream>
 #include <queue>
 #include <cmath>
-#include <io.h>
-#include <fcntl.h>
 
 #ifdef _WIN32
+#include <io.h>
 #define Open _open
 #define Seek _lseek
 #define Read _read
 #define Write _write
 #define Close _close
+#define CONTROL_FILE "\\\\.\\xillybus_control_regs_16"
+#define STATUS_FILE "\\\\.\\xillybus_status_regs_16"
+#define FIFO_FILE "\\\\.\\xillybus_neural_data_32"
+#define AUXCMD1_FILE "\\\\.\\xillybus_auxcmd1_membank_16"
+#define AUXCMD2_FILE "\\\\.\\xillybus_auxcmd2_membank_16"
+#define AUXCMD3_FILE "\\\\.\\xillybus_auxcmd3_membank_16"
 #else
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #define Open open
 #define Seek lseek
 #define Read read
 #define Write write
 #define Close close
+#define CONTROL_FILE "/dev/xillybus_control_regs_16"
+#define STATUS_FILE "/dev/xillybus_status_regs_16"
+#define FIFO_FILE "/dev/xillybus_neural_data_32"
+#define AUXCMD1_FILE "/dev/xillybus_auxcmd1_membank_16"
+#define AUXCMD2_FILE "/dev/xillybus_auxcmd2_membank_16"
+#define AUXCMD3_FILE "/dev/xillybus_auxcmd3_membank_16"
+#ifndef O_BINARY
+#define O_BINARY 0
 #endif
+#endif
+#include <fcntl.h>
 
 #include "rhd2000datablock.h"
 using namespace PCIeRhythm;
@@ -51,21 +72,21 @@ rhd2000PCIe::~rhd2000PCIe()
 		Close(fidFIFO);
 }
 
-void rhd2000PCIe::writeRegister(controlAddr reg, int16_t value, int16_t mask)
+void rhd2000PCIe::writeRegister(controlAddr reg, uint16_t value, uint16_t mask)
 {
 	int regAddr = static_cast<int>(reg);
 
-	
 	if (Seek(fidControl, regAddr, SEEK_SET) < 0)
 	{
 		std::cerr << "Error seeking control to addr " << regAddr << std::endl;
 		return;
 	}
 
-	int16_t writeVal;
-	if (mask != 0xFFFF)
+	uint16_t writeVal;
+	uint16_t curVal = 0x1010; //an easily recognizable value, to distinguish it from an actual read value of zero
+	if ((mask & 0xFFFF) != 0xFFFF)
 	{
-		int16_t curVal;
+
 		int rd = Read(fidControl, &curVal, 2);
 		if (rd < 2)
 		{
@@ -88,9 +109,11 @@ void rhd2000PCIe::writeRegister(controlAddr reg, int16_t value, int16_t mask)
 		std::cerr << "Unsuccesful write to control addr " << regAddr << " code: " << wd << std::endl;
 		return;
 	}
+	printf("Written registry %X val: %X mask: %X\n original: %X written: %X\n", reg, value,
+		mask, curVal, writeVal);
 }
 
-int16_t rhd2000PCIe::readRegister(statusAddr reg) const
+uint16_t rhd2000PCIe::readRegister(statusAddr reg) const
 {
 	int16_t value = -1;
 	int regAddr = static_cast<int>(reg);
@@ -108,16 +131,16 @@ int16_t rhd2000PCIe::readRegister(statusAddr reg) const
 	return value;
 }
 
-bool rhd2000PCIe::open()
+bool rhd2000PCIe::openBoard()
 {
-	fidControl = Open("\\\\.\\xillybus_control_regs_16", O_RDWR | O_BINARY);
+	fidControl = Open(CONTROL_FILE, O_RDWR | O_BINARY);
 	if (fidControl < 0)
 	{
-		std::cerr << "Error opening control file" << std::endl;
+		std::cerr << "Error opening control file " << std::endl;
 		return false;
 	}
 
-	fidStatus = Open("\\\\.\\xillybus_status_regs_16", O_RDONLY | O_BINARY);
+	fidStatus = Open(STATUS_FILE, O_RDONLY | O_BINARY);
 	if (fidStatus < 0)
 	{
 		std::cerr << "Error opening status file" << std::endl;
@@ -132,10 +155,10 @@ bool rhd2000PCIe::open()
 
 bool rhd2000PCIe::openPipe()
 {
-	fidFIFO = Open("\\\\.\\xillybus_neural_data_32", O_RDONLY | O_BINARY);
+	fidFIFO = Open(FIFO_FILE, O_RDONLY | O_BINARY);
 	if (fidFIFO < 0)
 	{
-		std:cerr << "Error opening data FIFO" << std::endl;
+	std:cerr << "Error opening data FIFO" << std::endl;
 		return false;
 	}
 	std::cout << "Pipe opened" << std::endl;
@@ -206,7 +229,7 @@ void rhd2000PCIe::initialize()
 	enableDataStream(0, true);        // start with only one data stream enabled
 	for (i = 1; i < MAX_NUM_DATA_STREAMS; i++) {
 		enableDataStream(i, false);
-	}	
+	}
 }
 
 void rhd2000PCIe::resetBoard()
@@ -354,7 +377,7 @@ bool rhd2000PCIe::setSampleRate(AmplifierSampleRate newSampleRate)
 	while (isDcmProgDone() == false) {}
 
 	// Reprogram clock synthesizer
-	writeRegister(DataFreqPll, D+ ((M<<8)&0x7F00) + (O&0x00FF));
+	writeRegister(DataFreqPll, D + ((M << 8) & 0x7F00) + (O & 0x00FF));
 
 	// Wait for DataClkLocked = 1 before allowing data acquisition to continue
 	while (isDataClockLocked() == false) {}
@@ -447,13 +470,13 @@ void rhd2000PCIe::uploadCommandList(const vector<int> &commandList, AuxCmdSlot a
 	switch (auxCommandSlot)
 	{
 	case AuxCmd1:
-		devFile = "\\\\.\\xillybus_auxcmd1_membank_16";
+		devFile = AUXCMD1_FILE;
 		break;
 	case AuxCmd2:
-		devFile = "\\\\.\\xillybus_auxcmd2_membank_16";
+		devFile = AUXCMD2_FILE;
 		break;
 	case AuxCmd3:
-		devFile = "\\\\.\\xillybus_auxcmd3_membank_16";
+		devFile = AUXCMD3_FILE;
 		break;
 	default:
 		devFile = "";
@@ -467,7 +490,7 @@ void rhd2000PCIe::uploadCommandList(const vector<int> &commandList, AuxCmdSlot a
 	}
 	if (Seek(fidMem, bankPos, SEEK_SET) < 0)
 	{
-		std::cerr << "Error seeking auxcmd " << auxCommandSlot <<" to addr " << bankPos << std::endl;
+		std::cerr << "Error seeking auxcmd " << auxCommandSlot << " to addr " << bankPos << std::endl;
 		Close(fidMem);
 		return;
 	}
@@ -895,7 +918,8 @@ bool rhd2000PCIe::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
 	}
 
 	do {
-		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+		int nr = Read(fidFIFO, dataBuffer + numread, numBytesToRead - numread);
+
 
 		if (nr == 0)
 		{
@@ -916,12 +940,12 @@ bool rhd2000PCIe::readRawDataBlock(unsigned char** bufferPtr, int nSamples)
 /*
 void rhd2000PCIe::flush()
 {
-	int nr = 0;
-	do
-	{
-		nr = Read(fidFIFO, &dataBuffer, DATA_BUFFER_SIZE);
+int nr = 0;
+do
+{
+nr = Read(fidFIFO, &dataBuffer, DATA_BUFFER_SIZE);
 
-	} while (nr > 0);
+} while (nr > 0);
 
 }*/
 
@@ -934,6 +958,7 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	unsigned int numread = 0;
 
 	numBytesToRead = 2 * dataBlock->calculateDataBlockSizeInWords(numDataStreams, nSamples);
+	std::cout << "To read: " << numBytesToRead << std::endl;
 
 	if (numBytesToRead > DATA_BUFFER_SIZE) {
 		cerr << "Error in rhd2000PCIe::readDataBlock: Data buffer size exceeded.  " <<
@@ -942,7 +967,7 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	}
 
 	do {
-		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+		int nr = Read(fidFIFO, dataBuffer + numread, numBytesToRead - numread);
 
 		if (nr == 0)
 		{
@@ -955,8 +980,9 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 			return false;
 		}
 		numread += nr;
+		std::cout << "Read: " << nr << " total: " << numread << " left: " << numBytesToRead - numread << std::endl;
 	} while (numread < numBytesToRead);
-	
+
 
 	dataBlock->fillFromUsbBuffer(dataBuffer, 0, numDataStreams, nSamples);
 
@@ -971,7 +997,7 @@ bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQue
 	int i;
 	unsigned int numread = 0;
 	Rhd2000DataBlock *dataBlock;
-	
+
 	if (nSamples < 1) nSamples = SAMPLES_PER_DATA_BLOCK_PCIE;
 
 	numWordsToRead = numBlocks * dataBlock->calculateDataBlockSizeInWords(numDataStreams, nSamples);
@@ -986,7 +1012,7 @@ bool rhd2000PCIe::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQue
 	}
 
 	do {
-		int nr = Read(fidFIFO, dataBuffer, numBytesToRead);
+		int nr = Read(fidFIFO, dataBuffer + numread, numBytesToRead - numread);
 
 		if (nr == 0)
 		{

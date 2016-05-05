@@ -71,7 +71,7 @@ namespace PCIeRhythm {
 			PortD
 		};
 
-		bool open();
+		bool openBoard();
 		void initialize();
 		void resetBoard();
 
@@ -157,8 +157,8 @@ namespace PCIeRhythm {
 		int dataStreamEnabled[MAX_NUM_DATA_STREAMS]; // 0 (disabled) or 1 (enabled), set for maximum stream number
 		vector<int> cableDelay;
 
-		void writeRegister(controlAddr reg, int16_t value, int16_t mask = 0xFFFF);
-		int16_t readRegister(statusAddr reg) const;
+		void writeRegister(controlAddr reg, uint16_t value, uint16_t mask = 0xFFFF);
+		uint16_t readRegister(statusAddr reg) const;
 
 		bool isDcmProgDone() const;
 		bool isDataClockLocked() const;
