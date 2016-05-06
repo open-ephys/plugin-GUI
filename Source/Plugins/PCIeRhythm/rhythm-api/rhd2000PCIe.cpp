@@ -83,7 +83,7 @@ void rhd2000PCIe::writeRegister(controlAddr reg, uint16_t value, uint16_t mask)
 	}
 
 	uint16_t writeVal;
-	uint16_t curVal = 0x1010; //an easily recognizable value, to distinguish it from an actual read value of zero
+	uint16_t curVal = 0x1010; //an easily recognizable value, to distinguish it from an actual read value of zero in debug strings
 	if ((mask & 0xFFFF) != 0xFFFF)
 	{
 
@@ -109,8 +109,8 @@ void rhd2000PCIe::writeRegister(controlAddr reg, uint16_t value, uint16_t mask)
 		std::cerr << "Unsuccesful write to control addr " << regAddr << " code: " << wd << std::endl;
 		return;
 	}
-	printf("Written registry %X val: %X mask: %X\n original: %X written: %X\n", reg, value,
-		mask, curVal, writeVal);
+//	printf("Written registry %X val: %X mask: %X\n original: %X written: %X\n", reg, value,
+//		mask, curVal, writeVal); //Debug line
 }
 
 uint16_t rhd2000PCIe::readRegister(statusAddr reg) const
@@ -958,7 +958,7 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 	unsigned int numread = 0;
 
 	numBytesToRead = 2 * dataBlock->calculateDataBlockSizeInWords(numDataStreams, nSamples);
-	std::cout << "To read: " << numBytesToRead << std::endl;
+	//std::cout << "To read: " << numBytesToRead << std::endl;
 
 	if (numBytesToRead > DATA_BUFFER_SIZE) {
 		cerr << "Error in rhd2000PCIe::readDataBlock: Data buffer size exceeded.  " <<
@@ -980,7 +980,7 @@ bool rhd2000PCIe::readDataBlock(Rhd2000DataBlock *dataBlock, int nSamples)
 			return false;
 		}
 		numread += nr;
-		std::cout << "Read: " << nr << " total: " << numread << " left: " << numBytesToRead - numread << std::endl;
+		//std::cout << "Read: " << nr << " total: " << numread << " left: " << numBytesToRead - numread << std::endl;
 	} while (numread < numBytesToRead);
 
 
