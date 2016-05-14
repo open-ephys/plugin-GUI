@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -80,6 +80,8 @@ private:
     class Window;
 
 public:
+    class CustomComponent;
+
     //==============================================================================
     /** Creates an empty popup menu. */
     PopupMenu();
@@ -101,6 +103,71 @@ public:
     //==============================================================================
     /** Resets the menu, removing all its items. */
     void clear();
+
+    /** Describes a popup menu item. */
+    struct JUCE_API  Item
+    {
+        /** Creates a null item.
+            You'll need to set some fields after creating an Item before you
+            can add it to a PopupMenu
+        */
+        Item() noexcept;
+
+        /** Creates a copy of an item. */
+        Item (const Item&);
+
+        /** Creates a copy of an item. */
+        Item& operator= (const Item&);
+
+        /** The menu item's name. */
+        String text;
+
+        /** The menu item's ID. This can not be 0 if you want the item to be triggerable! */
+        int itemID;
+
+        /** A sub-menu, or nullptr if there isn't one. */
+        ScopedPointer<PopupMenu> subMenu;
+
+        /** A drawable to use as an icon, or nullptr if there isn't one. */
+        ScopedPointer<Drawable> image;
+
+        /** A custom component for the item to display, or nullptr if there isn't one. */
+        ReferenceCountedObjectPtr<CustomComponent> customComponent;
+
+        /** A command manager to use to automatically invoke the command, or nullptr if none is specified. */
+        ApplicationCommandManager* commandManager;
+
+        /** An optional string describing the shortcut key for this item.
+            This is only used for displaying at the right-hand edge of a menu item - the
+            menu won't attempt to actually catch or process the key. If you supply a
+            commandManager parameter then the menu will attempt to fill-in this field
+            automatically.
+        */
+        String shortcutKeyDescription;
+
+        /** A colour to use to draw the menu text.
+            By default this is transparent black, which means that the LookAndFeel should choose the colour.
+        */
+        Colour colour;
+
+        /** True if this menu item is enabled. */
+        bool isEnabled;
+
+        /** True if this menu item should have a tick mark next to it. */
+        bool isTicked;
+
+        /** True if this menu item is a separator line. */
+        bool isSeparator;
+
+        /** True if this menu item is a section header. */
+        bool isSectionHeader;
+    };
+
+    /** Adds an item to the menu.
+        You can call this method for full control over the item that is added, or use the other
+        addItem helper methods if you want to pass arguments rather than creating an Item object.
+    */
+    void addItem (const Item& newItem);
 
     /** Appends a new text item for this menu to show.
 
@@ -165,10 +232,15 @@ public:
         @param commandID            the ID of the command
         @param displayName          if this is non-empty, then this string will be used instead of
                                     the command's registered name
+        @param iconToUse            an optional Drawable object to use as the icon to the left of the item.
+                                    The menu will take ownership of this drawable object and will
+                                    delete it later when no longer needed
     */
     void addCommandItem (ApplicationCommandManager* commandManager,
                          CommandID commandID,
-                         const String& displayName = String::empty);
+                         const String& displayName = String::empty,
+                         Drawable* iconToUse = nullptr);
+
 
 
     /** Appends a text item with a special colour.
@@ -182,7 +254,31 @@ public:
                           Colour itemTextColour,
                           bool isEnabled = true,
                           bool isTicked = false,
-                          const Image& iconToUse = Image::null);
+                          const Image& iconToUse = Image());
+
+    /** Appends a text item with a special colour.
+
+        This is the same as addItem(), but specifies a colour to use for the
+        text, which will override the default colours that are used by the
+        current look-and-feel. See addItem() for a description of the parameters.
+    */
+    void addColouredItem (int itemResultID,
+                          const String& itemText,
+                          Colour itemTextColour,
+                          bool isEnabled,
+                          bool isTicked,
+                          Drawable* iconToUse);
+
+    /** Appends a custom menu item.
+
+        This will add a user-defined component to use as a menu item. The component
+        passed in will be deleted by this menu when it's no longer needed.
+
+        @see CustomComponent
+    */
+    void addCustomItem (int itemResultID,
+                        CustomComponent* customComponent,
+                        const PopupMenu* optionalSubMenu = nullptr);
 
     /** Appends a custom menu item that can't be used to trigger a result.
 
@@ -194,12 +290,11 @@ public:
         detection of a mouse-click on your component, and use that to trigger the
         menu ID specified in itemResultID. If this is false, the menu item can't
         be triggered, so itemResultID is not used.
-
-        @see CustomComponent
     */
     void addCustomItem (int itemResultID,
                         Component* customComponent,
-                        int idealWidth, int idealHeight,
+                        int idealWidth,
+                        int idealHeight,
                         bool triggerMenuItemAutomaticallyWhenClicked,
                         const PopupMenu* optionalSubMenu = nullptr);
 
@@ -244,7 +339,6 @@ public:
                      int itemResultID = 0);
 
     /** Appends a separator to the menu, to help break it up into sections.
-
         The menu class is smart enough not to display separators at the top or bottom
         of the menu, and it will replace mutliple adjacent separators with a single
         one, so your code can be quite free and easy about adding these, and it'll
@@ -253,14 +347,12 @@ public:
     void addSeparator();
 
     /** Adds a non-clickable text item to the menu.
-
         This is a bold-font items which can be used as a header to separate the items
         into named groups.
     */
     void addSectionHeader (const String& title);
 
     /** Returns the number of items that the menu currently contains.
-
         (This doesn't count separators).
     */
     int getNumItems() const noexcept;
@@ -456,21 +548,10 @@ public:
         */
         bool next();
 
-        /** Adds an item to the target menu which has all the properties of this item. */
-        void addItemTo (PopupMenu& targetMenu);
-
-        //==============================================================================
-        String itemName;
-        const PopupMenu* subMenu;
-        int itemId;
-        bool isSeparator;
-        bool isTicked;
-        bool isEnabled;
-        bool isCustomComponent;
-        bool isSectionHeader;
-        const Colour* customColour;
-        const Drawable* icon;
-        ApplicationCommandManager* commandManager;
+        /** Returns a reference to the description of the current item.
+            It is only valid to call this after next() has returned true!
+        */
+        const Item& getItem() const noexcept;
 
     private:
         //==============================================================================
@@ -531,17 +612,6 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomComponent)
     };
 
-    /** Appends a custom menu item.
-
-        This will add a user-defined component to use as a menu item. The component
-        passed in will be deleted by this menu when it's no longer needed.
-
-        @see CustomComponent
-    */
-    void addCustomItem (int itemResultID, CustomComponent* customComponent,
-                        const PopupMenu* optionalSubMenu = nullptr);
-
-
     //==============================================================================
     /** This abstract base class is implemented by LookAndFeel classes to provide
         menu drawing functionality.
@@ -561,6 +631,9 @@ public:
                                         const String& shortcutKeyText,
                                         const Drawable* icon,
                                         const Colour* textColour) = 0;
+
+        virtual void drawPopupMenuSectionHeader (Graphics&, const Rectangle<int>& area,
+                                                 const String& sectionName) = 0;
 
         /** Returns the size and style of font to use in popup menus. */
         virtual Font getPopupMenuFont() = 0;
@@ -599,13 +672,12 @@ public:
 
 private:
     //==============================================================================
-    JUCE_PUBLIC_IN_DLL_BUILD (class Item)
     JUCE_PUBLIC_IN_DLL_BUILD (struct HelperClasses)
     friend struct HelperClasses;
     friend class MenuBarComponent;
 
     OwnedArray<Item> items;
-    LookAndFeel* lookAndFeel;
+    WeakReference<LookAndFeel> lookAndFeel;
 
     Component* createWindow (const Options&, ApplicationCommandManager**) const;
     int showWithOptionalCallback (const Options&, ModalComponentManager::Callback*, bool);

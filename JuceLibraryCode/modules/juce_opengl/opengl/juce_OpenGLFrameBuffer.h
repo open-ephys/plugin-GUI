@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -95,10 +95,10 @@ public:
     void releaseAsRenderingTarget();
 
     /** Returns the ID of this framebuffer, or 0 if it isn't initialised. */
-    GLuint getFrameBufferID() const;
+    GLuint getFrameBufferID() const noexcept;
 
     /** Returns the current frame buffer ID for the current context. */
-    static GLuint getCurrentFrameBufferTarget();
+    static GLuint getCurrentFrameBufferTarget() noexcept;
 
     /** Clears the framebuffer with the specified colour. */
     void clear (Colour colour);

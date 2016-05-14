@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -51,7 +51,7 @@ LowLevelGraphicsPostScriptRenderer::LowLevelGraphicsPostScriptRenderer (OutputSt
     out << "%!PS-Adobe-3.0 EPSF-3.0"
            "\n%%BoundingBox: 0 0 600 824"
            "\n%%Pages: 0"
-           "\n%%Creator: Raw Material Software JUCE"
+           "\n%%Creator: ROLI Ltd. JUCE"
            "\n%%Title: " << documentTitle <<
            "\n%%CreationDate: none"
            "\n%%LanguageLevel: 2"
@@ -355,13 +355,13 @@ void LowLevelGraphicsPostScriptRenderer::fillRect (const Rectangle<float>& r)
     {
         Path p;
         p.addRectangle (r);
-        fillPath (p, AffineTransform::identity);
+        fillPath (p, AffineTransform());
     }
 }
 
 void LowLevelGraphicsPostScriptRenderer::fillRectList (const RectangleList<float>& list)
 {
-    fillPath (list.toPath(), AffineTransform::identity);
+    fillPath (list.toPath(), AffineTransform());
 }
 
 //==============================================================================
@@ -384,7 +384,7 @@ void LowLevelGraphicsPostScriptRenderer::fillPath (const Path& path, const Affin
     {
         // this doesn't work correctly yet - it could be improved to handle solid gradients, but
         // postscript can't do semi-transparent ones.
-        notPossibleInPostscriptAssert   // you can disable this warning by setting the WARN_ABOUT_NON_POSTSCRIPT_OPERATIONS flag at the top of this file
+        notPossibleInPostscriptAssert;   // you can disable this warning by setting the WARN_ABOUT_NON_POSTSCRIPT_OPERATIONS flag at the top of this file
 
         writeClip();
         out << "gsave ";
@@ -433,11 +433,11 @@ void LowLevelGraphicsPostScriptRenderer::writeImage (const Image& im,
                 {
                     PixelARGB p (*(const PixelARGB*) pixelData);
                     p.unpremultiply();
-                    pixel = Colours::white.overlaidWith (Colour (p.getARGB()));
+                    pixel = Colours::white.overlaidWith (Colour (p));
                 }
                 else if (im.isRGB())
                 {
-                    pixel = Colour (((const PixelRGB*) pixelData)->getARGB());
+                    pixel = Colour (*((const PixelRGB*) pixelData));
                 }
                 else
                 {
@@ -510,7 +510,7 @@ void LowLevelGraphicsPostScriptRenderer::drawLine (const Line <float>& line)
 {
     Path p;
     p.addLineSegment (line, 1.0f);
-    fillPath (p, AffineTransform::identity);
+    fillPath (p, AffineTransform());
 }
 
 //==============================================================================

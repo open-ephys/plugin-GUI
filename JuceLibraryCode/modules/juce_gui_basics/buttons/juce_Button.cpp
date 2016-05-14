@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -84,6 +84,7 @@ Button::Button (const String& name)
     connectedEdgeFlags (0),
     commandID(),
     buttonState (buttonNormal),
+    lastStatePainted (buttonNormal),
     lastToggleState (false),
     clickTogglesState (false),
     needsToRelease (false),
@@ -125,11 +126,12 @@ void Button::setTooltip (const String& newTooltip)
     generateTooltip = false;
 }
 
-String Button::getTooltip()
+void Button::updateAutomaticTooltip (const ApplicationCommandInfo& info)
 {
-    if (generateTooltip && commandManagerToUse != nullptr && commandID != 0)
+    if (generateTooltip && commandManagerToUse != nullptr)
     {
-        String tt (commandManagerToUse->getDescriptionOfCommand (commandID));
+        String tt (info.description.isNotEmpty() ? info.description
+                                                 : info.shortName);
 
         Array<KeyPress> keyPresses (commandManagerToUse->getKeyMappings()->getKeyPressesAssignedToCommand (commandID));
 
@@ -145,10 +147,8 @@ String Button::getTooltip()
                 tt << key << ']';
         }
 
-        return tt;
+        SettableTooltipClient::setTooltip (tt);
     }
-
-    return SettableTooltipClient::getTooltip();
 }
 
 void Button::setConnectedEdges (const int newFlags)
@@ -245,7 +245,7 @@ void Button::turnOffOtherButtonsInGroup (const NotificationType notification)
 
                 if (c != this)
                 {
-                    if (Button* const b = dynamic_cast <Button*> (c))
+                    if (Button* const b = dynamic_cast<Button*> (c))
                     {
                         if (b->getRadioGroupId() == radioGroupId)
                         {
@@ -431,6 +431,7 @@ void Button::paint (Graphics& g)
     }
 
     paintButton (g, isOver(), isDown());
+    lastStatePainted = buttonState;
 }
 
 //==============================================================================
@@ -458,7 +459,12 @@ void Button::mouseUp (const MouseEvent& e)
     updateState (isMouseOver(), false);
 
     if (wasDown && wasOver && ! triggerOnMouseDown)
+    {
+        if (lastStatePainted != buttonDown)
+            flashButtonState();
+
         internalClickCallback (e.mods);
+    }
 }
 
 void Button::mouseDrag (const MouseEvent&)
@@ -542,6 +548,7 @@ void Button::applicationCommandListChangeCallback()
 
         if (commandManagerToUse->getTargetForCommand (commandID, info) != nullptr)
         {
+            updateAutomaticTooltip (info);
             setEnabled ((info.flags & ApplicationCommandInfo::isDisabled) == 0);
             setToggleState ((info.flags & ApplicationCommandInfo::isTicked) != 0, dontSendNotification);
         }

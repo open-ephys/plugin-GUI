@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -37,7 +37,9 @@
 */
 class JUCE_API  AudioDeviceSelectorComponent  : public Component,
                                                 private ComboBoxListener, // (can't use ComboBox::Listener due to idiotic VC2005 bug)
-                                                private ChangeListener
+                                                private ChangeListener,
+                                                private Button::Listener,
+                                                private Timer
 {
 public:
     //==============================================================================
@@ -75,18 +77,31 @@ public:
     /** The device manager that this component is controlling */
     AudioDeviceManager& deviceManager;
 
+    /** Sets the standard height used for items in the panel. */
+    void setItemHeight (int itemHeight);
+
+    /** Returns the standard height used for items in the panel. */
+    int getItemHeight() const noexcept      { return itemHeight; }
+
+    /** Returns the ListBox that's being used to show the midi inputs, or nullptr if there isn't one. */
+    ListBox* getMidiInputSelectorListBox() const noexcept;
+
     //==============================================================================
     /** @internal */
     void resized() override;
     /** @internal */
-    void childBoundsChanged (Component*) override;
+    void timerCallback() override;
 
 private:
+    //==============================================================================
+    void buttonClicked (Button*) override;
+
     //==============================================================================
     ScopedPointer<ComboBox> deviceTypeDropDown;
     ScopedPointer<Label> deviceTypeDropDownLabel;
     ScopedPointer<Component> audioDeviceSettingsComp;
     String audioDeviceSettingsCompType;
+    int itemHeight;
     const int minOutputChannels, maxOutputChannels, minInputChannels, maxInputChannels;
     const bool showChannelsAsStereoPairs;
     const bool hideAdvancedOptionsWithButton;
@@ -96,6 +111,7 @@ private:
     ScopedPointer<MidiInputSelectorComponentListBox> midiInputsList;
     ScopedPointer<ComboBox> midiOutputSelector;
     ScopedPointer<Label> midiInputsLabel, midiOutputLabel;
+    ScopedPointer<TextButton> bluetoothButton;
 
     void comboBoxChanged (ComboBox*) override;
     void changeListenerCallback (ChangeBroadcaster*) override;

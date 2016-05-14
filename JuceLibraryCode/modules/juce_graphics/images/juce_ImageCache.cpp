@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -47,7 +47,7 @@ public:
                 return item->image;
         }
 
-        return Image::null;
+        return Image();
     }
 
     void addImageToCache (const Image& image, const int64 hashCode)
@@ -110,7 +110,7 @@ public:
 
     unsigned int cacheTimeout;
 
-    juce_DeclareSingleton_SingleThreaded_Minimal (ImageCache::Pimpl);
+    juce_DeclareSingleton_SingleThreaded_Minimal (ImageCache::Pimpl)
 
 private:
     OwnedArray<Item> images;
@@ -119,7 +119,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE (Pimpl)
 };
 
-juce_ImplementSingleton_SingleThreaded (ImageCache::Pimpl);
+juce_ImplementSingleton_SingleThreaded (ImageCache::Pimpl)
 
 
 //==============================================================================
@@ -128,7 +128,7 @@ Image ImageCache::getFromHashCode (const int64 hashCode)
     if (Pimpl::getInstanceWithoutCreating() != nullptr)
         return Pimpl::getInstanceWithoutCreating()->getFromHashCode (hashCode);
 
-    return Image::null;
+    return Image();
 }
 
 void ImageCache::addImageToCache (const Image& image, const int64 hashCode)

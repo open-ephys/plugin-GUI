@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -50,24 +50,24 @@
             MyJUCEApp()  {}
             ~MyJUCEApp() {}
 
-            void initialise (const String& commandLine)
+            void initialise (const String& commandLine) override
             {
                 myMainWindow = new MyApplicationWindow();
                 myMainWindow->setBounds (100, 100, 400, 500);
                 myMainWindow->setVisible (true);
             }
 
-            void shutdown()
+            void shutdown() override
             {
                 myMainWindow = nullptr;
             }
 
-            const String getApplicationName()
+            const String getApplicationName() override
             {
                 return "Super JUCE-o-matic";
             }
 
-            const String getApplicationVersion()
+            const String getApplicationVersion() override
             {
                 return "1.0";
             }
@@ -259,6 +259,7 @@ public:
     static CreateInstanceFunction createInstance;
 
     virtual bool initialiseApp();
+    int shutdownApp();
     static void JUCE_CALLTYPE sendUnhandledException (const std::exception*, const char* sourceFile, int lineNumber);
     bool sendCommandLineToPreexistingInstance();
    #endif
@@ -274,10 +275,31 @@ private:
     friend struct ContainerDeletePolicy<MultipleInstanceHandler>;
     ScopedPointer<MultipleInstanceHandler> multipleInstanceHandler;
 
-    int shutdownApp();
-
     JUCE_DECLARE_NON_COPYABLE (JUCEApplicationBase)
 };
+
+
+//==============================================================================
+#if JUCE_CATCH_UNHANDLED_EXCEPTIONS || defined (DOXYGEN)
+
+ /** The JUCE_TRY/JUCE_CATCH_EXCEPTION wrappers can be used to pass any uncaught exceptions to
+     the JUCEApplicationBase::sendUnhandledException() method.
+     This functionality can be enabled with the JUCE_CATCH_UNHANDLED_EXCEPTIONS macro.
+ */
+ #define JUCE_TRY try
+
+ /** The JUCE_TRY/JUCE_CATCH_EXCEPTION wrappers can be used to pass any uncaught exceptions to
+     the JUCEApplicationBase::sendUnhandledException() method.
+     This functionality can be enabled with the JUCE_CATCH_UNHANDLED_EXCEPTIONS macro.
+ */
+ #define JUCE_CATCH_EXCEPTION \
+    catch (const std::exception& e) { juce::JUCEApplicationBase::sendUnhandledException (&e,      __FILE__, __LINE__); } \
+    catch (...)                     { juce::JUCEApplicationBase::sendUnhandledException (nullptr, __FILE__, __LINE__); }
+
+#else
+ #define JUCE_TRY
+ #define JUCE_CATCH_EXCEPTION
+#endif
 
 
 #endif   // JUCE_APPLICATIONBASE_H_INCLUDED

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -32,11 +32,22 @@ struct MidiOutput::PendingMessage
     PendingMessage* next;
 };
 
-MidiOutput::MidiOutput()
+MidiOutput::MidiOutput(const String& midiName)
     : Thread ("midi out"),
       internal (nullptr),
-      firstMessage (nullptr)
+      firstMessage (nullptr),
+      name (midiName)
 {
+}
+
+void MidiOutput::sendBlockOfMessagesNow (const MidiBuffer& buffer)
+{
+    MidiBuffer::Iterator i (buffer);
+    MidiMessage message;
+    int samplePosition; // Note: not actually used, so no need to initialise.
+
+    while (i.getNextEvent (message, samplePosition))
+        sendMessageNow (message);
 }
 
 void MidiOutput::sendBlockOfMessages (const MidiBuffer& buffer,

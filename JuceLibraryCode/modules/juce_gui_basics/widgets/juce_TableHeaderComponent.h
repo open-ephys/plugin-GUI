@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -208,14 +208,14 @@ public:
 
         If there's no such column ID, this will return -1.
 
-        If onlyCountVisibleColumns is true, this will return the index amoungst the visible columns;
+        If onlyCountVisibleColumns is true, this will return the index amongst the visible columns;
         otherwise it'll return the index amongst all the columns, including any hidden ones.
     */
     int getIndexOfColumnId (int columnId, bool onlyCountVisibleColumns) const;
 
     /** Returns the ID of the column at a given index.
 
-        If onlyCountVisibleColumns is true, this will count the index amoungst the visible columns;
+        If onlyCountVisibleColumns is true, this will count the index amongst the visible columns;
         otherwise it'll count it amongst all the columns, including any hidden ones.
 
         If the index is out-of-range, it'll return 0.
@@ -231,7 +231,6 @@ public:
     Rectangle<int> getColumnPosition (int index) const;
 
     /** Finds the column ID at a given x-position in the component.
-
         If there is a column at this point this returns its ID, or if not, it will return 0.
     */
     int getColumnIdAtX (int xToFind) const;
@@ -412,9 +411,9 @@ private:
         bool isVisible() const;
     };
 
-    OwnedArray <ColumnInfo> columns;
-    Array <Listener*> listeners;
-    ScopedPointer <Component> dragOverlayComp;
+    OwnedArray<ColumnInfo> columns;
+    Array<Listener*> listeners;
+    ScopedPointer<Component> dragOverlayComp;
     class DragOverlayComp;
 
     bool columnsChanged, columnsResized, sortChanged, menuActive, stretchToFit;

@@ -1,6 +1,6 @@
 /* libFLAC - Free Lossless Audio Codec library
  * Copyright (C) 2002-2009  Josh Coalson
- * Copyright (C) 2011-2013  Xiph.Org Foundation
+ * Copyright (C) 2011-2014  Xiph.Org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 #ifndef FLAC__PRIVATE__METADATA_H
 #define FLAC__PRIVATE__METADATA_H
 
-#include "FLAC/metadata.h"
+#include "../../../metadata.h"
 
 /* WATCHOUT: all malloc()ed data in the block is free()ed; this may not
  * be a consistent state (e.g. PICTURE) or equivalent to the initial

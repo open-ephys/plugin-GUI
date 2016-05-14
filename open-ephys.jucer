@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="3.1.0"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="4.2.1"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -29,7 +29,6 @@
         <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_audio" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
@@ -42,9 +41,9 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="~/SDKs/vstsdk2.4" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -fvisibility=hidden"
-                extraCompilerFlags="-rdynamic -std=c++0x -fvisibility=hidden"
-                extraDefs="" smallIcon="nFMauU" bigIcon="nFMauU">
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -fvisibility=hidden"
+                extraCompilerFlags="-rdynamic" extraDefs="" smallIcon="nFMauU"
+                bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
@@ -56,7 +55,6 @@
         <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_audio" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
@@ -91,7 +89,6 @@
         <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_audio" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
@@ -130,7 +127,6 @@
         <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_audio" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
         <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
@@ -611,7 +607,6 @@
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>

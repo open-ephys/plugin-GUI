@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -140,6 +140,12 @@ public:
                           int newMaximumWidth,
                           int newMaximumHeight) noexcept;
 
+    /** Can be used to enable or disable user-dragging of the window. */
+    void setDraggable (bool shouldBeDraggable) noexcept;
+
+    /** Returns true if the window can be dragged around by the user. */
+    bool isDraggable() const noexcept                               { return canDrag; }
+
     /** Returns the bounds constrainer object that this window is using.
         You can access this to change its properties.
     */
@@ -148,7 +154,7 @@ public:
     /** Sets the bounds-constrainer object to use for resizing and dragging this window.
 
         A pointer to the object you pass in will be kept, but it won't be deleted
-        by this object, so it's the caller's responsiblity to manage it.
+        by this object, so it's the caller's responsibility to manage it.
 
         If you pass a nullptr, then no contraints will be placed on the positioning of the window.
     */
@@ -158,7 +164,7 @@ public:
         with the current constrainer.
         @see setConstrainer
     */
-    void setBoundsConstrained (const Rectangle<int>& bounds);
+    void setBoundsConstrained (const Rectangle<int>& newBounds);
 
 
     //==============================================================================
@@ -210,7 +216,7 @@ public:
 
     /** Restores the window to a previously-saved size and position.
 
-        This restores the window's size, positon and full-screen status from an
+        This restores the window's size, position and full-screen status from an
         string that was previously created with the getWindowStateAsString()
         method.
 
@@ -339,6 +345,8 @@ protected:
     /** @internal */
     void mouseDrag (const MouseEvent&) override;
     /** @internal */
+    void mouseUp (const MouseEvent&) override;
+    /** @internal */
     void lookAndFeelChanged() override;
     /** @internal */
     void childBoundsChanged (Component*) override;
@@ -368,25 +376,26 @@ protected:
     void addAndMakeVisible (Component*, int zOrder = -1);
    #endif
 
-    ScopedPointer <ResizableCornerComponent> resizableCorner;
-    ScopedPointer <ResizableBorderComponent> resizableBorder;
+    ScopedPointer<ResizableCornerComponent> resizableCorner;
+    ScopedPointer<ResizableBorderComponent> resizableBorder;
 
 private:
     //==============================================================================
     Component::SafePointer<Component> contentComponent;
-    bool ownsContentComponent, resizeToFitContent, fullscreen;
+    bool ownsContentComponent, resizeToFitContent, fullscreen, canDrag, dragStarted;
     ComponentDragger dragger;
     Rectangle<int> lastNonFullScreenPos;
     ComponentBoundsConstrainer defaultConstrainer;
     ComponentBoundsConstrainer* constrainer;
-    #if JUCE_DEBUG
+   #if JUCE_DEBUG
     bool hasBeenResized;
-    #endif
+   #endif
 
     void initialise (bool addToDesktop);
     void updateLastPosIfNotFullScreen();
     void updateLastPosIfShowing();
     void setContent (Component*, bool takeOwnership, bool resizeToFit);
+    void updatePeerConstrainer();
 
    #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
     // The parameters for these methods have changed - please update your code!

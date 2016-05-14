@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -54,7 +54,6 @@ class JUCE_API  Timer
 protected:
     //==============================================================================
     /** Creates a Timer.
-
         When created, the timer is stopped, so use startTimer() to get it going.
     */
     Timer() noexcept;
@@ -64,7 +63,7 @@ protected:
         Note that this timer won't be started, even if the one you're copying
         is running.
     */
-    Timer (const Timer& other) noexcept;
+    Timer (const Timer&) noexcept;
 
 public:
     //==============================================================================
@@ -86,33 +85,36 @@ public:
         time between calling this method and the next timer callback
         will not be less than the interval length passed in.
 
-        @param  intervalInMilliseconds  the interval to use (any values less than 1 will be
-                                        rounded up to 1)
+        @param  intervalInMilliseconds  the interval to use (any value less
+                                        than 1 will be rounded up to 1)
     */
     void startTimer (int intervalInMilliseconds) noexcept;
 
+    /** Starts the timer with an interval specified in Hertz.
+        This is effectively the same as calling startTimer (1000 / timerFrequencyHz).
+    */
+    void startTimerHz (int timerFrequencyHz) noexcept;
+
     /** Stops the timer.
 
-        No more callbacks will be made after this method returns.
+        No more timer callbacks will be triggered after this method returns.
 
-        If this is called from a different thread, any callbacks that may
-        be currently executing may be allowed to finish before the method
-        returns.
+        Note that if you call this from a background thread while the message-thread
+        is already in the middle of your callback, then this method will cancel any
+        future timer callbacks, but it will return without waiting for the current one
+        to finish. The current callback will continue, possibly still running some of
+        your timer code after this method has returned.
     */
     void stopTimer() noexcept;
 
     //==============================================================================
-    /** Checks if the timer has been started.
-
-        @returns true if the timer is running.
-    */
-    bool isTimerRunning() const noexcept                    { return periodMs > 0; }
+    /** Returns true if the timer is currently running. */
+    bool isTimerRunning() const noexcept                    { return timerPeriodMs > 0; }
 
     /** Returns the timer's interval.
-
         @returns the timer's interval in milliseconds if it's running, or 0 if it's not.
     */
-    int getTimerInterval() const noexcept                   { return periodMs; }
+    int getTimerInterval() const noexcept                   { return timerPeriodMs; }
 
 
     //==============================================================================
@@ -124,11 +126,10 @@ public:
 private:
     class TimerThread;
     friend class TimerThread;
-    int countdownMs, periodMs;
-    Timer* previous;
-    Timer* next;
+    int timerCountdownMs, timerPeriodMs; // NB: these member variable names are a little verbose
+    Timer* previousTimer, *nextTimer;    // to reduce risk of name-clashes with user subclasses
 
-    Timer& operator= (const Timer&);
+    Timer& operator= (const Timer&) JUCE_DELETED_FUNCTION;
 };
 
 #endif   // JUCE_TIMER_H_INCLUDED

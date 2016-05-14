@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -60,7 +60,7 @@ public:
         e.g. "HKEY_CURRENT_USER\Software\foo\bar"
     */
     static String JUCE_CALLTYPE getValue (const String& regValuePath,
-                                          const String& defaultValue = String::empty,
+                                          const String& defaultValue = String(),
                                           WoW64Mode mode = WoW64_Default);
 
     /** Reads a binary block from the registry.
@@ -128,7 +128,7 @@ public:
                                                        WoW64Mode mode = WoW64_Default);
 
     // DEPRECATED: use the other methods with a WoW64Mode parameter of WoW64_64bit instead.
-    JUCE_DEPRECATED (static String getValueWow64 (const String&, const String& defaultValue = String::empty));
+    JUCE_DEPRECATED (static String getValueWow64 (const String&, const String& defaultValue = String()));
     JUCE_DEPRECATED (static bool valueExistsWow64 (const String&));
     JUCE_DEPRECATED (static bool keyExistsWow64 (const String&));
 
