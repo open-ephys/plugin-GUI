@@ -62,22 +62,31 @@ int MidiMessage::readVariableLengthVal (const uint8* data, int& numBytesUsed) no
 
 int MidiMessage::getMessageLengthFromFirstByte (const uint8 firstByte) noexcept
 {
-    // this method only works for valid starting bytes of a short midi message
-    jassert (firstByte >= 0x80 && firstByte != 0xf0 && firstByte != 0xf7);
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // It no longer checks to see that the message length is less than
+    // or equal to three bytes.
+    // =======================================================================
+    return firstByte;
+    // =======================================================================
 
-    static const char messageLengths[] =
-    {
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-        1, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    };
 
-    return messageLengths [firstByte & 0x7f];
+    //// this method only works for valid starting bytes of a short midi message
+    //jassert (firstByte >= 0x80 && firstByte != 0xf0 && firstByte != 0xf7);
+
+    //static const char messageLengths[] =
+    //{
+    //    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    //    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    //    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    //    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    //    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    //    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    //    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    //    1, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    //};
+
+    //return messageLengths [firstByte & 0x7f];
 }
 
 //==============================================================================
@@ -96,7 +105,11 @@ MidiMessage::MidiMessage (const void* const d, const int dataSize, const double 
     memcpy (allocateSpace (dataSize), d, (size_t) dataSize);
 
     // check that the length matches the data..
-    jassert (size > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // =======================================================================
+    //jassert (size > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
+    // =======================================================================
 }
 
 MidiMessage::MidiMessage (const int byte1, const double t) noexcept
@@ -396,7 +409,14 @@ int MidiMessage::getNoteNumber() const noexcept
 
 void MidiMessage::setNoteNumber (const int newNoteNumber) noexcept
 {
-    if (isNoteOnOrOff() || isAftertouch())
+
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // It was commented out, to allow the second byte of a MidiMessage
+    // to be set to zero (for saving purposes)
+    // =======================================================================
+    // if (isNoteOnOrOff() || isAftertouch())
+    // =======================================================================
         getData()[1] = (uint8) (newNoteNumber & 127);
 }
 
