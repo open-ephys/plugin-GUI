@@ -41,9 +41,9 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -fvisibility=hidden"
-                extraCompilerFlags="-rdynamic" extraDefs="" smallIcon="nFMauU"
-                bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC"
+                extraCompilerFlags="-rdynamic -fvisibility=hidden" extraDefs=""
+                smallIcon="nFMauU" bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        libraryPath="/usr/X11R6/lib/&#10;/usr/local/include&#10;" headerPath=""/>
