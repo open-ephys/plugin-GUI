@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ExampleEditor.h"
-#include "ExampleProcessor.h"
+#include "EDITORCLASSNAME.h"
+#include "FILTERCLASSNAME.h"
 
-ExampleEditor::ExampleEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
-	: GenericEditor(parentNode, useDefaultParameterEditors)
+EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
+	: GenericEditor (parentNode, useDefaultParameterEditors)
 {
 	//Most used buttons are UtilityButton, which shows a simple button with text and ElectrodeButton, which is an on-off button which displays a channel.
 	exampleButton = new UtilityButton("Button text", Font("Default", 15, Font::plain));
@@ -41,7 +41,7 @@ The listener methods that reacts to the button click. The same method is called 
 on the editor, so the button variable, which cointains a pointer to the button that called the method
 has to be checked to know which function to perform.
 */
-void ExampleEditor::buttonEvent(Button* button)
+void EDITORCLASSNAME::buttonEvent (Button* button)
 {
 	if (button == exampleButton)
 	{

@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <PluginInfo.h>
-#include "ExampleProcessor.h"
+#include "FILTERCLASSNAME.h"
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
@@ -39,8 +39,8 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER; /*API version, defined by the GUI source. 
 	Should not be changed to ensure it is always equal to the one used in the latest codebase. The GUI refueses to load plugins with mismatched API versions */
-	info->name = "Example library"; //Name of the Library, used only for information
-	info->libVersion = 1; //Version of the library, used only for information
+	info->name = "FILTERLIBRARYNAME"; //Name of the Library, used only for information
+	info->libVersion = FILTERLIBRARYVERSION; //Version of the library, used only for information
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -52,9 +52,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	case 0:
 		info->type = Plugin::ProcessorPlugin; //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
 		//For processor
-		info->processor.name = "Example Processor"; //Processor name shown in the GUI
+		info->processor.name = "FILTERHUMANREADABLENAME"; //Processor name shown in the GUI
 		info->processor.type = Plugin::FilterProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
-		info->processor.creator = &(Plugin::createProcessor<ExampleProcessor>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
+		info->processor.creator = &(Plugin::createProcessor<FILTERCLASSNAME>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
 		break;
 /**
 Examples for other plugin types

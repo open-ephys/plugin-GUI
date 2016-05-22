@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef EXAMPLEEDITOR_H_INCLUDED
-#define EXAMPLEEDITOR_H_INCLUDED
+#ifndef HEADERGUARD
+#define HEADERGUARD
 
 #include <EditorHeaders.h>
 
@@ -38,17 +38,16 @@ have a single button which will set a parameter in the processor.
 
 */
 
-class ExampleEditor : public GenericEditor	//Generic Editor adds listeners for buttons and sliders. 
-											//Other possible JUCE controls can be added and listened by inheriting from the appropiate XXX:Listener class
-											//See JUCE documentation to find other available controls.
+class EDITORCLASSNAME : public GenericEditor	//Generic Editor adds listeners for buttons and sliders. 
+						//Other possible JUCE controls can be added and listened by inheriting from the appropiate XXX:Listener class
+						//See JUCE documentation to find other available controls.
 {
 public:
-	
 	/** The class constructor, used to initialize any members. */
-	ExampleEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+	EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors);
 
 	/** The class destructor, used to deallocate memory */
-	~ExampleEditor();
+	~EDITORCLASSNAME();
 
 	/** 
 	Unlike processors, which have a minimum set of required methods,
@@ -57,7 +56,7 @@ public:
 	*/
 
 	/** This method executes whenever a custom button is pressed */
-	void buttonEvent(Button* button);
+	void buttonEvent (Button* button);
 
 	/** Called to inform the editor that acquisition is about to start*/
 	//void startAcquisition();
@@ -72,7 +71,6 @@ public:
 
 
 private:
-
 	/**
 	Here would be all the required internal variables.
 	In this case, we have a single button.
@@ -81,7 +79,7 @@ private:
 	//Always use JUCE RAII classes instead of pure pointers.
 	ScopedPointer<Button> exampleButton;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExampleEditor);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCLASSNAME);
 };
 
-#endif
+#endif // HEADERGUARD

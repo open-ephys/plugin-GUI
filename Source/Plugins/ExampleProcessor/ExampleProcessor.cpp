@@ -1,9 +1,8 @@
-
 /*
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,40 +23,37 @@
 
 
 #include <stdio.h>
-#include "ExampleProcessor.h"
+
+FILTERHEADERS
 
 //If the processor uses a custom editor, it needs its header to instantiate it
 //#include "ExampleEditor.h"
 
-ExampleProcessor::ExampleProcessor()
-    : GenericProcessor("Example Processor") //, threshold(200.0), state(true)
+FILTERCLASSNAME::FILTERCLASSNAME()
+    : GenericProcessor ("FILTERCLASSNAME") //, threshold(200.0), state(true)
 
 {
-	//Without a custom editor, generic parameter controls can be added
+    //Without a custom editor, generic parameter controls can be added
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
-
 }
 
-ExampleProcessor::~ExampleProcessor()
+FILTERCLASSNAME::~FILTERCLASSNAME()
 {
-
 }
 
 /**
 	If the processor uses a custom editor, this method must be present.
 */
-/*
-AudioProcessorEditor* ExampleProcessor::createEditor()
+AudioProcessorEditor* FILTERCLASSNAME::createEditor()
 {
-	editor = new ExampleEditor(this, true);
+	editor = new EDITORCLASSNAME (this, true);
 
 	//std::cout << "Creating editor." << std::endl;
 
 	return editor;
 }
-*/
 
-void ExampleProcessor::setParameter(int parameterIndex, float newValue)
+void FILTERCLASSNAME::setParameter(int parameterIndex, float newValue)
 {
 
     //Parameter& p =  parameters.getReference(parameterIndex);
@@ -69,7 +65,7 @@ void ExampleProcessor::setParameter(int parameterIndex, float newValue)
     editor->updateParameterButtons(parameterIndex);
 }
 
-void ExampleProcessor::process(AudioSampleBuffer& buffer,
+void FILTERCLASSNAME::process(AudioSampleBuffer& buffer,
                                MidiBuffer& events)
 {
 	/**
@@ -123,6 +119,4 @@ void ExampleProcessor::process(AudioSampleBuffer& buffer,
     
 	}
 	*/
-
-
 }

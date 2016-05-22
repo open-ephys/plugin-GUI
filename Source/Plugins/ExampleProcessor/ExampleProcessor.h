@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,8 +21,8 @@
 
 */
 
-#ifndef EXAMPLEPROCESSOR_H_INCLUDED
-#define EXAMPLEPROCESSOR_H_INCLUDED
+#ifndef HEADERGUARD
+#define HEADERGUARD
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -41,16 +41,15 @@
 
 */
 
-class ExampleProcessor : public GenericProcessor
+class FILTERCLASSNAME : public GenericProcessor
 
 {
 public:
-
     /** The class constructor, used to initialize any members. */
-    ExampleProcessor();
+    FILTERCLASSNAME();
 
     /** The class destructor, used to deallocate memory */
-    ~ExampleProcessor();
+    ~FILTERCLASSNAME();
 
     /** Determines whether the processor is treated as a source. */
     bool isSource()
@@ -86,12 +85,12 @@ public:
         Continuous signals arrive in the "buffer" variable, event data (such as TTLs
         and spikes) is contained in the "events" variable.
          */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** The method that standard controls on the editor will call.
 		It is recommended that any variables used by the "process" function 
 		are modified only through this method while data acquisition is active. */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter (int parameterIndex, float newValue);
 
 	/** Optional method called every time the signal chain is refreshed or changed in any way.
 		
@@ -111,8 +110,8 @@ private:
     // float threshold;
     // bool state;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExampleProcessor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FILTERCLASSNAME);
 
 };
 
-#endif  // EXAMPLEPROCESSOR_H_INCLUDED
+#endif  // HEADERGUARD
