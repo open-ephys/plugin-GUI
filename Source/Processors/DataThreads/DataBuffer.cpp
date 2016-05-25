@@ -49,25 +49,37 @@ void DataBuffer::resize(int chans, int size)
     numChans = chans;
 }
 
-void DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, int numItems)
+int DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, int numItems, int chunkSize)
 {
     // writes one sample for all channels
     int startIndex1, blockSize1, startIndex2, blockSize2;
     abstractFifo.prepareToWrite(numItems, startIndex1, blockSize1, startIndex2, blockSize2);
-
-    for (int chan = 0; chan < numChans; chan++)
-    {
-
-        buffer.copyFrom(chan, // int destChannel
-                        startIndex1, // int destStartSample
-                        data + chan,  // const float* source
-                        1); // int num samples
+    
+    int bs[3] = {blockSize1, blockSize2, 0};
+    int si[2] = {startIndex1, startIndex2};
+    int cSize = 0;
+    int idx = 0;
+    for (int i=0; bs[i] != 0; i++) {                                // for each of the dest blocks we can write to...
+        for (int j=0; j<bs[i]; j+= chunkSize) {                     // for each chunk...
+            cSize = chunkSize <= bs[i]-j ? chunkSize : bs[i]-j;     // ...figure our how much you can write
+            for (int chan = 0; chan < numChans; chan++) {           // ...write that much, per channel
+                buffer.copyFrom(chan,                           // (int destChannel)
+                                si[i]+j,                        // (int destStartSample)
+                                data + (idx*numChans) + chan,   // (const float* source)
+                                cSize);                         // (int num samples)
+            }
+            for (int k=0; k<cSize; k++) {
+                *(timestampBuffer + idx + k) = *(timestamps + idx + k);
+                *(eventCodeBuffer + idx + k) = *(eventCodes + idx + k);
+            }
+            idx+=cSize;
+        }
     }
-
-    *(timestampBuffer + startIndex1) = *timestamps;
-    *(eventCodeBuffer + startIndex1) = *eventCodes;
-
-    abstractFifo.finishedWrite(numItems);
+    
+    // finish write
+    abstractFifo.finishedWrite(idx);
+    
+    return idx;
 }
 
 int DataBuffer::getNumSamples()
