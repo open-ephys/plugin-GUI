@@ -207,6 +207,8 @@
 				INFOPLIST_FILE = KWIKFormat/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lz",
+					/opt/local/lib/libsz.a,
 					/opt/local/lib/libhdf5.a,
 					/opt/local/lib/libhdf5_cpp.a,
 				);
@@ -225,6 +227,8 @@
 				INFOPLIST_FILE = KWIKFormat/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
+					"-lz",
+					/opt/local/lib/libsz.a,
 					/opt/local/lib/libhdf5.a,
 					/opt/local/lib/libhdf5_cpp.a,
 				);

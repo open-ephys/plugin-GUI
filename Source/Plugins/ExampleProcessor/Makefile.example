@@ -10,12 +10,6 @@ VPATH := $(SOURCE_DIRS)
 SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
-#Library paths for OSX, can be removed if no external libraries are needed
-ifeq ($(OS),Darwin)
-CXXFLAGS := $(CXXFLAGS) -I/opt/local/include 
-LDFLAGS := $(LDFLAGS) -L/opt/local/lib  
-endif
-
 #Extra macros and libraries needed by the plugin
 #CXXFLAGS := $(CXXFLAGS) -D EXAMPLE_MACRO
 #LDFLAGS := $(LDFLAGS) -lExampleLib

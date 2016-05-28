@@ -2066,8 +2066,8 @@ void LfpChannelDisplay::pxPaint()
         int jfrom_wholechannel= (int) (getY()+center-channelHeight/2)+1 +0 ;
         int jto_wholechannel= (int) (getY()+center+channelHeight/2) -0;
     
-        int jfrom_wholechannel_almost= (int) (getY()+center-channelHeight/3)+1 +0 ; // a bit less tall, for saturation warnings
-        int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
+        //int jfrom_wholechannel_almost= (int) (getY()+center-channelHeight/3)+1 +0 ; // a bit less tall, for saturation warnings
+        //int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
         
         
         // max and min of channel, this is the range where actual data is drawn
@@ -2256,7 +2256,7 @@ void LfpChannelDisplay::pxPaint()
                         {
                             hfrom = (cs_next);  hto = (cs_this);
                         }
-                        float hrange=hto-hfrom;
+                        //float hrange=hto-hfrom;
                         float ha=1;
                         for (int l=hfrom; l<hto; l++)
                         {

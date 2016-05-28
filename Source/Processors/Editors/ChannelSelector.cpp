@@ -41,12 +41,12 @@ static const int DURATION_ANIMATION_COLLAPSE_MS = 200;
 
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
-    eventsOnly(false), paramsToggled(true), paramsActive(true),
-    recActive(true), radioStatus(false), isNotSink(createButtons),
-    moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
+    eventsOnly(false)
+    , parameterSlicerChannelSelector (Channels::PARAM_CHANNELS,  "Parameter slicer channel selector component")
     , audioSlicerChannelSelector     (Channels::AUDIO_CHANNELS,  "Audio slicer channel selector component")
     , recordSlicerChannelSelector    (Channels::RECORD_CHANNELS, "Record slicer channel selector component")
-    , parameterSlicerChannelSelector (Channels::PARAM_CHANNELS,  "Parameter slicer channel selector component")
+    , paramsToggled(true), paramsActive(true), recActive(true), radioStatus(false), isNotSink(createButtons)
+    , moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
     // initialize buttons
     audioButton = new EditorButton("AUDIO", titleFont);

@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int ListSliceParser::convertStringToInteger (String s)
 {
     char ar[20];
-    int i, j, k = 0;
+    int i, k = 0;
     for (i = 0; i < s.length(); i++)
     {
         if (s[i] >= 48 && s[i] <= 57)
