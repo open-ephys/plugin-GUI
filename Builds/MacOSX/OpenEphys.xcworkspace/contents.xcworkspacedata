@@ -8,6 +8,12 @@
       location = "container:Plugins"
       name = "Plugins">
       <FileRef
+         location = "group:RFMapper/RFMapper.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:SpikeRaster/SpikeRaster.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
       </FileRef>
       <FileRef

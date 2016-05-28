@@ -244,6 +244,34 @@
                ReferencedContainer = "container:Plugins/LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0363EF941CF9D6F90077C530"
+               BuildableName = "SpikeRaster.bundle"
+               BlueprintName = "SpikeRaster"
+               ReferencedContainer = "container:Plugins/SpikeRaster/SpikeRaster.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0363EFB41CF9E0660077C530"
+               BuildableName = "RFMapper.bundle"
+               BlueprintName = "RFMapper"
+               ReferencedContainer = "container:Plugins/RFMapper/RFMapper.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

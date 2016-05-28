@@ -1,0 +1,225 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0363EFC41CF9E0840077C530 /* RFMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EFBF1CF9E0840077C530 /* RFMapper.cpp */; };
+		0363EFC51CF9E0840077C530 /* RFMapperEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EFC11CF9E0840077C530 /* RFMapperEditor.cpp */; };
+		0363EFC61CF9E0840077C530 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EFC31CF9E0840077C530 /* OpenEphysLib.cpp */; };
+		0363EFCA1CF9E0940077C530 /* Plugin.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0363EFC71CF9E0940077C530 /* Plugin.xcconfig */; };
+		0363EFCB1CF9E0940077C530 /* Plugin_Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0363EFC81CF9E0940077C530 /* Plugin_Debug.xcconfig */; };
+		0363EFCC1CF9E0940077C530 /* Plugin_Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0363EFC91CF9E0940077C530 /* Plugin_Release.xcconfig */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0363EFB51CF9E0660077C530 /* RFMapper.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RFMapper.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		0363EFB81CF9E0660077C530 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0363EFBF1CF9E0840077C530 /* RFMapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RFMapper.cpp; path = ../../../../../Source/Plugins/RFMapper/RFMapper.cpp; sourceTree = "<group>"; };
+		0363EFC01CF9E0840077C530 /* RFMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFMapper.h; path = ../../../../../Source/Plugins/RFMapper/RFMapper.h; sourceTree = "<group>"; };
+		0363EFC11CF9E0840077C530 /* RFMapperEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RFMapperEditor.cpp; path = ../../../../../Source/Plugins/RFMapper/RFMapperEditor.cpp; sourceTree = "<group>"; };
+		0363EFC21CF9E0840077C530 /* RFMapperEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFMapperEditor.h; path = ../../../../../Source/Plugins/RFMapper/RFMapperEditor.h; sourceTree = "<group>"; };
+		0363EFC31CF9E0840077C530 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../../Source/Plugins/RFMapper/OpenEphysLib.cpp; sourceTree = "<group>"; };
+		0363EFC71CF9E0940077C530 /* Plugin.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin.xcconfig; path = ../Config/Plugin.xcconfig; sourceTree = "<group>"; };
+		0363EFC81CF9E0940077C530 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		0363EFC91CF9E0940077C530 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0363EFB21CF9E0660077C530 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0363EFAC1CF9E0660077C530 = {
+			isa = PBXGroup;
+			children = (
+				0363EFCD1CF9E09B0077C530 /* Config */,
+				0363EFB71CF9E0660077C530 /* RFMapper */,
+				0363EFB61CF9E0660077C530 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0363EFB61CF9E0660077C530 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFB51CF9E0660077C530 /* RFMapper.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0363EFB71CF9E0660077C530 /* RFMapper */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFBE1CF9E0720077C530 /* Source */,
+				0363EFB81CF9E0660077C530 /* Info.plist */,
+			);
+			path = RFMapper;
+			sourceTree = "<group>";
+		};
+		0363EFBE1CF9E0720077C530 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFBF1CF9E0840077C530 /* RFMapper.cpp */,
+				0363EFC01CF9E0840077C530 /* RFMapper.h */,
+				0363EFC11CF9E0840077C530 /* RFMapperEditor.cpp */,
+				0363EFC21CF9E0840077C530 /* RFMapperEditor.h */,
+				0363EFC31CF9E0840077C530 /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		0363EFCD1CF9E09B0077C530 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFC71CF9E0940077C530 /* Plugin.xcconfig */,
+				0363EFC81CF9E0940077C530 /* Plugin_Debug.xcconfig */,
+				0363EFC91CF9E0940077C530 /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0363EFB41CF9E0660077C530 /* RFMapper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0363EFBB1CF9E0660077C530 /* Build configuration list for PBXNativeTarget "RFMapper" */;
+			buildPhases = (
+				0363EFB11CF9E0660077C530 /* Sources */,
+				0363EFB21CF9E0660077C530 /* Frameworks */,
+				0363EFB31CF9E0660077C530 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RFMapper;
+			productName = RFMapper;
+			productReference = 0363EFB51CF9E0660077C530 /* RFMapper.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0363EFAD1CF9E0660077C530 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					0363EFB41CF9E0660077C530 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 0363EFB01CF9E0660077C530 /* Build configuration list for PBXProject "RFMapper" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0363EFAC1CF9E0660077C530;
+			productRefGroup = 0363EFB61CF9E0660077C530 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0363EFB41CF9E0660077C530 /* RFMapper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0363EFB31CF9E0660077C530 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0363EFCA1CF9E0940077C530 /* Plugin.xcconfig in Resources */,
+				0363EFCB1CF9E0940077C530 /* Plugin_Debug.xcconfig in Resources */,
+				0363EFCC1CF9E0940077C530 /* Plugin_Release.xcconfig in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0363EFB11CF9E0660077C530 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0363EFC61CF9E0840077C530 /* OpenEphysLib.cpp in Sources */,
+				0363EFC41CF9E0840077C530 /* RFMapper.cpp in Sources */,
+				0363EFC51CF9E0840077C530 /* RFMapperEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0363EFB91CF9E0660077C530 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFC81CF9E0940077C530 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		0363EFBA1CF9E0660077C530 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFC91CF9E0940077C530 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		0363EFBC1CF9E0660077C530 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFC81CF9E0940077C530 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = RFMapper/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.RFMapper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0363EFBD1CF9E0660077C530 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFC91CF9E0940077C530 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = RFMapper/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.RFMapper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0363EFB01CF9E0660077C530 /* Build configuration list for PBXProject "RFMapper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0363EFB91CF9E0660077C530 /* Debug */,
+				0363EFBA1CF9E0660077C530 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0363EFBB1CF9E0660077C530 /* Build configuration list for PBXNativeTarget "RFMapper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0363EFBC1CF9E0660077C530 /* Debug */,
+				0363EFBD1CF9E0660077C530 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0363EFAD1CF9E0660077C530 /* Project object */;
+}
