@@ -21,6 +21,10 @@
 
 */
 
+#ifndef CAR_EDITOR_H_INCLUDED
+#define CAR_EDITOR_H_INCLUDED
+
+
 #include <EditorHeaders.h>
 #include <UIUtilitiesHeaders.h>
 
@@ -73,3 +77,6 @@ private:
     // =========================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CAREditor)
 };
+
+
+#endif  // CAR_H_INCLUDED
