@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <VisualizerEditorHeaders.h>
 #include <VisualizerWindowHeaders.h>
+#include <SpikeLib.h>
 
 #include "RFMapper.h"
 
@@ -39,18 +40,22 @@ class Visualizer;
  
  */
 
-class RFMapperEditor : public VisualizerEditor
+class RFMapperEditor : public VisualizerEditor, public ComboBox::Listener
 {
 public:
     RFMapperEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~RFMapperEditor();
     
-    void buttonCallback(Button* button);
+    void updateSettings();
+
+    void comboBoxChanged(ComboBox* c);
     
     Visualizer* createNewCanvas();
     
 private:
-    
+
+    ScopedPointer<ComboBox> electrodeSelector;
+    ScopedPointer<ComboBox> unitSelector;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RFMapperEditor);
 };
@@ -72,6 +77,9 @@ public:
     void setParameter(int, int, int, float) {}
     
     void paint(Graphics& g);
+
+    void setCurrentUnit(int);
+    void setCurrentElectrode(int);
     
     void refresh();
     
@@ -79,6 +87,36 @@ public:
     
 private:
     RFMapper* processor;
+
+    OwnedArray<RFMap> rfMaps;
+
+    void clearRfMaps();
+    RFMap* addRFMap(int);
+
+    int currentMap;
+
+};
+
+class RFMap : public Component
+{
+public:
+    RFMap(RFMapperCanvas*, int elecNum);
+    virtual ~RFMap();
+
+    AudioSampleBuffer map;
+
+    void paint(Graphics& g);
+    void resized();
+    void reset();
+
+    void processSpikeObject(const SpikeObject& s);
+
+    Random random;
+
+    void setCurrentUnit(int);
+    int unitId;
+
+
 
 };
 

@@ -30,11 +30,13 @@
 #include "RFMapperEditor.h"
 
 RFMapper::RFMapper()
-    : GenericProcessor("RF Mapper") //, threshold(200.0), state(true)
+    : GenericProcessor("RF Mapper"), redrawRequested(false), displayBufferSize(100)
 
 {
 	//Without a custom editor, generic parameter controls can be added
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
+
+    electrodes.clear();
 
 }
 
@@ -56,8 +58,41 @@ AudioProcessorEditor* RFMapper::createEditor()
 	return editor;
 }
 
+void RFMapper::updateSettings()
+{
+    //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
-void RFMapper::setParameter(int parameterIndex, float newValue)
+    electrodes.clear();
+
+    for (int i = 0; i < eventChannels.size(); i++)
+    {
+        ChannelType type = eventChannels[i]->getType();
+
+        if (type == ELECTRODE_CHANNEL)
+        {
+
+            Electrode elec;
+			elec.numChannels = static_cast<SpikeChannel*>(eventChannels[i]->extraData.get())->numChannels;
+
+            elec.name = eventChannels[i]->getName();
+            elec.currentSpikeIndex = 0;
+            elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
+
+            for (int j = 0; j < elec.numChannels; j++)
+            {
+                elec.displayThresholds.add(0);
+                elec.detectorThresholds.add(0);
+            }
+
+            electrodes.add(elec);
+
+        }
+    }
+
+}
+
+
+void RFMapper::setParameter(int param, float newValue)
 {
 
     //Parameter& p =  parameters.getReference(parameterIndex);
@@ -66,63 +101,108 @@ void RFMapper::setParameter(int parameterIndex, float newValue)
     //threshold = newValue;
 
     //std::cout << float(p[0]) << std::endl;
-    editor->updateParameterButtons(parameterIndex);
+    if (param == 2)   // redraw
+    {
+        redrawRequested = true;
+
+    }
 }
 
-void RFMapper::process(AudioSampleBuffer& buffer,
-                               MidiBuffer& events)
+bool RFMapper::enable()
 {
-	/**
-	Generic structure for processing buffer data 
-	*/
-	int nChannels = buffer.getNumChannels();
-	for (int chan = 0; chan < nChannels; chan++)
-	{
-		int nSamples = getNumSamples(chan);
-		/**
-		Do something here.
-		
-		To obtain a read-only pointer to the n sample of a channel:
-		float* samplePtr = buffer.getReadPointer(chan,n);
-		
-		To obtain a read-write pointer to the n sample of a channel:
-		float* samplePtr = buffer.getWritePointer(chan,n);
+    std::cout << "RFMapper::enable()" << std::endl;
+    RFMapperEditor* editor = (RFMapperEditor*) getEditor();
 
-		All the samples in a channel are consecutive, so this example is valid:
-		float* samplePtr = buffer.getWritePointer(chan,0);
-		for (i=0; i < nSamples; i++)
-		{
-			*(samplePtr+i) = (*samplePtr+i)+offset;
-		}
-		
-		See also documentation and examples for buffer.copyFrom and buffer.addFrom to operate on entire channels at once.
+    editor->enable();
+    return true;
 
-		To add a TTL event generated on the n-th sample:
-		addEvents(events, TTL, n);
+}
 
-		
-		*/
-	}
+bool RFMapper::disable()
+{
+    std::cout << "RFMapper disabled!" << std::endl;
+    RFMapperEditor* editor = (RFMapperEditor*) getEditor();
+    editor->disable();
+    return true;
+}
 
-	/** Simple example that creates an event when the first channel goes under a negative threshold
+int RFMapper::getNumElectrodes()
+{
+	return electrodes.size();
+}
 
-    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
+void RFMapper::process(AudioSampleBuffer& buffer, MidiBuffer& events)
+{
+
+    checkForEvents(events); // automatically calls 'handleEvent
+
+    if (redrawRequested)
     {
-        if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
+    	//std::cout << "redraw" << std::endl;
+        for (int i = 0; i < getNumElectrodes(); i++)
         {
-    
-	        // generate midi event
-            addEvent(events, TTL, i);
-    
-	        state = true;
-    
-	    } else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
-        {
-            state = false;
-        }
-    
-	}
-	*/
 
+            Electrode& e = electrodes.getReference(i);
+
+            // transfer buffered spikes to spike plot
+            for (int j = 0; j < e.currentSpikeIndex; j++)
+            {
+                //std::cout << "Transferring spikes." << std::endl;
+                e.rfMap->processSpikeObject(e.mostRecentSpikes[j]);
+                e.currentSpikeIndex = 0;
+            }
+
+        }
+
+        redrawRequested = false;
+    }
+
+}
+
+void RFMapper::addRFMapForElectrode(RFMap* rf, int i)
+{
+    Electrode& e = electrodes.getReference(i);
+    e.rfMap = rf;
+}
+
+
+void RFMapper::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+{
+
+    //std::cout << "Received event of type " << eventType << std::endl;
+
+    if (eventType == SPIKE)
+    {
+
+        const uint8_t* dataptr = event.getRawData();
+        int bufferSize = event.getRawDataSize();
+
+        if (bufferSize > 0)
+        {
+
+            SpikeObject newSpike;
+
+            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
+
+            if (isValid)
+            {
+                int electrodeNum = newSpike.source;
+
+                Electrode& e = electrodes.getReference(electrodeNum);
+                // std::cout << electrodeNum << std::endl;
+
+                // add to buffer
+                if (e.currentSpikeIndex < displayBufferSize)
+                {
+                    //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
+                    e.mostRecentSpikes.set(e.currentSpikeIndex, newSpike);
+                    e.currentSpikeIndex++;
+                }
+
+            }
+
+        }
+
+    }
 
 }

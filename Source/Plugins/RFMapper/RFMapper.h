@@ -29,6 +29,9 @@
 #endif
 
 #include <ProcessorHeaders.h>
+#include <SpikeLib.h>
+
+class RFMap;
 
 /**
 
@@ -67,6 +70,10 @@ public:
 		return true;
 	}
 
+    void updateSettings();
+
+    int getNumElectrodes();
+
 	/** If the processor has a custom editor, this method must be defined to instantiate it. */
 	AudioProcessorEditor* createEditor();
 
@@ -85,10 +92,14 @@ public:
          */
     void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
+    void handleEvent(int, MidiMessage&, int);
+
     /** The method that standard controls on the editor will call.
 		It is recommended that any variables used by the "process" function 
 		are modified only through this method while data acquisition is active. */
     void setParameter(int parameterIndex, float newValue);
+
+    void addRFMapForElectrode(RFMap* rf, int i);
 
 	/** Optional method called every time the signal chain is refreshed or changed in any way.
 		
@@ -98,6 +109,9 @@ public:
 		structure shouldn't be manipulated outside of this method.
 	*/
 	//void updateSettings();
+    bool enable();
+    bool disable();
+
 
 private:
 
@@ -107,6 +121,29 @@ private:
     //
     // float threshold;
     // bool state;
+
+    struct Electrode
+    {
+        String name;
+
+        int numChannels;
+
+        Array<float> displayThresholds;
+        Array<float> detectorThresholds;
+
+        Array<SpikeObject> mostRecentSpikes;
+        int currentSpikeIndex;
+
+        int recordIndex;
+
+        RFMap* rfMap;
+
+    };
+
+    Array<Electrode> electrodes;
+
+    int displayBufferSize;
+    bool redrawRequested;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RFMapper);
 
