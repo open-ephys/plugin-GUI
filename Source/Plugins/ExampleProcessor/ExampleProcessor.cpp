@@ -31,7 +31,7 @@ FILTERHEADERS
 
 
 FILTERCLASSNAME::FILTERCLASSNAME()
-    : GenericProcessor ("FILTERCLASSNAME") //, threshold(200.0), state(true)
+    : GenericProcessor ("FILTERGUINAME") //, threshold(200.0), state(true)
 
 {
     //Without a custom editor, generic parameter controls can be added

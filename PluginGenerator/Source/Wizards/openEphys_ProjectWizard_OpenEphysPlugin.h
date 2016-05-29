@@ -93,6 +93,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
                             //.replace ("EDITORCPPHEADERS", CodeHelpers::createIncludeStatement (filterHFile, filterCppFile)
                             //                                   + newLine + CodeHelpers::createIncludeStatement (editorHFile, filterCppFile), false)
                             .replace ("FILTERCLASSNAME", filterClassName, false)
+                            .replace ("FILTERGUINAME", appTitle, false) // TODO <Kirill A>: set better gui name variable
                             .replace ("EDITORCLASSNAME", editorClassName, false);
 
         //String editorH = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_h")

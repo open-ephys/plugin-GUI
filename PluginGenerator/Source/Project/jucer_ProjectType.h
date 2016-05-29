@@ -48,7 +48,7 @@ public:
     virtual bool isGUIApplication() const       { return false; }
     virtual bool isCommandLineApp() const       { return false; }
     virtual bool isAudioPlugin() const          { return false; }
-    virtual bool isOpenEphysPlugin() const      { return false; }
+    //virtual bool isOpenEphysPlugin() const      { return false; }
 
 protected:
     ProjectType (const String& type, const String& desc);
@@ -123,16 +123,16 @@ struct ProjectType_AudioPlugin  : public ProjectType
     bool isAudioPlugin() const override         { return true; }
 };
 
-struct ProjectType_OpenEphysPlugin : public ProjectType
-{
-    ProjectType_OpenEphysPlugin() : ProjectType (getTypeName(), "Open-Ephys Plug-in") {}
-
-
-    // TODO <Kirill A>: declare and handle this new project
-    // type name in the places where should be used
-    static const char* getTypeName() noexcept   { return "openephysplug"; }
-    bool isOpenEphysPlugin() const override     { return true; }
-
+//struct ProjectType_OpenEphysPlugin : public ProjectType
+//{
+//   ProjectType_OpenEphysPlugin() : ProjectType (getTypeName(), "Open-Ephys Plug-in") {}
+//
+//
+//   // TODO <Kirill A>: declare and handle this new project
+//   // type name in the places where should be used
+//   static const char* getTypeName() noexcept   { return "openephysplug"; }
+//   bool isOpenEphysPlugin() const override     { return true; }
+//
 //==============================================================================
 inline Array<ProjectType*> ProjectType::getAllTypes()
 {
