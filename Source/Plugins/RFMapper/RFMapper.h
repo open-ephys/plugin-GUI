@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ class RFMap;
 
 /**
 
-  Displays a raster and peri-stimulus time histogram for incoming spikes.
+  Real-time visual receptive-field mapping.
 
   @see GenericProcessor
 
@@ -74,53 +74,21 @@ public:
 
     int getNumElectrodes();
 
-	/** If the processor has a custom editor, this method must be defined to instantiate it. */
 	AudioProcessorEditor* createEditor();
 
-	/** Optional method that informs the GUI if the processor is ready to function. If false acquisition cannot start. Defaults to true */
-	//bool isReady();
-
-    /** Defines the functionality of the processor.
-
-        The process method is called every time a new data buffer is available.
-
-        Processors can either use this method to add new data, manipulate existing
-        data, or send data to an external target (such as a display or other hardware).
-
-        Continuous signals arrive in the "buffer" variable, event data (such as TTLs
-        and spikes) is contained in the "events" variable.
-         */
     void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
     void handleEvent(int, MidiMessage&, int);
 
-    /** The method that standard controls on the editor will call.
-		It is recommended that any variables used by the "process" function 
-		are modified only through this method while data acquisition is active. */
     void setParameter(int parameterIndex, float newValue);
 
     void addRFMapForElectrode(RFMap* rf, int i);
 
-	/** Optional method called every time the signal chain is refreshed or changed in any way.
-		
-		Allows the processor to handle variations in the channel configuration or any other parameter
-		passed down the signal chain. The processor can also modify here the settings structure, which contains
-		information regarding the input and output channels as well as other signal related parameters. Said
-		structure shouldn't be manipulated outside of this method.
-	*/
-	//void updateSettings();
     bool enable();
     bool disable();
 
 
 private:
-
-    // private members and methods go here
-    //
-    // e.g.:
-    //
-    // float threshold;
-    // bool state;
 
     struct Electrode
     {

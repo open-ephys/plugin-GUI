@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -34,9 +34,9 @@ class Visualizer;
 
 /**
  
- User interface for the SpikeRaster sink.
+ User interface for the RFMapper module.
  
- @see SpikeRaster
+ @see RFMapper
  
  */
 

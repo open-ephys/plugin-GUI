@@ -3,7 +3,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,15 +26,16 @@
 #include <stdio.h>
 #include "SpikeRaster.h"
 
-//If the processor uses a custom editor, it needs its header to instantiate it
 #include "SpikeRasterEditor.h"
 
 SpikeRaster::SpikeRaster()
-    : GenericProcessor("Spike Raster") //, threshold(200.0), state(true)
+    : GenericProcessor("Spike Raster"), redrawRequested(false), displayBufferSize(100)
 
 {
 	//Without a custom editor, generic parameter controls can be added
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
+
+    electrodes.clear();
 
 }
 
@@ -56,73 +57,144 @@ AudioProcessorEditor* SpikeRaster::createEditor()
 	return editor;
 }
 
-
-void SpikeRaster::setParameter(int parameterIndex, float newValue)
+void SpikeRaster::updateSettings()
 {
+    //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
-    //Parameter& p =  parameters.getReference(parameterIndex);
-    //p.setValue(newValue, 0);
+    electrodes.clear();
 
-    //threshold = newValue;
+    for (int i = 0; i < eventChannels.size(); i++)
+    {
+        ChannelType type = eventChannels[i]->getType();
 
-    //std::cout << float(p[0]) << std::endl;
-    editor->updateParameterButtons(parameterIndex);
+        if (type == ELECTRODE_CHANNEL)
+        {
+
+            Electrode elec;
+			elec.numChannels = static_cast<SpikeChannel*>(eventChannels[i]->extraData.get())->numChannels;
+
+            elec.name = eventChannels[i]->getName();
+            elec.currentSpikeIndex = 0;
+            elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
+
+            for (int j = 0; j < elec.numChannels; j++)
+            {
+                elec.displayThresholds.add(0);
+                elec.detectorThresholds.add(0);
+            }
+
+            electrodes.add(elec);
+
+        }
+    }
+
 }
 
-void SpikeRaster::process(AudioSampleBuffer& buffer,
-                               MidiBuffer& events)
+
+void SpikeRaster::setParameter(int param, float newValue)
 {
-	/**
-	Generic structure for processing buffer data 
-	*/
-	int nChannels = buffer.getNumChannels();
-	for (int chan = 0; chan < nChannels; chan++)
-	{
-		int nSamples = getNumSamples(chan);
-		/**
-		Do something here.
-		
-		To obtain a read-only pointer to the n sample of a channel:
-		float* samplePtr = buffer.getReadPointer(chan,n);
-		
-		To obtain a read-write pointer to the n sample of a channel:
-		float* samplePtr = buffer.getWritePointer(chan,n);
 
-		All the samples in a channel are consecutive, so this example is valid:
-		float* samplePtr = buffer.getWritePointer(chan,0);
-		for (i=0; i < nSamples; i++)
-		{
-			*(samplePtr+i) = (*samplePtr+i)+offset;
-		}
-		
-		See also documentation and examples for buffer.copyFrom and buffer.addFrom to operate on entire channels at once.
 
-		To add a TTL event generated on the n-th sample:
-		addEvents(events, TTL, n);
-
-		
-		*/
-	}
-
-	/** Simple example that creates an event when the first channel goes under a negative threshold
-
-    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
+    if (param == 2)   // redraw
     {
-        if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
-        {
-    
-	        // generate midi event
-            addEvent(events, TTL, i);
-    
-	        state = true;
-    
-	    } else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
-        {
-            state = false;
-        }
-    
-	}
-	*/
+        redrawRequested = true;
 
+    }
+}
+
+bool SpikeRaster::enable()
+{
+    std::cout << "SpikeRaster::enable()" << std::endl;
+    SpikeRasterEditor* editor = (SpikeRasterEditor*) getEditor();
+
+    editor->enable();
+    return true;
+
+}
+
+bool SpikeRaster::disable()
+{
+    std::cout << "SpikeRaster disabled!" << std::endl;
+    SpikeRasterEditor* editor = (SpikeRasterEditor*) getEditor();
+    editor->disable();
+    return true;
+}
+
+int SpikeRaster::getNumElectrodes()
+{
+	return electrodes.size();
+}
+
+void SpikeRaster::setRasterPlot(RasterPlot* r)
+{
+	canvas = r;
+}
+
+void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
+{
+
+    checkForEvents(events); // automatically calls 'handleEvent
+
+    if (redrawRequested)
+    {
+    	//std::cout << "redraw" << std::endl;
+        for (int i = 0; i < getNumElectrodes(); i++)
+        {
+
+            Electrode& e = electrodes.getReference(i);
+
+            // transfer buffered spikes to spike plot
+            for (int j = 0; j < e.currentSpikeIndex; j++)
+            {
+                //std::cout << "Transferring spikes." << std::endl;
+                canvas->processSpikeObject(e.mostRecentSpikes[j]);
+                e.currentSpikeIndex = 0;
+            }
+
+        }
+
+        redrawRequested = false;
+    }
+
+}
+
+void SpikeRaster::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+{
+
+    //std::cout << "Received event of type " << eventType << std::endl;
+
+    if (eventType == SPIKE)
+    {
+
+        const uint8_t* dataptr = event.getRawData();
+        int bufferSize = event.getRawDataSize();
+
+        if (bufferSize > 0)
+        {
+
+            SpikeObject newSpike;
+
+            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
+
+            if (isValid)
+            {
+                int electrodeNum = newSpike.source;
+
+                Electrode& e = electrodes.getReference(electrodeNum);
+                // std::cout << electrodeNum << std::endl;
+
+                // add to buffer
+                if (e.currentSpikeIndex < displayBufferSize)
+                {
+                    //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
+                    e.mostRecentSpikes.set(e.currentSpikeIndex, newSpike);
+                    e.currentSpikeIndex++;
+                }
+
+            }
+
+        }
+
+    }
 
 }

@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+Copyright (C) 2016 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -31,6 +31,24 @@ SpikeRasterEditor::SpikeRasterEditor(GenericProcessor* parentNode, bool useDefau
     tabText = "Raster";
     
     desiredWidth = 180;
+
+    electrodeSelector = new ComboBox();
+    electrodeSelector->setBounds(35,40,100,20);
+    electrodeSelector->addListener(this);
+
+    addAndMakeVisible(electrodeSelector);
+
+    unitSelector = new ComboBox();
+    unitSelector->setBounds(35,70,100,20);
+    unitSelector->addListener(this);
+
+    addAndMakeVisible(unitSelector);
+
+    eventChannelSelector = new ComboBox();
+    eventChannelSelector->setBounds(35,100,100,20);
+    eventChannelSelector->addListener(this);
+
+    addAndMakeVisible(eventChannelSelector);
     
 }
 
@@ -43,31 +61,89 @@ Visualizer* SpikeRasterEditor::createNewCanvas()
 {
     
     SpikeRaster* processor = (SpikeRaster*) getProcessor();
-    return new SpikeRasterCanvas(processor);
+    canvas = new SpikeRasterCanvas(processor);
+    return canvas;
     
 }
 
-void SpikeRasterEditor::buttonCallback(Button* button)
+void SpikeRasterEditor::comboBoxChanged(ComboBox* c)
 {
+
+    SpikeRasterCanvas* rfmc = (SpikeRasterCanvas*) canvas.get();
+    rasterPlot = rfmc->getRasterPlot();
     
-    int gId = button->getRadioGroupId();
-    
-    if (gId > 0)
+    if (c == electrodeSelector)
     {
-        if (canvas != 0)
-        {
-            canvas->setParameter(gId-1, button->getName().getFloatValue());
-        }
-        
+        rasterPlot->setCurrentElectrode(c->getSelectedId()-1);
+    } else if (c == unitSelector)
+    {
+        rasterPlot->setCurrentUnit(c->getSelectedId()-1);
+    } else if (c == unitSelector)
+    {
+        rasterPlot->setEventChannel(c->getSelectedId()-1);
     }
     
 }
 
-
-
-SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr)
+void SpikeRasterEditor::updateSettings()
 {
+    SpikeRaster* processor = (SpikeRaster*) getProcessor();
+
+    int numElectrodes = processor->getNumElectrodes();
     
+    electrodeSelector->clear();
+    unitSelector->clear();
+    eventChannelSelector->clear();
+
+    if (numElectrodes > 0)
+    {
+
+        for (int i = 1; i <= numElectrodes; i++)
+        {
+            String itemName = "Electrode ";
+            itemName += String(i);
+            std::cout << i << " " << itemName << std::endl;
+            electrodeSelector->addItem(itemName, i);
+        }
+
+        electrodeSelector->setSelectedId(1, dontSendNotification);
+
+        unitSelector->addItem("MUA", 1);
+        
+        for (int i = 1; i <= 5; i++)
+        {
+            String itemName = "Unit ";
+            itemName += String(i);
+            unitSelector->addItem(itemName, i + 1);
+        }
+
+        unitSelector->setSelectedId(1, dontSendNotification);
+
+        for (int i = 1; i <= 8; i++)
+        {
+            String itemName = "TTL ";
+            itemName += String(i);
+            eventChannelSelector->addItem(itemName, i);
+        }
+
+        eventChannelSelector->setSelectedId(1, dontSendNotification);
+    }
+
+    updateVisualizer();
+}
+
+// ==============================================================
+
+
+SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMap(0)
+{
+
+    rasterPlot = new RasterPlot(this);
+    addAndMakeVisible(rasterPlot);
+    resized();
+    repaint();
+    
+    processor->setRasterPlot(rasterPlot);
 }
 
 
@@ -77,12 +153,14 @@ SpikeRasterCanvas::~SpikeRasterCanvas(){
     
 void SpikeRasterCanvas::beginAnimation()
 {
-    
+    startCallbacks();
+    std::cout << "Spike Raster beginning animation." << std::endl;
+
 }
 
 void SpikeRasterCanvas::endAnimation()
 {
-    
+    stopCallbacks();
 }
     
 void SpikeRasterCanvas::refreshState()
@@ -92,22 +170,107 @@ void SpikeRasterCanvas::refreshState()
 void SpikeRasterCanvas::update()
 {
     
+
 }
     
 void SpikeRasterCanvas::setParameter(int, float) {}
 
 void SpikeRasterCanvas::paint(Graphics& g)
 {
-    g.fillAll(Colours::purple);
+    g.fillAll(Colours::grey);
 }
     
 void SpikeRasterCanvas::refresh()
 {
+    processor->setParameter(2, 0.0f); // request redraw
     
+    repaint();
+
+    //::cout << "Refresh" << std::endl;
 }
     
 void SpikeRasterCanvas::resized()
 {
-    
+    rasterPlot->setBounds(0, 0, getWidth(), getHeight());
+
+    repaint();
 }
     
+// =====================================================
+
+
+
+RasterPlot::RasterPlot(SpikeRasterCanvas*)
+{
+    spikes = AudioSampleBuffer(1000,30);
+
+    random = Random();
+
+    unitId = 0;
+    electrodeId = 0;
+    eventId = 0;
+
+    reset();
+}
+
+RasterPlot::~RasterPlot()
+{
+
+}
+
+void RasterPlot::reset()
+{
+    float numXPixels = spikes.getNumChannels();
+    float numYPixels = spikes.getNumSamples();
+
+    for (int n = 0; n < numXPixels; n++)
+    {
+        for (int m = 0; m < numYPixels; m++)
+        {
+            spikes.setSample(n,m, 0.);
+        }
+    }
+
+    repaint();
+}
+
+void RasterPlot::paint(Graphics& g)
+{
+    g.fillAll(Colours::purple);
+}
+
+void RasterPlot::resized()
+{
+
+}
+
+void RasterPlot::setCurrentElectrode(int elec)
+{
+    electrodeId = elec;
+}
+
+
+void RasterPlot::setEventChannel(int event)
+{
+    eventId = event;
+}
+
+
+void RasterPlot::setCurrentUnit(int unit)
+{
+    unitId = unit;
+}
+
+void RasterPlot::processSpikeObject(const SpikeObject& s)
+{
+
+    std::cout << "Got spike." << std::endl;
+
+    if (s.sortedId == unitId)
+    {
+
+    }
+
+    
+
+}

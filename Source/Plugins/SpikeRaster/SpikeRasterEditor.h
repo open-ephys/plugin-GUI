@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <VisualizerEditorHeaders.h>
 #include <VisualizerWindowHeaders.h>
+#include <SpikeLib.h>
 
 #include "SpikeRaster.h"
 
@@ -33,24 +34,31 @@ class Visualizer;
 
 /**
  
- User interface for the SpikeRaster sink.
+ User interface for the SpikeRaster module.
  
  @see SpikeRaster
  
  */
 
-class SpikeRasterEditor : public VisualizerEditor
+class SpikeRasterEditor : public VisualizerEditor, public ComboBox::Listener
 {
 public:
     SpikeRasterEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~SpikeRasterEditor();
     
-    void buttonCallback(Button* button);
+    void updateSettings();
+
+    void comboBoxChanged(ComboBox* c);
     
     Visualizer* createNewCanvas();
     
 private:
-    
+
+    ScopedPointer<ComboBox> electrodeSelector;
+    ScopedPointer<ComboBox> unitSelector;
+    ScopedPointer<ComboBox> eventChannelSelector;
+
+    RasterPlot* rasterPlot;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeRasterEditor);
 };
@@ -72,13 +80,46 @@ public:
     void setParameter(int, int, int, float) {}
     
     void paint(Graphics& g);
+
+    
     
     void refresh();
     
     void resized();
     
+    RasterPlot* getRasterPlot() {return rasterPlot.get();}
+
 private:
     SpikeRaster* processor;
+    ScopedPointer<RasterPlot> rasterPlot;
+
+    int currentMap;
+
+};
+
+class RasterPlot : public Component
+{
+public:
+    RasterPlot(SpikeRasterCanvas*);
+    virtual ~RasterPlot();
+
+    AudioSampleBuffer spikes;
+
+    void paint(Graphics& g);
+    void resized();
+    void reset();
+
+    void processSpikeObject(const SpikeObject& s);
+
+    Random random;
+
+    void setCurrentUnit(int);
+    void setCurrentElectrode(int);
+    void setEventChannel(int);
+    
+    int unitId;
+    int electrodeId;
+    int eventId;
 
 };
 
