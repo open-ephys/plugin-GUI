@@ -29,6 +29,7 @@ FILTERHEADERS
 //If the processor uses a custom editor, it needs its header to instantiate it
 //#include "ExampleEditor.h"
 
+
 FILTERCLASSNAME::FILTERCLASSNAME()
     : GenericProcessor ("FILTERCLASSNAME") //, threshold(200.0), state(true)
 
@@ -37,86 +38,86 @@ FILTERCLASSNAME::FILTERCLASSNAME()
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
 }
 
+
 FILTERCLASSNAME::~FILTERCLASSNAME()
 {
 }
 
+
 /**
-	If the processor uses a custom editor, this method must be present.
+  If the processor uses a custom editor, this method must be present.
 */
 AudioProcessorEditor* FILTERCLASSNAME::createEditor()
 {
-	editor = new EDITORCLASSNAME (this, true);
+    editor = new EDITORCLASSNAME (this, true);
 
-	//std::cout << "Creating editor." << std::endl;
+    //std::cout << "Creating editor." << std::endl;
 
-	return editor;
+    return editor;
 }
 
-void FILTERCLASSNAME::setParameter(int parameterIndex, float newValue)
-{
 
+void FILTERCLASSNAME::setParameter (int parameterIndex, float newValue)
+{
     //Parameter& p =  parameters.getReference(parameterIndex);
     //p.setValue(newValue, 0);
 
     //threshold = newValue;
 
     //std::cout << float(p[0]) << std::endl;
-    editor->updateParameterButtons(parameterIndex);
+    editor->updateParameterButtons (parameterIndex);
 }
 
-void FILTERCLASSNAME::process(AudioSampleBuffer& buffer,
-                               MidiBuffer& events)
+
+void FILTERCLASSNAME::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
-	/**
-	Generic structure for processing buffer data 
-	*/
-	int nChannels = buffer.getNumChannels();
-	for (int chan = 0; chan < nChannels; chan++)
-	{
-		int nSamples = getNumSamples(chan);
-		/**
-		Do something here.
-		
-		To obtain a read-only pointer to the n sample of a channel:
-		float* samplePtr = buffer.getReadPointer(chan,n);
-		
-		To obtain a read-write pointer to the n sample of a channel:
-		float* samplePtr = buffer.getWritePointer(chan,n);
-
-		All the samples in a channel are consecutive, so this example is valid:
-		float* samplePtr = buffer.getWritePointer(chan,0);
-		for (i=0; i < nSamples; i++)
-		{
-			*(samplePtr+i) = (*samplePtr+i)+offset;
-		}
-		
-		See also documentation and examples for buffer.copyFrom and buffer.addFrom to operate on entire channels at once.
-
-		To add a TTL event generated on the n-th sample:
-		addEvents(events, TTL, n);
-
-		
-		*/
-	}
-
-	/** Simple example that creates an event when the first channel goes under a negative threshold
-
-    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
+    /**
+      Generic structure for processing buffer data
+    */
+    int nChannels = buffer.getNumChannels();
+    for (int chan = 0; chan < nChannels; ++chan)
     {
-        if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
-        {
-    
-	        // generate midi event
-            addEvent(events, TTL, i);
-    
-	        state = true;
-    
-	    } else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
-        {
-            state = false;
-        }
-    
-	}
-	*/
+        int nSamples = getNumSamples (chan);
+        /* =============================================================================
+          Do something here.
+
+          To obtain a read-only pointer to the n sample of a channel:
+          float* samplePtr = buffer.getReadPointer(chan,n);
+
+          To obtain a read-write pointer to the n sample of a channel:
+          float* samplePtr = buffer.getWritePointer(chan,n);
+
+          All the samples in a channel are consecutive, so this example is valid:
+          float* samplePtr = buffer.getWritePointer(chan,0);
+          for (i=0; i < nSamples; i++)
+          {
+         *(samplePtr+i) = (*samplePtr+i)+offset;
+         }
+
+         See also documentation and examples for buffer.copyFrom and buffer.addFrom to operate on entire channels at once.
+
+         To add a TTL event generated on the n-th sample:
+         addEvents(events, TTL, n);
+         =============================================================================== */
+    }
+
+    /** Simple example that creates an event when the first channel goes under a negative threshold
+
+      for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
+      {
+      if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
+      {
+
+    // generate midi event
+    addEvent(events, TTL, i);
+
+    state = true;
+
+    } else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
+    {
+    state = false;
+    }
+
+    }
+    */
 }

@@ -52,7 +52,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	case 0:
 		info->type = Plugin::ProcessorPlugin; //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
 		//For processor
-		info->processor.name = "FILTERHUMANREADABLENAME"; //Processor name shown in the GUI
+		info->processor.name = "FILTERGUINAME"; //Processor name shown in the GUI
 		info->processor.type = Plugin::FilterProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
 		info->processor.creator = &(Plugin::createProcessor<FILTERCLASSNAME>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
 		break;

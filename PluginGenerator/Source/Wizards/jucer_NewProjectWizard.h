@@ -58,6 +58,8 @@ static int getFileCreationComboResult (WizardComp& setupComp)
 
 static void setExecutableNameForAllTargets (Project& project, const String& exeName)
 {
+    // TODO <Kirill A> refactor these lines to follow JUCE coding guidelines.
+    // Replace "*.next();" with "*.next() != nullptr;".
     for (Project::ExporterIterator exporter (project); exporter.next();)
         for (ProjectExporter::ConfigIterator config (*exporter); config.next();)
             config->getTargetBinaryName() = exeName;

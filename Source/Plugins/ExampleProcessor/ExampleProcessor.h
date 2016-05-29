@@ -52,28 +52,20 @@ public:
     ~FILTERCLASSNAME();
 
     /** Determines whether the processor is treated as a source. */
-    bool isSource()
-    {
-        return false;
-    }
+    bool isSource() { return false; }
 
     /** Determines whether the processor is treated as a sink. */
-    bool isSink()
-    {
-        return false;
-    }
+    bool isSink() { return false; }
 
-	/** Indicates if the processor has a custom editor. Defaults to false */
-	//bool hasEditor() const
-	//{
-	//	return true;
-	//}
+    /** Indicates if the processor has a custom editor. Defaults to false */
+    //bool hasEditor() const { return true; }
 
-	/** If the processor has a custom editor, this method must be defined to instantiate it. */
-	//AudioProcessorEditor* createEditor();
+    //TODO <Kirill A>: it was commented before, think about it
+    /** If the processor has a custom editor, this method must be defined to instantiate it. */
+    AudioProcessorEditor* createEditor() override;
 
-	/** Optional method that informs the GUI if the processor is ready to function. If false acquisition cannot start. Defaults to true */
-	//bool isReady();
+    /** Optional method that informs the GUI if the processor is ready to function. If false acquisition cannot start. Defaults to true */
+    //bool isReady();
 
     /** Defines the functionality of the processor.
 
@@ -88,18 +80,18 @@ public:
     void process (AudioSampleBuffer& buffer, MidiBuffer& events);
 
     /** The method that standard controls on the editor will call.
-		It is recommended that any variables used by the "process" function 
-		are modified only through this method while data acquisition is active. */
+      It is recommended that any variables used by the "process" function 
+      are modified only through this method while data acquisition is active. */
     void setParameter (int parameterIndex, float newValue);
 
-	/** Optional method called every time the signal chain is refreshed or changed in any way.
-		
-		Allows the processor to handle variations in the channel configuration or any other parameter
-		passed down the signal chain. The processor can also modify here the settings structure, which contains
-		information regarding the input and output channels as well as other signal related parameters. Said
-		structure shouldn't be manipulated outside of this method.
-	*/
-	//void updateSettings();
+    /** Optional method called every time the signal chain is refreshed or changed in any way.
+
+      Allows the processor to handle variations in the channel configuration or any other parameter
+      passed down the signal chain. The processor can also modify here the settings structure, which contains
+      information regarding the input and output channels as well as other signal related parameters. Said
+      structure shouldn't be manipulated outside of this method.
+      */
+    //void updateSettings();
 
 private:
 
@@ -111,7 +103,7 @@ private:
     // bool state;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FILTERCLASSNAME);
-
 };
+
 
 #endif  // HEADERGUARD

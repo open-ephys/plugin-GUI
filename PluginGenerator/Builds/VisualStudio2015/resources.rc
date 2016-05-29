@@ -13,9 +13,10 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileDescription",  "Projucer\0"
+      VALUE "CompanyName",  "Open Ephys\0"
+      VALUE "FileDescription",  "OpenEphys_PluginGenerator\0"
       VALUE "FileVersion",  "4.2.1\0"
-      VALUE "ProductName",  "Projucer\0"
+      VALUE "ProductName",  "OpenEphys_PluginGenerator\0"
       VALUE "ProductVersion",  "4.2.1\0"
     END
   END

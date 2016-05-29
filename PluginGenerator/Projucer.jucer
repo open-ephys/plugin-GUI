@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="M70qfTRRk" name="Projucer" projectType="guiapp" juceFolder="../../juce"
-              jucerVersion="4.2.1" version="4.2.1" bundleIdentifier="com.juce.theprojucer"
-              defines="" includeBinaryInAppConfig="1">
+<JUCERPROJECT id="M70qfTRRk" name="OpenEphys_PluginGenerator" projectType="guiapp"
+              juceFolder="../../juce" jucerVersion="4.2.1" version="4.2.1"
+              bundleIdentifier="org.openephys.plugingenerator" defines="" includeBinaryInAppConfig="1"
+              companyWebsite="http://open-ephys.org" companyName="Open Ephys"
+              companyEmail="info@open-ephys.org">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
                documentExtensions=".jucer" objCExtraSuffix="zkVtji" bigIcon="OCyr5F"
@@ -18,13 +20,13 @@
                        headerPath="" libraryPath="" cppLibType="libc++"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraLinkerFlags=""
@@ -38,13 +40,13 @@
                        libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2013>
     <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="" bigIcon="OCyr5F"
@@ -58,13 +60,13 @@
                        libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2015>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraCompilerFlags="-std=c++11"
@@ -76,17 +78,17 @@
                        optimisation="3" targetName="Projucer" headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
-  <MAINGROUP name="Projucer" id="NhrJq66R">
+  <MAINGROUP name="OpenEphys_PluginGenerator" id="NhrJq66R">
     <GROUP id="vD0TyHx" name="Application">
       <FILE id="QDqaEw" name="jucer_AppearanceSettings.cpp" compile="1" resource="0"
             file="Source/Application/jucer_AppearanceSettings.cpp"/>
@@ -515,6 +517,8 @@
             file="Source/Wizards/jucer_StartPageComponent.h"/>
       <FILE id="vXZJSV" name="jucer_TemplateThumbnailsComponent.h" compile="0"
             resource="0" file="Source/Wizards/jucer_TemplateThumbnailsComponent.h"/>
+      <FILE id="fuhhaI" name="openEphys_ProjectWizard_OpenEphysPlugin.h"
+            compile="0" resource="0" file="Source/Wizards/openEphys_ProjectWizard_OpenEphysPlugin.h"/>
     </GROUP>
     <GROUP id="{D4241EC8-2982-DB90-D1BE-72E57B735268}" name="BinaryData">
       <GROUP id="{8064F10D-D9BC-1C24-B322-A339C00D0B25}" name="templates">

@@ -1408,7 +1408,7 @@
 					EB15E4BA49763AC74CE29FDE,
 					6580E53C420AA794542CC8D7,
 					C5A691BE7288ADA68DC8D39A,
-					63EE1C3AC218E509130AF2BA, ); name = Projucer; sourceTree = "<group>"; };
+					63EE1C3AC218E509130AF2BA, ); name = "OpenEphys_PluginGenerator"; sourceTree = "<group>"; };
 		8A18C7E36165DF7E3A5CEDD6 = {isa = PBXGroup; children = (
 					385426A4A6D3BFC4B2FD310C,
 					514B0E8E2796ACE7385F6717,
@@ -2383,7 +2383,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_CPLUSPLUSFLAGS = "-Wall -Wshadow -Wno-missing-field-initializers -Wshadow -Wshorten-64-to-32 -Wstrict-aliasing -Wuninitialized -Wunused-parameter -Wconversion -Wsign-compare -Wint-conversion -Woverloaded-virtual -Wreorder -Wconstant-conversion -Wsign-conversion";
-				PRODUCT_BUNDLE_IDENTIFIER = com.juce.theprojucer;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openephys.plugingenerator;
 				SDKROOT_ppc = macosx10.5; }; name = Debug; };
 		0BC15DC2E5FE5ECFFB398D49 = {isa = XCBuildConfiguration; buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
@@ -2408,7 +2408,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_CPLUSPLUSFLAGS = "-Wall -Wshadow -Wno-missing-field-initializers -Wshadow -Wshorten-64-to-32 -Wstrict-aliasing -Wuninitialized -Wunused-parameter -Wconversion -Wsign-compare -Wint-conversion -Woverloaded-virtual -Wreorder -Wconstant-conversion -Wsign-conversion";
-				PRODUCT_BUNDLE_IDENTIFIER = com.juce.theprojucer;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openephys.plugingenerator;
 				SDKROOT_ppc = macosx10.5; }; name = Release; };
 		C42924A24AB55E6A940423EA = {isa = XCBuildConfiguration; buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2527,7 +2527,7 @@
 		0039FE1A254FE518518BF8B8 = {isa = PBXNativeTarget; buildConfigurationList = 0655A4A348F7F91F77583ADC; buildPhases = (
 					C262D0F297DDE25326F5AC81,
 					5CB869A8DA78BE6FA2757034,
-					D150288A32EE596408C2B99F, ); buildRules = ( ); dependencies = (  ); name = "Projucer (App)"; productName = Projucer; productReference = 09DE066936CF037E9709ADB1; productType = "com.apple.product-type.application"; };
+					D150288A32EE596408C2B99F, ); buildRules = ( ); dependencies = (  ); name = "OpenEphys_PluginGenerator (App)"; productName = "OpenEphys_PluginGenerator"; productReference = 09DE066936CF037E9709ADB1; productType = "com.apple.product-type.application"; };
 		74EA481348A24104E6ACE009 = {isa = PBXProject; buildConfigurationList = F90407F24422C589DA251604; attributes = { LastUpgradeCheck = 0440; TargetAttributes = { 0039FE1A254FE518518BF8B8 = { SystemCapabilities = {com.apple.InAppPurchase = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; }; }; }; }; compatibilityVersion = "Xcode 3.2"; hasScannedForEncodings = 0; mainGroup = 3CC531922CC2D398E283A845; projectDirPath = ""; projectRoot = ""; targets = (0039FE1A254FE518518BF8B8); };
 	};
 	rootObject = 74EA481348A24104E6ACE009;

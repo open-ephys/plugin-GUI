@@ -45,6 +45,8 @@ struct NewProjectWizardClasses
     #include "jucer_ProjectWizard_AudioApp.h"
     #include "jucer_ProjectWizard_Blank.h"
 
+    #include "openEphys_ProjectWizard_OpenEphysPlugin.h"
+
     #include "jucer_NewProjectWizardComponent.h"
     #include "jucer_TemplateThumbnailsComponent.h"
     #include "jucer_StartPageComponent.h"
@@ -52,7 +54,7 @@ struct NewProjectWizardClasses
     //==============================================================================
     static int getNumWizards() noexcept
     {
-        return 9;
+        return 10;
     }
 
     static NewProjectWizard* createWizardType (int index)
@@ -67,7 +69,8 @@ struct NewProjectWizardClasses
             case 5:     return new NewProjectWizardClasses::AudioPluginAppWizard();
             case 6:     return new NewProjectWizardClasses::StaticLibraryWizard();
             case 7:     return new NewProjectWizardClasses::DynamicLibraryWizard();
-            case 8:     return new NewProjectWizardClasses::BlankAppWizard();
+            case 8:     return new NewProjectWizardClasses::OpenEphysPluginAppWizard();
+            case 9:     return new NewProjectWizardClasses::BlankAppWizard();
             default:    jassertfalse; break;
         }
 

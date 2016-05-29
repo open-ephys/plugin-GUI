@@ -34,7 +34,7 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "Projucer";
+    const char* const  projectName    = "OpenEphys_PluginGenerator";
     const char* const  versionString  = "4.2.1";
     const int          versionNumber  = 0x40201;
 }

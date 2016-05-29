@@ -139,19 +139,25 @@ public:
     TemplateTileBrowser (WizardComp* projectWizard)
     {
         const int numWizardButtons = getNumWizards() - 1; // ( - 1 because the last one is blank)
+        DBG (numWizardButtons);
 
         for (int i = 0; i < numWizardButtons; ++i)
         {
+            DBG ("//============== " + String (i) + " ================");
             ScopedPointer<NewProjectWizard> wizard (createWizardType (i));
 
             TemplateOptionButton* b = new TemplateOptionButton (wizard->getName(),
                                                                 TemplateOptionButton::ImageFitted,
                                                                 wizard->getIcon());
+            DBG (wizard->getName());
+            DBG (wizard->getDescription());
             optionButtons.add (b);
             addAndMakeVisible (b);
             b->setDescription (wizard->getDescription());
             b->addListener (this);
+            b->setVisible (false);
         }
+        optionButtons[8]->setVisible (true);
 
         // Handle Open Project button functionality
         ApplicationCommandManager& commandManager = ProjucerApplication::getCommandManager();
@@ -205,6 +211,7 @@ public:
                                                                       optStep, allOpts.getHeight() / 2)
                                                         .reduced (10, 10));
         }
+        optionButtons[8]->setBounds (optionButtons[0]->getBounds());
 
         Rectangle<int> openButtonBounds = getLocalBounds();
         openButtonBounds.removeFromBottom (proportionOfHeight (0.12f));

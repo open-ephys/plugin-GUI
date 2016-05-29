@@ -25,9 +25,9 @@
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleName</key>
-    <string>Projucer</string>
+    <string>OpenEphys_PluginGenerator</string>
     <key>CFBundleDisplayName</key>
-    <string>Projucer</string>
+    <string>OpenEphys_PluginGenerator</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
@@ -37,7 +37,7 @@
     <key>CFBundleVersion</key>
     <string>4.2.1</string>
     <key>NSHumanReadableCopyright</key>
-    <string></string>
+    <string>Open Ephys</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>CFBundleDocumentTypes</key>
