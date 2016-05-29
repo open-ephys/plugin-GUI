@@ -289,7 +289,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
     , controlButton (cButton)
 
 {
-    centreWithSize (360,300);
+    centreWithSize (360,500);
     setUsingNativeTitleBar (true);
     setResizable (false,false);
 
@@ -306,7 +306,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
          false, // showChannelsAsStereoPairs
          false); // hideAdvancedOptionsWithButton
 
-    adsc->setBounds (0, 0, 450, 240);
+    adsc->setBounds (0, 0, 450, 440);
 
     setContentOwned (adsc, true);
     setVisible (false);
