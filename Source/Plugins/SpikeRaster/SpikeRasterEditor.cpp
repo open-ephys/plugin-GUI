@@ -144,6 +144,7 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     repaint();
     
     processor->setRasterPlot(rasterPlot);
+    rasterPlot->setNumberOfElectrodes(sr->getNumElectrodes());
 }
 
 
@@ -202,7 +203,7 @@ void SpikeRasterCanvas::resized()
 
 RasterPlot::RasterPlot(SpikeRasterCanvas*)
 {
-    spikes = AudioSampleBuffer(1000,30);
+    spikeBuffer = AudioSampleBuffer(30,1001);
 
     random = Random();
 
@@ -211,6 +212,9 @@ RasterPlot::RasterPlot(SpikeRasterCanvas*)
     eventId = 0;
 
     reset();
+
+    displayStartTimestamp = 0;
+    
 }
 
 RasterPlot::~RasterPlot()
@@ -218,16 +222,29 @@ RasterPlot::~RasterPlot()
 
 }
 
+void RasterPlot::setNumberOfElectrodes(int n)
+{
+    numElectrodes = n;
+
+    lastSpikeTime.clear();
+
+    for (int i = 0; i < numElectrodes; i++)
+    {
+        lastSpikeTime.add(0);
+    }
+    //spikeBuffer.setSize(numElectrodes, 1000);
+}
+
 void RasterPlot::reset()
 {
-    float numXPixels = spikes.getNumChannels();
-    float numYPixels = spikes.getNumSamples();
+    float numXPixels = spikeBuffer.getNumChannels();
+    float numYPixels = spikeBuffer.getNumSamples();
 
     for (int n = 0; n < numXPixels; n++)
     {
         for (int m = 0; m < numYPixels; m++)
         {
-            spikes.setSample(n,m, 0.);
+            spikeBuffer.setSample(n,m, 0.);
         }
     }
 
@@ -236,7 +253,31 @@ void RasterPlot::reset()
 
 void RasterPlot::paint(Graphics& g)
 {
-    g.fillAll(Colours::purple);
+    float numYPixels = spikeBuffer.getNumChannels();
+    float numXPixels = spikeBuffer.getNumSamples();
+
+    float xHeight = getWidth()/numXPixels;
+    float yHeight = getHeight()/numYPixels;
+
+    for (int n = 0; n < numXPixels; n++)
+    {
+        for (int m = 0; m < numYPixels; m++)
+        {
+            float colourIndex = spikeBuffer.getSample(m,n);
+
+            if (colourIndex == 0.)
+            {
+                g.setColour(Colours::grey);
+            } else if (colourIndex == 1.)
+            {
+                g.setColour(Colours::white);
+            } else {
+                g.setColour(Colours::black);
+            }
+
+            g.fillRect(n*xHeight, m*yHeight, xHeight, yHeight);
+        }
+    }
 }
 
 void RasterPlot::resized()
@@ -261,16 +302,50 @@ void RasterPlot::setCurrentUnit(int unit)
     unitId = unit;
 }
 
+void RasterPlot::setTimestamp(int64 ts)
+{
+    currentTimestamp = ts;
+}
+
+void RasterPlot::setSampleRate(float sr)
+{
+    sampleRate = sr;
+}
+
 void RasterPlot::processSpikeObject(const SpikeObject& s)
 {
+    int electrode = s.source;
+    int unit = s.sortedId;
+    int timestamp = s.timestamp;
 
     std::cout << "Got spike." << std::endl;
 
-    if (s.sortedId == unitId)
+    if (currentTimestamp - displayStartTimestamp > sampleRate)
     {
-
+        displayStartTimestamp = currentTimestamp;
+        spikeBuffer.clear(electrode, 0, 1001);
     }
 
+    // if (timestamp - displayStartTimestamp > sampleRate)
+    // {
+    //     displayStartTimestamp = timestamp;
+    //     spikeBuffer.clear(electrode, 0, 1001);
+    //     //spikeBuffer.clear();
+    // }
+
+    float relativeTimestamp = float(timestamp - displayStartTimestamp) / sampleRate;
+
+    //std::cout << spikeBuffer.getNumSamples() << " " << spikeBuffer.getNumChannels() << " " << (int) (relativeTimestamp*1000) << " " << electrode << std::endl;
+
+    if (relativeTimestamp > 0 && relativeTimestamp < 1)
+    {
+        //std::cout << relativeTimestamp << " " << displayStartTimestamp << std::endl;
+
+        //spikeBuffer.clear(electrode, (int) (lastSpikeTime[electrode]*1000) + 1, (int) (relativeTimestamp - lastSpikeTime[electrode])*1000);
+        spikeBuffer.setSample(electrode, (int) (relativeTimestamp*1000), 1);
+
+        lastSpikeTime.set(electrode, relativeTimestamp);
+    }
     
 
 }

@@ -87,7 +87,6 @@ public:
 
     void setRasterPlot(RasterPlot*);
 
-
 private:
 
     struct Electrode
@@ -107,7 +106,7 @@ private:
     };
 
     RasterPlot* canvas;
-    
+
 
     Array<Electrode> electrodes;
 

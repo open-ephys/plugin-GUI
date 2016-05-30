@@ -103,7 +103,7 @@ public:
     RasterPlot(SpikeRasterCanvas*);
     virtual ~RasterPlot();
 
-    AudioSampleBuffer spikes;
+    AudioSampleBuffer spikeBuffer;
 
     void paint(Graphics& g);
     void resized();
@@ -116,10 +116,22 @@ public:
     void setCurrentUnit(int);
     void setCurrentElectrode(int);
     void setEventChannel(int);
+
+    void setNumberOfElectrodes(int);
+    void setSampleRate(float);
+
+    void setTimestamp(int64);
     
     int unitId;
     int electrodeId;
     int eventId;
+
+    int64 currentTimestamp;
+    int64 displayStartTimestamp;
+    int numElectrodes;
+
+    Array<float> lastSpikeTime;
+    float sampleRate;
 
 };
 

@@ -128,6 +128,7 @@ int SpikeRaster::getNumElectrodes()
 void SpikeRaster::setRasterPlot(RasterPlot* r)
 {
 	canvas = r;
+	r->setSampleRate(settings.sampleRate);
 }
 
 void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
@@ -149,12 +150,16 @@ void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
                 //std::cout << "Transferring spikes." << std::endl;
                 canvas->processSpikeObject(e.mostRecentSpikes[j]);
                 e.currentSpikeIndex = 0;
+
+                canvas->setTimestamp(getTimestamp(0));
             }
 
         }
 
         redrawRequested = false;
     }
+
+
 
 }
 
