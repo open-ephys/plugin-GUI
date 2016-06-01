@@ -65,6 +65,24 @@ public:
 
 };
 
+class Timescale : public Component
+{
+public:
+    Timescale(RasterPlot*);
+    virtual ~Timescale();
+
+    void paint(Graphics& g);
+    void resized();
+
+    void setRange(float, float);
+
+    RasterPlot* raster;
+
+    float min, max;
+    float resolution;
+
+};
+
 class EventChannelButton : public Component,
     public Button::Listener
 {
@@ -144,6 +162,7 @@ private:
     ScopedPointer<RasterPlot> rasterPlot;
     ScopedPointer<PSTH> psth;
     ScopedPointer<RatePlot> ratePlot;
+    ScopedPointer<Timescale> timescale;
 
     ScopedPointer<Label> triggerLabel;
     OwnedArray<EventChannelButton> eventChannelButtons;

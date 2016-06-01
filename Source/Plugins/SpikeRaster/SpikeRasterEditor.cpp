@@ -68,6 +68,9 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     psth = new PSTH(rasterPlot);
     addAndMakeVisible(psth);
 
+    timescale = new Timescale(rasterPlot);
+    addAndMakeVisible(timescale);
+
     for (int i = 0; i < 8; i++)
     {
         EventChannelButton* ecb = new EventChannelButton(rasterPlot, i, rasterPlot->getColourForChannel(i));
@@ -180,11 +183,13 @@ void SpikeRasterCanvas::refresh()
     
 void SpikeRasterCanvas::resized()
 {
-    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-100);
+    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-110);
 
-    ratePlot->setBounds(10, 10, 80, getHeight()-100);
+    ratePlot->setBounds(10, 10, 80, getHeight()-110);
 
-    psth->setBounds(100, getHeight()-80, getWidth()-250, 70);
+    psth->setBounds(100, getHeight()-90, getWidth()-250, 70);
+
+    timescale->setBounds(97, getHeight()-15, getWidth()-247, 70);
 
     for (int i = 0; i < eventChannelButtons.size(); i++)
     {
@@ -219,6 +224,11 @@ void SpikeRasterCanvas::labelTextChanged(Label* l)
         rasterPlot->setPostSecs(value);
 
     l->setText(String(value), dontSendNotification);
+
+    float min = preSecsInput->getText().getFloatValue()*-1;
+    float max = postSecsInput->getText().getFloatValue() + min;
+
+    timescale->setRange(min, max);
 
 }
 
@@ -921,3 +931,67 @@ void EventChannelButton::paint(Graphics& g)
     }
 
 }
+
+// ============================================================================
+
+
+
+Timescale::Timescale(RasterPlot* r) : raster(r)
+{
+    min = -1.5f;
+    max = 1.5f;
+
+    resolution = 0.5f;
+
+}
+
+Timescale::~Timescale()
+{
+
+}
+
+void Timescale::paint(Graphics& g)
+{
+    g.setColour(Colours::white);
+    g.setFont(12);
+
+    float pt = min;
+
+    //g.drawText("0", 2, (int) h, 8, 7, Justification::left, false);
+
+    while (pt < max + resolution)
+    {
+        float xLoc = (pt + min)/(min + max);
+        if (xLoc < 0.5)
+            xLoc += 0.02;
+        else
+            xLoc -= 0.04;
+         g.drawText(String(pt), xLoc*getWidth(), 0, 25, 12, Justification::left, false);
+         pt += resolution;
+     }
+}
+
+void Timescale::resized()
+{
+
+}
+
+void Timescale::setRange(float mn, float mx)
+{
+    min = mn;
+    max = mx;
+
+    if (max - min > 4)
+    {
+        resolution = 1;
+    } else if (max - min < 4 && max - min > 1)
+    {
+        resolution = 0.5f;
+    } else if (max - min < 1)
+    {
+        resolution = 0.25f;
+    }
+
+    repaint();
+}
+
