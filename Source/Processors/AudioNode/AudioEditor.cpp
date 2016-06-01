@@ -79,7 +79,7 @@ void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
-    g.setFont (FONT_LABEL);
+    //g.setFont (FONT_LABEL);
     g.drawSingleLineText (textToDraw, 0, 15);
 }
 
@@ -251,7 +251,7 @@ void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
     g.setColour (Colours::lightgrey);
-    g.setFont (FONT_LABEL);
+    //g.setFont (FONT_LABEL);
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 }
 
