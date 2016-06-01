@@ -69,7 +69,7 @@ class EventChannelButton : public Component,
     public Button::Listener
 {
 public:
-    EventChannelButton(RasterPlot*, int chNum);
+    EventChannelButton(RasterPlot*, int chNum, Colour col);
     ~EventChannelButton();
 
     void paint(Graphics& g);
@@ -81,6 +81,7 @@ public:
 private:
 
     int channelNumber;
+    Colour colour;
     RasterPlot* rasterPlot;
     ScopedPointer<UtilityButton> chButton;
 
@@ -209,6 +210,8 @@ public:
 
     Array<float> lastBufferPos;
     float sampleRate;
+
+    Colour getColourForChannel(int ch);
 
 };
 

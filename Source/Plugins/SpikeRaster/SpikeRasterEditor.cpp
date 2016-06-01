@@ -70,7 +70,7 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
 
     for (int i = 0; i < 8; i++)
     {
-        EventChannelButton* ecb = new EventChannelButton(rasterPlot, i);
+        EventChannelButton* ecb = new EventChannelButton(rasterPlot, i, rasterPlot->getColourForChannel(i));
         eventChannelButtons.add(ecb);
         addAndMakeVisible(ecb);
     }
@@ -644,6 +644,28 @@ Array<float> RasterPlot::getFiringRates()
     return rates;
 }
 
+Colour RasterPlot::getColourForChannel(int ch)
+{
+
+    if (ch == 0)
+        return Colour(224,185,36);
+    else if (ch == 1)
+        return Colour(243,119,33);
+    else if (ch == 2)
+        return Colour(237,37,36);
+    else if (ch == 3)
+        return Colour(217,46,171);
+    else if (ch == 4)
+        return Colour(101,31,255);
+    else if (ch == 5)
+        return Colour(48,117,255);
+    else if (ch == 6)
+        return Colour(116,227,156);
+    else
+        return Colour(82,173,0);
+ 
+}
+
 //===========================================================
 
 PSTH::PSTH(RasterPlot* r) : raster(r)
@@ -748,8 +770,8 @@ void RatePlot::setNumberOfElectrodes(int n)
 
 // =========================================================
 
-EventChannelButton::EventChannelButton(RasterPlot* rp, int chNum):
-    isEnabled(false), rasterPlot(rp)
+EventChannelButton::EventChannelButton(RasterPlot* rp, int chNum, Colour col):
+    isEnabled(false), rasterPlot(rp), colour(col)
 {
 
     channelNumber = chNum;
@@ -787,7 +809,7 @@ void EventChannelButton::paint(Graphics& g)
 
     if (isEnabled)
     {
-        g.setColour(Colours::pink);
+        g.setColour(colour);
         g.fillRoundedRectangle(2,2,18,18,6.0f);
     }
 
