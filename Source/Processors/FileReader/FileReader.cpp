@@ -271,33 +271,33 @@ void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
     setNumSamples (events, samplesNeeded);
 
     // code for testing events:
-    // // ===========================================================================
+    // // // ===========================================================================
 
-    if (counter == 50)
-    {
-        //std::cout << "Adding on event for node id: " << nodeId << std::endl;
-        addEvent (events,    // MidiBuffer
-                  TTL,       // eventType
-                  0,         // sampleNum
-                  1,         // eventID
-                  0);        // eventChannel
-        ++counter;
-    } 
-    else if (counter > 70)
-    {
-        //std::cout << "Adding off event!" << std::endl;
-        addEvent (events,    // MidiBuffer
-                  TTL,       // eventType
-                  0,         // sampleNum
-                  0,         // eventID
-                  0);        // eventChannel
-        counter = 0;
-    }
-    else 
-    {
-        ++counter;
-    }
-    // // ===========================================================================
+    // if (counter == 500)
+    // {
+    //     //std::cout << "Adding on event for node id: " << nodeId << std::endl;
+    //     addEvent (events,    // MidiBuffer
+    //               TTL,       // eventType
+    //               0,         // sampleNum
+    //               1,         // eventID
+    //               0);        // eventChannel
+    //     ++counter;
+    // } 
+    // else if (counter > 502)
+    // {
+    //     //std::cout << "Adding off event!" << std::endl;
+    //     addEvent (events,    // MidiBuffer
+    //               TTL,       // eventType
+    //               0,         // sampleNum
+    //               0,         // eventID
+    //               0);        // eventChannel
+    //     counter = 0;
+    // }
+    // else 
+    // {
+    //     ++counter;
+    // }
+    // // // ===========================================================================
 }
 
 

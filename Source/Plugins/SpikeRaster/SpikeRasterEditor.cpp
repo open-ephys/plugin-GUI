@@ -101,6 +101,30 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     clearButton->setToggleState(false, dontSendNotification);
     addAndMakeVisible(clearButton);
 
+    preSecsLabel = new Label("Pre:","Pre:");
+    preSecsLabel->setFont(Font("Small Text", 13, Font::plain));
+    preSecsLabel->setColour(Label::textColourId, Colour(200, 200, 200));
+    addAndMakeVisible(preSecsLabel);
+
+    postSecsLabel = new Label("Post:","Post:");
+    postSecsLabel->setFont(Font("Small Text", 13, Font::plain));
+    postSecsLabel->setColour(Label::textColourId, Colour(200, 200, 200));
+    addAndMakeVisible(postSecsLabel);
+
+    preSecsInput = new Label("0.5","0.5");
+    preSecsInput->setFont(Font("Small Text", 13, Font::plain));
+    preSecsInput->setColour(Label::textColourId, Colour(250, 250, 250));
+    preSecsInput->setEditable(true);
+    preSecsInput->addListener(this);
+    addAndMakeVisible(preSecsInput);
+
+    postSecsInput = new Label("1.5","1.5");
+    postSecsInput->setFont(Font("Small Text", 13, Font::plain));
+    postSecsInput->setColour(Label::textColourId, Colour(250, 250, 250));
+    postSecsInput->setEditable(true);
+    postSecsInput->addListener(this);
+    addAndMakeVisible(postSecsInput);
+
     resized();
     repaint();
     
@@ -170,7 +194,31 @@ void SpikeRasterCanvas::resized()
     triggerLabel->setBounds(getWidth()-140, 15, 140, 30);
     viewLabel->setBounds(getWidth()-140, 100, 140, 20);
     viewButton->setBounds(getWidth()-135, 120, 105, 20);
-    clearButton->setBounds(getWidth()-135, 150, 74, 20);
+    clearButton->setBounds(getWidth()-135, 250, 74, 20);
+    preSecsLabel->setBounds(getWidth()-140, 150, 105, 15);
+    preSecsInput->setBounds(getWidth()-90, 150, 45, 15);
+    postSecsLabel->setBounds(getWidth()-140, 170, 105, 15);
+    postSecsInput->setBounds(getWidth()-90, 170, 45, 15);
+
+}
+
+void SpikeRasterCanvas::labelTextChanged(Label* l)
+{
+    String text = l->getText();
+    float value = text.getFloatValue();
+
+    if (value < 0.05)
+        value = 0.05;
+    else if (value > 5)
+        value = 5;
+
+
+    if (l == preSecsInput)
+        rasterPlot->setPreSecs(value);
+    else if (l == postSecsInput)
+        rasterPlot->setPostSecs(value);
+
+    l->setText(String(value), dontSendNotification);
 
 }
 
@@ -265,6 +313,8 @@ void RasterPlot::clear()
     trialBuffer1.clear();
     trialBuffer2.clear();
     trialIndex = 0;
+
+    setNumberOfElectrodes(numElectrodes); // clear last sample
 }
 
 void RasterPlot::setViewType(int v)
@@ -331,6 +381,28 @@ void RasterPlot::paint(Graphics& g)
 
 void RasterPlot::resized()
 {
+
+}
+
+void RasterPlot::setPreSecs(float value)
+{
+    float postStimSecs = rasterTimebase - preStimSecs;
+
+    preStimSecs = value;
+    rasterTimebase = postStimSecs + preStimSecs;
+
+    clear();
+    getParentComponent()->repaint();
+}
+
+void RasterPlot::setPostSecs(float value)
+{
+
+    rasterTimebase = value + preStimSecs;
+
+    clear();
+
+    getParentComponent()->repaint();
 
 }
 

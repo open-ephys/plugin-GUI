@@ -113,7 +113,7 @@ private:
 };
 
 
-class SpikeRasterCanvas : public Visualizer, public Button::Listener
+class SpikeRasterCanvas : public Visualizer, public Button::Listener, public Label::Listener
 {
 public:
     SpikeRasterCanvas(SpikeRaster* n);
@@ -129,6 +129,7 @@ public:
     void setParameter(int, int, int, float) {}
 
     void buttonClicked(Button*);
+    void labelTextChanged(Label*);
     
     void paint(Graphics& g);
 
@@ -151,6 +152,11 @@ private:
     ScopedPointer<UtilityButton> viewButton;
 
     ScopedPointer<UtilityButton> clearButton;
+
+    ScopedPointer<Label> preSecsInput;
+    ScopedPointer<Label> postSecsInput;
+    ScopedPointer<Label> preSecsLabel;
+    ScopedPointer<Label> postSecsLabel;
 
     int viewType;
 
@@ -184,6 +190,9 @@ public:
 
     void setTimestamp(int64);
     void resetTimestamps();
+
+    void setPreSecs(float);
+    void setPostSecs(float);
 
     void setViewType(int);
 
