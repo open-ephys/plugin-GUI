@@ -491,17 +491,17 @@ HDF5RecordingData::HDF5RecordingData(DataSet* data)
     dimension = dSpace.getSimpleExtentDims(dims);
     prop.getChunk(dimension,chunk);
 
-    this->size[0] = dims[0];
+    this->size[0] = (int) dims[0];
     if (dimension > 1)
-        this->size[1] = dims[1];
+        this->size[1] = (int) dims[1];
     else
         this->size[1] = 1;
     if (dimension > 1)
-        this->size[2] = dims[2];
+        this->size[2] = (int) dims[2];
     else
         this->size[2] = 1;
 
-    this->xChunkSize = chunk[0];
+    this->xChunkSize = (int) chunk[0];
     this->xPos = 0;
     this->dSet = dataSet;
     this->rowXPos.clear();
@@ -538,9 +538,9 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
 
         fSpace = dSet->getSpace();
         fSpace.getSimpleExtentDims(dim);
-        size[0]=dim[0];
+        size[0] = (int) dim[0];
         if (dimension > 1)
-            size[1]=dim[1];
+            size[1] = (int) dim[1];
 
         //Create memory space
         dim[0]=xDataSize;
@@ -591,7 +591,7 @@ int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataT
 
             fSpace = dSet->getSpace();
             fSpace.getSimpleExtentDims(dim);
-            size[0]=dim[0];
+            size[0] = (int) dim[0];
         }
         if (rowXPos[yPos]+xDataSize > xPos)
         {
