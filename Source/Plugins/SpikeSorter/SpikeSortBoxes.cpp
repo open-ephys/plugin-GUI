@@ -285,7 +285,7 @@ void BoxUnit::addBox()
 
 int BoxUnit::getNumBoxes()
 {
-    return lstBoxes.size();
+    return (int) lstBoxes.size();
 }
 
 void BoxUnit::modifyBox(int boxindex, Box b)
@@ -460,7 +460,7 @@ std::vector<double> RunningStats::getMean(int index)
         return m;
     }
 
-    int numSamplesInWaveForm = WaveFormMean[0].size();
+    int numSamplesInWaveForm = (int) WaveFormMean[0].size();
     m.resize(numSamplesInWaveForm);
 
     for (int k = 0; k < numSamplesInWaveForm; k++)
@@ -476,7 +476,7 @@ std::vector<double> RunningStats::getStandardDeviation(int index)
     {
         return WaveFormVar;
     }
-    int numSamplesInWaveForm = WaveFormMean[0].size();
+    int numSamplesInWaveForm = (int) WaveFormMean[0].size();
     WaveFormVar.resize(numSamplesInWaveForm);
 
     for (int j = 0; j < numSamplesInWaveForm; j++)
@@ -1100,7 +1100,7 @@ bool SpikeSortBoxes::addBoxToUnit(int channel, int unitID)
             B.y -= 30;
             B.channel = channel;
             boxUnits[k].addBox(B);
-            setSelectedUnitAndBox(unitID, boxUnits[k].lstBoxes.size() - 1);
+            setSelectedUnitAndBox(unitID, (int) boxUnits[k].lstBoxes.size() - 1);
             // EndCriticalSection();
             return true;
         }

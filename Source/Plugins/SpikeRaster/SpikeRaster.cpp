@@ -29,7 +29,7 @@
 #include "SpikeRasterEditor.h"
 
 SpikeRaster::SpikeRaster()
-    : GenericProcessor("Spike Raster"), redrawRequested(false), displayBufferSize(100)
+    : GenericProcessor("Spike Raster"), displayBufferSize(100), redrawRequested(false)
 
 {
 	//Without a custom editor, generic parameter controls can be added

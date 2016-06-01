@@ -438,7 +438,7 @@ void RasterPlot::setSampleRate(float sr)
 void RasterPlot::processSpikeObject(const SpikeObject& s)
 {
     int electrode = s.source;
-    int unit = s.sortedId;
+    //int unit = s.sortedId;
     int timestamp = s.timestamp; // absolute time
 
     float bufferPos = float(timestamp - rasterStartTimestamp) / (sampleRate * rasterTimebase);
@@ -504,6 +504,7 @@ Array<float> RasterPlot::getPSTH(int numBins)
             break;
         }   
         default:
+            buffer = &spikeBuffer;
             break;
     }
 
@@ -527,8 +528,7 @@ Array<float> RasterPlot::getPSTH(int numBins)
         float spikeRate = totalSpikes;
 
         // normalize it!
-        if (0)
-        {
+
             switch (viewType)
             {
                 case 0:
@@ -562,7 +562,7 @@ Array<float> RasterPlot::getPSTH(int numBins)
                 default:
                     break;
             }
-        }
+
 
 
         psth.add(spikeRate);
@@ -732,8 +732,6 @@ void RatePlot::paint(Graphics& g)
 
     Array<float> rates = raster->getFiringRates();
 
-    float maxBufferPos = raster->getMaxBufferPos();
-
     float electrodeSize = 10.0f;
     float electrodeSpacing = 5.0f;
 
@@ -771,7 +769,7 @@ void RatePlot::setNumberOfElectrodes(int n)
 // =========================================================
 
 EventChannelButton::EventChannelButton(RasterPlot* rp, int chNum, Colour col):
-    isEnabled(false), rasterPlot(rp), colour(col)
+    isEnabled(false), colour(col), rasterPlot(rp)
 {
 
     channelNumber = chNum;
