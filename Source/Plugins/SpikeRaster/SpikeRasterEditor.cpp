@@ -140,11 +140,18 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
 
     rasterPlot = new RasterPlot(this);
     addAndMakeVisible(rasterPlot);
+
+    ratePlot = new RatePlot(rasterPlot);
+    addAndMakeVisible(ratePlot);
+
+    psth = new PSTH(rasterPlot);
+    addAndMakeVisible(psth);
+
     resized();
     repaint();
     
     processor->setRasterPlot(rasterPlot);
-    rasterPlot->setNumberOfElectrodes(sr->getNumElectrodes());
+    
 }
 
 
@@ -156,12 +163,14 @@ void SpikeRasterCanvas::beginAnimation()
 {
     startCallbacks();
     std::cout << "Spike Raster beginning animation." << std::endl;
+    
 
 }
 
 void SpikeRasterCanvas::endAnimation()
 {
     stopCallbacks();
+    rasterPlot->resetTimestamps();
 }
     
 void SpikeRasterCanvas::refreshState()
@@ -170,7 +179,8 @@ void SpikeRasterCanvas::refreshState()
 
 void SpikeRasterCanvas::update()
 {
-    
+    rasterPlot->setNumberOfElectrodes(processor->getNumElectrodes());
+    ratePlot->setNumberOfElectrodes(processor->getNumElectrodes());
 
 }
     
@@ -178,7 +188,7 @@ void SpikeRasterCanvas::setParameter(int, float) {}
 
 void SpikeRasterCanvas::paint(Graphics& g)
 {
-    g.fillAll(Colours::grey);
+    g.fillAll(Colours::darkgrey);
 }
     
 void SpikeRasterCanvas::refresh()
@@ -192,9 +202,12 @@ void SpikeRasterCanvas::refresh()
     
 void SpikeRasterCanvas::resized()
 {
-    rasterPlot->setBounds(0, 0, getWidth(), getHeight());
+    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-100);
 
-    repaint();
+    ratePlot->setBounds(10, 10, 80, getHeight()-100);
+
+    psth->setBounds(100, getHeight()-80, getWidth()-250, 70);
+
 }
     
 // =====================================================
@@ -203,17 +216,20 @@ void SpikeRasterCanvas::resized()
 
 RasterPlot::RasterPlot(SpikeRasterCanvas*)
 {
-    spikeBuffer = AudioSampleBuffer(30,1001);
-
-    random = Random();
 
     unitId = 0;
     electrodeId = 0;
     eventId = 0;
 
-    reset();
+    rasterWidth = 500;
+    rasterTimebase = 2.0f;
+    rasterStartTimestamp = 0;
 
-    displayStartTimestamp = 0;
+    spikeBuffer = AudioSampleBuffer(60,rasterWidth);
+
+    random = Random();
+
+    reset();
     
 }
 
@@ -226,38 +242,36 @@ void RasterPlot::setNumberOfElectrodes(int n)
 {
     numElectrodes = n;
 
-    lastSpikeTime.clear();
+    lastBufferPos.clear();
 
     for (int i = 0; i < numElectrodes; i++)
     {
-        lastSpikeTime.add(0);
+        lastBufferPos.add(0); // 0.0 to 1.0
     }
-    //spikeBuffer.setSize(numElectrodes, 1000);
+
 }
 
 void RasterPlot::reset()
 {
-    float numXPixels = spikeBuffer.getNumChannels();
-    float numYPixels = spikeBuffer.getNumSamples();
-
-    for (int n = 0; n < numXPixels; n++)
-    {
-        for (int m = 0; m < numYPixels; m++)
-        {
-            spikeBuffer.setSample(n,m, 0.);
-        }
-    }
+    spikeBuffer.clear();
+    rasterStartTimestamp = 0;
 
     repaint();
 }
 
 void RasterPlot::paint(Graphics& g)
 {
+
+    //std::cout << "Drawing raster" << std::endl;
+    g.fillAll(Colours::grey);
+
     float numYPixels = spikeBuffer.getNumChannels();
     float numXPixels = spikeBuffer.getNumSamples();
 
     float xHeight = getWidth()/numXPixels;
     float yHeight = getHeight()/numYPixels;
+
+    g.setColour(Colours::white);
 
     for (int n = 0; n < numXPixels; n++)
     {
@@ -265,19 +279,19 @@ void RasterPlot::paint(Graphics& g)
         {
             float colourIndex = spikeBuffer.getSample(m,n);
 
-            if (colourIndex == 0.)
+            if (colourIndex == 1.)
             {
-                g.setColour(Colours::grey);
-            } else if (colourIndex == 1.)
-            {
-                g.setColour(Colours::white);
-            } else {
-                g.setColour(Colours::black);
+                g.fillRect(n*xHeight, m*yHeight, xHeight, yHeight);
             }
-
-            g.fillRect(n*xHeight, m*yHeight, xHeight, yHeight);
         }
     }
+
+    
+
+    //std::cout << lastBufferPos[0] << std::endl;
+
+    g.setColour(Colours::black);
+    g.fillRect(getMaxBufferPos() * getWidth(), 0.0f, xHeight*2, float(getHeight()));
 }
 
 void RasterPlot::resized()
@@ -304,7 +318,65 @@ void RasterPlot::setCurrentUnit(int unit)
 
 void RasterPlot::setTimestamp(int64 ts)
 {
+
+    //std::cout << "Setting timestamp." << std::endl;
+
     currentTimestamp = ts;
+
+    float bufferStart = (currentTimestamp - rasterStartTimestamp) / (sampleRate * rasterTimebase); // (0 to 1)
+
+    if (bufferStart < 1.0) // no overflow
+    {
+        for (int i = 0; i < numElectrodes; i++)
+        {
+            spikeBuffer.clear(i, lastBufferPos[i] * rasterWidth + 1,
+                                 (bufferStart - lastBufferPos[i]) * rasterWidth);
+
+            lastBufferPos.set(i, bufferStart);
+        }
+
+    } else {
+        
+        float bufferRemaining = bufferStart - 1.0;
+
+        //std::cout << "Buffer remaining: " << bufferRemaining * rasterWidth << std::endl;
+
+        for (int i = 0; i < numElectrodes; i++)
+        {
+            int startSample = lastBufferPos[i] * rasterWidth + 1;
+            int endSample = (1.0 - lastBufferPos[i]) * rasterWidth;
+
+            if (startSample + endSample > spikeBuffer.getNumSamples())
+                endSample = spikeBuffer.getNumSamples() - startSample;
+
+           // std::cout << "Clearing " << startSample << " to " << endSample << std::endl;
+
+            spikeBuffer.clear(i, startSample, endSample);
+
+            startSample = 0;
+            endSample = bufferRemaining * rasterWidth;
+
+            if (startSample + endSample > spikeBuffer.getNumSamples())
+                endSample = spikeBuffer.getNumSamples() - startSample;
+
+        //    std::cout << "Clearing " << startSample << " to " << endSample << std::endl;
+            spikeBuffer.clear(i, startSample, endSample);
+
+            lastBufferPos.set(i, bufferRemaining);
+        }
+
+        rasterStartTimestamp = currentTimestamp - int( bufferRemaining * sampleRate * rasterTimebase );
+    }
+
+    //std::cout << "Raster start: " << rasterStartTimestamp << std::endl;
+
+}
+
+void RasterPlot::resetTimestamps()
+{
+
+    //rasterStartTimestamp = 0;
+    //setNumberOfElectrodes(numElectrodes);
 }
 
 void RasterPlot::setSampleRate(float sr)
@@ -316,36 +388,204 @@ void RasterPlot::processSpikeObject(const SpikeObject& s)
 {
     int electrode = s.source;
     int unit = s.sortedId;
-    int timestamp = s.timestamp;
+    int timestamp = s.timestamp; // absolute time
 
-    std::cout << "Got spike." << std::endl;
+    float bufferPos = float(timestamp - rasterStartTimestamp) / (sampleRate * rasterTimebase);
 
-    if (currentTimestamp - displayStartTimestamp > sampleRate)
-    {
-        displayStartTimestamp = currentTimestamp;
-        spikeBuffer.clear(electrode, 0, 1001);
-    }
-
-    // if (timestamp - displayStartTimestamp > sampleRate)
-    // {
-    //     displayStartTimestamp = timestamp;
-    //     spikeBuffer.clear(electrode, 0, 1001);
-    //     //spikeBuffer.clear();
-    // }
-
-    float relativeTimestamp = float(timestamp - displayStartTimestamp) / sampleRate;
+    //std::cout << "Spike time: " << bufferPos << std::endl;
 
     //std::cout << spikeBuffer.getNumSamples() << " " << spikeBuffer.getNumChannels() << " " << (int) (relativeTimestamp*1000) << " " << electrode << std::endl;
 
-    if (relativeTimestamp > 0 && relativeTimestamp < 1)
+    if (bufferPos > 0. && bufferPos < 1.)
     {
         //std::cout << relativeTimestamp << " " << displayStartTimestamp << std::endl;
 
-        //spikeBuffer.clear(electrode, (int) (lastSpikeTime[electrode]*1000) + 1, (int) (relativeTimestamp - lastSpikeTime[electrode])*1000);
-        spikeBuffer.setSample(electrode, (int) (relativeTimestamp*1000), 1);
+        int startSample = lastBufferPos[electrode] * rasterWidth + 1;
+        int numSamples = (bufferPos - lastBufferPos[electrode]) * rasterWidth;
 
-        lastSpikeTime.set(electrode, relativeTimestamp);
+        if (numSamples > 0)
+        {
+            //std::cout << electrode << " " << startSample << " " << numSamples << std::endl;
+            spikeBuffer.clear(electrode, startSample, numSamples);
+        } else {
+            spikeBuffer.clear(electrode, 0, bufferPos);
+        }
+
+        spikeBuffer.setSample(electrode, bufferPos * rasterWidth, 1);
+
+        lastBufferPos.set(electrode, bufferPos);
     }
     
+}
+
+Array<float> RasterPlot::getPSTH(int numBins)
+{
+    int samplesPerBin = rasterWidth / numBins;
+
+    Array<float> psth;
+
+    int startBin; //= samplesPerBin * i;
+
+    for (int i = 0; i < numBins; i++)
+    {
+        startBin = samplesPerBin * i;
+
+        float totalSpikes = 0;
+
+        for (int m = startBin; m < startBin + samplesPerBin; m++)
+        {
+            for (int n = 0; n < numElectrodes; n++)
+            {
+                if (m < spikeBuffer.getNumSamples())
+                    totalSpikes += spikeBuffer.getSample(n,m);
+            }
+        }
+
+        float spikeRate = totalSpikes / float(numElectrodes) / (rasterTimebase / numBins);
+
+        //std::cout << totalSpikes << " ";
+
+        psth.add(spikeRate);
+    }
+
+    //std::cout << std::endl;
+
+    //std::cout << startBin << " " << samplesPerBin << std::endl;
+
+    return psth;
+}
+
+
+float RasterPlot::getMaxBufferPos()
+{
+    float maxBufferPos = 0.0f;
+
+    for (int i = 0; i < numElectrodes; i++)
+        maxBufferPos = jmax(lastBufferPos[i], maxBufferPos);
+
+    return maxBufferPos; 
+}
+
+Array<float> RasterPlot::getFiringRates()
+{
+    Array<float> rates;
+
+    for (int n = 0; n < numElectrodes; n++)
+    {
+        float totalSpikes = 0;
+
+        for (int m = 0; m < spikeBuffer.getNumSamples(); m++)
+        {
+            totalSpikes += spikeBuffer.getSample(n,m);
+        }
+
+        float spikeRate = totalSpikes / rasterTimebase;
+
+        rates.add(spikeRate);
+    }
+
+    return rates;
+}
+
+//===========================================================
+
+PSTH::PSTH(RasterPlot* r) : raster(r)
+{
+    numBins = 50;
+}
+
+PSTH::~PSTH()
+{
 
 }
+
+void PSTH::paint(Graphics& g)
+{
+    g.fillAll(Colours::lightgrey);
+
+    Array<float> psth = raster->getPSTH(numBins);
+
+    g.setColour(Colours::purple);
+
+    float maxBufferPos = raster->getMaxBufferPos();
+
+    float barWidth = float(getWidth())/float(numBins);
+
+    for (int i = 0; i < numBins; i++)
+    {
+        if (!(maxBufferPos*getWidth() > barWidth*i && maxBufferPos*getWidth() < barWidth*i + barWidth))
+        {
+            g.fillRect(barWidth*i, getHeight()-psth[i], barWidth, float(getHeight()));
+        }
+        
+    }
+
+    g.setColour(Colours::black);
+    g.fillRect(maxBufferPos * getWidth(), 0.0f, 2.0, float(getHeight()));
+}
+
+void PSTH::resized()
+{
+
+}
+
+void PSTH::reset()
+{
+
+}
+
+
+//===========================================================
+
+RatePlot::RatePlot(RasterPlot* r) : raster(r)
+{
+    layout = 0;
+}
+
+RatePlot::~RatePlot()
+{
+
+}
+
+void RatePlot::paint(Graphics& g)
+{
+    g.fillAll(Colours::lightgrey);
+
+    Array<float> rates = raster->getFiringRates();
+
+    float maxBufferPos = raster->getMaxBufferPos();
+
+    float electrodeSize = 10.0f;
+    float electrodeSpacing = 5.0f;
+
+    for (int i = 0; i < numElectrodes; i++)
+    {
+        g.setColour(Colours::black);
+        g.fillRect(10.0f, 10.0f + (electrodeSize + electrodeSpacing) * i, electrodeSize, electrodeSize);
+
+        Colour fillColour = Colour(jmin(rates[i]/20.0f, 1.0f)*255, 54.0f, jmin(rates[i]/20.0f, 1.0f)*255);
+
+        g.setColour(fillColour);
+        g.fillRect(11.0f, 10.0f + (electrodeSize + electrodeSpacing) * i +1.0f, electrodeSize-2.0f, electrodeSize-2.0f);
+
+    }
+
+    //std::cout << "Rate: " << rates[0] << std::endl;
+}
+
+void RatePlot::resized()
+{
+
+}
+
+void RatePlot::reset()
+{
+    
+}
+
+
+void RatePlot::setNumberOfElectrodes(int n)
+{
+    numElectrodes = n;
+}
+

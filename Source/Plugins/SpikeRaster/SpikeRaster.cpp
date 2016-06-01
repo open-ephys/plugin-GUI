@@ -138,6 +138,8 @@ void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
     if (redrawRequested)
     {
+    	canvas->setTimestamp(getTimestamp(0));
+
     	//std::cout << "redraw" << std::endl;
         for (int i = 0; i < getNumElectrodes(); i++)
         {
@@ -150,13 +152,11 @@ void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
                 //std::cout << "Transferring spikes." << std::endl;
                 canvas->processSpikeObject(e.mostRecentSpikes[j]);
                 e.currentSpikeIndex = 0;
-
-                canvas->setTimestamp(getTimestamp(0));
             }
 
         }
 
-        redrawRequested = false;
+        //redrawRequested = true;
     }
 
 

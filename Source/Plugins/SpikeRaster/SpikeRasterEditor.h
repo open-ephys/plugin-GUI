@@ -32,6 +32,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Visualizer;
 
+class PSTH : public Component
+{
+public:
+    PSTH(RasterPlot*);
+    virtual ~PSTH();
+
+    void paint(Graphics& g);
+    void resized();
+    void reset();
+
+    int numBins;
+    RasterPlot* raster;
+
+};
+
+class RatePlot : public Component
+{
+public:
+    RatePlot(RasterPlot*);
+    virtual ~RatePlot();
+
+    void paint(Graphics& g);
+    void resized();
+    void reset();
+
+    void setNumberOfElectrodes(int);
+
+    int layout;
+    int numElectrodes;
+    RasterPlot* raster;
+
+};
+
 /**
  
  User interface for the SpikeRaster module.
@@ -81,8 +114,6 @@ public:
     
     void paint(Graphics& g);
 
-    
-    
     void refresh();
     
     void resized();
@@ -92,6 +123,8 @@ public:
 private:
     SpikeRaster* processor;
     ScopedPointer<RasterPlot> rasterPlot;
+    ScopedPointer<PSTH> psth;
+    ScopedPointer<RatePlot> ratePlot;
 
     int currentMap;
 
@@ -121,19 +154,28 @@ public:
     void setSampleRate(float);
 
     void setTimestamp(int64);
+    void resetTimestamps();
+
+    Array<float> getPSTH(int numBins);
+    Array<float> getFiringRates();
+    float getMaxBufferPos();
     
     int unitId;
     int electrodeId;
     int eventId;
+    int rasterWidth; // number of pixels across raster
+    float rasterTimebase; // timebase in s
 
-    int64 currentTimestamp;
-    int64 displayStartTimestamp;
+    int64 currentTimestamp;  // start time of data buffer (samples)
+    int64 rasterStartTimestamp;  // start time of raster (samples)
     int numElectrodes;
 
-    Array<float> lastSpikeTime;
+    Array<float> lastBufferPos;
     float sampleRate;
 
 };
+
+
 
 
 #endif
