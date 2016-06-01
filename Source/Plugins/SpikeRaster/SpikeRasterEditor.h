@@ -156,6 +156,8 @@ private:
 
     int currentMap;
 
+    float psthHeight;
+
 };
 
 class RasterPlot : public Component

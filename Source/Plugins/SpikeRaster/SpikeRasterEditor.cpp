@@ -216,12 +216,13 @@ RasterPlot::RasterPlot(SpikeRasterCanvas*)
 
     viewType = 0;
     trialIndex = 0;
+    totalTrials = 0;
 
     electrodeChannels.add(0);
 
-    spikeBuffer = AudioSampleBuffer(16,rasterWidth);
-    trialBuffer1 = AudioSampleBuffer(16,rasterWidth);
-    trialBuffer2 = AudioSampleBuffer(16,rasterWidth);
+    spikeBuffer = AudioSampleBuffer(50,rasterWidth);
+    trialBuffer1 = AudioSampleBuffer(50,rasterWidth);
+    trialBuffer2 = AudioSampleBuffer(50,rasterWidth);
 
     spikeBuffer.clear();
     trialBuffer1.clear();
@@ -510,6 +511,8 @@ Array<float> RasterPlot::getPSTH(int numBins)
 
     int startBin; //= samplesPerBin * i;
 
+    float maxBin = 0;
+
     for (int i = 0; i < numBins; i++)
     {
         startBin = samplesPerBin * i;
@@ -529,46 +532,58 @@ Array<float> RasterPlot::getPSTH(int numBins)
 
         // normalize it!
 
-            switch (viewType)
+        switch (viewType)
+        {
+            case 0:
             {
-                case 0:
-                {
-                    spikeRate /= 1; //(float(numElectrodes) / (rasterTimebase / numBins));
-                    break;
-                }
-                case 1:
-                {
-                    if (trialIndex > 0)
-                    {
-                        spikeRate /= 1; //(float(numElectrodes) / (rasterTimebase / numBins));
-                        spikeRate /= float(totalTrials);
-                    }
-                        
-                    break;
-                }   
-                case 2:
-                {
-                    if (trialIndex > 0)
-                    {
-                        spikeRate /= 1; //(float(trialIndex) / (rasterTimebase / numBins));
-                        if (trialIndex < totalTrials)
-                            spikeRate /= float(trialIndex);
-                        else
-                            spikeRate /= float(trialBuffer2.getNumChannels());
-                    }
-                        
-                    break;
-                }   
-                default:
-                    break;
+                spikeRate /= float(numElectrodes);
+                
+                break;
             }
+            case 1:
+            {
+                if (totalTrials > 0)
+                {
+                    spikeRate /= float(numElectrodes);
+                    spikeRate /= float(totalTrials);
+                }
+                    
+                break;
+            }   
+            case 2:
+            {
+                if (totalTrials > 0)
+                {
+                    
+                    if (trialIndex == totalTrials)
+                        spikeRate /= float(trialIndex);
+                    else
+                        spikeRate /= float(trialBuffer2.getNumChannels());
+                }
+                    
+                break;
+            }   
+            default:
+                break;
+        }
 
-
+        spikeRate /= (rasterTimebase / numBins);
 
         psth.add(spikeRate);
 
+        maxBin = jmax(maxBin, spikeRate);
+
         //std::cout << spikeRate << std::endl;
     }
+
+    float upperBound = int(maxBin) / int(50) * int(50) + 40; 
+
+    for (int i = 0; i < numBins; i++)
+    {
+        psth.set(i, psth[i]/upperBound);
+    }
+
+    psth.add(upperBound);
 
     return psth;
 }
@@ -684,6 +699,21 @@ void PSTH::paint(Graphics& g)
 
     Array<float> psth = raster->getPSTH(numBins);
 
+    g.setColour(Colours::grey);
+
+    //if (psth[numBins] > 0)
+    //{
+        //std::cout << psth[numBins] << std::endl;
+    float barHeight = 10.0f;
+
+    while (barHeight < psth[numBins])
+    {
+         float h = getHeight() - (barHeight/psth[numBins])*getHeight();
+         g.drawLine(0.0f, h, getWidth(), h);
+         barHeight += 10.0f;
+     }
+    //}
+
     g.setColour(Colours::purple);
 
     float maxBufferPos = raster->getMaxBufferPos();
@@ -692,15 +722,22 @@ void PSTH::paint(Graphics& g)
 
     for (int i = 0; i < numBins; i++)
     {
-        if (!(maxBufferPos*getWidth() > barWidth*i && maxBufferPos*getWidth() < barWidth*i + barWidth))
-        {
-            g.fillRect(barWidth*i, getHeight()-psth[i], barWidth, float(getHeight()));
-        }
-        
+
+        g.fillRect(barWidth*i, float(getHeight()*(1-psth[i])), barWidth+0.5f, psth[i]*getHeight());
+ 
     }
 
     g.setColour(Colours::black);
     g.fillRect(maxBufferPos * getWidth(), 0.0f, 2.0, float(getHeight()));
+
+    float textHeight = 9.0f;
+    g.setFont(7);
+    while (textHeight < psth[numBins])
+    {
+         float h = getHeight() - (textHeight/psth[numBins])*getHeight();
+         g.drawText(String(textHeight + 1.0f), 2, (int) h, 8, 7, Justification::left, false);
+         textHeight += 10.0f;
+     }
 }
 
 void PSTH::resized()
