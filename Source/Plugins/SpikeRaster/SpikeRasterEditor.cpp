@@ -31,24 +31,6 @@ SpikeRasterEditor::SpikeRasterEditor(GenericProcessor* parentNode, bool useDefau
     tabText = "Raster";
     
     desiredWidth = 180;
-
-    electrodeSelector = new ComboBox();
-    electrodeSelector->setBounds(35,40,100,20);
-    electrodeSelector->addListener(this);
-
-    addAndMakeVisible(electrodeSelector);
-
-    unitSelector = new ComboBox();
-    unitSelector->setBounds(35,70,100,20);
-    unitSelector->addListener(this);
-
-    addAndMakeVisible(unitSelector);
-
-    eventChannelSelector = new ComboBox();
-    eventChannelSelector->setBounds(35,100,100,20);
-    eventChannelSelector->addListener(this);
-
-    addAndMakeVisible(eventChannelSelector);
     
 }
 
@@ -66,69 +48,8 @@ Visualizer* SpikeRasterEditor::createNewCanvas()
     
 }
 
-void SpikeRasterEditor::comboBoxChanged(ComboBox* c)
-{
-
-    SpikeRasterCanvas* rfmc = (SpikeRasterCanvas*) canvas.get();
-    rasterPlot = rfmc->getRasterPlot();
-    
-    if (c == electrodeSelector)
-    {
-        rasterPlot->setCurrentElectrode(c->getSelectedId()-1);
-    } else if (c == unitSelector)
-    {
-        rasterPlot->setCurrentUnit(c->getSelectedId()-1);
-    } else if (c == unitSelector)
-    {
-        rasterPlot->setEventChannel(c->getSelectedId()-1);
-    }
-    
-}
-
 void SpikeRasterEditor::updateSettings()
 {
-    SpikeRaster* processor = (SpikeRaster*) getProcessor();
-
-    int numElectrodes = processor->getNumElectrodes();
-    
-    electrodeSelector->clear();
-    unitSelector->clear();
-    eventChannelSelector->clear();
-
-    if (numElectrodes > 0)
-    {
-
-        for (int i = 1; i <= numElectrodes; i++)
-        {
-            String itemName = "Electrode ";
-            itemName += String(i);
-            std::cout << i << " " << itemName << std::endl;
-            electrodeSelector->addItem(itemName, i);
-        }
-
-        electrodeSelector->setSelectedId(1, dontSendNotification);
-
-        unitSelector->addItem("MUA", 1);
-        
-        for (int i = 1; i <= 5; i++)
-        {
-            String itemName = "Unit ";
-            itemName += String(i);
-            unitSelector->addItem(itemName, i + 1);
-        }
-
-        unitSelector->setSelectedId(1, dontSendNotification);
-
-        for (int i = 1; i <= 8; i++)
-        {
-            String itemName = "TTL ";
-            itemName += String(i);
-            eventChannelSelector->addItem(itemName, i);
-        }
-
-        eventChannelSelector->setSelectedId(1, dontSendNotification);
-    }
-
     updateVisualizer();
 }
 
@@ -147,10 +68,45 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     psth = new PSTH(rasterPlot);
     addAndMakeVisible(psth);
 
+    for (int i = 0; i < 8; i++)
+    {
+        EventChannelButton* ecb = new EventChannelButton(rasterPlot, i);
+        eventChannelButtons.add(ecb);
+        addAndMakeVisible(ecb);
+    }
+
+    triggerLabel = new Label("Triggers:","Triggers:");
+    triggerLabel->setFont(Font("Small Text", 13, Font::plain));
+    triggerLabel->setColour(Label::textColourId, Colour(250,250,250));
+    addAndMakeVisible(triggerLabel);
+
+    viewLabel = new Label("View:","View:");
+    viewLabel->setFont(Font("Small Text", 13, Font::plain));
+    viewLabel->setColour(Label::textColourId, Colour(250,250,250));
+    addAndMakeVisible(viewLabel);
+
+    viewButton = new UtilityButton("Continuous", Font("Small Text", 13, Font::plain));
+    viewButton->setRadius(5.0f);
+    viewButton->setEnabledState(true);
+    viewButton->setCorners(true, true, true, true);
+    viewButton->addListener(this);
+    viewButton->setToggleState(false, dontSendNotification);
+    addAndMakeVisible(viewButton);
+
+    clearButton = new UtilityButton("Clear", Font("Small Text", 13, Font::plain));
+    clearButton->setRadius(5.0f);
+    clearButton->setEnabledState(true);
+    clearButton->setCorners(true, true, true, true);
+    clearButton->addListener(this);
+    clearButton->setToggleState(false, dontSendNotification);
+    addAndMakeVisible(clearButton);
+
     resized();
     repaint();
     
     processor->setRasterPlot(rasterPlot);
+
+    viewType = 0;
     
 }
 
@@ -196,8 +152,6 @@ void SpikeRasterCanvas::refresh()
     processor->setParameter(2, 0.0f); // request redraw
     
     repaint();
-
-    //::cout << "Refresh" << std::endl;
 }
     
 void SpikeRasterCanvas::resized()
@@ -208,6 +162,43 @@ void SpikeRasterCanvas::resized()
 
     psth->setBounds(100, getHeight()-80, getWidth()-250, 70);
 
+    for (int i = 0; i < eventChannelButtons.size(); i++)
+    {
+         eventChannelButtons[i]->setBounds(getWidth()-140 + (i % 4) * 20, 40 + (i/4) * 20, 35, 35);
+    }
+
+    triggerLabel->setBounds(getWidth()-140, 15, 140, 30);
+    viewLabel->setBounds(getWidth()-140, 100, 140, 20);
+    viewButton->setBounds(getWidth()-135, 120, 105, 20);
+    clearButton->setBounds(getWidth()-135, 150, 74, 20);
+
+}
+
+void SpikeRasterCanvas::buttonClicked(Button* b)
+{
+    if (b == viewButton)
+    {
+        if (viewType == 0)
+        {
+            viewType = 1;
+            viewButton->setLabel("All");
+        } else if (viewType == 1)
+        {
+            viewType = 2;
+            viewButton->setLabel("Single");
+        } else {
+            viewType = 0;
+            viewButton->setLabel("Continuous");
+        }
+
+        rasterPlot->setViewType(viewType);
+    } 
+    else if (b == clearButton)
+    {
+        rasterPlot->clear();
+    }
+
+    repaint();
 }
     
 // =====================================================
@@ -217,15 +208,24 @@ void SpikeRasterCanvas::resized()
 RasterPlot::RasterPlot(SpikeRasterCanvas*)
 {
 
-    unitId = 0;
-    electrodeId = 0;
-    eventId = 0;
-
     rasterWidth = 500;
     rasterTimebase = 2.0f;
+    preStimSecs = 0.5f;
     rasterStartTimestamp = 0;
+    triggerTimestamp = -1;
 
-    spikeBuffer = AudioSampleBuffer(60,rasterWidth);
+    viewType = 0;
+    trialIndex = 0;
+
+    electrodeChannels.add(0);
+
+    spikeBuffer = AudioSampleBuffer(16,rasterWidth);
+    trialBuffer1 = AudioSampleBuffer(16,rasterWidth);
+    trialBuffer2 = AudioSampleBuffer(16,rasterWidth);
+
+    spikeBuffer.clear();
+    trialBuffer1.clear();
+    trialBuffer2.clear();
 
     random = Random();
 
@@ -259,34 +259,68 @@ void RasterPlot::reset()
     repaint();
 }
 
+void RasterPlot::clear()
+{
+    trialBuffer1.clear();
+    trialBuffer2.clear();
+    trialIndex = 0;
+}
+
+void RasterPlot::setViewType(int v)
+{
+    viewType = v;
+}
+
 void RasterPlot::paint(Graphics& g)
 {
 
     //std::cout << "Drawing raster" << std::endl;
+
+    AudioSampleBuffer* buffer;
+
+    switch (viewType)
+    {
+        case 0:
+            buffer = &spikeBuffer;
+            break;
+        case 1:
+            buffer = &trialBuffer1;
+            break;
+        case 2:
+            buffer = &trialBuffer2;
+            break;
+        default:
+            break;
+    }
+
     g.fillAll(Colours::grey);
 
-    float numYPixels = spikeBuffer.getNumChannels();
-    float numXPixels = spikeBuffer.getNumSamples();
+    float numYPixels = buffer->getNumChannels();
+    float numXPixels = buffer->getNumSamples();
 
     float xHeight = getWidth()/numXPixels;
     float yHeight = getHeight()/numYPixels;
 
-    g.setColour(Colours::white);
+    
 
     for (int n = 0; n < numXPixels; n++)
     {
         for (int m = 0; m < numYPixels; m++)
         {
-            float colourIndex = spikeBuffer.getSample(m,n);
+            float colourIndex = buffer->getSample(m,n);
 
-            if (colourIndex == 1.)
+            if (viewType == 1)
             {
+                colourIndex /= (trialIndex);
+            }
+
+            if (colourIndex > 0)
+            {
+                g.setColour(Colour(colourIndex*128+127, colourIndex*128+127, colourIndex*128+127));
                 g.fillRect(n*xHeight, m*yHeight, xHeight, yHeight);
             }
         }
     }
-
-    
 
     //std::cout << lastBufferPos[0] << std::endl;
 
@@ -297,23 +331,6 @@ void RasterPlot::paint(Graphics& g)
 void RasterPlot::resized()
 {
 
-}
-
-void RasterPlot::setCurrentElectrode(int elec)
-{
-    electrodeId = elec;
-}
-
-
-void RasterPlot::setEventChannel(int event)
-{
-    eventId = event;
-}
-
-
-void RasterPlot::setCurrentUnit(int unit)
-{
-    unitId = unit;
 }
 
 void RasterPlot::setTimestamp(int64 ts)
@@ -368,7 +385,41 @@ void RasterPlot::setTimestamp(int64 ts)
         rasterStartTimestamp = currentTimestamp - int( bufferRemaining * sampleRate * rasterTimebase );
     }
 
-    //std::cout << "Raster start: " << rasterStartTimestamp << std::endl;
+    if (triggerTimestamp > 0)
+    {
+        // copy data
+        int offset = int((rasterTimebase - preStimSecs) * sampleRate);
+
+        if (currentTimestamp > triggerTimestamp + offset)
+        {
+            
+            std::cout << "Trigger time: " <<  triggerTimestamp << 
+                        ", Current time: " <<  currentTimestamp << 
+                        ", Offset: " << offset << std::endl;
+
+            // copy data to all channels buffer
+
+            for (int n = 0; n < numElectrodes; n++)
+            {
+                trialBuffer1.addFrom(n, 0, spikeBuffer, n, 0, spikeBuffer.getNumSamples());
+            }
+
+            trialBuffer2.clear(trialIndex, 0, trialBuffer2.getNumSamples());
+
+            for (int n = 0; n < electrodeChannels.size(); n++)
+            {
+                trialBuffer2.addFrom(trialIndex, 0, spikeBuffer, n, 0, spikeBuffer.getNumSamples());
+            }
+
+            trialIndex++;
+            totalTrials++;
+
+            if (trialIndex == spikeBuffer.getNumChannels())
+                trialIndex = 0;
+
+            triggerTimestamp = -1;
+        } 
+    }
 
 }
 
@@ -415,14 +466,46 @@ void RasterPlot::processSpikeObject(const SpikeObject& s)
 
         lastBufferPos.set(electrode, bufferPos);
     }
-    
+}
+
+void RasterPlot::processEvent(int chan, int64 timestamp)
+{
+    //std::cout << "Event chan: " << chan << ", ts: " << timestamp << std::endl;
+
+    std::cout << std::endl;
+
+    if (triggerChannels.contains(chan))
+        triggerTimestamp = timestamp;
 }
 
 Array<float> RasterPlot::getPSTH(int numBins)
 {
     int samplesPerBin = rasterWidth / numBins;
 
+    AudioSampleBuffer* buffer;
+
     Array<float> psth;
+
+    switch (viewType)
+    {
+        case 0:
+        {
+            buffer = &spikeBuffer;
+            break;
+        }
+        case 1:
+        {
+            buffer = &trialBuffer1;
+            break;
+        }   
+        case 2:
+        {
+            buffer = &trialBuffer2;
+            break;
+        }   
+        default:
+            break;
+    }
 
     int startBin; //= samplesPerBin * i;
 
@@ -437,22 +520,70 @@ Array<float> RasterPlot::getPSTH(int numBins)
             for (int n = 0; n < numElectrodes; n++)
             {
                 if (m < spikeBuffer.getNumSamples())
-                    totalSpikes += spikeBuffer.getSample(n,m);
+                    totalSpikes += buffer->getSample(n,m);
             }
         }
 
-        float spikeRate = totalSpikes / float(numElectrodes) / (rasterTimebase / numBins);
+        float spikeRate = totalSpikes;
 
-        //std::cout << totalSpikes << " ";
+        // normalize it!
+        if (0)
+        {
+            switch (viewType)
+            {
+                case 0:
+                {
+                    spikeRate /= 1; //(float(numElectrodes) / (rasterTimebase / numBins));
+                    break;
+                }
+                case 1:
+                {
+                    if (trialIndex > 0)
+                    {
+                        spikeRate /= 1; //(float(numElectrodes) / (rasterTimebase / numBins));
+                        spikeRate /= float(totalTrials);
+                    }
+                        
+                    break;
+                }   
+                case 2:
+                {
+                    if (trialIndex > 0)
+                    {
+                        spikeRate /= 1; //(float(trialIndex) / (rasterTimebase / numBins));
+                        if (trialIndex < totalTrials)
+                            spikeRate /= float(trialIndex);
+                        else
+                            spikeRate /= float(trialBuffer2.getNumChannels());
+                    }
+                        
+                    break;
+                }   
+                default:
+                    break;
+            }
+        }
+
 
         psth.add(spikeRate);
+
+        //std::cout << spikeRate << std::endl;
     }
 
-    //std::cout << std::endl;
-
-    //std::cout << startBin << " " << samplesPerBin << std::endl;
-
     return psth;
+}
+
+void RasterPlot::setEventTrigger(int ch, bool trigger)
+{
+
+    if (trigger)
+    {
+        triggerChannels.add(ch);
+    }
+    else
+    {
+        triggerChannels.remove(triggerChannels.indexOf(ch));
+    }
 }
 
 
@@ -460,8 +591,34 @@ float RasterPlot::getMaxBufferPos()
 {
     float maxBufferPos = 0.0f;
 
-    for (int i = 0; i < numElectrodes; i++)
-        maxBufferPos = jmax(lastBufferPos[i], maxBufferPos);
+
+
+    switch (viewType)
+    {
+        case 0:
+        {
+            for (int i = 0; i < numElectrodes; i++)
+                maxBufferPos = jmax(lastBufferPos[i], maxBufferPos);
+            break;
+        }
+        
+        case 1:
+        {
+            maxBufferPos = preStimSecs / rasterTimebase;
+            break;
+        }
+            
+        case 2:
+        {
+            maxBufferPos = preStimSecs / rasterTimebase;
+            break;
+        }
+            
+        default:
+            break;
+    }
+
+    
 
     return maxBufferPos; 
 }
@@ -589,3 +746,49 @@ void RatePlot::setNumberOfElectrodes(int n)
     numElectrodes = n;
 }
 
+// =========================================================
+
+EventChannelButton::EventChannelButton(RasterPlot* rp, int chNum):
+    isEnabled(false), rasterPlot(rp)
+{
+
+    channelNumber = chNum;
+
+    chButton = new UtilityButton(String(channelNumber+1), Font("Small Text", 13, Font::plain));
+    chButton->setRadius(5.0f);
+    chButton->setBounds(4,4,14,14);
+    chButton->setEnabledState(true);
+    chButton->setCorners(true, false, true, false);
+
+    chButton->addListener(this);
+    addAndMakeVisible(chButton);
+
+}
+
+EventChannelButton::~EventChannelButton()
+{
+
+}
+
+void EventChannelButton::buttonClicked(Button* button)
+{
+
+    isEnabled = !isEnabled;
+
+    rasterPlot->setEventTrigger(channelNumber, isEnabled);
+
+    repaint();
+
+}
+
+
+void EventChannelButton::paint(Graphics& g)
+{
+
+    if (isEnabled)
+    {
+        g.setColour(Colours::pink);
+        g.fillRoundedRectangle(2,2,18,18,6.0f);
+    }
+
+}

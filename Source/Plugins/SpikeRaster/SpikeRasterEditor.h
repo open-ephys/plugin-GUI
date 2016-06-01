@@ -65,6 +65,27 @@ public:
 
 };
 
+class EventChannelButton : public Component,
+    public Button::Listener
+{
+public:
+    EventChannelButton(RasterPlot*, int chNum);
+    ~EventChannelButton();
+
+    void paint(Graphics& g);
+
+    void buttonClicked(Button* button);
+
+    bool isEnabled;
+
+private:
+
+    int channelNumber;
+    RasterPlot* rasterPlot;
+    ScopedPointer<UtilityButton> chButton;
+
+};
+
 /**
  
  User interface for the SpikeRaster module.
@@ -73,23 +94,17 @@ public:
  
  */
 
-class SpikeRasterEditor : public VisualizerEditor, public ComboBox::Listener
+class SpikeRasterEditor : public VisualizerEditor
 {
 public:
     SpikeRasterEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~SpikeRasterEditor();
     
     void updateSettings();
-
-    void comboBoxChanged(ComboBox* c);
     
     Visualizer* createNewCanvas();
     
 private:
-
-    ScopedPointer<ComboBox> electrodeSelector;
-    ScopedPointer<ComboBox> unitSelector;
-    ScopedPointer<ComboBox> eventChannelSelector;
 
     RasterPlot* rasterPlot;
     
@@ -97,7 +112,7 @@ private:
 };
 
 
-class SpikeRasterCanvas : public Visualizer
+class SpikeRasterCanvas : public Visualizer, public Button::Listener
 {
 public:
     SpikeRasterCanvas(SpikeRaster* n);
@@ -111,6 +126,8 @@ public:
     
     void setParameter(int, float);
     void setParameter(int, int, int, float) {}
+
+    void buttonClicked(Button*);
     
     void paint(Graphics& g);
 
@@ -126,6 +143,16 @@ private:
     ScopedPointer<PSTH> psth;
     ScopedPointer<RatePlot> ratePlot;
 
+    ScopedPointer<Label> triggerLabel;
+    OwnedArray<EventChannelButton> eventChannelButtons;
+
+    ScopedPointer<Label> viewLabel;
+    ScopedPointer<UtilityButton> viewButton;
+
+    ScopedPointer<UtilityButton> clearButton;
+
+    int viewType;
+
     int currentMap;
 
 };
@@ -137,18 +164,17 @@ public:
     virtual ~RasterPlot();
 
     AudioSampleBuffer spikeBuffer;
+    AudioSampleBuffer trialBuffer1;
+    AudioSampleBuffer trialBuffer2;
 
     void paint(Graphics& g);
     void resized();
     void reset();
 
     void processSpikeObject(const SpikeObject& s);
+    void processEvent(int eventChan, int64 ts);
 
     Random random;
-
-    void setCurrentUnit(int);
-    void setCurrentElectrode(int);
-    void setEventChannel(int);
 
     void setNumberOfElectrodes(int);
     void setSampleRate(float);
@@ -156,19 +182,30 @@ public:
     void setTimestamp(int64);
     void resetTimestamps();
 
+    void setViewType(int);
+
+    void clear();
+
+    void setEventTrigger(int, bool);
+
     Array<float> getPSTH(int numBins);
     Array<float> getFiringRates();
+    Array<int> triggerChannels;
+    Array<int> electrodeChannels;
     float getMaxBufferPos();
     
-    int unitId;
-    int electrodeId;
-    int eventId;
     int rasterWidth; // number of pixels across raster
     float rasterTimebase; // timebase in s
+    float preStimSecs; // pre-stimulus time
 
     int64 currentTimestamp;  // start time of data buffer (samples)
     int64 rasterStartTimestamp;  // start time of raster (samples)
+    int64 triggerTimestamp;  // last trigger time
+
     int numElectrodes;
+    int viewType;
+    int trialIndex;
+    int totalTrials;
 
     Array<float> lastBufferPos;
     float sampleRate;

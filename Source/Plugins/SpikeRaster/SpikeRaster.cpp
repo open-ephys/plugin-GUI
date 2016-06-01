@@ -200,6 +200,21 @@ void SpikeRaster::handleEvent(int eventType, MidiMessage& event, int samplePosit
 
         }
 
+    } else if (eventType == TTL)
+    {
+    	const uint8* dataptr = event.getRawData();
+
+        //int eventNodeId = *(dataptr+1);
+        int eventId = *(dataptr+2);
+        int eventChannel = *(dataptr+3);
+        uint8 sourceNodeId = event.getNoteNumber();
+
+		int64 timestamp = timestamps[sourceNodeId] + samplePosition;
+
+        if (eventId == 1)
+        {
+        	canvas->processEvent(eventChannel, timestamp);
+        }
     }
 
 }
