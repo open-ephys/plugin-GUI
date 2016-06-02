@@ -112,7 +112,7 @@
 		E1F559331C9B3A100035F88B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Open Ephys";
 				TargetAttributes = {
 					E1F5593A1C9B3A100035F88B = {
@@ -165,11 +165,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F559461C9B3A450035F88B /* Plugin_Debug.xcconfig */;
 			buildSettings = {
-				ENABLE_TESTABILITY = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
@@ -177,9 +172,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F559471C9B3A450035F88B /* Plugin_Release.xcconfig */;
 			buildSettings = {
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
