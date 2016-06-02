@@ -302,9 +302,8 @@ public:
     int getColorGrouping();
     void setColorGrouping(int i);
 
-    void setEnabledState(bool, int);
+    void setEnabledState(bool state, int chan, bool updateSavedChans = true);
     bool getEnabledState(int);
-    void enableChannel(bool, int);
 
     bool getSingleChannelState();
 
@@ -318,6 +317,7 @@ public:
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
 
+    void reactivateChannels();
     
 private:
     
