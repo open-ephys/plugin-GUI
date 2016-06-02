@@ -2018,8 +2018,6 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, int cha
 
     type = c->getChannelType(channelNumber);
     typeStr = c->getTypeName(type);
-    
-    
 
 }
 
@@ -2069,12 +2067,9 @@ void LfpChannelDisplay::pxPaint()
         //int jfrom_wholechannel_almost= (int) (getY()+center-channelHeight/3)+1 +0 ; // a bit less tall, for saturation warnings
         //int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
         
-        
         // max and min of channel, this is the range where actual data is drawn
         int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvas->channelOverlapFactor)+1  ;
         int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvas->channelOverlapFactor) -0;
-    
-        
 
         if (jfrom_wholechannel<0) {jfrom_wholechannel=0;};
         if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
@@ -2118,269 +2113,270 @@ void LfpChannelDisplay::pxPaint()
         
         for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
         {
-            
-            //draw zero line
-            int m = getY()+center;
-            if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
-                    bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
-                }
-            }
-            
-            //draw range markers
-            if (isSelected)
+            if (i < display->lfpChannelBitmap.getWidth())
             {
-                m = getY()+center+channelHeight/2;
-                if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                //draw zero line
+                int m = getY()+center;
+                if(m > 0 & m < display->lfpChannelBitmap.getHeight())
+                   {
                     if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
-                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
+                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
                     }
                 }
-                m = getY()+center-channelHeight/2;
-                if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
-                        bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
-                    }
-                }
-            }
-            
-            // draw event markers
-            int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
-            
-            //if (i == ifrom)
-            //    std::cout << rawEventState << std::endl;
-            
-            for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
-            {
-                if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
+                
+                //draw range markers
+                if (isSelected)
                 {
-                    if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
-                    {
-                        //std::cout << "Drawing event." << std::endl;
-                        Colour currentcolor=display->channelColours[ev_ch*2];
-                        
-                        for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++) // draw line
-                            bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(currentcolor,0.3f));
-                        
+                    m = getY()+center+channelHeight/2;
+                    if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
+                            bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
+                        }
+                    }
+                    m = getY()+center-channelHeight/2;
+                    if(m>0 & m<display->lfpChannelBitmap.getHeight()){
+                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
+                            bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
+                        }
                     }
                 }
-            }
-            
-            //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
-            
-            
-            // set max-min range for plotting, used in all methods
-            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
-            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
-            
-            double a_raw = canvas->getYCoordMax(chan, i);
-            double b_raw = canvas->getYCoordMin(chan, i);
-            double from_raw=0; double to_raw=0;
-            
-            //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
-            if (a<b)
-            {
-                from = (a); to = (b);
-                from_raw = (a_raw); to_raw = (b_raw);
-
-            }
-            else
-            {
-                from = (b); to = (a);
-                from_raw = (b_raw); to_raw = (a_raw);
-            }
-            
-            // start by clipping so that we're not populating pixels that we dont want to plot
-            int lm= channelHeightFloat*canvas->channelOverlapFactor;
-            if (lm>0)
-                lm=-lm;
-        
-            if (from > -lm) {from = -lm; clipWarningHi=true;};
-            if (to > -lm) {to = -lm; clipWarningHi=true;};
-            if (from < lm) {from = lm; clipWarningLo=true;};
-            if (to < lm) {to = lm; clipWarningLo=true;};
-            
-            
-            // test if raw data is clipped for displaying saturation warning
-            if (from_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
-            if (to_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
-            if (from_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
-            if (to_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
-            
-            
-            from=from+getHeight()/2;       // so the plot is centered in the channeldisplay
-            to=to+getHeight()/2;
-            
-            int samplerange=to-from;
-            
-            
-            
-            if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
-            { // histogram based supersampling method
                 
-                const float *samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
-                int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
+                // draw event markers
+                int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
                 
-                if (samplerange>0 & sampleCountThisPixel>0)
+                //if (i == ifrom)
+                //    std::cout << rawEventState << std::endl;
+                
+                for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
                 {
-                    
-                    //float localHist[samplerange]; // simple histogram
-                    float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
-                    
-                    for (int k=0; k<=samplerange; k++)
-                        rangeHist[k]=0;
-
-                    
-                
-                    
-                    
-                    for (int k=0; k<=sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
+                    if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
                     {
-                        int cs_this = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from); // sample values -> pixel coordinates relative to from
-                        int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
-                        
-                        
-                        if (cs_this<0) {cs_this=0;};                        //here we could clip the diaplay to the max/min, or ignore out of bound values, not sure which one is better
-                        if (cs_this>samplerange) {cs_this=samplerange;};
-                        if (cs_next<0) {cs_next=0;};
-                        if (cs_next>samplerange) {cs_next=samplerange;};
-                        
-                        int hfrom=0;
-                        int hto=0;
-                        
-                        if (cs_this<cs_next)
+                        if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
                         {
-                            hfrom = (cs_this);  hto = (cs_next);
-                        }
-                        else
-                        {
-                            hfrom = (cs_next);  hto = (cs_this);
-                        }
-                        //float hrange=hto-hfrom;
-                        float ha=1;
-                        for (int l=hfrom; l<hto; l++)
-                        {
-                            rangeHist[l]+=ha; //this emphasizes fast Y components
+                            //std::cout << "Drawing event." << std::endl;
+                            Colour currentcolor=display->channelColours[ev_ch*2];
                             
-                            //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
-                        }
-                    }
-                    
-                    
-                    for (int s = 0; s <= samplerange; s ++)  // plot histogram one pixel per bin
-                    {
-                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.2+canvas->histogramParameterA));
-                        if (a>1.0f) {a=1.0f;};
-                        if (a<0.0f) {a=0.0f;};
-                        
-                        
-                        //Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
-                        Colour gradedColor =  lineColourBright.interpolatedWith(lineColourDark,1-a);
-                        //Colour gradedColor =  Colour(0,255,0);
-                        
-                        int ploty = from+s+getY();
-                        if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
-                            bdLfpChannelBitmap.setPixelColour(i,from+s+getY(),gradedColor);
-                        }
-                    }
-                    
-                } else {
-                    
-                    int ploty = from+getY();
-                    if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
-                        bdLfpChannelBitmap.setPixelColour(i,ploty,lineColour);
-                    }
-                }
-                
-                
-                
-            }
-            else //drawmethod
-            { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
-                
-                int jfrom=from+getY();
-                int jto=to+getY();
-                
-                //if (yofs<0) {yofs=0;};
-                
-                if (i<0) {i=0;};
-                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
-                
-                if (jfrom<0) {jfrom=0;};
-                if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
-                
-                
-                for (int j = jfrom; j <= jto; j += 1)
-                {
-                    
-                    //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
-                    //*(pu8Pixel)		= 200;
-                    //*(pu8Pixel+1)	= 200;
-                    //*(pu8Pixel+2)	= 200;
-                    
-                    bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
-                    
-                }
-                
-            }
-            
-            // now draw warnings, if needed
-            if (canvas->drawClipWarning) // draw simple warning if display cuts off data
-            {
-                
-                if(clipWarningHi) {
-                    for (int j=0; j<=3; j++)
-                    {
-                        int clipmarker = jto_wholechannel_clip;
-                    
-                        if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
-                                                  bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,255,255));
-                        }
-                    }
-                }
-                 
-                if(clipWarningLo) {
-                        for (int j=0; j<=3; j++)
-                        {
-                           int clipmarker = jfrom_wholechannel_clip;
+                            for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++) // draw line
+                                bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(currentcolor,0.3f));
                             
-                            if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
-                                bdLfpChannelBitmap.setPixelColour(i,clipmarker+j,Colour(255,255,255));
+                        }
+                    }
+                }
+                
+                //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
+                
+                
+                // set max-min range for plotting, used in all methods
+                double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
+                double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
+                
+                double a_raw = canvas->getYCoordMax(chan, i);
+                double b_raw = canvas->getYCoordMin(chan, i);
+                double from_raw=0; double to_raw=0;
+                
+                //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
+                if (a<b)
+                {
+                    from = (a); to = (b);
+                    from_raw = (a_raw); to_raw = (b_raw);
+
+                }
+                else
+                {
+                    from = (b); to = (a);
+                    from_raw = (b_raw); to_raw = (a_raw);
+                }
+                
+                // start by clipping so that we're not populating pixels that we dont want to plot
+                int lm= channelHeightFloat*canvas->channelOverlapFactor;
+                if (lm>0)
+                    lm=-lm;
+            
+                if (from > -lm) {from = -lm; clipWarningHi=true;};
+                if (to > -lm) {to = -lm; clipWarningHi=true;};
+                if (from < lm) {from = lm; clipWarningLo=true;};
+                if (to < lm) {to = lm; clipWarningLo=true;};
+                
+                
+                // test if raw data is clipped for displaying saturation warning
+                if (from_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
+                if (to_raw > canvas->selectedSaturationValueFloat) { saturateWarningHi=true;};
+                if (from_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
+                if (to_raw < -canvas->selectedSaturationValueFloat) { saturateWarningLo=true;};
+                
+                
+                from=from+getHeight()/2;       // so the plot is centered in the channeldisplay
+                to=to+getHeight()/2;
+                
+                int samplerange=to-from;
+                
+                
+                
+                if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
+                { // histogram based supersampling method
+                    
+                    const float *samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
+                    int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
+                    
+                    if (samplerange>0 & sampleCountThisPixel>0)
+                    {
+                        
+                        //float localHist[samplerange]; // simple histogram
+                        float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
+                        
+                        for (int k=0; k<=samplerange; k++)
+                            rangeHist[k]=0;
+
+                        
+                    
+                        
+                        
+                        for (int k=0; k<=sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
+                        {
+                            int cs_this = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from); // sample values -> pixel coordinates relative to from
+                            int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
+                            
+                            
+                            if (cs_this<0) {cs_this=0;};                        //here we could clip the diaplay to the max/min, or ignore out of bound values, not sure which one is better
+                            if (cs_this>samplerange) {cs_this=samplerange;};
+                            if (cs_next<0) {cs_next=0;};
+                            if (cs_next>samplerange) {cs_next=samplerange;};
+                            
+                            int hfrom=0;
+                            int hto=0;
+                            
+                            if (cs_this<cs_next)
+                            {
+                                hfrom = (cs_this);  hto = (cs_next);
+                            }
+                            else
+                            {
+                                hfrom = (cs_next);  hto = (cs_this);
+                            }
+                            //float hrange=hto-hfrom;
+                            float ha=1;
+                            for (int l=hfrom; l<hto; l++)
+                            {
+                                rangeHist[l]+=ha; //this emphasizes fast Y components
+                                
+                                //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
                             }
                         }
-                }
-
-            clipWarningHi=false;
-            clipWarningLo=false;
-            }
-            
-            
-            if (canvas->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
-            {
-                
-                if(saturateWarningHi || saturateWarningLo) {
+                        
+                        
+                        for (int s = 0; s <= samplerange; s ++)  // plot histogram one pixel per bin
+                        {
+                            float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.2+canvas->histogramParameterA));
+                            if (a>1.0f) {a=1.0f;};
+                            if (a<0.0f) {a=0.0f;};
+                            
+                            
+                            //Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
+                            Colour gradedColor =  lineColourBright.interpolatedWith(lineColourDark,1-a);
+                            //Colour gradedColor =  Colour(0,255,0);
+                            
+                            int ploty = from+s+getY();
+                            if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
+                                bdLfpChannelBitmap.setPixelColour(i,from+s+getY(),gradedColor);
+                            }
+                        }
+                        
+                    } else {
+                        
+                        int ploty = from+getY();
+                        if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
+                            bdLfpChannelBitmap.setPixelColour(i,ploty,lineColour);
+                        }
+                    }
                     
                     
-                    for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
-                        Colour thiscolour=Colour(255,0,0);
-                        if (fmod((i+k),50)>25){
-                            thiscolour=Colour(255,255,255);
-                        }
-                        if(k>0 & k<display->lfpChannelBitmap.getHeight()){
-                            bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
-                        }
-                    };
+                    
+                }
+                else //drawmethod
+                { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
+                    
+                    int jfrom=from+getY();
+                    int jto=to+getY();
+                    
+                    //if (yofs<0) {yofs=0;};
+                    
+                    if (i<0) {i=0;};
+                    if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+                    
+                    if (jfrom<0) {jfrom=0;};
+                    if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
+                    
+                    
+                    for (int j = jfrom; j <= jto; j += 1)
+                    {
+                        
+                        //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
+                        //*(pu8Pixel)		= 200;
+                        //*(pu8Pixel+1)	= 200;
+                        //*(pu8Pixel+2)	= 200;
+                        
+                        bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
+                        
+                    }
+                    
                 }
                 
-                saturateWarningHi=false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
-                saturateWarningLo=false;
-            }
+                // now draw warnings, if needed
+                if (canvas->drawClipWarning) // draw simple warning if display cuts off data
+                {
+                    
+                    if(clipWarningHi) {
+                        for (int j=0; j<=3; j++)
+                        {
+                            int clipmarker = jto_wholechannel_clip;
+                        
+                            if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                                                      bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,255,255));
+                            }
+                        }
+                    }
+                     
+                    if(clipWarningLo) {
+                            for (int j=0; j<=3; j++)
+                            {
+                               int clipmarker = jfrom_wholechannel_clip;
+                                
+                                if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                                    bdLfpChannelBitmap.setPixelColour(i,clipmarker+j,Colour(255,255,255));
+                                }
+                            }
+                    }
 
+                clipWarningHi=false;
+                clipWarningLo=false;
+                }
+                
+                
+                if (canvas->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
+                {
+                    
+                    if(saturateWarningHi || saturateWarningLo) {
+                        
+                        
+                        for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
+                            Colour thiscolour=Colour(255,0,0);
+                            if (fmod((i+k),50)>25){
+                                thiscolour=Colour(255,255,255);
+                            }
+                            if(k>0 & k<display->lfpChannelBitmap.getHeight()){
+                                bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
+                            }
+                        };
+                    }
+                    
+                    saturateWarningHi=false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
+                    saturateWarningLo=false;
+                }
+            } // if i < getWidth()
             
         } // for i (x pixels)
         
     } // isenabled
-    
 
 }
 
