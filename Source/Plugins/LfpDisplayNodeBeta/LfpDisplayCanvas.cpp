@@ -1122,13 +1122,17 @@ const int LfpDisplayCanvas::getSampleCountPerPixel(int px)
 float LfpDisplayCanvas::getMean(int chan)
 {
     float total = 0.0f;
-    float numPts = 1;
+    float numPts = 0;
 
-    for (int samp = 0; samp < screenBuffer->getNumSamples(); samp += 10)
+    float sample; 
+    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
-        total += *screenBuffer->getReadPointer(chan, samp);
+        sample = *screenBuffer->getReadPointer(chan, samp);
+        total += sample;
         numPts++;
     }
+
+    std::cout << sample << std::endl;
 
     return total / numPts;
 }
@@ -1140,7 +1144,7 @@ float LfpDisplayCanvas::getStd(int chan)
     float mean = getMean(chan);
     float numPts = 1;
 
-    for (int samp = 0; samp < screenBuffer->getNumSamples(); samp += 10)
+    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
         std += pow((*screenBuffer->getReadPointer(chan, samp) - mean),2);
         numPts++;
@@ -1982,7 +1986,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         std::cout << y << " " << channels[singleChan]->getHeight() << " " << getRange() << std::endl;
         channelInfo[singleChan]->updateXY(
                 float(x)/getWidth()*canvas->timebase, 
-                (-float(y)/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
+                (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
                 );
     }
 
@@ -2623,6 +2627,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     g.setFont(Font("Small Text", 13, Font::plain));
     g.drawText(typeStr,5,center+16,41,10,Justification::centred,false);
     // g.setFont(channelHeightFloat*0.3);
+    g.setFont(Font("Small Text", 11, Font::plain));
 
     if (isSingleChannel)
     {
