@@ -96,6 +96,9 @@ public:
     const float getYCoordMean(int chan, int samp);
     const float getYCoordMax(int chan, int samp);
 
+    float getMean(int chan);
+    float getStd(int chan);
+
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
 
@@ -137,10 +140,12 @@ public:
     
     int nChans;
 
+    float timebase;
+
 private:
     
     Array<float> sampleRate;
-    float timebase;
+    
     float displayGain;
     float timeOffset;
     //int spread ; // vertical spacing between channels
@@ -279,6 +284,8 @@ public:
 
     void resized();
 
+
+
     void mouseDown(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
@@ -317,12 +324,10 @@ public:
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
-
+    void toggleSingleChannel(int chan);
     
 private:
     
-    
-    void toggleSingleChannel(int chan);
     int singleChan;
 	Array<bool> savedChannelState;
 
@@ -441,8 +446,14 @@ public:
     void setEnabledState(bool);
     void updateType();
 
+    void updateXY(float, float);
+
+    void setSingleChannelState(bool);
+
 private:
 
+    bool isSingleChannel;
+    float x, y;
     ScopedPointer<UtilityButton> enableButton;
 
 };
