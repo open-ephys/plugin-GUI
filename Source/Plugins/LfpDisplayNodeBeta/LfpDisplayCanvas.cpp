@@ -1124,7 +1124,7 @@ float LfpDisplayCanvas::getMean(int chan)
     float total = 0.0f;
     float numPts = 0;
 
-    float sample; 
+    float sample = 0.0f;
     for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
         sample = *screenBuffer->getReadPointer(chan, samp);

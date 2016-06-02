@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0730"
+   LastUpgradeVersion = "0720"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -140,6 +140,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D3E60EE41CD19893003FDF5C"
+               BuildableName = "LfpDisplayNodeBeta.bundle"
+               BlueprintName = "LfpDisplayNodeBeta"
+               ReferencedContainer = "container:Plugins/LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F559191C9B29D20035F88B"
                BuildableName = "NetworkEvents.bundle"
                BlueprintName = "NetworkEvents"
@@ -224,38 +238,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E1F559E01C9B42270035F88B"
-               BuildableName = "SpikeSorter.bundle"
-               BlueprintName = "SpikeSorter"
-               ReferencedContainer = "container:Plugins/SpikeSorter/SpikeSorter.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D3E60EE41CD19893003FDF5C"
-               BuildableName = "LfpDisplayNodeBeta.bundle"
-               BlueprintName = "LfpDisplayNodeBeta"
-               ReferencedContainer = "container:Plugins/LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "0363EF941CF9D6F90077C530"
                BuildableName = "SpikeRaster.bundle"
                BlueprintName = "SpikeRaster"
                ReferencedContainer = "container:Plugins/SpikeRaster/SpikeRaster.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E1F559E01C9B42270035F88B"
+               BuildableName = "SpikeSorter.bundle"
+               BlueprintName = "SpikeSorter"
+               ReferencedContainer = "container:Plugins/SpikeSorter/SpikeSorter.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
