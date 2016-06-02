@@ -1268,7 +1268,7 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY");
 
-    lfpDisplay->toggleSingleChannel(-1);
+    //lfpDisplay->toggleSingleChannel(-1);
 
 
     xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
