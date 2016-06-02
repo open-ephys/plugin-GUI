@@ -2117,6 +2117,7 @@ void LfpChannelDisplay::pxPaint()
             {
                 //draw zero line
                 int m = getY()+center;
+                
                 if(m > 0 & m < display->lfpChannelBitmap.getHeight())
                    {
                     if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
@@ -2127,16 +2128,15 @@ void LfpChannelDisplay::pxPaint()
                 //draw range markers
                 if (isSelected)
                 {
-                    m = getY()+center+channelHeight/2;
-                    if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
-                            bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
-                        }
-                    }
-                    m = getY()+center-channelHeight/2;
-                    if(m>0 & m<display->lfpChannelBitmap.getHeight()){
-                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
-                            bdLfpChannelBitmap.setPixelColour(i,m,Colour(80,80,80));
+                    int start = getY()+center -channelHeight/2;
+                    int jump = channelHeight/4;
+
+                    for (m = start; m <= start + jump*4; m += jump)
+                    {
+                        if (m > 0 & m < display->lfpChannelBitmap.getHeight())
+                        {
+                            if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) // make sure we're not drawing over an existing plot from another channel
+                                bdLfpChannelBitmap.setPixelColour(i, m, Colour(80,80,80));
                         }
                     }
                 }
@@ -2226,10 +2226,6 @@ void LfpChannelDisplay::pxPaint()
                         
                         for (int k=0; k<=samplerange; k++)
                             rangeHist[k]=0;
-
-                        
-                    
-                        
                         
                         for (int k=0; k<=sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
                         {
