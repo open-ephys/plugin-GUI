@@ -51,7 +51,6 @@ void DataBuffer::resize(int chans, int size)
 
 int DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, int numItems, int chunkSize)
 {
-    // writes one sample for all channels
     int startIndex1, blockSize1, startIndex2, blockSize2;
     abstractFifo.prepareToWrite(numItems, startIndex1, blockSize1, startIndex2, blockSize2);
     
