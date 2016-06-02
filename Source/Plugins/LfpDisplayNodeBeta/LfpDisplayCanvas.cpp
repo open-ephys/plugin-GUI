@@ -1132,7 +1132,7 @@ float LfpDisplayCanvas::getMean(int chan)
         numPts++;
     }
 
-    std::cout << sample << std::endl;
+    //std::cout << sample << std::endl;
 
     return total / numPts;
 }
@@ -1239,8 +1239,6 @@ void LfpDisplayCanvas::refresh()
 
     lfpDisplay->refresh(); // redraws only the new part of the screen buffer
 
-    //getPeer()->performAnyPendingRepaintsNow();
-
 }
 
 bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
@@ -1266,10 +1264,11 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
 
+    std::cout << "Saving lfp display params" << std::endl;
+
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY");
 
-    //lfpDisplay->toggleSingleChannel(-1);
-
+    lfpDisplay->reactivateChannels();
 
     xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
         ","+selectedVoltageRangeValues[2]);
@@ -1303,7 +1302,11 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
         {
             channelDisplayState += "0";
         }
+        //std::cout << channelDisplayState;
     }
+
+    //std::cout << std::endl;
+
 
     xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
 
@@ -1791,7 +1794,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
     }
     if (resetSingle && singleChan != -1)
     {
-        std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
+        //std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
         setSize(getWidth(),numChans*getChannelHeight());
         viewport->setScrollBarsShown(true,false);
         viewport->setViewPosition(Point<int>(0,singleChan*r));
@@ -1917,12 +1920,21 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 }
 
+void LfpDisplay::reactivateChannels()
+{
+
+    for (int n = 0; n < channels.size(); n++)
+       channels[n]->setEnabledState(savedChannelState[n]);
+
+}
+
 void LfpDisplay::toggleSingleChannel(int chan)
 {
     //std::cout << "Toggle channel " << chan << std::endl;
 
     if (chan != singleChan)
     {
+        std::cout << "Single channel on" << std::endl;
         singleChan = chan;
         int newHeight = viewport->getHeight();
 		channelInfo[chan]->setEnabledState(true);
@@ -1938,10 +1950,12 @@ void LfpDisplay::toggleSingleChannel(int chan)
         }
 
     }
-    else
+    else if (chan == singleChan || chan == -2)
     {
+        std::cout << "Single channel off" << std::endl;
         for (int n = 0; n < numChans; n++)
         {
+
             channelInfo[chan]->setSingleChannelState(false);
         }
         setChannelHeight(canvas->getChannelHeight());
@@ -1983,7 +1997,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
     if (singleChan != -1)
     {
-        std::cout << y << " " << channels[singleChan]->getHeight() << " " << getRange() << std::endl;
+        //std::cout << y << " " << channels[singleChan]->getHeight() << " " << getRange() << std::endl;
         channelInfo[singleChan]->updateXY(
                 float(x)/getWidth()*canvas->timebase, 
                 (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
@@ -2634,7 +2648,11 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
         g.setColour(Colours::darkgrey);
         g.drawText("STD:", 5, center+100,41,10,Justification::centred,false);
         g.drawText("MEAN:", 5, center+50,41,10,Justification::centred,false);
-        g.drawText("uV:", 5, center+150,41,10,Justification::centred,false);
+        
+        if (x > 0)
+        {
+            g.drawText("uV:", 5, center+150,41,10,Justification::centred,false);
+        }
         //g.drawText("Y:", 5, center+200,41,10,Justification::centred,false);
 
         g.setColour(Colours::grey);

@@ -135,7 +135,7 @@ public:
     bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
     bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
     
-    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the genreal plugin parameter overhaul.
+    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the general plugin parameter overhaul.
 
     
     int nChans;
@@ -284,7 +284,7 @@ public:
 
     void resized();
 
-
+    void reactivateChannels();
 
     void mouseDown(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
@@ -324,7 +324,7 @@ public:
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
-    void toggleSingleChannel(int chan);
+    void toggleSingleChannel(int chan = -2);
     
 private:
     
