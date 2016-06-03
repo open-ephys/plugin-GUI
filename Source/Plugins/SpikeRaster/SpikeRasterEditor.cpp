@@ -133,7 +133,7 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     electrodeLayoutLabel->setColour(Label::textColourId, Colour(200,200,200));
     addAndMakeVisible(electrodeLayoutLabel);
 
-    electrodeLayoutSelector = new UtilityButton("Linear", Font("Small Text", 13, Font::plain));
+    electrodeLayoutSelector = new UtilityButton("Default", Font("Small Text", 13, Font::plain));
     electrodeLayoutSelector->setRadius(5.0f);
     electrodeLayoutSelector->setEnabledState(true);
     electrodeLayoutSelector->setCorners(true, true, true, true);
@@ -280,7 +280,7 @@ void SpikeRasterCanvas::buttonClicked(Button* b)
             electrodeLayoutSelector->setLabel("Neuroseeker");
         } else {
             ratePlot->setLayout(0);
-            electrodeLayoutSelector->setLabel("Linear");
+            electrodeLayoutSelector->setLabel("Default");
         }
 
     }
@@ -307,9 +307,9 @@ RasterPlot::RasterPlot(SpikeRasterCanvas*)
 
     electrodeChannels.add(0);
 
-    spikeBuffer = AudioSampleBuffer(50,rasterWidth);
-    trialBuffer1 = AudioSampleBuffer(50,rasterWidth);
-    trialBuffer2 = AudioSampleBuffer(50,rasterWidth);
+    spikeBuffer = AudioSampleBuffer(100,rasterWidth);
+    trialBuffer1 = AudioSampleBuffer(100,rasterWidth);
+    trialBuffer2 = AudioSampleBuffer(100,rasterWidth);
 
     spikeBuffer.clear();
     trialBuffer1.clear();
@@ -406,7 +406,7 @@ void RasterPlot::paint(Graphics& g)
             if (colourIndex > 0)
             {
                 g.setColour(Colour(colourIndex*128+127, colourIndex*128+127, colourIndex*128+127));
-                g.fillRect(n*xHeight, m*yHeight, xHeight, yHeight);
+                g.fillRect(n*xHeight, getHeight() - m*yHeight - yHeight, xHeight, yHeight);
             }
         }
     }
@@ -932,17 +932,35 @@ void RatePlot::paint(Graphics& g)
         electrodeButtons[i]->rate = rates[i];
     }
 
-    electrodeButtons[0]->setToggleState(true, dontSendNotification);
-    //std::cout << "Rate: " << rates[0] << std::endl;
+    g.setFont(Font("Small Text", 12, Font::plain));
+
+    float xDist;
+    if (layout == 0)
+        xDist = 20;
+    else
+        xDist = 38;
+
+    g.drawText("0", 0., getHeight() - 20, xDist, 15., Justification::right, false);
+
+    for (int i = 9; i < electrodeButtons.size(); i += 10)
+    {
+        g.drawText(String(i+1), 0., getHeight() - (float(i)/4.*10. + 20.), xDist, 15., Justification::right, false);
+    }
+
 }
 
 void RatePlot::resized()
 {
     float electrodeSize = 10.0f;
-    float electrodeSpacing = 10.0f;
     float xLoc;
     float yLoc;
-    float xDist = 20;
+    float xDist;
+
+    if (layout == 0)
+        xDist = 25;
+    else
+        xDist = 40;
+
     float yDist = 20;
 
     for (int i = 0; i < electrodeButtons.size(); i++)
@@ -1041,6 +1059,9 @@ void RatePlot::setNumberOfElectrodes(int n)
         addAndMakeVisible(button);
         button->addListener(this);
     }
+
+    if (electrodeButtons.size() > 0)
+        electrodeButtons[0]->setToggleState(true, dontSendNotification);
 
     resized();
 }
