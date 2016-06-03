@@ -86,6 +86,8 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     }
 
     TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
+
+    optionsDrawerIsOpen = false;
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -111,6 +113,12 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
     TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
 }
 
+void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
+{
+    optionsDrawerIsOpen = isOpen;
+    resized();
+}
+
 void LfpDisplayCanvas::resized()
 {
 
@@ -122,7 +130,10 @@ void LfpDisplayCanvas::resized()
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*nChans);
 
-    options->setBounds(0, getHeight()-200, getWidth(), 200);
+    if (optionsDrawerIsOpen)
+        options->setBounds(0, getHeight()-200, getWidth(), 200);
+    else
+        options->setBounds(0, getHeight()-55, getWidth(), 55);
 
 }
 
@@ -587,12 +598,51 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 }
 
+// =============================================================
+
+
+ShowHideOptionsButton::ShowHideOptionsButton(LfpDisplayOptions* options) : Button("Button")
+{
+    setClickingTogglesState(true);
+}
+ShowHideOptionsButton::~ShowHideOptionsButton()
+{
+
+}
+
+void ShowHideOptionsButton::paintButton(Graphics& g, bool, bool) 
+{   
+    g.setColour(Colours::white);
+
+    Path p;
+
+    float h = getHeight();
+    float w = getWidth();
+
+    if (getToggleState())
+    {
+        p.addTriangle(0.5f*w, 0.2f*h,
+                      0.2f*w, 0.8f*h,
+                      0.8f*w, 0.8f*h);
+    }
+    else
+    {
+        p.addTriangle(0.8f*w, 0.8f*h,
+                      0.2f*w, 0.5f*h,
+                      0.8f*w, 0.2f*h);
+    }
+
+    PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
+
+    g.strokePath(p, pst);
+}
+
 
 // -------------------------------------------------------------
 
 LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* timescale_, 
                                      LfpDisplay* lfpDisplay_, LfpDisplayNode* processor_)
-    : canvas(canvas_), timescale(timescale_), lfpDisplay(lfpDisplay_), processor(processor_),
+    : canvas(canvas_), lfpDisplay(lfpDisplay_), timescale(timescale_), processor(processor_),
       selectedChannelType(HEADSTAGE_CHANNEL)
 {
  //Ranges for neural data
@@ -680,6 +730,10 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     selectedVoltageRangeValues[HEADSTAGE_CHANNEL] = voltageRanges[HEADSTAGE_CHANNEL][selectedVoltageRange[HEADSTAGE_CHANNEL]-1];
     selectedVoltageRangeValues[AUX_CHANNEL] = voltageRanges[AUX_CHANNEL][selectedVoltageRange[AUX_CHANNEL]-1];
     selectedVoltageRangeValues[ADC_CHANNEL] = voltageRanges[ADC_CHANNEL][selectedVoltageRange[ADC_CHANNEL]-1];
+
+    showHideOptionsButton = new ShowHideOptionsButton(this);
+    showHideOptionsButton->addListener(this);
+    addAndMakeVisible(showHideOptionsButton);
 
     timebases.add("0.25");
     timebases.add("0.5");
@@ -888,17 +942,20 @@ void LfpDisplayOptions::resized()
     
     spreadSelection->setBounds(5,getHeight()-90,60,25);
     
-    overlapSelection->setBounds(175,getHeight()-90,60,25);
-    drawClipWarningButton->setBounds(250-30,getHeight()-89,20,20);
-    
-    colorGroupingSelection->setBounds(350,getHeight()-90,60,25);
+    overlapSelection->setBounds(100,getHeight()-90,60,25);
 
-    invertInputButton->setBounds(450,getHeight()-110,100,22);
-    drawMethodButton->setBounds(450,getHeight()-85,100,22);
+    drawClipWarningButton->setBounds(175,getHeight()-89,20,20);
+    drawSaturateWarningButton->setBounds(325, getHeight()-89, 20, 20);
+    
+    colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
+
+    invertInputButton->setBounds(35,getHeight()-180,100,22);
+    drawMethodButton->setBounds(35,getHeight()-150,100,22);
+
     pauseButton->setBounds(450,getHeight()-50,50,44);
 
-    saturationWarningSelection->setBounds(315+90,getHeight()-90,60,25);
-    drawSaturateWarningButton->setBounds(410-30+90,getHeight()-89,20,20);
+    saturationWarningSelection->setBounds(250, getHeight()-90, 60, 25);
+    
     
     for (int i = 0; i < 8; i++)
     {
@@ -906,18 +963,20 @@ void LfpDisplayOptions::resized()
         eventDisplayInterfaces[i]->repaint();
     }
     
-    brightnessSliderA->setBounds(5,getHeight()-210,100,22);
-    sliderALabel->setBounds(105, getHeight()-210, 180, 22);
+    brightnessSliderA->setBounds(170,getHeight()-180,100,22);
+    sliderALabel->setBounds(270, getHeight()-180, 180, 22);
     brightnessSliderA->setValue(0.9); //set default value
     
-    brightnessSliderB->setBounds(5,getHeight()-185,100,22);
-    sliderBLabel->setBounds(105, getHeight()-185, 180, 22);
+    brightnessSliderB->setBounds(170,getHeight()-150,100,22);
+    sliderBLabel->setBounds(270, getHeight()-150, 180, 22);
     brightnessSliderB->setValue(0.1); //set default value
+
+    showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
     
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds(110,getHeight()-30+i*bh,50,bh);
+        typeButtons[i]->setBounds(95,getHeight()-30+i*bh,50,bh);
     }
 }
 
@@ -932,27 +991,27 @@ void LfpDisplayOptions::paint(Graphics& g)
     g.setColour(Colour(100,100,100));
 
     g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Timebase(s)",140,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Size(px)",240,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Clip",315,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Warn",373,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Timebase(s)",160,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
     
-    g.drawText("Sat.Warn.",315+105,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Sat. Warning",225,getHeight()-row2,300,20,Justification::left, false);
 
-    g.drawText("Color grouping",620,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
 
     g.drawText("Event disp.",300,getHeight()-row1,300,20,Justification::left, false);
 
     if(canvas->drawClipWarning)
     {
         g.setColour(Colours::white);
-        g.fillRoundedRectangle(408-30,getHeight()-90-1,24,24,6.0f);
+        g.fillRoundedRectangle(173,getHeight()-90-1,24,24,6.0f);
     }
     
     if(canvas->drawSaturationWarning)
     {
         g.setColour(Colours::red);
-        g.fillRoundedRectangle(408-30+90,getHeight()-90-1,24,24,6.0f);
+        g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
     }
     
 }
@@ -1044,6 +1103,11 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     {
         lfpDisplay->isPaused = b->getToggleState();
         return;
+    }
+
+    if (b == showHideOptionsButton)
+    {
+        canvas->toggleOptionsDrawer(b->getToggleState());
     }
 
     int idx = typeButtons.indexOf((UtilityButton*)b);
@@ -1796,13 +1860,17 @@ void LfpDisplay::refresh()
 void LfpDisplay::setRange(float r, ChannelType type)
 {
     range[type] = r;
-
-    for (int i = 0; i < numChans; i++)
+    
+    if (channels.size() > 0)
     {
-        if (channels[i]->getType() == type)
-            channels[i]->setRange(range[type]);
+
+        for (int i = 0; i < numChans; i++)
+        {
+            if (channels[i]->getType() == type)
+                channels[i]->setRange(range[type]);
+        }
+        canvas->fullredraw = true; //issue full redraw
     }
-    canvas->fullredraw = true; //issue full redraw
 }
 
 int LfpDisplay::getRange()

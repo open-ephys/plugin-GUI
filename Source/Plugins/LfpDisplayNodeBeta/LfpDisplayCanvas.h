@@ -69,6 +69,8 @@ public:
     void refresh();
     void resized();
 
+    void toggleOptionsDrawer(bool);
+
     int getChannelHeight();
     
     float channelOverlapFactor;
@@ -125,6 +127,8 @@ public:
 private:
     
     Array<float> sampleRate;
+
+    bool optionsDrawerIsOpen;
     
     float displayGain;
     float timeOffset;
@@ -166,6 +170,15 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 
+};
+
+class ShowHideOptionsButton : public Button
+{
+public:
+    ShowHideOptionsButton(LfpDisplayOptions*);
+    virtual ~ShowHideOptionsButton();
+    void paintButton(Graphics& g, bool, bool);
+    LfpDisplayOptions* options;
 };
 
 class LfpDisplayOptions : public Component,
@@ -255,6 +268,8 @@ private:
     ScopedPointer<Label> sliderALabel;
     ScopedPointer<Label> sliderBLabel;
 
+    ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
+
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
@@ -273,6 +288,8 @@ private:
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
 };
+
+
 
 class LfpTimescale : public Component
 {
