@@ -122,7 +122,7 @@ void LfpDisplayCanvas::resized()
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*nChans);
 
-    options->setBounds(0, getHeight()-90, getWidth(), 90);
+    options->setBounds(0, getHeight()-200, getWidth(), 200);
 
 }
 
@@ -886,32 +886,32 @@ void LfpDisplayOptions::resized()
     rangeSelection->setBounds(5,getHeight()-30,80,25);
     timebaseSelection->setBounds(175,getHeight()-30,60,25);
     
-    spreadSelection->setBounds(245,getHeight()-30,60,25);
+    spreadSelection->setBounds(5,getHeight()-90,60,25);
     
-    overlapSelection->setBounds(315,getHeight()-30,60,25);
-    drawClipWarningButton->setBounds(410-30,getHeight()-29,20,20);
+    overlapSelection->setBounds(175,getHeight()-90,60,25);
+    drawClipWarningButton->setBounds(250-30,getHeight()-89,20,20);
     
-    colorGroupingSelection->setBounds(620,getHeight()-30,60,25);
+    colorGroupingSelection->setBounds(350,getHeight()-90,60,25);
 
-    invertInputButton->setBounds(750,getHeight()-50,100,22);
-    drawMethodButton->setBounds(750,getHeight()-25,100,22);
-    pauseButton->setBounds(860,getHeight()-50,50,44);
+    invertInputButton->setBounds(450,getHeight()-110,100,22);
+    drawMethodButton->setBounds(450,getHeight()-85,100,22);
+    pauseButton->setBounds(450,getHeight()-50,50,44);
 
-    saturationWarningSelection->setBounds(315+90,getHeight()-30,60,25);
-    drawSaturateWarningButton->setBounds(410-30+90,getHeight()-29,20,20);
+    saturationWarningSelection->setBounds(315+90,getHeight()-90,60,25);
+    drawSaturateWarningButton->setBounds(410-30+90,getHeight()-89,20,20);
     
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(500+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(300+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
     
-    brightnessSliderA->setBounds(920,getHeight()-50,100,22);
-    sliderALabel->setBounds(1020, getHeight()-50, 180, 22);
+    brightnessSliderA->setBounds(5,getHeight()-210,100,22);
+    sliderALabel->setBounds(105, getHeight()-210, 180, 22);
     brightnessSliderA->setValue(0.9); //set default value
     
-    brightnessSliderB->setBounds(920,getHeight()-25,100,22);
-    sliderBLabel->setBounds(1020, getHeight()-25, 180, 22);
+    brightnessSliderB->setBounds(5,getHeight()-185,100,22);
+    sliderBLabel->setBounds(105, getHeight()-185, 180, 22);
     brightnessSliderB->setValue(0.1); //set default value
     
     int bh = 25/typeButtons.size();
@@ -919,6 +919,42 @@ void LfpDisplayOptions::resized()
     {
         typeButtons[i]->setBounds(110,getHeight()-30+i*bh,50,bh);
     }
+}
+
+void LfpDisplayOptions::paint(Graphics& g)
+{
+    int row1 = 55;
+    int row2 = 110;
+
+    g.fillAll(Colours::black);
+    g.setFont(Font("Default", 16, Font::plain));
+
+    g.setColour(Colour(100,100,100));
+
+    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Timebase(s)",140,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Size(px)",240,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Clip",315,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Warn",373,getHeight()-row2,300,20,Justification::left, false);
+    
+    g.drawText("Sat.Warn.",315+105,getHeight()-row2,300,20,Justification::left, false);
+
+    g.drawText("Color grouping",620,getHeight()-row2,300,20,Justification::left, false);
+
+    g.drawText("Event disp.",300,getHeight()-row1,300,20,Justification::left, false);
+
+    if(canvas->drawClipWarning)
+    {
+        g.setColour(Colours::white);
+        g.fillRoundedRectangle(408-30,getHeight()-90-1,24,24,6.0f);
+    }
+    
+    if(canvas->drawSaturationWarning)
+    {
+        g.setColour(Colours::red);
+        g.fillRoundedRectangle(408-30+90,getHeight()-90-1,24,24,6.0f);
+    }
+    
 }
 
 int LfpDisplayOptions::getChannelHeight()
@@ -1307,37 +1343,7 @@ int LfpDisplayOptions::getRangeStep(ChannelType type)
     return rangeSteps[type];
 }
 
-void LfpDisplayOptions::paint(Graphics& g)
-{
-    g.setFont(Font("Default", 16, Font::plain));
 
-    g.setColour(Colour(100,100,100));
-
-    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Timebase(s)",140,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Size(px)",240,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Clip",315,getHeight()-55,300,20,Justification::left, false);
-    g.drawText("Warn",373,getHeight()-55,300,20,Justification::left, false);
-    
-    g.drawText("Sat.Warn.",315+105,getHeight()-55,300,20,Justification::left, false);
-
-    g.drawText("Color grouping",620,getHeight()-55,300,20,Justification::left, false);
-
-    g.drawText("Event disp.",500,getHeight()-55,300,20,Justification::left, false);
-
-    if(canvas->drawClipWarning)
-    {
-        g.setColour(Colours::white);
-        g.fillRoundedRectangle(408-30,getHeight()-30-1,24,24,6.0f);
-    }
-    
-    if(canvas->drawSaturationWarning)
-    {
-        g.setColour(Colours::red);
-        g.fillRoundedRectangle(408-30+90,getHeight()-30-1,24,24,6.0f);
-    }
-    
-}
 
 void LfpDisplayOptions::saveParameters(XmlElement* xml)
 {

@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SpikeRaster.h"
 
 class Visualizer;
+class ElectrodeRateButton;
 
 class PSTH : public Component
 {
@@ -47,7 +48,9 @@ public:
 
 };
 
-class RatePlot : public Component
+
+
+class RatePlot : public Component, public Button::Listener
 {
 public:
     RatePlot(RasterPlot*);
@@ -57,11 +60,33 @@ public:
     void resized();
     void reset();
 
+    void buttonClicked(Button* button);
+
     void setNumberOfElectrodes(int);
+
+    void setLayout(int);
+
+    OwnedArray<ElectrodeRateButton> electrodeButtons;
 
     int layout;
     int numElectrodes;
     RasterPlot* raster;
+
+};
+
+class ElectrodeRateButton : public Button
+{
+public:
+    ElectrodeRateButton(RatePlot*, int chan);
+    virtual ~ElectrodeRateButton();
+
+    void paintButton(Graphics& g, bool, bool);
+    void resized();
+    int chan;
+    float rate;
+    bool isSelected;
+
+    RatePlot* ratePlot;
 
 };
 
@@ -170,6 +195,9 @@ private:
     ScopedPointer<Label> viewLabel;
     ScopedPointer<UtilityButton> viewButton;
 
+    ScopedPointer<Label> electrodeLayoutLabel;
+    ScopedPointer<UtilityButton> electrodeLayoutSelector;
+
     ScopedPointer<UtilityButton> clearButton;
 
     ScopedPointer<Label> preSecsInput;
@@ -206,6 +234,7 @@ public:
 
     void setNumberOfElectrodes(int);
     void setSampleRate(float);
+    void toggleElectrodeState(int);
 
     void setTimestamp(int64);
     void resetTimestamps();
@@ -235,7 +264,8 @@ public:
 
     int numElectrodes;
     int viewType;
-    int trialIndex;
+    int trialIndex1;
+    int trialIndex2;
     int totalTrials;
 
     Array<float> lastBufferPos;

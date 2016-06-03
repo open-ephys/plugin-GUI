@@ -79,13 +79,13 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     }
 
     triggerLabel = new Label("Triggers:","Triggers:");
-    triggerLabel->setFont(Font("Small Text", 13, Font::plain));
-    triggerLabel->setColour(Label::textColourId, Colour(250,250,250));
+    triggerLabel->setFont(Font("Small Text", 11, Font::plain));
+    triggerLabel->setColour(Label::textColourId, Colour(200,200,200));
     addAndMakeVisible(triggerLabel);
 
     viewLabel = new Label("View:","View:");
-    viewLabel->setFont(Font("Small Text", 13, Font::plain));
-    viewLabel->setColour(Label::textColourId, Colour(250,250,250));
+    viewLabel->setFont(Font("Small Text", 11, Font::plain));
+    viewLabel->setColour(Label::textColourId, Colour(200,200,200));
     addAndMakeVisible(viewLabel);
 
     viewButton = new UtilityButton("Continuous", Font("Small Text", 13, Font::plain));
@@ -127,6 +127,19 @@ SpikeRasterCanvas::SpikeRasterCanvas(SpikeRaster* sr) : processor(sr), currentMa
     postSecsInput->setEditable(true);
     postSecsInput->addListener(this);
     addAndMakeVisible(postSecsInput);
+
+    electrodeLayoutLabel = new Label("Layout:","Layout:");
+    electrodeLayoutLabel->setFont(Font("Small Text", 11, Font::plain));
+    electrodeLayoutLabel->setColour(Label::textColourId, Colour(200,200,200));
+    addAndMakeVisible(electrodeLayoutLabel);
+
+    electrodeLayoutSelector = new UtilityButton("Linear", Font("Small Text", 13, Font::plain));
+    electrodeLayoutSelector->setRadius(5.0f);
+    electrodeLayoutSelector->setEnabledState(true);
+    electrodeLayoutSelector->setCorners(true, true, true, true);
+    electrodeLayoutSelector->addListener(this);
+    electrodeLayoutSelector->setToggleState(false, dontSendNotification);
+    addAndMakeVisible(electrodeLayoutSelector);
 
     resized();
     repaint();
@@ -183,13 +196,13 @@ void SpikeRasterCanvas::refresh()
     
 void SpikeRasterCanvas::resized()
 {
-    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-120);
+    rasterPlot->setBounds(140, 10, getWidth()-300, getHeight()-120);
 
-    ratePlot->setBounds(10, 10, 80, getHeight()-120);
+    ratePlot->setBounds(10, 10, 120, getHeight()-120);
 
-    psth->setBounds(100, getHeight()-100, getWidth()-250, 70);
+    psth->setBounds(140, getHeight()-100, getWidth()-300, 70);
 
-    timescale->setBounds(85, getHeight()-25, getWidth()-220, 20);
+    timescale->setBounds(125, getHeight()-25, getWidth()-270, 20);
 
     for (int i = 0; i < eventChannelButtons.size(); i++)
     {
@@ -200,10 +213,12 @@ void SpikeRasterCanvas::resized()
     viewLabel->setBounds(getWidth()-140, 100, 140, 20);
     viewButton->setBounds(getWidth()-135, 120, 105, 20);
     clearButton->setBounds(getWidth()-135, 250, 74, 20);
-    preSecsLabel->setBounds(getWidth()-140, 150, 105, 15);
-    preSecsInput->setBounds(getWidth()-90, 150, 45, 15);
-    postSecsLabel->setBounds(getWidth()-140, 170, 105, 15);
-    postSecsInput->setBounds(getWidth()-90, 170, 45, 15);
+    preSecsLabel->setBounds(getWidth()-140, 160, 105, 15);
+    preSecsInput->setBounds(getWidth()-90, 160, 45, 15);
+    postSecsLabel->setBounds(getWidth()-140, 180, 105, 15);
+    postSecsInput->setBounds(getWidth()-90, 180, 45, 15);
+    electrodeLayoutLabel->setBounds(10, getHeight()-90, 140, 20);
+    electrodeLayoutSelector->setBounds(10, getHeight()-70, 105, 20);
 
 }
 
@@ -253,6 +268,21 @@ void SpikeRasterCanvas::buttonClicked(Button* b)
     else if (b == clearButton)
     {
         rasterPlot->clear();
+    } else if (b == electrodeLayoutSelector)
+    {
+        if (ratePlot->layout == 0)
+        {
+            ratePlot->setLayout(1);
+            electrodeLayoutSelector->setLabel("Neuropix");
+        } else if (ratePlot->layout == 1)
+        {
+            ratePlot->setLayout(2);
+            electrodeLayoutSelector->setLabel("Neuroseeker");
+        } else {
+            ratePlot->setLayout(0);
+            electrodeLayoutSelector->setLabel("Linear");
+        }
+
     }
 
     repaint();
@@ -272,7 +302,7 @@ RasterPlot::RasterPlot(SpikeRasterCanvas*)
     triggerTimestamp = -1;
 
     viewType = 0;
-    trialIndex = 0;
+    trialIndex2 = 0;
     totalTrials = 0;
 
     electrodeChannels.add(0);
@@ -321,7 +351,8 @@ void RasterPlot::clear()
 {
     trialBuffer1.clear();
     trialBuffer2.clear();
-    trialIndex = 0;
+    trialIndex1 = 0;
+    trialIndex2 = 0;
 
     setNumberOfElectrodes(numElectrodes); // clear last sample
 }
@@ -361,8 +392,6 @@ void RasterPlot::paint(Graphics& g)
     float xHeight = getWidth()/numXPixels;
     float yHeight = getHeight()/numYPixels;
 
-    
-
     for (int n = 0; n < numXPixels; n++)
     {
         for (int m = 0; m < numYPixels; m++)
@@ -371,7 +400,7 @@ void RasterPlot::paint(Graphics& g)
 
             if (viewType == 1)
             {
-                colourIndex /= (trialIndex);
+                colourIndex /= (totalTrials);
             }
 
             if (colourIndex > 0)
@@ -486,18 +515,18 @@ void RasterPlot::setTimestamp(int64 ts)
                 trialBuffer1.addFrom(n, 0, spikeBuffer, n, 0, spikeBuffer.getNumSamples());
             }
 
-            trialBuffer2.clear(trialIndex, 0, trialBuffer2.getNumSamples());
+            trialBuffer2.clear(trialIndex2, 0, trialBuffer2.getNumSamples());
 
             for (int n = 0; n < electrodeChannels.size(); n++)
             {
-                trialBuffer2.addFrom(trialIndex, 0, spikeBuffer, n, 0, spikeBuffer.getNumSamples());
+                trialBuffer2.addFrom(trialIndex2, 0, spikeBuffer, electrodeChannels[n], 0, spikeBuffer.getNumSamples());
             }
 
-            trialIndex++;
+            trialIndex2++;
             totalTrials++;
 
-            if (trialIndex == spikeBuffer.getNumChannels())
-                trialIndex = 0;
+            if (trialIndex2 == spikeBuffer.getNumChannels())
+                trialIndex2 = 0;
 
             triggerTimestamp = -1;
         } 
@@ -633,13 +662,11 @@ Array<float> RasterPlot::getPSTH(int numBins)
             }   
             case 2:
             {
-                if (totalTrials > 0)
+                if (trialIndex2 > 0)
                 {
                     
-                    if (trialIndex == totalTrials)
-                        spikeRate /= float(trialIndex);
-                    else
-                        spikeRate /= float(trialBuffer2.getNumChannels());
+                    spikeRate /= float(jmin(trialIndex2, trialBuffer2.getNumChannels()));
+
                 }
                     
                 break;
@@ -680,6 +707,19 @@ void RasterPlot::setEventTrigger(int ch, bool trigger)
     {
         triggerChannels.remove(triggerChannels.indexOf(ch));
     }
+}
+
+void RasterPlot::toggleElectrodeState(int ch)
+{
+    if (electrodeChannels.contains(ch))
+    {
+        electrodeChannels.remove(electrodeChannels.indexOf(ch));
+    } else {
+        electrodeChannels.add(ch);
+    }
+
+    trialBuffer2.clear();
+    trialIndex2 = 0;
 }
 
 
@@ -762,6 +802,8 @@ Colour RasterPlot::getColourForChannel(int ch)
  
 }
 
+
+
 //===========================================================
 
 PSTH::PSTH(RasterPlot* r) : raster(r)
@@ -795,7 +837,7 @@ void PSTH::paint(Graphics& g)
      }
     //}
 
-    g.setColour(Colours::purple);
+    g.setColour(Colour(225, 54, 125));
 
     float maxBufferPos = raster->getMaxBufferPos();
 
@@ -831,6 +873,41 @@ void PSTH::reset()
 
 }
 
+// ==========================================================
+
+
+ElectrodeRateButton::ElectrodeRateButton(RatePlot* r, int chan_) : Button(String(chan_)), ratePlot(r)
+{
+    std::cout << "created button for channel " << chan_ << std::endl;
+    chan = chan_;
+    rate = 0.0f;
+
+    setClickingTogglesState(true);
+}
+
+
+ElectrodeRateButton::~ElectrodeRateButton()
+{
+
+}
+
+void ElectrodeRateButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if (getToggleState())
+    {
+        //std::cout << "hi" << std::endl;
+        g.fillAll(Colours::white);
+    }
+
+    Colour fillColour = Colour(jmin(rate/20.0f, 1.0f)*225, 54.0f, jmin(rate/20.0f, 1.0f)*125);
+    g.setColour(fillColour);
+    g.fillRect(1,1,getHeight()-2,getWidth()-2);
+}
+
+void ElectrodeRateButton::resized()
+{
+
+}
 
 //===========================================================
 
@@ -850,27 +927,83 @@ void RatePlot::paint(Graphics& g)
 
     Array<float> rates = raster->getFiringRates();
 
-    float electrodeSize = 10.0f;
-    float electrodeSpacing = 5.0f;
-
-    for (int i = 0; i < numElectrodes; i++)
+    for (int i = 0; i < electrodeButtons.size(); i++)
     {
-        g.setColour(Colours::black);
-        g.fillRect(10.0f, 10.0f + (electrodeSize + electrodeSpacing) * i, electrodeSize, electrodeSize);
-
-        Colour fillColour = Colour(jmin(rates[i]/20.0f, 1.0f)*255, 54.0f, jmin(rates[i]/20.0f, 1.0f)*255);
-
-        g.setColour(fillColour);
-        g.fillRect(11.0f, 10.0f + (electrodeSize + electrodeSpacing) * i +1.0f, electrodeSize-2.0f, electrodeSize-2.0f);
-
+        electrodeButtons[i]->rate = rates[i];
     }
 
+    electrodeButtons[0]->setToggleState(true, dontSendNotification);
     //std::cout << "Rate: " << rates[0] << std::endl;
 }
 
 void RatePlot::resized()
 {
+    float electrodeSize = 10.0f;
+    float electrodeSpacing = 10.0f;
+    float xLoc;
+    float yLoc;
+    float xDist = 20;
+    float yDist = 20;
 
+    for (int i = 0; i < electrodeButtons.size(); i++)
+    {
+        switch (layout)
+        {
+            case 0:
+            {
+                if (i % 5 == 0){
+                    xLoc = 0;
+                    yLoc = (i / 5) * electrodeSize;
+                }
+                else if (i % 5 == 1){
+                    xLoc = electrodeSize * 3;
+                    yLoc = (i / 5)*electrodeSize;
+                }
+                else if (i % 5 == 2){
+                    xLoc = electrodeSize * 6;
+                    yLoc = (i / 5) * electrodeSize;
+                }
+                else if (i % 5 == 3){
+                    xLoc = electrodeSize*1.5;
+                    yLoc = (i / 5)*electrodeSize + electrodeSize/2;
+                }
+                else{
+                    xLoc = electrodeSize * 4.5;
+                    yLoc = (i / 5)*electrodeSize + electrodeSize/2;
+                }
+                break;
+            }
+            case 1:
+            {
+                if (i % 4 == 0){
+                    xLoc = 0;
+                    yLoc = (i / 4)*electrodeSize;
+                }
+                else if (i % 4 == 1){
+                    xLoc = electrodeSize * 2;
+                    yLoc = (i / 4)*electrodeSize;
+                }
+                else if (i % 4 == 2){
+                    xLoc = electrodeSize;
+                    yLoc = (i / 4)*electrodeSize + electrodeSize/2;
+                }
+                else{
+                    xLoc = electrodeSize * 3;
+                    yLoc = (i / 4)*electrodeSize + electrodeSize/2;
+                }
+                break;
+            }
+            case 2:
+            {
+                xLoc = (i % 4) * electrodeSize;
+                yLoc = (i / 4) * electrodeSize;
+                break;
+            }
+        }
+
+        electrodeButtons[i]->setBounds(xDist + xLoc, getHeight() - yDist - yLoc, electrodeSize, electrodeSize);
+        
+    }
 }
 
 void RatePlot::reset()
@@ -878,10 +1011,38 @@ void RatePlot::reset()
     
 }
 
+void RatePlot::buttonClicked(Button* button)
+{
+    ElectrodeRateButton* b = (ElectrodeRateButton*) button;
+
+    std::cout << b->chan << " was clicked." << std::endl;
+    b->repaint();
+
+    raster->toggleElectrodeState(b->chan);
+
+}
+
+void RatePlot::setLayout(int layout_)
+{
+    layout = layout_;
+
+    resized();
+
+}
 
 void RatePlot::setNumberOfElectrodes(int n)
 {
-    numElectrodes = n;
+    electrodeButtons.clear();
+
+    for (int i = 0; i < n; i++)
+    {
+        ElectrodeRateButton* button = new ElectrodeRateButton(this, i);
+        electrodeButtons.add(button);
+        addAndMakeVisible(button);
+        button->addListener(this);
+    }
+
+    resized();
 }
 
 // =========================================================
@@ -966,7 +1127,7 @@ void Timescale::paint(Graphics& g)
     while (pt <= max + resolution)
     {
         float xLoc = (pt - min)/(max-min);
-         std::cout << " x: " << xLoc << " , val: " << pt << std::endl;
+         //std::cout << " x: " << xLoc << " , val: " << pt << std::endl;
          g.drawText(String(pt), xLoc*(getWidth()-30)-4, 4, 40, 13, Justification::centred, false);
          pt += resolution;
      }
