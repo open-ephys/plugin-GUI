@@ -170,7 +170,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D3E60EFA1CD198E6003FDF5C /* Plugin_Debug.xcconfig */;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -178,7 +177,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D3E60EFB1CD198E6003FDF5C /* Plugin_Release.xcconfig */;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
