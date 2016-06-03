@@ -183,13 +183,13 @@ void SpikeRasterCanvas::refresh()
     
 void SpikeRasterCanvas::resized()
 {
-    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-110);
+    rasterPlot->setBounds(100, 10, getWidth()-250, getHeight()-120);
 
-    ratePlot->setBounds(10, 10, 80, getHeight()-110);
+    ratePlot->setBounds(10, 10, 80, getHeight()-120);
 
-    psth->setBounds(100, getHeight()-90, getWidth()-250, 70);
+    psth->setBounds(100, getHeight()-100, getWidth()-250, 70);
 
-    timescale->setBounds(97, getHeight()-15, getWidth()-247, 70);
+    timescale->setBounds(85, getHeight()-25, getWidth()-220, 20);
 
     for (int i = 0; i < eventChannelButtons.size(); i++)
     {
@@ -217,7 +217,6 @@ void SpikeRasterCanvas::labelTextChanged(Label* l)
     else if (value > 5)
         value = 5;
 
-
     if (l == preSecsInput)
         rasterPlot->setPreSecs(value);
     else if (l == postSecsInput)
@@ -226,7 +225,7 @@ void SpikeRasterCanvas::labelTextChanged(Label* l)
     l->setText(String(value), dontSendNotification);
 
     float min = preSecsInput->getText().getFloatValue()*-1;
-    float max = postSecsInput->getText().getFloatValue() + min;
+    float max = postSecsInput->getText().getFloatValue();
 
     timescale->setRange(min, max);
 
@@ -938,7 +937,7 @@ void EventChannelButton::paint(Graphics& g)
 
 Timescale::Timescale(RasterPlot* r) : raster(r)
 {
-    min = -1.5f;
+    min = -0.5f;
     max = 1.5f;
 
     resolution = 0.5f;
@@ -952,21 +951,23 @@ Timescale::~Timescale()
 
 void Timescale::paint(Graphics& g)
 {
-    g.setColour(Colours::white);
-    g.setFont(12);
+    g.fillAll(Colour(55,55,55));
+    g.setColour(Colours::grey);
+    g.fillRect(2,2,getWidth()-4,getHeight()-4);
+    g.setColour(Colours::lightgrey);
+    g.setFont(Font("Small Text", 12, Font::plain));
 
     float pt = min;
 
     //g.drawText("0", 2, (int) h, 8, 7, Justification::left, false);
 
-    while (pt < max + resolution)
+    //std::cout << "max: " << max << ", min: " << min << std::endl;
+
+    while (pt <= max + resolution)
     {
-        float xLoc = (pt + min)/(min + max);
-        if (xLoc < 0.5)
-            xLoc += 0.02;
-        else
-            xLoc -= 0.04;
-         g.drawText(String(pt), xLoc*getWidth(), 0, 25, 12, Justification::left, false);
+        float xLoc = (pt - min)/(max-min);
+         std::cout << " x: " << xLoc << " , val: " << pt << std::endl;
+         g.drawText(String(pt), xLoc*(getWidth()-30)-4, 4, 40, 13, Justification::centred, false);
          pt += resolution;
      }
 }
