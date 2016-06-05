@@ -58,7 +58,9 @@ int DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, 
     int si[2] = {startIndex1, startIndex2};
     int cSize = 0;
     int idx = 0;
+    int blkIdx;
     for (int i=0; bs[i] != 0; i++) {                                // for each of the dest blocks we can write to...
+        blkIdx = 0;
         for (int j=0; j<bs[i]; j+= chunkSize) {                     // for each chunk...
             cSize = chunkSize <= bs[i]-j ? chunkSize : bs[i]-j;     // ...figure our how much you can write
             for (int chan = 0; chan < numChans; chan++) {           // ...write that much, per channel
@@ -68,10 +70,11 @@ int DataBuffer::addToBuffer(float* data, int64* timestamps, uint64* eventCodes, 
                                 cSize);                         // (int num samples)
             }
             for (int k=0; k<cSize; k++) {
-                *(timestampBuffer + idx + k) = *(timestamps + idx + k);
-                *(eventCodeBuffer + idx + k) = *(eventCodes + idx + k);
+                timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
+                eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
             }
             idx+=cSize;
+            blkIdx+=cSize;
         }
     }
     
