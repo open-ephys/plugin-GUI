@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -51,9 +51,8 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     bool hasEditor()                const  override { return true; }
-    bool isSource()                 const  override { return true; }
     bool isGeneratesTimestamps()    const  override { return true; }
-    bool isReady()                  const  override;
+    bool isReady()                  override;
 
     int getNumHeadstageOutputs()        const override;
     int getNumEventChannels()           const override;

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __FILTERNODE_H_CED428E__
@@ -27,59 +26,56 @@
 #include <ProcessorHeaders.h>
 #include "Dsp/Dsp.h"
 
+
 /**
+    Filters data using a filter from the DSP library.
 
-  Filters data using a filter from the DSP library.
+    The user can select the low- and high-frequency cutoffs.
 
-  The user can select the low- and high-frequency cutoffs.
-
-  @see GenericProcessor, FilterEditor
-
+    @see GenericProcessor, FilterEditor
 */
-
 class FilterNode : public GenericProcessor
-
 {
 public:
-
     FilterNode();
     ~FilterNode();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    AudioProcessorEditor* createEditor() override;
 
-    AudioProcessorEditor* createEditor();
+    bool hasEditor() const override { return true; }
 
-    bool hasEditor() const
-    {
-        return true;
-    }
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    double getLowCutValueForChannel(int chan);
-    double getHighCutValueForChannel(int chan);
-    bool getBypassStatusForChannel(int chan);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void updateSettings();
+    void updateSettings() override;
 
-    void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel);
+    void saveCustomChannelParametersToXml   (XmlElement* channelInfo, int channelNumber, bool isEventChannel) override;
+    void loadCustomChannelParametersFromXml (XmlElement* channelInfo, bool isEventChannel)  override;
 
-    void loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel);
+    double getLowCutValueForChannel  (int chan) const;
+    double getHighCutValueForChannel (int chan) const;
 
-    void setApplyOnADC(bool state);
+    bool getBypassStatusForChannel (int chan) const;
+
+    void setApplyOnADC (bool state);
+
+
 private:
+    void setFilterParameters (double, double, int);
 
-    Array<double> lowCuts, highCuts;
+    Array<double> lowCuts;
+    Array<double> highCuts;
+
     OwnedArray<Dsp::Filter> filters;
     Array<bool> shouldFilterChannel;
 
     bool applyOnADC;
+
     double defaultLowCut;
     double defaultHighCut;
 
-    void setFilterParameters(double, double, int);
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 };
 
 #endif  // __FILTERNODE_H_CED428E__

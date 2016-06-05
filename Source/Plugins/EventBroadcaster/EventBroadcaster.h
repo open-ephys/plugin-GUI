@@ -41,6 +41,7 @@ public:
     void saveCustomParametersToXml (XmlElement* parentElement) override;
     void loadCustomParametersFromXml() override;
 
+
 private:
     static std::shared_ptr<void> getZMQContext();
     static void closeZMQSocket (void* socket);

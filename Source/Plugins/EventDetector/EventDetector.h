@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,33 +27,30 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
+
 /**
+    Searches for threshold crossings and sends out TTL events.
 
-  Searches for threshold crossings and sends out TTL events.
-
-  @see GenericProcessor
-
+    @see GenericProcessor
 */
-
 class EventDetector : public GenericProcessor
-
 {
 public:
-
     EventDetector();
     ~EventDetector();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+
+    void setParameter (int parameterIndex, float newValue) override;
+
 
 private:
-
     float threshold;
     float bufferZone;
     bool state;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventDetector);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventDetector);
 };
+
 
 #endif  // __EVENTDETECTOR_H_91811542__

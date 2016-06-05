@@ -335,7 +335,7 @@ public:
     virtual bool canSendSignalTo (GenericProcessor*) const;
 
     /** Returns true if a processor is ready to process data (e.g., all of its parameters are initialized, and its data source is connected).*/
-    virtual bool isReady() const;
+    virtual bool isReady();
 
     /** Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data.*/
     virtual bool enable();

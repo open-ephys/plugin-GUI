@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __CHANNELMAPPINGNODE_H_330E50E0__
@@ -29,38 +28,31 @@
 
 
 /**
+    Channel mapping node.
 
-  Channel mapping node.
+    Allows the user to select a subset of channels, remap their order, and reference them against
+    any other channel.
 
-  Allows the user to select a subset of channels, remap their order, and reference them against
-  any other channel.
-
-  @see GenericProcessor
-
+    @see GenericProcessor
 */
-
 class ChannelMappingNode : public GenericProcessor
-
 {
 public:
-
     ChannelMappingNode();
     ~ChannelMappingNode();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    AudioProcessorEditor* createEditor() override;
 
-    AudioProcessorEditor* createEditor();
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    bool hasEditor() const
-    {
-        return true;
-    }
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void updateSettings();
+    bool hasEditor() const override { return true; }
+
+    void updateSettings() override;
+
 
 private:
-
     Array<int> referenceArray;
     Array<int> referenceChannels;
     Array<int> channelArray;
@@ -70,8 +62,7 @@ private:
 
     AudioSampleBuffer channelBuffer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelMappingNode);
 };
 
 

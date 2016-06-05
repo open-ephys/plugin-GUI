@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,36 +18,38 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 
 #include <stdio.h>
 #include "RecordControl.h"
 
-RecordControl::RecordControl()
-    : GenericProcessor("Record Control"),
-      triggerChannel(0)
-{
 
+RecordControl::RecordControl()
+    : GenericProcessor  ("Record Control")
+    , triggerChannel    (0)
+{
+    setProcessorType (PROCESSOR_TYPE_UTILITY);
 }
+
 
 RecordControl::~RecordControl()
 {
-
 }
+
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
-    editor = new RecordControlEditor(this, true);
+    editor = new RecordControlEditor (this, true);
     return editor;
 }
 
-void RecordControl::setParameter(int parameterIndex, float newValue)
+
+void RecordControl::setParameter (int parameterIndex, float newValue)
 {
     if (parameterIndex == 0)
     {
-        updateTriggerChannel((int) newValue);
+        updateTriggerChannel ((int) newValue);
     }
     else if (parameterIndex == 1)
     {
@@ -59,30 +61,31 @@ void RecordControl::setParameter(int parameterIndex, float newValue)
     }
 }
 
-void RecordControl::updateTriggerChannel(int newChannel)
+
+void RecordControl::updateTriggerChannel (int newChannel)
 {
     triggerChannel = newChannel;
 }
 
+
 bool RecordControl::enable()
 {
-
     return true;
 }
 
-void RecordControl::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events)
+
+void RecordControl::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
-    checkForEvents(events);
+    checkForEvents (events);
 }
 
 
-void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
+void RecordControl::handleEvent (int eventType, MidiMessage& event, int)
 {
     const uint8* dataptr = event.getRawData();
 
-    int eventId = *(dataptr+2);
-    int eventChannel = *(dataptr+3);
+    const int eventId       = *(dataptr + 2);
+    const int eventChannel  = *(dataptr + 3);
 
     //std::cout << "Received event with id=" << eventId << " and ch=" << eventChannel << std::endl;
 
@@ -90,27 +93,24 @@ void RecordControl::handleEvent(int eventType, MidiMessage& event, int)
     {
         int edge = triggerEdge == RISING ? 1 : 0;
 
-        //std::cout << "Trigger!" << std::endl;
-
         const MessageManagerLock mmLock;
 
         if (triggerType == SET)
         {
             if (eventId == edge)
             {
-                CoreServices::setRecordingStatus(true);
+                CoreServices::setRecordingStatus (true);
             }
             else
             {
-                CoreServices::setRecordingStatus(false);
+                CoreServices::setRecordingStatus (false);
             }
         }
         else if (triggerType == TOGGLE && eventId == edge)
         {
-            CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+            CoreServices::setRecordingStatus (! CoreServices::getRecordingStatus());
         }
     }
-
 }
 
 

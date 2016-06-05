@@ -71,7 +71,7 @@ bool PlaceholderProcessor::isSink() const
 }
 
 
-bool PlaceholderProcessor::isReady() const
+bool PlaceholderProcessor::isReady()
 {
     CoreServices::sendStatusMessage ("Cannot acquire with placeholder nodes");
     return false; //This processor never allows processing

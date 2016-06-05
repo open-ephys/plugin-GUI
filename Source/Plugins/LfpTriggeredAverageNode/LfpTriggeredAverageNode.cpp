@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,116 +26,119 @@
 #include <stdio.h>
 
 LfpTriggeredAverageNode::LfpTriggeredAverageNode()
-    : GenericProcessor("LFP Trig. Avg."),
-      displayBufferIndex(0), displayGain(1), bufferLength(5.0f),
-      abstractFifo(100), ttlState(0)
+    : GenericProcessor      ("LFP Trig. Avg.")
+    , displayBufferIndex    (0)
+    , displayGain           (1)
+    , bufferLength          (5.0f)
+    , abstractFifo          (100)
+    , ttlState              (0)
 {
+    setProcessorType (PROCESSOR_TYPE_SINK);
+
     std::cout << " LfpTriggeredAverageNode Constructor" << std::endl;
-    displayBuffer = new AudioSampleBuffer(8, 100);
-    eventBuffer = new MidiBuffer();
+    displayBuffer = new AudioSampleBuffer (8, 100);
+    eventBuffer = new MidiBuffer;
 
     arrayOfOnes = new float[5000];
 
-    for (int n = 0; n < 5000; n++)
+    for (int n = 0; n < 5000; ++n)
     {
         arrayOfOnes[n] = 1;
     }
-
 }
+
 
 LfpTriggeredAverageNode::~LfpTriggeredAverageNode()
 {
-
 }
+
 
 AudioProcessorEditor* LfpTriggeredAverageNode::createEditor()
 {
-
-    editor = new LfpTriggeredAverageEditor(this, true);
+    editor = new LfpTriggeredAverageEditor (this, true);
     return editor;
-
 }
+
 
 void LfpTriggeredAverageNode::updateSettings()
 {
     std::cout << "Setting num inputs on LfpTriggeredAverageNode to " << getNumInputs() << std::endl;
 }
 
+
 bool LfpTriggeredAverageNode::resizeBuffer()
 {
-    int nSamples = (int) getSampleRate()*bufferLength;
-    int nInputs = getNumInputs();
+    const int nSamples = (int) getSampleRate() * bufferLength;
+    const int nInputs = getNumInputs();
 
     std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
     if (nSamples > 0 && nInputs > 0)
     {
-        abstractFifo.setTotalSize(nSamples);
-        displayBuffer->setSize(nInputs+1, nSamples); // add an extra channel for TTLs
+        abstractFifo.setTotalSize (nSamples);
+        displayBuffer->setSize (nInputs + 1, nSamples); // add an extra channel for TTLs
+
         return true;
     }
     else
     {
         return false;
     }
-
 }
+
 
 bool LfpTriggeredAverageNode::enable()
 {
-
     if (resizeBuffer())
     {
         LfpTriggeredAverageEditor* editor = (LfpTriggeredAverageEditor*) getEditor();
         editor->enable();
+
         return true;
     }
     else
     {
         return false;
     }
-
 }
+
 
 bool LfpTriggeredAverageNode::disable()
 {
     LfpTriggeredAverageEditor* editor = (LfpTriggeredAverageEditor*) getEditor();
     editor->disable();
+
     return true;
 }
 
-void LfpTriggeredAverageNode::setParameter(int parameterIndex, float newValue)
-{
-    editor->updateParameterButtons(parameterIndex);
-    //Sets Parameter in parameters array for processor
-    Parameter* parameterPointer=parameters.getRawDataPointer();
-    parameterPointer=parameterPointer+parameterIndex;
-    parameterPointer->setValue(newValue, currentChannel);
 
-    //std::cout << "Saving Parameter from " << currentChannel << ", channel ";
+void LfpTriggeredAverageNode::setParameter (int parameterIndex, float newValue)
+{
+    editor->updateParameterButtons (parameterIndex);
+
+    //Sets Parameter in parameters array for processor
+    Parameter* parameterPointer = parameters.getRawDataPointer();
+    parameterPointer += parameterIndex;
+    parameterPointer->setValue (newValue, currentChannel);
 
     LfpTriggeredAverageEditor* ed = (LfpTriggeredAverageEditor*) getEditor();
     if (ed->canvas != 0)
-        ed->canvas->setParameter(parameterIndex, newValue);
+        ed->canvas->setParameter (parameterIndex, newValue);
 }
 
-void LfpTriggeredAverageNode::handleEvent(int eventType, MidiMessage& event)
+
+void LfpTriggeredAverageNode::handleEvent (int eventType, MidiMessage& event)
 {
     if (eventType == TTL)
     {
         const uint8* dataptr = event.getRawData();
 
         // int eventNodeId = *(dataptr+1);
-        int eventId = *(dataptr+2);
-        int eventChannel = *(dataptr+3);
-        int eventTime = event.getTimeStamp();
-
-        int samplesLeft = totalSamples - eventTime;
-
-        //	std::cout << "Received event from " << eventNodeId << ", channel "
-        //	          << eventChannel << ", with ID " << eventId << std::endl;
-        //
-        int bufferIndex = (displayBufferIndex + eventTime);// % displayBuffer->getNumSamples();
+        const int eventId         = *(dataptr + 2);
+        const int eventChannel    = *(dataptr + 3);
+        const int eventTime       = event.getTimeStamp();
+        const int samplesLeft     = totalSamples - eventTime;
+        const int bufferIndex     = (displayBufferIndex + eventTime);// % displayBuffer->getNumSamples();
 
         if (eventId == 1)
         {
@@ -148,180 +151,122 @@ void LfpTriggeredAverageNode::handleEvent(int eventType, MidiMessage& event)
 
         if (samplesLeft + bufferIndex < displayBuffer->getNumSamples())
         {
-
-            //	std::cout << bufferIndex << " " << samplesLeft << " " << ttlState << std::endl;
-
-            displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                    bufferIndex,		// destStartSample
-                                    arrayOfOnes, 		// source
-                                    samplesLeft, 		// numSamples
-                                    float(ttlState));   // gain
+            displayBuffer->copyFrom (displayBuffer->getNumChannels() - 1,  // destChannel
+                                     bufferIndex,                          // destStartSample
+                                     arrayOfOnes,                          // source
+                                     samplesLeft,                          // numSamples
+                                     float (ttlState));                    // gain
         }
         else
         {
+            const int block2Size = (samplesLeft + bufferIndex) % displayBuffer->getNumSamples();
+            const int block1Size = samplesLeft - block2Size;
 
-            int block2Size = (samplesLeft + bufferIndex) % displayBuffer->getNumSamples();
-            int block1Size = samplesLeft - block2Size;
+            displayBuffer->copyFrom (displayBuffer->getNumChannels() - 1,  // destChannel
+                                     bufferIndex,                          // destStartSample
+                                     arrayOfOnes,                          // source
+                                     block1Size,                           // numSamples
+                                     float (ttlState));                    // gain
 
-            //std::cout << "OVERFLOW." << std::endl;
-
-            //std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
-
-            displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                    bufferIndex,		// destStartSample
-                                    arrayOfOnes, 		// source
-                                    block1Size, 		// numSamples
-                                    float(ttlState));   // gain
-
-            //std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
-
-            displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                    0,		// destStartSample
-                                    arrayOfOnes, 		// source
-                                    block2Size, 		// numSamples
-                                    float(ttlState));   // gain
-
-
+            displayBuffer->copyFrom (displayBuffer->getNumChannels() - 1,  // destChannel
+                                     0,                                    // destStartSample
+                                     arrayOfOnes,                          // source
+                                     block2Size,                           // numSamples
+                                     float (ttlState));                    // gain
         }
-
-
-        // 	std::cout << "ttlState: " << ttlState << std::endl;
-
-        // std::cout << "Received event from " << eventNodeId <<
-        //              " on channel " << eventChannel <<
-        //             " with value " << eventId <<
-        //             " at timestamp " << event.getTimeStamp() << std::endl;
-
-
     }
     else if (eventType == TIMESTAMP)
     {
-
         const uint8* dataptr = event.getRawData();
 
-        // int eventNodeId = *(dataptr+1);
-        // int eventId = *(dataptr+2);
-        // int eventChannel = *(dataptr+3);
-
         // update the timestamp for the current buffer:
-        memcpy(&bufferTimestamp, dataptr+4, 4);
-
-
-
-        //   	double timeInSeconds = double(ts)/Time::getHighResolutionTicksPerSecond();
-        //   	//int64 timestamp = ts[0] << 32 +
-        //   	//				  ts[1] << 16 +
-        //   	//				  ts[2] << 8 +
-        //   	//				  ts[3];
-        //   	//memcpy(ts, dataptr+4, 1);
-
-        //   	std::cout << "Time in seconds is " << timeInSeconds << std::endl;
-
-        // // std::cout << "Received event from " << eventNodeId <<
-        //    	//              " on channel " << eventChannel <<
-        //    	 //             " with value " << eventId <<
-        //    	 //             " for time: " << ts << std::endl;
+        memcpy (&bufferTimestamp, dataptr + 4, 4);
     }
 }
+
 
 void LfpTriggeredAverageNode::initializeEventChannel()
 {
     if (displayBufferIndex + totalSamples < displayBuffer->getNumSamples())
     {
-
-        //	std::cout << getNumInputs()+1 << " " << displayBufferIndex << " " << totalSamples << " " << ttlState << std::endl;
-        //
-        displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                displayBufferIndex,		// destStartSample
-                                arrayOfOnes, 		// source
-                                totalSamples, 		// numSamples
-                                float(ttlState));   // gain
+        displayBuffer->copyFrom (displayBuffer->getNumChannels() - 1,   // destChannel
+                                 displayBufferIndex,                    // destStartSample
+                                 arrayOfOnes,                           // source
+                                 totalSamples,                          // numSamples
+                                 float (ttlState));                     // gain
     }
     else
     {
+        const int block2Size = (displayBufferIndex + totalSamples) % displayBuffer->getNumSamples();
+        const int block1Size = totalSamples - block2Size;
 
-        int block2Size = (displayBufferIndex + totalSamples) % displayBuffer->getNumSamples();
-        int block1Size = totalSamples - block2Size;
+        displayBuffer->copyFrom(displayBuffer->getNumChannels() - 1,    // destChannel
+                                displayBufferIndex,                     // destStartSample
+                                arrayOfOnes,                            // source
+                                block1Size,                             // numSamples
+                                float (ttlState));                      // gain
 
-        // std::cout << "OVERFLOW." << std::endl;
-
-        // std::cout << bufferIndex << " " << block1Size << " " << ttlState << std::endl;
-
-        displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                displayBufferIndex,		// destStartSample
-                                arrayOfOnes, 		// source
-                                block1Size, 		// numSamples
-                                float(ttlState));   // gain
-        // std::cout << 0 << " " << block2Size << " " << ttlState << std::endl;
-
-        displayBuffer->copyFrom(displayBuffer->getNumChannels()-1,  // destChannel
-                                0,		// destStartSample
-                                arrayOfOnes, 		// source
-                                block2Size, 		// numSamples
-                                float(ttlState));   // gain
-
-
+        displayBuffer->copyFrom (displayBuffer->getNumChannels() - 1,   // destChannel
+                                 0,                                     // destStartSample
+                                 arrayOfOnes,                           // source
+                                 block2Size,                            // numSamples
+                                 float (ttlState));                     // gain
     }
 }
 
-void LfpTriggeredAverageNode::process(AudioSampleBuffer& buffer, MidiBuffer& events)
+
+void LfpTriggeredAverageNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
     // 1. place any new samples into the displayBuffer
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
-    int nSamples = 100;
+    const int nSamples = 100;
 
     totalSamples = nSamples; //nSamples;
     displayBufferIndexEvents = displayBufferIndex;
 
     initializeEventChannel();
 
-    checkForEvents(events); // update timestamp, see if we got any TTL events
+    checkForEvents (events); // update timestamp, see if we got any TTL events
 
-    int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
+    const int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex;
 
     if (nSamples < samplesLeft)
     {
-
-        for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+        for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
         {
-            displayBuffer->copyFrom(chan,  			// destChannel
-                                    displayBufferIndex, // destStartSample
-                                    buffer, 			// source
-                                    chan, 				// source channel
-                                    0,					// source start sample
-                                    nSamples); 			// numSamples
-
+            displayBuffer->copyFrom (chan,                  // destChannel
+                                     displayBufferIndex,    // destStartSample
+                                     buffer,                // source
+                                     chan,                  // source channel
+                                     0,                     // source start sample
+                                     nSamples);             // numSamples
         }
-        displayBufferIndex += (nSamples);
 
+        displayBufferIndex += (nSamples);
     }
     else
     {
+        const int extraSamples = nSamples - samplesLeft;
 
-        int extraSamples = nSamples - samplesLeft;
-
-        for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+        for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
         {
-            displayBuffer->copyFrom(chan,  				// destChannel
-                                    displayBufferIndex, // destStartSample
-                                    buffer, 			// source
-                                    chan, 				// source channel
-                                    0,					// source start sample
-                                    samplesLeft); 		// numSamples
+            displayBuffer->copyFrom (chan,                  // destChannel
+                                     displayBufferIndex,    // destStartSample
+                                     buffer,                // source
+                                     chan,                  // source channel
+                                     0,                     // source start sample
+                                     samplesLeft);          // numSamples
 
-            displayBuffer->copyFrom(chan,
-                                    0,
-                                    buffer,
-                                    chan,
-                                    samplesLeft,
-                                    extraSamples);
+            displayBuffer->copyFrom (chan,                  // destChannel
+                                     0,                     // destStartSample
+                                     buffer,                // source
+                                     chan,                  // source channel
+                                     samplesLeft,           // source start sample
+                                     extraSamples);         // numSamples
         }
 
         displayBufferIndex = extraSamples;
     }
-
-
-
 }
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -32,50 +32,34 @@
 class DataViewport;
 
 /**
+    Displays the average of a continuous signal, triggered on a certain event channel.
 
-  Displays the average of a continuous signal, triggered on a certain event channel.
-
-  @see GenericProcessor, LfpTriggeredAverageEditor, LfpDisplayCanvas
-
+    @see GenericProcessor, LfpTriggeredAverageEditor, LfpDisplayCanvas
 */
-
 class LfpTriggeredAverageNode :  public GenericProcessor
-
 {
 public:
-
     LfpTriggeredAverageNode();
     ~LfpTriggeredAverageNode();
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    bool isSink()
-    {
-        return true;
-    }
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void setParameter(int, float);
+    void updateSettings() override;
 
-    void updateSettings();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool enable();
-    bool disable();
+    void handleEvent (int, MidiMessage&) override;
 
-    void handleEvent(int, MidiMessage&);
+    AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffer; }
+    int getDisplayBufferIndex() const { return displayBufferIndex; }
 
-    AudioSampleBuffer* getDisplayBufferAddress()
-    {
-        return displayBuffer;
-    }
-    int getDisplayBufferIndex()
-    {
-        return displayBufferIndex;
-    }
 
 private:
-
     void initializeEventChannel();
 
     ScopedPointer<AudioSampleBuffer> displayBuffer;
@@ -98,11 +82,8 @@ private:
 
     bool resizeBuffer();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpTriggeredAverageNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpTriggeredAverageNode);
 };
-
-
 
 
 #endif  // __LFPTRIGAVGNODE_H_D969A379__

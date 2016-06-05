@@ -34,13 +34,13 @@ public:
     PlaceholderProcessor (String pName, String lName, int lVer, bool pSource, bool pSink);
     ~PlaceholderProcessor();
 
+    AudioProcessorEditor* createEditor() override;
+
     bool hasEditor() const override;
 
     bool isSource() const override;
     bool isSink()   const override;
-    bool isReady()  const override;
-
-    AudioProcessorEditor* createEditor() override;
+    bool isReady()  override;
 
     void process (AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer) override;
 

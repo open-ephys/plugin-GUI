@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -30,89 +30,77 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../UI/UIComponent.h"
 
-/**
 
+/**
   Creates and controls a thread for reading data from external sources.
 
   @see GenericProcessor, SourceNodeEditor, DataThread, IntanThread
-
 */
-
-class PLUGIN_API SourceNode : public GenericProcessor,
-    public Timer,
-    public ActionListener
-
+class PLUGIN_API SourceNode : public GenericProcessor
+                            , public Timer
+                            , public ActionListener
 {
 public:
-
-    // real member functions:
-    SourceNode(const String& name, DataThreadCreator dt);
+    SourceNode (const String& name, DataThreadCreator dt);
     ~SourceNode();
 
-    void enabledState(bool t);
+    void actionListenerCallback (const String& message) override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    AudioProcessorEditor* createEditor() override;
 
-    void setParameter(int parameterIndex, float newValue);
+    void setEnabledState (bool newState) override;
 
-    float getSampleRate();
-    float getDefaultSampleRate();
-    int getNumHeadstageOutputs();
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    int getNumAuxOutputs();
-    int getNumAdcOutputs();
+    void setParameter (int parameterIndex, float newValue) override;
 
-    int getNumEventChannels();
-    float getBitVolts(Channel* chan);
+    void getEventChannelNames (StringArray& names) override;
+
+    void saveCustomParametersToXml (XmlElement* parentElement)  override;
+    void loadCustomParametersFromXml()                          override;
+
+    float getSampleRate()        const override;
+    float getDefaultSampleRate() const override;
+
+    float getBitVolts (Channel* chan) const override;
+
+    int getNumHeadstageOutputs() const override;
+    int getNumAuxOutputs()       const override;
+    int getNumAdcOutputs()       const override;
+
+    int getNumEventChannels() const override;
 
     void requestChainUpdate();
 
-    void getEventChannelNames(StringArray& names);
+    bool hasEditor() const override { return true; }
 
-    AudioProcessorEditor* createEditor();
-    bool hasEditor() const
-    {
-        return true;
-    }
+    bool isGeneratesTimestamps() const override { return true; }
 
-    bool enable();
-    bool disable();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool isReady();
-	bool sourcePresent();
+    bool isReady() override;
 
-    bool isSource()
-    {
-        return true;
-    }
-
-    bool generatesTimestamps()
-    {
-        return true;
-    }
+    bool isSourcePresent() const;
 
     void acquisitionStopped();
 
-    DataThread* getThread();
+    DataThread* getThread() const { return dataThread; }
 
-    void actionListenerCallback(const String& message);
-
-    int getTTLState();
-
-    void saveCustomParametersToXml(XmlElement* parentElement);
-    void loadCustomParametersFromXml();
+    int getTTLState() const { return ttlState; }
 
     bool tryEnablingEditor();
 
+
 private:
+    void timerCallback() override;
+
+    void updateSettings() override;
 
     int numEventChannels;
-
     int sourceCheckInterval;
 
     bool wasDisabled;
-
-    void timerCallback();
 
     ScopedPointer<DataThread> dataThread;
     DataBuffer* inputBuffer;
@@ -120,15 +108,13 @@ private:
     uint64 timestamp;
     //uint64* eventCodeBuffer;
     //int* eventChannelState;
-	HeapBlock<uint64> eventCodeBuffer;
-	HeapBlock<int> eventChannelState;
+    HeapBlock<uint64> eventCodeBuffer;
+    HeapBlock<int> eventChannelState;
 
     int ttlState;
 
-    void updateSettings();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
 };
 
 

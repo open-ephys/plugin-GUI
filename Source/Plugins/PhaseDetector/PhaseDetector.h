@@ -29,40 +29,38 @@
 
 #define NUM_INTERVALS 5
 
+
 /**
 
-  Uses peaks to estimate the phase of a continuous signal.
+    Uses peaks to estimate the phase of a continuous signal.
 
-  @see GenericProcessor, PhaseDetectorEditor
-
+    @see GenericProcessor, PhaseDetectorEditor
 */
-
 class PhaseDetector : public GenericProcessor
-
 {
 public:
-
     PhaseDetector();
     ~PhaseDetector();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override { return false; }
 
-    AudioProcessorEditor* createEditor();
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    bool hasEditor() const
-    {
-        return false;
-    }
+    void setParameter (int parameterIndex, float newValue) override;
 
-    bool enable();
+    bool enable() override;
 
-    void updateSettings();
+    void updateSettings() override;
 
     void addModule();
-    void setActiveModule(int);
+    void setActiveModule (int);
+
 
 private:
+    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
+
+    void estimateFrequency();
 
     enum ModuleType
     {
@@ -76,14 +74,16 @@ private:
 
     struct DetectorModule
     {
-
         int inputChan;
         int gateChan;
         int outputChan;
-        bool isActive;
-        float lastSample;
         int samplesSinceTrigger;
+
+        float lastSample;
+
+        bool isActive;
         bool wasTriggered;
+
         ModuleType type;
         PhaseType phase;
     };
@@ -92,14 +92,13 @@ private:
 
     int activeModule;
 
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+    bool risingPos;
+    bool risingNeg;
+    bool fallingPos;
+    bool fallingNeg;
 
-    bool risingPos, risingNeg, fallingPos, fallingNeg;
 
-    void estimateFrequency();
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetector);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
 };
 
 #endif  // __PHASEDETECTOR_H_F411F29D__

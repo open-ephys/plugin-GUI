@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -39,6 +39,8 @@ FileReader::FileReader()
     , stopSample            (0)
     , counter               (0)
 {
+    setProcessorType (PROCESSOR_TYPE_SOURCE);
+
     setEnabledState (false);
 
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
@@ -71,7 +73,7 @@ AudioProcessorEditor* FileReader::createEditor()
 }
 
 
-bool FileReader::isReady() const
+bool FileReader::isReady()
 {
     if (! input)
     {

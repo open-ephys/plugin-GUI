@@ -1011,7 +1011,7 @@ bool GenericProcessor::isMetaParameter          (int parameterIndex) const { ret
 
 bool GenericProcessor::canSendSignalTo (GenericProcessor*) const { return true; }
 
-bool GenericProcessor::isReady()  const         { return isEnabled; }
+bool GenericProcessor::isReady()                { return isEnabled; }
 bool GenericProcessor::isEnabledState() const   { return isEnabled; }
 
 bool GenericProcessor::isGeneratesTimestamps() const { return false; }
