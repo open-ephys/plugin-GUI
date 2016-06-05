@@ -52,12 +52,6 @@ public:
     /** The class destructor, used to deallocate memory */
     ~CAR();
 
-    /** Determines whether the processor is treated as a source. */
-    bool isSource() override { return false; }
-
-    /** Determines whether the processor is treated as a sink. */
-    bool isSink()   override { return false; }
-
     /** Defines the functionality of the processor.
 
         The process method is called every time a new data buffer is available.

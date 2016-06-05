@@ -470,7 +470,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
                 editorArray[n]->setEnabledState(enable);
 
-                if (source->canSendSignalTo(dest) && source->enabledState())
+                if (source->canSendSignalTo(dest) && source->isEnabledState())
                     enable = true;
                 else
                     enable = false;

@@ -33,39 +33,36 @@
 
 #define BUFFER_SIZE 1024
 
-/**
 
+/**
   Reads data from a file.
 
   @see GenericProcessor
-
 */
-
 class FileReader : public GenericProcessor
 {
 public:
     FileReader();
     ~FileReader();
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter (int parameterIndex, float newValue);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void setParameter (int parameterIndex, float newValue) override;
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    // We should make all these override methods as constant
-    // so we also need to refactor GenericProcessor and appropriate plugins
-    bool hasEditor()                const       override { return true; }
-    bool isSource()                 /* const */ override { return true; }
-    bool generatesTimestamps()      /* const */ override { return true; }
-    bool isReady()                  /* const */ override;
+    bool hasEditor()                const  override { return true; }
+    bool isSource()                 const  override { return true; }
+    bool isGeneratesTimestamps()    const  override { return true; }
+    bool isReady()                  const  override;
 
-    int getNumHeadstageOutputs()        /* const */ override;
-    int getNumEventChannels()           /* const */ override;
-    float getDefaultSampleRate()        /* const */ override;
-    float getBitVolts (Channel* chan)   /* const */ override;
+    int getNumHeadstageOutputs()        const override;
+    int getNumEventChannels()           const override;
 
-    void updateSettings()       override;
-    void enabledState (bool t)  override;
+    float getDefaultSampleRate()        const override;
+    float getBitVolts (Channel* chan)   const override;
+
+    void updateSettings() override;
+    void setEnabledState (bool t)  override;
 
     String getFile() const;
     bool setFile (String fullpath);
@@ -79,7 +76,6 @@ private:
 
     unsigned int samplesToMilliseconds (int64 samples)  const;
     int64 millisecondsToSamples (unsigned int ms)       const;
-
 
     int64 timestamp;
 

@@ -256,28 +256,27 @@ void GenericEditor::enable()
 {
     isEnabled = true;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->enabledState(true);
+    p->setEnabledState (true);
 }
 
 void GenericEditor::disable()
 {
     isEnabled = false;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->enabledState(false);
+    p->setEnabledState (false);
 }
 
 bool GenericEditor::getEnabledState()
 {
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    return p->enabledState();
+    return p->isEnabledState();
 }
 
 void GenericEditor::setEnabledState(bool t)
 {
-
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->enabledState(t);
-    isEnabled = p->enabledState();
+    p->setEnabledState(t);
+    isEnabled = p->isEnabledState();
 }
 
 void GenericEditor::setDesiredWidth (int width)
