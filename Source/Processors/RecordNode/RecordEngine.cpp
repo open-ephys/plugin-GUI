@@ -71,9 +71,10 @@ void RecordEngine::updateTimestamps(const Array<int64>& ts, int channel)
 		timestamps.set(channel, ts[channel]);
 }
 
-void RecordEngine::setChannelMapping(const Array<int>& chans)
+void RecordEngine::setChannelMapping(const Array<int>& chans, const OwnedArray<RecordProcessorInfo>& processors)
 {
 	channelMap = chans;
+	recordProcessors.swapWith(processors);
 }
 
 int64 RecordEngine::getTimestamp(int channel) const

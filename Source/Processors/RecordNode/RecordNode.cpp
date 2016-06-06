@@ -307,16 +307,31 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 		channelMap.clear();
 		int totChans = channelPointers.size();
+		OwnedArray<RecordProcessorInfo> procInfo;
+		int lastProcessor = -1;
 		for (int ch = 0; ch < totChans; ++ch)
 		{
-			if (channelPointers[ch]->getRecordState())
+			Channel* chan = channelPointers[ch];
+			if (chan->getRecordState())
 			{
 				channelMap.add(ch);
+				//This is bassed on the assumption that all channels from the same processor are added contiguously
+				//If this behaviour changes, this check should be most thorough
+				if (chan->nodeId != lastProcessor)
+				{
+					lastProcessor = chan->nodeId;
+					RecordProcessorInfo* pi = new RecordProcessorInfo();
+					pi->processorId = chan->nodeId;
+					procInfo.add(pi);
+				}
+				procInfo.getLast()->recordedChannels.add(channelMap.size());
 			}
 		}
+		std::cout << "Num Recording Processors: " << procInfo.size() << std::endl;
 		int numRecordedChannels = channelMap.size();
 
-		EVERY_ENGINE->setChannelMapping(channelMap);
+		//WARNING: If at some point we record at more that one recordEngine at once, we should change this, as using OwnedArrays only works for the first
+		EVERY_ENGINE->setChannelMapping(channelMap, procInfo);
 		m_recordThread->setChannelMap(channelMap);
 		m_dataQueue->setChannels(numRecordedChannels);
 		m_eventQueue->reset();

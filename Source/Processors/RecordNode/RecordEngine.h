@@ -50,6 +50,12 @@ struct SpikeRecordInfo
     int recordIndex;
 };
 
+struct RecordProcessorInfo
+{
+	int processorId; 
+	Array<int> recordedChannels; //Indexes of the recorded channels. From 0-maxRecordChannels, not 0-totalChannels
+};
+
 struct EngineParameter;
 class RecordNode;
 class RecordEngineManager;
@@ -149,7 +155,7 @@ public:
 	/** Called prior to opening files, to set the map between recorded
 		channels and actual channel numbers
 	*/
-	void setChannelMapping(const Array<int>& channels);
+	void setChannelMapping(const Array<int>& channels, const OwnedArray<RecordProcessorInfo>& processors);
 
     /** Called after all channels and spike groups have been registered,
     	just before acquisition starts
@@ -199,6 +205,7 @@ private:
 	Array<int64> timestamps;
 	Array<int> channelMap;
     RecordEngineManager* manager;
+	OwnedArray<RecordProcessorInfo> recordProcessors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
 };
