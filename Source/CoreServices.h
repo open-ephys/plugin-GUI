@@ -78,6 +78,14 @@ PLUGIN_API void setPrependTextToRecordingDir(String text);
 /** Manually set the text to be appended to the recording directory */
 PLUGIN_API void setAppendTextToRecordingDir(String text);
 
+/** Gets the ID fo the selected Record Engine*/
+PLUGIN_API String getSelectedRecordEngineId();
+
+/** Sets a specific RecordEngine to be used based on its id. 
+Return true if there is an engine with the specified ID and it's possible to
+change the current engine or false otherwise. */
+PLUGIN_API bool setSelectedRecordEngineId(String id);
+
 namespace RecordNode
 {
 /** Forces creation of new directory on recording */
@@ -96,6 +104,9 @@ PLUGIN_API int addSpikeElectrode(SpikeRecordInfo* elec);
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);
+    
+/** Gets the default directory for user-initiated file saving/loading */
+PLUGIN_API File getDefaultUserSaveDirectory();
 
 };
 

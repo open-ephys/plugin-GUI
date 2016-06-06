@@ -18,12 +18,12 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.0" -D "JUCE_APP_VERSION_HEX=0x400" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.1" -D "JUCE_APP_VERSION_HEX=0x401" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -rdynamic -std=c++0x -fvisibility=hidden
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -ldl -lXext -lGLU -rdynamic -fPIC -fvisibility=hidden
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.0" -D "JUCE_APP_VERSION_HEX=0x400" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.1" -D "JUCE_APP_VERSION_HEX=0x401" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
@@ -39,12 +39,12 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.0" -D "JUCE_APP_VERSION_HEX=0x400" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.1" -D "JUCE_APP_VERSION_HEX=0x401" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -rdynamic -std=c++0x -fvisibility=hidden
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -ldl -lXext -lGLU -rdynamic -fPIC -fvisibility=hidden
   LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.0" -D "JUCE_APP_VERSION_HEX=0x400" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.1" -D "JUCE_APP_VERSION_HEX=0x401" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
   TARGET := open-ephys-release
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
@@ -57,6 +57,7 @@ OBJECTS := \
   $(OBJDIR)/AudioComponent_521bd9c9.o \
   $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o \
   $(OBJDIR)/PlaceholderProcessor_167f09aa.o \
+  $(OBJDIR)/LinearSmoothedValueAtomic_df1e5b97.o \
   $(OBJDIR)/Bessel_7e54cb27.o \
   $(OBJDIR)/Biquad_622c856b.o \
   $(OBJDIR)/Butterworth_6aca939b.o \
@@ -105,6 +106,8 @@ OBJECTS := \
   $(OBJDIR)/ParameterEditor_112258eb.o \
   $(OBJDIR)/Parameter_b3e5ac9e.o \
   $(OBJDIR)/ProcessorGraph_8c3a250a.o \
+  $(OBJDIR)/DataQueue_d6cc297a.o \
+  $(OBJDIR)/RecordThread_fb797372.o \
   $(OBJDIR)/EngineConfigWindow_4fd44ceb.o \
   $(OBJDIR)/OriginalRecording_d6dc3293.o \
   $(OBJDIR)/RecordEngine_97ef83aa.o \
@@ -117,13 +120,18 @@ OBJECTS := \
   $(OBJDIR)/DataWindow_83ce6754.o \
   $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
+  $(OBJDIR)/TiledButtonGroupManager_e05788a6.o \
+  $(OBJDIR)/LinearButtonGroupManager_ea5cb5bf.o \
+  $(OBJDIR)/ButtonGroupManager_75d0fbfa.o \
+  $(OBJDIR)/MaterialButtonLookAndFeel_d7d19ba2.o \
+  $(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o \
+  $(OBJDIR)/CustomLookAndFeel_fcb2406a.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
   $(OBJDIR)/SignalChainManager_d2b643f0.o \
   $(OBJDIR)/EditorViewport_1d991caf.o \
   $(OBJDIR)/ProcessorList_1ad3f3de.o \
-  $(OBJDIR)/CustomLookAndFeel_53a8fcdb.o \
   $(OBJDIR)/InfoLabel_a2051bf4.o \
   $(OBJDIR)/DataViewport_2cf95d2c.o \
   $(OBJDIR)/ControlPanel_a895ede3.o \
@@ -191,6 +199,11 @@ $(OBJDIR)/PlaceholderProcessorEditor_7b4cbcf7.o: ../../Source/Processors/Placeho
 $(OBJDIR)/PlaceholderProcessor_167f09aa.o: ../../Source/Processors/PlaceholderProcessor/PlaceholderProcessor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PlaceholderProcessor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LinearSmoothedValueAtomic_df1e5b97.o: ../../Source/Processors/Dsp/LinearSmoothedValueAtomic.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LinearSmoothedValueAtomic.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Bessel_7e54cb27.o: ../../Source/Processors/Dsp/Bessel.cpp
@@ -433,6 +446,16 @@ $(OBJDIR)/ProcessorGraph_8c3a250a.o: ../../Source/Processors/ProcessorGraph/Proc
 	@echo "Compiling ProcessorGraph.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/DataQueue_d6cc297a.o: ../../Source/Processors/RecordNode/DataQueue.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling DataQueue.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RecordThread_fb797372.o: ../../Source/Processors/RecordNode/RecordThread.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RecordThread.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/EngineConfigWindow_4fd44ceb.o: ../../Source/Processors/RecordNode/EngineConfigWindow.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling EngineConfigWindow.cpp"
@@ -493,6 +516,36 @@ $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/Matla
 	@echo "Compiling MatlabLikePlot.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/TiledButtonGroupManager_e05788a6.o: ../../Source/UI/Utils/TiledButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TiledButtonGroupManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LinearButtonGroupManager_ea5cb5bf.o: ../../Source/UI/Utils/LinearButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LinearButtonGroupManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ButtonGroupManager_75d0fbfa.o: ../../Source/UI/Utils/ButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ButtonGroupManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MaterialButtonLookAndFeel_d7d19ba2.o: ../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MaterialButtonLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o: ../../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MaterialSliderLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/CustomLookAndFeel_fcb2406a.o: ../../Source/UI/LookAndFeel/CustomLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling CustomLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling CustomArrowButton.cpp"
@@ -521,11 +574,6 @@ $(OBJDIR)/EditorViewport_1d991caf.o: ../../Source/UI/EditorViewport.cpp
 $(OBJDIR)/ProcessorList_1ad3f3de.o: ../../Source/UI/ProcessorList.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ProcessorList.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/CustomLookAndFeel_53a8fcdb.o: ../../Source/UI/CustomLookAndFeel.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling CustomLookAndFeel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/InfoLabel_a2051bf4.o: ../../Source/UI/InfoLabel.cpp

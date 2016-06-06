@@ -27,6 +27,8 @@
 #include "../../UI/ControlPanel.h"
 #include "../../AccessClass.h"
 #include "RecordEngine.h"
+#include "RecordThread.h"
+#include "DataQueue.h"
 
 #define EVERY_ENGINE for(int eng = 0; eng < engineArray.size(); eng++) engineArray[eng]
 
@@ -41,15 +43,11 @@ RecordNode::RecordNode()
 
     isProcessing = false;
     isRecording = false;
-    allFilesOpened = false;
-    signalFilesShouldClose = false;
-
-    signalFilesShouldClose = false;
+	setFirstBlock = false;
 
     settings.numInputs = 2048;
     settings.numOutputs = 0;
 
-    eventChannel = new Channel(this, 0, EVENT_CHANNEL);
     recordingNumber = -1;
 
     spikeElectrodeIndex = 0;
@@ -60,13 +58,16 @@ RecordNode::RecordNode()
 
     // 128 inputs, 0 outputs
     setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
-
+	m_recordThread = new RecordThread(engineArray);
+	m_dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
+	m_eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
+	m_spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
+	m_recordThread->setQueuePointers(m_dataQueue, m_eventQueue, m_spikeQueue);
 }
 
 
 RecordNode::~RecordNode()
 {
-    delete eventChannel; // Memory leak fixed by Michael Borisov
 }
 
 void RecordNode::setChannel(Channel* ch)
@@ -117,19 +118,6 @@ void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 
 }
 
-void RecordNode::updateChannelName(int channelIndex, String newname)
-{
-    /*  if (channelPointers[channelIndex] != nullptr && channelIndex < channelPointers.size())
-        {
-            channelPointers[channelIndex]->name = newname;
-            updateFileName(channelPointers[channelIndex]);
-        } else*/
-    {
-        // keep name and do the change when the pointer actually points to something... ?
-        modifiedChannelNames.add(newname);
-        modifiedChannelInd.add(channelIndex);
-    }
-}
 
 void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<bool>& recording)
 {
@@ -185,17 +173,6 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
     }
 
 }
-
-void RecordNode::updateTrialNumber()
-{
-    trialNum++;
-}
-
-void RecordNode::appendTrialNumber(bool t)
-{
-    appendTrialNum = t;
-}
-
 
 void RecordNode::createNewDirectory()
 {
@@ -299,9 +276,8 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 1)
     {
 
-        isRecording = true;
-        hasRecorded = true;
-        // std::cout << "START RECORDING." << std::endl;
+		
+		// std::cout << "START RECORDING." << std::endl;
 
         if (newDirectoryNeeded)
         {
@@ -327,28 +303,64 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
             settingsNeeded = false;
         }
 
-        EVERY_ENGINE->openFiles(rootFolder, experimentNumber, recordingNumber);
+		m_recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
-        allFilesOpened = true;
+		channelMap.clear();
+		int totChans = channelPointers.size();
+		for (int ch = 0; ch < totChans; ++ch)
+		{
+			if (channelPointers[ch]->getRecordState())
+			{
+				channelMap.add(ch);
+			}
+		}
+		int numRecordedChannels = channelMap.size();
+
+		EVERY_ENGINE->setChannelMapping(channelMap);
+		m_recordThread->setChannelMap(channelMap);
+		m_dataQueue->setChannels(numRecordedChannels);
+		m_eventQueue->reset();
+		m_spikeQueue->reset();
+		m_recordThread->setFirstBlockFlag(false);
+
+		setFirstBlock = false;
+		m_recordThread->startThread();
+
+		isRecording = true;
+		hasRecorded = true;
 
     }
     else if (parameterIndex == 0)
     {
 
 
-        // std::cout << "STOP RECORDING." << std::endl;
+        std::cout << "STOP RECORDING." << std::endl;
 
         if (isRecording)
         {
+			isRecording = false;
 
-            // close necessary files
-            signalFilesShouldClose = true;
+            // close the writing thread.
+			m_recordThread->signalThreadShouldExit();
+			m_recordThread->waitForThreadToExit(2000);
+			while (m_recordThread->isThreadRunning())
+			{
+				std::cerr << "RecordEngine timeout" << std::endl;
+				if (AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Record Thread timeout",
+					"The recording thread is taking too long to close.\nThis could mean there is still data waiting to be written in the buffer, but it normally "
+					"shouldn't take this long.\nYou can either wait a bit more or forcefully close the thread. Note that data might be lost or corrupted"
+					"if forcibly closing the thread.", "Stop the thread", "Wait a bit more"))
+				{
+					m_recordThread->stopThread(100);
+					m_recordThread->forceCloseFiles();
+				}
+				else
+				{
+					m_recordThread->waitForThreadToExit(2000);
+				}
+			}
 
         }
-
-        isRecording = false;
-
-
     }
     else if (parameterIndex == 2)
     {
@@ -379,15 +391,6 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
     }
 }
 
-void RecordNode::closeAllFiles()
-{
-    if (allFilesOpened)
-    {
-        EVERY_ENGINE->closeFiles();
-        allFilesOpened = false;
-    }
-}
-
 bool RecordNode::enable()
 {
     if (hasRecorded)
@@ -411,9 +414,6 @@ bool RecordNode::disable()
     // close files if necessary
     setParameter(0, 10.0f);
 
-    if (isProcessing)
-        closeAllFiles();
-
     isProcessing = false;
 
     return true;
@@ -427,13 +427,15 @@ float RecordNode::getFreeSpace()
 
 void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
 {
-    if (isRecording && allFilesOpened)
+    if (isRecording)
     {
         if (isWritableEvent(eventType))
         {
             if (*(event.getRawData()+4) > 0) // saving flag > 0 (i.e., event has not already been processed)
             {
-                EVERY_ENGINE->writeEvent(eventType, event, samplePosition);
+				uint8 sourceNodeId = event.getNoteNumber();
+				int64 timestamp = timestamps[sourceNodeId] + samplePosition;
+				m_eventQueue->addEvent(event, timestamp, eventType);
             }
         }
     }
@@ -442,34 +444,32 @@ void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePositi
 void RecordNode::process(AudioSampleBuffer& buffer,
                          MidiBuffer& events)
 {
-	//update timstamp data even if we're not recording yet
-	EVERY_ENGINE->updateTimestamps(&timestamps);
-	EVERY_ENGINE->updateNumSamples(&numSamples);
 	
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents(events);
 
-    if (isRecording && allFilesOpened)
+    if (isRecording)
     {
         // SECOND: write channel data
-        if (channelPointers.size() > 0)
-        {
-            EVERY_ENGINE->writeData(buffer);
-        }
+		int recordChans = channelMap.size();
+		for (int chan = 0; chan < recordChans; ++chan)
+		{
+			int realChan = channelMap[chan];
+			int sourceNodeId = channelPointers[realChan]->sourceNodeId;
+			int nSamples = numSamples.at(sourceNodeId);
+			int timestamp = timestamps.at(sourceNodeId);
+			m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
+		}
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
-
-        return;
-
+		if (!setFirstBlock)
+		{
+			m_recordThread->setFirstBlockFlag(true);
+			setFirstBlock = true;
+		}
+        
     }
 
-    // this is intended to prevent parameter changes from closing files
-    // before recording stops
-    if (signalFilesShouldClose)
-    {
-        closeAllFiles();
-        signalFilesShouldClose = false;
-    }
 
 }
 
@@ -488,7 +488,7 @@ void RecordNode::registerRecordEngine(RecordEngine* engine)
     engineArray.add(engine);
 }
 
-void RecordNode::registerSpikeSource(GenericProcessor* processor)
+void RecordNode::registerSpikeSource(GenericProcessor* processor) 
 {
     EVERY_ENGINE->registerSpikeSource(processor);
 }
@@ -503,7 +503,10 @@ int RecordNode::addSpikeElectrode(SpikeRecordInfo* elec)
 
 void RecordNode::writeSpike(SpikeObject& spike, int electrodeIndex)
 {
-    EVERY_ENGINE->writeSpike(spike,electrodeIndex);
+	if (isRecording)
+	{
+		m_spikeQueue->addEvent(spike, spike.timestamp, electrodeIndex);
+	}
 }
 
 SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)

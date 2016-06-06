@@ -1,23 +1,23 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2013 Florian Franzen
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2014 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -62,12 +62,12 @@ OriginalRecording::~OriginalRecording()
     delete recordMarker;*/
 }
 
-String OriginalRecording::getEngineID()
+String OriginalRecording::getEngineID() const
 {
     return "OPENEPHYS";
 }
 
-void OriginalRecording::addChannel(int index, Channel* chan)
+void OriginalRecording::addChannel(int index, const Channel* chan)
 {
     //Just populate the file array with null so we can address it by index afterwards
     fileArray.add(nullptr);
@@ -75,7 +75,7 @@ void OriginalRecording::addChannel(int index, Channel* chan)
     samplesSinceLastTimestamp.add(0);
 }
 
-void OriginalRecording::addSpikeElectrode(int index, SpikeRecordInfo* elec)
+void OriginalRecording::addSpikeElectrode(int index, const SpikeRecordInfo* elec)
 {
     spikeFileArray.add(nullptr);
 }
@@ -382,27 +382,23 @@ String OriginalRecording::generateSpikeHeader(SpikeRecordInfo* elec)
     return header;
 }
 
-void OriginalRecording::writeEvent(int eventType, MidiMessage& event, int samplePosition)
+void OriginalRecording::writeEvent(int eventType, const MidiMessage& event, int64 timestamp)
 {
     if (isWritableEvent(eventType))
-        writeTTLEvent(event,samplePosition);
+		writeTTLEvent(event, timestamp);
     if (eventType == GenericProcessor::MESSAGE)
-        writeMessage(event,samplePosition);
+		writeMessage(event, timestamp);
 }
 
-void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
+void OriginalRecording::writeMessage(const MidiMessage& event, int64 timestamp)
 {
     if (messageFile == nullptr)
         return;
-    uint64 samplePos = (uint64) samplePosition;
-    uint8 sourceNodeId = event.getNoteNumber();
-
-    int64 eventTimestamp = (*timestamps)[sourceNodeId] + samplePos;
 
     int msgLength = event.getRawDataSize() - 6;
     const char* dataptr = (const char*)event.getRawData() + 6;
 
-    String timestampText(eventTimestamp);
+    String timestampText(timestamp);
 
     diskWriteLock.enter();
     fwrite(timestampText.toUTF8(),1,timestampText.length(),messageFile);
@@ -413,7 +409,7 @@ void OriginalRecording::writeMessage(MidiMessage& event, int samplePosition)
 
 }
 
-void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
+void OriginalRecording::writeTTLEvent(const MidiMessage& event, int64 timestamp)
 {
     // find file and write samples to disk
     // std::cout << "Received event!" << std::endl;
@@ -423,15 +419,12 @@ void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
 
     const uint8* dataptr = event.getRawData();
 
-    uint64 samplePos = (uint64) samplePosition;
-
-    uint8 sourceNodeId = event.getNoteNumber();
-
-    int64 eventTimestamp = (*timestamps)[sourceNodeId] + samplePos; // add the sample position to the buffer timestamp
+    //With the new external recording thread, this field has no sense.
+	int16 samplePos = 0;
 
     diskWriteLock.enter();
 
-    fwrite(&eventTimestamp,					// ptr
+    fwrite(&timestamp,					// ptr
            8,   							// size of each element
            1, 		  						// count
            eventFile);   			// ptr to FILE object
@@ -453,64 +446,59 @@ void OriginalRecording::writeTTLEvent(MidiMessage& event, int samplePosition)
     diskWriteLock.exit();
 }
 
-void OriginalRecording::writeData(AudioSampleBuffer& buffer)
+void OriginalRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
+	int samplesWritten = 0;
 
-    for (int i = 0; i < buffer.getNumChannels(); i++)
-    {
-        if (getChannel(i)->getRecordState())
-        {
-            int samplesWritten = 0;
+	//int sourceNodeId = getChannel(realChannel)->sourceNodeId;
 
-            int sourceNodeId = getChannel(i)->sourceNodeId;
+	//TODO: optimize. Now we use realchannel, we should optimize the whole thing to only use recorded channels
+	samplesSinceLastTimestamp.set(realChannel, 0);
 
-            samplesSinceLastTimestamp.set(i,0);
-
-            int nSamples = (*numSamples)[sourceNodeId];
+	int nSamples = size;
 
             while (samplesWritten < nSamples) // there are still unwritten samples in this buffer
             {
                 int numSamplesToWrite = nSamples - samplesWritten;
 
-                if (blockIndex[i] + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
+                if (blockIndex[realChannel] + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
                 {
 
                     // write buffer to disk!
-                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+                    writeContinuousBuffer(buffer + samplesWritten,
                                           numSamplesToWrite,
-                                          i);
+                                          writeChannel);
 
                     //timestamp += numSamplesToWrite;
-                    samplesSinceLastTimestamp.set(i, samplesSinceLastTimestamp[i] + numSamplesToWrite);
-                    blockIndex.set(i, blockIndex[i] + numSamplesToWrite);
+                    samplesSinceLastTimestamp.set(realChannel, samplesSinceLastTimestamp[realChannel] + numSamplesToWrite);
+                    blockIndex.set(realChannel, blockIndex[realChannel] + numSamplesToWrite);
                     samplesWritten += numSamplesToWrite;
 
                 }
                 else   // there's not enough space left in this block for all remaining samples
                 {
 
-                    numSamplesToWrite = BLOCK_LENGTH - blockIndex[i];
+                    numSamplesToWrite = BLOCK_LENGTH - blockIndex[realChannel];
 
                     // write buffer to disk!
-                    writeContinuousBuffer(buffer.getReadPointer(i,samplesWritten),
+                    writeContinuousBuffer(buffer + samplesWritten,
                                           numSamplesToWrite,
-                                          i);
+                                          writeChannel);
 
                     // update our variables
                     samplesWritten += numSamplesToWrite;
                     //timestamp += numSamplesToWrite;
-                    samplesSinceLastTimestamp.set(i, samplesSinceLastTimestamp[i] + numSamplesToWrite);
-                    blockIndex.set(i,0); // back to the beginning of the block
+                    samplesSinceLastTimestamp.set(realChannel, samplesSinceLastTimestamp[realChannel] + numSamplesToWrite);
+                    blockIndex.set(realChannel,0); // back to the beginning of the block
                 }
             }
 
-        }
-    }
 
 }
 
-void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, int channel)
+void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, int writeChannel)
 {
+	int channel = getRealChannel(writeChannel);
     // check to see if the file exists
     if (fileArray[channel] == nullptr)
         return;
@@ -526,7 +514,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
 
     if (blockIndex[channel] == 0)
     {
-        writeTimestampAndSampleCount(fileArray[channel], channel);
+        writeTimestampAndSampleCount(fileArray[channel], writeChannel);
     }
 
     diskWriteLock.enter();
@@ -554,9 +542,9 @@ void OriginalRecording::writeTimestampAndSampleCount(FILE* file, int channel)
 
     uint16 samps = BLOCK_LENGTH;
 
-    int sourceNodeId = getChannel(channel)->sourceNodeId;
+   // int sourceNodeId = getChannel(channel)->sourceNodeId;
 
-    int64 ts = (*timestamps)[sourceNodeId] + samplesSinceLastTimestamp[channel];
+    int64 ts = getTimestamp(channel) + samplesSinceLastTimestamp[channel];
 
     fwrite(&ts,                       // ptr
            8,                               // size of each element
@@ -642,7 +630,7 @@ void OriginalRecording::closeFiles()
 //     this->timestamp = timestamp;
 // }
 
-void OriginalRecording::writeSpike(const SpikeObject& spike, int electrodeIndex)
+void OriginalRecording::writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp)
 {
     uint8_t spikeBuffer[MAX_SPIKE_BUFFER_LEN];
 

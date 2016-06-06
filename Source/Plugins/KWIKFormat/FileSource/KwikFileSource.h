@@ -43,20 +43,23 @@ public:
     KWIKFileSource();
     ~KWIKFileSource();
 
-    int readData(int16* buffer, int nSamples);
+    int readData(int16* buffer, int nSamples) override;
 
-    void seekTo(int64 sample);
+    void seekTo(int64 sample) override;
 
-    void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples);
+    void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+
+	bool isReady() override;
 
 private:
     ScopedPointer<H5::H5File> sourceFile;
     ScopedPointer<H5::DataSet> dataSet;
-    bool Open(File file);
-    void fillRecordInfo();
-    void updateActiveRecord();
+    bool Open(File file) override;
+    void fillRecordInfo() override;
+    void updateActiveRecord() override;
     int64 samplePos;
     Array<int> availableDataSets;
+	bool skipRecordEngineCheck;
 };
 
 

@@ -248,14 +248,14 @@ void GraphViewer::paint (Graphics& g)
 {
     g.fillAll (Colours::darkgrey);
     
-    g.setFont (FONT_LABEL);
+    g.setFont (Font("Paragraph",  50, Font::plain));
     
     g.setColour (Colours::grey);
     
     
     g.drawFittedText ("open ephys", 40, 40, getWidth()-50, getHeight()-60, Justification::bottomRight, 100);
     
-    g.setFont (FONT_VERSION);
+    g.setFont (Font("Small Text", 14, Font::plain));
     g.drawFittedText (currentVersionText, 40, 40, getWidth()-50, getHeight()-45, Justification::bottomRight, 100);
     
     // Draw connections

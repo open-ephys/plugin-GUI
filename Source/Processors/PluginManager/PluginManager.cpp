@@ -23,10 +23,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#ifdef WIN32
-//simple hack to avoid to much conditionals
-#define dlclose(h) FreeLibrary(h)
-#else
+#if !defined(WIN32) && !defined(__APPLE__)
 #include <dlfcn.h>
 #include <execinfo.h>
 #endif
@@ -35,20 +32,43 @@
 #include "../../UI/ProcessorList.h"
 #include "../../UI/ControlPanel.h"
 
+
+static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
+    if (handle) {
 #ifdef WIN32
-//And this one because Windows doesn't provide an error-to-string anything
-static const char* dlerror(void)
-{
-	static char buf[32];
-	DWORD ret = GetLastError();
-	if (!ret) return NULL;
-	sprintf(buf, "DLL Error 0x%x",ret);
-	return buf;
-}
-#define ERROR_MSG(fmt,...) do{fprintf(stderr,"%s:%d:",__FILE__,__LINE__); fprintf(stderr,fmt,__VA_ARGS__);} while(0)
+        FreeLibrary(handle);
+#elif defined(__APPLE__)
+        CFRelease(handle);
 #else
-#define ERROR_MSG(fmt,args...) do{fprintf(stderr,"%s:%d:",__FILE__,__LINE__); fprintf(stderr,fmt,## args);} while(0)
+        dlclose(handle);
 #endif
+    }
+}
+
+
+static void errorMsg(const char *file, int line, const char *msg) {
+    fprintf(stderr, "%s:%d: %s", file, line, msg);
+    
+#ifdef WIN32
+    DWORD ret = GetLastError();
+    if (ret) {
+        fprintf(stderr, ": DLL Error 0x%x", ret);
+    }
+#elif defined(__APPLE__)
+    // Any additional error messages are logged directly by the system
+    // and are not available to the application
+#else
+    const char *error = dlerror();
+    if (error) {
+        fprintf(stderr, ": %s", error);
+    }
+#endif
+    
+    fprintf(stderr, "\n");
+}
+
+#define ERROR_MSG(msg) errorMsg(__FILE__, __LINE__, msg)
+
 
 PluginManager::PluginManager()
 {
@@ -61,24 +81,40 @@ PluginManager::~PluginManager()
 
 void PluginManager::loadAllPlugins()
 {
-	Array<File> foundDLLs;
-
-#ifdef WIN32
-	File pluginPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins");
-	String pluginExt("*.dll");
+    Array<File> paths;
+    
+#ifdef __APPLE__
+    paths.add(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/PlugIns"));
+    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/PlugIns"));
 #else
-	File pluginPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins");
-	String pluginExt("*.so");
+	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
 #endif
 
+    for (auto &pluginPath : paths) {
+        if (!pluginPath.isDirectory()) {
+            std::cout << "Plugin path not found: " << pluginPath.getFullPathName() << std::endl;
+        } else {
+            loadPlugins(pluginPath);
+        }
+    }
+}
 
-	if (!pluginPath.isDirectory())
-	{
-		std::cout << "Plugin path not found" << std::endl;
-		return;
-	}
-	
+void PluginManager::loadPlugins(const File &pluginPath) {
+    Array<File> foundDLLs;
+    
+#ifdef WIN32
+    String pluginExt("*.dll");
+#elif defined(__APPLE__)
+    String pluginExt("*.bundle");
+#else
+    String pluginExt("*.so");
+#endif
+    
+#ifdef __APPLE__
+    pluginPath.findChildFiles(foundDLLs, File::findDirectories, false, pluginExt);
+#else
 	pluginPath.findChildFiles(foundDLLs, File::findFiles, true, pluginExt);
+#endif
 
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
@@ -112,7 +148,18 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	*/
 	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
 
-#ifndef WIN32
+#ifdef WIN32
+	HINSTANCE handle;
+	handle = LoadLibrary(processorLocCString);
+#elif defined(__APPLE__)
+    CFURLRef bundleURL = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
+                                                                 reinterpret_cast<const UInt8 *>(processorLocCString),
+                                                                 strlen(processorLocCString),
+                                                                 true);
+    assert(bundleURL);
+    CFBundleRef handle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
+    CFRelease(bundleURL);
+#else
 	// Clear errors
 	dlerror();
 
@@ -124,32 +171,30 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	*/
 	void *handle = 0;
 	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_NOW);
-#else
-	HINSTANCE handle;
-	handle = LoadLibrary(processorLocCString);
 #endif
 
 	if (!handle) {
-		ERROR_MSG("%s\n", dlerror());
-		dlclose(handle);
+		ERROR_MSG("Failed to load plugin DLL");
+		closeHandle(handle);
 		return -1;
 	}
-	dlerror();
 
 	LibraryInfoFunction infoFunction = 0;
 #ifdef WIN32
 	infoFunction = (LibraryInfoFunction)GetProcAddress(handle, "getLibInfo");
+#elif defined(__APPLE__)
+    infoFunction = (LibraryInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getLibInfo"));
 #else
+    dlerror();
 	infoFunction = (LibraryInfoFunction)(dlsym(handle, "getLibInfo"));
 #endif
 
 	if (!infoFunction)
 	{
-		ERROR_MSG("%s\n", dlerror());
-		dlclose(handle);
+		ERROR_MSG("Failed to load function 'getLibInfo'");
+		closeHandle(handle);
 		return -1;
 	}
-	dlerror();
 
 	Plugin::LibraryInfo libInfo;
 	infoFunction(&libInfo);
@@ -157,24 +202,26 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	if (libInfo.apiVersion != PLUGIN_API_VER)
 	{
 		std::cerr << pluginLoc << " invalid version" << std::endl;
-		dlclose(handle);
+		closeHandle(handle);
 		return -1;
 	}
 
 	PluginInfoFunction piFunction = 0;
 #ifdef WIN32
 	piFunction = (PluginInfoFunction)GetProcAddress(handle, "getPluginInfo");
+#elif defined(__APPLE__)
+    piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getPluginInfo"));
 #else
+    dlerror();
 	piFunction = (PluginInfoFunction)(dlsym(handle, "getPluginInfo"));
 #endif
 
 	if (!piFunction)
 	{
-		ERROR_MSG("%s\n", dlerror());
-		dlclose(handle);
+        ERROR_MSG("Failed to load function 'getPluginInfo'");
+		closeHandle(handle);
 		return -1;
 	}
-	dlerror();
 
 	LoadedLibInfo lib;
 	lib.apiVersion = libInfo.apiVersion;
@@ -228,6 +275,11 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.extensions = pInfo.fileSource.extensions;
 			info.libIndex = libArray.size();
 			fileSourcePlugins.add(info);
+			break;
+		}
+		default:
+		{
+			std::cerr << pluginLoc << " invalid plugin type: " << pInfo.type << std::endl;
 			break;
 		}
 		}
@@ -414,23 +466,25 @@ PluginManager::Plugin::~Plugin() {
 
 void PluginManager::Manager::unloadPlugin(PluginManager::Plugin *processor) {
 	if (!processor) {
-		ERROR_MSG("PluginManager::unloadPlugin: Invalid processor\n");
+		ERROR_MSG("PluginManager::unloadPlugin: Invalid processor");
 		return;
 	}
 #ifdef WIN32
 	HINSTANCE handle;
+#elif defined(__APPLE__)
+    CFBundleRef handle;
 #else
 	void *handle = 0;
 #endif
 	handle = processor->processorHandle;
-	dlclose(handle);
+	closeHandle(handle);
 	removeListPlugin(processor);
 }
 
 void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) {
 	std::cout << "Size of list before is: " << pluginList.size() << std::endl;
 	if(!processor) {
-		ERROR_MSG("PluginManager::insertListPlugin: Invalid processor.\n");
+		ERROR_MSG("PluginManager::insertListPlugin: Invalid processor.");
 		return;
 	}
 	pluginList.push_back(processor);
@@ -441,7 +495,7 @@ void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) 
 void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) {
 	std::cout << "Size of list before is: " << pluginList.size() << std::endl;
 	if(!processor) {
-		ERROR_MSG("PluginManager::removeListPlugin: Invalid processor.\n");
+		ERROR_MSG("PluginManager::removeListPlugin: Invalid processor.");
 		return;
 	}
 	pluginList.remove(processor);
@@ -451,6 +505,8 @@ void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) 
 void PluginManager::Manager::removeAllPlugins() {
 #ifdef WIN32
 	HINSTANCE handle;
+#elif defined(__APPLE__)
+    CFBundleRef handle;
 #else
 	void *handle;
 #endif
@@ -459,7 +515,7 @@ void PluginManager::Manager::removeAllPlugins() {
 		handle = (*i)->processorHandle;
 		removeListPlugin(*i);
 		delete *i;
-		dlclose(handle);
+		closeHandle(handle);
 		std::cout << "Size of list after all is: " << pluginList.size() << std::endl;
 	}
 }

@@ -1,25 +1,25 @@
 /*
- ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
- This file is part of the Open Ephys GUI
- Copyright (C) 2014 Florian Franzen
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2014 Open Ephys
 
- ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- */
+*/
 
 #include "RecordEngine.h"
 #include "RecordNode.h"
@@ -40,33 +40,56 @@ void RecordEngine::setParameter(EngineParameter& parameter) {}
 
 void RecordEngine::resetChannels() {}
 
-void RecordEngine::registerProcessor(GenericProcessor* processor) {}
+void RecordEngine::registerProcessor(const GenericProcessor* processor) {}
 
-Channel* RecordEngine::getChannel(int index)
+void RecordEngine::addChannel(int index, const Channel* chan) {}
+
+void RecordEngine::startChannelBlock(bool lastBlock) {}
+
+void RecordEngine::endChannelBlock(bool lastBlock) {}
+
+Channel* RecordEngine::getChannel(int index) const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->getDataChannel(index);
 }
 
-String RecordEngine::generateDateString()
+String RecordEngine::generateDateString() const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->generateDateString();
 }
 
-SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index)
+SpikeRecordInfo* RecordEngine::getSpikeElectrode(int index) const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeElectrode(index);
 }
 
-void RecordEngine::updateTimestamps(std::map<uint8, int64>* ts)
+void RecordEngine::updateTimestamps(const Array<int64>& ts, int channel)
 {
-    timestamps = ts;
+	if (channel < 0)
+		timestamps = ts;
+	else
+		timestamps.set(channel, ts[channel]);
 }
 
-void RecordEngine::updateNumSamples(std::map<uint8, int>* ns)
+void RecordEngine::setChannelMapping(const Array<int>& chans)
 {
-    numSamples = ns;
+	channelMap = chans;
 }
 
+int64 RecordEngine::getTimestamp(int channel) const
+{
+	return timestamps[channel];
+}
+
+int RecordEngine::getRealChannel(int channel) const
+{
+	return channelMap[channel];
+}
+
+int RecordEngine::getNumRecordedChannels() const
+{
+	return channelMap.size();
+}
 
 void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}
 

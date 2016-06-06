@@ -54,7 +54,7 @@ public:
     void comboBoxChanged(ComboBox* comboBox);
     void sliderEvent(Slider* slider);
 
-    void channelChanged(int chan);
+    void channelChanged (int chan, bool newState) override;
 
     Visualizer* createNewCanvas();
     void checkSettings();

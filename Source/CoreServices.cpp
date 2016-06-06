@@ -107,6 +107,16 @@ void setAppendTextToRecordingDir(String text)
     getControlPanel()->setAppendText(text);
 }
 
+String getSelectedRecordEngineId()
+{
+	return getControlPanel()->getSelectedRecordEngineId();
+}
+
+bool setSelectedRecordEngineId(String id)
+{
+	return getControlPanel()->setSelectedRecordEngineId(id);
+}
+
 namespace RecordNode
 {
 void createNewrecordingDir()
@@ -145,9 +155,22 @@ int addSpikeElectrode(SpikeRecordInfo* elec)
 }
 };
 
-PLUGIN_API const char* getApplicationResource(const char* name, int& size)
+const char* getApplicationResource(const char* name, int& size)
 {
 	return BinaryData::getNamedResource(name, size);
+}
+    
+File getDefaultUserSaveDirectory()
+{
+#if defined(__APPLE__)
+    File dir = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("open-ephys");
+    if (!dir.isDirectory()) {
+        dir.createDirectory();
+    }
+    return std::move(dir);
+#else
+    return File::getCurrentWorkingDirectory();
+#endif
 }
 
 };

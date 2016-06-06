@@ -298,7 +298,7 @@ void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& e
              (uint8) s.len+1,//+8,
              msg_with_ts);
 
-    delete msg_with_ts;
+    delete[] msg_with_ts;
 }
 
 void NetworkEvents::simulateStopRecord()
@@ -507,10 +507,8 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 		status += CoreServices::RecordNode::getExperimentNumber();
 		return status;
 	}
-	else
-	{
-	    return String("NotHandled");
-	}
+    
+    return String("NotHandled");
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,
@@ -596,7 +594,7 @@ void NetworkEvents::run()
 
 
     zmq_close(responder);
-    delete buffer;
+    delete[] buffer;
     threadRunning = false;
     return;
 #endif

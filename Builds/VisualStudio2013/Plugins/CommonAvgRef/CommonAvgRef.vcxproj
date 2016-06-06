@@ -120,10 +120,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\CAR\CAR.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\CAR\CAREditor.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\CAR\OpenEphysLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\CAR\CAR.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\CAR\CAREditor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -27,8 +27,6 @@
 
 #include <stdio.h>
 
-static const Font FONT_LABEL ("Small Text", 10, Font::plain);
-
 
 FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
@@ -36,7 +34,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
 {
-    lastFilePath = File::getCurrentWorkingDirectory();
+    lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 
     fileButton = new UtilityButton ("F:", Font ("Small Text", 13, Font::plain));
     fileButton->addListener (this);
@@ -312,7 +310,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     l = new Label ("Time1");
     l->setBounds (0, 0, 75, 20);
     l->setEditable (isEditable);
-    l->setFont (FONT_LABEL);
+    l->setFont (Font("Small Text", 10, Font::plain));
     if (isEditable)
     {
         l->addListener (this);
@@ -326,7 +324,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     l = new Label ("Time2");
     l->setBounds (85, 0, 75, 20);
     l->setEditable (isEditable);
-    l->setFont (FONT_LABEL);
+    l->setFont (Font("Small Text", 10, Font::plain));
     if (isEditable)
     {
         l->addListener (this);
@@ -355,7 +353,7 @@ void DualTimeComponent::paint (Graphics& g)
     else
         sep = "/";
 
-    g.setFont (FONT_LABEL);
+    g.setFont (("Small Text", 10, Font::plain));
     g.setColour (Colours::darkgrey);
     g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
 }

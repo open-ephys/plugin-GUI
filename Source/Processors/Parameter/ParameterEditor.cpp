@@ -447,12 +447,12 @@ void ParameterCheckbox::paintButton(Graphics& g, bool isMouseOver, bool isButton
 ParameterSlider::ParameterSlider(float min, float max, float def, Font labelFont) :
     Slider("name"), isEnabled(true), font(labelFont)
 {
-
     setSliderStyle(Slider::Rotary);
     setRange(min,max,1.0f);
     setValue(def);
     setTextBoxStyle(Slider::NoTextBox, false, 40, 20);
 
+    setColour (Slider::rotarySliderFillColourId, Colour (240, 179, 12));
 }
 
 ParameterSlider::~ParameterSlider() {}
@@ -477,7 +477,7 @@ void ParameterSlider::paint(Graphics& g)
     p = makeRotaryPath(getMinimum(), getMaximum(), getValue());
 
     if (isEnabled)
-        g.setColour(Colour(240,179,12));
+        g.setColour (findColour (Slider::rotarySliderFillColourId));
     else
         g.setColour(Colour(75,75,75));
 
@@ -523,7 +523,6 @@ void ParameterEditor::channelSelectionUI()
     int numChannels=channelSelector->getNumChannels();
     if (parameter->isBoolean())
     {
-
     }
     else if (parameter->isContinuous())
     {

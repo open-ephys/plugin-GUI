@@ -107,6 +107,9 @@ public:
     /** Used to enable or disable an editor's processor.*/
     void setEnabledState(bool);
 
+    /** Used to set desired width of editor. */
+    void setDesiredWidth (int width);
+
     /** Called at the start of a recording **/
     void startRecording();
 
@@ -183,6 +186,9 @@ public:
         title bar and channel selector drawer. */
     virtual void buttonClicked(Button* button);
 
+    /** Called when the boundaries of the editor are updated. */
+    virtual void resized() override;
+
     /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
         GenericEditor should modify this method only.*/
 	virtual void buttonEvent(Button* button);
@@ -228,7 +234,7 @@ public:
     virtual void updateVisualizer();
 
     /** Used by SpikeDetectorEditor. */
-    virtual void channelChanged(int chan);
+    virtual void channelChanged (int channel, bool newState);
 
     /** Returns all selected channels from the ChannelSelector. */
     Array<int> getActiveChannels();
@@ -306,7 +312,6 @@ protected:
     //Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors(bool useStandard);
 
-
     /** A pointer to the editor's ChannelSelector. */
     ChannelSelector* channelSelector;
 
@@ -316,9 +321,6 @@ private:
 
     /** Used for fading in the editor. */
     virtual void timerCallback();
-
-    /** Called when the boundaries of the editor are updated. */
-    virtual void resized();
 
     /** Stores the editor's background color. */
     Colour backgroundColor;

@@ -72,7 +72,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     //Typeface::Ptr typeface = new CustomTypeface(mis);
-    titleFont = Font("Small Text", 10, Font::plain);
+    titleFont = Font ("Default", 14, Font::bold);
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
@@ -84,11 +84,11 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
         if (!owner->isSink())
         {
-            channelSelector = new ChannelSelector(true, titleFont);
+            channelSelector = new ChannelSelector (true, titleFont);
         }
         else
         {
-            channelSelector = new ChannelSelector(false, titleFont);
+            channelSelector = new ChannelSelector (false, titleFont);
         }
 
         addChildComponent(channelSelector);
@@ -280,6 +280,12 @@ void GenericEditor::setEnabledState(bool t)
     isEnabled = p->enabledState();
 }
 
+void GenericEditor::setDesiredWidth (int width)
+{
+    desiredWidth = width;
+    repaint();
+}
+
 void GenericEditor::startRecording()
 {
     if (channelSelector != 0)
@@ -357,8 +363,8 @@ void GenericEditor::paint(Graphics& g)
         g.fillAll();
     }
 
-    g.setFont(titleFont);
-    g.setFont(14);
+    g.setFont (titleFont);
+    g.setFont (16);
 
     if (isEnabled)
     {
@@ -375,13 +381,13 @@ void GenericEditor::paint(Graphics& g)
         // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
         //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
         // else
-        g.drawText(displayName, 6, 5, 500, 15, Justification::left, false);
+        g.drawText (displayName.toUpperCase(), 10, 5, 500, 15, Justification::left, false);
 
     }
     else
     {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
-        g.drawText(displayName, -getHeight()+6, 5, 500, 15, Justification::left, false);
+        g.drawText (displayName.toUpperCase(), - getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
     }
 
@@ -1152,7 +1158,7 @@ void GenericEditor::updateSettings() {}
 
 void GenericEditor::updateVisualizer() {}
 
-void GenericEditor::channelChanged(int chan) {}
+void GenericEditor::channelChanged (int channel, bool newState) {}
 
 void GenericEditor::saveCustomParameters(XmlElement* xml) { }
 
@@ -1394,3 +1400,4 @@ void ThresholdSlider::setValues(Array<double> v)
 {
 	valueArray = v;
 }
+

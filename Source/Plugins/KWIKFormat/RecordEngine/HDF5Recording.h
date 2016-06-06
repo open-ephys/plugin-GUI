@@ -32,18 +32,18 @@ class HDF5Recording : public RecordEngine
 public:
     HDF5Recording();
     ~HDF5Recording();
-    String getEngineID();
-    void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
-    void closeFiles();
-    void writeData(AudioSampleBuffer& buffer);
-    void writeEvent(int eventType, MidiMessage& event, int samplePosition);
-    void addChannel(int index, Channel* chan);
-    void addSpikeElectrode(int index, SpikeRecordInfo* elec);
-    void writeSpike(const SpikeObject& spike, int electrodeIndex);
-    void registerProcessor(GenericProcessor* processor);
-    void resetChannels();
-    //oid updateTimeStamp(int64 timestamp);
-    void startAcquisition();
+    String getEngineID() const override;
+    void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
+	void closeFiles() override;
+	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
+	void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) override;
+	void addChannel(int index, const Channel* chan) override;
+	void addSpikeElectrode(int index,const  SpikeRecordInfo* elec) override;
+	void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
+	void registerProcessor(const GenericProcessor* processor) override;
+	void resetChannels() override;
+	void startAcquisition() override;
+	void endChannelBlock(bool lastBlock) override;
 
     static RecordEngineManager* getEngineManager();
 private:
@@ -52,14 +52,20 @@ private:
 
     Array<int> processorMap;
 	Array<int> channelsPerProcessor;
+	Array<int> recordedChanToKWDChan;
     OwnedArray<Array<float>> bitVoltsArray;
     OwnedArray<Array<float>> sampleRatesArray;
+	OwnedArray<Array<int64>> channelTimestampArray;
+	Array<int> channelLeftOverSamples;
     OwnedArray<KWDFile> fileArray;
     OwnedArray<HDF5RecordingInfo> infoArray;
     ScopedPointer<KWEFile> eventFile;
     ScopedPointer<KWXFile> spikesFile;
-    float* scaledBuffer;
-    int16* intBuffer;
+	HeapBlock<float> scaledBuffer;
+	HeapBlock<int16> intBuffer;
+	int bufferSize;
+    //float* scaledBuffer;
+    //int16* intBuffer;
 
     bool hasAcquired;
 
