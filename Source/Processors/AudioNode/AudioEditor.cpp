@@ -30,7 +30,6 @@
 static const Colour COLOUR_SLIDER_TRACK         (Colour::fromRGB (92, 92, 92));
 static const Colour COLOUR_SLIDER_TRACK_FILL    (Colour::fromRGB (255, 255, 255));
 
-
 MuteButton::MuteButton()
     : ImageButton ("MuteButton")
 {

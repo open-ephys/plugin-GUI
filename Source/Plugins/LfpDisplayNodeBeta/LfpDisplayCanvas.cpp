@@ -202,7 +202,7 @@ void LfpDisplayCanvas::update()
             //std::cout << chName << std::endl;
 
             lfpDisplay->channelInfo[i]->setName(chName);
-            lfpDisplay->enableChannel(isChannelEnabled[i], i);
+            lfpDisplay->setEnabledState(isChannelEnabled[i], i);
 
         }
 
@@ -1437,6 +1437,8 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
         }
     }
 
+    lfpDisplay->reactivateChannels();
+
     xmlNode->setAttribute("EventButtonState", eventButtonState);
 
     String channelDisplayState = "";
@@ -1520,7 +1522,6 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 }
                 else
                 {
-                    //std::cout << "LfpDisplayCanvas disabling channel " << i << std::endl;
                     lfpDisplay->enableChannel(false, i);
                     canvas->isChannelEnabled.set(i,false);
                 }
@@ -2042,17 +2043,20 @@ void LfpDisplay::toggleSingleChannel(int chan)
     {
         std::cout << "Single channel on" << std::endl;
         singleChan = chan;
+
         int newHeight = viewport->getHeight();
 		channelInfo[chan]->setEnabledState(true);
         channelInfo[chan]->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
+
         viewport->setScrollBarsShown(false,false);
         viewport->setViewPosition(Point<int>(0,chan*newHeight));
-        for (int n = 0; n < numChans; n++)
+
+        for (int i = 0; i < channels.size(); i++)
         {
-			savedChannelState.set(n, channels[n]->getEnabledState());
-            if (n != chan) channelInfo[n]->setEnabledState(false);
+            if (i != chan)
+                channels[i]->setEnabledState(false);
         }
 
     }
@@ -2065,7 +2069,17 @@ void LfpDisplay::toggleSingleChannel(int chan)
             channelInfo[chan]->setSingleChannelState(false);
         }
         setChannelHeight(canvas->getChannelHeight());
+
+        reactivateChannels();
     }
+}
+
+void LfpDisplay::reactivateChannels()
+{
+
+    for (int n = 0; n < channels.size(); n++)
+       setEnabledState(savedChannelState[n], n);
+
 }
 
 bool LfpDisplay::getSingleChannelState()
@@ -2142,22 +2156,17 @@ bool LfpDisplay::getEventDisplayState(int ch)
     return eventDisplayEnabled[ch];
 }
 
-void LfpDisplay::enableChannel(bool state, int chan)
+
+void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)
 {
-
-    if (chan < numChans)
-    {
-        channelInfo[chan]->setEnabledState(state);
-        canvas->isChannelEnabled.set(chan, state);
-    }
-}
-
-void LfpDisplay::setEnabledState(bool state, int chan)
-{
-
     if (chan < numChans)
     {
         channels[chan]->setEnabledState(state);
+        channelInfo[chan]->setEnabledState(state);
+
+        if (updateSaved)
+            savedChannelState.set(chan, state);
+
         canvas->isChannelEnabled.set(chan, state);
     }
 }

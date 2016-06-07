@@ -351,7 +351,6 @@ void DualTimeComponent::paint (Graphics& g)
         sep = "-";
     else
         sep = "/";
-
     g.setFont (Font("Small Text", 10, Font::plain));
     g.setColour (Colours::darkgrey);
     g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
