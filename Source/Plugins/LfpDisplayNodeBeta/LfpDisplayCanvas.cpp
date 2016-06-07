@@ -363,8 +363,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
                         nextpix=dbi;
                     }
                    
-                    for (int j = dbi; j <= nextpix; j++)
+                    for (int j = dbi; j < nextpix; j++)
                     {
+                        
                          float sample_current = displayBuffer->getSample(channel, j);
                         //sample_mean = sample_mean + sample_current;
 
@@ -386,7 +387,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             int c = 0;
-                            for (int j = dbi; j <= nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -1952,7 +1953,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //of the wheel range code needs updating
     
     
-    if (e.mods.isCommandDown())  // CTRL + scroll wheel -> change channel spacing
+    if (e.mods.isCommandDown() && singleChan == -1)  // CTRL + scroll wheel -> change channel spacing
     {
         int h = getChannelHeight();
         int hdiff=0;
