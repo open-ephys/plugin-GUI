@@ -1517,12 +1517,12 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
                 {
                     //std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
-                    lfpDisplay->enableChannel(true, i);
+                    //lfpDisplay->enableChannel(true, i);
                     canvas->isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
                 }
                 else
                 {
-                    lfpDisplay->enableChannel(false, i);
+                    //lfpDisplay->enableChannel(false, i);
                     canvas->isChannelEnabled.set(i,false);
                 }
 
@@ -2024,14 +2024,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
     }
        //refresh(); // doesn't seem to be needed now that channels daraw to bitmap
-
-}
-
-void LfpDisplay::reactivateChannels()
-{
-
-    for (int n = 0; n < channels.size(); n++)
-       channels[n]->setEnabledState(savedChannelState[n]);
 
 }
 

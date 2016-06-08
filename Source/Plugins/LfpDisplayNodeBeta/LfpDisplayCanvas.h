@@ -376,8 +376,6 @@ public:
 
     LfpDisplayOptions* options;
 
-    void reactivateChannels();
-
     
 private:
     
