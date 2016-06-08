@@ -51,12 +51,6 @@ public:
     /** The class destructor, used to deallocate memory */
     ~FILTERCLASSNAME();
 
-    /** Determines whether the processor is treated as a source. */
-    bool isSource() { return false; }
-
-    /** Determines whether the processor is treated as a sink. */
-    bool isSink() { return false; }
-
     /** Indicates if the processor has a custom editor. Defaults to false */
     //bool hasEditor() const { return true; }
 

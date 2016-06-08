@@ -24,37 +24,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <PluginInfo.h>
 #include "FILTERCLASSNAME.h"
 #include <string>
+
 #ifdef WIN32
-#include <Windows.h>
-#define EXPORT __declspec(dllexport)
+    #include <Windows.h>
+    #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+    #define EXPORT
 #endif
 
 using namespace Plugin;
 //Number of plugins defined on the library. Can be of different types (Processors, RecordEngines, etc...)
 #define NUM_PLUGINS 1
 
-extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
+extern "C" EXPORT void getLibInfo (Plugin::LibraryInfo* info)
 {
-	info->apiVersion = PLUGIN_API_VER; /*API version, defined by the GUI source. 
-	Should not be changed to ensure it is always equal to the one used in the latest codebase. The GUI refueses to load plugins with mismatched API versions */
-	info->name = "FILTERLIBRARYNAME"; //Name of the Library, used only for information
-	info->libVersion = FILTERLIBRARYVERSION; //Version of the library, used only for information
+        /* API version, defined by the GUI source. 
+	Should not be changed to ensure it is always equal to the one used in the latest codebase.
+        The GUI refueses to load plugins with mismatched API versions */
+	info->apiVersion = PLUGIN_API_VER; 
+
+	//Name of the Library, used only for information
+	info->name = "FILTERLIBRARYNAME";
+
+        //Version of the library, used only for information
+	info->libVersion = FILTERLIBRARYVERSION;
 	info->numPlugins = NUM_PLUGINS;
 }
 
-extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
+extern "C" EXPORT int getPluginInfo (int index, Plugin::PluginInfo* info)
 {
 	switch (index)
 	{
 	//one case per plugin. This example is for a processor which connects directly to the signal chain
 	case 0:
-		info->type = Plugin::ProcessorPlugin; //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
+                //Type of plugin. See "Source/Processors/PluginManager/OpenEphysPlugin.h" for complete info about the different type structures
+		info->type = LIBPLUGINTYPE;
+
 		//For processor
 		info->processor.name = "FILTERGUINAME"; //Processor name shown in the GUI
-		info->processor.type = Plugin::FilterProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
-		info->processor.creator = &(Plugin::createProcessor<FILTERCLASSNAME>); //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
+
+                //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
+		info->processor.type = LIBPLUGINPROCESSORTYPE;
+
+                //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
+		info->processor.creator = &(Plugin::LIBPLUGINCREATEFUNCTION<FILTERCLASSNAME>); 
 		break;
 /**
 Examples for other plugin types
@@ -87,7 +100,7 @@ For a FileSource, which allows importing data formats into the FileReader
 }
 
 #ifdef WIN32
-BOOL WINAPI DllMain(IN HINSTANCE hDllHandle,
+BOOL WINAPI DllMain (IN HINSTANCE hDllHandle,
 	IN DWORD     nReason,
 	IN LPVOID    Reserved)
 {
