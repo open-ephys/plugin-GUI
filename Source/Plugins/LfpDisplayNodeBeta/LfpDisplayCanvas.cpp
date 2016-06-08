@@ -2382,13 +2382,11 @@ void LfpChannelDisplay::pxPaint()
                 if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo=true;};
                 
                 
-                from=from+getHeight()/2;       // so the plot is centered in the channeldisplay
-                to=to+getHeight()/2;
+                from = from + getHeight()/2;       // so the plot is centered in the channeldisplay
+                to = to + getHeight()/2;
                 
-                int samplerange=to-from;
-                
-                
-                
+                int samplerange = to - from;
+
                 if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
                 { // histogram based supersampling method
                     
@@ -2399,12 +2397,12 @@ void LfpChannelDisplay::pxPaint()
                     {
                         
                         //float localHist[samplerange]; // simple histogram
-                        float rangeHist[samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
+						Array<float> rangeHist; // [samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
                         
-                        for (int k=0; k<=samplerange; k++)
-                            rangeHist[k]=0;
+						for (int k = 0; k <= samplerange; k++)
+							rangeHist.add(0);
                         
-                        for (int k=0; k<=sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
+                        for (int k = 0; k <= sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
                         {
                             int cs_this = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from); // sample values -> pixel coordinates relative to from
                             int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
@@ -2430,7 +2428,7 @@ void LfpChannelDisplay::pxPaint()
                             float ha=1;
                             for (int l=hfrom; l<hto; l++)
                             {
-                                rangeHist[l]+=ha; //this emphasizes fast Y components
+                                rangeHist.set(l, rangeHist[l] + ha); //this emphasizes fast Y components
                                 
                                 //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
                             }

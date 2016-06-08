@@ -381,6 +381,7 @@ void RasterPlot::paint(Graphics& g)
             buffer = &trialBuffer2;
             break;
         default:
+			buffer = &spikeBuffer;
             break;
     }
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer", "LFP_Viewer\LFP_Viewer.vcxproj", "{41BD734E-4939-47AD-9714-9629538F7206}"
 EndProject
@@ -38,6 +38,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleProcessor", "ExampleProcessor\ExampleProcessor.vcxproj", "{767D282E-0BE5-4B35-874A-3B1ED925F06B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PCIeRhythm", "PCIeRhythm\PCIeRhythm.vcxproj", "{8F019559-89D4-4C33-BA0F-FF330C57BA2B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer_Beta", "LFP_Viewer_Beta\LFP_Viewer_Beta.vcxproj", "{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpikeRaster", "SpikeRaster\SpikeRaster.vcxproj", "{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -261,6 +265,27 @@ Global
 		{8F019559-89D4-4C33-BA0F-FF330C57BA2B}.Release|Win32.Build.0 = Release|Win32
 		{8F019559-89D4-4C33-BA0F-FF330C57BA2B}.Release|x64.ActiveCfg = Release|x64
 		{8F019559-89D4-4C33-BA0F-FF330C57BA2B}.Release|x64.Build.0 = Release|x64
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Win32.Build.0 = Debug|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|x64.ActiveCfg = Debug|x64
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|Win32.ActiveCfg = Release|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|Win32.Build.0 = Release|Win32
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|x64.ActiveCfg = Release|x64
+		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Release|x64.Build.0 = Release|x64
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Debug|Win32.Build.0 = Debug|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Debug|x64.ActiveCfg = Debug|x64
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Release|Win32.ActiveCfg = Release|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Release|Win32.Build.0 = Release|Win32
+		{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
