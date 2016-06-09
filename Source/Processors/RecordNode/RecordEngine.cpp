@@ -92,6 +92,16 @@ int RecordEngine::getNumRecordedChannels() const
 	return channelMap.size();
 }
 
+int RecordEngine::getNumRecordedProcessors() const
+{
+	return recordProcessors.size();
+}
+
+const RecordProcessorInfo& RecordEngine::getProcessorInfo(int processor) const
+{
+	return *recordProcessors[processor];
+}
+
 void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}
 
 void RecordEngine::startAcquisition() {}

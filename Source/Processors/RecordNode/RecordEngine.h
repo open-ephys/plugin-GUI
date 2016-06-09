@@ -201,6 +201,14 @@ protected:
 	*/
 	int getNumRecordedChannels() const;
 
+	/** Gets the number of processors being recorded
+	*/
+	int getNumRecordedProcessors() const;
+
+	/** Gets the processor info structure for a recorded processor
+	*/
+	const RecordProcessorInfo& getProcessorInfo(int processor) const;
+
 private:
 	Array<int64> timestamps;
 	Array<int> channelMap;
