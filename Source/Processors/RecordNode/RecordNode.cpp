@@ -308,7 +308,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		channelMap.clear();
 		int totChans = channelPointers.size();
 		OwnedArray<RecordProcessorInfo> procInfo;
+		Array<int> chanProcessorMap;
 		int lastProcessor = -1;
+		int procIndex = -1;
 		for (int ch = 0; ch < totChans; ++ch)
 		{
 			Channel* chan = channelPointers[ch];
@@ -323,8 +325,10 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 					RecordProcessorInfo* pi = new RecordProcessorInfo();
 					pi->processorId = chan->nodeId;
 					procInfo.add(pi);
+					procIndex++;
 				}
 				procInfo.getLast()->recordedChannels.add(channelMap.size());
+				chanProcessorMap.add(procIndex);
 			}
 		}
 		std::cout << "Num Recording Processors: " << procInfo.size() << std::endl;
