@@ -3769,9 +3769,8 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.4.0",
-					"JUCE_APP_VERSION_HEX=0x400",
-				);
+					"JUCE_APP_VERSION=0.4.1",
+					"JUCE_APP_VERSION_HEX=0x401", );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
@@ -3812,9 +3811,9 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.4.0",
-					"JUCE_APP_VERSION_HEX=0x400",
-				);
+					"JUCE_APP_VERSION=0.4.1",
+					"JUCE_APP_VERSION_HEX=0x401", );
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				HEADER_SEARCH_PATHS = (
