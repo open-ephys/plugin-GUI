@@ -75,6 +75,7 @@ namespace BinaryRecordingEngine
 		FILE* messageFile;
 		Array<FILE*> spikeFileArray;
 		int m_recordingNum;
+		Array<uint64> m_startTS;
 
 		CriticalSection diskWriteLock;
 

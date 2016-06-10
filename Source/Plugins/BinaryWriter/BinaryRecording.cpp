@@ -57,6 +57,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 		if (bFile->openFile(datFile))
 			m_DataFiles.add(bFile.release());
 	}
+	int nChans = getNumRecordedChannels();
+	//Origin Timestamp
+	for (int i = 0; i < nChans; i++)
+	{
+		m_startTS.add(getTimestamp(i));
+	}
 
 	//Other files, using OriginalRecording code
 	openEventFile(basepath, recordingNumber);
@@ -98,6 +104,7 @@ void BinaryRecording::closeFiles()
 	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
 	m_bufferSize = MAX_BUFFER_SIZE;
+	m_startTS.clear();
 }
 
 void BinaryRecording::resetChannels()
@@ -107,6 +114,7 @@ void BinaryRecording::resetChannels()
 	m_bufferSize = MAX_BUFFER_SIZE;
 	m_DataFiles.clear();
 	spikeFileArray.clear();
+	m_startTS.clear();
 }
 
 void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
@@ -122,7 +130,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
-	m_DataFiles[getProcessorFromChannel(writeChannel)]->writeChannel(getTimestamp(writeChannel),getChannelNumInProc(writeChannel),m_intBuffer.getData(),size);
+	m_DataFiles[getProcessorFromChannel(writeChannel)]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],getChannelNumInProc(writeChannel),m_intBuffer.getData(),size);
 }
 
 //Code below is copied from OriginalRecording, so it's not as clean as newer one
