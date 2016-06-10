@@ -58,7 +58,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 {
 	if (!m_file)
 		return false;
-
+	
 	int bIndex = m_memBlocks.size() - 1;
 	if ((bIndex < 0) || (m_memBlocks[bIndex]->getOffset() + m_samplesPerBlock) < (startPos + nSamples))
 		allocateBlocks(startPos, nSamples);
@@ -73,20 +73,22 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		std::cerr << "BINARY WRITER: Memory block unloaded ahead of time" << std::endl;
 		return false;
 	}
-
 	int writtenSamples = 0;
 	int startIdx = startPos - m_memBlocks[bIndex]->getOffset();
+	int startMemPos = startIdx*m_nChannels;
+	int dataIdx = 0;
 	while (writtenSamples < nSamples)
 	{
 		int16* blockPtr = m_memBlocks[bIndex]->getData();
-		int dataIdx = 0;
-		for (int i = startIdx; i < m_samplesPerBlock; i++)
+		int samplesToWrite = jmin((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
+		for (int i = 0; i < samplesToWrite; i++)
 		{
-			*(blockPtr + channel + i*m_nChannels) = *(data + dataIdx);
+			*(blockPtr + startMemPos + channel + i*m_nChannels) = *(data + dataIdx);
 			dataIdx++;
 		}
-		writtenSamples += (m_samplesPerBlock - startIdx);
+		writtenSamples += samplesToWrite;
 		startIdx = 0;
+		startMemPos = 0;
 		bIndex++;
 	}
 	m_currentBlock.set(channel, bIndex - 1); //store the last block a channel was written in
