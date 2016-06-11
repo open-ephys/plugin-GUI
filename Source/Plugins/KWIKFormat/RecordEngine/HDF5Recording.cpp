@@ -51,16 +51,15 @@ String HDF5Recording::getEngineID() const
 void HDF5Recording::registerProcessor(const GenericProcessor* proc)
 {
     HDF5RecordingInfo* info = new HDF5RecordingInfo();
-	//This is a VERY BAD thig to do. temporary only until we fix const-correctness on GenericEditor methods
-	//(which implies modifying all the plugins and processors)
-    info->sample_rate = const_cast<GenericProcessor*>(proc)->getSampleRate();
+    info->sample_rate = proc->getSampleRate();
     info->bit_depth = 16;
     info->multiSample = false;
-    infoArray.add(info);
-    fileArray.add(new KWDFile());
-    bitVoltsArray.add(new Array<float>);
-    sampleRatesArray.add(new Array<float>);
-	channelsPerProcessor.add(0);
+    infoArray.add (info);
+
+    fileArray.add (new KWDFile());
+    bitVoltsArray.add (new Array<float>);
+    sampleRatesArray.add (new Array<float>);
+    channelsPerProcessor.add (0);
     processorIndex++;
 }
 

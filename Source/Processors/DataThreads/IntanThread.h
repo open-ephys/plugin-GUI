@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -31,40 +31,44 @@
 
 class SourceNode;
 
+
 /**
+    Interface to the Intan Demo Board.
 
-  Interface to the Intan Demo Board.
-
-  @see SourceNode, DataThread
-
+    @see SourceNode, DataThread
 */
-
 class IntanThread : public DataThread
-
 {
 public:
-    IntanThread(SourceNode* sn);
+    IntanThread (SourceNode* sn);
     ~IntanThread();
 
-    bool foundInputSource();
-    int getNumChannels();
-    float getSampleRate();
-    float getBitVolts();
-    int getNumEventChannels();
+    bool foundInputSource() override;
+
+    float getSampleRate()   const override;
+    float getBitVolts()     const override;
+
+    int getNumEventChannels() const override;
+
+    int getNumChannels() const;
+
 
 private:
+    bool updateBuffer() override;
 
-    struct ftdi_context ftdic;
-    int vendorID, productID;
-    int baudrate;
-    bool isTransmitting;
-    bool deviceFound;
+    bool startAcquisition() override;
+    bool stopAcquisition()  override;
 
-    bool initializeUSB(bool);
+    bool initializeUSB (bool);
     bool closeUSB();
 
-    bool startAcquisition();
-    bool stopAcquisition();
+    struct ftdi_context ftdic;
+
+    int vendorID, productID;
+    int baudrate;
+
+    bool isTransmitting;
+    bool deviceFound;
 
     unsigned char startCode, stopCode;
     unsigned char buffer[240]; // should be 5 samples per channel
@@ -73,9 +77,7 @@ private:
 
     int ch;
 
-    bool updateBuffer();
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(IntanThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IntanThread);
 };
 
 

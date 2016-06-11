@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __DATABUFFER_H_11C6C591__
@@ -27,35 +26,33 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-/**
 
-	Manages reading and writing data to a circular buffer.
+/**
+    Manages reading and writing data to a circular buffer.
 
     See @DataThread
-
 */
-
 class PLUGIN_API DataBuffer
 {
-
 public:
-    DataBuffer(int chans, int size);
+    DataBuffer (int chans, int size);
     ~DataBuffer();
 
     /** Clears the buffer.*/
     void clear();
 
     /** Add an array of floats to the buffer.*/
-    void addToBuffer(float* data, int64* ts, uint64* eventCodes, int numItems);
+    void addToBuffer (float* data, int64* ts, uint64* eventCodes, int numItems);
 
     /** Returns the number of samples currently available in the buffer.*/
-    int getNumSamples();
+    int getNumSamples() const;
 
     /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
-    int readAllFromBuffer(AudioSampleBuffer& data, uint64* ts, uint64* eventCodes, int maxSize);
+    int readAllFromBuffer (AudioSampleBuffer& data, uint64* ts, uint64* eventCodes, int maxSize);
 
     /** Resizes the data buffer */
-    void resize(int chans, int size);
+    void resize (int chans, int size);
+
 
 private:
     AbstractFifo abstractFifo;
@@ -66,8 +63,7 @@ private:
 
     int numChans;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataBuffer);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
 };
 
 

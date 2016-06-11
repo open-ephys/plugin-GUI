@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ struct EngineParameter;
 class RecordNode;
 class RecordEngineManager;
 
+
 class PLUGIN_API RecordEngine
 {
 public:
@@ -62,145 +63,119 @@ public:
     virtual String getEngineID() const =0;
 
     /** All the public methods (except registerManager) are called by RecordNode or RecordingThread:
-    When acquisition starts (in the specified order):
-    	1-resetChannels
-    	2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
-    	3-configureEngine (which calls setParameter)
-    	3-startAcquisition
-    When recording starts (in the specified order):
-    	1-directoryChanged (if needed)
-		2-(setChannelMapping)
-		3-(updateTimestamps*)
-    	4-openFiles*
-    During recording: (RecordThread loop)
-    	1-(updateTimestamps*) (can be called in a per-channel basis when the circular buffer wraps)
-		2-startChannelBlock*
-		3-writeData* (per channel. Can be called more than once to account for the circular buffer wrap)
-		4-endChannelBlock*
-		4-writeEvent* (if needed)
-		5-writeSpike* (if needed)
-    When recording stops:
-    	closeFiles*
+      When acquisition starts (in the specified order):
+        1-resetChannels
+        2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
+        3-configureEngine (which calls setParameter)
+        3-startAcquisition
+      When recording starts (in the specified order):
+        1-directoryChanged (if needed)
+        2-(setChannelMapping)
+        3-(updateTimestamps*)
+        4-openFiles*
+      During recording: (RecordThread loop)
+        1-(updateTimestamps*) (can be called in a per-channel basis when the circular buffer wraps)
+        2-startChannelBlock*
+        3-writeData* (per channel. Can be called more than once to account for the circular buffer wrap)
+        4-endChannelBlock*
+        4-writeEvent* (if needed)
+        5-writeSpike* (if needed)
+      When recording stops:
+        closeFiles*
 
-		Methods marked with a * are called via the RecordThread thread.
-		Methods marked with parenthesis are not overloaded methods
+      Methods marked with a * are called via the RecordThread thread.
+      Methods marked with parenthesis are not overloaded methods
     */
 
-    /** Called for registering parameters
-    */
-    virtual void setParameter(EngineParameter& parameter);
+    /** Called for registering parameters */
+    virtual void setParameter (EngineParameter& parameter);
 
-    /** Called when recording starts to open all needed files
-    */
-    virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
+    /** Called when recording starts to open all needed files */
+    virtual void openFiles (File rootFolder, int experimentNumber, int recordingNumber) = 0;
 
     /** Called when recording stops to close all files
-    	and do all the necessary cleanups
-    */
+        and do all the necessary cleanups */
     virtual void closeFiles() = 0;
 
-	/** Called by the record thread before it starts writing the channels to disk
-	*/
-	virtual void startChannelBlock(bool lastBlock);
+    /** Called by the record thread before it starts writing the channels to disk */
+    virtual void startChannelBlock (bool lastBlock);
 
-    /** Write continuous data for a channel. The raw buffer pointer is passed for speed, 
-		care must be taken to only read the specified number of bytes.
-    */
-    virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
+    /** Write continuous data for a channel. The raw buffer pointer is passed for speed,
+        care must be taken to only read the specified number of bytes.  */
+    virtual void writeData (int writeChannel, int realChannel, const float* buffer, int size) = 0;
 
-	/** Called by the record thread after it has written a channel block
-	*/
-	virtual void endChannelBlock(bool lastBlock);
+    /** Called by the record thread after it has written a channel block */
+    virtual void endChannelBlock (bool lastBlock);
 
-    /** Write a single event to disk.
-    */
-    virtual void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) = 0;
+    /** Write a single event to disk.  */
+    virtual void writeEvent (int eventType, const MidiMessage& event, int64 timestamp) = 0;
 
-    /** Called when acquisition starts once for each processor that might record continuous data
-    */
-    virtual void registerProcessor(const GenericProcessor* processor);
+    /** Called when acquisition starts once for each processor that might record continuous data */
+    virtual void registerProcessor (const GenericProcessor* processor);
 
-    /** Called after registerProcessor, once for each output
-    	channel of the processor
-    */
-    virtual void addChannel(int index, const Channel* chan);
+    /** Called after registerProcessor, once for each output channel of the processor */
+    virtual void addChannel (int index, const Channel* chan);
 
-    /** Called when acquisition starts once for each processor that might record spikes
-    */
-    virtual void registerSpikeSource(GenericProcessor* processor);
+    /** Called when acquisition starts once for each processor that might record spikes */
+    virtual void registerSpikeSource (GenericProcessor* processor);
 
-    /** Called after registerSpikesource, once for each channel group
-    */
-    virtual void addSpikeElectrode(int index, const SpikeRecordInfo* elec) = 0;
+    /** Called after registerSpikesource, once for each channel group */
+    virtual void addSpikeElectrode (int index, const SpikeRecordInfo* elec) = 0;
 
-    /** Write a spike to disk
-    */
-    virtual void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) = 0;
+    /** Write a spike to disk */
+    virtual void writeSpike (int electrodeIndex, const SpikeObject& spike, int64 timestamp) = 0;
 
-    /** Called when a new acquisition starts, to clean all channel data
-    	before registering the processors
-    */
+    /** Called when a new acquisition starts, to clean all channel data before registering the processors */
     virtual void resetChannels();
 
-    /** Called at the start of every write block
-    */
-    void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
+    /** Called at the start of every write block */
+    void updateTimestamps (const Array<int64>& timestamps, int channel = -1);
 
-	/** Called prior to opening files, to set the map between recorded
-		channels and actual channel numbers
-	*/
-	void setChannelMapping(const Array<int>& channels);
+    /** Called prior to opening files, to set the map between recorded
+        channels and actual channel numbers */
+	void setChannelMapping (const Array<int>& channels);
 
     /** Called after all channels and spike groups have been registered,
-    	just before acquisition starts
-    */
+        just before acquisition starts */
     virtual void startAcquisition();
 
-    /** Called when the recording directory changes during an acquisition
-    */
+    /** Called when the recording directory changes during an acquisition */
     virtual void directoryChanged();
 
-
-    void registerManager(RecordEngineManager* engineManager);
+    void registerManager (RecordEngineManager* engineManager);
     void configureEngine();
 
-	//Method needed by the factory methods in the manager
-	//static RecordEngineManager* getEngineManager();
+    //Method needed by the factory methods in the manager
+    //static RecordEngineManager* getEngineManager();
 
 protected:
-    /** Functions to access RecordNode arrays and utilities
-    */
+    /** Functions to access RecordNode arrays and utilities */
 
-    /** Gets the specified channel from the channel array stored in RecordNode
-    */
-    Channel* getChannel(int index) const;
+    /** Gets the specified channel from the channel array stored in RecordNode */
+    Channel* getChannel (int index) const;
 
-    /** Gets the specified channel group info structure from the array stored in RecordNode
-    */
-    SpikeRecordInfo* getSpikeElectrode(int index) const;
+    /** Gets the specified channel group info structure from the array stored in RecordNode */
+    SpikeRecordInfo* getSpikeElectrode (int index) const;
 
-    /** Generate a Matlab-compatible datestring
-    */
+    /** Generate a Matlab-compatible datestring */
     String generateDateString() const;
 
-	/** Gets the current block's first timestamp for a given channel
-	*/
-	int64 getTimestamp(int channel) const;
+    /** Gets the current block's first timestamp for a given channel */
+    int64 getTimestamp (int channel) const;
 
-	/** Gets the actual channel number from a recorded channel index
-	*/
-	int getRealChannel(int channel) const;
+    /** Gets the actual channel number from a recorded channel index */
+    int getRealChannel (int channel) const;
 
-	/** Gets the number of recorded channels
-	*/
-	int getNumRecordedChannels() const;
+    /** Gets the number of recorded channels */
+    int getNumRecordedChannels() const;
+
 
 private:
-	Array<int64> timestamps;
-	Array<int> channelMap;
+    Array<int64> timestamps;
+    Array<int> channelMap;
     RecordEngineManager* manager;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordEngine);
 };
 
 typedef RecordEngine* (*EngineCreator)();
@@ -208,8 +183,15 @@ typedef RecordEngine* (*EngineCreator)();
 struct PLUGIN_API EngineParameter
 {
 public:
-    enum EngineParameterType {STR, INT, FLOAT, BOOL};
-    EngineParameter(EngineParameterType paramType, int paramId, String paramName, var defaultValue, var min = 0, var max = 100);
+    enum EngineParameterType { STR, INT, FLOAT, BOOL };
+
+    EngineParameter (EngineParameterType paramType,
+                     int paramId,
+                     String paramName,
+                     var defaultValue,
+                     var min = 0,
+                     var max = 100);
+
     void restoreDefault();
 
     union
@@ -220,17 +202,20 @@ public:
             int max;
             int value;
         } intParam;
+
         struct
         {
             float min;
             float max;
             float value;
         } floatParam;
+
         struct
         {
             bool value;
         } boolParam;
     };
+
     //Strings can't be inside an union. This means wasting a bit of memory, but adds more safety than using char*
     struct
     {
@@ -240,47 +225,55 @@ public:
     const EngineParameterType type;
     const String name;
     const int id;
+
+
 private:
     var def;
 };
+
 
 class EngineConfigWindow;
 class PLUGIN_API RecordEngineManager
 {
 public:
-    RecordEngineManager(String engineID, String engineName, EngineCreator creatorFunc);
+    RecordEngineManager (String engineID, String engineName, EngineCreator creatorFunc);
     ~RecordEngineManager();
-    void addParameter(EngineParameter* param);
+
+    void addParameter (EngineParameter* param);
 
     RecordEngine* instantiateEngine();
     void toggleConfigWindow();
-    bool isWindowOpen();
+    bool isWindowOpen() const;
 
-    void saveParametersToXml(XmlElement* xml);
-    void loadParametersFromXml(XmlElement* xml);
+    void saveParametersToXml (XmlElement* xml);
+    void loadParametersFromXml (XmlElement* xml);
 
-    EngineParameter& getParameter(int index);
-    int getNumParameters();
+    EngineParameter& getParameter (int index);
+    int getNumParameters() const;
 
-    String getID();
-    String getName();
+    String getID()   const;
+    String getName() const;
 
     static int getNumOfBuiltInEngines();
-    static RecordEngineManager* createBuiltInEngineManager(int index);
+    static RecordEngineManager* createBuiltInEngineManager (int index);
+
 
 private:
     EngineCreator creator;
+
     String id;
     String name;
+
     OwnedArray<EngineParameter> parameters;
     ScopedPointer<EngineConfigWindow> window;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngineManager);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordEngineManager);
 };
 
 template<class T>
 RecordEngine* engineFactory()
 {
-	return new T;
+    return new T;
 }
 
 #endif  // RECORDENGINE_H_INCLUDED
