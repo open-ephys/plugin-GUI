@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,30 +18,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
-#ifndef KWIKFILESOURCE_H_INCLUDED
-#define KWIKFILESOURCE_H_INCLUDED
+#ifndef HEADERGUARD
+#define HEADERGUARD
 
 #include <FileSourceHeaders.h>
 
-#define MIN_KWIK_VERSION 2
-#define MAX_KWIK_VERSION 2
 
-class HDF5RecordingData;
-namespace H5
-{
-class DataSet;
-class H5File;
-class DataType;
-}
-
-class KWIKFileSource : public FileSource
+class PLUGINCLASSMAME : public FileSource
 {
 public:
-    KWIKFileSource();
-    ~KWIKFileSource();
+    PLUGINCLASSMAME();
+    ~PLUGINCLASSMAME();
 
     int readData (int16* buffer, int nSamples) override;
 
@@ -56,15 +45,7 @@ private:
     bool Open (File file) override;
     void fillRecordInfo() override;
     void updateActiveRecord() override;
-
-    ScopedPointer<H5::H5File> sourceFile;
-    ScopedPointer<H5::DataSet> dataSet;
-
-    int64 samplePos;
-    Array<int> availableDataSets;
-    bool skipRecordEngineCheck;
 };
 
 
-
-#endif  // KWIKFILESOURCE_H_INCLUDED
+#endif // HEADERGUARD
