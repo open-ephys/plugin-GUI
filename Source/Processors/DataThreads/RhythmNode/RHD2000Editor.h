@@ -173,6 +173,8 @@ public:
     void scanPorts();
     void comboBoxChanged(ComboBox* comboBox);
 
+	void sliderEvent(Slider* slider);
+
     void startAcquisition();
     void stopAcquisition();
 
@@ -207,10 +209,12 @@ private:
 	ScopedPointer<UtilityButton> ledButton;
 
     ScopedPointer<UtilityButton> dspoffsetButton;
-    ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo;
+    ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo,dacTTLpinCombo,dacTTLchannelCombo;
 
 
-    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel ;
+    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel,dacTTLpinLabel,dacTTLchannelLabel,dacTTLthresholdLabel;
+
+	ScopedPointer<Slider> dacTTLthreshold;
 
     bool saveImpedances, measureWhenRecording;
 
