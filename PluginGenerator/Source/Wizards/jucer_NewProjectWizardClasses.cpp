@@ -29,6 +29,7 @@
 #include "../Project Saving/jucer_ProjectExporter.h"
 #include "../Application/jucer_MainWindow.h"
 #include "../Utility/jucer_SlidingPanelComponent.h"
+#include "../Utility/openEphys_pluginHelpers.h"
 
 struct NewProjectWizardClasses
 {

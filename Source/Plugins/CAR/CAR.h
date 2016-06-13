@@ -63,7 +63,7 @@ public:
         and spikes) is contained in the "events" variable, and "nSamples" holds the
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
-         */
+    */
     void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
     /** Returns the current gain level that is set in the processor */

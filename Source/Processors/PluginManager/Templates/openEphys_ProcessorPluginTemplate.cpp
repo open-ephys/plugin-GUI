@@ -24,14 +24,14 @@
 
 #include <stdio.h>
 
-FILTERHEADERS
+PROCESSORHEADERS
 
 //If the processor uses a custom editor, it needs its header to instantiate it
 //#include "ExampleEditor.h"
 
 
-FILTERCLASSNAME::FILTERCLASSNAME()
-    : GenericProcessor ("FILTERGUINAME") //, threshold(200.0), state(true)
+PROCESSORCLASSNAME::PROCESSORCLASSNAME()
+    : GenericProcessor ("PLUGINGUINAME") //, threshold(200.0), state(true)
 
 {
     setProcessorType (PROCESSORTYPE);
@@ -40,7 +40,7 @@ FILTERCLASSNAME::FILTERCLASSNAME()
 }
 
 
-FILTERCLASSNAME::~FILTERCLASSNAME()
+PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
 
@@ -48,7 +48,7 @@ FILTERCLASSNAME::~FILTERCLASSNAME()
 /**
   If the processor uses a custom editor, this method must be present.
 */
-AudioProcessorEditor* FILTERCLASSNAME::createEditor()
+AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()
 {
     editor = new EDITORCLASSNAME (this, true);
 
@@ -58,7 +58,7 @@ AudioProcessorEditor* FILTERCLASSNAME::createEditor()
 }
 
 
-void FILTERCLASSNAME::setParameter (int parameterIndex, float newValue)
+void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 {
     //Parameter& p =  parameters.getReference(parameterIndex);
     //p.setValue(newValue, 0);
@@ -70,7 +70,7 @@ void FILTERCLASSNAME::setParameter (int parameterIndex, float newValue)
 }
 
 
-void FILTERCLASSNAME::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
     /**
       Generic structure for processing buffer data

@@ -31,25 +31,22 @@
 #include <ProcessorHeaders.h>
 
 /**
+    This class serves as a template for creating new processors.
 
-  This class serves as a template for creating new processors.
+    If this were a real processor, this comment section would be used to
+    describe the processor's function.
 
-  If this were a real processor, this comment section would be used to
-  describe the processor's function.
-
-  @see GenericProcessor
-
+    @see GenericProcessor
 */
-
-class FILTERCLASSNAME : public GenericProcessor
+class PROCESSORCLASSNAME : public GenericProcessor
 
 {
 public:
     /** The class constructor, used to initialize any members. */
-    FILTERCLASSNAME();
+    PROCESSORCLASSNAME();
 
     /** The class destructor, used to deallocate memory */
-    ~FILTERCLASSNAME();
+    ~PROCESSORCLASSNAME();
 
     /** Indicates if the processor has a custom editor. Defaults to false */
     //bool hasEditor() const { return true; }
@@ -96,7 +93,7 @@ private:
     // float threshold;
     // bool state;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FILTERCLASSNAME);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PROCESSORCLASSNAME);
 };
 
 

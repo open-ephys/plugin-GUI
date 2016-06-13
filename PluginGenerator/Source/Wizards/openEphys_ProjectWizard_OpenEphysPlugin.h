@@ -22,27 +22,33 @@
 
 
 #include <iostream>
+
 //#include "../../../Source/Processors/GenericProcessor/GenericProcessor.h"
-enum PluginProcessorType
-{
-    PROCESSOR_TYPE_FILTER = 1
-    , PROCESSOR_TYPE_SOURCE
-    , PROCESSOR_TYPE_SINK
-    , PROCESSOR_TYPE_SPLITTER
-    , PROCESSOR_TYPE_MERGER
-    , PROCESSOR_TYPE_UTILITY
-    , PROCESSOR_TYPE_DATA_FORMAT
-};
+//#include "../../../Source/Processors/PluginManager/PluginIDs.h"
 
-enum PluginType
-{
-    PLUGIN_TYPE_PROCESSOR = 1
-    , PLUGIN_TYPE_RECORD_ENGINE
-    , PLUGIN_TYPE_DATA_THREAD
-    , PLUGIN_TYPE_FILE_SOURCE
-    , NOT_A_PLUGIN_TYPE = -1
-};
+//using namespace Plugin;
+//enum PluginProcessorType
+//{
+//    PROCESSOR_TYPE_FILTER = 1
+//    , PROCESSOR_TYPE_SOURCE
+//    , PROCESSOR_TYPE_SINK
+//    , PROCESSOR_TYPE_SPLITTER
+//    , PROCESSOR_TYPE_MERGER
+//    , PROCESSOR_TYPE_UTILITY
+//    , PROCESSOR_TYPE_DATA_FORMAT
+//    , PROCESSOR_TYPE_INVALID
+//};
+//
+//enum PluginType
+//{
+//    PLUGIN_TYPE_PROCESSOR = 1
+//    , PLUGIN_TYPE_RECORD_ENGINE
+//    , PLUGIN_TYPE_DATA_THREAD
+//    , PLUGIN_TYPE_FILE_SOURCE
+//    , NOT_A_PLUGIN_TYPE = -1
+//};
 
+// =================================================================================
 
 static ComboBox& createPluginTypeOptionComboBox (Component& setupComp,
                                                  OwnedArray<Component>& itemsCreated,
@@ -93,111 +99,9 @@ static int getComboResult (WizardComp& setupComp, const String& comboBoxID)
     return 0;
 }
 
-
-static String getProcessorTypeString (PluginProcessorType processorType)
-{
-    switch (processorType)
-    {
-        case PROCESSOR_TYPE_FILTER:
-            return "PROCESSOR_TYPE_FILTER";
-        case PROCESSOR_TYPE_SOURCE:
-            return "PROCESSOR_TYPE_SOURCE";
-        case PROCESSOR_TYPE_SINK:
-            return "PROCESSOR_TYPE_SINK";
-        case PROCESSOR_TYPE_SPLITTER:
-            return "PROCESSOR_TYPE_SPLITTER";
-        case PROCESSOR_TYPE_MERGER:
-            return "PROCESSOR_TYPE_MERGER";
-        case PROCESSOR_TYPE_UTILITY:
-            return "PROCESSOR_TYPE_UTILITY";
-        case PROCESSOR_TYPE_DATA_FORMAT:
-            return "PROCESSOR_TYPE_DATA_FORMAT";
-        default:
-            return "InvalidProcessorType";
-    };
-}
-
-/** Return the string representation of a given plugin type */
-static String getLibPluginTypeString (PluginType pluginType)
-{
-    switch (pluginType)
-    {
-        case PLUGIN_TYPE_PROCESSOR:
-            return "Plugin::ProcessorPlugin";
-        case PLUGIN_TYPE_RECORD_ENGINE:
-            return "Plugin::RecordEngine";
-        case PLUGIN_TYPE_DATA_THREAD:
-            return "Plugin::DatathreadPlugin";
-        case PLUGIN_TYPE_FILE_SOURCE:
-            return "Plugin::FileSourcePlugin";
-
-        default:
-            return "Plugin::NotAPlugin";
-        //case PROCESSOR_TYPE_FILTER:
-        //case PROCESSOR_TYPE_SINK:
-        //case PROCESSOR_TYPE_SOURCE:
-        //case PROCESSOR_TYPE_SPLITTER:
-        //case PROCESSOR_TYPE_MERGER:
-        //case PROCESSOR_TYPE_UTILITY:
-        //    // TODO <Kirill A>: Check where data format plugins should be placed.
-        //case PROCESSOR_TYPE_DATA_FORMAT:
-        //    return "Plugin::ProcessorPlugin";
-
-        //default:
-        //    return "Plugin::NotAPlugin";
-
-        //    case anotherCase:
-        //        return "RecordEnginePlugin";
-        //    case anotherCase2:
-        //        return "DatathreadPlugin";
-        //    case anotherCase3:
-        //        return "FileSourcePlugin";
-    };
-}
-
-/** Returns the string representation (name) of the function which is used to create a plugin of a given type. */
-static String getLibPluginCreateFunctionString (PluginType pluginType)
-{
-    switch (pluginType)
-    {
-        case PLUGIN_TYPE_PROCESSOR:
-            return "createProcessor";
-        case PLUGIN_TYPE_RECORD_ENGINE:
-            return "createRecordEngine";
-        case PLUGIN_TYPE_DATA_THREAD:
-            return "createDataThread";
-        case PLUGIN_TYPE_FILE_SOURCE:
-            return "createFileSource";
-        default:
-            return "InvalidFunctionName";
-    }
-}
-
-/** Returns the string representation of a given plugin processor type. */
-static String getLibProcessorTypeString (PluginProcessorType processorType)
-{
-    switch (processorType)
-    {
-        case PROCESSOR_TYPE_FILTER:
-            return "Plugin::FilterProcessor";
-
-        case PROCESSOR_TYPE_SINK:
-            return "Plugin::SinkProcessor";
-
-        case PROCESSOR_TYPE_UTILITY:
-        case PROCESSOR_TYPE_MERGER:
-        case PROCESSOR_TYPE_SPLITTER:
-            // TODO <Kirill A>: Check where data format plugins should be placed.
-        case PROCESSOR_TYPE_DATA_FORMAT:
-            return "Plugin::UtilityProcessor";
-
-        default:
-            return "Plugin::InvalidProcessor";
-    };
-}
-
-// =================================================================================
-
+// ============================================================================
+// ============================================================================
+// ============================================================================
 
 struct OpenEphysPluginAppWizard   : public NewProjectWizard
                                   , public ComboBox::Listener
@@ -218,6 +122,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         StringArray s;
         return s;
     }
+
 
     void addSetupItems (Component& setupComp, OwnedArray<Component>& itemsCreated) override
     {
@@ -269,6 +174,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         //processorTypeComboBox.setVisible (false);
     }
 
+
     /** Gets the currently selected processor type and applies appropriate action */
     Result processResultsFromSetupItems (WizardComp& setupComp) override
     {
@@ -291,9 +197,16 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         return Result::ok();
     }
 
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
     {
         return;
+
+        // UNUSED NOW
+        // 
+        //
+        //
+        //
         const auto comboBoxId = comboBoxThatHasChanged->getComponentID();
         if (comboBoxId == COMBOBOX_ID_PLUGIN_TYPE)
         {
@@ -310,7 +223,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
                 // Change "Plugin type" combobox's width
                 comboBoxThatHasChanged->setBounds (comboBoxThatHasChanged->getBounds()
-                                                       .withWidth (processorTypeComboBox->getWidth()));
+                                                   .withWidth (processorTypeComboBox->getWidth()));
             }
             else
             {
@@ -324,21 +237,14 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     {
         createSourceFolder();
 
-        String filterClassName = CodeHelpers::makeValidIdentifier (appTitle, true, true, false) + "Processor";
-        filterClassName = filterClassName.substring (0, 1).toUpperCase() + filterClassName.substring (1);
-        String editorClassName = filterClassName + "Editor";
-        String libPluginType            = getLibPluginTypeString            (m_pluginType);
-        String libCreateFunctionName    = getLibPluginCreateFunctionString  (m_pluginType);
-        String libPluginProcessorType   = getLibProcessorTypeString         (m_processorType);
-        String processorType            = getProcessorTypeString            (m_processorType);
+        String pluginProcessorName  = CodeHelpers::makeValidIdentifier (appTitle, true, true, false) + "Processor";
+        pluginProcessorName         = pluginProcessorName.substring (0, 1).toUpperCase() + pluginProcessorName.substring (1);
+        String pluginEditorName     = pluginProcessorName + "Editor";
+        String processorType        = getProcessorTypeString (m_processorType);
+        String pluginFriendlyName   = appTitle;
 
-        File exampleFilesFolder ("/home/septen/development/open-ephys/plugin-GUI/Source/Plugins/ExampleProcessor");
-        File filterCppFile = exampleFilesFolder.getChildFile ("ExampleProcessor.cpp");
-        File filterHFile   = filterCppFile.withFileExtension (".h");
-        File editorCppFile = exampleFilesFolder.getChildFile ("ExampleEditor.cpp");
-        File editorHFile   = editorCppFile.withFileExtension (".h");
-        File pluginLibFile  = exampleFilesFolder.getChildFile ("OpenEphysLib.cpp");
-        File pluginMakeFile = exampleFilesFolder.getChildFile ("Makefile.example");
+        // TODO <Kirill A> replace it with relative path or load files from BinaryData
+        File templateFilesFolder ("/home/zenbook/developer/open-ephys/plugin-GUI/Source/Processors/PluginManager/Templates");
 
         project.getProjectTypeValue() = ProjectType_AudioPlugin::getTypeName();
 
@@ -347,97 +253,191 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         setExecutableNameForAllTargets (project, File::createLegalFileName (appTitle));
 
-        String appHeaders (CodeHelpers::createIncludeStatement (project.getAppIncludeFile(), filterCppFile));
+        //String appHeaders (CodeHelpers::createIncludeStatement (project.getAppIncludeFile(), filterCppFile));
 
         auto sourceFolder = getSourceFilesFolder();
-        auto newFilterCppFile  = sourceFolder.getChildFile (filterClassName + ".cpp");
-        auto newFilterHFile    = sourceFolder.getChildFile (filterClassName + ".h");
-        auto newEditorCppFile  = sourceFolder.getChildFile (editorClassName + ".cpp");
-        auto newEditorHFile    = sourceFolder.getChildFile (editorClassName + ".h");
-        auto newPluginLibFile  = sourceFolder.getChildFile (pluginLibFile.getFileName());
-        auto newPluginMakeFile = sourceFolder.getChildFile ("Makefile");
 
         // TODO <Kirill A> change getting file template to more versatile method
-        //String filterCpp = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_cpp")
-        String filterCpp = filterCppFile.loadFileAsString()
-                            .replace ("FILTERHEADERS", CodeHelpers::createIncludeStatement (newFilterHFile, newFilterCppFile)
-                                                            + newLine + CodeHelpers::createIncludeStatement (newEditorHFile, newFilterCppFile), false)
-                            .replace ("FILTERCLASSNAME", filterClassName, false)
-                            .replace ("FILTERGUINAME", appTitle, false) // TODO <Kirill A>: set better gui name variable
-                            .replace ("EDITORCLASSNAME", editorClassName, false)
-                            .replace ("PROCESSORTYPE",   processorType,   false);
-
-        //String filterH = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_h")
-        String filterH   = filterHFile.loadFileAsString()
-                            //.replace ("APPHEADERS", appHeaders, false)
-                            .replace ("FILTERCLASSNAME", filterClassName, false)
-                            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newFilterHFile), false);
-
-        //String editorCpp = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_cpp")
-        String editorCpp = editorCppFile.loadFileAsString()
-                            //.replace ("EDITORCPPHEADERS", CodeHelpers::createIncludeStatement (filterHFile, filterCppFile)
-                            //                                   + newLine + CodeHelpers::createIncludeStatement (editorHFile, filterCppFile), false)
-                            .replace ("FILTERCLASSNAME", filterClassName, false)
-                            .replace ("EDITORCLASSNAME", editorClassName, false);
-
-        //String editorH = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_h")
-        String editorH   = editorHFile.loadFileAsString()
-                            //.replace ("EDITORHEADERS", appHeaders + newLine + CodeHelpers::createIncludeStatement (filterHFile, filterCppFile), false)
-                            .replace ("FILTERCLASSNAME", filterClassName, false)
-                            .replace ("EDITORCLASSNAME", editorClassName, false)
-                            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newEditorHFile), false);
-
-        String pluginLibCpp = pluginLibFile.loadFileAsString()
-                                .replace ("FILTERCLASSNAME", filterClassName, false)
-                                .replace ("FILTERLIBRARYNAME", "Temporary " + appTitle + " library", false) // TODO <Kirill A>: set library name variable
-                                .replace ("FILTERLIBRARYVERSION", "1", false) // TODO <Kirill A>: set library version variable
-                                .replace ("FILTERGUINAME", "Temporary " + appTitle, false) // TODO <Kirill A>: set library gui name variable
-                                .replace ("LIBPLUGINTYPE", libPluginType, false)
-                                .replace ("LIBPLUGINCREATEFUNCTION", libCreateFunctionName, false)
-                                // TODO <Kirill A>: we should either add or remove appropriate line for plugin processor
-                                // type, because it should be preset only if we generate processor plugin
-                                // (Plugin::ProcessorPlugin).
-                                .replace ("LIBPLUGINPROCESSORTYPE", libPluginProcessorType, false);
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newFilterCppFile, filterCpp))
-            failedFiles.add (newFilterCppFile.getFullPathName());
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newFilterHFile, filterH))
-            failedFiles.add (newFilterHFile.getFullPathName());
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newEditorCppFile, editorCpp))
-            failedFiles.add (newEditorCppFile.getFullPathName());
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newEditorHFile, editorH))
-            failedFiles.add (newEditorHFile.getFullPathName());
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginLibFile, pluginLibCpp))
-            failedFiles.add (newPluginLibFile.getFullPathName());
-
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginMakeFile, pluginMakeFile.loadFileAsString()))
-            failedFiles.add (newPluginMakeFile.getFullPathName());
-
-        sourceGroup.addFileAtIndex (newFilterCppFile, -1, true);
-        sourceGroup.addFileAtIndex (newFilterHFile,   -1, false);
-        sourceGroup.addFileAtIndex (newEditorCppFile, -1, true);
-        sourceGroup.addFileAtIndex (newEditorHFile,   -1, false);
-        sourceGroup.addFileAtIndex (newPluginLibFile, -1, true);
+        generatePluginMakeFile  (sourceGroup, templateFilesFolder);
+        generatePluginLibFile   (sourceGroup, templateFilesFolder, pluginProcessorName, pluginFriendlyName);
+        generatePluginProcessorFiles (sourceGroup, templateFilesFolder, pluginProcessorName, pluginEditorName, pluginFriendlyName);
+        generatePluginEditorFiles    (sourceGroup, templateFilesFolder, pluginProcessorName, pluginEditorName, pluginFriendlyName);
 
         return true;
     }
 
-    static constexpr const char* COMBOBOX_ID_PLUGIN_TYPE = "pluginTypeComboBox";//    { "pluginTypeComboBox" };
+
+    bool generatePluginLibFile (Project::Item& sourceGroup,
+                                const File& templatesFolder,
+                                const String& pluginProcessorName,
+                                const String& pluginFriendlyName)
+    {
+        String libPluginType            = getLibPluginTypeString            (m_pluginType);
+        String libCreateFunctionName    = getLibPluginCreateFunctionString  (m_pluginType);
+        String libPluginProcessorType   = getLibProcessorTypeString         (m_processorType);
+
+        const auto templatePluginLibFile    = templatesFolder.getChildFile ("openEphys_OpenEphysLibTemplate.cpp");
+        const auto newPluginLibFile         = getSourceFilesFolder().getChildFile ("OpenEphysLib.cpp");
+
+        String pluginLibCppFileContent = templatePluginLibFile.loadFileAsString()
+            .replace ("PROCESSORCLASSNAME", pluginProcessorName, false)
+            .replace ("PLUGINLIBRARYNAME", "Temporary " + pluginFriendlyName + " library", false) // TODO <Kirill A>: set library name variable
+            .replace ("PLUGINLIBRARYVERSION", "1", false) // TODO <Kirill A>: set library version variable
+            .replace ("PLUGINGUINAME", "Temporary " + pluginFriendlyName, false) // TODO <Kirill A>: set library gui name variable
+            .replace ("LIBPLUGINTYPE", libPluginType, false)
+            .replace ("LIBPLUGINCREATEFUNCTION", libCreateFunctionName, false)
+            // TODO <Kirill A>: we should either add or remove appropriate line for plugin processor
+            // type, because it should be preset only if we generate processor plugin
+            // (Plugin::ProcessorPlugin).
+            .replace ("LIBPLUGINPROCESSORTYPE", libPluginProcessorType, false);
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginLibFile, pluginLibCppFileContent))
+        {
+            failedFiles.add (newPluginLibFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        sourceGroup.addFileAtIndex (newPluginLibFile, -1, true);
+
+        return wasGeneratedSuccessfully;
+    }
+
+
+    bool generatePluginMakeFile (Project::Item& sourceGroup, const File& templatesFolder)
+    {
+        const auto templatePluginMakeFile = templatesFolder.getChildFile ("openEphys_PluginMakefile.example");
+        const auto sourceFolder           = getSourceFilesFolder();
+
+        auto newPluginMakeFile = sourceFolder.getChildFile ("Makefile");
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginMakeFile, templatePluginMakeFile.loadFileAsString()))
+        {
+            failedFiles.add (newPluginMakeFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        return wasGeneratedSuccessfully;
+    }
+
+
+    bool generatePluginProcessorFiles (Project::Item& sourceGroup,
+                                       const File& templatesFolder,
+                                       const String& processorName,
+                                       const String& editorName,
+                                       const String& pluginFriendlyName)
+    {
+        const auto templateProcessorCppFile = templatesFolder.getChildFile ("openEphys_ProcessorPluginTemplate.cpp");
+        const auto templateProcessorHFile   = templateProcessorCppFile.withFileExtension (".h");
+        const auto sourceFolder             = getSourceFilesFolder();
+
+        auto newProcessorCppFile  = sourceFolder.getChildFile (processorName + ".cpp");
+        auto newProcessorHFile    = sourceFolder.getChildFile (processorName + ".h");
+        auto newEditorHFile       = sourceFolder.getChildFile (editorName + ".h");
+
+        String processorType = getProcessorTypeString (m_processorType);
+
+        //String filterCpp = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_cpp")
+        String processorCppFileContent = templateProcessorCppFile.loadFileAsString()
+            .replace ("PROCESSORHEADERS", CodeHelpers::createIncludeStatement (newProcessorHFile, newProcessorCppFile)
+                      + newLine + CodeHelpers::createIncludeStatement (newEditorHFile, newProcessorCppFile), false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("PLUGINGUINAME",      pluginFriendlyName, false) // TODO <Kirill A>: set better gui name variable
+            .replace ("EDITORCLASSNAME",    editorName, false)
+            .replace ("PROCESSORTYPE",      processorType,   false);
+
+        //String filterH = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_h")
+        String processorHFileConent   = templateProcessorHFile.loadFileAsString()
+            //.replace ("APPHEADERS", appHeaders, false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newProcessorHFile), false);
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newProcessorCppFile, processorCppFileContent))
+        {
+            failedFiles.add (newProcessorCppFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newProcessorHFile, processorHFileConent))
+        {
+            failedFiles.add (newProcessorHFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        sourceGroup.addFileAtIndex (newProcessorCppFile, -1, true);
+        sourceGroup.addFileAtIndex (newProcessorHFile,   -1, false);
+
+        return wasGeneratedSuccessfully;
+    }
+
+
+    bool generatePluginEditorFiles (Project::Item& sourceGroup,
+                                    const File& templatesFolder,
+                                    const String& processorName,
+                                    const String& editorName,
+                                    const String& pluginFriendlyName)
+    {
+        const auto templateEditorCppFile = templatesFolder.getChildFile ("openEphys_ProcessorEditorPluginTemplate.cpp");
+        const auto templateEditorHFile   = templateEditorCppFile.withFileExtension (".h");
+        const auto sourceFolder          = getSourceFilesFolder();
+
+        auto newEditorCppFile  = sourceFolder.getChildFile (editorName + ".cpp");
+        auto newEditorHFile    = sourceFolder.getChildFile (editorName + ".h");
+
+        //String editorCpp = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_cpp")
+        String editorCppFileContent = templateEditorCppFile.loadFileAsString()
+            //.replace ("EDITORCPPHEADERS", CodeHelpers::createIncludeStatement (filterHFile, filterCppFile)
+            //                                   + newLine + CodeHelpers::createIncludeStatement (editorHFile, filterCppFile), false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("EDITORCLASSNAME", editorName, false);
+
+        //String editorH = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_h")
+        String editorHFileContent   = templateEditorHFile.loadFileAsString()
+            //.replace ("EDITORHEADERS", appHeaders + newLine + CodeHelpers::createIncludeStatement (filterHFile, filterCppFile), false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("EDITORCLASSNAME", editorName, false)
+            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newEditorHFile), false);
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newEditorCppFile, editorCppFileContent))
+        {
+            failedFiles.add (newEditorCppFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newEditorHFile, editorHFileContent))
+        {
+            failedFiles.add (newEditorHFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        sourceGroup.addFileAtIndex (newEditorCppFile, -1, true);
+        sourceGroup.addFileAtIndex (newEditorHFile,   -1, false);
+
+        return wasGeneratedSuccessfully;
+    }
+
+    static constexpr const char* COMBOBOX_ID_PLUGIN_TYPE    = "pluginTypeComboBox";//    { "pluginTypeComboBox" };
     static constexpr const char* COMBOBOX_ID_PROCESSOR_TYPE = "processorTypeComboBox";// { "processorTypeComboBox" };
 
 
 private:
     PluginType          m_pluginType    { PLUGIN_TYPE_FILE_SOURCE } ;
-    PluginProcessorType m_processorType { PROCESSOR_TYPE_FILTER };
+    PluginProcessorType m_processorType { PROCESSOR_TYPE_INVALID };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenEphysPluginAppWizard)
 };
-
-//const String OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE    ("pluginTypeComboBox");
-//const String OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE ("processorTypeComboBox");
 
 

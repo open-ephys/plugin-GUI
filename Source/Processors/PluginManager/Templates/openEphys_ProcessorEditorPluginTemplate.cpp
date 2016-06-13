@@ -1,28 +1,28 @@
 /*
-------------------------------------------------------------------
+   ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2016 Open Ephys
+   This file is part of the Open Ephys GUI
+   Copyright (C) 2016 Open Ephys
 
-------------------------------------------------------------------
+   ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "EDITORCLASSNAME.h"
-#include "FILTERCLASSNAME.h"
+#include "PROCESSORCLASSNAME.h"
+
 
 EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
@@ -43,9 +43,9 @@ EDITORCLASSNAME::~EDITORCLASSNAME()
 
 
 /**
-The listener methods that reacts to the button click. The same method is called for all buttons
-on the editor, so the button variable, which cointains a pointer to the button that called the method
-has to be checked to know which function to perform.
+    The listener methods that reacts to the button click. The same method is called for all buttons
+    on the editor, so the button variable, which cointains a pointer to the button that called the method
+    has to be checked to know which function to perform.
 */
 void EDITORCLASSNAME::buttonEvent (Button* button)
 {
