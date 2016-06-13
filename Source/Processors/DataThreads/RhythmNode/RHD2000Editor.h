@@ -197,6 +197,8 @@ private:
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
     OwnedArray<ElectrodeButton> electrodeButtons;
 
+	OwnedArray<ElectrodeButton> dacTTLPins;
+
     ScopedPointer<SampleRateInterface> sampleRateInterface;
     ScopedPointer<BandwidthInterface> bandwidthInterface;
     ScopedPointer<DSPInterface> dspInterface;
@@ -209,12 +211,13 @@ private:
 	ScopedPointer<UtilityButton> ledButton;
 
     ScopedPointer<UtilityButton> dspoffsetButton;
-    ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo,dacTTLpinCombo,dacTTLchannelCombo;
+	ScopedPointer<ComboBox> ttlSettleCombo, dacHPFcombo, dacTTLCombo1, dacTTLCombo2, dacTTLCombo3, dacTTLCombo4, dacTTLCombo5, dacTTLCombo6;
 
 
-    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel,dacTTLpinLabel,dacTTLchannelLabel,dacTTLthresholdLabel;
 
-	ScopedPointer<Slider> dacTTLthreshold;
+    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel,dacTTLPinLabel,dacTTLChanLabel,dacTTLThreshLabel;
+
+	ScopedPointer<Slider> dacTTLSlider1, dacTTLSlider2, dacTTLSlider3, dacTTLSlider4, dacTTLSlider5, dacTTLSlider6;
 
     bool saveImpedances, measureWhenRecording;
 

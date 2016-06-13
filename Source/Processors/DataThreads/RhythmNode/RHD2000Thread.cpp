@@ -200,6 +200,11 @@ bool RHD2000Thread::usesCustomNames()
     return true;
 }
 
+void RHD2000Thread::enableDAC(int dacOutput, bool state)
+{
+	evalBoard->enableDac(dacOutput, state);
+}
+
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
 {
     //dacThresholds[dacOutput]= threshold;
@@ -235,7 +240,6 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
 
 		if (dacChannels[dacOutput] >= 0)
 		{
-			evalBoard->enableDac(dacOutput, true);
 			evalBoard->selectDacDataStream(dacOutput, dacStream[dacOutput]);
 			evalBoard->selectDacDataChannel(dacOutput, dacChannels[dacOutput]);
 			// evalBoard->setDacThreshold(k, (int)abs((dacThresholds[k] / 0.195) + 32768), dacThresholds[k] >= 0);

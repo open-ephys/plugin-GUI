@@ -559,7 +559,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     : VisualizerEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
     canvas = nullptr;
-    desiredWidth = 450;
+    desiredWidth = 550;
     tabText = "FPGA";
     measureWhenRecording = false;
     saveImpedances = false;
@@ -671,13 +671,13 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     ttlSettleLabel = new Label("TTL Settle","TTL Settle");
     ttlSettleLabel->setFont(Font("Small Text", 11, Font::plain));
-    ttlSettleLabel->setBounds(255,80,100,20);
+    ttlSettleLabel->setBounds(255,85,100,20);
     ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(ttlSettleLabel);
 
 
     ttlSettleCombo = new ComboBox("FastSettleComboBox");
-    ttlSettleCombo->setBounds(260,100,60,18);
+    ttlSettleCombo->setBounds(260,105,60,18);
     ttlSettleCombo->addListener(this);
     ttlSettleCombo->addItem("-",1);
     for (int k=0; k<8; k++)
@@ -687,63 +687,171 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     ttlSettleCombo->setSelectedId(1, sendNotification);
     addAndMakeVisible(ttlSettleCombo);
 
-    dacTTLButton = new UtilityButton("DAC TTL", Font("Small Text", 13, Font::plain));
-    dacTTLButton->setRadius(3.0f);
-    dacTTLButton->setBounds(260,25,65,18);
-    dacTTLButton->addListener(this);
-    dacTTLButton->setClickingTogglesState(true);
-    dacTTLButton->setTooltip("Enable/disable DAC Threshold TTL Output");
-    addAndMakeVisible(dacTTLButton);
+	// DAC TTL enable button
+	dacTTLButton = new UtilityButton("DAC TTL", Font("Small Text", 13, Font::plain));
+	dacTTLButton->setRadius(3.0f);
+	dacTTLButton->setBounds(260,30,65,18);
+	dacTTLButton->addListener(this);
+	dacTTLButton->setClickingTogglesState(true);
+	dacTTLButton->setTooltip("Enable/disable DAC Threshold TTL Output");
+	addAndMakeVisible(dacTTLButton);
 
-	dacTTLpinLabel = new Label("TTL pin", "TTL pin");
-	dacTTLpinLabel->setFont(Font("Small Text", 11, Font::plain));
-	dacTTLpinLabel->setBounds(330, 20, 100, 20);
-	dacTTLpinLabel->setColour(Label::textColourId, Colours::darkgrey);
+	// DAC TTL Out buttons
+	dacTTLPinLabel = new Label("pin label", "Pin");
+	dacTTLPinLabel->setBounds(335, 25, 25, 15);
+	dacTTLPinLabel->setFont(Font("Small Text", 10, Font::plain));
+	dacTTLPinLabel->setColour(Label::textColourId, Colours::darkgrey);
+	addAndMakeVisible(dacTTLPinLabel);
 
-	dacTTLpinCombo = new ComboBox("dacTTLpinCombo");
-	dacTTLpinCombo->setBounds(330, 35, 60, 18);
-	dacTTLpinCombo->addListener(this);
-	dacTTLpinCombo->addItem("-", 1);
-	for (int k = 0; k < 8; k++)
+	for (int i = 0; i < 6; i++)
 	{
-		dacTTLpinCombo->addItem(String(k), k + 2);
+		ElectrodeButton* button = new ElectrodeButton(-1);
+		dacTTLPins.add(button);
+
+		button->setBounds(335, 40+15*i, 25, 15);
+		button->setChannelNum(-1);
+		button->setToggleState(false, dontSendNotification);
+		button->setRadioGroupId(999);
+
+		addAndMakeVisible(button);
+		button->addListener(this);
+
+		std::string c = std::to_string(i+2);
+		button->setTooltip("Digital Out " + c);
 	}
-	dacTTLpinCombo->setSelectedId(1, dontSendNotification);
 
-	dacTTLchannelLabel = new Label("TTL channel", "TTL channel");
-	dacTTLchannelLabel->setFont(Font("Small Text", 11, Font::plain));
-	dacTTLchannelLabel->setBounds(330, 50, 100, 20);
-	dacTTLchannelLabel->setColour(Label::textColourId, Colours::darkgrey);
+	dacTTLChanLabel = new Label("channel label", "Channel");
+	dacTTLChanLabel->setBounds(365, 25, 60, 15);
+	dacTTLChanLabel->setFont(Font("Small Text", 10, Font::plain));
+	dacTTLChanLabel->setColour(Label::textColourId, Colours::darkgrey);
+	addAndMakeVisible(dacTTLChanLabel);
 
-	dacTTLchannelCombo = new ComboBox("dacTTLchannelCombo");
-	dacTTLchannelCombo->setBounds(330, 65, 60, 18);
-	dacTTLchannelCombo->addListener(this);
-	dacTTLchannelCombo->addItem("-", 1);
-	for (int k = 0; k < 32; k++)
+	// DAC TTL Out channel select combos
+	int channels = board->getNumChannels();
+
+	dacTTLCombo1 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo1->setBounds(365, 40, 60, 15);
+	dacTTLCombo1->addListener(this);
+	dacTTLCombo1->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
 	{
-		dacTTLchannelCombo->addItem(String(k), k + 2);
+		dacTTLCombo1->addItem(String(k), k + 2);
 	}
-	dacTTLchannelCombo->setSelectedId(1, dontSendNotification);
+	dacTTLCombo1->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo1);
 
-	dacTTLthreshold = new Slider("dacTTLthreshold");
-	dacTTLthreshold->setBounds(330, 95, 100, 20);
-	dacTTLthreshold->addListener(this);
-	dacTTLthreshold->setValue(0);
-	dacTTLthreshold->setRange(0, 65535, 1);
+	dacTTLCombo2 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo2->setBounds(365, 55, 60, 15);
+	dacTTLCombo2->addListener(this);
+	dacTTLCombo2->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
+	{
+		dacTTLCombo2->addItem(String(k), k + 2);
+	}
+	dacTTLCombo2->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo2);
 
-	dacTTLthresholdLabel = new Label("Threshold","Threshold");
-	dacTTLthresholdLabel->setFont(Font("Small Text", 11, Font::plain));
-	dacTTLthresholdLabel->setBounds(330, 80, 100, 20);
-	dacTTLthresholdLabel->setColour(Label::textColourId, Colours::darkgrey);
+	dacTTLCombo3 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo3->setBounds(365, 70, 60, 15);
+	dacTTLCombo3->addListener(this);
+	dacTTLCombo3->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
+	{
+		dacTTLCombo3->addItem(String(k), k + 2);
+	}
+	dacTTLCombo3->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo3);
+
+	dacTTLCombo4 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo4->setBounds(365, 85, 60, 15);
+	dacTTLCombo4->addListener(this);
+	dacTTLCombo4->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
+	{
+		dacTTLCombo4->addItem(String(k), k + 2);
+	}
+	dacTTLCombo4->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo4);
+
+	dacTTLCombo5 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo5->setBounds(365, 100, 60, 15);
+	dacTTLCombo5->addListener(this);
+	dacTTLCombo5->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
+	{
+		dacTTLCombo5->addItem(String(k), k + 2);
+	}
+	dacTTLCombo5->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo5);
+
+	dacTTLCombo6 = new ComboBox("dacTTLCombo1");
+	dacTTLCombo6->setBounds(365, 115, 60, 15);
+	dacTTLCombo6->addListener(this);
+	dacTTLCombo6->addItem("-", 1);
+	for (int k = 0; k < channels; k++)
+	{
+		dacTTLCombo6->addItem(String(k), k + 2);
+	}
+	dacTTLCombo6->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(dacTTLCombo6);
+
+	// DAC TTL Out threshold sliders
+	dacTTLThreshLabel = new Label("theshold label", "Threshold (uV)");
+	dacTTLThreshLabel->setBounds(435, 25, 100, 15);
+	dacTTLThreshLabel->setFont(Font("Small Text", 10, Font::plain));
+	dacTTLThreshLabel->setColour(Label::textColourId, Colours::darkgrey);
+	addAndMakeVisible(dacTTLThreshLabel);
+
+	dacTTLSlider1 = new Slider("dacTTLSlider1");
+	dacTTLSlider1->setBounds(435, 40, 100, 15);
+	dacTTLSlider1->addListener(this);
+	dacTTLSlider1->setValue(0);
+	dacTTLSlider1->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider1);
+
+	dacTTLSlider2 = new Slider("dacTTLSlider2");
+	dacTTLSlider2->setBounds(435, 55, 100, 15);
+	dacTTLSlider2->addListener(this);
+	dacTTLSlider2->setValue(0);
+	dacTTLSlider2->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider2);
+
+	dacTTLSlider3 = new Slider("dacTTLSlider3");
+	dacTTLSlider3->setBounds(435, 70, 100, 15);
+	dacTTLSlider3->addListener(this);
+	dacTTLSlider3->setValue(0);
+	dacTTLSlider3->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider3);
+
+	dacTTLSlider4 = new Slider("dacTTLSlider4");
+	dacTTLSlider4->setBounds(435, 85, 100, 15);
+	dacTTLSlider4->addListener(this);
+	dacTTLSlider4->setValue(0);
+	dacTTLSlider4->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider4);
+
+	dacTTLSlider5 = new Slider("dacTTLSlider5");
+	dacTTLSlider5->setBounds(435, 100, 100, 15);
+	dacTTLSlider5->addListener(this);
+	dacTTLSlider5->setValue(0);
+	dacTTLSlider5->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider5);
+
+	dacTTLSlider6 = new Slider("dacTTLSlider6");
+	dacTTLSlider6->setBounds(435, 115, 100, 15);
+	dacTTLSlider6->addListener(this);
+	dacTTLSlider6->setValue(0);
+	dacTTLSlider6->setRange(0, 65535, 1);
+	addAndMakeVisible(dacTTLSlider6);
 
     dacHPFlabel = new Label("DAC HPF","DAC HPF");
     dacHPFlabel->setFont(Font("Small Text", 11, Font::plain));
-    dacHPFlabel->setBounds(260,42,100,20);
+    dacHPFlabel->setBounds(260,47,100,20);
     dacHPFlabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(dacHPFlabel);
 
     dacHPFcombo = new ComboBox("dacHPFCombo");
-    dacHPFcombo->setBounds(260,60,60,18);
+    dacHPFcombo->setBounds(260,65,60,18);
     dacHPFcombo->addListener(this);
     dacHPFcombo->addItem("OFF",1);
     int HPFvalues[10] = {50,100,200,300,400,500,600,700,800,900};
@@ -856,42 +964,70 @@ void RHD2000Editor::comboBoxChanged(ComboBox* comboBox)
             board->setDAChpf(HPFvalues[selection-2],true);
         }
     }
-	else if (comboBox == dacTTLpinCombo)
+	else if (comboBox == dacTTLCombo1)
 	{
-		if (dacTTLpinCombo->getSelectedId() == 1)
-		{
-			removeChildComponent(dacTTLchannelCombo);
-			removeChildComponent(dacTTLchannelLabel);
-			removeChildComponent(dacTTLthreshold);
-			removeChildComponent(dacTTLthresholdLabel);
-		}
-		else
-		{
-			addAndMakeVisible(dacTTLchannelCombo);
-			addAndMakeVisible(dacTTLchannelLabel);
-			addAndMakeVisible(dacTTLthreshold);
-			addAndMakeVisible(dacTTLthresholdLabel);
-		}		
+		int channel = dacTTLCombo1->getSelectedId();
+		board->setDACchannel(2, channel);
 	}
-	else if (comboBox == dacTTLchannelCombo)
+	else if (comboBox == dacTTLCombo2)
 	{
-		int pin = dacTTLpinCombo->getSelectedId();
-		if (pin != 1)
-		{
-			int channel = dacTTLchannelCombo->getSelectedId();
-			board->setDACchannel(pin, channel);
-		}
+		int channel = dacTTLCombo2->getSelectedId();
+		board->setDACchannel(3, channel);
+	}
+	else if (comboBox == dacTTLCombo3)
+	{
+		int channel = dacTTLCombo3->getSelectedId();
+		board->setDACchannel(4, channel);
+	}
+	else if (comboBox == dacTTLCombo4)
+	{
+		int channel = dacTTLCombo4->getSelectedId();
+		board->setDACchannel(5, channel);
+	}
+	else if (comboBox == dacTTLCombo5)
+	{
+		int channel = dacTTLCombo5->getSelectedId();
+		board->setDACchannel(6, channel);
+	}
+	else if (comboBox == dacTTLCombo6)
+	{
+		int channel = dacTTLCombo6->getSelectedId();
+		board->setDACchannel(7, channel);
 	}
 }
 
 
 void RHD2000Editor::sliderEvent(Slider* slider)
 {
-	if (slider == dacTTLthreshold)
+	if (slider == dacTTLSlider1)
 	{
-		int pin = dacTTLpinCombo->getSelectedId();
-		int thresh = dacTTLthreshold->getValue();
-		board->setDACthreshold(pin, thresh);
+		int thresh = dacTTLSlider1->getValue();
+		board->setDACthreshold(2, thresh);
+	}
+	else if (slider == dacTTLSlider2)
+	{
+		int thresh = dacTTLSlider2->getValue();
+		board->setDACthreshold(3, thresh);
+	}
+	else if (slider == dacTTLSlider3)
+	{
+		int thresh = dacTTLSlider3->getValue();
+		board->setDACthreshold(4, thresh);
+	}
+	else if (slider == dacTTLSlider4)
+	{
+		int thresh = dacTTLSlider4->getValue();
+		board->setDACthreshold(5, thresh);
+	}
+	else if (slider == dacTTLSlider5)
+	{
+		int thresh = dacTTLSlider5->getValue();
+		board->setDACthreshold(6, thresh);
+	}
+	else if (slider == dacTTLSlider6)
+	{
+		int thresh = dacTTLSlider6->getValue();
+		board->setDACthreshold(7, thresh);
 	}
 }
 
@@ -925,24 +1061,36 @@ void RHD2000Editor::buttonEvent(Button* button)
 		CoreServices::updateSignalChain(this);
         std::cout << "Editor visible." << "\n";
     }
-    else if (button == dacTTLButton)
+
+	else if (button == dacTTLButton)
+	{
+		board->setTTLoutputMode(button->getToggleState());
+	}
+    else if (button == dacTTLPins[0])
     {
-        board->setTTLoutputMode(dacTTLButton->getToggleState());
-		if (dacTTLButton->getToggleState() == 1)
-		{
-			addAndMakeVisible(dacTTLpinCombo);
-			addAndMakeVisible(dacTTLpinLabel);
-		}		
-		else
-		{
-			removeChildComponent(dacTTLpinCombo);
-			removeChildComponent(dacTTLpinLabel);
-			removeChildComponent(dacTTLchannelCombo);
-			removeChildComponent(dacTTLchannelLabel);
-			removeChildComponent(dacTTLthreshold);
-			removeChildComponent(dacTTLthresholdLabel);
-		}
+		board->enableDAC(2,button->getToggleState());
     }
+	else if (button == dacTTLPins[1])
+	{
+		board->enableDAC(3, button->getToggleState());
+	}
+	else if (button == dacTTLPins[2])
+	{
+		board->enableDAC(4, button->getToggleState());
+	}
+	else if (button == dacTTLPins[3])
+	{
+		board->enableDAC(5, button->getToggleState());
+	}
+	else if (button == dacTTLPins[4])
+	{
+		board->enableDAC(6, button->getToggleState());
+	}
+	else if (button == dacTTLPins[5])
+	{
+		board->enableDAC(7, button->getToggleState());
+	}
+
     else if (button == dspoffsetButton && !acquisitionIsActive)
     {
         std::cout << "DSP offset " << button->getToggleState() << "\n";
@@ -1018,8 +1166,24 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("NoiseSlicer", audioInterface->getNoiseSlicerLevel());
     xml->setAttribute("TTLFastSettle", ttlSettleCombo->getSelectedId());
     xml->setAttribute("DAC_TTL", dacTTLButton->getToggleState());
-	xml->setAttribute("DAC_TTL_pin", dacTTLpinCombo->getSelectedId());
-	xml->setAttribute("DAC_TTL_channel", dacTTLchannelCombo->getSelectedId());
+	xml->setAttribute("DAC_TTL_pin1", dacTTLPins[0]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin2", dacTTLPins[1]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin3", dacTTLPins[2]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin4", dacTTLPins[3]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin5", dacTTLPins[4]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin6", dacTTLPins[5]->getToggleState());
+	xml->setAttribute("DAC_TTL_channel1", dacTTLCombo1->getSelectedId());
+	xml->setAttribute("DAC_TTL_channel2", dacTTLCombo2->getSelectedId());
+	xml->setAttribute("DAC_TTL_channel3", dacTTLCombo3->getSelectedId());
+	xml->setAttribute("DAC_TTL_channel4", dacTTLCombo4->getSelectedId());
+	xml->setAttribute("DAC_TTL_channel5", dacTTLCombo5->getSelectedId());
+	xml->setAttribute("DAC_TTL_channel6", dacTTLCombo6->getSelectedId());
+	xml->setAttribute("DAC_TTL_thresh1", dacTTLSlider1->getValue());
+	xml->setAttribute("DAC_TTL_thresh2", dacTTLSlider2->getValue());
+	xml->setAttribute("DAC_TTL_thresh3", dacTTLSlider3->getValue());
+	xml->setAttribute("DAC_TTL_thresh4", dacTTLSlider4->getValue());
+	xml->setAttribute("DAC_TTL_thresh5", dacTTLSlider5->getValue());
+	xml->setAttribute("DAC_TTL_thresh6", dacTTLSlider6->getValue());
     xml->setAttribute("DAC_HPF", dacHPFcombo->getSelectedId());
     xml->setAttribute("DSPOffset", dspoffsetButton->getToggleState());
     xml->setAttribute("DSPCutoffFreq", dspInterface->getDspCutoffFreq());
@@ -1043,8 +1207,24 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     audioInterface->setNoiseSlicerLevel(xml->getIntAttribute("NoiseSlicer"));
     ttlSettleCombo->setSelectedId(xml->getIntAttribute("TTLFastSettle"));
     dacTTLButton->setToggleState(xml->getBoolAttribute("DAC_TTL"), sendNotification);
-	dacTTLpinCombo->setSelectedId(xml->getIntAttribute("DAC_TTL_pin"));
-	dacTTLchannelCombo->setSelectedId(xml->getIntAttribute("DAC_TTL_channel"));
+	dacTTLPins[0]->setToggleState(xml->getIntAttribute("DAC_TTL_pin1"),sendNotification);
+	dacTTLPins[1]->setToggleState(xml->getIntAttribute("DAC_TTL_pin2"), sendNotification);
+	dacTTLPins[2]->setToggleState(xml->getIntAttribute("DAC_TTL_pin3"), sendNotification);
+	dacTTLPins[3]->setToggleState(xml->getIntAttribute("DAC_TTL_pin4"), sendNotification);
+	dacTTLPins[4]->setToggleState(xml->getIntAttribute("DAC_TTL_pin5"), sendNotification);
+	dacTTLPins[5]->setToggleState(xml->getIntAttribute("DAC_TTL_pin6"), sendNotification);
+	dacTTLCombo1->setSelectedId(xml->getIntAttribute("DAC_TTL_channel1"));
+	dacTTLCombo2->setSelectedId(xml->getIntAttribute("DAC_TTL_channel2"));
+	dacTTLCombo3->setSelectedId(xml->getIntAttribute("DAC_TTL_channel3"));
+	dacTTLCombo4->setSelectedId(xml->getIntAttribute("DAC_TTL_channel4"));
+	dacTTLCombo5->setSelectedId(xml->getIntAttribute("DAC_TTL_channel5"));
+	dacTTLCombo6->setSelectedId(xml->getIntAttribute("DAC_TTL_channel6"));
+	dacTTLSlider1->setValue(xml->getIntAttribute("DAC_TTL_thresh1"));
+	dacTTLSlider2->setValue(xml->getIntAttribute("DAC_TTL_thresh2"));
+	dacTTLSlider3->setValue(xml->getIntAttribute("DAC_TTL_thresh3"));
+	dacTTLSlider4->setValue(xml->getIntAttribute("DAC_TTL_thresh4"));
+	dacTTLSlider5->setValue(xml->getIntAttribute("DAC_TTL_thresh5"));
+	dacTTLSlider6->setValue(xml->getIntAttribute("DAC_TTL_thresh6"));
     dacHPFcombo->setSelectedId(xml->getIntAttribute("DAC_HPF"));
     dspoffsetButton->setToggleState(xml->getBoolAttribute("DSPOffset"), sendNotification);
     dspInterface->setDspCutoffFreq(xml->getDoubleAttribute("DSPCutoffFreq"));
