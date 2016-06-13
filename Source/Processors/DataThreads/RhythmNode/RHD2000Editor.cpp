@@ -937,6 +937,10 @@ void RHD2000Editor::buttonEvent(Button* button)
 		{
 			removeChildComponent(dacTTLpinCombo);
 			removeChildComponent(dacTTLpinLabel);
+			removeChildComponent(dacTTLchannelCombo);
+			removeChildComponent(dacTTLchannelLabel);
+			removeChildComponent(dacTTLthreshold);
+			removeChildComponent(dacTTLthresholdLabel);
 		}
     }
     else if (button == dspoffsetButton && !acquisitionIsActive)

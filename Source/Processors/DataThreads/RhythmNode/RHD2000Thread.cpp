@@ -202,9 +202,12 @@ bool RHD2000Thread::usesCustomNames()
 
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
 {
-    dacThresholds[dacOutput]= threshold;
-    dacChannelsToUpdate[dacOutput] = true;
-    dacOutputShouldChange = true;
+    //dacThresholds[dacOutput]= threshold;
+    //dacChannelsToUpdate[dacOutput] = true;
+    //dacOutputShouldChange = false;
+
+	evalBoard->setDacThreshold(dacOutput, (int)abs((threshold / 0.195) + 32768), threshold >= 0);
+
 
     //  evalBoard->setDacThresholdVoltage(dacOutput,threshold);
 }
@@ -227,8 +230,22 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
                 channelCount += numChannelsPerDataStream[i];
             }
         }
-        dacChannelsToUpdate[dacOutput] = true;
-        dacOutputShouldChange = true;
+        //dacChannelsToUpdate[dacOutput] = true;
+        //dacOutputShouldChange = true;
+
+		if (dacChannels[dacOutput] >= 0)
+		{
+			evalBoard->enableDac(dacOutput, true);
+			evalBoard->selectDacDataStream(dacOutput, dacStream[dacOutput]);
+			evalBoard->selectDacDataChannel(dacOutput, dacChannels[dacOutput]);
+			// evalBoard->setDacThreshold(k, (int)abs((dacThresholds[k] / 0.195) + 32768), dacThresholds[k] >= 0);
+			// evalBoard->setDacThresholdVoltage(k, (int) dacThresholds[k]);
+		}
+		else
+		{
+			evalBoard->enableDac(dacOutput, false);
+		}
+
     }
 }
 
@@ -1007,7 +1024,9 @@ void RHD2000Thread::setDSPOffset(bool state)
 void RHD2000Thread::setTTLoutputMode(bool state)
 {
     ttlMode = state;
-    dacOutputShouldChange = true;
+    //dacOutputShouldChange = true;
+
+	evalBoard->setTtlMode(ttlMode ? 1 : 0);
 
 }
 
