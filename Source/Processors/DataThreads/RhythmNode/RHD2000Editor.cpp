@@ -711,6 +711,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 		button->setBounds(335, 40+15*i, 25, 15);
 		button->setChannelNum(-1);
 		button->setToggleState(false, dontSendNotification);
+		button->setClickingTogglesState(true);
 		button->setRadioGroupId(999);
 
 		addAndMakeVisible(button);
@@ -735,7 +736,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo1->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo1->addItem(String(k), k + 2);
+		dacTTLCombo1->addItem(String(k+1), k + 2);
 	}
 	dacTTLCombo1->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo1);
@@ -746,7 +747,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo2->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo2->addItem(String(k), k + 2);
+		dacTTLCombo2->addItem(String(k + 1), k + 2);
 	}
 	dacTTLCombo2->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo2);
@@ -757,7 +758,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo3->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo3->addItem(String(k), k + 2);
+		dacTTLCombo3->addItem(String(k + 1), k + 2);
 	}
 	dacTTLCombo3->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo3);
@@ -768,7 +769,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo4->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo4->addItem(String(k), k + 2);
+		dacTTLCombo4->addItem(String(k + 1), k + 2);
 	}
 	dacTTLCombo4->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo4);
@@ -779,7 +780,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo5->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo5->addItem(String(k), k + 2);
+		dacTTLCombo5->addItem(String(k + 1), k + 2);
 	}
 	dacTTLCombo5->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo5);
@@ -790,7 +791,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLCombo6->addItem("-", 1);
 	for (int k = 0; k < channels; k++)
 	{
-		dacTTLCombo6->addItem(String(k), k + 2);
+		dacTTLCombo6->addItem(String(k + 1), k + 2);
 	}
 	dacTTLCombo6->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(dacTTLCombo6);
