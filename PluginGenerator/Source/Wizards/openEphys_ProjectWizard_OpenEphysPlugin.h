@@ -23,30 +23,6 @@
 
 #include <iostream>
 
-//#include "../../../Source/Processors/GenericProcessor/GenericProcessor.h"
-//#include "../../../Source/Processors/PluginManager/PluginIDs.h"
-
-//using namespace Plugin;
-//enum PluginProcessorType
-//{
-//    PROCESSOR_TYPE_FILTER = 1
-//    , PROCESSOR_TYPE_SOURCE
-//    , PROCESSOR_TYPE_SINK
-//    , PROCESSOR_TYPE_SPLITTER
-//    , PROCESSOR_TYPE_MERGER
-//    , PROCESSOR_TYPE_UTILITY
-//    , PROCESSOR_TYPE_DATA_FORMAT
-//    , PROCESSOR_TYPE_INVALID
-//};
-//
-//enum PluginType
-//{
-//    PLUGIN_TYPE_PROCESSOR = 1
-//    , PLUGIN_TYPE_RECORD_ENGINE
-//    , PLUGIN_TYPE_DATA_THREAD
-//    , PLUGIN_TYPE_FILE_SOURCE
-//    , NOT_A_PLUGIN_TYPE = -1
-//};
 
 // =================================================================================
 
@@ -84,6 +60,7 @@ static ComboBox& createProcessorTypeOptionComboBox (Component& setupComp,
     l->attachToComponent (processorTypeComboBox, true);
     itemsCreated.add (l);
 
+    processorTypeComboBox->setVisible (false);
     //c->setBounds ("parent.width / 2 + 160, 30, parent.width - 30, top + 22");
 
     return *processorTypeComboBox;
@@ -98,6 +75,47 @@ static int getComboResult (WizardComp& setupComp, const String& comboBoxID)
     jassertfalse;
     return 0;
 }
+
+
+static void updateOpenEphysWizardComboBoxBounds (const Component& parent)
+{
+    auto pluginTypeComboBox     = dynamic_cast<ComboBox*> (parent
+                                                            .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE));
+    auto processorTypeComboBox  = dynamic_cast<ComboBox*> (parent
+                                                            .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE));
+
+    if (pluginTypeComboBox == nullptr
+        || processorTypeComboBox == nullptr)
+    {
+        return;
+    }
+
+    const auto parentBounds = parent.getLocalBounds();
+    //auto rightSideOfComponent = parent.getLocalBounds().removeFromRight (parent.getWidth() / 2).withHeight (22);
+    auto comboBoxBounds = juce::Rectangle<int> (parent.getWidth() / 2 + 95,
+                                                30,
+                                                parent.getWidth() / 2 - 127,
+                                                parent.getY() + 22);
+
+    const int marginBetweenComboBoxes = 140;
+    const int comboBoxMinWidth        = (comboBoxBounds.getWidth() - marginBetweenComboBoxes) / 2;
+
+    if (pluginTypeComboBox->getSelectedItemIndex() + 1 == (int)PLUGIN_TYPE_PROCESSOR)
+    {
+        pluginTypeComboBox->setBounds (comboBoxBounds.removeFromLeft (comboBoxMinWidth));
+
+        comboBoxBounds.removeFromLeft (marginBetweenComboBoxes - 10);
+
+        processorTypeComboBox->setBounds (comboBoxBounds);
+        processorTypeComboBox->setVisible (true);
+    }
+    else
+    {
+        pluginTypeComboBox->setBounds (comboBoxBounds);
+        processorTypeComboBox->setVisible (false);
+    }
+}
+
 
 // ============================================================================
 // ============================================================================
@@ -126,15 +144,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
     void addSetupItems (Component& setupComp, OwnedArray<Component>& itemsCreated) override
     {
-        //juce::Rectangle<int> comboBoxDefaultBounds ("parent.width / 2 + 160, 30, parent.width - 30, top + 22");
-        juce::Rectangle<int> comboBoxDefaultBounds (setupComp.getWidth() / 2 + 95,
-                                                    30,
-                                                    setupComp.getWidth() / 2 - 30,
-                                                    setupComp.getY() + 22);
-
-        const int marginBetweenComboBoxes = 150;
-        const int comboBoxMinWidth        = (comboBoxDefaultBounds.getWidth() - marginBetweenComboBoxes) / 2;
-
         const String pluginTypeOptions[] =
         {
             TRANS("Processor"),
@@ -146,8 +155,10 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         auto& pluginTypeComboBox = createPluginTypeOptionComboBox (setupComp, itemsCreated,
                                                                    StringArray (pluginTypeOptions,
                                                                                 numElementsInArray (pluginTypeOptions)));
-        pluginTypeComboBox.setBounds (comboBoxDefaultBounds);
-        //pluginTypeComboBox.addListener (this);
+
+        auto parentComboBoxListener = dynamic_cast<ComboBox::Listener*> (&setupComp);
+        jassert (parentComboBoxListener != nullptr);
+        pluginTypeComboBox.addListener (parentComboBoxListener);
 
         const String processorTypeOptions[] =
         {
@@ -157,21 +168,13 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             TRANS("Splitter"),
             TRANS("Merger"),
             TRANS("Utility"),
-            TRANS("Data format")
         };
 
         auto& processorTypeComboBox = createProcessorTypeOptionComboBox (setupComp, itemsCreated,
                                                                          StringArray (processorTypeOptions,
                                                                                       numElementsInArray (processorTypeOptions)));
 
-        pluginTypeComboBox.setBounds (comboBoxDefaultBounds.removeFromLeft (comboBoxMinWidth));
-        comboBoxDefaultBounds.removeFromLeft (marginBetweenComboBoxes - 10);
-        comboBoxDefaultBounds.translate (-30, 0);
-        processorTypeComboBox.setBounds (comboBoxDefaultBounds.removeFromLeft (70));
-        //processorTypeComboBox.setBounds (comboBoxDefaultBounds.removeFromRight (comboBoxMinWidth));
-
-        // Hide processor type now. Make it visible only after plugin type would be selected.
-        //processorTypeComboBox.setVisible (false);
+        updateOpenEphysWizardComboBoxBounds (setupComp);
     }
 
 

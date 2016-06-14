@@ -40,8 +40,6 @@ static String getProcessorTypeString (PluginProcessorType processorType)
             return "PROCESSOR_TYPE_MERGER";
         case PROCESSOR_TYPE_UTILITY:
             return "PROCESSOR_TYPE_UTILITY";
-        case PROCESSOR_TYPE_DATA_FORMAT:
-            return "PROCESSOR_TYPE_DATA_FORMAT";
         default:
             return "InvalidProcessorType";
     };
@@ -98,8 +96,7 @@ static String getLibProcessorTypeString (PluginProcessorType processorType)
         case PROCESSOR_TYPE_UTILITY:
         case PROCESSOR_TYPE_MERGER:
         case PROCESSOR_TYPE_SPLITTER:
-            // TODO <Kirill A>: Check where data format plugins should be placed.
-        case PROCESSOR_TYPE_DATA_FORMAT:
+        case PROCESSOR_TYPE_SOURCE:
             return "Plugin::UtilityProcessor";
 
         default:

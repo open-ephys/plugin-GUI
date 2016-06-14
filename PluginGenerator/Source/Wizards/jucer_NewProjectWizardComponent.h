@@ -254,8 +254,8 @@ private:
     a list box of platform targets to generate.
 */
 class WizardComp  : public Component,
+                    public ComboBox::Listener,
                     private ButtonListener,
-                    private ComboBoxListener,
                     private TextEditorListener,
                     private FileBrowserListener
 {
@@ -335,6 +335,11 @@ public:
         g.fillRect (rect.reduced (10, 10));
     }
 
+    void resized() override
+    {
+        updateOpenEphysWizardComboBoxBounds (*this);
+    }
+
     void buttonClicked (Button* b) override
     {
         if (b == &createButton)
@@ -403,9 +408,17 @@ public:
             wizard->addSetupItems (*this, customItems);
     }
 
-    void comboBoxChanged (ComboBox*) override
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
     {
-        updateCustomItems();
+        if (comboBoxThatHasChanged->getComponentID() == OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE)
+        {
+            const auto selectedIndex = comboBoxThatHasChanged->getSelectedItemIndex() + 1;
+            updateOpenEphysWizardComboBoxBounds (*this);
+        }
+        else
+        {
+            updateCustomItems();
+        }
     }
 
     void textEditorTextChanged (TextEditor&) override
