@@ -246,13 +246,15 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         String processorType        = getProcessorTypeString (m_processorType);
         String pluginFriendlyName   = appTitle;
 
-        // TODO <Kirill A> replace it with relative path or load files from BinaryData
-        File templateFilesFolder ("/home/zenbook/developer/open-ephys/plugin-GUI/Source/Processors/PluginManager/Templates");
+        // TODO <Kirill A> think about loading files right from the BinaryData
+        File templateFilesFolder ("../../../Source/Processors/PluginManager/Templates");
 
-        project.getProjectTypeValue() = ProjectType_AudioPlugin::getTypeName();
+        project.getProjectTypeValue() = ProjectType_OpenEphysPlugin::getTypeName();
 
         Project::Item sourceGroup (createSourceGroup (project));
         project.getConfigFlag ("JUCE_QUICKTIME") = Project::configFlagDisabled; // disabled because it interferes with RTAS build on PC
+        project.shouldBuildVST().setValue (false);
+        project.shouldBuildVST3().setValue (false);
 
         setExecutableNameForAllTargets (project, File::createLegalFileName (appTitle));
 
