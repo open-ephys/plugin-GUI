@@ -831,42 +831,42 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLSlider1->setBounds(435, 40, 100, 15);
 	dacTTLSlider1->addListener(this);
 	dacTTLSlider1->setValue(0);
-	dacTTLSlider1->setRange(0, 65535, 1);
+	dacTTLSlider1->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider1);
 
 	dacTTLSlider2 = new Slider("dacTTLSlider2");
 	dacTTLSlider2->setBounds(435, 55, 100, 15);
 	dacTTLSlider2->addListener(this);
 	dacTTLSlider2->setValue(0);
-	dacTTLSlider2->setRange(0, 65535, 1);
+	dacTTLSlider2->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider2);
 
 	dacTTLSlider3 = new Slider("dacTTLSlider3");
 	dacTTLSlider3->setBounds(435, 70, 100, 15);
 	dacTTLSlider3->addListener(this);
 	dacTTLSlider3->setValue(0);
-	dacTTLSlider3->setRange(0, 65535, 1);
+	dacTTLSlider3->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider3);
 
 	dacTTLSlider4 = new Slider("dacTTLSlider4");
 	dacTTLSlider4->setBounds(435, 85, 100, 15);
 	dacTTLSlider4->addListener(this);
 	dacTTLSlider4->setValue(0);
-	dacTTLSlider4->setRange(0, 65535, 1);
+	dacTTLSlider4->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider4);
 
 	dacTTLSlider5 = new Slider("dacTTLSlider5");
 	dacTTLSlider5->setBounds(435, 100, 100, 15);
 	dacTTLSlider5->addListener(this);
 	dacTTLSlider5->setValue(0);
-	dacTTLSlider5->setRange(0, 65535, 1);
+	dacTTLSlider5->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider5);
 
 	dacTTLSlider6 = new Slider("dacTTLSlider6");
 	dacTTLSlider6->setBounds(435, 115, 100, 15);
 	dacTTLSlider6->addListener(this);
 	dacTTLSlider6->setValue(0);
-	dacTTLSlider6->setRange(0, 65535, 1);
+	dacTTLSlider6->setRange(-6389, 6389, 1);
 	addAndMakeVisible(dacTTLSlider6);
 
     dacHPFlabel = new Label("DAC HPF","DAC HPF");
