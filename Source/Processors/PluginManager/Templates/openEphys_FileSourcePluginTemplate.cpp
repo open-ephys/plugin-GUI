@@ -21,48 +21,48 @@
 
 */
 
-PLUGINHEADERS
+PROCESSORHEADERS
 
 #include <CoreServicesHeader.h>
 
 
-PLUGINCLASSMAME::PLUGINCLASSMAME()
+PROCESSORCLASSNAME::PROCESSORCLASSNAME()
 {
 }
 
 
-PLUGINCLASSNAME::~PLUGINCLASSNAME()
+PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
 
 
-bool PLUGINCLASSNAME::Open (File file)
+bool PROCESSORCLASSNAME::Open (File file)
 {
     return true;
 }
 
 
-void PLUGINCLASSNAME::fillRecordInfo()
+void PROCESSORCLASSNAME::fillRecordInfo()
 {
 }
 
 
-void PLUGINCLASSNAME::updateActiveRecord()
+void PROCESSORCLASSNAME::updateActiveRecord()
 {
 }
 
 
-int PLUGINCLASSNAME::readData (int16* buffer, int nSamples)
+int PROCESSORCLASSNAME::readData (int16* buffer, int nSamples)
 {
     return 0;
 }
 
 
-void PLUGINCLASSNAME::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
+void PROCESSORCLASSNAME::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
 }
 
 
-bool PLUGINCLASSNAME::isReady()
+bool PROCESSORCLASSNAME::isReady()
 {
 }

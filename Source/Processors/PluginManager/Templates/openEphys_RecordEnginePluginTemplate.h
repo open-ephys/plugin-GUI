@@ -23,42 +23,39 @@
 #ifndef HEADERGUARD
 #define HEADERGUARD
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-
-// TODO <Kirill A> replace this including by using more versatile method
-#include "../../Processors/DataThreads/DataThread.h"
+#include <RecordingLib.h>
 
 
-class SourceNode;
-
-/**
-    This class serves as a template for creating new data thread plugins.
-
-    Fill this comment section to describe the plugin's function.
-
-    @see DataThread
-*/
-class PROCESSORCLASSNAME : public DataThread
+class PROCESSORCLASSNAME : public RecordEngine
 {
 public:
-    PROCESSORCLASSNAME (SourceNode* sn);
+    PROCESSORCLASSNAME();
     ~PROCESSORCLASSNAME();
 
-    int getNumHeadstageOutputs() const override;
+    String getEngineID() const override;
 
-    float getSampleRate() const override;
-    float getBitVolts (Channel* chan) const override;
+    void openFiles (File rootFolder, int experimentNumber, int recordingNumber) override;
+    void closeFiles() override;
 
-    bool foundInputSource() override;
-    bool startAcquisition() override;
-    bool stopAcquisition()  override;
+    void writeData  (int writeChannel, int realChannel, const float* buffer, int size)  override;
+    void writeEvent (int eventType, const MidiMessage& event, int64 timestamp)          override;
+    void writeSpike (int electrodeIndex, const SpikeObject& spike, int64 timestamp)     override;
+
+    void addChannel         (int index, const Channel* chan)            override;
+    void addSpikeElectrode  (int index, const SpikeRecordInfo* elec)    override;
+
+    void registerProcessor  (const GenericProcessor* processor) override;
+
+    void resetChannels()    override;
+    void startAcquisition() override;
+
+    void endChannelBlock (bool lastBlock) override;
+
+    static RecordEngineManager* getEngineManager();
 
 
 private:
-    bool updateBuffer() override;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PROCESSORCLASSNAME);
 };
-
 
 #endif // HEADERGUARD

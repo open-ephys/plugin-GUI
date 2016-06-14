@@ -22,43 +22,45 @@
 
 #include <cstdio>
 
-PLUGINHEADERS
+PROCESSORHEADERS
 
 
-PLUGINCLASSMAME::PLUGINCLASSMAME (SourceNode* sn)
+PROCESSORCLASSNAME::PROCESSORCLASSNAME (SourceNode* sn)
     : DataThread (sn)
 {
 }
 
 
-PLUGINCLASSNAME::~PLUGINCLASSNAME()
+PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
 
 
-float PLUGINCLASSNAME::getSampleRate()  const   { return 44100.f; }
-float PLUGINCLASSNAME::getBitVolts()    const   { return 0.f; }
+int PROCESSORCLASSNAME::getNumHeadstageOutputs()         const   { return 2; }
+
+float PROCESSORCLASSNAME::getSampleRate()                const   { return 44100.f; }
+float PROCESSORCLASSNAME::getBitVolts (Channel* channel) const   { return 0.f; }
 
 
-bool PLUGINCLASSNAME::foundInputSource()
-{
-    return true;
-}
-
-
-bool PLUGINCLASSNAME::startAcquisition()
+bool PROCESSORCLASSNAME::foundInputSource()
 {
     return true;
 }
 
 
-bool PLUGINCLASSNAME::stopAcquisition()
+bool PROCESSORCLASSNAME::startAcquisition()
 {
     return true;
 }
 
 
-bool PLUGINCLASSNAME::updateBuffer()
+bool PROCESSORCLASSNAME::stopAcquisition()
+{
+    return true;
+}
+
+
+bool PROCESSORCLASSNAME::updateBuffer()
 {
     return true;
 }

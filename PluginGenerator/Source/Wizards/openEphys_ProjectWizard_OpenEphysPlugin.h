@@ -279,10 +279,14 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     {
         String libPluginType            = getLibPluginTypeString            (m_pluginType);
         String libCreateFunctionName    = getLibPluginCreateFunctionString  (m_pluginType);
-        String libPluginProcessorType   = getLibProcessorTypeString         (m_processorType);
+        String libPluginInfoType        = getLibPluginInfoType              (m_pluginType);
 
         const auto templatePluginLibFile    = templatesFolder.getChildFile ("openEphys_OpenEphysLibTemplate.cpp");
         const auto newPluginLibFile         = getSourceFilesFolder().getChildFile ("OpenEphysLib.cpp");
+
+        String libPluginProcessorType = m_pluginType == PLUGIN_TYPE_PROCESSOR
+                                        ? ("info->processor.type = " + getLibProcessorTypeString (m_processorType) + ";")
+                                        : "";
 
         String pluginLibCppFileContent = templatePluginLibFile.loadFileAsString()
             .replace ("PROCESSORCLASSNAME", pluginProcessorName, false)
@@ -290,6 +294,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             .replace ("PLUGINLIBRARYVERSION", "1", false) // TODO <Kirill A>: set library version variable
             .replace ("PLUGINGUINAME", "Temporary " + pluginFriendlyName, false) // TODO <Kirill A>: set library gui name variable
             .replace ("LIBPLUGINTYPE", libPluginType, false)
+            .replace ("LIBPLUGININFOTYPE", libPluginInfoType, false)
             .replace ("LIBPLUGINCREATEFUNCTION", libCreateFunctionName, false)
             // TODO <Kirill A>: we should either add or remove appropriate line for plugin processor
             // type, because it should be preset only if we generate processor plugin
@@ -337,9 +342,10 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
                                        const String& editorName,
                                        const String& pluginFriendlyName)
     {
-        const auto templateProcessorCppFile = templatesFolder.getChildFile ("openEphys_ProcessorPluginTemplate.cpp");
-        const auto templateProcessorHFile   = templateProcessorCppFile.withFileExtension (".h");
-        const auto sourceFolder             = getSourceFilesFolder();
+        const auto processorFileTemplateName = getTemplateProcessorFileName (m_pluginType);
+        const auto templateProcessorCppFile  = templatesFolder.getChildFile (processorFileTemplateName + ".cpp");
+        const auto templateProcessorHFile    = templateProcessorCppFile.withFileExtension (".h");
+        const auto sourceFolder              = getSourceFilesFolder();
 
         auto newProcessorCppFile  = sourceFolder.getChildFile (processorName + ".cpp");
         auto newProcessorHFile    = sourceFolder.getChildFile (processorName + ".h");

@@ -24,6 +24,7 @@
 
 using namespace Plugin;
 
+
 static String getProcessorTypeString (PluginProcessorType processorType)
 {
     switch (processorType)
@@ -45,6 +46,7 @@ static String getProcessorTypeString (PluginProcessorType processorType)
     };
 }
 
+
 /** Return the string representation of a given plugin type */
 static String getLibPluginTypeString (PluginType pluginType)
 {
@@ -64,6 +66,7 @@ static String getLibPluginTypeString (PluginType pluginType)
     };
 }
 
+
 /** Returns the string representation (name) of the function which is used to create a plugin of a given type. */
 static String getLibPluginCreateFunctionString (PluginType pluginType)
 {
@@ -81,6 +84,26 @@ static String getLibPluginCreateFunctionString (PluginType pluginType)
             return "InvalidFunctionName";
     };
 }
+
+/** Returns the string represenatation of a give plugin info type.
+    E.g. plugins can have templates like: "info->processor", "info->fileSource" and etc. */
+static String getLibPluginInfoType (PluginType pluginType)
+{
+    switch (pluginType)
+    {
+        case PLUGIN_TYPE_PROCESSOR:
+            return "processor";
+        case PLUGIN_TYPE_RECORD_ENGINE:
+            return "recordEngine";
+        case PLUGIN_TYPE_DATA_THREAD:
+            return "dataThread";
+        case PLUGIN_TYPE_FILE_SOURCE:
+            return "fileSource";
+        default:
+            return "InvalidPluginInfoType";
+    };
+}
+
 
 /** Returns the string representation of a given plugin processor type. */
 static String getLibProcessorTypeString (PluginProcessorType processorType)
@@ -101,5 +124,28 @@ static String getLibProcessorTypeString (PluginProcessorType processorType)
 
         default:
             return "Plugin::InvalidProcessor";
+    };
+}
+
+
+// ============================================================================
+// ============================================================================
+// ============================================================================
+
+/** Returns the name of the file which contains template of the processor of a plugin of given type */
+static String getTemplateProcessorFileName (PluginType pluginType)
+{
+    switch (pluginType)
+    {
+        case PLUGIN_TYPE_PROCESSOR:
+            return "openEphys_ProcessorPluginTemplate";
+        case PLUGIN_TYPE_RECORD_ENGINE:
+            return "openEphys_RecordEnginePluginTemplate";
+        case PLUGIN_TYPE_DATA_THREAD:
+            return "openEphys_DataThreadPluginTemplate";
+        case PLUGIN_TYPE_FILE_SOURCE:
+            return "openEphys_FileSourcePluginTemplate";
+        default:
+            return "InvalidFileName";
     };
 }

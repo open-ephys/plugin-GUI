@@ -60,13 +60,14 @@ extern "C" EXPORT int getPluginInfo (int index, Plugin::PluginInfo* info)
             info->type = LIBPLUGINTYPE;
 
             //For processor
-            info->processor.name = "PLUGINGUINAME"; //Processor name shown in the GUI
+            info->LIBPLUGININFOTYPE.name = "PLUGINGUINAME"; //Processor name shown in the GUI
 
             //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
-            info->processor.type = LIBPLUGINPROCESSORTYPE;
+            //info->processor.type = LIBPLUGINPROCESSORTYPE;
+            LIBPLUGINPROCESSORTYPE
 
             //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
-            info->processor.creator = &(Plugin::LIBPLUGINCREATEFUNCTION<PROCESSORCLASSNAME>);
+            info->LIBPLUGININFOTYPE.creator = &(Plugin::LIBPLUGINCREATEFUNCTION<PROCESSORCLASSNAME>);
         break;
         /**
           Examples for other plugin types

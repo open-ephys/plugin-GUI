@@ -26,11 +26,11 @@
 #include <FileSourceHeaders.h>
 
 
-class PLUGINCLASSMAME : public FileSource
+class PROCESSORCLASSNAME : public FileSource
 {
 public:
-    PLUGINCLASSMAME();
-    ~PLUGINCLASSMAME();
+    PROCESSORCLASSNAME();
+    ~PROCESSORCLASSNAME();
 
     int readData (int16* buffer, int nSamples) override;
 
