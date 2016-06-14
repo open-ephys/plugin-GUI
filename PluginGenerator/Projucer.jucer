@@ -12,10 +12,10 @@
                customPList="&lt;plist&gt;&#10;&lt;dict&gt;&#10;&#9;&lt;key&gt;NSAppTransportSecurity&lt;/key&gt;&#10;&#9;&lt;dict&gt;&#10;&#9;&#9;&lt;key&gt;NSAllowsArbitraryLoads&lt;/key&gt;&#10;&#9;&#9;&lt;true/&gt;&#10;&#9;&#9;&lt;key&gt;NSExceptionDomains&lt;/key&gt;&#10;&#9;&#9;&lt;dict&gt;&#10;&#9;&#9;&#9;&lt;key&gt;amazonaws.com&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;dict&gt;&#10;&#9;&#9;&#9;&#9;&lt;key&gt;NSExceptionAllowsInsecureHTTPLoads&lt;/key&gt;&#10;&#9;&#9;&#9;&#9;&lt;true/&gt;&#10;&#9;&#9;&#9;&#9;&lt;key&gt;NSIncludesSubdomains&lt;/key&gt;&#10;&#9;&#9;&#9;&#9;&lt;true/&gt;&#10;&#9;&#9;&#9;&lt;/dict&gt;&#10;&#9;&#9;&lt;/dict&gt;&#10;&#9;&lt;/dict&gt;&#10;&lt;/dict&gt;&#10;&lt;/plist&gt;"
                extraFrameworks="AudioUnit; Accelerate; AVFoundation; CoreAudio; CoreAudioKit; CoreMIDI; DiscRecording; QuartzCore; AudioToolbox; OpenGL; QTKit; QuickTime">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="Projucer"
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
                        osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
                        headerPath="" libraryPath="" cppLibType="libc++"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Projucer"
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
                        osxSDK="default" osxCompatibility="10.7 SDK" osxArchitecture="default"
                        headerPath="" libraryPath="" cppLibType="libc++"/>
       </CONFIGURATIONS>
@@ -33,11 +33,12 @@
             bigIcon="OCyr5F" toolset="v120" vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="Projucer" headerPath=""
-                       libraryPath="" defines="" useRuntimeLibDLL="1" wholeProgramOptimisation="1"/>
+                       isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
+                       headerPath="" libraryPath="" defines="" useRuntimeLibDLL="1"
+                       wholeProgramOptimisation="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="Projucer" headerPath=""
-                       libraryPath="" useRuntimeLibDLL="0"/>
+                       isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
+                       headerPath="" libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
@@ -53,11 +54,11 @@
             toolset="v140" vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="Projucer" headerPath=""
-                       libraryPath="" useRuntimeLibDLL="1"/>
+                       isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
+                       headerPath="" libraryPath="" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="Projucer" headerPath=""
-                       libraryPath="" useRuntimeLibDLL="0"/>
+                       isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
+                       headerPath="" libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
@@ -73,9 +74,9 @@
                 extraLinkerFlags="" bigIcon="OCyr5F" smallIcon="" vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/&#10;" isDebug="1" optimisation="1"
-                       targetName="Projucer" headerPath=""/>
+                       targetName="OpenEphys_PluginGenerator" headerPath=""/>
         <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/&#10;" isDebug="0"
-                       optimisation="3" targetName="Projucer" headerPath=""/>
+                       optimisation="3" targetName="OpenEphys_PluginGenerator" headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
