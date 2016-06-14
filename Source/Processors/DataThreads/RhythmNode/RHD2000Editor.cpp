@@ -703,31 +703,55 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	dacTTLPinLabel->setColour(Label::textColourId, Colours::darkgrey);
 	addAndMakeVisible(dacTTLPinLabel);
 
-	for (int i = 0; i < 6; i++)
-	{
-		ElectrodeButton* button = new ElectrodeButton(-1);
-		dacTTLPins.add(button);
+	dacTTLPin1 = new UtilityButton("2", Font("Small Text", 13, Font::plain));
+	dacTTLPin1->setBounds(335, 40, 25, 15);
+	dacTTLPin1->addListener(this);
+	dacTTLPin1->setClickingTogglesState(true);
+	dacTTLPin1->setTooltip("Digital Out 2");
+	addAndMakeVisible(dacTTLPin1);
 
-		button->setBounds(335, 40+15*i, 25, 15);
-		button->setChannelNum(-1);
-		button->setToggleState(false, dontSendNotification);
-		button->setClickingTogglesState(true);
-		button->setRadioGroupId(999);
+	dacTTLPin2 = new UtilityButton("3", Font("Small Text", 13, Font::plain));
+	dacTTLPin2->setBounds(335, 55, 25, 15);
+	dacTTLPin2->addListener(this);
+	dacTTLPin2->setClickingTogglesState(true);
+	dacTTLPin2->setTooltip("Digital Out 3");
+	addAndMakeVisible(dacTTLPin2);
 
-		addAndMakeVisible(button);
-		button->addListener(this);
+	dacTTLPin3 = new UtilityButton("4", Font("Small Text", 13, Font::plain));
+	dacTTLPin3->setBounds(335, 70, 25, 15);
+	dacTTLPin3->addListener(this);
+	dacTTLPin3->setClickingTogglesState(true);
+	dacTTLPin3->setTooltip("Digital Out 4");
+	addAndMakeVisible(dacTTLPin3);
 
-		std::string c = std::to_string(i+2);
-		button->setTooltip("Digital Out " + c);
-	}
+	dacTTLPin4 = new UtilityButton("5", Font("Small Text", 13, Font::plain));
+	dacTTLPin4->setBounds(335, 85, 25, 15);
+	dacTTLPin4->addListener(this);
+	dacTTLPin4->setClickingTogglesState(true);
+	dacTTLPin4->setTooltip("Digital Out 5");
+	addAndMakeVisible(dacTTLPin4);
 
+	dacTTLPin5 = new UtilityButton("6", Font("Small Text", 13, Font::plain));
+	dacTTLPin5->setBounds(335, 100, 25, 15);
+	dacTTLPin5->addListener(this);
+	dacTTLPin5->setClickingTogglesState(true);
+	dacTTLPin5->setTooltip("Digital Out 6");
+	addAndMakeVisible(dacTTLPin5);
+
+	dacTTLPin6 = new UtilityButton("7", Font("Small Text", 13, Font::plain));
+	dacTTLPin6->setBounds(335, 115, 25, 15);
+	dacTTLPin6->addListener(this);
+	dacTTLPin6->setClickingTogglesState(true);
+	dacTTLPin6->setTooltip("Digital Out 7");
+	addAndMakeVisible(dacTTLPin6);
+
+	// DAC TTL Out channel select combos
 	dacTTLChanLabel = new Label("channel label", "Channel");
 	dacTTLChanLabel->setBounds(365, 25, 60, 15);
 	dacTTLChanLabel->setFont(Font("Small Text", 10, Font::plain));
 	dacTTLChanLabel->setColour(Label::textColourId, Colours::darkgrey);
 	addAndMakeVisible(dacTTLChanLabel);
 
-	// DAC TTL Out channel select combos
 	int channels = board->getNumChannels();
 
 	dacTTLCombo1 = new ComboBox("dacTTLCombo1");
@@ -1067,27 +1091,27 @@ void RHD2000Editor::buttonEvent(Button* button)
 	{
 		board->setTTLoutputMode(button->getToggleState());
 	}
-    else if (button == dacTTLPins[0])
+    else if (button == dacTTLPin1)
     {
 		board->enableDAC(2,button->getToggleState());
     }
-	else if (button == dacTTLPins[1])
+	else if (button == dacTTLPin2)
 	{
 		board->enableDAC(3, button->getToggleState());
 	}
-	else if (button == dacTTLPins[2])
+	else if (button == dacTTLPin3)
 	{
 		board->enableDAC(4, button->getToggleState());
 	}
-	else if (button == dacTTLPins[3])
+	else if (button == dacTTLPin4)
 	{
 		board->enableDAC(5, button->getToggleState());
 	}
-	else if (button == dacTTLPins[4])
+	else if (button == dacTTLPin5)
 	{
 		board->enableDAC(6, button->getToggleState());
 	}
-	else if (button == dacTTLPins[5])
+	else if (button == dacTTLPin6)
 	{
 		board->enableDAC(7, button->getToggleState());
 	}
@@ -1167,12 +1191,12 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("NoiseSlicer", audioInterface->getNoiseSlicerLevel());
     xml->setAttribute("TTLFastSettle", ttlSettleCombo->getSelectedId());
     xml->setAttribute("DAC_TTL", dacTTLButton->getToggleState());
-	xml->setAttribute("DAC_TTL_pin1", dacTTLPins[0]->getToggleState());
-	xml->setAttribute("DAC_TTL_pin2", dacTTLPins[1]->getToggleState());
-	xml->setAttribute("DAC_TTL_pin3", dacTTLPins[2]->getToggleState());
-	xml->setAttribute("DAC_TTL_pin4", dacTTLPins[3]->getToggleState());
-	xml->setAttribute("DAC_TTL_pin5", dacTTLPins[4]->getToggleState());
-	xml->setAttribute("DAC_TTL_pin6", dacTTLPins[5]->getToggleState());
+	xml->setAttribute("DAC_TTL_pin1", dacTTLPin1->getToggleState());
+	xml->setAttribute("DAC_TTL_pin2", dacTTLPin2->getToggleState());
+	xml->setAttribute("DAC_TTL_pin3", dacTTLPin3->getToggleState());
+	xml->setAttribute("DAC_TTL_pin4", dacTTLPin4->getToggleState());
+	xml->setAttribute("DAC_TTL_pin5", dacTTLPin5->getToggleState());
+	xml->setAttribute("DAC_TTL_pin6", dacTTLPin6->getToggleState());
 	xml->setAttribute("DAC_TTL_channel1", dacTTLCombo1->getSelectedId());
 	xml->setAttribute("DAC_TTL_channel2", dacTTLCombo2->getSelectedId());
 	xml->setAttribute("DAC_TTL_channel3", dacTTLCombo3->getSelectedId());
@@ -1208,12 +1232,12 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     audioInterface->setNoiseSlicerLevel(xml->getIntAttribute("NoiseSlicer"));
     ttlSettleCombo->setSelectedId(xml->getIntAttribute("TTLFastSettle"));
     dacTTLButton->setToggleState(xml->getBoolAttribute("DAC_TTL"), sendNotification);
-	dacTTLPins[0]->setToggleState(xml->getIntAttribute("DAC_TTL_pin1"),sendNotification);
-	dacTTLPins[1]->setToggleState(xml->getIntAttribute("DAC_TTL_pin2"), sendNotification);
-	dacTTLPins[2]->setToggleState(xml->getIntAttribute("DAC_TTL_pin3"), sendNotification);
-	dacTTLPins[3]->setToggleState(xml->getIntAttribute("DAC_TTL_pin4"), sendNotification);
-	dacTTLPins[4]->setToggleState(xml->getIntAttribute("DAC_TTL_pin5"), sendNotification);
-	dacTTLPins[5]->setToggleState(xml->getIntAttribute("DAC_TTL_pin6"), sendNotification);
+	dacTTLPin1->setToggleState(xml->getIntAttribute("DAC_TTL_pin1"),sendNotification);
+	dacTTLPin2->setToggleState(xml->getIntAttribute("DAC_TTL_pin2"), sendNotification);
+	dacTTLPin3->setToggleState(xml->getIntAttribute("DAC_TTL_pin3"), sendNotification);
+	dacTTLPin4->setToggleState(xml->getIntAttribute("DAC_TTL_pin4"), sendNotification);
+	dacTTLPin5->setToggleState(xml->getIntAttribute("DAC_TTL_pin5"), sendNotification);
+	dacTTLPin6->setToggleState(xml->getIntAttribute("DAC_TTL_pin6"), sendNotification);
 	dacTTLCombo1->setSelectedId(xml->getIntAttribute("DAC_TTL_channel1"));
 	dacTTLCombo2->setSelectedId(xml->getIntAttribute("DAC_TTL_channel2"));
 	dacTTLCombo3->setSelectedId(xml->getIntAttribute("DAC_TTL_channel3"));

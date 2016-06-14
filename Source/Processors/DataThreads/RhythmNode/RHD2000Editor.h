@@ -197,8 +197,6 @@ private:
     OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
     OwnedArray<ElectrodeButton> electrodeButtons;
 
-	OwnedArray<ElectrodeButton> dacTTLPins;
-
     ScopedPointer<SampleRateInterface> sampleRateInterface;
     ScopedPointer<BandwidthInterface> bandwidthInterface;
     ScopedPointer<DSPInterface> dspInterface;
@@ -206,7 +204,7 @@ private:
     ScopedPointer<AudioInterface> audioInterface;
     ScopedPointer<ClockDivideInterface> clockInterface;
 
-    ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
+	ScopedPointer<UtilityButton> rescanButton, dacTTLButton, dacTTLPin1, dacTTLPin2, dacTTLPin3, dacTTLPin4, dacTTLPin5, dacTTLPin6;
     ScopedPointer<UtilityButton> adcButton;
 	ScopedPointer<UtilityButton> ledButton;
 
