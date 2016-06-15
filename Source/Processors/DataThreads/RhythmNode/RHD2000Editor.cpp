@@ -992,32 +992,32 @@ void RHD2000Editor::comboBoxChanged(ComboBox* comboBox)
 	else if (comboBox == dacTTLCombo1)
 	{
 		int channel = dacTTLCombo1->getSelectedId();
-		board->setDACchannel(2, channel);
+		board->setDACchannel(2, channel-2);
 	}
 	else if (comboBox == dacTTLCombo2)
 	{
 		int channel = dacTTLCombo2->getSelectedId();
-		board->setDACchannel(3, channel);
+		board->setDACchannel(3, channel-2);
 	}
 	else if (comboBox == dacTTLCombo3)
 	{
 		int channel = dacTTLCombo3->getSelectedId();
-		board->setDACchannel(4, channel);
+		board->setDACchannel(4, channel-2);
 	}
 	else if (comboBox == dacTTLCombo4)
 	{
 		int channel = dacTTLCombo4->getSelectedId();
-		board->setDACchannel(5, channel);
+		board->setDACchannel(5, channel-2);
 	}
 	else if (comboBox == dacTTLCombo5)
 	{
 		int channel = dacTTLCombo5->getSelectedId();
-		board->setDACchannel(6, channel);
+		board->setDACchannel(6, channel-2);
 	}
 	else if (comboBox == dacTTLCombo6)
 	{
 		int channel = dacTTLCombo6->getSelectedId();
-		board->setDACchannel(7, channel);
+		board->setDACchannel(7, channel-2);
 	}
 }
 
