@@ -15,27 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEvents.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEventsEditor.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\OpenEphysLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\OpenEphysLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\Common\StringTS.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEvents.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTH.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEventsEditor.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\Common\StringTS.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHEditor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

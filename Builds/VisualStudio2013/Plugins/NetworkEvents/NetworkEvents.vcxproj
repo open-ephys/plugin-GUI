@@ -135,11 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\Common\StringTS.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEvents.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEventsEditor.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\NetworkEvents\OpenEphysLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\Common\StringTS.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEvents.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\NetworkEvents\NetworkEventsEditor.h" />
   </ItemGroup>

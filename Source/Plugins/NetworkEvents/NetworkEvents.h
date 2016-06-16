@@ -41,7 +41,7 @@
 
 #include <list>
 #include <queue>
-
+#include "../Common/StringTS.h"
 /**
 
  Sends incoming TCP/IP messages from 0MQ to the events buffer
@@ -49,25 +49,6 @@
   @see GenericProcessor
 
 */
-
-class StringTS
-{
-public:
-    StringTS();
-    std::vector<String> splitString(char sep);
-    StringTS(MidiMessage& event);
-    String getString();
-    StringTS(String S);
-    StringTS(String S, int64 ts_software);
-    StringTS(const StringTS& s);
-    StringTS(unsigned char* buf, int _len, int64 ts_software);
-    StringTS& operator=(const StringTS& rhs);
-    ~StringTS();
-
-    juce::uint8* str;
-    int len;
-    juce::int64 timestamp;
-};
 
 class NetworkEvents : public GenericProcessor,  public Thread
 {

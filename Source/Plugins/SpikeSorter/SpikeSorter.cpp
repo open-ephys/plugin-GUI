@@ -322,14 +322,14 @@ std::vector<float> SpikeSorter::getElectrodeVoltageScales(int electrodeID)
 void SpikeSorter::addNewUnit(int electrodeID, int newUnitID, uint8 r, uint8 g, uint8 b)
 {
     String eventlog = "NewUnit "+String(electrodeID) + " "+String(newUnitID)+" "+String(r)+" "+String(g)+" "+String(b);
-    //addNetworkEventToQueue(StringTS(eventlog));
+    addNetworkEventToQueue(StringTS(eventlog));
   //  updateSinks(electrodeID,  newUnitID, r,g,b,true);
 }
 
 void SpikeSorter::removeUnit(int electrodeID, int unitID)
 {
     String eventlog = "RemoveUnit "+String(electrodeID) + " "+String(unitID);
-    //addNetworkEventToQueue(StringTS(eventlog));
+    addNetworkEventToQueue(StringTS(eventlog));
  //   updateSinks(electrodeID,  unitID, 0,0,0,false);
 
 }
@@ -338,7 +338,7 @@ void SpikeSorter::removeUnit(int electrodeID, int unitID)
 void SpikeSorter::removeAllUnits(int electrodeID)
 {
     String eventlog = "RemoveAllUnits "+String(electrodeID);
-    //addNetworkEventToQueue(StringTS(eventlog));
+    addNetworkEventToQueue(StringTS(eventlog));
  //   updateSinks(electrodeID,true);
 }
 
@@ -447,11 +447,13 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
     {
         std::cout << "  Channel " << i << " = " << newElectrode->channels[i] << std::endl;
     }
+	/*
     String eventlog = "NewElectrode "+ String(uniqueID) + " " + String(nChans) + " ";
     for (int k = 0; k < nChans; k++)
         eventlog += String(chans[k])+ " " + name;
 
-    //addNetworkEventToQueue(StringTS(eventlog));
+    addNetworkEventToQueue(StringTS(eventlog));
+	*/
 
     resetElectrode(newElectrode);
     electrodes.add(newElectrode);
@@ -500,7 +502,7 @@ bool SpikeSorter::removeElectrode(int index)
     std::cout << log <<std::endl;
 
     String eventlog = "RemoveElectrode " + String(electrodes[index]->electrodeID);
-    //addNetworkEventToQueue(StringTS(eventlog));
+    addNetworkEventToQueue(StringTS(eventlog));
 
     //int idToRemove = electrodes[index]->electrodeID;
     electrodes.remove(index);
@@ -536,8 +538,8 @@ void SpikeSorter::setChannel(int electrodeIndex, int channelNum, int newChannel)
 
 
 
-    String eventlog = "ChanelElectrodeChannel " + String(electrodes[electrodeIndex]->electrodeID) + " " + String(channelNum) + " " + String(newChannel);
-    //addNetworkEventToQueue(StringTS(eventlog));
+    String eventlog = "changeelectrodechannel " + String(electrodes[electrodeIndex]->electrodeID) + " " + String(channelNum) + " " + String(newChannel);
+    addNetworkEventToQueue(StringTS(eventlog));
 
    // updateSinks(electrodes[electrodeIndex]->electrodeID, channelNum,newChannel);
 
@@ -635,6 +637,15 @@ void SpikeSorter::setParameter(int parameterIndex, float newValue)
     mut.exit();
 }
 
+String SpikeSorter::spaceToUnderscore(String S)
+{
+	String newS;
+	for (int k = 0; k < S.length(); k++)
+	{
+		newS += S[k] == ' ' ? '_' : S[k];
+	}
+	return newS;
+}
 
 bool SpikeSorter::enable()
 {
@@ -643,6 +654,34 @@ bool SpikeSorter::enable()
 
     for (int i = 0; i < electrodes.size(); i++)
         useOverflowBuffer.add(false);
+
+	// update sinks on the current state of spike sorter.
+	// Basically, send a "clear all", followed by "add electrode", and "add unit"
+	addNetworkEventToQueue(StringTS("clean_psth_database"));
+
+	for (int i = 0; i < electrodes.size(); i++) {
+		Electrode *e = electrodes[i];
+		String eventlog = "NewElectrode " + String(e->electrodeID) + " " + spaceToUnderscore(e->name) + " " + 
+			String(e->numChannels) + " ";
+		for (int k = 0; k < e->numChannels; k++)
+			eventlog += String(e->channels[k]) + " ";
+
+		addNetworkEventToQueue(StringTS(eventlog));
+
+		std::vector<BoxUnit> boxUnits = electrodes[i]->spikeSort->getBoxUnits();
+		std::vector<PCAUnit> pcaUnits = electrodes[i]->spikeSort->getPCAUnits();
+		for (int j = 0; j < boxUnits.size(); j++)
+		{
+			String unitColor = String(boxUnits[j].ColorRGB[0]) + " " + String(boxUnits[j].ColorRGB[1]) + " " + String(boxUnits[j].ColorRGB[2]);
+			addNetworkEventToQueue(StringTS("NewUnit " + String(electrodes[i]->electrodeID) + " " + String(boxUnits[j].getUnitID()) + " " + unitColor));
+		}
+		for (int j = 0; j < pcaUnits.size(); j++)
+		{
+			String unitColor = String(pcaUnits[j].ColorRGB[0]) + " " + String(pcaUnits[j].ColorRGB[1]) + " " + String(pcaUnits[j].ColorRGB[2]);
+			addNetworkEventToQueue(StringTS("NewUnit " + String(electrodes[i]->electrodeID) + " " + String(pcaUnits[j].getUnitID()) + " " + unitColor));
+		}
+
+	}
 
 
     SpikeSorterEditor* editor = (SpikeSorterEditor*) getEditor();
@@ -772,7 +811,7 @@ void SpikeSorter::startRecording()
         {
             eventlog += String(electrodes[k]->channels[i])+ " " + electrodes[k]->name;
         }
-        //addNetworkEventToQueue(StringTS(eventlog));
+        addNetworkEventToQueue(StringTS(eventlog));
 
         std::vector<BoxUnit> boxUnits = electrodes[k]->spikeSort->getBoxUnits();
         for (int i=0; i<boxUnits.size(); i++)
@@ -807,24 +846,6 @@ void SpikeSorter::startRecording()
 
 
 
-
-// void SpikeSorter::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events)
-// {
-// 	uint8* msg_with_ts = new uint8[s.len+8]; // for the two timestamps
-// 	memcpy(msg_with_ts, s.str, s.len);
-// 	memcpy(msg_with_ts+s.len, &s.timestamp, 8);
-
-// 	addEvent(events,           // eventBuffer
-//              (uint8) NETWORK,          // type
-//              0,                // sampleNum
-//              0,                // eventId
-//              (uint8) GENERIC_EVENT,    // eventChannel
-//              (uint8) s.len+8,  // numBytes
-//              msg_with_ts);     // eventData
-
-// 	delete msg_with_ts;
-// }
-
 void SpikeSorter::handleEvent(int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TIMESTAMP)
@@ -835,23 +856,40 @@ void SpikeSorter::handleEvent(int eventType, MidiMessage& event, int sampleNum)
     }
 }
 
-// void SpikeSorter::addNetworkEventToQueue(StringTS S)
-// {
-// 	StringTS copy(S);
+ void SpikeSorter::addNetworkEventToQueue(StringTS S)
+ {
+ 	StringTS copy(S);
 // 	getUIComponent()->getLogWindow()->addLineToLog(copy.getString());
-// 	eventQueue.push(copy);
-// }
+ 	eventQueue.push(copy);
+ }
 
 
-// void SpikeSorter::postEventsInQueue(MidiBuffer& events)
-// {
-// 	while (eventQueue.size() > 0)
-// 	{
-// 		StringTS msg = eventQueue.front();
-// 		postTimestamppedStringToMidiBuffer(msg,events);
-// 		eventQueue.pop();
-// 	}
-// }
+
+ void SpikeSorter::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events)
+ {
+	 uint8* msg_with_ts = new uint8[s.len + 8];
+	 memcpy(msg_with_ts, s.str, s.len);
+	 memcpy(msg_with_ts + s.len, &s.timestamp, 8);
+	 addEvent(events,
+		 (uint8)MESSAGE,
+		 0,
+		 1,
+		 0,
+		 (uint8)s.len + 8+6,
+		 msg_with_ts);
+
+	 delete msg_with_ts;
+ }
+
+void SpikeSorter::postEventsInQueue(MidiBuffer& events)
+{
+ 	while (eventQueue.size() > 0)
+ 	{
+ 		StringTS msg = eventQueue.front();
+ 		postTimestamppedStringToMidiBuffer(msg,events);
+ 		eventQueue.pop();
+ 	}
+}
 
 
 float SpikeSorter::getSelectedElectrodeNoise()
@@ -877,7 +915,11 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
 {
 
     //printf("Entering Spike Detector::process\n");
-    mut.enter();
+    mut.enter(); 
+
+	// send messages to processors down the pipeline notifying them about new/removed/modified units....
+	postEventsInQueue(events);
+
     uint16_t samplingFrequencyHz = getSampleRate();//buffer.getSamplingFrequency();
     // cycle through electrodes
     Electrode* electrode;
@@ -1464,8 +1506,8 @@ std::vector<int> SpikeSorter::getElectrodeChannels(int ID)
                 ch[j] = electrodes[k]->channels[j];
             }
 
-            mut.exit();
             return ch;
+            mut.exit();
         }
 
 
@@ -1787,6 +1829,7 @@ Histogram::~Histogram()
 
 
 // ===================================================
+#if 0
 
 void ContinuousCircularBuffer::reallocate(int NumCh)
 {
@@ -1861,7 +1904,7 @@ void ContinuousCircularBuffer::update(AudioSampleBuffer& buffer, int64 hardware_
     // we don't start from zero because of subsampling issues.
     // previous packet may not have ended exactly at the last given sample.
     int k = leftover_k;
-    int lastUsedSample = 0;
+    int lastUsedSample;
     for (; k < numpts; k+=subSampling)
     {
         lastUsedSample = k;
@@ -1899,7 +1942,7 @@ void ContinuousCircularBuffer::update(std::vector<std::vector<bool>> contdata, i
     // we don't start from zero because of subsampling issues.
     // previous packet may not have ended exactly at the last given sample.
     int k = leftover_k;
-    int lastUsedSample = 0;
+    int lastUsedSample;
     for (; k < numpts; k+=subSampling)
     {
         lastUsedSample = k;
@@ -1965,3 +2008,4 @@ int ContinuousCircularBuffer::GetPtr()
 
 
 
+#endif

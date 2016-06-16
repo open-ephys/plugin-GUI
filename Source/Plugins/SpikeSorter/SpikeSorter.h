@@ -28,6 +28,9 @@
 #include <SpikeLib.h>
 #include "SpikeSorterEditor.h"
 #include "SpikeSortBoxes.h"
+#include "../Common/StringTS.h"
+#include "../Common/ContinuousCircularBuffer.h"
+
 #include <algorithm>    // std::sort
 #include <queue>
 #include <stdlib.h>
@@ -179,34 +182,6 @@ public:
     bool isMonitored;
 };
 
-
-class ContinuousCircularBuffer
-{
-public:
-    ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
-    void reallocate(int N);
-    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
-    int GetPtr();
-    void addTrialStartToSmartBuffer(int trialID);
-    int numCh;
-    int subSampling;
-    float samplingRate;
-    CriticalSection mut;
-    int numSamplesInBuf;
-    double numTicksPerSecond;
-    int ptr;
-    int bufLen;
-    int leftover_k;
-    double buffer_dx;
-
-    std::vector<std::vector<float> > Buf;
-    std::vector<bool> valid;
-    std::vector<int64> hardwareTS,softwareTS;
-};
-
-
 //class StringTS;
 
 
@@ -250,7 +225,7 @@ public:
     float getSelectedElectrodeNoise();
     void clearRunningStatForSelectedElectrode();
 
-    //void addNetworkEventToQueue(StringTS S);
+    void addNetworkEventToQueue(StringTS S);
 
     void postEventsInQueue(MidiBuffer& events);
 
@@ -333,7 +308,7 @@ public:
     Electrode* getElectrode(int i);
     //StringTS createStringTS(String S);
     //int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
-    //void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
+    void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
     //void setElectrodeAdvancer(int i,int ID);
     //void setElectrodeAdvancerOffset(int i, double v);
     //double getAdvancerPosition(int advancerID);
@@ -383,6 +358,8 @@ public:
 
 
 private:
+
+	String spaceToUnderscore(String S);
     UniqueIDgenerator uniqueIDgenerator;
     long uniqueSpikeID;
     SpikeObject prevSpike;
@@ -393,7 +370,7 @@ private:
 
     float ticksPerSec;
     int uniqueID;
-    //std::queue<StringTS> eventQueue;
+    std::queue<StringTS> eventQueue;
     /** pointer to a continuous buffer. */
     AudioSampleBuffer* dataBuffer;
 

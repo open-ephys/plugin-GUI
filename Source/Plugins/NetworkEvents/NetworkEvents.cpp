@@ -35,114 +35,6 @@ const int MAX_MESSAGE_LENGTH = 64000;
 #include <unistd.h>
 #endif
 
-StringTS::StringTS()
-{
-
-    str = nullptr;
-    len= 0;
-    timestamp = 0;
-}
-
-
-std::vector<String> StringTS::splitString(char sep)
-{
-    String S((const char*)str,len);
-    std::list<String> ls;
-    String  curr;
-    for (int k=0; k < S.length(); k++)
-    {
-        if (S[k] != sep)
-        {
-            curr+=S[k];
-        }
-        else
-        {
-            ls.push_back(curr);
-            while (S[k] == sep && k < S.length())
-                k++;
-
-            curr = "";
-            if (S[k] != sep && k < S.length())
-                curr+=S[k];
-        }
-    }
-    if (S.length() > 0)
-    {
-        if (S[S.length()-1] != sep)
-            ls.push_back(curr);
-    }
-    std::vector<String> Svec(ls.begin(), ls.end());
-    return Svec;
-
-}
-
-StringTS::StringTS(MidiMessage& event)
-{
-    const uint8* dataptr = event.getRawData();
-    int bufferSize = event.getRawDataSize();
-    len = bufferSize-6-8; // -6 for initial event prefix, -8 for timestamp at the end
-
-    memcpy(&timestamp, dataptr + 6+ len, 8); // remember to skip first six bytes
-    str = new uint8[len];
-    memcpy(str,dataptr + 6, len);
-}
-
-StringTS& StringTS::operator=(const StringTS& rhs)
-{
-    delete(str);
-    len = rhs.len;
-    str = new uint8[len];
-    memcpy(str,rhs.str,len);
-    timestamp = rhs.timestamp;
-
-    return *this;
-}
-
-String StringTS::getString()
-{
-    return String((const char*)str,len);
-}
-
-StringTS::StringTS(String S)
-{
-    Time t;
-    str = new uint8[S.length()];
-    memcpy(str,S.toRawUTF8(),S.length());
-    timestamp = t.getHighResolutionTicks();
-
-    len = S.length();
-}
-
-StringTS::StringTS(String S, int64 ts_software)
-{
-    str = new uint8[S.length()];
-    memcpy(str,S.toRawUTF8(),S.length());
-    timestamp = ts_software;
-
-    len = S.length();
-}
-
-StringTS::StringTS(const StringTS& s)
-{
-    str = new uint8[s.len];
-    memcpy(str,s.str,s.len);
-    timestamp = s.timestamp;
-    len = s.len;
-}
-
-
-StringTS::StringTS(unsigned char* buf, int _len, int64 ts_software) : len(_len),timestamp(ts_software)
-{
-    str = new juce::uint8[len];
-    for (int k=0; k<len; k++)
-        str[k] = buf[k];
-}
-
-StringTS::~StringTS()
-{
-    delete str;
-}
-
 /*********************************************/
 void* NetworkEvents::zmqcontext = nullptr;
 
@@ -285,20 +177,18 @@ void NetworkEvents::handleEvent(int eventType, juce::MidiMessage& event, int sam
 
 void NetworkEvents::postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events)
 {
-    uint8* msg_with_ts = new uint8[s.len+1];//+8]; // for the two timestamps
+    uint8* msg_with_ts = new uint8[s.len+8]; 
     memcpy(msg_with_ts, s.str, s.len);
-    *(msg_with_ts + s.len) = '\0';
-    //memcpy(msg_with_ts+s.len, &s.timestamp, 8);
-
+     memcpy(msg_with_ts+s.len, &s.timestamp, 8);
     addEvent(events,
              (uint8) MESSAGE,
              0,
              1,
              0,
-             (uint8) s.len+1,//+8,
+             (uint8) s.len+8,
              msg_with_ts);
 
-    delete[] msg_with_ts;
+    delete msg_with_ts;
 }
 
 void NetworkEvents::simulateStopRecord()
@@ -507,8 +397,10 @@ String NetworkEvents::handleSpecialMessages(StringTS msg)
 		status += CoreServices::RecordNode::getExperimentNumber();
 		return status;
 	}
-    
-    return String("NotHandled");
+	else
+	{
+	    return String("NotHandled");
+	}
 }
 
 void NetworkEvents::process(AudioSampleBuffer& buffer,
@@ -594,7 +486,7 @@ void NetworkEvents::run()
 
 
     zmq_close(responder);
-    delete[] buffer;
+    delete buffer;
     threadRunning = false;
     return;
 #endif

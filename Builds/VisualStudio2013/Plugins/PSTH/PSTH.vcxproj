@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}</ProjectGuid>
-    <RootNamespace>SpikeSorter</RootNamespace>
+    <ProjectGuid>{C392BF75-BA32-4853-9752-E468B85C25D3}</ProjectGuid>
+    <RootNamespace>PSTH</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -121,19 +121,30 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\Common\ContinuousCircularBuffer.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\Common\StringTS.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\OpenEphysLib.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSortBoxes.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorter.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterCanvas.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterEditor.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\GenericPlot.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\MatlabLikePlot.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHCanvas.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHConditionList.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHDisplay.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHEditor.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\OpenEphysLib.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\PSTHProcessor.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\TrialCircularBuffer.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PSTH\XYLine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\Common\ContinuousCircularBuffer.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\Common\StringTS.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSortBoxes.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorter.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterCanvas.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterEditor.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\GenericPlot.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\MatlabLikePlot.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHCanvas.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHCommon.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHConditionList.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHDisplay.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHEditor.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\PSTHProcessor.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\TrialCircularBuffer.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PSTH\XYLine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

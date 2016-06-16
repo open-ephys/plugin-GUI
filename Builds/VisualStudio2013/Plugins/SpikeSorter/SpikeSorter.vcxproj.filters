@@ -30,6 +30,12 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\Common\StringTS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\Common\ContinuousCircularBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSortBoxes.h">
@@ -43,6 +49,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\SpikeSorter\SpikeSorterEditor.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\Common\StringTS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\Common\ContinuousCircularBuffer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
