@@ -47,7 +47,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::ProcessorPlugin;
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
 		info->processor.name = "Pulse Pal";
 		info->processor.type = Plugin::SinkProcessor;
 		info->processor.creator = &(Plugin::createProcessor<PulsePalOutput>);

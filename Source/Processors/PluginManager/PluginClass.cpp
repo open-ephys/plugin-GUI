@@ -31,7 +31,7 @@ PluginClass::PluginClass()
 	libName = String::empty;
 	pluginName = String::empty;
 	libVersion = -1;
-	pluginType = Plugin::NotAPlugin;
+    pluginType = Plugin::NOT_A_PLUGIN_TYPE;
 }
 
 PluginClass::~PluginClass()
@@ -41,49 +41,55 @@ PluginClass::~PluginClass()
 
 void PluginClass::setPluginData(Plugin::PluginType type, int index)
 {
-	PluginManager* pm = AccessClass::getPluginManager();
-	String name;
-	pluginType = type;
-	pluginIndex = index;
-	switch (type)
-	{
-	case Plugin::ProcessorPlugin:
-	{
-		Plugin::ProcessorInfo i = pm->getProcessorInfo(index);
-		name = i.name;
-	}
-	break;
-	case Plugin::RecordEnginePlugin:
-	{
-		Plugin::RecordEngineInfo i = pm->getRecordEngineInfo(index);
-		name = i.name;
-	}
-	break;
-	case Plugin::DatathreadPlugin:
-	{
-		Plugin::DataThreadInfo i = pm->getDataThreadInfo(index);
-		name = i.name;
-	}
-	break;
-	case Plugin::FileSourcePlugin:
-	{
-		Plugin::FileSourceInfo i = pm->getFileSourceInfo(index);
-		name = i.name;
-	}
-	break;
-	case Plugin::NotAPlugin:
-	{
-		String pName;
-		int pType;
-		ProcessorManager::getProcessorNameAndType(BuiltInProcessor, index, pName, pType);
-		name = pName;
-	}
-	default:
-		return;
-	}
-	pluginName = name;
-	libName = pm->getLibraryName(pm->getLibraryIndexFromPlugin(type, index));
-	libVersion = pm->getLibraryVersion(pm->getLibraryIndexFromPlugin(type, index));
+    PluginManager* pm = AccessClass::getPluginManager();
+    String name;
+    pluginType = type;
+    pluginIndex = index;
+    switch (type)
+    {
+        case Plugin::PLUGIN_TYPE_PROCESSOR:
+        {
+            Plugin::ProcessorInfo i = pm->getProcessorInfo(index);
+            name = i.name;
+            break;
+        }
+
+        case Plugin::PLUGIN_TYPE_RECORD_ENGINE:
+        {
+            Plugin::RecordEngineInfo i = pm->getRecordEngineInfo(index);
+            name = i.name;
+            break;
+        }
+
+        case Plugin::PLUGIN_TYPE_DATA_THREAD:
+        {
+            Plugin::DataThreadInfo i = pm->getDataThreadInfo(index);
+            name = i.name;
+            break;
+        }
+
+        case Plugin::PLUGIN_TYPE_FILE_SOURCE:
+        {
+            Plugin::FileSourceInfo i = pm->getFileSourceInfo(index);
+            name = i.name;
+            break;
+        }
+
+        case Plugin::NOT_A_PLUGIN_TYPE:
+        {
+            String pName;
+            int pType;
+            ProcessorManager::getProcessorNameAndType(BuiltInProcessor, index, pName, pType);
+            name = pName;
+            break;
+        }
+
+        default:
+            return;
+    }
+    pluginName = name;
+    libName = pm->getLibraryName(pm->getLibraryIndexFromPlugin(type, index));
+    libVersion = pm->getLibraryVersion(pm->getLibraryIndexFromPlugin(type, index));
 }
 
 String PluginClass::getLibName() const

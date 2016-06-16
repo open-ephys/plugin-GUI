@@ -34,17 +34,6 @@ enum ChannelType
     , MESSAGE_CHANNEL = 5
 };
 
-enum PluginProcessorType
-{
-    PROCESSOR_TYPE_FILTER = 1
-    , PROCESSOR_TYPE_SOURCE
-    , PROCESSOR_TYPE_SINK
-    , PROCESSOR_TYPE_SPLITTER
-    , PROCESSOR_TYPE_MERGER
-    , PROCESSOR_TYPE_UTILITY
-    , PROCESSOR_TYPE_DATA_FORMAT
-};
-
 //defines which events are writable to files
 #define isWritableEvent(ev) (((int)(ev) == GenericProcessor::TTL) || ((int)(ev) == GenericProcessor::MESSAGE) || ((int)(ev) == GenericProcessor::BINARY_MSG))
 
@@ -55,6 +44,7 @@ enum PluginProcessorType
 #include "../../CoreServices.h"
 #include "../PluginManager/PluginClass.h"
 #include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
+#include "../../Processors/PluginManager/PluginIDs.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -67,21 +57,22 @@ class GenericEditor;
 class Parameter;
 class Channel;
 
+using namespace Plugin;
+
+
 /**
+    Abstract base class for creating processors.
 
-  Abstract base class for creating processors.
+    All processors must be derived from this class, and must provide an
+    implementation of the process() method.
 
-  All processors must be derived from this class, and must provide an
-  implementation of the process() method.
+    Any processors that are not filters must override the isSource(),
+    isSink(), isSplitter(), and isMerger() methods.
 
-  Any processors that are not filters must override the isSource(),
-  isSink(), isSplitter(), and isMerger() methods.
+    See https://github.com/open-ephys/GUI/wiki/Custom-processors for information
+    on how to design a processor that inherits from GenericProcessor.
 
-  See https://github.com/open-ephys/GUI/wiki/Custom-processors for information
-  on how to design a processor that inherits from GenericProcessor.
-
-  @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
-
+    @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
 */
 class PLUGIN_API GenericProcessor   : public AudioProcessor
                                     , public PluginClass

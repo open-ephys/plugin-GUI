@@ -53,16 +53,16 @@ static String getLibPluginTypeString (PluginType pluginType)
     switch (pluginType)
     {
         case PLUGIN_TYPE_PROCESSOR:
-            return "Plugin::ProcessorPlugin";
+            return "Plugin::PLUGIN_TYPE_PROCESSOR";
         case PLUGIN_TYPE_RECORD_ENGINE:
-            return "Plugin::RecordEnginePlugin";
+            return "Plugin::PLUGIN_TYPE_RECORD_ENGINE";
         case PLUGIN_TYPE_DATA_THREAD:
-            return "Plugin::DatathreadPlugin";
+            return "Plugin::PLUGIN_TYPE_DATA_THREAD";
         case PLUGIN_TYPE_FILE_SOURCE:
-            return "Plugin::FileSourcePlugin";
+            return "Plugin::PLUGIN_TYPE_FILE_SOURCE";
 
         default:
-            return "Plugin::NotAPlugin";
+            return "Plugin::NOT_A_PLUGIN_TYPE";
     };
 }
 

@@ -26,16 +26,17 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
+#include "PluginIDs.h"
 
 
 #ifdef WIN32
-#ifdef OEPLUGIN
-#define PLUGIN_API __declspec(dllimport)
+    #ifdef OEPLUGIN
+        #define PLUGIN_API __declspec(dllimport)
 #else
-#define PLUGIN_API __declspec(dllexport)
+    #define PLUGIN_API __declspec(dllexport)
 #endif
 #else
-#define PLUGIN_API __attribute__((visibility("default")))
+    #define PLUGIN_API __attribute__((visibility("default")))
 #endif
 
 struct ProcessorInfo;
@@ -56,11 +57,6 @@ typedef FileSource*(*FileSourceCreator)();
 
 namespace Plugin
 {
-	enum PluginType
-	{
-		ProcessorPlugin = 0, RecordEnginePlugin = 1, DatathreadPlugin = 2, FileSourcePlugin = 3, NotAPlugin = -1
-	};
-
 	enum ProcessorType
 	{
 		SourceProcessor = 0, FilterProcessor = 1, SinkProcessor = 2, UtilityProcessor = 3, InvalidProcessor = -1

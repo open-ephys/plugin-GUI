@@ -19,6 +19,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef __PLUGIN_IDS_H__
+#define __PLUGIN_IDS_H__
+
 
 namespace Plugin
 {
@@ -45,3 +48,6 @@ enum PluginType
 };
 
 }
+
+
+#endif // __PLUGIN_IDS_H__

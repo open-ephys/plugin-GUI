@@ -260,8 +260,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         //String appHeaders (CodeHelpers::createIncludeStatement (project.getAppIncludeFile(), filterCppFile));
 
-        auto sourceFolder = getSourceFilesFolder();
-
         // TODO <Kirill A> change getting file template to more versatile method
         generatePluginMakeFile  (sourceGroup, templateFilesFolder);
         generatePluginLibFile   (sourceGroup, templateFilesFolder, pluginProcessorName, pluginFriendlyName);
