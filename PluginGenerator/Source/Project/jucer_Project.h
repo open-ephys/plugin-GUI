@@ -30,6 +30,8 @@ class ProjectType;
 class LibraryModule;
 class EnabledModuleList;
 
+#include "../Utility/openEphys_pluginHelpers.h"
+
 //==============================================================================
 class Project  : public FileBasedDocument,
                  public ValueTree::Listener
@@ -152,6 +154,19 @@ public:
     String getAUMainTypeString();
     String getAUMainTypeCode();
     String getPluginVSTCategoryString();
+
+    // <Open Ephys>
+    Value getOpenEphysPluginType()                      { return getProjectValue ("openEphysPluginType"); }
+    Value getOpenEphysPluginProcessorType()             { return getProjectValue ("openEphysPluginProcessorType"); }
+    Value getOpenEphysPluginFileSourceSupportedExts()   { return getProjectValue ("openEphysFileSourcePluginSupportedExtensions"); }
+
+    bool isProcessorPlugin() const              { return m_pluginType == PLUGIN_TYPE_PROCESSOR; }
+
+    PluginType           getPluginType() const            { return m_pluginType; }
+    PluginProcessorType  getPluginProcessorType() const   { return m_pluginProcessorType; }
+
+    void setPluginType           (PluginType pluginType)                     { m_pluginType = pluginType; }
+    void setPluginProcessorType  (PluginProcessorType pluginProcessorType)   { m_pluginProcessorType = pluginProcessorType; }
 
     bool isAUPluginHost();
     bool isVSTPluginHost();
@@ -315,11 +330,19 @@ private:
     void setMissingAudioPluginDefaultValues();
     void createAudioPluginPropertyEditors (PropertyListBuilder& props);
 
+    // <Open Ephys>
+    void setMissingOpenEphysPluginDefaultValues();
+    void createOpenEphysPluginPropertyEditors (PropertyListBuilder& props);
+
+
     //==============================================================================
     friend class Item;
     ValueTree projectRoot;
     ScopedPointer<EnabledModuleList> enabledModulesList;
     bool isSaving;
+
+    PluginType           m_pluginType { NOT_A_PLUGIN_TYPE };
+    PluginProcessorType  m_pluginProcessorType { PROCESSOR_TYPE_INVALID };
 
     void updateProjectSettings();
     void sanitiseConfigFlags();

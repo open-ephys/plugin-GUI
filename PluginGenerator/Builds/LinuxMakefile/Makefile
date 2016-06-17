@@ -86,6 +86,11 @@ OBJECTS := \
   $(OBJDIR)/jucer_ProjectExporter_eefe2e5b.o \
   $(OBJDIR)/jucer_ProjectSaver_38b16c25.o \
   $(OBJDIR)/jucer_ResourceFile_6af120d3.o \
+  $(OBJDIR)/MaterialButtonLookAndFeel_ccb23013.o \
+  $(OBJDIR)/MaterialSliderLookAndFeel_be5e6a84.o \
+  $(OBJDIR)/ButtonGroupManager_48c303e9.o \
+  $(OBJDIR)/LinearButtonGroupManager_ee5ece6e.o \
+  $(OBJDIR)/TiledButtonGroupManager_9e681e17.o \
   $(OBJDIR)/jucer_CodeHelpers_c317179c.o \
   $(OBJDIR)/jucer_FileHelpers_f98ed0ad.o \
   $(OBJDIR)/jucer_Icons_9db2f51e.o \
@@ -305,6 +310,31 @@ $(OBJDIR)/jucer_ProjectSaver_38b16c25.o: ../../Source/Project\ Saving/jucer_Proj
 $(OBJDIR)/jucer_ResourceFile_6af120d3.o: ../../Source/Project\ Saving/jucer_ResourceFile.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_ResourceFile.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MaterialButtonLookAndFeel_ccb23013.o: ../../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MaterialButtonLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MaterialSliderLookAndFeel_be5e6a84.o: ../../../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MaterialSliderLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ButtonGroupManager_48c303e9.o: ../../../Source/UI/Utils/ButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ButtonGroupManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LinearButtonGroupManager_ee5ece6e.o: ../../../Source/UI/Utils/LinearButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LinearButtonGroupManager.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TiledButtonGroupManager_9e681e17.o: ../../../Source/UI/Utils/TiledButtonGroupManager.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TiledButtonGroupManager.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/jucer_CodeHelpers_c317179c.o: ../../Source/Utility/jucer_CodeHelpers.cpp

@@ -20,6 +20,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __OPEN_EPHYS_PLUGIN_HELPERS__
+#define __OPEN_EPHYS_PLUGIN_HELPERS__
+
 #include "../../../Source/Processors/PluginManager/PluginIDs.h"
 
 using namespace Plugin;
@@ -128,6 +131,48 @@ static String getLibProcessorTypeString (PluginProcessorType processorType)
 }
 
 
+/** Returns the string with the human friendly name for plugin type. */
+static String getPluginTypeHumanReadableName (PluginType pluginType)
+{
+    switch (pluginType)
+    {
+        case PLUGIN_TYPE_PROCESSOR:
+            return "Processor";
+        case PLUGIN_TYPE_RECORD_ENGINE:
+            return "Record Engine";
+        case PLUGIN_TYPE_DATA_THREAD:
+            return "Data Thread";
+        case PLUGIN_TYPE_FILE_SOURCE:
+            return "File Source";
+        default:
+            return "InvalidPluginInfoType";
+    };
+}
+
+
+/** Returns the string with the human friendly name for processor type. */
+static String getProcessorTypeHumanReadableName (PluginProcessorType processorType)
+{
+    switch (processorType)
+    {
+        case PROCESSOR_TYPE_FILTER:
+            return "Filter";
+        case PROCESSOR_TYPE_SOURCE:
+            return "Source";
+        case PROCESSOR_TYPE_SINK:
+            return "Sink";
+        case PROCESSOR_TYPE_UTILITY:
+            return "Utility";
+        case PROCESSOR_TYPE_MERGER:
+            return "Merger";
+        case PROCESSOR_TYPE_SPLITTER:
+            return "Splitter";
+        default:
+            return "Invalid processor";
+    };
+}
+
+
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -149,3 +194,7 @@ static String getTemplateProcessorFileName (PluginType pluginType)
             return "InvalidFileName";
     };
 }
+
+
+#endif // __OPEN_EPHYS_PLUGIN_HELPERS__
+

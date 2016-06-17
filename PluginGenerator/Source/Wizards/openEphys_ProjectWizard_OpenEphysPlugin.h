@@ -122,7 +122,6 @@ static void updateOpenEphysWizardComboBoxBounds (const Component& parent)
 // ============================================================================
 
 struct OpenEphysPluginAppWizard   : public NewProjectWizard
-                                  , public ComboBox::Listener
 {
     OpenEphysPluginAppWizard()  {}
 
@@ -201,41 +200,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     }
 
 
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
-    {
-        return;
-
-        // UNUSED NOW
-        // 
-        //
-        //
-        //
-        const auto comboBoxId = comboBoxThatHasChanged->getComponentID();
-        if (comboBoxId == COMBOBOX_ID_PLUGIN_TYPE)
-        {
-            const auto selectedIndex = comboBoxThatHasChanged->getSelectedItemIndex() + 1;
-
-            ComboBox* processorTypeComboBox = dynamic_cast<ComboBox*> (ownerWizardComp->findChildWithID (COMBOBOX_ID_PROCESSOR_TYPE));
-            jassert (processorTypeComboBox != nullptr);
-
-            // If was selected "Processor" type of the plugin, then show "Processor type" combobox
-            // and reduce size of both ComboBoxes to have equal size.
-            if (selectedIndex == (int)PLUGIN_TYPE_PROCESSOR)
-            {
-                processorTypeComboBox->setVisible (true);
-
-                // Change "Plugin type" combobox's width
-                comboBoxThatHasChanged->setBounds (comboBoxThatHasChanged->getBounds()
-                                                   .withWidth (processorTypeComboBox->getWidth()));
-            }
-            else
-            {
-                processorTypeComboBox->setVisible (false);
-            }
-        }
-    }
-
-
     bool initialiseProject (Project& project) override
     {
         createSourceFolder();
@@ -250,6 +214,9 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         File templateFilesFolder ("../../../Source/Processors/PluginManager/Templates");
 
         project.getProjectTypeValue() = ProjectType_OpenEphysPlugin::getTypeName();
+
+        project.setPluginType (m_pluginType);
+        project.setPluginProcessorType (m_processorType);
 
         Project::Item sourceGroup (createSourceGroup (project));
         project.getConfigFlag ("JUCE_QUICKTIME") = Project::configFlagDisabled; // disabled because it interferes with RTAS build on PC
@@ -281,7 +248,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         const auto templatePluginLibFile    = templatesFolder.getChildFile ("openEphys_OpenEphysLibTemplate.cpp");
         const auto newPluginLibFile         = getSourceFilesFolder().getChildFile ("OpenEphysLib.cpp");
-
         String libPluginProcessorType = m_pluginType == PLUGIN_TYPE_PROCESSOR
                                         ? ("info->processor.type = " + getLibProcessorTypeString (m_processorType) + ";")
                                         : "";
@@ -443,7 +409,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
 
 private:
-    PluginType          m_pluginType    { PLUGIN_TYPE_FILE_SOURCE } ;
+    PluginType          m_pluginType    { NOT_A_PLUGIN_TYPE } ;
     PluginProcessorType m_processorType { PROCESSOR_TYPE_INVALID };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenEphysPluginAppWizard)

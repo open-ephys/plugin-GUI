@@ -387,7 +387,7 @@
       <FILE id="eecwL8" name="jucer_Project.cpp" compile="1" resource="0"
             file="Source/Project/jucer_Project.cpp"/>
       <FILE id="p7qo62" name="jucer_Project.h" compile="0" resource="0" file="Source/Project/jucer_Project.h"/>
-      <FILE id="rhvzYd" name="jucer_ProjectContentComponent.cpp" compile="0"
+      <FILE id="phG5zJ" name="jucer_ProjectContentComponent.cpp" compile="0"
             resource="0" file="Source/Project/jucer_ProjectContentComponent.cpp"/>
       <FILE id="xDGBxS" name="jucer_ProjectContentComponent.h" compile="0"
             resource="0" file="Source/Project/jucer_ProjectContentComponent.h"/>
@@ -431,6 +431,30 @@
             file="Source/Project Saving/jucer_ResourceFile.h"/>
     </GROUP>
     <GROUP id="{58EB50D9-0F01-AF9B-087B-93DB283A339D}" name="Utility">
+      <GROUP id="{E62211FC-D300-1C0B-03D9-659EF1B391B9}" name="LookAndFeel">
+        <FILE id="RjWumG" name="MaterialButtonLookAndFeel.cpp" compile="1"
+              resource="0" file="../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.cpp"/>
+        <FILE id="aHgAz4" name="MaterialButtonLookAndFeel.h" compile="0" resource="0"
+              file="../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"/>
+        <FILE id="ElKr8c" name="MaterialSliderLookAndFeel.cpp" compile="1"
+              resource="0" file="../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.cpp"/>
+        <FILE id="DKvgBi" name="MaterialSliderLookAndFeel.h" compile="0" resource="0"
+              file="../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.h"/>
+      </GROUP>
+      <GROUP id="{E2C1EF21-0DC8-2F0E-AF9E-052BCBD179AE}" name="Utils">
+        <FILE id="lTIMco" name="ButtonGroupManager.cpp" compile="1" resource="0"
+              file="../Source/UI/Utils/ButtonGroupManager.cpp"/>
+        <FILE id="EmUNYK" name="ButtonGroupManager.h" compile="0" resource="0"
+              file="../Source/UI/Utils/ButtonGroupManager.h"/>
+        <FILE id="EBJFkv" name="LinearButtonGroupManager.cpp" compile="1" resource="0"
+              file="../Source/UI/Utils/LinearButtonGroupManager.cpp"/>
+        <FILE id="rO6udt" name="LinearButtonGroupManager.h" compile="0" resource="0"
+              file="../Source/UI/Utils/LinearButtonGroupManager.h"/>
+        <FILE id="NRlbfV" name="TiledButtonGroupManager.cpp" compile="1" resource="0"
+              file="../Source/UI/Utils/TiledButtonGroupManager.cpp"/>
+        <FILE id="OSP7ow" name="TiledButtonGroupManager.h" compile="0" resource="0"
+              file="../Source/UI/Utils/TiledButtonGroupManager.h"/>
+      </GROUP>
       <FILE id="TX2oGI" name="jucer_CodeHelpers.cpp" compile="1" resource="0"
             file="Source/Utility/jucer_CodeHelpers.cpp"/>
       <FILE id="mpDJct" name="jucer_CodeHelpers.h" compile="0" resource="0"

@@ -27,6 +27,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Application/jucer_CommonHeaders.h"
+#define JUCE_OPEN_EPHYS_PLUGIN_GENERATOR // to avoid redefinition error when using juce header.
+
 
 #if JUCE_DEBUG
  #define RUN_CLANG_IN_CHILD_PROCESS 1

@@ -30,6 +30,7 @@
 #include "../Application/jucer_OpenDocumentManager.h"
 #include "../Application/jucer_Application.h"
 
+
 namespace
 {
     String makeValid4CC (const String& seed)
@@ -122,6 +123,9 @@ void Project::setMissingDefaultValues()
     if (getProjectType().isAudioPlugin())
         setMissingAudioPluginDefaultValues();
 
+    if (getProjectType().isOpenEphysPlugin())
+        setMissingOpenEphysPluginDefaultValues();
+
     getModules().sortAlphabetically();
 
     if (getBundleIdentifier().toString().isEmpty())
@@ -169,6 +173,21 @@ void Project::setMissingAudioPluginDefaultValues()
     setValueIfVoid (getBundleIdentifier(),              getDefaultBundleIdentifier());
     setValueIfVoid (getAAXIdentifier(),                 getDefaultAAXIdentifier());
     setValueIfVoid (getPluginAAXCategory(),             "AAX_ePlugInCategory_Dynamics");
+}
+
+void Project::setMissingOpenEphysPluginDefaultValues()
+{
+    const String sanitisedProjectName (CodeHelpers::makeValidIdentifier (getTitle(), false, true, false));
+
+    setValueIfVoid (getPluginName(),                    getTitle());
+    setValueIfVoid (getPluginDesc(),                    getTitle());
+    setValueIfVoid (getPluginManufacturer(),            "yourcompany");
+    setValueIfVoid (getPluginManufacturerCode(),        "Manu");
+    setValueIfVoid (getPluginCode(),                    makeValid4CC (getProjectUID() + getProjectUID()));
+
+    setValueIfVoid (getOpenEphysPluginType(),                       NOT_A_PLUGIN_TYPE);
+    setValueIfVoid (getOpenEphysPluginProcessorType(),              PROCESSOR_TYPE_INVALID);
+    setValueIfVoid (getOpenEphysPluginFileSourceSupportedExts(),    "");
 }
 
 void Project::updateOldStyleConfigList()
@@ -462,6 +481,9 @@ void Project::createPropertyEditors (PropertyListBuilder& props)
     if (getProjectType().isAudioPlugin())
         createAudioPluginPropertyEditors (props);
 
+    if (getProjectType().isOpenEphysPlugin())
+        createOpenEphysPluginPropertyEditors (props);
+
     {
         const int maxSizes[] = { 20480, 10240, 6144, 2048, 1024, 512, 256, 128, 64 };
 
@@ -572,6 +594,51 @@ void Project::createAudioPluginPropertyEditors (PropertyListBuilder& props)
 
     props.add (new TextPropertyComponent (getAAXIdentifier(), "Plugin AAX Identifier", 256, false),
                "The value to use for the JucePlugin_AAXIdentifier setting");
+}
+
+void Project::createOpenEphysPluginPropertyEditors (PropertyListBuilder& props)
+{
+    props.add (new TextPropertyComponent (getPluginName(), "Plugin Display Name", 128, false),
+               "The name of your plugin that will be displayed in the Open Ephys GUI (keep it short!)");
+    props.add (new TextPropertyComponent (getPluginDesc(), "Plugin Description", 256, false),
+               "A short description of your plugin.");
+
+    props.add (new TextPropertyComponent (getPluginManufacturer(), "Plugin Manufacturer", 256, false),
+               "The name of your company (cannot be blank).");
+    props.add (new TextPropertyComponent (getPluginManufacturerCode(), "Plugin Manufacturer Code", 4, false),
+               "A four-character unique ID for your company. Note that for AU compatibility, this must contain at least one upper-case letter!");
+    props.add (new TextPropertyComponent (getPluginCode(), "Plugin Code", 4, false),
+               "A four-character unique ID for your plugin. Note that for AU compatibility, this must contain at least one upper-case letter!");
+
+    // Plugin types
+    props.add (new TextPropertyComponent (getOpenEphysPluginType(), "Plugin Type", 128, false),
+               "Select type of the Open Ephys plugin");
+
+    // Processor types
+    StringArray processorTypesNames;
+    Array<var> processorTypesVar;
+    Array<PluginProcessorType> processorTypes;
+    processorTypes.add (PROCESSOR_TYPE_FILTER);
+    processorTypes.add (PROCESSOR_TYPE_SOURCE);
+    processorTypes.add (PROCESSOR_TYPE_SINK);
+    processorTypes.add (PROCESSOR_TYPE_SPLITTER);
+    processorTypes.add (PROCESSOR_TYPE_MERGER);
+    processorTypes.add (PROCESSOR_TYPE_UTILITY);
+
+    for (int i = 0; i < processorTypes.size(); ++i)
+    {
+        processorTypesNames.add (getProcessorTypeHumanReadableName (processorTypes[i]));
+        processorTypesVar.add (processorTypes[i]);
+    }
+
+    props.add (new ChoicePropertyComponent (getOpenEphysPluginProcessorType(), "Plugin type", processorTypesNames, processorTypesVar));
+
+    // FileSource plugin type
+    if (getPluginType() == PLUGIN_TYPE_FILE_SOURCE)
+    {
+        props.add (new TextPropertyComponent (getOpenEphysPluginFileSourceSupportedExts(), "Supported file extensions", 128, false),
+                   "Semicolon separated list of supported extensions. E.g.:\"txt;dat;info;kwd\"");
+    }
 }
 
 //==============================================================================

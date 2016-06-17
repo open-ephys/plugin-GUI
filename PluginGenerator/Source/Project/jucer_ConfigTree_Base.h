@@ -22,6 +22,9 @@
   ==============================================================================
 */
 
+
+// Open Ephys
+
 class PropertyGroupComponent  : public Component
 {
 public:
@@ -57,9 +60,7 @@ public:
         const Colour bkg (findColour (mainBackgroundColourId));
 
         g.setColour (Colours::white.withAlpha (0.35f));
-        g.fillRect (0, 30, getWidth(), getHeight() - 38);
-
-        g.setFont (Font (15.0f, Font::bold));
+        g.fillRect (0, 30, getWidth(), getHeight() - 38); g.setFont (Font (15.0f, Font::bold));
         g.setColour (bkg.contrasting (0.7f));
         g.drawFittedText (getName(), 12, 0, getWidth() - 16, 25, Justification::bottomLeft, 1);
     }
@@ -298,8 +299,9 @@ private:
     ValueTree exportersTree;
 
     //==============================================================================
-    class SettingsComp  : public Component,
-                          private ChangeListener
+    class SettingsComp  : public Component
+                        , public Button::Listener
+                        , private ChangeListener
     {
     public:
         SettingsComp (Project& p)  : project (p)
@@ -308,6 +310,48 @@ private:
 
             updatePropertyList();
             project.addChangeListener (this);
+
+            static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
+            static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
+
+            TextButton* projectSettingsButton = new TextButton ("Project", "Switch to project settings tab");
+            projectSettingsButton->setComponentID (PROJECT_SETTINGS_BUTTON_ID);
+            projectSettingsButton->setClickingTogglesState (true);
+            projectSettingsButton->setToggleState (true, dontSendNotification);
+            projectSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
+            projectSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
+            projectSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
+            projectSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
+
+            TextButton* pluginSettingsButton = new TextButton ("Plugin", "Switch to plugin settings tab");
+            pluginSettingsButton->setComponentID (PLUGIN_SETTINGS_BUTTON_ID);
+            pluginSettingsButton->setClickingTogglesState (true);
+            pluginSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
+            pluginSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
+            pluginSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
+            pluginSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
+
+            TextButton* editorSettingsButton = new TextButton ("Editor", "Switch to editor settings tab");
+            editorSettingsButton->setComponentID (EDITOR_SETTINGS_BUTTON_ID);
+            editorSettingsButton->setClickingTogglesState (true);
+            editorSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
+            editorSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
+            editorSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
+            editorSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
+
+            // Open Ephys
+            m_buttonGroupManager.addButton (projectSettingsButton);
+            m_buttonGroupManager.addButton (pluginSettingsButton);
+            m_buttonGroupManager.addButton (editorSettingsButton);
+            m_buttonGroupManager.setRadioButtonMode (true);
+            m_buttonGroupManager.setButtonListener (this);
+            m_buttonGroupManager.setButtonsLookAndFeel (m_materialButtonLookAndFeel);
+            m_buttonGroupManager.setColour (ButtonGroupManager::backgroundColourId,   Colours::white);
+            m_buttonGroupManager.setColour (ButtonGroupManager::outlineColourId,      Colour (0x0));
+            m_buttonGroupManager.setColour (LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
+            addChildComponent (&m_buttonGroupManager);
+
+            m_buttonGroupManager.setVisible (project.getProjectType().isOpenEphysPlugin());
         }
 
         ~SettingsComp()
@@ -315,9 +359,28 @@ private:
             project.removeChangeListener (this);
         }
 
+        Rectangle<int> updateSizeAndGetNewBounds()
+        {
+            const int groupComponentWidth = jmax (550, getParentWidth() - 20);
+            const bool isOpenEphysPlugin = project.getProjectType().isOpenEphysPlugin();
+
+            int y = isOpenEphysPlugin ? 25 : 0;
+            y += group.updateSize (12, y, groupComponentWidth - 12);
+
+            m_buttonGroupManager.setBounds (0, 0, 300, 36);
+
+            return Rectangle<int> (0, 0, groupComponentWidth, y);
+        }
+
         void parentSizeChanged() override
         {
-            updateSize (*this, group);
+            const auto newBounds = updateSizeAndGetNewBounds();
+            setSize (newBounds.getWidth(), newBounds.getHeight());
+        }
+
+        void resized() override
+        {
+            updateSizeAndGetNewBounds();
         }
 
         void updatePropertyList()
@@ -325,10 +388,27 @@ private:
             PropertyListBuilder props;
             project.createPropertyEditors (props);
             group.setProperties (props);
-            group.setName ("Project Settings");
+            //group.setName ("Project Settings");
 
             lastProjectType = project.getProjectTypeValue().getValue();
             parentSizeChanged();
+        }
+
+        void buttonClicked (Button* buttonThatWasClicked)
+        {
+            const auto buttonID = buttonThatWasClicked->getComponentID();
+            if (buttonID == PROJECT_SETTINGS_BUTTON_ID)
+            {
+                group.setVisible (true);
+            }
+            else if (buttonID == PLUGIN_SETTINGS_BUTTON_ID)
+            {
+                group.setVisible (false);
+            }
+            else if (buttonID == EDITOR_SETTINGS_BUTTON_ID)
+            {
+                group.setVisible (false);
+            }
         }
 
         void changeListenerCallback (ChangeBroadcaster*) override
@@ -341,6 +421,14 @@ private:
         Project& project;
         var lastProjectType;
         PropertyGroupComponent group;
+
+        LinearButtonGroupManager m_buttonGroupManager;
+
+        SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
+
+        static constexpr const char* PROJECT_SETTINGS_BUTTON_ID     = "projectSettingsTab";
+        static constexpr const char* PLUGIN_SETTINGS_BUTTON_ID      = "pluginSettingsTab";
+        static constexpr const char* EDITOR_SETTINGS_BUTTON_ID      = "editorSettingsTab";
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SettingsComp)
     };

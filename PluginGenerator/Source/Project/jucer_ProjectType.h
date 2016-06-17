@@ -25,6 +25,8 @@
 #ifndef JUCER_PROJECTTYPE_H_INCLUDED
 #define JUCER_PROJECTTYPE_H_INCLUDED
 
+#include "../Utility/openEphys_pluginHelpers.h"
+
 class Project;
 class ProjectExporter;
 

@@ -32,6 +32,8 @@
 #include "jucer_GroupInformationComponent.h"
 #include "jucer_ModulesPanel.h"
 
+#include "../../../Source/UI/Utils/LinearButtonGroupManager.h"
+#include "../../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 
 struct FileTreeItemTypes
 {

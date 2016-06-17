@@ -171,6 +171,11 @@
     <ClCompile Include="..\..\Source\Project Saving\jucer_ProjectExporter.cpp"/>
     <ClCompile Include="..\..\Source\Project Saving\jucer_ProjectSaver.cpp"/>
     <ClCompile Include="..\..\Source\Project Saving\jucer_ResourceFile.cpp"/>
+    <ClCompile Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp"/>
+    <ClCompile Include="..\..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp"/>
+    <ClCompile Include="..\..\..\Source\UI\Utils\ButtonGroupManager.cpp"/>
+    <ClCompile Include="..\..\..\Source\UI\Utils\LinearButtonGroupManager.cpp"/>
+    <ClCompile Include="..\..\..\Source\UI\Utils\TiledButtonGroupManager.cpp"/>
     <ClCompile Include="..\..\Source\Utility\jucer_CodeHelpers.cpp"/>
     <ClCompile Include="..\..\Source\Utility\jucer_FileHelpers.cpp"/>
     <ClCompile Include="..\..\Source\Utility\jucer_Icons.cpp"/>
@@ -1438,6 +1443,11 @@
     <ClInclude Include="..\..\Source\Project Saving\jucer_ProjectExporter.h"/>
     <ClInclude Include="..\..\Source\Project Saving\jucer_ProjectSaver.h"/>
     <ClInclude Include="..\..\Source\Project Saving\jucer_ResourceFile.h"/>
+    <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h"/>
+    <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h"/>
+    <ClInclude Include="..\..\..\Source\UI\Utils\ButtonGroupManager.h"/>
+    <ClInclude Include="..\..\..\Source\UI\Utils\LinearButtonGroupManager.h"/>
+    <ClInclude Include="..\..\..\Source\UI\Utils\TiledButtonGroupManager.h"/>
     <ClInclude Include="..\..\Source\Utility\jucer_CodeHelpers.h"/>
     <ClInclude Include="..\..\Source\Utility\jucer_ColourPropertyComponent.h"/>
     <ClInclude Include="..\..\Source\Utility\jucer_Colours.h"/>

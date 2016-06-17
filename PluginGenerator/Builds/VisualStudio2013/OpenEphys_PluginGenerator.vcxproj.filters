@@ -41,6 +41,12 @@
     <Filter Include="OpenEphys_PluginGenerator\Utility">
       <UniqueIdentifier>{E2DF8972-90D2-24DD-8A0A-975636458A79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\Utility\LookAndFeel">
+      <UniqueIdentifier>{7BD1873F-23C8-042A-19FF-1F2E347F13EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\Utility\Utils">
+      <UniqueIdentifier>{DCC29866-2C98-0A59-0BF9-1640B818D682}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OpenEphys_PluginGenerator\Wizards">
       <UniqueIdentifier>{8319DD92-AD5C-F8E7-50DD-9B43C14D54ED}</UniqueIdentifier>
     </Filter>
@@ -378,6 +384,21 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Project Saving\jucer_ResourceFile.cpp">
       <Filter>OpenEphys_PluginGenerator\Project Saving</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp">
+      <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp">
+      <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UI\Utils\ButtonGroupManager.cpp">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UI\Utils\LinearButtonGroupManager.cpp">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UI\Utils\TiledButtonGroupManager.cpp">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\jucer_CodeHelpers.cpp">
       <Filter>OpenEphys_PluginGenerator\Utility</Filter>
@@ -2006,6 +2027,21 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Project Saving\jucer_ResourceFile.h">
       <Filter>OpenEphys_PluginGenerator\Project Saving</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UI\Utils\ButtonGroupManager.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UI\Utils\LinearButtonGroupManager.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UI\Utils\TiledButtonGroupManager.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\jucer_CodeHelpers.h">
       <Filter>OpenEphys_PluginGenerator\Utility</Filter>
