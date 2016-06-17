@@ -26,7 +26,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Processors/PluginManager/OpenEphysPlugin.h"
-#include "CustomLookAndFeel.h"
 
 
 /**
