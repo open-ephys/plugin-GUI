@@ -320,7 +320,8 @@ public:
     void clearAll();
     std::vector<std::vector<bool>>  reconstructTTLchannels(int64 hardware_timestamp,int nSamples);
     void channelChange(int electrodeID, int channelindex, int newchannel);
-    void syncInternalDataStructuresWithSpikeSorter(Array<Electrode*> electrodes);
+	void modifyTimeRange(double preSec_, double postSec_);
+    //void syncInternalDataStructuresWithSpikeSorter(Array<Electrode*> electrodes);
 	void addNewElectrode(int electrodeID, String name, int numChannels, int *channelIDs);
     void removeElectrode(int electrodeID);
     void addNewUnit(int electrodeID, int unitID, uint8 r,uint8 g,uint8 b);

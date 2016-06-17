@@ -88,13 +88,12 @@ AudioProcessorEditor* PSTHProcessor::createEditor()
 
 void PSTHProcessor::allocateTrialCircularBuffer()
 {
-	TrialCircularBufferParams params;
 	params.numChannels = getNumInputs();
 	params.numTTLchannels = 8;
 	params.sampleRate = getSampleRate();
 	params.maxTrialTimeSeconds = 5.0;
-	params.preSec = 0.1;
-	params.postSec = 0.5;
+	params.preSec = 2;  // maximum
+	params.postSec = 2; // maximum
 	params.maxTrialsInMemory = 200;
 	params.binResolutionMS = 1;
 	params.desiredSamplingRateHz = 600;
@@ -114,7 +113,7 @@ void PSTHProcessor::updateSettings()
 	if (trialCircularBuffer == nullptr && getSampleRate() > 0 && getNumInputs() > 0)
 	{
 		allocateTrialCircularBuffer();
-		syncInternalDataStructuresWithSpikeSorter();
+//		syncInternalDataStructuresWithSpikeSorter();
 	}
 	electrodeChannels.clear();
 	for (int k = 0; k < eventChannels.size(); k++)
@@ -214,40 +213,13 @@ void PSTHProcessor::syncInternalDataStructuresWithSpikeSorter()
 		{
 			electrodes.add(static_cast<Electrode*>(eventChannels[k]->extraData->dataPtr));
 		}
-		// for each electrode, verify that
-		// 1. We have it in our internal structure
-		// 2. All channels match
-		// 3. We have all sorted unit information
-		trialCircularBuffer->syncInternalDataStructuresWithSpikeSorter(electrodes);
 	}
 }
 
 
 void PSTHProcessor::modifyTimeRange(double preSec_, double postSec_)
 {
-	/*
-	ProcessorGraph* g = AccessClass::getProcessorGraph();
-	Array<GenericProcessor*> p = g->getListOfProcessors();
-	for (int k = 0; k<p.size(); k++)
-	{
-		if (p[k]->getName() == "Spike Sorter")
-		{
-			SpikeSorter* node = (SpikeSorter*)p[k];
-			Array<Electrode*> electrodes = node->getElectrodes();
-
-			// for each electrode, verify that
-			// 1. We have it in our internal structure
-			// 2. All channels match
-			// 3. We have all sorted unit information
-			TrialCircularBufferParams params = trialCircularBuffer->getParams();
-			params.preSec = preSec_;
-			params.postSec = postSec_;
-			trialCircularBuffer = new TrialCircularBuffer(params);
-			trialCircularBuffer->syncInternalDataStructuresWithSpikeSorter(electrodes);
-
-		}
-	}
-	*/
+	trialCircularBuffer->modifyTimeRange(preSec_, postSec_);
 }
 
 void PSTHProcessor::handleNetworkMessage(StringTS s)

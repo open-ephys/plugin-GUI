@@ -32,6 +32,8 @@ MatlabLikePlot::MatlabLikePlot()
 	drawComponent = new DrawComponent(this);
 	addAndMakeVisible(drawComponent);
 	font = Font("Default", 15, Font::plain);
+	mode = DrawComponentMode::PAN;
+
     xmin = -0.5;
 	xmax = 0.5;
 	ymin = -1e3;
@@ -109,15 +111,19 @@ void MatlabLikePlot::getRangeLimit(float &xmin_limit_, float &xmax_limit_ ,float
 	ymax_limit_ = ymax_limit;
 }
 
-void MatlabLikePlot::setMode(DrawComponentMode mode)
+void MatlabLikePlot::setMode(DrawComponentMode _mode)
 {
+	mode = _mode;
+	drawComponent->setMode(mode);
+	/*
 	if (mode == DrawComponentMode::ZOOM)
 	{
-		//zoomButton->setToggleState(true,true);
+		zoomButton->setToggleState(true,true);
 	} else if (mode == DrawComponentMode::PAN)
 	{
-		//panButton->setToggleState(true,true);
+		panButton->setToggleState(true,true);
 	}
+	*/
 }
 
 MatlabLikePlot::~MatlabLikePlot()

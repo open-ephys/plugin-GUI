@@ -112,6 +112,8 @@ public:
 	void modifyTimeRange(double preSec_, double postSec_);
 
 	ScopedPointer<TrialCircularBuffer> trialCircularBuffer;
+	TrialCircularBufferParams params;
+
 	bool saveTTLs, saveNetworkEvents, saveEyeTracking;
 	int spikeSavingMode;
 	bool saveNetworkEventsWhenNotRecording;

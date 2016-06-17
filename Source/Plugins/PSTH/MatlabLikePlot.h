@@ -164,7 +164,7 @@ public:
 	void getRange(float &xmin, float &xmax, float &ymin, float &ymax);
 	void determineTickLocationsImageMode(float xmin, float xmax,float ymin,float ymax,std::vector<float> &xtick, std::vector<float> &ytick);
 	void setActivateButtonVisiblilty(bool vis,int id);
-	void setMode(DrawComponentMode mode);
+	void setMode(DrawComponentMode _mode);
 	void setRangeLimit(float xmin_limit, float xmax_limit, float ymin_limit, float ymax_limit);
 	void getRangeLimit(float &xmin_limit_, float &xmax_limit_ ,float &ymin_limit_ , float &ymax_limit_);
 	void setFiringRateMode(bool state);
@@ -178,6 +178,7 @@ private:
 	std::vector<float> roundlin(float minv, float maxv, int numticks);
 	void buttonClicked(Button *btn);
 	String title;
+	DrawComponentMode mode;
 	double lowestValue, highestValue;
 	bool controlButtonsVisible;
 	juce::Colour borderColor;

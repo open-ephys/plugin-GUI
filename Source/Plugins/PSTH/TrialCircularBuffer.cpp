@@ -1400,14 +1400,8 @@ std::vector<int64> SmartSpikeCircularBuffer::getAlignedSpikes(Trial* trial, floa
 
 TrialCircularBuffer::~TrialCircularBuffer()
 {
-    //delete lfpBuffer;
-    //lfpBuffer = nullptr;
-    //delete ttlBuffer;
-    //ttlBuffer = nullptr;
-    electrodesPSTH.clear();
-    //delete threadpool;
-    //threadpool = nullptr;
-}
+     electrodesPSTH.clear();
+  }
 
 TrialCircularBuffer::TrialCircularBuffer()
 {
@@ -1752,72 +1746,6 @@ void TrialCircularBuffer::channelChange(int electrodeID, int channelindex, int n
     //unlockPSTH();
 }
 
-void TrialCircularBuffer::syncInternalDataStructuresWithSpikeSorter(Array<Electrode*> electrodes)
-{
-	/*
-    const ScopedLock myScopedLock(psthMutex);
-    //const ScopedLock myScopedLock (conditionMutex);
-
-    //lockPSTH();
-    //lockConditions();
-    // note. This will erase all existing internal structures. Only call this in the constructor.
-    electrodesPSTH.clear();
-
-    for (int electrodeIter = 0; electrodeIter < electrodes.size(); electrodeIter++)
-    {
-
-        ElectrodePSTH electrodePSTH(electrodes[electrodeIter]->electrodeID,electrodes[electrodeIter]->name);
-        int numChannels = electrodes[electrodeIter]->numChannels;
-
-        for (int k = 0; k < numChannels; k++)
-        {
-            int channelID = electrodes[electrodeIter]->channels[k];
-            electrodePSTH.channels.push_back(channelID);
-            ChannelPSTHs channelPSTH(channelID,params);
-            // add all known conditions
-            for (int c=0; c<conditions.size(); c++)
-            {
-                channelPSTH.conditionPSTHs.push_back(PSTH(conditions[c].conditionID,params,conditions[c].visible));
-            }
-            electrodePSTH.channelsPSTHs.push_back(channelPSTH);
-        }
-
-        // add all known units
-        std::vector<BoxUnit> boxUnits = electrodes[electrodeIter]->spikeSort->getBoxUnits();
-        std::vector<PCAUnit> pcaUnits = electrodes[electrodeIter]->spikeSort->getPCAUnits();
-        for (int boxIter = 0; boxIter < boxUnits.size(); boxIter++)
-        {
-
-            int unitID = boxUnits[boxIter].UnitID;
-            UnitPSTHs unitPSTHs(unitID, params,boxUnits[boxIter].ColorRGB[0],
-                                boxUnits[boxIter].ColorRGB[1],boxUnits[boxIter].ColorRGB[2]);
-            for (int k=0; k<conditions.size(); k++)
-            {
-                unitPSTHs.conditionPSTHs.push_back(PSTH(conditions[k].conditionID,params,conditions[k].visible));
-            }
-            electrodePSTH.unitsPSTHs.push_back(unitPSTHs);
-        }
-
-        for (int pcaIter = 0; pcaIter < pcaUnits.size(); pcaIter++)
-        {
-
-            int unitID = pcaUnits[pcaIter].UnitID;
-            UnitPSTHs unitPSTHs(unitID, params,pcaUnits[pcaIter].ColorRGB[0],
-                                pcaUnits[pcaIter].ColorRGB[1],pcaUnits[pcaIter].ColorRGB[2]);
-            for (int k = 0; k < conditions.size(); k++)
-            {
-                unitPSTHs.conditionPSTHs.push_back(PSTH(conditions[k].conditionID, params,conditions[k].visible));
-            }
-            electrodePSTH.unitsPSTHs.push_back(unitPSTHs);
-        }
-        electrodesPSTH.push_back(electrodePSTH);
-    }
-    //unlockConditions();
-    //unlockPSTH();
-
-	*/
-}
-
 
 void  TrialCircularBuffer::addNewUnit(int electrodeID, int unitID, uint8 r,uint8 g,uint8 b)
 {
@@ -2114,7 +2042,11 @@ bool TrialCircularBuffer::parseMessage(StringTS msg)
 
 
 
+void TrialCircularBuffer::modifyTimeRange(double newPre, double newPost)
+{
+	
 
+}
 
 void TrialCircularBuffer::addNewElectrode(int electrodeID, String name, int numChannels, int *channelIDs)
 {
