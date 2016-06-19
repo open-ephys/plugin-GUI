@@ -1,8 +1,7 @@
-
 /*    ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,252 +23,91 @@
 #include "Parameter.h"
 
 
-Parameter::Parameter(const String& name_, bool defaultVal, int ID, bool t)
-    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-      parameterId(ID)
+Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
+    : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_name                            (name)
+    , m_description                     ("")
+    , m_parameterId                     (ID)
+    , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
+    , m_defaultValue                    (defaultValue)
 {
-
-    defaultValue = defaultVal;
-
-    possibleValues.add(true);
-    possibleValues.add(false);
-
-    isBool = true;
-    isCont = false;
-    isDisc = false;
-
+    m_possibleValues.add (true);
+    m_possibleValues.add (false);
 }
 
-Parameter::Parameter(const String& name_, float low, float high,
-                     float defaultVal, int ID, bool t)
-    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-      parameterId(ID)
+
+Parameter::Parameter (const String& name,
+                      float minPossibleValue, float maxPossibleValue, float defaultValue,
+                      int ID,
+                      bool deactivateDuringAcquisition)
+    : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_name                            (name)
+    , m_description                     ("")
+    , m_parameterId                     (ID)
+    , m_parameterType                   (PARAMETER_TYPE_CONTINUOUS)
+    , m_defaultValue                    (defaultValue)
 {
-    defaultValue = defaultVal;
-
-    possibleValues.add(low);
-    possibleValues.add(high);
-
-    isCont = true;
-    isBool = false;
-    isDisc = false;
+    m_possibleValues.add (minPossibleValue);
+    m_possibleValues.add (maxPossibleValue);
 
     // Initialize default value
-    values.set (0, defaultValue);
+    m_values.set (0, m_defaultValue);
 }
 
-Parameter::Parameter(const String& name_, Array<var> a, int defaultVal,
-                     int ID, bool t)
-    : shouldDeactivateDuringAcquisition(t), name(name_), description(""),
-      parameterId(ID)
+
+Parameter::Parameter (const String& name,
+                      Array<var> a,
+                      int defaultValue, int ID,
+                      bool deactivateDuringAcquisition)
+    : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_name                            (name)
+    , m_description                     ("")
+    , m_parameterId                     (ID)
+    , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
+    , m_defaultValue                    (defaultValue)
 {
-    possibleValues = a;
-    defaultValue = defaultVal; //possibleValues[defaultVal];
-
-    isCont = false;
-    isDisc = true;
-    isBool = false;
-
+    m_possibleValues = a;
 }
+
 
 Parameter::~Parameter() {}
 
-const String& Parameter::getName()
+
+const String& Parameter::getName()          const noexcept { return m_name; }
+const String& Parameter::getDescription()   const noexcept { return m_description; }
+
+int Parameter::getID() const noexcept { return m_parameterId; }
+
+var Parameter::getDefaultValue() const noexcept             { return m_defaultValue; }
+Array<var> Parameter::getPossibleValues() const noexcept    { return m_possibleValues; }
+
+var Parameter::getValue   (int channel)   const { return m_values[channel]; }
+var Parameter::operator[] (int channel)   const { return m_values[channel]; }
+
+bool Parameter::isBoolean()     const noexcept { return m_parameterType == PARAMETER_TYPE_BOOLEAN; }
+bool Parameter::isContinuous()  const noexcept { return m_parameterType == PARAMETER_TYPE_CONTINUOUS; }
+bool Parameter::isDiscrete()    const noexcept { return m_parameterType == PARAMETER_TYPE_DISCRETE; }
+
+
+void Parameter::setDescription (const String& description)
 {
-	return name;
+    m_description = description;
 }
 
-const String& Parameter::getDescription()
+void Parameter::setValue (float value, int channel)
 {
-	return description;
-}
-
-void Parameter::addDescription(const String& desc)
-{
-	description = desc;
-}
-
-var Parameter::getDefaultValue()
-{
-	return defaultValue;
-}
-
-int Parameter::getID()
-{
-	return parameterId;
-}
-
-Array<var> Parameter::getPossibleValues()
-{
-	return possibleValues;
-}
-
-void Parameter::setValue(float val, int chan)
-{
-
     if (isBoolean())
     {
-        if (val > 0.0f)
-            values.set(chan, true);
-        else
-            values.set(chan, false);
+        const bool newValue = (value > 0.0f) ? true : false;
+        m_values.set (channel, newValue);
     }
     else if (isContinuous())
     {
-
-        if (val < (float) possibleValues[0])
-        {
-            values.set(chan, possibleValues[0]);
-        }
-        else if (val > (float) possibleValues[1])
-        {
-            values.set(chan, possibleValues[1]);
-        }
-        else
-        {
-            values.set(chan, val);
-        }
-
+        const float newValue = jlimit (float (m_possibleValues[0]), float (m_possibleValues[1]), value);
+        m_values.set (channel, newValue);
     }
     else
     {
-        //int index = (int) val;
-
-        //if (index >= 0 && index < possibleValues.size())
-        //{
-        values.set(chan, val);
-        //}
-
+        m_values.set (channel, value);
     }
-
 }
-
-var Parameter::operator[](int chan)
-{
-	return values[chan];
-}
-
-var Parameter::getValue(int chan)
-{
-	return values[chan];
-}
-
-
-bool Parameter::isBoolean()
-{
-	return isBool;
-}
-
-bool Parameter::isContinuous()
-{
-	return isCont;
-}
-
-bool Parameter::isDiscrete()
-{
-	return isDisc;
-}
-
-// void BooleanParameter::setValue(float val, int chan)
-// {
-
-// 	var b = true;
-// 	bool c = b;
-
-// 	if (val > 0)
-// 		values.set(chan, true);
-// 	else
-// 		values.set(chan, false);
-
-// }
-
-// void ContinuousParameter::setValue(float val, int chan)
-// {
-// 	if (val < low)
-// 	{
-// 		values.set(chan, low);
-// 	} else if (val > high) {
-// 		values.set(chan, high);
-// 	} else {
-// 		values.set(chan, val);
-// 	}
-// }
-
-// void DiscreteParameter::setValue(float val, int chan)
-// {
-// 	int index = (int) val;
-
-// 	if (index >= 0 && index < possibleValues.size())
-// 	{
-// 		values.set(chan, possibleValues[index]);
-// 	}
-
-// }
-
-// Array<var> BooleanParameter::getPossibleValues()
-// {
-// 	Array<var> a;
-// 	a.add(true);
-// 	a.add(false);
-
-// 	return a;
-
-// }
-
-// Array<var> ContinuousParameter::getPossibleValues()
-// {
-// 	Array<var> a;
-// 	a.add(low);
-// 	a.add(high);
-
-// 	return a;
-// }
-
-// Array<var> DiscreteParameter::getPossibleValues()
-// {
-// 	return possibleValues;
-
-// }
-
-
-// void* BooleanParameter::operator[](int chan)
-// {
-// 	return (void*) values[chan];
-// }
-
-// void* ContinuousParameter::operator[](int chan)
-// {
-// 	return (void*) values[chan];
-// }
-
-
-// void* DiscreteParameter::operator[](int chan)
-// {
-// 	return (void*) values[chan];
-// }
-
-// BooleanParameter::BooleanParameter(const String name_, bool defaultVal) : Parameter(name_)
-// {
-// 	defaultValue = defaultVal;
-// }
-
-// ContinuousParameter::ContinuousParameter(const String name_,
-// 										 float low_, float high_, float defaultVal)
-// 										 : Parameter(name_)
-// {
-// 	low = low_;
-// 	high = high_;
-
-// 	defaultValue = defaultVal;
-
-// }
-
-// DiscreteParameter::DiscreteParameter(const String name_,
-// 									 Array<var> a, int defaultVal)
-// 										 : Parameter(name_)
-// {
-// 	possibleValues = a;
-
-// 	defaultValue = possibleValues[defaultVal];
-// }
-
