@@ -42,17 +42,15 @@ class Channel;
 
 
 /**
-  Base class for creating processor editors.
+    Base class for creating processor editors.
 
-  If a processor doesn't havesign an editor defined, a GenericEditor will be used.
+    If a processor doesn't havesign an editor defined, a GenericEditor will be used.
 
-  Classes derived from this class must place their controls as child components.
-  They shouldn't try to re-draw any aspects of their background.
+    Classes derived from this class must place their controls as child components.
+    They shouldn't try to re-draw any aspects of their background.
 
-  @see GenericProcessor, EditorViewport
+    @see GenericProcessor, EditorViewport
 */
-
-
 class PLUGIN_API GenericEditor  : public AudioProcessorEditor
                                 , public Timer
                                 , public Button::Listener
@@ -60,11 +58,8 @@ class PLUGIN_API GenericEditor  : public AudioProcessorEditor
 {
 public:
     /** Constructor. Loads fonts and creates default buttons.
-     useDefaultParameter Editors false means custom parameter editors will be used.*/
+        useDefaultParameter Editors false means custom parameter editors will be used.*/
     GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors);
-
-    /** Constructor. Loads fonts and creates default buttons.*/
-    //GenericEditor (GenericProcessor* owner);
 
     /** Destructor.*/
     virtual ~GenericEditor();
@@ -73,8 +68,8 @@ public:
     ========================================================================
     ============================= JUCE METHODS =============================
     ========================================================================
-    */
 
+    */
     /** Draws the editor's background.*/
     void paint (Graphics& g) override;
 

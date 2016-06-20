@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __PARAMETEREDITOR_H_44537DA9__
@@ -35,52 +34,51 @@ class ParameterButton;
 class ParameterSlider;
 class ParameterCheckbox;
 
+
 /**
+    Automatically creates an interactive editor for a particular
+    parameter.
 
-  Automatically creates an interactive editor for a particular
-  parameter.
-
-  @see GenericEditor, GenericProcessor, Parameter
-
+    @see GenericEditor, GenericProcessor, Parameter
 */
-
-class PLUGIN_API ParameterEditor : public Component,
-    public Button::Listener,
-    public Slider::Listener
-
+class PLUGIN_API ParameterEditor : public Component
+                                 , public Button::Listener
+                                 , public Slider::Listener
 {
 public:
-    ParameterEditor(GenericProcessor* proc, Parameter& p, Font labelFont);
-    ~ParameterEditor();
+    ParameterEditor (GenericProcessor* proccessor, Parameter& parameter, Font labelFont);
 
+    void parentHierarchyChanged() override;
+
+    void buttonClicked (Button* buttonThatWasClicked) override;
+    void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
+
+    void setChannelSelector (ChannelSelector* channelSelector);
+
+    // for inactivation during acquisition:
+    void setEnabled (bool isEnabled);
+    void updateChannelSelectionUI();
 
     int desiredWidth;
     int desiredHeight;
 
-    void parentHierarchyChanged();
-
-    void buttonClicked(Button* button);
-    void sliderValueChanged(Slider* slider);
-
-	void setChannelSelector(ChannelSelector* ch);
-
-    // for inactivation during acquisition:
-    void setEnabled(bool t);
     bool shouldDeactivateDuringAcquisition;
-    bool activationState;
-    void channelSelectionUI();
+
+
 private:
+    bool m_activationState;
 
-    Array<ParameterSlider*> sliderArray;
-    Array<ParameterButton*> buttonArray;
-    Array<ParameterCheckbox*> checkboxArray;
-    Array<int> buttonIdArray;
-    Array<int> sliderIdArray;
-    Array<int> checkboxIdArray;
+    GenericProcessor* m_processor;
+    Parameter* m_parameter;
+    ScopedPointer<ChannelSelector> m_channelSelector;
 
-    Parameter* parameter;
-    GenericProcessor* processor;
-    ScopedPointer<ChannelSelector> channelSelector;
+    OwnedArray<ParameterSlider>     m_sliderArray;
+    OwnedArray<ParameterButton>     m_buttonArray;
+    OwnedArray<ParameterCheckbox>   m_checkboxArray;
+
+    Array<int> m_buttonIdArray;
+    Array<int> m_sliderIdArray;
+    Array<int> m_checkboxIdArray;
 
     enum
     {
@@ -88,29 +86,24 @@ private:
         MIDDLE,
         RIGHT
     };
-
 };
 
-/**
 
-  Used to edit discrete parameters.
-
-*/
-
+/** Used to edit discrete parameters.  */
 class PLUGIN_API ParameterButton : public Button
-
 {
 public:
-    ParameterButton(var value, int buttonType, Font labelFont);
-	~ParameterButton();
+    ParameterButton (var value, int buttonType, Font labelFont);
 
     bool isEnabled;
     //Used to mark if unused, usedByActive, or usedby inactive
     int colorState;
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-    void resized();
+
+private:
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    void resized() override;
 
     int type;
 
@@ -134,26 +127,20 @@ private:
         MIDDLE,
         RIGHT
     };
-
 };
 
-/**
 
-  Used to edit boolean parameters.
-
-*/
-
+/** Used to edit boolean parameters.  */
 class PLUGIN_API ParameterCheckbox : public Button
-
 {
 public:
-    ParameterCheckbox(bool defaultState);
-	~ParameterCheckbox();
+    ParameterCheckbox (bool defaultState);
 
     bool isEnabled;
 
+
 private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 
     ColourGradient selectedGrad;
     ColourGradient selectedOverGrad;
@@ -162,25 +149,20 @@ private:
     ColourGradient deactivatedGrad;
 };
 
-/**
 
-  Used to edit continuous parameters.
-
-*/
-
+/** Used to edit continuous parameters.  */
 class PLUGIN_API ParameterSlider : public Slider
-
 {
 public:
-    ParameterSlider(float min, float max, float defaultValue, Font f);
-	~ParameterSlider();
+    ParameterSlider (float minValue, float maxValue, float defaultValue, Font f);
 
     bool isEnabled;
 
-private:
-    void paint(Graphics& g);//Button(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-    Path makeRotaryPath(double, double, double);
+private:
+    void paint (Graphics& g);//Button(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+    Path makeRotaryPath (double minValue, double maxValue, double value);
 
     Font font;
 };

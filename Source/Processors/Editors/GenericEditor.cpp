@@ -1082,7 +1082,6 @@ SaveButton::~SaveButton()
 
 void GenericEditor::updateParameterButtons(int parameterIndex)
 {
-
     if (parameterEditors.size() == 0)
     {
         //Checks if there is a parameter editor, and stops a bug if there isn't.
@@ -1094,12 +1093,12 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
         {
             for (int i = 0; i < parameterEditors.size(); ++i)
             {
-                parameterEditors[i]->channelSelectionUI();
+                parameterEditors[i]->updateChannelSelectionUI();
             }
         }
         else
         {
-            parameterEditors[parameterIndex]->channelSelectionUI();
+            parameterEditors[parameterIndex]->updateChannelSelectionUI();
         }
         //std::cout << "updateParameterButtons" << std::endl;
     }

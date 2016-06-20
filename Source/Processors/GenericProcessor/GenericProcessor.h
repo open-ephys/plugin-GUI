@@ -298,9 +298,6 @@ public:
     /** Returns trus if a processor generates its own timestamps, false otherwise.*/
     virtual bool isGeneratesTimestamps() const;
 
-    /** Returns true if a processor is a data format processor (e.g. KWIKFormat), false otherwise. */
-    virtual bool isDataFormatter() const;
-
     /** Returns true if a processor is a filter processor, false otherwise. */
     virtual bool isFilter() const;
 

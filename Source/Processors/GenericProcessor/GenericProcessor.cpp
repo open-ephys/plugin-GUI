@@ -39,7 +39,7 @@ GenericProcessor::GenericProcessor (const String& name)
     , saveOrder                     (-1)
     , loadOrder                     (-1)
     , currentChannel                (-1)
-    , editor                        (0)
+    , editor                        (nullptr)
     , parametersAsXml               (nullptr)
     , sendSampleCount               (true)
     , m_name                            (name)
@@ -129,7 +129,7 @@ const String GenericProcessor::getParameterText (int parameterIndex)
 
 var GenericProcessor::getParameterVar (int parameterIndex, int parameterChannel)
 {
-    Parameter& p=parameters.getReference (parameterIndex);
+    Parameter& p = parameters.getReference (parameterIndex);
     return p.operator[] (parameterChannel);
 }
 
@@ -1016,7 +1016,6 @@ bool GenericProcessor::isEnabledState() const   { return isEnabled; }
 
 bool GenericProcessor::isGeneratesTimestamps() const { return false; }
 
-bool GenericProcessor::isDataFormatter() const  { return getProcessorType() == PROCESSOR_TYPE_DATA_FORMAT;   }
 bool GenericProcessor::isFilter()        const  { return getProcessorType() == PROCESSOR_TYPE_FILTER;        }
 bool GenericProcessor::isSource()        const  { return getProcessorType() == PROCESSOR_TYPE_SOURCE;        }
 bool GenericProcessor::isSink()          const  { return getProcessorType() == PROCESSOR_TYPE_SINK;          }
