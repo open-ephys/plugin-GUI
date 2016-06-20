@@ -47,6 +47,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter& parame
         label->setColour (Label::textColourId, Colours::darkgrey);
         label->setFont (labelFont);
         label->setBounds (10, 1, 100, 10);
+        m_labelsArray.add (label);
         addAndMakeVisible (label);
 
         desiredWidth = 120;
@@ -75,6 +76,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter& parame
         label->setColour (Label::textColourId, Colours::darkgrey);
         label->setFont (labelFont);
         label->setBounds ((80 - width) / 2 - 5, 70, 100, 10);
+        m_labelsArray.add (label);
         addAndMakeVisible (label);
 
         desiredWidth = 80;
@@ -90,6 +92,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter& parame
         label->setColour (Label::textColourId, Colours::darkgrey);
         label->setFont (labelFont);
         label->setBounds (0, 0, 100, 10);
+        m_labelsArray.add (label);
         addAndMakeVisible (label);
 
         Array<var> possibleValues = parameter.getPossibleValues();

@@ -68,13 +68,14 @@ public:
 private:
     bool m_activationState;
 
-    GenericProcessor* m_processor;
     Parameter* m_parameter;
-    ScopedPointer<ChannelSelector> m_channelSelector;
+    GenericProcessor* m_processor;
+    ChannelSelector* m_channelSelector;
 
     OwnedArray<ParameterSlider>     m_sliderArray;
     OwnedArray<ParameterButton>     m_buttonArray;
     OwnedArray<ParameterCheckbox>   m_checkboxArray;
+    OwnedArray<Label>               m_labelsArray;
 
     Array<int> m_buttonIdArray;
     Array<int> m_sliderIdArray;
