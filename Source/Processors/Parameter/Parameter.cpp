@@ -70,9 +70,6 @@ Parameter::Parameter (const String& name,
 }
 
 
-Parameter::~Parameter() {}
-
-
 const String& Parameter::getName()          const noexcept { return m_name; }
 const String& Parameter::getDescription()   const noexcept { return m_description; }
 
@@ -88,11 +85,42 @@ bool Parameter::isBoolean()     const noexcept { return m_parameterType == PARAM
 bool Parameter::isContinuous()  const noexcept { return m_parameterType == PARAMETER_TYPE_CONTINUOUS; }
 bool Parameter::isDiscrete()    const noexcept { return m_parameterType == PARAMETER_TYPE_DISCRETE; }
 
+bool Parameter::hasCustomEditorBounds() const noexcept { return m_hasCustomEditorBounds; }
+
+const Rectangle<int>& Parameter::getEditorDesiredBounds() const noexcept { return m_editorBounds; }
+
+
+int Parameter::getEditorRecommendedWidth() const noexcept
+{
+    if (isBoolean())
+        return 120;
+    else if (isContinuous())
+        return 80;
+    else if (isDiscrete())
+        return 35 * getPossibleValues().size();
+    else
+        return 0;
+}
+
+
+int Parameter::getEditorRecommendedHeight() const noexcept
+{
+    if (isBoolean())
+        return 25;
+    else if (isContinuous())
+        return 80;
+    else if (isDiscrete())
+        return 30;
+    else
+        return 0;
+}
+
 
 void Parameter::setDescription (const String& description)
 {
     m_description = description;
 }
+
 
 void Parameter::setValue (float value, int channel)
 {
@@ -110,4 +138,20 @@ void Parameter::setValue (float value, int channel)
     {
         m_values.set (channel, value);
     }
+}
+
+
+void Parameter::setEditorDesiredSize (int desiredWidth, int desiredHeight)
+{
+    m_hasCustomEditorBounds = true;
+
+    m_editorBounds.setSize (desiredWidth, desiredHeight);
+}
+
+
+void Parameter::setEditorDesiredBounds (int x, int y, int width, int height)
+{
+    m_hasCustomEditorBounds = true;
+
+    m_editorBounds.setBounds (x, y, width, height);
 }

@@ -23,87 +23,103 @@
 #include "ParameterEditor.h"
 
 
-ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter& parameter, Font labelFont)
+static const int FONT_SIZE = 10;
+
+
+ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parameter, Font labelFont)
     : m_activationState     (true)
     , m_processor           (processor)
-    , m_parameter           (&parameter)
+    , m_parameter           (parameter)
 {
-    shouldDeactivateDuringAcquisition = parameter.shouldDeactivateDuringAcquisition;
+    shouldDeactivateDuringAcquisition = parameter->shouldDeactivateDuringAcquisition;
 
-    if (parameter.isBoolean())
+    const bool isParameterHasCustomBounds = parameter->hasCustomEditorBounds();
+
+    // Create label for parameter
+    Label* label = new Label (parameter->getName(), parameter->getName());
+    labelFont.setHeight (FONT_SIZE);
+    label->setColour (Label::textColourId, Colours::darkgrey);
+    label->setFont (labelFont);
+    m_labelsArray.add (label);
+    addAndMakeVisible (label);
+
+    if (parameter->isBoolean())
     {
-        std::cout << "Boolean parameter. Creating checkbox." << std::endl;
+        std::cout << "Boolean parameter-> Creating checkbox." << std::endl;
 
         // create checkbox
-        ParameterCheckbox* pc = new ParameterCheckbox ((bool) parameter.getDefaultValue());
-        pc->setBounds (0, 0, 12, 12);
-        pc->setName (String (parameter.getID()));
+        ParameterCheckbox* pc = new ParameterCheckbox ((bool) parameter->getDefaultValue());
+        pc->setComponentID (String (parameter->getID()));
+        pc->setName (parameter->getName());
         pc->addListener (this);
         m_checkboxArray.add (pc);
         addAndMakeVisible (pc);
 
-        Label* label = new Label (parameter.getName(), parameter.getName());
-        labelFont.setHeight (10);
-        label->setColour (Label::textColourId, Colours::darkgrey);
-        label->setFont (labelFont);
-        label->setBounds (10, 1, 100, 10);
-        m_labelsArray.add (label);
-        addAndMakeVisible (label);
-
-        desiredWidth = 120;
-        desiredHeight = 25;
+        if (isParameterHasCustomBounds)
+        {
+            const auto desiredBounds = getDesiredBounds();
+            const int checkBoxSize = desiredBounds.getHeight();
+            pc->setBounds       (0, 0, checkBoxSize, checkBoxSize);
+            label->setBounds    (checkBoxSize, 0, desiredBounds.getWidth() - checkBoxSize, checkBoxSize);
+        }
+        else
+        {
+            pc->setBounds       (0, 0, 12, 12);
+            label->setBounds    (10, 1, 100, FONT_SIZE);
+            desiredWidth = 120;
+            desiredHeight = 25;
+        }
     }
-    else if (parameter.isContinuous())
+    else if (parameter->isContinuous())
     {
-        std::cout << "Continuous parameter. Creating slider." << std::endl;
+        std::cout << "Continuous parameter-> Creating slider." << std::endl;
 
         // create slider
-        Array<var> possibleValues = parameter.getPossibleValues();
+        Array<var> possibleValues = parameter->getPossibleValues();
         ParameterSlider* ps = new ParameterSlider ((float) possibleValues[0],
                                                    (float) possibleValues[1],
-                                                   (float) parameter.getDefaultValue(),
+                                                   (float) parameter->getDefaultValue(),
                                                    labelFont);
 
-        ps->setBounds (0, 0, 80, 80);
-        ps->setName (String (parameter.getID()));
+        ps->setComponentID (String (parameter->getID()));
+        ps->setName (parameter->getName());
         ps->addListener (this);
         addAndMakeVisible (ps);
         m_sliderArray.add (ps);
 
-        Label* label = new Label (parameter.getName(), parameter.getName());
-        labelFont.setHeight (10);
-        const int width = labelFont.getStringWidth (parameter.getName());
-        label->setColour (Label::textColourId, Colours::darkgrey);
-        label->setFont (labelFont);
-        label->setBounds ((80 - width) / 2 - 5, 70, 100, 10);
-        m_labelsArray.add (label);
-        addAndMakeVisible (label);
+        const int labelWidth = labelFont.getStringWidth (parameter->getName());
+        if (isParameterHasCustomBounds)
+        {
+            const auto desiredBounds = getDesiredBounds();
+            ps->setBounds       (0, 0, desiredBounds.getWidth(), desiredBounds.getHeight());
+            label->setBounds    ( (desiredBounds.getWidth() - labelWidth) / 2, desiredBounds.getHeight() - FONT_SIZE,
+                                  labelWidth, FONT_SIZE);
+        }
+        else
+        {
+            ps->setBounds (0, 0, 80, 80);
 
-        desiredWidth = 80;
-        desiredHeight = 80;
+            label->setBounds ((80 - labelWidth) / 2 - 5, 70, 100, FONT_SIZE);
+
+            desiredWidth = 80;
+            desiredHeight = 80;
+        }
     }
-    else if (parameter.isDiscrete())
+    else if (parameter->isDiscrete())
     {
-        std::cout << "Discrete parameter. Creating buttons." << std::endl;
+        std::cout << "Discrete parameter-> Creating buttons." << std::endl;
 
-        // create buttons
-        Label* label = new Label (parameter.getName(), parameter.getName());
-        labelFont.setHeight (10);
-        label->setColour (Label::textColourId, Colours::darkgrey);
-        label->setFont (labelFont);
-        label->setBounds (0, 0, 100, 10);
-        m_labelsArray.add (label);
-        addAndMakeVisible (label);
 
-        Array<var> possibleValues = parameter.getPossibleValues();
+        Array<var> possibleValues = parameter->getPossibleValues();
 
-        int buttonWidth = 35;
+        const int numButtons  = possibleValues.size();
+        const int buttonWidth = isParameterHasCustomBounds ? (m_parameter->getEditorDesiredBounds().getWidth() / numButtons)
+                                                           : 35;
 
         std::cout << "Button width: " << buttonWidth << std::endl;
-        std::cout << "Default value: " << (int) parameter.getDefaultValue() << std::endl;
+        std::cout << "Default value: " << (int) parameter->getDefaultValue() << std::endl;
 
-        int i = 0;
-        for (; i < possibleValues.size(); ++i)
+        for (int i = 0; i < numButtons; ++i)
         {
             std::cout << "Creating button " << i << std::endl;
 
@@ -113,20 +129,39 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter& parame
             else if (i == possibleValues.size() - 1)
                 buttonType = RIGHT;
 
+            // create buttons
             ParameterButton* pb = new ParameterButton (possibleValues[i], buttonType, labelFont);
-            pb->setBounds (buttonWidth * i, 12, buttonWidth, 18);
-            pb->setName (String (parameter.getID()));
+            pb->setComponentID (String (parameter->getID()));
+            pb->setName (parameter->getName());
             pb->addListener (this);
             m_buttonArray.add (pb);
 
-            if (i == (int) parameter.getDefaultValue())
+            if (isParameterHasCustomBounds)
+            {
+                pb->setBounds (buttonWidth * i, 12, buttonWidth, getDesiredBounds().getHeight() - FONT_SIZE);
+            }
+            else
+            {
+                pb->setBounds (buttonWidth * i, 12, buttonWidth, 18);
+            }
+
+            if (i == (int) parameter->getDefaultValue())
                 pb->setToggleState (true, dontSendNotification);
 
             addAndMakeVisible (pb);
         }
 
-        desiredWidth = buttonWidth * i;
-        desiredHeight = 30;
+        if (isParameterHasCustomBounds)
+        {
+            label->setBounds (0, 0, getDesiredBounds().getWidth(), FONT_SIZE);
+        }
+        else
+        {
+            label->setBounds (0, 0, 100, FONT_SIZE);
+
+            desiredWidth = buttonWidth * numButtons;
+            desiredHeight = 30;
+        }
     }
 }
 
@@ -174,8 +209,9 @@ void ParameterEditor::setEnabled (bool isEnabled)
 
 void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
 {
-    std::cout << "Button name: " << buttonThatWasClicked->getName() << std::endl;
-    std::cout << "Button value: " << buttonThatWasClicked->getButtonText() << std::endl;
+    std::cout << "Button ID: "      << buttonThatWasClicked->getComponentID()   << std::endl;
+    std::cout << "Button name: "    << buttonThatWasClicked->getName()          << std::endl;
+    std::cout << "Button value: "   << buttonThatWasClicked->getButtonText()    << std::endl;
 
     ParameterButton* b = (ParameterButton*) buttonThatWasClicked;
 
@@ -186,7 +222,7 @@ void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
             for (int i = 0; i < activeChannels.size(); ++i)
             {
                 m_processor->setCurrentChannel (activeChannels[i]);
-                m_processor->setParameter (buttonThatWasClicked->getName().getIntValue(),
+                m_processor->setParameter (buttonThatWasClicked->getComponentID().getIntValue(),
                                            buttonThatWasClicked->getButtonText().getFloatValue());
             }
         }
@@ -205,7 +241,7 @@ void ParameterEditor::sliderValueChanged (Slider* sliderWhichValueHasChanged)
             for (int i = 0; i < activeChannels.size(); ++i)
             {
                 m_processor->setCurrentChannel (activeChannels[i]);
-                m_processor->setParameter (sliderWhichValueHasChanged->getName().getIntValue(),
+                m_processor->setParameter (sliderWhichValueHasChanged->getComponentID().getIntValue(),
                                            sliderWhichValueHasChanged->getValue());
             }
         }
@@ -467,4 +503,16 @@ void ParameterEditor::updateChannelSelectionUI()
             m_buttonArray[i]->repaint();
         }
     }
+}
+
+
+bool ParameterEditor::hasCustomBounds() const noexcept
+{
+    return m_parameter->hasCustomEditorBounds();
+}
+
+
+const Rectangle<int>& ParameterEditor::getDesiredBounds() const noexcept
+{
+    return m_parameter->getEditorDesiredBounds();
 }

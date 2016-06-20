@@ -47,8 +47,8 @@ void Rectifier::setParameter (int parameterIndex, float newValue)
 
     if (currentChannel >= 0)
     {
-        Parameter& p =  parameters.getReference (parameterIndex);
-        p.setValue (newValue, currentChannel);
+        Parameter* p =  parameters[parameterIndex];
+        p->setValue (newValue, currentChannel);
     }
 }
 

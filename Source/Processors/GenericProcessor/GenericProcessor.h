@@ -451,15 +451,15 @@ public:
     int nodeId;
 
     /** An array of parameters that the user can modify.*/
-    Array<Parameter> parameters;
+    OwnedArray<Parameter> parameters;
 
-    /** Returns the parameter for a given name. 
+    /** Returns the parameter for a given name.
         It should be const method ideally, but because JUCE's getNumParameters()
         is non-const method, we can't do this one const.*/
-    Parameter& getParameterByName (String parameterName);
+    Parameter* getParameterByName (String parameterName);
 
     /** Returns the parameter for a given index.*/
-    Parameter& getParameterReference (int parameterIndex) const;
+    Parameter* getParameterObject (int parameterIndex) const;
 
     /** Save generic settings to XML (called by all processors).*/
     void saveToXml (XmlElement* parentElement);

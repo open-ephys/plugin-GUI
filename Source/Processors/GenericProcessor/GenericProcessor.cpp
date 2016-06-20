@@ -75,28 +75,28 @@ void GenericProcessor::setNodeId (int id)
 }
 
 
-Parameter& GenericProcessor::getParameterByName (String name_)
+Parameter* GenericProcessor::getParameterByName (String name)
 {
     const int numParameters = getNumParameters();
     // doesn't work
     for (int i = 0; i < numParameters; ++i)
     {
-        Parameter& p =  parameters.getReference (i);
-        const String parameterName = p.getName();
+        const auto parameter = parameters[i];
+        const String parameterName = parameter->getName();
 
-        if (parameterName.compare (name_) == 0) // fails at this point
-            return p;//parameters.getReference(i);
+        if (parameterName.compare (name) == 0) // fails at this point
+            return parameter;//parameters.getReference(i);
     }
 
-    static Parameter nullParam = Parameter ("VOID", false, -1);
+    Parameter* nullParam = new Parameter ("VOID", false, -1);
 
     return nullParam;
 }
 
 
-Parameter& GenericProcessor::getParameterReference (int parameterIndex) const
+Parameter* GenericProcessor::getParameterObject (int parameterIndex) const
 {
-    return parameters.getReference (parameterIndex);
+    return parameters[parameterIndex];
 }
 
 
@@ -106,31 +106,26 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
     std::cout << "Setting parameter" << std::endl;
 
     if (currentChannel >= 0)
-    {
-        Parameter& p =  parameters.getReference (parameterIndex);
-        p.setValue (newValue, currentChannel);
-    }
+        parameters[parameterIndex]->setValue (newValue, currentChannel);
 }
 
 
 const String GenericProcessor::getParameterName (int parameterIndex)
 {
-    Parameter& p = parameters.getReference (parameterIndex);
-    return p.getName();
+    return parameters[parameterIndex]->getName();
 }
 
 
 const String GenericProcessor::getParameterText (int parameterIndex)
 {
-    Parameter& p = parameters.getReference (parameterIndex);
-    return p.getDescription();
+    return parameters[parameterIndex]->getDescription();
 }
 
 
 var GenericProcessor::getParameterVar (int parameterIndex, int parameterChannel)
 {
-    Parameter& p = parameters.getReference (parameterIndex);
-    return p.operator[] (parameterChannel);
+    const auto parameter = parameters[parameterIndex];
+    return parameter->operator[] (parameterChannel);
 }
 
 

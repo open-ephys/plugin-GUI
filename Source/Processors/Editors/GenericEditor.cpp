@@ -137,26 +137,36 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 {
     if (useDefaultParameterEditors)
     {
+        const int xPosInitial = 2;
+        const int yPosIntiial = 23;
 
-        int maxX = 15;
-        int maxY = 30;
+        int xPos = 15;
+        int yPos = 30;
 
         // std::cout << "Adding parameter editors." << std::endl;
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
-            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterReference(i), titleFont);
+            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterObject (i), titleFont);
+            p->setChannelSelector (channelSelector);
 
-            p->setChannelSelector(channelSelector);
-            int dWidth = p->desiredWidth;
-            int dHeight = p->desiredHeight;
+            if (p->hasCustomBounds())
+            {
+                p->setBounds (p->getDesiredBounds().translated (xPosInitial, yPosIntiial));
+            }
+            else
+            {
+                const int dWidth  = p->desiredWidth;
+                const int dHeight = p->desiredHeight;
 
-            p->setBounds(maxX, maxY, dWidth, dHeight);
-            addAndMakeVisible(p);
-            parameterEditors.add(p);
+                p->setBounds (xPos, yPos, dWidth, dHeight);
 
-            maxY += dHeight;
-            maxY += 10;
+                yPos += dHeight;
+                yPos += 10;
+            }
+
+            addAndMakeVisible (p);
+            parameterEditors.add (p);
         }
     }
 }

@@ -46,7 +46,14 @@ class PLUGIN_API ParameterEditor : public Component
                                  , public Slider::Listener
 {
 public:
-    ParameterEditor (GenericProcessor* proccessor, Parameter& parameter, Font labelFont);
+    ParameterEditor (GenericProcessor* proccessor, Parameter* parameter, Font labelFont);
+
+    /** Returns true if the editor should be treated as standalone and should
+        have his own custom bounds. */
+    bool hasCustomBounds() const noexcept;
+
+    /** Returns the desired bounds for editor. */
+    const Rectangle<int>& getDesiredBounds() const noexcept;
 
     void parentHierarchyChanged() override;
 
@@ -80,6 +87,8 @@ private:
     Array<int> m_buttonIdArray;
     Array<int> m_sliderIdArray;
     Array<int> m_checkboxIdArray;
+
+    Rectangle<int> m_desiredBounds;
 
     enum
     {

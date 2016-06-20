@@ -61,8 +61,6 @@ public:
                int defaultValue, int ID,
                bool deactivateDuringAcquisition = false);
 
-    /** Destructor.*/
-    ~Parameter();
 
     /** Returns the name of the parameter.*/
     const String& getName() const noexcept;
@@ -95,11 +93,29 @@ public:
     /** Returns true if a parameter is discrete, false otherwise.*/
     bool isDiscrete() const noexcept;
 
+    /** Returns true if a user set custom bounds for the possible parameter editor, false otherwise. */
+    bool hasCustomEditorBounds() const noexcept;
+
+    /** Returns the recommended width value for the parameter editor if parameter has it. */
+    int getEditorRecommendedWidth() const noexcept;
+
+    /** Returns the recommended height value for the parameter editor if parameter has it. */
+    int getEditorRecommendedHeight() const noexcept;
+
+    /** Returns the desired bounds for editor if parameter has it. */
+    const Rectangle<int>& getEditorDesiredBounds() const noexcept;
+
     /** Sets the description of the parameter.*/
     void setDescription (const String& desc);
 
     /** Sets the value of a parameter for a given channel.*/
     void setValue (float val, int chan);
+
+    /** Sets desired size for the parameter editor. */
+    void setEditorDesiredSize (int desiredWidth, int desiredHeight);
+
+    /** Sets desired bounds for the parameter editor. */
+    void setEditorDesiredBounds (int x, int y, int width, int height);
 
     /** Certain parameters should not be changed while data acquisition is active.
          This variable indicates whether or not these parameters can be edited.*/
@@ -118,6 +134,10 @@ private:
     String m_description;
 
     int m_parameterId;
+
+    bool m_hasCustomEditorBounds { false };
+
+    Rectangle<int> m_editorBounds;
 
     ParameterType m_parameterType;
 
