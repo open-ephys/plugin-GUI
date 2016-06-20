@@ -30,14 +30,12 @@
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-static const Font FONT_LABELS ("Default", 13.f, Font::plain);
-
 
 CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
     , m_channelSelectorButtonManager (new LinearButtonGroupManager)
-    , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, FONT_LABELS))
+    , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, Font("Default", 13.f, Font::plain)))
 {
     TextButton* referenceChannelsButton = new TextButton ("Reference", "Switch to reference channels");
     referenceChannelsButton->setClickingTogglesState (true);
@@ -82,7 +80,7 @@ void CAREditor::paint (Graphics& g)
     // Draw slider's label
     // ========================================================================
     g.setColour (Colours::darkgrey);
-    g.setFont (FONT_LABELS);
+    g.setFont (Font("Default", 13.f, Font::plain));
 
     auto gainSliderBounds = m_gainSlider->getBounds();
     g.drawText (m_gainSlider->getName().toUpperCase(),
