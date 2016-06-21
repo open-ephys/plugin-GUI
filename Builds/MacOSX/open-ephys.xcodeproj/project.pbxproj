@@ -3348,7 +3348,7 @@
 					"JUCE_APP_VERSION=0.4.1",
 					"JUCE_APP_VERSION_HEX=0x401", );
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = ("~/SDKs/vstsdk2.4", "../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
+				HEADER_SEARCH_PATHS = ("~/SDKs/vstsdk2.4", "../../JuceLibraryCode", "../../JuceLibraryCode/modules", "JuceLibraryCode/", "$(inherited)");
 				INFOPLIST_FILE = Info-App.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -3373,7 +3373,7 @@
 					"JUCE_APP_VERSION_HEX=0x401", );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = ("~/SDKs/vstsdk2.4", "../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
+				HEADER_SEARCH_PATHS = ("~/SDKs/vstsdk2.4", "../../JuceLibraryCode", "../../JuceLibraryCode/modules", "JuceLibraryCode/", "$(inherited)");
 				INFOPLIST_FILE = Info-App.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;

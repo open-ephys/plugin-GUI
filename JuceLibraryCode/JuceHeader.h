@@ -13,9 +13,7 @@
 #ifndef __APPHEADERFILE_YNSYIRR__
 #define __APPHEADERFILE_YNSYIRR__
 
-#ifndef JUCE_OPEN_EPHYS_PLUGIN_GENERATOR // to avoid redefinition error when using juce header.
 #include "AppConfig.h"
-#endif
 
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_audio_devices/juce_audio_devices.h>
@@ -32,14 +30,13 @@
 #include <juce_opengl/juce_opengl.h>
 #include <juce_video/juce_video.h>
 
+#include "BinaryData.h"
+
 #if ! DONT_SET_USING_JUCE_NAMESPACE
  // If your code uses a lot of JUCE classes, then this will obviously save you
  // a lot of typing, but can be disabled by setting DONT_SET_USING_JUCE_NAMESPACE.
  using namespace juce;
 #endif
-
-#ifndef JUCE_OPEN_EPHYS_PLUGIN_GENERATOR // to avoid redefinition error when using juce header.
-#include "BinaryData.h"
 
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
@@ -48,7 +45,6 @@ namespace ProjectInfo
     const char* const  versionString  = "0.4.1";
     const int          versionNumber  = 0x401;
 }
-#endif
 #endif
 
 #endif   // __APPHEADERFILE_YNSYIRR__

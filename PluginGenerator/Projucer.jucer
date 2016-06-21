@@ -14,10 +14,10 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
                        osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
-                       headerPath="" libraryPath="" cppLibType="libc++"/>
+                       headerPath="JuceLibraryCode/" libraryPath="" cppLibType="libc++"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
                        osxSDK="default" osxCompatibility="10.7 SDK" osxArchitecture="default"
-                       headerPath="" libraryPath="" cppLibType="libc++"/>
+                       headerPath="JuceLibraryCode/" libraryPath="" cppLibType="libc++"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
@@ -34,11 +34,11 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
-                       headerPath="" libraryPath="" defines="" useRuntimeLibDLL="1"
+                       headerPath="JuceLibraryCode/" libraryPath="" defines="" useRuntimeLibDLL="1"
                        wholeProgramOptimisation="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
-                       headerPath="" libraryPath="" useRuntimeLibDLL="0"/>
+                       headerPath="JuceLibraryCode/" libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
@@ -55,10 +55,10 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="1" optimisation="1" targetName="OpenEphys_PluginGenerator"
-                       headerPath="" libraryPath="" useRuntimeLibDLL="1"/>
+                       headerPath="JuceLibraryCode/" libraryPath="" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        isDebug="0" optimisation="3" targetName="OpenEphys_PluginGenerator"
-                       headerPath="" libraryPath="" useRuntimeLibDLL="0"/>
+                       headerPath="JuceLibraryCode/" libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
@@ -74,9 +74,9 @@
                 extraLinkerFlags="" bigIcon="OCyr5F" smallIcon="" vstFolder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/&#10;" isDebug="1" optimisation="1"
-                       targetName="OpenEphys_PluginGenerator" headerPath=""/>
+                       targetName="OpenEphys_PluginGenerator" headerPath="JuceLibraryCode/"/>
         <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/&#10;" isDebug="0"
-                       optimisation="3" targetName="OpenEphys_PluginGenerator" headerPath=""/>
+                       optimisation="3" targetName="OpenEphys_PluginGenerator" headerPath="JuceLibraryCode/"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>

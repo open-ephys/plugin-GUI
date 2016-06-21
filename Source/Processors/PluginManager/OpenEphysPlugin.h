@@ -24,7 +24,7 @@
 #ifndef OPENEPHYSPLUGIN_H_INCLUDED
 #define OPENEPHYSPLUGIN_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include "PluginIDs.h"
 
