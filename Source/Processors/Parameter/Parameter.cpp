@@ -1,4 +1,5 @@
-/*    ------------------------------------------------------------------
+/*
+    ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
     Copyright (C) 2016 Open Ephys
@@ -21,6 +22,7 @@
 
 
 #include "Parameter.h"
+#include "../../../PluginGenerator/Source/Utility/openEphys_pluginHelpers.h"
 
 
 Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
@@ -76,10 +78,12 @@ const String& Parameter::getDescription()   const noexcept { return m_descriptio
 int Parameter::getID() const noexcept { return m_parameterId; }
 
 var Parameter::getDefaultValue() const noexcept             { return m_defaultValue; }
-Array<var> Parameter::getPossibleValues() const noexcept    { return m_possibleValues; }
+const Array<var>& Parameter::getPossibleValues() const { return m_possibleValues; }
 
 var Parameter::getValue   (int channel)   const { return m_values[channel]; }
 var Parameter::operator[] (int channel)   const { return m_values[channel]; }
+
+Parameter::ParameterType Parameter::getParameterType() const noexcept { return m_parameterType; }
 
 bool Parameter::isBoolean()     const noexcept { return m_parameterType == PARAMETER_TYPE_BOOLEAN; }
 bool Parameter::isContinuous()  const noexcept { return m_parameterType == PARAMETER_TYPE_CONTINUOUS; }
@@ -88,6 +92,32 @@ bool Parameter::isDiscrete()    const noexcept { return m_parameterType == PARAM
 bool Parameter::hasCustomEditorBounds() const noexcept { return m_hasCustomEditorBounds; }
 
 const Rectangle<int>& Parameter::getEditorDesiredBounds() const noexcept { return m_editorBounds; }
+
+
+String Parameter::getParameterTypeString() const noexcept
+{
+    if (isBoolean())
+        return "Boolean";
+    else if (isContinuous())
+        return "Continuous";
+    else if (isDiscrete())
+        return "Discrete";
+
+    // This should never happen
+    jassertfalse;
+    return String::empty;
+}
+
+
+Parameter::ParameterType Parameter::getParameterTypeFromString (const String& parameterTypeString)
+{
+    if (parameterTypeString == "Boolean")
+        return Parameter::PARAMETER_TYPE_BOOLEAN;
+    else if (parameterTypeString == "Continuous")
+        return Parameter::PARAMETER_TYPE_CONTINUOUS;
+    else
+        return Parameter::PARAMETER_TYPE_DISCRETE;
+}
 
 
 int Parameter::getEditorRecommendedWidth() const noexcept
@@ -116,6 +146,12 @@ int Parameter::getEditorRecommendedHeight() const noexcept
 }
 
 
+void Parameter::setName (const String& newName)
+{
+    m_name = newName;
+}
+
+
 void Parameter::setDescription (const String& description)
 {
     m_description = description;
@@ -141,6 +177,12 @@ void Parameter::setValue (float value, int channel)
 }
 
 
+void Parameter::setPossibleValues (Array<var> possibleValues)
+{
+    m_possibleValues = possibleValues;
+}
+
+
 void Parameter::setEditorDesiredSize (int desiredWidth, int desiredHeight)
 {
     m_hasCustomEditorBounds = true;
@@ -155,3 +197,117 @@ void Parameter::setEditorDesiredBounds (int x, int y, int width, int height)
 
     m_editorBounds.setBounds (x, y, width, height);
 }
+
+
+void Parameter::setEditorDesiredBounds (const Rectangle<int>& desiredBounds)
+{
+    m_hasCustomEditorBounds = true;
+
+    m_editorBounds = desiredBounds;
+}
+
+
+Parameter* ParameterFactory::createEmptyParameter (Parameter::ParameterType parameterType, int parameterId)
+{
+    switch (parameterType)
+    {
+        case Parameter::PARAMETER_TYPE_BOOLEAN:
+        {
+            auto parameter = new Parameter ("Empty", false, parameterId);
+            return parameter;
+        }
+
+        case Parameter::PARAMETER_TYPE_CONTINUOUS:
+        {
+            auto parameter = new Parameter ("Empty", -1.f, 1.f, 0.f, parameterId);
+            return parameter;
+        }
+
+        case Parameter::PARAMETER_TYPE_DISCRETE:
+        {
+            Array<var> possibleValues;
+            possibleValues.add (0);
+
+            auto parameter = new Parameter ("Empty", possibleValues, 0, parameterId);
+            return parameter;
+        }
+
+        default:
+            return nullptr;
+    };
+}
+
+
+ValueTree Parameter::createValueTreeForParameter (Parameter* parameter)
+{
+    ValueTree parameterNode ("PARAMETER");
+    parameterNode.setProperty (Ids::OpenEphysParameter::ID,                 parameter->getID(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::NAME,               parameter->getName(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::TYPE,               parameter->getParameterTypeString(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::DEFAULT_VALUE,      parameter->getDefaultValue(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::HAS_CUSTOM_BOUNDS,  parameter->hasCustomEditorBounds(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::DESIRED_BOUNDS,     parameter->getEditorDesiredBounds().toString(), nullptr);
+
+    if (parameter->isDiscrete() || parameter->isContinuous())
+        parameterNode.setProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES, convertArrayToString (parameter->getPossibleValues()), nullptr);
+
+    return parameterNode;
+}
+
+
+Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree)
+{
+    if (! parameterValueTree.isValid())
+        return nullptr;
+
+    Parameter::ParameterType parameterType
+        = Parameter::getParameterTypeFromString (parameterValueTree.getProperty (Ids::OpenEphysParameter::TYPE));
+
+    auto id   = (int) parameterValueTree.getProperty (Ids::OpenEphysParameter::ID);
+    auto name = parameterValueTree.getProperty (Ids::OpenEphysParameter::NAME).toString();
+
+    Parameter* parameter = nullptr;
+    // Boolean parameter
+    if (parameterType == Parameter::PARAMETER_TYPE_BOOLEAN)
+    {
+        auto defaultValue = (bool) parameterValueTree.getProperty (Ids::OpenEphysParameter::DEFAULT_VALUE);
+
+        parameter = new Parameter (name, defaultValue, id);
+    }
+    // Continuous parameter
+    else if (parameterType == Parameter::PARAMETER_TYPE_CONTINUOUS)
+    {
+        //Array<var> possibleValues = { 0, 1 };
+        String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
+        Array<var> possibleValues (createArrayFromString<float> (arrayString, ","));
+
+        auto minPossibleValue = float (possibleValues[0]);
+        auto maxPossibleValue = float (possibleValues[1]);
+        auto defaultValue = (float) parameterValueTree.getProperty (Ids::OpenEphysParameter::DEFAULT_VALUE);
+
+        parameter = new Parameter (name, minPossibleValue, maxPossibleValue, defaultValue, id);
+    }
+    // Discrete parameter
+    else
+    {
+        //Array<var> possibleValues;
+        String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
+        Array<var> possibleValues (createArrayFromString<int> (arrayString, ","));
+
+        auto defaultValue = (int) parameterValueTree.getProperty (Ids::OpenEphysParameter::DEFAULT_VALUE);
+
+        parameter = new Parameter (name, possibleValues, defaultValue, id);
+    }
+
+    // Set custom bounds if needed
+    auto hasCustomEditorBounds = (bool) parameterValueTree.getProperty (Ids::OpenEphysParameter::HAS_CUSTOM_BOUNDS);
+    if (hasCustomEditorBounds)
+    {
+        auto desiredBounds = Rectangle<int>::fromString (parameterValueTree.getProperty (Ids::OpenEphysParameter::DESIRED_BOUNDS).toString());
+        parameter->setEditorDesiredBounds (desiredBounds);
+    }
+
+    return parameter;
+}
+
+

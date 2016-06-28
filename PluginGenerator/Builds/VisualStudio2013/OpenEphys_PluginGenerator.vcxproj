@@ -162,6 +162,10 @@
     <ClCompile Include="..\..\Source\ComponentEditor\jucer_JucerDocument.cpp"/>
     <ClCompile Include="..\..\Source\ComponentEditor\jucer_ObjectTypes.cpp"/>
     <ClCompile Include="..\..\Source\ComponentEditor\jucer_PaintRoutine.cpp"/>
+    <ClCompile Include="..\..\..\Source\Processors\Parameter\Parameter.cpp"/>
+    <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Project\jucer_DependencyPathPropertyComponent.cpp"/>
     <ClCompile Include="..\..\Source\Project\jucer_Module.cpp"/>
     <ClCompile Include="..\..\Source\Project\jucer_Project.cpp"/>
@@ -186,6 +190,24 @@
     <ClCompile Include="..\..\Source\Utility\jucer_StoredSettings.cpp"/>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewFileWizard.cpp"/>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewProjectWizardClasses.cpp"/>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_OpenEphysLibTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\Source\BinaryData\jucer_AnimatedComponentTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1419,6 +1441,8 @@
     <ClInclude Include="..\..\Source\ComponentEditor\jucer_ObjectTypes.h"/>
     <ClInclude Include="..\..\Source\ComponentEditor\jucer_PaintRoutine.h"/>
     <ClInclude Include="..\..\Source\ComponentEditor\jucer_UtilityFunctions.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\Parameter\Parameter.h"/>
+    <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Base.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Exporter.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Modules.h"/>
@@ -1483,6 +1507,11 @@
     <ClInclude Include="..\..\Source\Wizards\jucer_StartPageComponent.h"/>
     <ClInclude Include="..\..\Source\Wizards\jucer_TemplateThumbnailsComponent.h"/>
     <ClInclude Include="..\..\Source\Wizards\openEphys_ProjectWizard_OpenEphysPlugin.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.h"/>
     <ClInclude Include="..\..\Source\BinaryData\jucer_AudioPluginEditorTemplate.h"/>
     <ClInclude Include="..\..\Source\BinaryData\jucer_AudioPluginFilterTemplate.h"/>
     <ClInclude Include="..\..\Source\BinaryData\jucer_ComponentTemplate.h"/>
@@ -1879,6 +1908,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_PluginMakefile.example"/>
     <None Include="..\..\Source\BinaryData\background_logo.svg"/>
     <None Include="..\..\Source\BinaryData\background_tile.png"/>
     <None Include="..\..\Source\BinaryData\colourscheme_dark.xml"/>

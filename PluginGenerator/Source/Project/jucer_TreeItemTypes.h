@@ -32,8 +32,12 @@
 #include "jucer_GroupInformationComponent.h"
 #include "jucer_ModulesPanel.h"
 
+// Open Ephys
 #include "../../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "../../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
+#include "../Utility/openEphys_pluginHelpers.h"
+// Because of the problems with compiling we include implementation file instead of header
+#include "Utils/openEphys_ParameterListBox.cpp"
 
 struct FileTreeItemTypes
 {

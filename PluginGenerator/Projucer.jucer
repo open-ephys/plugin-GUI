@@ -367,6 +367,16 @@
             file="Source/ComponentEditor/jucer_UtilityFunctions.h"/>
     </GROUP>
     <GROUP id="{11C065B6-1DB3-96F3-3C77-DA83932ACF56}" name="Project">
+      <GROUP id="{6C2745A4-5FD3-0F42-A66E-14A08816283C}" name="Exports">
+        <FILE id="bqLpHk" name="Parameter.cpp" compile="1" resource="0" file="../Source/Processors/Parameter/Parameter.cpp"/>
+        <FILE id="kWOkG3" name="Parameter.h" compile="0" resource="0" file="../Source/Processors/Parameter/Parameter.h"/>
+      </GROUP>
+      <GROUP id="{DA0B2624-A5EE-D075-C9D9-6836BA879449}" name="Utils">
+        <FILE id="zcrCE9" name="openEphys_ParameterListBox.cpp" compile="0"
+              resource="0" file="Source/Project/Utils/openEphys_ParameterListBox.cpp"/>
+        <FILE id="IkDUPY" name="openEphys_ParameterListBox.h" compile="0" resource="0"
+              file="Source/Project/Utils/openEphys_ParameterListBox.h"/>
+      </GROUP>
       <FILE id="lf9oOX" name="jucer_ConfigTree_Base.h" compile="0" resource="0"
             file="Source/Project/jucer_ConfigTree_Base.h"/>
       <FILE id="WDPD7O" name="jucer_ConfigTree_Exporter.h" compile="0" resource="0"
@@ -547,6 +557,32 @@
     </GROUP>
     <GROUP id="{D4241EC8-2982-DB90-D1BE-72E57B735268}" name="BinaryData">
       <GROUP id="{8064F10D-D9BC-1C24-B322-A339C00D0B25}" name="templates">
+        <GROUP id="{88685464-B099-6A1E-4658-8A73841943F2}" name="OpenEphys">
+          <FILE id="tDLR9I" name="openEphys_DataThreadPluginTemplate.cpp" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_DataThreadPluginTemplate.cpp"/>
+          <FILE id="AfwHPJ" name="openEphys_DataThreadPluginTemplate.h" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_DataThreadPluginTemplate.h"/>
+          <FILE id="d8Xcdq" name="openEphys_FileSourcePluginTemplate.cpp" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_FileSourcePluginTemplate.cpp"/>
+          <FILE id="rWodE1" name="openEphys_FileSourcePluginTemplate.h" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_FileSourcePluginTemplate.h"/>
+          <FILE id="tc5qaH" name="openEphys_OpenEphysLibTemplate.cpp" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_OpenEphysLibTemplate.cpp"/>
+          <FILE id="e277Aa" name="openEphys_PluginMakefile.example" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_PluginMakefile.example"/>
+          <FILE id="DqDfT0" name="openEphys_ProcessorEditorPluginTemplate.cpp"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorEditorPluginTemplate.cpp"/>
+          <FILE id="DrCO1U" name="openEphys_ProcessorEditorPluginTemplate.h"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorEditorPluginTemplate.h"/>
+          <FILE id="a5Ta7I" name="openEphys_ProcessorPluginTemplate.cpp" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorPluginTemplate.cpp"/>
+          <FILE id="dOxspy" name="openEphys_ProcessorPluginTemplate.h" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorPluginTemplate.h"/>
+          <FILE id="QVd832" name="openEphys_RecordEnginePluginTemplate.cpp" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_RecordEnginePluginTemplate.cpp"/>
+          <FILE id="IIuSzd" name="openEphys_RecordEnginePluginTemplate.h" compile="0"
+                resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_RecordEnginePluginTemplate.h"/>
+        </GROUP>
         <FILE id="EfZy6b" name="jucer_AnimatedComponentTemplate.cpp" compile="0"
               resource="1" file="Source/BinaryData/jucer_AnimatedComponentTemplate.cpp"/>
         <FILE id="sR7KY3" name="jucer_AudioComponentTemplate.cpp" compile="0"

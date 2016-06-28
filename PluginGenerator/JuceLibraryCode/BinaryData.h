@@ -9,6 +9,42 @@
 
 namespace BinaryData
 {
+    extern const char*   openEphys_DataThreadPluginTemplate_cpp;
+    const int            openEphys_DataThreadPluginTemplate_cppSize = 1561;
+
+    extern const char*   openEphys_DataThreadPluginTemplate_h;
+    const int            openEphys_DataThreadPluginTemplate_hSize = 1817;
+
+    extern const char*   openEphys_FileSourcePluginTemplate_cpp;
+    const int            openEphys_FileSourcePluginTemplate_cppSize = 1434;
+
+    extern const char*   openEphys_FileSourcePluginTemplate_h;
+    const int            openEphys_FileSourcePluginTemplate_hSize = 1450;
+
+    extern const char*   openEphys_OpenEphysLibTemplate_cpp;
+    const int            openEphys_OpenEphysLibTemplate_cppSize = 4216;
+
+    extern const char*   openEphys_PluginMakefile_example;
+    const int            openEphys_PluginMakefile_exampleSize = 1112;
+
+    extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 2521;
+
+    extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 2862;
+
+    extern const char*   openEphys_ProcessorPluginTemplate_cpp;
+    const int            openEphys_ProcessorPluginTemplate_cppSize = 3788;
+
+    extern const char*   openEphys_ProcessorPluginTemplate_h;
+    const int            openEphys_ProcessorPluginTemplate_hSize = 3502;
+
+    extern const char*   openEphys_RecordEnginePluginTemplate_cpp;
+    const int            openEphys_RecordEnginePluginTemplate_cppSize = 2169;
+
+    extern const char*   openEphys_RecordEnginePluginTemplate_h;
+    const int            openEphys_RecordEnginePluginTemplate_hSize = 2052;
+
     extern const char*   jucer_AnimatedComponentTemplate_cpp;
     const int            jucer_AnimatedComponentTemplate_cppSize = 1949;
 
@@ -148,7 +184,7 @@ namespace BinaryData
     extern const char* namedResourceList[];
 
     // Number of elements in the namedResourceList array.
-    const int namedResourceListSize = 45;
+    const int namedResourceListSize = 57;
 
     // If you provide the name of one of the binary resource variables above, this function will
     // return the corresponding data and its size (or a null pointer if the name isn't found).

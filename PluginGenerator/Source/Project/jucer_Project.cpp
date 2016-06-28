@@ -190,6 +190,134 @@ void Project::setMissingOpenEphysPluginDefaultValues()
     setValueIfVoid (getOpenEphysPluginFileSourceSupportedExts(),    "");
 }
 
+
+void Project::updateOpenEphysPluginConfigValues()
+{
+    //auto openEphysPluginValueTree = getOpenEphysConfigNode();
+    //// Remove all properties from tree
+    //openEphysPluginValueTree.removeAllProperties (getUndoManagerFor (openEphysPluginValueTree));
+
+    //// Add properties again
+    //openEphysPluginValueTree.setProperty (Ids::
+}
+
+
+void Project::updateOpenEphysParametersList (const OwnedArray<Parameter>& parameters)
+{
+    auto openEphysPluginValueTree = getOpenEphysConfigNode();
+    // Remove all parameters from value tree. Later we can reimplement it in more optimized way.
+    openEphysPluginValueTree.removeAllChildren (getUndoManagerFor (openEphysPluginValueTree));
+
+    // Add parameters again
+    for (auto parameter: parameters)
+    {
+        openEphysPluginValueTree.addChild (Parameter::createValueTreeForParameter (parameter), -1, nullptr);
+    }
+}
+
+
+void Project::updateSourceFilesIfNeeded()
+{
+    if (getProjectType().isOpenEphysPlugin())
+    {
+        if (getPluginType() == PLUGIN_TYPE_PROCESSOR)
+        {
+            updateOpenEphysPluginProcessorFiles();
+        }
+    }
+}
+static String fixLineEndings (const String& s)
+{
+    StringArray lines;
+    lines.addLines (s);
+
+    for (int i = 0; i < lines.size(); ++i)
+        lines.set (i, lines[i].trimEnd());
+
+    while (lines.size() > 0 && lines [lines.size() - 1].trim().isEmpty())
+        lines.remove (lines.size() - 1);
+
+    lines.add (String());
+
+    return lines.joinIntoString ("\r\n");
+}
+
+
+void Project::updateOpenEphysPluginProcessorFiles()
+{
+    auto processorCppFile = getSourceFilesFolder().getChildFile (getPluginName().toString() + "Processor.cpp");
+
+    // Update parameters code
+    // ========================================================================
+    StringArray processorCppFileLines;
+    processorCppFileLines.addLines (processorCppFile.loadFileAsString());
+    bool foundParametersSection = false;
+
+    int startIndexOfParameterSection = 0;
+    // Remove old code for parameters
+    for (int i = 0; i < processorCppFileLines.size(); ++i)
+    {
+        DBG (String (i) + String (":") + processorCppFileLines[i]);
+        if (processorCppFileLines[i].contains ("[BEGIN]"))
+        {
+            startIndexOfParameterSection = i + 1;
+            //DBG ("FOUND");
+            //DBG (processorCppFileLines[i]);
+            //DBG ("-============================-");
+            for (int j = startIndexOfParameterSection; j < processorCppFileLines.size(); ++j)
+            {
+                if (processorCppFileLines[j].contains ("[END]"))
+                {
+                    DBG ("GOT!");
+                    DBG ("Remove " + String (j - startIndexOfParameterSection) + " lines");
+                    processorCppFileLines.removeRange (startIndexOfParameterSection, j - startIndexOfParameterSection);
+                    break;
+                }
+
+                //DBG (j);
+                //DBG (processorCppFileLines[j]);
+                //processorCppFileLines.remove (j);
+            }
+
+            foundParametersSection = true;
+            break;
+        }
+    }
+
+    if (foundParametersSection)
+    {
+        // Generate new code for parameters
+        String allParametersCode;
+        auto pluginConfigNode = getOpenEphysConfigNode();
+        const int numParameters = pluginConfigNode.getNumChildren();
+
+        DBG ("NUM PARAMETERS:" + String (numParameters));
+        for (int i = 0; i < numParameters; ++i)
+        {
+            ScopedPointer<Parameter> parameter = Parameter::createParameterFromValueTree (pluginConfigNode.getChild (i));
+            if (parameter == nullptr)
+            {
+                DBG ("Can't generate parameter code for parameter with " + String (i) + "index");
+                continue;
+            }
+
+            allParametersCode << generateCodeForParameter (*parameter.get()).replace ("{PARAMINDEX}", String (i));
+            DBG (allParametersCode);
+        }
+
+        if (allParametersCode.isNotEmpty())
+            processorCppFileLines.insert (startIndexOfParameterSection, allParametersCode);
+
+        String content = fixLineEndings (processorCppFileLines.joinIntoString ("\r\n"));
+        if (FileHelpers::overwriteFileWithNewDataIfDifferent (processorCppFile, content))
+        {
+            DBG ("REPLACED");
+        }
+    }
+    // ========================================================================
+}
+
+
 void Project::updateOldStyleConfigList()
 {
     ValueTree deprecatedConfigsList (projectRoot.getChildWithName (Ids::CONFIGURATIONS));
@@ -1136,6 +1264,11 @@ ValueTree Project::getConfigNode()
     return projectRoot.getOrCreateChildWithName (Ids::JUCEOPTIONS, nullptr);
 }
 
+ValueTree Project::getOpenEphysConfigNode()
+{
+    return projectRoot.getOrCreateChildWithName (Ids::OPENEPHYSPLUGIN, nullptr);
+}
+
 const char* const Project::configFlagDefault  = "default";
 const char* const Project::configFlagEnabled  = "enabled";
 const char* const Project::configFlagDisabled = "disabled";
@@ -1167,6 +1300,9 @@ void Project::sanitiseConfigFlags()
         if (value != configFlagEnabled && value != configFlagDisabled)
             configNode.removeProperty (configNode.getPropertyName(i), getUndoManagerFor (configNode));
     }
+
+    if (getProjectType().isOpenEphysPlugin())
+        updateOpenEphysPluginConfigValues();
 }
 
 //==============================================================================
@@ -1276,7 +1412,7 @@ void Project::createExporterForCurrentPlatform()
 }
 
 //==============================================================================
-String Project::getFileTemplate (const String& templateName)
+String Project::getFileTemplate (const String& templateName) const
 {
     int dataSize;
     const char* data = BinaryData::getNamedResource (templateName.toUTF8(), dataSize);

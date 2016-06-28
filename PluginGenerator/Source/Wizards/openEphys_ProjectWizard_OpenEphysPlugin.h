@@ -210,9 +210,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         String processorType        = getProcessorTypeString (m_processorType);
         String pluginFriendlyName   = appTitle;
 
-        // TODO <Kirill A> think about loading files right from the BinaryData
-        File templateFilesFolder ("../../../Source/Processors/PluginManager/Templates");
-
         project.getProjectTypeValue() = ProjectType_OpenEphysPlugin::getTypeName();
 
         project.setPluginType (m_pluginType);
@@ -227,18 +224,17 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         //String appHeaders (CodeHelpers::createIncludeStatement (project.getAppIncludeFile(), filterCppFile));
 
-        // TODO <Kirill A> change getting file template to more versatile method
-        generatePluginMakeFile  (sourceGroup, templateFilesFolder);
-        generatePluginLibFile   (sourceGroup, templateFilesFolder, pluginProcessorName, pluginFriendlyName);
-        generatePluginProcessorFiles (sourceGroup, templateFilesFolder, pluginProcessorName, pluginEditorName, pluginFriendlyName);
-        generatePluginEditorFiles    (sourceGroup, templateFilesFolder, pluginProcessorName, pluginEditorName, pluginFriendlyName);
+        generatePluginMakeFile  (project, sourceGroup);
+        generatePluginLibFile   (project, sourceGroup, pluginProcessorName, pluginFriendlyName);
+        generatePluginProcessorFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
+        generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
 
         return true;
     }
 
 
-    bool generatePluginLibFile (Project::Item& sourceGroup,
-                                const File& templatesFolder,
+    bool generatePluginLibFile (const Project& project,
+                                Project::Item& sourceGroup,
                                 const String& pluginProcessorName,
                                 const String& pluginFriendlyName)
     {
@@ -246,13 +242,12 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         String libCreateFunctionName    = getLibPluginCreateFunctionString  (m_pluginType);
         String libPluginInfoType        = getLibPluginInfoType              (m_pluginType);
 
-        const auto templatePluginLibFile    = templatesFolder.getChildFile ("openEphys_OpenEphysLibTemplate.cpp");
-        const auto newPluginLibFile         = getSourceFilesFolder().getChildFile ("OpenEphysLib.cpp");
+        const auto newPluginLibFile = getSourceFilesFolder().getChildFile ("OpenEphysLib.cpp");
         String libPluginProcessorType = m_pluginType == PLUGIN_TYPE_PROCESSOR
                                         ? ("info->processor.type = " + getLibProcessorTypeString (m_processorType) + ";")
                                         : "";
 
-        String pluginLibCppFileContent = templatePluginLibFile.loadFileAsString()
+        String pluginLibCppFileContent  = project.getFileTemplate ("openEphys_OpenEphysLibTemplate_cpp")
             .replace ("PROCESSORCLASSNAME", pluginProcessorName, false)
             .replace ("PLUGINLIBRARYNAME", "Temporary " + pluginFriendlyName + " library", false) // TODO <Kirill A>: set library name variable
             .replace ("PLUGINLIBRARYVERSION", "1", false) // TODO <Kirill A>: set library version variable
@@ -260,9 +255,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             .replace ("LIBPLUGINTYPE", libPluginType, false)
             .replace ("LIBPLUGININFOTYPE", libPluginInfoType, false)
             .replace ("LIBPLUGINCREATEFUNCTION", libCreateFunctionName, false)
-            // TODO <Kirill A>: we should either add or remove appropriate line for plugin processor
-            // type, because it should be preset only if we generate processor plugin
-            // (Plugin::ProcessorPlugin).
             .replace ("LIBPLUGINPROCESSORTYPE", libPluginProcessorType, false);
 
         bool wasGeneratedSuccessfully = true;
@@ -280,16 +272,16 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     }
 
 
-    bool generatePluginMakeFile (Project::Item& sourceGroup, const File& templatesFolder)
+    bool generatePluginMakeFile (const Project& project, Project::Item& sourceGroup)
     {
-        const auto templatePluginMakeFile = templatesFolder.getChildFile ("openEphys_PluginMakefile.example");
-        const auto sourceFolder           = getSourceFilesFolder();
+        String templatePluginMakeFileContent = project.getFileTemplate ("openEphys_PluginMakefile_example");
+        const auto sourceFolder = getSourceFilesFolder();
 
         auto newPluginMakeFile = sourceFolder.getChildFile ("Makefile");
 
         bool wasGeneratedSuccessfully = true;
 
-        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginMakeFile, templatePluginMakeFile.loadFileAsString()))
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newPluginMakeFile, templatePluginMakeFileContent))
         {
             failedFiles.add (newPluginMakeFile.getFullPathName());
 
@@ -300,25 +292,22 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     }
 
 
-    bool generatePluginProcessorFiles (Project::Item& sourceGroup,
-                                       const File& templatesFolder,
+    bool generatePluginProcessorFiles (const Project& project,
+                                       Project::Item& sourceGroup,
                                        const String& processorName,
                                        const String& editorName,
                                        const String& pluginFriendlyName)
     {
-        const auto processorFileTemplateName = getTemplateProcessorFileName (m_pluginType);
-        const auto templateProcessorCppFile  = templatesFolder.getChildFile (processorFileTemplateName + ".cpp");
-        const auto templateProcessorHFile    = templateProcessorCppFile.withFileExtension (".h");
-        const auto sourceFolder              = getSourceFilesFolder();
+        const auto sourceFolder = getSourceFilesFolder();
 
         auto newProcessorCppFile  = sourceFolder.getChildFile (processorName + ".cpp");
         auto newProcessorHFile    = sourceFolder.getChildFile (processorName + ".h");
         auto newEditorHFile       = sourceFolder.getChildFile (editorName + ".h");
 
-        String processorType = getProcessorTypeString (m_processorType);
+        String processorFileTemplateName = getTemplateProcessorFileName (m_pluginType);
+        String processorType             = getProcessorTypeString (m_processorType);
 
-        //String filterCpp = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_cpp")
-        String processorCppFileContent = templateProcessorCppFile.loadFileAsString()
+        String processorCppFileContent = project.getFileTemplate (processorFileTemplateName + "_cpp")
             .replace ("PROCESSORHEADERS", CodeHelpers::createIncludeStatement (newProcessorHFile, newProcessorCppFile)
                       + newLine + CodeHelpers::createIncludeStatement (newEditorHFile, newProcessorCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
@@ -326,8 +315,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             .replace ("EDITORCLASSNAME",    editorName, false)
             .replace ("PROCESSORTYPE",      processorType,   false);
 
-        //String filterH = project.getFileTemplate ("jucer_AudioPluginFilterTemplate_h")
-        String processorHFileConent   = templateProcessorHFile.loadFileAsString()
+        String processorHFileConent   = project.getFileTemplate (processorFileTemplateName + "_h")
             //.replace ("APPHEADERS", appHeaders, false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newProcessorHFile), false);
@@ -355,28 +343,24 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     }
 
 
-    bool generatePluginEditorFiles (Project::Item& sourceGroup,
-                                    const File& templatesFolder,
+    bool generatePluginEditorFiles (const Project& project,
+                                    Project::Item& sourceGroup,
                                     const String& processorName,
                                     const String& editorName,
                                     const String& pluginFriendlyName)
     {
-        const auto templateEditorCppFile = templatesFolder.getChildFile ("openEphys_ProcessorEditorPluginTemplate.cpp");
-        const auto templateEditorHFile   = templateEditorCppFile.withFileExtension (".h");
-        const auto sourceFolder          = getSourceFilesFolder();
+        const auto sourceFolder = getSourceFilesFolder();
 
         auto newEditorCppFile  = sourceFolder.getChildFile (editorName + ".cpp");
         auto newEditorHFile    = sourceFolder.getChildFile (editorName + ".h");
 
-        //String editorCpp = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_cpp")
-        String editorCppFileContent = templateEditorCppFile.loadFileAsString()
+        String editorCppFileContent = project.getFileTemplate ("openEphys_ProcessorEditorPluginTemplate_cpp")
             //.replace ("EDITORCPPHEADERS", CodeHelpers::createIncludeStatement (filterHFile, filterCppFile)
             //                                   + newLine + CodeHelpers::createIncludeStatement (editorHFile, filterCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("EDITORCLASSNAME", editorName, false);
 
-        //String editorH = project.getFileTemplate ("jucer_AudioPluginEditorTemplate_h")
-        String editorHFileContent   = templateEditorHFile.loadFileAsString()
+        String editorHFileContent   = project.getFileTemplate ("openEphys_ProcessorEditorPluginTemplate_h")
             //.replace ("EDITORHEADERS", appHeaders + newLine + CodeHelpers::createIncludeStatement (filterHFile, filterCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("EDITORCLASSNAME", editorName, false)

@@ -80,6 +80,7 @@ OBJECTS := \
   $(OBJDIR)/jucer_JucerDocument_ff8afcc2.o \
   $(OBJDIR)/jucer_ObjectTypes_4406f01c.o \
   $(OBJDIR)/jucer_PaintRoutine_e1e891ee.o \
+  $(OBJDIR)/Parameter_a74eea4f.o \
   $(OBJDIR)/jucer_DependencyPathPropertyComponent_4d137229.o \
   $(OBJDIR)/jucer_Module_3f7666a5.o \
   $(OBJDIR)/jucer_Project_c131864a.o \
@@ -280,6 +281,11 @@ $(OBJDIR)/jucer_ObjectTypes_4406f01c.o: ../../Source/ComponentEditor/jucer_Objec
 $(OBJDIR)/jucer_PaintRoutine_e1e891ee.o: ../../Source/ComponentEditor/jucer_PaintRoutine.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_PaintRoutine.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Parameter_a74eea4f.o: ../../../Source/Processors/Parameter/Parameter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Parameter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/jucer_DependencyPathPropertyComponent_4d137229.o: ../../Source/Project/jucer_DependencyPathPropertyComponent.cpp

@@ -24,6 +24,10 @@
 #define __OPEN_EPHYS_PLUGIN_HELPERS__
 
 #include "../../../Source/Processors/PluginManager/PluginIDs.h"
+#include "../../../Source/Processors/Parameter/Parameter.h"
+#include "jucer_CodeHelpers.h"
+
+#include <type_traits>
 
 using namespace Plugin;
 
@@ -193,6 +197,151 @@ static String getTemplateProcessorFileName (PluginType pluginType)
         default:
             return "InvalidFileName";
     };
+}
+
+// Parameter helpers
+// ============================================================================
+// ============================================================================
+// ============================================================================
+
+/** Returns the string reporesentation of an array. */
+template<typename ValueType>
+static String convertArrayToString (const Array<ValueType>& sourceArray)
+{
+    // Allow to convert only the arrays which store arithmetic types
+    if (! std::is_arithmetic<ValueType>::value)
+        return String::empty;
+
+    String stringRepr;
+    for (auto value: sourceArray)
+        stringRepr += value.toString() + " ";
+
+    return stringRepr;
+}
+
+
+/** Creates and returns the array created from given string. Could be dangerous. */
+template <typename ValueType>
+static Array<var> createArrayFromString (const String& arrayString, const String& breakCharacters, const String& quoteCharacters = String::empty)
+{
+    // Allow to convert only the arrays which store arithmetic types
+    if (! std::is_arithmetic<ValueType>::value)
+       return Array<var> {};
+
+    StringArray valuesStr;
+    valuesStr.addTokens (arrayString, breakCharacters, quoteCharacters);
+
+    const bool isBool   = std::is_same<ValueType, bool>::value;
+    const bool isInt    = std::is_same<ValueType, int>::value;
+    const bool isLong   = std::is_same<ValueType, long>::value;
+    const bool isFloat  = std::is_same<ValueType, float>::value;
+    const bool isDouble = std::is_same<ValueType, double>::value;
+
+    Array<var> resultArray;
+    for (const auto& line: valuesStr)
+    {
+        if (isBool)
+            resultArray.add (line.getFloatValue());
+        else if (isInt)
+            resultArray.add (line.getIntValue());
+        else if (isLong)
+            resultArray.add (line.getLargeIntValue());
+        else if (isFloat)
+            resultArray.add (line.getFloatValue());
+        else if (isDouble)
+            resultArray.add (line.getDoubleValue());
+        // If any another type - try to convert to int
+        else
+            resultArray.add (line.getIntValue());
+    }
+
+    return resultArray;
+}
+
+
+/** Returns the needed C++ code for a given parameter. */
+static String generateCodeForParameter (const Parameter& parameter)
+{
+    String parameterCode;
+
+    const auto id           = parameter.getID();
+    const auto name         = parameter.getName();
+    const auto defaultValue = parameter.getDefaultValue();
+
+    // Add commentary to the parameter code
+    parameterCode += CodeHelpers::indent (String ("// Parameter {PARAMINDEX} code"), 4, true) + newLine;
+
+    // Generate code for file creation
+    switch (parameter.getParameterType())
+    {
+        case Parameter::PARAMETER_TYPE_BOOLEAN:
+        {
+            const String defaultValueStr = bool (defaultValue) ? "true" : "false";
+            String constructorCode = String ("auto parameter{PARAMINDEX} = new Parameter (\"[name]\", [defaultVal], [id]);")
+                                       .replace ("[name]", name)
+                                       .replace ("[defaultVal]", defaultValueStr)
+                                       .replace ("[id]", String (id));
+            constructorCode = CodeHelpers::indent (constructorCode, 4, true) + newLine;
+            parameterCode << constructorCode;
+
+            break;
+        }
+
+        case Parameter::PARAMETER_TYPE_CONTINUOUS:
+        {
+            Array<var> possibleValues = parameter.getPossibleValues();
+            jassert (possibleValues.size() == 2);
+
+            const float minPossibleValue = float (possibleValues[0]);
+            const float maxPossibleValue = float (possibleValues[1]);
+
+            String constructorCode = String ("auto parameter{PARAMINDEX} = new Parameter (\"[name]\", [minVal], [maxVal], [defaultVal], [id]);")
+                                         .replace ("[name]", name)
+                                         .replace ("[minVal]", String (minPossibleValue))
+                                         .replace ("[maxVal]", String (maxPossibleValue))
+                                         .replace ("[defaultVal]", defaultValue.toString())
+                                         .replace ("[id]", String (id));
+            constructorCode = CodeHelpers::indent (constructorCode, 4, true) + newLine;
+            parameterCode << constructorCode;
+
+            break;
+        }
+
+        case Parameter::PARAMETER_TYPE_DISCRETE:
+        {
+            //return String::empty;
+            auto possibleValues = parameter.getPossibleValues();
+
+            auto possibleValuesStr = CodeHelpers::indent ("Array<var> parameter{PARAMINDEX}PossibleValues {"
+                                                              + convertArrayToString (possibleValues)
+                                                              + "};"
+                                                              + newLine,
+                                                          4, true);
+
+            String constructorCode = String ("auto parameter{PARAMINDEX} = new Parameter (\"[name]\", [possibleValues], [defaultVal], [id]);")
+                                         .replace ("[name]", name)
+                                         .replace ("[possibleValues]", "parameter{PARAMINDEX}PossibleValues")
+                                         .replace ("[defaultVal]", defaultValue.toString())
+                                         .replace ("[id]", String (id));
+            constructorCode = CodeHelpers::indent (constructorCode, 4, true) + newLine;
+            parameterCode << possibleValuesStr << constructorCode;
+
+            break;
+        }
+    };
+
+    if (parameter.hasCustomEditorBounds())
+    {
+        parameterCode << CodeHelpers::indent (String ("parameter{PARAMINDEX}->setEditorDesiredBounds ([desiredBounds]);"), 4, true);
+        parameterCode << newLine;
+    }
+
+    parameterCode << CodeHelpers::indent ("parameters.add (parameter{PARAMINDEX});", 4, true);
+    parameterCode << newLine << newLine;
+
+    DBG (parameterCode);
+
+    return parameterCode;
 }
 
 

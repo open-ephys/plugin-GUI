@@ -77,6 +77,7 @@ public:
 
         const File oldFile (project.getFile());
         project.setFile (projectFile);
+        project.updateSourceFilesIfNeeded();
 
         writeMainProjectFile();
 
@@ -389,7 +390,7 @@ private:
             int isStandaloneApplication = 1;
             const ProjectType& type = project.getProjectType();
 
-            if (type.isAudioPlugin() || type.isDynamicLibrary())
+            if (type.isAudioPlugin() || type.isOpenEphysPlugin() || type.isDynamicLibrary())
                 isStandaloneApplication = 0;
 
             // Fabian TODO

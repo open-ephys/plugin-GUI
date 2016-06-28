@@ -168,6 +168,10 @@ public:
     void setPluginType           (PluginType pluginType)                     { m_pluginType = pluginType; }
     void setPluginProcessorType  (PluginProcessorType pluginProcessorType)   { m_pluginProcessorType = pluginProcessorType; }
 
+    // <Open Ephys>
+    void updateSourceFilesIfNeeded();
+    void updateOpenEphysParametersList (const OwnedArray<Parameter>& parameters);
+
     bool isAUPluginHost();
     bool isVSTPluginHost();
     bool isVST3PluginHost();
@@ -307,7 +311,7 @@ public:
     EnabledModuleList& getModules();
 
     //==============================================================================
-    String getFileTemplate (const String& templateName);
+    String getFileTemplate (const String& templateName) const;
 
     //==============================================================================
     PropertiesFile& getStoredProperties() const;
@@ -332,6 +336,8 @@ private:
 
     // <Open Ephys>
     void setMissingOpenEphysPluginDefaultValues();
+    void updateOpenEphysPluginConfigValues();
+    void updateOpenEphysPluginProcessorFiles();
     void createOpenEphysPluginPropertyEditors (PropertyListBuilder& props);
 
 
@@ -349,6 +355,7 @@ private:
     void setMissingDefaultValues();
     ValueTree getConfigurations() const;
     ValueTree getConfigNode();
+    ValueTree getOpenEphysConfigNode();
 
     void updateOldStyleConfigList();
     void moveOldPropertyFromProjectToAllExporters (Identifier name);

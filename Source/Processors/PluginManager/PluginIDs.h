@@ -23,6 +23,27 @@
 #define __PLUGIN_IDS_H__
 
 
+namespace Ids
+{
+    #define DECLARE_OPENEPHYS_ID(name)      const Identifier name (#name)
+
+    DECLARE_OPENEPHYS_ID (OPENEPHYSPLUGIN);
+    DECLARE_OPENEPHYS_ID (OPENEPHYS_PLUGIN_TYPE);
+    DECLARE_OPENEPHYS_ID (OPENEPHYS_PROCESSOR_TYPE);
+
+    // Parameter Ids
+    namespace OpenEphysParameter
+    {
+        DECLARE_OPENEPHYS_ID (ID);
+        DECLARE_OPENEPHYS_ID (NAME);
+        DECLARE_OPENEPHYS_ID (TYPE);
+        DECLARE_OPENEPHYS_ID (HAS_CUSTOM_BOUNDS);
+        DECLARE_OPENEPHYS_ID (DESIRED_BOUNDS);
+        DECLARE_OPENEPHYS_ID (DEFAULT_VALUE);
+        DECLARE_OPENEPHYS_ID (POSSIBLE_VALUES);
+    }
+}
+
 namespace Plugin
 {
 

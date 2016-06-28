@@ -18,13 +18,12 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __PARAMETER_H_62922AE5__
 #define __PARAMETER_H_62922AE5__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include <stdio.h>
@@ -43,6 +42,13 @@
 class PLUGIN_API Parameter
 {
 public:
+    enum ParameterType
+    {
+        PARAMETER_TYPE_BOOLEAN = 0
+        , PARAMETER_TYPE_CONTINUOUS
+        , PARAMETER_TYPE_DISCRETE
+    };
+
     /** Constructor for boolean parameters.*/
     Parameter (const String& name,
                bool defaultValue,
@@ -51,13 +57,13 @@ public:
 
     /** Constructor for continuous (float) parameters.*/
     Parameter (const String& name,
-               float low, float high, float defaultValue,
+               float minPossibleValue, float maxPossibleValue, float defaultValue,
                int ID,
                bool deactivateDuringAcquisition = false);
 
     /** Constructor for categorical parameters.*/
     Parameter (const String& name,
-               Array<var> a,
+               Array<var> possibleValues,
                int defaultValue, int ID,
                bool deactivateDuringAcquisition = false);
 
@@ -82,7 +88,13 @@ public:
 
     /** Returns all the possible values that a parameter can take for Boolean and Discrete parameters;
         Returns the minimum and maximum value that a parameter can take for Continuous parameters.*/
-    Array<var> getPossibleValues() const noexcept;
+    const Array<var>& getPossibleValues() const;
+
+    /** Returns the type of the parameter. */
+    ParameterType getParameterType() const noexcept;
+
+    /** Returns the type of the parameter in string representation. */
+    String getParameterTypeString() const noexcept;
 
     /** Returns true if a parameter is boolean, false otherwise.*/
     bool isBoolean() const noexcept;
@@ -105,11 +117,17 @@ public:
     /** Returns the desired bounds for editor if parameter has it. */
     const Rectangle<int>& getEditorDesiredBounds() const noexcept;
 
+    /** Sets the name of a parameter. */
+    void setName (const String& newName);
+
     /** Sets the description of the parameter.*/
     void setDescription (const String& desc);
 
     /** Sets the value of a parameter for a given channel.*/
     void setValue (float val, int chan);
+
+    /** Sets the possible values. It makes sense only for discrete parameters. */
+    void setPossibleValues (Array<var> possibleValues);
 
     /** Sets desired size for the parameter editor. */
     void setEditorDesiredSize (int desiredWidth, int desiredHeight);
@@ -117,20 +135,25 @@ public:
     /** Sets desired bounds for the parameter editor. */
     void setEditorDesiredBounds (int x, int y, int width, int height);
 
+    /** Sets desired bounds for the parameter editor. */
+    void setEditorDesiredBounds (const Rectangle<int>& desiredBounds);
+
+    /** Returns the appropriate parameter type from string. */
+    static ParameterType getParameterTypeFromString (const String& parameterTypeString);
+
+    /** Creates value tree for given parameter. */
+    static ValueTree createValueTreeForParameter (Parameter* parameter);
+
+    /** Creates parameter from a given value tree. */
+    static Parameter* createParameterFromValueTree (ValueTree parameterValueTree);
+
     /** Certain parameters should not be changed while data acquisition is active.
          This variable indicates whether or not these parameters can be edited.*/
     bool shouldDeactivateDuringAcquisition;
 
 
 private:
-    enum ParameterType
-    {
-        PARAMETER_TYPE_BOOLEAN = 0
-        , PARAMETER_TYPE_CONTINUOUS
-        , PARAMETER_TYPE_DISCRETE
-    };
-
-    const String m_name;
+    String m_name;
     String m_description;
 
     int m_parameterId;
@@ -144,6 +167,14 @@ private:
     var m_defaultValue;
     Array<var> m_values;
     Array<var> m_possibleValues;
+};
+
+
+class ParameterFactory
+{
+public:
+    /** Creates and returns the parameter of given type. */
+    static Parameter* createEmptyParameter (Parameter::ParameterType parameterType, int parameterId);
 };
 
 

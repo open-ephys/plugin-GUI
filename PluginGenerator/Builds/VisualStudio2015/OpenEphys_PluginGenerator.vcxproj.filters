@@ -35,6 +35,12 @@
     <Filter Include="OpenEphys_PluginGenerator\Project">
       <UniqueIdentifier>{1C1401AC-2C8A-413F-AC28-B888B4B5C89E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\Project\Exports">
+      <UniqueIdentifier>{797A84CF-FEE5-F6DD-9EC2-82BDE5C20848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\Project\Utils">
+      <UniqueIdentifier>{5C352953-0CB6-D276-2E9A-11ECE3DB9904}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OpenEphys_PluginGenerator\Project Saving">
       <UniqueIdentifier>{E705122A-5BC3-8A1E-D10F-28AB81EFD65A}</UniqueIdentifier>
     </Filter>
@@ -55,6 +61,9 @@
     </Filter>
     <Filter Include="OpenEphys_PluginGenerator\BinaryData\templates">
       <UniqueIdentifier>{126022DE-02C4-B84E-E2AD-13413C4CB423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys">
+      <UniqueIdentifier>{3E37D2F3-9B70-2508-484D-5666A18EC8EC}</UniqueIdentifier>
     </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
@@ -364,6 +373,12 @@
     <ClCompile Include="..\..\Source\ComponentEditor\jucer_PaintRoutine.cpp">
       <Filter>OpenEphys_PluginGenerator\ComponentEditor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\Parameter\Parameter.cpp">
+      <Filter>OpenEphys_PluginGenerator\Project\Exports</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.cpp">
+      <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Project\jucer_DependencyPathPropertyComponent.cpp">
       <Filter>OpenEphys_PluginGenerator\Project</Filter>
     </ClCompile>
@@ -429,6 +444,24 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewProjectWizardClasses.cpp">
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_OpenEphysLibTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\BinaryData\jucer_AnimatedComponentTemplate.cpp">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates</Filter>
@@ -1956,6 +1989,12 @@
     <ClInclude Include="..\..\Source\ComponentEditor\jucer_UtilityFunctions.h">
       <Filter>OpenEphys_PluginGenerator\ComponentEditor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\Parameter\Parameter.h">
+      <Filter>OpenEphys_PluginGenerator\Project\Exports</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.h">
+      <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Base.h">
       <Filter>OpenEphys_PluginGenerator\Project</Filter>
     </ClInclude>
@@ -2147,6 +2186,21 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Wizards\openEphys_ProjectWizard_OpenEphysPlugin.h">
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\BinaryData\jucer_AudioPluginEditorTemplate.h">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates</Filter>
@@ -3332,6 +3386,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_PluginMakefile.example">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </None>
     <None Include="..\..\Source\BinaryData\background_logo.svg">
       <Filter>OpenEphys_PluginGenerator\BinaryData</Filter>
     </None>
