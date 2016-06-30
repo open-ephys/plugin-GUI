@@ -66,7 +66,10 @@ public:
     VisualizerEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~VisualizerEditor();
 
+	// WARNING: This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
     void buttonEvent(Button* button);
+	
+	// All addition buttons inside the VisualizerEditor should use this callback instead of buttonEvent()
 	virtual void buttonCallback(Button* button);
 
     virtual Visualizer* createNewCanvas() = 0;

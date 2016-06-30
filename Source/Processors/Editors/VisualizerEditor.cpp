@@ -121,6 +121,7 @@ VisualizerEditor::~VisualizerEditor()
 
 }
 
+// All addition buttons inside the VisualizerEditor should use this callback instead of buttonEvent()
 void VisualizerEditor::buttonCallback(Button* button) {}
 
 void VisualizerEditor::enable()
@@ -159,6 +160,7 @@ void VisualizerEditor::editorWasClicked()
 
 }
 
+// This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
 void VisualizerEditor::buttonEvent(Button* button)
 {
 
