@@ -121,8 +121,8 @@ VisualizerEditor::~VisualizerEditor()
 
 }
 
-// All addition buttons inside the VisualizerEditor should use this callback instead of buttonEvent()
-void VisualizerEditor::buttonCallback(Button* button) {}
+// All additional buttons inside the VisualizerEditor should use this instead of buttonClicked()
+void VisualizerEditor::buttonEvent(Button* button) {}
 
 void VisualizerEditor::enable()
 {
@@ -161,9 +161,16 @@ void VisualizerEditor::editorWasClicked()
 }
 
 // This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
-void VisualizerEditor::buttonEvent(Button* button)
+// Use VisualizerEditor::buttonEvent instead
+void VisualizerEditor::buttonClicked(Button* button)
 {
+    // To handle default buttons, like the Channel Selector Drawer.
+    GenericEditor::buttonClicked(button);
 
+    // I think this must also be removed. If the user wants to keep buttons which send parameters to
+    // the canvas, it will be conceptually easier for him to handle everything on his/her own -- in
+    // the buttonEvent method. Implementing this half interface is actually confusing (for a newbie
+    // atleast)
     int gId = button->getRadioGroupId();
 
     if (gId > 0)
@@ -176,7 +183,7 @@ void VisualizerEditor::buttonEvent(Button* button)
     }
     else
     {
-
+        // handling the canvas "SelectorButtons" -- the ones which open the canvas.
         if (canvas == nullptr)
         {
 
@@ -251,8 +258,11 @@ void VisualizerEditor::buttonEvent(Button* button)
 
     }
 
-    buttonCallback(button);
+    // Pass the button event along to subclasses.
+    buttonEvent(button);
 
+    /* This is no longer needed I think, because it is handled in the GenericEditor::buttonClicked method. */
+    /*
     if (button == drawerButton)
     {
         std::cout<<"Drawer button clicked"<<std::endl;
@@ -260,7 +270,7 @@ void VisualizerEditor::buttonEvent(Button* button)
         tabSelector->setBounds(desiredWidth - 20,7,15,10);
 
     }
-
+    */
 }
 
 void VisualizerEditor::saveCustomParameters(XmlElement* xml)

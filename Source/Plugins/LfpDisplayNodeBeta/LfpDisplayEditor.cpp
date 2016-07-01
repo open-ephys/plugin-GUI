@@ -50,11 +50,12 @@ Visualizer* LfpDisplayEditor::createNewCanvas()
 
 }
 
-void LfpDisplayEditor::buttonCallback(Button* button)
+// not really being used (yet)...
+void LfpDisplayEditor::buttonEvent(Button* button)
 {
 
     int gId = button->getRadioGroupId();
-
+    std::cout<<"sfwef\n";
     if (gId > 0)
     {
         if (canvas != 0)

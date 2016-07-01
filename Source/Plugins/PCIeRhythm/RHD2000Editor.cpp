@@ -858,10 +858,12 @@ void RHD2000Editor::buttonEvent(Button* button)
 	{
 		board->enableBoardLeds(button->getToggleState());
 	}
+    /*
 	else
 	{
 		VisualizerEditor::buttonEvent(button);
 	}
+    */
 
 }
 
