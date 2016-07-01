@@ -47,7 +47,8 @@ Visualizer* LfpTriggeredAverageEditor::createNewCanvas()
 
 }
 
-void LfpTriggeredAverageEditor::buttonCallback(Button* button)
+// not really being used (yet) ...
+void LfpTriggeredAverageEditor::buttonEvent(Button* button)
 {
 
     int gId = button->getRadioGroupId();
