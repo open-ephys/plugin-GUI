@@ -48,7 +48,8 @@ Visualizer* LfpDisplayEditor::createNewCanvas()
 
 }
 
-void LfpDisplayEditor::buttonCallback(Button* button)
+// not really being used (yet) ...
+void LfpDisplayEditor::buttonEvent(Button* button)
 {
 
     int gId = button->getRadioGroupId();

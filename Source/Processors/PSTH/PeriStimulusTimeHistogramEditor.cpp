@@ -262,7 +262,7 @@ void PeriStimulusTimeHistogramEditor::visualizationMenu()
 
 void PeriStimulusTimeHistogramEditor::buttonEvent(Button* button)
 {
-    VisualizerEditor::buttonEvent(button);
+    //VisualizerEditor::buttonEvent(button);
     if (periStimulusTimeHistogramCanvas == nullptr)
         return;
 
