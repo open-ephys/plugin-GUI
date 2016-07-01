@@ -31,6 +31,9 @@
 #include <array>
 
 #define CHANNEL_TYPES 3
+#define MAX_N_CHAN 2048
+#define MAX_N_SAMP 5000
+#define MAX_N_SAMP_PER_PIXEL 100
 
 namespace LfpDisplayNodeBeta { 
 
@@ -89,7 +92,7 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    std::array<float, 1000> getSamplesPerPixel(int chan, int px);
+    std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
     const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
@@ -138,9 +141,7 @@ private:
     float timeOffset;
     //int spread ; // vertical spacing between channels
 
-    static const int MAX_N_CHAN = 2048;  // maximum number of channels
-    static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for drawing each pixel
+    
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
@@ -172,7 +173,7 @@ private:
     //float*** samplesPerPixel;
 
 	void resizeSamplesPerPixelBuffer(int numChannels);
-    std::vector<std::array<std::array<float, 1000>, 5000>> samplesPerPixel;
+    std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
 
     int sampleCountPerPixel[MAX_N_SAMP];
 

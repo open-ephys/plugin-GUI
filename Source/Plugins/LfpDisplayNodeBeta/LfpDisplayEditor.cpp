@@ -54,16 +54,6 @@ Visualizer* LfpDisplayEditor::createNewCanvas()
 void LfpDisplayEditor::buttonEvent(Button* button)
 {
 
-    int gId = button->getRadioGroupId();
-    std::cout<<"sfwef\n";
-    if (gId > 0)
-    {
-        if (canvas != 0)
-        {
-            canvas->setParameter(gId-1, button->getName().getFloatValue());
-        }
-
-    }
 
 }
 

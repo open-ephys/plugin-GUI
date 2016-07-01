@@ -94,6 +94,7 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
     //    free(samplesPerPixel[i]);
     // }
     // free(samplesPerPixel);
+
     samplesPerPixel.clear();
     
     TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
@@ -471,7 +472,7 @@ const float LfpDisplayCanvas::getYCoordMax(int chan, int samp)
     return *screenBufferMax->getReadPointer(chan, samp);
 }
 
-std::array<float, 1000> LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
+std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
 {
     return samplesPerPixel[chan][px];
 }
@@ -2404,7 +2405,7 @@ void LfpChannelDisplay::pxPaint()
                 if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
                 { // histogram based supersampling method
                     
-                    std::array<float, 1000> samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
+                    std::array<float, MAX_N_SAMP_PER_PIXEL> samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
                     int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
                     
                     if (samplerange>0 & sampleCountThisPixel>0)

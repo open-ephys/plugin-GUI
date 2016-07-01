@@ -46,8 +46,8 @@ LfpDisplayNode::LfpDisplayNode()
 
 LfpDisplayNode::~LfpDisplayNode()
 {
-
-}
+    delete[] arrayOfOnes;
+}   
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
