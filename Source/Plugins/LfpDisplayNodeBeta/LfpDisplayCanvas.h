@@ -26,6 +26,10 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "LfpDisplayNode.h"
 #include "../../Processors/Visualization/Visualizer.h"
+
+#include <vector>
+#include <array>
+
 #define CHANNEL_TYPES 3
 
 namespace LfpDisplayNodeBeta { 
@@ -85,7 +89,7 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    const float *getSamplesPerPixel(int chan, int px);
+    std::array<float, 1000> getSamplesPerPixel(int chan, int px);
     const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
@@ -165,7 +169,11 @@ private:
     int scrollBarThickness;
     
     //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    float*** samplesPerPixel;
+    //float*** samplesPerPixel;
+
+	void resizeSamplesPerPixelBuffer(int numChannels);
+    std::vector<std::array<std::array<float, 1000>, 5000>> samplesPerPixel;
+
     int sampleCountPerPixel[MAX_N_SAMP];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
