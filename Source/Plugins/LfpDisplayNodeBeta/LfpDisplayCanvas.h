@@ -141,13 +141,13 @@ private:
 
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
-    AudioSampleBuffer* screenBuffer; // subsampled buffer- one int per pixel
+    ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes
     // not pretty, but 'AudioSampleBuffer works only for channels X samples
-    AudioSampleBuffer* screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
 
     MidiBuffer* eventBuffer;
 

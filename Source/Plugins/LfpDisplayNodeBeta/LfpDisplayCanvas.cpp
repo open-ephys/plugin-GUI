@@ -93,11 +93,6 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
 
-    deleteAndZero(screenBuffer);
-    deleteAndZero(screenBufferMin);
-    deleteAndZero(screenBufferMean);
-    deleteAndZero(screenBufferMax);
-
     // de-allocate 3d-array samplesPerPixel [nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
 
     for(int i=0;i<nChans;i++)
