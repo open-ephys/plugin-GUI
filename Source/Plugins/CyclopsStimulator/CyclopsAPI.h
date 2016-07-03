@@ -1,6 +1,8 @@
 #ifndef OE_CYCLOPS_API_H
 #define OE_CYCLOPS_API_H
 
+#include <cstdint>
+
 /*
 Field       | Bits  | Description
 ----------- | ----- | -----------
@@ -83,17 +85,17 @@ enum multiByteCommands
 
 enum multiByteLength
 {
-    CHANGE_SOURCE_LOOP = 2,
-    CHANGE_SOURCE_ONE  = 2,
-    CHANGE_SOURCE_N    = 3,
-    CHANGE_TIME_PERIOD = 5,
-    TIME_FACTOR        = 5,
-    VOLTAGE_FACTOR     = 5,
-    VOLTAGE_OFFSET     = 3,
-    SQUARE_ON_TIME     = 5,
-    SQUARE_OFF_TIME    = 5,
-    SQUARE_ON_LEVEL    = 3,
-    SQUARE_OFF_LEVEL   = 3
+    CHANGE_SOURCE_LOOP_LEN = 2,
+    CHANGE_SOURCE_ONE_LEN  = 2,
+    CHANGE_SOURCE_N_LEN    = 3,
+    CHANGE_TIME_PERIOD_LEN = 5,
+    TIME_FACTOR_LEN        = 5,
+    VOLTAGE_FACTOR_LEN     = 5,
+    VOLTAGE_OFFSET_LEN     = 3,
+    SQUARE_ON_TIME_LEN     = 5,
+    SQUARE_OFF_TIME_LEN    = 5,
+    SQUARE_ON_LEVEL_LEN    = 3,
+    SQUARE_OFF_LEVEL_LEN   = 3
 };
 
 /*
@@ -218,5 +220,8 @@ bool square_on_level (CyclopsRPC *rpc, int channel, uint16_t onLevel);
 bool square_off_level (CyclopsRPC *rpc, int channel, uint16_t offLevel);
 
 } // NAMESPACE cyclops
+
+inline static uint8_t getSingleByteHeader (const int *channels, int num_channels);
+inline static uint8_t getMultiByteHeader (int channel);
 
 #endif

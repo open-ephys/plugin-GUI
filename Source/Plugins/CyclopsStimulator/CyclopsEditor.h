@@ -64,6 +64,8 @@ public:
     /** Combobox listener callback, called when a combobox is changed. */
     void comboBoxChanged(ComboBox* box);
 
+    void paint(Graphics& g);
+
     /** Called to inform the editor that acquisition is about to start*/
     void startAcquisition();
 

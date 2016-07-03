@@ -30,7 +30,7 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
     tabText = "Cyclops";
     // Add "port" list
     portList = new ComboBox();
-    portList->setBounds(10,30,80,25);
+    portList->setBounds(desiredWidth-13-60, 39, 60, 18);
     portList->addListener(this);
     portList->setTooltip("Select the serial port connected to Cyclops.");
     portList->addItemList(node->getDevices(), 1);
@@ -38,7 +38,7 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
 
     // Add baudrate list
     baudrateList = new ComboBox();
-    baudrateList->setBounds(10,60,80,25);
+    baudrateList->setBounds(desiredWidth-13-60, 63, 60, 18);
     baudrateList->addListener(this);
     baudrateList->setTooltip("Set the baud rate (115200 recommended).");
 
@@ -50,9 +50,9 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
     addAndMakeVisible(baudrateList);
 
     // Add refresh button
-    refreshButton = new UtilityButton("Refresh", Font("Small Text", 9, Font::plain));
+    refreshButton = new UtilityButton("R", Font("Small Text", 9, Font::plain));
     refreshButton->setRadius(3.0f);
-    refreshButton->setBounds(95, 60, 65, 25);
+    refreshButton->setBounds(145, 51, 20, 20);
     refreshButton->addListener(this);
     addAndMakeVisible(refreshButton);
 }
@@ -81,6 +81,7 @@ void CyclopsEditor::buttonCallback(Button* button)
         // Refresh list of devices
         portList->clear();
         portList->addItemList(node->getDevices(), 1);
+        GenericEditor::repaint();
     }
 }
 
@@ -95,6 +96,20 @@ void CyclopsEditor::comboBoxChanged(ComboBox* comboBox)
     {
         node->setBaudrate(comboBox->getSelectedId());
     }
+}
+
+void CyclopsEditor::paint(Graphics& g)
+{
+    GenericEditor::paint(g);
+    g.setColour(Colour(193, 208, 69));
+    g.fillEllipse(170, 7, 10, 10);
+    g.setColour(Colour(0, 0, 0));
+    g.drawEllipse(169, 6, 12, 12, 1);
+
+    g.setColour(Colour(193, 208, 69));
+    g.fillEllipse(184, 7, 10, 10);
+    g.setColour(Colour(0, 0, 0));
+    g.drawEllipse(183, 6, 12, 12, 1);
 }
 
 void CyclopsEditor::startAcquisition()

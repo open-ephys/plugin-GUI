@@ -89,7 +89,8 @@ void CyclopsCanvas::refresh()
 void CyclopsCanvas::paint(Graphics& g)
 {
     g.fillAll(Colours::grey);
-
+    g.setColour(Colour(255, 0, 0));
+    g.fillRect(Rectangle<int>(Point<int>(10, 10), Point<int>(100, 100)));
 }
 
 bool CyclopsCanvas::keyPressed(const KeyPress& key)

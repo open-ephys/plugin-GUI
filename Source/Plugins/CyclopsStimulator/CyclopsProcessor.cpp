@@ -119,7 +119,7 @@ void CyclopsProcessor::process(AudioSampleBuffer& buffer,
     checkForEvents(events);
 }
 
-void handleEvent(int eventType, MidiMessage& event, int samplePosition/* = 0 */)
+void CyclopsProcessor::handleEvent(int eventType, MidiMessage& event, int samplePosition/* = 0 */)
 {
     ;    
 }
