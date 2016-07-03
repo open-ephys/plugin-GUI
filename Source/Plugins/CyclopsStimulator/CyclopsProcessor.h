@@ -117,6 +117,8 @@ public:
          */
     void process(AudioSampleBuffer& buffer, MidiBuffer& events);
 
+    void handleEvent(int eventType, MidiMessage& event, int samplePosition = 0);
+
     /** The method that standard controls on the editor will call.
         It is recommended that any variables used by the "process" function 
         are modified only through this method while data acquisition is active. */

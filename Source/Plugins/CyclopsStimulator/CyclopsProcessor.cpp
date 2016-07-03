@@ -34,7 +34,6 @@ int       CyclopsProcessor::board_count = 0;
 
 CyclopsProcessor::CyclopsProcessor()
     : GenericProcessor("Cyclops Stimulator")
-
 {
     node_count++;
 }
@@ -117,7 +116,12 @@ void CyclopsProcessor::setParameter(int parameterIndex, float newValue)
 void CyclopsProcessor::process(AudioSampleBuffer& buffer,
                                MidiBuffer& events)
 {
-    ;
+    checkForEvents(events);
+}
+
+void handleEvent(int eventType, MidiMessage& event, int samplePosition/* = 0 */)
+{
+    ;    
 }
 
 bool CyclopsProcessor::isReady()
