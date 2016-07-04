@@ -26,7 +26,14 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "LfpDisplayNode.h"
 #include "../../Processors/Visualization/Visualizer.h"
+
+#include <vector>
+#include <array>
+
 #define CHANNEL_TYPES 3
+#define MAX_N_CHAN 2048
+#define MAX_N_SAMP 5000
+#define MAX_N_SAMP_PER_PIXEL 100
 
 namespace LfpDisplayNodeBeta { 
 
@@ -85,7 +92,7 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    const float *getSamplesPerPixel(int chan, int px);
+    std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
     const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
@@ -134,20 +141,18 @@ private:
     float timeOffset;
     //int spread ; // vertical spacing between channels
 
-    static const int MAX_N_CHAN = 2048;  // maximum number of channels
-    static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for drawing each pixel
+    
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
-    AudioSampleBuffer* screenBuffer; // subsampled buffer- one int per pixel
+    ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes
     // not pretty, but 'AudioSampleBuffer works only for channels X samples
-    AudioSampleBuffer* screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
 
     MidiBuffer* eventBuffer;
 
@@ -165,7 +170,11 @@ private:
     int scrollBarThickness;
     
     //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    float*** samplesPerPixel;
+    //float*** samplesPerPixel;
+
+	void resizeSamplesPerPixelBuffer(int numChannels);
+    std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
+
     int sampleCountPerPixel[MAX_N_SAMP];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);

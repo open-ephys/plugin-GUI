@@ -24,24 +24,22 @@
 
 #include "CyclopsProcessor.h"
 
-ofSerial  CyclopsProcessor::Serial;
-string    CyclopsProcessor::port = "";
-int       CyclopsProcessor::baud_rate = 9600;
+OwnedArray<ofSerial>  CyclopsProcessor::SerialObjects;
+OwnedArray<string>    CyclopsProcessor::PortNames;
+OwnedArray<int>       CyclopsProcessor::BaudRates;
 const int CyclopsProcessor::BAUDRATES[12] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400};
 
 int       CyclopsProcessor::node_count = 0;
-int       CyclopsProcessor::board_count = 0;
 
 CyclopsProcessor::CyclopsProcessor()
     : GenericProcessor("Cyclops Stimulator")
+    , 
 {
     node_count++;
 }
 
 CyclopsProcessor::~CyclopsProcessor()
 {
-  if (--node_count == 0)
-    Serial.close();
 }
 
 bool CyclopsProcessor::screenLikelyNames(const String& portName)

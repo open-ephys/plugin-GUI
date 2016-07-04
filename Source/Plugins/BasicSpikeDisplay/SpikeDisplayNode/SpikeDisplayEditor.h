@@ -48,7 +48,7 @@ public:
     SpikeDisplayEditor(GenericProcessor*);
     ~SpikeDisplayEditor();
 
-    void buttonCallback(Button* button);
+    void buttonEvent(Button* button);
 
     void startRecording();
     void stopRecording();

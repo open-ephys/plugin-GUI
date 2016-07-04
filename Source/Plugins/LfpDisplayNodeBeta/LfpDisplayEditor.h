@@ -51,7 +51,8 @@ public:
     LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~LfpDisplayEditor();
 
-    void buttonCallback(Button* button);
+    // not really being used (yet) ...
+    void buttonEvent(Button* button);
 
     Visualizer* createNewCanvas();
 

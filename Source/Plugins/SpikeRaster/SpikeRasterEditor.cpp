@@ -160,6 +160,7 @@ void SpikeRasterCanvas::beginAnimation()
     startCallbacks();
     std::cout << "Spike Raster beginning animation." << std::endl;
     
+	rasterPlot->reset();
 
 }
 
@@ -300,6 +301,7 @@ RasterPlot::RasterPlot(SpikeRasterCanvas*)
     preStimSecs = 0.5f;
     rasterStartTimestamp = 0;
     triggerTimestamp = -1;
+	currentTimestamp = 0;
 
     viewType = 0;
     trialIndex2 = 0;
@@ -343,6 +345,7 @@ void RasterPlot::reset()
 {
     spikeBuffer.clear();
     rasterStartTimestamp = 0;
+	currentTimestamp = 0;
 
     repaint();
 }
@@ -448,11 +451,19 @@ void RasterPlot::setPostSecs(float value)
 void RasterPlot::setTimestamp(int64 ts)
 {
 
-    //std::cout << "Setting timestamp." << std::endl;
+    //std::cout << "Setting timestamp to " << ts << std::endl;
+
+	if (ts > 10000000000000 || ts < currentTimestamp)
+		return;
 
     currentTimestamp = ts;
 
     float bufferStart = (currentTimestamp - rasterStartTimestamp) / (sampleRate * rasterTimebase); // (0 to 1)
+
+	//std::cout << "Buffer start:  " << bufferStart <<  std::endl;
+	//std::cout << "Raster start:  " << rasterStartTimestamp << std::endl;
+	//std::cout << "Sample rate:  " << sampleRate << std::endl;
+	//std::cout << "Raster timebase:  " << rasterTimebase << std::endl;
 
     if (bufferStart < 1.0) // no overflow
     {
@@ -557,7 +568,7 @@ void RasterPlot::processSpikeObject(const SpikeObject& s)
 
     //std::cout << "Spike time: " << bufferPos << std::endl;
 
-    //std::cout << spikeBuffer.getNumSamples() << " " << spikeBuffer.getNumChannels() << " " << (int) (relativeTimestamp*1000) << " " << electrode << std::endl;
+	//std::cout << spikeBuffer.getNumSamples() << " " << spikeBuffer.getNumChannels() << " " << (int)(timestamp * 1000) << " " << electrode << std::endl;
 
     if (bufferPos > 0. && bufferPos < 1.)
     {
@@ -568,7 +579,7 @@ void RasterPlot::processSpikeObject(const SpikeObject& s)
 
         if (numSamples > 0)
         {
-            //std::cout << electrode << " " << startSample << " " << numSamples << std::endl;
+            std::cout << electrode << " " << startSample << " " << numSamples << std::endl;
             spikeBuffer.clear(electrode, startSample, numSamples);
         } else {
             spikeBuffer.clear(electrode, 0, bufferPos);

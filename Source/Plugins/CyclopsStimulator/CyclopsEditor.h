@@ -32,14 +32,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <iostream>
 
-/**
-
-Yo mama
-
-@see GenericEditor
-*/
+namespace CyclopsColours{
+    const Colour disconnected(0xffff3823);
+    const Colour notResponding(0xffffa834);
+    const Colour connected(0xffc1d045);
+    const Colour notReady       = disconnected;
+    const Colour Ready          = connected;
+}
 
 class CyclopsProcessor;
+class IndicatorLED;
 
 class CyclopsEditor : public VisualizerEditor
                     , public ComboBox::Listener
@@ -61,7 +63,7 @@ public:
     */
 
     /** This method executes whenever a custom button is pressed */
-    virtual void buttonCallback(Button* button);
+    void buttonEvent(Button* button);
 
     /** Combobox listener callback, called when a combobox is changed. */
     void comboBoxChanged(ComboBox* box);
@@ -100,11 +102,25 @@ private:
     // Parent node
     CyclopsProcessor* node;
 
-    //ScopedPointer<TimedVariable> progress;
+    ScopedPointer<IndicatorLED> serialLED;
+    ScopedPointer<IndicatorLED> readinessLED;
+    // Some state vars for "TEST" UI
     double progress, pstep;
     bool in_a_test;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CyclopsEditor);
+};
+
+class IndicatorLED : public Component
+                   , public SettableTooltipClient
+{
+public:
+    IndicatorLED (const Colour& fill, const Colour& line);
+    void paint (Graphics& g);
+    void update (const Colour& fill, String& tooltip);
+    void update (const Colour& fill, const Colour& line, String& tooltip);
+private:
+    Colour fillColour, lineColour;
 };
 
 #endif

@@ -73,17 +73,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     lfpDisplay->setNumChannels(nChans);
 
-    
-    // allocate samplesPerPixel, behaves like float samplesPerPixel[nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL]
-    samplesPerPixel = (float***)malloc(nChans * sizeof(float **));
-    for(int i=0;i<nChans;i++)
-    {
-        samplesPerPixel[i] = (float**)malloc(MAX_N_SAMP * sizeof(float*));
-        for(int j=0;j<MAX_N_SAMP;j++)
-        {
-            samplesPerPixel[i][j] = (float*)malloc(MAX_N_SAMP_PER_PIXEL*sizeof(float));
-        }
-    }
+    resizeSamplesPerPixelBuffer(nChans);
 
     TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 
@@ -93,24 +83,47 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
 
-    deleteAndZero(screenBuffer);
-    deleteAndZero(screenBufferMin);
-    deleteAndZero(screenBufferMean);
-    deleteAndZero(screenBufferMax);
-
     // de-allocate 3d-array samplesPerPixel [nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
 
-    for(int i=0;i<nChans;i++)
-    {
-        for(int j=0;j<MAX_N_SAMP;j++)
-        {
-            free(samplesPerPixel[i][j]);
-        }
-        free(samplesPerPixel[i]);
-    }
-    free(samplesPerPixel);
+    //for(int i=0;i<nChans;i++)
+    //{
+    //    for(int j=0;j<MAX_N_SAMP;j++)
+    //    {
+    //        free(samplesPerPixel[i][j]);
+    //    }
+    //    free(samplesPerPixel[i]);
+    // }
+    // free(samplesPerPixel);
+
+    samplesPerPixel.clear();
     
     TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+}
+
+void LfpDisplayCanvas::resizeSamplesPerPixelBuffer(int numCh)
+{
+    // allocate samplesPerPixel, behaves like float samplesPerPixel[nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL]
+    //samplesPerPixel = (float***)malloc(nChans * sizeof(float **));
+
+    // 3D array: dimensions channels x samples x samples per pixel
+    samplesPerPixel.clear();
+    samplesPerPixel.resize(numCh);
+
+    //for(int i = 0; i < numCh; i++)
+    //{
+        //std::vector< std::vector<float>> v1;
+    //    samplesPerPixel[i].resize(MAX_N_SAMP);
+        //samplesPerPixel.push_back(v1);
+        //samplesPerPixel[i] = (float**)malloc(MAX_N_SAMP * sizeof(float*));
+
+    //    for(int j = 0; j < MAX_N_SAMP; j++)
+    //    {
+            //std::vector<float> v2;
+            //v2.resize(MAX_N_SAMP_PER_PIXEL);
+    //        samplesPerPixel[i][j].resize(MAX_N_SAMP_PER_PIXEL);
+    //        //samplesPerPixel[i][j] = (float*)malloc(MAX_N_SAMP_PER_PIXEL*sizeof(float));
+    //    }
+   //}
 }
 
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
@@ -161,6 +174,8 @@ void LfpDisplayCanvas::endAnimation()
 void LfpDisplayCanvas::update()
 {
     nChans = jmax(processor->getNumInputs(),1);
+
+    resizeSamplesPerPixelBuffer(nChans);
 
     sampleRate.clear();
     screenBufferIndex.clear();
@@ -457,7 +472,7 @@ const float LfpDisplayCanvas::getYCoordMax(int chan, int samp)
     return *screenBufferMax->getReadPointer(chan, samp);
 }
 
-const float* LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
+std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
 {
     return samplesPerPixel[chan][px];
 }
@@ -2390,7 +2405,7 @@ void LfpChannelDisplay::pxPaint()
                 if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
                 { // histogram based supersampling method
                     
-                    const float *samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
+                    std::array<float, MAX_N_SAMP_PER_PIXEL> samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
                     int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
                     
                     if (samplerange>0 & sampleCountThisPixel>0)

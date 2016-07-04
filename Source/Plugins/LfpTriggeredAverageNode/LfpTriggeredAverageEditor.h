@@ -49,7 +49,8 @@ public:
     LfpTriggeredAverageEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~LfpTriggeredAverageEditor();
 
-    void buttonCallback(Button* button);
+    // not really being used (yet) ...
+    void buttonEvent(Button* button);
 
     Visualizer* createNewCanvas();
 

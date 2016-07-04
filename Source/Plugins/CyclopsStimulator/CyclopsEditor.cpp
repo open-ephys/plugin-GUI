@@ -28,6 +28,8 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
     //, progress(0, 1.0, 1000)
     , progress(0)
     , in_a_test(false)
+    , serialLED(new IndicatorLED(CyclopsColours::disconnected, Colours::black))
+    , readinessLED(new IndicatorLED(CyclopsColours::notReady, Colours::black))
 {
     node = (CyclopsProcessor*)parentNode;
     tabText = "Cyclops";
@@ -67,12 +69,20 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
         addAndMakeVisible(testButtons[i]);
     }
 
+    // Add LEDs
+    serialLED->setBounds(169, 6, 12, 12);
+    readinessLED->setBounds(183, 6, 12, 12);
+    addAndMakeVisible(serialLED);
+    addAndMakeVisible(readinessLED);
+
     //progressBar = new ProgressBar(progress.var);
     progressBar = new ProgressBar(progress);
     progressBar->setPercentageDisplay(false);
     progressBar->setBounds(2, 106, 236, 16);
     addChildComponent(progressBar);
 
+    // communicate with teensy.
+    
     pstep = 0.01;
 }
 
@@ -93,7 +103,7 @@ The listener methods that reacts to the button click. The same method is called 
 on the editor, so the button variable, which cointains a pointer to the button that called the method
 has to be checked to know which function to perform.
 */
-void CyclopsEditor::buttonCallback(Button* button)
+void CyclopsEditor::buttonEvent(Button* button)
 {
     if (button == refreshButton)
     {
@@ -151,6 +161,9 @@ void CyclopsEditor::timerCallback()
 void CyclopsEditor::paint(Graphics& g)
 {
     GenericEditor::paint(g);
+    if (!in_a_test)
+        progressBar->setVisible(false);
+    /*
     g.setColour(Colour(193, 208, 69));
     g.fillEllipse(170, 7, 10, 10);
     g.setColour(Colour(0, 0, 0));
@@ -159,7 +172,7 @@ void CyclopsEditor::paint(Graphics& g)
     g.setColour(Colour(193, 208, 69));
     g.fillEllipse(184, 7, 10, 10);
     g.setColour(Colour(0, 0, 0));
-    g.drawEllipse(183, 6, 12, 12, 1);
+    g.drawEllipse(183, 6, 12, 12, 1);*/
 }
 
 void CyclopsEditor::disableAllInputWidgets()
@@ -217,4 +230,37 @@ void CyclopsEditor::loadEditorParameters(XmlElement* xmlNode)
             baudrateList->setSelectedId(subNode->getIntAttribute("baudrate"));
         }
     }
+}
+
+/*
+  +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+  |                                 INDICATOR LEDS                                |
+  +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+*/
+
+IndicatorLED::IndicatorLED(const Colour& fill, const Colour& line)
+{
+    fillColour = fill;
+    lineColour = line;
+}
+
+void IndicatorLED::paint(Graphics& g)
+{
+    g.setColour(fillColour);
+    g.fillEllipse(1, 1, getWidth()-2, getHeight()-2);
+    g.setColour(lineColour);
+    g.drawEllipse(1, 1, getWidth()-2, getHeight()-2, 1.2);
+}
+
+void IndicatorLED::update(const Colour& fill, String& tooltip)
+{
+    fillColour = fill;
+    setTooltip(tooltip);
+}
+
+void IndicatorLED::update(const Colour& fill, const Colour& line, String& tooltip)
+{
+    fillColour = fill;
+    lineColour = line;
+    setTooltip(tooltip);
 }
