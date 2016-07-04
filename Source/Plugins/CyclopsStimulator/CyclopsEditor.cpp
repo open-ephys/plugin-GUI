@@ -24,7 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CyclopsEditor.h"
 
 CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
-    : VisualizerEditor(parentNode, 240, useDefaultParameterEditors)
+    : VisualizerEditor   (parentNode, 240, useDefaultParameterEditors)
+    //, progress(0, 1.0, 1000)
+    , progress(0)
+    , in_a_test(false)
 {
     node = (CyclopsProcessor*)parentNode;
     tabText = "Cyclops";
@@ -50,11 +53,27 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
     addAndMakeVisible(baudrateList);
 
     // Add refresh button
-    refreshButton = new UtilityButton("R", Font("Small Text", 9, Font::plain));
+    refreshButton = new UtilityButton("R", Font("Default", 9, Font::plain));
     refreshButton->setRadius(3.0f);
     refreshButton->setBounds(145, 51, 20, 20);
     refreshButton->addListener(this);
     addAndMakeVisible(refreshButton);
+
+    // Add TEST buttons
+    for (int i=0; i < 4; i++){
+        testButtons.add(new UtilityButton(String("Test") + String(i), Font("Default", 10, Font::bold)));
+        testButtons[i]->setBounds(7+(58*i), 104, 40, 20);
+        testButtons[i]->addListener(this);
+        addAndMakeVisible(testButtons[i]);
+    }
+
+    //progressBar = new ProgressBar(progress.var);
+    progressBar = new ProgressBar(progress);
+    progressBar->setPercentageDisplay(false);
+    progressBar->setBounds(2, 106, 236, 16);
+    addChildComponent(progressBar);
+
+    pstep = 0.01;
 }
 
 CyclopsEditor::~CyclopsEditor()
@@ -83,6 +102,23 @@ void CyclopsEditor::buttonCallback(Button* button)
         portList->addItemList(node->getDevices(), 1);
         GenericEditor::repaint();
     }
+
+    int test_index = -1;
+    for (int i=0; i < 4; i++){
+        if (button == testButtons[i]){
+            test_index = i;
+            break;
+        }
+    }
+    if (test_index >= 0){
+        disableAllInputWidgets();
+        std::cout << "Testing LED channel " << test_index << "\n";
+        in_a_test = true;
+        //node->testChannel(test_index);
+        progressBar->setVisible(true);
+        startTimer(20);
+        test_index = -1;
+    }
 }
 
 void CyclopsEditor::comboBoxChanged(ComboBox* comboBox)
@@ -95,6 +131,20 @@ void CyclopsEditor::comboBoxChanged(ComboBox* comboBox)
     else if (comboBox == baudrateList)
     {
         node->setBaudrate(comboBox->getSelectedId());
+    }
+}
+
+void CyclopsEditor::timerCallback()
+{
+    if (in_a_test){
+        progress += pstep;
+        if (progress >= 1.0){
+            progressBar->setVisible(false);
+            progress = 0;
+            in_a_test = false;
+            stopTimer();
+            enableAllInputWidgets();
+        }
     }
 }
 
@@ -112,21 +162,35 @@ void CyclopsEditor::paint(Graphics& g)
     g.drawEllipse(183, 6, 12, 12, 1);
 }
 
-void CyclopsEditor::startAcquisition()
+void CyclopsEditor::disableAllInputWidgets()
 {
     // Disable the whole gui
     portList->setEnabled(false);
     baudrateList->setEnabled(false);
     refreshButton->setEnabled(false);
-    GenericEditor::startAcquisition();
+    for (int i=0; i<4; i++)
+        testButtons[i]->setEnabled(false);
 }
 
-void CyclopsEditor::stopAcquisition()
+void CyclopsEditor::enableAllInputWidgets()
 {
     // Reenable the whole gui
     portList->setEnabled(true);
     baudrateList->setEnabled(true);
     refreshButton->setEnabled(true);
+    for (int i=0; i<4; i++)
+        testButtons[i]->setEnabled(true);
+}
+
+void CyclopsEditor::startAcquisition()
+{
+    disableAllInputWidgets();
+    GenericEditor::startAcquisition();
+}
+
+void CyclopsEditor::stopAcquisition()
+{
+    enableAllInputWidgets();
     GenericEditor::stopAcquisition();
 }
 

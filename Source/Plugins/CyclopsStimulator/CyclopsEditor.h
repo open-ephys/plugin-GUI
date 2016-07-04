@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CYCLOPS_EDITOR_H_INCLUDED
 
 #include <VisualizerEditorHeaders.h>
+#include <UIUtilitiesHeaders.h>
 #include "CyclopsCanvas.h"
 #include "CyclopsProcessor.h"
 
@@ -40,7 +41,8 @@ Yo mama
 
 class CyclopsProcessor;
 
-class CyclopsEditor : public VisualizerEditor, public ComboBox::Listener
+class CyclopsEditor : public VisualizerEditor
+                    , public ComboBox::Listener
 {
 public:
     
@@ -64,7 +66,13 @@ public:
     /** Combobox listener callback, called when a combobox is changed. */
     void comboBoxChanged(ComboBox* box);
 
+    void timerCallback();
     void paint(Graphics& g);
+
+    /** Disables all input widgets on the editor. */
+    void disableAllInputWidgets();
+    /** Enables all input widgets on the editor. */
+    void enableAllInputWidgets();
 
     /** Called to inform the editor that acquisition is about to start*/
     void startAcquisition();
@@ -80,7 +88,9 @@ public:
     void saveEditorParameters(XmlElement* xmlNode);
     void loadEditorParameters(XmlElement* xmlNode);
 private:
-
+    // TEST Buttons
+    OwnedArray<UtilityButton> testButtons;
+    ScopedPointer<ProgressBar> progressBar;
     // Button that reloads device list
     ScopedPointer<UtilityButton> refreshButton;
     // List of all available dvices
@@ -89,6 +99,10 @@ private:
     ScopedPointer<ComboBox> baudrateList;
     // Parent node
     CyclopsProcessor* node;
+
+    //ScopedPointer<TimedVariable> progress;
+    double progress, pstep;
+    bool in_a_test;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CyclopsEditor);
 };
