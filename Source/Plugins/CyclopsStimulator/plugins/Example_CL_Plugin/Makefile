@@ -32,14 +32,10 @@ $(OUTDIR)/$(TARGET): objdir $(OBJ)
 	@$(BLDCMD)
 
 $(OBJDIR)/%.o : %.cpp
-	@echo "Compiling $< and saving in $@"
+	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 	
 objdir:
-	@echo $(CXXFLAGS)
-	@echo
-	@echo $(LDFLAGS)
-	@echo
 	-@mkdir -p $(OBJDIR)
 
 clean:

@@ -24,8 +24,8 @@
 #include "CyclopsCanvas.h"
 
 namespace cyclops {
-CyclopsCanvas::CyclopsCanvas(CyclopsEditor* n) :
-    editor(n)
+CyclopsCanvas::CyclopsCanvas(CyclopsProcessor* n) :
+    processor(n)
 {
     in_a_test = false;
     progress = 0;
@@ -142,7 +142,7 @@ void CyclopsCanvas::buttonClicked(Button* button)
         progressBar->setVisible(true);
         startTimer(20);
         test_index = -1;
-        for (auto& )
+        //for (auto& )
     }
 }
 

@@ -95,7 +95,7 @@ public:
     /** Loads parameters from XML */
     virtual void loadVisualizerParameters(XmlElement* xml);
 
-    CyclopsEditor* editor;
+    CyclopsProcessor* processor;
 
 private:
     // TEST Buttons

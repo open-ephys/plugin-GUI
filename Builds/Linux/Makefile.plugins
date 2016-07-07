@@ -63,7 +63,8 @@ $(SUBDIRS):
 	@if [ -f $@/Makefile ]; then $(MAKE) -C $@ ; fi
 
 %::
-	@if [ -f $(PLUGIN_DIR)/$@/Makefile ]; then $(MAKE) -C $(PLUGIN_DIR)/$@ clean ; $(MAKE) -C $(PLUGIN_DIR)/$@ ; fi
+	@if [ -f $(PLUGIN_DIR)/$@/Makefile ]; then $(MAKE) -C $(PLUGIN_DIR)/$@ ; fi
+# @if [ -f $(PLUGIN_DIR)/$@/Makefile ]; then $(MAKE) -C $(PLUGIN_DIR)/$@ ; $(MAKE) -C $(PLUGIN_DIR)/$@ clean ; fi
 
 	
 clean:

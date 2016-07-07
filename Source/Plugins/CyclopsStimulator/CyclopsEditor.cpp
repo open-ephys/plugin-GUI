@@ -78,7 +78,7 @@ CyclopsEditor::~CyclopsEditor()
 
 Visualizer* CyclopsEditor::createNewCanvas()
 {
-    return new CyclopsCanvas(this);
+    return new CyclopsCanvas(node);
 }
 
 /**
