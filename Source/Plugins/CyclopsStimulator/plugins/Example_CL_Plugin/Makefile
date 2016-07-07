@@ -1,14 +1,14 @@
 
-LIBNAME := $(notdir $(CURDIR))
-OBJDIR := $(OBJDIR)/$(LIBNAME)
-TARGET := $(LIBNAME).so
+CL_PLUGIN_NAME := $(notdir $(CURDIR))
+OBJDIR := $(OBJDIR)/$(CL_PLUGIN_NAME)
+TARGET := $(CL_PLUGIN_NAME).so
 OS := $(shell uname)
 
 SRC_DIR := ${shell find ./ -type d -print}
 # SOURCE_DIRS is not "empty"
 VPATH := $(SOURCE_DIRS)
 
-SRC := $(foreach sdir,$(SRC_DIR), $(filter-out ./plugins%, $(wildcard $(sdir)/*.cpp)))
+SRC := $(foreach sdir,$(SRC_DIR), $(wildcard $(sdir)/*.cpp))
 # Don't enter plugins directory!
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
@@ -32,14 +32,18 @@ $(OUTDIR)/$(TARGET): objdir $(OBJ)
 	@$(BLDCMD)
 
 $(OBJDIR)/%.o : %.cpp
-	@echo "Compiling $<"
+	@echo "Compiling $< and saving in $@"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 	
 objdir:
+	@echo $(CXXFLAGS)
+	@echo
+	@echo $(LDFLAGS)
+	@echo
 	-@mkdir -p $(OBJDIR)
 
 clean:
-	@echo "Cleaning $(LIBNAME)"
+	@echo "Cleaning $(CL_PLUGIN_NAME)"
 	-@rm -rf $(OBJDIR)
 	-@rm -f $(OUTDIR)/$(TARGET)
 

@@ -32,14 +32,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <iostream>
 
-namespace CyclopsColours{
+
+namespace cyclops{
+    namespace CyclopsColours{
     const Colour disconnected(0xffff3823);
     const Colour notResponding(0xffffa834);
     const Colour connected(0xffc1d045);
     const Colour notReady       = disconnected;
     const Colour Ready          = connected;
-}
-
+    }
 class CyclopsProcessor;
 class IndicatorLED;
 
@@ -90,9 +91,6 @@ public:
     void saveEditorParameters(XmlElement* xmlNode);
     void loadEditorParameters(XmlElement* xmlNode);
 private:
-    // TEST Buttons
-    OwnedArray<UtilityButton> testButtons;
-    ScopedPointer<ProgressBar> progressBar;
     // Button that reloads device list
     ScopedPointer<UtilityButton> refreshButton;
     // List of all available dvices
@@ -104,9 +102,6 @@ private:
 
     ScopedPointer<IndicatorLED> serialLED;
     ScopedPointer<IndicatorLED> readinessLED;
-    // Some state vars for "TEST" UI
-    double progress, pstep;
-    bool in_a_test;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CyclopsEditor);
 };
@@ -123,4 +118,5 @@ private:
     Colour fillColour, lineColour;
 };
 
+} // NAMESPACE cyclops
 #endif

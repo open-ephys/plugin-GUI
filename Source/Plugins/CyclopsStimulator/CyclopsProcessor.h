@@ -30,15 +30,16 @@
 
 #include <ProcessorHeaders.h>
 #include "CyclopsEditor.h"
+#include "plugin_manager/CLPluginManager.h"
 #include <SerialLib.h>
 
+namespace cyclops {
 /**
   The Cyclops Stimulator controls Cyclops boards to perform optpgenetic
   stimulation.
 
   @see GenericProcessor
 */
-
 class CyclopsProcessor : public GenericProcessor
 
 {
@@ -102,10 +103,12 @@ public:
     bool enable();
     bool disable();
 
+    static ScopedPointer<CyclopsPluginManager> pluginManager;
+
 private:
     ofSerial* Serial;
-    string*   port;
-    int*      baud_rate;
+    string    port;
+    int       baud_rate;
 
     static OwnedArray<ofSerial> SerialObjects;
     static OwnedArray<string>   PortNames;
@@ -118,4 +121,5 @@ private:
 
 };
 
+} // NAMESPACE cyclops
 #endif  // CYCLOPS_PROCESSOR_H_INCLUDED

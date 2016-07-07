@@ -221,7 +221,5 @@ bool square_off_level (CyclopsRPC *rpc, int channel, uint16_t offLevel);
 
 } // NAMESPACE cyclops
 
-inline static uint8_t getSingleByteHeader (const int *channels, int num_channels);
-inline static uint8_t getMultiByteHeader (int channel);
 
 #endif

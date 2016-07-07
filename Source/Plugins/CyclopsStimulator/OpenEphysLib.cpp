@@ -54,7 +54,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 		//For processor
 		info->processor.name = "Cyclops Stimulator"; //Processor name shown in the GUI
 		info->processor.type = Plugin::FilterProcessor; //Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
-		info->processor.creator = &(Plugin::createProcessor<CyclopsProcessor>); //Class factory pointer.
+		info->processor.creator = &(Plugin::createProcessor<cyclops::CyclopsProcessor>); //Class factory pointer.
 		break;
 /**
 Examples for other plugin types

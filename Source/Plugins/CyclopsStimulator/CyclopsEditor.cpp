@@ -23,11 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CyclopsEditor.h"
 
+namespace cyclops {
+    
 CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
     : VisualizerEditor   (parentNode, 240, useDefaultParameterEditors)
     //, progress(0, 1.0, 1000)
-    , progress(0)
-    , in_a_test(false)
     , serialLED(new IndicatorLED(CyclopsColours::disconnected, Colours::black))
     , readinessLED(new IndicatorLED(CyclopsColours::notReady, Colours::black))
 {
@@ -61,29 +61,13 @@ CyclopsEditor::CyclopsEditor(GenericProcessor* parentNode, bool useDefaultParame
     refreshButton->addListener(this);
     addAndMakeVisible(refreshButton);
 
-    // Add TEST buttons
-    for (int i=0; i < 4; i++){
-        testButtons.add(new UtilityButton(String("Test") + String(i), Font("Default", 10, Font::bold)));
-        testButtons[i]->setBounds(7+(58*i), 104, 40, 20);
-        testButtons[i]->addListener(this);
-        addAndMakeVisible(testButtons[i]);
-    }
-
     // Add LEDs
     serialLED->setBounds(169, 6, 12, 12);
     readinessLED->setBounds(183, 6, 12, 12);
     addAndMakeVisible(serialLED);
     addAndMakeVisible(readinessLED);
 
-    //progressBar = new ProgressBar(progress.var);
-    progressBar = new ProgressBar(progress);
-    progressBar->setPercentageDisplay(false);
-    progressBar->setBounds(2, 106, 236, 16);
-    addChildComponent(progressBar);
-
     // communicate with teensy.
-    
-    pstep = 0.01;
 }
 
 CyclopsEditor::~CyclopsEditor()
@@ -94,8 +78,7 @@ CyclopsEditor::~CyclopsEditor()
 
 Visualizer* CyclopsEditor::createNewCanvas()
 {
-    //GenericProcessor* audio_processor = (GenericProcessor*) getProcessor();
-    return new CyclopsCanvas(node);
+    return new CyclopsCanvas(this);
 }
 
 /**
@@ -111,23 +94,6 @@ void CyclopsEditor::buttonEvent(Button* button)
         portList->clear();
         portList->addItemList(node->getDevices(), 1);
         GenericEditor::repaint();
-    }
-
-    int test_index = -1;
-    for (int i=0; i < 4; i++){
-        if (button == testButtons[i]){
-            test_index = i;
-            break;
-        }
-    }
-    if (test_index >= 0){
-        disableAllInputWidgets();
-        std::cout << "Testing LED channel " << test_index << "\n";
-        in_a_test = true;
-        //node->testChannel(test_index);
-        progressBar->setVisible(true);
-        startTimer(20);
-        test_index = -1;
     }
 }
 
@@ -146,23 +112,11 @@ void CyclopsEditor::comboBoxChanged(ComboBox* comboBox)
 
 void CyclopsEditor::timerCallback()
 {
-    if (in_a_test){
-        progress += pstep;
-        if (progress >= 1.0){
-            progressBar->setVisible(false);
-            progress = 0;
-            in_a_test = false;
-            stopTimer();
-            enableAllInputWidgets();
-        }
-    }
 }
 
 void CyclopsEditor::paint(Graphics& g)
 {
     GenericEditor::paint(g);
-    if (!in_a_test)
-        progressBar->setVisible(false);
     /*
     g.setColour(Colour(193, 208, 69));
     g.fillEllipse(170, 7, 10, 10);
@@ -181,8 +135,6 @@ void CyclopsEditor::disableAllInputWidgets()
     portList->setEnabled(false);
     baudrateList->setEnabled(false);
     refreshButton->setEnabled(false);
-    for (int i=0; i<4; i++)
-        testButtons[i]->setEnabled(false);
 }
 
 void CyclopsEditor::enableAllInputWidgets()
@@ -191,8 +143,6 @@ void CyclopsEditor::enableAllInputWidgets()
     portList->setEnabled(true);
     baudrateList->setEnabled(true);
     refreshButton->setEnabled(true);
-    for (int i=0; i<4; i++)
-        testButtons[i]->setEnabled(true);
 }
 
 void CyclopsEditor::startAcquisition()
@@ -264,3 +214,5 @@ void IndicatorLED::update(const Colour& fill, const Colour& line, String& toolti
     lineColour = line;
     setTooltip(tooltip);
 }
+
+} // NAMESPACE cyclops

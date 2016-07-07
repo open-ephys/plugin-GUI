@@ -26,8 +26,8 @@
 
 #include <VisualizerWindowHeaders.h>
 #include "CyclopsProcessor.h"
-#include <vector>
 
+namespace cyclops {
 class CyclopsProcessor;
 
 /**
@@ -35,7 +35,7 @@ class CyclopsProcessor;
  */
 
 class CyclopsCanvas : public Visualizer
-
+                    , public Button::Listener
 {
 public:
     CyclopsCanvas(CyclopsProcessor* n);
@@ -50,6 +50,11 @@ public:
     /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
     virtual void refresh();
 
+    /** Disables all input widgets on the editor. */
+    void disableAllInputWidgets();
+    /** Enables all input widgets on the editor. */
+    void enableAllInputWidgets();
+    
     void paint(Graphics& g);
 
     /** Called when data acquisition is active.*/
@@ -78,21 +83,31 @@ public:
     /** Refresh rate in Hz. */
     float refreshRate;
 
+    void buttonClicked(Button* button);
+
     bool keyPressed(const KeyPress& key);
 
+    void timerCallback();
+    
     /** Saves parameters as XML */
     virtual void saveVisualizerParameters(XmlElement* xml);
 
     /** Loads parameters from XML */
     virtual void loadVisualizerParameters(XmlElement* xml);
 
-    CyclopsProcessor* processor;
+    CyclopsEditor* editor;
 
 private:
+    // TEST Buttons
+    OwnedArray<UtilityButton> testButtons;
+    ScopedPointer<ProgressBar> progressBar;
+    // Some state vars for "TEST" UI
+    double progress, pstep;
+    bool in_a_test;
 
-    bool newSpike;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CyclopsCanvas);
 
 };
 
-#endif  // SPIKEDISPLAYCANVAS_H_
+} // NAMESPACE cyclops
+#endif

@@ -24,18 +24,26 @@
 
 #include "CyclopsProcessor.h"
 
+namespace cyclops {
+
 OwnedArray<ofSerial>  CyclopsProcessor::SerialObjects;
 OwnedArray<string>    CyclopsProcessor::PortNames;
 OwnedArray<int>       CyclopsProcessor::BaudRates;
 const int CyclopsProcessor::BAUDRATES[12] = {300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400};
-
 int       CyclopsProcessor::node_count = 0;
+ScopedPointer<CyclopsPluginManager> CyclopsProcessor::pluginManager = new CyclopsPluginManager();
 
 CyclopsProcessor::CyclopsProcessor()
     : GenericProcessor("Cyclops Stimulator")
-    , 
+    , Serial (new ofSerial)
 {
     node_count++;
+    SerialObjects.add(Serial);
+    if (pluginManager->getNumPlugins() == 0){
+        std::cout << "CPM> Making Cyclops-Plugin List" << std::endl;
+        pluginManager->loadAllPlugins();
+        std::cout << "CPM> Loaded " << pluginManager->getNumPlugins() << " cyclops plugins" << std::endl;
+    }
 }
 
 CyclopsProcessor::~CyclopsProcessor()
@@ -55,10 +63,10 @@ bool CyclopsProcessor::screenLikelyNames(const String& portName)
 
 StringArray CyclopsProcessor::getDevices()
 {
-    vector<ofSerialDeviceInfo> allDeviceInfos = Serial.getDeviceList();
+    vector<ofSerialDeviceInfo> allDeviceInfos = Serial->getDeviceList();
     StringArray allDevices;
     String portName;
-    for (int i = 0; i < allDeviceInfos.size(); i++)
+    for (unsigned int i = 0; i < allDeviceInfos.size(); i++)
     {
         portName = allDeviceInfos[i].getDeviceName();
         if (screenLikelyNames(portName))
@@ -97,7 +105,6 @@ void CyclopsProcessor::updateSettings()
 AudioProcessorEditor* CyclopsProcessor::createEditor()
 {
     editor = new CyclopsEditor(this, true);
-    //std::cout << "Creating editor." << std::endl;
     return editor;
 }
 
@@ -129,7 +136,7 @@ bool CyclopsProcessor::isReady()
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Serial Port connection error!", "Please set port and baudrate to use first!");
         return false;
     }
-    if (!Serial.setup(port, baud_rate))
+    if (!Serial->setup(port, baud_rate))
     {
         AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Serial Port connection error!", "Could not connect to specified serial port. Check log files for details.");
         return false;
@@ -139,12 +146,14 @@ bool CyclopsProcessor::isReady()
 
 bool CyclopsProcessor::enable()
 {
-    //Serial.close();
+    //Serial->close();
     return true;
 }
 
 bool CyclopsProcessor::disable()
 {
-    //Serial.close();
+    //Serial->close();
     return true;
 }
+
+} // NAMESPACE cyclops
