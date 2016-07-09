@@ -337,6 +337,7 @@ void VisualizerEditor::removeTab(int tindex)
 
 int VisualizerEditor::addTab(String tab_text, Visualizer* vis_canvas)
 {
+    tabText = tab_text;
     tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tab_text, vis_canvas, this);
     return tabIndex;
 }
