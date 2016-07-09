@@ -209,12 +209,18 @@ template<typename ValueType>
 static String convertArrayToString (const Array<ValueType>& sourceArray)
 {
     // Allow to convert only the arrays which store arithmetic types
-    if (! std::is_arithmetic<ValueType>::value)
-        return String::empty;
+    //if (! std::is_arithmetic<ValueType>::value)
+    //{
+    //    DBG ("Not Arithmetic");
+    //    return String::empty;
+    //}
 
     String stringRepr;
     for (auto value: sourceArray)
-        stringRepr += value.toString() + " ";
+        stringRepr += value.toString() + ",";
+
+    // Some hardcode - remove last coma at the end of the string
+    stringRepr = stringRepr.dropLastCharacters (1);
 
     return stringRepr;
 }

@@ -248,7 +248,7 @@ ValueTree Parameter::createValueTreeForParameter (Parameter* parameter)
     parameterNode.setProperty (Ids::OpenEphysParameter::HAS_CUSTOM_BOUNDS,  parameter->hasCustomEditorBounds(), nullptr);
     parameterNode.setProperty (Ids::OpenEphysParameter::DESIRED_BOUNDS,     parameter->getEditorDesiredBounds().toString(), nullptr);
 
-    if (parameter->isDiscrete() || parameter->isContinuous())
+    if (parameter->isContinuous() || parameter->isDiscrete())
         parameterNode.setProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES, convertArrayToString (parameter->getPossibleValues()), nullptr);
 
     return parameterNode;
