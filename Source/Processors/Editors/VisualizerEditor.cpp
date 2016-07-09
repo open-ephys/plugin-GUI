@@ -114,7 +114,7 @@ VisualizerEditor::~VisualizerEditor()
 
     if (tabIndex > -1)
     {
-		AccessClass::getDataViewport()->destroyTab(tabIndex);
+        AccessClass::getDataViewport()->destroyTab(tabIndex);
     }
 
     deleteAllChildren();
@@ -155,7 +155,7 @@ void VisualizerEditor::editorWasClicked()
     if (tabIndex > -1)
     {
         std::cout << "Setting tab index to " << tabIndex << std::endl;
-		AccessClass::getDataViewport()->selectTab(tabIndex);
+        AccessClass::getDataViewport()->selectTab(tabIndex);
     }
 
 }
@@ -184,14 +184,15 @@ void VisualizerEditor::buttonClicked(Button* button)
         if (tabSelector->getToggleState() && windowSelector->getToggleState())
         {
             tabSelector->setToggleState(false, dontSendNotification);
-			AccessClass::getDataViewport()->destroyTab(tabIndex);
-            tabIndex = -1;
+            // AccessClass::getDataViewport()->destroyTab(tabIndex);
+            // tabIndex = -1;
+            removeTab(tabIndex);
         }
 
         if (dataWindow == nullptr) // have we created a window already?
         {
-
-            dataWindow = new DataWindow(windowSelector, tabText);
+            // dataWindow = new DataWindow(windowSelector, tabText);
+            makeNewWindow();
             dataWindow->setContentNonOwned(canvas, false);
             dataWindow->setVisible(true);
             //canvas->refreshState();
@@ -228,15 +229,15 @@ void VisualizerEditor::buttonClicked(Button* button)
                 dataWindow->setVisible(false);
             }
 
-			tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
-
+            // tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
+            addTab(tabText, canvas);
 
         }
         else if (!tabSelector->getToggleState() && tabIndex > -1)
         {
-			AccessClass::getDataViewport()->destroyTab(tabIndex);
-            tabIndex = -1;
-
+            // AccessClass::getDataViewport()->destroyTab(tabIndex);
+            // tabIndex = -1;
+            removeTab(tabIndex);
         }
     }
 
@@ -313,6 +314,32 @@ void VisualizerEditor::loadCustomParameters(XmlElement* xml)
     }
 }
 
+void VisualizerEditor::makeNewWindow()
+{
+    dataWindow = new DataWindow(windowSelector, tabText);
+}
+
+Component* VisualizerEditor::getActiveTabContentComponent() const
+{
+    return AccessClass::getDataViewport()->getCurrentContentComponent();
+}
+
+void VisualizerEditor::setActiveTabId(int tindex)
+{
+    AccessClass::getDataViewport()->selectTab(tindex);
+}
+
+void VisualizerEditor::removeTab(int tindex)
+{
+    AccessClass::getDataViewport()->destroyTab(tindex);
+    tabIndex = -1;
+}
+
+int VisualizerEditor::addTab(String tab_text, Visualizer* vis_canvas)
+{
+    tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tab_text, vis_canvas, this);
+    return tabIndex;
+}
 
 void VisualizerEditor::saveVisualizerParameters(XmlElement* xml)
 {

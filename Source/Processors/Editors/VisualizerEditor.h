@@ -84,17 +84,17 @@ public:
     VisualizerEditor(GenericProcessor* processor, bool useDefaultParameterEditors);
     ~VisualizerEditor();
 
-	/**
+    /**
      * @brief      This method handles the button evnets which open visualizer in a tab or window.
      * @warning    Do not override this function unless you call ``VisualizerEditor::buttonClicked``
      *             somewhere!
      */
     void buttonClicked(Button* button);
-	
-	/**
+    
+    /**
      * @brief      All additional buttons that you create _for the editor_ should be handled here.
      */
-	virtual void buttonEvent(Button* button);
+    virtual void buttonEvent(Button* button);
 
     /**
      * @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
@@ -120,17 +120,60 @@ public:
 
     String tabText;
 
-private:
+protected: // these should be available to sub-classes if needed.
+    
+    /**
+     * @brief      Creates a new DataWindow using the windowSelector (button)
+     *             and ``tabText``. The new object is stored in (and owned by)
+     *             VisualizerEditor::dataWindow.
+     * @details    Use this to make a new DataWindow. If needed, you can
+     *             transfer ownership of the new object from
+     *             VisualizerEditor::dataWindow to _your_ own ScopedPointer.
+     */
+    void makeNewWindow();
 
-    void initializeSelectors();
-    bool isPlaying;
+    /**
+     * @brief      Use this to efficiently compare or find what is on the
+     *             currently active tab.
+     *
+     * @return     The active tab content Component.
+     */
+    Component* getActiveTabContentComponent() const;
 
+    /**
+     * @brief      Selects the specified _tab_ in the DataViewport.
+     *
+     * @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
+     */
+    void setActiveTabId(int tindex);
+
+    /**
+     * @brief      Remove the specified tab from DataViewport.
+     *
+     * @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
+     */
+    void removeTab(int tindex);
+
+    /**
+     * @brief      Adds a new tab to the DataViewport.
+     *
+     * @param[in]  tab_text    The tab text
+     * @param      vis_canvas  The content Visualizer (Canvas) Component for this tab.
+     *
+     * @return     The identifier token for this tab. You must provide this
+     *             identifier to access/remove this tab.
+     */
+    int addTab(String tab_text, Visualizer* vis_canvas);
+
+    bool isPlaying; /**< Acquisition status flag */
+
+    // So that we can override buttonClick. That's not possible if these are private.
     SelectorButton* windowSelector;
     SelectorButton* tabSelector;
 
+private:
+    void initializeSelectors();
     int tabIndex;
-
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualizerEditor);
 
