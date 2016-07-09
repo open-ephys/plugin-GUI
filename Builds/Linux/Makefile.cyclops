@@ -1,0 +1,72 @@
+# Automatically generated makefile, created by the Introjucer
+# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
+
+# (this disables dependency generation if multiple architectures are set)
+DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
+
+PLUGIN_DIR := ../../Source/Plugins/CyclopsStimulator/plugins
+
+ifndef CONFIG
+  CONFIG=Debug
+endif
+
+ifeq ($(CONFIG),Debug)
+  BINDIR := $(CURDIR)/build
+  LIBDIR := $(CURDIR)/build
+  OBJDIR := $(CURDIR)/build/intermediate/cyclops_plugins/Debug
+  OUTDIR := $(CURDIR)/build/cyclops_plugins
+
+  ifeq ($(TARGET_ARCH),)
+	TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "OE_CL_PLUGIN" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers -I $(CURDIR)/../../Source/Plugins/CyclopsStimulator/CyclopsAPI -I $(CURDIR)/../../Source/Plugins/CyclopsStimulator/plugin_manager
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -std=c++0x -fPIC -rdynamic
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic
+  LDDEPS :=
+  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "OE_CL_PLUGIN" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers
+  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR)
+endif
+
+ifeq ($(CONFIG),Release)
+  BINDIR := $(CURDIR)/build
+  LIBDIR := $(CURDIR)/build
+  OBJDIR := $(CURDIR)/build/intermediate/cyclops_plugins/Release
+  OUTDIR := $(CURDIR)/build/cyclops_plugins
+
+  ifeq ($(TARGET_ARCH),)
+	TARGET_ARCH := -march=native
+  endif
+
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "OE_CL_PLUGIN" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers -I $(CURDIR)/../../Source/Plugins/CyclopsStimulator/CyclopsAPI -I $(CURDIR)/../../Source/Plugins/CyclopsStimulator/plugin_manager
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -std=c++0x -fPIC -rdynamic
+  CXXFLAGS += $(CFLAGS)
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic
+  LDDEPS1 :=
+  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "OE_CL_PLUGIN" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.3.5" -D "JUCE_APP_VERSION_HEX=0x305" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers 
+  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR)
+endif
+
+export
+
+SUBDIRS := $(wildcard $(PLUGIN_DIR)/*)
+
+.PHONY: clean all notify $(SUBDIRS)
+
+all: notify $(SUBDIRS)
+
+notify:
+	@echo "Building Open-Ephys -- Cyclops Plugins"
+
+$(SUBDIRS):
+	@if [ -f $@/Makefile ]; then $(MAKE) -C $@ ; fi
+
+%::
+	@if [ -f $(PLUGIN_DIR)/$@/Makefile ]; then $(MAKE) -C $(PLUGIN_DIR)/$@ ; fi
+# @if [ -f $(PLUGIN_DIR)/$@/Makefile ]; then $(MAKE) -C $(PLUGIN_DIR)/$@ ; $(MAKE) -C $(PLUGIN_DIR)/$@ clean ; fi
+
+	
+clean:
+	@echo Cleaning open-ephys -- cyclops plugins
+	@$(CLEANCMD)
