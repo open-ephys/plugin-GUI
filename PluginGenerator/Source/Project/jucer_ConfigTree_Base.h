@@ -304,12 +304,14 @@ private:
     public:
         SettingsComp (Project& p)
             : project (p)
-            , m_parametersListBox (p)
+            , m_parametersEditorComponent (p)
         {
             addAndMakeVisible (group);
 
             updatePropertyList();
             project.addChangeListener (this);
+
+            addChildComponent (&m_parametersEditorComponent);
 
             static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
             static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
@@ -352,9 +354,6 @@ private:
             addChildComponent (&m_buttonGroupManager);
 
             m_buttonGroupManager.setVisible (project.getProjectType().isOpenEphysPlugin());
-
-            m_parametersListBox.setColour (ListBox::textColourId, Colours::black);
-            addChildComponent (&m_parametersListBox);
         }
 
         ~SettingsComp()
@@ -371,7 +370,7 @@ private:
             y += group.updateSize (12, y, groupComponentWidth - 12);
 
             m_buttonGroupManager.setBounds (0, 0, 300, 36);
-            m_parametersListBox.setBounds (20, 40, 300, 200);
+            m_parametersEditorComponent.setBounds (5, 0, getWidth() - 5, getHeight());
 
             return Rectangle<int> (0, 0, groupComponentWidth, y);
         }
@@ -404,17 +403,17 @@ private:
             if (buttonID == PROJECT_SETTINGS_BUTTON_ID)
             {
                 group.setVisible (true);
-                m_parametersListBox.setVisible (false);
+                m_parametersEditorComponent.setVisible (false);
             }
             else if (buttonID == PLUGIN_SETTINGS_BUTTON_ID)
             {
                 group.setVisible (false);
-                m_parametersListBox.setVisible (true);
+                m_parametersEditorComponent.setVisible (true);
             }
             else if (buttonID == EDITOR_SETTINGS_BUTTON_ID)
             {
                 group.setVisible (false);
-                m_parametersListBox.setVisible (false);
+                m_parametersEditorComponent.setVisible (false);
             }
         }
 
@@ -430,7 +429,7 @@ private:
         PropertyGroupComponent group;
 
         LinearButtonGroupManager m_buttonGroupManager;
-        ParameterListBox m_parametersListBox;
+        ParametersEditorComponent m_parametersEditorComponent;
 
         SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 

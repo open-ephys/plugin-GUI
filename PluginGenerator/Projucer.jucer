@@ -376,6 +376,10 @@
               resource="0" file="Source/Project/Utils/openEphys_ParameterListBox.cpp"/>
         <FILE id="IkDUPY" name="openEphys_ParameterListBox.h" compile="0" resource="0"
               file="Source/Project/Utils/openEphys_ParameterListBox.h"/>
+        <FILE id="Vqmy8r" name="openEphys_ParametersEditorComponent.cpp" compile="0"
+              resource="0" file="Source/Project/Utils/openEphys_ParametersEditorComponent.cpp"/>
+        <FILE id="DSf86L" name="openEphys_ParametersEditorComponent.h" compile="0"
+              resource="0" file="Source/Project/Utils/openEphys_ParametersEditorComponent.h"/>
       </GROUP>
       <FILE id="lf9oOX" name="jucer_ConfigTree_Base.h" compile="0" resource="0"
             file="Source/Project/jucer_ConfigTree_Base.h"/>

@@ -646,8 +646,8 @@ static const unsigned char temp_binary_data_8[] =
 "    setProcessorType (PROCESSORTYPE);\n"
 "\n"
 "    // Open Ephys Plugin Generator will insert generated code for parameters here. Don't edit this section.\n"
-"    //[BEGIN]\n"
-"    //[END]\n"
+"    //[OPENEPHYS_PARAMETERS_SECTION_BEGIN]\n"
+"    //[OPENEPHYS_PARAMETERS_SECTION_END]\n"
 "\n"
 "    //Without a custom editor, generic parameter controls can be added\n"
 "    //parameters.add(Parameter(\"thresh\", 0.0, 500.0, 200.0, 0));\n"
@@ -5063,7 +5063,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0xbf9557ba:  numBytes = 1112; return openEphys_PluginMakefile_example;
         case 0xc39db71e:  numBytes = 2521; return openEphys_ProcessorEditorPluginTemplate_cpp;
         case 0x229158a3:  numBytes = 2862; return openEphys_ProcessorEditorPluginTemplate_h;
-        case 0xfca5b2d1:  numBytes = 3788; return openEphys_ProcessorPluginTemplate_cpp;
+        case 0xfca5b2d1:  numBytes = 3846; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3502; return openEphys_ProcessorPluginTemplate_h;
         case 0x7e820c56:  numBytes = 2169; return openEphys_RecordEnginePluginTemplate_cpp;
         case 0x36799bdb:  numBytes = 2052; return openEphys_RecordEnginePluginTemplate_h;

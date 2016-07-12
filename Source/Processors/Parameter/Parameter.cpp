@@ -27,14 +27,19 @@
 
 Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
-    , m_name                            (name)
-    , m_description                     ("")
-    , m_parameterId                     (ID)
+    , m_nameValueObject                 (name)
+    , m_descriptionValueObject          ("")
+    , m_parameterIdValueObject          (ID)
+    , m_defaultValueObject              (defaultValue)
     , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
-    , m_defaultValue                    (defaultValue)
 {
     m_possibleValues.add (true);
     m_possibleValues.add (false);
+
+    m_minValueObject = 0;
+    m_maxValueObject = 0;
+
+    registerValueListeners();
 }
 
 
@@ -43,17 +48,22 @@ Parameter::Parameter (const String& name,
                       int ID,
                       bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
-    , m_name                            (name)
-    , m_description                     ("")
-    , m_parameterId                     (ID)
+    , m_nameValueObject                 (name)
+    , m_descriptionValueObject          ("")
+    , m_parameterIdValueObject          (ID)
+    , m_defaultValueObject              (defaultValue)
     , m_parameterType                   (PARAMETER_TYPE_CONTINUOUS)
-    , m_defaultValue                    (defaultValue)
 {
     m_possibleValues.add (minPossibleValue);
     m_possibleValues.add (maxPossibleValue);
 
     // Initialize default value
-    m_values.set (0, m_defaultValue);
+    m_values.set (0, defaultValue);
+
+    m_minValueObject = minPossibleValue;
+    m_maxValueObject = maxPossibleValue;
+
+    registerValueListeners();
 }
 
 
@@ -62,23 +72,48 @@ Parameter::Parameter (const String& name,
                       int defaultValue, int ID,
                       bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
-    , m_name                            (name)
-    , m_description                     ("")
-    , m_parameterId                     (ID)
+    , m_nameValueObject                 (name)
+    , m_descriptionValueObject          ("")
+    , m_parameterIdValueObject          (ID)
+    , m_defaultValueObject              (defaultValue)
     , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
-    , m_defaultValue                    (defaultValue)
 {
     m_possibleValues = a;
+
+    m_minValueObject = 0;
+    m_maxValueObject = 0;
+
+    registerValueListeners();
 }
 
 
-const String& Parameter::getName()          const noexcept { return m_name; }
-const String& Parameter::getDescription()   const noexcept { return m_description; }
+void Parameter::registerValueListeners()
+{
+    m_desiredXValueObject.addListener (this);
+    m_desiredYValueObject.addListener (this);
+    m_desiredWidthValueObject.addListener   (this);
+    m_desiredHeightValueObject.addListener  (this);
 
-int Parameter::getID() const noexcept { return m_parameterId; }
+    m_minValueObject.addListener (this);
+    m_maxValueObject.addListener (this);
 
-var Parameter::getDefaultValue() const noexcept             { return m_defaultValue; }
-const Array<var>& Parameter::getPossibleValues() const { return m_possibleValues; }
+    m_possibleValuesObject.addListener (this);
+
+    // Test
+    m_nameValueObject.addListener        (this);
+    m_parameterIdValueObject.addListener (this);
+    m_descriptionValueObject.addListener (this);
+    m_defaultValueObject.addListener     (this);
+}
+
+
+String Parameter::getName()          const noexcept { return m_nameValueObject.toString(); }
+String Parameter::getDescription()   const noexcept { return m_descriptionValueObject.toString(); }
+
+int Parameter::getID() const noexcept { return m_parameterIdValueObject.getValue(); }
+
+var Parameter::getDefaultValue() const noexcept             { return m_defaultValueObject.getValue(); }
+const Array<var>& Parameter::getPossibleValues() const      { return m_possibleValues; }
 
 var Parameter::getValue   (int channel)   const { return m_values[channel]; }
 var Parameter::operator[] (int channel)   const { return m_values[channel]; }
@@ -92,6 +127,21 @@ bool Parameter::isDiscrete()    const noexcept { return m_parameterType == PARAM
 bool Parameter::hasCustomEditorBounds() const noexcept { return m_hasCustomEditorBounds; }
 
 const Rectangle<int>& Parameter::getEditorDesiredBounds() const noexcept { return m_editorBounds; }
+
+Value& Parameter::getValueObjectForID()                noexcept { return m_parameterIdValueObject;     };
+Value& Parameter::getValueObjectForName()              noexcept { return m_nameValueObject;            };
+Value& Parameter::getValueObjectForDescription()       noexcept { return m_descriptionValueObject;     };
+Value& Parameter::getValueObjectForDefaultValue()      noexcept { return m_defaultValueObject;         };
+Value& Parameter::getValueObjectForMinValue()          noexcept { return m_minValueObject;             };
+Value& Parameter::getValueObjectForMaxValue()          noexcept { return m_maxValueObject;             };
+Value& Parameter::getValueObjectForPossibleValues()    noexcept { return m_possibleValuesObject;       };
+Value& Parameter::getValueObjectForDesiredX()          noexcept { return m_desiredXValueObject;        };
+Value& Parameter::getValueObjectForDesiredY()          noexcept { return m_desiredYValueObject;        };
+Value& Parameter::getValueObjectForDesiredWidth()      noexcept { return m_desiredWidthValueObject;    };
+Value& Parameter::getValueObjectForDesiredHeight()     noexcept { return m_desiredHeightValueObject;   };
+
+void Parameter::addListener    (Listener* listener)    { m_listeners.add (listener); }
+void Parameter::removeListener (Listener* listener)    { m_listeners.remove (listener); }
 
 
 String Parameter::getParameterTypeString() const noexcept
@@ -148,13 +198,13 @@ int Parameter::getEditorRecommendedHeight() const noexcept
 
 void Parameter::setName (const String& newName)
 {
-    m_name = newName;
+    m_nameValueObject = newName;
 }
 
 
 void Parameter::setDescription (const String& description)
 {
-    m_description = description;
+    m_descriptionValueObject = description;
 }
 
 
@@ -180,14 +230,28 @@ void Parameter::setValue (float value, int channel)
 void Parameter::setPossibleValues (Array<var> possibleValues)
 {
     m_possibleValues = possibleValues;
+
+    m_possibleValuesObject = convertArrayToString (possibleValues);
+
+    if (possibleValues.size() >= 2)
+    {
+        m_minValueObject = possibleValues[0];
+        m_maxValueObject = possibleValues[1];
+    }
 }
 
 
 void Parameter::setEditorDesiredSize (int desiredWidth, int desiredHeight)
 {
-    m_hasCustomEditorBounds = true;
+    setEditorDesiredBounds (m_editorBounds.getX(), m_editorBounds.getY(),
+                            desiredWidth, desiredHeight);
+}
 
-    m_editorBounds.setSize (desiredWidth, desiredHeight);
+
+void Parameter::setEditorDesiredBounds (const Rectangle<int>& desiredBounds)
+{
+    setEditorDesiredBounds (desiredBounds.getX(), desiredBounds.getY(),
+                            desiredBounds.getWidth(), desiredBounds.getHeight());
 }
 
 
@@ -196,14 +260,63 @@ void Parameter::setEditorDesiredBounds (int x, int y, int width, int height)
     m_hasCustomEditorBounds = true;
 
     m_editorBounds.setBounds (x, y, width, height);
+
+    m_desiredXValueObject = m_editorBounds.getX();
+    m_desiredYValueObject = m_editorBounds.getY();
+    m_desiredWidthValueObject   = m_editorBounds.getWidth();
+    m_desiredHeightValueObject  = m_editorBounds.getHeight();
 }
 
 
-void Parameter::setEditorDesiredBounds (const Rectangle<int>& desiredBounds)
+void Parameter::valueChanged (Value& valueThatWasChanged)
 {
-    m_hasCustomEditorBounds = true;
+    if (valueThatWasChanged.refersToSameSourceAs (m_desiredXValueObject))
+    {
+        m_hasCustomEditorBounds = true;
+        m_editorBounds.setBounds (valueThatWasChanged.getValue(), m_editorBounds.getY(),
+                                  m_editorBounds.getWidth(), m_editorBounds.getHeight());
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_desiredYValueObject))
+    {
+        m_hasCustomEditorBounds = true;
+        m_editorBounds.setBounds (m_editorBounds.getX(), valueThatWasChanged.getValue(),
+                                  m_editorBounds.getWidth(), m_editorBounds.getHeight());
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_desiredWidthValueObject))
+    {
+        m_hasCustomEditorBounds = true;
+        m_editorBounds.setBounds (m_editorBounds.getX(), m_editorBounds.getY(),
+                                  valueThatWasChanged.getValue(), m_editorBounds.getHeight());
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_desiredHeightValueObject))
+    {
+        m_hasCustomEditorBounds = true;
+        m_editorBounds.setBounds (m_editorBounds.getX(), m_editorBounds.getY(),
+                                  m_editorBounds.getWidth(), valueThatWasChanged.getValue());
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_minValueObject))
+    {
+        if (m_possibleValues.size() >= 2)
+            m_possibleValues.getReference (0) = valueThatWasChanged.getValue();
+        else
+            jassertfalse;
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_maxValueObject))
+    {
+        if (m_possibleValues.size() >= 2)
+            m_possibleValues.getReference (1) = valueThatWasChanged.getValue();
+        else
+            jassertfalse;
+    }
+    else if (valueThatWasChanged.refersToSameSourceAs (m_possibleValuesObject))
+    {
+        m_possibleValues.clear();
 
-    m_editorBounds = desiredBounds;
+        Array<var> possibleValues (createArrayFromString<int> (valueThatWasChanged.toString(), ","));
+        m_possibleValues = possibleValues;
+    }
+
+    m_listeners.call (&Parameter::Listener::parameterValueChanged, valueThatWasChanged);
 }
 
 
@@ -251,6 +364,8 @@ ValueTree Parameter::createValueTreeForParameter (Parameter* parameter)
     if (parameter->isContinuous() || parameter->isDiscrete())
         parameterNode.setProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES, convertArrayToString (parameter->getPossibleValues()), nullptr);
 
+    parameterNode.setProperty (Ids::OpenEphysParameter::DESCRIPTION, parameter->getDescription(), nullptr);
+
     return parameterNode;
 }
 
@@ -263,8 +378,8 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
     Parameter::ParameterType parameterType
         = Parameter::getParameterTypeFromString (parameterValueTree.getProperty (Ids::OpenEphysParameter::TYPE));
 
-    auto id   = (int) parameterValueTree.getProperty (Ids::OpenEphysParameter::ID);
-    auto name = parameterValueTree.getProperty (Ids::OpenEphysParameter::NAME).toString();
+    auto id     = (int)parameterValueTree.getProperty   (Ids::OpenEphysParameter::ID);
+    auto name   = parameterValueTree.getProperty        (Ids::OpenEphysParameter::NAME).toString();
 
     Parameter* parameter = nullptr;
     // Boolean parameter
@@ -277,7 +392,6 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
     // Continuous parameter
     else if (parameterType == Parameter::PARAMETER_TYPE_CONTINUOUS)
     {
-        //Array<var> possibleValues = { 0, 1 };
         String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
         Array<var> possibleValues (createArrayFromString<float> (arrayString, ","));
 
@@ -290,7 +404,6 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
     // Discrete parameter
     else
     {
-        //Array<var> possibleValues;
         String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
         Array<var> possibleValues (createArrayFromString<int> (arrayString, ","));
 
@@ -306,6 +419,9 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
         auto desiredBounds = Rectangle<int>::fromString (parameterValueTree.getProperty (Ids::OpenEphysParameter::DESIRED_BOUNDS).toString());
         parameter->setEditorDesiredBounds (desiredBounds);
     }
+
+    auto description = parameterValueTree.getProperty (Ids::OpenEphysParameter::DESCRIPTION).toString();
+    parameter->setDescription (description);
 
     return parameter;
 }

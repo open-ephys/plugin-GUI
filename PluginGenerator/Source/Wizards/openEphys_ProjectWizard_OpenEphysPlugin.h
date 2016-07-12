@@ -164,8 +164,8 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             TRANS("Filter"),
             TRANS("Source"),
             TRANS("Sink"),
-            TRANS("Splitter"),
-            TRANS("Merger"),
+            //TRANS("Splitter"),
+            //TRANS("Merger"),
             TRANS("Utility"),
         };
 

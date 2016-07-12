@@ -218,14 +218,17 @@ void Project::updateOpenEphysParametersList (const OwnedArray<Parameter>& parame
 
 void Project::updateSourceFilesIfNeeded()
 {
+    DBG ("Updating plugin source files...");
     if (getProjectType().isOpenEphysPlugin())
     {
-        if (getPluginType() == PLUGIN_TYPE_PROCESSOR)
+        if ((int)getOpenEphysPluginType().getValue() == PLUGIN_TYPE_PROCESSOR)
         {
             updateOpenEphysPluginProcessorFiles();
         }
     }
 }
+
+
 static String fixLineEndings (const String& s)
 {
     StringArray lines;
@@ -246,6 +249,8 @@ static String fixLineEndings (const String& s)
 void Project::updateOpenEphysPluginProcessorFiles()
 {
     auto processorCppFile = getSourceFilesFolder().getChildFile (getPluginName().toString() + "Processor.cpp");
+    DBG ("Processor file path:");
+    DBG (processorCppFile.getFullPathName());
 
     // Update parameters code
     // ========================================================================
@@ -257,26 +262,16 @@ void Project::updateOpenEphysPluginProcessorFiles()
     // Remove old code for parameters
     for (int i = 0; i < processorCppFileLines.size(); ++i)
     {
-        DBG (String (i) + String (":") + processorCppFileLines[i]);
-        if (processorCppFileLines[i].contains ("[BEGIN]"))
+        if (processorCppFileLines[i].contains ("[OPENEPHYS_PARAMETERS_SECTION_BEGIN]"))
         {
             startIndexOfParameterSection = i + 1;
-            //DBG ("FOUND");
-            //DBG (processorCppFileLines[i]);
-            //DBG ("-============================-");
             for (int j = startIndexOfParameterSection; j < processorCppFileLines.size(); ++j)
             {
-                if (processorCppFileLines[j].contains ("[END]"))
+                if (processorCppFileLines[j].contains ("[OPENEPHYS_PARAMETERS_SECTION_END]"))
                 {
-                    DBG ("GOT!");
-                    DBG ("Remove " + String (j - startIndexOfParameterSection) + " lines");
                     processorCppFileLines.removeRange (startIndexOfParameterSection, j - startIndexOfParameterSection);
                     break;
                 }
-
-                //DBG (j);
-                //DBG (processorCppFileLines[j]);
-                //processorCppFileLines.remove (j);
             }
 
             foundParametersSection = true;
@@ -302,7 +297,6 @@ void Project::updateOpenEphysPluginProcessorFiles()
             }
 
             allParametersCode << generateCodeForParameter (*parameter.get()).replace ("{PARAMINDEX}", String (i));
-            DBG (allParametersCode);
         }
 
         if (allParametersCode.isNotEmpty())
@@ -739,8 +733,9 @@ void Project::createOpenEphysPluginPropertyEditors (PropertyListBuilder& props)
                "A four-character unique ID for your plugin. Note that for AU compatibility, this must contain at least one upper-case letter!");
 
     // Plugin types
-    props.add (new TextPropertyComponent (getOpenEphysPluginType(), "Plugin Type", 128, false),
-               "Select type of the Open Ephys plugin");
+    // TODO <Kirill A> just display inactive plugin type field
+    //props.add (new TextPropertyComponent (getOpenEphysPluginType(), "Plugin Type", 128, false),
+    //           "Select type of the Open Ephys plugin");
 
     // Processor types
     StringArray processorTypesNames;
@@ -749,8 +744,8 @@ void Project::createOpenEphysPluginPropertyEditors (PropertyListBuilder& props)
     processorTypes.add (PROCESSOR_TYPE_FILTER);
     processorTypes.add (PROCESSOR_TYPE_SOURCE);
     processorTypes.add (PROCESSOR_TYPE_SINK);
-    processorTypes.add (PROCESSOR_TYPE_SPLITTER);
-    processorTypes.add (PROCESSOR_TYPE_MERGER);
+    //processorTypes.add (PROCESSOR_TYPE_SPLITTER);
+    //processorTypes.add (PROCESSOR_TYPE_MERGER);
     processorTypes.add (PROCESSOR_TYPE_UTILITY);
 
     for (int i = 0; i < processorTypes.size(); ++i)

@@ -37,7 +37,7 @@
 #include "../../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 #include "../Utility/openEphys_pluginHelpers.h"
 // Because of the problems with compiling we include implementation file instead of header
-#include "Utils/openEphys_ParameterListBox.cpp"
+#include "Utils/openEphys_ParametersEditorComponent.cpp"
 
 struct FileTreeItemTypes
 {

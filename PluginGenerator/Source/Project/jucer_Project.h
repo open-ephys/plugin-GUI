@@ -61,6 +61,10 @@ public:
     String getProjectFilenameRoot()                     { return File::createLegalFileName (getDocumentTitle()); }
     String getProjectUID() const                        { return projectRoot [Ids::ID]; }
 
+    // Open Ephys
+    //==============================================================================
+    ValueTree getOpenEphysConfigNode();
+
     //==============================================================================
     template <class FileType>
     bool shouldBeAddedToBinaryResourcesByDefault (const FileType& file)
@@ -355,7 +359,6 @@ private:
     void setMissingDefaultValues();
     ValueTree getConfigurations() const;
     ValueTree getConfigNode();
-    ValueTree getOpenEphysConfigNode();
 
     void updateOldStyleConfigList();
     void moveOldPropertyFromProjectToAllExporters (Identifier name);

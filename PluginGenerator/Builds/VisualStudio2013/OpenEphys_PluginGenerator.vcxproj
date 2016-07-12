@@ -166,6 +166,9 @@
     <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParametersEditorComponent.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Project\jucer_DependencyPathPropertyComponent.cpp"/>
     <ClCompile Include="..\..\Source\Project\jucer_Module.cpp"/>
     <ClCompile Include="..\..\Source\Project\jucer_Project.cpp"/>
@@ -1443,6 +1446,7 @@
     <ClInclude Include="..\..\Source\ComponentEditor\jucer_UtilityFunctions.h"/>
     <ClInclude Include="..\..\..\Source\Processors\Parameter\Parameter.h"/>
     <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.h"/>
+    <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParametersEditorComponent.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Base.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Exporter.h"/>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Modules.h"/>

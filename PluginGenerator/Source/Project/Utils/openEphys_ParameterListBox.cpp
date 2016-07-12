@@ -20,14 +20,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Hardcode
+#ifndef __OPEN_EPHYS_PARAMETERLISTBOX_CPP__
+#define __OPEN_EPHYS_PARAMETERLISTBOX_CPP__
+
 #include "openEphys_ParameterListBox.h"
-#include "../../../../Source/Processors/Parameter/Parameter.h"
 #include "../jucer_Project.h"
 
 ParameterListBox::ParameterListBox (Project& project)
     : m_project (project)
 {
     setModel (this);
+
+    updateParametersFromProject();
 }
 
 
@@ -46,12 +51,15 @@ void ParameterListBox::paintListBoxItem (int row, Graphics& g, int width, int he
     // BG
     g.setColour (findColour (backgroundColourId));
     g.fillRect (0, 0, width, height);
-    // TODO <Kirill A> add different colours for selected and unselected state
-    g.setColour (findColour (textColourId));
+
     // Border
+    g.setColour (findColour (outlineColourId));
     g.drawRoundedRectangle (0.f, 0.f, (float)width, (float)height, 3.f, 1.f);
 
     const int sideMargin = 5;
+    g.setFont (14.f);
+    auto textColourDefault = findColour (textColourId);
+    g.setColour (rowIsSelected ? textColourDefault.brighter() : textColourDefault);
     g.drawText (getItemText (row), sideMargin, 0, width - sideMargin * 2, height, Justification::centredLeft);
 }
 
@@ -61,60 +69,93 @@ void ParameterListBox::listBoxItemClicked (int row, const MouseEvent& e)
     // Add or delete parameter from popup menu when right clicking
     if (e.mods.isPopupMenu())
     {
-        PopupMenu menu;
-        menu.addItem (1, "Boolean");
-        menu.addItem (2, "Continuous");
-        menu.addItem (3, "Discrete");
+        const bool isEmptyRow = ! isExistsParameterForRow (row);
 
-        const int parameterId = m_parameters.size();
-        Parameter* newParameter = nullptr;
-        switch (menu.show())
+        if (isEmptyRow)
         {
-            case 1:
+            PopupMenu menu;
+            menu.addItem (1, "Boolean");
+            menu.addItem (2, "Continuous");
+            menu.addItem (3, "Discrete");
+
+            const int parameterId = m_parameters.size();
+            Parameter* newParameter = nullptr;
+            switch (menu.show() - 1)
             {
-                newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_BOOLEAN, parameterId);
-                break;
-            }
+                case Parameter::PARAMETER_TYPE_BOOLEAN:
+                {
+                    newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_BOOLEAN, parameterId);
+                    break;
+                }
 
-            case 2:
+                case Parameter::PARAMETER_TYPE_CONTINUOUS:
+                {
+                    newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_CONTINUOUS, parameterId);
+                    break;
+                }
+
+                case Parameter::PARAMETER_TYPE_DISCRETE:
+                {
+                    newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_DISCRETE, parameterId);
+                    break;
+                }
+
+                default:
+                    return;
+            };
+
+            m_parameters.add (newParameter);
+            newParameter->addListener (this);
+
+            updateContent();
+            repaint();
+
+            m_project.updateOpenEphysParametersList (getAllParameters());
+        }
+        // Parameter already exist for current row
+        else
+        {
+            PopupMenu menu;
+
+            menu.addItem (1, "Delete");
+
+            switch (menu.show())
             {
-                newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_CONTINUOUS, parameterId);
-                break;
+                case 1:
+                {
+                    m_parameters.remove (row);
+                    updateContent();
+                    repaint();
+
+                    m_project.updateOpenEphysParametersList (getAllParameters());
+                }
+
+                default:
+                    return;
             }
-
-            case 3:
-            {
-                newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_DISCRETE, parameterId);
-                break;
-            }
-
-            default:
-                return;
-        };
-
-        m_parameters.add (newParameter);
-        updateContent();
-        repaint();
-
-        m_project.updateOpenEphysParametersList (getAllParameters());
+        }
     }
-    // Show side menu with properties for each parameter
     else
     {
-        PopupMenu menu;
-
-        menu.addItem (1, "Edit");
-        menu.addSeparator();
-        menu.addItem (2, "Delete");
+        Parameter* parameterToReturn = (row >= m_parameters.size())
+                                            ? nullptr
+                                            : m_parameters[row];
+        m_listeners.call (&ParameterListBox::Listener::parameterSelected, parameterToReturn, row);
     }
+}
+
+
+bool ParameterListBox::isExistsParameterForRow (int row) const noexcept
+{
+    jassert (row >= 0);
+
+    return row >= 0 && row < m_parameters.size();
 }
 
 
 String ParameterListBox::getItemText (int row) const noexcept
 {
-    jassert (row >= 0);
-
-    if (row >= 0 && row < m_parameters.size())
+    if (isExistsParameterForRow (row))
     {
         const auto& parameter = m_parameters[row];
         String prefix = parameter->isBoolean() ? "[B]" : parameter->isContinuous() ? "[C]" : "[D]";
@@ -129,7 +170,43 @@ String ParameterListBox::getItemText (int row) const noexcept
 }
 
 
+void ParameterListBox::parameterValueChanged (Value& valueThatWasChanged)
+{
+    updateContent();
+    repaint();
+
+    m_project.updateOpenEphysParametersList (getAllParameters());
+}
+
+
 const OwnedArray<Parameter>& ParameterListBox::getAllParameters() const noexcept
 {
     return m_parameters;
 }
+
+
+void ParameterListBox::updateParametersFromProject()
+{
+    m_parameters.clear();
+
+    auto pluginConfigNode = m_project.getOpenEphysConfigNode();
+    const int numParameters = pluginConfigNode.getNumChildren();
+
+    for (int i = 0; i < numParameters; ++i)
+    {
+        Parameter* parameter = Parameter::createParameterFromValueTree (pluginConfigNode.getChild (i));
+        if (parameter == nullptr)
+        {
+            jassert ("Can't create parameter from value tree");
+            continue;
+        }
+
+        parameter->addListener (this);
+
+        m_parameters.add (parameter);
+    }
+
+    updateContent();
+}
+
+#endif // __OPEN_EPHYS_PARAMETERLISTBOX_CPP__

@@ -123,10 +123,12 @@ static String getLibProcessorTypeString (PluginProcessorType processorType)
         case PROCESSOR_TYPE_SINK:
             return "Plugin::SinkProcessor";
 
+        case PROCESSOR_TYPE_SOURCE:
+            return "Plugin::SourceProcessor";
+
         case PROCESSOR_TYPE_UTILITY:
         case PROCESSOR_TYPE_MERGER:
         case PROCESSOR_TYPE_SPLITTER:
-        case PROCESSOR_TYPE_SOURCE:
             return "Plugin::UtilityProcessor";
 
         default:
@@ -338,18 +340,73 @@ static String generateCodeForParameter (const Parameter& parameter)
 
     if (parameter.hasCustomEditorBounds())
     {
-        parameterCode << CodeHelpers::indent (String ("parameter{PARAMINDEX}->setEditorDesiredBounds ([desiredBounds]);"), 4, true);
+        auto convertBoundsToStr = [](const Rectangle<int>& bounds, const String& breakCharacters, const String& quoteCharacters)
+            -> String
+        {
+            StringArray valuesStr;
+            valuesStr.addTokens (bounds.toString(), breakCharacters, quoteCharacters);
+
+            return valuesStr.joinIntoString (",");
+        };
+
+        String desiredBoundsCode = String ("parameter{PARAMINDEX}->setEditorDesiredBounds ([desiredBounds]);")
+                                        .replace ("[desiredBounds]", convertBoundsToStr (parameter.getEditorDesiredBounds(), " ", String::empty));
+        parameterCode << CodeHelpers::indent (desiredBoundsCode, 4, true);
+        parameterCode << newLine;
+    }
+
+    if (parameter.getDescription().isNotEmpty())
+    {
+        String description = "String parameter{PARAMINDEX}description = \"" + parameter.getDescription() + "\";" + newLine
+                                + String ("parameter{PARAMINDEX}->setDescription (parameter{PARAMINDEX}description);");
+        parameterCode << CodeHelpers::indent (description, 4, true);
         parameterCode << newLine;
     }
 
     parameterCode << CodeHelpers::indent ("parameters.add (parameter{PARAMINDEX});", 4, true);
     parameterCode << newLine << newLine;
 
-    DBG (parameterCode);
-
     return parameterCode;
 }
 
+
+/** Creates needed properties for a given parameter. */
+static void createPropertiesForParameter (Parameter* parameter, Array<PropertyComponent*>& props)
+{
+    props.add (new TextPropertyComponent (parameter->getValueObjectForName(),         "Name", 50, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDescription(),  "Description", 50, true));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForID(),           "Id", 6, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDefaultValue(), "Default value", 6, false));
+
+    if (parameter->isContinuous())
+    {
+        props.add (new TextPropertyComponent (parameter->getValueObjectForMinValue(), "Minimum value", 6, false));
+        props.add (new TextPropertyComponent (parameter->getValueObjectForMaxValue(), "Maximum value", 6, false));
+    }
+    else if (parameter->isDiscrete())
+    {
+        props.add (new TextPropertyComponent (parameter->getValueObjectForPossibleValues(), "Possible values", 500, true));
+    }
+
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredX(), "x", 4, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredY(), "y", 4, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredWidth(),  "width",  4, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredHeight(), "height", 4, false));
+}
+
+
+/** Adds needed properties for a given parameter to the appropritate properties panel. */
+static void addPropertiesOfParameterToPropertyPanel (Parameter* parameter, PropertyPanel& propsPanel)
+{
+    jassert (parameter != nullptr);
+    if (parameter == nullptr)
+        return;
+
+    Array<PropertyComponent*> props;
+    createPropertiesForParameter (parameter, props);
+
+    propsPanel.addSection ("Parameter", props);
+}
 
 #endif // __OPEN_EPHYS_PLUGIN_HELPERS__
 

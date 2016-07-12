@@ -39,9 +39,17 @@
 
     @see GenericProcessor, GenericEditor
 */
-class PLUGIN_API Parameter
+class PLUGIN_API Parameter : private Value::Listener
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
+
+        virtual void parameterValueChanged (Value& valueThatWasChanged) = 0;
+    };
+
     enum ParameterType
     {
         PARAMETER_TYPE_BOOLEAN = 0
@@ -68,11 +76,14 @@ public:
                bool deactivateDuringAcquisition = false);
 
 
+    // Value::Listener
+    void valueChanged (Value& valueThatWasChanged) override;
+
     /** Returns the name of the parameter.*/
-    const String& getName() const noexcept;
+    String getName() const noexcept;
 
     /** Returns a description of the parameter.*/
-    const String& getDescription() const noexcept;
+    String getDescription() const noexcept;
 
     /** Returns the unique integer ID of a parameter.*/
     int getID() const noexcept;
@@ -151,22 +162,60 @@ public:
          This variable indicates whether or not these parameters can be edited.*/
     bool shouldDeactivateDuringAcquisition;
 
+    // Accessors for values
+    // ========================================================================
+    Value& getValueObjectForID()                noexcept;
+    Value& getValueObjectForName()              noexcept;
+    Value& getValueObjectForDescription()       noexcept;
+    Value& getValueObjectForDefaultValue()      noexcept;
+    Value& getValueObjectForMinValue()          noexcept;
+    Value& getValueObjectForMaxValue()          noexcept;
+    Value& getValueObjectForPossibleValues()    noexcept;
+    Value& getValueObjectForDesiredX()          noexcept;
+    Value& getValueObjectForDesiredY()          noexcept;
+    Value& getValueObjectForDesiredWidth()      noexcept;
+    Value& getValueObjectForDesiredHeight()     noexcept;
+    // ========================================================================
+
+    void addListener    (Listener* listener);
+    void removeListener (Listener* listener);
+
 
 private:
-    String m_name;
-    String m_description;
+    void registerValueListeners();
 
-    int m_parameterId;
+    //String m_name;
+    //String m_description;
+
+    //int m_parameterId;
 
     bool m_hasCustomEditorBounds { false };
 
     Rectangle<int> m_editorBounds;
 
-    ParameterType m_parameterType;
-
-    var m_defaultValue;
+    //var m_defaultValue;
     Array<var> m_values;
     Array<var> m_possibleValues;
+
+    ParameterType m_parameterType;
+
+    // Different values to be able to set any needed fields for parameters
+    // without any effort when using property editors
+    // ========================================================================
+    Value m_nameValueObject;
+    Value m_descriptionValueObject;
+    Value m_parameterIdValueObject;
+    Value m_defaultValueObject;
+    Value m_minValueObject;
+    Value m_maxValueObject;
+    Value m_possibleValuesObject;
+    Value m_desiredXValueObject;
+    Value m_desiredYValueObject;
+    Value m_desiredWidthValueObject;
+    Value m_desiredHeightValueObject;
+    // ========================================================================
+
+    ListenerList<Listener> m_listeners;
 };
 
 

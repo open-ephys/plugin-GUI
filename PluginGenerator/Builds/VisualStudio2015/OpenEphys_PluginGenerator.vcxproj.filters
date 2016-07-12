@@ -379,6 +379,9 @@
     <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.cpp">
       <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Project\Utils\openEphys_ParametersEditorComponent.cpp">
+      <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Project\jucer_DependencyPathPropertyComponent.cpp">
       <Filter>OpenEphys_PluginGenerator\Project</Filter>
     </ClCompile>
@@ -1993,6 +1996,9 @@
       <Filter>OpenEphys_PluginGenerator\Project\Exports</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParameterListBox.h">
+      <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Project\Utils\openEphys_ParametersEditorComponent.h">
       <Filter>OpenEphys_PluginGenerator\Project\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Project\jucer_ConfigTree_Base.h">

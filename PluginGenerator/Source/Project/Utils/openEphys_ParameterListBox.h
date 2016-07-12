@@ -25,13 +25,30 @@
 
 #include <JuceHeader.h>
 
-class Parameter;
+#include "../../../../Source/Processors/Parameter/Parameter.h"
+
 class Project;
 
 class ParameterListBox  : public ListBox
                         , public ListBoxModel
+                        , private Parameter::Listener
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
+
+        /**
+            This function is called when any parameter in the ParameterListBox was selected
+
+            @param  parameterThatWasSelected    A pointer to the parameter, which was selected.
+                                                If no parameter were set for the current row, returns nullptr.
+            @param  row                         Number of the row which was clicked
+        */
+        virtual void parameterSelected (Parameter* parameterThatWasSelected, int row) = 0;
+    };
+
     ParameterListBox (Project& project);
 
     // ListBoxModel methods
@@ -41,16 +58,27 @@ public:
     void listBoxItemClicked (int row, const MouseEvent& e) override;
     // ========================================================================
 
+    // Parameter::Listener methods
+    void parameterValueChanged (Value& valueThatWasChanged) override;
+
     String getItemText (int row) const noexcept;
+    bool isExistsParameterForRow (int row) const noexcept;
 
     const OwnedArray<Parameter>& getAllParameters() const noexcept;
+
+    void addListener    (Listener* listener)    { m_listeners.add (listener); }
+    void removeListener (Listener* listener)    { m_listeners.remove (listener); }
 
     //virtual void listBoxItemDoubleClicked (int row, const MouseEvent& e);
 
 private:
+    void updateParametersFromProject();
+
     Project& m_project;
 
     OwnedArray<Parameter> m_parameters;
+
+    ListenerList<Listener> m_listeners;
 
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParameterListBox);
