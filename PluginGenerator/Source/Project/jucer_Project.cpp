@@ -216,11 +216,25 @@ void Project::updateOpenEphysParametersList (const OwnedArray<Parameter>& parame
 }
 
 
+void Project::setPluginType (PluginType pluginType)
+{
+    m_pluginType = pluginType;
+    getOpenEphysPluginType() = (int)pluginType;
+}
+
+
+void Project::setPluginProcessorType (PluginProcessorType pluginProcessorType)
+{
+    m_pluginProcessorType = pluginProcessorType;
+    getOpenEphysPluginProcessorType() = (int)pluginProcessorType;
+}
+
+
 void Project::updateSourceFilesIfNeeded()
 {
-    DBG ("Updating plugin source files...");
     if (getProjectType().isOpenEphysPlugin())
     {
+        DBG ("Updating plugin source files...");
         if ((int)getOpenEphysPluginType().getValue() == PLUGIN_TYPE_PROCESSOR)
         {
             updateOpenEphysPluginProcessorFiles();
@@ -249,8 +263,7 @@ static String fixLineEndings (const String& s)
 void Project::updateOpenEphysPluginProcessorFiles()
 {
     auto processorCppFile = getSourceFilesFolder().getChildFile (getPluginName().toString() + "Processor.cpp");
-    DBG ("Processor file path:");
-    DBG (processorCppFile.getFullPathName());
+    DBG (String ("Processor cpp file path: ") + processorCppFile.getFullPathName());
 
     // Update parameters code
     // ========================================================================
@@ -274,6 +287,7 @@ void Project::updateOpenEphysPluginProcessorFiles()
                 }
             }
 
+            DBG ("Found parameters section!");
             foundParametersSection = true;
             break;
         }
@@ -286,7 +300,7 @@ void Project::updateOpenEphysPluginProcessorFiles()
         auto pluginConfigNode = getOpenEphysConfigNode();
         const int numParameters = pluginConfigNode.getNumChildren();
 
-        DBG ("NUM PARAMETERS:" + String (numParameters));
+        DBG ("Found parameters:" + String (numParameters));
         for (int i = 0; i < numParameters; ++i)
         {
             ScopedPointer<Parameter> parameter = Parameter::createParameterFromValueTree (pluginConfigNode.getChild (i));
@@ -305,8 +319,14 @@ void Project::updateOpenEphysPluginProcessorFiles()
         String content = fixLineEndings (processorCppFileLines.joinIntoString ("\r\n"));
         if (FileHelpers::overwriteFileWithNewDataIfDifferent (processorCppFile, content))
         {
-            DBG ("REPLACED");
+            DBG ("Processor cpp file was successfully updated.");
         }
+    }
+    else
+    {
+        DBG ("---> Warning! It seems that you either:\n\
+              -------> 1) removed from the processor cpp file the comments containing needed marks for parameters section;\n\
+              -------> 2) processor file doesn't exist more or you changed the path to it.");
     }
     // ========================================================================
 }

@@ -169,8 +169,8 @@ public:
     PluginType           getPluginType() const            { return m_pluginType; }
     PluginProcessorType  getPluginProcessorType() const   { return m_pluginProcessorType; }
 
-    void setPluginType           (PluginType pluginType)                     { m_pluginType = pluginType; }
-    void setPluginProcessorType  (PluginProcessorType pluginProcessorType)   { m_pluginProcessorType = pluginProcessorType; }
+    void setPluginType (PluginType pluginType);
+    void setPluginProcessorType (PluginProcessorType pluginProcessorType);
 
     // <Open Ephys>
     void updateSourceFilesIfNeeded();
