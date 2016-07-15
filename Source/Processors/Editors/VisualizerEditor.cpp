@@ -149,6 +149,11 @@ void VisualizerEditor::updateVisualizer()
 
 }
 
+void VisualizerEditor::windowClosed()
+{
+
+}
+
 void VisualizerEditor::editorWasClicked()
 {
 
@@ -191,8 +196,8 @@ void VisualizerEditor::buttonClicked(Button* button)
 
         if (dataWindow == nullptr) // have we created a window already?
         {
-            // dataWindow = new DataWindow(windowSelector, tabText);
-            makeNewWindow();
+            // enable windowClosed() callback
+            makeNewWindow(true);
             dataWindow->setContentNonOwned(canvas, false);
             dataWindow->setVisible(true);
             //canvas->refreshState();
@@ -314,9 +319,14 @@ void VisualizerEditor::loadCustomParameters(XmlElement* xml)
     }
 }
 
-void VisualizerEditor::makeNewWindow()
+void VisualizerEditor::makeNewWindow(bool enableCallback)
 {
-    dataWindow = new DataWindow(windowSelector, tabText);
+    if (enableCallback)
+        // used by CyclopsEditor to consistently update windowSelector buttons
+        // even when window is closed.
+        dataWindow = new DataWindow(windowSelector, this, tabText);
+    else
+        dataWindow = new DataWindow(windowSelector, tabText);
 }
 
 Component* VisualizerEditor::getActiveTabContentComponent() const

@@ -107,6 +107,7 @@ public:
     void editorWasClicked();
 
     void updateVisualizer();
+    virtual void windowClosed();
 
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
@@ -129,8 +130,15 @@ protected: // these should be available to sub-classes if needed.
      * @details    Use this to make a new DataWindow. If needed, you can
      *             transfer ownership of the new object from
      *             VisualizerEditor::dataWindow to _your_ own ScopedPointer.
+     *
+     * @param[in]  enableCallbacks  **When** ``true``, it passes "``this``" to
+     *                              constructor of the DataWindow and
+     *                              VisualizerEditor::windowClosed() is invoked
+     *                              when window is closed. **When** ``false``,
+     *                              ``this`` is not passed and callback does not
+     *                              happen.
      */
-    void makeNewWindow();
+    void makeNewWindow(bool enableCallbacks = false);
 
     /**
      * @brief      Use this to efficiently compare or find what is on the

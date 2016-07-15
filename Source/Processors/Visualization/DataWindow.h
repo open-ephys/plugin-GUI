@@ -25,6 +25,7 @@
 #define __DATAWINDOW_H_FDDAB8D0__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Editors/VisualizerEditor.h"
 
 /**
 
@@ -34,10 +35,12 @@
 
 */
 
+class VisualizerEditor;
 class DataWindow : public DocumentWindow
 {
 public:
     DataWindow(Button* button, String name);
+    DataWindow(Button* button, VisualizerEditor* editor, String name);
     ~DataWindow();
 
     void closeButtonPressed();
@@ -46,7 +49,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataWindow);
 
     Button* controlButton;
-
+    VisualizerEditor* vizEditor;
 };
 
 
