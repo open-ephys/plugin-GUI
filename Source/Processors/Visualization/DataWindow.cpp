@@ -29,18 +29,11 @@ DataWindow::DataWindow(Button* cButton, String name)
                      Colours::black,
                      DocumentWindow::allButtons)
     , controlButton(cButton)
-    , vizEditor(nullptr)
 
 {
     centreWithSize(800,500);
     setUsingNativeTitleBar(true);
     setResizable(true,false);
-}
-
-DataWindow::DataWindow(Button* button, VisualizerEditor* editor, String name)
-    : DataWindow(button, name)
-{
-    vizEditor = editor;
 }
 
 DataWindow::~DataWindow()
@@ -53,7 +46,23 @@ void DataWindow::closeButtonPressed()
     setContentNonOwned(0,false);
     setVisible(false);
     controlButton->setToggleState(false,dontSendNotification);
-    if (vizEditor != nullptr){
-        dynamic_cast<VisualizerEditor*>(vizEditor)->windowClosed();
+    // with the BailOutChecker, it is safe to "delete" a DataWindow instance
+    // from this callback/listener. This would (typically) not be done, because instances
+    // of DataWindow are (typically) "owned" by Editors, and will be deleted
+    // when the Editor dies.
+    //
+    Component::BailOutChecker checker (this);
+    if (! checker.shouldBailOut()){
+        closeWindowListeners.callChecked (checker, &DataWindow::Listener::windowClosed);
     }
+}
+
+void DataWindow::addListener (DataWindow::Listener* const newListener)
+{
+    closeWindowListeners.add (newListener);
+}
+
+void DataWindow::removeListener (DataWindow::Listener* const listener)
+{
+    closeWindowListeners.remove (listener);
 }

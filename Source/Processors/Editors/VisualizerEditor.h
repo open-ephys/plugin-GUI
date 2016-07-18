@@ -65,6 +65,7 @@ private:
 */
 
 class PLUGIN_API VisualizerEditor : public GenericEditor
+                                  , public DataWindow::Listener
 {
 public:
     /**
@@ -130,15 +131,32 @@ protected: // these should be available to sub-classes if needed.
      * @details    Use this to make a new DataWindow. If needed, you can
      *             transfer ownership of the new object from
      *             VisualizerEditor::dataWindow to _your_ own ScopedPointer.
-     *
-     * @param[in]  enableCallbacks  **When** ``true``, it passes "``this``" to
-     *                              constructor of the DataWindow and
-     *                              VisualizerEditor::windowClosed() is invoked
-     *                              when window is closed. **When** ``false``,
-     *                              ``this`` is not passed and callback does not
-     *                              happen.
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
      */
-    void makeNewWindow(bool enableCallbacks = false);
+    void makeNewWindow();
+
+    /**
+     * @brief      Adds a closeWindow listener for dw.
+     *
+     * @param      dw           The datawindow
+     * @param      newListener  The new listener
+     * 
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
+     */
+    static void addWindowListener(DataWindow* dw, DataWindow::Listener* newListener);
+
+    /**
+     * @brief      Removes a closeWindow listener for dw.
+     *
+     * @param      dw           The datawindow
+     * @param      oldListener  The old listener
+     *
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
+     */
+    static void removeWindowListener(DataWindow* dw, DataWindow::Listener* oldListener);
 
     /**
      * @brief      Use this to efficiently compare or find what is on the
