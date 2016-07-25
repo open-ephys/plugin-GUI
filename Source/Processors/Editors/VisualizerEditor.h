@@ -196,10 +196,10 @@ protected: // these should be available to sub-classes if needed.
     // So that we can override buttonClick. That's not possible if these are private.
     SelectorButton* windowSelector;
     SelectorButton* tabSelector;
+    int tabIndex;
 
 private:
     void initializeSelectors();
-    int tabIndex;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualizerEditor);
 
