@@ -112,6 +112,8 @@ public:
     int modifyChannelName(int channel, String newName);
     void getEventChannelNames(StringArray& Names);
     Array<int> getDACchannels();
+
+	void enableDAC(int dacOutput, bool state);
     void setDACchannel(int dacOutput, int channel);
     void setDACthreshold(int dacOutput, float threshold);
     void setDefaultNamingScheme(int scheme);

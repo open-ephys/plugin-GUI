@@ -173,6 +173,8 @@ public:
     void scanPorts();
     void comboBoxChanged(ComboBox* comboBox);
 
+	void sliderEvent(Slider* slider);
+
     void startAcquisition();
     void stopAcquisition();
 
@@ -202,15 +204,18 @@ private:
     ScopedPointer<AudioInterface> audioInterface;
     ScopedPointer<ClockDivideInterface> clockInterface;
 
-    ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
+	ScopedPointer<UtilityButton> rescanButton, dacTTLButton, dacTTLPin1, dacTTLPin2, dacTTLPin3, dacTTLPin4, dacTTLPin5, dacTTLPin6;
     ScopedPointer<UtilityButton> adcButton;
 	ScopedPointer<UtilityButton> ledButton;
 
     ScopedPointer<UtilityButton> dspoffsetButton;
-    ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo;
+	ScopedPointer<ComboBox> ttlSettleCombo, dacHPFcombo, dacTTLCombo1, dacTTLCombo2, dacTTLCombo3, dacTTLCombo4, dacTTLCombo5, dacTTLCombo6;
 
 
-    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel ;
+
+    ScopedPointer<Label> audioLabel,ttlSettleLabel,dacHPFlabel,dacTTLPinLabel,dacTTLChanLabel,dacTTLThreshLabel;
+
+	ScopedPointer<Slider> dacTTLSlider1, dacTTLSlider2, dacTTLSlider3, dacTTLSlider4, dacTTLSlider5, dacTTLSlider6;
 
     bool saveImpedances, measureWhenRecording;
 
