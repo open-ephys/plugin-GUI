@@ -1,3 +1,9 @@
+// Defaults for values that might be overridden in Env.xcconfig
+MAC_PACKAGE_DIR = /opt/local
+
+// Pull in machine-specific settings from git-ignored file, if it exists.
+#include "Env.xcconfig"
+
 ALWAYS_SEARCH_USER_PATHS = NO
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
 CLANG_CXX_LIBRARY = libc++

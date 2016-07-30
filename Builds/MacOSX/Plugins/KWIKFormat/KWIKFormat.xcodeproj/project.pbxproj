@@ -202,13 +202,15 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/local/include,
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				INFOPLIST_FILE = KWIKFormat/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libhdf5.a,
-					/opt/local/lib/libhdf5_cpp.a,
+					"-lz",
+					"$(MAC_PACKAGE_DIR)/lib/libsz.a",
+					"$(MAC_PACKAGE_DIR)/lib/libhdf5.a",
+					"$(MAC_PACKAGE_DIR)/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.KWIKFormat";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -220,13 +222,15 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/local/include,
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				INFOPLIST_FILE = KWIKFormat/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libhdf5.a,
-					/opt/local/lib/libhdf5_cpp.a,
+					"-lz",
+					"$(MAC_PACKAGE_DIR)/lib/libsz.a",
+					"$(MAC_PACKAGE_DIR)/lib/libhdf5.a",
+					"$(MAC_PACKAGE_DIR)/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.KWIKFormat";
 				PRODUCT_NAME = "$(TARGET_NAME)";

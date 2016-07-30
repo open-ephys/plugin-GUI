@@ -301,7 +301,7 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
 
     processor->setActiveModule(idNum);
 
-    int parameterIndex;
+    int parameterIndex = 0;
 
     if (c == inputSelector)
     {
@@ -314,8 +314,9 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
     else if (c == gateSelector)
     {
         parameterIndex = 4;
+    } else {
+        
     }
-
 
     processor->setParameter(parameterIndex, (float) c->getSelectedId() - 2);
 

@@ -45,8 +45,17 @@ public:
     /** Clears the buffer.*/
     void clear();
 
-    /** Add an array of floats to the buffer.*/
-    void addToBuffer(float* data, int64* ts, uint64* eventCodes, int numItems);
+    /** Add an array of floats to the buffer.
+     @param data The data.
+     @param timestamps Array of timestamps. Same length as numItems.
+     @param eventCodes Array of event codes. Same length as numItems.
+     @param numItems Total number of samples per channel.
+     @param chunkSize Number of consecutive samples per channel per chunk.
+     1 by default. Typically 1 or numItems.
+     @return The number of items actually written. May be less than numItems if
+     the buffer doesn't have space.
+     */
+    int addToBuffer(float* data, int64* timestamps, uint64* eventCodes, int numItems, int chunkSize=1);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples();

@@ -271,7 +271,7 @@ void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
     setNumSamples (events, samplesNeeded);
 
     // code for testing events:
-    // // ===========================================================================
+    // // // ===========================================================================
 
     // if (counter == 100)
     // {
@@ -283,7 +283,7 @@ void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
     //               0);        // eventChannel
     //     ++counter;
     // } 
-    // else if (counter > 120)
+    // else if (counter > 102)
     // {
     //     //std::cout << "Adding off event!" << std::endl;
     //     addEvent (events,    // MidiBuffer
@@ -297,7 +297,7 @@ void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
     // {
     //     ++counter;
     // }
-    // // ===========================================================================
+    // // // ===========================================================================
 }
 
 

@@ -188,7 +188,7 @@ private:
     Array<GenericEditor*, CriticalSection> editorArray;
     Array<SignalChainTabButton*, CriticalSection> signalChainArray;
 
-    SignalChainManager* signalChainManager;
+    ScopedPointer<SignalChainManager> signalChainManager;
 
     Font font;
     Image sourceDropImage;

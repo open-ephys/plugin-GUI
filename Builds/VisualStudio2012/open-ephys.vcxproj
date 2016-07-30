@@ -255,10 +255,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\CoreServices.cpp"/>
-    <ClCompile Include="..\..\Source\AccessClass.cpp"/>
-    <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp"/>
@@ -340,8 +338,11 @@
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp"/>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp"/>
     <ClCompile Include="..\..\Source\UI\UIComponent.cpp"/>
-    <ClCompile Include="..\..\Source\MainWindow.cpp"/>
+    <ClCompile Include="..\..\Source\Utils\ListSliceParser.cpp"/>
+    <ClCompile Include="..\..\Source\AccessClass.cpp"/>
+    <ClCompile Include="..\..\Source\CoreServices.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
+    <ClCompile Include="..\..\Source\MainWindow.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1466,10 +1467,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\CoreServices.h"/>
-    <ClInclude Include="..\..\Source\AccessClass.h"/>
-    <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
+    <ClInclude Include="..\..\Source\Network\PracticalSocket.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h"/>
@@ -1560,6 +1559,9 @@
     <ClInclude Include="..\..\Source\UI\DataViewport.h"/>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h"/>
     <ClInclude Include="..\..\Source\UI\UIComponent.h"/>
+    <ClInclude Include="..\..\Source\Utils\ListSliceParser.h"/>
+    <ClInclude Include="..\..\Source\AccessClass.h"/>
+    <ClInclude Include="..\..\Source\CoreServices.h"/>
     <ClInclude Include="..\..\Source\MainWindow.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioSampleBuffer.h"/>
@@ -2070,6 +2072,8 @@
     <None Include="..\..\Resources\Images\Icons\DefaultDataSource.png"/>
     <None Include="..\..\Resources\Images\Icons\FileReaderIcon.png"/>
     <None Include="..\..\Resources\Images\Icons\IntanIcon.png"/>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow_rotated.png"/>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow.png"/>
     <None Include="..\..\Resources\Images\Buttons\muteoff.png"/>
     <None Include="..\..\Resources\Images\Buttons\muteon.png"/>
     <None Include="..\..\Resources\Images\Buttons\MergerA-01.png"/>

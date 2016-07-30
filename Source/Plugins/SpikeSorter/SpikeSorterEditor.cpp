@@ -229,7 +229,7 @@ void SpikeSorterEditor::sliderEvent(Slider* slider)
 
 void SpikeSorterEditor::buttonEvent(Button* button)
 {
-    VisualizerEditor::buttonEvent(button);
+ 
     SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
     if (electrodeButtons.contains((ElectrodeButton*) button))

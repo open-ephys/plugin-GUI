@@ -38,6 +38,84 @@ class EditorButton;
 class ChannelSelectorBox;
 class ShowAlertMessage;
 
+namespace Channels
+{
+enum ChannelsType
+{
+    AUDIO_CHANNELS = 0
+    , RECORD_CHANNELS
+    , PARAM_CHANNELS
+};
+}
+
+/**
+    A class that is used for selecting subset of channels by providing range in TextEditor component
+    and clicking apppropriate button (either add or remove given range of channels).
+*/
+class SlicerChannelSelectorComponent    : public Component
+                                        , public Button::Listener
+                                        , public KeyListener
+{
+public:
+    SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
+                                    const String& componentName = String::empty);
+
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
+        virtual void changeChannelsSelectionButtonClicked (SlicerChannelSelectorComponent* sender,
+                                                           Button* buttonThatWasClicked,
+                                                           bool isSelect) = 0;
+        virtual void channelSelectorCollapsedStateChanged (SlicerChannelSelectorComponent* sender,
+                                                           bool isCollapsed) = 0;
+    };
+
+    void paint (Graphics& g)    override;
+    void resized()              override;
+
+    void buttonClicked (Button* buttonThatWasClicked) override;
+
+    bool keyPressed (const KeyPress& key, Component* originatingComponent) override;
+
+    /** Returns the conetent of the channel selector text editor */
+    String getText() const;
+
+    /** Returns the type of the channels on which the component affects */
+    Channels::ChannelsType getChannelsType() const;
+
+    /** Either collapse or show full component */
+    void setCollapsed (bool isCollapsed);
+
+    /** Sets a listener who will handle clicks of control buttons,
+        like "Select channels button", "Deselect channels button, etc. */
+    void setListener (SlicerChannelSelectorComponent::Listener* listener);
+
+    static const int MAX_HEIGHT = 45;
+
+private:
+    Channels::ChannelsType m_channelsType;
+
+    bool m_isCollapsed;
+
+    const Image m_dropdownArrowImage;
+    const Image m_dropdownArrowImageCollapsed;
+
+    /** Stores a pointer to the button listner which will handle clicks
+        of control buttons (e.g. "Select/Deselect" channels buttons) */
+    Listener* m_controlsButtonListener;
+
+    ScopedPointer<TextEditor> m_channelSelectorTextEditor;
+
+    ScopedPointer<Button>   m_selectChannelsButton;
+    ScopedPointer<Button>   m_deselectChannelsButton;
+    ScopedPointer<ImageButton> m_showComponentButton;
+
+    // ====================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SlicerChannelSelectorComponent)
+};
+
+
 /**
 Automatically creates an interactive editor for selecting channels.
 
@@ -47,14 +125,12 @@ channels to be selected for different purposes.
 @see GenericEditor
 
 */
-
-
-class PLUGIN_API ChannelSelector : public Component,
-    public Button::Listener,
-    public Timer
+class PLUGIN_API ChannelSelector : public Component
+                                 , public Button::Listener
+                                 , private SlicerChannelSelectorComponent::Listener
+                                 , public Timer
 {
 public:
-
     /** constructor */
     ChannelSelector(bool createButtons, Font& titleFont);
 
@@ -135,39 +211,32 @@ public:
     bool eventsOnly;
 
 private:
-
     EditorButton* audioButton;
     EditorButton* recordButton;
     EditorButton* paramsButton;
     EditorButton* allButton;
     EditorButton* noneButton;
-    EditorButton* selectButtonParam;   //Select Channels in parameter tab
-    EditorButton* deselectButtonParam; //Deselect Channels in parameter tab
-    EditorButton* selectButtonRecord;  //Select Channels in record tab
-    EditorButton* deselectButtonRecord;//Deselect Channels in record tab
-    EditorButton* selectButtonAudio;   //Select Channels in audio tab
-    EditorButton* deselectButtonAudio; //Deselect Channels in audio tab
 
     /** An array of ChannelSelectorButtons used to select the channels that
     will be updated when a parameter is changed.
     paramBox: TextBox where user input is taken for param tab.
     */
     TiledButtonGroupManager parameterButtonsManager;
-    ChannelSelectorBox* paramBox;
+    SlicerChannelSelectorComponent parameterSlicerChannelSelector;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     are sent to the audio monitor.
     audioBox: TextBox where user input is taken for audio tab
     */
     TiledButtonGroupManager audioButtonsManager;
-    ChannelSelectorBox* audioBox;
+    SlicerChannelSelectorComponent audioSlicerChannelSelector;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     will be written to disk when the record button is pressed.
     recordBox: TextBox where user input is taken for record tab
     */
     TiledButtonGroupManager recordButtonsManager;
-    ChannelSelectorBox* recordBox;
+    SlicerChannelSelectorComponent recordSlicerChannelSelector;
 
     bool paramsToggled;
     bool paramsActive;
@@ -201,7 +270,19 @@ private:
     void timerCallback();
 
     /** Draws the ChannelSelector. */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
+
+    // SlicerChannelSelectorComponent methods
+    // =================================================================================================
+    /** Implements behaviour for button for selecting/deselecting channels using list slicing */
+    void changeChannelsSelectionButtonClicked (SlicerChannelSelectorComponent* sender,
+                                               Button* buttonThatWasClicked,
+                                               bool isSelect)       override;
+
+    /** This is a convenient way to signal that collapsed change of channel selector has been changed */
+    void channelSelectorCollapsedStateChanged (SlicerChannelSelectorComponent* sender,
+                                               bool isCollapsed)    override;
+    // =================================================================================================
 
     Font& titleFont;
 
@@ -225,7 +306,7 @@ between tabs of all the channels.
 class EditorButton : public Button
 {
 public:
-    EditorButton(const String& name, Font& f);
+    EditorButton (const String& name, const Font& f);
     ~EditorButton();
 
     bool getState();
@@ -281,18 +362,6 @@ private:
     bool isActive;
 };
 
-/*
-  A textbox within the channelSelector to select multiple channels at a time.
-*/
-class ChannelSelectorBox :public TextEditor
-{
-public:
-    ChannelSelectorBox();
-    ~ChannelSelectorBox();
 
-
-    std::vector<int> getBoxInfo(int len);  // Extract Information from the box.
-    int convertToInteger(std::string s);   // Conversion of string to integer.
-};
 
 #endif  // __CHANNELSELECTOR_H_68124E35__

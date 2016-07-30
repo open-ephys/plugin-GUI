@@ -165,6 +165,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F559251C9B2A0B0035F88B /* Plugin_Debug.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../Source/Plugins/Headers,
+					"$(inherited)",
+					"$(MAC_PACKAGE_DIR)/include",
+				);
 			};
 			name = Debug;
 		};
@@ -172,6 +177,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F559261C9B2A0B0035F88B /* Plugin_Release.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../Source/Plugins/Headers,
+					"$(inherited)",
+					"$(MAC_PACKAGE_DIR)/include",
+				);
 			};
 			name = Release;
 		};
@@ -189,7 +199,7 @@
 				INFOPLIST_FILE = NetworkEvents/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NetworkEvents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -210,7 +220,7 @@
 				INFOPLIST_FILE = NetworkEvents/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NetworkEvents";
 				PRODUCT_NAME = "$(TARGET_NAME)";

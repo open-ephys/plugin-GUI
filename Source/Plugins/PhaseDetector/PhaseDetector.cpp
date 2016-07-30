@@ -30,7 +30,7 @@ PhaseDetector::PhaseDetector()
       risingPos(false), risingNeg(false), fallingPos(false), fallingNeg(false)
 
 {
-
+    
 }
 
 PhaseDetector::~PhaseDetector()

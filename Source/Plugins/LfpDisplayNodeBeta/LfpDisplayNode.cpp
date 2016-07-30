@@ -46,8 +46,8 @@ LfpDisplayNode::LfpDisplayNode()
 
 LfpDisplayNode::~LfpDisplayNode()
 {
-
-}
+    delete[] arrayOfOnes;
+}   
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
@@ -163,6 +163,8 @@ void LfpDisplayNode::handleEvent(int eventType, MidiMessage& event, int sampleNu
         int eventTime = event.getTimeStamp();
 
         int eventSourceNodeId = *(dataptr+5);
+        
+        
 
         int nSamples = numSamples.at(eventSourceNodeId);
 

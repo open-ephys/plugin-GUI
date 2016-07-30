@@ -52,23 +52,53 @@ private:
 
 
 /**
-
+  @brief
   Base class for creating editors with visualizers.
-
+  
+  @details
+  Automatically adds buttons (and their handlers) which open the canvas in a window or
+  a tab. Just like any other editor, do not override VisualizerEditor::buttonClicked.
   @see GenericEditor, Visualizer
-
+  
+  If you must add buttons to your editor, handle them by overiding VisualizerEditor::buttonEvent
+  @sa         RHD2000Editor, PCIeRhythm::RHD2000Editor
 */
 
 class PLUGIN_API VisualizerEditor : public GenericEditor
 {
 public:
-    VisualizerEditor(GenericProcessor*, int, bool useDefaultParameterEditors);
-    VisualizerEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    /**
+     * @brief      Prefer this constructor to properly "size" the editor widget.
+     * @details    Unlike other editors, setting GenericEditor::desiredWidth
+     * @code{cpp}
+     *   desiredWidth = <width-that-you-need>;
+     * @endcode
+     * will not work.
+     *
+     * @param      processor                   The processor
+     * @param[in]  desired_width               The desired width
+     * @param[in]  useDefaultParameterEditors  ``true`` if you want a _default_ editor.
+     */
+    VisualizerEditor(GenericProcessor* processor, int desired_width, bool useDefaultParameterEditors);
+
+    VisualizerEditor(GenericProcessor* processor, bool useDefaultParameterEditors);
     ~VisualizerEditor();
 
-    void buttonEvent(Button* button);
-	virtual void buttonCallback(Button* button);
+	/**
+     * @brief      This method handles the button evnets which open visualizer in a tab or window.
+     * @warning    Do not override this function unless you call ``VisualizerEditor::buttonClicked``
+     *             somewhere!
+     */
+    void buttonClicked(Button* button);
+	
+	/**
+     * @brief      All additional buttons that you create _for the editor_ should be handled here.
+     */
+	virtual void buttonEvent(Button* button);
 
+    /**
+     * @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
+     */
     virtual Visualizer* createNewCanvas() = 0;
 
     virtual void enable();

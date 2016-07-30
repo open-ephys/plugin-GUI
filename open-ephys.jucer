@@ -248,6 +248,10 @@
           <FILE id="hlohT6y" name="IntanIcon.png" compile="0" resource="1" file="Resources/Images/Icons/IntanIcon.png"/>
         </GROUP>
         <GROUP id="9berx08" name="Buttons">
+          <FILE id="jKZDwJ" name="dropdown_arrow_rotated.png" compile="0" resource="1"
+                file="Resources/Images/Buttons/dropdown_arrow_rotated.png"/>
+          <FILE id="bqLa9W" name="dropdown_arrow.png" compile="0" resource="1"
+                file="Resources/Images/Buttons/dropdown_arrow.png"/>
           <FILE id="22YR8gp" name="muteoff.png" compile="0" resource="1" file="Resources/Images/Buttons/muteoff.png"/>
           <FILE id="c84komv" name="muteon.png" compile="0" resource="1" file="Resources/Images/Buttons/muteon.png"/>
           <FILE id="KBzZFU" name="MergerA-01.png" compile="0" resource="1" file="Resources/Images/Buttons/MergerA-01.png"/>
@@ -266,23 +270,17 @@
       </GROUP>
     </GROUP>
     <GROUP id="ZMfWAFj" name="Source">
-      <FILE id="QyaTEa" name="CoreServices.cpp" compile="1" resource="0"
-            file="Source/CoreServices.cpp"/>
-      <FILE id="BH11mU" name="CoreServices.h" compile="0" resource="0" file="Source/CoreServices.h"/>
-      <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
-            file="Source/AccessClass.cpp"/>
-      <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>
-      <GROUP id="leJrZDi" name="Network">
-        <FILE id="mOOc0R" name="PracticalSocket.cpp" compile="1" resource="0"
-              file="Source/Network/PracticalSocket.cpp"/>
-        <FILE id="5XGl6EX" name="PracticalSocket.h" compile="0" resource="0"
-              file="Source/Network/PracticalSocket.h"/>
-      </GROUP>
       <GROUP id="gRFzu0" name="Audio">
         <FILE id="2vKx2R" name="AudioComponent.cpp" compile="1" resource="0"
               file="Source/Audio/AudioComponent.cpp"/>
         <FILE id="lyiexes" name="AudioComponent.h" compile="0" resource="0"
               file="Source/Audio/AudioComponent.h"/>
+      </GROUP>
+      <GROUP id="leJrZDi" name="Network">
+        <FILE id="mOOc0R" name="PracticalSocket.cpp" compile="1" resource="0"
+              file="Source/Network/PracticalSocket.cpp"/>
+        <FILE id="5XGl6EX" name="PracticalSocket.h" compile="0" resource="0"
+              file="Source/Network/PracticalSocket.h"/>
       </GROUP>
       <GROUP id="yQmqZWk" name="Processors">
         <GROUP id="{D20DFFFD-08E8-5CC6-479A-07CECDE9BC86}" name="PlaceholderProcessor">
@@ -584,9 +582,21 @@
               file="Source/UI/UIComponent.cpp"/>
         <FILE id="BMY9oVw" name="UIComponent.h" compile="0" resource="0" file="Source/UI/UIComponent.h"/>
       </GROUP>
+      <GROUP id="{CAE0B947-39A1-DA20-F881-0FBF93FDE64E}" name="Utils">
+        <FILE id="aoTGNv" name="ListSliceParser.cpp" compile="1" resource="0"
+              file="Source/Utils/ListSliceParser.cpp"/>
+        <FILE id="Y5nD4a" name="ListSliceParser.h" compile="0" resource="0"
+              file="Source/Utils/ListSliceParser.h"/>
+      </GROUP>
+      <FILE id="AXFRUPT" name="AccessClass.cpp" compile="1" resource="0"
+            file="Source/AccessClass.cpp"/>
+      <FILE id="2ViPrE" name="AccessClass.h" compile="0" resource="0" file="Source/AccessClass.h"/>
+      <FILE id="QyaTEa" name="CoreServices.cpp" compile="1" resource="0"
+            file="Source/CoreServices.cpp"/>
+      <FILE id="BH11mU" name="CoreServices.h" compile="0" resource="0" file="Source/CoreServices.h"/>
+      <FILE id="z41Hy7g" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="YFtK48" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
       <FILE id="JiA1GET" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
-      <FILE id="z41Hy7g" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>

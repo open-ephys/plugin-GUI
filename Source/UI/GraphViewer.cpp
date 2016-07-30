@@ -23,11 +23,6 @@
 
 #include "GraphViewer.h"
 
-
-static const Font FONT_LABEL    ("Paragraph",  50, Font::plain);
-static const Font FONT_VERSION  ("Small Text", 14, Font::plain);
-
-
 GraphViewer::GraphViewer()
 {
     JUCEApplication* app = JUCEApplication::getInstance();

@@ -121,7 +121,8 @@ VisualizerEditor::~VisualizerEditor()
 
 }
 
-void VisualizerEditor::buttonCallback(Button* button) {}
+// All additional buttons inside the VisualizerEditor should use this instead of buttonClicked()
+void VisualizerEditor::buttonEvent(Button* button) {}
 
 void VisualizerEditor::enable()
 {
@@ -159,105 +160,88 @@ void VisualizerEditor::editorWasClicked()
 
 }
 
-void VisualizerEditor::buttonEvent(Button* button)
+// This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
+// Use VisualizerEditor::buttonEvent instead
+void VisualizerEditor::buttonClicked(Button* button)
 {
+    // To handle default buttons, like the Channel Selector Drawer.
+    GenericEditor::buttonClicked(button);
 
-    int gId = button->getRadioGroupId();
-
-    if (gId > 0)
+    // Handle the buttons to open the canvas in a tab or window
+    if (canvas == nullptr)
     {
-        if (canvas != nullptr)
-        {
-            canvas->setParameter(gId-1, button->getName().getFloatValue());
-        }
 
+        canvas = createNewCanvas();
+        canvas->update();
+
+        if (isPlaying)
+            canvas->beginAnimation();
     }
-    else
+
+    if (button == windowSelector)
     {
 
-        if (canvas == nullptr)
+        if (tabSelector->getToggleState() && windowSelector->getToggleState())
         {
-
-            canvas = createNewCanvas();
-            canvas->update();
-
-            if (isPlaying)
-                canvas->beginAnimation();
+            tabSelector->setToggleState(false, dontSendNotification);
+			AccessClass::getDataViewport()->destroyTab(tabIndex);
+            tabIndex = -1;
         }
 
-        if (button == windowSelector)
+        if (dataWindow == nullptr) // have we created a window already?
         {
 
-            if (tabSelector->getToggleState() && windowSelector->getToggleState())
-            {
-                tabSelector->setToggleState(false, dontSendNotification);
-				AccessClass::getDataViewport()->destroyTab(tabIndex);
-                tabIndex = -1;
-            }
+            dataWindow = new DataWindow(windowSelector, tabText);
+            dataWindow->setContentNonOwned(canvas, false);
+            dataWindow->setVisible(true);
+            //canvas->refreshState();
 
-            if (dataWindow == nullptr) // have we created a window already?
-            {
+        }
+        else
+        {
 
-                dataWindow = new DataWindow(windowSelector, tabText);
+            dataWindow->setVisible(windowSelector->getToggleState());
+
+            if (windowSelector->getToggleState())
+            {
                 dataWindow->setContentNonOwned(canvas, false);
-                dataWindow->setVisible(true);
-                //canvas->refreshState();
-
+                canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
+                //  canvas->refreshState();
             }
             else
             {
-
-                dataWindow->setVisible(windowSelector->getToggleState());
-
-                if (windowSelector->getToggleState())
-                {
-                    dataWindow->setContentNonOwned(canvas, false);
-                    canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
-                  //  canvas->refreshState();
-                }
-                else
-                {
-                    dataWindow->setContentNonOwned(0, false);
-                }
-
+                dataWindow->setContentNonOwned(0, false);
             }
 
-        }
-        else if (button == tabSelector)
-        {
-            if (tabSelector->getToggleState() && tabIndex < 0)
-            {
-
-                if (windowSelector->getToggleState())
-                {
-                    dataWindow->setContentNonOwned(0, false);
-                    windowSelector->setToggleState(false, dontSendNotification);
-                    dataWindow->setVisible(false);
-                }
-
-				tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
-
-
-            }
-            else if (!tabSelector->getToggleState() && tabIndex > -1)
-            {
-				AccessClass::getDataViewport()->destroyTab(tabIndex);
-                tabIndex = -1;
-
-            }
         }
 
     }
-
-    buttonCallback(button);
-
-    if (button == drawerButton)
+    else if (button == tabSelector)
     {
-        std::cout<<"Drawer button clicked"<<std::endl;
-        windowSelector->setBounds(desiredWidth - 40,7,14,10);
-        tabSelector->setBounds(desiredWidth - 20,7,15,10);
+        if (tabSelector->getToggleState() && tabIndex < 0)
+        {
 
+            if (windowSelector->getToggleState())
+            {
+                dataWindow->setContentNonOwned(0, false);
+                windowSelector->setToggleState(false, dontSendNotification);
+                dataWindow->setVisible(false);
+            }
+
+			tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
+
+
+        }
+        else if (!tabSelector->getToggleState() && tabIndex > -1)
+        {
+			AccessClass::getDataViewport()->destroyTab(tabIndex);
+            tabIndex = -1;
+
+        }
     }
+
+    // Pass the button event along to subclasses.
+    buttonEvent(button);
 
 }
 

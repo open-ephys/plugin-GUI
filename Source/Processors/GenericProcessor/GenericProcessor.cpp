@@ -372,9 +372,9 @@ void GenericProcessor::update()
             ch->nodeIndex = nidx;
             ch->mappedIndex = nidx;
 
-            if (i < recordStatus.size())
+            if (nidx < recordStatus.size())
             {
-                ch->setRecordState(recordStatus[i]);
+                ch->setRecordState(recordStatus[nidx]);
             }
             else
             {
@@ -396,9 +396,9 @@ void GenericProcessor::update()
             ch->nodeIndex = nidx;
             ch->mappedIndex = nidx;
 
-            if (j < recordStatus.size())
+            if (nidx < recordStatus.size())
             {
-                ch->setRecordState(recordStatus[j]);
+                ch->setRecordState(recordStatus[nidx]);
             }
             else
             {
@@ -420,10 +420,10 @@ void GenericProcessor::update()
             ch->nodeIndex = nidx;
             ch->mappedIndex = nidx;
 
-            if (k < recordStatus.size())
+            if (nidx < recordStatus.size())
             {
 
-                ch->setRecordState(recordStatus[k]);
+                ch->setRecordState(recordStatus[nidx]);
             }
             else
             {

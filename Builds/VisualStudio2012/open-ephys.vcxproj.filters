@@ -26,11 +26,11 @@
     <Filter Include="open-ephys\Source">
       <UniqueIdentifier>{02B8D40A-0071-792E-592F-8A30DD87BAE6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Network">
-      <UniqueIdentifier>{F426EB08-DE72-34FB-F5F1-D8D077A9C12D}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Audio">
       <UniqueIdentifier>{DC7BD6F0-2EB6-B7BF-B84C-66EF8EE93230}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Network">
+      <UniqueIdentifier>{F426EB08-DE72-34FB-F5F1-D8D077A9C12D}</UniqueIdentifier>
     </Filter>
     <Filter Include="open-ephys\Source\Processors">
       <UniqueIdentifier>{3DDEC88C-BAA5-2DDA-A59F-0FB74070AB82}</UniqueIdentifier>
@@ -106,6 +106,9 @@
     </Filter>
     <Filter Include="open-ephys\Source\UI\LookAndFeel">
       <UniqueIdentifier>{82473DF0-9747-E952-2C6D-DAC4DD6B3807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\Utils">
+      <UniqueIdentifier>{6EE3060D-3972-8456-81FD-7C4512A46FAD}</UniqueIdentifier>
     </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
@@ -406,17 +409,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\CoreServices.cpp">
-      <Filter>open-ephys\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\AccessClass.cpp">
-      <Filter>open-ephys\Source</Filter>
+    <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
+      <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Network\PracticalSocket.cpp">
       <Filter>open-ephys\Source\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp">
-      <Filter>open-ephys\Source\Audio</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
@@ -661,10 +658,19 @@
     <ClCompile Include="..\..\Source\UI\UIComponent.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MainWindow.cpp">
+    <ClCompile Include="..\..\Source\Utils\ListSliceParser.cpp">
+      <Filter>open-ephys\Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\AccessClass.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\CoreServices.cpp">
       <Filter>open-ephys\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
+      <Filter>open-ephys\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MainWindow.cpp">
       <Filter>open-ephys\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1896,17 +1902,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\CoreServices.h">
-      <Filter>open-ephys\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\AccessClass.h">
-      <Filter>open-ephys\Source</Filter>
+    <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
+      <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Network\PracticalSocket.h">
       <Filter>open-ephys\Source\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Audio\AudioComponent.h">
-      <Filter>open-ephys\Source\Audio</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
@@ -2177,6 +2177,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\UIComponent.h">
       <Filter>open-ephys\Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\ListSliceParser.h">
+      <Filter>open-ephys\Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AccessClass.h">
+      <Filter>open-ephys\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\CoreServices.h">
+      <Filter>open-ephys\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainWindow.h">
       <Filter>open-ephys\Source</Filter>
@@ -3703,6 +3712,12 @@
     </None>
     <None Include="..\..\Resources\Images\Icons\IntanIcon.png">
       <Filter>open-ephys\Resources\Images\Icons</Filter>
+    </None>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow_rotated.png">
+      <Filter>open-ephys\Resources\Images\Buttons</Filter>
+    </None>
+    <None Include="..\..\Resources\Images\Buttons\dropdown_arrow.png">
+      <Filter>open-ephys\Resources\Images\Buttons</Filter>
     </None>
     <None Include="..\..\Resources\Images\Buttons\muteoff.png">
       <Filter>open-ephys\Resources\Images\Buttons</Filter>

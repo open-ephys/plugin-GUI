@@ -29,11 +29,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../AudioNode/AudioNode.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/GraphViewer.h"
+#include "../../Utils/ListSliceParser.h"
+
+
+static const Colour COLOUR_DROPDOWN_BUTTON_BG   (Colour::fromRGB (48, 63, 159));
+
+static const Font FONT_DEFAULT ("Arial", 12.f, Font::plain);
+
+static const int SIZE_DROPDOWN_ARROW            = 16;
+static const int DURATION_ANIMATION_COLLAPSE_MS = 200;
+
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
-    eventsOnly(false), paramsToggled(true), paramsActive(true),
-    recActive(true), radioStatus(false), isNotSink(createButtons),
-    moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
+    eventsOnly(false)
+    , parameterSlicerChannelSelector (Channels::PARAM_CHANNELS,  "Parameter slicer channel selector component")
+    , audioSlicerChannelSelector     (Channels::AUDIO_CHANNELS,  "Audio slicer channel selector component")
+    , recordSlicerChannelSelector    (Channels::RECORD_CHANNELS, "Record slicer channel selector component")
+    , paramsToggled(true), paramsActive(true), recActive(true), radioStatus(false), isNotSink(createButtons)
+    , moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
     // initialize buttons
     audioButton = new EditorButton("AUDIO", titleFont);
@@ -67,37 +80,8 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     noneButton->addListener(this);
     addAndMakeVisible(noneButton);
 
-    selectButtonParam = new EditorButton("+", titleFont);
-    selectButtonParam->addListener(this);
-    addAndMakeVisible(selectButtonParam);
-
-    deselectButtonParam = new EditorButton("-", titleFont);
-    deselectButtonParam->addListener(this);
-    addAndMakeVisible(deselectButtonParam);
-
-    selectButtonRecord = new EditorButton("+", titleFont);
-    selectButtonRecord->addListener(this);
-    addAndMakeVisible(selectButtonRecord);
-
-    deselectButtonRecord = new EditorButton("-", titleFont);
-    deselectButtonRecord->addListener(this);
-    addAndMakeVisible(deselectButtonRecord);
-
-    selectButtonAudio = new EditorButton("+", titleFont);
-    selectButtonAudio->addListener(this);
-    addAndMakeVisible(selectButtonAudio);
-
-    deselectButtonAudio = new EditorButton("-", titleFont);
-    deselectButtonAudio->addListener(this);
-    addAndMakeVisible(deselectButtonAudio);
-
-    addAndMakeVisible (paramBox  = new ChannelSelectorBox);
-    addAndMakeVisible (recordBox = new ChannelSelectorBox);
-    addAndMakeVisible (audioBox  = new ChannelSelectorBox);
-
-    numColumnsLessThan100 = 8;
-    numColumnsGreaterThan100 = 6;
-
+    // Buttons managers
+    // ====================================================================
     addAndMakeVisible (audioButtonsManager);
     addAndMakeVisible (recordButtonsManager);
     addAndMakeVisible (parameterButtonsManager);
@@ -119,6 +103,32 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     audioButtonsManager.setButtonListener      (this);
     recordButtonsManager.setButtonListener     (this);
     parameterButtonsManager.setButtonListener  (this);
+    // ====================================================================
+
+    // Slicer channels selectors
+    // ====================================================================
+    audioSlicerChannelSelector.setListener      (this);
+    recordSlicerChannelSelector.setListener     (this);
+    parameterSlicerChannelSelector.setListener  (this);
+
+    // Set just initial y for each slicer
+    const int slicerChannelSelectorY = 10;
+    audioSlicerChannelSelector.setBounds        (audioSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
+    recordSlicerChannelSelector.setBounds       (recordSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
+    parameterSlicerChannelSelector.setBounds    (parameterSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
+
+    addAndMakeVisible (audioSlicerChannelSelector);
+    addAndMakeVisible (recordSlicerChannelSelector);
+    addAndMakeVisible (parameterSlicerChannelSelector);
+
+    audioSlicerChannelSelector.toBack();
+    recordSlicerChannelSelector.toBack();
+    parameterSlicerChannelSelector.toBack();
+    // ====================================================================
+
+
+    numColumnsLessThan100 = 8;
+    numColumnsGreaterThan100 = 6;
 }
 
 ChannelSelector::~ChannelSelector()
@@ -130,6 +140,10 @@ ChannelSelector::~ChannelSelector()
     removeChildComponent (&audioButtonsManager);
     removeChildComponent (&recordButtonsManager);
     removeChildComponent (&parameterButtonsManager);
+
+    removeChildComponent (&audioSlicerChannelSelector);
+    removeChildComponent (&recordSlicerChannelSelector);
+    removeChildComponent (&parameterSlicerChannelSelector);
 
     deleteAllChildren();
 }
@@ -215,11 +229,6 @@ void ChannelSelector::shiftChannelsVertical(float amount)
 
 void ChannelSelector::refreshButtonBoundaries()
 {
-    //int column = 0;
-    //int row = 0;
-    //int nColumns;
-
-    //const int numButtons    = parameterButtonsManager.getNumButtons();
     const int columnWidth   = getDesiredWidth() / (numColumnsGreaterThan100 + 1) + 1;
     const int rowHeight     = 14;
 
@@ -227,26 +236,46 @@ void ChannelSelector::refreshButtonBoundaries()
     recordButtonsManager.setButtonSize     (columnWidth, rowHeight);
     parameterButtonsManager.setButtonSize  (columnWidth, rowHeight);
 
-    const int headerHeight = 25;
-    //const int xLoc = columnWidth / 2 + offsetLR;
-    //const int yLoc = offsetUD + headerHeight;
     const int xLoc = offsetLR + 3;
-    const int yLoc = offsetUD + headerHeight * 2 - 5;
 
-    const int tabButtonHeight = 15;
-    juce::Rectangle<int> buttonManagerBounds (xLoc, yLoc, getDesiredWidth() - 6, getHeight() - yLoc - tabButtonHeight);
-    parameterButtonsManager.setBounds (buttonManagerBounds);
-    buttonManagerBounds.translate (- getDesiredWidth(), 0);
-    recordButtonsManager.setBounds    (buttonManagerBounds);
-    buttonManagerBounds.translate (- getDesiredWidth(), 0);
-    audioButtonsManager.setBounds    (buttonManagerBounds);
+    juce::Rectangle<int> slicerSelectorBounds (xLoc - 2, 0, getDesiredWidth(), 0);
+    parameterSlicerChannelSelector.setBounds (slicerSelectorBounds
+                                              .withY (parameterSlicerChannelSelector.getY())
+                                              .withHeight (parameterSlicerChannelSelector.getHeight()));
+    slicerSelectorBounds.translate (- getDesiredWidth(), 0);
+    recordSlicerChannelSelector.setBounds (slicerSelectorBounds
+                                           .withY (recordSlicerChannelSelector.getY())
+                                           .withHeight (recordSlicerChannelSelector.getHeight()));
+    slicerSelectorBounds.translate (- getDesiredWidth(), 0);
+    audioSlicerChannelSelector.setBounds (slicerSelectorBounds
+                                          .withY (audioSlicerChannelSelector.getY())
+                                          .withHeight (audioSlicerChannelSelector.getHeight()));
 
-    juce::Rectangle<int> textEditBounds (xLoc, yLoc - headerHeight, 90, 20);
-    paramBox->setBounds     (textEditBounds);
-    textEditBounds.translate (- getDesiredWidth(), 0);
-    recordBox->setBounds    (textEditBounds);
-    textEditBounds.translate (- getDesiredWidth(), 0);
-    audioBox->setBounds     (textEditBounds);
+    // Set bounds for buttons managers
+    // ===================================================================================================
+    const int headerHeight              = 25;
+    const int tabButtonHeight           = 15;
+    const int buttonsManagerWidth       = getDesiredWidth() - 6;
+    const int defaultButtonsManagerY    = headerHeight;
+
+    // We will use just some hacks to set initial y and height if height is zero,
+    // otherwise we will use the same bounds for buttons maangers
+    int buttonsManagerX = xLoc;
+    parameterButtonsManager.setBounds   (buttonsManagerX,
+                                         parameterButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : parameterButtonsManager.getY(),
+                                         buttonsManagerWidth,
+                                         getHeight() - parameterButtonsManager.getY() - tabButtonHeight);
+    buttonsManagerX -= getDesiredWidth();
+    recordButtonsManager.setBounds      (buttonsManagerX,
+                                         recordButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : recordButtonsManager.getY(),
+                                         buttonsManagerWidth,
+                                         getHeight() - recordButtonsManager.getY() - tabButtonHeight);
+    buttonsManagerX -= getDesiredWidth();
+    audioButtonsManager.setBounds       (buttonsManagerX,
+                                         audioButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : audioButtonsManager.getY(),
+                                         buttonsManagerWidth,
+                                         getHeight() - audioButtonsManager.getY() - tabButtonHeight);
+    // ===================================================================================================
 
     /*
       audio,record and param tabs
@@ -255,21 +284,6 @@ void ChannelSelector::refreshButtonBoundaries()
     audioButton->setBounds  (0, 0, tabButtonWidth, tabButtonHeight);
     recordButton->setBounds (tabButtonWidth, 0, tabButtonWidth, tabButtonHeight);
     paramsButton->setBounds (tabButtonWidth * 2, 0, tabButtonWidth, tabButtonHeight);
-
-    /*
-      select and deselect button under each tab
-    */
-    juce::Rectangle<int> selectionControlBounds (xLoc + 95, 20, 20, 20);
-    selectButtonParam->setBounds    (selectionControlBounds);
-    deselectButtonParam->setBounds  (selectionControlBounds.translated (22, 0));
-
-    selectionControlBounds.translate (- getDesiredWidth(), 0);
-    selectButtonRecord->setBounds    (selectionControlBounds);
-    deselectButtonRecord->setBounds  (selectionControlBounds.translated (22, 0));
-
-    selectionControlBounds.translate (- getDesiredWidth(), 0);
-    selectButtonAudio->setBounds    (selectionControlBounds);
-    deselectButtonAudio->setBounds  (selectionControlBounds.translated (22, 0));
 
     /*
       All and None buttons
@@ -627,177 +641,8 @@ void ChannelSelector::buttonClicked(Button* button)
             editor->channelChanged (-1, false);
         }
     }
-    else if (button == selectButtonParam)
-    {   // select channels in parameter tab
-        selectButtonParam->removeListener(this);
-        deselectButtonParam->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = paramBox->getBoxInfo (parameterButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonParam->addListener(this);
-            deselectButtonParam->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                parameterButtonsManager.getButtonAt (fa)->setToggleState (true, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonParam->addListener(this);
-        deselectButtonParam->addListener(this);
-    }
-    else if (button == selectButtonRecord)
-    {   // select channels in record tab
-        selectButtonRecord->removeListener(this);
-        deselectButtonRecord->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = recordBox->getBoxInfo (recordButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonRecord->addListener(this);
-            deselectButtonRecord->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                recordButtonsManager.getButtonAt (fa)->setToggleState (true, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonRecord->addListener(this);
-        deselectButtonRecord->addListener(this);
-    }
-    else if (button == selectButtonAudio)
-    {   // select channels in audio tab
-        selectButtonAudio->removeListener(this);
-        deselectButtonAudio->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = audioBox->getBoxInfo (audioButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonAudio->addListener(this);
-            deselectButtonAudio->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                audioButtonsManager.getButtonAt (fa)->setToggleState(true, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonAudio->addListener(this);
-        deselectButtonAudio->addListener(this);
-    }
-    else if (button == deselectButtonParam)
-    {   // deselect channels in param tab
-        selectButtonParam->removeListener(this);
-        deselectButtonParam->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = paramBox->getBoxInfo (parameterButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonParam->addListener(this);
-            deselectButtonParam->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                parameterButtonsManager.getButtonAt (fa)->setToggleState (false, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonParam->addListener(this);
-        deselectButtonParam->addListener(this);
-    }
-    else if (button == deselectButtonRecord)
-    {   // deselect channels in record tab
-        selectButtonRecord->removeListener(this);
-        deselectButtonRecord->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = recordBox->getBoxInfo (recordButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonRecord->addListener(this);
-            deselectButtonRecord->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                recordButtonsManager.getButtonAt (fa)->setToggleState (false, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonRecord->addListener(this);
-        deselectButtonRecord->addListener(this);
-    }
-    else if (button == deselectButtonAudio)
-    {   // deselect channels in audio tab
-        selectButtonAudio->removeListener(this);
-        deselectButtonAudio->removeListener(this);
-        std::vector<int> getBoxList;
-        int fa, lim, comd, i;
-        getBoxList = audioBox->getBoxInfo (audioButtonsManager.getNumButtons());
-        if (getBoxList.size() < 3)
-        {
-            selectButtonAudio->addListener(this);
-            deselectButtonAudio->addListener(this);
-            return;
-        }
-        i = 0;
-        while (i <= getBoxList.size() - 3)
-        {
-            fa = getBoxList[i];
-            lim = getBoxList[i + 1];
-            comd = getBoxList[i + 2];
-            for (; fa <= lim; fa += comd)
-            {
-                audioButtonsManager.getButtonAt (fa)->setToggleState(false, sendNotification);
-            }
-            i += 3;
-        }
-        selectButtonAudio->addListener(this);
-        deselectButtonAudio->addListener(this);
-    }
     else
     {
-
         ChannelSelectorButton* b = (ChannelSelectorButton*)button;
 
         if (b->getType() == AUDIO)
@@ -820,8 +665,6 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 ch->isMonitored = status;
             }
-
-
         }
         else if (b->getType() == RECORD)
         {
@@ -866,12 +709,74 @@ void ChannelSelector::buttonClicked(Button* button)
 }
 
 
+void ChannelSelector::changeChannelsSelectionButtonClicked (SlicerChannelSelectorComponent* sender,
+                                                            Button* buttonThatWasClicked,
+                                                            bool isSelect)
+{
+    const Channels::ChannelsType channelsType = sender->getChannelsType();
+
+    TiledButtonGroupManager* buttonsManager = nullptr;
+    if (channelsType == Channels::AUDIO_CHANNELS)
+        buttonsManager = &audioButtonsManager;
+    else if (channelsType == Channels::RECORD_CHANNELS)
+        buttonsManager = &recordButtonsManager;
+    else if (channelsType == Channels::PARAM_CHANNELS)
+        buttonsManager = &parameterButtonsManager;
+
+    jassert (buttonsManager != nullptr);
+
+    Array<int> getBoxList = ListSliceParser::parseStringIntoRange (sender->getText(), audioButtonsManager.getNumButtons());
+    if (getBoxList.size() < 3)
+        return;
+
+    int i = 0;
+    while (i <= getBoxList.size() - 3)
+    {
+        const int lim = getBoxList[i + 1];
+        const int comd = getBoxList[i + 2];
+        for (int fa = getBoxList[i]; fa <= lim; fa += comd)
+        {
+            buttonsManager->getButtonAt (fa)->setToggleState (isSelect, sendNotification);
+        }
+        i += 3;
+    }
+}
+
+
+void ChannelSelector::channelSelectorCollapsedStateChanged (SlicerChannelSelectorComponent* sender,
+                                                            bool isCollapsed)
+{
+    const Channels::ChannelsType channelsType = sender->getChannelsType();
+
+    TiledButtonGroupManager* buttonsManager = nullptr;
+    if (channelsType == Channels::AUDIO_CHANNELS)
+        buttonsManager = &audioButtonsManager;
+    else if (channelsType == Channels::RECORD_CHANNELS)
+        buttonsManager = &recordButtonsManager;
+    else if (channelsType == Channels::PARAM_CHANNELS)
+        buttonsManager = &parameterButtonsManager;
+
+    jassert (buttonsManager != nullptr);
+
+    const int headerHeight      = 25;
+    const int tabButtonHeight   = 15;
+
+    int yPos = headerHeight;
+    if (! isCollapsed)
+        yPos += SlicerChannelSelectorComponent::MAX_HEIGHT - 20;
+
+    const int height = getHeight() - yPos - tabButtonHeight;
+    const juce::Rectangle<int> finalBounds (buttonsManager->getX(), yPos, buttonsManager->getWidth(), height);
+
+    auto& componentAnimator = Desktop::getInstance().getAnimator();
+    componentAnimator.animateComponent (buttonsManager, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, false, 1.0, 1.0);
+}
+
 ///////////// BUTTONS //////////////////////
 
 
-EditorButton::EditorButton(const String& name, Font& f) : Button(name)
+EditorButton::EditorButton(const String& name, const Font& f) : Button(name)
 {
-
     isEnabled = true;
 
     buttonFont = f;
@@ -896,8 +801,6 @@ EditorButton::EditorButton(const String& name, Font& f) : Button(name)
     neutralOverGrad = ColourGradient(Colour(180, 180, 180), 0.0, 5.0f,
                                      Colour(150, 150, 150), 0.0, 0.0,
                                      false);
-
-
 }
 
 EditorButton::~EditorButton() {}
@@ -1140,179 +1043,159 @@ void ChannelSelectorButton::setActive(bool t)
 }
 
 
-/*
-  Constructor and Destructor of ChannelSelectorBox.
-*/
-ChannelSelectorBox::ChannelSelectorBox()
+SlicerChannelSelectorComponent::SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
+                                                                const String& componentName)
+    : m_channelsType                (channelsType)
+    , m_isCollapsed                 (true)
+    , m_dropdownArrowImage          (ImageCache::getFromMemory (BinaryData::dropdown_arrow_rotated_png,
+                                                                BinaryData::dropdown_arrow_rotated_pngSize))
+    , m_dropdownArrowImageCollapsed (ImageCache::getFromMemory (BinaryData::dropdown_arrow_png,
+                                                                BinaryData::dropdown_arrow_pngSize))
+
 {
-    setMultiLine(false, true);                   // No multi lines.
-    setReturnKeyStartsNewLine(false);            // Return key donot start a new line.
-    setTabKeyUsedAsCharacter(false);
-    setTooltip("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
+    m_channelSelectorTextEditor = new TextEditor;
+    m_channelSelectorTextEditor->setMultiLine (false, true);
+    m_channelSelectorTextEditor->setReturnKeyStartsNewLine (false);
+    m_channelSelectorTextEditor->setTabKeyUsedAsCharacter (false);
+    m_channelSelectorTextEditor->setTooltip ("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
+    m_channelSelectorTextEditor->addKeyListener (this);
+    addAndMakeVisible (m_channelSelectorTextEditor);
+
+    m_selectChannelsButton = new EditorButton ("+", FONT_DEFAULT);
+    m_selectChannelsButton->setComponentID ("Select channels button");
+    m_selectChannelsButton->setClickingTogglesState (false);
+    m_selectChannelsButton->addListener (this);
+    addAndMakeVisible (m_selectChannelsButton);
+
+    m_deselectChannelsButton = new EditorButton ("-", FONT_DEFAULT);
+    m_deselectChannelsButton->setComponentID ("Deselect channels button");
+    m_deselectChannelsButton->setClickingTogglesState (false);
+    m_deselectChannelsButton->addListener (this);
+    addAndMakeVisible (m_deselectChannelsButton);
+
+    m_showComponentButton = new ImageButton;
+    m_showComponentButton->setImages (false, true, true,
+                                      m_dropdownArrowImageCollapsed, 1.f, Colours::white,
+                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image::null, 1.f, Colours::white);
+    m_showComponentButton->addListener (this);
+    addAndMakeVisible (m_showComponentButton);
+
+    addKeyListener (this);
+
+    setSize (0, SIZE_DROPDOWN_ARROW);
 }
 
-ChannelSelectorBox::~ChannelSelectorBox()
-{
 
-}
-
-/*
-  convert a string to integer.
-*/
-int ChannelSelectorBox::convertToInteger(std::string s)
+void SlicerChannelSelectorComponent::paint (Graphics& g)
 {
-    char ar[20];
-    int i, k = 0;
-    for (i = 0; i < s.size(); i++)
+    const int width  = getWidth();
+    const int height = getHeight();
+
+    // Draw horizontal line at the bottom of component at the center of arrow
+    if (! m_isCollapsed)
     {
-        if (s[i] >= 48 && s[i] <= 57)
-        {
-            ar[k] = s[i];
-            k++;
-        }
+        g.setColour (Colours::black);
+        g.drawHorizontalLine (height - SIZE_DROPDOWN_ARROW + 1, 0, width);
     }
-    if (k>7)
-    {
-        return 1000000;
-    }
-    ar[k] = '\0';
-    k = atoi(ar);
-    return k;
 }
 
 
-/*
-   TextBox to take input. Valid formats:
-   1. [ : ]  -> select/deselect all channels
-   2. [ a : b]  -> select/deselect all channels from a to b.
-   3. [ a : c : b] -> select/deselect all channels from a to b such that the difference between in each consecutive selected channel is c.
-*/
-std::vector<int> ChannelSelectorBox::getBoxInfo(int len)
+void SlicerChannelSelectorComponent::resized()
 {
-    std::string s = ",";
-    s += getText().toStdString();
-    std::vector<int> finalList,separator,rangeseparator;
-    int i, j, a, b, k, openb, closeb, otherchar,x,y;
-    s += ",";
-    for (i = 0; i < s.size(); i++)      //split string by ' , ' or ' ; ' 
+    const int width  = getWidth();
+    const int height = getHeight();
+    const int margin = 5;
+    const int textEditorHeight = 15;
+
+    m_channelSelectorTextEditor->setBounds (margin, height - SIZE_DROPDOWN_ARROW - margin - textEditorHeight,
+                                            95, textEditorHeight);
+
+    juce::Rectangle<int> selectionControlBounds (110, m_channelSelectorTextEditor->getY(), 15, 15);
+    m_selectChannelsButton->setBounds    (selectionControlBounds);
+    m_deselectChannelsButton->setBounds  (selectionControlBounds.translated (20, 0));
+
+    m_showComponentButton->setBounds ( (width - SIZE_DROPDOWN_ARROW) / 2 - 3, height - SIZE_DROPDOWN_ARROW,
+                                       25, SIZE_DROPDOWN_ARROW);
+}
+
+
+void SlicerChannelSelectorComponent::buttonClicked (Button* buttonThatWasClicked)
+{
+    if (buttonThatWasClicked == m_showComponentButton)
     {
-        if (s[i] == ';' || s[i] == ',')
-        {
-            separator.push_back(i);
-        }
+        setCollapsed (! m_isCollapsed);
     }
-    for (i = 0; i < separator.size()-1; i++)  // split ranges by ' : ' or ' - '
+    else if (buttonThatWasClicked == m_selectChannelsButton)
     {
-        j = k = separator[i] + 1;
-        openb = closeb = otherchar = 0;
-        rangeseparator.clear();
-        for (; j < separator[i + 1]; j++)
-        {
-            if (s[j] == '-' || s[j] == ':')
-            {
-                rangeseparator.push_back(j);
-            }
-            else if (((int)s[j] == 32))
-            {
-                continue;
-            }
-            else if (s[j] == '[' || s[j] == '{' || s[j] == '(')
-            {
-                openb++;
-            }
-            else if (s[j] == ']' || s[j] == '}' || s[j] == ')')
-            {
-                closeb++;
-            }
-            else if ( (int)s[j] > 57 || (int)s[j] < 48)
-            {
-                otherchar++;
-            }
-        }
-
-        if (openb != closeb || openb > 1 || closeb > 1 || otherchar > 0)  //Invalid input
-        {
-            continue;
-        }
-        
-        
-        for (x = separator[i] + 1; x < separator[i + 1]; x++)       //trim whitespace and brackets from front
-        {
-            if (((int)s[x] >= 48 && (int)s[x] <= 57) || s[x] == ':' || s[x] == '-')
-            {
-                break;
-            }
-        }
-        for (y = separator[i + 1] - 1; y > separator[i]; y--)       //trim whitespace and brackets from end
-        {
-            if (((int)s[y] >= 48 && (int)s[y] <= 57) || s[y] == ':' || s[y] == '-')
-            {
-                break;
-            }
-        }
-        if (x > y)
-        {
-            continue;
-        }
-
-
-        if (rangeseparator.size() == 0)   //syntax of form - x or [x]
-        {
-            a = convertToInteger(s.substr(x, y - x + 1));
-            if (a == 0||a>len)
-            {
-                continue;
-            }
-            finalList.push_back(a - 1);
-            finalList.push_back(a - 1);
-            finalList.push_back(1);
-        }
-        else if (rangeseparator.size() == 1) // syntax of type - x-y or [x-y]
-        {
-            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
-            b = convertToInteger(s.substr(rangeseparator[0], y - rangeseparator[0] + 1));
-            if (a == 0)
-            {
-                a = 1;
-            }
-            if (b == 0)
-            {
-                b = len;
-            }
-            if (a > b || a > len || b > len)
-            {
-                continue;
-            }
-            finalList.push_back(a - 1);
-            finalList.push_back(b - 1);
-            finalList.push_back(1);
-        }
-        else if (rangeseparator.size() == 2)   // syntax of type [x:y:z] or x-y-z
-        {
-            a = convertToInteger(s.substr(x, rangeseparator[0] - x + 1));
-            k = convertToInteger(s.substr(rangeseparator[0], rangeseparator[1] - rangeseparator[0] + 1));
-            b = convertToInteger(s.substr(rangeseparator[1], y - rangeseparator[1] + 1));
-            if (a == 0)
-            {
-                a = 1;
-            }
-            if (b == 0)
-            {
-                b = len;
-            }
-            if (k == 0)
-            {
-                k = 1;
-            }
-            if (a > b || a > len || b > len)
-            {
-                continue;
-            }
-            finalList.push_back(a - 1);
-            finalList.push_back(b - 1);
-            finalList.push_back(k);
-        }
+        m_controlsButtonListener->changeChannelsSelectionButtonClicked (this, buttonThatWasClicked, true);
     }
-    return finalList;
+    else if (buttonThatWasClicked == m_deselectChannelsButton)
+    {
+        m_controlsButtonListener->changeChannelsSelectionButtonClicked (this, buttonThatWasClicked, false);
+    }
+}
+
+
+bool SlicerChannelSelectorComponent::keyPressed (const KeyPress& key, Component* originatingComponent)
+{
+    // Collapse component by clicking "ESC" key either on component or in the TextEditor
+    if ( (dynamic_cast<TextEditor*> (originatingComponent) != nullptr
+            || originatingComponent == this)
+        && key.isKeyCode (KeyPress::escapeKey))
+    {
+        setCollapsed (true);
+    }
+
+    return false;
+}
+
+
+void SlicerChannelSelectorComponent::setCollapsed (bool isCollapsed)
+{
+    m_isCollapsed = isCollapsed;
+
+    auto& componentAnimator = Desktop::getInstance().getAnimator();
+
+    // Show full component
+    if (! m_isCollapsed)
+    {
+        juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), MAX_HEIGHT);
+        componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
+    }
+    // Collapse component
+    else
+    {
+        juce::Rectangle<int> finalBounds (getX(), getY(), getWidth(), SIZE_DROPDOWN_ARROW);
+        componentAnimator.animateComponent (this, finalBounds, 1.f, DURATION_ANIMATION_COLLAPSE_MS, true, 1.0, 1.0);
+    }
+
+    // Change buttons image (just a quick hack)
+    m_showComponentButton->setImages (false, true, true,
+                                      m_isCollapsed
+                                      ? m_dropdownArrowImageCollapsed
+                                      : m_dropdownArrowImage, 1.f, Colours::white,
+                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image::null, 1.f, Colours::white);
+
+    m_controlsButtonListener->channelSelectorCollapsedStateChanged (this, m_isCollapsed);
+}
+
+
+String SlicerChannelSelectorComponent::getText() const
+{
+    return m_channelSelectorTextEditor->getText();
+}
+
+
+Channels::ChannelsType SlicerChannelSelectorComponent::getChannelsType() const
+{
+    return m_channelsType;
+}
+
+
+void SlicerChannelSelectorComponent::setListener (SlicerChannelSelectorComponent::Listener* newListener)
+{
+    m_controlsButtonListener = newListener;
 }
 
