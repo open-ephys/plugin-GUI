@@ -330,7 +330,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 					procIndex++;
 					chanProcOrder = 0;
 				}
-				procInfo.getLast()->recordedChannels.add(channelMap.size());
+				procInfo.getLast()->recordedChannels.add(channelMap.size()-1);
 				chanProcessorMap.add(procIndex);
 				chanOrderinProc.add(chanProcOrder);
 				chanProcOrder++;
