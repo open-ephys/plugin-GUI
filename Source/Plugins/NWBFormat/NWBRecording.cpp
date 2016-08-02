@@ -49,7 +49,6 @@
 	 String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment_" + String(experimentNumber) + ".nwb";
 	 
 	 recordFile = new NWBFile(basepath, CoreServices::getGUIVersion());
-	 recordFile->open();
 
 	 int recProcs = getNumRecordedProcessors();
 
@@ -101,6 +100,10 @@
 		 }
 		 lastId = continuousInfo.size();
 	 }
+
+	 //open the file
+	 recordFile->open(getNumRecordedChannels() + continuousInfo.size()); //total channels + timestamp arrays, to create a big enough buffer
+
 	 //create the recording
 	 recordFile->startNewRecording(recordingNumber, continuousInfo, spikeInfo);
 	 
