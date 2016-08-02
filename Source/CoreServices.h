@@ -108,6 +108,9 @@ PLUGIN_API const char* getApplicationResource(const char* name, int& size);
 /** Gets the default directory for user-initiated file saving/loading */
 PLUGIN_API File getDefaultUserSaveDirectory();
 
+/** Gets the GUI version */
+PLUGIN_API String getGUIVersion();
+
 };
 
 

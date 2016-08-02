@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
 
  This file is part of the Open Ephys GUI
- Copyright (C) 2014 Florian Franzen
+ Copyright (C) 2014 Open Eph
 
  ------------------------------------------------------------------
 
@@ -24,34 +24,9 @@
 #include <H5Cpp.h>
 #include "HDF5FileFormat.h"
 
-#ifndef CHUNK_XSIZE
-#define CHUNK_XSIZE 2048
-#endif
-
-#ifndef EVENT_CHUNK_SIZE
-#define EVENT_CHUNK_SIZE 8
-#endif
-
-#ifndef SPIKE_CHUNK_XSIZE
-#define SPIKE_CHUNK_XSIZE 8
-#endif
-
-#ifndef SPIKE_CHUNK_YSIZE
-#define SPIKE_CHUNK_YSIZE 40
-#endif
-
-#ifndef TIMESTAMP_CHUNK_SIZE
-#define TIMESTAMP_CHUNK_SIZE 16
-#endif
-
-#define MAX_TRANSFORM_SIZE 512
-
-#define MAX_STR_SIZE 256
-
-#define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
-#define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
 
 using namespace H5;
+using namespace NWBRecording;
 
 //HDF5FileBase
 
@@ -136,13 +111,13 @@ void HDF5FileBase::close()
     opened = false;
 }
 
-int HDF5FileBase::setAttribute(DataTypes type, void* data, String path, String name)
+int HDF5FileBase::setAttribute(DataTypes type, const void* data, String path, String name)
 {
     return setAttributeArray(type, data, 1, path, name);
 }
 
 
-int HDF5FileBase::setAttributeArray(DataTypes type, void* data, int size, String path, String name)
+int HDF5FileBase::setAttributeArray(DataTypes type, const void* data, int size, String path, String name)
 {
     H5Location* loc;
     Group gloc;
@@ -283,6 +258,19 @@ int HDF5FileBase::createGroup(String path)
     return 0;
 }
 
+int HDF5FileBase::createGroupIfDoesNotExist(String path)
+{
+	if (!opened) return -1;
+	try {
+		file->childObjType(path.toRawUTF8());
+	}
+	catch (FileIException)
+	{
+		return createGroup(path);
+	}
+	return 0;
+}
+
 HDF5RecordingData* HDF5FileBase::getDataSet(String path)
 {
     ScopedPointer<DataSet> data;
@@ -333,7 +321,7 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int si
     size[0] = sizeX;
     size[1] = sizeY;
     size[2] = sizeZ;
-    return createDataSet(type,2,size,chunks,path);
+    return createDataSet(type,3,size,chunks,path);
 }
 
 HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path)
@@ -519,12 +507,12 @@ HDF5RecordingData::~HDF5RecordingData()
 	//Safety
 	dSet->flush(H5F_SCOPE_GLOBAL);
 }
-int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data)
+int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, const void* data)
 {
     return writeDataBlock(xDataSize,size[1],type,data);
 }
 
-int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, void* data)
+int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, const void* data)
 {
     hsize_t dim[3],offset[3];
     DataSpace fSpace;
@@ -578,7 +566,7 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
 }
 
 
-int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, void* data)
+int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, const void* data)
 {
     hsize_t dim[2],offset[2];
     DataSpace fSpace;
@@ -641,388 +629,3 @@ void HDF5RecordingData::getRowXPositions(Array<uint32>& rows)
     rows.addArray(rowXPos);
 }
 
-//KWD File
-
-KWDFile::KWDFile(int processorNumber, String basename) : HDF5FileBase()
-{
-    initFile(processorNumber, basename);
-}
-
-KWDFile::KWDFile() : HDF5FileBase()
-{
-}
-
-KWDFile::~KWDFile() {}
-
-String KWDFile::getFileName()
-{
-    return filename;
-}
-
-void KWDFile::initFile(int processorNumber, String basename)
-{
-    if (isOpen()) return;
-    filename = basename + "_" + String(processorNumber) + ".raw.kwd";
-    readyToOpen=true;
-}
-
-void KWDFile::startNewRecording(int recordingNumber, int nChannels, HDF5RecordingInfo* info)
-{
-    this->recordingNumber = recordingNumber;
-    this->nChannels = nChannels;
-    this->multiSample = info->multiSample;
-    uint8 mSample = info->multiSample ? 1 : 0;
-
-	ScopedPointer<HDF5RecordingData> bitVoltsSet;
-	ScopedPointer<HDF5RecordingData> sampleRateSet;
-
-    String recordPath = String("/recordings/")+String(recordingNumber);
-    CHECK_ERROR(createGroup(recordPath));
-    CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-    CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
-    CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
-    CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
-    CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
-    CHECK_ERROR(createGroup(recordPath+"/application_data"));
-   // CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
-	bitVoltsSet = createDataSet(F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
-	if (bitVoltsSet.get())
-		bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
-	else
-		std::cerr << "Error creating bitvolts data set" << std::endl;
-	
-    CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
-    //CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
-	sampleRateSet = createDataSet(F32, info->channelSampleRates.size(), 0, recordPath + "/application_data/channel_sample_rates");
-	if (sampleRateSet.get())
-		sampleRateSet->writeDataBlock(info->channelSampleRates.size(), F32, info->channelSampleRates.getRawDataPointer());
-	else
-		std::cerr << "Error creating sample rates data set" << std::endl;
-
-    recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
-    if (!recdata.get())
-        std::cerr << "Error creating data set" << std::endl;
-
-	tsData = createDataSet(I64, 0, nChannels, TIMESTAMP_CHUNK_SIZE, recordPath + "/application_data/timestamps");
-	if (!tsData.get())
-		std::cerr << "Error creating timestamps data set" << std::endl;
-
-    curChan = nChannels;
-}
-
-void KWDFile::stopRecording()
-{
-    Array<uint32> samples;
-    String path = String("/recordings/")+String(recordingNumber)+String("/data");
-    recdata->getRowXPositions(samples);
-
-    CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
-    //ScopedPointer does the deletion and destructors the closings
-    recdata = nullptr;
-	tsData = nullptr;
-}
-
-int KWDFile::createFileStructure()
-{
-    const uint16 ver = 2;
-    if (createGroup("/recordings")) return -1;
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
-    return 0;
-}
-
-void KWDFile::writeBlockData(int16* data, int nSamples)
-{
-    CHECK_ERROR(recdata->writeDataBlock(nSamples,I16,data));
-}
-
-void KWDFile::writeRowData(int16* data, int nSamples)
-{
-    if (curChan >= nChannels)
-    {
-        curChan=0;
-    }
-    CHECK_ERROR(recdata->writeDataRow(curChan,nSamples,I16,data));
-    curChan++;
-}
-
-void KWDFile::writeRowData(int16* data, int nSamples, int channel)
-{
-	if (channel >= 0 && channel < nChannels)
-	{
-		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, I16, data));
-		curChan = channel;
-	}
-}
-
-void KWDFile::writeTimestamps(int64* ts, int nTs, int channel)
-{
-	if (channel >= 0 && channel < nChannels)
-	{
-		CHECK_ERROR(tsData->writeDataRow(channel, nTs, I64, ts));
-	}
-}
-
-//KWE File
-
-KWEFile::KWEFile(String basename) : HDF5FileBase()
-{
-    initFile(basename);
-}
-
-KWEFile::KWEFile() : HDF5FileBase()
-{
-
-}
-
-KWEFile::~KWEFile() {}
-
-String KWEFile::getFileName()
-{
-    return filename;
-}
-
-void KWEFile::initFile(String basename)
-{
-    if (isOpen()) return;
-    filename = basename + ".kwe";
-    readyToOpen=true;
-}
-
-int KWEFile::createFileStructure()
-{
-    const uint16 ver = 2;
-    if (createGroup("/recordings")) return -1;
-    if (createGroup("/event_types")) return -1;
-    for (int i=0; i < eventNames.size(); i++)
-    {
-        ScopedPointer<HDF5RecordingData> dSet;
-        String path = "/event_types/" + eventNames[i];
-        if (createGroup(path)) return -1;
-        path += "/events";
-        if (createGroup(path)) return -1;
-        dSet = createDataSet(U64,0,EVENT_CHUNK_SIZE,path + "/time_samples");
-        if (!dSet) return -1;
-        dSet = createDataSet(U16,0,EVENT_CHUNK_SIZE,path + "/recording");
-        if (!dSet) return -1;
-        path += "/user_data";
-        if (createGroup(path)) return -1;
-        dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/eventID");
-        if (!dSet) return -1;
-        dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/nodeID");
-        if (!dSet) return -1;
-        dSet = createDataSet(eventTypes[i],0,EVENT_CHUNK_SIZE,path + "/" + eventDataNames[i]);
-        if (!dSet) return -1;
-    }
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
-    return 0;
-}
-
-void KWEFile::startNewRecording(int recordingNumber, HDF5RecordingInfo* info)
-{
-    this->recordingNumber = recordingNumber;
-    kwdIndex=0;
-    String recordPath = String("/recordings/")+String(recordingNumber);
-    CHECK_ERROR(createGroup(recordPath));
-    CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-    CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
-    //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
-    CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
-    CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
-   // CHECK_ERROR(createGroup(recordPath + "/raw"));
-  //  CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
-
-    for (int i = 0; i < eventNames.size(); i++)
-    {
-        HDF5RecordingData* dSet;
-        String path = "/event_types/" + eventNames[i] + "/events";
-        dSet = getDataSet(path + "/time_samples");
-        if (!dSet)
-            std::cerr << "Error loading event timestamps dataset for type " << i << std::endl;
-        timeStamps.add(dSet);
-        dSet = getDataSet(path + "/recording");
-        if (!dSet)
-            std::cerr << "Error loading event recordings dataset for type " << i << std::endl;
-        recordings.add(dSet);
-        dSet = getDataSet(path + "/user_data/eventID");
-        if (!dSet)
-            std::cerr << "Error loading event ID dataset for type " << i << std::endl;
-        eventID.add(dSet);
-        dSet = getDataSet(path + "/user_data/nodeID");
-        if (!dSet)
-            std::cerr << "Error loading event node ID dataset for type " << i << std::endl;
-        nodeID.add(dSet);
-        dSet = getDataSet(path + "/user_data/" + eventDataNames[i]);
-        if (!dSet)
-            std::cerr << "Error loading event channel dataset for type " << i << std::endl;
-        eventData.add(dSet);
-    }
-}
-
-void KWEFile::stopRecording()
-{
-    timeStamps.clear();
-    recordings.clear();
-    eventID.clear();
-    nodeID.clear();
-    eventData.clear();
-}
-
-void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
-{
-    if (type > eventNames.size() || type < 0)
-    {
-        std::cerr << "HDF5::writeEvent Invalid event type " << type << std::endl;
-        return;
-    }
-    CHECK_ERROR(timeStamps[type]->writeDataBlock(1,U64,&timestamp));
-    CHECK_ERROR(recordings[type]->writeDataBlock(1,I32,&recordingNumber));
-    CHECK_ERROR(eventID[type]->writeDataBlock(1,U8,&id));
-    CHECK_ERROR(nodeID[type]->writeDataBlock(1,U8,&processor));
-    CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
-}
-
-/*void KWEFile::addKwdFile(String filename)
-{
-	if (kwdIndex == 0)
-	{
-		CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber), "/recordings/" + String(recordingNumber) +
-			"/raw", "hdf5_path"));
-	}
-    CHECK_ERROR(setAttributeStr(filename + "/recordings/" + String(recordingNumber),"/recordings/" + String(recordingNumber) +
-                                "/raw/hdf5_paths",String(kwdIndex)));
-    kwdIndex++;
-}*/
-
-void KWEFile::addEventType(String name, DataTypes type, String dataName)
-{
-    eventNames.add(name);
-    eventTypes.add(type);
-    eventDataNames.add(dataName);
-}
-
-//KWX File
-
-KWXFile::KWXFile(String basename) : HDF5FileBase()
-{
-    initFile(basename);
-    numElectrodes=0;
-    transformVector.malloc(MAX_TRANSFORM_SIZE);
-}
-
-KWXFile::KWXFile() : HDF5FileBase()
-{
-    numElectrodes=0;
-    transformVector.malloc(MAX_TRANSFORM_SIZE);
-}
-
-KWXFile::~KWXFile()
-{
-}
-
-String KWXFile::getFileName()
-{
-    return filename;
-}
-
-void KWXFile::initFile(String basename)
-{
-    if (isOpen()) return;
-    filename = basename + ".kwx";
-    readyToOpen=true;
-}
-
-int KWXFile::createFileStructure()
-{
-    const uint16 ver = 2;
-    if (createGroup("/channel_groups")) return -1;
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
-    for (int i=0; i < channelArray.size(); i++)
-    {
-        int res = createChannelGroup(i);
-        if (res) return -1;
-    }
-    return 0;
-}
-
-void KWXFile::addChannelGroup(int nChannels)
-{
-    channelArray.add(nChannels);
-    numElectrodes++;
-}
-
-int KWXFile::createChannelGroup(int index)
-{
-    ScopedPointer<HDF5RecordingData> dSet;
-    int nChannels = channelArray[index];
-    String path("/channel_groups/"+String(index));
-    CHECK_ERROR(createGroup(path));
-    dSet = createDataSet(I16,0,0,nChannels,SPIKE_CHUNK_XSIZE,SPIKE_CHUNK_YSIZE,path+"/waveforms_filtered");
-    if (!dSet) return -1;
-    dSet = createDataSet(U64,0,SPIKE_CHUNK_XSIZE,path+"/time_samples");
-    if (!dSet) return -1;
-    dSet = createDataSet(U16,0,SPIKE_CHUNK_XSIZE,path+"/recordings");
-    if (!dSet) return -1;
-    return 0;
-}
-
-void KWXFile::startNewRecording(int recordingNumber)
-{
-    HDF5RecordingData* dSet;
-    String path;
-    this->recordingNumber = recordingNumber;
-
-    for (int i=0; i < channelArray.size(); i++)
-    {
-        path = "/channel_groups/"+String(i);
-        dSet=getDataSet(path+"/waveforms_filtered");
-        if (!dSet)
-            std::cerr << "Error loading spikes dataset for group " << i << std::endl;
-        spikeArray.add(dSet);
-        dSet=getDataSet(path+"/time_samples");
-        if (!dSet)
-            std::cerr << "Error loading spike timestamp dataset for group " << i << std::endl;
-        timeStamps.add(dSet);
-        dSet=getDataSet(path+"/recordings");
-        if (!dSet)
-            std::cerr << "Error loading spike recordings dataset for group " << i << std::endl;
-        recordingArray.add(dSet);
-    }
-}
-
-void KWXFile::stopRecording()
-{
-    spikeArray.clear();
-    timeStamps.clear();
-    recordingArray.clear();
-}
-
-void KWXFile::resetChannels()
-{
-    stopRecording(); //Just in case
-    channelArray.clear();
-}
-
-void KWXFile::writeSpike(int groupIndex, int nSamples, const uint16* data, uint64 timestamp)
-{
-    if ((groupIndex < 0) || (groupIndex >= numElectrodes))
-    {
-        std::cerr << "HDF5::writeSpike Electrode index out of bounds " << groupIndex << std::endl;
-        return;
-    }
-    int nChans= channelArray[groupIndex];
-    int16* dst=transformVector;
-
-    //Given the way we store spike data, we need to transpose it to store in
-    //N x NSAMPLES x NCHANNELS as well as convert from u16 to i16
-    for (int i = 0; i < nSamples; i++)
-    {
-        for (int j = 0; j < nChans; j++)
-        {
-            *(dst++) = *(data+j*nSamples+i)-32768;
-        }
-    }
-
-    CHECK_ERROR(spikeArray[groupIndex]->writeDataBlock(1,nSamples,I16,transformVector));
-    CHECK_ERROR(recordingArray[groupIndex]->writeDataBlock(1,I32,&recordingNumber));
-    CHECK_ERROR(timeStamps[groupIndex]->writeDataBlock(1,U64,&timestamp));
-}

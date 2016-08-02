@@ -173,4 +173,10 @@ File getDefaultUserSaveDirectory()
 #endif
 }
 
+String getGUIVersion()
+{
+#define STR_DEF(s) #s
+	return STR_DEF(JUCE_APP_VERSION);
+}
+
 };

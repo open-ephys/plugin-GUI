@@ -58,7 +58,7 @@ public:
     virtual String getFileName() = 0;
     bool isOpen() const;
 	bool isReadyToOpen() const;
-    typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32, STR} DataTypes;
+    typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32, F64, STR} DataTypes;
 
     static H5::DataType getNativeType(DataTypes type);
     static H5::DataType getH5Type(DataTypes type);

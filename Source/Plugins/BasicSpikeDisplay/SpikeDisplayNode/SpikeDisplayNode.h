@@ -91,6 +91,8 @@ private:
         Array<SpikeObject> mostRecentSpikes;
         int currentSpikeIndex;
 
+		float bitVolts;
+
         SpikePlot* spikePlot;
 
         int recordIndex;

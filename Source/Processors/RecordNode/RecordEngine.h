@@ -46,6 +46,7 @@ struct SpikeRecordInfo
     String name;
     int numChannels;
     int sampleRate;
+	float bitVolts;
 
     int recordIndex;
 };

@@ -63,7 +63,7 @@ void SpikeDisplayNode::updateSettings()
 
             Electrode elec;
 			elec.numChannels = static_cast<SpikeChannel*>(eventChannels[i]->extraData.get())->numChannels;
-
+			elec.bitVolts = eventChannels[i]->getBitVolts();
             elec.name = eventChannels[i]->getName();
             elec.currentSpikeIndex = 0;
             elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
@@ -98,6 +98,7 @@ bool SpikeDisplayNode::enable()
 		SpikeRecordInfo *recElec = new SpikeRecordInfo();
 		recElec->name = elec.name;
 		recElec->numChannels = elec.numChannels;
+		recElec->bitVolts = elec.bitVolts;
 		recElec->sampleRate = settings.sampleRate;
 		elec.recordIndex = CoreServices::RecordNode::addSpikeElectrode(recElec);
 	}
