@@ -25,6 +25,7 @@
 #include "SpikeSorter.h"
 #include "SpikeSortBoxes.h"
 #include "SpikeSorterCanvas.h"
+#include "../../Processors/RecordNode/RecordEngine.h"
 
 class spikeSorter;
 
@@ -32,7 +33,7 @@ SpikeSorter::SpikeSorter()
     : GenericProcessor("Spike Sorter"),
       overflowBuffer(2,100), dataBuffer(nullptr),
       overflowBufferSize(100), currentElectrode(-1),
-      numPreSamples(8),numPostSamples(32)
+      isRecording(false), numPreSamples(8), numPostSamples(32)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
 
@@ -54,7 +55,6 @@ bool SpikeSorter::getFlipSignalState()
 {
     return flipSignal;
 }
-
 
 void SpikeSorter::setFlipSignalState(bool state)
 {
@@ -96,7 +96,6 @@ void SpikeSorter::setThresholdSyncStatus(bool status)
     syncThresholds= status;
 }
 
-
 void SpikeSorter::seteAutoDacAssignment(bool status)
 {
     autoDACassignment = status;
@@ -123,7 +122,6 @@ void SpikeSorter::setNumPostSamples(int numSamples)
     }
 }
 
-
 int SpikeSorter::getUniqueProbeID(String type)
 {
     for (int i = 0; i < electrodeTypes.size(); i++)
@@ -139,7 +137,6 @@ int SpikeSorter::getUniqueProbeID(String type)
     return 1;
 }
 
-
 void SpikeSorter::increaseUniqueProbeID(String type)
 {
     for (int i = 0; i < electrodeTypes.size(); i++)
@@ -151,8 +148,6 @@ void SpikeSorter::increaseUniqueProbeID(String type)
     }
 }
 
-
-
 SpikeSorter::~SpikeSorter()
 {
     delete spikeBuffer;
@@ -162,8 +157,6 @@ SpikeSorter::~SpikeSorter()
         delete channelBuffers;
 
 }
-
-
 
 AudioProcessorEditor* SpikeSorter::createEditor()
 {
@@ -201,7 +194,6 @@ void SpikeSorter::updateSettings()
 
     mut.exit();
 }
-
 
 Electrode::~Electrode()
 {
@@ -335,7 +327,6 @@ void SpikeSorter::removeUnit(int electrodeID, int unitID)
  //   updateSinks(electrodeID,  unitID, 0,0,0,false);
 
 }
-
 
 void SpikeSorter::removeAllUnits(int electrodeID)
 {
@@ -563,7 +554,6 @@ int SpikeSorter::getChannel(int index, int i)
     return ii;
 }
 
-
 void SpikeSorter::setChannelActive(int electrodeIndex, int subChannel, bool active)
 {
 
@@ -585,7 +575,6 @@ bool SpikeSorter::isChannelActive(int electrodeIndex, int i)
     mut.exit();
     return b;
 }
-
 
 void SpikeSorter::setChannelThreshold(int electrodeNum, int channelNum, float thresh)
 {
@@ -637,15 +626,23 @@ void SpikeSorter::setParameter(int parameterIndex, float newValue)
     mut.exit();
 }
 
-
 bool SpikeSorter::enable()
 {
 
     useOverflowBuffer.clear();
 
+    CoreServices::RecordNode::registerSpikeSource(this);
     for (int i = 0; i < electrodes.size(); i++)
+    {
         useOverflowBuffer.add(false);
 
+        Electrode *elec = electrodes.getReference(i);
+        SpikeRecordInfo *recElec = new SpikeRecordInfo();
+        recElec->name = elec->name;
+        recElec->numChannels = elec->numChannels;
+        recElec->sampleRate = settings.sampleRate;
+        elec->recordIndex = CoreServices::RecordNode::addSpikeElectrode(recElec);
+    }
 
     SpikeSorterEditor* editor = (SpikeSorterEditor*) getEditor();
     editor->enable();
@@ -653,12 +650,10 @@ bool SpikeSorter::enable()
     return true;
 }
 
-
 bool SpikeSorter::isReady()
 {
     return true;
 }
-
 
 bool SpikeSorter::disable()
 {
@@ -679,7 +674,6 @@ Electrode* SpikeSorter::getActiveElectrode()
 
     return electrodes[currentElectrode];
 }
-
 
 void SpikeSorter::addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex)
 {
@@ -789,7 +783,14 @@ void SpikeSorter::startRecording()
         }
 
     }
+    isRecording = true;
+    mut.exit();
+}
 
+void SpikeSorter::stopRecording()
+{
+    mut.enter();
+    isRecording = false;
     mut.exit();
 }
 
@@ -1017,9 +1018,15 @@ void SpikeSorter::process(AudioSampleBuffer& buffer,
                             electrode->spikePlot->processSpikeObject(newSpike);
                         }
 
-
                         addSpikeEvent(&newSpike, events, peakIndex);
-                        //prevSpike = newSpike;
+
+                        // save spike
+                        if (isRecording)
+                        {
+                            CoreServices::RecordNode::writeSpike(newSpike,electrode->recordIndex);
+                        }
+
+                        // prevSpike = newSpike;
                         // advance the sample index
                         sampleIndex = peakIndex + electrode->postPeakSamples;
 

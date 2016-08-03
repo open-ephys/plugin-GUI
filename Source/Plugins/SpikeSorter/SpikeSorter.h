@@ -155,6 +155,7 @@ public:
     void resizeWaveform(int numPre, int numPost);
 
     String name;
+    int recordIndex;
 
     int numChannels;
     int prePeakSamples, postPeakSamples;
@@ -353,6 +354,7 @@ public:
     bool getFlipSignalState();
     void setFlipSignalState(bool state);
     void startRecording();
+    void stopRecording();
     std::vector<float> getElectrodeVoltageScales(int electrodeID);
     //void getElectrodePCArange(int electrodeID, float &minX,float &maxX,float &minY,float &maxY);
     //void setElectrodePCArange(int electrodeID, float minX,float maxX,float minY,float maxY);
@@ -413,7 +415,7 @@ private:
     int currentElectrode;
     int currentChannelIndex;
     int currentIndex;
-
+    bool isRecording;
 
     int numPreSamples,numPostSamples;
     uint8_t* spikeBuffer;///[256];
