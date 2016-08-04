@@ -384,7 +384,8 @@ public:
                 return;
             }
 
-            wizard->modulesFolder = modulesPathBox.modulesFolder;
+            // <Open Ephys> changes
+            //wizard->modulesFolder = modulesPathBox.modulesFolder;
 
             if (! isJuceModulesFolder (wizard->modulesFolder))
                 if (! wizard->selectJuceFolder())

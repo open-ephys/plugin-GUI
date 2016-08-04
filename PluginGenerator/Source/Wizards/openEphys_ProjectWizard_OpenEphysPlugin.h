@@ -123,7 +123,12 @@ static void updateOpenEphysWizardComboBoxBounds (const Component& parent)
 
 struct OpenEphysPluginAppWizard   : public NewProjectWizard
 {
-    OpenEphysPluginAppWizard()  {}
+    OpenEphysPluginAppWizard()
+    {
+        modulesFolder = File::getCurrentWorkingDirectory()
+                                    .getParentDirectory().getParentDirectory().getParentDirectory()
+                                    .getChildFile ("JuceLibraryCode").getChildFile("modules");
+    }
 
     String getName() const override         { return TRANS("Open-Ephys Plug-In"); }
     String getDescription() const override  { return TRANS("Creates an Open-Ephys neuro plug-in."); }

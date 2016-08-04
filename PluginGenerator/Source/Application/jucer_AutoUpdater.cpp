@@ -689,6 +689,10 @@ void LatestVersionChecker::askUserAboutNewVersion (const LatestVersionChecker::J
 {
     JuceVersionTriple currentVersion (getProductVersionNumber());
 
+    // <Open Ephys> changes. Disable autoupdate.
+    // TODO
+    return;
+
     if (version > currentVersion)
     {
         File appParentFolder (File::getSpecialLocation (File::currentApplicationFile).getParentDirectory());
