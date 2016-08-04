@@ -457,6 +457,9 @@
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_OpenEphysLibTemplate.cpp">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorContentComponentTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.cpp">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClCompile>
@@ -2197,6 +2200,9 @@
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorContentComponentTemplate.h">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.h">

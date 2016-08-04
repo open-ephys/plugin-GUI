@@ -574,6 +574,10 @@
                 resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_OpenEphysLibTemplate.cpp"/>
           <FILE id="e277Aa" name="openEphys_PluginMakefile.example" compile="0"
                 resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_PluginMakefile.example"/>
+          <FILE id="m9SsWM" name="openEphys_ProcessorContentComponentTemplate.cpp"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorContentComponentTemplate.cpp"/>
+          <FILE id="fZkZkw" name="openEphys_ProcessorContentComponentTemplate.h"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorContentComponentTemplate.h"/>
           <FILE id="DqDfT0" name="openEphys_ProcessorEditorPluginTemplate.cpp"
                 compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorEditorPluginTemplate.cpp"/>
           <FILE id="DrCO1U" name="openEphys_ProcessorEditorPluginTemplate.h"

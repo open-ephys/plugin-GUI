@@ -202,6 +202,9 @@
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_OpenEphysLibTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorContentComponentTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1513,6 +1516,7 @@
     <ClInclude Include="..\..\Source\Wizards\openEphys_ProjectWizard_OpenEphysPlugin.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorContentComponentTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.h"/>

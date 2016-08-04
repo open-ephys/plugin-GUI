@@ -27,11 +27,17 @@ namespace BinaryData
     extern const char*   openEphys_PluginMakefile_example;
     const int            openEphys_PluginMakefile_exampleSize = 1112;
 
+    extern const char*   openEphys_ProcessorContentComponentTemplate_cpp;
+    const int            openEphys_ProcessorContentComponentTemplate_cppSize = 2993;
+
+    extern const char*   openEphys_ProcessorContentComponentTemplate_h;
+    const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
+
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 2521;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3639;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
-    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 2862;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3369;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
     const int            openEphys_ProcessorPluginTemplate_cppSize = 3846;
@@ -184,7 +190,7 @@ namespace BinaryData
     extern const char* namedResourceList[];
 
     // Number of elements in the namedResourceList array.
-    const int namedResourceListSize = 57;
+    const int namedResourceListSize = 59;
 
     // If you provide the name of one of the binary resource variables above, this function will
     // return the corresponding data and its size (or a null pointer if the name isn't found).

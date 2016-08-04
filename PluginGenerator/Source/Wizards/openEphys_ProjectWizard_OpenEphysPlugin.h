@@ -206,9 +206,12 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         String pluginProcessorName  = CodeHelpers::makeValidIdentifier (appTitle, true, true, false) + "Processor";
         pluginProcessorName         = pluginProcessorName.substring (0, 1).toUpperCase() + pluginProcessorName.substring (1);
-        String pluginEditorName     = pluginProcessorName + "Editor";
-        String processorType        = getProcessorTypeString (m_processorType);
-        String pluginFriendlyName   = appTitle;
+
+        const String pluginEditorName     = pluginProcessorName + "Editor";
+        const String processorType        = getProcessorTypeString (m_processorType);
+        const String pluginFriendlyName   = appTitle;
+
+        const String pluginContentComponentName = pluginProcessorName + "ContentComponent";
 
         project.getProjectTypeValue() = ProjectType_OpenEphysPlugin::getTypeName();
 
@@ -227,7 +230,8 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         generatePluginMakeFile  (project, sourceGroup);
         generatePluginLibFile   (project, sourceGroup, pluginProcessorName, pluginFriendlyName);
         generatePluginProcessorFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
-        generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
+        generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName, pluginContentComponentName);
+        generatePluginEditorContentComponentFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginContentComponentName);
 
         return true;
     }
@@ -347,7 +351,8 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
                                     Project::Item& sourceGroup,
                                     const String& processorName,
                                     const String& editorName,
-                                    const String& pluginFriendlyName)
+                                    const String& pluginFriendlyName,
+                                    const String& contentComponentName)
     {
         const auto sourceFolder = getSourceFilesFolder();
 
@@ -364,6 +369,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
             //.replace ("EDITORHEADERS", appHeaders + newLine + CodeHelpers::createIncludeStatement (filterHFile, filterCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("EDITORCLASSNAME", editorName, false)
+            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
             .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newEditorHFile), false);
 
         bool wasGeneratedSuccessfully = true;
@@ -384,6 +390,51 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         sourceGroup.addFileAtIndex (newEditorCppFile, -1, true);
         sourceGroup.addFileAtIndex (newEditorHFile,   -1, false);
+
+        return wasGeneratedSuccessfully;
+    }
+
+
+    bool generatePluginEditorContentComponentFiles (const Project& project,
+                                                    Project::Item& sourceGroup,
+                                                    const String& processorName,
+                                                    const String& editorName,
+                                                    const String& contentComponentName)
+    {
+        const auto sourceFolder = getSourceFilesFolder();
+
+        auto newContentComponentCppFile = sourceFolder.getChildFile (contentComponentName + ".cpp");
+        auto newContentComponentHFile   = sourceFolder.getChildFile (contentComponentName + ".h");
+
+        String contentComponentCppFileContent = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_cpp")
+            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("EDITORCLASSNAME", editorName, false);
+
+        String contentComponentHFileContent   = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_h")
+            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("EDITORCLASSNAME", editorName, false)
+            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newContentComponentHFile), false);
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newContentComponentCppFile, contentComponentCppFileContent))
+        {
+            failedFiles.add (newContentComponentCppFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newContentComponentHFile, contentComponentHFileContent))
+        {
+            failedFiles.add (newContentComponentHFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        sourceGroup.addFileAtIndex (newContentComponentCppFile, -1, true);
+        sourceGroup.addFileAtIndex (newContentComponentHFile,   -1, false);
 
         return wasGeneratedSuccessfully;
     }

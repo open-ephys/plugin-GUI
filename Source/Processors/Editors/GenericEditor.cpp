@@ -204,13 +204,13 @@ void GenericEditor::refreshColors()
 
 void GenericEditor::resized()
 {
-    if (!isCollapsed)
+    if (! isCollapsed)
     {
         if (drawerButton != 0)
-            drawerButton->setBounds(getWidth()-14, 40, 10, getHeight()-60);
+            drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
         if (channelSelector != 0)
-            channelSelector->setBounds(desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
+            channelSelector->setBounds (desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
     }
 }
 
@@ -355,17 +355,17 @@ void GenericEditor::paint(Graphics& g)
     int offset = 0;
 
     if (isEnabled)
-        g.setColour(backgroundColor);
+        g.setColour (backgroundColor);
     else
-        g.setColour(Colours::lightgrey);
+        g.setColour (Colours::lightgrey);
 
     // draw colored background
-    if (!isCollapsed)
+    if (! isCollapsed)
     {
-        g.fillRect(1,1,getWidth()-(2+offset),getHeight()-2);
+        g.fillRect (1, 1, getWidth() - (2 + offset), getHeight() - 2);
         // draw gray workspace
-        g.setGradientFill(backgroundGradient);
-        g.fillRect(1,22,getWidth()-2, getHeight()-29);
+        g.setGradientFill (backgroundGradient);
+        g.fillRect (1, 22, getWidth() - 2, getHeight() - 29);
     }
     else
     {
@@ -488,7 +488,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 void GenericEditor::sliderValueChanged(Slider* slider)
 {
-
     sliderEvent(slider);
 }
 

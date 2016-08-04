@@ -188,6 +188,8 @@ void Project::setMissingOpenEphysPluginDefaultValues()
     setValueIfVoid (getOpenEphysPluginType(),                       NOT_A_PLUGIN_TYPE);
     setValueIfVoid (getOpenEphysPluginProcessorType(),              PROCESSOR_TYPE_INVALID);
     setValueIfVoid (getOpenEphysPluginFileSourceSupportedExts(),    "");
+
+    setValueIfVoid (getOpenEphysPluginDesiredWidth(), 150);
 }
 
 
@@ -238,6 +240,7 @@ void Project::updateSourceFilesIfNeeded()
         if ((int)getOpenEphysPluginType().getValue() == PLUGIN_TYPE_PROCESSOR)
         {
             updateOpenEphysPluginProcessorFiles();
+            updateOpenEphysPluginEditorFiles();
         }
     }
 }
@@ -329,6 +332,63 @@ void Project::updateOpenEphysPluginProcessorFiles()
               -------> 2) processor file doesn't exist more or you changed the path to it.");
     }
     // ========================================================================
+}
+
+
+static int getIndexOfLineInStringArrayContaining (const StringArray& stringArray, const String& stringToFind)
+{
+    for (int i = 0; i < stringArray.size(); ++i)
+    {
+        if (stringArray[i].contains (stringToFind))
+            return i;
+    }
+
+    return -1;
+}
+
+
+void Project::updateOpenEphysPluginEditorFiles()
+{
+    auto editorCppFile = getSourceFilesFolder().getChildFile (getPluginName().toString() + "ProcessorEditor.cpp");
+    DBG (String ("Editor cpp file path: ") + editorCppFile.getFullPathName());
+
+    // Update desired width of editor
+    // ========================================================================
+    StringArray editorCppFileLines;
+    editorCppFileLines.addLines (editorCppFile.loadFileAsString());
+
+    const String desiredWidthCodeTemplate = "static const int EDITOR_DESIRED_WIDTH";
+    const int indexOfLineContainingDesiredWidthCode = getIndexOfLineInStringArrayContaining (editorCppFileLines, desiredWidthCodeTemplate);
+    jassert (indexOfLineContainingDesiredWidthCode != -1);
+
+    if (indexOfLineContainingDesiredWidthCode != -1)
+    {
+        // Need to check if the text is int.
+        // TODO <Kirill A> add own subclass of TextPropertyComponent and use
+        // setInputRestrictions() method for the text editor to allow to enter only numbers
+        //if (getOpenEphysPluginDesiredWidth().getValue().isInt())
+        {
+            editorCppFileLines.remove (indexOfLineContainingDesiredWidthCode);
+            const int newDesiredWidth = int (getOpenEphysPluginDesiredWidth().getValue());
+
+            const String desiredWidthCode = desiredWidthCodeTemplate + " = " + String (newDesiredWidth) + ";";
+            editorCppFileLines.insert (indexOfLineContainingDesiredWidthCode, desiredWidthCode);
+
+            DBG ("New desired width for plugin is: " + String (newDesiredWidth));
+        }
+    }
+    // ========================================================================
+
+    // Editor content component
+    // ========================================================================
+
+    // ========================================================================
+
+    const String content = fixLineEndings (editorCppFileLines.joinIntoString ("\r\n"));
+    if (FileHelpers::overwriteFileWithNewDataIfDifferent (editorCppFile, content))
+    {
+        DBG ("Processor cpp file was successfully updated.");
+    }
 }
 
 
@@ -751,6 +811,10 @@ void Project::createOpenEphysPluginPropertyEditors (PropertyListBuilder& props)
                "A four-character unique ID for your company. Note that for AU compatibility, this must contain at least one upper-case letter!");
     props.add (new TextPropertyComponent (getPluginCode(), "Plugin Code", 4, false),
                "A four-character unique ID for your plugin. Note that for AU compatibility, this must contain at least one upper-case letter!");
+
+    // Plugin desired width
+    props.add (new TextPropertyComponent (getOpenEphysPluginDesiredWidth(), "Plugin desired width", 4, false),
+               "The desired width for your plugin in the processing chain of Open Ephys GUI");
 
     // Plugin types
     // TODO <Kirill A> just display inactive plugin type field

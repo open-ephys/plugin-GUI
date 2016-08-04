@@ -163,6 +163,7 @@ public:
     Value getOpenEphysPluginType()                      { return getProjectValue ("openEphysPluginType"); }
     Value getOpenEphysPluginProcessorType()             { return getProjectValue ("openEphysPluginProcessorType"); }
     Value getOpenEphysPluginFileSourceSupportedExts()   { return getProjectValue ("openEphysFileSourcePluginSupportedExtensions"); }
+    Value getOpenEphysPluginDesiredWidth()              { return getProjectValue ("openEphysPluginDesiredWidth"); }
 
     bool isProcessorPlugin() const              { return m_pluginType == PLUGIN_TYPE_PROCESSOR; }
 
@@ -342,6 +343,7 @@ private:
     void setMissingOpenEphysPluginDefaultValues();
     void updateOpenEphysPluginConfigValues();
     void updateOpenEphysPluginProcessorFiles();
+    void updateOpenEphysPluginEditorFiles();
     void createOpenEphysPluginPropertyEditors (PropertyListBuilder& props);
 
 

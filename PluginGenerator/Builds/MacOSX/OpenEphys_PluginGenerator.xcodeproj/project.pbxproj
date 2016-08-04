@@ -289,6 +289,7 @@
 		2FD9D5944388186AAA32FEE2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_Colour.cpp"; path = "../../../JuceLibraryCode/modules/juce_graphics/colour/juce_Colour.cpp"; sourceTree = "SOURCE_ROOT"; };
 		2FF61C42E37986022C189531 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_KeyPress.cpp"; path = "../../../JuceLibraryCode/modules/juce_gui_basics/keyboard/juce_KeyPress.cpp"; sourceTree = "SOURCE_ROOT"; };
 		301592EBAC0FFF6F5B268E99 = {isa = PBXFileReference; lastKnownFileType = image.png; name = "background_tile.png"; path = "../../Source/BinaryData/background_tile.png"; sourceTree = "SOURCE_ROOT"; };
+		30A82BB4D11EED0898DA78D5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "openEphys_ProcessorContentComponentTemplate.cpp"; path = "../../../Source/Processors/PluginManager/Templates/openEphys_ProcessorContentComponentTemplate.cpp"; sourceTree = "SOURCE_ROOT"; };
 		30AA2672E02904848C509B04 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = jdapimin.c; path = "../../../JuceLibraryCode/modules/juce_graphics/image_formats/jpglib/jdapimin.c"; sourceTree = "SOURCE_ROOT"; };
 		311FD3B4D98C3A20A967CF39 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pngmem.c; path = "../../../JuceLibraryCode/modules/juce_graphics/image_formats/pnglib/pngmem.c"; sourceTree = "SOURCE_ROOT"; };
 		3131C94D973A735EA68C1C77 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_FilenameComponent.h"; path = "../../../JuceLibraryCode/modules/juce_gui_basics/filebrowser/juce_FilenameComponent.h"; sourceTree = "SOURCE_ROOT"; };
@@ -838,6 +839,7 @@
 		B06C7C053DB0660CDA8B5C2C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "jucer_PaintRoutinePanel.h"; path = "../../Source/ComponentEditor/ui/jucer_PaintRoutinePanel.h"; sourceTree = "SOURCE_ROOT"; };
 		B0A52D9A0C281543322812D7 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = jdmarker.c; path = "../../../JuceLibraryCode/modules/juce_graphics/image_formats/jpglib/jdmarker.c"; sourceTree = "SOURCE_ROOT"; };
 		B0D2198D1261755918CD454D = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "jucer_SVGPathDataComponent.h"; path = "../../Source/Utility/jucer_SVGPathDataComponent.h"; sourceTree = "SOURCE_ROOT"; };
+		B14160B0F9D01A6F32FF2070 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "openEphys_ProcessorContentComponentTemplate.h"; path = "../../../Source/Processors/PluginManager/Templates/openEphys_ProcessorContentComponentTemplate.h"; sourceTree = "SOURCE_ROOT"; };
 		B15E33E7342F6EB4F95C9B1D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "jucer_PaintRoutineEditor.cpp"; path = "../../Source/ComponentEditor/ui/jucer_PaintRoutineEditor.cpp"; sourceTree = "SOURCE_ROOT"; };
 		B18059D88300EB8EF703A82B = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_TextButton.cpp"; path = "../../../JuceLibraryCode/modules/juce_gui_basics/buttons/juce_TextButton.cpp"; sourceTree = "SOURCE_ROOT"; };
 		B1963F0D8C0046E54FD9E023 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "jucer_ColouredElement.h"; path = "../../Source/ComponentEditor/paintelements/jucer_ColouredElement.h"; sourceTree = "SOURCE_ROOT"; };
@@ -1416,6 +1418,8 @@
 					2149CF6516813CDC257A4038,
 					5D5AD232C967E8902DF061D2,
 					3917C4F74F77E0B4CF36E9C5,
+					30A82BB4D11EED0898DA78D5,
+					B14160B0F9D01A6F32FF2070,
 					458D93917B7D2CB76D6F9749,
 					8A3E1306FF5605198E628229,
 					09207B2EED2B7CA3EF7007E5,

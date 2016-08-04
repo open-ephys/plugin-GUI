@@ -24,6 +24,8 @@
 #define HEADERGUARD
 
 #include <EditorHeaders.h>
+#include "CONTENTCOMPONENTCLASSNAME.h"
+
 
 /**
     This class serves as a template for creating new editors.
@@ -45,14 +47,20 @@ public:
     /** The class destructor, used to deallocate memory */
     ~EDITORCLASSNAME();
 
-    /** 
-      Unlike processors, which have a minimum set of required methods,
-      editor are completely customized. There are still a couple of
-      sometimes useful overloaded methods, which will appear here
-      */
+    /**
+        Unlike processors, which have a minimum set of required methods,
+        editor are completely customized. There are still a couple of
+        sometimes useful overloaded methods, which will appear here
+    */
+
+    /** This method executes each time editor is resized. */
+    void resized() override;
 
     /** This method executes whenever a custom button is pressed */
     void buttonEvent (Button* button) override;
+
+    /** This method executes whenever a custom slider's value has been changed. */
+    void sliderEvent (Slider* slider) override;
 
     /** Called to inform the editor that acquisition is about to start*/
     //void startAcquisition();
@@ -67,13 +75,17 @@ public:
 
 
 private:
-    /**
-      Here would be all the required internal variables.
-      In this case, we have a single button.
-      */
+    // This component contains all components and graphics that were added using Projucer.
+    // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)
+    CONTENTCOMPONENTCLASSNAME content;
 
+    /**
+        Here would be all the required internal variables.
+        In this case, we have a single button.
+    */
     //Always use JUCE RAII classes instead of pure pointers.
-    ScopedPointer<Button> exampleButton;
+    //ScopedPointer<Button> exampleButton;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCLASSNAME);
 };
