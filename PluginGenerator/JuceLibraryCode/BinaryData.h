@@ -9,6 +9,12 @@
 
 namespace BinaryData
 {
+    extern const char*   OE_GUI_MoonShard_cpp;
+    const int            OE_GUI_MoonShard_cppSize = 8293;
+
+    extern const char*   OE_GUI_MoonShard_h;
+    const int            OE_GUI_MoonShard_hSize = 2675;
+
     extern const char*   openEphys_DataThreadPluginTemplate_cpp;
     const int            openEphys_DataThreadPluginTemplate_cppSize = 1561;
 
@@ -34,7 +40,7 @@ namespace BinaryData
     const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3639;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3868;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
     const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3369;
@@ -190,7 +196,7 @@ namespace BinaryData
     extern const char* namedResourceList[];
 
     // Number of elements in the namedResourceList array.
-    const int namedResourceListSize = 59;
+    const int namedResourceListSize = 61;
 
     // If you provide the name of one of the binary resource variables above, this function will
     // return the corresponding data and its size (or a null pointer if the name isn't found).

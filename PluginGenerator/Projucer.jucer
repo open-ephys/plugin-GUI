@@ -90,6 +90,14 @@
     </LINUX_MAKE>
   </EXPORTFORMATS>
   <MAINGROUP name="OpenEphys_PluginGenerator" id="NhrJq66R">
+    <GROUP id="{E0BF943B-727D-FD29-1CA4-9F971196E79B}" name="GUI Templates">
+      <GROUP id="{96C4245F-1FBE-6F29-A1A2-0A5190A4E152}" name="MoonShard">
+        <FILE id="luCIRx" name="OE_GUI_MoonShard.cpp" compile="1" resource="1"
+              file="Source/GUI Templates/MoonShard/OE_GUI_MoonShard.cpp"/>
+        <FILE id="fBpD91" name="OE_GUI_MoonShard.h" compile="0" resource="1"
+              file="Source/GUI Templates/MoonShard/OE_GUI_MoonShard.h"/>
+      </GROUP>
+    </GROUP>
     <GROUP id="vD0TyHx" name="Application">
       <FILE id="QDqaEw" name="jucer_AppearanceSettings.cpp" compile="1" resource="0"
             file="Source/Application/jucer_AppearanceSettings.cpp"/>
@@ -556,6 +564,18 @@
             file="Source/Wizards/jucer_StartPageComponent.h"/>
       <FILE id="vXZJSV" name="jucer_TemplateThumbnailsComponent.h" compile="0"
             resource="0" file="Source/Wizards/jucer_TemplateThumbnailsComponent.h"/>
+      <FILE id="OAInVz" name="openEphys_EditorTemplateComponent.cpp" compile="1"
+            resource="0" file="Source/Wizards/openEphys_EditorTemplateComponent.cpp"/>
+      <FILE id="Ic6RkK" name="openEphys_EditorTemplateComponent.h" compile="0"
+            resource="0" file="Source/Wizards/openEphys_EditorTemplateComponent.h"/>
+      <FILE id="wvCeej" name="openEphys_EditorTemplatesFactory.cpp" compile="1"
+            resource="0" file="Source/Wizards/openEphys_EditorTemplatesFactory.cpp"/>
+      <FILE id="hOrzNH" name="openEphys_EditorTemplatesFactory.h" compile="0"
+            resource="0" file="Source/Wizards/openEphys_EditorTemplatesFactory.h"/>
+      <FILE id="CaCOUX" name="openEphys_PluginTemplatesPageComponent.cpp"
+            compile="1" resource="0" file="Source/Wizards/openEphys_PluginTemplatesPageComponent.cpp"/>
+      <FILE id="vOkh3P" name="openEphys_PluginTemplatesPageComponent.h" compile="0"
+            resource="0" file="Source/Wizards/openEphys_PluginTemplatesPageComponent.h"/>
       <FILE id="fuhhaI" name="openEphys_ProjectWizard_OpenEphysPlugin.h"
             compile="0" resource="0" file="Source/Wizards/openEphys_ProjectWizard_OpenEphysPlugin.h"/>
     </GROUP>

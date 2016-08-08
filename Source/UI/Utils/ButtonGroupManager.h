@@ -85,10 +85,16 @@ public:
         Can be overriden by other buttons to change behaviour of the way, how buttons are added,
         e.g. use decorators for some buttons, etc.
     */
-    virtual void addButton (Button* newButton);
+    virtual void addButton (Button* newButton, bool useDefaultLookAndFeel = true);
 
-    /** Remove button from the manager array buttons */
+    /** Remove button from the manager array buttons. */
     void removeButton (int index);
+
+    /** Removes all buttons from th manager array buttons. */
+    void removeAllButtons();
+
+    /** @see removeAllButtons .*/
+    void clear();
 
     /** Set if all buttons will have radiobutton behaviour */
     void setRadioButtonMode (bool isRadioButtonMode);

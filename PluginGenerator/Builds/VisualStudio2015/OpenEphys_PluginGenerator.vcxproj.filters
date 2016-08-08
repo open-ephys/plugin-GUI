@@ -5,6 +5,12 @@
     <Filter Include="OpenEphys_PluginGenerator">
       <UniqueIdentifier>{8EC815AF-27C8-82DE-BB03-1C518F7EB2B1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\GUI Templates">
+      <UniqueIdentifier>{43A33F2E-49D3-C3DF-1E77-13C4A51030E5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenEphys_PluginGenerator\GUI Templates\MoonShard">
+      <UniqueIdentifier>{46942470-1543-4F25-508B-02E78A42B0E7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="OpenEphys_PluginGenerator\Application">
       <UniqueIdentifier>{4542D2CA-EEBD-BCA6-E9DA-D7711D047046}</UniqueIdentifier>
     </Filter>
@@ -277,6 +283,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\GUI Templates\MoonShard\OE_GUI_MoonShard.cpp">
+      <Filter>OpenEphys_PluginGenerator\GUI Templates\MoonShard</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Application\jucer_AppearanceSettings.cpp">
       <Filter>OpenEphys_PluginGenerator\Application</Filter>
     </ClCompile>
@@ -446,6 +455,15 @@
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewProjectWizardClasses.cpp">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_EditorTemplateComponent.cpp">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_EditorTemplatesFactory.cpp">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_PluginTemplatesPageComponent.cpp">
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.cpp">
@@ -1701,6 +1719,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\GUI Templates\MoonShard\OE_GUI_MoonShard.h">
+      <Filter>OpenEphys_PluginGenerator\GUI Templates\MoonShard</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Application\jucer_AppearanceSettings.h">
       <Filter>OpenEphys_PluginGenerator\Application</Filter>
     </ClInclude>
@@ -2191,6 +2212,15 @@
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Wizards\jucer_TemplateThumbnailsComponent.h">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_EditorTemplateComponent.h">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_EditorTemplatesFactory.h">
+      <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_PluginTemplatesPageComponent.h">
       <Filter>OpenEphys_PluginGenerator\Wizards</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Wizards\openEphys_ProjectWizard_OpenEphysPlugin.h">

@@ -31,9 +31,21 @@
 #include "../Utility/jucer_SlidingPanelComponent.h"
 #include "../Utility/openEphys_pluginHelpers.h"
 
+
+// TODO: maybe we will need to include .cpp file instead of header
+// if we will continue to use Projucer's type of linking files.
+// We will need to include .cpp only if we will use undefined symbols
+// like "Project", etc. which are linked in Projucer in this file.
+// Or we can also consider about storing all class info in header only file.
+// But I (Kirill A) don't prefer doing things like that.
+// Will be much more convenient to create separate files :)
+#include "openEphys_PluginTemplatesPageComponent.h"
+
+
 struct NewProjectWizardClasses
 {
     class WizardComp;
+
     #include "jucer_NewProjectWizard.h"
 
     #include "jucer_ProjectWizard_GUIApp.h"

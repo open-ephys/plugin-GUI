@@ -70,7 +70,7 @@ public:
 
         This class controls ownership of buttons.
     */
-    void addButton (Button* newButton) override;
+    void addButton (Button* newButton, bool useDefaultLookAndFeel = true) override;
 
 
 private:

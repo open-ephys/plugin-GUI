@@ -408,5 +408,58 @@ static void addPropertiesOfParameterToPropertyPanel (Parameter* parameter, Prope
     propsPanel.addSection ("Parameter", props);
 }
 
+
+
+
+// GUI Templates helpers
+// ============================================================================
+// ============================================================================
+// ============================================================================
+
+/** Returns the class name of the given template. */
+static String getGUITemplateClassName (const String& templateName)
+{
+    return "OE_GUI_" + templateName;
+}
+
+
+/** Returns the content of the GUI template file. */
+static String getGUITemplate (const String& templateName, bool isHeaderFile)
+{
+    String fileSuffix = isHeaderFile ? "_h" : "_cpp";
+    String templateFileName = getGUITemplateClassName (templateName) + fileSuffix;
+
+    int dataSize;
+    const char* data = BinaryData::getNamedResource (templateFileName.toUTF8(), dataSize);
+
+    if (data == nullptr)
+    {
+        jassertfalse;
+        return String::empty;
+    }
+
+    return String::fromUTF8 (data, dataSize);
+}
+
+
+/** Checks if exists GUI template for the given template name. */
+static bool isExistsGuiTemplate (const String& templateName)
+{
+    // No need to check for cpp file existence
+    String fileSuffix = "_h";
+    String templateFileName = getGUITemplateClassName (templateName) + fileSuffix;
+
+    int dataSize;
+    const char* data = BinaryData::getNamedResource (templateFileName.toUTF8(), dataSize);
+
+    if (data == nullptr)
+    {
+        jassertfalse;
+        return false;
+    }
+
+    return true;
+}
+
 #endif // __OPEN_EPHYS_PLUGIN_HELPERS__
 

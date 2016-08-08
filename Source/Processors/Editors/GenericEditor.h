@@ -193,6 +193,8 @@ public:
     /** Used by GraphViewer */
     bool isMerger();
 
+    bool isUtility();
+
     /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
         GenericEditor should modify this method only.*/
     virtual void buttonEvent (Button* button);

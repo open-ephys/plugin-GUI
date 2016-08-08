@@ -22,6 +22,7 @@
   ==============================================================================
 */
 
+
 class StartPageComponent    : public Component
 {
 public:
@@ -31,8 +32,12 @@ public:
 
         WizardComp* projectWizard = new WizardComp();
 
+        m_templatesPageComponent = new PluginTemplatesPageComponent();
+        m_templatesPageComponent->setButtonListenerForCreateProjectButton (projectWizard);
+
         panel.addTab ("Create New Project", new TemplateTileBrowser (projectWizard), true);
         panel.addTab ("New Project Options", projectWizard, true);
+        panel.addTab ("Plugin configuration", m_templatesPageComponent, true);
 
         addAndMakeVisible (panel);
     }
@@ -47,8 +52,16 @@ public:
         panel.setBounds (getLocalBounds());
     }
 
+    PluginTemplatesPageComponent* getPluginTemplatesPage() const noexcept
+    {
+        return m_templatesPageComponent;
+    }
+
+
 private:
     SlidingPanelComponent panel;
+
+    PluginTemplatesPageComponent* m_templatesPageComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StartPageComponent)
 };

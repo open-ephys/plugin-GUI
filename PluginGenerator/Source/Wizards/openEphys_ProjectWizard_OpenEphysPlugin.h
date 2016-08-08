@@ -30,18 +30,18 @@ static ComboBox& createPluginTypeOptionComboBox (Component& setupComp,
                                                  OwnedArray<Component>& itemsCreated,
                                                  const StringArray& fileOptions)
 {
-    ComboBox* pluginTypeComboBox = new ComboBox;
-    itemsCreated.add (pluginTypeComboBox);
-    setupComp.addChildAndSetID (pluginTypeComboBox, OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE);
+    //ComboBox* pluginTypeComboBox = new ComboBox;
+    //itemsCreated.add (pluginTypeComboBox);
+    //setupComp.addChildAndSetID (pluginTypeComboBox, OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE);
 
-    pluginTypeComboBox->addItemList (fileOptions, 1);
-    pluginTypeComboBox->setSelectedId (1, dontSendNotification);
+    //pluginTypeComboBox->addItemList (fileOptions, 1);
+    //pluginTypeComboBox->setSelectedId (1, dontSendNotification);
 
-    Label* l = new Label (String::empty, TRANS("Plugin type") + ":");
-    l->attachToComponent (pluginTypeComboBox, true);
-    itemsCreated.add (l);
+    //Label* l = new Label (String::empty, TRANS("Plugin type") + ":");
+    //l->attachToComponent (pluginTypeComboBox, true);
+    //itemsCreated.add (l);
 
-    return *pluginTypeComboBox;
+    //return *pluginTypeComboBox;
 }
 
 
@@ -49,21 +49,21 @@ static ComboBox& createProcessorTypeOptionComboBox (Component& setupComp,
                                                     OwnedArray<Component>& itemsCreated,
                                                     const StringArray& fileOptions)
 {
-    ComboBox* processorTypeComboBox = new ComboBox;
-    itemsCreated.add (processorTypeComboBox);
-    setupComp.addChildAndSetID (processorTypeComboBox, OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE);
+    //ComboBox* processorTypeComboBox = new ComboBox;
+    //itemsCreated.add (processorTypeComboBox);
+    //setupComp.addChildAndSetID (processorTypeComboBox, OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE);
 
-    processorTypeComboBox->addItemList (fileOptions, 1);
-    processorTypeComboBox->setSelectedId (1, dontSendNotification);
+    //processorTypeComboBox->addItemList (fileOptions, 1);
+    //processorTypeComboBox->setSelectedId (1, dontSendNotification);
 
-    Label* l = new Label (String::empty, TRANS("Processor type") + ":");
-    l->attachToComponent (processorTypeComboBox, true);
-    itemsCreated.add (l);
+    //Label* l = new Label (String::empty, TRANS("Processor type") + ":");
+    //l->attachToComponent (processorTypeComboBox, true);
+    //itemsCreated.add (l);
 
-    processorTypeComboBox->setVisible (false);
-    //c->setBounds ("parent.width / 2 + 160, 30, parent.width - 30, top + 22");
+    //processorTypeComboBox->setVisible (false);
+    ////c->setBounds ("parent.width / 2 + 160, 30, parent.width - 30, top + 22");
 
-    return *processorTypeComboBox;
+    //return *processorTypeComboBox;
 }
 
 
@@ -79,41 +79,41 @@ static int getComboResult (WizardComp& setupComp, const String& comboBoxID)
 
 static void updateOpenEphysWizardComboBoxBounds (const Component& parent)
 {
-    auto pluginTypeComboBox     = dynamic_cast<ComboBox*> (parent
-                                                            .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE));
-    auto processorTypeComboBox  = dynamic_cast<ComboBox*> (parent
-                                                            .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE));
+    //auto pluginTypeComboBox     = dynamic_cast<ComboBox*> (parent
+    //                                                        .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE));
+    //auto processorTypeComboBox  = dynamic_cast<ComboBox*> (parent
+    //                                                        .findChildWithID (OpenEphysPluginAppWizard::COMBOBOX_ID_PROCESSOR_TYPE));
 
-    if (pluginTypeComboBox == nullptr
-        || processorTypeComboBox == nullptr)
-    {
-        return;
-    }
+    //if (pluginTypeComboBox == nullptr
+    //    || processorTypeComboBox == nullptr)
+    //{
+    //    return;
+    //}
 
-    const auto parentBounds = parent.getLocalBounds();
-    //auto rightSideOfComponent = parent.getLocalBounds().removeFromRight (parent.getWidth() / 2).withHeight (22);
-    auto comboBoxBounds = juce::Rectangle<int> (parent.getWidth() / 2 + 95,
-                                                30,
-                                                parent.getWidth() / 2 - 127,
-                                                parent.getY() + 22);
+    //const auto parentBounds = parent.getLocalBounds();
+    ////auto rightSideOfComponent = parent.getLocalBounds().removeFromRight (parent.getWidth() / 2).withHeight (22);
+    //auto comboBoxBounds = juce::Rectangle<int> (parent.getWidth() / 2 + 95,
+    //                                            30,
+    //                                            parent.getWidth() / 2 - 127,
+    //                                            parent.getY() + 22);
 
-    const int marginBetweenComboBoxes = 140;
-    const int comboBoxMinWidth        = (comboBoxBounds.getWidth() - marginBetweenComboBoxes) / 2;
+    //const int marginBetweenComboBoxes = 140;
+    //const int comboBoxMinWidth        = (comboBoxBounds.getWidth() - marginBetweenComboBoxes) / 2;
 
-    if (pluginTypeComboBox->getSelectedItemIndex() + 1 == (int)PLUGIN_TYPE_PROCESSOR)
-    {
-        pluginTypeComboBox->setBounds (comboBoxBounds.removeFromLeft (comboBoxMinWidth));
+    //if (pluginTypeComboBox->getSelectedItemIndex() + 1 == (int)PLUGIN_TYPE_PROCESSOR)
+    //{
+    //    pluginTypeComboBox->setBounds (comboBoxBounds.removeFromLeft (comboBoxMinWidth));
 
-        comboBoxBounds.removeFromLeft (marginBetweenComboBoxes - 10);
+    //    comboBoxBounds.removeFromLeft (marginBetweenComboBoxes - 10);
 
-        processorTypeComboBox->setBounds (comboBoxBounds);
-        processorTypeComboBox->setVisible (true);
-    }
-    else
-    {
-        pluginTypeComboBox->setBounds (comboBoxBounds);
-        processorTypeComboBox->setVisible (false);
-    }
+    //    processorTypeComboBox->setBounds (comboBoxBounds);
+    //    processorTypeComboBox->setVisible (true);
+    //}
+    //else
+    //{
+    //    pluginTypeComboBox->setBounds (comboBoxBounds);
+    //    processorTypeComboBox->setVisible (false);
+    //}
 }
 
 
@@ -127,7 +127,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     {
         modulesFolder = File::getCurrentWorkingDirectory()
                                     .getParentDirectory().getParentDirectory().getParentDirectory()
-                                    .getChildFile ("JuceLibraryCode").getChildFile("modules");
+                                    .getChildFile ("JuceLibraryCode").getChildFile ("modules");
     }
 
     String getName() const override         { return TRANS("Open-Ephys Plug-In"); }
@@ -148,58 +148,72 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
     void addSetupItems (Component& setupComp, OwnedArray<Component>& itemsCreated) override
     {
-        const String pluginTypeOptions[] =
-        {
-            TRANS("Processor"),
-            TRANS("Record engine"),
-            TRANS("Data thread"),
-            TRANS("File source")
-        };
+        //const String pluginTypeOptions[] =
+        //{
+        //    TRANS("Processor"),
+        //    TRANS("Record engine"),
+        //    TRANS("Data thread"),
+        //    TRANS("File source")
+        //};
 
-        auto& pluginTypeComboBox = createPluginTypeOptionComboBox (setupComp, itemsCreated,
-                                                                   StringArray (pluginTypeOptions,
-                                                                                numElementsInArray (pluginTypeOptions)));
+        //auto& pluginTypeComboBox = createPluginTypeOptionComboBox (setupComp, itemsCreated,
+        //                                                           StringArray (pluginTypeOptions,
+        //                                                                        numElementsInArray (pluginTypeOptions)));
 
-        auto parentComboBoxListener = dynamic_cast<ComboBox::Listener*> (&setupComp);
-        jassert (parentComboBoxListener != nullptr);
-        pluginTypeComboBox.addListener (parentComboBoxListener);
+        //auto parentComboBoxListener = dynamic_cast<ComboBox::Listener*> (&setupComp);
+        //jassert (parentComboBoxListener != nullptr);
+        //pluginTypeComboBox.addListener (parentComboBoxListener);
 
-        const String processorTypeOptions[] =
-        {
-            TRANS("Filter"),
-            TRANS("Source"),
-            TRANS("Sink"),
-            //TRANS("Splitter"),
-            //TRANS("Merger"),
-            TRANS("Utility"),
-        };
+        //const String processorTypeOptions[] =
+        //{
+        //    TRANS("Filter"),
+        //    TRANS("Source"),
+        //    TRANS("Sink"),
+        //    //TRANS("Splitter"),
+        //    //TRANS("Merger"),
+        //    TRANS("Utility"),
+        //};
 
-        auto& processorTypeComboBox = createProcessorTypeOptionComboBox (setupComp, itemsCreated,
-                                                                         StringArray (processorTypeOptions,
-                                                                                      numElementsInArray (processorTypeOptions)));
+        //auto& processorTypeComboBox = createProcessorTypeOptionComboBox (setupComp, itemsCreated,
+        //                                                                 StringArray (processorTypeOptions,
+        //                                                                              numElementsInArray (processorTypeOptions)));
 
-        updateOpenEphysWizardComboBoxBounds (setupComp);
+        //updateOpenEphysWizardComboBoxBounds (setupComp);
     }
 
 
     /** Gets the currently selected processor type and applies appropriate action */
     Result processResultsFromSetupItems (WizardComp& setupComp) override
     {
-        // TODO <Kirill A>
+        //// TODO <Kirill A>
 
-        const int pluginTypeSelectedComboboxId = getComboResult (setupComp, COMBOBOX_ID_PLUGIN_TYPE) + 1;
-        jassert (pluginTypeSelectedComboboxId != 0);
+        //const int pluginTypeSelectedComboboxId = getComboResult (setupComp, COMBOBOX_ID_PLUGIN_TYPE) + 1;
+        //jassert (pluginTypeSelectedComboboxId != 0);
 
-        m_pluginType = static_cast<PluginType> (pluginTypeSelectedComboboxId);
+        //m_pluginType = static_cast<PluginType> (pluginTypeSelectedComboboxId);
 
-        // Get processor type only if was selected "Processor" type of the plugin
-        if (pluginTypeSelectedComboboxId == (int)PLUGIN_TYPE_PROCESSOR)
-        {
-            const int processorTypeSelectedComboboxId = getComboResult (setupComp, COMBOBOX_ID_PROCESSOR_TYPE) + 1;
-            jassert (processorTypeSelectedComboboxId != 0);
+        //// Get processor type only if was selected "Processor" type of the plugin
+        //if (pluginTypeSelectedComboboxId == (int)PLUGIN_TYPE_PROCESSOR)
+        //{
+        //    const int processorTypeSelectedComboboxId = getComboResult (setupComp, COMBOBOX_ID_PROCESSOR_TYPE) + 1;
+        //    jassert (processorTypeSelectedComboboxId != 0);
 
-            m_processorType = static_cast<PluginProcessorType> (processorTypeSelectedComboboxId);
-        }
+        //    m_processorType = static_cast<PluginProcessorType> (processorTypeSelectedComboboxId);
+        //}
+
+        return Result::ok();
+    }
+
+    Result getResultsFromConfigPage (const PluginTemplatesPageComponent* configPage)
+    {
+        // TODO
+        m_pluginType    = configPage->getSelectedPluginType();
+        m_processorType = configPage->getSelectedProcessorType();
+
+        m_shouldUseVisualizerEditor = configPage->shouldUseVisualizerEditor();
+        m_guiTemplateName = configPage->getSelectedTemplateName();
+
+        DBG (String ("GUI Template name: ") + m_guiTemplateName);
 
         return Result::ok();
     }
@@ -209,12 +223,21 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
     {
         createSourceFolder();
 
+        if (auto templatesPage = dynamic_cast<PluginTemplatesPageComponent*>
+                (ownerWizardComp->findParentComponentOfClass<StartPageComponent>()
+                    ->getPluginTemplatesPage()))
+        {
+            getResultsFromConfigPage (templatesPage);
+        }
+
         String pluginProcessorName  = CodeHelpers::makeValidIdentifier (appTitle, true, true, false) + "Processor";
         pluginProcessorName         = pluginProcessorName.substring (0, 1).toUpperCase() + pluginProcessorName.substring (1);
 
         const String pluginEditorName     = pluginProcessorName + "Editor";
         const String processorType        = getProcessorTypeString (m_processorType);
         const String pluginFriendlyName   = appTitle;
+
+        DBG (String ("Processor type: ") + processorType);
 
         const String pluginContentComponentName = pluginProcessorName + "ContentComponent";
 
@@ -411,16 +434,32 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         auto newContentComponentCppFile = sourceFolder.getChildFile (contentComponentName + ".cpp");
         auto newContentComponentHFile   = sourceFolder.getChildFile (contentComponentName + ".h");
 
-        String contentComponentCppFileContent = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_cpp")
-            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
-            .replace ("PROCESSORCLASSNAME", processorName, false)
-            .replace ("EDITORCLASSNAME", editorName, false);
+        String contentComponentCppFileContent;
+        String contentComponentHFileContent;
 
-        String contentComponentHFileContent   = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_h")
-            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
-            .replace ("PROCESSORCLASSNAME", processorName, false)
-            .replace ("EDITORCLASSNAME", editorName, false)
-            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newContentComponentHFile), false);
+        if (m_guiTemplateName == "DEFAULT" || (! isExistsGuiTemplate (m_guiTemplateName)))
+        {
+            contentComponentCppFileContent = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_cpp")
+                .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false);
+
+            contentComponentHFileContent = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_h")
+                .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
+                .replace ("EDITORCLASSNAME", editorName, false)
+                .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newContentComponentHFile), false);
+        }
+        else
+        {
+            const auto guiTemplateClassName = getGUITemplateClassName (m_guiTemplateName);
+
+            contentComponentCppFileContent = getGUITemplate (m_guiTemplateName, false)
+                .replace (guiTemplateClassName, contentComponentName);
+
+            const auto userVariablesMacro = String ("//[UserVariables]   -- You can add your own custom variables in this section.") + newLine;
+            const auto friendClassDefinition = CodeHelpers::indent (String ("friend class ") + editorName, 4, true) + newLine;
+            contentComponentHFileContent = getGUITemplate (m_guiTemplateName, true)
+                .replace (guiTemplateClassName, contentComponentName)
+                .replace (userVariablesMacro, userVariablesMacro + friendClassDefinition , false);
+        }
 
         bool wasGeneratedSuccessfully = true;
 
@@ -451,6 +490,11 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 private:
     PluginType          m_pluginType    { NOT_A_PLUGIN_TYPE } ;
     PluginProcessorType m_processorType { PROCESSOR_TYPE_INVALID };
+
+    /** The name of the GUI template which is used to create content component for plugin. */
+    String m_guiTemplateName;
+
+    bool m_shouldUseVisualizerEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenEphysPluginAppWizard)
 };

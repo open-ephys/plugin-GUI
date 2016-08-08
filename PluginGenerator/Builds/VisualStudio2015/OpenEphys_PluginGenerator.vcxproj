@@ -128,6 +128,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\GUI Templates\MoonShard\OE_GUI_MoonShard.cpp"/>
     <ClCompile Include="..\..\Source\Application\jucer_AppearanceSettings.cpp"/>
     <ClCompile Include="..\..\Source\Application\jucer_Application.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -193,6 +194,9 @@
     <ClCompile Include="..\..\Source\Utility\jucer_StoredSettings.cpp"/>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewFileWizard.cpp"/>
     <ClCompile Include="..\..\Source\Wizards\jucer_NewProjectWizardClasses.cpp"/>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_EditorTemplateComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_EditorTemplatesFactory.cpp"/>
+    <ClCompile Include="..\..\Source\Wizards\openEphys_PluginTemplatesPageComponent.cpp"/>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1349,6 +1353,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\GUI Templates\MoonShard\OE_GUI_MoonShard.h"/>
     <ClInclude Include="..\..\Source\Application\jucer_AppearanceSettings.h"/>
     <ClInclude Include="..\..\Source\Application\jucer_Application.h"/>
     <ClInclude Include="..\..\Source\Application\jucer_AutoUpdater.h"/>
@@ -1513,6 +1518,9 @@
     <ClInclude Include="..\..\Source\Wizards\jucer_ProjectWizard_StaticLibrary.h"/>
     <ClInclude Include="..\..\Source\Wizards\jucer_StartPageComponent.h"/>
     <ClInclude Include="..\..\Source\Wizards\jucer_TemplateThumbnailsComponent.h"/>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_EditorTemplateComponent.h"/>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_EditorTemplatesFactory.h"/>
+    <ClInclude Include="..\..\Source\Wizards\openEphys_PluginTemplatesPageComponent.h"/>
     <ClInclude Include="..\..\Source\Wizards\openEphys_ProjectWizard_OpenEphysPlugin.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_DataThreadPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_FileSourcePluginTemplate.h"/>

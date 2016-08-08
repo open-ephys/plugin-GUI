@@ -255,7 +255,7 @@ private:
 */
 class WizardComp  : public Component,
                     public ComboBox::Listener,
-                    private ButtonListener,
+                    public Button::Listener,
                     private TextEditorListener,
                     private FileBrowserListener
 {
@@ -271,7 +271,7 @@ public:
                        NewProjectWizardClasses::getLastWizardFolder(), nullptr, nullptr),
           fileOutline (String::empty, TRANS("Project Folder") + ":"),
           targetsOutline (String::empty, TRANS("Target Platforms") + ":"),
-          createButton (TRANS("Create") + "..."),
+          createButton (TRANS("Next") + "..."),
           cancelButton (TRANS("Cancel")),
           modulesPathBox (findDefaultModulesFolder())
     {
@@ -285,7 +285,9 @@ public:
 
         addChildAndSetID (&projectType, "projectType");
         projectType.addItemList (getWizardNames(), 1);
-        projectType.setSelectedId (1, dontSendNotification);
+        // <Open Ephys>
+        // Select Open Ephys plugin type by default
+        projectType.setSelectedId (9, dontSendNotification);
         projectType.setBounds ("120, projectName.bottom + 4, projectName.right, top + 22");
         typeLabel.attachToComponent (&projectType, true);
         projectType.addListener (this);
@@ -344,11 +346,16 @@ public:
     {
         if (b == &createButton)
         {
-            createProject();
+            goToPluginTemplatesPage();
+            //createProject();
         }
         else if (b == &cancelButton)
         {
             returnToTemplatesPage();
+        }
+        else if (b->getComponentID() == PluginTemplatesPageComponent::TEMPLATES_PAGE_CREATE_PROJECT_BUTTON_ID)
+        {
+            createProject();
         }
     }
 
@@ -358,6 +365,19 @@ public:
         {
             if (parent->getNumTabs() > 0)
                 parent->goToTab (parent->getCurrentTabIndex() - 1);
+        }
+        else
+        {
+            jassertfalse;
+        }
+    }
+
+    void goToPluginTemplatesPage()
+    {
+        if (SlidingPanelComponent* parent = findParentComponentOfClass<SlidingPanelComponent>())
+        {
+            if (parent->getNumTabs() > 0 && parent->getNumTabs() >= 2)
+                parent->goToTab (2);
         }
         else
         {

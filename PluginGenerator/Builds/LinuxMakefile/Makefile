@@ -49,6 +49,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/OE_GUI_MoonShard_8638e386.o \
   $(OBJDIR)/jucer_AppearanceSettings_788d9889.o \
   $(OBJDIR)/jucer_AutoUpdater_ca658dc2.o \
   $(OBJDIR)/jucer_CommandLine_f35de107.o \
@@ -102,6 +103,9 @@ OBJECTS := \
   $(OBJDIR)/jucer_StoredSettings_26078d2c.o \
   $(OBJDIR)/jucer_NewFileWizard_fac97f47.o \
   $(OBJDIR)/jucer_NewProjectWizardClasses_891f6fa2.o \
+  $(OBJDIR)/openEphys_EditorTemplateComponent_f6fdc11e.o \
+  $(OBJDIR)/openEphys_EditorTemplatesFactory_5bcaf6c0.o \
+  $(OBJDIR)/openEphys_PluginTemplatesPageComponent_88899c6a.o \
   $(OBJDIR)/BinaryData_ce4232d4.o \
   $(OBJDIR)/juce_core_75b14332.o \
   $(OBJDIR)/juce_cryptography_6de2ebff.o \
@@ -127,6 +131,11 @@ clean:
 strip:
 	@echo Stripping OpenEphys_PluginGenerator
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/OE_GUI_MoonShard_8638e386.o: ../../Source/GUI\ Templates/MoonShard/OE_GUI_MoonShard.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling OE_GUI_MoonShard.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/jucer_AppearanceSettings_788d9889.o: ../../Source/Application/jucer_AppearanceSettings.cpp
 	-@mkdir -p $(OBJDIR)
@@ -391,6 +400,21 @@ $(OBJDIR)/jucer_NewFileWizard_fac97f47.o: ../../Source/Wizards/jucer_NewFileWiza
 $(OBJDIR)/jucer_NewProjectWizardClasses_891f6fa2.o: ../../Source/Wizards/jucer_NewProjectWizardClasses.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling jucer_NewProjectWizardClasses.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/openEphys_EditorTemplateComponent_f6fdc11e.o: ../../Source/Wizards/openEphys_EditorTemplateComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling openEphys_EditorTemplateComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/openEphys_EditorTemplatesFactory_5bcaf6c0.o: ../../Source/Wizards/openEphys_EditorTemplatesFactory.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling openEphys_EditorTemplatesFactory.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/openEphys_PluginTemplatesPageComponent_88899c6a.o: ../../Source/Wizards/openEphys_PluginTemplatesPageComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling openEphys_PluginTemplatesPageComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp

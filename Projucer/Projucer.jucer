@@ -18,13 +18,13 @@
                        headerPath="" libraryPath="" cppLibType="libc++"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraLinkerFlags=""
@@ -38,13 +38,13 @@
                        libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2013>
     <VS2015 targetFolder="Builds/VisualStudio2015" externalLibraries="" bigIcon="OCyr5F"
@@ -58,13 +58,13 @@
                        libraryPath="" useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2015>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraCompilerFlags="-std=c++11"
@@ -76,13 +76,13 @@
                        optimisation="3" targetName="Projucer" headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
-        <MODULEPATH id="juce_graphics" path="../../modules"/>
-        <MODULEPATH id="juce_events" path="../../modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../modules"/>
-        <MODULEPATH id="juce_core" path="../../modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="../JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>

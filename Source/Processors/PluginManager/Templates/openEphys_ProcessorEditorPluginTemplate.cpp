@@ -62,9 +62,11 @@ void EDITORCLASSNAME::resized()
 
     const int xPosInitial = 2;
     const int yPosIntiial = 23;
-    const int contentWidth = channelSelector->isVisible()
-                                ? channelSelector->getX() - xPosInitial * 2 - 5
-                                : drawerButton->getX() - xPosInitial * 2;
+    const int contentWidth = (isMerger() || isSplitter() || isUtility())
+                                    ? getWidth() - xPosInitial * 2
+                                    : channelSelector->isVisible()
+                                        ? channelSelector->getX() - xPosInitial * 2 - 5
+                                        : drawerButton->getX() - xPosInitial * 2;
     content.setBounds (xPosInitial, yPosIntiial,
                        contentWidth, getHeight() - yPosIntiial - 7);
 

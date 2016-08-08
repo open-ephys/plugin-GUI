@@ -729,6 +729,11 @@ bool GenericEditor::isMerger()
     return getProcessor()->isMerger();
 }
 
+bool GenericEditor::isUtility()
+{
+    return getProcessor()->isUtility();
+}
+
 void GenericEditor::buttonEvent(Button* button)
 {
 
