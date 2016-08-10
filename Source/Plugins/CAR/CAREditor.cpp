@@ -30,7 +30,6 @@
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-
 CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
@@ -80,7 +79,7 @@ void CAREditor::paint (Graphics& g)
     // Draw slider's label
     // ========================================================================
     g.setColour (Colours::darkgrey);
-    g.setFont (Font("Default", 13.f, Font::plain));
+    g.setFont(Font("Default", 13.f, Font::plain));
 
     auto gainSliderBounds = m_gainSlider->getBounds();
     g.drawText (m_gainSlider->getName().toUpperCase(),

@@ -101,6 +101,9 @@ public:
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate() const = 0;
 
+	/** Does the data source generate two sample rates? */
+	virtual bool isDualSampleRate();
+
     /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts (Channel* chan) const = 0;
 

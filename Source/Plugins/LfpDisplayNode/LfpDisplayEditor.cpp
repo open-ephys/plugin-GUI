@@ -48,19 +48,10 @@ Visualizer* LfpDisplayEditor::createNewCanvas()
 
 }
 
-void LfpDisplayEditor::buttonCallback(Button* button)
+// not being used yet ...
+void LfpDisplayEditor::buttonEvent(Button* button)
 {
 
-    int gId = button->getRadioGroupId();
-
-    if (gId > 0)
-    {
-        if (canvas != 0)
-        {
-            canvas->setParameter(gId-1, button->getName().getFloatValue());
-        }
-
-    }
 
 }
 

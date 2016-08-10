@@ -86,6 +86,8 @@ Builds/VisualStudio2013/Plugins/*/*.opensdf
 Builds/VisualStudio2013/Plugins/*/x64
 Builds/VisualStudio2013/Plugins/*/Debug
 Builds/VisualStudio2013/Plugins/*/Release
+Builds/VisualStudio2013/Plugins/Debug
+Builds/VisualStudio2013/Plugins/Release
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*
@@ -117,3 +119,5 @@ Introjucer/Builds/MacOSX/build
 
 # 9. Plugin build dirs
 build/
+
+/Builds/MacOSX/Plugins/Config/Env.xcconfig

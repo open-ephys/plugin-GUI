@@ -83,7 +83,7 @@ void KWIKFileSource::fillRecordInfo()
     try
     {
         recordings = sourceFile->openGroup("/recordings");
-        int numObjs = recordings.getNumObjs();
+        int numObjs = (int) recordings.getNumObjs();
 
         for (int i=0; i < numObjs; i++)
         {
@@ -199,7 +199,7 @@ int KWIKFileSource::readData(int16* buffer, int nSamples)
 
     if (samplePos + nSamples > getActiveNumSamples())
     {
-        samplesToRead = getActiveNumSamples() - samplePos;
+        samplesToRead = (int) getActiveNumSamples() - (int) samplePos;
     }
     else
     {

@@ -132,3 +132,8 @@ GenericEditor* DataThread::createEditor (SourceNode*)
 {
     return nullptr;
 }
+
+bool DataThread::isDualSampleRate()
+{
+    return false;
+}

@@ -7,13 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D3E60EF61CD198D2003FDF5C /* LfpDisplayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EEF1CD198D2003FDF5C /* LfpDisplayCanvas.cpp */; settings = {ASSET_TAGS = (); }; };
-		D3E60EF71CD198D2003FDF5C /* LfpDisplayEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF11CD198D2003FDF5C /* LfpDisplayEditor.cpp */; settings = {ASSET_TAGS = (); }; };
-		D3E60EF81CD198D2003FDF5C /* LfpDisplayNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF31CD198D2003FDF5C /* LfpDisplayNode.cpp */; settings = {ASSET_TAGS = (); }; };
-		D3E60EF91CD198D2003FDF5C /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF51CD198D2003FDF5C /* OpenEphysLib.cpp */; settings = {ASSET_TAGS = (); }; };
-		D3E60EFD1CD198E6003FDF5C /* Plugin_Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D3E60EFA1CD198E6003FDF5C /* Plugin_Debug.xcconfig */; settings = {ASSET_TAGS = (); }; };
-		D3E60EFE1CD198E6003FDF5C /* Plugin_Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D3E60EFB1CD198E6003FDF5C /* Plugin_Release.xcconfig */; settings = {ASSET_TAGS = (); }; };
-		D3E60EFF1CD198E6003FDF5C /* Plugin.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = D3E60EFC1CD198E6003FDF5C /* Plugin.xcconfig */; settings = {ASSET_TAGS = (); }; };
+		D3E60EF61CD198D2003FDF5C /* LfpDisplayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EEF1CD198D2003FDF5C /* LfpDisplayCanvas.cpp */; };
+		D3E60EF71CD198D2003FDF5C /* LfpDisplayEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF11CD198D2003FDF5C /* LfpDisplayEditor.cpp */; };
+		D3E60EF81CD198D2003FDF5C /* LfpDisplayNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF31CD198D2003FDF5C /* LfpDisplayNode.cpp */; };
+		D3E60EF91CD198D2003FDF5C /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3E60EF51CD198D2003FDF5C /* OpenEphysLib.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,7 +116,7 @@
 		D3E60EDD1CD19893003FDF5C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "open-ephys";
 				TargetAttributes = {
 					D3E60EE41CD19893003FDF5C = {
@@ -149,9 +146,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3E60EFD1CD198E6003FDF5C /* Plugin_Debug.xcconfig in Resources */,
-				D3E60EFF1CD198E6003FDF5C /* Plugin.xcconfig in Resources */,
-				D3E60EFE1CD198E6003FDF5C /* Plugin_Release.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +217,7 @@
 				D3E60EED1CD19893003FDF5C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

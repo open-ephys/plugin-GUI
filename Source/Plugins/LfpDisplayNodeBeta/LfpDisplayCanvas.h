@@ -26,7 +26,14 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "LfpDisplayNode.h"
 #include "../../Processors/Visualization/Visualizer.h"
+
+#include <vector>
+#include <array>
+
 #define CHANNEL_TYPES 3
+#define MAX_N_CHAN 2048
+#define MAX_N_SAMP 5000
+#define MAX_N_SAMP_PER_PIXEL 100
 
 namespace LfpDisplayNodeBeta { 
 
@@ -38,6 +45,7 @@ class LfpChannelDisplay;
 class LfpChannelDisplayInfo;
 class EventDisplayInterface;
 class LfpViewport;
+class LfpDisplayOptions;
 
 /**
 
@@ -48,9 +56,6 @@ class LfpViewport;
 */
 
 class LfpDisplayCanvas : public Visualizer,
-    public Slider::Listener,
-    public ComboBox::Listener,
-    public Button::Listener,
     public KeyListener
 {
 public:
@@ -66,14 +71,12 @@ public:
     void setParameter(int, float);
     void setParameter(int, int, int, float) {}
 
-    void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
-    void setSpreadSelection(int spread, bool canvasMustUpdate = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
-
     void paint(Graphics& g);
 
     void refresh();
-
     void resized();
+
+    void toggleOptionsDrawer(bool);
 
     int getChannelHeight();
     
@@ -89,38 +92,24 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    const float *getSamplesPerPixel(int chan, int px);
+    std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
     const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
     const float getYCoordMean(int chan, int samp);
     const float getYCoordMax(int chan, int samp);
 
+    float getMean(int chan);
+    float getStd(int chan);
+
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
 
-    void comboBoxChanged(ComboBox* cb);
-    void buttonClicked(Button* button);
-    
-    /** Handles slider events for all editors. */
-    void sliderValueChanged(Slider* sl);
-    
-    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
-     of GenericEditor should modify this method only.*/
-    void sliderEvent(Slider* sl);
-    
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
 
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
-
-    ChannelType getChannelType(int n);
-    ChannelType getSelectedType();
-    String getTypeName(ChannelType type);
-    int getRangeStep(ChannelType type);
-
-    void setSelectedType(ChannelType type, bool toggleButton = true);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -132,40 +121,138 @@ public:
     bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
     bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
     
-    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the genreal plugin parameter overhaul.
-
-    
     int nChans;
+
+    float timebase;
+
+    void redraw();
+
+    ChannelType selectedChannelType;
+
+    ScopedPointer<LfpViewport> viewport;
 
 private:
     
     Array<float> sampleRate;
-    float timebase;
+
+    bool optionsDrawerIsOpen;
+    
     float displayGain;
     float timeOffset;
     //int spread ; // vertical spacing between channels
 
-
-    static const int MAX_N_CHAN = 2048;  // maximum number of channels
-    static const int MAX_N_SAMP = 5000; // maximum display size in pixels
-    static const int MAX_N_SAMP_PER_PIXEL = 1000; // maximum samples considered for drawing each pixel
+    
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
     AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
-    AudioSampleBuffer* screenBuffer; // subsampled buffer- one int per pixel
+    ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes
     // not pretty, but 'AudioSampleBuffer works only for channels X samples
-    AudioSampleBuffer* screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
-    AudioSampleBuffer* screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
+    ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
 
     MidiBuffer* eventBuffer;
 
     ScopedPointer<LfpTimescale> timescale;
     ScopedPointer<LfpDisplay> lfpDisplay;
-    ScopedPointer<LfpViewport> viewport;
+    
+    ScopedPointer<LfpDisplayOptions> options;
+
+    void refreshScreenBuffer();
+    void updateScreenBuffer();
+
+    Array<int> displayBufferIndex;
+    int displayBufferSize;
+
+    int scrollBarThickness;
+    
+    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
+    //float*** samplesPerPixel;
+
+	void resizeSamplesPerPixelBuffer(int numChannels);
+    std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
+
+    int sampleCountPerPixel[MAX_N_SAMP];
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+
+};
+
+class ShowHideOptionsButton : public Button
+{
+public:
+    ShowHideOptionsButton(LfpDisplayOptions*);
+    virtual ~ShowHideOptionsButton();
+    void paintButton(Graphics& g, bool, bool);
+    LfpDisplayOptions* options;
+};
+
+class LfpDisplayOptions : public Component,
+    public Slider::Listener,
+    public ComboBox::Listener,
+    public Button::Listener
+{
+public:
+    LfpDisplayOptions(LfpDisplayCanvas*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
+    ~LfpDisplayOptions();
+
+    void paint(Graphics& g);
+    void resized();
+
+    void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
+    void setSpreadSelection(int spread, bool canvasMustUpdate = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
+
+    void comboBoxChanged(ComboBox* cb);
+    void buttonClicked(Button* button);
+    
+    /** Handles slider events for all editors. */
+    void sliderValueChanged(Slider* sl);
+    
+    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
+     of GenericEditor should modify this method only.*/
+    void sliderEvent(Slider* sl);
+
+    int getChannelHeight();
+    bool getDrawMethodState();
+    bool getInputInvertedState();
+
+    //void setRangeSelection(float range, bool canvasMustUpdate);
+    void setSpreadSelection();
+
+    void togglePauseButton();
+
+    void saveParameters(XmlElement* xml);
+    void loadParameters(XmlElement* xml);
+
+    ChannelType getChannelType(int n);
+    ChannelType getSelectedType();
+    String getTypeName(ChannelType type);
+    int getRangeStep(ChannelType type);
+
+    void setSelectedType(ChannelType type, bool toggleButton = true);
+
+    int selectedSpread;
+    String selectedSpreadValue;
+
+    int selectedTimebase;
+    String selectedTimebaseValue;
+
+    int selectedOverlap;
+    String selectedOverlapValue;
+    
+    int selectedSaturation; // for saturation warning
+    String selectedSaturationValue;
+    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the general plugin parameter overhaul.
+
+private:
+
+    LfpDisplayCanvas* canvas;
+    LfpDisplay* lfpDisplay;
+    LfpTimescale* timescale;
+    LfpDisplayNode* processor;
 
     ScopedPointer<ComboBox> timebaseSelection;
     ScopedPointer<ComboBox> rangeSelection;
@@ -190,13 +277,14 @@ private:
     ScopedPointer<Label> sliderALabel;
     ScopedPointer<Label> sliderBLabel;
 
+    ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
+
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
     StringArray overlaps; //
     StringArray saturationThresholds; //default values for when different amplifiers saturate
-
     
     ChannelType selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
@@ -206,36 +294,11 @@ private:
     StringArray typeNames;
     int rangeSteps[CHANNEL_TYPES];
 
-    int selectedSpread;
-    String selectedSpreadValue;
-
-    int selectedTimebase;
-    String selectedTimebaseValue;
-
-    int selectedOverlap;
-    String selectedOverlapValue;
-    
-    int selectedSaturation; // for saturation warning
-    String selectedSaturationValue;
-
-    
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
-    void refreshScreenBuffer();
-    void updateScreenBuffer();
-
-    Array<int> displayBufferIndex;
-    int displayBufferSize;
-
-    int scrollBarThickness;
-    
-    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    float*** samplesPerPixel;
-    int sampleCountPerPixel[MAX_N_SAMP];
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
-
 };
+
+
 
 class LfpTimescale : public Component
 {
@@ -279,6 +342,8 @@ public:
 
     void resized();
 
+    void reactivateChannels();
+
     void mouseDown(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
@@ -316,13 +381,13 @@ public:
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
+    void toggleSingleChannel(int chan = -2);
 
-    void reactivateChannels();
+    LfpDisplayOptions* options;
+
     
 private:
     
-    
-    void toggleSingleChannel(int chan);
     int singleChan;
 	Array<bool> savedChannelState;
 
@@ -343,7 +408,7 @@ private:
 class LfpChannelDisplay : public Component
 {
 public:
-    LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
+    LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
     ~LfpChannelDisplay();
 
     void resized();
@@ -397,6 +462,7 @@ protected:
     
     LfpDisplayCanvas* canvas;
     LfpDisplay* display;
+    LfpDisplayOptions* options;
 
     bool isSelected;
 
@@ -430,7 +496,7 @@ class LfpChannelDisplayInfo : public LfpChannelDisplay,
     public Button::Listener
 {
 public:
-    LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, int channelNumber);
+    LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
     void paint(Graphics& g);
 
@@ -441,8 +507,14 @@ public:
     void setEnabledState(bool);
     void updateType();
 
+    void updateXY(float, float);
+
+    void setSingleChannelState(bool);
+
 private:
 
+    bool isSingleChannel;
+    float x, y;
     ScopedPointer<UtilityButton> enableButton;
 
 };

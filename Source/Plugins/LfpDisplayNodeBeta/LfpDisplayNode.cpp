@@ -49,6 +49,7 @@ LfpDisplayNode::LfpDisplayNode()
 
 LfpDisplayNode::~LfpDisplayNode()
 {
+    delete[] arrayOfOnes;
 }
 
 
