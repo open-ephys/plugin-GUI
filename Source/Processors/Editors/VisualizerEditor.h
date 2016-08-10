@@ -65,6 +65,7 @@ private:
 */
 
 class PLUGIN_API VisualizerEditor : public GenericEditor
+                                  , public DataWindow::Listener
 {
 public:
     /**
@@ -84,17 +85,17 @@ public:
     VisualizerEditor(GenericProcessor* processor, bool useDefaultParameterEditors);
     ~VisualizerEditor();
 
-	/**
+    /**
      * @brief      This method handles the button evnets which open visualizer in a tab or window.
      * @warning    Do not override this function unless you call ``VisualizerEditor::buttonClicked``
      *             somewhere!
      */
     void buttonClicked(Button* button);
-	
-	/**
+    
+    /**
      * @brief      All additional buttons that you create _for the editor_ should be handled here.
      */
-	virtual void buttonEvent(Button* button);
+    virtual void buttonEvent(Button* button);
 
     /**
      * @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
@@ -107,6 +108,7 @@ public:
     void editorWasClicked();
 
     void updateVisualizer();
+    virtual void windowClosed();
 
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
@@ -120,17 +122,84 @@ public:
 
     String tabText;
 
-private:
+protected: // these should be available to sub-classes if needed.
+    
+    /**
+     * @brief      Creates a new DataWindow using the windowSelector (button)
+     *             and ``tabText``. The new object is stored in (and owned by)
+     *             VisualizerEditor::dataWindow.
+     * @details    Use this to make a new DataWindow. If needed, you can
+     *             transfer ownership of the new object from
+     *             VisualizerEditor::dataWindow to _your_ own ScopedPointer.
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
+     */
+    void makeNewWindow();
 
-    void initializeSelectors();
-    bool isPlaying;
+    /**
+     * @brief      Adds a closeWindow listener for dw.
+     *
+     * @param      dw           The datawindow
+     * @param      newListener  The new listener
+     * 
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
+     */
+    static void addWindowListener(DataWindow* dw, DataWindow::Listener* newListener);
 
+    /**
+     * @brief      Removes a closeWindow listener for dw.
+     *
+     * @param      dw           The datawindow
+     * @param      oldListener  The old listener
+     *
+     * @note       This method provides an interface to DataWindow, DataWindow
+     *             methods cannot be defined in derivations (ie, plugins).
+     */
+    static void removeWindowListener(DataWindow* dw, DataWindow::Listener* oldListener);
+
+    /**
+     * @brief      Use this to efficiently compare or find what is on the
+     *             currently active tab.
+     *
+     * @return     The active tab content Component.
+     */
+    Component* getActiveTabContentComponent() const;
+
+    /**
+     * @brief      Selects the specified _tab_ in the DataViewport.
+     *
+     * @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
+     */
+    void setActiveTabId(int tindex);
+
+    /**
+     * @brief      Remove the specified tab from DataViewport.
+     *
+     * @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
+     */
+    void removeTab(int tindex);
+
+    /**
+     * @brief      Adds a new tab to the DataViewport.
+     *
+     * @param[in]  tab_text    The tab text
+     * @param      vis_canvas  The content Visualizer (Canvas) Component for this tab.
+     *
+     * @return     The identifier token for this tab. You must provide this
+     *             identifier to access/remove this tab.
+     */
+    int addTab(String tab_text, Visualizer* vis_canvas);
+
+    bool isPlaying; /**< Acquisition status flag */
+
+    // So that we can override buttonClick. That's not possible if these are private.
     SelectorButton* windowSelector;
     SelectorButton* tabSelector;
-
     int tabIndex;
 
-
+private:
+    void initializeSelectors();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualizerEditor);
 
