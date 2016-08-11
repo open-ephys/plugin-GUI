@@ -333,18 +333,9 @@ private:
             pluginSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
             pluginSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
 
-            TextButton* editorSettingsButton = new TextButton ("Editor", "Switch to editor settings tab");
-            editorSettingsButton->setComponentID (EDITOR_SETTINGS_BUTTON_ID);
-            editorSettingsButton->setClickingTogglesState (true);
-            editorSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
-            editorSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
-            editorSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
-            editorSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
             // Open Ephys
             m_buttonGroupManager.addButton (projectSettingsButton);
             m_buttonGroupManager.addButton (pluginSettingsButton);
-            m_buttonGroupManager.addButton (editorSettingsButton);
             m_buttonGroupManager.setRadioButtonMode (true);
             m_buttonGroupManager.setButtonListener (this);
             m_buttonGroupManager.setButtonsLookAndFeel (m_materialButtonLookAndFeel);
@@ -410,11 +401,6 @@ private:
                 group.setVisible (false);
                 m_parametersEditorComponent.setVisible (true);
             }
-            else if (buttonID == EDITOR_SETTINGS_BUTTON_ID)
-            {
-                group.setVisible (false);
-                m_parametersEditorComponent.setVisible (false);
-            }
         }
 
         void changeListenerCallback (ChangeBroadcaster*) override
@@ -435,7 +421,6 @@ private:
 
         static constexpr const char* PROJECT_SETTINGS_BUTTON_ID     = "projectSettingsTab";
         static constexpr const char* PLUGIN_SETTINGS_BUTTON_ID      = "pluginSettingsTab";
-        static constexpr const char* EDITOR_SETTINGS_BUTTON_ID      = "editorSettingsTab";
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SettingsComp)
     };

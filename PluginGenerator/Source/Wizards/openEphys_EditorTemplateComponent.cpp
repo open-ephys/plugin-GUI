@@ -31,7 +31,7 @@ class TemplateChoicerButtonLookAndFeel   : public LookAndFeel_V2
 public:
     TemplateChoicerButtonLookAndFeel()
     {
-        setColour (TextButton::buttonOnColourId,    Colours::green);
+        setColour (TextButton::buttonOnColourId,    Colours::indigo);
         setColour (TextButton::buttonColourId,      Colours::black);
         setColour (TextButton::textColourOnId,      Colours::black);
         setColour (TextButton::textColourOffId,     Colours::black);
@@ -43,7 +43,9 @@ public:
                                bool isMouseOverButton, bool isButtonDown)   override
     {
         // Fill all component with orange bg
-        g.setColour (isMouseOverButton ? Colours::orange.darker() : Colours::orange);
+        g.setColour (button.getToggleState() || isButtonDown
+                        ? Colours::orange
+                        : isMouseOverButton ? Colours::orange.darker (0.1f) : Colours::orange.darker());
         g.fillRoundedRectangle (button.getLocalBounds().toFloat(), 5.f);
 
         // Draw black bg for content
@@ -53,7 +55,7 @@ public:
         g.fillRect (contentBounds.toFloat());
 
         g.setColour (backgroundColour);
-        g.fillEllipse (8, 8, 12, 12);
+        g.fillEllipse (8, 8, 13, 13);
     }
 
 

@@ -27,6 +27,8 @@
 #include "openEphys_ParameterListBox.h"
 #include "../jucer_Project.h"
 
+
+
 ParameterListBox::ParameterListBox (Project& project)
     : m_project (project)
 {
@@ -74,6 +76,7 @@ void ParameterListBox::listBoxItemClicked (int row, const MouseEvent& e)
         if (isEmptyRow)
         {
             PopupMenu menu;
+            menu.addSectionHeader ("Select parameter type");
             menu.addItem (1, "Boolean");
             menu.addItem (2, "Continuous");
             menu.addItem (3, "Discrete");
@@ -165,7 +168,7 @@ String ParameterListBox::getItemText (int row) const noexcept
     }
     else
     {
-        return "---";
+        return "Right click to add parameter...";
     }
 }
 

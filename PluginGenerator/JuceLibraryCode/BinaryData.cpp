@@ -703,12 +703,6 @@ static const unsigned char temp_binary_data_7[] =
 "SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))\n"
 "OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))\n"
 "\n"
-"#Library paths for OSX, can be removed if no external libraries are needed\n"
-"ifeq ($(OS),Darwin)\n"
-"CXXFLAGS := $(CXXFLAGS) -I/opt/local/include \n"
-"LDFLAGS := $(LDFLAGS) -L/opt/local/lib  \n"
-"endif\n"
-"\n"
 "#Extra macros and libraries needed by the plugin\n"
 "#CXXFLAGS := $(CXXFLAGS) -D EXAMPLE_MACRO\n"
 "#LDFLAGS := $(LDFLAGS) -lExampleLib\n"
@@ -5596,7 +5590,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0xd768da9a:  numBytes = 1434; return openEphys_FileSourcePluginTemplate_cpp;
         case 0xdc872b1f:  numBytes = 1450; return openEphys_FileSourcePluginTemplate_h;
         case 0x354e9a48:  numBytes = 4216; return openEphys_OpenEphysLibTemplate_cpp;
-        case 0xbf9557ba:  numBytes = 1112; return openEphys_PluginMakefile_example;
+        case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
         case 0xc39db71e:  numBytes = 3868; return openEphys_ProcessorEditorPluginTemplate_cpp;

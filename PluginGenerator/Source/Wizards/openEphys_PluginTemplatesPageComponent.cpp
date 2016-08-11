@@ -200,7 +200,6 @@ void PluginTemplatesPageComponent::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (auto selectedTemplateComponent = dynamic_cast<EditorTemplateComponent*> (buttonThatWasClicked))
     {
-        DBG ("Button clicked!");
         m_selectedTemplateName = selectedTemplateComponent->getTemplateName();
     }
 }
