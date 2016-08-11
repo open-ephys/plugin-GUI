@@ -26,14 +26,14 @@
 
 
 #if defined(_WIN32)
-#define okLIB_NAME "okFrontPanel.dll"
-#define okLIB_EXTENSION "*.dll"
+    #define okLIB_NAME "okFrontPanel.dll"
+    #define okLIB_EXTENSION "*.dll"
 #elif defined(__APPLE__)
-#define okLIB_NAME "libokFrontPanel.dylib"
-#define okLIB_EXTENSION "*.dylib"
+    #define okLIB_NAME "libokFrontPanel.dylib"
+    #define okLIB_EXTENSION "*.dylib"
 #elif defined(__linux__)
-#define okLIB_NAME "./libokFrontPanel.so"
-#define okLIB_EXTENSION "*.so"
+    #define okLIB_NAME "./libokFrontPanel.so"
+    #define okLIB_EXTENSION "*.so"
 #endif
 
 #define CHIP_ID_RHD2132  1
@@ -163,21 +163,18 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     }
 }
 
-GenericEditor* RHD2000Thread::createEditor(SourceNode* sn)
+GenericEditor* RHD2000Thread::createEditor (SourceNode* sn)
 {
 	return new RHD2000Editor(sn, this, true);
 }
 
 void RHD2000Thread::timerCallback()
 {
-
     stopTimer();
-
 }
 
 RHD2000Thread::~RHD2000Thread()
 {
-
     std::cout << "RHD2000 interface destroyed." << std::endl;
 
 /*    if (deviceFound)
@@ -195,10 +192,9 @@ RHD2000Thread::~RHD2000Thread()
     delete[] dacChannels;
     delete[] dacThresholds;
     delete[] dacChannelsToUpdate;
-
 }
 
-bool RHD2000Thread::usesCustomNames()
+bool RHD2000Thread::usesCustomNames() const
 {
     return true;
 }
@@ -235,7 +231,7 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
     }
 }
 
-Array<int> RHD2000Thread::getDACchannels()
+Array<int> RHD2000Thread::getDACchannels() const
 {
     Array<int> dacChannelsArray;
     //dacChannelsArray.addArray(dacChannels,8);
@@ -277,10 +273,9 @@ bool RHD2000Thread::openBoard()
 
 void RHD2000Thread::initializeBoard()
 {
-
     // Initialize the board
     std::cout << "Initializing acquisition board." << std::endl;
-	evalBoard->openPipe();
+    evalBoard->openPipe();
     evalBoard->initialize();
     // This applies the following settings:
     //  - sample rate to 30 kHz
@@ -632,13 +627,12 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int& regist
 }
 
 
-
-bool RHD2000Thread::isAcquisitionActive()
+bool RHD2000Thread::isAcquisitionActive() const
 {
     return isTransmitting;
 }
 
-void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
+void RHD2000Thread::setNumChannels (int hsNum, int numChannels)
 {
     if (headstagesArray[hsNum]->getNumChannels() == 32)
     {
@@ -650,13 +644,13 @@ void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
     }
 }
 
-int RHD2000Thread::getHeadstageChannels(int hsNum)
+int RHD2000Thread::getHeadstageChannels (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumChannels();
 }
 
 
-void RHD2000Thread::getEventChannelNames(StringArray& Names)
+void RHD2000Thread::getEventChannelNames (StringArray& Names) const
 {
     Names.clear();
     for (int k = 0; k < 8; k++)
@@ -679,12 +673,12 @@ int RHD2000Thread::modifyChannelName(int channel, String newName)
     return 0;
 }
 
-String RHD2000Thread::getChannelName(int ch)
+String RHD2000Thread::getChannelName (int ch) const
 {
     return channelInfo[ch].name;
 }
 
-int RHD2000Thread::modifyChannelGain(int channel, float gain)
+int RHD2000Thread::modifyChannelGain (int channel, float gain)
 {
     ChannelCustomInfo i = channelInfo[channel];
     i.gain = gain;
@@ -693,7 +687,7 @@ int RHD2000Thread::modifyChannelGain(int channel, float gain)
     return 0;
 }
 
-void RHD2000Thread::setDefaultNamingScheme(int scheme)
+void RHD2000Thread::setDefaultNamingScheme (int scheme)
 {
     numberingScheme = scheme;
     newScan = true; //if the scheme is changed, reset all names
@@ -784,30 +778,26 @@ void RHD2000Thread::setDefaultChannelNames()
     newScan = false;
 }
 
-int RHD2000Thread::getNumChannels()
+int RHD2000Thread::getNumChannels() const
 {
     return getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
 }
 
-int RHD2000Thread::getNumHeadstageOutputs()
+int RHD2000Thread::getNumHeadstageOutputs() const
 {
-    numChannels = 0;
+    int newNumChannels = 0;
     for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
     {
-
         if (headstagesArray[i]->isPlugged())
         {
-            numChannels += headstagesArray[i]->getNumActiveChannels();
+            newNumChannels += headstagesArray[i]->getNumActiveChannels();
         }
     }
 
-   // if (numChannels > 0)
-        return numChannels;
-    //else
-      //  return 1; // to prevent crashing with 0 channels
+    return newNumChannels;
 }
 
-int RHD2000Thread::getNumAuxOutputs()
+int RHD2000Thread::getNumAuxOutputs() const
 {
     int numAuxOutputs = 0;
 
@@ -823,7 +813,7 @@ int RHD2000Thread::getNumAuxOutputs()
 
 }
 
-int RHD2000Thread::getNumAdcOutputs()
+int RHD2000Thread::getNumAdcOutputs() const
 {
     if (acquireAdcChannels)
     {
@@ -835,17 +825,17 @@ int RHD2000Thread::getNumAdcOutputs()
     }
 }
 
-int RHD2000Thread::getNumEventChannels()
+int RHD2000Thread::getNumEventChannels() const
 {
     return 16; // 8 inputs, 8 outputs
 }
 
-float RHD2000Thread::getSampleRate()
+float RHD2000Thread::getSampleRate() const
 {
     return evalBoard->getSampleRate();
 }
 
-float RHD2000Thread::getBitVolts(Channel* ch)
+float RHD2000Thread::getBitVolts (Channel* ch) const
 {
     if (ch->type == ADC_CHANNEL)
         return getAdcBitVolts(ch->index);
@@ -855,7 +845,7 @@ float RHD2000Thread::getBitVolts(Channel* ch)
         return 0.195f;
 }
 
-float RHD2000Thread::getAdcBitVolts(int chan)
+float RHD2000Thread::getAdcBitVolts (int chan) const
 {
     if (chan < adcBitVolts.size())
         return adcBitVolts[chan];
@@ -894,9 +884,8 @@ double RHD2000Thread::setDspCutoffFreq(double freq)
     return actualDspCutoffFreq;
 }
 
-double RHD2000Thread::getDspCutoffFreq()
+double RHD2000Thread::getDspCutoffFreq() const
 {
-
     return actualDspCutoffFreq;
 }
 
@@ -930,7 +919,6 @@ void RHD2000Thread::setFastTTLSettle(bool state, int channel)
 
 int RHD2000Thread::setNoiseSlicerLevel(int level)
 {
-
     desiredNoiseSlicerLevel = level;
  /*   if (deviceFound)
         evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);*/
@@ -945,14 +933,11 @@ int RHD2000Thread::setNoiseSlicerLevel(int level)
 
 bool RHD2000Thread::foundInputSource()
 {
-
     return deviceFound;
-
 }
 
 bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled, int nStr, int strChans)
 {
-
     /*   evalBoard->enableDataStream(hsNum, enabled);*/
 
     if (enabled)
@@ -1016,11 +1001,9 @@ void RHD2000Thread::updateBoardStreams()
     }
 }
 
-bool RHD2000Thread::isHeadstageEnabled(int hsNum)
+bool RHD2000Thread::isHeadstageEnabled (int hsNum) const
 {
-
     return headstagesArray[hsNum]->isPlugged();
-
 }
 
 bool RHD2000Thread::isReady()
@@ -1028,12 +1011,12 @@ bool RHD2000Thread::isReady()
 	return deviceFound && (getNumChannels() > 0);
 }
 
-int RHD2000Thread::getActiveChannelsInHeadstage(int hsNum)
+int RHD2000Thread::getActiveChannelsInHeadstage (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumActiveChannels();
 }
 
-int RHD2000Thread::getChannelsInHeadstage(int hsNum)
+int RHD2000Thread::getChannelsInHeadstage (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumChannels();
 }
@@ -1062,11 +1045,9 @@ int RHD2000Thread::getChannelsInHeadstage(int hsNum)
 
 void RHD2000Thread::enableAdcs(bool t)
 {
-
     acquireAdcChannels = t;
 
     dataBuffer->resize(getNumChannels(), 10000);
-
 }
 
 
@@ -1194,7 +1175,6 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 
 void RHD2000Thread::updateRegisters()
 {
-
     if (!deviceFound) //Safety to avoid crashes loading a chain with Rythm node withouth a board
     {
         return;
@@ -1347,7 +1327,6 @@ bool RHD2000Thread::startAcquisition()
 
 bool RHD2000Thread::stopAcquisition()
 {
-
     //  isTransmitting = false;
     std::cout << "RHD2000 data thread stopping acquisition." << std::endl;
 
@@ -1653,7 +1632,7 @@ void RHD2000Thread::checkThreshold(float s)
 	}
 }
 
-int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
+int RHD2000Thread::getChannelFromHeadstage (int hs, int ch) const
 {
     int channelCount = 0;
     int hsCount = 0;
@@ -1705,7 +1684,7 @@ int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
     }
 }
 
-int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
+int RHD2000Thread::getHeadstageChannel (int& hs, int ch) const
 {
     int channelCount = 0;
     int hsCount = 0;
@@ -1813,17 +1792,17 @@ void RHDHeadstage::setChannelsPerStream(int nchan, int index)
 	streamIndex = index;
 }
 
-int RHDHeadstage::getStreamIndex(int index)
+int RHDHeadstage::getStreamIndex (int index) const
 {
 	return streamIndex + index;
 }
 
-int RHDHeadstage::getNumChannels()
+int RHDHeadstage::getNumChannels() const
 {
     return channelsPerStream*numStreams;
 }
 
-int RHDHeadstage::getNumStreams()
+int RHDHeadstage::getNumStreams() const
 {
     return numStreams;
 }
@@ -1833,18 +1812,20 @@ void RHDHeadstage::setHalfChannels(bool half)
     halfChannels = half;
 }
 
-int RHDHeadstage::getNumActiveChannels()
+int RHDHeadstage::getNumActiveChannels() const
 {
     return (int)(getNumChannels() / (halfChannels ? 2 : 1));
 }
 
-rhd2000PCIe::BoardDataSource RHDHeadstage::getDataStream(int index)
+rhd2000PCIe::BoardDataSource RHDHeadstage::getDataStream (int index) const
 {
-    if (index < 0 || index > 1) index = 0;
-    return static_cast<rhd2000PCIe::BoardDataSource>(dataStream+MAX_NUM_HEADSTAGES*index);
+    if (index < 0 || index > 1)
+        index = 0;
+
+    return static_cast<rhd2000PCIe::BoardDataSource>(dataStream + MAX_NUM_HEADSTAGES * index);
 }
 
-bool RHDHeadstage::isPlugged()
+bool RHDHeadstage::isPlugged() const
 {
     return (numStreams > 0);
 }
@@ -1944,8 +1925,8 @@ float RHDImpedanceMeasure::updateImpedanceFrequency(float desiredImpedanceFreq, 
 // Reads numBlocks blocks of raw USB data stored in a queue of Rhd2000DataBlock
 // objects, loads this data into this SignalProcessor object, scaling the raw
 // data to generate waveforms with units of volts or microvolts.
-int RHDImpedanceMeasure::loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
-	int numBlocks, int numDataStreams)
+int RHDImpedanceMeasure::loadAmplifierData (queue<Rhd2000DataBlock>& dataQueue,
+                                            int numBlocks, int numDataStreams)
 {
 
 	int block, t, channel, stream;
