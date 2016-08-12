@@ -69,7 +69,7 @@ protected:
     virtual int createFileStructure() = 0;
 
     int setAttribute(DataTypes type, const void* data, String path, String name);
-    int setAttributeStr(String value, String path, String name);
+    int setAttributeStr(const String& value, String path, String name);
     int setAttributeArray(DataTypes type, const void* data, int size, String path, String name);
     int createGroup(String path);
 	int createGroupIfDoesNotExist(String path);

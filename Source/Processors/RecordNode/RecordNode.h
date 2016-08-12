@@ -166,6 +166,9 @@ public:
     /** Generate a Matlab-compatible datestring */
     String generateDateString();
 
+	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
+	const String& getLastSettingsXml() const;
+
 private:
 
     /** Keep the RecordNode informed of acquisition and record states.
@@ -224,6 +227,8 @@ private:
 	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
 	
 	Array<int> m_recordedChannelMap;
+
+	String m_lastSettingsText;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

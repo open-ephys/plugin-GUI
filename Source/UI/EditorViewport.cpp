@@ -1223,7 +1223,12 @@ XmlElement* EditorViewport::switchNodeXml(GenericProcessor* processor)
 
 }
 
-const String EditorViewport::saveState(File fileToUse)
+const String EditorViewport::saveState(File fileToUse, String& xmlText)
+{
+	return saveState(fileToUse, &xmlText);
+}
+
+const String EditorViewport::saveState(File fileToUse, String* xmlText)
 {
 
     String error;
@@ -1401,6 +1406,13 @@ const String EditorViewport::saveState(File fileToUse)
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
+
+	if (xmlText != nullptr)
+	{
+		(*xmlText) = xml->createDocument(String::empty);
+		if ((*xmlText).isEmpty())
+			(*xmlText) = "Couldn't create configuration xml";
+	}
 
     delete xml;
 

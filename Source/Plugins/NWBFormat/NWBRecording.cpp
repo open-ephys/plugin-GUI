@@ -49,6 +49,7 @@
 	 String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment_" + String(experimentNumber) + ".nwb";
 	 
 	 recordFile = new NWBFile(basepath, CoreServices::getGUIVersion());
+	 recordFile->setXmlText(getLatestSettingsXml());
 
 	 int recProcs = getNumRecordedProcessors();
 

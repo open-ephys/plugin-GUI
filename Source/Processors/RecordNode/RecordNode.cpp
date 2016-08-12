@@ -299,7 +299,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
         if (settingsNeeded)
         {
             String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-            AccessClass::getEditorViewport()->saveState(File(settingsFileName));
+            AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
             settingsNeeded = false;
         }
 
@@ -541,4 +541,9 @@ SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)
 void RecordNode::clearRecordEngines()
 {
     engineArray.clear();
+}
+
+const String& RecordNode::getLastSettingsXml() const
+{
+	return m_lastSettingsText;
 }

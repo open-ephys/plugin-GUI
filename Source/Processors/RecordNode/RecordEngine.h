@@ -218,6 +218,11 @@ protected:
 	*/
 	int getChannelNumInProc(int channel) const;
 
+	/** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
+		Since the string will be large, returns a const reference. It should never be const_casted.
+	*/
+	const String& getLatestSettingsXml() const;
+
 private:
 	Array<int64> timestamps;
 	Array<int> channelMap;

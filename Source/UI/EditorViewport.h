@@ -147,7 +147,10 @@ public:
     }
 
     /** Save the current configuration as an XML file. */
-    const String saveState(File filename);
+    const String saveState(File filename, String* xmlText = nullptr);
+
+	/** Save the current configuration as an XML file. Reference wrapper*/
+	const String saveState(File filename, String& xmlText);
 
     /** Load a saved configuration from an XML file. */
     const String loadState(File filename);

@@ -54,6 +54,7 @@ namespace NWBRecording
 		void writeTTLEvent(int channel, int id, uint8 source, uint64 timestamp);
 		void writeMessage(const char* msg, uint64 timestamp);
 		String getFileName() override;
+		void setXmlText(const String& xmlText);
 
 	protected:
 		int createFileStructure() override;
@@ -87,6 +88,8 @@ namespace NWBRecording
 
 		HeapBlock<int16> transformBlock;
 		int spikeMaxSize;
+
+		const String* xmlText;
 
 		//whatever is needed
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NWBFile);

@@ -46,6 +46,12 @@
  {
  }
 
+
+ void NWBFile::setXmlText(const String& xmlText)
+ {
+	 this->xmlText = &xmlText;
+ }
+
 //All int return values are 0 if succesful, other number otherwise
 int NWBFile::createFileStructure()
 {
@@ -67,6 +73,7 @@ int NWBFile::createFileStructure()
 	if (createGroup("/general/data_collection")) return -1;
 
 	CHECK_ERROR(setAttributeStr(String("OpenEphys GUI v") + GUIVersion, "/general/data_collection", "software"));
+	CHECK_ERROR(setAttributeStr(*xmlText, "/general/data_collection", "configuration"));
 	//TODO: Create attribute with the XML file as soon as I figure out how to get it to here.
 	
 	//TODO: Add default datasets

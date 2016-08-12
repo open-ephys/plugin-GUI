@@ -183,7 +183,7 @@ int HDF5FileBase::setAttributeArray(DataTypes type, const void* data, int size, 
     return 0;
 }
 
-int HDF5FileBase::setAttributeStr(String value, String path, String name)
+int HDF5FileBase::setAttributeStr(const String& value, String path, String name)
 {
     H5Location* loc;
     Group gloc;

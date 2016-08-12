@@ -114,6 +114,11 @@ int RecordEngine::getChannelNumInProc(int channel) const
 	return chanOrderMap[channel];
 }
 
+const String& RecordEngine::getLatestSettingsXml() const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getLastSettingsXml();
+}
+
 void RecordEngine::registerSpikeSource(GenericProcessor* processor) {}
 
 void RecordEngine::startAcquisition() {}
