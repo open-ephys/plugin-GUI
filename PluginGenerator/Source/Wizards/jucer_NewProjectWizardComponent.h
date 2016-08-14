@@ -339,7 +339,6 @@ public:
 
     void resized() override
     {
-        updateOpenEphysWizardComboBoxBounds (*this);
     }
 
     void buttonClicked (Button* b) override
@@ -431,15 +430,7 @@ public:
 
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
     {
-        if (comboBoxThatHasChanged->getComponentID() == OpenEphysPluginAppWizard::COMBOBOX_ID_PLUGIN_TYPE)
-        {
-            const auto selectedIndex = comboBoxThatHasChanged->getSelectedItemIndex() + 1;
-            updateOpenEphysWizardComboBoxBounds (*this);
-        }
-        else
-        {
-            updateCustomItems();
-        }
+        updateCustomItems();
     }
 
     void textEditorTextChanged (TextEditor&) override
