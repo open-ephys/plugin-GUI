@@ -139,6 +139,15 @@ VisualizerEditor::~VisualizerEditor()
 }
 
 
+void VisualizerEditor::resized()
+{
+    GenericEditor::resized();
+
+    windowSelector->setBounds   (desiredWidth - 40, 7, 14, 10);
+    tabSelector->setBounds      (desiredWidth - 20, 7, 15, 10);
+}
+
+
 // All additional buttons inside the VisualizerEditor should use this instead of buttonClicked()
 void VisualizerEditor::buttonEvent (Button* button) {}
 

@@ -606,6 +606,15 @@
                 resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorPluginTemplate.cpp"/>
           <FILE id="dOxspy" name="openEphys_ProcessorPluginTemplate.h" compile="0"
                 resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorPluginTemplate.h"/>
+          <FILE id="xcFQQt" name="openEphys_ProcessorVisualizerCanvasTemplate.cpp"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorVisualizerCanvasTemplate.cpp"
+                xcodeResource="0"/>
+          <FILE id="mReCie" name="openEphys_ProcessorVisualizerCanvasTemplate.h"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorVisualizerCanvasTemplate.h"/>
+          <FILE id="rWHazB" name="openEphys_ProcessorVisualizerEditorPluginTemplate.cpp"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorVisualizerEditorPluginTemplate.cpp"/>
+          <FILE id="G9iq5j" name="openEphys_ProcessorVisualizerEditorPluginTemplate.h"
+                compile="0" resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_ProcessorVisualizerEditorPluginTemplate.h"/>
           <FILE id="QVd832" name="openEphys_RecordEnginePluginTemplate.cpp" compile="0"
                 resource="1" file="../Source/Processors/PluginManager/Templates/openEphys_RecordEnginePluginTemplate.cpp"/>
           <FILE id="IIuSzd" name="openEphys_RecordEnginePluginTemplate.h" compile="0"

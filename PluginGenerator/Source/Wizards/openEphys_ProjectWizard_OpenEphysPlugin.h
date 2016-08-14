@@ -211,9 +211,14 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         m_processorType = configPage->getSelectedProcessorType();
 
         m_shouldUseVisualizerEditor = configPage->shouldUseVisualizerEditor();
-        m_guiTemplateName = configPage->getSelectedTemplateName();
+
+        m_guiTemplateName           = configPage->getSelectedTemplateName();
+        m_guiVisualizerTemplateName = configPage->getSelectedVisualizerTemplateName();
 
         DBG (String ("GUI Template name: ") + m_guiTemplateName);
+
+        if (m_shouldUseVisualizerEditor)
+            DBG (String ("GUI Visualizer Canvas template name: ") + m_guiVisualizerTemplateName);
 
         return Result::ok();
     }
@@ -260,6 +265,19 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         generatePluginProcessorFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
         generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName, pluginContentComponentName);
         generatePluginEditorContentComponentFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginContentComponentName);
+
+        if (m_shouldUseVisualizerEditor)
+        {
+            const String visualizerCanvasName                 = pluginProcessorName + "Canvas";
+            const String visualizerCanvasContentComponentName = visualizerCanvasName + "ContentComponent";
+            generatePluginVisualizerEditorCanvasFiles (project, sourceGroup,
+                                                       pluginProcessorName, visualizerCanvasName,
+                                                       visualizerCanvasName, visualizerCanvasContentComponentName);
+            generatePluginEditorContentComponentFiles (project, sourceGroup,
+                                                       pluginProcessorName, visualizerCanvasName,
+                                                       visualizerCanvasContentComponentName,
+                                                       true);
+        }
 
         return true;
     }
@@ -387,18 +405,31 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         auto newEditorCppFile  = sourceFolder.getChildFile (editorName + ".cpp");
         auto newEditorHFile    = sourceFolder.getChildFile (editorName + ".h");
 
-        String editorCppFileContent = project.getFileTemplate ("openEphys_ProcessorEditorPluginTemplate_cpp")
+        String templateFileNameWithoutExtension = m_shouldUseVisualizerEditor
+                                                    ? "openEphys_ProcessorVisualizerEditorPluginTemplate"
+                                                    : "openEphys_ProcessorEditorPluginTemplate";
+
+        String editorCppFileContent = project.getFileTemplate (templateFileNameWithoutExtension + "_cpp")
             //.replace ("EDITORCPPHEADERS", CodeHelpers::createIncludeStatement (filterHFile, filterCppFile)
             //                                   + newLine + CodeHelpers::createIncludeStatement (editorHFile, filterCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
-            .replace ("EDITORCLASSNAME", editorName, false);
+            .replace ("EDITORCLASSNAME", editorName, false)
+            .replace ("PLUGINGUINAME", pluginFriendlyName, false);
 
-        String editorHFileContent   = project.getFileTemplate ("openEphys_ProcessorEditorPluginTemplate_h")
+        String editorHFileContent   = project.getFileTemplate (templateFileNameWithoutExtension + "_h")
             //.replace ("EDITORHEADERS", appHeaders + newLine + CodeHelpers::createIncludeStatement (filterHFile, filterCppFile), false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("EDITORCLASSNAME", editorName, false)
             .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
             .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newEditorHFile), false);
+
+        if (m_shouldUseVisualizerEditor)
+        {
+            const String canvasClassName = processorName + "Canvas";
+            editorCppFileContent = editorCppFileContent
+                                    .replace ("EDITORCANVASCLASSNAME", canvasClassName, false)
+                                    .replace ("GenericEditor", "VisualizerEditor", false);
+        }
 
         bool wasGeneratedSuccessfully = true;
 
@@ -427,17 +458,21 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
                                                     Project::Item& sourceGroup,
                                                     const String& processorName,
                                                     const String& editorName,
-                                                    const String& contentComponentName)
+                                                    const String& contentComponentName,
+                                                    bool useVisualizerEditorTemplates = false)
     {
         const auto sourceFolder = getSourceFilesFolder();
 
         auto newContentComponentCppFile = sourceFolder.getChildFile (contentComponentName + ".cpp");
         auto newContentComponentHFile   = sourceFolder.getChildFile (contentComponentName + ".h");
 
+        const String guiTemplateName = useVisualizerEditorTemplates
+                                            ? m_guiVisualizerTemplateName
+                                            : m_guiTemplateName;
         String contentComponentCppFileContent;
         String contentComponentHFileContent;
 
-        if (m_guiTemplateName == "DEFAULT" || (! isExistsGuiTemplate (m_guiTemplateName)))
+        if (guiTemplateName == "DEFAULT" || (! isExistsGuiTemplate (guiTemplateName)))
         {
             contentComponentCppFileContent = project.getFileTemplate ("openEphys_ProcessorContentComponentTemplate_cpp")
                 .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false);
@@ -449,14 +484,14 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         }
         else
         {
-            const auto guiTemplateClassName = getGUITemplateClassName (m_guiTemplateName);
+            const auto guiTemplateClassName = getGUITemplateClassName (guiTemplateName);
 
-            contentComponentCppFileContent = getGUITemplate (m_guiTemplateName, false)
+            contentComponentCppFileContent = getGUITemplate (guiTemplateName, false)
                 .replace (guiTemplateClassName, contentComponentName);
 
             const auto userVariablesMacro = String ("//[UserVariables]   -- You can add your own custom variables in this section.") + newLine;
-            const auto friendClassDefinition = CodeHelpers::indent (String ("friend class ") + editorName, 4, true) + newLine;
-            contentComponentHFileContent = getGUITemplate (m_guiTemplateName, true)
+            const auto friendClassDefinition = CodeHelpers::indent (String ("friend class ") + editorName, 4, true) + ";" + newLine;
+            contentComponentHFileContent = getGUITemplate (guiTemplateName, true)
                 .replace (guiTemplateClassName, contentComponentName)
                 .replace (userVariablesMacro, userVariablesMacro + friendClassDefinition , false);
         }
@@ -483,6 +518,54 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         return wasGeneratedSuccessfully;
     }
 
+
+    bool generatePluginVisualizerEditorCanvasFiles (const Project& project,
+                                                    Project::Item& sourceGroup,
+                                                    const String& processorName,
+                                                    const String& editorName,
+                                                    const String& canvasName,
+                                                    const String& contentComponentName)
+    {
+        const auto sourceFolder = getSourceFilesFolder();
+
+        auto newCanvasComponentCppFile = sourceFolder.getChildFile (canvasName + ".cpp");
+        auto newCanvasComponentHFile   = sourceFolder.getChildFile (canvasName + ".h");
+
+        String canvasComponentCppFileContent;
+        String canvasComponentHFileContent;
+
+        canvasComponentCppFileContent = project.getFileTemplate ("openEphys_ProcessorVisualizerCanvasTemplate_cpp")
+            .replace ("PROCESSORCLASSNAME", processorName, false)
+            .replace ("EDITORCANVASCLASSNAME", editorName, false);
+
+        canvasComponentHFileContent = project.getFileTemplate ("openEphys_ProcessorVisualizerCanvasTemplate_h")
+            .replace ("PROCESSORCLASSNAME", processorName,false)
+            .replace ("EDITORCANVASCLASSNAME", editorName, false)
+            .replace ("CONTENTCOMPONENTCLASSNAME", contentComponentName, false)
+            .replace ("HEADERGUARD", CodeHelpers::makeHeaderGuardName (newCanvasComponentHFile), false);
+
+        bool wasGeneratedSuccessfully = true;
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newCanvasComponentCppFile, canvasComponentCppFileContent))
+        {
+            failedFiles.add (newCanvasComponentCppFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newCanvasComponentHFile, canvasComponentHFileContent))
+        {
+            failedFiles.add (newCanvasComponentHFile.getFullPathName());
+
+            wasGeneratedSuccessfully = false;
+        }
+
+        sourceGroup.addFileAtIndex (newCanvasComponentCppFile, -1, true);
+        sourceGroup.addFileAtIndex (newCanvasComponentHFile,   -1, false);
+
+        return wasGeneratedSuccessfully;
+    }
+
     static constexpr const char* COMBOBOX_ID_PLUGIN_TYPE    = "pluginTypeComboBox";//    { "pluginTypeComboBox" };
     static constexpr const char* COMBOBOX_ID_PROCESSOR_TYPE = "processorTypeComboBox";// { "processorTypeComboBox" };
 
@@ -493,6 +576,9 @@ private:
 
     /** The name of the GUI template which is used to create content component for plugin. */
     String m_guiTemplateName;
+
+    /** The name of the GUI template for VisualizerEditor's Canvas (if used) to create content component for plugin. */
+    String m_guiVisualizerTemplateName;
 
     bool m_shouldUseVisualizerEditor;
 

@@ -200,7 +200,12 @@ void PluginTemplatesPageComponent::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (auto selectedTemplateComponent = dynamic_cast<EditorTemplateComponent*> (buttonThatWasClicked))
     {
-        m_selectedTemplateName = selectedTemplateComponent->getTemplateName();
+        // The page with templates for generic editor is active
+        if (m_genericEditorTemplatesManager->isVisible())
+            m_selectedTemplateName = selectedTemplateComponent->getTemplateName();
+        // The page with templates for visualizer editor canvas is active
+        else
+            m_selectedVisualizerTemplateName = selectedTemplateComponent->getTemplateName();
     }
 }
 
@@ -301,4 +306,10 @@ bool PluginTemplatesPageComponent::shouldUseDataThreadSource() const noexcept
 String PluginTemplatesPageComponent::getSelectedTemplateName() const noexcept
 {
     return m_selectedTemplateName;
+}
+
+
+String PluginTemplatesPageComponent::getSelectedVisualizerTemplateName() const noexcept
+{
+    return m_selectedVisualizerTemplateName;
 }

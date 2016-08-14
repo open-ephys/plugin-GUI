@@ -484,6 +484,12 @@
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.cpp">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerCanvasTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerEditorPluginTemplate.cpp">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.cpp">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClCompile>
@@ -2239,6 +2245,12 @@
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerCanvasTemplate.h">
+      <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerEditorPluginTemplate.h">
       <Filter>OpenEphys_PluginGenerator\BinaryData\templates\OpenEphys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.h">

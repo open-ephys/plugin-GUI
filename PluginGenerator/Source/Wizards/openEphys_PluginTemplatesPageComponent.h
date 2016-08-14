@@ -53,7 +53,9 @@ public:
 
     bool shouldUseVisualizerEditor() const noexcept;
     bool shouldUseDataThreadSource() const noexcept;
-    String getSelectedTemplateName() const noexcept;
+
+    String getSelectedTemplateName()            const noexcept;
+    String getSelectedVisualizerTemplateName()  const noexcept;
 
 
     /** Used to set listener for the "Create project" button.
@@ -71,7 +73,8 @@ private:
     void fillGenericEditorTemplates();
     void fillVisualizerEditorTemplates();
 
-    String m_selectedTemplateName { "DEFAULT" };
+    String m_selectedTemplateName               { "DEFAULT" };
+    String m_selectedVisualizerTemplateName     { "DEFAULT" };
 
     /** The purpose of this button is to notify previous slidingComponent (ProjectWizard_OpenEphysPlugin)
         about the event and call appropriate "createProject" function defined there.

@@ -215,6 +215,12 @@
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerCanvasTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerEditorPluginTemplate.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1527,6 +1533,8 @@
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorContentComponentTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorEditorPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorPluginTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerCanvasTemplate.h"/>
+    <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_ProcessorVisualizerEditorPluginTemplate.h"/>
     <ClInclude Include="..\..\..\Source\Processors\PluginManager\Templates\openEphys_RecordEnginePluginTemplate.h"/>
     <ClInclude Include="..\..\Source\BinaryData\jucer_AudioPluginEditorTemplate.h"/>
     <ClInclude Include="..\..\Source\BinaryData\jucer_AudioPluginFilterTemplate.h"/>

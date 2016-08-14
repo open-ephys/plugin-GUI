@@ -89,6 +89,8 @@ public:
     VisualizerEditor (GenericProcessor* processor, bool useDefaultParameterEditors = true);
     ~VisualizerEditor();
 
+    void resized() override;
+
     /**
         @brief      This method handles the button evnets which open visualizer in a tab or window.
         @warning    Do not override this function unless you call ``VisualizerEditor::buttonClicked``
@@ -102,8 +104,8 @@ public:
     virtual void buttonEvent (Button* button) override;
 
     /**
-     * @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
-     */
+        @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
+    */
     virtual Visualizer* createNewCanvas() = 0;
 
     virtual void enable();

@@ -89,7 +89,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="CONTENTCOMPONENTCLASSNAME" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="150" initialHeight="200">
+                 fixedSize="1" initialWidth="150" initialHeight="200">
   <BACKGROUND backgroundColour="ffffff"/>
 </JUCER_COMPONENT>
 

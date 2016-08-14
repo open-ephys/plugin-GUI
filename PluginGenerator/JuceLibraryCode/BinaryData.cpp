@@ -832,7 +832,7 @@ static const unsigned char temp_binary_data_8[] =
 "<JUCER_COMPONENT documentType=\"Component\" className=\"CONTENTCOMPONENTCLASSNAME\" componentName=\"\"\r\n"
 "                 parentClasses=\"public Component\" constructorParams=\"\" variableInitialisers=\"\"\r\n"
 "                 snapPixels=\"8\" snapActive=\"1\" snapShown=\"1\" overlayOpacity=\"0.330\"\r\n"
-"                 fixedSize=\"0\" initialWidth=\"150\" initialHeight=\"200\">\r\n"
+"                 fixedSize=\"1\" initialWidth=\"150\" initialHeight=\"200\">\r\n"
 "  <BACKGROUND backgroundColour=\"ffffff\"/>\r\n"
 "</JUCER_COMPONENT>\r\n"
 "\r\n"
@@ -1372,8 +1372,403 @@ static const unsigned char temp_binary_data_13[] =
 
 const char* openEphys_ProcessorPluginTemplate_h = (const char*) temp_binary_data_13;
 
-//================== openEphys_RecordEnginePluginTemplate.cpp ==================
+//================== openEphys_ProcessorVisualizerCanvasTemplate.cpp ==================
 static const unsigned char temp_binary_data_14[] =
+"/*\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This file is part of the Open Ephys GUI\n"
+"   Copyright (C) 2016 Open Ephys\n"
+"\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This program is free software: you can redistribute it and/or modify\n"
+"   it under the terms of the GNU General Public License as published by\n"
+"   the Free Software Foundation, either version 3 of the License, or\n"
+"   (at your option) any later version.\n"
+"\n"
+"   This program is distributed in the hope that it will be useful,\n"
+"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"   GNU General Public License for more details.\n"
+"\n"
+"   You should have received a copy of the GNU General Public License\n"
+"   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"*/\n"
+"\n"
+"#include \"EDITORCANVASCLASSNAME.h\"\n"
+"#include \"PROCESSORCLASSNAME.h\"\n"
+"\n"
+"\n"
+"EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)\n"
+"{\n"
+"    // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.\n"
+"    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]\n"
+"\n"
+"    addAndMakeVisible (&content);\n"
+"\n"
+"    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
+"}\n"
+"\n"
+"\n"
+"EDITORCANVASCLASSNAME::~EDITORCANVASCLASSNAME()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::resized()\n"
+"{\n"
+"    content.setBounds (getLocalBounds());\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::refreshState()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::update()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::refresh()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::beginAnimation()\n"
+"{\n"
+"    startCallbacks();\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::endAnimation()\n"
+"{\n"
+"    stopCallbacks();\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::setParameter (int parameter, float newValue)\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCANVASCLASSNAME::setParameter (int parameter, int val1, int val2, float newValue)\n"
+"{\n"
+"}\n";
+
+const char* openEphys_ProcessorVisualizerCanvasTemplate_cpp = (const char*) temp_binary_data_14;
+
+//================== openEphys_ProcessorVisualizerCanvasTemplate.h ==================
+static const unsigned char temp_binary_data_15[] =
+"/*\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This file is part of the Open Ephys GUI\n"
+"   Copyright (C) 2016 Open Ephys\n"
+"\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This program is free software: you can redistribute it and/or modify\n"
+"   it under the terms of the GNU General Public License as published by\n"
+"   the Free Software Foundation, either version 3 of the License, or\n"
+"   (at your option) any later version.\n"
+"\n"
+"   This program is distributed in the hope that it will be useful,\n"
+"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"   GNU General Public License for more details.\n"
+"\n"
+"   You should have received a copy of the GNU General Public License\n"
+"   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"*/\n"
+"\n"
+"#ifndef HEADERGUARD\n"
+"#define HEADERGUARD\n"
+"\n"
+"#include <VisualizerEditorHeaders.h>\n"
+"\n"
+"#include \"PROCESSORCLASSNAME.h\"\n"
+"#include \"CONTENTCOMPONENTCLASSNAME.h\"\n"
+"\n"
+"/**\n"
+"    Class for displaying data in any subclasses of VisualizerEditor either in the tab or separate window.\n"
+"\n"
+"    @see Visualizer, LfpDisplayCanvas, SpikeDisplayCanvas\n"
+"*/\n"
+"class EDITORCANVASCLASSNAME : public Visualizer\n"
+"{\n"
+"public:\n"
+"    /** The class constructor, used to initialize any members. */\n"
+"    EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* processor);\n"
+"\n"
+"    /** The class destructor, used to deallocate memory */\n"
+"    ~EDITORCANVASCLASSNAME();\n"
+"\n"
+"    /** Called every time when canvas is resized or moved. */\n"
+"    void resized() override;\n"
+"\n"
+"    /** Called when the component's tab becomes visible again.*/\n"
+"    void refreshState() override;\n"
+"\n"
+"    /** Called when parameters of underlying data processor are changed.*/\n"
+"    void update() override;\n"
+"\n"
+"    /** Called instead of \"repaint\" to avoid redrawing underlying components if not necessary.*/\n"
+"    void refresh() override;\n"
+"\n"
+"    /** Called when data acquisition is active.*/\n"
+"    void beginAnimation() override;\n"
+"\n"
+"    /** Called when data acquisition ends.*/\n"
+"    void endAnimation() override;\n"
+"\n"
+"    /** Called by an editor to initiate a parameter change.*/\n"
+"    void setParameter (int, float) override;\n"
+"\n"
+"    /** Called by an editor to initiate a parameter change.*/\n"
+"    void setParameter (int, int, int, float) override;\n"
+"\n"
+"private:\n"
+"    PROCESSORCLASSNAME* processor;\n"
+"\n"
+"    // This component contains all components and graphics that were added using Projucer.\n"
+"    // It's bounds initially have same bounds as the canvas itself.\n"
+"    CONTENTCOMPONENTCLASSNAME content;\n"
+"\n"
+"    // ========================================================================\n"
+"    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCANVASCLASSNAME);\n"
+"};\n"
+"\n"
+"\n"
+"#endif // HEADERGUARD\n";
+
+const char* openEphys_ProcessorVisualizerCanvasTemplate_h = (const char*) temp_binary_data_15;
+
+//================== openEphys_ProcessorVisualizerEditorPluginTemplate.cpp ==================
+static const unsigned char temp_binary_data_16[] =
+"/*\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This file is part of the Open Ephys GUI\n"
+"   Copyright (C) 2016 Open Ephys\n"
+"\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This program is free software: you can redistribute it and/or modify\n"
+"   it under the terms of the GNU General Public License as published by\n"
+"   the Free Software Foundation, either version 3 of the License, or\n"
+"   (at your option) any later version.\n"
+"\n"
+"   This program is distributed in the hope that it will be useful,\n"
+"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"   GNU General Public License for more details.\n"
+"\n"
+"   You should have received a copy of the GNU General Public License\n"
+"   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"*/\n"
+"\n"
+"#include \"EDITORCLASSNAME.h\"\n"
+"#include \"PROCESSORCLASSNAME.h\"\n"
+"#include \"EDITORCANVASCLASSNAME.h\"\n"
+"\n"
+"static const int EDITOR_DESIRED_WIDTH = 150;\n"
+"\n"
+"\n"
+"EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)\n"
+"    : GenericEditor (parentNode, useDefaultParameterEditors)\n"
+"{\n"
+"    tabText = \"PLUGINGUINAME\";\n"
+"\n"
+"    // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.\n"
+"    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]\n"
+"\n"
+"    addAndMakeVisible (&content);\n"
+"    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
+"\n"
+"    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
+"\n"
+"\n"
+"    ////Most used buttons are UtilityButton, which shows a simple button with text and ElectrodeButton, which is an on-off button which displays a channel.\n"
+"    //exampleButton = new UtilityButton (\"Button text\", Font (\"Default\", 15, Font::plain));\n"
+"    //exampleButton->setBounds (10, 30, 50, 50); //Set position and size (X, Y, XSize, YSize)\n"
+"    //exampleButton->addListener (this); //Specify which class will implement the listener methods, in the case of editors, always make the editor the listener\n"
+"    //exampleButton->setClickingTogglesState (true); //True for a on-off toggleable button, false for a single-click monostable button\n"
+"    //exampleButton->setTooltip (\"Mouseover tooltip text\");\n"
+"    //addAndMakeVisible (exampleButton);\n"
+"}\n"
+"\n"
+"\n"
+"EDITORCLASSNAME::~EDITORCLASSNAME()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void EDITORCLASSNAME::resized()\n"
+"{\n"
+"    // Don't edit this section.\n"
+"    //[OPENEPHYS_EDITOR_PRE_RESIZE_SECTION_BEGIN]\n"
+"\n"
+"    GenericEditor::resized();\n"
+"\n"
+"    const int xPosInitial = 2;\n"
+"    const int yPosIntiial = 23;\n"
+"    const int contentWidth = (isMerger() || isSplitter() || isUtility())\n"
+"                                    ? getWidth() - xPosInitial * 2\n"
+"                                    : channelSelector->isVisible()\n"
+"                                        ? channelSelector->getX() - xPosInitial * 2 - 5\n"
+"                                        : drawerButton->getX() - xPosInitial * 2;\n"
+"    content.setBounds (xPosInitial, yPosIntiial,\n"
+"                       contentWidth, getHeight() - yPosIntiial - 7);\n"
+"\n"
+"    //[OPENEPHYS_EDITOR_PRE_RESIZE_SECTION_END]\n"
+"}\n"
+"\n"
+"\n"
+"/**\n"
+"    The listener method that reacts to the button click. The same method is called for all buttons\n"
+"    on the editor, so the button variable, which cointains a pointer to the button that called the method\n"
+"    has to be checked to know which function to perform.\n"
+"*/\n"
+"void EDITORCLASSNAME::buttonEvent (Button* button)\n"
+"{\n"
+"    //if (button == exampleButton)\n"
+"    //{\n"
+"    //    //Do Stuff\n"
+"\n"
+"    //    //a typical  example:\n"
+"    //    if (button->getToggleState()) //Button is pressed\n"
+"    //    {\n"
+"    //        getProcessor()->setParameter(0, 1);\n"
+"    //    }\n"
+"    //    else\n"
+"    //    {\n"
+"    //        getProcessor()->setParameter(0, 0);\n"
+"    //    }\n"
+"    //}\n"
+"}\n"
+"\n"
+"\n"
+"/**\n"
+"    The listener method that reacts to the changes of the particular slider of the editor.\n"
+"    We should check which slider was changed and perofrm appropriate functions.\n"
+"*/\n"
+"void EDITORCLASSNAME::sliderEvent (Slider* slider)\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"Visualizer* EDITORCLASSNAME::createNewCanvas()\n"
+"{\n"
+"    auto processor = dynamic_cast<PROCESSORCLASSNAME*> (getProcessor());\n"
+"    return new EDITORCANVASCLASSNAME (processor);\n"
+"}\n";
+
+const char* openEphys_ProcessorVisualizerEditorPluginTemplate_cpp = (const char*) temp_binary_data_16;
+
+//================== openEphys_ProcessorVisualizerEditorPluginTemplate.h ==================
+static const unsigned char temp_binary_data_17[] =
+"/*\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This file is part of the Open Ephys GUI\n"
+"   Copyright (C) 2016 Open Ephys\n"
+"\n"
+"   ------------------------------------------------------------------\n"
+"\n"
+"   This program is free software: you can redistribute it and/or modify\n"
+"   it under the terms of the GNU General Public License as published by\n"
+"   the Free Software Foundation, either version 3 of the License, or\n"
+"   (at your option) any later version.\n"
+"\n"
+"   This program is distributed in the hope that it will be useful,\n"
+"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"   GNU General Public License for more details.\n"
+"\n"
+"   You should have received a copy of the GNU General Public License\n"
+"   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+"*/\n"
+"\n"
+"#ifndef HEADERGUARD\n"
+"#define HEADERGUARD\n"
+"\n"
+"#include <VisualizerEditorHeaders.h>\n"
+"#include \"CONTENTCOMPONENTCLASSNAME.h\"\n"
+"\n"
+"\n"
+"/**\n"
+"    This class serves as a template for creating new editors.\n"
+"\n"
+"    If this were a real editor, this comment section would be used to\n"
+"    describe the editor's structure. In this example, the editor will\n"
+"    have a single button which will set a parameter in the processor.\n"
+"\n"
+"    @see VisualizerEditor, GenericEditor\n"
+"*/\n"
+"class EDITORCLASSNAME : public VisualizerEditor\n"
+"{\n"
+"public:\n"
+"    /** The class constructor, used to initialize any members. */\n"
+"    EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors);\n"
+"\n"
+"    /** The class destructor, used to deallocate memory */\n"
+"    ~EDITORCLASSNAME();\n"
+"\n"
+"    /**\n"
+"        Unlike processors, which have a minimum set of required methods,\n"
+"        editor are completely customized. There are still a couple of\n"
+"        sometimes useful overloaded methods, which will appear here\n"
+"    */\n"
+"\n"
+"    /** This method executes each time editor is resized. */\n"
+"    void resized() override;\n"
+"\n"
+"    /** This method executes whenever a custom button is pressed */\n"
+"    void buttonEvent (Button* button) override;\n"
+"\n"
+"    /** This method executes whenever a custom slider's value has been changed. */\n"
+"    void sliderEvent (Slider* slider) override;\n"
+"\n"
+"    /** Creates new canvas for visualizer editor. */\n"
+"    Visualizer* createNewCanvas() override;\n"
+"\n"
+"    /** Called to inform the editor that acquisition is about to start*/\n"
+"    //void startAcquisition();\n"
+"\n"
+"    /** Called to inform the editor that acquisition has just stopped*/\n"
+"    //void stopAcquisition();\n"
+"\n"
+"    /** Called whenever there is a change in the signal chain or it refreshes.\n"
+"      It's called after the processors' same named method.\n"
+"      */\n"
+"    //void updateSettings();\n"
+"\n"
+"\n"
+"private:\n"
+"    // This component contains all components and graphics that were added using Projucer.\n"
+"    // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)\n"
+"    CONTENTCOMPONENTCLASSNAME content;\n"
+"\n"
+"    /**\n"
+"        Here would be all the required internal variables.\n"
+"        In this case, we have a single button.\n"
+"    */\n"
+"    //Always use JUCE RAII classes instead of pure pointers.\n"
+"    //ScopedPointer<Button> exampleButton;\n"
+"\n"
+"\n"
+"    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCLASSNAME);\n"
+"};\n"
+"\n"
+"#endif // HEADERGUARD\n";
+
+const char* openEphys_ProcessorVisualizerEditorPluginTemplate_h = (const char*) temp_binary_data_17;
+
+//================== openEphys_RecordEnginePluginTemplate.cpp ==================
+static const unsigned char temp_binary_data_18[] =
 "/*\n"
 "    ------------------------------------------------------------------\n"
 "\n"
@@ -1476,10 +1871,10 @@ static const unsigned char temp_binary_data_14[] =
 "    return man;\n"
 "}\n";
 
-const char* openEphys_RecordEnginePluginTemplate_cpp = (const char*) temp_binary_data_14;
+const char* openEphys_RecordEnginePluginTemplate_cpp = (const char*) temp_binary_data_18;
 
 //================== openEphys_RecordEnginePluginTemplate.h ==================
-static const unsigned char temp_binary_data_15[] =
+static const unsigned char temp_binary_data_19[] =
 "/*\n"
 "    ------------------------------------------------------------------\n"
 "\n"
@@ -1542,10 +1937,10 @@ static const unsigned char temp_binary_data_15[] =
 "\n"
 "#endif // HEADERGUARD\n";
 
-const char* openEphys_RecordEnginePluginTemplate_h = (const char*) temp_binary_data_15;
+const char* openEphys_RecordEnginePluginTemplate_h = (const char*) temp_binary_data_19;
 
 //================== jucer_AnimatedComponentTemplate.cpp ==================
-static const unsigned char temp_binary_data_16[] =
+static const unsigned char temp_binary_data_20[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -1618,10 +2013,10 @@ static const unsigned char temp_binary_data_16[] =
 "\r\n"
 "#endif  // MAINCOMPONENT_H_INCLUDED\r\n";
 
-const char* jucer_AnimatedComponentTemplate_cpp = (const char*) temp_binary_data_16;
+const char* jucer_AnimatedComponentTemplate_cpp = (const char*) temp_binary_data_20;
 
 //================== jucer_AudioComponentTemplate.cpp ==================
-static const unsigned char temp_binary_data_17[] =
+static const unsigned char temp_binary_data_21[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -1722,10 +2117,10 @@ static const unsigned char temp_binary_data_17[] =
 "\r\n"
 "#endif  // MAINCOMPONENT_H_INCLUDED\r\n";
 
-const char* jucer_AudioComponentTemplate_cpp = (const char*) temp_binary_data_17;
+const char* jucer_AudioComponentTemplate_cpp = (const char*) temp_binary_data_21;
 
 //================== jucer_AudioPluginEditorTemplate.cpp ==================
-static const unsigned char temp_binary_data_18[] =
+static const unsigned char temp_binary_data_22[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -1768,10 +2163,10 @@ static const unsigned char temp_binary_data_18[] =
 "    // subcomponents in your editor..\r\n"
 "}\r\n";
 
-const char* jucer_AudioPluginEditorTemplate_cpp = (const char*) temp_binary_data_18;
+const char* jucer_AudioPluginEditorTemplate_cpp = (const char*) temp_binary_data_22;
 
 //================== jucer_AudioPluginEditorTemplate.h ==================
-static const unsigned char temp_binary_data_19[] =
+static const unsigned char temp_binary_data_23[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -1812,10 +2207,10 @@ static const unsigned char temp_binary_data_19[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_AudioPluginEditorTemplate_h = (const char*) temp_binary_data_19;
+const char* jucer_AudioPluginEditorTemplate_h = (const char*) temp_binary_data_23;
 
 //================== jucer_AudioPluginFilterTemplate.cpp ==================
-static const unsigned char temp_binary_data_20[] =
+static const unsigned char temp_binary_data_24[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -1985,10 +2380,10 @@ static const unsigned char temp_binary_data_20[] =
 "    return new FILTERCLASSNAME();\r\n"
 "}\r\n";
 
-const char* jucer_AudioPluginFilterTemplate_cpp = (const char*) temp_binary_data_20;
+const char* jucer_AudioPluginFilterTemplate_cpp = (const char*) temp_binary_data_24;
 
 //================== jucer_AudioPluginFilterTemplate.h ==================
-static const unsigned char temp_binary_data_21[] =
+static const unsigned char temp_binary_data_25[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2055,10 +2450,10 @@ static const unsigned char temp_binary_data_21[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_AudioPluginFilterTemplate_h = (const char*) temp_binary_data_21;
+const char* jucer_AudioPluginFilterTemplate_h = (const char*) temp_binary_data_25;
 
 //================== jucer_ComponentTemplate.cpp ==================
-static const unsigned char temp_binary_data_22[] =
+static const unsigned char temp_binary_data_26[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2134,10 +2529,10 @@ static const unsigned char temp_binary_data_22[] =
 "//[EndFile] You can add extra defines here...\r\n"
 "//[/EndFile]\r\n";
 
-const char* jucer_ComponentTemplate_cpp = (const char*) temp_binary_data_22;
+const char* jucer_ComponentTemplate_cpp = (const char*) temp_binary_data_26;
 
 //================== jucer_ComponentTemplate.h ==================
-static const unsigned char temp_binary_data_23[] =
+static const unsigned char temp_binary_data_27[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2203,10 +2598,10 @@ static const unsigned char temp_binary_data_23[] =
 "\r\n"
 "#endif   // %%headerGuard%%\r\n";
 
-const char* jucer_ComponentTemplate_h = (const char*) temp_binary_data_23;
+const char* jucer_ComponentTemplate_h = (const char*) temp_binary_data_27;
 
 //================== jucer_ContentCompTemplate.cpp ==================
-static const unsigned char temp_binary_data_24[] =
+static const unsigned char temp_binary_data_28[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2244,10 +2639,10 @@ static const unsigned char temp_binary_data_24[] =
 "    // update their positions.\r\n"
 "}\r\n";
 
-const char* jucer_ContentCompTemplate_cpp = (const char*) temp_binary_data_24;
+const char* jucer_ContentCompTemplate_cpp = (const char*) temp_binary_data_28;
 
 //================== jucer_ContentCompTemplate.h ==================
-static const unsigned char temp_binary_data_25[] =
+static const unsigned char temp_binary_data_29[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2285,10 +2680,10 @@ static const unsigned char temp_binary_data_25[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_ContentCompTemplate_h = (const char*) temp_binary_data_25;
+const char* jucer_ContentCompTemplate_h = (const char*) temp_binary_data_29;
 
 //================== jucer_InlineComponentTemplate.h ==================
-static const unsigned char temp_binary_data_26[] =
+static const unsigned char temp_binary_data_30[] =
 "//==============================================================================\r\n"
 "class COMPONENTCLASS    : public Component\r\n"
 "{\r\n"
@@ -2330,10 +2725,10 @@ static const unsigned char temp_binary_data_26[] =
 "    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (COMPONENTCLASS)\r\n"
 "};\r\n";
 
-const char* jucer_InlineComponentTemplate_h = (const char*) temp_binary_data_26;
+const char* jucer_InlineComponentTemplate_h = (const char*) temp_binary_data_30;
 
 //================== jucer_MainConsoleAppTemplate.cpp ==================
-static const unsigned char temp_binary_data_27[] =
+static const unsigned char temp_binary_data_31[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2357,10 +2752,10 @@ static const unsigned char temp_binary_data_27[] =
 "    return 0;\r\n"
 "}\r\n";
 
-const char* jucer_MainConsoleAppTemplate_cpp = (const char*) temp_binary_data_27;
+const char* jucer_MainConsoleAppTemplate_cpp = (const char*) temp_binary_data_31;
 
 //================== jucer_MainTemplate_NoWindow.cpp ==================
-static const unsigned char temp_binary_data_28[] =
+static const unsigned char temp_binary_data_32[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2416,10 +2811,10 @@ static const unsigned char temp_binary_data_28[] =
 "// This macro generates the main() routine that launches the app.\r\n"
 "START_JUCE_APPLICATION (APPCLASSNAME)\r\n";
 
-const char* jucer_MainTemplate_NoWindow_cpp = (const char*) temp_binary_data_28;
+const char* jucer_MainTemplate_NoWindow_cpp = (const char*) temp_binary_data_32;
 
 //================== jucer_MainTemplate_SimpleWindow.cpp ==================
-static const unsigned char temp_binary_data_29[] =
+static const unsigned char temp_binary_data_33[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2522,10 +2917,10 @@ static const unsigned char temp_binary_data_29[] =
 "// This macro generates the main() routine that launches the app.\r\n"
 "START_JUCE_APPLICATION (APPCLASSNAME)\r\n";
 
-const char* jucer_MainTemplate_SimpleWindow_cpp = (const char*) temp_binary_data_29;
+const char* jucer_MainTemplate_SimpleWindow_cpp = (const char*) temp_binary_data_33;
 
 //================== jucer_MainTemplate_Window.cpp ==================
-static const unsigned char temp_binary_data_30[] =
+static const unsigned char temp_binary_data_34[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2626,10 +3021,10 @@ static const unsigned char temp_binary_data_30[] =
 "// This macro generates the main() routine that launches the app.\r\n"
 "START_JUCE_APPLICATION (APPCLASSNAME)\r\n";
 
-const char* jucer_MainTemplate_Window_cpp = (const char*) temp_binary_data_30;
+const char* jucer_MainTemplate_Window_cpp = (const char*) temp_binary_data_34;
 
 //================== jucer_NewComponentTemplate.cpp ==================
-static const unsigned char temp_binary_data_31[] =
+static const unsigned char temp_binary_data_35[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2682,10 +3077,10 @@ static const unsigned char temp_binary_data_31[] =
 "\r\n"
 "}\r\n";
 
-const char* jucer_NewComponentTemplate_cpp = (const char*) temp_binary_data_31;
+const char* jucer_NewComponentTemplate_cpp = (const char*) temp_binary_data_35;
 
 //================== jucer_NewComponentTemplate.h ==================
-static const unsigned char temp_binary_data_32[] =
+static const unsigned char temp_binary_data_36[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2720,10 +3115,10 @@ static const unsigned char temp_binary_data_32[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_NewComponentTemplate_h = (const char*) temp_binary_data_32;
+const char* jucer_NewComponentTemplate_h = (const char*) temp_binary_data_36;
 
 //================== jucer_NewCppFileTemplate.cpp ==================
-static const unsigned char temp_binary_data_33[] =
+static const unsigned char temp_binary_data_37[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2736,10 +3131,10 @@ static const unsigned char temp_binary_data_33[] =
 "\r\n"
 "INCLUDE_CORRESPONDING_HEADER\r\n";
 
-const char* jucer_NewCppFileTemplate_cpp = (const char*) temp_binary_data_33;
+const char* jucer_NewCppFileTemplate_cpp = (const char*) temp_binary_data_37;
 
 //================== jucer_NewCppFileTemplate.h ==================
-static const unsigned char temp_binary_data_34[] =
+static const unsigned char temp_binary_data_38[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2759,10 +3154,10 @@ static const unsigned char temp_binary_data_34[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_NewCppFileTemplate_h = (const char*) temp_binary_data_34;
+const char* jucer_NewCppFileTemplate_h = (const char*) temp_binary_data_38;
 
 //================== jucer_NewInlineComponentTemplate.h ==================
-static const unsigned char temp_binary_data_35[] =
+static const unsigned char temp_binary_data_39[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2829,10 +3224,10 @@ static const unsigned char temp_binary_data_35[] =
 "\r\n"
 "#endif  // HEADERGUARD\r\n";
 
-const char* jucer_NewInlineComponentTemplate_h = (const char*) temp_binary_data_35;
+const char* jucer_NewInlineComponentTemplate_h = (const char*) temp_binary_data_39;
 
 //================== jucer_OpenGLComponentTemplate.cpp ==================
-static const unsigned char temp_binary_data_36[] =
+static const unsigned char temp_binary_data_40[] =
 "/*\r\n"
 "  ==============================================================================\r\n"
 "\r\n"
@@ -2910,10 +3305,10 @@ static const unsigned char temp_binary_data_36[] =
 "\r\n"
 "#endif  // MAINCOMPONENT_H_INCLUDED\r\n";
 
-const char* jucer_OpenGLComponentTemplate_cpp = (const char*) temp_binary_data_36;
+const char* jucer_OpenGLComponentTemplate_cpp = (const char*) temp_binary_data_40;
 
 //================== background_logo.svg ==================
-static const unsigned char temp_binary_data_37[] =
+static const unsigned char temp_binary_data_41[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\r\n"
 "\t viewBox=\"0 0 451.7 451.7\" enable-background=\"new 0 0 451.7 451.7\" xml:space=\"preserve\">\r\n"
@@ -2952,17 +3347,17 @@ static const unsigned char temp_binary_data_37[] =
 "</g>\r\n"
 "</svg>\r\n";
 
-const char* background_logo_svg = (const char*) temp_binary_data_37;
+const char* background_logo_svg = (const char*) temp_binary_data_41;
 
 //================== background_tile.png ==================
-static const unsigned char temp_binary_data_38[] =
+static const unsigned char temp_binary_data_42[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,7,0,0,0,7,8,6,0,0,0,196,82,87,211,0,0,0,94,73,68,65,84,120,218,85,141,73,14,0,33,8,4,253,137,226,18,19,245,234,255,127,70,75,155,232,56,135,10,132,94,112,33,4,37,222,123,205,57,107,74,105,239,196,137,
 8,72,239,29,99,12,204,57,209,90,227,237,19,45,113,161,209,12,234,172,18,49,70,88,229,134,34,103,173,245,159,60,134,82,10,238,79,166,223,106,238,91,100,229,73,191,80,92,47,179,68,223,148,158,98,226,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* background_tile_png = (const char*) temp_binary_data_38;
+const char* background_tile_png = (const char*) temp_binary_data_42;
 
 //================== colourscheme_dark.xml ==================
-static const unsigned char temp_binary_data_39[] =
+static const unsigned char temp_binary_data_43[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 "\r\n"
 "<COLOUR_SCHEME font=\"&lt;Monospaced&gt;; 13.0\">\r\n"
@@ -2987,10 +3382,10 @@ static const unsigned char temp_binary_data_39[] =
 "  <COLOUR name=\"Error\" colour=\"FFE60000\"/>\r\n"
 "</COLOUR_SCHEME>\r\n";
 
-const char* colourscheme_dark_xml = (const char*) temp_binary_data_39;
+const char* colourscheme_dark_xml = (const char*) temp_binary_data_43;
 
 //================== colourscheme_light.xml ==================
-static const unsigned char temp_binary_data_40[] =
+static const unsigned char temp_binary_data_44[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
 "\r\n"
 "<COLOUR_SCHEME font=\"&lt;Monospaced&gt;; 13.0\">\r\n"
@@ -3015,10 +3410,10 @@ static const unsigned char temp_binary_data_40[] =
 "  <COLOUR name=\"Error\" colour=\"ffcc0000\"/>\r\n"
 "</COLOUR_SCHEME>\r\n";
 
-const char* colourscheme_light_xml = (const char*) temp_binary_data_40;
+const char* colourscheme_light_xml = (const char*) temp_binary_data_44;
 
 //================== juce_icon.png ==================
-static const unsigned char temp_binary_data_41[] =
+static const unsigned char temp_binary_data_45[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,0,0,0,2,0,8,6,0,0,0,244,120,212,250,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,100,121,113,201,101,60,0,0,3,40,105,84,88,116,88,77,76,58,
 99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,239,187,191,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,120,
 58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,65,100,111,98,101,32,88,77,80,32,67,111,114,101,32,53,46,54,45,99,48,54,55,32,55,57,46,49,53,55,
@@ -3664,10 +4059,10 @@ static const unsigned char temp_binary_data_41[] =
 0,0,0,2,0,0,16,0,0,128,0,0,0,4,0,0,32,0,0,0,1,0,0,8,0,0,64,0,0,0,2,0,0,16,0,0,128,0,0,0,4,0,0,32,0,0,0,1,0,0,8,0,0,64,0,0,128,0,0,0,4,0,0,32,0,0,0,1,0,0,8,0,0,64,0,0,0,2,0,0,16,0,0,128,0,0,0,4,0,0,32,0,0,128,191,246,33,192,0,100,235,173,153,70,62,64,
 37,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* juce_icon_png = (const char*) temp_binary_data_41;
+const char* juce_icon_png = (const char*) temp_binary_data_45;
 
 //================== projectIconAndroid.png ==================
-static const unsigned char temp_binary_data_42[] =
+static const unsigned char temp_binary_data_46[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,128,0,0,0,128,8,6,0,0,0,195,62,97,203,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,100,121,113,201,101,60,0,0,3,134,105,84,88,116,88,77,76,
 58,99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,239,187,191,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,
 120,58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,65,100,111,98,101,32,88,77,80,32,67,111,114,101,32,53,46,54,45,99,48,49,52,32,55,57,46,49,53,
@@ -3784,10 +4179,10 @@ static const unsigned char temp_binary_data_42[] =
 139,240,165,4,64,57,166,132,157,54,246,220,165,230,39,27,156,211,4,232,176,247,44,193,125,203,174,137,229,132,198,114,231,150,74,124,238,9,19,9,244,154,7,0,175,121,0,240,154,7,0,175,121,0,240,154,7,0,175,121,0,240,154,7,0,175,189,235,246,255,2,12,0,158,
 137,39,54,252,6,9,64,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconAndroid_png = (const char*) temp_binary_data_42;
+const char* projectIconAndroid_png = (const char*) temp_binary_data_46;
 
 //================== projectIconCodeblocks.png ==================
-static const unsigned char temp_binary_data_43[] =
+static const unsigned char temp_binary_data_47[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,128,0,0,0,128,8,6,0,0,0,195,62,97,203,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,100,121,113,201,101,60,0,0,3,134,105,84,88,116,88,77,76,
 58,99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,239,187,191,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,
 120,58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,65,100,111,98,101,32,88,77,80,32,67,111,114,101,32,53,46,54,45,99,48,49,52,32,55,57,46,49,53,
@@ -3957,10 +4352,10 @@ static const unsigned char temp_binary_data_43[] =
 202,84,15,91,2,120,13,161,41,237,191,111,130,252,4,17,176,224,208,111,140,253,56,221,147,207,16,11,238,233,234,37,192,250,248,241,59,248,122,10,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,
 62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,214,12,176,62,126,28,143,255,39,192,0,238,147,31,89,162,25,31,21,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconCodeblocks_png = (const char*) temp_binary_data_43;
+const char* projectIconCodeblocks_png = (const char*) temp_binary_data_47;
 
 //================== projectIconLinuxMakefile.png ==================
-static const unsigned char temp_binary_data_44[] =
+static const unsigned char temp_binary_data_48[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,110,0,0,0,128,8,6,0,0,0,234,21,92,9,0,0,10,65,105,67,67,80,73,67,67,32,80,114,111,102,105,108,101,0,0,72,13,157,150,119,84,83,217,22,135,207,189,55,189,208,18,34,32,37,244,26,122,9,32,210,59,72,21,4,
 81,137,73,128,80,2,134,132,38,118,68,5,70,20,17,41,86,100,84,192,1,71,135,34,99,69,20,11,131,130,98,215,9,242,16,80,198,193,81,68,69,229,221,140,107,9,239,173,53,243,222,154,253,199,89,223,217,231,183,215,217,103,239,125,215,186,0,80,252,130,4,194,116,
 88,1,128,52,161,88,20,238,235,193,92,18,19,203,196,247,2,24,16,1,14,88,1,192,225,102,102,4,71,248,68,2,212,252,189,61,153,153,168,72,198,179,246,238,46,128,100,187,219,44,191,80,38,115,214,255,127,145,34,55,67,36,6,0,10,69,213,54,60,126,38,23,229,2,148,
@@ -4196,10 +4591,10 @@ static const unsigned char temp_binary_data_44[] =
 194,72,142,254,249,31,79,111,60,173,241,241,124,82,34,189,246,233,251,163,179,223,129,178,15,181,97,103,68,217,251,253,17,198,63,35,254,218,150,109,129,235,236,183,141,63,16,97,60,125,157,93,199,211,219,217,245,128,211,250,223,12,238,70,210,82,169,25,
 10,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconLinuxMakefile_png = (const char*) temp_binary_data_44;
+const char* projectIconLinuxMakefile_png = (const char*) temp_binary_data_48;
 
 //================== projectIconVisualStudio.png ==================
-static const unsigned char temp_binary_data_45[] =
+static const unsigned char temp_binary_data_49[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,128,0,0,0,128,8,6,0,0,0,195,62,97,203,0,0,0,1,115,82,71,66,0,174,206,28,233,0,0,4,166,105,84,88,116,88,77,76,58,99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,120,58,120,109,112,109,101,
 116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,88,77,80,32,67,111,114,101,32,53,46,52,46,48,34,62,10,32,32,32,60,114,100,102,58,82,68,70,32,120,109,108,110,115,58,114,
 100,102,61,34,104,116,116,112,58,47,47,119,119,119,46,119,51,46,111,114,103,47,49,57,57,57,47,48,50,47,50,50,45,114,100,102,45,115,121,110,116,97,120,45,110,115,35,34,62,10,32,32,32,32,32,32,60,114,100,102,58,68,101,115,99,114,105,112,116,105,111,110,
@@ -4302,10 +4697,10 @@ static const unsigned char temp_binary_data_45[] =
 60,9,167,156,184,49,164,154,223,25,2,227,183,193,73,245,49,24,79,213,175,147,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,128,166,192,129,64,
 129,255,7,47,12,150,8,60,209,161,194,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconVisualStudio_png = (const char*) temp_binary_data_45;
+const char* projectIconVisualStudio_png = (const char*) temp_binary_data_49;
 
 //================== projectIconXcode.png ==================
-static const unsigned char temp_binary_data_46[] =
+static const unsigned char temp_binary_data_50[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,128,0,0,0,128,8,6,0,0,0,195,62,97,203,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,100,121,113,201,101,60,0,0,3,40,105,84,88,116,88,77,76,58,
 99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,239,187,191,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,120,
 58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,65,100,111,98,101,32,88,77,80,32,67,111,114,101,32,53,46,54,45,99,48,49,52,32,55,57,46,49,53,54,
@@ -4565,10 +4960,10 @@ static const unsigned char temp_binary_data_46[] =
 94,156,0,232,23,120,134,102,179,249,235,17,128,9,19,38,192,59,223,249,206,152,182,172,169,75,67,169,119,178,110,237,223,246,242,196,143,188,48,28,50,88,157,63,127,254,175,124,82,161,71,186,231,200,203,63,99,234,231,229,216,252,127,248,207,255,19,96,0,
 221,83,18,25,240,8,112,38,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconXcode_png = (const char*) temp_binary_data_46;
+const char* projectIconXcode_png = (const char*) temp_binary_data_50;
 
 //================== projectIconXcodeIOS.png ==================
-static const unsigned char temp_binary_data_47[] =
+static const unsigned char temp_binary_data_51[] =
 { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,128,0,0,0,128,8,6,0,0,0,195,62,97,203,0,0,0,25,116,69,88,116,83,111,102,116,119,97,114,101,0,65,100,111,98,101,32,73,109,97,103,101,82,101,97,100,121,113,201,101,60,0,0,3,134,105,84,88,116,88,77,76,
 58,99,111,109,46,97,100,111,98,101,46,120,109,112,0,0,0,0,0,60,63,120,112,97,99,107,101,116,32,98,101,103,105,110,61,34,239,187,191,34,32,105,100,61,34,87,53,77,48,77,112,67,101,104,105,72,122,114,101,83,122,78,84,99,122,107,99,57,100,34,63,62,32,60,
 120,58,120,109,112,109,101,116,97,32,120,109,108,110,115,58,120,61,34,97,100,111,98,101,58,110,115,58,109,101,116,97,47,34,32,120,58,120,109,112,116,107,61,34,65,100,111,98,101,32,88,77,80,32,67,111,114,101,32,53,46,54,45,99,48,49,52,32,55,57,46,49,53,
@@ -4826,10 +5221,10 @@ static const unsigned char temp_binary_data_47[] =
 4,97,9,162,191,203,0,199,198,0,162,157,87,213,105,220,35,12,64,131,146,62,249,201,79,186,117,103,130,86,133,76,84,14,16,185,67,123,223,37,252,241,103,134,146,206,234,228,201,147,143,250,164,172,171,29,174,239,254,252,101,253,188,235,155,255,31,255,249,
 255,2,12,0,235,154,52,248,249,240,115,28,0,0,0,0,73,69,78,68,174,66,96,130,0,0 };
 
-const char* projectIconXcodeIOS_png = (const char*) temp_binary_data_47;
+const char* projectIconXcodeIOS_png = (const char*) temp_binary_data_51;
 
 //================== projucer_EULA.txt ==================
-static const unsigned char temp_binary_data_48[] =
+static const unsigned char temp_binary_data_52[] =
 "\r\n"
 "IMPORTANT NOTICE: PLEASE READ CAREFULLY BEFORE INSTALLING THE SOFTWARE:\r\n"
 "\r\n"
@@ -4993,10 +5388,10 @@ static const unsigned char temp_binary_data_48[] =
 "\r\n"
 "10.6. Please note that this Licence, its subject matter and its formation, are governed by English law. You and we both agree to that the courts of England and Wales will have exclusive jurisdiction. \r\n";
 
-const char* projucer_EULA_txt = (const char*) temp_binary_data_48;
+const char* projucer_EULA_txt = (const char*) temp_binary_data_52;
 
 //================== projucer_login_bg.svg ==================
-static const unsigned char temp_binary_data_49[] =
+static const unsigned char temp_binary_data_53[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 19.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\r\n"
@@ -5060,10 +5455,10 @@ static const unsigned char temp_binary_data_49[] =
 "\tc7.6,0,12,4.8,12,11c0,5.4-4,9.8-9,10l13,15.5H343.9z\"/>\r\n"
 "</svg>\r\n";
 
-const char* projucer_login_bg_svg = (const char*) temp_binary_data_49;
+const char* projucer_login_bg_svg = (const char*) temp_binary_data_53;
 
 //================== RecentFilesMenuTemplate.nib ==================
-static const unsigned char temp_binary_data_50[] =
+static const unsigned char temp_binary_data_54[] =
 { 98,112,108,105,115,116,48,48,212,0,1,0,2,0,3,0,4,0,5,0,6,1,53,1,54,88,36,118,101,114,115,105,111,110,88,36,111,98,106,101,99,116,115,89,36,97,114,99,104,105,118,101,114,84,36,116,111,112,18,0,1,134,160,175,16,74,0,7,0,8,0,31,0,35,0,36,0,42,0,46,0,50,
 0,53,0,57,0,74,0,77,0,78,0,86,0,87,0,97,0,112,0,113,0,114,0,119,0,120,0,121,0,124,0,128,0,129,0,132,0,143,0,144,0,145,0,149,0,153,0,162,0,163,0,164,0,169,0,173,0,180,0,181,0,182,0,185,0,192,0,193,0,200,0,201,0,208,0,209,0,216,0,217,0,224,0,225,0,226,
 0,229,0,230,0,232,0,249,1,11,1,29,1,30,1,31,1,32,1,33,1,34,1,35,1,36,1,37,1,38,1,39,1,40,1,41,1,42,1,43,1,44,1,47,1,50,85,36,110,117,108,108,219,0,9,0,10,0,11,0,12,0,13,0,14,0,15,0,16,0,17,0,18,0,19,0,20,0,21,0,22,0,23,0,24,0,25,0,26,0,27,0,28,0,29,0,
@@ -5100,10 +5495,10 @@ static const unsigned char temp_binary_data_50[] =
 7,157,7,159,7,161,7,163,7,165,7,167,7,169,7,171,7,173,7,175,7,177,7,179,7,181,7,190,7,192,7,225,7,227,7,229,7,231,7,233,7,235,7,237,7,239,7,241,7,243,7,245,7,247,7,249,7,251,7,253,7,255,8,2,8,5,8,8,8,11,8,14,8,17,8,20,8,23,8,26,8,29,8,32,8,35,8,38,8,
 41,8,44,8,53,8,55,8,56,8,65,8,67,8,68,8,77,8,92,8,97,8,115,8,120,8,134,0,0,0,0,0,0,2,2,0,0,0,0,0,0,1,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,136,0,0 };
 
-const char* RecentFilesMenuTemplate_nib = (const char*) temp_binary_data_50;
+const char* RecentFilesMenuTemplate_nib = (const char*) temp_binary_data_54;
 
 //================== wizard_AnimatedApp.svg ==================
-static const unsigned char temp_binary_data_51[] =
+static const unsigned char temp_binary_data_55[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5150,10 +5545,10 @@ static const unsigned char temp_binary_data_51[] =
 "<line opacity=\"0.7\" fill=\"none\" stroke=\"#F29100\" stroke-width=\"1.3469\" stroke-miterlimit=\"10\" x1=\"57.7\" y1=\"48.4\" x2=\"34.2\" y2=\"48.4\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_AnimatedApp_svg = (const char*) temp_binary_data_51;
+const char* wizard_AnimatedApp_svg = (const char*) temp_binary_data_55;
 
 //================== wizard_AudioApp.svg ==================
-static const unsigned char temp_binary_data_52[] =
+static const unsigned char temp_binary_data_56[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5227,10 +5622,10 @@ static const unsigned char temp_binary_data_52[] =
 "<line fill=\"none\" stroke=\"#F29300\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-miterlimit=\"10\" x1=\"118.8\" y1=\"43.8\" x2=\"118.8\" y2=\"44.5\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_AudioApp_svg = (const char*) temp_binary_data_52;
+const char* wizard_AudioApp_svg = (const char*) temp_binary_data_56;
 
 //================== wizard_AudioPlugin.svg ==================
-static const unsigned char temp_binary_data_53[] =
+static const unsigned char temp_binary_data_57[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5341,10 +5736,10 @@ static const unsigned char temp_binary_data_53[] =
 "</g>\r\n"
 "</svg>\r\n";
 
-const char* wizard_AudioPlugin_svg = (const char*) temp_binary_data_53;
+const char* wizard_AudioPlugin_svg = (const char*) temp_binary_data_57;
 
 //================== wizard_ConsoleApp.svg ==================
-static const unsigned char temp_binary_data_54[] =
+static const unsigned char temp_binary_data_58[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5367,10 +5762,10 @@ static const unsigned char temp_binary_data_54[] =
 "</g>\r\n"
 "</svg>\r\n";
 
-const char* wizard_ConsoleApp_svg = (const char*) temp_binary_data_54;
+const char* wizard_ConsoleApp_svg = (const char*) temp_binary_data_58;
 
 //================== wizard_DLL.svg ==================
-static const unsigned char temp_binary_data_55[] =
+static const unsigned char temp_binary_data_59[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5413,10 +5808,10 @@ static const unsigned char temp_binary_data_55[] =
 "\tl-7.7,5.3c-0.7,0.5-1.7,0.3-2.2-0.4L70.1,31\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_DLL_svg = (const char*) temp_binary_data_55;
+const char* wizard_DLL_svg = (const char*) temp_binary_data_59;
 
 //================== wizard_GUI.svg ==================
-static const unsigned char temp_binary_data_56[] =
+static const unsigned char temp_binary_data_60[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5467,10 +5862,10 @@ static const unsigned char temp_binary_data_56[] =
 "\tC0,3.1,3.1,0,6.9,0H130c3.8,0,6.9,3.1,6.9,6.9v101.1C136.9,111.7,133.9,114.8,130,114.8z\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_GUI_svg = (const char*) temp_binary_data_56;
+const char* wizard_GUI_svg = (const char*) temp_binary_data_60;
 
 //================== wizard_Highlight.svg ==================
-static const unsigned char temp_binary_data_57[] =
+static const unsigned char temp_binary_data_61[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5480,10 +5875,10 @@ static const unsigned char temp_binary_data_57[] =
 "\tV108C136.9,111.8,133.9,114.8,130.1,114.8z\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_Highlight_svg = (const char*) temp_binary_data_57;
+const char* wizard_Highlight_svg = (const char*) temp_binary_data_61;
 
 //================== wizard_Openfile.svg ==================
-static const unsigned char temp_binary_data_58[] =
+static const unsigned char temp_binary_data_62[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5493,10 +5888,10 @@ static const unsigned char temp_binary_data_58[] =
 "\tc0-3.8,3.1-6.9,6.9-6.9h151.5c3.8,0,6.9,3.1,6.9,6.9v20.9C171.6,68.3,168.5,71.4,164.7,71.4z\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_Openfile_svg = (const char*) temp_binary_data_58;
+const char* wizard_Openfile_svg = (const char*) temp_binary_data_62;
 
 //================== wizard_OpenGL.svg ==================
-static const unsigned char temp_binary_data_59[] =
+static const unsigned char temp_binary_data_63[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5524,10 +5919,10 @@ static const unsigned char temp_binary_data_59[] =
 "\ts-13.4-19.6-6.9-30\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_OpenGL_svg = (const char*) temp_binary_data_59;
+const char* wizard_OpenGL_svg = (const char*) temp_binary_data_63;
 
 //================== wizard_StaticLibrary.svg ==================
-static const unsigned char temp_binary_data_60[] =
+static const unsigned char temp_binary_data_64[] =
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
 "<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\r\n"
 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\r\n"
@@ -5570,7 +5965,7 @@ static const unsigned char temp_binary_data_60[] =
 "\tc-1,0-1.8-0.8-1.8-1.8V20.8\"/>\r\n"
 "</svg>\r\n";
 
-const char* wizard_StaticLibrary_svg = (const char*) temp_binary_data_60;
+const char* wizard_StaticLibrary_svg = (const char*) temp_binary_data_64;
 
 
 const char* getNamedResource (const char*, int&) throw();
@@ -5597,6 +5992,10 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x229158a3:  numBytes = 3369; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 3846; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3502; return openEphys_ProcessorPluginTemplate_h;
+        case 0x1d379af4:  numBytes = 1862; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
+        case 0x9bde39f9:  numBytes = 2706; return openEphys_ProcessorVisualizerCanvasTemplate_h;
+        case 0x7a3e121c:  numBytes = 4111; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
+        case 0x92e85b21:  numBytes = 3221; return openEphys_ProcessorVisualizerEditorPluginTemplate_h;
         case 0x7e820c56:  numBytes = 2169; return openEphys_RecordEnginePluginTemplate_cpp;
         case 0x36799bdb:  numBytes = 2052; return openEphys_RecordEnginePluginTemplate_h;
         case 0x6cf2645e:  numBytes = 1949; return jucer_AnimatedComponentTemplate_cpp;
@@ -5667,6 +6066,10 @@ const char* namedResourceList[] =
     "openEphys_ProcessorEditorPluginTemplate_h",
     "openEphys_ProcessorPluginTemplate_cpp",
     "openEphys_ProcessorPluginTemplate_h",
+    "openEphys_ProcessorVisualizerCanvasTemplate_cpp",
+    "openEphys_ProcessorVisualizerCanvasTemplate_h",
+    "openEphys_ProcessorVisualizerEditorPluginTemplate_cpp",
+    "openEphys_ProcessorVisualizerEditorPluginTemplate_h",
     "openEphys_RecordEnginePluginTemplate_cpp",
     "openEphys_RecordEnginePluginTemplate_h",
     "jucer_AnimatedComponentTemplate_cpp",
