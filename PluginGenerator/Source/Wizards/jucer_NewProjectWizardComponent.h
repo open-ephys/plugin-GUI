@@ -326,6 +326,11 @@ public:
 
         updateCustomItems();
         updateCreateButton();
+
+        // Changes by <Open Ephys>
+        fileBrowser.setRoot (File::getCurrentWorkingDirectory()
+                                .getParentDirectory().getParentDirectory().getParentDirectory()
+                                .getChildFile ("Source").getChildFile ("Plugins"));
     }
 
     void paint (Graphics& g) override

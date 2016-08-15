@@ -124,9 +124,9 @@ static const unsigned char temp_binary_data_0[] =
 "\r\n"
 "    textButton->setBounds (proportionOfWidth (0.1067f), proportionOfHeight (0.6286f), proportionOfWidth (0.8000f), proportionOfHeight (0.2857f));\r\n"
 "    slider1->setBounds (proportionOfWidth (0.4667f), proportionOfHeight (0.1429f), proportionOfWidth (0.4667f), 24);\r\n"
-"    label->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.1143f), 72, 32);\r\n"
+"    label->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.1143f), 56, 32);\r\n"
 "    slider2->setBounds (proportionOfWidth (0.4667f), proportionOfHeight (0.3429f), proportionOfWidth (0.4667f), 24);\r\n"
-"    label2->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.3214f), 72, 32);\r\n"
+"    label2->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.3214f), 56, 32);\r\n"
 "    //[UserResized] Add your own custom resize handling here..\r\n"
 "    //[/UserResized]\r\n"
 "}\r\n"
@@ -196,7 +196,7 @@ static const unsigned char temp_binary_data_0[] =
 "          textBoxEditable=\"1\" textBoxWidth=\"80\" textBoxHeight=\"20\" skewFactor=\"1\"\r\n"
 "          needsCallback=\"1\"/>\r\n"
 "  <LABEL name=\"new label\" id=\"c0213f1981531a0d\" memberName=\"label\" virtualName=\"\"\r\n"
-"         explicitFocusOrder=\"0\" pos=\"5.333% 11.429% 72 32\" edTextCol=\"ff000000\"\r\n"
+"         explicitFocusOrder=\"0\" pos=\"5.333% 11.429% 56 32\" edTextCol=\"ff000000\"\r\n"
 "         edBkgCol=\"0\" labelText=\"Slider1&#10;\" editableSingleClick=\"0\"\r\n"
 "         editableDoubleClick=\"0\" focusDiscardsChanges=\"0\" fontname=\"Default font\"\r\n"
 "         fontsize=\"15.099999999999999645\" bold=\"0\" italic=\"0\" justification=\"33\"/>\r\n"
@@ -206,7 +206,7 @@ static const unsigned char temp_binary_data_0[] =
 "          textBoxEditable=\"1\" textBoxWidth=\"80\" textBoxHeight=\"20\" skewFactor=\"1\"\r\n"
 "          needsCallback=\"1\"/>\r\n"
 "  <LABEL name=\"new label\" id=\"8675a1fd47da165e\" memberName=\"label2\" virtualName=\"\"\r\n"
-"         explicitFocusOrder=\"0\" pos=\"5.333% 32.143% 72 32\" edTextCol=\"ff000000\"\r\n"
+"         explicitFocusOrder=\"0\" pos=\"5.333% 32.143% 56 32\" edTextCol=\"ff000000\"\r\n"
 "         edBkgCol=\"0\" labelText=\"Slider2&#10;\" editableSingleClick=\"0\"\r\n"
 "         editableDoubleClick=\"0\" focusDiscardsChanges=\"0\" fontname=\"Default font\"\r\n"
 "         fontsize=\"15.099999999999999645\" bold=\"0\" italic=\"0\" justification=\"33\"/>\r\n"
@@ -247,7 +247,7 @@ static const unsigned char temp_binary_data_1[] =
 "#define __JUCE_HEADER_3B5F4A5CE75A04FC__\r\n"
 "\r\n"
 "//[Headers]     -- You can add your own extra header files here --\r\n"
-"#include \"../JuceLibraryCode/JuceHeader.h\"\r\n"
+"#include <JuceHeader.h>\r\n"
 "//[/Headers]\r\n"
 "\r\n"
 "\r\n"
@@ -496,6 +496,11 @@ static const unsigned char temp_binary_data_4[] =
 "\n"
 "\n"
 "void PROCESSORCLASSNAME::updateActiveRecord()\n"
+"{\n"
+"}\n"
+"\n"
+"\n"
+"void PROCESSORCLASSNAME::seekTo (int64 sample)\n"
 "{\n"
 "}\n"
 "\n"
@@ -5979,10 +5984,10 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
     switch (hash)
     {
         case 0x44af8d54:  numBytes = 8293; return OE_GUI_MoonShard_cpp;
-        case 0x636f4459:  numBytes = 2675; return OE_GUI_MoonShard_h;
+        case 0x636f4459:  numBytes = 2656; return OE_GUI_MoonShard_h;
         case 0x49aa52f7:  numBytes = 1561; return openEphys_DataThreadPluginTemplate_cpp;
         case 0x9a9516bc:  numBytes = 1817; return openEphys_DataThreadPluginTemplate_h;
-        case 0xd768da9a:  numBytes = 1434; return openEphys_FileSourcePluginTemplate_cpp;
+        case 0xd768da9a:  numBytes = 1487; return openEphys_FileSourcePluginTemplate_cpp;
         case 0xdc872b1f:  numBytes = 1450; return openEphys_FileSourcePluginTemplate_h;
         case 0x354e9a48:  numBytes = 4216; return openEphys_OpenEphysLibTemplate_cpp;
         case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;

@@ -70,8 +70,12 @@ public:
 
 
 private:
+    bool isProcessorSourcePlugin() const noexcept;
+
     void fillGenericEditorTemplates();
     void fillVisualizerEditorTemplates();
+
+    void setVisualizerTemplatesAvailable (bool areAvailable);
 
     String m_selectedTemplateName               { "DEFAULT" };
     String m_selectedVisualizerTemplateName     { "DEFAULT" };

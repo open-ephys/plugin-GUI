@@ -52,7 +52,7 @@ void TiledButtonGroupManager::resized()
     if (! width)
         return;
 
-    const int numButtonsInTheRow = width / (m_buttonWidth + m_minPaddingForButtons);
+    const int numButtonsInTheRow = jmax (1, width / (m_buttonWidth + m_minPaddingForButtons));
     const int padding = jmax (m_minPaddingForButtons,
                               (width - numButtonsInTheRow * m_buttonWidth) / jmax (numButtonsInTheRow - 1, 1));
 

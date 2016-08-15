@@ -113,9 +113,9 @@ void OE_GUI_MoonShard::resized()
 
     textButton->setBounds (proportionOfWidth (0.1067f), proportionOfHeight (0.6286f), proportionOfWidth (0.8000f), proportionOfHeight (0.2857f));
     slider1->setBounds (proportionOfWidth (0.4667f), proportionOfHeight (0.1429f), proportionOfWidth (0.4667f), 24);
-    label->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.1143f), 72, 32);
+    label->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.1143f), 56, 32);
     slider2->setBounds (proportionOfWidth (0.4667f), proportionOfHeight (0.3429f), proportionOfWidth (0.4667f), 24);
-    label2->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.3214f), 72, 32);
+    label2->setBounds (proportionOfWidth (0.0533f), proportionOfHeight (0.3214f), 56, 32);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -185,7 +185,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
           needsCallback="1"/>
   <LABEL name="new label" id="c0213f1981531a0d" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="5.333% 11.429% 72 32" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="5.333% 11.429% 56 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Slider1&#10;" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.099999999999999645" bold="0" italic="0" justification="33"/>
@@ -195,7 +195,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
           needsCallback="1"/>
   <LABEL name="new label" id="8675a1fd47da165e" memberName="label2" virtualName=""
-         explicitFocusOrder="0" pos="5.333% 32.143% 72 32" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="5.333% 32.143% 56 32" edTextCol="ff000000"
          edBkgCol="0" labelText="Slider2&#10;" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.099999999999999645" bold="0" italic="0" justification="33"/>

@@ -111,6 +111,11 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         generatePluginMakeFile  (project, sourceGroup);
         generatePluginLibFile   (project, sourceGroup, pluginProcessorName, pluginFriendlyName);
         generatePluginProcessorFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
+
+        // No need to generate content component files for FileSource
+        if (m_pluginType == Plugin::PLUGIN_TYPE_FILE_SOURCE)
+            return true;
+
         generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName, pluginContentComponentName);
         generatePluginEditorContentComponentFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginContentComponentName);
 
@@ -205,9 +210,13 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         String processorFileTemplateName = getTemplateProcessorFileName (m_pluginType);
         String processorType             = getProcessorTypeString (m_processorType);
 
+        String processorHeaders = CodeHelpers::createIncludeStatement (newProcessorHFile, newProcessorCppFile) + newLine;
+
+        if (m_pluginType != PLUGIN_TYPE_FILE_SOURCE)
+            processorHeaders += CodeHelpers::createIncludeStatement (newEditorHFile, newProcessorCppFile);
+
         String processorCppFileContent = project.getFileTemplate (processorFileTemplateName + "_cpp")
-            .replace ("PROCESSORHEADERS", CodeHelpers::createIncludeStatement (newProcessorHFile, newProcessorCppFile)
-                      + newLine + CodeHelpers::createIncludeStatement (newEditorHFile, newProcessorCppFile), false)
+            .replace ("PROCESSORHEADERS",   processorHeaders, false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
             .replace ("PLUGINGUINAME",      pluginFriendlyName, false) // TODO <Kirill A>: set better gui name variable
             .replace ("EDITORCLASSNAME",    editorName, false)
