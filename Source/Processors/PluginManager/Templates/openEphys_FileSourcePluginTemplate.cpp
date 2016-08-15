@@ -52,6 +52,11 @@ void PROCESSORCLASSNAME::updateActiveRecord()
 }
 
 
+void PROCESSORCLASSNAME::seekTo (int64 sample)
+{
+}
+
+
 int PROCESSORCLASSNAME::readData (int16* buffer, int nSamples)
 {
     return 0;
