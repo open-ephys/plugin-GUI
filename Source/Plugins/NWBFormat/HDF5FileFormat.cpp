@@ -183,61 +183,97 @@ int HDF5FileBase::setAttributeArray(DataTypes type, const void* data, int size, 
     return 0;
 }
 
+int HDF5FileBase::setAttributeStrArray(const StringArray& data, String path, String name)
+{
+	Array<const char*> dataPtrs;
+	int maxLength = 0;
+	int size = data.size();
+	for (int i = 0; i < size; i++)
+	{
+		int length = data[i].length();
+		if (length > maxLength) maxLength = length;
+
+		dataPtrs.add(data[i].toUTF8());
+	}
+	return setAttributeStrArray(dataPtrs, maxLength, path, name);
+}
+
+
 int HDF5FileBase::setAttributeStr(const String& value, String path, String name)
 {
-    H5Location* loc;
-    Group gloc;
-    DataSet dloc;
-    Attribute attr;
-
-    if (!opened) return -1;
-
-    StrType type(PredType::C_S1, value.length());
-    try
-    {
-        try
-        {
-            gloc = file->openGroup(path.toUTF8());
-            loc = &gloc;
-        }
-        catch (FileIException error) //If there is no group with that path, try a dataset
-        {
-            dloc = file->openDataSet(path.toUTF8());
-            loc = &dloc;
-        }
-
-        if (loc->attrExists(name.toUTF8()))
-        {
-            //attr = loc.openAttribute(name.toUTF8());
-            return -1; //string attributes cannot change size easily, better not allow overwritting.
-        }
-        else
-        {
-            DataSpace attr_dataspace(H5S_SCALAR);
-            attr = loc->createAttribute(name.toUTF8(), type, attr_dataspace);
-        }
-        attr.write(type,value.toUTF8());
-
-    }
-    catch (GroupIException error)
-    {
-        PROCESS_ERROR;
-    }
-    catch (AttributeIException error)
-    {
-        PROCESS_ERROR;
-    }
-    catch (FileIException error)
-    {
-        PROCESS_ERROR;
-    }
-    catch (DataSetIException error)
-    {
-        PROCESS_ERROR;
-    }
+	Array<const char*> dataPtrs;
+	dataPtrs.add(value.toUTF8());
+	return setAttributeStrArray(dataPtrs, value.length(), path, name);
+}
 
 
-    return 0;
+int HDF5FileBase::setAttributeStrArray(Array<const char*>& data, int maxSize, String path, String name)
+{
+	H5Location* loc;
+	Group gloc;
+	DataSet dloc;
+	Attribute attr;
+	hsize_t dims[1];
+
+	if (!opened) return -1;
+
+	StrType type(PredType::C_S1, maxSize + 1);
+	type.setSize(H5T_VARIABLE);
+
+	try
+	{
+		try
+		{
+			gloc = file->openGroup(path.toUTF8());
+			loc = &gloc;
+		}
+		catch (FileIException error) //If there is no group with that path, try a dataset
+		{
+			dloc = file->openDataSet(path.toUTF8());
+			loc = &dloc;
+		}
+
+		if (loc->attrExists(name.toUTF8()))
+		{
+			//attr = loc.openAttribute(name.toUTF8());
+			return -1; //string attributes cannot change size easily, better not allow overwritting.
+		}
+		else
+		{
+			DataSpace attr_dataspace;
+			int nStrings = data.size();
+			if (nStrings > 1)
+			{
+				dims[0] = nStrings;
+				attr_dataspace = DataSpace(1, dims);
+			}
+			else
+				attr_dataspace = DataSpace(H5S_SCALAR);
+			attr = loc->createAttribute(name.toUTF8(), type, attr_dataspace);
+		}
+		attr.write(type, data.getRawDataPointer());
+
+	}
+	catch (GroupIException error)
+	{
+		PROCESS_ERROR;
+	}
+	catch (AttributeIException error)
+	{
+		PROCESS_ERROR;
+	}
+	catch (FileIException error)
+	{
+		PROCESS_ERROR;
+	}
+	catch (DataSetIException error)
+	{
+		PROCESS_ERROR;
+	}
+
+
+	return 0;
+
 }
 
 int HDF5FileBase::createGroup(String path)

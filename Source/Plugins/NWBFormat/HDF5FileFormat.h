@@ -71,6 +71,7 @@ protected:
     int setAttribute(DataTypes type, const void* data, String path, String name);
     int setAttributeStr(const String& value, String path, String name);
     int setAttributeArray(DataTypes type, const void* data, int size, String path, String name);
+	int setAttributeStrArray(const StringArray& data, String path, String name);
     int createGroup(String path);
 	int createGroupIfDoesNotExist(String path);
 
@@ -85,6 +86,8 @@ protected:
     bool readyToOpen;
 
 private:
+	int setAttributeStrArray(Array<const char*>& data, int maxSize, String path, String name);
+
     //create an extendable dataset
     HDF5RecordingData* createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path);
     int open(bool newfile, int nChans);

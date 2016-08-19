@@ -74,7 +74,6 @@ int NWBFile::createFileStructure()
 
 	CHECK_ERROR(setAttributeStr(String("OpenEphys GUI v") + GUIVersion, "/general/data_collection", "software"));
 	CHECK_ERROR(setAttributeStr(*xmlText, "/general/data_collection", "configuration"));
-	//TODO: Create attribute with the XML file as soon as I figure out how to get it to here.
 	
 	//TODO: Add default datasets
 	
@@ -95,7 +94,7 @@ int NWBFile::createFileStructure()
 		 if (createGroupIfDoesNotExist(basePath)) return false;
 		 basePath = basePath + "/recording" + String(recordingNumber);
 		 if (createGroup(basePath)) return false;
-		 dSet = createRecordingStructures(basePath, continuousInfo[i], "Stores acquired voltage data from extracellular recordings", CHUNK_XSIZE);
+		 dSet = createRecordingStructures(basePath, continuousInfo[i], "Stores acquired voltage data from extracellular recordings", CHUNK_XSIZE, "ElectricalSeries");
 		 continuousDataSetsTS.add(dSet);
 		 basePath += "/data";
 		 continuousBasePaths.add(basePath);
@@ -122,7 +121,7 @@ int NWBFile::createFileStructure()
 		 if (createGroupIfDoesNotExist(basePath)) return false;
 		 basePath = basePath + "/recording" + String(recordingNumber);
 		 if (createGroup(basePath)) return false;
-		 dSet = createRecordingStructures(basePath, spikeInfo[i], "Snapshorts of spike events from data", SPIKE_CHUNK_XSIZE);
+		 dSet = createRecordingStructures(basePath, spikeInfo[i], "Snapshorts of spike events from data", SPIKE_CHUNK_XSIZE, "SpikeEventSeries");
 		 spikeDataSetsTS.add(dSet);
 		 basePath += "/data";
 		 spikeBasePaths.add(basePath);
@@ -160,7 +159,7 @@ int NWBFile::createFileStructure()
 	 basePath = "/acquisition/timeseries/events";
 	 basePath = basePath + "/recording" + String(recordingNumber);
 	 if (createGroup(basePath)) return false;
-	 dSet = createRecordingStructures(basePath, singleInfo, "Stores the start and stop times for events",EVENT_CHUNK_SIZE);
+	 dSet = createRecordingStructures(basePath, singleInfo, "Stores the start and stop times for events",EVENT_CHUNK_SIZE, "IntervalSeries");
 	 eventsDataSetTS = dSet;
 	 eventsControlDataSet = createDataSet(U8, 0, EVENT_CHUNK_SIZE, basePath + "/control");
 	 if (!eventsControlDataSet)
@@ -184,7 +183,7 @@ int NWBFile::createFileStructure()
 	 basePath = "/acquisition/timeseries/messages";
 	 basePath = basePath + "/recording" + String(recordingNumber);
 	 if (createGroup(basePath)) return false;
-	 dSet = createRecordingStructures(basePath, singleInfo, "Time-stamped annotations about an experiment", EVENT_CHUNK_SIZE);
+	 dSet = createRecordingStructures(basePath, singleInfo, "Time-stamped annotations about an experiment", EVENT_CHUNK_SIZE, "AnnotationSeries");
 	 messagesDataSetTS = dSet;
 	 basePath += "/data";
 	 messagesBasePath = basePath;
@@ -300,9 +299,12 @@ int NWBFile::createFileStructure()
 	 return filename;
  }
  
- HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size)
+ HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry)
  {
-	 //TODO: Ancestry. HDF5FileFormat class does not support text array attributes yet.
+	 StringArray ancestryStrings;
+	 ancestryStrings.add("TimeSeries");
+	 ancestryStrings.add(ancestry);
+	 CHECK_ERROR(setAttributeStrArray(ancestryStrings, basePath, "ancestry"));
 	 CHECK_ERROR(setAttributeStr(" ", basePath, "comments"));
 	 CHECK_ERROR(setAttributeStr(info.spikeElectrodeName, basePath, "description"));
 	 CHECK_ERROR(setAttributeStr("TimeSeries", basePath, "neurodata_type"));
