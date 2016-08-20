@@ -40,10 +40,10 @@ namespace BinaryData
     const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3868;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3978;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
-    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3369;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3454;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
     const int            openEphys_ProcessorPluginTemplate_cppSize = 3846;

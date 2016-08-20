@@ -56,6 +56,7 @@ public:
 
     String getSelectedTemplateName()            const noexcept;
     String getSelectedVisualizerTemplateName()  const noexcept;
+    String getSelectedLookAndFeelClassName()    const noexcept;
 
 
     /** Used to set listener for the "Create project" button.
@@ -77,8 +78,17 @@ private:
 
     void setVisualizerTemplatesAvailable (bool areAvailable);
 
+    void fillLookAndFeels();
+    void addLookAndFeel (LookAndFeel* newLookAndFeel, const String& name, const String& className);
+    void applyLookAndFeel (LookAndFeel* lookAndFeel);
+
     String m_selectedTemplateName               { "DEFAULT" };
     String m_selectedVisualizerTemplateName     { "DEFAULT" };
+
+    /** Stores list of all available LookAndFeels. */
+    OwnedArray<LookAndFeel> m_lookAndFeelsList;
+    /** Stores LookAndFeel's name (key) and LookAndFeel's class name (value) in pairs. */
+    StringPairArray m_lookAndFeelsNames;
 
     /** The purpose of this button is to notify previous slidingComponent (ProjectWizard_OpenEphysPlugin)
         about the event and call appropriate "createProject" function defined there.
@@ -88,6 +98,7 @@ private:
 
     ScopedPointer<ComboBox> m_pluginTypeComboBox;
     ScopedPointer<ComboBox> m_processorTypeComboBox;
+    ScopedPointer<ComboBox> m_lookAndFeelsComboBox;
 
     ScopedPointer<Label> m_pluginTypeLabel;
     ScopedPointer<Label> m_processorTypeLabel;

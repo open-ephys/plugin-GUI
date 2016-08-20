@@ -32,6 +32,7 @@ public:
     EditorTemplateComponent (const String& buttonName, const String& templateName, const String& toolTip = String::empty);
 
     void resized() override;
+    void paintOverChildren (Graphics& g) override;
 
     void setContentComponent (Component* templateComponentToDisplay);
     void setContentLookAndFeel (LookAndFeel* contentLookAndFeel);
@@ -46,8 +47,9 @@ private:
 
     ScopedPointer<Component> m_templateComponentToDisplay;
 
-    ScopedPointer<LookAndFeel> m_contentLookAndFeel;
     ScopedPointer<LookAndFeel> m_buttonLookAndFeel;
+    SharedResourcePointer<LookAndFeel_V2> m_defaultContentLookAndFeel;
+    LookAndFeel* m_contentLookAndFeel;
 
 
     // ========================================================================

@@ -454,6 +454,8 @@
     </GROUP>
     <GROUP id="{58EB50D9-0F01-AF9B-087B-93DB283A339D}" name="Utility">
       <GROUP id="{E62211FC-D300-1C0B-03D9-659EF1B391B9}" name="LookAndFeel">
+        <FILE id="Nh74PI" name="AllLookAndFeels.h" compile="0" resource="0"
+              file="../Source/Plugins/Headers/AllLookAndFeels.h"/>
         <FILE id="RjWumG" name="MaterialButtonLookAndFeel.cpp" compile="1"
               resource="0" file="../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.cpp"/>
         <FILE id="aHgAz4" name="MaterialButtonLookAndFeel.h" compile="0" resource="0"

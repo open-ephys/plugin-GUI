@@ -964,6 +964,8 @@ static const unsigned char temp_binary_data_10[] =
 "    // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]\n"
 "\n"
+"    //m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();\n"
+"    //content.setLookAndFeel (m_contentLookAndFeel);\n"
 "    addAndMakeVisible (&content);\n"
 "    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
 "\n"
@@ -1068,6 +1070,7 @@ static const unsigned char temp_binary_data_11[] =
 "#define HEADERGUARD\n"
 "\n"
 "#include <EditorHeaders.h>\n"
+"#include <AllLookAndFeels.h>\n"
 "#include \"CONTENTCOMPONENTCLASSNAME.h\"\n"
 "\n"
 "\n"
@@ -1122,6 +1125,8 @@ static const unsigned char temp_binary_data_11[] =
 "    // This component contains all components and graphics that were added using Projucer.\n"
 "    // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)\n"
 "    CONTENTCOMPONENTCLASSNAME content;\n"
+"\n"
+"    //ScopedPointer<LookAndFeel> m_contentLookAndFeel;\n"
 "\n"
 "    /**\n"
 "        Here would be all the required internal variables.\n"
@@ -5993,8 +5998,8 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
-        case 0xc39db71e:  numBytes = 3868; return openEphys_ProcessorEditorPluginTemplate_cpp;
-        case 0x229158a3:  numBytes = 3369; return openEphys_ProcessorEditorPluginTemplate_h;
+        case 0xc39db71e:  numBytes = 3978; return openEphys_ProcessorEditorPluginTemplate_cpp;
+        case 0x229158a3:  numBytes = 3454; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 3846; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3502; return openEphys_ProcessorPluginTemplate_h;
         case 0x1d379af4:  numBytes = 1862; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;

@@ -79,7 +79,7 @@ EditorTemplateComponent::EditorTemplateComponent (const String& buttonName, cons
     , m_templateName                (templateName)
     , m_templateComponentToDisplay  (new Component)
     , m_buttonLookAndFeel           (new TemplateChoicerButtonLookAndFeel)
-    , m_contentLookAndFeel          (new LookAndFeel_V2)
+    , m_contentLookAndFeel          (nullptr)
 {
     setLookAndFeel (m_buttonLookAndFeel);
 }
@@ -94,16 +94,37 @@ void EditorTemplateComponent::resized()
 }
 
 
+void EditorTemplateComponent::paintOverChildren (Graphics& g)
+{
+    // Draw semi-transparent layer if component isn't selected
+    if (! getToggleState())
+    {
+        g.beginTransparencyLayer (0.2f);
+        g.setColour (Colours::black);
+        g.fillRect (getLocalBounds());
+        g.endTransparencyLayer();
+    }
+}
+
+
 void EditorTemplateComponent::setContentComponent (Component* templateComponentToDisplay)
 {
     m_templateComponentToDisplay = templateComponentToDisplay;
-    m_templateComponentToDisplay->setLookAndFeel (m_contentLookAndFeel);
+    if (! m_contentLookAndFeel)
+        m_templateComponentToDisplay->setLookAndFeel (m_defaultContentLookAndFeel);
+    else
+        m_templateComponentToDisplay->setLookAndFeel (m_contentLookAndFeel);
+
     addAndMakeVisible (m_templateComponentToDisplay);
 }
 
 
 void EditorTemplateComponent::setContentLookAndFeel (LookAndFeel* contentLookAndFeel)
 {
+    jassert (contentLookAndFeel != nullptr);
+    if (contentLookAndFeel == nullptr)
+        return;
+
     m_contentLookAndFeel = contentLookAndFeel;
     m_templateComponentToDisplay->setLookAndFeel (m_contentLookAndFeel);
 }
@@ -119,6 +140,7 @@ String EditorTemplateComponent::getTemplateName() const noexcept
 {
     return m_templateName;
 }
+
 
 #endif // __OPEN_EPHYS_EDITOR_TEMPLATE_COMPONENT_CPP__
 

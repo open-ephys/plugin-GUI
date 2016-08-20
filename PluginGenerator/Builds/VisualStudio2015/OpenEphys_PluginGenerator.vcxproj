@@ -1485,6 +1485,7 @@
     <ClInclude Include="..\..\Source\Project Saving\jucer_ProjectExporter.h"/>
     <ClInclude Include="..\..\Source\Project Saving\jucer_ProjectSaver.h"/>
     <ClInclude Include="..\..\Source\Project Saving\jucer_ResourceFile.h"/>
+    <ClInclude Include="..\..\..\Source\Plugins\Headers\AllLookAndFeels.h"/>
     <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h"/>
     <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h"/>
     <ClInclude Include="..\..\..\Source\UI\Utils\ButtonGroupManager.h"/>

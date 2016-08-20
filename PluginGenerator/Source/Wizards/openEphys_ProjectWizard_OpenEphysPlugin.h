@@ -68,6 +68,12 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         if (m_shouldUseVisualizerEditor)
             DBG (String ("GUI Visualizer Canvas template name: ") + m_guiVisualizerTemplateName);
 
+        m_contentLookAndFeelClassName = configPage->getSelectedLookAndFeelClassName();
+        m_shouldChangeContentLookAndFeel = (m_contentLookAndFeelClassName != "DEFAULT");
+
+        if (m_shouldChangeContentLookAndFeel)
+            DBG (String ("Content LookAndFeel name: ") + m_contentLookAndFeelClassName);
+
         return Result::ok();
     }
 
@@ -288,6 +294,24 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
                                     .replace ("GenericEditor", "VisualizerEditor", false);
         }
 
+        if (m_shouldChangeContentLookAndFeel)
+        {
+            const auto lookAndFeelDeclarationCode = "ScopedPointer<LookAndFeel> m_contentLookAndFeel;";
+            const auto lookAndFeelSetterCode      = "content.setLookAndFeel (m_contentLookAndFeel);";
+            const auto lookAndFeelCreationCode    = "m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();";
+
+            editorCppFileContent = editorCppFileContent
+                                    // Uncomment some pieces of code
+                                    .replace (String ("//") + lookAndFeelCreationCode, lookAndFeelCreationCode, false)
+                                    .replace (String ("//") + lookAndFeelSetterCode, lookAndFeelSetterCode, false)
+                                    // Change LookAndFeel class name
+                                    .replace ("LOOKANDFEELCLASSNAME", m_contentLookAndFeelClassName, false);
+
+            editorHFileContent = editorHFileContent
+                                    // Uncomment some pieces of code
+                                    .replace (String ("//") + lookAndFeelDeclarationCode, lookAndFeelDeclarationCode, false);
+        }
+
         bool wasGeneratedSuccessfully = true;
 
         if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newEditorCppFile, editorCppFileContent))
@@ -437,7 +461,12 @@ private:
     /** The name of the GUI template for VisualizerEditor's Canvas (if used) to create content component for plugin. */
     String m_guiVisualizerTemplateName;
 
+    /** The class name of the LookAndFeel for contents. If it's equal to "DEFAULT" - this means that user didn't
+        selected the new lookAndFeel for component and we have no need to change it..*/
+    String m_contentLookAndFeelClassName;
+
     bool m_shouldUseVisualizerEditor;
+    bool m_shouldChangeContentLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenEphysPluginAppWizard)
 };

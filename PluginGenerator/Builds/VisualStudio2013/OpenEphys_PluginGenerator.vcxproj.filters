@@ -2103,6 +2103,9 @@
     <ClInclude Include="..\..\Source\Project Saving\jucer_ResourceFile.h">
       <Filter>OpenEphys_PluginGenerator\Project Saving</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Plugins\Headers\AllLookAndFeels.h">
+      <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h">
       <Filter>OpenEphys_PluginGenerator\Utility\LookAndFeel</Filter>
     </ClInclude>

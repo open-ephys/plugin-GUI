@@ -24,6 +24,7 @@
 #define HEADERGUARD
 
 #include <EditorHeaders.h>
+#include <AllLookAndFeels.h>
 #include "CONTENTCOMPONENTCLASSNAME.h"
 
 
@@ -78,6 +79,8 @@ private:
     // This component contains all components and graphics that were added using Projucer.
     // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)
     CONTENTCOMPONENTCLASSNAME content;
+
+    //ScopedPointer<LookAndFeel> m_contentLookAndFeel;
 
     /**
         Here would be all the required internal variables.

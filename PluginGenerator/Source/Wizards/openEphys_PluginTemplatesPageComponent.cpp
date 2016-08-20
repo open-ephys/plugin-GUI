@@ -25,14 +25,16 @@
 #include "openEphys_EditorTemplatesFactory.h"
 #include "openEphys_EditorTemplateComponent.h"
 
-#include "../../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
+#include "../../../Source/Plugins/Headers/AllLookAndFeels.h"
 #include "../../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "../../../Source/UI/Utils/TiledButtonGroupManager.h"
 
+
 PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     : m_createProjectButton                 (new TextButton ("Create project...", "Create new project"))
-    , m_pluginTypeComboBox                  (new ComboBox)
-    , m_processorTypeComboBox               (new ComboBox)
+    , m_pluginTypeComboBox                  (new ComboBox ("Plugin type"))
+    , m_processorTypeComboBox               (new ComboBox ("Processor type"))
+    , m_lookAndFeelsComboBox                (new ComboBox ("LookAndFeel selector"))
     , m_pluginTypeLabel                     (new Label (String::empty, TRANS("Plugin type") + ":"))
     , m_processorTypeLabel                  (new Label (String::empty, TRANS("Processor type") + ":"))
     , m_shouldUseVisualizerEditorButton     (new ToggleButton ("Visualizer editor"))
@@ -137,10 +139,13 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     m_visualizerEditorTemplatesManager->setColour (TiledButtonGroupManager::outlineColourId, Colour (0x0));
     addChildComponent (m_visualizerEditorTemplatesManager);
 
-    //const int buttonPadding  = 20;
-    //m_genericEditorTemplatesManager->setMinPaddingBetweenButtons (buttonPadding);
-    //m_visualizerEditorTemplatesManager->setMinPaddingBetweenButtons (buttonPadding);
+    // LookAndFeel comboBox
+    fillLookAndFeels();
+    m_lookAndFeelsComboBox->addListener (this);
+    m_lookAndFeelsComboBox->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (m_lookAndFeelsComboBox);
 
+    // Fill in templates managers with templates
     fillGenericEditorTemplates();
     fillVisualizerEditorTemplates();
 }
@@ -182,7 +187,11 @@ void PluginTemplatesPageComponent::resized()
 
     localBounds.removeFromBottom (m_createProjectButton->getHeight() + 15);
 
-    m_tabsButtonManager->setBounds (localBounds.removeFromTop (36).withWidth (400));
+    auto tabSelectorsRow = localBounds.removeFromTop (36);
+    m_tabsButtonManager->setBounds    (tabSelectorsRow.removeFromLeft (400));
+    tabSelectorsRow.removeFromLeft (20);
+    m_lookAndFeelsComboBox->setBounds (tabSelectorsRow.withHeight (22));
+
     m_genericEditorTemplatesManager->setBounds      (localBounds.reduced (10, 20));
     m_visualizerEditorTemplatesManager->setBounds   (localBounds.reduced (10, 20));
 }
@@ -235,6 +244,21 @@ void PluginTemplatesPageComponent::comboBoxChanged (ComboBox* comboBoxThatHasCha
     }
     else if (comboBoxThatHasChanged == m_processorTypeComboBox)
     {
+    }
+    else if (comboBoxThatHasChanged == m_lookAndFeelsComboBox)
+    {
+        const int selectedLookAndFeelIdx = m_lookAndFeelsComboBox->getSelectedItemIndex();
+        if (selectedLookAndFeelIdx < 0)
+            return;
+
+        // "Default" lookAndFeel option was selected
+        if (selectedLookAndFeelIdx == 0)
+        {
+            // TODO <Kirill A>: Switch back to each template's default lookAndFeel
+            return;
+        }
+
+        applyLookAndFeel (m_lookAndFeelsList[selectedLookAndFeelIdx]);
     }
 }
 
@@ -366,3 +390,48 @@ String PluginTemplatesPageComponent::getSelectedVisualizerTemplateName() const n
 {
     return m_selectedVisualizerTemplateName;
 }
+
+
+String PluginTemplatesPageComponent::getSelectedLookAndFeelClassName() const noexcept
+{
+    const String defaultValue = "DEFAULT";
+    const int selectedLnfIndex = m_lookAndFeelsComboBox->getSelectedItemIndex();
+
+    return m_lookAndFeelsNames.getValue (m_lookAndFeelsComboBox->getItemText (selectedLnfIndex), defaultValue);
+}
+
+
+void PluginTemplatesPageComponent::addLookAndFeel (LookAndFeel* newLookAndFeel, const String& name, const String& className)
+{
+    m_lookAndFeelsNames.set (name, className);
+    m_lookAndFeelsList.add (newLookAndFeel);
+
+    m_lookAndFeelsComboBox->addItem (name, m_lookAndFeelsComboBox->getNumItems() + 1);
+}
+
+
+void PluginTemplatesPageComponent::applyLookAndFeel (LookAndFeel* lookAndFeel)
+{
+    const int numEditorTempaltes = m_genericEditorTemplatesManager->getNumButtons();
+    for (int i = 0; i < numEditorTempaltes; ++i)
+    {
+        auto editorTemplateComponent = dynamic_cast<EditorTemplateComponent*> (m_genericEditorTemplatesManager->getButtonAt (i));
+        editorTemplateComponent->setContentLookAndFeel (lookAndFeel);
+    }
+}
+
+
+void PluginTemplatesPageComponent::fillLookAndFeels()
+{
+    addLookAndFeel (new LookAndFeel_V2(), "Default", "DEFAULT");
+
+    addLookAndFeel (new LookAndFeel_V1(), "LookAndFeel_V1", "LookAndFeel_V1");
+    addLookAndFeel (new LookAndFeel_V2(), "LookAndFeel_V2", "LookAndFeel_V2");
+    addLookAndFeel (new LookAndFeel_V3(), "LookAndFeel_V3", "LookAndFeel_V3");
+
+    addLookAndFeel (new FlatRoundLookAndFeel(), "Flat round LookAndFeel", "FlatRoundLookAndFeel");
+    addLookAndFeel (new SquareLookAndFeel(),    "Square LookAndFeel", "SquareLookAndFeel");
+}
+
+
+
