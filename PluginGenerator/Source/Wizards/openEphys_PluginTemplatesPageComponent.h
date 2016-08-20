@@ -71,7 +71,10 @@ public:
 
 
 private:
-    bool isProcessorSourcePlugin() const noexcept;
+    bool isProcessorSourcePlugin()  const noexcept;
+    bool isProcessorPlugin()        const noexcept;
+
+    void updateComponentsVisibility();
 
     void fillGenericEditorTemplates();
     void fillVisualizerEditorTemplates();

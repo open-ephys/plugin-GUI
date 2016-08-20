@@ -311,6 +311,7 @@ private:
             updatePropertyList();
             project.addChangeListener (this);
 
+            // Open Ephys
             addChildComponent (&m_parametersEditorComponent);
 
             static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
@@ -324,18 +325,20 @@ private:
             projectSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
             projectSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
             projectSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
-            TextButton* pluginSettingsButton = new TextButton ("Plugin", "Switch to plugin settings tab");
-            pluginSettingsButton->setComponentID (PLUGIN_SETTINGS_BUTTON_ID);
-            pluginSettingsButton->setClickingTogglesState (true);
-            pluginSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
-            pluginSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
-            pluginSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
-            pluginSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
-            // Open Ephys
             m_buttonGroupManager.addButton (projectSettingsButton);
-            m_buttonGroupManager.addButton (pluginSettingsButton);
+
+            if (p.isProcessorPlugin())
+            {
+                TextButton* pluginSettingsButton = new TextButton ("Plugin", "Switch to plugin settings tab");
+                pluginSettingsButton->setComponentID (PLUGIN_SETTINGS_BUTTON_ID);
+                pluginSettingsButton->setClickingTogglesState (true);
+                pluginSettingsButton->setColour (TextButton::buttonColourId,     Colour (0x0));
+                pluginSettingsButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
+                pluginSettingsButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
+                pluginSettingsButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
+                m_buttonGroupManager.addButton (pluginSettingsButton);
+            }
+
             m_buttonGroupManager.setRadioButtonMode (true);
             m_buttonGroupManager.setButtonListener (this);
             m_buttonGroupManager.setButtonsLookAndFeel (m_materialButtonLookAndFeel);

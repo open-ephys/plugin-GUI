@@ -66,7 +66,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         DBG (String ("GUI Template name: ") + m_guiTemplateName);
 
         if (m_shouldUseVisualizerEditor)
-            DBG (String ("GUI Visualizer Canvas template name: ") + m_guiVisualizerTemplateName);
+            DBG (String ("GUI Visualizer template name: ") + m_guiVisualizerTemplateName);
 
         m_contentLookAndFeelClassName = configPage->getSelectedLookAndFeelClassName();
         m_shouldChangeContentLookAndFeel = (m_contentLookAndFeelClassName != "DEFAULT");
@@ -118,8 +118,8 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         generatePluginLibFile   (project, sourceGroup, pluginProcessorName, pluginFriendlyName);
         generatePluginProcessorFiles (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName);
 
-        // No need to generate content component files for FileSource
-        if (m_pluginType == Plugin::PLUGIN_TYPE_FILE_SOURCE)
+        // No need to generate content component files for any plugins except Processors.
+        if (m_pluginType != Plugin::PLUGIN_TYPE_PROCESSOR)
             return true;
 
         generatePluginEditorFiles    (project, sourceGroup, pluginProcessorName, pluginEditorName, pluginFriendlyName, pluginContentComponentName);
@@ -127,7 +127,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         if (m_shouldUseVisualizerEditor)
         {
-            const String visualizerCanvasName                 = pluginProcessorName + "Canvas";
+            const String visualizerCanvasName                 = pluginProcessorName + "Visualizer";
             const String visualizerCanvasContentComponentName = visualizerCanvasName + "ContentComponent";
             generatePluginVisualizerEditorCanvasFiles (project, sourceGroup,
                                                        pluginProcessorName, visualizerCanvasName,
@@ -158,9 +158,9 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         String pluginLibCppFileContent  = project.getFileTemplate ("openEphys_OpenEphysLibTemplate_cpp")
             .replace ("PROCESSORCLASSNAME", pluginProcessorName, false)
-            .replace ("PLUGINLIBRARYNAME", "Temporary " + pluginFriendlyName + " library", false) // TODO <Kirill A>: set library name variable
+            .replace ("PLUGINLIBRARYNAME", pluginFriendlyName + " plugin library", false) // TODO <Kirill A>: set library name variable
             .replace ("PLUGINLIBRARYVERSION", "1", false) // TODO <Kirill A>: set library version variable
-            .replace ("PLUGINGUINAME", "Temporary " + pluginFriendlyName, false) // TODO <Kirill A>: set library gui name variable
+            .replace ("PLUGINGUINAME", pluginFriendlyName, false) // TODO <Kirill A>: set library gui name variable
             .replace ("LIBPLUGINTYPE", libPluginType, false)
             .replace ("LIBPLUGININFOTYPE", libPluginInfoType, false)
             .replace ("LIBPLUGINCREATEFUNCTION", libCreateFunctionName, false)
@@ -218,13 +218,13 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         String processorHeaders = CodeHelpers::createIncludeStatement (newProcessorHFile, newProcessorCppFile) + newLine;
 
-        if (m_pluginType != PLUGIN_TYPE_FILE_SOURCE)
+        if (m_pluginType == PLUGIN_TYPE_PROCESSOR)
             processorHeaders += CodeHelpers::createIncludeStatement (newEditorHFile, newProcessorCppFile);
 
         String processorCppFileContent = project.getFileTemplate (processorFileTemplateName + "_cpp")
             .replace ("PROCESSORHEADERS",   processorHeaders, false)
             .replace ("PROCESSORCLASSNAME", processorName, false)
-            .replace ("PLUGINGUINAME",      pluginFriendlyName, false) // TODO <Kirill A>: set better gui name variable
+            .replace ("PLUGINGUINAME",      pluginFriendlyName, false)
             .replace ("EDITORCLASSNAME",    editorName, false)
             .replace ("PROCESSORTYPE",      processorType,   false);
 
@@ -288,9 +288,9 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         if (m_shouldUseVisualizerEditor)
         {
-            const String canvasClassName = processorName + "Canvas";
+            const String visualizerCanvasClassName = processorName + "Visualizer";
             editorCppFileContent = editorCppFileContent
-                                    .replace ("EDITORCANVASCLASSNAME", canvasClassName, false)
+                                    .replace ("EDITORCANVASCLASSNAME", visualizerCanvasClassName, false)
                                     .replace ("GenericEditor", "VisualizerEditor", false);
         }
 

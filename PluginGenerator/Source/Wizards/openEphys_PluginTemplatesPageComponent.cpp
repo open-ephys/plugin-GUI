@@ -37,8 +37,8 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     , m_lookAndFeelsComboBox                (new ComboBox ("LookAndFeel selector"))
     , m_pluginTypeLabel                     (new Label (String::empty, TRANS("Plugin type") + ":"))
     , m_processorTypeLabel                  (new Label (String::empty, TRANS("Processor type") + ":"))
-    , m_shouldUseVisualizerEditorButton     (new ToggleButton ("Visualizer editor"))
-    , m_shouldUseDataThreadButton           (new ToggleButton ("Data thread source"))
+    , m_shouldUseVisualizerEditorButton     (new ToggleButton ("Use visualizer"))
+    , m_shouldUseDataThreadButton           (new ToggleButton ("Use separate thread"))
     , m_genericEditorTemplatesManager       (new TiledButtonGroupManager)
     , m_visualizerEditorTemplatesManager    (new TiledButtonGroupManager)
     , m_tabsButtonManager                   (new LinearButtonGroupManager)
@@ -48,8 +48,8 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     {
         TRANS("Processor"),
         TRANS("Record engine"),
-        TRANS("Data thread"),
         TRANS("File source")
+        //TRANS("Data thread"),
     };
 
     m_pluginTypeComboBox->addItemList (StringArray (pluginTypeOptions,
@@ -70,7 +70,7 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
         TRANS("Sink"),
         //TRANS("Splitter"),
         //TRANS("Merger"),
-        TRANS("Utility"),
+        //TRANS("Utility"),
     };
 
     m_processorTypeComboBox->addItemList (StringArray (processorTypeOptions,
@@ -100,17 +100,20 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     static const Colour TAB_BUTTON_COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
     static const Colour TAB_BUTTON_COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-    TextButton* genericEditorTabButton = new TextButton ("Main editor templates",
+    TextButton* genericEditorTabButton = new TextButton ("Editor templates",
                                                          "Choose template for main plugin editor");
     genericEditorTabButton->setComponentID (GENERIC_EDITOR_TEMPLATES_TAB_BUTTON_ID);
+    genericEditorTabButton->setClickingTogglesState (true);
+    genericEditorTabButton->setToggleState (true, dontSendNotification);
     genericEditorTabButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     genericEditorTabButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
     genericEditorTabButton->setColour (TextButton::textColourOffId,    TAB_BUTTON_COLOUR_PRIMARY);
     genericEditorTabButton->setColour (TextButton::textColourOnId,     TAB_BUTTON_COLOUR_ACCENT);
 
-    TextButton* visualizerEditorTabButton = new TextButton ("Visualizer editor templates",
+    TextButton* visualizerEditorTabButton = new TextButton ("Visualizer templates",
                                                             "Choose template for visualizer editor");
     visualizerEditorTabButton->setComponentID (VISUALIZER_EDITOR_TEMPLATES_TAB_BUTTON_ID);
+    visualizerEditorTabButton->setClickingTogglesState (true);
     visualizerEditorTabButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     visualizerEditorTabButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
     visualizerEditorTabButton->setColour (TextButton::textColourOffId,    TAB_BUTTON_COLOUR_PRIMARY);
@@ -153,9 +156,12 @@ PluginTemplatesPageComponent::PluginTemplatesPageComponent()
 
 void PluginTemplatesPageComponent::paint (Graphics& g)
 {
-    const auto managerBorderBounds = m_genericEditorTemplatesManager->getBounds().expanded (10, 30).translated (0, 20);
-    g.setColour (Colours::orange);
-    g.drawRoundedRectangle (managerBorderBounds.toFloat(), 5.f, 2.f);
+    if (isProcessorPlugin())
+    {
+        const auto managerBorderBounds = m_genericEditorTemplatesManager->getBounds().expanded (10, 30).translated (0, 20);
+        g.setColour (Colours::orange);
+        g.drawRoundedRectangle (managerBorderBounds.toFloat(), 5.f, 2.f);
+    }
 }
 
 
@@ -177,8 +183,9 @@ void PluginTemplatesPageComponent::resized()
     m_processorTypeComboBox->setBounds (configComponentsBounds.removeFromLeft (processorComboBoxWidth));
 
     configComponentsBounds.removeFromLeft (20);
+    if (m_shouldUseDataThreadButton->isVisible())
+        m_shouldUseDataThreadButton->setBounds (configComponentsBounds.removeFromLeft (160));
     m_shouldUseVisualizerEditorButton->setBounds (configComponentsBounds);
-    m_shouldUseDataThreadButton->setBounds       (configComponentsBounds);
 
     localBounds.removeFromTop (10);
     // ========================================================================
@@ -213,6 +220,10 @@ void PluginTemplatesPageComponent::buttonClicked (Button* buttonThatWasClicked)
         // Uncomment if we want to disable "VisualizerEditor templates" tab when no need to use visualizer editor
         //setVisualizerTemplatesAvailable (m_shouldUseVisualizerEditor->getToggleState());
     }
+    else if (buttonThatWasClicked == m_shouldUseDataThreadButton)
+    {
+        updateComponentsVisibility();
+    }
     else if (auto selectedTemplateComponent = dynamic_cast<EditorTemplateComponent*> (buttonThatWasClicked))
     {
         // The page with templates for generic editor is active
@@ -227,23 +238,10 @@ void PluginTemplatesPageComponent::buttonClicked (Button* buttonThatWasClicked)
 
 void PluginTemplatesPageComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
-    if (comboBoxThatHasChanged == m_pluginTypeComboBox)
+    if (comboBoxThatHasChanged == m_pluginTypeComboBox
+        || comboBoxThatHasChanged == m_processorTypeComboBox)
     {
-        const int selectedPluginType = Plugin::PluginType (m_pluginTypeComboBox->getSelectedItemIndex() + 1);
-        const bool isProcessorPlugin    = selectedPluginType == (int)Plugin::PLUGIN_TYPE_PROCESSOR;
-        const bool isDataThreadPlugin   = selectedPluginType == (int)Plugin::PLUGIN_TYPE_DATA_THREAD;
-
-        // These components should be visible only if the Processor plugin type was selected
-        m_processorTypeComboBox->setVisible           (isProcessorPlugin);
-        m_shouldUseVisualizerEditorButton->setVisible (isProcessorPlugin);
-
-        // These components should be visible only if the File Source plugin type was selected
-        m_shouldUseDataThreadButton->setVisible (isDataThreadPlugin);
-
-        resized();
-    }
-    else if (comboBoxThatHasChanged == m_processorTypeComboBox)
-    {
+        updateComponentsVisibility();
     }
     else if (comboBoxThatHasChanged == m_lookAndFeelsComboBox)
     {
@@ -260,6 +258,33 @@ void PluginTemplatesPageComponent::comboBoxChanged (ComboBox* comboBoxThatHasCha
 
         applyLookAndFeel (m_lookAndFeelsList[selectedLookAndFeelIdx]);
     }
+}
+
+
+void PluginTemplatesPageComponent::updateComponentsVisibility()
+{
+    const int selectedPluginType = getSelectedPluginType();
+    const bool isProcessorPlugin    = selectedPluginType == (int)Plugin::PLUGIN_TYPE_PROCESSOR;
+    const bool isDataThreadPlugin   = selectedPluginType == (int)Plugin::PLUGIN_TYPE_DATA_THREAD;
+
+    const int selectedProcessorType = getSelectedProcessorType();
+    const bool isSourcePlugin = selectedProcessorType == (int)Plugin::PROCESSOR_TYPE_SOURCE;
+
+    // These components should be visible only if the Processor plugin type was selected
+    m_processorTypeComboBox->setVisible            (isProcessorPlugin || isDataThreadPlugin);
+    m_shouldUseVisualizerEditorButton->setVisible  (isProcessorPlugin);
+    m_lookAndFeelsComboBox->setVisible             (isProcessorPlugin);
+    m_tabsButtonManager->setVisible                (isProcessorPlugin);
+
+    const bool isGenericTemplatesActive = m_tabsButtonManager->getButtonAt (0)->getToggleState();
+    m_genericEditorTemplatesManager->setVisible    (isProcessorPlugin && isGenericTemplatesActive);
+    m_visualizerEditorTemplatesManager->setVisible (isProcessorPlugin && ! isGenericTemplatesActive);
+
+    // These components should be visible only if the File Source plugin type was selected
+    m_shouldUseDataThreadButton->setVisible (isDataThreadPlugin || isSourcePlugin);
+
+    resized();
+    repaint();
 }
 
 
@@ -327,26 +352,28 @@ void PluginTemplatesPageComponent::setVisualizerTemplatesAvailable (bool areAvai
 
 bool PluginTemplatesPageComponent::isProcessorSourcePlugin() const noexcept
 {
-    const int selectedPluginType = m_pluginTypeComboBox->getSelectedItemIndex() + 1;
-
-    // If selected plugin type is FileSource type and "Use thread type" is not selected
-    // We should treat it the same if when "Processor" with "Source" type was just selected.
-    const bool isImplicitSourcePlugin = (selectedPluginType == (int)Plugin::PLUGIN_TYPE_DATA_THREAD)
-                                            && (! m_shouldUseDataThreadButton->getToggleState());
-
+    const int selectedPluginType    = m_pluginTypeComboBox->getSelectedItemIndex() + 1;
     const int selectedProcessorType = m_processorTypeComboBox->getSelectedItemIndex() + 1;
-    // Appropriate types were selected
-    const bool isExplicitSourcePlugin = (selectedPluginType == (int)Plugin::PLUGIN_TYPE_PROCESSOR)
-                                            && (selectedProcessorType == (int)Plugin::PROCESSOR_TYPE_SOURCE);
 
-    return isImplicitSourcePlugin || isExplicitSourcePlugin;
+    const bool isSourcePlugin = (selectedPluginType == (int)Plugin::PLUGIN_TYPE_PROCESSOR)
+                                    && (selectedProcessorType == (int)Plugin::PROCESSOR_TYPE_SOURCE);
+
+    return isSourcePlugin;
+}
+
+
+bool PluginTemplatesPageComponent::isProcessorPlugin() const noexcept
+{
+    return getSelectedPluginType() == (int)Plugin::PLUGIN_TYPE_PROCESSOR;
 }
 
 
 Plugin::PluginType PluginTemplatesPageComponent::getSelectedPluginType() const noexcept
 {
-    if (isProcessorSourcePlugin())
-        return Plugin::PLUGIN_TYPE_PROCESSOR;
+    // If selected plugin type is Processor type and "Use thread type" is selected
+    // Then it means, that we should create DataThread plugin.
+    if (isProcessorSourcePlugin() && m_shouldUseDataThreadButton->getToggleState())
+        return Plugin::PLUGIN_TYPE_DATA_THREAD;
 
     return Plugin::PluginType (m_pluginTypeComboBox->getSelectedItemIndex() + 1);
 }
@@ -354,11 +381,6 @@ Plugin::PluginType PluginTemplatesPageComponent::getSelectedPluginType() const n
 
 Plugin::PluginProcessorType PluginTemplatesPageComponent::getSelectedProcessorType() const noexcept
 {
-    // If selected plugin type is FileSource type and "Use thread type" is not selected
-    // We should treat it the same if when "Processor" with "Source" type was just selected.
-    if (isProcessorSourcePlugin())
-        return Plugin::PROCESSOR_TYPE_SOURCE;
-
     if (getSelectedPluginType() != Plugin::PLUGIN_TYPE_PROCESSOR)
         return Plugin::PROCESSOR_TYPE_INVALID;
 
@@ -376,7 +398,7 @@ bool PluginTemplatesPageComponent::shouldUseVisualizerEditor() const noexcept
 
 bool PluginTemplatesPageComponent::shouldUseDataThreadSource() const noexcept
 {
-    return m_shouldUseDataThreadButton->isVisible() && m_shouldUseDataThreadButton->getToggleState();
+    return isProcessorSourcePlugin() && m_shouldUseDataThreadButton->getToggleState();
 }
 
 
