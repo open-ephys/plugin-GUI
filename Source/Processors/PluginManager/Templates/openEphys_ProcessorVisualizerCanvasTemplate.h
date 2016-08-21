@@ -24,6 +24,7 @@
 #define HEADERGUARD
 
 #include <VisualizerEditorHeaders.h>
+#include <AllLookAndFeels.h>
 
 #include "PROCESSORCLASSNAME.h"
 #include "CONTENTCOMPONENTCLASSNAME.h"
@@ -72,6 +73,8 @@ private:
     // This component contains all components and graphics that were added using Projucer.
     // It's bounds initially have same bounds as the canvas itself.
     CONTENTCOMPONENTCLASSNAME content;
+    //
+    //ScopedPointer<LookAndFeel> m_contentLookAndFeel;
 
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCANVASCLASSNAME);

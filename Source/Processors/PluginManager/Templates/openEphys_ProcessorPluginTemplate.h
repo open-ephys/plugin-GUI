@@ -67,21 +67,27 @@ public:
 
         Continuous signals arrive in the "buffer" variable, event data (such as TTLs
         and spikes) is contained in the "events" variable.
-         */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events);
+    */
+    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
     /** The method that standard controls on the editor will call.
-      It is recommended that any variables used by the "process" function 
-      are modified only through this method while data acquisition is active. */
-    void setParameter (int parameterIndex, float newValue);
+        It is recommended that any variables used by the "process" function
+        are modified only through this method while data acquisition is active. */
+    void setParameter (int parameterIndex, float newValue) override;
+
+    /** Saving custom settings to XML. */
+    virtual void saveCustomParametersToXml (XmlElement* parentElement) override;
+
+    /** Load custom settings from XML*/
+    virtual void loadCustomParametersFromXml() override;
 
     /** Optional method called every time the signal chain is refreshed or changed in any way.
 
-      Allows the processor to handle variations in the channel configuration or any other parameter
-      passed down the signal chain. The processor can also modify here the settings structure, which contains
-      information regarding the input and output channels as well as other signal related parameters. Said
-      structure shouldn't be manipulated outside of this method.
-      */
+        Allows the processor to handle variations in the channel configuration or any other parameter
+        passed down the signal chain. The processor can also modify here the settings structure, which contains
+        information regarding the input and output channels as well as other signal related parameters. Said
+        structure shouldn't be manipulated outside of this method.
+    */
     //void updateSettings();
 
 private:

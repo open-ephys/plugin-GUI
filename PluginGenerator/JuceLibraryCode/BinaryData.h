@@ -40,28 +40,28 @@ namespace BinaryData
     const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 3978;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4043;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
     const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3454;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
-    const int            openEphys_ProcessorPluginTemplate_cppSize = 3846;
+    const int            openEphys_ProcessorPluginTemplate_cppSize = 6365;
 
     extern const char*   openEphys_ProcessorPluginTemplate_h;
-    const int            openEphys_ProcessorPluginTemplate_hSize = 3502;
+    const int            openEphys_ProcessorPluginTemplate_hSize = 3746;
 
     extern const char*   openEphys_ProcessorVisualizerCanvasTemplate_cpp;
-    const int            openEphys_ProcessorVisualizerCanvasTemplate_cppSize = 1862;
+    const int            openEphys_ProcessorVisualizerCanvasTemplate_cppSize = 1972;
 
     extern const char*   openEphys_ProcessorVisualizerCanvasTemplate_h;
-    const int            openEphys_ProcessorVisualizerCanvasTemplate_hSize = 2706;
+    const int            openEphys_ProcessorVisualizerCanvasTemplate_hSize = 2797;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4111;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4286;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_h;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3221;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3306;
 
     extern const char*   openEphys_RecordEnginePluginTemplate_cpp;
     const int            openEphys_RecordEnginePluginTemplate_cppSize = 2169;

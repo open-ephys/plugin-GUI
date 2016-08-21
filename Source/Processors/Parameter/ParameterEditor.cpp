@@ -395,6 +395,14 @@ void ParameterCheckbox::paintButton (Graphics& g, bool isMouseOver, bool isButto
 }
 
 
+void ParameterCheckbox::clicked()
+{
+    Button::clicked();
+
+    setButtonText (String (getToggleState()));
+}
+
+
 // ========== PARAMETER SLIDER ====================
 ParameterSlider::ParameterSlider (float minValue, float maxValue, float def, Font labelFont) 
     : Slider    ("name")
@@ -469,10 +477,11 @@ void ParameterEditor::updateChannelSelectionUI()
     const int numChannels = m_channelSelector->getNumChannels();
     if (m_parameter->isBoolean())
     {
+        m_checkboxArray[0]->setToggleState (m_parameter->getValue (m_processor->getCurrentChannel()), dontSendNotification);
     }
     else if (m_parameter->isContinuous())
     {
-
+        m_sliderArray[0]->setValue (m_parameter->getValue (m_processor->getCurrentChannel()), dontSendNotification);
     }
     else if (m_parameter->isDiscrete())
     {

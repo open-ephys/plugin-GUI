@@ -35,7 +35,10 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
     // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]
 
+    //m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();
+    //content.setLookAndFeel (m_contentLookAndFeel);
     addAndMakeVisible (&content);
+    content.toBack(); // to be able to see parameters components
     setDesiredWidth (EDITOR_DESIRED_WIDTH);
 
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]

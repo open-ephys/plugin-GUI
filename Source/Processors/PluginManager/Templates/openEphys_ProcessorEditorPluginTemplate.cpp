@@ -35,6 +35,7 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
     //m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();
     //content.setLookAndFeel (m_contentLookAndFeel);
     addAndMakeVisible (&content);
+    content.toBack(); // to be able to see parameters components
     setDesiredWidth (EDITOR_DESIRED_WIDTH);
 
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]

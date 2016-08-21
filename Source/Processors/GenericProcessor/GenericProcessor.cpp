@@ -987,6 +987,8 @@ void GenericProcessor::getEventChannelNames (StringArray& Names) { }
 const String GenericProcessor::getProgramName (int index)   { return ""; }
 const String GenericProcessor::getName() const              { return m_name; }
 
+int GenericProcessor::getCurrentChannel() const { return currentChannel; }
+
 PluginProcessorType GenericProcessor::getProcessorType() const { return m_processorType; }
 
 bool GenericProcessor::hasEditor() const { return false; }

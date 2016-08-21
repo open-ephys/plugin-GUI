@@ -190,6 +190,9 @@ void Project::setMissingOpenEphysPluginDefaultValues()
     setValueIfVoid (getOpenEphysPluginFileSourceSupportedExts(),    "");
 
     setValueIfVoid (getOpenEphysPluginDesiredWidth(), 150);
+
+    m_pluginType          = Plugin::PluginType          ((int)getOpenEphysPluginType().getValue());
+    m_pluginProcessorType = Plugin::PluginProcessorType ((int)getOpenEphysPluginProcessorType().getValue());
 }
 
 

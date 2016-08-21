@@ -65,13 +65,15 @@ AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()
 
 void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 {
+    GenericProcessor::setParameter (parameterIndex, newValue);
+    editor->updateParameterButtons (parameterIndex);
+
     //Parameter& p =  parameters.getReference(parameterIndex);
     //p.setValue(newValue, 0);
 
     //threshold = newValue;
 
     //std::cout << float(p[0]) << std::endl;
-    editor->updateParameterButtons (parameterIndex);
 }
 
 
@@ -126,4 +128,66 @@ void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 
     }
     */
+}
+
+
+void PROCESSORCLASSNAME::saveCustomParametersToXml (XmlElement* parentElement)
+{
+    XmlElement* mainNode = parentElement->createNewChildElement ("PROCESSORCLASSNAME");
+    mainNode->setAttribute ("numParameters", getNumParameters());
+
+    // Open Ephys Plugin Generator will insert generated code to save parameters here. Don't edit this section.
+    //[OPENEPHYS_PARAMETERS_SAVE_SECTION_BEGIN]
+    for (int i = 0; i < getNumParameters(); ++i)
+    {
+        XmlElement* parameterNode = mainNode->createNewChildElement ("Parameter");
+
+        auto parameter = getParameterObject(i);
+        parameterNode->setAttribute ("name", parameter->getName());
+        parameterNode->setAttribute ("type", parameter->getParameterTypeString());
+
+        auto parameterValue = getParameterVar (i, currentChannel);
+
+        if (parameter->isBoolean())
+            parameterNode->setAttribute ("value", (int)parameterValue);
+        else if (parameter->isContinuous() || parameter->isDiscrete())
+            parameterNode->setAttribute ("value", (double)parameterValue);
+    }
+    //[OPENEPHYS_PARAMETERS_SAVE_SECTION_END]
+}
+
+
+void PROCESSORCLASSNAME::loadCustomParametersFromXml()
+{
+    if (parametersAsXml == nullptr) // prevent double-loading
+        return;
+
+    // use parametersAsXml to restore state
+
+    // Open Ephys Plugin Generator will insert generated code to load parameters here. Don't edit this section.
+    //[OPENEPHYS_PARAMETERS_LOAD_SECTION_BEGIN]
+    forEachXmlChildElement (*parametersAsXml, mainNode)
+    {
+        if (mainNode->hasTagName ("PROCESSORCLASSNAME"))
+        {
+            int parameterIdx = -1;
+
+            forEachXmlChildElement (*mainNode, parameterNode)
+            {
+                if (parameterNode->hasTagName ("Parameter"))
+                {
+                    ++parameterIdx;
+
+                    String parameterType = parameterNode->getStringAttribute ("type");
+                    if (parameterType == "Boolean")
+                        setParameter (parameterIdx, parameterNode->getBoolAttribute ("value"));
+                    else if (parameterType == "Continuous")
+                        setParameter (parameterIdx, parameterNode->getDoubleAttribute ("value"));
+                    else if (parameterType == "Discrete")
+                        setParameter (parameterIdx, parameterNode->getIntAttribute ("value"));
+                }
+            }
+        }
+    }
+    //[OPENEPHYS_PARAMETERS_LOAD_SECTION_END]
 }

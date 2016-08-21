@@ -146,6 +146,8 @@ class PLUGIN_API ParameterCheckbox : public Button
 public:
     ParameterCheckbox (bool defaultState);
 
+    void clicked() override;
+
     bool isEnabled;
 
 

@@ -133,6 +133,9 @@ public:
     /** JUCE method. Not used.*/
     void setCurrentProgram (int index) override;
 
+    /** Returns the current active channel. */
+    int getCurrentChannel() const;
+
     /** Returns the name of the parameter with a given index.*/
     const String getParameterName (int parameterIndex) override;
 

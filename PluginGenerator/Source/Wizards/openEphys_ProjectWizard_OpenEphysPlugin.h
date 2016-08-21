@@ -427,6 +427,24 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
         bool wasGeneratedSuccessfully = true;
 
+        if (m_shouldChangeContentLookAndFeel)
+        {
+            const auto lookAndFeelDeclarationCode = "ScopedPointer<LookAndFeel> m_contentLookAndFeel;";
+            const auto lookAndFeelSetterCode      = "content.setLookAndFeel (m_contentLookAndFeel);";
+            const auto lookAndFeelCreationCode    = "m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();";
+
+            canvasComponentCppFileContent = canvasComponentCppFileContent 
+                                    // Uncomment some pieces of code
+                                    .replace (String ("//") + lookAndFeelCreationCode, lookAndFeelCreationCode, false)
+                                    .replace (String ("//") + lookAndFeelSetterCode, lookAndFeelSetterCode, false)
+                                    // Change LookAndFeel class name
+                                    .replace ("LOOKANDFEELCLASSNAME", m_contentLookAndFeelClassName, false);
+
+            canvasComponentHFileContent = canvasComponentHFileContent
+                                    // Uncomment some pieces of code
+                                    .replace (String ("//") + lookAndFeelDeclarationCode, lookAndFeelDeclarationCode, false);
+        }
+
         if (! FileHelpers::overwriteFileWithNewDataIfDifferent (newCanvasComponentCppFile, canvasComponentCppFileContent))
         {
             failedFiles.add (newCanvasComponentCppFile.getFullPathName());
