@@ -80,9 +80,11 @@ void ParameterListBox::listBoxItemClicked (int row, const MouseEvent& e)
             menu.addItem (1, "Boolean");
             menu.addItem (2, "Continuous");
             menu.addItem (3, "Discrete");
+            menu.addItem (4, "Numerical");
 
             const int parameterId = m_parameters.size();
             Parameter* newParameter = nullptr;
+            // TODO <Kirill A>: Refactor
             switch (menu.show() - 1)
             {
                 case Parameter::PARAMETER_TYPE_BOOLEAN:
@@ -100,6 +102,12 @@ void ParameterListBox::listBoxItemClicked (int row, const MouseEvent& e)
                 case Parameter::PARAMETER_TYPE_DISCRETE:
                 {
                     newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_DISCRETE, parameterId);
+                    break;
+                }
+
+                case Parameter::PARAMETER_TYPE_NUMERICAL:
+                {
+                    newParameter = ParameterFactory::createEmptyParameter (Parameter::PARAMETER_TYPE_NUMERICAL, parameterId);
                     break;
                 }
 

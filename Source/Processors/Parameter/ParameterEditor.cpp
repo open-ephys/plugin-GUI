@@ -163,6 +163,41 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
             desiredHeight = 30;
         }
     }
+    else if (parameter->isNumerical())
+    {
+        std::cout << "Numerical parameter-> Creating slider." << std::endl;
+
+        // create slider
+        Array<var> possibleValues = parameter->getPossibleValues();
+        ParameterLabel* pl = new ParameterLabel (parameter->getName(),
+                                                 (double) possibleValues[0],
+                                                 (double) possibleValues[1],
+                                                 (double) parameter->getDefaultValue());
+
+        pl->setComponentID (String (parameter->getID()));
+        pl->setName (parameter->getName());
+        pl->addListener (this);
+        addAndMakeVisible (pl);
+        m_parameterLabelsArray.add (pl);
+
+        //const int labelWidth = labelFont.getStringWidth (parameter->getName());
+        if (isParameterHasCustomBounds)
+        {
+            const auto desiredBounds = getDesiredBounds();
+            pl->setBounds       (0, 0, desiredBounds.getWidth(), desiredBounds.getHeight());
+            //label->setBounds    ( (desiredBounds.getWidth() - labelWidth) / 2, desiredBounds.getHeight() - FONT_SIZE,
+            //                      labelWidth, FONT_SIZE);
+        }
+        else
+        {
+            pl->setBounds (5, 10, 60, 40);
+
+            //label->setBounds ((80 - labelWidth) / 2 - 5, 70, 100, FONT_SIZE);
+
+            desiredWidth = 60;
+            desiredHeight = 60;
+        }
+    }
 }
 
 
@@ -202,6 +237,13 @@ void ParameterEditor::setEnabled (bool isEnabled)
             m_checkboxArray[i]->isEnabled = isEnabled;
             m_checkboxArray[i]->setInterceptsMouseClicks (isEnabled, isEnabled);
             m_checkboxArray[i]->repaint();
+        }
+
+        for (int i = 0; i < m_parameterLabelsArray.size(); ++i)
+        {
+            m_parameterLabelsArray[i]->isEnabled = isEnabled;
+            m_parameterLabelsArray[i]->setInterceptsMouseClicks (isEnabled, isEnabled);
+            m_parameterLabelsArray[i]->repaint();
         }
     }
 }
@@ -243,6 +285,23 @@ void ParameterEditor::sliderValueChanged (Slider* sliderWhichValueHasChanged)
                 m_processor->setCurrentChannel (activeChannels[i]);
                 m_processor->setParameter (sliderWhichValueHasChanged->getComponentID().getIntValue(),
                                            sliderWhichValueHasChanged->getValue());
+            }
+        }
+    }
+}
+
+
+void ParameterEditor::parameterLabelValueChanged (ParameterLabel* parameterLabelWhichValueHasChanged)
+{
+    if (parameterLabelWhichValueHasChanged->isEnabled)
+    {
+        Array<int> activeChannels = m_channelSelector->getActiveChannels();
+        {
+            for (int i = 0; i < activeChannels.size(); ++i)
+            {
+                m_processor->setCurrentChannel (activeChannels[i]);
+                m_processor->setParameter (parameterLabelWhichValueHasChanged->getComponentID().getIntValue(),
+                                           parameterLabelWhichValueHasChanged->getValue());
             }
         }
     }
@@ -472,6 +531,106 @@ Path ParameterSlider::makeRotaryPath (double minValue, double maxValue, double v
 }
 
 
+// ParameterLabel
+// ============================================================================
+ParameterLabel::ParameterLabel (const String& labelName, double minValue, double maxValue, double defaultValue)
+    : isEnabled      (true)
+    , m_minValue     (minValue)
+    , m_maxValue     (maxValue)
+    , m_defaultValue (defaultValue)
+    , m_infoLabel    ("Info label", labelName)
+    , m_valueLabel   ("Value label", String (defaultValue))
+    , m_infoFont     ("Arial", 13, Font::plain)
+    , m_valueFont    ("Arial", 15, Font::plain)
+{
+    m_infoLabel.setColour (Label::textColourId, Colours::darkgrey);
+    m_infoLabel.setFont (m_infoFont);
+    addAndMakeVisible (&m_infoLabel);
+
+    m_valueLabel.setColour (Label::textColourId,        Colours::white);
+    m_valueLabel.setColour (Label::backgroundColourId,  Colours::grey);
+    m_valueLabel.setText (String (defaultValue), dontSendNotification);
+    //m_valueLabel.setJustificationType (Justification::topLeft);
+    m_valueLabel.setJustificationType (Justification::centredLeft);
+    m_valueLabel.setFont (m_valueFont);
+    m_valueLabel.setEditable (true);
+    m_valueLabel.addListener (this);
+    addAndMakeVisible (&m_valueLabel);
+}
+
+
+void ParameterLabel::resized()
+{
+    const int margin = 3;
+    auto localBounds = getLocalBounds();
+
+    m_infoLabel.setBounds  (localBounds.removeFromTop (m_infoFont.getHeight() + margin));
+    m_valueLabel.setBounds (localBounds);
+}
+
+
+void ParameterLabel::labelTextChanged (Label* label)
+{
+    if (label == &m_valueLabel)
+    {
+        Value val = label->getTextValue();
+        double requestedValue = double (val.getValue());
+        setValue (requestedValue, sendNotificationAsync);
+    }
+}
+
+
+double ParameterLabel::getValue() const noexcept
+{
+    return m_valueLabel.getText().getDoubleValue();
+}
+
+
+void ParameterLabel::setValue (double value, NotificationType notificationType)
+{
+    if (value < m_minValue || value > m_maxValue)
+    {
+        CoreServices::sendStatusMessage ("Value out of range.");
+
+        m_valueLabel.setText (String (m_defaultValue), dontSendNotification);
+    }
+    else
+    {
+        m_valueLabel.setText (String (value), notificationType);
+
+        if (notificationType != dontSendNotification)
+            m_listeners.call (&ParameterLabel::Listener::parameterLabelValueChanged, this);
+    }
+}
+
+
+void ParameterLabel::setInfoFont (Font font)
+{
+    m_infoFont = font;
+    m_infoLabel.setFont (font);
+}
+
+
+void ParameterLabel::setValueFont (Font font)
+{
+    m_valueFont = font;
+    m_valueLabel.setFont (font);
+}
+
+
+void ParameterLabel::addListener (Listener* listener)
+{
+    m_listeners.add (listener);
+}
+
+
+void ParameterLabel::removeListener (Listener* listener)
+{
+    m_listeners.remove (listener);
+}
+// ============================================================================
+
+
 void ParameterEditor::updateChannelSelectionUI()
 {
     const int numChannels = m_channelSelector->getNumChannels();
@@ -482,6 +641,10 @@ void ParameterEditor::updateChannelSelectionUI()
     else if (m_parameter->isContinuous())
     {
         m_sliderArray[0]->setValue (m_parameter->getValue (m_processor->getCurrentChannel()), dontSendNotification);
+    }
+    else if (m_parameter->isNumerical())
+    {
+        m_parameterLabelsArray[0]->setValue (m_parameter->getValue (m_processor->getCurrentChannel()), dontSendNotification);
     }
     else if (m_parameter->isDiscrete())
     {

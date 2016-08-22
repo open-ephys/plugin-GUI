@@ -1298,7 +1298,7 @@ static const unsigned char temp_binary_data_12[] =
 "\n"
 "        if (parameter->isBoolean())\n"
 "            parameterNode->setAttribute (\"value\", (int)parameterValue);\n"
-"        else if (parameter->isContinuous() || parameter->isDiscrete())\n"
+"        else if (parameter->isContinuous() || parameter->isDiscrete() || parameter->isNumerical())\n"
 "            parameterNode->setAttribute (\"value\", (double)parameterValue);\n"
 "    }\n"
 "    //[OPENEPHYS_PARAMETERS_SAVE_SECTION_END]\n"
@@ -1329,7 +1329,7 @@ static const unsigned char temp_binary_data_12[] =
 "                    String parameterType = parameterNode->getStringAttribute (\"type\");\n"
 "                    if (parameterType == \"Boolean\")\n"
 "                        setParameter (parameterIdx, parameterNode->getBoolAttribute (\"value\"));\n"
-"                    else if (parameterType == \"Continuous\")\n"
+"                    else if (parameterType == \"Continuous\" || parameterType == \"Numerical\")\n"
 "                        setParameter (parameterIdx, parameterNode->getDoubleAttribute (\"value\"));\n"
 "                    else if (parameterType == \"Discrete\")\n"
 "                        setParameter (parameterIdx, parameterNode->getIntAttribute (\"value\"));\n"
@@ -6082,7 +6082,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
         case 0xc39db71e:  numBytes = 4043; return openEphys_ProcessorEditorPluginTemplate_cpp;
         case 0x229158a3:  numBytes = 3454; return openEphys_ProcessorEditorPluginTemplate_h;
-        case 0xfca5b2d1:  numBytes = 6365; return openEphys_ProcessorPluginTemplate_cpp;
+        case 0xfca5b2d1:  numBytes = 6425; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;
         case 0x1d379af4:  numBytes = 1972; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
         case 0x9bde39f9:  numBytes = 2797; return openEphys_ProcessorVisualizerCanvasTemplate_h;

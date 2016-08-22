@@ -317,7 +317,6 @@ static String generateCodeForParameter (const Parameter& parameter)
 
         case Parameter::PARAMETER_TYPE_DISCRETE:
         {
-            //return String::empty;
             auto possibleValues = parameter.getPossibleValues();
 
             auto possibleValuesStr = CodeHelpers::indent ("Array<var> parameter{PARAMINDEX}PossibleValues {"
@@ -333,6 +332,25 @@ static String generateCodeForParameter (const Parameter& parameter)
                                          .replace ("[id]", String (id));
             constructorCode = CodeHelpers::indent (constructorCode, 4, true) + newLine;
             parameterCode << possibleValuesStr << constructorCode;
+
+            break;
+        }
+        case Parameter::PARAMETER_TYPE_NUMERICAL:
+        {
+            Array<var> possibleValues = parameter.getPossibleValues();
+            jassert (possibleValues.size() == 2);
+
+            const double minPossibleValue = double (possibleValues[0]);
+            const double maxPossibleValue = double (possibleValues[1]);
+
+            String constructorCode = String ("auto parameter{PARAMINDEX} = new Parameter (\"[name]\", \"[name]\", [minVal], [maxVal], [defaultVal], [id]);")
+                                         .replace ("[name]", name)
+                                         .replace ("[minVal]", String (minPossibleValue))
+                                         .replace ("[maxVal]", String (maxPossibleValue))
+                                         .replace ("[defaultVal]", defaultValue.toString())
+                                         .replace ("[id]", String (id));
+            constructorCode = CodeHelpers::indent (constructorCode, 4, true) + newLine;
+            parameterCode << constructorCode;
 
             break;
         }
@@ -378,7 +396,7 @@ static void createPropertiesForParameter (Parameter* parameter, Array<PropertyCo
     props.add (new TextPropertyComponent (parameter->getValueObjectForID(),           "Id", 6, false));
     props.add (new TextPropertyComponent (parameter->getValueObjectForDefaultValue(), "Default value", 6, false));
 
-    if (parameter->isContinuous())
+    if (parameter->isContinuous() || parameter->isNumerical())
     {
         props.add (new TextPropertyComponent (parameter->getValueObjectForMinValue(), "Minimum value", 6, false));
         props.add (new TextPropertyComponent (parameter->getValueObjectForMaxValue(), "Maximum value", 6, false));

@@ -150,7 +150,7 @@ void PROCESSORCLASSNAME::saveCustomParametersToXml (XmlElement* parentElement)
 
         if (parameter->isBoolean())
             parameterNode->setAttribute ("value", (int)parameterValue);
-        else if (parameter->isContinuous() || parameter->isDiscrete())
+        else if (parameter->isContinuous() || parameter->isDiscrete() || parameter->isNumerical())
             parameterNode->setAttribute ("value", (double)parameterValue);
     }
     //[OPENEPHYS_PARAMETERS_SAVE_SECTION_END]
@@ -181,7 +181,7 @@ void PROCESSORCLASSNAME::loadCustomParametersFromXml()
                     String parameterType = parameterNode->getStringAttribute ("type");
                     if (parameterType == "Boolean")
                         setParameter (parameterIdx, parameterNode->getBoolAttribute ("value"));
-                    else if (parameterType == "Continuous")
+                    else if (parameterType == "Continuous" || parameterType == "Numerical")
                         setParameter (parameterIdx, parameterNode->getDoubleAttribute ("value"));
                     else if (parameterType == "Discrete")
                         setParameter (parameterIdx, parameterNode->getIntAttribute ("value"));

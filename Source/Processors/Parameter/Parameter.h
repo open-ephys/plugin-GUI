@@ -55,6 +55,7 @@ public:
         PARAMETER_TYPE_BOOLEAN = 0
         , PARAMETER_TYPE_CONTINUOUS
         , PARAMETER_TYPE_DISCRETE
+        , PARAMETER_TYPE_NUMERICAL
     };
 
     /** Constructor for boolean parameters.*/
@@ -73,6 +74,12 @@ public:
     Parameter (const String& name,
                Array<var> possibleValues,
                int defaultValue, int ID,
+               bool deactivateDuringAcquisition = false);
+
+    /** Constructor for numerical parameters (label). */
+    Parameter (const String& name, const String& labelName,
+               double minPossibleValue, double maxPossibleValue, double defaultValue,
+               int ID,
                bool deactivateDuringAcquisition = false);
 
 
@@ -115,6 +122,9 @@ public:
 
     /** Returns true if a parameter is discrete, false otherwise.*/
     bool isDiscrete() const noexcept;
+
+    /** Returns true if a parameter is numerical, false otherwise.*/
+    bool isNumerical() const noexcept;
 
     /** Returns true if a user set custom bounds for the possible parameter editor, false otherwise. */
     bool hasCustomEditorBounds() const noexcept;

@@ -87,6 +87,30 @@ Parameter::Parameter (const String& name,
 }
 
 
+Parameter::Parameter (const String& name, const String& labelName,
+                      double minPossibleValue, double maxPossibleValue, double defaultValue,
+                      int ID,
+                      bool deactivateDuringAcquisition)
+    : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_nameValueObject                 (name)
+    , m_descriptionValueObject          ("")
+    , m_parameterIdValueObject          (ID)
+    , m_defaultValueObject              (defaultValue)
+    , m_parameterType                   (PARAMETER_TYPE_NUMERICAL)
+{
+    m_possibleValues.add (minPossibleValue);
+    m_possibleValues.add (maxPossibleValue);
+
+    // Initialize default value
+    m_values.set (0, defaultValue);
+
+    m_minValueObject = minPossibleValue;
+    m_maxValueObject = maxPossibleValue;
+
+    registerValueListeners();
+}
+
+
 void Parameter::registerValueListeners()
 {
     m_desiredXValueObject.addListener (this);
@@ -99,7 +123,6 @@ void Parameter::registerValueListeners()
 
     m_possibleValuesObject.addListener (this);
 
-    // Test
     m_nameValueObject.addListener        (this);
     m_parameterIdValueObject.addListener (this);
     m_descriptionValueObject.addListener (this);
@@ -123,6 +146,7 @@ Parameter::ParameterType Parameter::getParameterType() const noexcept { return m
 bool Parameter::isBoolean()     const noexcept { return m_parameterType == PARAMETER_TYPE_BOOLEAN; }
 bool Parameter::isContinuous()  const noexcept { return m_parameterType == PARAMETER_TYPE_CONTINUOUS; }
 bool Parameter::isDiscrete()    const noexcept { return m_parameterType == PARAMETER_TYPE_DISCRETE; }
+bool Parameter::isNumerical()   const noexcept { return m_parameterType == PARAMETER_TYPE_NUMERICAL; }
 
 bool Parameter::hasCustomEditorBounds() const noexcept { return m_hasCustomEditorBounds; }
 
@@ -152,6 +176,8 @@ String Parameter::getParameterTypeString() const noexcept
         return "Continuous";
     else if (isDiscrete())
         return "Discrete";
+    else if (isNumerical())
+        return "Numerical";
 
     // This should never happen
     jassertfalse;
@@ -165,8 +191,10 @@ Parameter::ParameterType Parameter::getParameterTypeFromString (const String& pa
         return Parameter::PARAMETER_TYPE_BOOLEAN;
     else if (parameterTypeString == "Continuous")
         return Parameter::PARAMETER_TYPE_CONTINUOUS;
-    else
+    else if (parameterTypeString == "Discrete")
         return Parameter::PARAMETER_TYPE_DISCRETE;
+    else
+        return Parameter::PARAMETER_TYPE_NUMERICAL;
 }
 
 
@@ -178,6 +206,8 @@ int Parameter::getEditorRecommendedWidth() const noexcept
         return 80;
     else if (isDiscrete())
         return 35 * getPossibleValues().size();
+    else if (isNumerical())
+        return 60;
     else
         return 0;
 }
@@ -191,6 +221,8 @@ int Parameter::getEditorRecommendedHeight() const noexcept
         return 80;
     else if (isDiscrete())
         return 30;
+    else if (isNumerical())
+        return 40;
     else
         return 0;
 }
@@ -218,6 +250,11 @@ void Parameter::setValue (float value, int channel)
     else if (isContinuous())
     {
         const float newValue = jlimit (float (m_possibleValues[0]), float (m_possibleValues[1]), value);
+        m_values.set (channel, newValue);
+    }
+    else if (isNumerical())
+    {
+        const double newValue = jlimit (double (m_possibleValues[0]), double (m_possibleValues[1]), (double)value);
         m_values.set (channel, newValue);
     }
     else
@@ -345,6 +382,12 @@ Parameter* ParameterFactory::createEmptyParameter (Parameter::ParameterType para
             return parameter;
         }
 
+        case Parameter::PARAMETER_TYPE_NUMERICAL:
+        {
+            auto parameter = new Parameter ("Empty", "Empty", -1.0, 1.0, 0.0, parameterId);
+            return parameter;
+        }
+
         default:
             return nullptr;
     };
@@ -361,7 +404,7 @@ ValueTree Parameter::createValueTreeForParameter (Parameter* parameter)
     parameterNode.setProperty (Ids::OpenEphysParameter::HAS_CUSTOM_BOUNDS,  parameter->hasCustomEditorBounds(), nullptr);
     parameterNode.setProperty (Ids::OpenEphysParameter::DESIRED_BOUNDS,     parameter->getEditorDesiredBounds().toString(), nullptr);
 
-    if (parameter->isContinuous() || parameter->isDiscrete())
+    if (parameter->isContinuous() || parameter->isDiscrete() || parameter->isNumerical())
         parameterNode.setProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES, convertArrayToString (parameter->getPossibleValues()), nullptr);
 
     parameterNode.setProperty (Ids::OpenEphysParameter::DESCRIPTION, parameter->getDescription(), nullptr);
@@ -402,7 +445,7 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
         parameter = new Parameter (name, minPossibleValue, maxPossibleValue, defaultValue, id);
     }
     // Discrete parameter
-    else
+    else if (parameterType == Parameter::PARAMETER_TYPE_DISCRETE)
     {
         String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
         Array<var> possibleValues (createArrayFromString<int> (arrayString, ","));
@@ -410,6 +453,18 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
         auto defaultValue = (int) parameterValueTree.getProperty (Ids::OpenEphysParameter::DEFAULT_VALUE);
 
         parameter = new Parameter (name, possibleValues, defaultValue, id);
+    }
+    // Numerical parameter
+    else
+    {
+        String arrayString = parameterValueTree.getProperty (Ids::OpenEphysParameter::POSSIBLE_VALUES);
+        Array<var> possibleValues (createArrayFromString<double> (arrayString, ","));
+
+        auto minPossibleValue = double (possibleValues[0]);
+        auto maxPossibleValue = double (possibleValues[1]);
+        auto defaultValue = (double) parameterValueTree.getProperty (Ids::OpenEphysParameter::DEFAULT_VALUE);
+
+        parameter = new Parameter (name, name, minPossibleValue, maxPossibleValue, defaultValue, id);
     }
 
     // Set custom bounds if needed

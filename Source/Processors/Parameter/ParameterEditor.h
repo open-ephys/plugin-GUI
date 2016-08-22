@@ -35,6 +35,54 @@ class ParameterSlider;
 class ParameterCheckbox;
 
 
+/** Used to edit numeric parameters.  */
+class PLUGIN_API ParameterLabel : public Component
+                                , public Label::Listener
+{
+public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
+
+        virtual void parameterLabelValueChanged (ParameterLabel* label) = 0;
+    };
+
+    ParameterLabel (const String& labelName, double minValue, double maxValue, double defaultValue);
+
+    void resized() override;
+
+    void labelTextChanged (Label* label) override;
+
+    double getValue() const noexcept;
+
+    void setValue (double value, NotificationType notificationType = sendNotificationAsync);
+    void setInfoFont  (Font font);
+    void setValueFont (Font font);
+
+    void addListener    (Listener* listener);
+    void removeListener (Listener* listener);
+
+    bool isEnabled;
+
+private:
+    double m_minValue;
+    double m_maxValue;
+    double m_defaultValue;
+
+    Label m_infoLabel;
+    Label m_valueLabel;
+
+    Font m_infoFont;
+    Font m_valueFont;
+
+    ListenerList<Listener> m_listeners;
+
+    // ========================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParameterLabel);
+};
+
+
 /**
     Automatically creates an interactive editor for a particular
     parameter.
@@ -44,6 +92,7 @@ class ParameterCheckbox;
 class PLUGIN_API ParameterEditor : public Component
                                  , public Button::Listener
                                  , public Slider::Listener
+                                 , public ParameterLabel::Listener
 {
 public:
     ParameterEditor (GenericProcessor* proccessor, Parameter* parameter, Font labelFont);
@@ -59,6 +108,8 @@ public:
 
     void buttonClicked (Button* buttonThatWasClicked) override;
     void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
+
+    void parameterLabelValueChanged (ParameterLabel* parameterLabel) override;
 
     void setChannelSelector (ChannelSelector* channelSelector);
 
@@ -82,6 +133,7 @@ private:
     OwnedArray<ParameterSlider>     m_sliderArray;
     OwnedArray<ParameterButton>     m_buttonArray;
     OwnedArray<ParameterCheckbox>   m_checkboxArray;
+    OwnedArray<ParameterLabel>      m_parameterLabelsArray;
     OwnedArray<Label>               m_labelsArray;
 
     Array<int> m_buttonIdArray;
@@ -178,6 +230,8 @@ private:
 
     Font font;
 };
+
+
 
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__
