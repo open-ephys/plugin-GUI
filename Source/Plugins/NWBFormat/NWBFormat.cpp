@@ -36,7 +36,7 @@
 #define SPIKE_CHUNK_YSIZE 40
 #endif
 
- NWBFile::NWBFile(String fName, String ver) : HDF5FileBase(), filename(fName), GUIVersion(ver), spikeMaxSize(0)
+ NWBFile::NWBFile(String fName, String ver, String idText) : HDF5FileBase(), filename(fName), identifierText(idText), GUIVersion(ver), spikeMaxSize(0)
  {
 	 //Init stuff
 	 readyToOpen=true; //In KWIK this is in initFile, but the new recordEngine methods make it safe for it to be here
@@ -76,6 +76,13 @@ int NWBFile::createFileStructure()
 	CHECK_ERROR(setAttributeStr(*xmlText, "/general/data_collection", "configuration"));
 	
 	//TODO: Add default datasets
+	//Modify this one once we have JUCE4 to allow UTC time 
+	String time = Time::getCurrentTime().formatted("%Y-%m-%dT%H:%M:%S");
+	createTextDataSet("", "file_create_date", time);
+	createTextDataSet("", "identifier", identifierText);
+	createTextDataSet("", "nwb_version", "NWB-1.0.4_beta");
+	createTextDataSet("", "session_description", " ");
+	createTextDataSet("", "session_start_time", time);
 	
 	return 0;
 }
@@ -298,8 +305,8 @@ int NWBFile::createFileStructure()
  {
 	 return filename;
  }
- 
- HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry)
+
+  HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry)
  {
 	 StringArray ancestryStrings;
 	 ancestryStrings.add("TimeSeries");
@@ -323,3 +330,13 @@ int NWBFile::createFileStructure()
 
  }
  
+  void NWBFile::createTextDataSet(String path, String name, String text)
+  {
+	  ScopedPointer<HDF5RecordingData> dSet;
+
+	  if (text.isEmpty()) text = " "; //to avoid 0-length strings, which cause errors
+
+	  dSet = createDataSet(STR, 1, 0, path + "/" + name);
+	  if (!dSet) return;
+	  dSet->writeDataBlock(1, STR, text.toUTF8());
+  }

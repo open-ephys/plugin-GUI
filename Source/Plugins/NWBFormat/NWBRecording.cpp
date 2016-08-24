@@ -48,7 +48,7 @@
 	 //Called when acquisition starts, to open the files
 	 String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment_" + String(experimentNumber) + ".nwb";
 	 
-	 recordFile = new NWBFile(basepath, CoreServices::getGUIVersion());
+	 recordFile = new NWBFile(basepath, CoreServices::getGUIVersion(), identifierText);
 	 recordFile->setXmlText(getLatestSettingsXml());
 
 	 int recProcs = getNumRecordedProcessors();
@@ -217,6 +217,14 @@ RecordEngineManager* NWBRecordEngine::getEngineManager()
 {
 	//static factory that instantiates the engine manager, which allows to configure recording options among other things. See OriginalRecording to see how to create options for a record engine
 	RecordEngineManager* man = new RecordEngineManager("NWB", "NWB", &(engineFactory<NWBRecordEngine>));
+	EngineParameter* param;
+	param = new EngineParameter(EngineParameter::STR, 0, "Identifier Text", String::empty);
+	man->addParameter(param);
 	return man;
 	
+}
+
+void NWBRecordEngine::setParameter(EngineParameter& parameter)
+{
+	strParameter(0, identifierText);
 }

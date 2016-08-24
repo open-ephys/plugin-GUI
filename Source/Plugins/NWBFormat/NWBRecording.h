@@ -43,6 +43,7 @@
 			void addSpikeElectrode(int index,const  SpikeRecordInfo* elec) override;
 			void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
 			void resetChannels() override;
+			void setParameter(EngineParameter& parameter) override;
 			
 			static RecordEngineManager* getEngineManager();
 			
@@ -61,6 +62,8 @@
 			HeapBlock<int16> intBuffer;
 			HeapBlock<double> tsBuffer;
 			int bufferSize;
+
+			String identifierText;
 			
 			JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NWBRecordEngine);
 

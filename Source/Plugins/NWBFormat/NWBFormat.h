@@ -44,7 +44,7 @@ namespace NWBRecording
 	class NWBFile : public HDF5FileBase
 	{
 	public:
-		NWBFile(String fName, String ver); //with whatever arguments it's necessary
+		NWBFile(String fName, String ver, String idText); //with whatever arguments it's necessary
 		~NWBFile();
 		bool startNewRecording(int recordingNumber, const Array<NWBRecordingInfo>& continuousArray, const Array<NWBRecordingInfo>& electrodeArray);
 		void stopRecording();
@@ -61,6 +61,7 @@ namespace NWBRecording
 
 	private:
 		HDF5RecordingData* createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry);
+		void createTextDataSet(String path, String name, String text);
 
 		const String filename;
 		const String GUIVersion;
@@ -90,8 +91,8 @@ namespace NWBRecording
 		int spikeMaxSize;
 
 		const String* xmlText;
+		const String identifierText;
 
-		//whatever is needed
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NWBFile);
 
 	};
