@@ -47,7 +47,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::ProcessorPlugin;
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
 		info->processor.name = "Julia Processor";
 		info->processor.type = Plugin::FilterProcessor;
 		info->processor.creator = &(Plugin::createProcessor<JuliaProcessor>);

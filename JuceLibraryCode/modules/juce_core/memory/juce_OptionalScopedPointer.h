@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -180,6 +180,12 @@ private:
     //==============================================================================
     ScopedPointer<ObjectType> object;
     bool shouldDelete;
+
+    // This is here to avoid people accidentally taking a second owned copy of
+    // a scoped pointer, which is almost certainly not what you intended to do!
+    // If you hit a problem with this, you probably meant to say
+    //  myPointer.setOwned (myScopedPointer.release())
+    void setOwned (const ScopedPointer<ObjectType>&) JUCE_DELETED_FUNCTION;
 };
 
 

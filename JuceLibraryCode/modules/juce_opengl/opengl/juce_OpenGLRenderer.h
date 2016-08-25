@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -50,6 +50,8 @@ public:
     /** Called when you should render the next openGL frame.
         Note that this callback will be made on a background thread, not the message
         thread, so make sure that your implementation is thread-safe.
+        If the context is attached to a component in order to do component rendering,
+        then the MessageManager may be locked when this callback is made.
         For information about how to trigger a render callback, see
         OpenGLContext::triggerRepaint() and OpenGLContext::setContinuousRepainting().
     */

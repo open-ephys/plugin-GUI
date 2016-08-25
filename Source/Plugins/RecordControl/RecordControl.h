@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __RECORDCONTROL_H_120DD434__
@@ -27,43 +26,40 @@
 #include <ProcessorHeaders.h>
 #include "RecordControlEditor.h"
 
+
 /**
+    Stops and stops recording in response to incoming events.
 
-  Stops and stops recording in response to incoming events.
-
-  @see RecordNode
-
+    @see RecordNode
 */
-
 class RecordControl : public GenericProcessor
 {
 public:
     RecordControl();
     ~RecordControl();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int, float);
-    void updateTriggerChannel(int newChannel);
-    void handleEvent(int eventType, MidiMessage& event, int);
+    AudioProcessorEditor* createEditor() override;
 
-    bool enable();
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    bool isUtility()
-    {
-        return true;
-    }
+    void setParameter (int parameterIndex, float newValue) override;
+    void handleEvent (int eventType, MidiMessage& event, int) override;
 
-    AudioProcessorEditor* createEditor();
+    bool enable() override;
+
+    void updateTriggerChannel (int newChannel);
+
 
 private:
     int triggerChannel;
+
     enum Edges { RISING = 0, FALLING = 1 };
-    enum Types {SET = 0, TOGGLE = 1};
+    enum Types { SET = 0, TOGGLE = 1};
+
     Edges triggerEdge;
     Types triggerType;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControl);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControl);
 };
 
 #endif

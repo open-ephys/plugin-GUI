@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-#if defined (JUCE_AUDIO_DEVICES_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
+#ifdef JUCE_AUDIO_DEVICES_H_INCLUDED
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -31,11 +31,12 @@
  #error "Incorrect use of JUCE cpp file"
 #endif
 
-// Your project must contain an AppConfig.h file with your project-specific settings in it,
-// and your header search path must make it accessible to the module's files.
-#include "AppConfig.h"
+#define JUCE_CORE_INCLUDE_OBJC_HELPERS 1
+#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
+#define JUCE_CORE_INCLUDE_JNI_HELPERS 1
+#define JUCE_CORE_INCLUDE_NATIVE_HEADERS 1
+#define JUCE_EVENTS_INCLUDE_WIN32_MESSAGE_WINDOW 1
 
-#include "../juce_core/native/juce_BasicNativeHeaders.h"
 #include "juce_audio_devices.h"
 
 //==============================================================================
@@ -72,7 +73,7 @@
      This means that anyone who wants to use JUCE's ASIO abilities will have to:
 
      1) Agree to Steinberg's licensing terms and download the ASIO SDK
-         (see www.steinberg.net/Steinberg/Developers.asp).
+         (see http://www.steinberg.net/en/company/developers.html).
 
      2) Enable this code with a global definition #define JUCE_ASIO 1.
 
@@ -145,7 +146,6 @@ namespace juce
 
 //==============================================================================
 #if JUCE_MAC
- #include "../juce_core/native/juce_osx_ObjCHelpers.h"
  #include "native/juce_mac_CoreAudio.cpp"
  #include "native/juce_mac_CoreMidi.cpp"
 
@@ -164,8 +164,6 @@ namespace juce
 
 //==============================================================================
 #elif JUCE_WINDOWS
- #include "../juce_core/native/juce_win32_ComSmartPtr.h"
- #include "../juce_events/native/juce_win32_HiddenMessageWindow.h"
 
  #if JUCE_WASAPI
   #include "native/juce_win32_WASAPI.cpp"
@@ -207,7 +205,6 @@ namespace juce
 
 //==============================================================================
 #elif JUCE_ANDROID
- #include "../juce_core/native/juce_android_JNIHelpers.h"
  #include "native/juce_android_Audio.cpp"
  #include "native/juce_android_Midi.cpp"
 

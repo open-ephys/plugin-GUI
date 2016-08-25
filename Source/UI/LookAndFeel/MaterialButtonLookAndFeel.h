@@ -24,9 +24,8 @@
 #ifndef MATERIALBUTTONLOOKANDFEEL_H_INCLUDED
 #define MATERIALBUTTONLOOKANDFEEL_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "../../Processors/PluginManager/OpenEphysPlugin.h"
-#include "CustomLookAndFeel.h"
 
 
 /**

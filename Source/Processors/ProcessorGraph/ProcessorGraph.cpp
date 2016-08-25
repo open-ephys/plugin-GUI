@@ -108,7 +108,7 @@ void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
 		{
 			// by default, all source nodes record automatically
 			processor->setAllChannelsToRecord();
-			if (processor->generatesTimestamps())
+			if (processor->isGeneratesTimestamps())
 			{
 				getMessageCenter()->addSourceProcessor(processor);
 				if (getMessageCenter()->getSourceNodeId() == 0)
@@ -272,7 +272,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             std::cout << "Source node: " << source->getName() << "." << std::endl;
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
-            if (source->enabledState())
+            if (source->isEnabledState())
             {
                 // add the connections to audio and record nodes if necessary
                 if (!(source->isSink()     ||
@@ -329,7 +329,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                         if (dest != nullptr)
                         {
 
-                            if (dest->enabledState())
+                            if (dest->isEnabledState())
                             {
                                 connectProcessors(source, dest);
                             }
@@ -548,7 +548,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 			{
 				GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
 				//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
-				if (p && p->isSource() && p->generatesTimestamps())
+				if (p && p->isSource() && p->isGeneratesTimestamps())
 				{
 					newId = p->nodeId;
 				}

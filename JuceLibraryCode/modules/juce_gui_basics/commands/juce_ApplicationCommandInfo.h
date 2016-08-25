@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -135,7 +135,7 @@ struct JUCE_API  ApplicationCommandInfo
         /** Indicates that the command can't currently be performed.
 
             The ApplicationCommandTarget::getCommandInfo() method must set this flag if it's
-            not currently permissable to perform the command. If the flag is set, then
+            not currently permissible to perform the command. If the flag is set, then
             components that trigger the command, e.g. PopupMenu, may choose to grey-out the
             command or show themselves as not being enabled.
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -32,17 +32,27 @@ String String::fromCFString (CFStringRef cfString)
         return String();
 
     CFRange range = { 0, CFStringGetLength (cfString) };
-    HeapBlock <UniChar> u ((size_t) range.length + 1);
-    CFStringGetCharacters (cfString, range, u);
-    u[range.length] = 0;
+    CFIndex bytesNeeded = 0;
+    CFStringGetBytes (cfString, range, kCFStringEncodingUTF8, 0, false, nullptr, 0, &bytesNeeded);
 
-    return String (CharPointer_UTF16 ((const CharPointer_UTF16::CharType*) u.getData()));
+    HeapBlock<UInt8> utf8 ((size_t) bytesNeeded + 1);
+    CFStringGetBytes (cfString, range, kCFStringEncodingUTF8, 0, false, utf8, bytesNeeded + 1, nullptr);
+
+    return String (CharPointer_UTF8 ((const CharPointer_UTF8::CharType*) utf8.getData()),
+                   CharPointer_UTF8 ((const CharPointer_UTF8::CharType*) utf8.getData() + bytesNeeded));
 }
 
 CFStringRef String::toCFString() const
 {
-    CharPointer_UTF16 utf16 (toUTF16());
-    return CFStringCreateWithCharacters (kCFAllocatorDefault, (const UniChar*) utf16.getAddress(), (CFIndex) utf16.length());
+    const char* const utf8 = toRawUTF8();
+
+    if (CFStringRef result = CFStringCreateWithBytes (kCFAllocatorDefault, (const UInt8*) utf8,
+                                                      (CFIndex) strlen (utf8), kCFStringEncodingUTF8, false))
+        return result;
+
+    // If CFStringCreateWithBytes fails, it probably means there was a UTF8 format
+    // error, so we'll return an empty string rather than a null pointer.
+    return String().toCFString();
 }
 
 String String::convertToPrecomposedUnicode() const
@@ -72,7 +82,7 @@ String String::convertToPrecomposedUnicode() const
     {
         const size_t bytesNeeded = CharPointer_UTF16::getBytesRequiredFor (getCharPointer());
 
-        HeapBlock <char> tempOut;
+        HeapBlock<char> tempOut;
         tempOut.calloc (bytesNeeded + 4);
 
         ByteCount bytesRead = 0;

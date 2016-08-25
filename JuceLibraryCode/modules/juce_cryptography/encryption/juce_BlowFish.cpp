@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -181,7 +181,7 @@ BlowFish::BlowFish (const void* const keyData, const int keyBytes)
 
         for (int k = 0; k < 4; ++k)
         {
-            d = (d << 8) | static_cast <const uint8*> (keyData)[j];
+            d = (d << 8) | static_cast<const uint8*> (keyData)[j];
 
             if (++j >= keyBytes)
                 j = 0;

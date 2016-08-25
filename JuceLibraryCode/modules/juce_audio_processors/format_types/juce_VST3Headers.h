@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -25,9 +25,6 @@
 #ifndef JUCE_VST3HEADERS_H_INCLUDED
 #define JUCE_VST3HEADERS_H_INCLUDED
 
-#undef Point
-#undef Component
-
 // Wow, those Steinberg guys really don't worry too much about compiler warnings.
 #if _MSC_VER
  #pragma warning (disable: 4505)
@@ -44,14 +41,21 @@
  #pragma clang diagnostic ignored "-Woverloaded-virtual"
  #pragma clang diagnostic ignored "-Wshadow"
  #pragma clang diagnostic ignored "-Wdeprecated-register"
+ #pragma clang diagnostic ignored "-Wunused-function"
+ #pragma clang diagnostic ignored "-Wsign-conversion"
+ #pragma clang diagnostic ignored "-Wsign-compare"
+ #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
+
+#undef DEVELOPMENT
+#define DEVELOPMENT 0  // This avoids a Clang warning in Steinberg code about unused values
 
 /*  These files come with the Steinberg VST3 SDK - to get them, you'll need to
     visit the Steinberg website and agree to whatever is currently required to
     get them.
 
     Then, you'll need to make sure your include path contains your "VST3 SDK"
-    directory (or whatever you've named it on your machine). The Introjucer has
+    directory (or whatever you've named it on your machine). The Projucer has
     a special box for setting this path.
 */
 #if JUCE_VST3HEADERS_INCLUDE_HEADERS_ONLY
@@ -75,6 +79,7 @@
  #include <pluginterfaces/vst/ivstprocesscontext.h>
  #include <pluginterfaces/vst/vsttypes.h>
  #include <pluginterfaces/vst/ivstunits.h>
+ #include <pluginterfaces/vst/ivstmidicontrollers.h>
  #include <public.sdk/source/common/memorystream.h>
 #else
  #include <base/source/baseiids.cpp>
@@ -92,6 +97,7 @@
  #include <pluginterfaces/base/ipluginbase.h>
  #include <pluginterfaces/base/ustring.cpp>
  #include <pluginterfaces/gui/iplugview.h>
+ #include <pluginterfaces/vst/ivstmidicontrollers.h>
  #include <public.sdk/source/common/memorystream.cpp>
  #include <public.sdk/source/common/pluginview.cpp>
  #include <public.sdk/source/vst/vsteditcontroller.cpp>
@@ -110,7 +116,6 @@ namespace Steinberg
     DEF_CLASS_IID (IPlugView)
     DEF_CLASS_IID (IPlugFrame)
     DEF_CLASS_IID (IBStream)
-    DEF_CLASS_IID (ISizeableStream)
     DEF_CLASS_IID (IPluginFactory)
     DEF_CLASS_IID (IPluginFactory2)
     DEF_CLASS_IID (IPluginFactory3)
@@ -166,7 +171,5 @@ namespace Steinberg
 #undef DEF_CLASS2
 #undef DEF_CLASS_W
 #undef END_FACTORY
-#undef Point
-#undef Component
 
 #endif   // JUCE_VST3HEADERS_H_INCLUDED

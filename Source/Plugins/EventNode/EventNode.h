@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,49 +28,35 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "EventNodeEditor.h"
 
-/**
 
+/**
   Generates events at regular intervals.
 
   @see GenericProcessor, EventNodeEditor
-
 */
-
 class EventNode : public GenericProcessor
 
 {
 public:
-
     EventNode();
     ~EventNode();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    //void setParameter (int parameterIndex, float newValue);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    //void setParameter (int parameterIndex, float newValue) override;
 
-    bool isSource()
-    {
-        return true;
-    }
+    int getNumHeadstageOutputs() const override { return 0; }
 
-    int getNumHeadstageOutputs()
-    {
-        return 0;
-    }
+    void updateSettings() override;
 
-    void updateSettings();
+    AudioProcessorEditor* createEditor() override;
 
-    AudioProcessorEditor* createEditor();
 
 private:
-
     float accumulator;
     float Hz;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventNode);
 };
-
-
 
 
 

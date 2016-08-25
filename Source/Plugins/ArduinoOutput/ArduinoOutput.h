@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -31,60 +31,51 @@
 
 
 /**
+    *UNDER CONSTRUCTION*
 
-	*UNDER CONSTRUCTION*
+    Provides a serial interface to an Arduino board.
 
-	Provides a serial interface to an Arduino board.
+    Based on Open Frameworks ofArduino class.
 
-	Based on Open Frameworks ofArduino class.
-
-	@see GenericProcessor
-
-*/
-
+    @see GenericProcessor
+ */
 class ArduinoOutput : public GenericProcessor
 {
 public:
-
     ArduinoOutput();
     ~ArduinoOutput();
 
     /** Searches for events and triggers the Arduino output when appropriate. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
 
     /** Currently unused. Future uses may include changing the TTL trigger channel
     or the output channel of the Arduino. */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter (int parameterIndex, float newValue) override;
 
     /** Convenient interface for responding to incoming events. */
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
 
     /** Called immediately prior to the start of data acquisition. */
-    bool enable();
+    bool enable() override;
 
     /** Called immediately after the end of data acquisition. */
-    bool disable();
+    bool disable() override;
 
     /** Creates the ArduinoOutputEditor. */
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    /** Defines the ArduinoOutput processor as a sink. */
-    bool isSink()
-    {
-        return true;
-    }
+    void setOutputChannel (int);
+    void setInputChannel  (int);
+    void setGateChannel   (int);
 
-    void setOutputChannel(int);
-    void setInputChannel(int);
-    void setGateChannel(int);
-    void setDevice(String deviceString);
+    void setDevice (String deviceString);
 
     int outputChannel;
     int inputChannel;
     int gateChannel;
 
-private:
 
+private:
     /** An open-frameworks Arduino object. */
     ofArduino arduino;
 
@@ -92,8 +83,7 @@ private:
     bool acquisitionIsActive;
     bool deviceSelected;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutput);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 };
 
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -34,18 +34,18 @@
 
 juce_wchar CharacterFunctions::toUpperCase (const juce_wchar character) noexcept
 {
-    return towupper ((wchar_t) character);
+    return (juce_wchar) towupper ((wint_t) character);
 }
 
 juce_wchar CharacterFunctions::toLowerCase (const juce_wchar character) noexcept
 {
-    return towlower ((wchar_t) character);
+    return (juce_wchar) towlower ((wint_t) character);
 }
 
 bool CharacterFunctions::isUpperCase (const juce_wchar character) noexcept
 {
    #if JUCE_WINDOWS
-    return iswupper ((wchar_t) character) != 0;
+    return iswupper ((wint_t) character) != 0;
    #else
     return toLowerCase (character) != character;
    #endif
@@ -54,7 +54,7 @@ bool CharacterFunctions::isUpperCase (const juce_wchar character) noexcept
 bool CharacterFunctions::isLowerCase (const juce_wchar character) noexcept
 {
    #if JUCE_WINDOWS
-    return iswlower ((wchar_t) character) != 0;
+    return iswlower ((wint_t) character) != 0;
    #else
     return toUpperCase (character) != character;
    #endif
@@ -72,7 +72,7 @@ bool CharacterFunctions::isWhitespace (const char character) noexcept
 
 bool CharacterFunctions::isWhitespace (const juce_wchar character) noexcept
 {
-    return iswspace ((wchar_t) character) != 0;
+    return iswspace ((wint_t) character) != 0;
 }
 
 bool CharacterFunctions::isDigit (const char character) noexcept
@@ -82,7 +82,7 @@ bool CharacterFunctions::isDigit (const char character) noexcept
 
 bool CharacterFunctions::isDigit (const juce_wchar character) noexcept
 {
-    return iswdigit ((wchar_t) character) != 0;
+    return iswdigit ((wint_t) character) != 0;
 }
 
 bool CharacterFunctions::isLetter (const char character) noexcept
@@ -93,7 +93,7 @@ bool CharacterFunctions::isLetter (const char character) noexcept
 
 bool CharacterFunctions::isLetter (const juce_wchar character) noexcept
 {
-    return iswalpha ((wchar_t) character) != 0;
+    return iswalpha ((wint_t) character) != 0;
 }
 
 bool CharacterFunctions::isLetterOrDigit (const char character) noexcept
@@ -105,7 +105,17 @@ bool CharacterFunctions::isLetterOrDigit (const char character) noexcept
 
 bool CharacterFunctions::isLetterOrDigit (const juce_wchar character) noexcept
 {
-    return iswalnum ((wchar_t) character) != 0;
+    return iswalnum ((wint_t) character) != 0;
+}
+
+bool CharacterFunctions::isPrintable (const char character) noexcept
+{
+    return (character >= ' ' && character <= '~');
+}
+
+bool CharacterFunctions::isPrintable (const juce_wchar character) noexcept
+{
+    return iswprint ((wint_t) character) != 0;
 }
 
 int CharacterFunctions::getHexDigitValue (const juce_wchar digit) noexcept
@@ -151,4 +161,17 @@ double CharacterFunctions::mulexp10 (const double value, int exponent) noexcept
     }
 
     return negative ? (value / result) : (value * result);
+}
+
+juce_wchar CharacterFunctions::getUnicodeCharFromWindows1252Codepage (const uint8 c) noexcept
+{
+    if (c < 0x80 || c >= 0xa0)
+        return (juce_wchar) c;
+
+    static const uint16 lookup[] = { 0x20AC, 0x0007, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+                                     0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x0007, 0x017D, 0x0007,
+                                     0x0007, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+                                     0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x0007, 0x017E, 0x0178 };
+
+    return (juce_wchar) lookup[c - 0x80];
 }

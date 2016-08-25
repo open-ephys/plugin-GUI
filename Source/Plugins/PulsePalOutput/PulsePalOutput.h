@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __PULSEPALOUTPUT_H_A8BF66D6__
@@ -28,37 +27,29 @@
 #include "PulsePalOutputEditor.h"
 #include "serial/PulsePal.h"
 
+
 /**
+    Allows the signal chain to send outputs to the Pulse Pal
+    from Lucid Biosystems (www.lucidbiosystems.com)
 
-  Allows the signal chain to send outputs to the Pulse Pal
-  from Lucid Biosystems (www.lucidbiosystems.com)
-
-  @see GenericProcessor, PulsePalOutputEditor, PulsePal
-
+    @see GenericProcessor, PulsePalOutputEditor, PulsePal
 */
-
 class PulsePalOutput : public GenericProcessor
-
 {
 public:
-
     PulsePalOutput();
     ~PulsePalOutput();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter(int parameterIndex, float newValue);
+    AudioProcessorEditor* createEditor() override;
 
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    AudioProcessorEditor* createEditor();
+    void setParameter (int parameterIndex, float newValue) override;
 
-    bool isSink()
-    {
-        return true;
-    }
+    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
+
 
 private:
-
     Array<int> channelTtlTrigger;
     Array<int> channelTtlGate;
     Array<bool> channelState;
@@ -67,10 +58,8 @@ private:
 
     PulsePal pulsePal;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutput);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PulsePalOutput);
 };
-
 
 
 #endif  // __PULSEPALOUTPUT_H_A8BF66D6__

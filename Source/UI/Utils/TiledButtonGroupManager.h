@@ -24,7 +24,6 @@
 #ifndef TILEDBUTTONGROUPMANAGER_H_INCLUDED
 #define TILEDBUTTONGROUPMANAGER_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Processors/PluginManager/OpenEphysPlugin.h"
 #include "ButtonGroupManager.h"
 
@@ -37,8 +36,6 @@
     using mouse drag selection. (mouse drag - to select, shift+mouse drag to deselect)
 
 */
-
-
 class PLUGIN_API TiledButtonGroupManager : public ButtonGroupManager
 {
 public:
@@ -73,7 +70,7 @@ public:
 
         This class controls ownership of buttons.
     */
-    void addButton (Button* newButton) override;
+    void addButton (Button* newButton, bool useDefaultLookAndFeel = true) override;
 
 
 private:

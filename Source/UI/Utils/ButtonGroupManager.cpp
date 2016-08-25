@@ -116,10 +116,12 @@ bool ButtonGroupManager::isRadioButtonMode() const
 }
 
 
-void ButtonGroupManager::addButton (Button* newButton)
+void ButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
 {
     newButton->addListener (this);
-    newButton->setLookAndFeel (m_buttonsLookAndFeel);
+
+    if (useDefaultLookAndFeel)
+        newButton->setLookAndFeel (m_buttonsLookAndFeel);
 
     m_componentProxyHandler->addAndMakeVisible (newButton);
     m_buttons.add (newButton);
@@ -143,6 +145,18 @@ void ButtonGroupManager::removeButton (int index)
     }
 
     m_buttons.remove (index);
+}
+
+
+void ButtonGroupManager::removeAllButtons()
+{
+    m_buttons.clear();
+}
+
+
+void ButtonGroupManager::clear()
+{
+    removeAllButtons();
 }
 
 

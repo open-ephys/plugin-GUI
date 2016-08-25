@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef JUCE_LINEARSMOOTHEDVALUE_H_INCLUDED
-#define JUCE_LINEARSMOOTHEDVALUE_H_INCLUDED
+#ifndef JUCE_LINEARSMOOTHEDVALUEATOMIC_H_INCLUDED
+#define JUCE_LINEARSMOOTHEDVALUEATOMIC_H_INCLUDED
 
 #include "../PluginManager/OpenEphysPlugin.h"
 #include <atomic>
@@ -154,4 +154,4 @@ FloatType LinearSmoothedValueAtomic<FloatType>::getNextValue() noexcept
 }
 
 
-#endif   // JUCE_LINEARSMOOTHEDVALUE_H_INCLUDED
+#endif   // JUCE_LINEARSMOOTHEDVALUEATOMIC_H_INCLUDED

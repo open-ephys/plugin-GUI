@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -159,7 +159,7 @@ public:
 
         If allowMenusAndBars is true, things like the menu and dock (on mac) are still
         allowed to pop up when the mouse moves onto them. If this is false, it'll try
-        to hide as much on-screen paraphenalia as possible.
+        to hide as much on-screen paraphernalia as possible.
     */
     void setKioskModeComponent (Component* componentToUse,
                                 bool allowMenusAndBars = true);
@@ -394,6 +394,11 @@ public:
     /** True if the OS supports semitransparent windows */
     static bool canUseSemiTransparentWindows() noexcept;
 
+   #if JUCE_MAC
+    /** OSX-specific function to check for the "dark" title-bar and menu mode. */
+    static bool isOSXDarkModeActive();
+   #endif
+
 private:
     //==============================================================================
     static Desktop* instance;
@@ -414,7 +419,7 @@ private:
 
     ScopedPointer<Displays> displays;
 
-    Point<int> lastFakeMouseMove;
+    Point<float> lastFakeMouseMove;
     void sendMouseMove();
 
     int mouseClickCounter, mouseWheelCounter;
@@ -429,6 +434,8 @@ private:
     bool kioskModeReentrant;
 
     int allowedOrientations;
+    void allowedOrientationsChanged();
+
     float masterScaleFactor;
 
     ComponentAnimator animator;
@@ -441,10 +448,12 @@ private:
     void removeDesktopComponent (Component*);
     void componentBroughtToFront (Component*);
 
-    void setKioskComponent (Component*, bool enableOrDisable, bool allowMenusAndBars);
+    void setKioskComponent (Component*, bool shouldBeEnabled, bool allowMenusAndBars);
 
     void triggerFocusCallback();
     void handleAsyncUpdate() override;
+
+    static Point<float> getMousePositionFloat();
 
     static double getDefaultMasterScale();
 

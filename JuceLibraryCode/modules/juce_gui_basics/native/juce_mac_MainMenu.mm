@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -29,7 +29,8 @@ public:
     JuceMainMenuHandler()
         : currentModel (nullptr),
           lastUpdateTime (0),
-          isOpen (false)
+          isOpen (false),
+          defferedUpdateRequested (false)
     {
         static JuceMenuCallbackClass cls;
         callback = [cls.createInstance() init];
@@ -86,28 +87,6 @@ public:
     void updateTopLevelMenu (NSMenuItem* parentItem, const PopupMenu& menuToCopy,
                              const String& name, const int menuId, const int tag)
     {
-       #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
-        static bool is10_4 = (SystemStats::getOperatingSystemType() == SystemStats::MacOSX_10_4);
-
-        if (is10_4)
-        {
-            [parentItem setTag: tag];
-            NSMenu* menu = [parentItem submenu];
-
-            [menu setTitle: juceStringToNS (name)];
-
-            while ([menu numberOfItems] > 0)
-                [menu removeItemAtIndex: 0];
-
-            for (PopupMenu::MenuItemIterator iter (menuToCopy); iter.next();)
-                addMenuItem (iter, menu, menuId, tag);
-
-            [menu setAutoenablesItems: false];
-            [menu update];
-            return;
-        }
-       #endif
-
         // Note: This method used to update the contents of the existing menu in-place, but that caused
         // weird side-effects which messed-up keyboard focus when switching between windows. By creating
         // a new menu and replacing the old one with it, that problem seems to be avoided..
@@ -126,7 +105,10 @@ public:
     void menuBarItemsChanged (MenuBarModel*)
     {
         if (isOpen)
+        {
+            defferedUpdateRequested = true;
             return;
+        }
 
         lastUpdateTime = Time::getMillisecondCounter();
 
@@ -199,16 +181,17 @@ public:
     void addMenuItem (PopupMenu::MenuItemIterator& iter, NSMenu* menuToAddTo,
                       const int topLevelMenuId, const int topLevelIndex)
     {
-        NSString* text = juceStringToNS (iter.itemName.upToFirstOccurrenceOf ("<end>", false, true));
+        const PopupMenu::Item& i = iter.getItem();
+        NSString* text = juceStringToNS (i.text);
 
         if (text == nil)
             text = nsEmptyString();
 
-        if (iter.isSeparator)
+        if (i.isSeparator)
         {
             [menuToAddTo addItem: [NSMenuItem separatorItem]];
         }
-        else if (iter.isSectionHeader)
+        else if (i.isSectionHeader)
         {
             NSMenuItem* item = [menuToAddTo addItemWithTitle: text
                                                       action: nil
@@ -216,9 +199,9 @@ public:
 
             [item setEnabled: false];
         }
-        else if (iter.subMenu != nullptr)
+        else if (i.subMenu != nullptr)
         {
-            if (iter.itemName == recentItemsMenuName)
+            if (i.text == recentItemsMenuName)
             {
                 if (recent == nullptr)
                     recent = new RecentFilesMenuItem();
@@ -237,10 +220,10 @@ public:
                                                       action: nil
                                                keyEquivalent: nsEmptyString()];
 
-            [item setTag: iter.itemId];
-            [item setEnabled: iter.isEnabled];
+            [item setTag: i.itemID];
+            [item setEnabled: i.isEnabled];
 
-            NSMenu* sub = createMenu (*iter.subMenu, iter.itemName, topLevelMenuId, topLevelIndex, false);
+            NSMenu* sub = createMenu (*i.subMenu, i.text, topLevelMenuId, topLevelIndex, false);
             [menuToAddTo setSubmenu: sub forItem: item];
             [sub release];
         }
@@ -250,19 +233,19 @@ public:
                                                       action: @selector (menuItemInvoked:)
                                                keyEquivalent: nsEmptyString()];
 
-            [item setTag: iter.itemId];
-            [item setEnabled: iter.isEnabled];
-            [item setState: iter.isTicked ? NSOnState : NSOffState];
+            [item setTag: i.itemID];
+            [item setEnabled: i.isEnabled];
+            [item setState: i.isTicked ? NSOnState : NSOffState];
             [item setTarget: (id) callback];
 
-            NSMutableArray* info = [NSMutableArray arrayWithObject: [NSNumber numberWithUnsignedLongLong: (pointer_sized_uint) (void*) iter.commandManager]];
+            NSMutableArray* info = [NSMutableArray arrayWithObject: [NSNumber numberWithUnsignedLongLong: (pointer_sized_uint) (void*) i.commandManager]];
             [info addObject: [NSNumber numberWithInt: topLevelIndex]];
             [item setRepresentedObject: info];
 
-            if (iter.commandManager != nullptr)
+            if (i.commandManager != nullptr)
             {
-                const Array<KeyPress> keyPresses (iter.commandManager->getKeyMappings()
-                                                     ->getKeyPressesAssignedToCommand (iter.itemId));
+                const Array<KeyPress> keyPresses (i.commandManager->getKeyMappings()
+                                                     ->getKeyPressesAssignedToCommand (i.itemID));
 
                 if (keyPresses.size() > 0)
                 {
@@ -283,6 +266,32 @@ public:
         }
     }
 
+    NSMenu* createMenu (const PopupMenu menu,
+                        const String& menuName,
+                        const int topLevelMenuId,
+                        const int topLevelIndex,
+                        const bool addDelegate)
+    {
+        NSMenu* m = [[NSMenu alloc] initWithTitle: juceStringToNS (menuName)];
+
+        [m setAutoenablesItems: false];
+
+        if (addDelegate)
+        {
+           #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+            [m setDelegate: (id<NSMenuDelegate>) callback];
+           #else
+            [m setDelegate: callback];
+           #endif
+        }
+
+        for (PopupMenu::MenuItemIterator iter (menu); iter.next();)
+            addMenuItem (iter, m, topLevelMenuId, topLevelIndex);
+
+        [m update];
+        return m;
+    }
+
     static JuceMainMenuHandler* instance;
 
     MenuBarModel* currentModel;
@@ -290,7 +299,7 @@ public:
     uint32 lastUpdateTime;
     NSObject* callback;
     String recentItemsMenuName;
-    bool isOpen;
+    bool isOpen, defferedUpdateRequested;
 
 private:
     struct RecentFilesMenuItem
@@ -347,32 +356,6 @@ private:
     ScopedPointer<RecentFilesMenuItem> recent;
 
     //==============================================================================
-    NSMenu* createMenu (const PopupMenu menu,
-                        const String& menuName,
-                        const int topLevelMenuId,
-                        const int topLevelIndex,
-                        const bool addDelegate)
-    {
-        NSMenu* m = [[NSMenu alloc] initWithTitle: juceStringToNS (menuName)];
-
-        [m setAutoenablesItems: false];
-
-        if (addDelegate)
-        {
-           #if defined (MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
-            [m setDelegate: (id<NSMenuDelegate>) callback];
-           #else
-            [m setDelegate: callback];
-           #endif
-        }
-
-        for (PopupMenu::MenuItemIterator iter (menu); iter.next();)
-            addMenuItem (iter, m, topLevelMenuId, topLevelIndex);
-
-        [m update];
-        return m;
-    }
-
     static NSMenuItem* findMenuItem (NSMenu* const menu, const ApplicationCommandTarget::InvocationInfo& info)
     {
         for (NSInteger i = [menu numberOfItems]; --i >= 0;)
@@ -509,7 +492,7 @@ private:
                 {
                     if (juce::Component* focused = juce::Component::getCurrentlyFocusedComponent())
                     {
-                        if (juce::NSViewComponentPeer* peer = dynamic_cast <juce::NSViewComponentPeer*> (focused->getPeer()))
+                        if (juce::NSViewComponentPeer* peer = dynamic_cast<juce::NSViewComponentPeer*> (focused->getPeer()))
                         {
                             if ([e type] == NSKeyDown)
                                 peer->redirectKeyDown (e);
@@ -720,14 +703,18 @@ void MenuBarModel::setMacMainMenu (MenuBarModel* newMenuBarModel,
 
 MenuBarModel* MenuBarModel::getMacMainMenu()
 {
-    return JuceMainMenuHandler::instance != nullptr
-             ? JuceMainMenuHandler::instance->currentModel : nullptr;
+    if (JuceMainMenuHandler* mm = JuceMainMenuHandler::instance)
+        return mm->currentModel;
+
+    return nullptr;
 }
 
 const PopupMenu* MenuBarModel::getMacExtraAppleItemsMenu()
 {
-    return JuceMainMenuHandler::instance != nullptr
-             ? JuceMainMenuHandler::instance->extraAppleMenuItems.get() : nullptr;
+    if (JuceMainMenuHandler* mm = JuceMainMenuHandler::instance)
+        return mm->extraAppleMenuItems.get();
+
+    return nullptr;
 }
 
 typedef void (*MenuTrackingChangedCallback) (bool);
@@ -737,8 +724,16 @@ static void mainMenuTrackingChanged (bool isTracking)
 {
     PopupMenu::dismissAllActiveMenus();
 
-    if (JuceMainMenuHandler::instance != nullptr)
-        JuceMainMenuHandler::instance->isOpen = isTracking;
+    if (JuceMainMenuHandler* menuHandler = JuceMainMenuHandler::instance)
+    {
+        menuHandler->isOpen = isTracking;
+
+        if (menuHandler->defferedUpdateRequested && ! isTracking)
+        {
+            menuHandler->defferedUpdateRequested = false;
+            menuHandler->menuBarItemsChanged (menuHandler->currentModel);
+        }
+    }
 }
 
 void juce_initialiseMacMainMenu()
@@ -747,4 +742,17 @@ void juce_initialiseMacMainMenu()
 
     if (JuceMainMenuHandler::instance == nullptr)
         MainMenuHelpers::rebuildMainMenu (nullptr);
+}
+
+// (used from other modules that need to create an NSMenu)
+NSMenu* createNSMenu (const PopupMenu& menu, const String& name,
+                      int topLevelMenuId, int topLevelIndex, bool addDelegate)
+{
+    juce_initialiseMacMainMenu();
+
+    if (JuceMainMenuHandler* mm = JuceMainMenuHandler::instance)
+        return mm->createMenu (menu, name, topLevelMenuId, topLevelIndex, addDelegate);
+
+    jassertfalse; // calling this before making sure the OSX main menu stuff was initialised?
+    return nil;
 }

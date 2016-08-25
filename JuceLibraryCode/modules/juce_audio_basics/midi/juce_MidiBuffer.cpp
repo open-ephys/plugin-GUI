@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -26,12 +26,12 @@ namespace MidiBufferHelpers
 {
     inline int getEventTime (const void* const d) noexcept
     {
-        return *static_cast<const int32*> (d);
+        return readUnaligned<int32> (d);
     }
 
     inline uint16 getEventDataSize (const void* const d) noexcept
     {
-        return *reinterpret_cast<const uint16*> (static_cast<const char*> (d) + sizeof (int32));
+        return readUnaligned<uint16> (static_cast<const char*> (d) + sizeof (int32));
     }
 
     inline uint16 getEventTotalSize (const void* const d) noexcept
@@ -114,20 +114,22 @@ void MidiBuffer::addEvent (const MidiMessage& m, const int sampleNumber)
 
 void MidiBuffer::addEvent (const void* const newData, const int maxBytes, const int sampleNumber)
 {
-
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // =======================================================================
     const int numBytes = maxBytes;
+    // =======================================================================
 
     if (numBytes > 0)
     {
-
-        const size_t newItemSize = (size_t) numBytes + sizeof (int32) + sizeof (uint16); // factor in timestamp and size indicator
+        const size_t newItemSize = (size_t) numBytes + sizeof (int32) + sizeof (uint16);
         const int offset = (int) (MidiBufferHelpers::findEventAfter (data.begin(), data.end(), sampleNumber) - data.begin());
 
         data.insertMultiple (offset, 0, (int) newItemSize);
 
         uint8* const d = data.begin() + offset;
-        *reinterpret_cast<int32*> (d) = sampleNumber;
-        *reinterpret_cast<uint16*> (d + 4) = (uint16) numBytes;
+        writeUnaligned<int32>  (d, sampleNumber);
+        writeUnaligned<uint16> (d + 4, static_cast<uint16> (numBytes));
         memcpy (d + 6, newData, (size_t) numBytes);
     }
 }
@@ -212,7 +214,7 @@ bool MidiBuffer::Iterator::getNextEvent (const uint8* &midiData, int& numBytes, 
     const int itemSize = MidiBufferHelpers::getEventDataSize (data);
     numBytes = itemSize;
     midiData = data + sizeof (int32) + sizeof (uint16);
-    data += sizeof (int32) + sizeof (uint16) + itemSize;
+    data += sizeof (int32) + sizeof (uint16) + (size_t) itemSize;
 
     return true;
 }
@@ -225,7 +227,7 @@ bool MidiBuffer::Iterator::getNextEvent (MidiMessage& result, int& samplePositio
     samplePosition = MidiBufferHelpers::getEventTime (data);
     const int itemSize = MidiBufferHelpers::getEventDataSize (data);
     result = MidiMessage (data + sizeof (int32) + sizeof (uint16), itemSize, samplePosition);
-    data += sizeof (int32) + sizeof (uint16) + itemSize;
+    data += sizeof (int32) + sizeof (uint16) + (size_t) itemSize;
 
     return true;
 }

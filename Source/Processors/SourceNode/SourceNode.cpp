@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,102 +28,96 @@
 #include "../../AccessClass.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-SourceNode::SourceNode(const String& name_, DataThreadCreator dt)
-    : GenericProcessor(name_),
-      sourceCheckInterval(2000), wasDisabled(true), dataThread(nullptr),
-	  inputBuffer(0), ttlState(0)
+
+SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
+    : GenericProcessor      (name_)
+    , sourceCheckInterval   (2000)
+    , wasDisabled           (true)
+    , dataThread            (nullptr)
+    , inputBuffer           (0)
+    , ttlState              (0)
 {
-		dataThread = dt(this);
+    setProcessorType (PROCESSOR_TYPE_SOURCE);
+
+    dataThread = dt (this);
 
     if (dataThread != nullptr)
     {
-        if (!dataThread->foundInputSource())
+        if (! dataThread->foundInputSource())
         {
-            enabledState(false);
+            setEnabledState (false);
         }
 
         numEventChannels = dataThread->getNumEventChannels();
         //eventChannelState = new int[numEventChannels];
-		eventChannelState.malloc(numEventChannels);
-        for (int i = 0; i < numEventChannels; i++)
+        eventChannelState.malloc (numEventChannels);
+        for (int i = 0; i < numEventChannels; ++i)
         {
             eventChannelState[i] = 0;
         }
-
     }
     else
     {
-        enabledState(false);
-     //   eventChannelState = 0;
+        setEnabledState (false);
+        //   eventChannelState = 0;
         numEventChannels = 0;
     }
 
     // check for input source every few seconds
-    startTimer(sourceCheckInterval);
+    startTimer (sourceCheckInterval);
 
     timestamp = 0;
     //eventCodeBuffer = new uint64[10000]; //10000 samples per buffer max?
-	eventCodeBuffer.malloc(10000);
-
-
+    eventCodeBuffer.malloc (10000);
 }
+
 
 SourceNode::~SourceNode()
 {
-
     if (dataThread->isThreadRunning())
     {
         std::cout << "Forcing thread to stop." << std::endl;
-        dataThread->stopThread(500);
+        dataThread->stopThread (500);
     }
-
-
-    //if (eventChannelState)
-    //    delete[] eventChannelState;
 }
 
-DataThread* SourceNode::getThread()
-{
-    return dataThread;
-}
 
 void SourceNode::requestChainUpdate()
 {
-	CoreServices::updateSignalChain(getEditor());
+    CoreServices::updateSignalChain (getEditor());
 }
 
-void SourceNode::getEventChannelNames(StringArray& names)
+
+void SourceNode::getEventChannelNames (StringArray& names)
 {
     if (dataThread != 0)
         dataThread->getEventChannelNames(names);
-
 }
+
 
 void SourceNode::updateSettings()
 {
     if (inputBuffer == 0 && dataThread != 0)
     {
-
         inputBuffer = dataThread->getBufferAddress();
         std::cout << "Input buffer address is " << inputBuffer << std::endl;
     }
 
     dataThread->updateChannels();
-
 }
 
-void SourceNode::actionListenerCallback(const String& msg)
-{
 
+void SourceNode::actionListenerCallback (const String& msg)
+{
     //std::cout << msg << std::endl;
 
-    if (msg.equalsIgnoreCase("HI"))
+    if (msg.equalsIgnoreCase ("HI"))
     {
         // std::cout << "HI." << std::endl;
         // dataThread->setOutputHigh();
         ttlState = 1;
     }
-    else if (msg.equalsIgnoreCase("LO"))
+    else if (msg.equalsIgnoreCase ("LO"))
     {
         // std::cout << "LO." << std::endl;
         // dataThread->setOutputLow();
@@ -131,109 +125,113 @@ void SourceNode::actionListenerCallback(const String& msg)
     }
 }
 
-int SourceNode::getTTLState()
-{
-    return ttlState;
-}
 
-float SourceNode::getSampleRate()
+float SourceNode::getSampleRate() const
 {
-
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getSampleRate();
     else
         return 44100.0;
 }
 
-float SourceNode::getDefaultSampleRate()
+
+float SourceNode::getDefaultSampleRate() const
 {
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getSampleRate();
     else
         return 44100.0;
 }
 
-int SourceNode::getNumHeadstageOutputs()
+
+int SourceNode::getNumHeadstageOutputs() const
 {
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getNumHeadstageOutputs();
     else
         return 2;
 }
 
-int SourceNode::getNumAuxOutputs()
+
+int SourceNode::getNumAuxOutputs() const
 {
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getNumAuxOutputs();
     else
         return 0;
 }
 
-int SourceNode::getNumAdcOutputs()
+
+int SourceNode::getNumAdcOutputs() const
 {
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getNumAdcOutputs();
     else
         return 0;
 }
 
-int SourceNode::getNumEventChannels()
+
+int SourceNode::getNumEventChannels() const
 {
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         return dataThread->getNumEventChannels();
     else
         return 0;
 }
 
-float SourceNode::getBitVolts(Channel* chan)
+
+float SourceNode::getBitVolts (Channel* chan) const
 {
     if (dataThread != 0)
-        return dataThread->getBitVolts(chan);
+        return dataThread->getBitVolts (chan);
     else
         return 1.0f;
 }
 
 
-void SourceNode::enabledState(bool t)
+void SourceNode::setEnabledState (bool newState)
 {
-    if (t && !dataThread->foundInputSource())
+    if (newState && ! dataThread->foundInputSource())
     {
         isEnabled = false;
     }
     else
     {
-        isEnabled = t;
+        isEnabled = newState;
     }
-
 }
 
-void SourceNode::setParameter(int parameterIndex, float newValue)
+
+void SourceNode::setParameter (int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    editor->updateParameterButtons (parameterIndex);
     //std::cout << "Got parameter change notification";
 }
 
+
 AudioProcessorEditor* SourceNode::createEditor()
 {
-	if (dataThread != nullptr)
-	{
-		editor = dataThread->createEditor(this);
-	}
-	else
-	{
-		editor = nullptr;
-	}
-   
-	if (editor == nullptr)
+    if (dataThread != nullptr)
     {
-        editor = new SourceNodeEditor(this, true);
+        editor = dataThread->createEditor (this);
     }
+    else
+    {
+        editor = nullptr;
+    }
+
+    if (editor == nullptr)
+    {
+        editor = new SourceNodeEditor (this, true);
+    }
+
     return editor;
 }
 
+
 bool SourceNode::tryEnablingEditor()
 {
-    if (!sourcePresent())
+    if (! isSourcePresent())
     {
         //std::cout << "No input source found." << std::endl;
         return false;
@@ -247,43 +245,47 @@ bool SourceNode::tryEnablingEditor()
     }
 
     std::cout << "Input source found." << std::endl;
-    enabledState(true);
+    setEnabledState (true);
+
     GenericEditor* ed = getEditor();
-	CoreServices::highlightEditor(ed);
+    CoreServices::highlightEditor (ed);
     return true;
 }
 
+
 void SourceNode::timerCallback()
 {
-    if (!tryEnablingEditor() && isEnabled)
+    if (! tryEnablingEditor() && isEnabled)
     {
         std::cout << "Input source lost." << std::endl;
-        enabledState(false);
+        setEnabledState (false);
         GenericEditor* ed = getEditor();
-		CoreServices::highlightEditor(ed);
+        CoreServices::highlightEditor (ed);
     }
 }
 
+
 bool SourceNode::isReady()
 {
-    return sourcePresent() && dataThread->isReady();
+    return isSourcePresent() && dataThread->isReady();
 }
 
-bool SourceNode::sourcePresent()
+
+bool SourceNode::isSourcePresent() const
 {
-	return dataThread && dataThread->foundInputSource();
+    return dataThread && dataThread->foundInputSource();
 }
+
 
 bool SourceNode::enable()
 {
-
     std::cout << "Source node received enable signal" << std::endl;
 
     wasDisabled = false;
 
     stopTimer();
 
-    if (dataThread != 0)
+    if (dataThread != nullptr)
     {
         dataThread->startAcquisition();
         return true;
@@ -292,18 +294,17 @@ bool SourceNode::enable()
     {
         return false;
     }
-
 }
+
 
 bool SourceNode::disable()
 {
-
     std::cout << "Source node received disable signal" << std::endl;
 
-    if (dataThread != 0)
+    if (dataThread != nullptr)
         dataThread->stopAcquisition();
 
-    startTimer(2000); // timer to check for connected source
+    startTimer (2000); // timer to check for connected source
 
     wasDisabled = true;
 
@@ -312,148 +313,109 @@ bool SourceNode::disable()
     return true;
 }
 
+
 void SourceNode::acquisitionStopped()
 {
-    //if (!dataThread->foundInputSource()) {
-
-    if (!wasDisabled)
+    if (! wasDisabled)
     {
         std::cout << "Source node sending signal to UI." << std::endl;
+
         AccessClass::getUIComponent()->disableCallbacks();
-        enabledState(false);
+        setEnabledState (false);
+
         GenericEditor* ed = (GenericEditor*) getEditor();
-		CoreServices::highlightEditor(ed);
+        CoreServices::highlightEditor (ed);
     }
-    //}
 }
 
 
-void SourceNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events)
+void SourceNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
-
-    //std::cout << "SOURCE NODE" << std::endl;
-
     // clear the input buffers
     events.clear();
     buffer.clear();
 
-    int nSamples = inputBuffer->readAllFromBuffer(buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
+    int nSamples = inputBuffer->readAllFromBuffer (buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
 
-    setNumSamples(events, nSamples);
-    setTimestamp(events, timestamp);
-
-    //std::cout << *buffer.getReadPointer(0) << std::endl;
-
-    //std::cout << "Source node timestamp: " << timestamp << std::endl;
-
-    //std::cout << "Samples per buffer: " << nSamples << std::endl;
-
-
-
-
-    // std::cout << (int) *(data + 7) << " " <<
-    //                 (int) *(data + 6) << " " <<
-    //                 (int) *(data + 5) << " " <<
-    //                 (int) *(data + 4) << " " <<
-    //                 (int) *(data + 3) << " " <<
-    //                 (int) *(data + 2) << " " <<
-    //                 (int) *(data + 1) << " " <<
-    //                 (int) *(data + 0) << std::endl;
-
+    setNumSamples (events, nSamples);
+    setTimestamp (events, timestamp);
 
     // fill event buffer
-    for (int i = 0; i < nSamples; i++)
+    for (int i = 0; i < nSamples; ++i)
     {
-        for (int c = 0; c < numEventChannels; c++)
+        for (int c = 0; c < numEventChannels; ++c)
         {
-            int state = eventCodeBuffer[i] & (1 << c);
+            const int state = eventCodeBuffer[i] & (1 << c);
 
             if (eventChannelState[c] != state)
             {
                 if (state == 0)
                 {
-
-                    //std::cout << "OFF" << std::endl;
-                    //std::cout << c << std::endl;
                     // signal channel state is OFF
-                    addEvent(events, // MidiBuffer
-                             TTL,    // eventType
-                             i,      // sampleNum
-                             0,	     // eventID
-                             c,		 // eventChannel
-							 8,
-							 (uint8*)(&eventCodeBuffer[i])
-                            );
+                    addEvent (events,   // MidiBuffer
+                              TTL,      // eventType
+                              i,        // sampleNum
+                              0,        // eventID
+                              c,        // eventChannel
+                              8,
+                              (uint8*)(&eventCodeBuffer[i]));
                 }
                 else
                 {
-
-                    // std::cout << "ON" << std::endl;
-                    // std::cout << c << std::endl;
-
                     // signal channel state is ON
-                    addEvent(events, // MidiBuffer
-                             TTL,    // eventType
-                             i,      // sampleNum
-                             1,		 // eventID
-                             c,		 // eventChannel
-							 8,
-							 (uint8*)(&eventCodeBuffer[i])
-                            );
-
-
+                    addEvent(events,    // MidiBuffer
+                             TTL,       // eventType
+                             i,         // sampleNum
+                             1,         // eventID
+                             c,         // eventChannel
+                             8,
+                             (uint8*)(&eventCodeBuffer[i]));
                 }
 
                 eventChannelState[c] = state;
             }
         }
     }
-
 }
 
 
-
-void SourceNode::saveCustomParametersToXml(XmlElement* parentElement)
+void SourceNode::saveCustomParametersToXml (XmlElement* parentElement)
 {
-
-    XmlElement* channelXml = parentElement->createNewChildElement("CHANNEL_INFO");
+    XmlElement* channelXml = parentElement->createNewChildElement ("CHANNEL_INFO");
     if (dataThread->usesCustomNames())
     {
         Array<ChannelCustomInfo> channelInfo;
-        dataThread->getChannelInfo(channelInfo);
-        for (int i = 0; i < channelInfo.size(); i++)
+        dataThread->getChannelInfo (channelInfo);
+        for (int i = 0; i < channelInfo.size(); ++i)
         {
-            XmlElement* chan = channelXml->createNewChildElement("CHANNEL");
-            chan->setAttribute("name", channelInfo[i].name);
-            chan->setAttribute("number", i);
-            chan->setAttribute("gain", channelInfo[i].gain);
+            XmlElement* chan = channelXml->createNewChildElement ("CHANNEL");
+            chan->setAttribute ("name",     channelInfo[i].name);
+            chan->setAttribute ("number",   i);
+            chan->setAttribute ("gain",     channelInfo[i].gain);
         }
     }
-
 }
+
 
 void SourceNode::loadCustomParametersFromXml()
 {
-
     if (parametersAsXml != nullptr)
     {
         // use parametersAsXml to restore state
-
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        forEachXmlChildElement (*parametersAsXml, xmlNode)
         {
-            if (xmlNode->hasTagName("CHANNEL_INFO"))
+            if (xmlNode->hasTagName ("CHANNEL_INFO"))
             {
-                forEachXmlChildElementWithTagName(*xmlNode,chan,"CHANNEL")
+                forEachXmlChildElementWithTagName (*xmlNode, chan, "CHANNEL")
                 {
-                    String name = chan->getStringAttribute("name");
-                    int number = chan->getIntAttribute("number");
-                    float gain = chan->getDoubleAttribute("gain");
-                    dataThread->modifyChannelGain(number, gain);
-                    dataThread->modifyChannelName(number, name);
+                    const int number = chan->getIntAttribute ("number");
+                    const float gain = chan->getDoubleAttribute ("gain");
+                    String name = chan->getStringAttribute ("name");
+
+                    dataThread->modifyChannelGain (number, gain);
+                    dataThread->modifyChannelName (number, name);
                 }
             }
         }
     }
-
 }

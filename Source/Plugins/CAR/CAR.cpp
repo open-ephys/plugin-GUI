@@ -30,6 +30,8 @@
 CAR::CAR()
     : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
 {
+    setProcessorType (PROCESSOR_TYPE_FILTER);
+
     m_avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
 }
 

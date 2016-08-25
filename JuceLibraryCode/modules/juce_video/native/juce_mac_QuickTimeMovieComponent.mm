@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -51,7 +51,7 @@ private:
 };
 
 //==============================================================================
-#define theMovie (static_cast <QTMovie*> (movie))
+#define theMovie (static_cast<QTMovie*> (movie))
 
 //==============================================================================
 QuickTimeMovieComponent::QuickTimeMovieComponent()
@@ -86,7 +86,7 @@ static QTMovie* openMovieFromStream (InputStream* movieStream, File& movieFile)
 
     QTMovie* movie = nil;
 
-    if (FileInputStream* const fin = dynamic_cast <FileInputStream*> (movieStream))
+    if (FileInputStream* const fin = dynamic_cast<FileInputStream*> (movieStream))
     {
         movieFile = fin->getFile();
         movie = [QTMovie movieWithFile: juceStringToNS (movieFile.getFullPathName())
@@ -221,7 +221,7 @@ void QuickTimeMovieComponent::setPosition (const double seconds)
     if (movie != 0)
     {
         QTTime t;
-        t.timeValue = (uint64) (100000.0 * seconds);
+        t.timeValue = (long long) (100000.0 * seconds);
         t.timeScale = 100000;
         t.flags = 0;
 

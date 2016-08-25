@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,27 +27,34 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
+
 class PlaceholderProcessor : public GenericProcessor
 {
 public:
-	PlaceholderProcessor(String pName, String lName, int lVer, bool pSource, bool pSink);
-	~PlaceholderProcessor();
-	bool hasEditor() const override;
-	AudioProcessorEditor* createEditor() override;
+    PlaceholderProcessor (String pName, String lName, int lVer, bool pSource, bool pSink);
+    ~PlaceholderProcessor();
 
-	void process(AudioSampleBuffer& continuousBuffer,
-		MidiBuffer& eventBuffer) override;
-	bool isSource() override;
-	bool isSink() override;
-	bool isReady() override;
+    AudioProcessorEditor* createEditor() override;
+
+    bool hasEditor() const override;
+
+    bool isSource() const override;
+    bool isSink()   const override;
+    bool isReady()  override;
+
+    void process (AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer) override;
+
+
 private:
-	const String processorName;
-	const String libName;
-	const int libVersion;
-	const bool processorSource;
-	const bool processorSink;
+    const String m_processorName;
+    const String m_libName;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlaceholderProcessor);
+    const int m_libVersion;
+
+    const bool m_isSourceProcessor;
+    const bool m_isSinkProcessor;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaceholderProcessor);
 };
 
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -30,7 +30,7 @@
 /**
     A type of AudioSource that takes an input source and changes its sample rate.
 
-    @see AudioSource
+    @see AudioSource, LagrangeInterpolator, CatmullRomInterpolator
 */
 class JUCE_API  ResamplingAudioSource  : public AudioSource
 {
@@ -65,6 +65,9 @@ public:
         This is the value that was set by setResamplingRatio().
     */
     double getResamplingRatio() const noexcept                  { return ratio; }
+
+    /** Clears any buffers and filters that the resampler is using. */
+    void flushBuffers();
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;

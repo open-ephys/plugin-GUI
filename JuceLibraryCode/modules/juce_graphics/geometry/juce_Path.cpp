@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -59,6 +59,9 @@ const float Path::moveMarker           = 100002.0f;
 const float Path::quadMarker           = 100003.0f;
 const float Path::cubicMarker          = 100004.0f;
 const float Path::closeSubPathMarker   = 100005.0f;
+
+const float Path::defaultToleranceForTesting = 1.0f;
+const float Path::defaultToleranceForMeasurement = 0.6f;
 
 //==============================================================================
 Path::PathBounds::PathBounds() noexcept
@@ -156,7 +159,7 @@ Path& Path::operator= (const Path& other)
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 Path::Path (Path&& other) noexcept
-    : data (static_cast <ArrayAllocationBase <float, DummyCriticalSection>&&> (other.data)),
+    : data (static_cast<ArrayAllocationBase <float, DummyCriticalSection>&&> (other.data)),
       numElements (other.numElements),
       bounds (other.bounds),
       useNonZeroWinding (other.useNonZeroWinding)
@@ -165,7 +168,7 @@ Path::Path (Path&& other) noexcept
 
 Path& Path::operator= (Path&& other) noexcept
 {
-    data = static_cast <ArrayAllocationBase <float, DummyCriticalSection>&&> (other.data);
+    data = static_cast<ArrayAllocationBase <float, DummyCriticalSection>&&> (other.data);
     numElements = other.numElements;
     bounds = other.bounds;
     useNonZeroWinding = other.useNonZeroWinding;
@@ -501,13 +504,20 @@ void Path::addRoundedRectangle (float x, float y, float w, float h, float cs)
     addRoundedRectangle (x, y, w, h, cs, cs);
 }
 
-void Path::addTriangle (const float x1, const float y1,
-                        const float x2, const float y2,
-                        const float x3, const float y3)
+void Path::addTriangle (float x1, float y1,
+                        float x2, float y2,
+                        float x3, float y3)
 {
-    startNewSubPath (x1, y1);
-    lineTo (x2, y2);
-    lineTo (x3, y3);
+    addTriangle (Point<float> (x1, y1),
+                 Point<float> (x2, y2),
+                 Point<float> (x3, y3));
+}
+
+void Path::addTriangle (Point<float> p1, Point<float> p2, Point<float> p3)
+{
+    startNewSubPath (p1);
+    lineTo (p2);
+    lineTo (p3);
     closeSubPath();
 }
 
@@ -647,6 +657,20 @@ void Path::addPieSegment (const float x, const float y,
     }
 
     closeSubPath();
+}
+
+void Path::addPieSegment (Rectangle<float> segmentBounds,
+                          const float fromRadians,
+                          const float toRadians,
+                          const float innerCircleProportionalSize)
+{
+    addPieSegment (segmentBounds.getX(),
+                   segmentBounds.getY(),
+                   segmentBounds.getWidth(),
+                   segmentBounds.getHeight(),
+                   fromRadians,
+                   toRadians,
+                   innerCircleProportionalSize);
 }
 
 //==============================================================================
@@ -960,7 +984,7 @@ AffineTransform Path::getTransformToScaleToFit (const float x, const float y,
     if (preserveProportions)
     {
         if (w <= 0 || h <= 0 || boundsRect.isEmpty())
-            return AffineTransform::identity;
+            return AffineTransform();
 
         float newW, newH;
         const float srcRatio = boundsRect.getHeight() / boundsRect.getWidth();
@@ -1009,7 +1033,7 @@ bool Path::contains (const float x, const float y, const float tolerance) const
          || y <= bounds.pathYMin || y >= bounds.pathYMax)
         return false;
 
-    PathFlatteningIterator i (*this, AffineTransform::identity, tolerance);
+    PathFlatteningIterator i (*this, AffineTransform(), tolerance);
 
     int positiveCrossings = 0;
     int negativeCrossings = 0;
@@ -1039,9 +1063,9 @@ bool Path::contains (const Point<float> point, const float tolerance) const
     return contains (point.x, point.y, tolerance);
 }
 
-bool Path::intersectsLine (const Line<float>& line, const float tolerance)
+bool Path::intersectsLine (Line<float> line, const float tolerance)
 {
-    PathFlatteningIterator i (*this, AffineTransform::identity, tolerance);
+    PathFlatteningIterator i (*this, AffineTransform(), tolerance);
     Point<float> intersection;
 
     while (i.next())
@@ -1051,7 +1075,7 @@ bool Path::intersectsLine (const Line<float>& line, const float tolerance)
     return false;
 }
 
-Line<float> Path::getClippedLine (const Line<float>& line, const bool keepSectionOutsidePath) const
+Line<float> Path::getClippedLine (Line<float> line, const bool keepSectionOutsidePath) const
 {
     Line<float> result (line);
     const bool startInside = contains (line.getStart());
@@ -1064,7 +1088,7 @@ Line<float> Path::getClippedLine (const Line<float>& line, const bool keepSectio
     }
     else
     {
-        PathFlatteningIterator i (*this, AffineTransform::identity);
+        PathFlatteningIterator i (*this, AffineTransform());
         Point<float> intersection;
 
         while (i.next())
@@ -1082,10 +1106,10 @@ Line<float> Path::getClippedLine (const Line<float>& line, const bool keepSectio
     return result;
 }
 
-float Path::getLength (const AffineTransform& transform) const
+float Path::getLength (const AffineTransform& transform, float tolerance) const
 {
     float length = 0;
-    PathFlatteningIterator i (*this, transform);
+    PathFlatteningIterator i (*this, transform, tolerance);
 
     while (i.next())
         length += Line<float> (i.x1, i.y1, i.x2, i.y2).getLength();
@@ -1093,9 +1117,11 @@ float Path::getLength (const AffineTransform& transform) const
     return length;
 }
 
-Point<float> Path::getPointAlongPath (float distanceFromStart, const AffineTransform& transform) const
+Point<float> Path::getPointAlongPath (float distanceFromStart,
+                                      const AffineTransform& transform,
+                                      float tolerance) const
 {
-    PathFlatteningIterator i (*this, transform);
+    PathFlatteningIterator i (*this, transform, tolerance);
 
     while (i.next())
     {
@@ -1112,9 +1138,10 @@ Point<float> Path::getPointAlongPath (float distanceFromStart, const AffineTrans
 }
 
 float Path::getNearestPoint (const Point<float> targetPoint, Point<float>& pointOnPath,
-                             const AffineTransform& transform) const
+                             const AffineTransform& transform,
+                             float tolerance) const
 {
-    PathFlatteningIterator i (*this, transform);
+    PathFlatteningIterator i (*this, transform, tolerance);
     float bestPosition = 0, bestDistance = std::numeric_limits<float>::max();
     float length = 0;
     Point<float> pointOnLine;
@@ -1546,17 +1573,17 @@ void Path::restoreFromString (StringRef stringVersion)
 }
 
 //==============================================================================
-Path::Iterator::Iterator (const Path& path_)
-    : path (path_),
-      index (0)
+Path::Iterator::Iterator (const Path& p) noexcept
+    : x1 (0), y1 (0), x2 (0), y2 (0), x3 (0), y3 (0),
+      path (p), index (0)
 {
 }
 
-Path::Iterator::~Iterator()
+Path::Iterator::~Iterator() noexcept
 {
 }
 
-bool Path::Iterator::next()
+bool Path::Iterator::next() noexcept
 {
     const float* const elements = path.data.elements;
 

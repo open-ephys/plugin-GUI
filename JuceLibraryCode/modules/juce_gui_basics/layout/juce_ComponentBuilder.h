@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -167,7 +167,7 @@ public:
     /** Registers handlers for various standard juce components. */
     void registerStandardComponentTypes();
 
-    //=============================================================================
+    //==============================================================================
     /** This class is used when references to images need to be stored in ValueTrees.
 
         An instance of an ImageProvider provides a mechanism for converting an Image to/from
@@ -213,7 +213,7 @@ public:
     /** Returns the current image provider that this builder is using, or nullptr if none has been set. */
     ImageProvider* getImageProvider() const noexcept;
 
-    //=============================================================================
+    //==============================================================================
     /** Updates the children of a parent component by updating them from the children of
         a given ValueTree.
     */
@@ -225,8 +225,8 @@ public:
     static const Identifier idProperty;
 
 private:
-    //=============================================================================
-    OwnedArray <TypeHandler> types;
+    //==============================================================================
+    OwnedArray<TypeHandler> types;
     ScopedPointer<Component> component;
     ImageProvider* imageProvider;
    #if JUCE_DEBUG
@@ -235,8 +235,8 @@ private:
 
     void valueTreePropertyChanged (ValueTree&, const Identifier&) override;
     void valueTreeChildAdded (ValueTree&, ValueTree&) override;
-    void valueTreeChildRemoved (ValueTree&, ValueTree&) override;
-    void valueTreeChildOrderChanged (ValueTree&) override;
+    void valueTreeChildRemoved (ValueTree&, ValueTree&, int) override;
+    void valueTreeChildOrderChanged (ValueTree&, int, int) override;
     void valueTreeParentChanged (ValueTree&) override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ComponentBuilder)
