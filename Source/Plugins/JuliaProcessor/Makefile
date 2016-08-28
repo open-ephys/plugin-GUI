@@ -11,11 +11,15 @@ SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
 
-JULIA =  /home/jvoigts/Documents/Github/julia/
+JL_SHARE =  $(shell julia -e 'print(joinpath(JULIA_HOME,Base.DATAROOTDIR,"julia"))')
 
-# flags to compile "JuliaProcessor". $(JULIA): toplevel of julia package
-CXXFLAGS += -I $(JULIA)/src -I $(JULIA)/src/support -I $(JULIA)/usr/include
-LDFLAGS += -L $(JULIA)/usr/lib -Wl,-R $(JULIA)/usr/lib -ljulia
+# flags to compile "JuliaProcessor". $(JL_SHARE): toplevel of julia package
+#CXXFLAGS += -I $(JL_SHARE)/src -I $(JULIA)/src/support -I $(JULIA)/usr/include
+#LDFLAGS += -L $(JL_SHARE)/usr/lib -Wl,-R $(JULIA)/usr/lib -ljulia
+CFLAGS   += $(shell $(JL_SHARE)/julia-config.jl --cflags)
+CXXFLAGS += $(shell $(JL_SHARE)/julia-config.jl --cflags)
+LDFLAGS  += $(shell $(JL_SHARE)/julia-config.jl --ldflags)
+LDLIBS   += $(shell $(JL_SHARE)/julia-config.jl --ldlibs)
 
 BLDCMD := $(CXX) -shared -o $(OUTDIR)/$(TARGET) $(OBJ) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
 
@@ -33,7 +37,7 @@ $(OUTDIR)/$(TARGET): objdir $(OBJ)
 $(OBJDIR)/%.o : %.cpp
 	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-	
+
 objdir:
 	-@mkdir -p $(OBJDIR)
 
