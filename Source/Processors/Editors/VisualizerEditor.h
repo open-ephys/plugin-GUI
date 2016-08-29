@@ -28,6 +28,10 @@
 #include "../Visualization/DataWindow.h"
 #include "../Visualization/Visualizer.h"
 
+//C++11 constexpr keyword is not implemented in Visual Studio prior 2015
+#if _MSC_VER <= 1800
+#define constexpr
+#endif
 
 class DataWindow;
 class Visualizer;
