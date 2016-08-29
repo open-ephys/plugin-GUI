@@ -136,7 +136,7 @@ public:
     int getEditorRecommendedHeight() const noexcept;
 
     /** Returns the desired bounds for editor if parameter has it. */
-    const Rectangle<int>& getEditorDesiredBounds() const noexcept;
+    const juce::Rectangle<int>& getEditorDesiredBounds() const noexcept;
 
     /** Sets the name of a parameter. */
     void setName (const String& newName);
@@ -157,7 +157,7 @@ public:
     void setEditorDesiredBounds (int x, int y, int width, int height);
 
     /** Sets desired bounds for the parameter editor. */
-    void setEditorDesiredBounds (const Rectangle<int>& desiredBounds);
+    void setEditorDesiredBounds (const juce::Rectangle<int>& desiredBounds);
 
     /** Returns the appropriate parameter type from string. */
     static ParameterType getParameterTypeFromString (const String& parameterTypeString);
@@ -201,7 +201,7 @@ private:
 
     bool m_hasCustomEditorBounds { false };
 
-    Rectangle<int> m_editorBounds;
+    juce::Rectangle<int> m_editorBounds;
 
     //var m_defaultValue;
     Array<var> m_values;
