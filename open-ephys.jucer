@@ -7,7 +7,7 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="JuceProjectAU" pluginAUViewClass="JuceProjectAU_V1"
-              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="4.2.1"
+              pluginRTASCategory="" bundleIdentifier="org.open-ephys.gui" jucerVersion="4.2.3"
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
@@ -141,6 +141,47 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2013>
+    <VS2015 targetFolder="Builds/VisualStudio2015" vstFolder="" extraDefs="NOMINMAX &#10;JUCE_API=__declspec(dllexport) &#10;"
+            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;"
+            smallIcon="txUyO4" bigIcon="nFMauU">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="open-ephys" headerPath="JuceLibraryCode/"
+                       binaryPath="Builds\VisualStudio2015\Debug\bin" useRuntimeLibDLL="1"
+                       wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2015\*.dll&quot; &quot;$(OutDir)&quot; &amp; copy /Y &quot;..\..\Resources\Bitfiles\rhd2000*.bit&quot; &quot;$(OutDir)&quot;"
+                       fastMath="1"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2015\Release\bin"
+                       headerPath="JuceLibraryCode/" useRuntimeLibDLL="1" prebuildCommand=""
+                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2015\*.dll&quot; &quot;$(OutDir)&quot; &amp; copy /Y &quot;..\..\Resources\Bitfiles\rhd2000*.bit&quot; &quot;$(OutDir)&quot;"
+                       fastMath="1" alwaysGenerateDebugSymbols="1"/>
+        <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="open-ephys" headerPath="JuceLibraryCode/"
+                       binaryPath="Builds\VisualStudio2015\Debug\bin" useRuntimeLibDLL="1"
+                       wholeProgramOptimisation="1" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2015-x64\*.dll&quot; &quot;$(OutDir)&quot; &amp; copy /Y &quot;..\..\Resources\Bitfiles\rhd2000*.bit&quot; &quot;$(OutDir)&quot;"
+                       fastMath="1"/>
+        <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2015\Release\bin"
+                       headerPath="JuceLibraryCode/" useRuntimeLibDLL="1" prebuildCommand=""
+                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2015-x64\*.dll&quot; &quot;$(OutDir)&quot; &amp; copy /Y &quot;..\..\Resources\Bitfiles\rhd2000*.bit&quot; &quot;$(OutDir)&quot;"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_cryptography" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
+      </MODULEPATHS>
+    </VS2015>
   </EXPORTFORMATS>
   <MAINGROUP id="h3HbSTV" name="open-ephys">
     <GROUP id="0wpTCpt" name="Resources">
