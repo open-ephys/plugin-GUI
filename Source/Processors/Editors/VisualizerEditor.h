@@ -202,8 +202,15 @@ private:
     void initializeSelectors();
 
     // Some constants
+
+	//C++11 constexpr keyword is not implemented in Visual Studio prior 2015
+#if defined _MSC_VER && _MSC_VER <= 1800
+	const char* EDITOR_TAG_TAB     = "TAB";
+	const char* EDITOR_TAG_WINDOW  = "WINDOW";
+#else
     static constexpr const char* EDITOR_TAG_TAB     = "TAB";
     static constexpr const char* EDITOR_TAG_WINDOW  = "WINDOW";
+#endif
 
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VisualizerEditor);
