@@ -74,7 +74,6 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ECUBE_COMPILE;OEPLUGIN;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -85,7 +84,6 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ECUBE_COMPILE;OEPLUGIN;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -98,7 +96,6 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ECUBE_COMPILE;OEPLUGIN;WIN32;_WINDOWS;NDEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -113,7 +110,6 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>ECUBE_COMPILE;OEPLUGIN;WIN32;_WINDOWS;NDEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

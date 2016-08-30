@@ -40,7 +40,26 @@
 #include <list>
 #include <queue>
 
-class StringTS;
+class StringTS
+{
+public:
+	StringTS();
+	StringTS(MidiMessage& event);
+	StringTS(String S);
+	StringTS(String S, int64 ts_software);
+	StringTS(const StringTS& s);
+	StringTS(unsigned char* buf, int _len, int64 ts_software);
+	~StringTS();
+
+	std::vector<String> splitString(char sep);
+	String getString();
+
+	StringTS& operator= (const StringTS& rhs);
+
+	juce::uint8* str;
+	int len;
+	juce::int64 timestamp;
+};
 
 
 /**
@@ -131,29 +150,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };
-
-
-class StringTS
-{
-public:
-    StringTS();
-    StringTS (MidiMessage& event);
-    StringTS (String S);
-    StringTS (String S, int64 ts_software);
-    StringTS (const StringTS& s);
-    StringTS (unsigned char* buf, int _len, int64 ts_software);
-    ~StringTS();
-
-    std::vector<String> splitString (char sep);
-    String getString();
-
-    StringTS& operator= (const StringTS& rhs);
-
-    juce::uint8* str;
-    int len;
-    juce::int64 timestamp;
-};
-
-
 
 #endif  // __NETWORKEVENT_H_91811541__

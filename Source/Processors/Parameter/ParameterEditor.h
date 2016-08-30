@@ -102,7 +102,7 @@ public:
     bool hasCustomBounds() const noexcept;
 
     /** Returns the desired bounds for editor. */
-    const Rectangle<int>& getDesiredBounds() const noexcept;
+    const juce::Rectangle<int>& getDesiredBounds() const noexcept;
 
     void parentHierarchyChanged() override;
 
@@ -140,7 +140,7 @@ private:
     Array<int> m_sliderIdArray;
     Array<int> m_checkboxIdArray;
 
-    Rectangle<int> m_desiredBounds;
+    juce::Rectangle<int> m_desiredBounds;
 
     enum
     {
