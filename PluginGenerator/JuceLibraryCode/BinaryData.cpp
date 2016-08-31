@@ -134,6 +134,10 @@ static const unsigned char temp_binary_data_0[] =
 "void OE_GUI_MoonShard::buttonClicked (Button* buttonThatWasClicked)\r\n"
 "{\r\n"
 "    //[UserbuttonClicked_Pre]\r\n"
+"    if (auto parentButtonListener = dynamic_cast<Button::Listener*> (getParentComponent()))\r\n"
+"    {\r\n"
+"        parentButtonListener->buttonClicked (buttonThatWasClicked);\r\n"
+"    }\r\n"
 "    //[/UserbuttonClicked_Pre]\r\n"
 "\r\n"
 "    if (buttonThatWasClicked == textButton)\r\n"
@@ -149,6 +153,10 @@ static const unsigned char temp_binary_data_0[] =
 "void OE_GUI_MoonShard::sliderValueChanged (Slider* sliderThatWasMoved)\r\n"
 "{\r\n"
 "    //[UsersliderValueChanged_Pre]\r\n"
+"    if (auto parentSliderListener = dynamic_cast<Slider::Listener*> (getParentComponent()))\r\n"
+"    {\r\n"
+"        parentSliderListener->sliderValueChanged (sliderThatWasMoved);\r\n"
+"    }\r\n"
 "    //[/UsersliderValueChanged_Pre]\r\n"
 "\r\n"
 "    if (sliderThatWasMoved == slider1)\r\n"
@@ -970,6 +978,8 @@ static const unsigned char temp_binary_data_10[] =
 "    content.toBack(); // to be able to see parameters components\n"
 "    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
 "\n"
+"    configureParameterEditors();\n"
+"\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
 "\n"
 "\n"
@@ -1039,6 +1049,12 @@ static const unsigned char temp_binary_data_10[] =
 "*/\n"
 "void EDITORCLASSNAME::sliderEvent (Slider* slider)\n"
 "{\n"
+"}\n"
+"\n"
+"\n"
+"Component& EDITORCLASSNAME::getContentComponent()\n"
+"{\n"
+"    return content;\n"
 "}\n";
 
 const char* openEphys_ProcessorEditorPluginTemplate_cpp = (const char*) temp_binary_data_10;
@@ -1109,6 +1125,9 @@ static const unsigned char temp_binary_data_11[] =
 "\n"
 "    /** This method executes whenever a custom slider's value has been changed. */\n"
 "    void sliderEvent (Slider* slider) override;\n"
+"\n"
+"    /** This methods will return the reference to our content component. */\n"
+"    Component& getContentComponent() override;\n"
 "\n"
 "    /** Called to inform the editor that acquisition is about to start*/\n"
 "    //void startAcquisition();\n"
@@ -1203,7 +1222,7 @@ static const unsigned char temp_binary_data_12[] =
 "*/\n"
 "AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()\n"
 "{\n"
-"    editor = new EDITORCLASSNAME (this, true);\n"
+"    editor = new EDITORCLASSNAME (this, false);\n"
 "\n"
 "    //std::cout << \"Creating editor.\" << std::endl;\n"
 "\n"
@@ -1294,7 +1313,7 @@ static const unsigned char temp_binary_data_12[] =
 "        parameterNode->setAttribute (\"name\", parameter->getName());\n"
 "        parameterNode->setAttribute (\"type\", parameter->getParameterTypeString());\n"
 "\n"
-"        auto parameterValue = getParameterVar (i, currentChannel);\n"
+"        auto parameterValue = parameter->getCurrentValueObject().getValue();\n"
 "\n"
 "        if (parameter->isBoolean())\n"
 "            parameterNode->setAttribute (\"value\", (int)parameterValue);\n"
@@ -6070,7 +6089,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
 
     switch (hash)
     {
-        case 0x44af8d54:  numBytes = 8293; return OE_GUI_MoonShard_cpp;
+        case 0x44af8d54:  numBytes = 8648; return OE_GUI_MoonShard_cpp;
         case 0x636f4459:  numBytes = 2656; return OE_GUI_MoonShard_h;
         case 0x49aa52f7:  numBytes = 1561; return openEphys_DataThreadPluginTemplate_cpp;
         case 0x9a9516bc:  numBytes = 1817; return openEphys_DataThreadPluginTemplate_h;
@@ -6080,9 +6099,9 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
-        case 0xc39db71e:  numBytes = 4043; return openEphys_ProcessorEditorPluginTemplate_cpp;
-        case 0x229158a3:  numBytes = 3454; return openEphys_ProcessorEditorPluginTemplate_h;
-        case 0xfca5b2d1:  numBytes = 6425; return openEphys_ProcessorPluginTemplate_cpp;
+        case 0xc39db71e:  numBytes = 4153; return openEphys_ProcessorEditorPluginTemplate_cpp;
+        case 0x229158a3:  numBytes = 3578; return openEphys_ProcessorEditorPluginTemplate_h;
+        case 0xfca5b2d1:  numBytes = 6436; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;
         case 0x1d379af4:  numBytes = 1972; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
         case 0x9bde39f9:  numBytes = 2797; return openEphys_ProcessorVisualizerCanvasTemplate_h;

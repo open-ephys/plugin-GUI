@@ -36,35 +36,34 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
-GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
-    : AudioProcessorEditor(owner),
-      desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), drawerWidth(170),
-      drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
+
+GenericEditor::GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors = true)
+    : AudioProcessorEditor  (owner)
+    , desiredWidth          (150)
+    , isFading              (false)
+    , accumulator           (0.0)
+    , acquisitionIsActive   (false)
+    , drawerButton          (nullptr)
+    , drawerWidth           (170)
+    , drawerOpen            (false)
+    , channelSelector       (nullptr)
+    , isSelected            (false)
+    , isEnabled             (true)
+    , isCollapsed           (false)
+    , tNum                  (-1)
 {
-    constructorInitialize(owner, useDefaultParameterEditors);
+    constructorInitialize (owner, useDefaultParameterEditors);
 }
 
 
-/*GenericEditor::GenericEditor (GenericProcessor* owner)
-: AudioProcessorEditor (owner), isSelected(false),
-desiredWidth(150), tNum(-1), isEnabled(true),
-accumulator(0.0), isFading(false), drawerButton(0),
-channelSelector(0)
-
-{
-    bool useDefaultParameterEditors=true;
-    constructorInitialize(owner, useDefaultParameterEditors);
-}
-*/
 GenericEditor::~GenericEditor()
 {
     deleteAllChildren();
 }
 
-void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
-{
 
+void GenericEditor::constructorInitialize (GenericProcessor* owner, bool useDefaultParameterEditors)
+{
     name = getAudioProcessor()->getName();
     displayName = name;
 
@@ -74,15 +73,15 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     //Typeface::Ptr typeface = new CustomTypeface(mis);
     titleFont = Font ("Default", 14, Font::bold);
 
-    if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
+    if (! owner->isMerger()
+        && ! owner->isSplitter()
+        && ! owner->isUtility())
     {
-        // std::cout << "Adding drawer button." << std::endl;
+        drawerButton = new DrawerButton ("name");
+        drawerButton->addListener (this);
+        addAndMakeVisible (drawerButton);
 
-        drawerButton = new DrawerButton("name");
-        drawerButton->addListener(this);
-        addAndMakeVisible(drawerButton);
-
-        if (!owner->isSink())
+        if (! owner->isSink())
         {
             channelSelector = new ChannelSelector (true, titleFont);
         }
@@ -91,26 +90,25 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
             channelSelector = new ChannelSelector (false, titleFont);
         }
 
-        addChildComponent(channelSelector);
-        channelSelector->setVisible(false);
+        addChildComponent (channelSelector);
+        channelSelector->setVisible (false);
 
-        isSplitOrMerge=false;
+        isSplitOrMerge = false;
     }
     else
     {
-        isSplitOrMerge=true;
+        isSplitOrMerge = true;
     }
 
-    backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
-                                        Colour(185, 185, 185), 0.0f, 120.0f, false);
-    backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
+    backgroundGradient = ColourGradient (Colour (190, 190, 190), 0.0f, 0.0f,
+                                         Colour (185, 185, 185), 0.0f, 120.0f, false);
+    backgroundGradient.addColour (0.2f, Colour (155, 155, 155));
 
-    addParameterEditors(useDefaultParameterEditors);
+    addParameterEditors (useDefaultParameterEditors);
 
-    backgroundColor = Colour(10,10,10);
+    backgroundColor = Colour (10,10,10);
 
     //fadeIn();
-
 }
 
 void GenericEditor::updateName()
@@ -133,7 +131,7 @@ String GenericEditor::getDisplayName()
 }
 
 
-void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
+void GenericEditor::addParameterEditors (bool useDefaultParameterEditors = true)
 {
     if (useDefaultParameterEditors)
     {
@@ -143,11 +141,9 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
         int xPos = 15;
         int yPos = 30;
 
-        // std::cout << "Adding parameter editors." << std::endl;
-
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
-            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterObject (i), titleFont);
+            ParameterEditor* p = new ParameterEditor (getProcessor(), getProcessor()->getParameterObject (i), titleFont);
             p->setChannelSelector (channelSelector);
 
             if (p->hasCustomBounds())
@@ -169,9 +165,64 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
             parameterEditors.add (p);
         }
     }
+    else
+    {
+        //configureParameterEditors();
+    }
 }
 
 
+void GenericEditor::configureParameterEditors()
+{
+    DBG ("Configuring parameter editors...");
+    auto& contentComponent = getContentComponent();
+    const int numChildComponents = contentComponent.getNumChildComponents();
+
+    // Check all child components and setup parameters for all buttons, sliders
+    // (TODO<Kirill A>: add support for more components)
+    for (int i = 0; i < numChildComponents; ++i)
+    {
+        auto childComponent = contentComponent.getChildComponent (i);
+        DBG (childComponent->getName());
+        // TODO<Kirill A>: change to search for component ID's, not for names
+        const bool isParameterExists = getProcessor()->isParameterExists (childComponent->getName());
+
+        // If parameter with given component ID doesn't exist, just skip it
+        if (! isParameterExists)
+            continue;
+
+        // TODO<Kirill A>: change to search for component ID's, not for names
+        auto parameter = getProcessor()->findParameterWithComponentID (childComponent->getName());
+        if (auto buttonComponent = dynamic_cast<Button*> (childComponent))
+        {
+            buttonComponent->setToggleState ((bool)parameter->getDefaultValue(), dontSendNotification);
+        }
+        else if (auto sliderComponent = dynamic_cast<Slider*> (childComponent))
+        {
+            // For boolean parameters the only possible values for slider should be 0.0 and 1.0 (off/on)
+            if (parameter->isBoolean())
+            {
+                sliderComponent->setRange (0.0, 1.0, 1.0);
+            }
+            else if (parameter->isContinuous())
+            {
+                Array<var> possibleValues = parameter->getPossibleValues();
+                jassert (possibleValues.size() == 2);
+
+                const float minPossibleValue = float (possibleValues[0]);
+                const float maxPossibleValue = float (possibleValues[1]);
+
+                sliderComponent->setRange (minPossibleValue, maxPossibleValue);
+            }
+            // It's not supported to use sliders for discrete or numerical parameters
+            else
+                continue;
+
+            sliderComponent->setValue ((double)parameter->getDefaultValue(), dontSendNotification);
+            sliderComponent->getValueObject().referTo (parameter->getCurrentValueObject());
+        }
+    }
+}
 
 
 void GenericEditor::refreshColors()
@@ -437,15 +488,29 @@ void GenericEditor::timerCallback()
     }
 }
 
-void GenericEditor::buttonClicked(Button* button)
+void GenericEditor::buttonClicked (Button* buttonThatWasClicked)
 {
+    const bool drawerButtonClicked = checkDrawerButton (buttonThatWasClicked);
 
-    // std::cout << "Button clicked." << std::endl;
+    // That means that some button has been clicked, so let's check and try to set the parameter
+    if (! drawerButtonClicked)
+    {
+        // TODO<Kirill A>: change to search for component ID, not name
+        const auto buttonID = buttonThatWasClicked->getName();
+        const bool isParameterExists = getProcessor()->isParameterExists (buttonID);
 
-    checkDrawerButton(button);
+        if (isParameterExists)
+        {
+            auto parameter = getProcessor()->findParameterWithComponentID (buttonID);
+            auto newValue  = (float)buttonThatWasClicked->getToggleState();
 
-    buttonEvent(button); // needed to inform subclasses of
-    // button event
+            // TODO<Kirill A>: could be dangerous to get parameter's ID like that
+            getProcessor()->setParameterWithoutUpdate (parameter->getID(), newValue);
+        }
+    }
+
+    // Inform subclasses that button event has occured
+    buttonEvent (buttonThatWasClicked);
 }
 
 
@@ -455,25 +520,22 @@ bool GenericEditor::checkDrawerButton(Button* button)
     {
         if (drawerButton->getToggleState())
         {
-
-            channelSelector->setVisible(true);
+            channelSelector->setVisible (true);
 
             drawerWidth = channelSelector->getDesiredWidth() + 20;
 
             desiredWidth += drawerWidth;
             drawerOpen = true;
-
         }
         else
         {
-
-            channelSelector->setVisible(false);
+            channelSelector->setVisible (false);
 
             desiredWidth -= drawerWidth;
             drawerOpen = false;
         }
 
-        AccessClass::getEditorViewport()->makeEditorVisible(this);
+        AccessClass::getEditorViewport()->makeEditorVisible (this);
 
         deselect();
 
@@ -483,12 +545,24 @@ bool GenericEditor::checkDrawerButton(Button* button)
     {
         return false;
     }
-
 }
 
-void GenericEditor::sliderValueChanged(Slider* slider)
+void GenericEditor::sliderValueChanged (Slider* slider)
 {
-    sliderEvent(slider);
+    // TODO<Kirill A>: change to search for component ID, not name
+    const auto sliderID = slider->getName();
+    const bool isParameterExists = getProcessor()->isParameterExists (sliderID);
+
+    if (isParameterExists)
+    {
+        auto parameter = getProcessor()->findParameterWithComponentID (sliderID);
+        auto newValue  = (float)slider->getValue();
+
+        // TODO<Kirill A>: could be dangerous to get parameter's ID like that
+        getProcessor()->setParameterWithoutUpdate (parameter->getID(), newValue);
+    }
+
+    sliderEvent (slider);
 }
 
 void GenericEditor::update()
@@ -1094,8 +1168,51 @@ SaveButton::~SaveButton()
 }
 
 
-void GenericEditor::updateParameterButtons(int parameterIndex)
+Component& GenericEditor::getContentComponent()
 {
+    return *this;
+}
+
+
+void GenericEditor::parameterComponentChanged (Component* parameterComponentThatHasChanged)
+{
+}
+
+void GenericEditor::updateParameterComponent (Parameter* parameterToUpdate)
+{
+    Component& contentComponent = getContentComponent();
+
+    // TODO<Kirill A>: change to search for component ID's, not for names
+    const int numChildComponents = contentComponent.getNumChildComponents();
+    const auto componentIDForParameter = parameterToUpdate->getComponentID();
+    for (int i = 0; i < numChildComponents; ++i)
+    {
+        if (contentComponent.getChildComponent (i)->getName() == componentIDForParameter)
+        {
+            auto neededChildComponent = contentComponent.getChildComponent (i);
+
+            if (auto buttonComponent = dynamic_cast<Button*> (neededChildComponent))
+            {
+                buttonComponent->setToggleState ((bool)parameterToUpdate->getCurrentValueObject().getValue(), dontSendNotification);
+            }
+            else if (auto sliderComponent = dynamic_cast<Slider*> (neededChildComponent))
+            {
+                DBG (String ("Slider value: ") + String ((double)parameterToUpdate->getCurrentValueObject().getValue()));
+                sliderComponent->setValue ((double)parameterToUpdate->getCurrentValueObject().getValue(), dontSendNotification);
+            }
+
+            break;
+        }
+    }
+}
+
+
+void GenericEditor::updateParameterButtons (int parameterIndex)
+{
+    return;
+    // TODO<Kirill A>
+    //////////
+
     if (parameterEditors.size() == 0)
     {
         //Checks if there is a parameter editor, and stops a bug if there isn't.

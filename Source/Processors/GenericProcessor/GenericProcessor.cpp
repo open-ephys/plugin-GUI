@@ -102,11 +102,22 @@ Parameter* GenericProcessor::getParameterObject (int parameterIndex) const
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons (parameterIndex);
-    std::cout << "Setting parameter" << std::endl;
+    setParameterWithoutUpdate (parameterIndex, newValue);
+
+    editor->updateParameterComponent (parameters[parameterIndex]);
+}
+
+
+void GenericProcessor::setParameterWithoutUpdate (int parameterIndex, float newValue)
+{
+    std::cout << String ("Setting parameter \"" + parameters[parameterIndex]->getName() + "\". New value: " + String (newValue))
+              << std::endl;
 
     if (currentChannel >= 0)
+    {
         parameters[parameterIndex]->setValue (newValue, currentChannel);
+        parameters[parameterIndex]->setCurrentValue (newValue);
+    }
 }
 
 
@@ -1085,3 +1096,19 @@ bool GenericProcessor::disable()
     return true;
 }
 
+
+bool GenericProcessor::isParameterExists (const String& componentID) const
+{
+    return findParameterWithComponentID (componentID) != nullptr;
+}
+
+
+Parameter* GenericProcessor::findParameterWithComponentID (const String& componentID) const
+{
+    const int numParameters = parameters.size();
+    for (int i = 0; i < numParameters; ++i)
+        if (parameters[i]->getComponentID() == componentID)
+            return parameters[i];
+
+    return nullptr;
+}

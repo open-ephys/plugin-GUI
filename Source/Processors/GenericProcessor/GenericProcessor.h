@@ -106,6 +106,9 @@ public:
     be done through setParameter(). Otherwise the application will crash. */
     virtual void setParameter (int parameterIndex, float newValue) override;
 
+    // Sets parameter without updating components. */
+    virtual void setParameterWithoutUpdate (int parameterIndex, float newValue);
+
     /** Creates a GenericEditor.*/
     virtual AudioProcessorEditor* createEditor() override;
 
@@ -334,6 +337,9 @@ public:
     /** Called immediately after the end of data acquisition.*/
     virtual bool disable();
 
+    /** Returns true if processor has parameter with given component ID, false otherwise. */
+    virtual bool isParameterExists (const String& componentID) const;
+
     /** Called when recording starts/stops **/
     void setRecording (bool state);
 
@@ -463,6 +469,9 @@ public:
 
     /** Returns the parameter for a given index.*/
     Parameter* getParameterObject (int parameterIndex) const;
+
+    /** Returns pointer to parameter with given component id if it exists, otherwise nullptr. */
+    Parameter* findParameterWithComponentID (const String& componentID) const;
 
     /** Save generic settings to XML (called by all processors).*/
     void saveToXml (XmlElement* parentElement);

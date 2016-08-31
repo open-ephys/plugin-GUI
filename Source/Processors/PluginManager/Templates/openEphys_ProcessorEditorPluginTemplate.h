@@ -63,6 +63,9 @@ public:
     /** This method executes whenever a custom slider's value has been changed. */
     void sliderEvent (Slider* slider) override;
 
+    /** This methods will return the reference to our content component. */
+    Component& getContentComponent() override;
+
     /** Called to inform the editor that acquisition is about to start*/
     //void startAcquisition();
 

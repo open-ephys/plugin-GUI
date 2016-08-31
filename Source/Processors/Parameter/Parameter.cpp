@@ -39,6 +39,8 @@ Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deacti
     m_minValueObject = 0;
     m_maxValueObject = 0;
 
+    m_currentValueObject = defaultValue;
+
     registerValueListeners();
 }
 
@@ -60,6 +62,8 @@ Parameter::Parameter (const String& name,
     // Initialize default value
     m_values.set (0, defaultValue);
 
+    m_currentValueObject = defaultValue;
+
     m_minValueObject = minPossibleValue;
     m_maxValueObject = maxPossibleValue;
 
@@ -79,6 +83,8 @@ Parameter::Parameter (const String& name,
     , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
 {
     m_possibleValues = a;
+
+    m_currentValueObject = defaultValue;
 
     m_minValueObject = 0;
     m_maxValueObject = 0;
@@ -104,6 +110,8 @@ Parameter::Parameter (const String& name, const String& labelName,
     // Initialize default value
     m_values.set (0, defaultValue);
 
+    m_currentValueObject = defaultValue;
+
     m_minValueObject = minPossibleValue;
     m_maxValueObject = maxPossibleValue;
 
@@ -125,6 +133,7 @@ void Parameter::registerValueListeners()
 
     m_nameValueObject.addListener        (this);
     m_parameterIdValueObject.addListener (this);
+    m_componentIdValueObject.addListener (this);
     m_descriptionValueObject.addListener (this);
     m_defaultValueObject.addListener     (this);
 }
@@ -132,14 +141,15 @@ void Parameter::registerValueListeners()
 
 String Parameter::getName()          const noexcept { return m_nameValueObject.toString(); }
 String Parameter::getDescription()   const noexcept { return m_descriptionValueObject.toString(); }
+String Parameter::getComponentID()   const noexcept { return m_componentIdValueObject.toString(); }
 
 int Parameter::getID() const noexcept { return m_parameterIdValueObject.getValue(); }
 
 var Parameter::getDefaultValue() const noexcept             { return m_defaultValueObject.getValue(); }
 const Array<var>& Parameter::getPossibleValues() const      { return m_possibleValues; }
 
-var Parameter::getValue   (int channel)   const { return m_values[channel]; }
-var Parameter::operator[] (int channel)   const { return m_values[channel]; }
+var Parameter::getValue   (int channel)   const { if (channel < 0) return m_currentValueObject.getValue(); return m_values[channel]; }
+var Parameter::operator[] (int channel)   const { getValue (channel); }
 
 Parameter::ParameterType Parameter::getParameterType() const noexcept { return m_parameterType; }
 
@@ -152,7 +162,9 @@ bool Parameter::hasCustomEditorBounds() const noexcept { return m_hasCustomEdito
 
 const Rectangle<int>& Parameter::getEditorDesiredBounds() const noexcept { return m_editorBounds; }
 
+Value& Parameter::getCurrentValueObject()              noexcept { return m_currentValueObject;         };
 Value& Parameter::getValueObjectForID()                noexcept { return m_parameterIdValueObject;     };
+Value& Parameter::getValueObjectForComponentID()       noexcept { return m_componentIdValueObject;     };
 Value& Parameter::getValueObjectForName()              noexcept { return m_nameValueObject;            };
 Value& Parameter::getValueObjectForDescription()       noexcept { return m_descriptionValueObject;     };
 Value& Parameter::getValueObjectForDefaultValue()      noexcept { return m_defaultValueObject;         };
@@ -240,6 +252,12 @@ void Parameter::setDescription (const String& description)
 }
 
 
+void Parameter::setComponentID (const String& componentIDToTrackFor)
+{
+    m_componentIdValueObject.setValue (componentIDToTrackFor);
+}
+
+
 void Parameter::setValue (float value, int channel)
 {
     if (isBoolean())
@@ -261,6 +279,17 @@ void Parameter::setValue (float value, int channel)
     {
         m_values.set (channel, value);
     }
+}
+
+
+void Parameter::setCurrentValue (const var& newValue)
+{
+    if (isBoolean())
+        m_currentValueObject.setValue ((bool)newValue);
+    else if (isContinuous() || isNumerical())
+        m_currentValueObject.setValue ((double)newValue);
+    else if (isDiscrete())
+        m_currentValueObject.setValue ((int)newValue);
 }
 
 
@@ -398,6 +427,7 @@ ValueTree Parameter::createValueTreeForParameter (Parameter* parameter)
 {
     ValueTree parameterNode ("PARAMETER");
     parameterNode.setProperty (Ids::OpenEphysParameter::ID,                 parameter->getID(), nullptr);
+    parameterNode.setProperty (Ids::OpenEphysParameter::COMPONENT_ID,       parameter->getComponentID(), nullptr);
     parameterNode.setProperty (Ids::OpenEphysParameter::NAME,               parameter->getName(), nullptr);
     parameterNode.setProperty (Ids::OpenEphysParameter::TYPE,               parameter->getParameterTypeString(), nullptr);
     parameterNode.setProperty (Ids::OpenEphysParameter::DEFAULT_VALUE,      parameter->getDefaultValue(), nullptr);
@@ -477,6 +507,9 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
 
     auto description = parameterValueTree.getProperty (Ids::OpenEphysParameter::DESCRIPTION).toString();
     parameter->setDescription (description);
+
+    auto componentID = parameterValueTree.getProperty (Ids::OpenEphysParameter::COMPONENT_ID).toString();
+    parameter->setComponentID (componentID);
 
     return parameter;
 }

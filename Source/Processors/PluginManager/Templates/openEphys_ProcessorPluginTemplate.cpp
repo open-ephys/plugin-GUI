@@ -55,7 +55,7 @@ PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 */
 AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()
 {
-    editor = new EDITORCLASSNAME (this, true);
+    editor = new EDITORCLASSNAME (this, false);
 
     //std::cout << "Creating editor." << std::endl;
 
@@ -146,7 +146,7 @@ void PROCESSORCLASSNAME::saveCustomParametersToXml (XmlElement* parentElement)
         parameterNode->setAttribute ("name", parameter->getName());
         parameterNode->setAttribute ("type", parameter->getParameterTypeString());
 
-        auto parameterValue = getParameterVar (i, currentChannel);
+        auto parameterValue = parameter->getCurrentValueObject().getValue();
 
         if (parameter->isBoolean())
             parameterNode->setAttribute ("value", (int)parameterValue);

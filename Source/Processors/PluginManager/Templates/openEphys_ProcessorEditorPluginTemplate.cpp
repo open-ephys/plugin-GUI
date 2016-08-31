@@ -38,6 +38,8 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
     content.toBack(); // to be able to see parameters components
     setDesiredWidth (EDITOR_DESIRED_WIDTH);
 
+    configureParameterEditors();
+
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]
 
 
@@ -107,4 +109,10 @@ void EDITORCLASSNAME::buttonEvent (Button* button)
 */
 void EDITORCLASSNAME::sliderEvent (Slider* slider)
 {
+}
+
+
+Component& EDITORCLASSNAME::getContentComponent()
+{
+    return content;
 }

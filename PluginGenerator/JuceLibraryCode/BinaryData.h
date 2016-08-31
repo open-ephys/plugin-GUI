@@ -10,7 +10,7 @@
 namespace BinaryData
 {
     extern const char*   OE_GUI_MoonShard_cpp;
-    const int            OE_GUI_MoonShard_cppSize = 8293;
+    const int            OE_GUI_MoonShard_cppSize = 8648;
 
     extern const char*   OE_GUI_MoonShard_h;
     const int            OE_GUI_MoonShard_hSize = 2656;
@@ -40,13 +40,13 @@ namespace BinaryData
     const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4043;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4153;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
-    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3454;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3578;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
-    const int            openEphys_ProcessorPluginTemplate_cppSize = 6425;
+    const int            openEphys_ProcessorPluginTemplate_cppSize = 6436;
 
     extern const char*   openEphys_ProcessorPluginTemplate_h;
     const int            openEphys_ProcessorPluginTemplate_hSize = 3746;

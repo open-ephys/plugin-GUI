@@ -92,6 +92,9 @@ public:
     /** Returns a description of the parameter.*/
     String getDescription() const noexcept;
 
+    /** Returns the component ID for which parameter wants to track. */
+    String getComponentID() const noexcept;
+
     /** Returns the unique integer ID of a parameter.*/
     int getID() const noexcept;
 
@@ -144,8 +147,15 @@ public:
     /** Sets the description of the parameter.*/
     void setDescription (const String& desc);
 
+    /** Returns the component ID for which parameter wants to track. */
+    void setComponentID (const String& componentIDToTrackFor);
+
     /** Sets the value of a parameter for a given channel.*/
     void setValue (float val, int chan);
+
+    /** Sets current value of parameter. It's just a parameter value for processor's current channel.
+        It will be the one which will be displayed in parameter editor. */
+    void setCurrentValue (const var& newValue);
 
     /** Sets the possible values. It makes sense only for discrete parameters. */
     void setPossibleValues (Array<var> possibleValues);
@@ -174,7 +184,9 @@ public:
 
     // Accessors for values
     // ========================================================================
+    Value& getCurrentValueObject()              noexcept;
     Value& getValueObjectForID()                noexcept;
+    Value& getValueObjectForComponentID()       noexcept;
     Value& getValueObjectForName()              noexcept;
     Value& getValueObjectForDescription()       noexcept;
     Value& getValueObjectForDefaultValue()      noexcept;
@@ -194,11 +206,6 @@ public:
 private:
     void registerValueListeners();
 
-    //String m_name;
-    //String m_description;
-
-    //int m_parameterId;
-
     bool m_hasCustomEditorBounds { false };
 
     Rectangle<int> m_editorBounds;
@@ -212,8 +219,10 @@ private:
     // Different values to be able to set any needed fields for parameters
     // without any effort when using property editors
     // ========================================================================
+    Value m_currentValueObject;
     Value m_nameValueObject;
     Value m_descriptionValueObject;
+    Value m_componentIdValueObject;
     Value m_parameterIdValueObject;
     Value m_defaultValueObject;
     Value m_minValueObject;

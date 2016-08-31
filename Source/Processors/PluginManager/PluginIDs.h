@@ -35,6 +35,7 @@ namespace Ids
     namespace OpenEphysParameter
     {
         DECLARE_OPENEPHYS_ID (ID);
+        DECLARE_OPENEPHYS_ID (COMPONENT_ID);
         DECLARE_OPENEPHYS_ID (NAME);
         DECLARE_OPENEPHYS_ID (DESCRIPTION);
         DECLARE_OPENEPHYS_ID (TYPE);

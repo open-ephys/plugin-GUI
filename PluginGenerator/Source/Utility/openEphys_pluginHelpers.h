@@ -375,9 +375,17 @@ static String generateCodeForParameter (const Parameter& parameter)
 
     if (parameter.getDescription().isNotEmpty())
     {
-        String description = "String parameter{PARAMINDEX}description = \"" + parameter.getDescription() + "\";" + newLine
-                                + String ("parameter{PARAMINDEX}->setDescription (parameter{PARAMINDEX}description);");
-        parameterCode << CodeHelpers::indent (description, 4, true);
+        String descriptionCode = "String parameter{PARAMINDEX}description = \"" + parameter.getDescription() + "\";" + newLine
+                                    + String ("parameter{PARAMINDEX}->setDescription (parameter{PARAMINDEX}description);");
+        parameterCode << CodeHelpers::indent (descriptionCode, 4, true);
+        parameterCode << newLine;
+    }
+
+    if (parameter.getComponentID().isNotEmpty())
+    {
+        String componentIDCode = "String parameter{PARAMINDEX}ComponentID = \"" + parameter.getComponentID() + "\";" + newLine
+                                    + String ("parameter{PARAMINDEX}->setComponentID (parameter{PARAMINDEX}ComponentID);");
+        parameterCode << CodeHelpers::indent (componentIDCode, 4, true);
         parameterCode << newLine;
     }
 
@@ -394,6 +402,7 @@ static void createPropertiesForParameter (Parameter* parameter, Array<PropertyCo
     props.add (new TextPropertyComponent (parameter->getValueObjectForName(),         "Name", 50, false));
     props.add (new TextPropertyComponent (parameter->getValueObjectForDescription(),  "Description", 50, true));
     props.add (new TextPropertyComponent (parameter->getValueObjectForID(),           "Id", 6, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForComponentID(),  "Component ID (GUI)", 50, false));
     props.add (new TextPropertyComponent (parameter->getValueObjectForDefaultValue(), "Default value", 6, false));
 
     if (parameter->isContinuous() || parameter->isNumerical())
