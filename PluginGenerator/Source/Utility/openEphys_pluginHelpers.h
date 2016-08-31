@@ -402,7 +402,7 @@ static void createPropertiesForParameter (Parameter* parameter, Array<PropertyCo
     props.add (new TextPropertyComponent (parameter->getValueObjectForName(),         "Name", 50, false));
     props.add (new TextPropertyComponent (parameter->getValueObjectForDescription(),  "Description", 50, true));
     props.add (new TextPropertyComponent (parameter->getValueObjectForID(),           "Id", 6, false));
-    props.add (new TextPropertyComponent (parameter->getValueObjectForComponentID(),  "Component ID (GUI)", 50, false));
+    props.add (new TextPropertyComponent (parameter->getValueObjectForComponentID(),  "Component name", 50, false));
     props.add (new TextPropertyComponent (parameter->getValueObjectForDefaultValue(), "Default value", 6, false));
 
     if (parameter->isContinuous() || parameter->isNumerical())
@@ -415,10 +415,10 @@ static void createPropertiesForParameter (Parameter* parameter, Array<PropertyCo
         props.add (new TextPropertyComponent (parameter->getValueObjectForPossibleValues(), "Possible values", 500, true));
     }
 
-    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredX(), "x", 4, false));
-    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredY(), "y", 4, false));
-    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredWidth(),  "width",  4, false));
-    props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredHeight(), "height", 4, false));
+    //props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredX(), "x", 4, false));
+    //props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredY(), "y", 4, false));
+    //props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredWidth(),  "width",  4, false));
+    //props.add (new TextPropertyComponent (parameter->getValueObjectForDesiredHeight(), "height", 4, false));
 }
 
 
