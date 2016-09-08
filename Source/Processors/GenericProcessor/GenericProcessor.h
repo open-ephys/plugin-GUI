@@ -465,7 +465,7 @@ public:
     /** Returns the parameter for a given name.
         It should be const method ideally, but because JUCE's getNumParameters()
         is non-const method, we can't do this one const.*/
-    Parameter* getParameterByName (String parameterName);
+    Parameter* getParameterByName (const String& parameterName);
 
     /** Returns the parameter for a given index.*/
     Parameter* getParameterObject (int parameterIndex) const;

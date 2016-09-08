@@ -145,10 +145,11 @@ String Parameter::getComponentID()   const noexcept { return m_componentIdValueO
 
 int Parameter::getID() const noexcept { return m_parameterIdValueObject.getValue(); }
 
+var Parameter::getCurrentValue() const noexcept             { return m_currentValueObject.getValue(); }
 var Parameter::getDefaultValue() const noexcept             { return m_defaultValueObject.getValue(); }
 const Array<var>& Parameter::getPossibleValues() const      { return m_possibleValues; }
 
-var Parameter::getValue   (int channel)   const { if (channel < 0) return m_currentValueObject.getValue(); return m_values[channel]; }
+var Parameter::getValue   (int channel)   const { if (channel < 0) return getCurrentValue(); return m_values[channel]; }
 var Parameter::operator[] (int channel)   const { getValue (channel); }
 
 Parameter::ParameterType Parameter::getParameterType() const noexcept { return m_parameterType; }

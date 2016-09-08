@@ -134,10 +134,6 @@ static const unsigned char temp_binary_data_0[] =
 "void OE_GUI_MoonShard::buttonClicked (Button* buttonThatWasClicked)\r\n"
 "{\r\n"
 "    //[UserbuttonClicked_Pre]\r\n"
-"    if (auto parentButtonListener = dynamic_cast<Button::Listener*> (getParentComponent()))\r\n"
-"    {\r\n"
-"        parentButtonListener->buttonClicked (buttonThatWasClicked);\r\n"
-"    }\r\n"
 "    //[/UserbuttonClicked_Pre]\r\n"
 "\r\n"
 "    if (buttonThatWasClicked == textButton)\r\n"
@@ -153,10 +149,6 @@ static const unsigned char temp_binary_data_0[] =
 "void OE_GUI_MoonShard::sliderValueChanged (Slider* sliderThatWasMoved)\r\n"
 "{\r\n"
 "    //[UsersliderValueChanged_Pre]\r\n"
-"    if (auto parentSliderListener = dynamic_cast<Slider::Listener*> (getParentComponent()))\r\n"
-"    {\r\n"
-"        parentSliderListener->sliderValueChanged (sliderThatWasMoved);\r\n"
-"    }\r\n"
 "    //[/UsersliderValueChanged_Pre]\r\n"
 "\r\n"
 "    if (sliderThatWasMoved == slider1)\r\n"
@@ -6089,7 +6081,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
 
     switch (hash)
     {
-        case 0x44af8d54:  numBytes = 8648; return OE_GUI_MoonShard_cpp;
+        case 0x44af8d54:  numBytes = 8293; return OE_GUI_MoonShard_cpp;
         case 0x636f4459:  numBytes = 2656; return OE_GUI_MoonShard_h;
         case 0x49aa52f7:  numBytes = 1561; return openEphys_DataThreadPluginTemplate_cpp;
         case 0x9a9516bc:  numBytes = 1817; return openEphys_DataThreadPluginTemplate_h;

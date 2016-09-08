@@ -10,7 +10,7 @@
 namespace BinaryData
 {
     extern const char*   OE_GUI_MoonShard_cpp;
-    const int            OE_GUI_MoonShard_cppSize = 8648;
+    const int            OE_GUI_MoonShard_cppSize = 8293;
 
     extern const char*   OE_GUI_MoonShard_h;
     const int            OE_GUI_MoonShard_hSize = 2656;

@@ -75,17 +75,16 @@ void GenericProcessor::setNodeId (int id)
 }
 
 
-Parameter* GenericProcessor::getParameterByName (String name)
+Parameter* GenericProcessor::getParameterByName (const String& name)
 {
     const int numParameters = getNumParameters();
-    // doesn't work
+
     for (int i = 0; i < numParameters; ++i)
     {
         const auto parameter = parameters[i];
-        const String parameterName = parameter->getName();
 
-        if (parameterName.compare (name) == 0) // fails at this point
-            return parameter;//parameters.getReference(i);
+        if (parameter->getName() == name)
+            return parameter;
     }
 
     Parameter* nullParam = new Parameter ("VOID", false, -1);
@@ -1046,7 +1045,7 @@ int GenericProcessor::getTotalNumberOfChannels() const      { return channels.si
 
 double GenericProcessor::getTailLengthSeconds() const       { return 1.0f; }
 
-float GenericProcessor::getParameter (int parameterIndex)   { return 1.0; }
+float GenericProcessor::getParameter (int parameterIndex)   { return getParameterObject (parameterIndex)->getCurrentValue(); }
 float GenericProcessor::getDefaultSampleRate() const        { return 44100.0; }
 float GenericProcessor::getSampleRate() const               { return settings.sampleRate; }
 float GenericProcessor::getDefaultBitVolts() const          { return 1.0; }

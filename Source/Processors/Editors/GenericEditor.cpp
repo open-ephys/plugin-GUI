@@ -195,7 +195,9 @@ void GenericEditor::configureParameterEditors()
         auto parameter = getProcessor()->findParameterWithComponentID (childComponent->getName());
         if (auto buttonComponent = dynamic_cast<Button*> (childComponent))
         {
+            buttonComponent->setClickingTogglesState (true);
             buttonComponent->setToggleState ((bool)parameter->getDefaultValue(), dontSendNotification);
+            buttonComponent->addListener (this);
         }
         else if (auto sliderComponent = dynamic_cast<Slider*> (childComponent))
         {
@@ -220,6 +222,15 @@ void GenericEditor::configureParameterEditors()
 
             sliderComponent->setValue ((double)parameter->getDefaultValue(), dontSendNotification);
             sliderComponent->getValueObject().referTo (parameter->getCurrentValueObject());
+            sliderComponent->addListener (this);
+        }
+        else if (auto textEditorComponent = dynamic_cast<TextEditor*> (childComponent))
+        {
+            textEditorComponent->setInputRestrictions (6, "01234567890-.,");
+
+            textEditorComponent->setText (parameter->getDefaultValue().toString(), dontSendNotification);
+            textEditorComponent->getTextValue().referTo (parameter->getCurrentValueObject());
+            textEditorComponent->addListener (this);
         }
     }
 }
@@ -227,9 +238,6 @@ void GenericEditor::configureParameterEditors()
 
 void GenericEditor::refreshColors()
 {
-
-    //std::cout << getName() << " refreshing colors." << std::endl;
-
     enum
     {
         PROCESSOR_COLOR = 801,
@@ -240,16 +248,15 @@ void GenericEditor::refreshColors()
     };
 
     if (getProcessor()->isSource())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour (SOURCE_COLOR);
     else if (getProcessor()->isSink())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour (SINK_COLOR);
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isUtility())
-        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour (UTILITY_COLOR);
     else
-        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour (FILTER_COLOR);
 
     repaint();
-
 }
 
 
@@ -266,7 +273,7 @@ void GenericEditor::resized()
 }
 
 
-bool GenericEditor::keyPressed(const KeyPress& key)
+bool GenericEditor::keyPressed (const KeyPress& key)
 {
     return false;
 }
@@ -385,10 +392,8 @@ void GenericEditor::stopAcquisition()
 
     for (int n = 0; n < parameterEditors.size(); n++)
     {
-
         if (parameterEditors[n]->shouldDeactivateDuringAcquisition)
             parameterEditors[n]->setEnabled(true);
-
     }
 
     acquisitionIsActive = false;
@@ -547,6 +552,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
     }
 }
 
+
 void GenericEditor::sliderValueChanged (Slider* slider)
 {
     // TODO<Kirill A>: change to search for component ID, not name
@@ -564,6 +570,40 @@ void GenericEditor::sliderValueChanged (Slider* slider)
 
     sliderEvent (slider);
 }
+
+
+void GenericEditor::textEditorReturnKeyPressed (TextEditor& textEditor)
+{
+    // TODO<Kirill A>: change to search for component ID, not name
+    const auto textEditorID = textEditor.getName();
+    const bool isParameterExists = getProcessor()->isParameterExists (textEditorID);
+
+    if (isParameterExists)
+    {
+        auto parameter = getProcessor()->findParameterWithComponentID (textEditorID);
+
+        auto getConstrainedValueForParameter = [](Parameter* parameter, float valueToConstrain) -> float
+        {
+            if (! parameter->isContinuous())
+                return valueToConstrain;
+
+            Array<var> possibleValues = parameter->getPossibleValues();
+            jassert (possibleValues.size() == 2);
+
+            const float minPossibleValue = float (possibleValues[0]);
+            const float maxPossibleValue = float (possibleValues[1]);
+
+            return jlimit (minPossibleValue, maxPossibleValue, valueToConstrain);
+        };
+
+        const auto newValue = getConstrainedValueForParameter (parameter, textEditor.getText().getFloatValue());
+        textEditor.setText (String (newValue), dontSendNotification);
+
+        // TODO<Kirill A>: could be dangerous to get parameter's ID like that
+        getProcessor()->setParameterWithoutUpdate (parameter->getID(), newValue);
+    }
+}
+
 
 void GenericEditor::update()
 {
@@ -1193,12 +1233,17 @@ void GenericEditor::updateParameterComponent (Parameter* parameterToUpdate)
 
             if (auto buttonComponent = dynamic_cast<Button*> (neededChildComponent))
             {
-                buttonComponent->setToggleState ((bool)parameterToUpdate->getCurrentValueObject().getValue(), dontSendNotification);
+                buttonComponent->setToggleState ((bool)parameterToUpdate->getCurrentValue(), dontSendNotification);
             }
             else if (auto sliderComponent = dynamic_cast<Slider*> (neededChildComponent))
             {
-                DBG (String ("Slider value: ") + String ((double)parameterToUpdate->getCurrentValueObject().getValue()));
-                sliderComponent->setValue ((double)parameterToUpdate->getCurrentValueObject().getValue(), dontSendNotification);
+                //DBG (String ("Slider value: ") + String ((double)parameterToUpdate->getCurrentValue()));
+                sliderComponent->setValue ((double)parameterToUpdate->getCurrentValue(), dontSendNotification);
+            }
+            else if (auto textEditorComponent = dynamic_cast<TextEditor*> (neededChildComponent))
+            {
+                DBG (String ("Text editor value: ") + String ((double)parameterToUpdate->getCurrentValue()));
+                textEditorComponent->setText (parameterToUpdate->getCurrentValue().toString(), dontSendNotification);
             }
 
             break;

@@ -98,6 +98,9 @@ public:
     /** Returns the unique integer ID of a parameter.*/
     int getID() const noexcept;
 
+    /** Returns the current value of a parameter (value for current channel). */
+    var getCurrentValue() const noexcept;
+
     /** Returns the default value of a parameter (can be boolean, int, or float).*/
     var getDefaultValue() const noexcept;
 

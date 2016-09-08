@@ -56,6 +56,7 @@ class PLUGIN_API GenericEditor  : public AudioProcessorEditor
                                 , public Timer
                                 , public Button::Listener
                                 , public Slider::Listener
+                                , public TextEditor::Listener
 {
 public:
     /** Constructor. Loads fonts and creates default buttons.
@@ -86,6 +87,11 @@ public:
 
     /** Handles slider events for all editors. */
     virtual void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
+
+    /** Called when user press "Enter" key on the TextEditor. Will be used mostly for parameters.
+        If any subclass needs this function for it's own component, it should call this method
+        from overridden one. */
+    virtual void textEditorReturnKeyPressed (TextEditor& textEditor) override;
 
     // =====================================================================
     // =====================================================================

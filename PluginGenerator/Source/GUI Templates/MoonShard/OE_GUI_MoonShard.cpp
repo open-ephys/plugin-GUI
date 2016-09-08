@@ -123,10 +123,6 @@ void OE_GUI_MoonShard::resized()
 void OE_GUI_MoonShard::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
-    if (auto parentButtonListener = dynamic_cast<Button::Listener*> (getParentComponent()))
-    {
-        parentButtonListener->buttonClicked (buttonThatWasClicked);
-    }
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == textButton)
@@ -142,10 +138,6 @@ void OE_GUI_MoonShard::buttonClicked (Button* buttonThatWasClicked)
 void OE_GUI_MoonShard::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
-    if (auto parentSliderListener = dynamic_cast<Slider::Listener*> (getParentComponent()))
-    {
-        parentSliderListener->sliderValueChanged (sliderThatWasMoved);
-    }
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == slider1)
