@@ -1246,6 +1246,7 @@ void GenericEditor::updateParameterComponent (Parameter* parameterToUpdate)
                 textEditorComponent->setText (parameterToUpdate->getCurrentValue().toString(), dontSendNotification);
             }
 
+            //TODO<Kirill A>: We might have some components referring to the same parameter
             break;
         }
     }

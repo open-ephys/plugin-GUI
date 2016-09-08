@@ -1118,7 +1118,7 @@ static const unsigned char temp_binary_data_11[] =
 "    /** This method executes whenever a custom slider's value has been changed. */\n"
 "    void sliderEvent (Slider* slider) override;\n"
 "\n"
-"    /** This methods will return the reference to our content component. */\n"
+"    /** This method will return the reference to our content component. */\n"
 "    Component& getContentComponent() override;\n"
 "\n"
 "    /** Called to inform the editor that acquisition is about to start*/\n"
@@ -1688,6 +1688,8 @@ static const unsigned char temp_binary_data_16[] =
 "    content.toBack(); // to be able to see parameters components\n"
 "    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
 "\n"
+"    configureParameterEditors();\n"
+"\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
 "\n"
 "\n"
@@ -1764,6 +1766,12 @@ static const unsigned char temp_binary_data_16[] =
 "{\n"
 "    auto processor = dynamic_cast<PROCESSORCLASSNAME*> (getProcessor());\n"
 "    return new EDITORCANVASCLASSNAME (processor);\n"
+"}\n"
+"\n"
+"\n"
+"Component& EDITORCLASSNAME::getContentComponent()\n"
+"{\n"
+"    return content;\n"
 "}\n";
 
 const char* openEphys_ProcessorVisualizerEditorPluginTemplate_cpp = (const char*) temp_binary_data_16;
@@ -1835,6 +1843,9 @@ static const unsigned char temp_binary_data_17[] =
 "\n"
 "    /** Creates new canvas for visualizer editor. */\n"
 "    Visualizer* createNewCanvas() override;\n"
+"\n"
+"    /** This method will return the reference to our content component. */\n"
+"    Component& getContentComponent() override;\n"
 "\n"
 "    /** Called to inform the editor that acquisition is about to start*/\n"
 "    //void startAcquisition();\n"
@@ -6092,13 +6103,13 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
         case 0xc39db71e:  numBytes = 4153; return openEphys_ProcessorEditorPluginTemplate_cpp;
-        case 0x229158a3:  numBytes = 3578; return openEphys_ProcessorEditorPluginTemplate_h;
+        case 0x229158a3:  numBytes = 3577; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 6436; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;
         case 0x1d379af4:  numBytes = 1972; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
         case 0x9bde39f9:  numBytes = 2797; return openEphys_ProcessorVisualizerCanvasTemplate_h;
-        case 0x7a3e121c:  numBytes = 4286; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
-        case 0x92e85b21:  numBytes = 3306; return openEphys_ProcessorVisualizerEditorPluginTemplate_h;
+        case 0x7a3e121c:  numBytes = 4396; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
+        case 0x92e85b21:  numBytes = 3429; return openEphys_ProcessorVisualizerEditorPluginTemplate_h;
         case 0x7e820c56:  numBytes = 2169; return openEphys_RecordEnginePluginTemplate_cpp;
         case 0x36799bdb:  numBytes = 2052; return openEphys_RecordEnginePluginTemplate_h;
         case 0x6cf2645e:  numBytes = 1949; return jucer_AnimatedComponentTemplate_cpp;

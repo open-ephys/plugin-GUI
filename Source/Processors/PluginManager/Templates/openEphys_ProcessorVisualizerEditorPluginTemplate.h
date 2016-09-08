@@ -64,6 +64,9 @@ public:
     /** Creates new canvas for visualizer editor. */
     Visualizer* createNewCanvas() override;
 
+    /** This method will return the reference to our content component. */
+    Component& getContentComponent() override;
+
     /** Called to inform the editor that acquisition is about to start*/
     //void startAcquisition();
 

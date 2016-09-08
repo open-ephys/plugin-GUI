@@ -43,7 +43,7 @@ namespace BinaryData
     const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4153;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
-    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3578;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3577;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
     const int            openEphys_ProcessorPluginTemplate_cppSize = 6436;
@@ -58,10 +58,10 @@ namespace BinaryData
     const int            openEphys_ProcessorVisualizerCanvasTemplate_hSize = 2797;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4286;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4396;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_h;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3306;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3429;
 
     extern const char*   openEphys_RecordEnginePluginTemplate_cpp;
     const int            openEphys_RecordEnginePluginTemplate_cppSize = 2169;
