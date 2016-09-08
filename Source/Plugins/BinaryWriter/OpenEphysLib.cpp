@@ -48,7 +48,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::RecordEnginePlugin;
+		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
 		info->recordEngine.name = "Binary";
 		info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryRecordingEngine::BinaryRecording>);
 		break;
