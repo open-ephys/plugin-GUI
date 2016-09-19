@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -52,6 +52,11 @@ bool RSAKey::operator== (const RSAKey& other) const noexcept
 bool RSAKey::operator!= (const RSAKey& other) const noexcept
 {
     return ! operator== (other);
+}
+
+bool RSAKey::isValid() const noexcept
+{
+    return operator!= (RSAKey());
 }
 
 String RSAKey::toString() const

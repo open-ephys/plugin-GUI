@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -27,15 +27,11 @@
 } // (juce namespace)
 
 #if ! JUCE_WINDOWS
- #define Point CarbonDummyPointName // (workaround to avoid definition of "Point" by old Carbon headers)
- #define Component CarbonDummyCompName
  #include <QuickTime/Movies.h>
  #include <QuickTime/QTML.h>
  #include <QuickTime/QuickTimeComponents.h>
  #include <QuickTime/MediaHandlers.h>
  #include <QuickTime/ImageCodec.h>
- #undef Point
- #undef Component
 #else
  #if JUCE_MSVC
   #pragma warning (push)
@@ -142,7 +138,7 @@ public:
             if (err != noErr)
                 return;
 
-            HeapBlock <AudioChannelLayout> qt_audio_channel_layout;
+            HeapBlock<AudioChannelLayout> qt_audio_channel_layout;
             qt_audio_channel_layout.calloc (output_layout_size, 1);
 
             MovieAudioExtractionGetProperty (extractor,
@@ -194,7 +190,7 @@ public:
 
             bufferList->mNumberBuffers = 1;
             bufferList->mBuffers[0].mNumberChannels = inputStreamDesc.mChannelsPerFrame;
-            bufferList->mBuffers[0].mDataByteSize =  jmax ((UInt32) 4096, (UInt32) (samplesPerFrame * inputStreamDesc.mBytesPerFrame) + 16);
+            bufferList->mBuffers[0].mDataByteSize =  jmax ((UInt32) 4096, (UInt32) (samplesPerFrame * (int) inputStreamDesc.mBytesPerFrame) + 16);
 
             dataBuffer.malloc (bufferList->mBuffers[0].mDataByteSize);
             bufferList->mBuffers[0].mData = dataBuffer;
@@ -226,7 +222,7 @@ public:
             DisposeMovie (movie);
 
            #if JUCE_MAC
-            ExitMoviesOnThread ();
+            ExitMoviesOnThread();
            #endif
         }
     }
@@ -262,10 +258,10 @@ public:
                 }
 
                 int framesToDo = jmin (numSamples, (int) (bufferList->mBuffers[0].mDataByteSize / inputStreamDesc.mBytesPerFrame));
-                bufferList->mBuffers[0].mDataByteSize = inputStreamDesc.mBytesPerFrame * framesToDo;
+                bufferList->mBuffers[0].mDataByteSize = inputStreamDesc.mBytesPerFrame * (UInt32) framesToDo;
 
                 UInt32 outFlags = 0;
-                UInt32 actualNumFrames = framesToDo;
+                UInt32 actualNumFrames = (UInt32) framesToDo;
                 OSStatus err = MovieAudioExtractionFillBuffer (extractor, &actualNumFrames, bufferList, &outFlags);
                 if (err != noErr)
                 {
@@ -274,7 +270,7 @@ public:
                 }
 
                 lastSampleRead = startSampleInFile + actualNumFrames;
-                const int samplesReceived = actualNumFrames;
+                const int samplesReceived = (int) actualNumFrames;
 
                 for (int j = numDestChannels; --j >= 0;)
                 {
@@ -298,7 +294,7 @@ public:
                 {
                     for (int j = numDestChannels; --j >= 0;)
                         if (destSamples[j] != nullptr)
-                            zeromem (destSamples[j] + startOffsetInDestBuffer, sizeof (int) * numSamples);
+                            zeromem (destSamples[j] + startOffsetInDestBuffer, sizeof (int) * (size_t) numSamples);
 
                     break;
                 }
@@ -322,8 +318,8 @@ private:
     Thread::ThreadID lastThreadId;
     MovieAudioExtractionRef extractor;
     AudioStreamBasicDescription inputStreamDesc;
-    HeapBlock <AudioBufferList> bufferList;
-    HeapBlock <char> dataBuffer;
+    HeapBlock<AudioBufferList> bufferList;
+    HeapBlock<char> dataBuffer;
     Handle dataHandle;
 
     //==============================================================================

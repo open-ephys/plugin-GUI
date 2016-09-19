@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,40 +26,44 @@
 
 #include "../Channel/Channel.h"
 
+
 EventNode::EventNode()
-    : GenericProcessor("Event Generator"), accumulator(0), Hz(1)
+    : GenericProcessor  ("Event Generator")
+    , accumulator       (0)
+    , Hz                (1)
 {
+    setProcessorType (PROCESSOR_TYPE_SOURCE);
 
     Array<var> hzValues;
-    hzValues.add(0.25f);
-    hzValues.add(0.5f);
-    hzValues.add(1.0f);
-    hzValues.add(2.0f);
+    hzValues.add (0.25f);
+    hzValues.add (0.5f);
+    hzValues.add (1.0f);
+    hzValues.add (2.0f);
 
-    parameters.add(Parameter("Frequency",hzValues, 0, 0));
-
+    parameters.add (Parameter ("Frequency", hzValues, 0, 0));
 }
+
 
 EventNode::~EventNode()
 {
-
 }
+
 
 AudioProcessorEditor* EventNode::createEditor()
 {
-    editor = new EventNodeEditor(this, true);
+    editor = new EventNodeEditor (this, true);
     return editor;
 }
+
 
 void EventNode::updateSettings()
 {
     // add event channels
 
-    Channel* ch = new Channel(this, 1, EVENT_CHANNEL);
-    ch->setName("Trigger");
+    Channel* ch = new Channel (this, 1, EVENT_CHANNEL);
+    ch->setName ("Trigger");
 
-    eventChannels.add(ch);
-
+    eventChannels.add (ch);
 }
 
 
@@ -70,34 +74,30 @@ void EventNode::updateSettings()
 // }
 
 
-void EventNode::process(AudioSampleBuffer& buffer,
-                        MidiBuffer& events)
+void EventNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
     events.clear();
 
     //std::cout << "Adding message." << std::endl;
 
-    Parameter& p1 =  parameters.getReference(0);
+    Parameter& p1 =  parameters.getReference (0);
 
     //std::cout << (float) p1[0] << std::endl;
 
-    for (int i = 0; i < buffer.getNumSamples(); i++)
+    for (int i = 0; i < buffer.getNumSamples(); ++i)
     {
         accumulator += 1.0f;
 
         if (accumulator > getSampleRate() / (float) p1[0])
         {
             std::cout << "Adding message." << std::endl;
-            addEvent(events, // MidiBuffer
-                     TTL,    // eventType
-                     i,      // sampleNum
-                     1,	     // eventID
-                     1		 // eventChannel
-                    );
+            addEvent (events,   // MidiBuffer
+                      TTL,      // eventType
+                      i,        // sampleNum
+                      1,        // eventID
+                      1);       // eventChannel
 
             accumulator = 0;
         }
-
     }
-
 }

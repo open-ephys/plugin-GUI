@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -44,7 +44,7 @@ public:
 
     /** Returns the set of items that lie within a given lassoable region.
 
-        Your implementation of this method must find all the relevent items that lie
+        Your implementation of this method must find all the relevant items that lie
         within the given rectangle. and add them to the itemsFound array.
 
         The coordinates are relative to the top-left of the lasso component's parent

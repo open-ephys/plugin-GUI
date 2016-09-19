@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -61,7 +61,7 @@ public:
 private:
     //==============================================================================
     uint32 p[18];
-    HeapBlock <uint32> s[4];
+    HeapBlock<uint32> s[4];
 
     uint32 F (uint32) const noexcept;
 

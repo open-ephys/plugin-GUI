@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -39,7 +39,9 @@ FileReader::FileReader()
     , stopSample            (0)
     , counter               (0)
 {
-    enabledState (false);
+    setProcessorType (PROCESSOR_TYPE_SOURCE);
+
+    setEnabledState (false);
 
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
     for (int i = 0; i < numFileSources; ++i)
@@ -71,7 +73,7 @@ AudioProcessorEditor* FileReader::createEditor()
 }
 
 
-bool FileReader::isReady() /* const */
+bool FileReader::isReady()
 {
     if (! input)
     {
@@ -85,7 +87,7 @@ bool FileReader::isReady() /* const */
 }
 
 
-float FileReader::getDefaultSampleRate() /* const */
+float FileReader::getDefaultSampleRate() const
 {
     if (input)
         return currentSampleRate;
@@ -94,7 +96,7 @@ float FileReader::getDefaultSampleRate() /* const */
 }
 
 
-int FileReader::getNumHeadstageOutputs() /* const */
+int FileReader::getNumHeadstageOutputs() const
 {
     if (input)
         return currentNumChannels;
@@ -103,13 +105,13 @@ int FileReader::getNumHeadstageOutputs() /* const */
 }
 
 
-int FileReader::getNumEventChannels() /* const */
+int FileReader::getNumEventChannels() const
 {
     return 8;
 }
 
 
-float FileReader::getBitVolts (Channel* chan) /* const */
+float FileReader::getBitVolts (Channel* chan) const
 {
     if (input)
         return chan->bitVolts;
@@ -118,7 +120,7 @@ float FileReader::getBitVolts (Channel* chan) /* const */
 }
 
 
-void FileReader::enabledState (bool t)
+void FileReader::setEnabledState (bool t)
 {
     isEnabled = t;
 }

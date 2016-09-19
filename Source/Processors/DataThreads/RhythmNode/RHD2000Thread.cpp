@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -167,14 +167,11 @@ GenericEditor* RHD2000Thread::createEditor(SourceNode* sn)
 
 void RHD2000Thread::timerCallback()
 {
-
     stopTimer();
-
 }
 
 RHD2000Thread::~RHD2000Thread()
 {
-
     std::cout << "RHD2000 interface destroyed." << std::endl;
 
     if (deviceFound)
@@ -192,10 +189,9 @@ RHD2000Thread::~RHD2000Thread()
     delete[] dacChannels;
     delete[] dacThresholds;
     delete[] dacChannelsToUpdate;
-
 }
 
-bool RHD2000Thread::usesCustomNames()
+bool RHD2000Thread::usesCustomNames() const
 {
     return true;
 }
@@ -232,17 +228,18 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
     }
 }
 
-Array<int> RHD2000Thread::getDACchannels()
+Array<int> RHD2000Thread::getDACchannels() const
 {
     Array<int> dacChannelsArray;
     //dacChannelsArray.addArray(dacChannels,8);
-    for (int k=0; k<8; k++)
+    for (int k = 0; k < 8; ++k)
     {
-        dacChannelsArray.add(dacChannels[k]);
+        dacChannelsArray.add (dacChannels[k]);
     }
-    return dacChannelsArray;
 
+    return dacChannelsArray;
 }
+
 bool RHD2000Thread::openBoard(String pathToLibrary)
 {
     int return_code = evalBoard->open(pathToLibrary.getCharPointer());
@@ -730,7 +727,7 @@ int RHD2000Thread::deviceId(Rhd2000DataBlock* dataBlock, int stream, int& regist
 
 
 
-bool RHD2000Thread::isAcquisitionActive()
+bool RHD2000Thread::isAcquisitionActive() const
 {
     return isTransmitting;
 }
@@ -747,26 +744,24 @@ void RHD2000Thread::setNumChannels(int hsNum, int numChannels)
     }
 }
 
-int RHD2000Thread::getHeadstageChannels(int hsNum)
+int RHD2000Thread::getHeadstageChannels (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumChannels();
 }
 
 
-void RHD2000Thread::getEventChannelNames(StringArray& Names)
+void RHD2000Thread::getEventChannelNames (StringArray& Names) const
 {
     Names.clear();
-    for (int k = 0; k < 8; k++)
+    for (int k = 0; k < 8; ++k)
     {
-        Names.add("TTL"+String(k+1));
+        Names.add ("TTL" + String (k + 1));
     }
 }
 
 
 /* go over the old names and tests whether this particular channel name was changed.
 if so, return the old name */
-
-
 int RHD2000Thread::modifyChannelName(int channel, String newName)
 {
     ChannelCustomInfo i = channelInfo[channel];
@@ -776,7 +771,7 @@ int RHD2000Thread::modifyChannelName(int channel, String newName)
     return 0;
 }
 
-String RHD2000Thread::getChannelName(int ch)
+String RHD2000Thread::getChannelName (int ch) const
 {
     return channelInfo[ch].name;
 }
@@ -881,34 +876,30 @@ void RHD2000Thread::setDefaultChannelNames()
     newScan = false;
 }
 
-int RHD2000Thread::getNumChannels()
+int RHD2000Thread::getNumChannels() const
 {
     return getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
 }
 
-int RHD2000Thread::getNumHeadstageOutputs()
+int RHD2000Thread::getNumHeadstageOutputs() const
 {
-    numChannels = 0;
-    for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+    int newNumChannels = 0;
+    for (int i = 0; i < MAX_NUM_HEADSTAGES; ++i)
     {
-
         if (headstagesArray[i]->isPlugged())
         {
-            numChannels += headstagesArray[i]->getNumActiveChannels();
+            newNumChannels += headstagesArray[i]->getNumActiveChannels();
         }
     }
 
-   // if (numChannels > 0)
-        return numChannels;
-    //else
-      //  return 1; // to prevent crashing with 0 channels
+    return newNumChannels;
 }
 
-int RHD2000Thread::getNumAuxOutputs()
+int RHD2000Thread::getNumAuxOutputs() const
 {
     int numAuxOutputs = 0;
 
-    for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+    for (int i = 0; i < MAX_NUM_HEADSTAGES; ++i)
     {
         if (headstagesArray[i]->isPlugged() > 0)
         {
@@ -917,10 +908,9 @@ int RHD2000Thread::getNumAuxOutputs()
     }
 
     return numAuxOutputs;
-
 }
 
-int RHD2000Thread::getNumAdcOutputs()
+int RHD2000Thread::getNumAdcOutputs() const
 {
     if (acquireAdcChannels)
     {
@@ -932,27 +922,27 @@ int RHD2000Thread::getNumAdcOutputs()
     }
 }
 
-int RHD2000Thread::getNumEventChannels()
+int RHD2000Thread::getNumEventChannels() const
 {
     return 16; // 8 inputs, 8 outputs
 }
 
-float RHD2000Thread::getSampleRate()
+float RHD2000Thread::getSampleRate() const
 {
     return evalBoard->getSampleRate();
 }
 
-float RHD2000Thread::getBitVolts(Channel* ch)
+float RHD2000Thread::getBitVolts (Channel* ch) const
 {
     if (ch->type == ADC_CHANNEL)
-        return getAdcBitVolts(ch->index);
+        return getAdcBitVolts (ch->index);
     else if (ch->type == AUX_CHANNEL)
         return 0.0000374;
     else
         return 0.195f;
 }
 
-float RHD2000Thread::getAdcBitVolts(int chan)
+float RHD2000Thread::getAdcBitVolts (int chan) const
 {
     if (chan < adcBitVolts.size())
         return adcBitVolts[chan];
@@ -991,9 +981,8 @@ double RHD2000Thread::setDspCutoffFreq(double freq)
     return actualDspCutoffFreq;
 }
 
-double RHD2000Thread::getDspCutoffFreq()
+double RHD2000Thread::getDspCutoffFreq() const
 {
-
     return actualDspCutoffFreq;
 }
 
@@ -1008,7 +997,6 @@ void RHD2000Thread::setTTLoutputMode(bool state)
 {
     ttlMode = state;
     dacOutputShouldChange = true;
-
 }
 
 void RHD2000Thread::setDAChpf(float cutoff, bool enabled)
@@ -1027,7 +1015,6 @@ void RHD2000Thread::setFastTTLSettle(bool state, int channel)
 
 int RHD2000Thread::setNoiseSlicerLevel(int level)
 {
-
     desiredNoiseSlicerLevel = level;
     if (deviceFound)
         evalBoard->setAudioNoiseSuppress(desiredNoiseSlicerLevel);
@@ -1042,16 +1029,12 @@ int RHD2000Thread::setNoiseSlicerLevel(int level)
 
 bool RHD2000Thread::foundInputSource()
 {
-
     return deviceFound;
-
 }
 
 bool RHD2000Thread::enableHeadstage(int hsNum, bool enabled, int nStr, int strChans)
 {
-
     /*   evalBoard->enableDataStream(hsNum, enabled);*/
-
     if (enabled)
     {
         headstagesArray[hsNum]->setNumStreams(nStr);
@@ -1113,11 +1096,9 @@ void RHD2000Thread::updateBoardStreams()
     }
 }
 
-bool RHD2000Thread::isHeadstageEnabled(int hsNum)
+bool RHD2000Thread::isHeadstageEnabled(int hsNum) const
 {
-
     return headstagesArray[hsNum]->isPlugged();
-
 }
 
 bool RHD2000Thread::isReady()
@@ -1125,12 +1106,12 @@ bool RHD2000Thread::isReady()
 	return deviceFound && (getNumChannels() > 0);
 }
 
-int RHD2000Thread::getActiveChannelsInHeadstage(int hsNum)
+int RHD2000Thread::getActiveChannelsInHeadstage (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumActiveChannels();
 }
 
-int RHD2000Thread::getChannelsInHeadstage(int hsNum)
+int RHD2000Thread::getChannelsInHeadstage (int hsNum) const
 {
     return headstagesArray[hsNum]->getNumChannels();
 }
@@ -1159,11 +1140,9 @@ int RHD2000Thread::getChannelsInHeadstage(int hsNum)
 
 void RHD2000Thread::enableAdcs(bool t)
 {
-
     acquireAdcChannels = t;
 
-    dataBuffer->resize(getNumChannels(), 10000);
-
+    dataBuffer->resize (getNumChannels(), 10000);
 }
 
 
@@ -1726,7 +1705,7 @@ bool RHD2000Thread::updateBuffer()
 
 }
 
-int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
+int RHD2000Thread::getChannelFromHeadstage (int hs, int ch) const
 {
     int channelCount = 0;
     int hsCount = 0;
@@ -1778,7 +1757,7 @@ int RHD2000Thread::getChannelFromHeadstage(int hs, int ch)
     }
 }
 
-int RHD2000Thread::getHeadstageChannel(int& hs, int ch)
+int RHD2000Thread::getHeadstageChannel (int& hs, int ch) const
 {
     int channelCount = 0;
     int hsCount = 0;
@@ -1883,17 +1862,17 @@ void RHDHeadstage::setChannelsPerStream(int nchan, int index)
 	streamIndex = index;
 }
 
-int RHDHeadstage::getStreamIndex(int index)
+int RHDHeadstage::getStreamIndex (int index) const
 {
-	return streamIndex + index;
+    return streamIndex + index;
 }
 
-int RHDHeadstage::getNumChannels()
+int RHDHeadstage::getNumChannels() const
 {
     return channelsPerStream*numStreams;
 }
 
-int RHDHeadstage::getNumStreams()
+int RHDHeadstage::getNumStreams() const
 {
     return numStreams;
 }
@@ -1903,18 +1882,18 @@ void RHDHeadstage::setHalfChannels(bool half)
     halfChannels = half;
 }
 
-int RHDHeadstage::getNumActiveChannels()
+int RHDHeadstage::getNumActiveChannels() const
 {
     return (int)(getNumChannels() / (halfChannels ? 2 : 1));
 }
 
-Rhd2000EvalBoard::BoardDataSource RHDHeadstage::getDataStream(int index)
+Rhd2000EvalBoard::BoardDataSource RHDHeadstage::getDataStream (int index) const
 {
     if (index < 0 || index > 1) index = 0;
     return static_cast<Rhd2000EvalBoard::BoardDataSource>(dataStream+MAX_NUM_HEADSTAGES*index);
 }
 
-bool RHDHeadstage::isPlugged()
+bool RHDHeadstage::isPlugged() const
 {
     return (numStreams > 0);
 }

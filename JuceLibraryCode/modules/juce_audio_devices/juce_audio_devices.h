@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -22,14 +22,42 @@
   ==============================================================================
 */
 
+/*******************************************************************************
+ The block below describes the properties of this module, and is read by
+ the Projucer to automatically generate project code that uses it.
+ For details about the syntax and how to create or use a module, see the
+ JUCE Module Format.txt file.
+
+
+ BEGIN_JUCE_MODULE_DECLARATION
+
+  ID:               juce_audio_devices
+  vendor:           juce
+  version:          4.2.1
+  name:             JUCE audio and MIDI I/O device classes
+  description:      Classes to play and record from audio and MIDI I/O devices
+  website:          http://www.juce.com/juce
+  license:          GPL/Commercial
+
+  dependencies:     juce_audio_basics, juce_audio_formats, juce_events
+  OSXFrameworks:    CoreAudio CoreMIDI DiscRecording
+  iOSFrameworks:    CoreAudio CoreMIDI AudioToolbox AVFoundation
+  linuxLibs:        asound
+  mingwLibs:        winmm
+
+ END_JUCE_MODULE_DECLARATION
+
+*******************************************************************************/
+
+
 #ifndef JUCE_AUDIO_DEVICES_H_INCLUDED
 #define JUCE_AUDIO_DEVICES_H_INCLUDED
 
-#include "../juce_events/juce_events.h"
-#include "../juce_audio_basics/juce_audio_basics.h"
-#include "../juce_audio_formats/juce_audio_formats.h"
+#include <juce_events/juce_events.h>
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_formats/juce_audio_formats.h>
 
-//=============================================================================
+//==============================================================================
 /** Config: JUCE_ASIO
     Enables ASIO audio devices (MS Windows only).
     Turning this on means that you'll need to have the Steinberg ASIO SDK installed
@@ -43,11 +71,20 @@
 #endif
 
 /** Config: JUCE_WASAPI
-    Enables WASAPI audio devices (Windows Vista and above).
+    Enables WASAPI audio devices (Windows Vista and above). See also the
+    JUCE_WASAPI_EXCLUSIVE flag.
 */
 #ifndef JUCE_WASAPI
  #define JUCE_WASAPI 1
 #endif
+
+/** Config: JUCE_WASAPI_EXCLUSIVE
+    Enables WASAPI audio devices in exclusive mode (Windows Vista and above).
+*/
+#ifndef JUCE_WASAPI_EXCLUSIVE
+ #define JUCE_WASAPI_EXCLUSIVE 0
+#endif
+
 
 /** Config: JUCE_DIRECTSOUND
     Enables DirectSound audio (MS Windows only).
@@ -81,7 +118,7 @@
  #endif
 #endif
 
-//=============================================================================
+//==============================================================================
 /** Config: JUCE_USE_CDREADER
     Enables the AudioCDReader class (on supported platforms).
 */
@@ -96,7 +133,7 @@
  #define JUCE_USE_CDBURNER 0
 #endif
 
-//=============================================================================
+//==============================================================================
 namespace juce
 {
 

@@ -24,9 +24,8 @@
 #ifndef LINEARBUTTONGROUPMANAGER_H_INCLUDED
 #define LINEARBUTTONGROUPMANAGER_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/PluginManager/OpenEphysPlugin.h"
 #include "ButtonGroupManager.h"
+
 
 /**
 

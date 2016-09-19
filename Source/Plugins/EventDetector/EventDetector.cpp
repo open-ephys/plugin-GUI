@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 
@@ -31,58 +30,47 @@ EventDetector::EventDetector()
     : GenericProcessor("Event Detector"), threshold(200.0), bufferZone(5.0f), state(false)
 
 {
+    setProcessorType (PROCESSOR_TYPE_FILTER);
 
-    parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
-
+    parameters.add (Parameter ("thresh", 0.0, 500.0, 200.0, 0));
 }
+
 
 EventDetector::~EventDetector()
 {
-
 }
 
 
-
-void EventDetector::setParameter(int parameterIndex, float newValue)
+void EventDetector::setParameter (int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    editor->updateParameterButtons (parameterIndex);
 
-    Parameter& p =  parameters.getReference(parameterIndex);
-    p.setValue(newValue, 0);
+    Parameter& p =  parameters.getReference (parameterIndex);
+    p.setValue (newValue, 0);
 
     threshold = newValue;
 
     //std::cout << float(p[0]) << std::endl;
-
 }
 
-void EventDetector::process(AudioSampleBuffer& buffer,
-                            MidiBuffer& events)
-{
 
+void EventDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+{
     //std::cout << *buffer.getReadPointer(0, 0) << std::endl;
 
-
-    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); i++)
+    for (int i = 0; i < getNumSamples(channels[0]->sourceNodeId); ++i)
     {
-
-        if ((*buffer.getReadPointer(0, i) < -threshold) && !state)
+        if ((*buffer.getReadPointer (0, i) < -threshold) && !state)
         {
-
             // generate midi event
             //std::cout << "Value = " << *buffer.getSampleData(0, i) << std::endl;
-            addEvent(events, TTL, i);
+            addEvent (events, TTL, i);
 
             state = true;
-
         }
-        else if ((*buffer.getReadPointer(0, i) > -threshold + bufferZone)  && state)
+        else if ((*buffer.getReadPointer (0, i) > -threshold + bufferZone)  && state)
         {
             state = false;
         }
-
-
     }
-
-
 }

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -160,7 +160,6 @@ public:
     void deleteEvent (int index, bool deleteMatchingNoteUp);
 
     /** Merges another sequence into this one.
-
         Remember to call updateMatchedPairs() after using this method.
 
         @param other                    the sequence to add from
@@ -177,6 +176,16 @@ public:
                       double timeAdjustmentDelta,
                       double firstAllowableDestTime,
                       double endOfAllowableDestTimes);
+
+    /** Merges another sequence into this one.
+        Remember to call updateMatchedPairs() after using this method.
+
+        @param other                    the sequence to add from
+        @param timeAdjustmentDelta      an amount to add to the timestamps of the midi events
+                                        as they are read from the other sequence
+    */
+    void addSequence (const MidiMessageSequence& other,
+                      double timeAdjustmentDelta);
 
     //==============================================================================
     /** Makes sure all the note-on and note-off pairs are up-to-date.
@@ -247,7 +256,7 @@ public:
                                 state at the required time.
     */
     void createControllerUpdatesForTime (int channelNumber, double time,
-                                         OwnedArray<MidiMessage>& resultMessages);
+                                         Array<MidiMessage>& resultMessages);
 
     //==============================================================================
     /** Swaps this sequence with another one. */

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -57,12 +57,16 @@ public:
                                         settings file) for this. The file format it uses
                                         is just a list of filenames of the modules that
                                         failed.
+       @param allowPluginsWhichRequireAsynchronousInstantiation
+                                        If this is false then the scanner will exclude plug-ins
+                                        asynchronous creation - such as AUv3 plug-ins.
     */
     PluginDirectoryScanner (KnownPluginList& listToAddResultsTo,
                             AudioPluginFormat& formatToLookFor,
                             FileSearchPath directoriesToSearch,
                             bool searchRecursively,
-                            const File& deadMansPedalFile);
+                            const File& deadMansPedalFile,
+                            bool allowPluginsWhichRequireAsynchronousInstantiation = false);
 
     /** Destructor. */
     ~PluginDirectoryScanner();
@@ -116,6 +120,7 @@ private:
     StringArray failedFiles;
     Atomic<int> nextIndex;
     float progress;
+    bool allowAsync;
 
     void updateProgress();
     void setDeadMansPedalFile (const StringArray& newContents);

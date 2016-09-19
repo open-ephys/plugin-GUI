@@ -24,7 +24,7 @@
 #ifndef MATERIALSLIDERLOOKANDFEEL_H_INCLUDED
 #define MATERIALSLIDERLOOKANDFEEL_H_INCLUDED
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 
 /**

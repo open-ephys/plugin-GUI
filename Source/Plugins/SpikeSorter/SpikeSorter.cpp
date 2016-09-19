@@ -34,6 +34,8 @@ SpikeSorter::SpikeSorter()
       overflowBufferSize(100), currentElectrode(-1),
       numPreSamples(8),numPostSamples(32)
 {
+    setProcessorType (PROCESSOR_TYPE_FILTER);
+
     uniqueID = 0; // for electrode count
     uniqueSpikeID = 0;
     juce::Time timer;

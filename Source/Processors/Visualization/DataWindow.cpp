@@ -27,8 +27,8 @@
 DataWindow::DataWindow(Button* cButton, String name)
     : DocumentWindow(name,
                      Colours::black,
-                     DocumentWindow::allButtons),
-    controlButton(cButton)
+                     DocumentWindow::allButtons)
+    , controlButton(cButton)
 
 {
     centreWithSize(800,500);
@@ -46,4 +46,23 @@ void DataWindow::closeButtonPressed()
     setContentNonOwned(0,false);
     setVisible(false);
     controlButton->setToggleState(false,dontSendNotification);
+    // with the BailOutChecker, it is safe to "delete" a DataWindow instance
+    // from this callback/listener. This would (typically) not be done, because instances
+    // of DataWindow are (typically) "owned" by Editors, and will be deleted
+    // when the Editor dies.
+    //
+    Component::BailOutChecker checker (this);
+    if (! checker.shouldBailOut()){
+        closeWindowListeners.callChecked (checker, &DataWindow::Listener::windowClosed);
+    }
+}
+
+void DataWindow::addListener (DataWindow::Listener* const newListener)
+{
+    closeWindowListeners.add (newListener);
+}
+
+void DataWindow::removeListener (DataWindow::Listener* const listener)
+{
+    closeWindowListeners.remove (listener);
 }

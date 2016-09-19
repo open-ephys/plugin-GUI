@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -56,7 +56,7 @@
     can use the release() method.
 
     Something to note is the main difference between this class and the std::auto_ptr class,
-    which is that ScopedPointer provides a cast-to-object operator, wheras std::auto_ptr
+    which is that ScopedPointer provides a cast-to-object operator, whereas std::auto_ptr
     requires that you always call get() to retrieve the pointer. The advantages of providing
     the cast is that you don't need to call get(), so can use the ScopedPointer in pretty much
     exactly the same way as a raw pointer. The disadvantage is that the compiler is free to
@@ -182,11 +182,11 @@ public:
     /** Swaps this object with that of another ScopedPointer.
         The two objects simply exchange their pointers.
     */
-    void swapWith (ScopedPointer <ObjectType>& other) noexcept
+    void swapWith (ScopedPointer<ObjectType>& other) noexcept
     {
         // Two ScopedPointers should never be able to refer to the same object - if
         // this happens, you must have done something dodgy!
-        jassert (object != other.object || this == other.getAddress());
+        jassert (object != other.object || this == other.getAddress() || object == nullptr);
 
         std::swap (object, other.object);
     }
@@ -231,7 +231,7 @@ private:
 template <class ObjectType>
 bool operator== (const ScopedPointer<ObjectType>& pointer1, ObjectType* const pointer2) noexcept
 {
-    return static_cast <ObjectType*> (pointer1) == pointer2;
+    return static_cast<ObjectType*> (pointer1) == pointer2;
 }
 
 /** Compares a ScopedPointer with another pointer.
@@ -240,7 +240,7 @@ bool operator== (const ScopedPointer<ObjectType>& pointer1, ObjectType* const po
 template <class ObjectType>
 bool operator!= (const ScopedPointer<ObjectType>& pointer1, ObjectType* const pointer2) noexcept
 {
-    return static_cast <ObjectType*> (pointer1) != pointer2;
+    return static_cast<ObjectType*> (pointer1) != pointer2;
 }
 
 //==============================================================================

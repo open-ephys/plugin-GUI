@@ -215,6 +215,7 @@
 				0363EF9D1CF9D6F90077C530 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

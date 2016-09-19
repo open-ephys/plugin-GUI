@@ -49,12 +49,12 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::RecordEnginePlugin;
+		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
 		info->recordEngine.name = "Kwik";
 		info->recordEngine.creator = &(Plugin::createRecordEngine<HDF5Recording>);
 		break;
 	case 1:
-		info->type = Plugin::FileSourcePlugin;
+		info->type = Plugin::PLUGIN_TYPE_FILE_SOURCE;
 		info->fileSource.name = "Kwd file";
 		info->fileSource.extensions = "kwd";
 		info->fileSource.creator = &(Plugin::createFileSource<KWIKFileSource>);

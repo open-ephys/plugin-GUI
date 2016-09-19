@@ -39,14 +39,36 @@ class DataWindow : public DocumentWindow
 public:
     DataWindow(Button* button, String name);
     ~DataWindow();
-
+    
     void closeButtonPressed();
+    
+    class Listener
+    {
+    public:
+        /** Destructor. */
+        virtual ~Listener()  {}
+
+        /** Called when the window is closed. */
+        virtual void windowClosed () = 0;
+    };
+
+    /**
+     * @brief      Registers a listener to receive event when this is closed. If
+     *             the listener is already registered, this will not register it
+     *             again.
+     */
+    void addListener (Listener* newListener);
+
+    /**
+     * @brief      Removes a previously-registered DataWindow listener
+     */
+    void removeListener (Listener* listener);
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataWindow);
 
     Button* controlButton;
-
+    ListenerList<Listener> closeWindowListeners;
 };
 
 

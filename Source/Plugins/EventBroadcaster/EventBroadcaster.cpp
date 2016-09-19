@@ -32,12 +32,14 @@ void EventBroadcaster::closeZMQSocket(void* socket)
 
 
 EventBroadcaster::EventBroadcaster()
-    : GenericProcessor("Event Broadcaster"),
-      zmqContext(getZMQContext()),
-      zmqSocket(nullptr, &closeZMQSocket),
-      listeningPort(0),
-      currentSampleRate(0)
+    : GenericProcessor  ("Event Broadcaster")
+    , zmqContext        (getZMQContext())
+    , zmqSocket         (nullptr, &closeZMQSocket)
+    , listeningPort     (0)
+    , currentSampleRate (0)
 {
+    setProcessorType (PROCESSOR_TYPE_SINK);
+
     setListeningPort(5557);
 }
 
@@ -84,12 +86,6 @@ void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer, MidiBuffer& 
 {
     currentSampleRate = getSampleRate();
     checkForEvents(eventBuffer);
-}
-
-
-bool EventBroadcaster::isSink()
-{
-    return true;
 }
 
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,6 +29,7 @@
 
 class DataViewport;
 
+
 /**
 
   Holds data in a displayBuffer to be used by the LfpDisplayCanvas
@@ -37,49 +38,33 @@ class DataViewport;
   @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
 
 */
-
 class LfpDisplayNode :  public GenericProcessor
-
 {
 public:
-
     LfpDisplayNode();
     ~LfpDisplayNode();
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    bool isSink()
-    {
-        return true;
-    }
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void setParameter(int, float);
+    void updateSettings() override;
 
-    void updateSettings();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool enable();
-    bool disable();
+    void handleEvent (int, MidiMessage&, int) override;
 
-    void handleEvent(int, MidiMessage&, int);
+    AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffer; }
 
-    AudioSampleBuffer* getDisplayBufferAddress()
-    {
-        return displayBuffer;
-    }
-    int getDisplayBufferIndex(int chan)
-    {
-        return displayBufferIndex[chan];
-    }
+    int getDisplayBufferIndex (int chan) const { return displayBufferIndex[chan]; }
 
-	CriticalSection* getMutex()
-	{
-		return &displayMutex;
-	}
+    CriticalSection* getMutex() { return &displayMutex; }
+
 
 private:
-
     void initializeEventChannels();
 
     ScopedPointer<AudioSampleBuffer> displayBuffer;
@@ -102,12 +87,10 @@ private:
 
     bool resizeBuffer();
 
-	CriticalSection displayMutex;
+    CriticalSection displayMutex;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayNode);
 };
-
 
 
 

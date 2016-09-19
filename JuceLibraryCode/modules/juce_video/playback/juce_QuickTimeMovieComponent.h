@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -25,8 +25,6 @@
 #ifndef JUCE_QUICKTIMEMOVIECOMPONENT_H_INCLUDED
 #define JUCE_QUICKTIMEMOVIECOMPONENT_H_INCLUDED
 
-// (NB: This stuff mustn't go inside the "#if QUICKTIME" block, or it'll break the
-// amalgamated build)
 #ifndef DOXYGEN
  #if JUCE_WINDOWS
   typedef ActiveXControlComponent QTCompBaseClass;

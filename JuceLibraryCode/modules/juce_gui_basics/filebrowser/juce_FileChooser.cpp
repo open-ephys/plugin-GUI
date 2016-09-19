@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -25,11 +25,13 @@
 FileChooser::FileChooser (const String& chooserBoxTitle,
                           const File& currentFileOrDirectory,
                           const String& fileFilters,
-                          const bool useNativeBox)
+                          const bool useNativeBox,
+                          const bool treatFilePackagesAsDirectories)
     : title (chooserBoxTitle),
       filters (fileFilters),
       startingFile (currentFileOrDirectory),
-      useNativeDialogBox (useNativeBox && isPlatformDialogAvailable())
+      useNativeDialogBox (useNativeBox && isPlatformDialogAvailable()),
+      treatFilePackagesAsDirs (treatFilePackagesAsDirectories)
 {
     if (! fileFilters.containsNonWhitespaceChars())
         filters = "*";
@@ -99,14 +101,15 @@ bool FileChooser::showDialog (const int flags, FilePreviewComponent* const previ
    #if JUCE_WINDOWS
     if (useNativeDialogBox && ! (selectsFiles && selectsDirectories))
    #elif JUCE_MAC || JUCE_LINUX
-    if (useNativeDialogBox && (previewComp == nullptr))
+    if (useNativeDialogBox)
    #else
     if (false)
    #endif
     {
         showPlatformDialog (results, title, startingFile, filters,
                             selectsDirectories, selectsFiles, isSave,
-                            warnAboutOverwrite, selectMultiple, previewComp);
+                            warnAboutOverwrite, selectMultiple, treatFilePackagesAsDirs,
+                            previewComp);
     }
     else
     {

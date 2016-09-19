@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -138,22 +138,35 @@ public:
     SliderStyle getSliderStyle() const noexcept;
 
     //==============================================================================
-    /** Changes the properties of a rotary slider.
+    struct RotaryParameters
+    {
+        /** The angle (in radians, clockwise from the top) at which
+            the slider's minimum value is represented. */
+        float startAngleRadians;
 
-        @param startAngleRadians    the angle (in radians, clockwise from the top) at which
-                                    the slider's minimum value is represented
-        @param endAngleRadians      the angle (in radians, clockwise from the top) at which
-                                    the slider's maximum value is represented. This must be
-                                    greater than startAngleRadians
-        @param stopAtEnd            determines what happens when a circular drag action rotates beyond
-                                    the minimum or maximum angle. If true, the value will stop changing
-                                    until the mouse moves back the way it came; if false, the value
-                                    will snap back to the value nearest to the mouse. Note that this has
-                                    no effect if the drag mode is vertical or horizontal.
-    */
+        /** The angle (in radians, clockwise from the top) at which
+            the slider's maximum value is represented. This must be
+            greater than startAngleRadians. */
+        float endAngleRadians;
+
+        /** Determines what happens when a circular drag action rotates beyond
+            the minimum or maximum angle. If true, the value will stop changing
+            until the mouse moves back the way it came; if false, the value
+            will snap back to the value nearest to the mouse. Note that this has
+            no effect if the drag mode is vertical or horizontal.*/
+        bool stopAtEnd;
+    };
+
+    /** Changes the properties of a rotary slider. */
+    void setRotaryParameters (RotaryParameters newParameters) noexcept;
+
+    /** Changes the properties of a rotary slider. */
     void setRotaryParameters (float startAngleRadians,
                               float endAngleRadians,
-                              bool stopAtEnd);
+                              bool stopAtEnd) noexcept;
+
+    /** Changes the properties of a rotary slider. */
+    RotaryParameters getRotaryParameters() const noexcept;
 
     /** Sets the distance the mouse has to move to drag the slider across
         the full extent of its range.
@@ -248,9 +261,7 @@ public:
     void setSkewFactorFromMidPoint (double sliderValueToShowAtMidPoint);
 
     /** Returns the current skew factor.
-
         See setSkewFactor for more info.
-
         @see setSkewFactor, setSkewFactorFromMidPoint
     */
     double getSkewFactor() const noexcept;
@@ -553,17 +564,18 @@ public:
 
         @see getDoubleClickReturnValue
     */
-    void setDoubleClickReturnValue (bool isDoubleClickEnabled,
+    void setDoubleClickReturnValue (bool shouldDoubleClickBeEnabled,
                                     double valueToSetOnDoubleClick);
 
     /** Returns the values last set by setDoubleClickReturnValue() method.
-
-        Sets isEnabled to true if double-click is enabled, and returns the value
-        that was set.
-
         @see setDoubleClickReturnValue
     */
-    double getDoubleClickReturnValue (bool& isEnabled) const;
+    double getDoubleClickReturnValue() const noexcept;
+
+    /** Returns true if double-clicking to reset to a default value is enabled.
+        @see setDoubleClickReturnValue
+    */
+    bool isDoubleClickReturnEnabled() const noexcept;
 
     //==============================================================================
     /** Tells the slider whether to keep sending change messages while the user
@@ -598,7 +610,7 @@ public:
 
         If you pass a component as the parentComponentToUse parameter, the pop-up
         bubble will be added as a child of that component when it's needed. If you
-        pass 0, the pop-up will be placed on the desktop instead (note that it's a
+        pass nullptr, the pop-up will be placed on the desktop instead (note that it's a
         transparent window, so if you're using an OS that can't do transparent windows
         you'll have to add it to a parent component instead).
     */
@@ -682,6 +694,13 @@ public:
     /** Returns the suffix that was set by setTextValueSuffix(). */
     String getTextValueSuffix() const;
 
+    /** Returns the best number of decimal places to use when displaying this
+        slider's value.
+        It calculates the fewest decimal places needed to represent numbers with
+        the slider's interval setting.
+    */
+    int getNumDecimalPlacesToDisplay() const noexcept;
+
     //==============================================================================
     /** Allows a user-defined mapping of distance along the slider to its value.
 
@@ -720,7 +739,7 @@ public:
         If the slider is rotary, this will throw an assertion and return 0. If the
         value is out-of-range, it will be constrained to the length of the slider.
     */
-    float getPositionOfValue (double value);
+    float getPositionOfValue (double value) const;
 
     //==============================================================================
     /** This can be overridden to allow the slider to snap to user-definable values.
@@ -748,6 +767,10 @@ public:
     bool isHorizontal() const noexcept;
     /** True if the slider moves vertically. */
     bool isVertical() const noexcept;
+    /** True if the slider is in a rotary mode. */
+    bool isRotary() const noexcept;
+    /** True if the slider is in a linear bar mode. */
+    bool isBar() const noexcept;
 
     //==============================================================================
     /** A set of colour IDs to use to change the colour of various aspects of the slider.
@@ -770,6 +793,16 @@ public:
         textBoxBackgroundColourId   = 0x1001500,  /**< The background colour for the text-editor box. */
         textBoxHighlightColourId    = 0x1001600,  /**< The text highlight colour for the text-editor box. */
         textBoxOutlineColourId      = 0x1001700   /**< The colour to use for a border around the text-editor box. */
+    };
+
+    //==============================================================================
+    /** A struct defining the placement of the slider area and the text box area
+        relative to the bounds of the whole Slider component.
+     */
+    struct SliderLayout
+    {
+        Rectangle<int> sliderBounds;
+        Rectangle<int> textBoxBounds;
     };
 
     //==============================================================================
@@ -822,6 +855,8 @@ public:
         virtual Font getSliderPopupFont (Slider&) = 0;
         virtual int getSliderPopupPlacement (Slider&) = 0;
 
+        virtual SliderLayout getSliderLayout (Slider&) = 0;
+
        #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
         // These methods' parameters have changed: see the new method signatures.
         virtual void createSliderButton (bool) {}
@@ -831,7 +866,6 @@ public:
        #endif
     };
 
-protected:
     //==============================================================================
     /** @internal */
     void paint (Graphics&) override;
@@ -857,11 +891,6 @@ protected:
     void focusOfChildComponentChanged (FocusChangeType) override;
     /** @internal */
     void colourChanged() override;
-
-    /** Returns the best number of decimal places to use when displaying numbers.
-        This is calculated from the slider's interval setting.
-    */
-    int getNumDecimalPlacesToDisplay() const noexcept;
 
 private:
     //==============================================================================

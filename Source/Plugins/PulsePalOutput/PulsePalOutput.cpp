@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 
@@ -28,35 +27,38 @@
 
 
 PulsePalOutput::PulsePalOutput()
-    : GenericProcessor("Pulse Pal"), channelToChange(0)
+    : GenericProcessor  ("Pulse Pal")
+    , channelToChange   (0)
 {
+    setProcessorType (PROCESSOR_TYPE_SINK);
 
     pulsePal.initialize();
 
-    pulsePal.updateDisplay("GUI Connected","Click for menu");
+    pulsePal.updateDisplay ("GUI Connected","Click for menu");
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; ++i)
     {
-        channelTtlTrigger.add(-1);
-        channelTtlGate.add(-1);
-        channelState.add(true);
+        channelTtlTrigger.add   (-1);
+        channelTtlGate.add      (-1);
+        channelState.add        (true);
     }
-
 }
+
 
 PulsePalOutput::~PulsePalOutput()
 {
-
-    pulsePal.updateDisplay("PULSE PAL v1.0","Click for menu");
+    pulsePal.updateDisplay ("PULSE PAL v1.0","Click for menu");
 }
+
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
 {
-    editor = new PulsePalOutputEditor(this, &pulsePal, true);
+    editor = new PulsePalOutputEditor (this, &pulsePal, true);
     return editor;
 }
 
-void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNum)
+
+void PulsePalOutput::handleEvent (int eventType, MidiMessage& event, int sampleNum)
 {
     if (eventType == TTL)
     {
@@ -65,32 +67,33 @@ void PulsePalOutput::handleEvent(int eventType, MidiMessage& event, int sampleNu
         const uint8* dataptr = event.getRawData();
 
         // int eventNodeId = *(dataptr+1);
-        int eventId = *(dataptr+2);
-        int eventChannel = *(dataptr+3);
+        const int eventId       = *(dataptr + 2);
+        const int eventChannel  = *(dataptr + 3);
 
-        for (int i = 0; i < channelTtlTrigger.size(); i++)
+        for (int i = 0; i < channelTtlTrigger.size(); ++i)
         {
-            if (eventId == 1 && eventChannel == channelTtlTrigger[i] && channelState[i])
+            if (eventId == 1
+                && eventChannel == channelTtlTrigger[i]
+                && channelState[i])
             {
-                pulsePal.triggerChannel(i+1);
+                pulsePal.triggerChannel (i + 1);
             }
 
             if (eventChannel == channelTtlGate[i])
             {
                 if (eventId == 1)
-                    channelState.set(i, true);
+                    channelState.set (i, true);
                 else
-                    channelState.set(i, false);
+                    channelState.set (i, false);
             }
         }
-
     }
-
 }
 
-void PulsePalOutput::setParameter(int parameterIndex, float newValue)
+
+void PulsePalOutput::setParameter (int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons(parameterIndex);
+    editor->updateParameterButtons (parameterIndex);
     //std::cout << "Changing channel " << parameterIndex << " to " << newValue << std::endl;
 
     switch (parameterIndex)
@@ -98,32 +101,31 @@ void PulsePalOutput::setParameter(int parameterIndex, float newValue)
         case 0:
             channelToChange = (int) newValue - 1;
             break;
+
         case 1:
-            channelTtlTrigger.set(channelToChange, (int) newValue);
+            channelTtlTrigger.set (channelToChange, (int) newValue);
             break;
+
         case 2:
-            channelTtlGate.set(channelToChange, (int) newValue);
+            channelTtlGate.set (channelToChange, (int) newValue);
 
             if (newValue < 0)
             {
-                channelState.set(channelToChange, true);
+                channelState.set (channelToChange, true);
             }
             else
             {
-                channelState.set(channelToChange, false);
+                channelState.set (channelToChange, false);
             }
-
             break;
+
         default:
             std::cout << "Unrecognized parameter index." << std::endl;
     }
-
 }
 
-void PulsePalOutput::process(AudioSampleBuffer& buffer,
-                             MidiBuffer& events)
+
+void PulsePalOutput::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 {
-
-    checkForEvents(events);
-
+    checkForEvents (events);
 }

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -367,7 +367,7 @@ bool AudioCDBurner::addAudioTrack (AudioSource* audioSource, int numSamples)
 
     hr = pimpl->redbook->CreateAudioTrack ((long) numSamples / (bytesPerBlock * 4));
 
-    HeapBlock <byte> buffer (bytesPerBlock);
+    HeapBlock<byte> buffer (bytesPerBlock);
     AudioSampleBuffer sourceBuffer (2, samplesPerBlock);
     int samplesDone = 0;
 

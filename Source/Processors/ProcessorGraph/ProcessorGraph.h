@@ -34,8 +34,8 @@ class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
 
-/**
 
+/**
   Owns all processors and constructs the signal chain.
 
   The GUI revolves around the ProcessorGraph, which enables the user to
@@ -47,11 +47,10 @@ class SignalChainTabButton;
 
   @see EditorViewport, GenericProcessor, GenericEditor, RecordNode,
        AudioNode, Configuration, MessageCenter
-
 */
 
-class ProcessorGraph : public AudioProcessorGraph,
-    public ChangeListener
+class ProcessorGraph    : public AudioProcessorGraph
+                        , public ChangeListener
 {
 public:
     ProcessorGraph();

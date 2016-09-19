@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -42,40 +42,54 @@ class Channel;
 
 
 /**
+    Base class for creating processor editors.
 
-  Base class for creating processor editors.
+    If a processor doesn't havesign an editor defined, a GenericEditor will be used.
 
-  If a processor doesn't havesign an editor defined, a GenericEditor will be used.
+    Classes derived from this class must place their controls as child components.
+    They shouldn't try to re-draw any aspects of their background.
 
-  Classes derived from this class must place their controls as child components.
-  They shouldn't try to re-draw any aspects of their background.
-
-  @see GenericProcessor, EditorViewport
-
+    @see GenericProcessor, EditorViewport
 */
-
-class PLUGIN_API GenericEditor : public AudioProcessorEditor,
-    public Timer,
-    public Button::Listener,
-    public Slider::Listener
-
+class PLUGIN_API GenericEditor  : public AudioProcessorEditor
+                                , public Timer
+                                , public Button::Listener
+                                , public Slider::Listener
 {
 public:
     /** Constructor. Loads fonts and creates default buttons.
-     useDefaultParameter Editors false means custom parameter editors will be used.*/
-    GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors);
-
-    /** Constructor. Loads fonts and creates default buttons.*/
-    //GenericEditor (GenericProcessor* owner);
+        useDefaultParameter Editors false means custom parameter editors will be used.*/
+    GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors);
 
     /** Destructor.*/
     virtual ~GenericEditor();
 
+    /*
+    ========================================================================
+    ============================= JUCE METHODS =============================
+    ========================================================================
+
+    */
     /** Draws the editor's background.*/
-    void paint(Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Called whenever a key is pressed and the editor has keyboard focus.*/
-    bool keyPressed(const KeyPress& key);
+    bool keyPressed (const KeyPress& key) override;
+
+    /** Handles button clicks for all editors. Deals with clicks on the editor's
+        title bar and channel selector drawer. */
+    virtual void buttonClicked (Button* buttonThatWasClicked) override;
+
+    /** Called when the boundaries of the editor are updated. */
+    virtual void resized() override;
+
+    /** Handles slider events for all editors. */
+    virtual void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
+
+    // =====================================================================
+    // =====================================================================
+    // =====================================================================
+
 
     /** Toggles the editor's selection state.*/
     void switchSelectedState();
@@ -167,12 +181,11 @@ public:
     /** Required for SplitterEditor only.*/
     virtual void switchDest();
 
+    /** Required for SplitterEditor and MergerEditor only.*/
+    virtual void switchIO (int);
 
     /** Required for SplitterEditor and MergerEditor only.*/
-    virtual void switchIO(int);
-
-    /** Required for SplitterEditor and MergerEditor only.*/
-    virtual int getPathForEditor(GenericEditor* editor);
+    virtual int getPathForEditor (GenericEditor* editor);
 
     /** Used by GraphViewer */
     bool isSplitter();
@@ -180,40 +193,30 @@ public:
     /** Used by GraphViewer */
     bool isMerger();
 
-
-
-    /** Handles button clicks for all editors. Deals with clicks on the editor's
-        title bar and channel selector drawer. */
-    virtual void buttonClicked(Button* button);
-
-    /** Called when the boundaries of the editor are updated. */
-    virtual void resized() override;
+    bool isUtility();
 
     /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
         GenericEditor should modify this method only.*/
-	virtual void buttonEvent(Button* button);
-
-    /** Handles slider events for all editors. */
-    virtual void sliderValueChanged(Slider* slider);
+    virtual void buttonEvent (Button* button);
 
     /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
         of GenericEditor should modify this method only.*/
-    virtual void sliderEvent(Slider* slider);
+    virtual void sliderEvent (Slider* slider);
 
     /** Required for opening displays in a VisualizerEditor. Hopefully will be deprecated soon.*/
     virtual void editorWasClicked();
 
     /** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
-    bool checkDrawerButton(Button* button);
+    bool checkDrawerButton (Button* button);
 
     /** Returns the record status of a given channel from the ChannelSelector.*/
-    bool getRecordStatus(int chan);
+    bool getRecordStatus (int chan);
 
     /** Returns the audio monitoring status of a given channel from the ChannelSelector.*/
-    bool getAudioStatus(int chan);
+    bool getAudioStatus (int chan);
 
     /** Selects all the channels in the input array.*/
-    void selectChannels(Array<int>);
+    void selectChannels (Array<int>);
 
     /** Refreshes an editor's background colors when the user selects new ones with the ColourSelector.*/
     void refreshColors();
@@ -243,10 +246,10 @@ public:
     Array<ParameterEditor*> parameterEditors;
 
     /** Returns the Channel object for a given continuous channel number. */
-    Channel* getChannel(int chan);
+    Channel* getChannel (int chan);
 
     /** Returns the Channel object for a given event channel number. */
-    Channel* getEventChannel(int chan);
+    Channel* getEventChannel (int chan);
 
     /** Stores the font used to display the editor's name. */
     Font titleFont;
@@ -255,25 +258,25 @@ public:
     bool acquisitionIsActive;
 
     /** Returns param/audio/record selection state for a given channel */
-    void getChannelSelectionState(int chan, bool* p, bool* r, bool* a);
+    void getChannelSelectionState (int chan, bool* p, bool* r, bool* a);
 
     /** Sets param/audio/record selection state for a given channel */
-    void setChannelSelectionState(int chan, bool p, bool r, bool a);
+    void setChannelSelectionState (int chan, bool p, bool r, bool a);
 
     /** Writes editor state to xml */
-    void saveEditorParameters(XmlElement* xml);
+    void saveEditorParameters (XmlElement* xml);
 
     /** Writes editor state to xml */
-    void loadEditorParameters(XmlElement* xml);
+    void loadEditorParameters (XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void saveCustomParameters(XmlElement* xml);
+    virtual void saveCustomParameters (XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void loadCustomParameters(XmlElement* xml);
+    virtual void loadCustomParameters (XmlElement* xml);
 
     /** Syncs parametereditor colors with parameter values */
-    void updateParameterButtons(int parameterIndex = -1);
+    void updateParameterButtons (int parameterIndex = -1);
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
@@ -296,8 +299,8 @@ public:
     /** Returns an array of record statuses for all channels. Used by GraphNode */
     Array<bool> getRecordStatusArray();
 
-protected:
 
+protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
     DrawerButton* drawerButton;
 
@@ -307,20 +310,17 @@ protected:
     /** Saves the open/closed state of the ChannelSelector drawer. */
     bool drawerOpen;
 
-
     /** Can be overridden to customize the layout of ParameterEditors. */
-    //Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
-    void addParameterEditors(bool useStandard);
+    // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
+    void addParameterEditors (bool useStandard);
 
     /** A pointer to the editor's ChannelSelector. */
     ChannelSelector* channelSelector;
 
 
-
 private:
-
     /** Used for fading in the editor. */
-    virtual void timerCallback();
+    virtual void timerCallback() override;
 
     /** Stores the editor's background color. */
     Colour backgroundColor;
@@ -339,112 +339,102 @@ private:
     int originalWidth;
 
     /**initializing function Used to share constructor functions*/
-    void constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors);
+    void constructorInitialize (GenericProcessor* owner, bool useDefaultParameterEditors);
 
     String name;
     String displayName;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GenericEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 };
 
-/**
 
+/**
   Used to show and hide the ChannelSelector.
 
   Appears on the right-hand size of all editors (except SplitterEditor and MergerEditor).
 
   @see GenericEditor, ChannelSelector
-
 */
-
 class PLUGIN_API DrawerButton : public Button
 {
 public:
-    DrawerButton(const String& name);
-	~DrawerButton();
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    DrawerButton (const String& name);
+    ~DrawerButton();
 
+private:
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-/**
 
+/**
   A button that displays a triangle facing up or down.
 
   Useful for incrementing or decrementing values (as in SpikeDetectorEditor).
 
   @see GenericEditor
-
 */
-
 class PLUGIN_API TriangleButton : public Button
 {
 public:
-	TriangleButton(int direction_);
-	~TriangleButton();
+    TriangleButton (int direction_);
+    ~TriangleButton();
+
 private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     int direction;
 };
 
-/**
 
+/**
   A button that displays a "load" icon.
 
   @see GenericEditor
-
 */
-
 class PLUGIN_API LoadButton : public ImageButton
 {
 public:
     LoadButton();
-	~LoadButton();
+    ~LoadButton();
 };
 
-/**
 
+/**
   A button that displays a "save" icon.
 
   @see GenericEditor
-
 */
-
 class PLUGIN_API SaveButton : public ImageButton
 {
 public:
     SaveButton();
-	~SaveButton();
-private:
+    ~SaveButton();
 };
 
-/**
 
+/**
   A button that displays text.
 
   @see GenericEditor
-
 */
-
 class PLUGIN_API UtilityButton : public Button
 {
 public:
-    UtilityButton(String label_, Font font_);
-	~UtilityButton();
+    UtilityButton (String label_, Font font_);
+    ~UtilityButton();
 
     void setCorners(bool UL, bool UR, bool LL, bool LR);
     void setRadius(float r);
 
-    void setEnabledState(bool);
-	bool getEnabledState();
+    void setEnabledState (bool);
+    bool getEnabledState();
 
-    void setLabel(String label);
+    void setLabel (String label);
     String getLabel();
 
+
 private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     String label;
     Font font;
@@ -456,30 +446,34 @@ private:
 
     bool isEnabled;
 
-    void resized();
+    void resized() override;;
 };
-
-
 
 
 class PLUGIN_API ColorButton : public Button
 {
 public:
-    ColorButton(String label_, Font font_);
-	~ColorButton();
+    ColorButton (String label_, Font font_);
+    ~ColorButton();
 
-    void setEnabledState(bool);
-	bool getEnabledState();
-    void setColors(Colour foreground, Colour background);
-    void setLabel(String label);
+    void setEnabledState (bool);
+    bool getEnabledState();
+
+    void setColors (Colour foreground, Colour background);
+    void setLabel (String label);
     String getLabel();
-    void setVerticalOrientation(bool state);
-    void setUserDefinedData(int d);
+
+    void setVerticalOrientation (bool state);
+    void setUserDefinedData (int d);
     int getUserDefinedData();
-    void setShowEnabled(bool state);
+
+    void setShowEnabled (bool state);
+
+
 private:
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
     int userDefinedData;
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
     bool vert;
     String label;
     Font font;
@@ -488,35 +482,33 @@ private:
     bool isEnabled;
 };
 
+
 /**
+  Used to change the spike detection threshold.
 
-Used to change the spike detection threshold.
-
-@see SpikeDetectorEditor
-
+  @see SpikeDetectorEditor
 */
-
 class PLUGIN_API ThresholdSlider : public Slider
 {
 public:
-	ThresholdSlider(Font f);
-	~ThresholdSlider();
+    ThresholdSlider (Font f);
+    ~ThresholdSlider();
 
-	void setActive(bool);
+    void setActive (bool);
 
-	void setValues(Array<double>);
+    void setValues (Array<double>);
+
 
 private:
-	void paint(Graphics& g);
+    void paint (Graphics& g) override;
 
-	Path makeRotaryPath(double, double, double);
+    Path makeRotaryPath (double, double, double);
 
-	Font font;
+    Font font;
 
-	bool isActive;
+    bool isActive;
 
-	Array<double> valueArray;
-
+    Array<double> valueArray;
 };
 
 

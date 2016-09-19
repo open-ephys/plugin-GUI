@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,71 +29,49 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "SignalGeneratorEditor.h"
 
-/**
 
+/**
   Outputs synthesized data of one of 5 different waveform types.
 
   @see GenericProcessor, SignalGeneratorEditor
-
 */
-
 class SignalGenerator : public GenericProcessor
-
 {
 public:
-
     SignalGenerator();
     ~SignalGenerator();
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
 
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    float getSampleRate()
-    {
-        return 44100.0;
-    }
+    float getSampleRate()       const override { return 44100.0; }
+    float getDefaultBitVolts()  const override { return 0.03; }
 
-    float getDefaultBitVolts()
-    {
-        return 0.03;
-    }
+    bool hasEditor() const override { return true; }
 
-    AudioProcessorEditor* createEditor();
-    bool hasEditor() const
-    {
-        return true;
-    }
+    AudioProcessorEditor* createEditor() override;
 
-    bool enable();
-    bool disable();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool isSource()
-    {
-        return true;
-    }
+    void updateSettings() override;
 
-    void updateSettings();
-
-    int getDefaultNumOutputs()
-    {
-        return nOut;
-    }
+    int getDefaultNumOutputs() { return nOut; }
 
     int nOut;
 
 
 private:
+    float generateSpikeSample (double amp, double phase, double noise);
 
     double defaultFrequency;
     double defaultAmplitude;
 
-    float generateSpikeSample(double amp, double phase, double noise);
-
     float sampleRateRatio;
 
     //void updateWaveform(int chan);
-
+    //
     void initializeParameters();
 
     enum wvfrm
@@ -113,11 +91,8 @@ private:
     int spikeIdx;
     int spikeDelay;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalGenerator);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalGenerator);
 };
-
-
 
 
 

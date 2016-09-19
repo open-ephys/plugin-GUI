@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -68,6 +68,8 @@ Component* Desktop::getComponent (const int index) const noexcept
 
 Component* Desktop::findComponentAt (Point<int> screenPosition) const
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+
     for (int i = desktopComponents.size(); --i >= 0;)
     {
         Component* const c = desktopComponents.getUnchecked(i);
@@ -90,7 +92,7 @@ LookAndFeel& Desktop::getDefaultLookAndFeel() noexcept
     if (currentLookAndFeel == nullptr)
     {
         if (defaultLookAndFeel == nullptr)
-            defaultLookAndFeel = new LookAndFeel_V2();
+            defaultLookAndFeel = new LookAndFeel_V3();
 
         currentLookAndFeel = defaultLookAndFeel;
     }
@@ -100,6 +102,7 @@ LookAndFeel& Desktop::getDefaultLookAndFeel() noexcept
 
 void Desktop::setDefaultLookAndFeel (LookAndFeel* newDefaultLookAndFeel)
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     currentLookAndFeel = newDefaultLookAndFeel;
 
     for (int i = getNumComponents(); --i >= 0;)
@@ -146,17 +149,22 @@ void Desktop::componentBroughtToFront (Component* const c)
 //==============================================================================
 Point<int> Desktop::getMousePosition()
 {
+    return getMousePositionFloat().roundToInt();
+}
+
+Point<float> Desktop::getMousePositionFloat()
+{
     return getInstance().getMainMouseSource().getScreenPosition();
 }
 
 void Desktop::setMousePosition (Point<int> newPosition)
 {
-    getInstance().getMainMouseSource().setScreenPosition (newPosition);
+    getInstance().getMainMouseSource().setScreenPosition (newPosition.toFloat());
 }
 
 Point<int> Desktop::getLastMouseDownPosition()
 {
-    return getInstance().getMainMouseSource().getLastMouseDownPosition();
+    return getInstance().getMainMouseSource().getLastMouseDownPosition().roundToInt();
 }
 
 int Desktop::getMouseButtonClickCounter() const noexcept    { return mouseClickCounter; }
@@ -194,10 +202,10 @@ void Desktop::resetTimer()
     else
         startTimer (100);
 
-    lastFakeMouseMove = getMousePosition();
+    lastFakeMouseMove = getMousePositionFloat();
 }
 
-ListenerList <MouseListener>& Desktop::getMouseListeners()
+ListenerList<MouseListener>& Desktop::getMouseListeners()
 {
     resetTimer();
     return mouseListeners;
@@ -205,19 +213,21 @@ ListenerList <MouseListener>& Desktop::getMouseListeners()
 
 void Desktop::addGlobalMouseListener (MouseListener* const listener)
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     mouseListeners.add (listener);
     resetTimer();
 }
 
 void Desktop::removeGlobalMouseListener (MouseListener* const listener)
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     mouseListeners.remove (listener);
     resetTimer();
 }
 
 void Desktop::timerCallback()
 {
-    if (lastFakeMouseMove != getMousePosition())
+    if (lastFakeMouseMove != getMousePositionFloat())
         sendMouseMove();
 }
 
@@ -227,16 +237,16 @@ void Desktop::sendMouseMove()
     {
         startTimer (20);
 
-        lastFakeMouseMove = getMousePosition();
+        lastFakeMouseMove = getMousePositionFloat();
 
-        if (Component* const target = findComponentAt (lastFakeMouseMove))
+        if (Component* const target = findComponentAt (lastFakeMouseMove.roundToInt()))
         {
             Component::BailOutChecker checker (target);
-            const Point<int> pos (target->getLocalPoint (nullptr, lastFakeMouseMove));
+            const Point<float> pos (target->getLocalPoint (nullptr, lastFakeMouseMove));
             const Time now (Time::getCurrentTime());
 
             const MouseEvent me (getMainMouseSource(), pos, ModifierKeys::getCurrentModifiers(),
-                                 target, target, now, pos, now, 0, false);
+                                 MouseInputSource::invalidPressure, target, target, now, pos, now, 0, false);
 
             if (me.mods.isAnyMouseButtonDown())
                 mouseListeners.callChecked (checker, &MouseListener::mouseDrag, me);
@@ -253,12 +263,14 @@ Desktop::Displays::~Displays()  {}
 
 const Desktop::Displays::Display& Desktop::Displays::getMainDisplay() const noexcept
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     jassert (displays.getReference(0).isMain);
     return displays.getReference(0);
 }
 
 const Desktop::Displays::Display& Desktop::Displays::getDisplayContaining (Point<int> position) const noexcept
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     const Display* best = &displays.getReference(0);
     double bestDistance = 1.0e10;
 
@@ -286,6 +298,7 @@ const Desktop::Displays::Display& Desktop::Displays::getDisplayContaining (Point
 
 RectangleList<int> Desktop::Displays::getRectangleList (bool userAreasOnly) const
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
     RectangleList<int> rl;
 
     for (int i = 0; i < displays.size(); ++i)
@@ -320,7 +333,6 @@ bool operator!= (const Desktop::Displays::Display& d1, const Desktop::Displays::
 void Desktop::Displays::init (Desktop& desktop)
 {
     findDisplays (desktop.getGlobalScaleFactor());
-    jassert (displays.size() > 0);
 }
 
 void Desktop::Displays::refresh()
@@ -374,10 +386,14 @@ void Desktop::setKioskModeComponent (Component* componentToUse, const bool allow
 //==============================================================================
 void Desktop::setOrientationsEnabled (const int newOrientations)
 {
-    // Dodgy set of flags being passed here! Make sure you specify at least one permitted orientation.
-    jassert (newOrientations != 0 && (newOrientations & ~allOrientations) == 0);
+    if (allowedOrientations != newOrientations)
+    {
+        // Dodgy set of flags being passed here! Make sure you specify at least one permitted orientation.
+        jassert (newOrientations != 0 && (newOrientations & ~allOrientations) == 0);
 
-    allowedOrientations = newOrientations;
+        allowedOrientations = newOrientations;
+        allowedOrientationsChanged();
+    }
 }
 
 bool Desktop::isOrientationEnabled (const DisplayOrientation orientation) const noexcept
@@ -391,6 +407,8 @@ bool Desktop::isOrientationEnabled (const DisplayOrientation orientation) const 
 
 void Desktop::setGlobalScaleFactor (float newScaleFactor) noexcept
 {
+    ASSERT_MESSAGE_MANAGER_IS_LOCKED
+
     if (masterScaleFactor != newScaleFactor)
     {
         masterScaleFactor = newScaleFactor;

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -47,7 +47,8 @@ public:
     PluginListComponent (AudioPluginFormatManager& formatManager,
                          KnownPluginList& listToRepresent,
                          const File& deadMansPedalFile,
-                         PropertiesFile* propertiesToUse);
+                         PropertiesFile* propertiesToUse,
+                         bool allowPluginsWhichRequireAsynchronousInstantiation = false);
 
     /** Destructor. */
     ~PluginListComponent();
@@ -55,9 +56,15 @@ public:
     /** Changes the text in the panel's options button. */
     void setOptionsButtonText (const String& newText);
 
+    /** Changes the text in the progress dialog box that is shown when scanning. */
+    void setScanDialogText (const String& textForProgressWindowTitle,
+                            const String& textForProgressWindowDescription);
+
     /** Sets how many threads to simultaneously scan for plugins.
-        If this is 0, then all scanning happens on the message thread (this is the default)
-    */
+     If this is 0, then all scanning happens on the message thread (this is the default when
+     allowPluginsWhichRequireAsynchronousInstantiation is false). If
+     allowPluginsWhichRequireAsynchronousInstantiation is true then numThreads must not
+     be zero (it is one by default). */
     void setNumberOfThreadsForScanning (int numThreads);
 
     /** Returns the last search path stored in a given properties file for the specified format. */
@@ -72,6 +79,17 @@ public:
     /** Returns true if there's currently a scan in progress. */
     bool isScanning() const noexcept;
 
+    /** Removes the plugins currently selected in the table. */
+    void removeSelectedPlugins();
+
+    /** Sets a custom table model to be used.
+        This will take ownership of the model and delete it when no longer needed.
+     */
+    void setTableModel (TableListBoxModel* model);
+
+    /** Returns the table used to display the plugin list. */
+    TableListBox& getTableListBox() noexcept            { return table; }
+
 private:
     //==============================================================================
     AudioPluginFormatManager& formatManager;
@@ -80,12 +98,12 @@ private:
     TableListBox table;
     TextButton optionsButton;
     PropertiesFile* propertiesToUse;
+    String dialogTitle, dialogText;
+    bool allowAsync;
     int numThreads;
 
     class TableModel;
-    friend class TableModel;
-    friend struct ContainerDeletePolicy<TableModel>;
-    ScopedPointer<TableModel> tableModel;
+    ScopedPointer<TableListBoxModel> tableModel;
 
     class Scanner;
     friend class Scanner;
@@ -98,8 +116,8 @@ private:
     void updateList();
     void showSelectedFolder();
     bool canShowSelectedFolder() const;
-    void removeSelected();
     void removeMissingPlugins();
+    void removePluginItem (int index);
 
     void resized() override;
     bool isInterestedInFileDrag (const StringArray&) override;

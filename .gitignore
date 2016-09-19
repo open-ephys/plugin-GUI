@@ -120,5 +120,6 @@ Introjucer/Builds/MacOSX/build
 # 9. Plugin build dirs
 build/
 
+/Builds/MacOSX/Plugins/Config/Env.xcconfig
 #10. git conflict resolution files
 *.orig

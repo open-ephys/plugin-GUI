@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -143,5 +143,5 @@ bool FileSource::OpenFile (File file)
 
 bool FileSource::isReady()
 {
-	return true;
+    return true;
 }

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,7 +18,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #ifndef __FILEREADERTHREAD_H_82594504__
@@ -30,36 +29,40 @@
 #include <time.h>
 #include "DataThread.h"
 
+
 class SourceNode;
 
 /**
+    Fills a buffer with data from a file.
 
-  Fills a buffer with data from a file.
+    Has issues with setting the correct sampling rate.
 
-  Has issues with setting the correct sampling rate.
-
-  @see DataThread
-
+    @see DataThread
 */
-
 class FileReaderThread : public DataThread
 
 {
 public:
-    FileReaderThread(SourceNode* sn);
+    FileReaderThread (SourceNode* sn);
     ~FileReaderThread();
 
-    bool foundInputSource();
-    bool startAcquisition();
-    bool stopAcquisition();
-    int getNumChannels();
-    float getSampleRate();
-    float getBitVolts();
+    bool foundInputSource() override;
+    bool startAcquisition() override;
+    bool stopAcquisition()  override;
 
-    void setFile(String fullpath);
-    String getFile();
+    float getSampleRate()   const override;
+    float getBitVolts()     const override;
+
+    int getNumChannels() const;
+
+    String getFile() const;
+
+    void setFile (String fullpath);
+
 
 private:
+    bool updateBuffer() override;
+
     int lengthOfInputFile;
     FILE* input;
 
@@ -70,9 +73,7 @@ private:
 
     String filePath;
 
-    bool updateBuffer();
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReaderThread);
 };
 
 

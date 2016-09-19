@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,34 +18,36 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "../SourceNode/SourceNode.h"
 #include "FileReaderThread.h"
 
-FileReaderThread::FileReaderThread(SourceNode* sn) :
-    DataThread(sn), lengthOfInputFile(0), input(0), bufferSize(0)
-{
 
+FileReaderThread::FileReaderThread (SourceNode* sn) 
+    : DataThread        (sn)
+    , lengthOfInputFile (0)
+    , input             (0)
+    , bufferSize        (0)
+{
     bufferSize = 1600;
-    dataBuffer = new DataBuffer(16, bufferSize*3);
+    dataBuffer = new DataBuffer (16, bufferSize * 3);
 
     eventCode = 0;
 
     std::cout << "File Reader Thread initialized." << std::endl;
-
 }
+
 
 FileReaderThread::~FileReaderThread()
 {
     if (input)
-        fclose(input);
+        fclose (input);
 }
 
-void FileReaderThread::setFile(String fullpath)
-{
 
+void FileReaderThread::setFile (String fullpath)
+{
     filePath = fullpath;
 
     const char* path = filePath.getCharPointer();
@@ -53,10 +55,10 @@ void FileReaderThread::setFile(String fullpath)
     if (input)
         fclose(input);
 
-    input = fopen(path, "r");
+    input = fopen (path, "r");
 
     // Avoid a segfault if file isn't found
-    if (!input)
+    if (! input)
     {
         std::cout << "Can't find data file "
                   << '"' << path << "\""
@@ -64,16 +66,15 @@ void FileReaderThread::setFile(String fullpath)
         return;
     }
 
-    fseek(input, 0, SEEK_END);
-    lengthOfInputFile = ftell(input);
-    rewind(input);
-
+    fseek (input, 0, SEEK_END);
+    lengthOfInputFile = ftell (input);
+    rewind (input);
 
     sn->tryEnablingEditor();
-
 }
 
-String FileReaderThread::getFile()
+
+String FileReaderThread::getFile() const
 {
     return filePath;
 }
@@ -83,29 +84,21 @@ bool FileReaderThread::foundInputSource()
     return input != 0;
 }
 
-int FileReaderThread::getNumChannels()
-{
-    return 16;
-}
+int FileReaderThread::getNumChannels() const override { return 16; }
 
-float FileReaderThread::getSampleRate()
-{
-    return 28000.0f;
-}
+float FileReaderThread::getSampleRate() const override { return 28000.0f; }
+float FileReaderThread::getBitVolts()   const override { return 0.0305f; }
 
-float FileReaderThread::getBitVolts()
-{
-    return 0.0305f;
-}
 
 bool FileReaderThread::startAcquisition()
 {
-    if (!input)
+    if (! input)
         return false;
 
     startThread();
     return true;
 }
+
 
 bool FileReaderThread::stopAcquisition()
 {
@@ -118,54 +111,51 @@ bool FileReaderThread::stopAcquisition()
     return true;
 }
 
+
 bool FileReaderThread::updateBuffer()
 {
-    if (!input)
+    if (! input)
         return false;
     if (dataBuffer->getNumSamples() < bufferSize)
     {
         //       // std::cout << dataBuffer->getNumSamples() << std::endl;
 
-        if (ftell(input) >= lengthOfInputFile - bufferSize)
+        if (ftell (input) >= lengthOfInputFile - bufferSize)
         {
             rewind(input);
         }
 
-        size_t numRead = fread(readBuffer, 2, bufferSize, input);
+        size_t numRead = fread (readBuffer, 2, bufferSize, input);
 
         if (numRead != bufferSize)
         {
             std::cout << "Fewer samples read than were requested." << std::endl;
         }
-        
+
         int chan = 0;
 
-        for (int n = 0; n < bufferSize; n++)
+        for (int n = 0; n < bufferSize; ++n)
         {
-            thisSample[chan] = float(-readBuffer[n]) * 0.0305; // previously 0.035
+            thisSample[chan] = float (-readBuffer[n]) * 0.0305; // previously 0.035
 
             if (chan == 15)
             {
-
                 timestamp++; // = (0 << 0) + (0 << 8) + (0 << 16) + (0 << 24); // +
                 //(4 << 32); // + (3 << 40) + (2 << 48) + (1 << 56);
 
                 //timestamp++; // = timer.getHighResolutionTicks();
-                dataBuffer->addToBuffer(thisSample, &timestamp, &eventCode, 1);
+                dataBuffer->addToBuffer (thisSample, &timestamp, &eventCode, 1);
                 chan = 0;
             }
             else
             {
                 chan++;
             }
-
-
         }
-
     }
     else
     {
-        wait(50); // pause for 50 ms to decrease sample rate
+        wait (50); // pause for 50 ms to decrease sample rate
     }
 
     return true;

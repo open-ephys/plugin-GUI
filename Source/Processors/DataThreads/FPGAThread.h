@@ -34,53 +34,57 @@
 
 class SourceNode;
 
+
 /**
+    Communicates with the Open Ephys acquisition board via an Opal Kelly FPGA.
 
-  Communicates with the Open Ephys acquisition board via an Opal Kelly FPGA.
-
-  @see DataThread, SourceNode
-
+    @see DataThread, SourceNode
 */
-
 class FPGAThread : public DataThread
-
 {
 public:
-    FPGAThread(SourceNode* sn);
+    FPGAThread (SourceNode* sn);
     ~FPGAThread();
 
-    bool foundInputSource();
-    int getNumChannels();
-    float getSampleRate();
-    float getBitVolts(int chan);
+    bool foundInputSource() override;
 
-    int getNumEventChannels();
+    float getSampleRate() const override;
+    float getBitVolts (int chan) const override;
 
-    void setOutputHigh();
-    void setOutputLow();
+    int getNumEventChannels() const override;
+
+    void setOutputHigh()    override;
+    void setOutputLow()     override;
+
+    int getNumChannels() const;
+
 
 private:
+    bool updateBuffer() override;
+
+    bool startAcquisition() override;
+    bool stopAcquisition()  override;
+
+    bool initializeFPGA (bool);
+    bool closeFPGA();
+
+    int alignBuffer (int nBytes);
+
+    void checkTTLState();
+
 
     okCFrontPanel* dev;
+
     char bitfile[128];
-    char dll_date[32], dll_time[32];
+    char dll_date[32];
+    char dll_time[32];
+
     bool isTransmitting;
     bool deviceFound;
 
     double filter_A;
     double filter_B;
     double filter_states[256];
-
-
-    bool initializeFPGA(bool);
-    bool closeFPGA();
-
-    bool startAcquisition();
-    bool stopAcquisition();
-
-    int alignBuffer(int nBytes);
-
-    void checkTTLState();
 
     unsigned char pBuffer[500000];  // size of the data requested in each buffer
     int bytesToRead;
@@ -89,9 +93,7 @@ private:
     int overflowSize;
 
     int ttl_out;
-
     int ttlState;
-
     int ttlOutputVal;
     int accumulator;
 
@@ -102,9 +104,8 @@ private:
     int numchannels;
     int Ndatabytes;
 
-    bool updateBuffer();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FPGAThread);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FPGAThread);
 };
 
 

@@ -184,12 +184,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/local/include,
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				INFOPLIST_FILE = EventBroadcaster/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.EventBroadcaster";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -205,12 +205,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/opt/local/include,
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				INFOPLIST_FILE = EventBroadcaster/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.EventBroadcaster";
 				PRODUCT_NAME = "$(TARGET_NAME)";

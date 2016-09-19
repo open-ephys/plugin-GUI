@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -277,12 +277,6 @@ public:
     */
     void setTooltip (const String& newTooltip) override;
 
-    /** Returns the tooltip set by setTooltip(), or the description corresponding to
-        the currently mapped command if one is enabled (see setCommandToTrigger).
-    */
-    String getTooltip() override;
-
-
     //==============================================================================
     /** A combination of these flags are used by setConnectedEdges(). */
     enum ConnectedEdgeFlags
@@ -301,7 +295,7 @@ public:
         E.g. if you are placing two buttons adjacent to each other, you could use this to
         indicate which edges are touching, and the LookAndFeel might choose to drawn them
         without rounded corners on the edges that connect. It's only a hint, so the
-        LookAndFeel can choose to ignore it if it's not relevent for this type of
+        LookAndFeel can choose to ignore it if it's not relevant for this type of
         button.
     */
     void setConnectedEdges (int connectedEdgeFlags);
@@ -348,6 +342,9 @@ public:
         enters or exits the button, or the mouse-button is pressed or released.
     */
     void setState (ButtonState newState);
+
+    /** Returns the button's current over/down/up state. */
+    ButtonState getState() const noexcept               { return buttonState; }
 
     // This method's parameters have changed - see the new version.
     JUCE_DEPRECATED (void setToggleState (bool, bool));
@@ -481,7 +478,7 @@ private:
     int autoRepeatDelay, autoRepeatSpeed, autoRepeatMinimumDelay;
     int radioGroupId, connectedEdgeFlags;
     CommandID commandID;
-    ButtonState buttonState;
+    ButtonState buttonState, lastStatePainted;
 
     Value isOn;
     bool lastToggleState;
@@ -495,6 +492,7 @@ private:
     void repeatTimerCallback();
     bool keyStateChangedCallback();
     void applicationCommandListChangeCallback();
+    void updateAutomaticTooltip (const ApplicationCommandInfo&);
 
     ButtonState updateState();
     ButtonState updateState (bool isOver, bool isDown);

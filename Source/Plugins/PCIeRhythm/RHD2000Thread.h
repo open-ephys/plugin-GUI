@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -41,240 +41,260 @@
 
 class SourceNode;
 
-namespace PCIeRhythm {
-	class RHDHeadstage;
-	class RHDImpedanceMeasure;
+namespace PCIeRhythm 
+{
+class RHDHeadstage;
+class RHDImpedanceMeasure;
 
-	struct ImpedanceData
-	{
-		Array<int> streams;
-		Array<int> channels;
-		Array<float> magnitudes;
-		Array<float> phases;
-		bool valid;
-	};
+struct ImpedanceData
+{
+    Array<int> streams;
+    Array<int> channels;
+    Array<float> magnitudes;
+    Array<float> phases;
+    bool valid;
+};
 
-	/**
+    /**
+        Communicates with the RHD2000 Evaluation Board from Intan Technologies
 
-	  Communicates with the RHD2000 Evaluation Board from Intan Technologies
+        @see DataThread, SourceNode
+    */
 
-	  @see DataThread, SourceNode
+class RHD2000Thread : public DataThread
+                    , public Timer
+{
+    friend class RHDImpedanceMeasure;
+public:
+    RHD2000Thread (SourceNode* sn);
+    ~RHD2000Thread();
 
-	  */
+    int getNumChannels() const;
 
-	class RHD2000Thread : public DataThread, public Timer
-	{
-		friend class RHDImpedanceMeasure;
-	public:
-		RHD2000Thread(SourceNode* sn);
-		~RHD2000Thread();
+    // for communication with SourceNode processors:
+    bool foundInputSource() override;
 
-		// for communication with SourceNode processors:
-		bool foundInputSource();
-		int getNumChannels();
-		int getNumHeadstageOutputs();
-		int getNumAuxOutputs();
-		int getNumAdcOutputs();
-		float getSampleRate();
-		float getBitVolts(Channel* chan);
-		float getAdcBitVolts(int channelNum);
+    int getNumEventChannels()    const override;
+    int getNumHeadstageOutputs() const override;
+    int getNumAuxOutputs()       const override;
+    int getNumAdcOutputs()       const override;
 
-		bool isHeadstageEnabled(int hsNum);
-		int getChannelsInHeadstage(int hsNum);
+    bool usesCustomNames() const;
 
-		void setSampleRate(int index, bool temporary = false);
+    float getSampleRate()                   const override;
+    float getBitVolts (Channel* chan)       const override;
 
-		double setUpperBandwidth(double upper); // set desired BW, returns actual BW
-		double setLowerBandwidth(double lower);
+    float getAdcBitVolts (int channelNum) const;
 
-		double setDspCutoffFreq(double freq);
-		double getDspCutoffFreq();
+    bool isHeadstageEnabled (int hsNum) const;
+    int getChannelsInHeadstage (int hsNum) const;
 
-		void setDSPOffset(bool state);
+    void setSampleRate (int index, bool temporary = false);
 
-		int setNoiseSlicerLevel(int level);
-		void setFastTTLSettle(bool state, int channel);
-		void setTTLoutputMode(bool state);
-		void setDAChpf(float cutoff, bool enabled);
+    double setUpperBandwidth (double upper); // set desired BW, returns actual BW
+    double setLowerBandwidth (double lower);
 
-		void scanPorts();
-		int getNumEventChannels();
+    double setDspCutoffFreq (double freq);
+    double getDspCutoffFreq() const;
 
-		void enableAdcs(bool);
+    void setDSPOffset (bool state);
 
-		bool isAcquisitionActive();
-		bool isReady();
+    int setNoiseSlicerLevel (int level);
+    void setFastTTLSettle (bool state, int channel);
+    void setTTLoutputMode (bool state);
+    void setDAChpf (float cutoff, bool enabled);
 
-		int modifyChannelGain(int channel, float gain);
-		int modifyChannelName(int channel, String newName);
-		void getEventChannelNames(StringArray& Names);
-		Array<int> getDACchannels();
-		void setDACchannel(int dacOutput, int channel);
-		void setDACthreshold(int dacOutput, float threshold);
-		void setDefaultNamingScheme(int scheme);
+    void scanPorts();
+    void enableAdcs (bool);
 
-		String getChannelName(int ch);
-		void setNumChannels(int hsNum, int nChannels);
-		int getHeadstageChannels(int hsNum);
-		int getActiveChannelsInHeadstage(int hsNum);
-		bool usesCustomNames();
+    bool isReady() override;
+    bool isAcquisitionActive()  const;
 
-		/* Gets the absolute channel index from the headstage channel index*/
-		int getChannelFromHeadstage(int hs, int ch);
-		/*Gets the headstage relative channel index from the absolute channel index*/
-		int getHeadstageChannel(int& hs, int ch);
+    int modifyChannelGain (int channel, float gain)         override;
+    int modifyChannelName (int channel, String newName)     override;
 
-		void runImpedanceTest(ImpedanceData* data);
-		void enableBoardLeds(bool enable);
-		int setClockDivider(int divide_ratio);
-		GenericEditor* createEditor(SourceNode* sn);
+    void getEventChannelNames (StringArray& Names) const override;
 
-		static DataThread* createDataThread(SourceNode* sn);
+    Array<int> getDACchannels() const;
 
-	private:
+    void setDACchannel      (int dacOutput, int channel);
+    void setDACthreshold    (int dacOutput, float threshold);
+    void setDefaultNamingScheme (int scheme);
 
-		bool enableHeadstage(int hsNum, bool enabled, int nStr = 1, int strChans = 32);
-		void updateBoardStreams();
-		void setCableLength(int hsNum, float length);
+    String getChannelName (int ch) const;
+    void setNumChannels (int hsNum, int nChannels);
 
-		void setDefaultChannelNames();
+    int getHeadstageChannels         (int hsNum) const;
+    int getActiveChannelsInHeadstage (int hsNum) const;
 
-		ScopedPointer<rhd2000PCIe> evalBoard;
-		Rhd2000Registers chipRegisters;
-		ScopedPointer<Rhd2000DataBlock> dataBlock;
+    /* Gets the absolute channel index from the headstage channel index*/
+    int getChannelFromHeadstage (int hs, int ch) const;
+    /*Gets the headstage relative channel index from the absolute channel index*/
+    int getHeadstageChannel (int& hs, int ch) const;
 
-		int numChannels;
-		bool deviceFound;
+    void runImpedanceTest (ImpedanceData* data);
+    void enableBoardLeds (bool enable);
+    int setClockDivider (int divide_ratio);
 
-		float thisSample[MAX_NUM_CHANNELS];
-		float auxBuffer[MAX_NUM_CHANNELS]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
-		float auxSamples[MAX_NUM_DATA_STREAMS_PCIE][3];
+    GenericEditor* createEditor (SourceNode* sn) override;
+    static DataThread* createDataThread (SourceNode* sn);
 
-		unsigned int blockSize;
 
-		bool isTransmitting;
+private:
+    bool enableHeadstage (int hsNum, bool enabled, int nStr = 1, int strChans = 32);
+    void updateBoardStreams();
+    void setCableLength (int hsNum, float length);
 
-		bool dacOutputShouldChange;
-		bool acquireAdcChannels;
-		bool acquireAuxChannels;
+    bool updateBuffer() override;
 
-		bool fastSettleEnabled;
-		bool fastTTLSettleEnabled;
-		bool fastSettleTTLChannel;
-		bool ttlMode;
-		bool desiredDAChpfState;
-		double desiredDAChpf;
+    void timerCallback() override;
 
-		bool dspEnabled;
-		double actualDspCutoffFreq, desiredDspCutoffFreq;
-		double actualUpperBandwidth, desiredUpperBandwidth;
-		double actualLowerBandwidth, desiredLowerBandwidth;
-		int actualNoiseSlicerLevel, desiredNoiseSlicerLevel;
-		double boardSampleRate;
-		int savedSampleRateIndex;
+    bool startAcquisition() override;
+    bool stopAcquisition()  override;
 
-		String libraryFilePath;
+    bool openBoard();
+    void initializeBoard();
 
-		void timerCallback();
+    void updateRegisters();
 
-		bool startAcquisition();
-		bool stopAcquisition();
+    int deviceId (Rhd2000DataBlock* dataBlock, int stream, int& register59Value);
 
-		bool openBoard();
-		void initializeBoard();
+    void checkThreshold (float s);
 
-		void updateRegisters();
+    void setDefaultChannelNames();
 
-		int deviceId(Rhd2000DataBlock* dataBlock, int stream, int& register59Value);
+    ScopedPointer<rhd2000PCIe> evalBoard;
+    Rhd2000Registers chipRegisters;
+    ScopedPointer<Rhd2000DataBlock> dataBlock;
 
-		bool updateBuffer();
+    int numChannels;
+    bool deviceFound;
 
-		double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
+    float thisSample[MAX_NUM_CHANNELS];
+    float auxBuffer[MAX_NUM_CHANNELS]; // aux inputs are only sampled every 4th sample, so use this to buffer the samples so they can be handles just like the regular neural channels later
+    float auxSamples[MAX_NUM_DATA_STREAMS_PCIE][3];
 
-		int audioOutputL, audioOutputR;
-		int* dacChannels, *dacStream;
-		float* dacThresholds;
-		bool* dacChannelsToUpdate;
-		Array<int> chipId;
-		OwnedArray<RHDHeadstage> headstagesArray;
-		Array<rhd2000PCIe::BoardDataSource> enabledStreams;
-		Array<int> numChannelsPerDataStream;
+    unsigned int blockSize;
 
-		// used for data stream names...
-		int numberingScheme;
-		Array<float> adcBitVolts;
-		bool newScan;
-		ScopedPointer<RHDImpedanceMeasure> impedanceThread;
-		bool ledsEnabled;
+    bool isTransmitting;
 
-		bool lastThreshold;
+    bool dacOutputShouldChange;
+    bool acquireAdcChannels;
+    bool acquireAuxChannels;
 
-		void checkThreshold(float s);
+    bool fastSettleEnabled;
+    bool fastTTLSettleEnabled;
+    bool fastSettleTTLChannel;
+    bool ttlMode;
+    bool desiredDAChpfState;
+    double desiredDAChpf;
 
-		int auxSamp;
+    bool dspEnabled;
+    double actualDspCutoffFreq, desiredDspCutoffFreq;
+    double actualUpperBandwidth, desiredUpperBandwidth;
+    double actualLowerBandwidth, desiredLowerBandwidth;
+    int actualNoiseSlicerLevel, desiredNoiseSlicerLevel;
+    double boardSampleRate;
+    int savedSampleRateIndex;
 
-		// Sync ouput divide factor
-		uint16 clockDivideFactor;
+    String libraryFilePath;
 
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
-	};
+    double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
 
-	class RHDHeadstage
-	{
-	public:
-		RHDHeadstage(rhd2000PCIe::BoardDataSource stream);
-		~RHDHeadstage();
-		void setNumStreams(int num);
-		void setChannelsPerStream(int nchan, int index);
-		int getStreamIndex(int index);
-		int getNumChannels();
-		int getNumStreams();
-		void setHalfChannels(bool half); //mainly used for de 16ch rhd2132 board
-		int getNumActiveChannels();
-		rhd2000PCIe::BoardDataSource getDataStream(int index);
-		bool isPlugged();
-	private:
-		rhd2000PCIe::BoardDataSource dataStream;
-		int streamIndex;
-		int numStreams;
-		int channelsPerStream;
-		bool halfChannels;
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDHeadstage);
-	};
+    int audioOutputL, audioOutputR;
+    int* dacChannels, *dacStream;
+    float* dacThresholds;
+    bool* dacChannelsToUpdate;
+    Array<int> chipId;
+    OwnedArray<RHDHeadstage> headstagesArray;
+    Array<rhd2000PCIe::BoardDataSource> enabledStreams;
+    Array<int> numChannelsPerDataStream;
 
-	class RHDImpedanceMeasure : public Thread
-	{
-	public:
-		RHDImpedanceMeasure(RHD2000Thread* b);
-		~RHDImpedanceMeasure();
-		void prepareData(ImpedanceData* d);
-		void stopThreadSafely();
-		void waitSafely();
-		void run();
-	private:
-		void runImpedanceMeasurement();
-		void restoreFPGA();
-		void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
-			std::vector<std::vector<std::vector<double>>>& measuredPhase,
-			int capIndex, int stream, int chipChannel, int numBlocks,
-			double sampleRate, double frequency, int numPeriods);
-		void amplitudeOfFreqComponent(double& realComponent, double& imagComponent,
-			const std::vector<double>& data, int startIndex,
-			int endIndex, double sampleRate, double frequency);
-		float updateImpedanceFrequency(float desiredImpedanceFreq, bool& impedanceFreqValid);
-		void factorOutParallelCapacitance(double& impedanceMagnitude, double& impedancePhase,
-			double frequency, double parasiticCapacitance);
-		void empiricalResistanceCorrection(double& impedanceMagnitude, double& impedancePhase,
-			double boardSampleRate);
-		int loadAmplifierData(queue<Rhd2000DataBlock>& dataQueue,
-			int numBlocks, int numDataStreams);
+    // used for data stream names...
+    int numberingScheme;
+    Array<float> adcBitVolts;
+    bool newScan;
+    ScopedPointer<RHDImpedanceMeasure> impedanceThread;
+    bool ledsEnabled;
 
-		std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
+    bool lastThreshold;
 
-		ImpedanceData* data;
-		RHD2000Thread* board;
 
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDImpedanceMeasure);
-	};
+    int auxSamp;
+
+    // Sync ouput divide factor
+    uint16 clockDivideFactor;
+
+    // ========================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RHD2000Thread);
+};
+
+
+class RHDHeadstage
+{
+public:
+    RHDHeadstage (rhd2000PCIe::BoardDataSource stream);
+    ~RHDHeadstage();
+
+    bool isPlugged() const;
+
+    int getStreamIndex (int index)  const;
+    int getNumActiveChannels()      const;
+    int getNumChannels()            const;
+    int getNumStreams()             const;
+
+    rhd2000PCIe::BoardDataSource getDataStream (int index) const;
+
+    void setNumStreams (int num);
+    void setChannelsPerStream (int nchan, int index);
+    void setHalfChannels (bool half); //mainly used for de 16ch rhd2132 board
+
+
+private:
+    rhd2000PCIe::BoardDataSource dataStream;
+
+    int streamIndex;
+    int numStreams;
+    int channelsPerStream;
+    bool halfChannels;
+
+    // ========================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RHDHeadstage);
+};
+
+class RHDImpedanceMeasure : public Thread
+{
+public:
+    RHDImpedanceMeasure(RHD2000Thread* b);
+    ~RHDImpedanceMeasure();
+    void prepareData(ImpedanceData* d);
+    void stopThreadSafely();
+    void waitSafely();
+    void run();
+private:
+    void runImpedanceMeasurement();
+    void restoreFPGA();
+    void measureComplexAmplitude(std::vector<std::vector<std::vector<double>>>& measuredMagnitude,
+                                 std::vector<std::vector<std::vector<double>>>& measuredPhase,
+                                 int capIndex, int stream, int chipChannel, int numBlocks,
+                                 double sampleRate, double frequency, int numPeriods);
+    void amplitudeOfFreqComponent(double& realComponent, double& imagComponent,
+                                  const std::vector<double>& data, int startIndex,
+                                  int endIndex, double sampleRate, double frequency);
+    float updateImpedanceFrequency(float desiredImpedanceFreq, bool& impedanceFreqValid);
+    void factorOutParallelCapacitance(double& impedanceMagnitude, double& impedancePhase,
+                                      double frequency, double parasiticCapacitance);
+    void empiricalResistanceCorrection(double& impedanceMagnitude, double& impedancePhase,
+                                       double boardSampleRate);
+    int loadAmplifierData (queue<Rhd2000DataBlock>& dataQueue,
+                           int numBlocks, int numDataStreams);
+
+    std::vector<std::vector<std::vector<double>>> amplifierPreFilter;
+
+    ImpedanceData* data;
+    RHD2000Thread* board;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHDImpedanceMeasure);
+};
 };
 #endif  // __RHD2000THREAD_H_2C4CBD67__

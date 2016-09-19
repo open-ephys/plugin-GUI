@@ -97,7 +97,7 @@ namespace ProcessorManager
 		default:
 			return nullptr;
 		}
-		proc->setPluginData(Plugin::NotAPlugin, index);
+		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, index);
 		return proc;
 	}
 
@@ -158,7 +158,7 @@ namespace ProcessorManager
 			{
 				Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
 				GenericProcessor* proc = info.creator();
-				proc->setPluginData(Plugin::ProcessorPlugin, index);
+				proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, index);
 				return proc;
 				break;
 			}
@@ -166,7 +166,7 @@ namespace ProcessorManager
 		{
 			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
 			GenericProcessor* proc = new SourceNode(info.name, info.creator);
-			proc->setPluginData(Plugin::DatathreadPlugin, index);
+			proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, index);
 			return proc;
 			break;
 		}
@@ -182,39 +182,39 @@ namespace ProcessorManager
 		GenericProcessor* proc = nullptr;
 		if (index > -1)
 		{
-			if (type == Plugin::NotAPlugin)
+			if (type == Plugin::NOT_A_PLUGIN_TYPE)
 			{
 				return createBuiltInProcessor(index);
 			}
-			else if (type == Plugin::ProcessorPlugin)
+			else if (type == Plugin::PLUGIN_TYPE_PROCESSOR)
 			{
 				for (int i = 0; i < pm->getNumProcessors(); i++)
 				{
 					Plugin::ProcessorInfo info = pm->getProcessorInfo(i);
 					if (procName.equalsIgnoreCase(info.name))
 					{
-						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::ProcessorPlugin, i);
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_PROCESSOR, i);
 						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
 						{
 							proc = info.creator();
-							proc->setPluginData(Plugin::ProcessorPlugin, i);
+							proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, i);
 							return proc;
 						}
 					}
 				}
 			}
-			else if (type == Plugin::DatathreadPlugin)
+			else if (type == Plugin::PLUGIN_TYPE_DATA_THREAD)
 			{
 				for (int i = 0; i < pm->getNumDataThreads(); i++)
 				{
 					Plugin::DataThreadInfo info = pm->getDataThreadInfo(i);
 					if (procName.equalsIgnoreCase(info.name))
 					{
-						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::DatathreadPlugin, i);
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
 						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
 						{
 							proc = new SourceNode(info.name, info.creator);
-							proc->setPluginData(Plugin::DatathreadPlugin, i);
+							proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
 							return proc;
 						}
 					}
@@ -222,7 +222,7 @@ namespace ProcessorManager
 			}
 		}		
 		proc = new PlaceholderProcessor(procName, libName, libVersion, source, sink);
-		proc->setPluginData(Plugin::NotAPlugin, -1);
+		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, -1);
 		return proc;
 	}
 };

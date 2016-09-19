@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -30,6 +30,7 @@ Viewport::Viewport (const String& name)
     showHScrollbar (true),
     showVScrollbar (true),
     deleteContent (true),
+    customScrollBarThickness (false),
     allowScrollingWithoutScrollbarV (false),
     allowScrollingWithoutScrollbarH (false),
     verticalScrollBar (true),
@@ -38,6 +39,8 @@ Viewport::Viewport (const String& name)
     // content holder is used to clip the contents so they don't overlap the scrollbars
     addAndMakeVisible (contentHolder);
     contentHolder.setInterceptsMouseClicks (false, true);
+
+    scrollBarThickness = getLookAndFeel().getDefaultScrollbarWidth();
 
     addChildComponent (verticalScrollBar);
     addChildComponent (horizontalScrollBar);
@@ -51,7 +54,8 @@ Viewport::Viewport (const String& name)
 
 Viewport::~Viewport()
 {
-    deleteContentComp();
+    setScrollOnDragEnabled (false);
+    deleteOrRemoveContentComp();
 }
 
 //==============================================================================
@@ -59,20 +63,24 @@ void Viewport::visibleAreaChanged (const Rectangle<int>&) {}
 void Viewport::viewedComponentChanged (Component*) {}
 
 //==============================================================================
-void Viewport::deleteContentComp()
+void Viewport::deleteOrRemoveContentComp()
 {
     if (contentComp != nullptr)
+    {
         contentComp->removeComponentListener (this);
 
-    if (deleteContent)
-    {
-        // This sets the content comp to a null pointer before deleting the old one, in case
-        // anything tries to use the old one while it's in mid-deletion..
-        ScopedPointer<Component> oldCompDeleter (contentComp);
-    }
-    else
-    {
-        contentComp = nullptr;
+        if (deleteContent)
+        {
+            // This sets the content comp to a null pointer before deleting the old one, in case
+            // anything tries to use the old one while it's in mid-deletion..
+            ScopedPointer<Component> oldCompDeleter (contentComp);
+            contentComp = nullptr;
+        }
+        else
+        {
+            contentHolder.removeChildComponent (contentComp);
+            contentComp = nullptr;
+        }
     }
 }
 
@@ -80,7 +88,7 @@ void Viewport::setViewedComponent (Component* const newViewedComponent, const bo
 {
     if (contentComp.get() != newViewedComponent)
     {
-        deleteContentComp();
+        deleteOrRemoveContentComp();
         contentComp = newViewedComponent;
         deleteContent = deleteComponentWhenNoLongerNeeded;
 
@@ -171,6 +179,113 @@ bool Viewport::autoScroll (const int mouseX, const int mouseY, const int activeB
 void Viewport::componentMovedOrResized (Component&, bool, bool)
 {
     updateVisibleArea();
+}
+
+//==============================================================================
+typedef AnimatedPosition<AnimatedPositionBehaviours::ContinuousWithMomentum> ViewportDragPosition;
+
+struct Viewport::DragToScrollListener   : private MouseListener,
+                                          private ViewportDragPosition::Listener
+{
+    DragToScrollListener (Viewport& v)
+        : viewport (v), numTouches (0), isDragging (false)
+    {
+        viewport.contentHolder.addMouseListener (this, true);
+        offsetX.addListener (this);
+        offsetY.addListener (this);
+    }
+
+    ~DragToScrollListener()
+    {
+        viewport.contentHolder.removeMouseListener (this);
+    }
+
+    void positionChanged (ViewportDragPosition&, double) override
+    {
+        viewport.setViewPosition (originalViewPos - Point<int> ((int) offsetX.getPosition(),
+                                                                (int) offsetY.getPosition()));
+    }
+
+    void mouseDown (const MouseEvent&) override
+    {
+        ++numTouches;
+    }
+
+    void mouseDrag (const MouseEvent& e) override
+    {
+        if (numTouches == 1)
+        {
+            Point<float> totalOffset = e.getOffsetFromDragStart().toFloat();
+
+            if (! isDragging && totalOffset.getDistanceFromOrigin() > 8.0f)
+            {
+                isDragging = true;
+
+                originalViewPos = viewport.getViewPosition();
+                offsetX.setPosition (0.0);
+                offsetX.beginDrag();
+                offsetY.setPosition (0.0);
+                offsetY.beginDrag();
+            }
+
+            if (isDragging)
+            {
+                offsetX.drag (totalOffset.x);
+                offsetY.drag (totalOffset.y);
+            }
+        }
+    }
+
+    void mouseUp (const MouseEvent&) override
+    {
+        if (--numTouches == 0)
+        {
+            offsetX.endDrag();
+            offsetY.endDrag();
+            isDragging = false;
+        }
+
+        jassert (numTouches >= 0);
+    }
+
+    Viewport& viewport;
+    ViewportDragPosition offsetX, offsetY;
+    Point<int> originalViewPos;
+    int numTouches;
+    bool isDragging;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DragToScrollListener)
+};
+
+void Viewport::setScrollOnDragEnabled (bool shouldScrollOnDrag)
+{
+    if (isScrollOnDragEnabled() != shouldScrollOnDrag)
+    {
+        if (shouldScrollOnDrag)
+            dragToScrollListener = new DragToScrollListener (*this);
+        else
+            dragToScrollListener = nullptr;
+    }
+}
+
+bool Viewport::isScrollOnDragEnabled() const noexcept
+{
+    return dragToScrollListener != nullptr;
+}
+
+bool Viewport::isCurrentlyScrollingOnDrag() const noexcept
+{
+    return dragToScrollListener != nullptr && dragToScrollListener->isDragging;
+}
+
+//==============================================================================
+void Viewport::lookAndFeelChanged()
+{
+    if (! customScrollBarThickness)
+    {
+        scrollBarThickness = getLookAndFeel().getDefaultScrollbarWidth();
+        resized();
+    }
 }
 
 void Viewport::resized()
@@ -313,17 +428,32 @@ void Viewport::setScrollBarsShown (const bool showVerticalScrollbarIfNeeded,
 
 void Viewport::setScrollBarThickness (const int thickness)
 {
-    if (scrollBarThickness != thickness)
+    int newThickness;
+
+    // To stay compatible with the previous code: use the
+    // default thickness if thickness parameter is zero
+    // or negative
+    if (thickness <= 0)
     {
-        scrollBarThickness = thickness;
+        customScrollBarThickness = false;
+        newThickness = getLookAndFeel().getDefaultScrollbarWidth();
+    }
+    else
+    {
+        customScrollBarThickness = true;
+        newThickness = thickness;
+    }
+
+    if (scrollBarThickness != newThickness)
+    {
+        scrollBarThickness = newThickness;
         updateVisibleArea();
     }
 }
 
 int Viewport::getScrollBarThickness() const
 {
-    return scrollBarThickness > 0 ? scrollBarThickness
-                                  : getLookAndFeel().getDefaultScrollbarWidth();
+    return scrollBarThickness;
 }
 
 void Viewport::scrollBarMoved (ScrollBar* scrollBarThatHasMoved, double newRangeStart)
@@ -346,15 +476,15 @@ void Viewport::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& whe
         Component::mouseWheelMove (e, wheel);
 }
 
-static float rescaleMouseWheelDistance (float distance, int singleStepSize) noexcept
+static int rescaleMouseWheelDistance (float distance, int singleStepSize) noexcept
 {
     if (distance == 0)
         return 0;
 
     distance *= 14.0f * singleStepSize;
 
-    return distance < 0 ? jmin (distance, -1.0f)
-                        : jmax (distance,  1.0f);
+    return roundToInt (distance < 0 ? jmin (distance, -1.0f)
+                                    : jmax (distance,  1.0f));
 }
 
 bool Viewport::useMouseWheelMoveIfNeeded (const MouseEvent& e, const MouseWheelDetails& wheel)
@@ -366,26 +496,23 @@ bool Viewport::useMouseWheelMoveIfNeeded (const MouseEvent& e, const MouseWheelD
 
         if (canScrollHorz || canScrollVert)
         {
-            float wheelIncrementX = rescaleMouseWheelDistance (wheel.deltaX, singleStepX);
-            float wheelIncrementY = rescaleMouseWheelDistance (wheel.deltaY, singleStepY);
+            const int deltaX = rescaleMouseWheelDistance (wheel.deltaX, singleStepX);
+            const int deltaY = rescaleMouseWheelDistance (wheel.deltaY, singleStepY);
 
             Point<int> pos (getViewPosition());
 
-            if (wheelIncrementX != 0 && wheelIncrementY != 0 && canScrollHorz && canScrollVert)
+            if (deltaX != 0 && deltaY != 0 && canScrollHorz && canScrollVert)
             {
-                pos.setX (pos.x - roundToInt (wheelIncrementX));
-                pos.setY (pos.y - roundToInt (wheelIncrementY));
+                pos.x -= deltaX;
+                pos.y -= deltaY;
             }
-            else if (canScrollHorz && (wheelIncrementX != 0 || e.mods.isShiftDown() || ! canScrollVert))
+            else if (canScrollHorz && (deltaX != 0 || e.mods.isShiftDown() || ! canScrollVert))
             {
-                if (wheelIncrementX == 0 && ! canScrollVert)
-                    wheelIncrementX = wheelIncrementY;
-
-                pos.setX (pos.x - roundToInt (wheelIncrementX));
+                pos.x -= deltaX != 0 ? deltaX : deltaY;
             }
-            else if (canScrollVert && wheelIncrementY != 0)
+            else if (canScrollVert && deltaY != 0)
             {
-                pos.setY (pos.y - roundToInt (wheelIncrementY));
+                pos.y -= deltaY;
             }
 
             if (pos != getViewPosition())

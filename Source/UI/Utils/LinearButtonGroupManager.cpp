@@ -88,7 +88,9 @@ void LinearButtonGroupManager::resized()
     const int height    = getHeight();
 
     const int numButtons = m_buttons.size();
-    const int buttonWidth = width / numButtons;
+    const int buttonWidth = numButtons != 0
+                                ? width / numButtons
+                                : 0;
 
     // Set bounds for each button
     juce::Rectangle<int> buttonBounds (0, 0, buttonWidth, height);
