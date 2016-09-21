@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer", "LFP_Viewer\LFP_Viewer.vcxproj", "{41BD734E-4939-47AD-9714-9629538F7206}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KWIKFormat", "KWIKFormat\KWIKFormat.vcxproj", "{554C8744-32CD-427C-A9E5-BF9A44440CED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F250DB70-6E3E-408C-BD9E-1483D574499D} = {F250DB70-6E3E-408C-BD9E-1483D574499D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FilterNode", "FilterNode\FilterNode.vcxproj", "{7B23828E-559F-4AD2-B75D-D05786F6329C}"
 EndProject
@@ -46,6 +49,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpikeRaster", "SpikeRaster\SpikeRaster.vcxproj", "{D6A842A4-AC32-4AD0-B6AF-01AF1FBC8661}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWBFormat", "NWBFormat\NWBFormat.vcxproj", "{270F2CBD-EE26-44CF-B53C-068CA80BFBF7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F250DB70-6E3E-408C-BD9E-1483D574499D} = {F250DB70-6E3E-408C-BD9E-1483D574499D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common Libs", "Common Libs", "{B49D0C12-70A8-4762-A4FE-74FA3D16FFDD}"
 EndProject
