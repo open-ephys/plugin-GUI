@@ -50,7 +50,7 @@ String HDF5Recording::getEngineID() const
 
 void HDF5Recording::registerProcessor(const GenericProcessor* proc)
 {
-    HDF5RecordingInfo* info = new HDF5RecordingInfo();
+    KWIKRecordingInfo* info = new KWIKRecordingInfo();
     info->sample_rate = proc->getSampleRate();
     info->bit_depth = 16;
     info->multiSample = false;

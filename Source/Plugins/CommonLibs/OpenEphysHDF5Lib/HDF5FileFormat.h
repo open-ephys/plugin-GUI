@@ -24,7 +24,7 @@
 #ifndef HDF5FILEFORMAT_H_INCLUDED
 #define HDF5FILEFORMAT_H_INCLUDED
 
-#include <BasicJuceHeader.h>
+#include <CommonLibHeader.h>
 
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
 #define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
@@ -42,12 +42,12 @@ class H5File;
 class DataType;
 }
 
-namespace NWBRecording
+namespace OpenEphysHDF5
 {
 
 class HDF5RecordingData;
 
-class HDF5FileBase
+class COMMON_LIB HDF5FileBase
 {
 public:
     HDF5FileBase();
@@ -97,7 +97,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5FileBase);
 };
 
-class HDF5RecordingData
+class COMMON_LIB HDF5RecordingData
 {
 public:
     HDF5RecordingData(H5::DataSet* data);

@@ -21,50 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <PluginInfo.h>
-#include "NWBRecording.h"
-#include <string>
+/*
+This header included all the base classes for data management in Visualizer Windows.
+Must be included on Visualizer windows/canvas source files. Note that the specific
+graphic representations must be coded using standard Juce methods.
+*/
+
+#include "../../../JuceLibraryCode/JuceHeader.h"
+
 #ifdef WIN32
-#include <Windows.h>
-#define EXPORT __declspec(dllexport)
+    #ifdef OEPLUGIN
+        #define COMMON_LIB __declspec(dllimport)
 #else
-#define EXPORT
+    #define COMMON_LIB __declspec(dllexport)
 #endif
-
-
-using namespace Plugin;
-#define NUM_PLUGINS 2
-
-extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
-{
-	info->apiVersion = PLUGIN_API_VER;
-	info->name = "NWB format";
-	info->libVersion = 1;
-	info->numPlugins = NUM_PLUGINS;
-}
-
-extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
-{
-	switch (index)
-	{
-	case 0:
-		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
-		info->recordEngine.name = "NWB";
-		info->recordEngine.creator = &(Plugin::createRecordEngine<NWBRecording::NWBRecordEngine>);
-		break;
-	default:
-		return -1;
-	}
-
-	return 0;
-}
-
-#ifdef WIN32
-BOOL WINAPI DllMain(IN HINSTANCE hDllHandle,
-	IN DWORD     nReason,
-	IN LPVOID    Reserved)
-{
-	return TRUE;
-}
-
+#else
+    #define COMMON_LIB __attribute__((visibility("default")))
 #endif

@@ -26,7 +26,7 @@
 
 
 using namespace H5;
-using namespace NWBRecording;
+using namespace OpenEphysHDF5;
 
 //HDF5FileBase
 

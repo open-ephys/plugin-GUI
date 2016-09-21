@@ -2,20 +2,20 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <GUIDir>..\..\Debug\bin</GUIDir>
+    <GUIDir>..\..\..\x64\Release64\bin</GUIDir>
     <PluginDir>$(GUIDir)\plugins</PluginDir>
   </PropertyGroup>
   <PropertyGroup>
-    <_PropertySheetDisplayName>Plugin_Debug32</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>PluginCommonLib_Release64</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OEPLUGIN;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\..\..\JuceLibraryCode;..\..\..\..\..\JuceLibraryCode\modules;..\..\..\..\..\Source\Plugins\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(GUIDir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -23,10 +23,11 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(PluginDir)\"</Command>
+      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(GUIDir)\"</Command>
     </PostBuildEvent>
     <PreLinkEvent>
-      <Command>if not exist "$(PluginDir)" mkdir "$(PluginDir)"</Command>
+      <Command>
+      </Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

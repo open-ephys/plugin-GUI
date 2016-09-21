@@ -83,11 +83,13 @@ Builds/VisualStudio2013/Plugins/*/*.user
 Builds/VisualStudio2013/Plugins/*/*.suo
 Builds/VisualStudio2013/Plugins/*/*.sdf
 Builds/VisualStudio2013/Plugins/*/*.opensdf
-Builds/VisualStudio2013/Plugins/*/x64
-Builds/VisualStudio2013/Plugins/*/Debug
-Builds/VisualStudio2013/Plugins/*/Release
+Builds/VisualStudio2013/Plugins/**/x64
+Builds/VisualStudio2013/Plugins/**/Debug
+Builds/VisualStudio2013/Plugins/**/Release
+
 Builds/VisualStudio2013/Plugins/Debug
 Builds/VisualStudio2013/Plugins/Release
+Builds/VisualStudio2013/Plugins/x64
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*

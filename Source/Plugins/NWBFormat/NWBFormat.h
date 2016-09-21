@@ -24,7 +24,8 @@
 #ifndef NWBFORMAT_H
 #define NWBFORMAT_H
 
-#include "HDF5FileFormat.h"
+#include <OpenEphysHDF5Lib/HDF5FileFormat.h>
+using namespace OpenEphysHDF5;
 
 namespace NWBRecording
 {

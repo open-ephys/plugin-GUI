@@ -21,99 +21,22 @@
 
  */
 
-#ifndef HDF5FILEFORMAT_H_INCLUDED
-#define HDF5FILEFORMAT_H_INCLUDED
+#ifndef KWIKFORMAT_H_INCLUDED
+#define KWIKFORMAT_H_INCLUDED
+ 
+#include <OpenEphysHDF5Lib\HDF5FileFormat.h>
+using namespace OpenEphysHDF5;
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
-
-class HDF5RecordingData;
-namespace H5
+struct KWIKRecordingInfo
 {
-class DataSet;
-class H5File;
-class DataType;
-}
-
-struct HDF5RecordingInfo
-{
-    String name;
-    int64 start_time;
-    uint32 start_sample;
-    float sample_rate;
-    uint32 bit_depth;
-    Array<float> bitVolts;
-    Array<float> channelSampleRates;
-    bool multiSample;
-};
-
-class HDF5FileBase
-{
-public:
-    HDF5FileBase();
-    virtual ~HDF5FileBase();
-
-    int open();
-	int open(int nChans);
-    void close();
-    virtual String getFileName() = 0;
-    bool isOpen() const;
-	bool isReadyToOpen() const;
-    typedef enum DataTypes { U8, U16, U32, U64, I8, I16, I32, I64, F32, F64, STR} DataTypes;
-
-    static H5::DataType getNativeType(DataTypes type);
-    static H5::DataType getH5Type(DataTypes type);
-
-protected:
-
-    virtual int createFileStructure() = 0;
-
-    int setAttribute(DataTypes type, void* data, String path, String name);
-    int setAttributeStr(String value, String path, String name);
-    int setAttributeArray(DataTypes type, void* data, int size, String path, String name);
-    int createGroup(String path);
-
-    HDF5RecordingData* getDataSet(String path);
-
-    //aliases for createDataSet
-    HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int chunkX, String path);
-    HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path);
-    HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, String path);
-    HDF5RecordingData* createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path);
-
-    bool readyToOpen;
-
-private:
-    //create an extendable dataset
-    HDF5RecordingData* createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path);
-    int open(bool newfile, int nChans);
-    ScopedPointer<H5::H5File> file;
-    bool opened;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5FileBase);
-};
-
-class HDF5RecordingData
-{
-public:
-    HDF5RecordingData(H5::DataSet* data);
-    ~HDF5RecordingData();
-
-    int writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, void* data);
-    int writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, void* data);
-
-    int writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, void* data);
-
-    void getRowXPositions(Array<uint32>& rows);
-
-private:
-    int xPos;
-    int xChunkSize;
-    int size[3];
-    int dimension;
-    Array<uint32> rowXPos;
-    ScopedPointer<H5::DataSet> dSet;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HDF5RecordingData);
+	String name;
+	int64 start_time;
+	uint32 start_sample;
+	float sample_rate;
+	uint32 bit_depth;
+	Array<float> bitVolts;
+	Array<float> channelSampleRates;
+	bool multiSample;
 };
 
 class KWDFile : public HDF5FileBase
@@ -123,7 +46,7 @@ public:
     KWDFile();
     virtual ~KWDFile();
     void initFile(int processorNumber, String basename);
-    void startNewRecording(int recordingNumber, int nChannels, HDF5RecordingInfo* info);
+    void startNewRecording(int recordingNumber, int nChannels, KWIKRecordingInfo* info);
     void stopRecording();
     void writeBlockData(int16* data, int nSamples);
     void writeRowData(int16* data, int nSamples);
@@ -153,7 +76,7 @@ public:
     KWEFile();
     virtual ~KWEFile();
     void initFile(String basename);
-    void startNewRecording(int recordingNumber, HDF5RecordingInfo* info);
+    void startNewRecording(int recordingNumber, KWIKRecordingInfo* info);
     void stopRecording();
     void writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp);
   //  void addKwdFile(String filename);
@@ -211,4 +134,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KWXFile);
 };
 
-#endif  // HDF5FILEFORMAT_H_INCLUDED
+#endif

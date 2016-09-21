@@ -15,21 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NWBFormat\NWBFormat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NWBFormat\NWBRecording.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\NWBFormat\OpenEphysLib.cpp">
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\OpenEphysHDF5Lib\HDF5FileFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Plugins\NWBFormat\NWBFormat.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\NWBFormat\NWBRecording.h">
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\OpenEphysHDF5Lib\HDF5FileFormat.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

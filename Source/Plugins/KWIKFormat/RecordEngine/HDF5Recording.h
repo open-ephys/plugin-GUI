@@ -25,7 +25,7 @@
 #define HDF5RECORDING_H_INCLUDED
 
 #include <RecordingLib.h>
-#include "HDF5FileFormat.h"
+#include "KWIKFormat.h"
 
 class HDF5Recording : public RecordEngine
 {
@@ -58,7 +58,7 @@ private:
 	OwnedArray<Array<int64>> channelTimestampArray;
 	Array<int> channelLeftOverSamples;
     OwnedArray<KWDFile> fileArray;
-    OwnedArray<HDF5RecordingInfo> infoArray;
+    OwnedArray<KWIKRecordingInfo> infoArray;
     ScopedPointer<KWEFile> eventFile;
     ScopedPointer<KWXFile> spikesFile;
 	HeapBlock<float> scaledBuffer;
