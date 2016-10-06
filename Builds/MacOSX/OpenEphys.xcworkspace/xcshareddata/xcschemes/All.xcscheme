@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+               BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
                BuildableName = "open-ephys.app"
-               BlueprintName = "open-ephys"
+               BlueprintName = "open-ephys (App)"
                ReferencedContainer = "container:open-ephys.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -270,9 +270,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
             BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
+            BlueprintName = "open-ephys (App)"
             ReferencedContainer = "container:open-ephys.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -293,9 +293,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
             BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
+            BlueprintName = "open-ephys (App)"
             ReferencedContainer = "container:open-ephys.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -308,15 +308,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
-            BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
-            ReferencedContainer = "container:open-ephys.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
