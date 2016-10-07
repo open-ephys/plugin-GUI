@@ -112,6 +112,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E14A22111DA80A9700134197"
+               BuildableName = "JuliaProcessor.bundle"
+               BlueprintName = "JuliaProcessor"
+               ReferencedContainer = "container:Plugins/JuliaProcessor/JuliaProcessor.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F558CF1C9B23370035F88B"
                BuildableName = "KWIKFormat.bundle"
                BlueprintName = "KWIKFormat"
@@ -308,6 +322,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
+            BuildableName = "open-ephys.app"
+            BlueprintName = "open-ephys (App)"
+            ReferencedContainer = "container:open-ephys.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

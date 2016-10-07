@@ -26,6 +26,9 @@
          location = "group:FilterNode/FilterNode.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:JuliaProcessor/JuliaProcessor.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:KWIKFormat/KWIKFormat.xcodeproj">
       </FileRef>
       <FileRef
