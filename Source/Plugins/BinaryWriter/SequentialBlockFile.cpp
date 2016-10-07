@@ -114,11 +114,14 @@ void SequentialBlockFile::allocateBlocks(uint64 startIndex, int numSamples)
 		m_currentBlock.set(i, m_currentBlock[i] - minBlock);
 	}
 
-	for (int i = 0; i < minBlock; i++)
-	{
+	m_memBlocks.removeRange(0, minBlock);
+
+	//for (int i = 0; i < minBlock; i++)
+	//{
 		//Not the most efficient way, as it has to move back all the elements, but it's a simple array of pointers, so it's quick enough
-		m_memBlocks.remove(0);
-	}
+	//	m_memBlocks.remove(0);
+	//}
+	
 	//Look for the last available position and calculate needed space
 	uint64 lastOffset = m_memBlocks.getLast()->getOffset();
 	uint64 maxAddr = lastOffset + m_samplesPerBlock - 1;
