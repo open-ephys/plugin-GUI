@@ -56,6 +56,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E1D300271DAEBBBD0050E0F8"
+               BuildableName = "BinaryWriter.bundle"
+               BlueprintName = "BinaryWriter"
+               ReferencedContainer = "container:Plugins/BinaryWriter/BinaryWriter.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F558131C9B0FCA0035F88B"
                BuildableName = "CAR.bundle"
                BlueprintName = "CAR"
