@@ -14,6 +14,9 @@
          location = "group:BasicSpikeDisplay/BasicSpikeDisplay.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:BinaryWriter/BinaryWriter.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:CAR/CAR.xcodeproj">
       </FileRef>
       <FileRef
@@ -24,6 +27,9 @@
       </FileRef>
       <FileRef
          location = "group:FilterNode/FilterNode.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:JuliaProcessor/JuliaProcessor.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:KWIKFormat/KWIKFormat.xcodeproj">

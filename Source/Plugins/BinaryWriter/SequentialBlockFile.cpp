@@ -26,10 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace BinaryRecordingEngine;
 
 SequentialBlockFile::SequentialBlockFile(int nChannels, int samplesPerBlock) :
+m_file(nullptr),
 m_nChannels(nChannels),
 m_samplesPerBlock(samplesPerBlock),
-m_blockSize(nChannels*samplesPerBlock),
-m_file(nullptr)
+m_blockSize(nChannels*samplesPerBlock)
 {
 	m_memBlocks.ensureStorageAllocated(blockArrayInitSize);
 	for (int i = 0; i < nChannels; i++)

@@ -27,11 +27,11 @@
 
 Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
     , m_nameValueObject                 (name)
     , m_descriptionValueObject          (String::empty)
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
-    , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
 {
     m_possibleValues.add (true);
     m_possibleValues.add (false);
@@ -48,11 +48,11 @@ Parameter::Parameter (const String& name,
                       int ID,
                       bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_parameterType                   (PARAMETER_TYPE_CONTINUOUS)
     , m_nameValueObject                 (name)
     , m_descriptionValueObject          (String::empty)
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
-    , m_parameterType                   (PARAMETER_TYPE_CONTINUOUS)
 {
     m_possibleValues.add (minPossibleValue);
     m_possibleValues.add (maxPossibleValue);
@@ -72,11 +72,11 @@ Parameter::Parameter (const String& name,
                       int defaultValue, int ID,
                       bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
     , m_nameValueObject                 (name)
     , m_descriptionValueObject          (String::empty)
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
-    , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
 {
     m_possibleValues = a;
 
@@ -92,11 +92,11 @@ Parameter::Parameter (const String& name, const String& labelName,
                       int ID,
                       bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
+    , m_parameterType                   (PARAMETER_TYPE_NUMERICAL)
     , m_nameValueObject                 (name)
     , m_descriptionValueObject          (String::empty)
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
-    , m_parameterType                   (PARAMETER_TYPE_NUMERICAL)
 {
     m_possibleValues.add (minPossibleValue);
     m_possibleValues.add (maxPossibleValue);
