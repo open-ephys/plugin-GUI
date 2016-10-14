@@ -610,7 +610,7 @@ static const unsigned char temp_binary_data_6[] =
 "    #include <Windows.h>\n"
 "    #define EXPORT __declspec(dllexport)\n"
 "#else\n"
-"    #define EXPORT\n"
+"    #define EXPORT __attribute__((visibility(\"default\")))\n"
 "#endif\n"
 "\n"
 "using namespace Plugin;\n"
@@ -6076,7 +6076,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x9a9516bc:  numBytes = 1817; return openEphys_DataThreadPluginTemplate_h;
         case 0xd768da9a:  numBytes = 1487; return openEphys_FileSourcePluginTemplate_cpp;
         case 0xdc872b1f:  numBytes = 1450; return openEphys_FileSourcePluginTemplate_h;
-        case 0x354e9a48:  numBytes = 4216; return openEphys_OpenEphysLibTemplate_cpp;
+        case 0x354e9a48:  numBytes = 4255; return openEphys_OpenEphysLibTemplate_cpp;
         case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
