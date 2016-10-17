@@ -23,7 +23,6 @@
 		E1D300371DAEBC570050E0F8 /* SequentialBlockFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SequentialBlockFile.h; sourceTree = "<group>"; };
 		E1D3003C1DAEBCBD0050E0F8 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1D3003D1DAEBCBD0050E0F8 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
-		E1D3003E1DAEBCBD0050E0F8 /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +79,6 @@
 		E1D3003B1DAEBC9D0050E0F8 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1D3003E1DAEBCBD0050E0F8 /* Plugin.xcconfig */,
 				E1D3003C1DAEBCBD0050E0F8 /* Plugin_Debug.xcconfig */,
 				E1D3003D1DAEBCBD0050E0F8 /* Plugin_Release.xcconfig */,
 			);
@@ -215,6 +213,7 @@
 				E1D300301DAEBBBD0050E0F8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -20,7 +20,6 @@
 		0363EFA01CF9D7220077C530 /* SpikeRaster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeRaster.cpp; path = ../../../../Source/Plugins/SpikeRaster/SpikeRaster.cpp; sourceTree = "<group>"; };
 		0363EFA11CF9D7220077C530 /* SpikeRaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpikeRaster.h; path = ../../../../Source/Plugins/SpikeRaster/SpikeRaster.h; sourceTree = "<group>"; };
 		0363EFA21CF9D7220077C530 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../Source/Plugins/SpikeRaster/OpenEphysLib.cpp; sourceTree = "<group>"; };
-		0363EFA61CF9D7D50077C530 /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin.xcconfig; path = ../Config/Plugin.xcconfig; sourceTree = "<group>"; };
 		0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -65,7 +64,6 @@
 		0363EFA91CF9D7ED0077C530 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				0363EFA61CF9D7D50077C530 /* Plugin.xcconfig */,
 				0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */,
 				0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */,
 			);

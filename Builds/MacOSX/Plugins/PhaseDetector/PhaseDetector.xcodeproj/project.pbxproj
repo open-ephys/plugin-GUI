@@ -15,7 +15,6 @@
 /* Begin PBXFileReference section */
 		E1F5593B1C9B3A100035F88B /* PhaseDetector.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhaseDetector.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F5593E1C9B3A100035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F559451C9B3A450035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F559461C9B3A450035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F559471C9B3A450035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F5594A1C9B3A6F0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
@@ -65,7 +64,6 @@
 		E1F559441C9B3A450035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F559451C9B3A450035F88B /* Plugin.xcconfig */,
 				E1F559461C9B3A450035F88B /* Plugin_Debug.xcconfig */,
 				E1F559471C9B3A450035F88B /* Plugin_Release.xcconfig */,
 			);

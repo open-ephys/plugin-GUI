@@ -22,7 +22,6 @@
 		E14A22201DA80B4400134197 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
 		E14A22251DA80BDF00134197 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E14A22261DA80BDF00134197 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
-		E14A22271DA80BDF00134197 /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +77,6 @@
 		E14A22241DA80BBA00134197 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E14A22271DA80BDF00134197 /* Plugin.xcconfig */,
 				E14A22251DA80BDF00134197 /* Plugin_Debug.xcconfig */,
 				E14A22261DA80BDF00134197 /* Plugin_Release.xcconfig */,
 			);

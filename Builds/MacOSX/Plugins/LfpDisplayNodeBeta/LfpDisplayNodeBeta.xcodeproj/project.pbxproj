@@ -25,7 +25,6 @@
 		D3E60EF51CD198D2003FDF5C /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../Source/Plugins/LfpDisplayNodeBeta/OpenEphysLib.cpp; sourceTree = "<group>"; };
 		D3E60EFA1CD198E6003FDF5C /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		D3E60EFB1CD198E6003FDF5C /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
-		D3E60EFC1CD198E6003FDF5C /* Plugin.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin.xcconfig; path = ../Config/Plugin.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +84,6 @@
 			children = (
 				D3E60EFA1CD198E6003FDF5C /* Plugin_Debug.xcconfig */,
 				D3E60EFB1CD198E6003FDF5C /* Plugin_Release.xcconfig */,
-				D3E60EFC1CD198E6003FDF5C /* Plugin.xcconfig */,
 			);
 			name = Config;
 			sourceTree = "<group>";
