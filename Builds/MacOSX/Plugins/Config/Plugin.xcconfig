@@ -1,6 +1,6 @@
 #include "Base.xcconfig"
 
 CONFIGURATION_BUILD_DIR = $(PROJECT_DIR)/../../build/$(CONFIGURATION)/open-ephys.app/Contents/PlugIns
-HEADER_SEARCH_PATHS = ../../../../JuceLibraryCode ../../../../JuceLibraryCode/modules ../../../../Source/Plugins/Headers $(inherited)
+HEADER_SEARCH_PATHS = ../../../../JuceLibraryCode ../../../../JuceLibraryCode/modules ../../../../Source/Plugins/Headers ../../../../Source/Plugins/CommonLibs $(inherited)
 INSTALL_PATH = $(HOME)/Applications/open-ephys.app/Contents/PlugIns
 WRAPPER_EXTENSION = bundle
