@@ -51,6 +51,9 @@
          location = "group:NetworkEvents/NetworkEvents.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:NWBFormat/NWBFormat.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:PhaseDetector/PhaseDetector.xcodeproj">
       </FileRef>
       <FileRef

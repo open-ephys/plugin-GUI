@@ -196,6 +196,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E1F91DE31DBE670500FF13EA"
+               BuildableName = "NWBFormat.bundle"
+               BlueprintName = "NWBFormat"
+               ReferencedContainer = "container:Plugins/NWBFormat/NWBFormat.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F5593A1C9B3A100035F88B"
                BuildableName = "PhaseDetector.bundle"
                BlueprintName = "PhaseDetector"
