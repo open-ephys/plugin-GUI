@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+               BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
                BuildableName = "open-ephys.app"
-               BlueprintName = "open-ephys"
+               BlueprintName = "open-ephys (App)"
                ReferencedContainer = "container:open-ephys.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,6 +46,20 @@
                BuildableName = "BasicSpikeDisplay.bundle"
                BlueprintName = "BasicSpikeDisplay"
                ReferencedContainer = "container:Plugins/BasicSpikeDisplay/BasicSpikeDisplay.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E1D300271DAEBBBD0050E0F8"
+               BuildableName = "BinaryWriter.bundle"
+               BlueprintName = "BinaryWriter"
+               ReferencedContainer = "container:Plugins/BinaryWriter/BinaryWriter.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -102,6 +116,20 @@
                BuildableName = "FilterNode.bundle"
                BlueprintName = "FilterNode"
                ReferencedContainer = "container:Plugins/FilterNode/FilterNode.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E14A22111DA80A9700134197"
+               BuildableName = "JuliaProcessor.bundle"
+               BlueprintName = "JuliaProcessor"
+               ReferencedContainer = "container:Plugins/JuliaProcessor/JuliaProcessor.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -270,9 +298,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
             BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
+            BlueprintName = "open-ephys (App)"
             ReferencedContainer = "container:open-ephys.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -293,9 +321,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
             BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
+            BlueprintName = "open-ephys (App)"
             ReferencedContainer = "container:open-ephys.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -311,9 +339,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "609761DEC9151D2CDD50270C"
+            BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
             BuildableName = "open-ephys.app"
-            BlueprintName = "open-ephys"
+            BlueprintName = "open-ephys (App)"
             ReferencedContainer = "container:open-ephys.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

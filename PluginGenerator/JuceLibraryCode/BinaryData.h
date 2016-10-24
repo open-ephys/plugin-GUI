@@ -28,7 +28,7 @@ namespace BinaryData
     const int            openEphys_FileSourcePluginTemplate_hSize = 1450;
 
     extern const char*   openEphys_OpenEphysLibTemplate_cpp;
-    const int            openEphys_OpenEphysLibTemplate_cppSize = 4216;
+    const int            openEphys_OpenEphysLibTemplate_cppSize = 4255;
 
     extern const char*   openEphys_PluginMakefile_example;
     const int            openEphys_PluginMakefile_exampleSize = 923;

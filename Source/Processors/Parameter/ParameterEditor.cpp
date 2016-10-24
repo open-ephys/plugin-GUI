@@ -28,8 +28,8 @@ static const int FONT_SIZE = 10;
 
 ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parameter, Font labelFont)
     : m_activationState     (true)
-    , m_processor           (processor)
     , m_parameter           (parameter)
+    , m_processor           (processor)
 {
     shouldDeactivateDuringAcquisition = parameter->shouldDeactivateDuringAcquisition;
 
