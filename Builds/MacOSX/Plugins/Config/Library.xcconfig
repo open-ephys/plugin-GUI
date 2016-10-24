@@ -1,0 +1,11 @@
+#include "Base.xcconfig"
+
+CONFIGURATION_BUILD_DIR = $(PROJECT_DIR)/../../../build/$(CONFIGURATION)/open-ephys.app/Contents/Frameworks
+DYLIB_COMPATIBILITY_VERSION = 1
+DYLIB_CURRENT_VERSION = 1
+EXECUTABLE_PREFIX = lib
+GCC_ENABLE_CPP_EXCEPTIONS = YES
+GCC_ENABLE_CPP_RTTI = YES
+HEADER_SEARCH_PATHS = ../../../../../JuceLibraryCode ../../../../../JuceLibraryCode/modules ../../../../../Source/Plugins/Headers $(inherited)
+INSTALL_PATH = @executable_path/../Frameworks
+WRAPPER_EXTENSION = dylib

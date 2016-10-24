@@ -527,6 +527,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
     //std::cout << channel << " : " << nSamples << " : " << count << std::endl;
 
     jassert(count == nSamples); // make sure all the data was written
+    (void)count;  // Suppress unused variable warning in release builds
 
     diskWriteLock.exit();
 

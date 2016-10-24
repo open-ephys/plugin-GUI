@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 

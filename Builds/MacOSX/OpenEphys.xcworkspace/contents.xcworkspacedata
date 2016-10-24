@@ -14,16 +14,29 @@
          location = "group:BasicSpikeDisplay/BasicSpikeDisplay.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:BinaryWriter/BinaryWriter.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:CAR/CAR.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:ChannelMappingNode/ChannelMappingNode.xcodeproj">
       </FileRef>
+      <Group
+         location = "group:CommonLibs"
+         name = "CommonLibs">
+         <FileRef
+            location = "group:OpenEphysHDF5/OpenEphysHDF5.xcodeproj">
+         </FileRef>
+      </Group>
       <FileRef
          location = "group:EventBroadcaster/EventBroadcaster.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:FilterNode/FilterNode.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:JuliaProcessor/JuliaProcessor.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:KWIKFormat/KWIKFormat.xcodeproj">
@@ -36,6 +49,9 @@
       </FileRef>
       <FileRef
          location = "group:NetworkEvents/NetworkEvents.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:NWBFormat/NWBFormat.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:PhaseDetector/PhaseDetector.xcodeproj">

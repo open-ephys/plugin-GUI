@@ -17,7 +17,6 @@
 		E15DCF791CA0676B00332C3A /* CAREditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAREditor.h; sourceTree = "<group>"; };
 		E1F558141C9B0FCA0035F88B /* CAR.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CAR.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558171C9B0FCA0035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F5581E1C9B10190035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F5581F1C9B10190035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F558201C9B10190035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F558221C9B105C0035F88B /* CAR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAR.cpp; sourceTree = "<group>"; };
@@ -65,7 +64,6 @@
 		E1F5581D1C9B10190035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F5581E1C9B10190035F88B /* Plugin.xcconfig */,
 				E1F5581F1C9B10190035F88B /* Plugin_Debug.xcconfig */,
 				E1F558201C9B10190035F88B /* Plugin_Release.xcconfig */,
 			);

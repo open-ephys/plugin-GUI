@@ -118,6 +118,8 @@ Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/*.pbxuser
 Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/xcuserdata
 Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/project.xcworkspace
 Introjucer/Builds/MacOSX/build
+Projucer/Builds/MacOSX/Projucer.xcodeproj/xcuserdata
+Projucer/Builds/MacOSX/Projucer.xcodeproj/project.xcworkspace
 
 # 9. Plugin build dirs
 build/

@@ -16,7 +16,6 @@
 /* Begin PBXFileReference section */
 		E1F558F61C9B28060035F88B /* LfpDisplayNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LfpDisplayNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558F91C9B28060035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F559001C9B28400035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F559011C9B28400035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F559021C9B28400035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F559041C9B28660035F88B /* LfpDisplayCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LfpDisplayCanvas.cpp; sourceTree = "<group>"; };
@@ -68,7 +67,6 @@
 		E1F558FF1C9B28400035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F559001C9B28400035F88B /* Plugin.xcconfig */,
 				E1F559011C9B28400035F88B /* Plugin_Debug.xcconfig */,
 				E1F559021C9B28400035F88B /* Plugin_Release.xcconfig */,
 			);

@@ -18,7 +18,6 @@
 /* Begin PBXFileReference section */
 		E1F557E81C9B0C600035F88B /* BasicSpikeDisplay.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BasicSpikeDisplay.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F557EB1C9B0C600035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F557F21C9B0CA90035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F557F31C9B0CA90035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F557F41C9B0CA90035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F557F71C9B0DAC0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
@@ -74,7 +73,6 @@
 		E1F557F11C9B0CA90035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F557F21C9B0CA90035F88B /* Plugin.xcconfig */,
 				E1F557F31C9B0CA90035F88B /* Plugin_Debug.xcconfig */,
 				E1F557F41C9B0CA90035F88B /* Plugin_Release.xcconfig */,
 			);

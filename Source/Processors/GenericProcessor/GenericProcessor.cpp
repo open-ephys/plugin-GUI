@@ -42,11 +42,11 @@ GenericProcessor::GenericProcessor (const String& name)
     , editor                        (nullptr)
     , parametersAsXml               (nullptr)
     , sendSampleCount               (true)
+    , m_processorType                   (PROCESSOR_TYPE_UTILITY)
     , m_name                            (name)
     , m_isParamsWereLoaded              (false)
     , m_isNeedsToSendTimestampMessage   (false)
     , m_isTimestampSet                  (false)
-    , m_processorType                   (PROCESSOR_TYPE_UTILITY)
 {
     settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
 }

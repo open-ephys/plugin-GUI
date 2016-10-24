@@ -36,7 +36,7 @@
 #define SPIKE_CHUNK_YSIZE 40
 #endif
 
- NWBFile::NWBFile(String fName, String ver, String idText) : HDF5FileBase(), filename(fName), identifierText(idText), GUIVersion(ver), spikeMaxSize(0)
+ NWBFile::NWBFile(String fName, String ver, String idText) : HDF5FileBase(), filename(fName), GUIVersion(ver), spikeMaxSize(0), identifierText(idText)
  {
 	 //Init stuff
 	 readyToOpen=true; //In KWIK this is in initFile, but the new recordEngine methods make it safe for it to be here
