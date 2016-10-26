@@ -871,13 +871,14 @@ void RHD2000Editor::buttonEvent(Button* button)
 
 void RHD2000Editor::channelChanged (int channel, bool /*newState*/)
 {
+    // Audio output is tied to DAC channels 0 and 1
     for (int i = 0; i < 2; i++)
     {
         if (electrodeButtons[i]->getToggleState())
         {
             electrodeButtons[i]->setChannelNum (channel);
             electrodeButtons[i]->repaint();
-            board->setDACchannel (i, channel);
+            board->setDACchannel (i, channel - 1); // HW channels are zero-based
         }
     }
 }

@@ -216,7 +216,7 @@ void RHD2000Thread::setDACchannel(int dacOutput, int channel)
             {
                 dacChannels[dacOutput] = channel - channelCount;
                 dacStream[dacOutput] = i;
-				break;
+                break;
             }
             else
             {
@@ -1666,7 +1666,7 @@ bool RHD2000Thread::updateBuffer()
 
     }
 
-	
+
     if (dacOutputShouldChange)
     {
 		std::cout << "DAC" << std::endl;
