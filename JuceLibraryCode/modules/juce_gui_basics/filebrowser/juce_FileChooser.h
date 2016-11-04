@@ -80,10 +80,10 @@ public:
                  const String& filePatternsAllowed = String::empty,
                  bool useOSNativeDialogBox
                  #ifdef JUCE_LINUX
-								 		=false);
-								 #else
-								 		=true);
-								 #endif	
+		     =false);
+	         #else
+		     =true);
+		 #endif	
 
     /** Destructor. */
     ~FileChooser();
