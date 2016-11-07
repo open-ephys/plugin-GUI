@@ -78,8 +78,7 @@ public:
     FileChooser (const String& dialogBoxTitle,
                  const File& initialFileOrDirectory = File::nonexistent,
                  const String& filePatternsAllowed = String::empty,
-                 bool useOSNativeDialogBox = true);
-
+                 bool useOSNativeDialogBox=true);
     /** Destructor. */
     ~FileChooser();
 
