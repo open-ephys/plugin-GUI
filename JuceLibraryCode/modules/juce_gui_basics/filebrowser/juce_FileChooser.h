@@ -78,13 +78,7 @@ public:
     FileChooser (const String& dialogBoxTitle,
                  const File& initialFileOrDirectory = File::nonexistent,
                  const String& filePatternsAllowed = String::empty,
-                 bool useOSNativeDialogBox
-                 #ifdef JUCE_LINUX
-		     =false);
-	         #else
-		     =true);
-		 #endif	
-
+                 bool useOSNativeDialogBox=true);
     /** Destructor. */
     ~FileChooser();
 

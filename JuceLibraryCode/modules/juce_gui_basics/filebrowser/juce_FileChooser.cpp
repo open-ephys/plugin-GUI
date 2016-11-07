@@ -29,7 +29,11 @@ FileChooser::FileChooser (const String& chooserBoxTitle,
     : title (chooserBoxTitle),
       filters (fileFilters),
       startingFile (currentFileOrDirectory),
-      useNativeDialogBox (useNativeBox && isPlatformDialogAvailable())
+      #ifdef JUCE_LINUX
+      	useNativeDialogBox (false && isPlatformDialogAvailable())
+      #else
+      	useNativeDialogBox (true && isPlatformDialogAvailable())
+      #endif
 {
     if (! fileFilters.containsNonWhitespaceChars())
         filters = "*";
