@@ -40,22 +40,23 @@ enum ChannelType
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Parameter/Parameter.h"
-#include "../Channel/Channel.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/PluginClass.h"
 #include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
 #include "../../Processors/PluginManager/PluginIDs.h"
+#include "../Channel/InfoObjects.h"
+#include "../Events/Events.h"
 
 #include <time.h>
 #include <stdio.h>
 #include <map>
+#include <unordered_map>
 
 class EditorViewport;
 class DataViewport;
 class UIComponent;
 class GenericEditor;
 class Parameter;
-class Channel;
 
 using namespace Plugin;
 
@@ -372,34 +373,19 @@ public:
 
     int nextAvailableChannel;
 
-    /** Can be called by processors that need to respond to incoming events. */
-    virtual int checkForEvents (MidiBuffer& mb);
+    /** Can be called by processors that need to respond to incoming events. 
+	Set respondToSpikes to true if the processor should also search for spikes*/
+    virtual int checkForEvents (bool respondToSpikes = false);
 
-    /** Makes it easier for processors to add events to the MidiBuffer. */
-    virtual void addEvent (MidiBuffer& mb,
-                           uint8 type,
-                           int sampleNum,
-                           uint8 eventID = 0,
-                           uint8 eventChannel = 0,
-                           uint8 numBytes = 0,
-                           uint8* data = 0,
-                           bool isTimestamp = false);
-
-    /** Makes it easier for processors to respond to incoming events, such as TTLs and spikes.
+    /** Makes it easier for processors to respond to incoming events, such as TTLs.
 
     Called by checkForEvents(). */
-    virtual void handleEvent (int eventType, MidiMessage& event, int samplePosition = 0);
+    virtual void handleEvent (EventChannel* eventInfo, MidiMessage& event, int samplePosition = 0);
 
-    enum eventTypes
-    {
-        TIMESTAMP = 0,
-        BUFFER_SIZE = 1,
-        PARAMETER_CHANGE = 2,
-        TTL = 3,
-        SPIKE = 4,
-        MESSAGE = 5,
-        BINARY_MSG = 6
-    };
+	/** Makes it easier for processors to respond to incoming spikes.
+
+	Called by checkForEvents(). */
+	virtual void handleSpike(SpikeChannel* spikeInfo, MidiMessage& event, int samplePosition = 0);
 
     /** Variable used to orchestrate saving the ProcessorGraph. */
     int saveOrder;
@@ -415,12 +401,6 @@ public:
 
     /** Pointer to the processor's editor. */
     ScopedPointer<GenericEditor> editor;
-
-    /** Array of Channel objects for all continuous channels. */
-    OwnedArray<Channel> channels;
-
-    /** Array of Channel objects for all event channels. */
-    OwnedArray<Channel> eventChannels;
 
     /** Returns total number of channels */
     int getTotalNumberOfChannels() const;
@@ -488,9 +468,6 @@ public:
     /** Load custom parameters for each channel. */
     virtual void loadCustomChannelParametersFromXml (XmlElement* channelElement, bool isEventChannel = false);
 
-    /** handle messages from other processors */
-    virtual String interProcessorCommunication (String command);
-
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
 
@@ -509,6 +486,21 @@ public:
     /** Used to set the timestamp for a given buffer, for a given source node. */
     void setTimestamp (MidiBuffer&, int64 timestamp);
 
+	int getDataChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
+
+	int getEventChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
+
+	int getSpikeChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
+
+	const DataChannel* getDataChannel(int index) const;
+
+	const EventChannel* getEventChannel(int index) const;
+
+	const SpikeChannel* getSpikeChannel(int index) const;
+
+	const ConfigurationObject* getConfigurationObject(int index) const;
+
+
     PluginProcessorType getProcessorType() const;
 
     std::map<uint8, int> numSamples;
@@ -518,6 +510,18 @@ public:
 protected:
     /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
     void setProcessorType (PluginProcessorType processorType);
+
+	OwnedArray<DataChannel> dataChannelArray;
+	OwnedArray<EventChannel> eventChannelArray;
+	OwnedArray<SpikeChannel> spikeChannelArray;
+	OwnedArray<ConfigurationObject> configurationObjectArray;
+
+	void addEvent(int channelIndex, const Event& event);
+	void addEvent(const EventChannel* channel, const Event& event);
+
+	void addSpike(int channelIndex, const Event& event);
+	void addSpike(const EventChannel* channel, const Event& event);
+
 
 
 private:
@@ -545,6 +549,15 @@ private:
     bool m_isNeedsToSendTimestampMessage;
 
     bool m_isTimestampSet;
+
+	MidiBuffer* m_currentMidiBuffer;
+
+	typedef std::vector<unsigned int> ChannelIndexVector;
+	typedef std::unordered_map<uint32, ChannelIndexVector> ChannelIndexMap;
+	ChannelIndexMap dataChannelMap;
+	ChannelIndexMap eventChannelMap;
+	ChannelIndexMap spikeChannelMap;
+	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
 };

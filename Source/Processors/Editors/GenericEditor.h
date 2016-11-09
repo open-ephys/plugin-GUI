@@ -27,7 +27,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../CoreServices.h"
-#include "../Channel/Channel.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include <stdio.h>
@@ -38,7 +37,7 @@ class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
 class ChannelSelector;
-class Channel;
+
 
 
 /**

@@ -66,7 +66,13 @@ public:
     void run() override;
 
     /** Returns the address of the DataBuffer that the input source will fill.*/
-    DataBuffer* getBufferAddress() const;
+    DataBuffer* getBufferAddress(int subProcessor) const;
+
+	/** Automatically resizes the buffers by using */
+	virtual void resizeBuffers();
+
+	/** Gets the number of samples the buffer should hold for each of the subprocessors */
+	virtual int getBufferSamples(int subProcessor) const;
 
     /** Fills the DataBuffer with incoming data. This is the most important
     method for each DataThread.*/
@@ -77,8 +83,6 @@ public:
 
     /** Experimental method used for testing data sources that can deliver outputs.*/
     virtual void setOutputLow();
-
-    ScopedPointer<DataBuffer> dataBuffer;
 
     /** Returns true if the data source is connected, false otherwise.*/
     virtual bool foundInputSource() = 0;
@@ -101,8 +105,8 @@ public:
     /** Returns the sample rate of the data source.*/
     virtual float getSampleRate() const = 0;
 
-	/** Does the data source generate two sample rates? */
-	virtual bool isDualSampleRate();
+	/** Returns the number of virtual subprocessors this source can generate */
+	virtual unsigned int getNumSubProcessors() const;
 
     /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts (Channel* chan) const = 0;
@@ -146,6 +150,7 @@ protected:
     int64 timestamp;
 
     Array<ChannelCustomInfo> channelInfo;
+	OwnedArray<DataBuffer> sourceBuffers;
 
 private:
     Time timer;

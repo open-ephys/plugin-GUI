@@ -33,7 +33,6 @@
 #define BLOCK_MAX_WRITE_EVENTS 32
 #define BLOCK_MAX_WRITE_SPIKES 32
 
-class Channel;
 class RecordEngine;
 
 
