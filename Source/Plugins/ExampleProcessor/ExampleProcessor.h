@@ -50,7 +50,7 @@ public:
     ExampleProcessor();
 
     /** The class destructor, used to deallocate memory */
-    ~ExampleProcessor();
+    ~ExampleProcessor(){};
 
     /** Determines whether the processor is treated as a source. */
     bool isSource()
