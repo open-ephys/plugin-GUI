@@ -29,6 +29,7 @@
 #include "../../CoreServices.h"
 #include "../Channel/Channel.h"
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "ContentComponentHandler.h"
 
 #include <stdio.h>
 
@@ -53,6 +54,7 @@ class Channel;
     @see GenericProcessor, EditorViewport
 */
 class PLUGIN_API GenericEditor  : public AudioProcessorEditor
+                                , public ContentComponentHandler
                                 , public Timer
                                 , public Button::Listener
                                 , public Slider::Listener
@@ -217,7 +219,7 @@ public:
     virtual void parameterComponentChanged (Component* parameterComponentThatHasChanged);
 
     /** Each editor should override it to return reference to the content component. */
-    virtual Component& getContentComponent();
+    virtual Component& getContentComponent() override;
 
     /** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
     bool checkDrawerButton (Button* button);
@@ -290,7 +292,7 @@ public:
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons (int parameterIndex = -1);
-    void updateParameterComponent (Parameter* parameterToUpdate);
+    //void updateParameterComponent (Parameter* parameterToUpdate);
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
@@ -328,9 +330,9 @@ protected:
     // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors (bool useStandard);
 
-    /** Configures parameter editors from content component (if it exists) to set the same values
-        accordingly to the parameters and configure needed options for them. */
-    void configureParameterEditors();
+    ///** Configures parameter editors from content component (if it exists) to set the same values
+    //    accordingly to the parameters and configure needed options for them. */
+    //void configureParameterEditors();
 
     /** A pointer to the editor's ChannelSelector. */
     ChannelSelector* channelSelector;
@@ -528,6 +530,20 @@ private:
 
     Array<double> valueArray;
 };
+
+
+//class PLUGIN_API ContentComponentHandler
+//{
+//public:
+//    Component& getContentComponent() = 0;
+//
+//    /** Configures parameter editors from content component (if it exists) to set the same values
+//        accordingly to the parameters and configure needed options for them. */
+//    void configureParameterEditors();
+//
+//    void updateParameterComponent (Parameter* parameterToUpdate);
+//};
+//
 
 
 #endif  // __GENERICEDITOR_H_DD406E71__

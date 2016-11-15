@@ -297,6 +297,7 @@
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Editors\ContentComponentHandler.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
@@ -1964,6 +1965,7 @@
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>
+    <ClInclude Include="..\..\Source\Processors\Editors\ContentComponentHandler.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>

@@ -390,3 +390,12 @@ void VisualizerEditor::saveVisualizerParameters (XmlElement* xml)
 void VisualizerEditor::loadVisualizerParameters (XmlElement* xml)
 {
 }
+
+
+void VisualizerEditor::updateParameterComponent (Parameter* parameterToUpdate)
+{
+    ContentComponentHandler::updateParameterComponent (parameterToUpdate);
+
+    // Notify canvas about changes
+    canvas->updateParameterComponent (parameterToUpdate);
+}

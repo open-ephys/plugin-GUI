@@ -583,6 +583,9 @@
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Editors\ContentComponentHandler.cpp">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\ElectrodeButtons.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClCompile>
@@ -2593,6 +2596,9 @@
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h">
+      <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Editors\ContentComponentHandler.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\ElectrodeButtons.h">

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,22 +26,21 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "../Editors/ContentComponentHandler.h"
+
 
 /**
+    Abstract base class for displaying data.
 
-  Abstract base class for displaying data.
-
-  @see LfpDisplayCanvas, SpikeDisplayCanvas
-
+    @see LfpDisplayCanvas, SpikeDisplayCanvas
 */
-
-class PLUGIN_API Visualizer : public Component,
-    public Timer
-
+class PLUGIN_API Visualizer : public Component
+                            , public Timer
+                            , public ContentComponentHandler
 {
 public:
-	Visualizer();
-	~Visualizer();
+    Visualizer();
+    ~Visualizer();
 
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() = 0;
@@ -65,24 +64,24 @@ public:
     virtual void setParameter(int, int, int, float) = 0;
 
     /** Starts the timer callbacks. */
-	void startCallbacks();
+    void startCallbacks();
 
     /** Stops the timer callbacks. */
-	void stopCallbacks();
+    void stopCallbacks();
 
     /** Called whenever the timer is triggered. */
-	void timerCallback();
+    void timerCallback();
 
     /** Refresh rate in Hz. */
     float refreshRate;
 
-
     /** Saves parameters as XML */
-	virtual void saveVisualizerParameters(XmlElement* xml);
+    virtual void saveVisualizerParameters (XmlElement* xml);
 
     /** Loads parameters from XML */
-	virtual void loadVisualizerParameters(XmlElement* xml);
+    virtual void loadVisualizerParameters (XmlElement* xml);
 
+    Component& getContentComponent() override;
 };
 
 

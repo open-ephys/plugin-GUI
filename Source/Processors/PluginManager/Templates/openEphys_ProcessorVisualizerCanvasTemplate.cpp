@@ -33,6 +33,9 @@ EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)
     //content.setLookAndFeel (m_contentLookAndFeel);
     addAndMakeVisible (&content);
 
+    setContentComponentHandlerOwner (this);
+    configureParameterEditors (processor);
+
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]
 }
 
@@ -82,4 +85,36 @@ void EDITORCANVASCLASSNAME::setParameter (int parameter, float newValue)
 
 void EDITORCANVASCLASSNAME::setParameter (int parameter, int val1, int val2, float newValue)
 {
+}
+
+
+/** Handles button clicks for all buttons. */
+void EDITORCANVASCLASSNAME::buttonClicked (Button* buttonThatWasClicked)
+{
+    if (auto genericEditorParent = dynamic_cast<Button::Listener*> (getParentComponent()))
+        genericEditorParent->buttonClicked (buttonThatWasClicked);
+}
+
+
+/** Handles slider events for all sliders. */
+void EDITORCANVASCLASSNAME::sliderValueChanged (Slider* sliderWhichValueHasChanged)
+{
+    if (auto genericEditorParent = dynamic_cast<Slider::Listener*> (getParentComponent()))
+        genericEditorParent->sliderValueChanged (sliderWhichValueHasChanged);
+}
+
+
+/** Called when user press "Enter" key on the TextEditor. Will be used mostly for parameters.
+  If any subclass needs this function for it's own component, it should call this method
+  from overridden one. */
+void EDITORCANVASCLASSNAME::textEditorReturnKeyPressed (TextEditor& textEditor)
+{
+    if (auto genericEditorParent = dynamic_cast<TextEditor::Listener*> (getParentComponent()))
+        genericEditorParent->textEditorReturnKeyPressed (textEditor);
+}
+
+
+Component& EDITORCANVASCLASSNAME::getContentComponent()
+{
+    return content;
 }

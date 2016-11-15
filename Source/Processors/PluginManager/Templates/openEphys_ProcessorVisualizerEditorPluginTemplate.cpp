@@ -41,7 +41,8 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
     content.toBack(); // to be able to see parameters components
     setDesiredWidth (EDITOR_DESIRED_WIDTH);
 
-    configureParameterEditors();
+    setContentComponentHandlerOwner (this);
+    configureParameterEditors (getProcessor());
 
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]
 

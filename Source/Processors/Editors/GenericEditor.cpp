@@ -172,70 +172,6 @@ void GenericEditor::addParameterEditors (bool useDefaultParameterEditors = true)
 }
 
 
-void GenericEditor::configureParameterEditors()
-{
-    DBG ("Configuring parameter editors...");
-    auto& contentComponent = getContentComponent();
-    const int numChildComponents = contentComponent.getNumChildComponents();
-
-    // Check all child components and setup parameters for all buttons, sliders
-    // (TODO<Kirill A>: add support for more components)
-    for (int i = 0; i < numChildComponents; ++i)
-    {
-        auto childComponent = contentComponent.getChildComponent (i);
-        DBG (childComponent->getName());
-        // TODO<Kirill A>: change to search for component ID's, not for names
-        const bool isParameterExists = getProcessor()->isParameterExists (childComponent->getName());
-
-        // If parameter with given component ID doesn't exist, just skip it
-        if (! isParameterExists)
-            continue;
-
-        // TODO<Kirill A>: change to search for component ID's, not for names
-        auto parameter = getProcessor()->findParameterWithComponentID (childComponent->getName());
-        if (auto buttonComponent = dynamic_cast<Button*> (childComponent))
-        {
-            buttonComponent->setClickingTogglesState (true);
-            buttonComponent->setToggleState ((bool)parameter->getDefaultValue(), dontSendNotification);
-            buttonComponent->addListener (this);
-        }
-        else if (auto sliderComponent = dynamic_cast<Slider*> (childComponent))
-        {
-            // For boolean parameters the only possible values for slider should be 0.0 and 1.0 (off/on)
-            if (parameter->isBoolean())
-            {
-                sliderComponent->setRange (0.0, 1.0, 1.0);
-            }
-            else if (parameter->isContinuous())
-            {
-                Array<var> possibleValues = parameter->getPossibleValues();
-                jassert (possibleValues.size() == 2);
-
-                const float minPossibleValue = float (possibleValues[0]);
-                const float maxPossibleValue = float (possibleValues[1]);
-
-                sliderComponent->setRange (minPossibleValue, maxPossibleValue);
-            }
-            // It's not supported to use sliders for discrete or numerical parameters
-            else
-                continue;
-
-            sliderComponent->setValue ((double)parameter->getDefaultValue(), dontSendNotification);
-            sliderComponent->getValueObject().referTo (parameter->getCurrentValueObject());
-            sliderComponent->addListener (this);
-        }
-        else if (auto textEditorComponent = dynamic_cast<TextEditor*> (childComponent))
-        {
-            textEditorComponent->setInputRestrictions (6, "01234567890-.,");
-
-            textEditorComponent->setText (parameter->getDefaultValue().toString(), dontSendNotification);
-            textEditorComponent->getTextValue().referTo (parameter->getCurrentValueObject());
-            textEditorComponent->addListener (this);
-        }
-    }
-}
-
-
 void GenericEditor::refreshColors()
 {
     enum
@@ -1216,40 +1152,6 @@ Component& GenericEditor::getContentComponent()
 
 void GenericEditor::parameterComponentChanged (Component* parameterComponentThatHasChanged)
 {
-}
-
-void GenericEditor::updateParameterComponent (Parameter* parameterToUpdate)
-{
-    Component& contentComponent = getContentComponent();
-
-    // TODO<Kirill A>: change to search for component ID's, not for names
-    const int numChildComponents = contentComponent.getNumChildComponents();
-    const auto componentIDForParameter = parameterToUpdate->getComponentID();
-    for (int i = 0; i < numChildComponents; ++i)
-    {
-        if (contentComponent.getChildComponent (i)->getName() == componentIDForParameter)
-        {
-            auto neededChildComponent = contentComponent.getChildComponent (i);
-
-            if (auto buttonComponent = dynamic_cast<Button*> (neededChildComponent))
-            {
-                buttonComponent->setToggleState ((bool)parameterToUpdate->getCurrentValue(), dontSendNotification);
-            }
-            else if (auto sliderComponent = dynamic_cast<Slider*> (neededChildComponent))
-            {
-                //DBG (String ("Slider value: ") + String ((double)parameterToUpdate->getCurrentValue()));
-                sliderComponent->setValue ((double)parameterToUpdate->getCurrentValue(), dontSendNotification);
-            }
-            else if (auto textEditorComponent = dynamic_cast<TextEditor*> (neededChildComponent))
-            {
-                DBG (String ("Text editor value: ") + String ((double)parameterToUpdate->getCurrentValue()));
-                textEditorComponent->setText (parameterToUpdate->getCurrentValue().toString(), dontSendNotification);
-            }
-
-            //TODO<Kirill A>: We might have some components referring to the same parameter
-            break;
-        }
-    }
 }
 
 

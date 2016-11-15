@@ -407,6 +407,10 @@
                 file="Source/Processors/Editors/ChannelSelector.cpp"/>
           <FILE id="cOToxV" name="ChannelSelector.h" compile="0" resource="0"
                 file="Source/Processors/Editors/ChannelSelector.h"/>
+          <FILE id="Qal7Zw" name="ContentComponentHandler.cpp" compile="1" resource="0"
+                file="Source/Processors/Editors/ContentComponentHandler.cpp"/>
+          <FILE id="jXcrFG" name="ContentComponentHandler.h" compile="0" resource="0"
+                file="Source/Processors/Editors/ContentComponentHandler.h"/>
           <FILE id="EXjl1X" name="ElectrodeButtons.cpp" compile="1" resource="0"
                 file="Source/Processors/Editors/ElectrodeButtons.cpp"/>
           <FILE id="aOEJ7T" name="ElectrodeButtons.h" compile="0" resource="0"

@@ -25,26 +25,38 @@
 
 Visualizer::Visualizer()
 {
-	refreshRate = 10;    // 10 Hz default refresh rate
+    refreshRate = 10;    // 10 Hz default refresh rate
 }
 
-Visualizer::~Visualizer() {}
+
+Visualizer::~Visualizer()
+{
+}
+
 
 void Visualizer::startCallbacks()
 {
-	startTimer(20);
+    startTimer (20);
 }
+
 
 void Visualizer::stopCallbacks()
 {
-	stopTimer();
+    stopTimer();
 }
+
 
 void Visualizer::timerCallback()
 {
-	refresh();
+    refresh();
 }
 
-void Visualizer::saveVisualizerParameters(XmlElement* xml) { }
 
-void Visualizer::loadVisualizerParameters(XmlElement* xml) { }
+void Visualizer::saveVisualizerParameters (XmlElement* xml) { }
+void Visualizer::loadVisualizerParameters (XmlElement* xml) { }
+
+
+Component& Visualizer::getContentComponent()
+{
+    return *this;
+}

@@ -122,6 +122,8 @@ public:
     virtual void saveVisualizerParameters (XmlElement* xml);
     virtual void loadVisualizerParameters (XmlElement* xml);
 
+    void updateParameterComponent (Parameter* parameterToUpdate) override;
+
     ScopedPointer<DataWindow> dataWindow;
     ScopedPointer<Visualizer> canvas;
 

@@ -35,6 +35,9 @@
     @see Visualizer, LfpDisplayCanvas, SpikeDisplayCanvas
 */
 class EDITORCANVASCLASSNAME : public Visualizer
+                            , public Button::Listener
+                            , public Slider::Listener
+                            , public TextEditor::Listener
 {
 public:
     /** The class constructor, used to initialize any members. */
@@ -66,6 +69,20 @@ public:
 
     /** Called by an editor to initiate a parameter change.*/
     void setParameter (int, int, int, float) override;
+
+    /** Handles button clicks for all buttons. */
+    void buttonClicked (Button* buttonThatWasClicked) override;
+
+    /** Handles slider events for all sliders. */
+    void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
+
+    /** Called when user press "Enter" key on the TextEditor. Will be used mostly for parameters.
+        If any subclass needs this function for it's own component, it should call this method
+        from overridden one. */
+    void textEditorReturnKeyPressed (TextEditor& textEditor) override;
+
+    Component& getContentComponent() override;
+
 
 private:
     PROCESSORCLASSNAME* processor;

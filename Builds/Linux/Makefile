@@ -87,6 +87,7 @@ OBJECTS := \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
+  $(OBJDIR)/ContentComponentHandler_8ab83998.o \
   $(OBJDIR)/ElectrodeButtons_a6064cc.o \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
@@ -358,6 +359,11 @@ $(OBJDIR)/DataThread_b2a47a13.o: ../../Source/Processors/DataThreads/DataThread.
 $(OBJDIR)/ChannelSelector_c1430874.o: ../../Source/Processors/Editors/ChannelSelector.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ChannelSelector.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ContentComponentHandler_8ab83998.o: ../../Source/Processors/Editors/ContentComponentHandler.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ContentComponentHandler.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ElectrodeButtons_a6064cc.o: ../../Source/Processors/Editors/ElectrodeButtons.cpp
