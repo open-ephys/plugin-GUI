@@ -1501,6 +1501,9 @@ static const unsigned char temp_binary_data_14[] =
 "    //content.setLookAndFeel (m_contentLookAndFeel);\n"
 "    addAndMakeVisible (&content);\n"
 "\n"
+"    setContentComponentHandlerOwner (this);\n"
+"    configureParameterEditors (processor);\n"
+"\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
 "}\n"
 "\n"
@@ -1550,6 +1553,38 @@ static const unsigned char temp_binary_data_14[] =
 "\n"
 "void EDITORCANVASCLASSNAME::setParameter (int parameter, int val1, int val2, float newValue)\n"
 "{\n"
+"}\n"
+"\n"
+"\n"
+"/** Handles button clicks for all buttons. */\n"
+"void EDITORCANVASCLASSNAME::buttonClicked (Button* buttonThatWasClicked)\n"
+"{\n"
+"    if (auto genericEditorParent = dynamic_cast<Button::Listener*> (getParentComponent()))\n"
+"        genericEditorParent->buttonClicked (buttonThatWasClicked);\n"
+"}\n"
+"\n"
+"\n"
+"/** Handles slider events for all sliders. */\n"
+"void EDITORCANVASCLASSNAME::sliderValueChanged (Slider* sliderWhichValueHasChanged)\n"
+"{\n"
+"    if (auto genericEditorParent = dynamic_cast<Slider::Listener*> (getParentComponent()))\n"
+"        genericEditorParent->sliderValueChanged (sliderWhichValueHasChanged);\n"
+"}\n"
+"\n"
+"\n"
+"/** Called when user press \"Enter\" key on the TextEditor. Will be used mostly for parameters.\n"
+"  If any subclass needs this function for it's own component, it should call this method\n"
+"  from overridden one. */\n"
+"void EDITORCANVASCLASSNAME::textEditorReturnKeyPressed (TextEditor& textEditor)\n"
+"{\n"
+"    if (auto genericEditorParent = dynamic_cast<TextEditor::Listener*> (getParentComponent()))\n"
+"        genericEditorParent->textEditorReturnKeyPressed (textEditor);\n"
+"}\n"
+"\n"
+"\n"
+"Component& EDITORCANVASCLASSNAME::getContentComponent()\n"
+"{\n"
+"    return content;\n"
 "}\n";
 
 const char* openEphys_ProcessorVisualizerCanvasTemplate_cpp = (const char*) temp_binary_data_14;
@@ -1593,6 +1628,9 @@ static const unsigned char temp_binary_data_15[] =
 "    @see Visualizer, LfpDisplayCanvas, SpikeDisplayCanvas\n"
 "*/\n"
 "class EDITORCANVASCLASSNAME : public Visualizer\n"
+"                            , public Button::Listener\n"
+"                            , public Slider::Listener\n"
+"                            , public TextEditor::Listener\n"
 "{\n"
 "public:\n"
 "    /** The class constructor, used to initialize any members. */\n"
@@ -1624,6 +1662,20 @@ static const unsigned char temp_binary_data_15[] =
 "\n"
 "    /** Called by an editor to initiate a parameter change.*/\n"
 "    void setParameter (int, int, int, float) override;\n"
+"\n"
+"    /** Handles button clicks for all buttons. */\n"
+"    void buttonClicked (Button* buttonThatWasClicked) override;\n"
+"\n"
+"    /** Handles slider events for all sliders. */\n"
+"    void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;\n"
+"\n"
+"    /** Called when user press \"Enter\" key on the TextEditor. Will be used mostly for parameters.\n"
+"        If any subclass needs this function for it's own component, it should call this method\n"
+"        from overridden one. */\n"
+"    void textEditorReturnKeyPressed (TextEditor& textEditor) override;\n"
+"\n"
+"    Component& getContentComponent() override;\n"
+"\n"
 "\n"
 "private:\n"
 "    PROCESSORCLASSNAME* processor;\n"
@@ -1688,7 +1740,8 @@ static const unsigned char temp_binary_data_16[] =
 "    content.toBack(); // to be able to see parameters components\n"
 "    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
 "\n"
-"    configureParameterEditors();\n"
+"    setContentComponentHandlerOwner (this);\n"
+"    configureParameterEditors (getProcessor());\n"
 "\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
 "\n"
@@ -6106,9 +6159,9 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x229158a3:  numBytes = 3577; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 6436; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;
-        case 0x1d379af4:  numBytes = 1972; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
-        case 0x9bde39f9:  numBytes = 2797; return openEphys_ProcessorVisualizerCanvasTemplate_h;
-        case 0x7a3e121c:  numBytes = 4396; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
+        case 0x1d379af4:  numBytes = 3190; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
+        case 0x9bde39f9:  numBytes = 3550; return openEphys_ProcessorVisualizerCanvasTemplate_h;
+        case 0x7a3e121c:  numBytes = 4455; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
         case 0x92e85b21:  numBytes = 3429; return openEphys_ProcessorVisualizerEditorPluginTemplate_h;
         case 0x7e820c56:  numBytes = 2169; return openEphys_RecordEnginePluginTemplate_cpp;
         case 0x36799bdb:  numBytes = 2052; return openEphys_RecordEnginePluginTemplate_h;
