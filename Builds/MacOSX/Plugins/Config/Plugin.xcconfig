@@ -3,7 +3,7 @@ JULIA_PATH = /Applications/Julia-0.5.app/Contents/Resources/julia
 MAC_PACKAGE_DIR = /opt/local
 
 // Pull in machine-specific settings from git-ignored file, if it exists.
-#include? "Env.xcconfig"
+#include "Env.xcconfig"
 
 ALWAYS_SEARCH_USER_PATHS = NO
 CLANG_ANALYZER_NONNULL = YES
