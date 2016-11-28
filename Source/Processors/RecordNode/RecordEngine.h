@@ -1,25 +1,25 @@
 /*
- ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
- This file is part of the Open Ephys GUI
- Copyright (C) 2014 Florian Franzen
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2014 Open Ephys
 
- ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- */
+*/
 
 #ifndef RECORDENGINE_H_INCLUDED
 #define RECORDENGINE_H_INCLUDED
@@ -59,23 +59,31 @@ class PLUGIN_API RecordEngine
 public:
     RecordEngine();
     virtual ~RecordEngine();
-    virtual String getEngineID() =0;
+    virtual String getEngineID() const =0;
 
-    /** All the public methods (except registerManager) are called by RecordNode:
+    /** All the public methods (except registerManager) are called by RecordNode or RecordingThread:
     When acquisition starts (in the specified order):
     	1-resetChannels
     	2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
     	3-configureEngine (which calls setParameter)
     	3-startAcquisition
-    During acquisition:
-    	updateTimeStamps
     When recording starts (in the specified order):
     	1-directoryChanged (if needed)
-    	2-openFiles
-    During recording:
-    	writeData, writeEvent, writeSpike
+		2-(setChannelMapping)
+		3-(updateTimestamps*)
+    	4-openFiles*
+    During recording: (RecordThread loop)
+    	1-(updateTimestamps*) (can be called in a per-channel basis when the circular buffer wraps)
+		2-startChannelBlock*
+		3-writeData* (per channel. Can be called more than once to account for the circular buffer wrap)
+		4-endChannelBlock*
+		4-writeEvent* (if needed)
+		5-writeSpike* (if needed)
     When recording stops:
-    	closeFiles
+    	closeFiles*
+
+		Methods marked with a * are called via the RecordThread thread.
+		Methods marked with parenthesis are not overloaded methods
     */
 
     /** Called for registering parameters
@@ -91,25 +99,31 @@ public:
     */
     virtual void closeFiles() = 0;
 
-    /** Write continuous data.
-    	This method gets the full data buffer, it must query getRecordState for
-    	each registered channel to determine which channels to actually write to disk.
-        The number of samples to write will be found in the numSamples object.
+	/** Called by the record thread before it starts writing the channels to disk
+	*/
+	virtual void startChannelBlock(bool lastBlock);
+
+    /** Write continuous data for a channel. The raw buffer pointer is passed for speed, 
+		care must be taken to only read the specified number of bytes.
     */
-    virtual void writeData(AudioSampleBuffer& buffer) = 0;
+    virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
+
+	/** Called by the record thread after it has written a channel block
+	*/
+	virtual void endChannelBlock(bool lastBlock);
 
     /** Write a single event to disk.
     */
-    virtual void writeEvent(int eventType, MidiMessage& event, int samplePosition) = 0;
+    virtual void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) = 0;
 
     /** Called when acquisition starts once for each processor that might record continuous data
     */
-    virtual void registerProcessor(GenericProcessor* processor);
+    virtual void registerProcessor(const GenericProcessor* processor);
 
     /** Called after registerProcessor, once for each output
     	channel of the processor
     */
-    virtual void addChannel(int index, Channel* chan) = 0;
+    virtual void addChannel(int index, const Channel* chan);
 
     /** Called when acquisition starts once for each processor that might record spikes
     */
@@ -117,23 +131,25 @@ public:
 
     /** Called after registerSpikesource, once for each channel group
     */
-    virtual void addSpikeElectrode(int index, SpikeRecordInfo* elec) = 0;
+    virtual void addSpikeElectrode(int index, const SpikeRecordInfo* elec) = 0;
 
     /** Write a spike to disk
     */
-    virtual void writeSpike(const SpikeObject& spike, int electrodeIndex) = 0;
+    virtual void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) = 0;
 
     /** Called when a new acquisition starts, to clean all channel data
     	before registering the processors
     */
     virtual void resetChannels();
 
-    /** Called every time a new timestamp event is received
+    /** Called at the start of every write block
     */
-    void updateTimestamps(std::map<uint8, int64>* timestamps);
+    void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
 
-    /** Called every time a new numSamples event is received */
-    void updateNumSamples(std::map<uint8, int>* numSamples);
+	/** Called prior to opening files, to set the map between recorded
+		channels and actual channel numbers
+	*/
+	void setChannelMapping(const Array<int>& channels);
 
     /** Called after all channels and spike groups have been registered,
     	just before acquisition starts
@@ -157,20 +173,31 @@ protected:
 
     /** Gets the specified channel from the channel array stored in RecordNode
     */
-    Channel* getChannel(int index);
+    Channel* getChannel(int index) const;
 
     /** Gets the specified channel group info structure from the array stored in RecordNode
     */
-    SpikeRecordInfo* getSpikeElectrode(int index);
+    SpikeRecordInfo* getSpikeElectrode(int index) const;
 
     /** Generate a Matlab-compatible datestring
     */
-    String generateDateString();
+    String generateDateString() const;
 
-    std::map<uint8, int>* numSamples;
-    std::map<uint8, int64>* timestamps;
+	/** Gets the current block's first timestamp for a given channel
+	*/
+	int64 getTimestamp(int channel) const;
+
+	/** Gets the actual channel number from a recorded channel index
+	*/
+	int getRealChannel(int channel) const;
+
+	/** Gets the number of recorded channels
+	*/
+	int getNumRecordedChannels() const;
 
 private:
+	Array<int64> timestamps;
+	Array<int> channelMap;
     RecordEngineManager* manager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);

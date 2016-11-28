@@ -8,6 +8,9 @@
     <Filter Include="open-ephys\Resources">
       <UniqueIdentifier>{4FB3688D-1CC4-C459-F92E-F1764A198374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Resources\Icons">
+      <UniqueIdentifier>{675098C0-65B1-49FA-E68F-4DFD81A91FE3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Resources\Fonts">
       <UniqueIdentifier>{1DC91498-AFB8-F53B-37B4-DA354ACC7637}</UniqueIdentifier>
     </Filter>
@@ -97,6 +100,12 @@
     </Filter>
     <Filter Include="open-ephys\Source\UI">
       <UniqueIdentifier>{717A0FE3-E079-E4BD-8F50-15A1953825C5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\UI\Utils">
+      <UniqueIdentifier>{DC42A3E4-435B-C857-DF58-C5BB3E866E6B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="open-ephys\Source\UI\LookAndFeel">
+      <UniqueIdentifier>{82473DF0-9747-E952-2C6D-DAC4DD6B3807}</UniqueIdentifier>
     </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
@@ -415,6 +424,9 @@
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp">
+      <Filter>open-ephys\Source\Processors\Dsp</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>
     </ClCompile>
@@ -559,6 +571,12 @@
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.cpp">
       <Filter>open-ephys\Source\Processors\ProcessorGraph</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\DataQueue.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordThread.cpp">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClCompile>
@@ -595,6 +613,24 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\UI\Utils\TiledButtonGroupManager.cpp">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.cpp">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
@@ -611,9 +647,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\ProcessorList.cpp">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp">
       <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\InfoLabel.cpp">
@@ -1881,6 +1914,9 @@
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h">
       <Filter>open-ephys\Source\Processors\PlaceholderProcessor</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h">
+      <Filter>open-ephys\Source\Processors\Dsp</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h">
       <Filter>open-ephys\Source\Processors\Dsp</Filter>
     </ClInclude>
@@ -2049,6 +2085,15 @@
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.h">
       <Filter>open-ephys\Source\Processors\ProcessorGraph</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\DataQueue.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\EventQueue.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordThread.h">
+      <Filter>open-ephys\Source\Processors\RecordNode</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.h">
       <Filter>open-ephys\Source\Processors\RecordNode</Filter>
     </ClInclude>
@@ -2085,6 +2130,24 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\UI\Utils\TiledButtonGroupManager.h">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\Utils\LinearButtonGroupManager.h">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h">
+      <Filter>open-ephys\Source\UI\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.h">
+      <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
@@ -2101,9 +2164,6 @@
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\ProcessorList.h">
-      <Filter>open-ephys\Source\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h">
       <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\InfoLabel.h">
@@ -3476,6 +3536,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\Icons\icon-large.png">
+      <Filter>open-ephys\Resources\Icons</Filter>
+    </None>
+    <None Include="..\..\Resources\Icons\icon-small.png">
+      <Filter>open-ephys\Resources\Icons</Filter>
+    </None>
     <None Include="..\..\Resources\Fonts\cpmono-black-serialized">
       <Filter>open-ephys\Resources\Fonts</Filter>
     </None>
@@ -3709,6 +3775,9 @@
     </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_video\juce_module_info">
       <Filter>Juce Modules\juce_video</Filter>
+    </None>
+    <None Include=".\icon.ico">
+      <Filter>Juce Library Code</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

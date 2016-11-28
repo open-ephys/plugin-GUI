@@ -30,7 +30,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/RecordNode/RecordNode.h"
 #include "../Processors/RecordNode/RecordEngine.h"
-#include "CustomLookAndFeel.h"
+#include "LookAndFeel/CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include <queue>
@@ -357,13 +357,17 @@ public:
     StringArray getRecentlyUsedFilenames();
 
     /** Sets the list of recently used directories for saving data. */
-    void setRecentlyUsedFilenames(const StringArray& filenames);
+    void setRecentlyUsedFilenames (const StringArray& filenames);
 
     /** Adds the RecordNode as a listener of the FilenameComponent
     (so it knows when the data directory has changed).*/
     void updateChildComponents();
 
-	void updateRecordEngineList();
+    void updateRecordEngineList();
+
+	String getSelectedRecordEngineId();
+
+	bool setSelectedRecordEngineId(String id);
 
     ScopedPointer<RecordButton> recordButton;
 private:

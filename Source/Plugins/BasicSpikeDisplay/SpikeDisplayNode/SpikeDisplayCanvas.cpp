@@ -347,7 +347,8 @@ void SpikeDisplay::resized()
         int tetrodePlotIndex = -1;
         int index = -1;
 
-        float width, height;
+        float width = 0;
+        float height = 0;
 
 
         float maxHeight = 0;
@@ -648,11 +649,13 @@ void SpikePlot::resized()
     float width = getWidth()-10;
     float height = getHeight()-25;
 
-    float axesWidth, axesHeight;
+    float axesWidth = 0;
+    float axesHeight = 0;
 
     // to compute the axes positions we need to know how many columns of proj and wave axes should exist
     // using these two values we can calculate the positions of all of the sub axes
-    int nProjCols, nWaveCols;
+    int nProjCols = 0;
+    int nWaveCols = 0;
 
     switch (plotType)
     {

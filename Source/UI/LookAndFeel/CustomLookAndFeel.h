@@ -24,7 +24,7 @@
 #ifndef __CUSTOMLOOKANDFEEL_H_6B021009__
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
 /**
 

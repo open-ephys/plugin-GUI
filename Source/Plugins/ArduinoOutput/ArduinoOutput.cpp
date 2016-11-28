@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 ArduinoOutput::ArduinoOutput()
-	: GenericProcessor("Arduino Output"), outputChannel(13), inputChannel(-1), state(true), deviceSelected(false), acquisitionIsActive(false)
+	: GenericProcessor("Arduino Output"), outputChannel(13), inputChannel(-1), state(true), acquisitionIsActive(false), deviceSelected(false)
 {
 }
 

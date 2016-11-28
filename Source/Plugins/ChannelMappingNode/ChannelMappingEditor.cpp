@@ -400,7 +400,10 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
             if (ModifierKeys::getCurrentModifiers().isShiftDown() && (previousClickedChan >= 0))
             {
-                int toChanA,toChanD,fromChanA,fromChanD;
+                int toChanA = 0;
+                int toChanD = 0;
+                int fromChanA = 0;
+                int fromChanD = 0;
 
                 if (previousShiftClickedChan < 0)
                 {
@@ -550,7 +553,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
         if (!acquisitionIsActive)
         {
             FileChooser fc("Choose the file name...",
-                               File::getCurrentWorkingDirectory(),
+                               CoreServices::getDefaultUserSaveDirectory(),
                                "*",
                                true);
 
@@ -573,7 +576,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
         if (!acquisitionIsActive)
         {
             FileChooser fc("Choose a file to load...",
-                               File::getCurrentWorkingDirectory(),
+                               CoreServices::getDefaultUserSaveDirectory(),
                                "*",
                                true);
 
@@ -609,14 +612,14 @@ void ChannelMappingEditor::setChannelReference(ElectrodeButton* button)
 
 }
 
-void ChannelMappingEditor::channelChanged(int chan)
+void ChannelMappingEditor::channelChanged (int channel, bool /*newState*/)
 {
-    if (!reorderActive)
+    if (! reorderActive)
     {
-        setConfigured(true);
-        getProcessor()->setCurrentChannel(chan-1);
-        getProcessor()->setParameter(2,selectedReference);
-        referenceChannels.set(selectedReference,chan-1);
+        setConfigured (true);
+        getProcessor()->setCurrentChannel (channel - 1);
+        getProcessor()->setParameter (2, selectedReference);
+        referenceChannels.set (selectedReference, channel - 1);
     }
 }
 

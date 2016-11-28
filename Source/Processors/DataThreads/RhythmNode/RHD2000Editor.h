@@ -176,7 +176,7 @@ public:
     void startAcquisition();
     void stopAcquisition();
 
-    void channelChanged(int chan);
+    void channelChanged (int channel, bool newState) override;
 
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);

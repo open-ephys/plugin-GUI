@@ -85,7 +85,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.0;JUCE_APP_VERSION_HEX=0x400;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -131,7 +131,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.0;JUCE_APP_VERSION_HEX=0x400;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -179,7 +179,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.0;JUCE_APP_VERSION_HEX=0x400;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.0;JUCE_APP_VERSION_HEX=0x400;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -265,6 +265,7 @@
     <ClCompile Include="..\..\Source\Audio\AudioComponent.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Bessel.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Biquad.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Dsp\Butterworth.cpp"/>
@@ -313,6 +314,8 @@
     <ClCompile Include="..\..\Source\Processors\Parameter\ParameterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Parameter\Parameter.cpp"/>
     <ClCompile Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\DataQueue.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\RecordNode\RecordThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\OriginalRecording.cpp"/>
     <ClCompile Include="..\..\Source\Processors\RecordNode\RecordEngine.cpp"/>
@@ -325,13 +328,18 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp"/>
+    <ClCompile Include="..\..\Source\UI\Utils\TiledButtonGroupManager.cpp"/>
+    <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp"/>
+    <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp"/>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp"/>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp"/>
+    <ClCompile Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
     <ClCompile Include="..\..\Source\UI\SignalChainManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewport.cpp"/>
     <ClCompile Include="..\..\Source\UI\ProcessorList.cpp"/>
-    <ClCompile Include="..\..\Source\UI\CustomLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\InfoLabel.cpp"/>
     <ClCompile Include="..\..\Source\UI\DataViewport.cpp"/>
     <ClCompile Include="..\..\Source\UI\ControlPanel.cpp"/>
@@ -1468,6 +1476,7 @@
     <ClInclude Include="..\..\Source\Audio\AudioComponent.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessorEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\PlaceholderProcessor\PlaceholderProcessor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Dsp\LinearSmoothedValueAtomic.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Bessel.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Biquad.h"/>
     <ClInclude Include="..\..\Source\Processors\Dsp\Butterworth.h"/>
@@ -1524,6 +1533,9 @@
     <ClInclude Include="..\..\Source\Processors\Parameter\ParameterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Parameter\Parameter.h"/>
     <ClInclude Include="..\..\Source\Processors\ProcessorGraph\ProcessorGraph.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\DataQueue.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\EventQueue.h"/>
+    <ClInclude Include="..\..\Source\Processors\RecordNode\RecordThread.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\EngineConfigWindow.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\OriginalRecording.h"/>
     <ClInclude Include="..\..\Source\Processors\RecordNode\RecordEngine.h"/>
@@ -1536,13 +1548,18 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h"/>
+    <ClInclude Include="..\..\Source\UI\Utils\TiledButtonGroupManager.h"/>
+    <ClInclude Include="..\..\Source\UI\Utils\LinearButtonGroupManager.h"/>
+    <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h"/>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h"/>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h"/>
+    <ClInclude Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
     <ClInclude Include="..\..\Source\UI\SignalChainManager.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewport.h"/>
     <ClInclude Include="..\..\Source\UI\ProcessorList.h"/>
-    <ClInclude Include="..\..\Source\UI\CustomLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\InfoLabel.h"/>
     <ClInclude Include="..\..\Source\UI\DataViewport.h"/>
     <ClInclude Include="..\..\Source\UI\ControlPanel.h"/>
@@ -2001,6 +2018,8 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\Icons\icon-large.png"/>
+    <None Include="..\..\Resources\Icons\icon-small.png"/>
     <None Include="..\..\Resources\Fonts\cpmono-black-serialized"/>
     <None Include="..\..\Resources\Fonts\cpmono-bold-serialized"/>
     <None Include="..\..\Resources\Fonts\cpmono-extralight-serialized"/>
@@ -2079,6 +2098,7 @@
     <None Include="..\..\JuceLibraryCode\modules\juce_gui_extra\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_opengl\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_video\juce_module_info"/>
+    <None Include=".\icon.ico"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\resources.rc"/>

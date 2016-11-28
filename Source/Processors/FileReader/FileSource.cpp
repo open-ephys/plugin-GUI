@@ -23,92 +23,113 @@
 
 #include "FileSource.h"
 
-FileSource::FileSource() : fileOpened(false), numRecords(0), activeRecord(-1)
+
+FileSource::FileSource() 
+    : fileOpened    (false)
+    , numRecords    (0)
+    , activeRecord  (-1)
+    , filename      ("")
 {
 }
+
 
 FileSource::~FileSource()
 {
 }
 
-int FileSource::getNumRecords()
+
+int FileSource::getNumRecords() const
 {
     return numRecords;
 }
 
-String FileSource::getRecordName(int index)
+
+String FileSource::getRecordName (int index) const
 {
     return infoArray[index].name;
 }
 
-int FileSource::getRecordNumChannels(int index)
+
+int FileSource::getRecordNumChannels (int index) const
 {
     return infoArray[index].channels.size();
 }
 
-int FileSource::getActiveNumChannels()
+
+int FileSource::getActiveNumChannels() const
 {
-    return getRecordNumChannels(activeRecord);
+    return getRecordNumChannels (activeRecord);
 }
 
-float FileSource::getRecordSampleRate(int index)
+
+float FileSource::getRecordSampleRate (int index) const
 {
     return infoArray[index].sampleRate;
 }
 
-float FileSource::getActiveSampleRate()
+
+float FileSource::getActiveSampleRate() const
 {
-    return getRecordSampleRate(activeRecord);
+    return getRecordSampleRate (activeRecord);
 }
 
-int64 FileSource::getRecordNumSamples(int index)
+
+int64 FileSource::getRecordNumSamples (int index) const
 {
     return infoArray[index].numSamples;
 }
 
-int64 FileSource::getActiveNumSamples()
+
+int64 FileSource::getActiveNumSamples() const
 {
-    return getRecordNumSamples(activeRecord);
+    return getRecordNumSamples (activeRecord);
 }
 
-int FileSource::getActiveRecord()
+
+int FileSource::getActiveRecord() const
 {
     return activeRecord;
 }
 
-RecordedChannelInfo FileSource::getChannelInfo(int recordIndex, int channel)
+
+RecordedChannelInfo FileSource::getChannelInfo (int recordIndex, int channel) const
 {
     return infoArray[recordIndex].channels[channel];
 }
 
-RecordedChannelInfo FileSource::getChannelInfo(int channel)
+
+RecordedChannelInfo FileSource::getChannelInfo (int channel) const
 {
-    return getChannelInfo(activeRecord, channel);
+    return getChannelInfo (activeRecord, channel);
 }
 
 
-void FileSource::setActiveRecord(int index)
+void FileSource::setActiveRecord (int index)
 {
     activeRecord = index;
     updateActiveRecord();
 }
 
-bool FileSource::fileIsOpened()
+
+bool FileSource::isFileOpened() const
 {
     return fileOpened;
 }
 
-String FileSource::getFileName()
+
+String FileSource::getFileName() const
 {
     return filename;
 }
 
-bool FileSource::OpenFile(File file)
+
+bool FileSource::OpenFile (File file)
 {
-    if (Open(file))
+    if (Open (file))
     {
         fileOpened = true;
         fillRecordInfo();
+
         filename = file.getFullPathName();
     }
     else
@@ -116,5 +137,11 @@ bool FileSource::OpenFile(File file)
         fileOpened = false;
         filename = String::empty;
     }
+
     return fileOpened;
+}
+
+bool FileSource::isReady()
+{
+	return true;
 }

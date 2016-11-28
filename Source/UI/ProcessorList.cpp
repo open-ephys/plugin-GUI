@@ -650,7 +650,7 @@ void ProcessorList::fillItemList()
 // ===================================================================
 
 	ProcessorListItem::ProcessorListItem(const String& name_, int pid, int ptype)
-		: selected(false), open(true), name(name_), processorId(pid), processorType(ptype)
+		: processorId(pid), processorType(ptype), selected(false), open(true), name(name_)
 {
 }
 

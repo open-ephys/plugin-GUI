@@ -58,7 +58,7 @@ public:
     void comboBoxChanged(ComboBox* comboBox);
     void sliderEvent(Slider* slider);
 
-    void channelChanged(int chan);
+    void channelChanged (int channel, bool newState) override;
 
     bool addElectrode(int nChans, int electrodeID = 0);
     void removeElectrode(int index);

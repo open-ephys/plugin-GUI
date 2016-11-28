@@ -22,14 +22,14 @@
 */
 #include <H5Cpp.h>
 #include "KwikFileSource.h"
-
+#include <CoreServicesHeader.h>
 
 
 using namespace H5;
 
 #define PROCESS_ERROR std::cerr << "KwikFilesource exception: " << error.getCDetailMsg() << std::endl
 
-KWIKFileSource::KWIKFileSource() : samplePos(0)
+KWIKFileSource::KWIKFileSource() : samplePos(0), skipRecordEngineCheck(false)
 {
 }
 
@@ -247,4 +247,32 @@ void KWIKFileSource::processChannelData(int16* inBuffer, float* outBuffer, int c
         *(outBuffer+i) = *(inBuffer+(n*i)+channel) * bitVolts;
     }
 
+}
+
+bool KWIKFileSource::isReady()
+{
+	//HDF5 is by default not thread-safe, so we must warn the user.
+	if ((!skipRecordEngineCheck) && (CoreServices::getSelectedRecordEngineId() == "KWIK"))
+	{
+		int res = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Record format conflict",
+			"Both the selected input file for the File Reader and the output file format for recording use the HDF5 library.\n"
+			"This library is, by default, not thread safe, so running both at the same time might cause unexpected crashes (chances increase with signal complexity and number of recorded channels).\n\n"
+			"If you have a custom-built hdf5 library with the thread safe features turned on, you can safely continue, but performance will be reduced.\n"
+			"More information on:\n"
+			"https://www.hdfgroup.org/HDF5/doc/TechNotes/ThreadSafeLibrary.html\n"
+			"https://www.hdfgroup.org/hdf5-quest.html\n\n"
+			"Do you want to continue acquisition?", "Yes", "Yes and don't ask again", "No");
+		switch (res)
+		{
+		case 2:
+			skipRecordEngineCheck = true;
+		case 1:
+			return true;
+			break;
+		default:
+			return false;
+		}
+	}
+	else
+		return true;
 }

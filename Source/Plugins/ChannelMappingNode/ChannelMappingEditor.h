@@ -55,7 +55,7 @@ public:
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
 
-    void channelChanged(int chan);
+    void channelChanged (int channel, bool newState) override;
 
     void mouseDrag(const MouseEvent& e);
 

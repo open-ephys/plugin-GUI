@@ -80,7 +80,7 @@ private:
 
     Parameter* parameter;
     GenericProcessor* processor;
-    ChannelSelector* channelSelector;
+    ScopedPointer<ChannelSelector> channelSelector;
 
     enum
     {
