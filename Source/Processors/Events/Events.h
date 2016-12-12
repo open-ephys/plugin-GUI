@@ -36,7 +36,8 @@ EventType - 1byte
 SubType - 1byte
 Source processor ID - 2bytes
 Source Subprocessor index - 2 bytes
-Source Channel index (except system events)
+Source Event index - 2 bytes (except system events)
+Event Virtual Channel - 2 byte
 Timestamp - 8 bytes (except for system events that are not timestamp)
 data - variable
 */
@@ -59,7 +60,7 @@ class PLUGIN_API EventBase
 	: public MetaDataEvent
 {
 public: 
-	virtual void Serialize(void* dstBuffer, size_t dstSize) const = 0;
+	virtual void serialize(void* dstBuffer, size_t dstSize) const = 0;
 	EventType getBaseType() const;
 
 	static EventType getBaseType(const MidiMessage& msg);
@@ -78,17 +79,21 @@ class PLUGIN_API Event
 	: public EventBase
 {
 public:
-	virtual void Serialize(void* dstBuffer, size_t dstSize) const override = 0;
+	virtual void serialize(void* dstBuffer, size_t dstSize) const override = 0;
 	EventChannel::EventChannelTypes getEventType() const;
 	const EventChannel* getChannelInfo() const;
+
+	/** Gets the channel that triggered the event */
+	uint16 getChannel() const;
 
 	static EventChannel::EventChannelTypes getEventType(const MidiMessage& msg);
 	static Event* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 
 protected:
-	Event(const EventChannel* channelInfo, uint64 timestamp);
+	Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel);
 	Event() = delete;
 
+	const uint16 m_channel;
 	const EventChannel* m_channelInfo;
 	const EventChannel::EventChannelTypes m_eventType;
 
@@ -98,64 +103,61 @@ class PLUGIN_API TTLEvent
 	: public Event
 {
 public:
-	void Serialize(void* dstBuffer, size_t dstSize) const override;
+	void serialize(void* dstBuffer, size_t dstSize) const override;
 
-	/** Gets the channel that triggered the event */
-	unsigned int getChannel() const;
 	/** Gets the state true ='1' false = '0'*/
 	bool getState() const;
 	
 	const void* getTTLWordPointer() const;
 
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel,const void* eventData);
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel, const void* eventData, const MetaDataValueArray& metaData);
+	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, uint16 channel);
+	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, const MetaDataValueArray& metaData, uint16 channel);
 	static TTLEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TTLEvent() = delete;
-	TTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel, const void* eventData);
+	TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* eventData);
 
-	const unsigned int m_channel;
 	HeapBlock<char> m_data;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TTLEvent);
 };
 
-class PLUGIN_API MessageEvent
+class PLUGIN_API TextEvent
 	: public Event
 {
 public:
-	void Serialize(void* dstBuffer, size_t dstSize) const override;
-	String getMessage() const;
+	void serialize(void* dstBuffer, size_t dstSize) const override;
+	String getText() const;
 
-	static MessageEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg);
-	static MessageEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg, const MetaDataValueArray& metaData);
-	static MessageEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
+	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg, uint16 channel = 1);
+	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg, const MetaDataValueArray& metaData, uint16 channel = 1);
+	static TextEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
-	MessageEvent() = delete;
-	MessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg);
+	TextEvent() = delete;
+	TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& msg);
 
 	const String m_msg;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageEvent);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TextEvent);
 };
 
 class PLUGIN_API BinaryEvent
 	: public Event
 {
 public:
-	void Serialize(void* dstBuffer, size_t dstSize) const override;
+	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const void* getBinaryDataPointer() const;
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data);
+	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, uint16 channel = 1);
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, const MetaDataValueArray& metaData);
+	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, const MetaDataValueArray& metaData, uint16 channel = 1);
 
 	static BinaryEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 	
 private:
 	BinaryEvent() = delete;
-	BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const void* data);
+	BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* data);
 
 	HeapBlock<char> m_data;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BinaryEvent);
@@ -179,7 +181,7 @@ public:
 		Array<unsigned int> positions; 
 
 	};
-	void Serialize(void* dstBuffer, size_t dstSize) const override;
+	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const float* getDataPointer() const;
 

@@ -119,7 +119,7 @@ MetaDataValue::MetaDataValue(const MetaDataDescriptor& m)
 
 bool MetaDataValue::isOfType(const MetaDataDescriptor& m) const
 {
-	return ((m.getType() == m_type) && (m.getLength == m_length));
+	return ((m.getType() == m_type) && (m.getLength() == m_length));
 }
 
 bool MetaDataValue::isOfType(const MetaDataDescriptor* m) const
@@ -171,6 +171,7 @@ MetaDataValue& MetaDataValue::operator=(MetaDataValue&& v)
 	m_length = v.m_length;
 	m_type = v.m_type;
 	m_data.swapWith(v.m_data);
+	return *this;
 }
 #endif
 
@@ -193,16 +194,16 @@ void MetaDataValue::getValue(String& data) const
 template <typename T>
 void MetaDataValue::setValue(T data)
 {
-	jassert(m_numel == 1);
+	jassert(m_length == 1);
 	jassert(checkMetaDataType<T>(m_type));
-	*(static_cast<T*>(m_data.getData())) = data;
+	*(reinterpret_cast<T*>(m_data.getData())) = data;
 }
 
 template <typename T>
 void MetaDataValue::getValue(T& data) const
 {
 	jassert(checkMetaDataType<T>(m_type));
-	data = *(static_cast<T*>(m_data.getData()));
+	data = *(reinterpret_cast<T*>(m_data.getData()));
 }
 
 template <typename T>
@@ -230,7 +231,7 @@ template <typename T>
 void MetaDataValue::getValue(Array<T>& data) const
 {
 	jassert(checkMetaDataType<T>(m_type));
-	data.addArray(m_data.getData(), m_numel);
+	data.addArray(m_data.getData(), m_length);
 }
 
 //Actual template instantiations at the end of the file
@@ -288,7 +289,7 @@ const int MetaDataEventObject::getEventMetaDataCount() const
 }
 
 //MetaDataEvent
-void MetaDataEvent::SerializeMetaData(void* dstBuffer) const
+void MetaDataEvent::serializeMetaData(void* dstBuffer) const
 {
 	int metaDataSize = m_metaDataValues.size();
 	char* buffer = static_cast<char*>(dstBuffer);
@@ -296,10 +297,28 @@ void MetaDataEvent::SerializeMetaData(void* dstBuffer) const
 
 	for (int i = 0; i < metaDataSize; i++)
 	{
-		MetaDataValue* val = m_metaDataValues[i];
+		MetaDataValuePtr val = m_metaDataValues[i];
 		memcpy(buffer + ptrIndex, val->m_data.getData(), val->m_size);
 		ptrIndex += val->m_size;
 	}
+}
+
+bool MetaDataEvent::deserializeMetaData(const MetaDataEventObject* info, const void* srcBuffer, int size)
+{
+	MetaDataValueArray metaData;
+	int nMetaData = info->getEventMetaDataCount();
+	size_t memIndex = 0;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		const MetaDataDescriptor* desc = info->getEventMetaDataDescriptor(i);
+		size_t dataSize = desc->getDataSize();
+		if ((memIndex + dataSize) < size) return false; //check for buffer boundaries
+		
+		metaData.add(new MetaDataValue(*desc, (static_cast<const char*>(srcBuffer) + memIndex)));
+		memIndex += dataSize;
+	}
+	m_metaDataValues.swapWith(metaData);
+	return true;
 }
 
 //Specific instantiations for templated metadata members.
@@ -370,7 +389,7 @@ template void MetaDataValue::setValue<float>(const Array<float>&);
 template void MetaDataValue::setValue<double>(const Array<double>&);
 
 template void MetaDataValue::getValue<char>(Array<char>&) const;
-template void MetaDataValue::getValue<int8>(Array<int8>&) const;
+/*template void MetaDataValue::getValue<int8>(Array<int8>&) const;
 template void MetaDataValue::getValue<uint8>(Array<uint8>&) const;
 template void MetaDataValue::getValue<int16>(Array<int16>&) const;
 template void MetaDataValue::getValue<uint16>(Array<uint16>&) const;
@@ -380,3 +399,4 @@ template void MetaDataValue::getValue<int64>(Array<int64>&) const;
 template void MetaDataValue::getValue<uint64>(Array<uint64>&) const;
 template void MetaDataValue::getValue<float>(Array<float>&) const;
 template void MetaDataValue::getValue<double>(Array<double>&) const;
+*/

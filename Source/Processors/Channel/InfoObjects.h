@@ -239,7 +239,7 @@ public:
 	{
 		//Numeration kept to maintain compatibility with old code
 		TTL = 3,
-		MESSAGE = 5,
+		TEXT = 5,
 		//generic binary types. These will be treated by the majority of record engines as simple binary blobs,
 		//while having strict typing helps creating stabler plugins
 		INT8_ARRAY = 10,
@@ -255,7 +255,7 @@ public:
 	};
 
 	/** Default constructor
-	@param type The type of event this channel represents (TTL, MESSAGE, BYINARY_MSG)
+	@param type The type of event this channel represents (TTL, TEXT, BYINARY_MSG)
 	@param idx The index of this event channel in the source processor
 	@param typeidx The index of this particular type of event channel in the source processor
 	@param source A pointer to the source processor

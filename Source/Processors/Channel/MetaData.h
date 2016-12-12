@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef METADATA_H_INCLUDED
 #define METADATA_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
 
 class GenericProcessor;
@@ -141,6 +141,8 @@ private:
 
 typedef ReferenceCountedArray<MetaDataDescriptor> MetaDataDescriptorArray;
 typedef ReferenceCountedArray<MetaDataValue> MetaDataValueArray;
+typedef ReferenceCountedObjectPtr<MetaDataDescriptor> MetaDataDescriptorPtr;
+typedef ReferenceCountedObjectPtr<MetaDataValue> MetaDataValuePtr;
 
 //Inherited for all info objects that have metadata
 class PLUGIN_API MetaDataInfoObject
@@ -188,10 +190,10 @@ protected:
 class PLUGIN_API MetaDataEvent
 {
 protected:
-	void SerializeMetaData(void* dstBuffer) const;
+	void serializeMetaData(void* dstBuffer) const;
+	bool deserializeMetaData(const MetaDataEventObject* info, const void* srcBuffer, int size);
 	MetaDataEvent();
 	MetaDataValueArray m_metaDataValues;
-
 };
 
 

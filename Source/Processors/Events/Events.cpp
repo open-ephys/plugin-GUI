@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Events.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#define EVENT_EXTRA_SIZE 16
+#define EVENT_BASE_SIZE 18
 
 //EventBase
 
@@ -99,38 +99,39 @@ EventChannel::EventChannelTypes Event::getEventType(const MidiMessage& msg)
 	return static_cast<EventChannel::EventChannelTypes>(*(data + 1));
 }
 
-Event::Event(const EventChannel* channelInfo, uint64 timestamp)
+Event::Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel)
 	: EventBase(PROCESSOR_EVENT, timestamp),
+	m_channel(channel),
 	m_channelInfo(channelInfo),
 	m_eventType(channelInfo->getChannelType())
 {}
 
 Event* Event::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
-	EventChannel::EventChannelTypes type = channelInfo->getChannelType());
+	EventChannel::EventChannelTypes type = channelInfo->getChannelType();
 	
 	if (type == EventChannel::TTL)
 		return TTLEvent::deserializeFromMessage(msg, channelInfo);
-	else if (type == EventChannel::MESSAGE)
-		return MessageEvent::deserializeFromMessage(msg, channelInfo);
+	else if (type == EventChannel::TEXT)
+		return TextEvent::deserializeFromMessage(msg, channelInfo);
 	else if (type >= EventChannel::INT8_ARRAY && type <= EventChannel::DOUBLE_ARRAY)
 		return BinaryEvent::deserializeFromMessage(msg, channelInfo);
 	else return nullptr;
 }
 
+uint16 Event::getChannel() const
+{
+	return m_channel;
+}
+
 //TTLEvent
 
-TTLEvent::TTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel, const void* eventData)
-	: Event(channelInfo, timestamp), m_channel(channel)
+TTLEvent::TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* eventData)
+	: Event(channelInfo, timestamp, channel)
 {
 	size_t size = m_channelInfo->getDataSize();
 	m_data.malloc(size);
 	memcpy(m_data.getData(), eventData, size);
-}
-
-unsigned int TTLEvent::getChannel() const
-{
-	return m_channel;
 }
 
 bool TTLEvent::getState() const
@@ -147,10 +148,10 @@ const void* TTLEvent::getTTLWordPointer() const
 	return m_data.getData();
 }
 
-void TTLEvent::Serialize(void* dstBuffer, size_t dstSize) const
+void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 {
 	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + EVENT_EXTRA_SIZE; 
+	size_t eventSize = dataSize + EVENT_BASE_SIZE; 
 	size_t totalSize = eventSize + m_channelInfo->getTotalEventMetaDataSize();
 	if (totalSize < dstSize)
 	{
@@ -166,11 +167,12 @@ void TTLEvent::Serialize(void* dstBuffer, size_t dstSize) const
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
 	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
-	memcpy((buffer + 16), m_data.getData(), dataSize);
-	SerializeMetaData(buffer + eventSize);
+	*(reinterpret_cast<uint64*>(buffer + 16)) = m_channel;
+	memcpy((buffer + 18), m_data.getData(), dataSize);
+	serializeMetaData(buffer + eventSize);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel, const void* eventData)
+TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, uint16 channel)
 {
 
 	if (!channelInfo) return nullptr;
@@ -181,7 +183,7 @@ TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 times
 	return new TTLEvent(channelInfo, timestamp, channel, eventData);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, unsigned int channel, const void* eventData, const MetaDataValueArray& metaData)
+TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, const MetaDataValueArray& metaData, uint16 channel)
 {
 
 	if (!channelInfo) return nullptr;
@@ -198,8 +200,10 @@ TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 times
 TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
 	size_t totalSize = msg.getRawDataSize();
+	size_t dataSize = channelInfo->getDataSize();
+	size_t metaDataSize = channelInfo->getTotalEventMetaDataSize();
 
-	if (totalSize != (channelInfo->getDataSize() + EVENT_EXTRA_SIZE + channelInfo->getTotalEventMetaDataSize()))
+	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
 	{
 		return nullptr;
 	}
@@ -207,7 +211,24 @@ TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventCh
 	if ((buffer + 0) != PROCESSOR_EVENT) return nullptr;
 	if ((buffer + 1) != EventChannel::TTL) return nullptr;
 
-	
+	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
+	ScopedPointer<TTLEvent> ttl = new TTLEvent(channelInfo, timestamp, channel, (buffer + 16));
+	bool ret;
+	if (metaDataSize > 0)
+		 ret = ttl->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+
+	if (ret)
+		return ttl.release();
+	else
+		return nullptr;
+}
+
+//TextEvent
+
+TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& msg)
+	: Event(channelInfo, timestamp, channel)
+{
 
 }
