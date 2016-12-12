@@ -37,7 +37,7 @@ enum ChannelType
 //defines which events are writable to files
 #define isWritableEvent(ev) (((int)(ev) == GenericProcessor::TTL) || ((int)(ev) == GenericProcessor::MESSAGE) || ((int)(ev) == GenericProcessor::BINARY_MSG))
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "../Editors/GenericEditor.h"
 #include "../Parameter/Parameter.h"
 #include "../../CoreServices.h"
@@ -255,7 +255,7 @@ public:
     virtual float getDefaultBitVolts() const;
 
     /** Returns the bit volts for a given channel **/
-    virtual float getBitVolts (Channel* chan) const;
+    virtual float getBitVolts (DataChannel* chan) const;
 
     /** Returns the next available channel (and increments the channel if the input is set to 'true'. */
     virtual int getNextChannel (bool t);

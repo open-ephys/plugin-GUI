@@ -231,7 +231,7 @@ template <typename T>
 void MetaDataValue::getValue(Array<T>& data) const
 {
 	jassert(checkMetaDataType<T>(m_type));
-	data.addArray(m_data.getData(), m_length);
+	data.addArray(reinterpret_cast<const T*>(m_data.getData()), m_length);
 }
 
 //Actual template instantiations at the end of the file

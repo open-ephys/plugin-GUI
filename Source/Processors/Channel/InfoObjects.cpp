@@ -261,7 +261,7 @@ void EventChannel::setLength(unsigned int length)
 	m_length = length;
 	m_dataSize = length * getTypeByteSize(m_type);
 	//for messages, add 1 byte to account for the null terminator
-	if (m_type == MESSAGE) m_dataSize += 1;
+	if (m_type == TEXT) m_dataSize += 1;
 }
 
 unsigned int EventChannel::getLength() const

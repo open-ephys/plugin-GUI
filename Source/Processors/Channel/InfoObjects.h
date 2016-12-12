@@ -154,7 +154,6 @@ private:
 	const uint16 m_sourceIndex;
 	/** Index of this particular subtype in the source processor */
 	const uint16 m_sourceTypeIndex;
-
 	float m_sampleRate{ 44100.0f };
 };
 

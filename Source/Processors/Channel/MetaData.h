@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef METADATA_H_INCLUDED
 #define METADATA_H_INCLUDED
 
-#include <JuceHeader.h>
+#include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
 class GenericProcessor;

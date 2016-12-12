@@ -24,8 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EVENTS_H_INCLUDED
 #define EVENTS_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
+#include <JuceHeader.h>
 #include "../Channel/InfoObjects.h"
 
 class GenericProcessor;
@@ -92,6 +91,7 @@ public:
 protected:
 	Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel);
 	Event() = delete;
+	bool serializeHeader(EventChannel::EventChannelTypes type, char* buffer, size_t dstSize) const;
 
 	const uint16 m_channel;
 	const EventChannel* m_channelInfo;
@@ -133,9 +133,9 @@ public:
 	static TextEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TextEvent() = delete;
-	TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& msg);
+	TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& text);
 
-	const String m_msg;
+	const String m_text;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TextEvent);
 };
 

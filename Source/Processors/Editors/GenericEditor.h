@@ -245,10 +245,10 @@ public:
     Array<ParameterEditor*> parameterEditors;
 
     /** Returns the Channel object for a given continuous channel number. */
-    Channel* getChannel (int chan);
+    DataChannel* getChannel (int chan);
 
     /** Returns the Channel object for a given event channel number. */
-    Channel* getEventChannel (int chan);
+    EventChannel* getEventChannel (int chan);
 
     /** Stores the font used to display the editor's name. */
     Font titleFont;
