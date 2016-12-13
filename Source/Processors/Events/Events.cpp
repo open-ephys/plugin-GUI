@@ -328,7 +328,7 @@ TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 ti
 	return new TextEvent(channelInfo, timestamp, channel, text);
 }
 
-TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0)
+TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel)
 {
 	if (!createChecks(channelInfo, EventChannel::TEXT, channel, metaData))
 	{
@@ -447,7 +447,7 @@ void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const
 template<typename T>
 BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel)
 {
-	EventChannel::EventChannelTypes type = getChannel<T>();
+	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
 	{
 		jassertfalse;
@@ -472,7 +472,7 @@ BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uin
 template<typename T>
 BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
-	EventChannel::EventChannelTypes type = getChannel<T>();
+	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
 	{
 		jassertfalse;
@@ -751,3 +751,26 @@ SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const Spi
 		return nullptr;
 	}
 }
+
+//Template definitions
+template BinaryEvent* BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
+
+template BinaryEvent* BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
+template BinaryEvent* BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);
