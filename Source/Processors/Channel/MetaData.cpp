@@ -389,7 +389,7 @@ template void MetaDataValue::setValue<float>(const Array<float>&);
 template void MetaDataValue::setValue<double>(const Array<double>&);
 
 template void MetaDataValue::getValue<char>(Array<char>&) const;
-/*template void MetaDataValue::getValue<int8>(Array<int8>&) const;
+template void MetaDataValue::getValue<int8>(Array<int8>&) const;
 template void MetaDataValue::getValue<uint8>(Array<uint8>&) const;
 template void MetaDataValue::getValue<int16>(Array<int16>&) const;
 template void MetaDataValue::getValue<uint16>(Array<uint16>&) const;
@@ -399,4 +399,15 @@ template void MetaDataValue::getValue<int64>(Array<int64>&) const;
 template void MetaDataValue::getValue<uint64>(Array<uint64>&) const;
 template void MetaDataValue::getValue<float>(Array<float>&) const;
 template void MetaDataValue::getValue<double>(Array<double>&) const;
-*/
+
+template bool checkMetaDataType<char>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<int8>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<uint8>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<int16>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<uint16>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<int32>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<uint32>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<int64>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<uint64>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<float>(MetaDataDescriptor::MetaDataTypes);
+template bool checkMetaDataType<double>(MetaDataDescriptor::MetaDataTypes);

@@ -92,6 +92,8 @@ protected:
 	Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel);
 	Event() = delete;
 	bool serializeHeader(EventChannel::EventChannelTypes type, char* buffer, size_t dstSize) const;
+	static bool createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel);
+	static bool createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel, const MetaDataValueArray& metaData);
 
 	const uint16 m_channel;
 	const EventChannel* m_channelInfo;
@@ -110,8 +112,8 @@ public:
 	
 	const void* getTTLWordPointer() const;
 
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, uint16 channel);
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, const MetaDataValueArray& metaData, uint16 channel);
+	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel);
+	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel);
 	static TTLEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TTLEvent() = delete;
@@ -128,8 +130,8 @@ public:
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 	String getText() const;
 
-	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg, uint16 channel = 1);
-	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& msg, const MetaDataValueArray& metaData, uint16 channel = 1);
+	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
+	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
 	static TextEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TextEvent() = delete;
@@ -148,10 +150,10 @@ public:
 	const void* getBinaryDataPointer() const;
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, uint16 channel = 1);
+	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel = 0);
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, const MetaDataValueArray& metaData, uint16 channel = 1);
+	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel = 0);
 
 	static BinaryEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 	

@@ -145,6 +145,23 @@ bool Event::serializeHeader(EventChannel::EventChannelTypes type, char* buffer, 
 	return true;
 }
 
+bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel)
+{
+	if (!channelInfo) return false;
+	if (channelInfo->getChannelType() != EventChannel::TTL) return false;
+	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
+	if (channelInfo->getEventMetaDataCount() != 0) return false;
+	return true;
+}
+
+bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel, const MetaDataValueArray& metaData)
+{
+	if (!channelInfo) return false;
+	if (channelInfo->getChannelType() != EventChannel::TTL) return false;
+	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
+	if (!compareMetaData(channelInfo, metaData)) return nullptr;
+	return true;
+}
 
 //TTLEvent
 
@@ -182,29 +199,43 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, uint16 channel)
+TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel)
 {
 
-	if (!channelInfo) return nullptr;
-	if (channelInfo->getChannelType() != EventChannel::TTL) return nullptr;
-	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return nullptr;
-	if (channelInfo->getEventMetaDataCount() != 0) return nullptr;
+	if (!createChecks(channelInfo, EventChannel::TTL, channel))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	
+	if (dataSize < channelInfo->getDataSize()) 
+	{
+		jassertfalse;
+		return nullptr;
+	}
 	
 	return new TTLEvent(channelInfo, timestamp, channel, eventData);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, const MetaDataValueArray& metaData, uint16 channel)
+TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
 
-	if (!channelInfo) return nullptr;
-	if (channelInfo->getChannelType() != EventChannel::TTL) return nullptr;
-	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return nullptr;
-	if (!compareMetaData(channelInfo, metaData)) return nullptr;
+	if (!createChecks(channelInfo, EventChannel::TTL, channel, metaData))
+	{
+		jassertfalse;
+		return nullptr;
+	}
 
-	TTLEvent* ttl = new TTLEvent(channelInfo, timestamp, channel, eventData);
+	if (dataSize < channelInfo->getDataSize())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	TTLEvent* event = new TTLEvent(channelInfo, timestamp, channel, eventData);
 	
-	ttl->m_metaDataValues.addArray(metaData);
-	return ttl;
+	event->m_metaDataValues.addArray(metaData);
+	return event;
 }
 
 TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
@@ -215,24 +246,35 @@ TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventCh
 
 	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
 	{
+		jassertfalse;
 		return nullptr;
 	}
 	const uint8* buffer = msg.getRawData();
-	if ((buffer + 0) != PROCESSOR_EVENT) return nullptr;
-	if ((buffer + 1) != EventChannel::TTL) return nullptr;
+	if ((buffer + 0) != PROCESSOR_EVENT)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if ((buffer + 1) != EventChannel::TTL) {
+		jassertfalse;
+		return nullptr;
+	}
 
 	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
-	ScopedPointer<TTLEvent> ttl = new TTLEvent(channelInfo, timestamp, channel, (buffer + 16));
+	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo, timestamp, channel, (buffer + 16));
 	bool ret;
 	if (metaDataSize > 0)
-		 ret = ttl->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+		 ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
 	if (ret)
-		return ttl.release();
+		return event.release();
 	else
+	{
+		jassertfalse;
 		return nullptr;
+	}
 }
 
 //TextEvent
@@ -250,12 +292,92 @@ String TextEvent::getText() const
 void TextEvent::serialize(void* dstBuffer, size_t dstSize) const
 {
 	char* buffer = static_cast<char*>(dstBuffer);
-	if (!serializeHeader(EventChannel::TTL, buffer, dstSize))
+	if (!serializeHeader(EventChannel::TEXT, buffer, dstSize))
 		return;
 
 	size_t dataSize = m_channelInfo->getDataSize();
 	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	memcpy((buffer + 18), m_data.getData(), dataSize);
+	size_t stringSize = m_text.getNumBytesAsUTF8();
+	memcpy((buffer + 18), m_text.toUTF8(), stringSize);
+	zeromem((buffer + 18 + stringSize), dataSize - stringSize);
 	serializeMetaData(buffer + eventSize);
-
 }
+
+TextEvent* TextEvent::createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel)
+{
+	if (!createChecks(channelInfo, EventChannel::TEXT, channel))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (text.length() > channelInfo->getLength())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	return new TextEvent(channelInfo, timestamp, channel, text);
+}
+
+TextEvent* TextEvent::createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0)
+{
+	if (!createChecks(channelInfo, EventChannel::TEXT, channel, metaData))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (text.length() > channelInfo->getLength())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	TextEvent* event = new TextEvent(channelInfo, timestamp, channel, text);
+	
+	event->m_metaDataValues.addArray(metaData);
+	return event;
+}
+
+TextEvent* TextEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
+{
+	size_t totalSize = msg.getRawDataSize();
+	size_t dataSize = channelInfo->getDataSize();
+	size_t metaDataSize = channelInfo->getTotalEventMetaDataSize();
+
+	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	const uint8* buffer = msg.getRawData();
+	if ((buffer + 0) != PROCESSOR_EVENT)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if ((buffer + 1) != EventChannel::TEXT) {
+		jassertfalse;
+		return nullptr;
+	}
+
+	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
+	String text = String(CharPointer_UTF8(reinterpret_cast<const char*>(buffer + 18)), dataSize);
+
+	ScopedPointer<TextEvent> event = new TextEvent(channelInfo, timestamp, channel, text);
+	bool ret;
+	if (metaDataSize > 0)
+		ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+
+	if (ret)
+		return event.release();
+	else
+	{
+		jassertfalse;
+		return nullptr;
+	}
+}
+
+//BinaryEvent
