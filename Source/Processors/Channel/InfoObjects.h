@@ -372,6 +372,12 @@ public:
 	/** Gets the number of channels associated with the electrode type */
 	unsigned int getNumChannels() const;
 
+	/** Gets the total size in bytes for a spike object */
+	size_t getDataSize() const;
+
+	/** Gets the size in bytes of one channel of the spike object*/
+	size_t getChannelDataSize() const;
+
 	/** Gets the number of channels associated with a specific electrode type */
 	static unsigned int getNumChannels(ElectrodeTypes type);
 

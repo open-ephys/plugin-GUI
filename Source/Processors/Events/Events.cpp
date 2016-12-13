@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Events.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #define EVENT_BASE_SIZE 18
-
+#define SPIKE_BASE_SIZE 20
 //EventBase
 
 EventType EventBase::getBaseType() const
@@ -69,7 +69,7 @@ EventBase* EventBase::deserializeFromMessage(const MidiMessage& msg, const Gener
 	}
 }
 
-bool EventBase::compareMetaData(const EventChannel* channelInfo, const MetaDataValueArray& metaData)
+bool EventBase::compareMetaData(const MetaDataEventObject* channelInfo, const MetaDataValueArray& metaData)
 {
 	int metaDataSize = metaData.size();
 
@@ -545,3 +545,209 @@ BinaryEvent* BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const E
 }
 
 //SpikeEvent
+SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, Array<const float*> data)
+	: EventBase(SPIKE_EVENT, timestamp),
+	m_threshold(threshold),
+	m_channelInfo(channelInfo)
+{
+	jassert(m_channelInfo->getNumChannels() == data.size());
+	
+	int numSamples = m_channelInfo->getTotalSamples();	
+	size_t channelSize = m_channelInfo->getChannelDataSize();
+
+	m_data.malloc(numSamples*m_channelInfo->getNumChannels());
+	for (int i = 0; i < data.size(); i++)
+	{
+		memcpy((m_data.getData() + (numSamples*i)), data[i], channelSize);
+	}
+}
+
+const float* SpikeEvent::getDataPointer() const
+{
+	return m_data.getData();
+}
+
+const float* SpikeEvent::getDataPointer(int channel) const
+{
+	if ((channel < 0) || (channel >= m_channelInfo->getNumChannels()))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	return (m_data.getData() + (channel*m_channelInfo->getTotalSamples()));
+}
+
+float SpikeEvent::getThreshold() const
+{
+	return m_threshold;
+}
+
+void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
+{
+	size_t dataSize = m_channelInfo->getDataSize();
+	size_t eventSize = dataSize + SPIKE_BASE_SIZE;
+	size_t totalSize = eventSize + m_channelInfo->getTotalEventMetaDataSize();
+	if (totalSize < dstSize)
+	{
+		jassertfalse;
+		return;
+	}
+
+	char* buffer = static_cast<char*>(dstBuffer);
+
+	*(buffer + 0) = SPIKE_EVENT;
+	*(buffer + 1) = static_cast<char>(m_channelInfo->getChannelType());
+	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeID();
+	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
+	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
+	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
+	*(reinterpret_cast<float*>(buffer + 16)) = m_threshold;
+	memcpy((buffer + SPIKE_BASE_SIZE), m_data.getData(), dataSize);
+	serializeMetaData(buffer + eventSize);
+}
+
+SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource)
+{
+	int nChannels = channelInfo->getNumChannels();
+	if (nChannels != dataSource.channels.size())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	Array<unsigned int> positions;
+
+	//The positions array must have either just one value or the same number of values as channels are
+	if (dataSource.positions.size() == 1)
+	{
+		if (nChannels > 1)
+			positions.insertMultiple(-1, dataSource.positions[0], nChannels);
+	}
+	else if (dataSource.positions.size() == nChannels)
+		positions = dataSource.positions;
+	else
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	Array<const float*> data;
+	unsigned int bufferChannels = dataSource.buffer->getNumChannels();
+	unsigned int bufferSamples = dataSource.buffer->getNumSamples();
+	unsigned int numSamples = channelInfo->getTotalSamples();
+
+	for (int i = 0; i < nChannels; i++)
+	{
+		unsigned int chan = dataSource.channels[i];
+		if (chan < 0 || chan > bufferChannels)
+		{
+			jassertfalse;
+			return nullptr;
+		}
+		
+		unsigned int pos = positions[i];
+		if (bufferSamples < (pos + numSamples))
+		{
+			jassertfalse;
+			return nullptr;
+		}
+		data.add(dataSource.buffer->getReadPointer(chan, pos));
+	}
+
+	return new SpikeEvent(channelInfo, timestamp, threshold, data);
+
+}
+
+SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource)
+{
+	if (!channelInfo)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	
+	if (channelInfo->getEventMetaDataCount() != 0)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	return createBasicSpike(channelInfo, timestamp, threshold, dataSource);	
+	
+}
+
+SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource, const MetaDataValueArray& metaData)
+{
+	if (!channelInfo)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (!compareMetaData(channelInfo, metaData))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	SpikeEvent* event = createBasicSpike(channelInfo, timestamp, threshold, dataSource);
+	if (!event)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	event->m_metaDataValues.addArray(metaData);
+	return event;
+}
+
+SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo)
+{
+	size_t totalSize = msg.getRawDataSize();
+	size_t dataSize = channelInfo->getDataSize();
+	size_t metaDataSize = channelInfo->getTotalEventMetaDataSize();
+
+	if (totalSize != (dataSize + SPIKE_BASE_SIZE + metaDataSize))
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	const uint8* buffer = msg.getRawData();
+	if ((buffer + 0) != SPIKE_EVENT)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if ((buffer + 1) != channelInfo->getChannelType())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	float threshold = *(reinterpret_cast<const float*>(buffer + 16));
+
+	const float* dataBuffer = reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE);
+	int nChannels = channelInfo->getNumChannels();
+	int nSamples = channelInfo->getTotalSamples();
+	Array<const float*> data;
+
+	for (int i = 0; i < nChannels; i++)
+	{
+		data.add(dataBuffer + (i*nSamples));
+	}
+
+	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, threshold, data);
+
+	bool ret;
+	if (metaDataSize > 0)
+		ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+
+	if (ret)
+		return event.release();
+	else
+	{
+		jassertfalse;
+		return nullptr;
+	}
+}

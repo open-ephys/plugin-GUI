@@ -379,6 +379,16 @@ unsigned int SpikeChannel::getNumChannels(SpikeChannel::ElectrodeTypes type)
 	}
 }
 
+size_t SpikeChannel::getDataSize() const
+{
+	return getTotalSamples()*getNumChannels()*sizeof(float);
+}
+
+size_t SpikeChannel::getChannelDataSize() const
+{
+	return getTotalSamples()*sizeof(float);
+}
+
 //ConfigurationObject
 ConfigurationObject::ConfigurationObject(String descriptor, GenericProcessor* source, uint16 subproc)
 	: SourceProcessorInfo(source, subproc)

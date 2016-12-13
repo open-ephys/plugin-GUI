@@ -36,8 +36,8 @@ SubType - 1byte
 Source processor ID - 2bytes
 Source Subprocessor index - 2 bytes
 Source Event index - 2 bytes 
-Event Virtual Channel - 2 byte
 Timestamp - 8 bytes
+Event Virtual Channel - 2 bytes
 data - variable
 */
 
@@ -80,7 +80,7 @@ protected:
 	EventBase(EventType type, uint64 timestamp);
 	EventBase() = delete;
 
-	static bool compareMetaData(const EventChannel* channelInfo, const MetaDataValueArray& metaData);
+	static bool compareMetaData(const MetaDataEventObject* channelInfo, const MetaDataValueArray& metaData);
 
 	const EventType m_baseType;
 	const uint64 m_timestamp;
@@ -214,9 +214,11 @@ public:
 	static SpikeEvent* deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo);
 private:
 	SpikeEvent() = delete;
-	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, Array<float*> data);
+	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, Array<const float*> data);
+	static SpikeEvent* createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource);
 
 	const float m_threshold;
+	const SpikeChannel* m_channelInfo;
 	HeapBlock<float> m_data;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeEvent);
 };
