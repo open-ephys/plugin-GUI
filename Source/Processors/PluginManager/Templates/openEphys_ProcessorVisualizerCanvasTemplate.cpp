@@ -24,10 +24,12 @@
 #include "PROCESSORCLASSNAME.h"
 
 
-EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)
+EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* processor)
 {
     // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]
+
+    m_processor = processor;
 
     //m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();
     //content.setLookAndFeel (m_contentLookAndFeel);
@@ -91,16 +93,16 @@ void EDITORCANVASCLASSNAME::setParameter (int parameter, int val1, int val2, flo
 /** Handles button clicks for all buttons. */
 void EDITORCANVASCLASSNAME::buttonClicked (Button* buttonThatWasClicked)
 {
-    if (auto genericEditorParent = dynamic_cast<Button::Listener*> (getParentComponent()))
-        genericEditorParent->buttonClicked (buttonThatWasClicked);
+    if (auto genericEditor = m_processor->getEditor())
+        genericEditor->buttonClicked (buttonThatWasClicked);
 }
 
 
 /** Handles slider events for all sliders. */
 void EDITORCANVASCLASSNAME::sliderValueChanged (Slider* sliderWhichValueHasChanged)
 {
-    if (auto genericEditorParent = dynamic_cast<Slider::Listener*> (getParentComponent()))
-        genericEditorParent->sliderValueChanged (sliderWhichValueHasChanged);
+    if (auto genericEditor = m_processor->getEditor())
+        genericEditor->sliderValueChanged (sliderWhichValueHasChanged);
 }
 
 
@@ -109,8 +111,8 @@ void EDITORCANVASCLASSNAME::sliderValueChanged (Slider* sliderWhichValueHasChang
   from overridden one. */
 void EDITORCANVASCLASSNAME::textEditorReturnKeyPressed (TextEditor& textEditor)
 {
-    if (auto genericEditorParent = dynamic_cast<TextEditor::Listener*> (getParentComponent()))
-        genericEditorParent->textEditorReturnKeyPressed (textEditor);
+    if (auto genericEditor = m_processor->getEditor())
+        genericEditor->textEditorReturnKeyPressed (textEditor);
 }
 
 

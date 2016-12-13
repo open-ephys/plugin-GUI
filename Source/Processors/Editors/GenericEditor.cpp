@@ -436,13 +436,8 @@ void GenericEditor::buttonClicked (Button* buttonThatWasClicked)
     // That means that some button has been clicked, so let's check and try to set the parameter
     if (! drawerButtonClicked)
     {
-        // TODO<Kirill A>: change to search for component ID, not name
-        const auto buttonID = buttonThatWasClicked->getName();
-        const bool isParameterExists = getProcessor()->isParameterExists (buttonID);
-
-        if (isParameterExists)
+        if (auto parameter = getParameterForComponent (buttonThatWasClicked))
         {
-            auto parameter = getProcessor()->findParameterWithComponentID (buttonID);
             auto newValue  = (float)buttonThatWasClicked->getToggleState();
 
             // TODO<Kirill A>: could be dangerous to get parameter's ID like that
@@ -491,13 +486,8 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 void GenericEditor::sliderValueChanged (Slider* slider)
 {
-    // TODO<Kirill A>: change to search for component ID, not name
-    const auto sliderID = slider->getName();
-    const bool isParameterExists = getProcessor()->isParameterExists (sliderID);
-
-    if (isParameterExists)
+    if (auto parameter = getParameterForComponent (slider))
     {
-        auto parameter = getProcessor()->findParameterWithComponentID (sliderID);
         auto newValue  = (float)slider->getValue();
 
         // TODO<Kirill A>: could be dangerous to get parameter's ID like that
@@ -514,10 +504,8 @@ void GenericEditor::textEditorReturnKeyPressed (TextEditor& textEditor)
     const auto textEditorID = textEditor.getName();
     const bool isParameterExists = getProcessor()->isParameterExists (textEditorID);
 
-    if (isParameterExists)
+    if (auto parameter = getParameterForComponent (&textEditor))
     {
-        auto parameter = getProcessor()->findParameterWithComponentID (textEditorID);
-
         auto getConstrainedValueForParameter = [](Parameter* parameter, float valueToConstrain) -> float
         {
             if (! parameter->isContinuous())
@@ -1152,6 +1140,19 @@ Component& GenericEditor::getContentComponent()
 
 void GenericEditor::parameterComponentChanged (Component* parameterComponentThatHasChanged)
 {
+}
+
+
+Parameter* GenericEditor::getParameterForComponent (Component* component)
+{
+    // TODO<Kirill A>: change to search for component ID, not name
+    const auto componentID = component->getName();
+    const bool isParameterExists = getProcessor()->isParameterExists (componentID);
+
+    if (isParameterExists)
+        return getProcessor()->findParameterWithComponentID (componentID);
+
+    return nullptr;
 }
 
 

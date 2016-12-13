@@ -1492,10 +1492,12 @@ static const unsigned char temp_binary_data_14[] =
 "#include \"PROCESSORCLASSNAME.h\"\n"
 "\n"
 "\n"
-"EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)\n"
+"EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* processor)\n"
 "{\n"
 "    // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_BEGIN]\n"
+"\n"
+"    m_processor = processor;\n"
 "\n"
 "    //m_contentLookAndFeel = new LOOKANDFEELCLASSNAME();\n"
 "    //content.setLookAndFeel (m_contentLookAndFeel);\n"
@@ -1559,16 +1561,16 @@ static const unsigned char temp_binary_data_14[] =
 "/** Handles button clicks for all buttons. */\n"
 "void EDITORCANVASCLASSNAME::buttonClicked (Button* buttonThatWasClicked)\n"
 "{\n"
-"    if (auto genericEditorParent = dynamic_cast<Button::Listener*> (getParentComponent()))\n"
-"        genericEditorParent->buttonClicked (buttonThatWasClicked);\n"
+"    if (auto genericEditor = m_processor->getEditor())\n"
+"        genericEditor->buttonClicked (buttonThatWasClicked);\n"
 "}\n"
 "\n"
 "\n"
 "/** Handles slider events for all sliders. */\n"
 "void EDITORCANVASCLASSNAME::sliderValueChanged (Slider* sliderWhichValueHasChanged)\n"
 "{\n"
-"    if (auto genericEditorParent = dynamic_cast<Slider::Listener*> (getParentComponent()))\n"
-"        genericEditorParent->sliderValueChanged (sliderWhichValueHasChanged);\n"
+"    if (auto genericEditor = m_processor->getEditor())\n"
+"        genericEditor->sliderValueChanged (sliderWhichValueHasChanged);\n"
 "}\n"
 "\n"
 "\n"
@@ -1577,8 +1579,8 @@ static const unsigned char temp_binary_data_14[] =
 "  from overridden one. */\n"
 "void EDITORCANVASCLASSNAME::textEditorReturnKeyPressed (TextEditor& textEditor)\n"
 "{\n"
-"    if (auto genericEditorParent = dynamic_cast<TextEditor::Listener*> (getParentComponent()))\n"
-"        genericEditorParent->textEditorReturnKeyPressed (textEditor);\n"
+"    if (auto genericEditor = m_processor->getEditor())\n"
+"        genericEditor->textEditorReturnKeyPressed (textEditor);\n"
 "}\n"
 "\n"
 "\n"
@@ -1678,7 +1680,7 @@ static const unsigned char temp_binary_data_15[] =
 "\n"
 "\n"
 "private:\n"
-"    PROCESSORCLASSNAME* processor;\n"
+"    PROCESSORCLASSNAME* m_processor;\n"
 "\n"
 "    // This component contains all components and graphics that were added using Projucer.\n"
 "    // It's bounds initially have same bounds as the canvas itself.\n"
@@ -6159,8 +6161,8 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0x229158a3:  numBytes = 3577; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 6436; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;
-        case 0x1d379af4:  numBytes = 3190; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
-        case 0x9bde39f9:  numBytes = 3550; return openEphys_ProcessorVisualizerCanvasTemplate_h;
+        case 0x1d379af4:  numBytes = 3091; return openEphys_ProcessorVisualizerCanvasTemplate_cpp;
+        case 0x9bde39f9:  numBytes = 3552; return openEphys_ProcessorVisualizerCanvasTemplate_h;
         case 0x7a3e121c:  numBytes = 4455; return openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
         case 0x92e85b21:  numBytes = 3429; return openEphys_ProcessorVisualizerEditorPluginTemplate_h;
         case 0x7e820c56:  numBytes = 2169; return openEphys_RecordEnginePluginTemplate_cpp;

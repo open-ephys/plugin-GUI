@@ -315,6 +315,10 @@ public:
     /** Returns an array of record statuses for all channels. Used by GraphNode */
     Array<bool> getRecordStatusArray();
 
+    /** Returns reference to parameter which is connected to passed component.
+        If no parameter found, returns nullptr. */
+    Parameter* getParameterForComponent (Component* component);
+
 
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */

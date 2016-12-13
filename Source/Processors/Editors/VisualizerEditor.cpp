@@ -265,6 +265,12 @@ void VisualizerEditor::buttonClicked (Button* button)
             removeTab (tabIndex);
         }
     }
+    else if (auto parameter = getParameterForComponent (button))
+    {
+        //TODO<Kirill A> ASAP: need to synchronize parameter components states between GenericEditor and
+        // VisualizerCanvas (currently working only for sliders, but not for buttons)
+        //GenericEditor::updateParameterComponent (parameter);
+    }
 
     // Pass the button event along to subclasses.
     buttonEvent (button);
