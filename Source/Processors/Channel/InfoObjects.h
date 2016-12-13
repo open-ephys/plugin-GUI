@@ -250,7 +250,11 @@ public:
 		INT64_ARRAY,
 		UINT64_ARRAY,
 		FLOAT_ARRAY,
-		DOUBLE_ARRAY
+		DOUBLE_ARRAY,
+		//For error checking
+		INVALID,
+		//Alias for checking binary types
+		BINARY_BASE_VALUE = 10
 	};
 
 	/** Default constructor

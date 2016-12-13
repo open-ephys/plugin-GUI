@@ -35,10 +35,22 @@ EventType - 1byte
 SubType - 1byte
 Source processor ID - 2bytes
 Source Subprocessor index - 2 bytes
-Source Event index - 2 bytes (except system events)
+Source Event index - 2 bytes 
 Event Virtual Channel - 2 byte
-Timestamp - 8 bytes (except for system events that are not timestamp)
+Timestamp - 8 bytes
 data - variable
+*/
+
+/**
+Spike packet structure
+EventType - 1byte
+ElectrodeType - 1byte
+Source processor ID - 2bytes
+Source Subprocessor index - 2 bytes
+Source electrode index - 2 bytes
+Timestamp - 8 bytes
+Threshold - 4bytes
+Data - variable
 */
 
 enum EventType
@@ -130,8 +142,8 @@ public:
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 	String getText() const;
 
-	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
-	static TextEvent* createMessageEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
+	static TextEvent* createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
+	static TextEvent* createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
 	static TextEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TextEvent() = delete;
@@ -148,6 +160,7 @@ public:
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const void* getBinaryDataPointer() const;
+	EventChannel::EventChannelTypes getBinaryType() const;
 
 	template<typename T>
 	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel = 0);
@@ -159,9 +172,13 @@ public:
 	
 private:
 	BinaryEvent() = delete;
-	BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* data);
+	BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* data, EventChannel::EventChannelTypes type);
+	
+	template<typename T>
+	static EventChannel::EventChannelTypes getType();
 
 	HeapBlock<char> m_data;
+	const EventChannel::EventChannelTypes m_type;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BinaryEvent);
 };
 
