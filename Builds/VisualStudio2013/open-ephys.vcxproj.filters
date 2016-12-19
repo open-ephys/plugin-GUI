@@ -663,9 +663,6 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
@@ -2556,9 +2553,6 @@
       <Filter>open-ephys\Source\Processors\Splitter</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h">
-      <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h">
@@ -4496,6 +4490,20 @@
     <ClInclude Include="..\..\Source\Processors\Events\Events.h">
       <Filter>open-ephys\Source\Processors\Events</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_audio_basics.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_devices\juce_audio_devices.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_formats\juce_audio_formats.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_processors\juce_audio_processors.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_utils\juce_audio_utils.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\juce_core.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_cryptography\juce_cryptography.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_data_structures.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\juce_events.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\juce_graphics.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_extra\juce_gui_extra.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_opengl\juce_opengl.h" />
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_video\juce_video.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\juce_audio_basics.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_devices\juce_audio_devices.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_formats\juce_audio_formats.h" />

@@ -23,8 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Events.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#define EVENT_BASE_SIZE 18
-#define SPIKE_BASE_SIZE 20
 //EventBase
 
 EventType EventBase::getBaseType() const
@@ -80,6 +78,24 @@ bool EventBase::compareMetaData(const MetaDataEventObject* channelInfo, const Me
 		if (!metaData[i]->isOfType(channelInfo->getEventMetaDataDescriptor(i))) return false;
 	}
 	return true;
+}
+
+uint16 EventBase::getSourceID(const MidiMessage& msg)
+{
+	const uint8* data = msg.getRawData();
+	return static_cast<uint16>(*data + 2);
+}
+
+uint16 EventBase::getSubProcessorIdx(const MidiMessage& msg)
+{
+	const uint8* data = msg.getRawData();
+	return static_cast<uint16>(*data + 4);
+}
+
+uint16 EventBase::getSourceIndex(const MidiMessage& msg)
+{
+	const uint8* data = msg.getRawData();
+	return static_cast<uint16>(*data + 4);
 }
 
 //Event
@@ -545,21 +561,12 @@ BinaryEvent* BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const E
 }
 
 //SpikeEvent
-SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, Array<const float*> data)
+SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data)
 	: EventBase(SPIKE_EVENT, timestamp),
-	m_threshold(threshold),
+	m_thresholds(thresholds),
 	m_channelInfo(channelInfo)
 {
-	jassert(m_channelInfo->getNumChannels() == data.size());
-	
-	int numSamples = m_channelInfo->getTotalSamples();	
-	size_t channelSize = m_channelInfo->getChannelDataSize();
-
-	m_data.malloc(numSamples*m_channelInfo->getNumChannels());
-	for (int i = 0; i < data.size(); i++)
-	{
-		memcpy((m_data.getData() + (numSamples*i)), data[i], channelSize);
-	}
+	m_data.swapWith(data);
 }
 
 const float* SpikeEvent::getDataPointer() const
@@ -577,15 +584,15 @@ const float* SpikeEvent::getDataPointer(int channel) const
 	return (m_data.getData() + (channel*m_channelInfo->getTotalSamples()));
 }
 
-float SpikeEvent::getThreshold() const
+float SpikeEvent::getThreshold(int chan) const
 {
-	return m_threshold;
+	return m_thresholds[chan];
 }
 
 void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 {
 	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + SPIKE_BASE_SIZE;
+	size_t eventSize = dataSize + SPIKE_BASE_SIZE + m_thresholds.size() * sizeof(float);
 	size_t totalSize = eventSize + m_channelInfo->getTotalEventMetaDataSize();
 	if (totalSize < dstSize)
 	{
@@ -601,64 +608,46 @@ void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
 	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
-	*(reinterpret_cast<float*>(buffer + 16)) = m_threshold;
-	memcpy((buffer + SPIKE_BASE_SIZE), m_data.getData(), dataSize);
+	int memIdx = SPIKE_BASE_SIZE;
+	for (int i = 0; i < m_thresholds.size(); i++)
+	{
+		*(reinterpret_cast<float*>(buffer + memIdx)) = m_thresholds[i];
+		memIdx += sizeof(float);
+	}
+	memcpy((buffer + memIdx), m_data.getData(), dataSize);
 	serializeMetaData(buffer + eventSize);
 }
 
-SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource)
+SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
 {
+	if (!dataSource.m_ready)
+	{
+		jassertfalse;
+		return nullptr;
+	}
 	int nChannels = channelInfo->getNumChannels();
-	if (nChannels != dataSource.channels.size())
+	if (nChannels != dataSource.m_nChans)
 	{
 		jassertfalse;
 		return nullptr;
 	}
-
-	Array<unsigned int> positions;
-
-	//The positions array must have either just one value or the same number of values as channels are
-	if (dataSource.positions.size() == 1)
-	{
-		if (nChannels > 1)
-			positions.insertMultiple(-1, dataSource.positions[0], nChannels);
-	}
-	else if (dataSource.positions.size() == nChannels)
-		positions = dataSource.positions;
-	else
+	int nSamples = channelInfo->getTotalSamples();
+	if (nSamples != dataSource.m_nSamps)
 	{
 		jassertfalse;
 		return nullptr;
 	}
-
-	Array<const float*> data;
-	unsigned int bufferChannels = dataSource.buffer->getNumChannels();
-	unsigned int bufferSamples = dataSource.buffer->getNumSamples();
-	unsigned int numSamples = channelInfo->getTotalSamples();
-
-	for (int i = 0; i < nChannels; i++)
+	if (thresholds.size() != nChannels)
 	{
-		unsigned int chan = dataSource.channels[i];
-		if (chan < 0 || chan > bufferChannels)
-		{
-			jassertfalse;
-			return nullptr;
-		}
-		
-		unsigned int pos = positions[i];
-		if (bufferSamples < (pos + numSamples))
-		{
-			jassertfalse;
-			return nullptr;
-		}
-		data.add(dataSource.buffer->getReadPointer(chan, pos));
+		jassertfalse;
+		return nullptr;
 	}
-
-	return new SpikeEvent(channelInfo, timestamp, threshold, data);
+	dataSource.m_ready = false;
+	return new SpikeEvent(channelInfo, timestamp, thresholds, dataSource.m_data);
 
 }
 
-SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource)
+SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
 {
 	if (!channelInfo)
 	{
@@ -673,11 +662,11 @@ SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64
 		return nullptr;
 	}
 
-	return createBasicSpike(channelInfo, timestamp, threshold, dataSource);	
+	return createBasicSpike(channelInfo, timestamp, thresholds, dataSource);	
 	
 }
 
-SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource, const MetaDataValueArray& metaData)
+SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData)
 {
 	if (!channelInfo)
 	{
@@ -690,7 +679,7 @@ SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64
 		jassertfalse;
 		return nullptr;
 	}
-	SpikeEvent* event = createBasicSpike(channelInfo, timestamp, threshold, dataSource);
+	SpikeEvent* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource);
 	if (!event)
 	{
 		jassertfalse;
@@ -703,11 +692,13 @@ SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64
 
 SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo)
 {
+	int nChans = channelInfo->getNumChannels();
 	size_t totalSize = msg.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
+	size_t thresholdSize = nChans*sizeof(float);
 	size_t metaDataSize = channelInfo->getTotalEventMetaDataSize();
 
-	if (totalSize != (dataSize + SPIKE_BASE_SIZE + metaDataSize))
+	if (totalSize != (thresholdSize + dataSize + SPIKE_BASE_SIZE + metaDataSize))
 	{
 		jassertfalse;
 		return nullptr;
@@ -725,23 +716,17 @@ SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const Spi
 		return nullptr;
 	}
 	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
-	float threshold = *(reinterpret_cast<const float*>(buffer + 16));
+	Array<float> thresholds;
+	thresholds.addArray(reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE), nChans);
+	HeapBlock<float> data;
+	data.malloc(dataSize, sizeof(char));
+	memcpy(data.getData(), (buffer + SPIKE_BASE_SIZE + thresholdSize), dataSize);
 
-	const float* dataBuffer = reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE);
-	int nChannels = channelInfo->getNumChannels();
-	int nSamples = channelInfo->getTotalSamples();
-	Array<const float*> data;
-
-	for (int i = 0; i < nChannels; i++)
-	{
-		data.add(dataBuffer + (i*nSamples));
-	}
-
-	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, threshold, data);
+	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, thresholds, data);
 
 	bool ret;
 	if (metaDataSize > 0)
-		ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+		ret = event->deserializeMetaData(channelInfo, (buffer + SPIKE_BASE_SIZE + dataSize + thresholdSize), metaDataSize);
 
 	if (ret)
 		return event.release();
@@ -750,6 +735,28 @@ SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const Spi
 		jassertfalse;
 		return nullptr;
 	}
+}
+
+SpikeEvent::SpikeBuffer::SpikeBuffer(const SpikeChannel* channelInfo)
+	: m_nChans(channelInfo->getNumChannels()),
+	m_nSamps(channelInfo->getTotalSamples())
+{
+	m_data.malloc(m_nChans*m_nSamps);
+}
+
+float* SpikeEvent::SpikeBuffer::operator[](const int index)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if (index < 0 || index >= m_nChans)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	return m_data.getData() + (index + m_nSamps);
 }
 
 //Template definitions

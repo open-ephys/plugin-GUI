@@ -324,7 +324,6 @@
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp" />
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp" />
     <ClCompile Include="..\..\Source\UI\Utils\TiledButtonGroupManager.cpp" />
     <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp" />
@@ -1993,7 +1992,6 @@
     <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h" />
     <ClInclude Include="..\..\Source\Processors\Splitter\SplitterEditor.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h" />
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h" />
     <ClInclude Include="..\..\Source\UI\Utils\TiledButtonGroupManager.h" />

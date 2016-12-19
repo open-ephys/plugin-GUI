@@ -145,8 +145,8 @@ uint16 InfoObjectCommon::getSourceTypeIndex() const
 
 //DataChannel
 
-DataChannel::DataChannel(DataChannelTypes type, uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc) :
-	InfoObjectCommon(idx, typeidx, source, subproc),
+DataChannel::DataChannel(DataChannelTypes type, GenericProcessor* source, uint16 subproc) :
+	InfoObjectCommon(source->dataChannelCount++, source->dataChannelTypeCount[type]++, source, subproc),
 	m_type(type)
 {
 }
@@ -222,8 +222,8 @@ void DataChannel::reset()
 }
 
 //EventChannel
-EventChannel::EventChannel(EventChannelTypes type, uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc)
-	:	InfoObjectCommon(idx, typeidx, source, subproc),
+EventChannel::EventChannel(EventChannelTypes type, GenericProcessor* source, uint16 subproc)
+	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, source, subproc),
 		m_type(type)
 {
 }
@@ -302,8 +302,8 @@ size_t EventChannel::getTypeByteSize(EventChannel::EventChannelTypes type)
 
 //SpikeChannel
 
-SpikeChannel::SpikeChannel(ElectrodeTypes type, uint16 idx, uint16 typeidx, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc)
-	: InfoObjectCommon(idx, typeidx, source, subproc),
+SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc)
+	: InfoObjectCommon(source->spikeChannelCount++, source->spikeChannelTypeCount[type]++, source, subproc),
 	m_type(type)
 {
 	int n = sourceChannels.size();

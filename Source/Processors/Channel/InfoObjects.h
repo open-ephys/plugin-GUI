@@ -179,7 +179,7 @@ public:
 		@param source A pointer to the source processor
 		@param subproc Optional. The source subprocessor index.
 	*/
-	DataChannel(DataChannelTypes type, uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc = 0);
+	DataChannel(DataChannelTypes type, GenericProcessor* source, uint16 subproc = 0);
 
 	/** Copy constructor. */
 	DataChannel(const DataChannel& ch);
@@ -264,7 +264,7 @@ public:
 	@param source A pointer to the source processor
 	@param subproc Optional. The source subprocessor index.
 	*/
-	EventChannel(EventChannelTypes type, uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc = 0);
+	EventChannel(EventChannelTypes type, GenericProcessor* source, uint16 subproc = 0);
 
 	~EventChannel();
 
@@ -342,7 +342,7 @@ public:
 		@param souceChannels An array containing const pointers to the channels that originate the data for this spike electrode
 		@param subproc Optional. The source subprocessor index.
 	*/
-	SpikeChannel(ElectrodeTypes type, uint16 idx, uint16 typeidx, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc = 0);
+	SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc = 0);
 
 	~SpikeChannel();
 

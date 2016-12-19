@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <JuceHeader.h>
 #include "../Channel/InfoObjects.h"
+#define EVENT_BASE_SIZE 18
+#define SPIKE_BASE_SIZE 16
 
 class GenericProcessor;
 
@@ -49,8 +51,8 @@ Source processor ID - 2bytes
 Source Subprocessor index - 2 bytes
 Source electrode index - 2 bytes
 Timestamp - 8 bytes
-Threshold - 4bytes
-Data - variable
+Thresholds - 4bytes*nChannels
+Data - 4bytes*nChannels*nSamples
 */
 
 enum EventType
@@ -62,8 +64,7 @@ enum EventType
 
 enum SystemEventType
 {
-	TIMESTAMP = 0,
-	BUFFER_SIZE = 1,
+	TIMESTAMP = 0, //timestamp and buffer size are now the same event
 	PARAMETER_CHANGE = 2
 };
 
@@ -76,6 +77,10 @@ public:
 
 	static EventType getBaseType(const MidiMessage& msg);
 	static EventBase* deserializeFromMessage(const MidiMessage& msg, const GenericProcessor* processor);
+
+	static uint16 getSourceID(const MidiMessage& msg);
+	static uint16 getSubProcessorIdx(const MidiMessage& msg);
+	static uint16 getSourceIndex(const MidiMessage& msg);
 protected:
 	EventBase(EventType type, uint64 timestamp);
 	EventBase() = delete;
@@ -186,38 +191,48 @@ class PLUGIN_API SpikeEvent
 	: public EventBase
 {
 public:
-	struct SpikeDataSource
+	/**
+	Simple helper class that helds a buffer for spike event creation.
+	Gets invalid once it's fed into a spike event, so if code needs to reuse
+	it needs to reinitializate it.
+	eg.:
+	SpikeBuffer spike(channelInfo1);
+	add samples
+	SpikeEvent* event = createSpikeEvent(channelInfo1, ..., spike); spike gets invalid here
+	spike = SpikeBuffer(channelInfo2); reinitialize the buffer for a new spike.
+	*/
+	class SpikeBuffer
 	{
-		/** Buffer in which the samples are stored */
-		const AudioSampleBuffer* buffer; 
-		/** Array with the channels within the buffer from which the data is grabbed
-		It must contain the same number of entries as channels the electrode has */
-		Array<unsigned int> channels; 
-		/** Array with the positions within the channels from which the data is grabbed.
-		If can contain either the same number of entries as channels the electrode has
-		or just one entry, in which case that sample number will be used for all channels.
-		*/
-		Array<unsigned int> positions; 
-
+		friend SpikeEvent;
+	public:
+		SpikeBuffer(const SpikeChannel* channelInfo);
+		float* operator[] (const int index);
+	private:
+		SpikeBuffer() = delete;
+		HeapBlock<float> m_data;
+		const int m_nChans;
+		const int m_nSamps;
+		bool m_ready{ true };
 	};
+
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const float* getDataPointer() const;
 
 	const float* getDataPointer(int channel) const;
 
-	float getThreshold() const;
+	float getThreshold(int chan) const;
 
-	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource);
-	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource, const MetaDataValueArray& metaData);
+	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource);
+	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData);
 
 	static SpikeEvent* deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo);
 private:
 	SpikeEvent() = delete;
-	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, Array<const float*> data);
-	static SpikeEvent* createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, float threshold, const SpikeDataSource& dataSource);
+	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data);
+	static SpikeEvent* createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> threshold, SpikeBuffer& dataSource);
 
-	const float m_threshold;
+	const Array<float> m_thresholds;
 	const SpikeChannel* m_channelInfo;
 	HeapBlock<float> m_data;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeEvent);

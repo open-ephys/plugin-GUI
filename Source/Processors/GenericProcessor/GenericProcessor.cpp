@@ -44,11 +44,10 @@ GenericProcessor::GenericProcessor (const String& name)
     , sendSampleCount               (true)
     , m_name                            (name)
     , m_isParamsWereLoaded              (false)
-    , m_isNeedsToSendTimestampMessage   (false)
     , m_isTimestampSet                  (false)
     , m_processorType                   (PROCESSOR_TYPE_UTILITY)
 {
-    settings.numInputs = settings.numOutputs = settings.sampleRate = 0;
+    settings.numInputs = settings.numOutputs = 0;
 }
 
 
@@ -281,42 +280,32 @@ void GenericProcessor::clearSettings()
     settings.originalSource = 0;
     settings.numInputs = 0;
     settings.numOutputs = 0;
-    settings.sampleRate = getDefaultSampleRate();
 
     // std::cout << "Record status size = " << recordStatus.size() << std::endl;
 
-    if (m_recordStatus.size() < channels.size())
-        m_recordStatus.resize (channels.size());
+    if (m_recordStatus.size() < dataChannelArray.size())
+        m_recordStatus.resize (dataChannelArray.size());
 
-    if (m_monitorStatus.size() < channels.size())
-        m_monitorStatus.resize (channels.size());
+    if (m_monitorStatus.size() < dataChannelArray.size())
+        m_monitorStatus.resize (dataChannelArray.size());
 
-    for (int i = 0; i < channels.size(); ++i)
+    for (int i = 0; i < dataChannelArray.size(); ++i)
     {
         // std::cout << channels[i]->getRecordState() << std::endl;
-        m_recordStatus.set    (i, channels[i]->getRecordState());
-        m_monitorStatus.set   (i, channels[i]->isMonitored);
+        m_recordStatus.set    (i, dataChannelArray[i]->getRecordState());
+        m_monitorStatus.set   (i, dataChannelArray[i]->isMonitored);
     }
 
-    channels.clear();
-    eventChannels.clear();
+    dataChannelArray.clear();
+    eventChannelArray.clear();
+	spikeChannelArray.clear();
+	configurationObjectArray.clear();
 }
 
 
 void GenericProcessor::update()
 {
     std::cout << getName() << " updating settings." << std::endl;
-    // SO patched here to keep original channel names
-
-    // save original channel names
-    int oldNumChannels = channels.size();
-
-    StringArray oldNames;
-
-    for (int k = 0; k < oldNumChannels; ++k)
-    {
-        oldNames.add (channels[k]->getName());
-    }
 
     // ---- RESET EVERYTHING ---- ///
     clearSettings();
@@ -328,13 +317,12 @@ void GenericProcessor::update()
         settings.numInputs = settings.numOutputs;
         settings.numOutputs = settings.numInputs;
 
-        for (int i = 0; i < sourceNode->channels.size(); ++i)
+        for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
         {
-            Channel* sourceChan = sourceNode->channels[i];
-            Channel* ch = new Channel (*sourceChan);
-            ch->setProcessor (this);
-            ch->nodeIndex   = i;
-            ch->mappedIndex = i;
+            DataChannel* sourceChan = sourceNode->dataChannelArray[i];
+            DataChannel* ch = new DataChannel (*sourceChan);
+            ch-> m_nodeID = getNodeId();
+
 
             if (i < m_recordStatus.size())
             {
@@ -342,106 +330,43 @@ void GenericProcessor::update()
                 ch->isMonitored = m_monitorStatus[i];
             }
 
-            channels.add (ch);
+			ch->addToHistoricString(getName());
+            dataChannelArray.add (ch);
         }
 
-        for (int i = 0; i < sourceNode->eventChannels.size(); ++i)
+        for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
         {
-            Channel* sourceChan = sourceNode->eventChannels[i];
-            Channel* ch = new Channel (*sourceChan);
-            ch->setProcessor (this);
-            eventChannels.add (ch);
+            EventChannel* sourceChan = sourceNode->eventChannelArray[i];
+            EventChannel* ch = new EventChannel (*sourceChan);
+			ch->m_nodeID = getNodeId();
+            eventChannelArray.add (ch);
         }
+		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
+		{
+			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
+			SpikeChannel* ch = new SpikeChannel(*sourceChan);
+			ch->m_nodeID = getNodeId();
+			spikeChannelArray.add(ch);
+		}
+		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
+		{
+			ConfigurationObject* sourceChan = sourceNode->configurationObjectArray[i];
+			ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
+			configurationObjectArray.add(ch);
+		}
     }
     else // generate new settings
     {
-        settings.sampleRate = getDefaultSampleRate();
-        settings.numOutputs = getNumHeadstageOutputs() + getNumAdcOutputs() + getNumAuxOutputs();
+        settings.numOutputs = getTotalNumOutputChannels();
 
         std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
-        int nidx = 0;
-
-        for (int i = 0; i < getNumHeadstageOutputs(); i++)
-        {
-            Channel* ch = new Channel (this, i + 1, HEADSTAGE_CHANNEL);
-            ch->setProcessor (this);
-            ch->sampleRate  = getDefaultSampleRate();
-            ch->bitVolts    = getBitVolts (ch);
-            ch->sourceNodeId = nodeId;
-            ch->nodeIndex    = nidx;
-            ch->mappedIndex  = nidx;
-
-            if (nidx < m_recordStatus.size())
-            {
-                ch->setRecordState (m_recordStatus[nidx]);
-            }
-            else
-            {
-                if (isSource())
-                    ch->setRecordState (true);
-            }
-
-            channels.add (ch);
-            nidx++;
-        }
-
-        for (int j = 0; j < getNumAuxOutputs(); ++j)
-        {
-            Channel* ch = new Channel (this, j + 1, AUX_CHANNEL);
-            ch->setProcessor (this);
-            ch->sampleRate = getDefaultSampleRate();
-            ch->bitVolts = getBitVolts (ch);
-            ch->sourceNodeId = nodeId;
-            ch->nodeIndex   = nidx;
-            ch->mappedIndex = nidx;
-
-            if (nidx < m_recordStatus.size())
-            {
-                ch->setRecordState (m_recordStatus[nidx]);
-            }
-            else
-            {
-                if (isSource())
-                    ch->setRecordState (true);
-            }
-
-            channels.add (ch);
-            nidx++;
-        }
-
-        for (int k = 0; k < getNumAdcOutputs(); ++k)
-        {
-            Channel* ch = new Channel (this, k + 1, ADC_CHANNEL);
-            ch->setProcessor (this);
-            ch->sampleRate  = getDefaultSampleRate();
-            ch->bitVolts    = getBitVolts (ch);
-            ch->sourceNodeId = nodeId;
-            ch->nodeIndex   = nidx;
-            ch->mappedIndex = nidx;
-
-            if (nidx < m_recordStatus.size())
-            {
-                ch->setRecordState (m_recordStatus[nidx]);
-            }
-            else
-            {
-                if (isSource())
-                    ch->setRecordState (true);
-            }
-
-            channels.add (ch);
-            nidx++;
-        }
-
-        for (int m = 0; m < getNumEventChannels(); ++m)
-        {
-            Channel* ch = new Channel (this, m + 1, EVENT_CHANNEL);
-            ch->sourceNodeId = nodeId;
-            ch->nodeIndex = nidx;
-            eventChannels.add (ch);
-            ch->sampleRate = getDefaultSampleRate();
-        }
+		createDataChannels(); //Only sources can create data channels
     }
+
+	//Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
+	createEventChannels();
+	createSpikeChannels();
+	createConfigurationObjects();
 
     if (this->isSink())
     {
@@ -449,6 +374,34 @@ void GenericProcessor::update()
     }
 
     updateSettings(); // allow processors to change custom settings
+
+
+	//Recreate the channel indexes
+	dataChannelMap.clear();
+	eventChannelMap.clear();
+	spikeChannelMap.clear();
+
+	for (int i = 0; i < dataChannelArray.size(); i++)
+	{
+		DataChannel* channel = dataChannelArray[i];
+		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
+		dataChannelMap[sourceID][channel->getSourceIndex()] = i;
+	}
+	for (int i = 0; i < eventChannelArray.size(); i++)
+	{
+		EventChannel* channel = eventChannelArray[i];
+		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
+		eventChannelMap[sourceID][channel->getSourceIndex()] = i;
+	}
+	for (int i = 0; i < spikeChannelArray.size(); i++)
+	{
+		SpikeChannel* channel = spikeChannelArray[i];
+		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
+		spikeChannelMap[sourceID][channel->getSourceIndex()] = i;
+	}
+
+	m_needsToSendTimestampMessages.clear();
+	m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumSubProcessors());
 
     // required for the ProcessorGraph to know the
     // details of this processor:
@@ -463,9 +416,9 @@ void GenericProcessor::update()
 
 void GenericProcessor::setAllChannelsToRecord()
 {
-    m_recordStatus.resize (channels.size());
+    m_recordStatus.resize (dataChannelArray.size());
 
-    for (int i = 0; i < channels.size(); ++i)
+    for (int i = 0; i < dataChannelArray.size(); ++i)
     {
         m_recordStatus.set (i, true);
     }
@@ -485,7 +438,8 @@ void GenericProcessor::setRecording (bool state)
         startRecording();
         if (isGeneratesTimestamps())
         {
-            m_isNeedsToSendTimestampMessage = true;
+			m_needsToSendTimestampMessages.clearQuick();
+			m_needsToSendTimestampMessages.insertMultiple(-1, true, getNumSubProcessors());
         }
     }
     else
@@ -494,7 +448,8 @@ void GenericProcessor::setRecording (bool state)
             ed->stopRecording();
 
         stopRecording();
-        m_isNeedsToSendTimestampMessage = false;
+		m_needsToSendTimestampMessages.clearQuick();
+		m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumSubProcessors());
     }
 }
 
@@ -720,14 +675,14 @@ int GenericProcessor::processEventBuffer (MidiBuffer& events)
 }
 
 
-int GenericProcessor::checkForEvents (MidiBuffer& midiMessages)
+int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
-    if (midiMessages.getNumEvents() > 0)
+    if (m_currentMidiBuffer->getNumEvents() > 0)
     {
         // int m = midiMessages.getNumEvents();
         //std::cout << m << " events received by node " << getNodeId() << std::endl;
 
-        MidiBuffer::Iterator i (midiMessages);
+        MidiBuffer::Iterator i (*m_currentMidiBuffer);
         MidiMessage message (0xf4);
 
         int samplePosition = 0;
@@ -735,64 +690,59 @@ int GenericProcessor::checkForEvents (MidiBuffer& midiMessages)
 
         while (i.getNextEvent (message, samplePosition))
         {
-            const uint8* dataptr = message.getRawData();
-
-            handleEvent (*dataptr, message, samplePosition);
+			uint16 sourceId = EventBase::getSourceID(message);
+			uint16 subProc = EventBase::getSubProcessorIdx(message);
+			uint16 index = EventBase::getSourceIndex(message);
+			if (EventBase::getBaseType(message) == EventType::PROCESSOR_EVENT)
+			{
+				int index = getEventChannelIndex(index, sourceId, subProc);
+				if (index >= 0)
+					handleEvent(eventChannelArray[index], message, samplePosition);
+			}
+			else if (checkForSpikes && EventBase::getBaseType(message) == EventType::SPIKE_EVENT)
+			{
+				int index = getSpikeChannelIndex(index, sourceId, subProc);
+				if (index >= 0)
+					handleSpike(spikeChannelArray[index], message, samplePosition);
+			}
         }
+		return 0;
     }
 
     return -1;
 }
 
-
-void GenericProcessor::addEvent (MidiBuffer& eventBuffer,
-                                 uint8 type,
-                                 int sampleNum,
-                                 uint8 eventId,
-                                 uint8 eventChannel,
-                                 uint8 numBytes,
-                                 uint8* eventData,
-                                 bool isTimestamp)
+void GenericProcessor::addEvent(int channelIndex, const Event& event, int sampleNum)
 {
-    /*If the processor doesn't generates timestamps, but needs to add events to the buffer anyway
-    add the timestamp of the first input channel so the event is properly timestamped. We avoid this step for
-    source modules that must always provide a timestamp, even if they don't generate it*/
-    if (! isTimestamp
-        && ! m_isTimestampSet
-        && ! isSource()
-        && ! isGeneratesTimestamps())
-    {
-        setTimestamp (eventBuffer, getTimestamp (0));
-    }
+	addEvent(eventChannelArray[channelIndex], event, sampleNum);
+}
 
-    HeapBlock<uint8> data (static_cast<const size_t> (6 + numBytes));
-    //uint8* data = new uint8[6+numBytes];
+void GenericProcessor::addEvent(const EventChannel* channel, const Event& event, int sampleNum)
+{
+	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + EVENT_BASE_SIZE;
+	HeapBlock<char> buffer(size);
+	event.serialize(buffer, size);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
+}
 
-    data[0] = type;    // event type
-    data[1] = nodeId;  // processor ID automatically added
-    data[2] = eventId; // event ID (1 = on, 0 = off, usually)
-    data[3] = eventChannel; // event channel
-    data[4] = 1; // saving flag
-    if (! isTimestamp)
-        data[5] = (uint8)eventChannels[eventChannel]->sourceNodeId;  // source node ID (for nSamples)
-    else
-        data[5] = nodeId;
-    memcpy (data + 6, eventData, numBytes);
+void GenericProcessor::addSpike(int channelIndex, const SpikeEvent& event, int sampleNum)
+{
+	addSpike(spikeChannelArray[channelIndex], event, sampleNum);
+}
 
-    //std::cout << "Node id: " << data[1] << std::endl;
-
-    eventBuffer.addEvent (data,         // raw data
-                          6 + numBytes, // total bytes
-                          sampleNum);   // sample index
-
-    //if (type == TTL)
-    //	std::cout << "Adding event for channel " << (int) eventChannel << " with ID " << (int) eventId << std::endl;
+void GenericProcessor::addSpike(const SpikeChannel* channel, const SpikeEvent& event, int sampleNum)
+{
+	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + SPIKE_BASE_SIZE + channel->getNumChannels()*sizeof(float);
+	HeapBlock<char> buffer(size);
+	event.serialize(buffer, size);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
 }
 
 
 void GenericProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
-    processEventBuffer (eventBuffer); // extract buffer sizes and timestamps,
+	m_currentMidiBuffer = &eventBuffer;
+    processEventBuffer (); // extract buffer sizes and timestamps,
     // set flag on all TTL events to zero
 
     m_isTimestampSet = false;
@@ -1026,20 +976,18 @@ int GenericProcessor::getCurrentProgram()   { return 0; }
 
 int GenericProcessor::getNumInputs() const                  { return settings.numInputs; }
 int GenericProcessor::getNumOutputs() const                 { return settings.numOutputs; }
-int GenericProcessor::getNumHeadstageOutputs() const        { return 2; }
-int GenericProcessor::getNumAdcOutputs() const              { return 0; }
-int GenericProcessor::getNumAuxOutputs() const              { return 0; }
-int GenericProcessor::getNumEventChannels() const           { return 0; }
+int GenericProcessor::getNumDataOutputs(DataChannel::DataChannelTypes) const        { return 0; }
+int GenericProcessor::getNumEventOutputs(EventChannel::EventChannelTypes) const           { return 0; }
 int GenericProcessor::getNodeId() const                     { return nodeId; }
-int GenericProcessor::getTotalNumberOfChannels() const      { return channels.size() + eventChannels.size(); }
+int GenericProcessor::getTotalNumberOfChannels() const      { return dataChannelArray.size() + eventChannelArray.size() + spikeChannelArray.size(); }
 
 double GenericProcessor::getTailLengthSeconds() const       { return 1.0f; }
 
 float GenericProcessor::getParameter (int parameterIndex)   { return 1.0; }
 float GenericProcessor::getDefaultSampleRate() const        { return 44100.0; }
-float GenericProcessor::getSampleRate() const               { return settings.sampleRate; }
+float GenericProcessor::getSampleRate(int) const               { return getDefaultSampleRate(); }
 float GenericProcessor::getDefaultBitVolts() const          { return 1.0; }
-float GenericProcessor::getBitVolts (Channel* chan) const   { return 1.0; }
+float GenericProcessor::getBitVolts (DataChannel* chan) const   { return 1.0; }
 
 GenericProcessor* GenericProcessor::getSourceNode() const { return sourceNode; }
 GenericProcessor* GenericProcessor::getDestNode()   const { return destNode; }
@@ -1063,12 +1011,9 @@ void GenericProcessor::updateSettings() { }
 
 void GenericProcessor::enableCurrentChannel (bool) {}
 
-void GenericProcessor::handleEvent (int eventType, MidiMessage& event, int samplePosition) {}
+void GenericProcessor::handleEvent(EventChannel* eventInfo, MidiMessage& event, int samplePosition) {}
 
-String GenericProcessor::interProcessorCommunication (String command)
-{
-    return String ("OK");
-};
+void GenericProcessor::handleSpike(SpikeChannel* spikeInfo, MidiMessage& event, int samplePosition) {}
 
 void GenericProcessor::setEnabledState (bool t)
 {
