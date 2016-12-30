@@ -50,7 +50,7 @@ public:
 
     void setEnabledState (bool newState) override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
@@ -59,16 +59,12 @@ public:
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
     void loadCustomParametersFromXml()                          override;
 
-    float getSampleRate()        const override;
+	int getNumSubProcessors() const override;
+
+    float getSampleRate(int subProcessorIdx = 0)        const override;
     float getDefaultSampleRate() const override;
 
-    float getBitVolts (Channel* chan) const override;
-
-    int getNumHeadstageOutputs() const override;
-    int getNumAuxOutputs()       const override;
-    int getNumAdcOutputs()       const override;
-
-    int getNumEventChannels() const override;
+    float getBitVolts (const DataChannel* chan) const override;
 
     void requestChainUpdate();
 
@@ -91,27 +87,33 @@ public:
 
     bool tryEnablingEditor();
 
+	void setChannelInfo(int channel, String name, float bitVolts);
+protected:
+	int getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessorIdx = 0) const override;
+
+	void createEventChannels() override;
 
 private:
     void timerCallback() override;
 
     void updateSettings() override;
 
-    int numEventChannels;
     int sourceCheckInterval;
 
     bool wasDisabled;
 
     ScopedPointer<DataThread> dataThread;
-    DataBuffer* inputBuffer;
+    Array<DataBuffer*> inputBuffers;
 
     uint64 timestamp;
     //uint64* eventCodeBuffer;
     //int* eventChannelState;
-    HeapBlock<uint64> eventCodeBuffer;
-    HeapBlock<int> eventChannelState;
+    OwnedArray<MemoryBlock> eventCodeBuffers;
+	Array<uint64> eventStates;
+	Array<EventChannel*> ttlChannels;
 
     int ttlState;
+	void resizeBuffers();
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);

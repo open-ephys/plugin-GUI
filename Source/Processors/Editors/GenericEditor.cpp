@@ -30,6 +30,7 @@
 #include "../../UI/ProcessorList.h"
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
+#include "../../UI/GraphViewer.h"
 
 #include <math.h>
 
@@ -126,12 +127,15 @@ void GenericEditor::setDisplayName(const String& string)
     repaint();
 }
 
-
 String GenericEditor::getDisplayName()
 {
     return displayName;
 }
 
+int GenericEditor::getChannelDisplayNumber(int chan)
+{
+	return chan;
+}
 
 void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 {
@@ -514,7 +518,7 @@ void GenericEditor::update()
         for (int i = 0; i < numChannels; i++)
         {
             // std::cout << p->channels[i]->getRecordState() << std::endl;
-            channelSelector->setRecordStatus(i, p->channels[i]->getRecordState());
+            channelSelector->setRecordStatus(i, p->getDataChannel(i)->getRecordState());
         }
     }
 
@@ -536,15 +540,20 @@ void GenericEditor::update()
 
 }
 
-Channel* GenericEditor::getChannel(int chan)
+const DataChannel* GenericEditor::getChannel(int chan) const
 {
-    return getProcessor()->channels[chan];
+    return getProcessor()->getDataChannel(chan);
 
 }
 
-Channel* GenericEditor::getEventChannel(int chan)
+const EventChannel* GenericEditor::getEventChannel(int chan) const
 {
-    return getProcessor()->eventChannels[chan];
+    return getProcessor()->getEventChannel(chan);
+}
+
+const SpikeChannel* GenericEditor::getSpikeChannel(int chan) const
+{
+	return getProcessor()->getSpikeChannel(chan);
 }
 
 Array<int> GenericEditor::getActiveChannels()

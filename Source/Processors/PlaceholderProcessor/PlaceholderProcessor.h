@@ -42,7 +42,7 @@ public:
     bool isSink()   const override;
     bool isReady()  override;
 
-    void process (AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer) override;
+    void process (AudioSampleBuffer& continuousBuffer) override;
 
 
 private:

@@ -75,15 +75,16 @@ public:
     // for communication with SourceNode processors:
     bool foundInputSource() override;
 
-    int getNumHeadstageOutputs() const override;
-    int getNumAuxOutputs()       const override;
-    int getNumAdcOutputs()       const override;
-    int getNumEventChannels()    const override;
+	int getNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessor) const override;
 
+	unsigned int getNumSubProcessors() const override;
+
+	int getNumTTLOutputs(int subprocessor) const override;
+    
     bool usesCustomNames() const override;
 
-    float getSampleRate() const override;
-    float getBitVolts (Channel* chan) const override;
+    float getSampleRate(int subprocessor) const override;
+    float getBitVolts (const DataChannel* chan) const override;
 
     float getAdcBitVolts (int channelNum) const;
 

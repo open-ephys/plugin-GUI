@@ -54,7 +54,7 @@ AudioProcessorEditor* PlaceholderProcessor::createEditor()
 }
 
 
-void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer)
+void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer)
 {
 }
 

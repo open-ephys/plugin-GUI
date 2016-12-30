@@ -50,26 +50,26 @@ public:
     ~MessageCenter();
 
     /** Handle incoming data and decide which files and events to write to disk. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer);
+    void process(AudioSampleBuffer& buffer) override;
 
     /** Called when new events arrive. */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue) override;
 
     /** Creates the MessageCenterEditor (located in the UI component). */
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
-    bool enable();
-    bool disable();
+    bool enable() override;
+    bool disable() override;
 
-    void startRecording()
+    void startRecording() override
     {
         isRecording = true;
         needsToSendTimestampMessage = true;
     }
-    void stopRecording()
+    void stopRecording() override
     {
         isRecording = false;
         needsToSendTimestampMessage = false;
@@ -82,6 +82,8 @@ public:
     void removeSourceProcessor(GenericProcessor* p);
 
     int64 getTimestamp(bool softwareTime = false);
+protected:
+	void getDefaultEventInfo(Array<DefaultEventInfo>& events, int) const override;
 private:
 
     bool newEventAvailable;

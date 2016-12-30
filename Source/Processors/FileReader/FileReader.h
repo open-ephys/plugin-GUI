@@ -45,7 +45,7 @@ public:
     FileReader();
     ~FileReader();
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
@@ -54,11 +54,10 @@ public:
     bool isGeneratesTimestamps()    const  override { return true; }
     bool isReady()                  override;
 
-    int getNumHeadstageOutputs()        const override;
-    int getNumEventChannels()           const override;
+    int getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int)        const override;
 
     float getDefaultSampleRate()        const override;
-    float getBitVolts (Channel* chan)   const override;
+    float getBitVolts (const DataChannel* chan)   const override;
 
     void updateSettings() override;
     void setEnabledState (bool t)  override;

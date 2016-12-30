@@ -28,6 +28,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "../Channel/InfoObjects.h"
 
 #include <stdio.h>
 
@@ -147,6 +148,9 @@ public:
     /** Get name on title bar. */
     String getDisplayName();
 
+	/** Returns a custom channel number for the Channel Selector buttons. Useful for channel mappers */
+	virtual int getChannelDisplayNumber(int chan);
+
     /** Determines how wide the editor will be drawn. */
     int desiredWidth;
 
@@ -245,10 +249,12 @@ public:
     Array<ParameterEditor*> parameterEditors;
 
     /** Returns the Channel object for a given continuous channel number. */
-    DataChannel* getChannel (int chan);
+    const DataChannel* getChannel (int chan) const;
 
     /** Returns the Channel object for a given event channel number. */
-    EventChannel* getEventChannel (int chan);
+    const EventChannel* getEventChannel (int chan) const;
+
+	const SpikeChannel* getSpikeChannel(int chan) const;
 
     /** Stores the font used to display the editor's name. */
     Font titleFont;

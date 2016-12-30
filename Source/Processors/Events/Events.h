@@ -41,6 +41,8 @@ Source Event index - 2 bytes
 Timestamp - 8 bytes
 Event Virtual Channel - 2 bytes
 data - variable
+
+The first bit of EventType will be set to 1 when the event is recorded to avoid re-recording events. This will go away when the probe system is implemented.
 */
 
 /**
@@ -54,18 +56,23 @@ Timestamp - 8 bytes
 Thresholds - 4bytes*nChannels
 Data - 4bytes*nChannels*nSamples
 */
+class TTLEvent;
+class TextEvent;
+class BinaryEvent;
+class SpikeEvent;
 
 enum EventType
 {
-	SYSYEM_EVENT,
+	SYSTEM_EVENT,
 	PROCESSOR_EVENT,
 	SPIKE_EVENT
 };
 
 enum SystemEventType
 {
-	TIMESTAMP = 0, //timestamp and buffer size are now the same event
-	PARAMETER_CHANGE = 2
+	TIMESTAMP_AND_SAMPLES = 0, //timestamp and buffer size are now the same event
+	PARAMETER_CHANGE = 2,
+	TIMESTAMP_SYNC_TEXT = 3 //Special text message, not associated with any event channel, for sourcenodes to send timestamp text messages
 };
 
 class PLUGIN_API EventBase
@@ -118,6 +125,7 @@ protected:
 
 };
 
+typedef ScopedPointer<TTLEvent> TTLEventPtr;
 class PLUGIN_API TTLEvent
 	: public Event
 {
@@ -129,9 +137,9 @@ public:
 	
 	const void* getTTLWordPointer() const;
 
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel);
-	static TTLEvent* createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel);
-	static TTLEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
+	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel);
+	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel);
+	static TTLEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TTLEvent() = delete;
 	TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* eventData);
@@ -140,6 +148,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TTLEvent);
 };
 
+typedef ScopedPointer<TextEvent> TextEventPtr;
 class PLUGIN_API TextEvent
 	: public Event
 {
@@ -147,9 +156,9 @@ public:
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 	String getText() const;
 
-	static TextEvent* createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
-	static TextEvent* createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
-	static TextEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
+	static TextEventPtr createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
+	static TextEventPtr createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
+	static TextEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TextEvent() = delete;
 	TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& text);
@@ -158,6 +167,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TextEvent);
 };
 
+typedef ScopedPointer<BinaryEvent> BinaryEventPtr;
 class PLUGIN_API BinaryEvent
 	: public Event
 {
@@ -168,12 +178,12 @@ public:
 	EventChannel::EventChannelTypes getBinaryType() const;
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel = 0);
+	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel = 0);
 
 	template<typename T>
-	static BinaryEvent* createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel = 0);
+	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel = 0);
 
-	static BinaryEvent* deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
+	static BinaryEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 	
 private:
 	BinaryEvent() = delete;
@@ -187,6 +197,7 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BinaryEvent);
 };
 
+typedef ScopedPointer<SpikeEvent> SpikeEventPtr;
 class PLUGIN_API SpikeEvent
 	: public EventBase
 {
@@ -223,10 +234,10 @@ public:
 
 	float getThreshold(int chan) const;
 
-	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource);
-	static SpikeEvent* createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData);
+	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource);
+	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData);
 
-	static SpikeEvent* deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo);
+	static SpikeEventPtr deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo);
 private:
 	SpikeEvent() = delete;
 	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data);

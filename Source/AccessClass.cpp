@@ -22,6 +22,8 @@
 */
 
 #include "AccessClass.h"
+#include "Processors\GenericProcessor\GenericProcessor.h"
+#include "Processors\MessageCenter\MessageCenterEditor.h"
 
 #include "UI/UIComponent.h"
 
@@ -129,4 +131,13 @@ ActionBroadcaster* getBroadcaster()
     return bc.get();
 }
 
+MidiBuffer* getProcessorMidiBuffer(GenericProcessor* proc)
+{
+	return MidiBufferAccessor::getMidiBuffer(proc);
+}
+
+MidiBuffer* MidiBufferAccessor::getMidiBuffer(GenericProcessor* proc)
+{
+	return proc->m_currentMidiBuffer;
+}
 }

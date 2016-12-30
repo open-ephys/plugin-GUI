@@ -30,7 +30,6 @@
 
 
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../Channel/Channel.h"
 #include "EventQueue.h"
 
 #define WRITE_BLOCK_LENGTH 1024
@@ -108,13 +107,13 @@ public:
 
     /** Selects a channel relative to a particular processor with ID = id
     */
-    void setChannel(Channel* ch);
+    void setChannel(const DataChannel* ch);
 
     /** Turns recording on and off for a particular channel.
 
         Channel numbers are absolute (based on RecordNode channel mapping).
     */
-    void setChannelStatus(Channel* ch, bool status);
+    void setChannelStatus(const DataChannel* ch, bool status);
 
     /** Used to clear all connections prior to the start of acquisition.
     */

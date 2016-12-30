@@ -435,7 +435,9 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
         // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
         // IT CAN CAUSE PROBLEMS IF THE SAMPLE RATE VARIES ACROSS PROCESSORS
-        getAudioNode()->settings.sampleRate = source->getSampleRate();
+
+		//TODO: See if this causes problems with the newer architectures
+        //getAudioNode()->settings.sampleRate = source->getSampleRate();
 
         addConnection(source->getNodeId(),                   // sourceNodeID
                       chan,                                  // sourceNodeChannelIndex
@@ -550,7 +552,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 				//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
 				if (p && p->isSource() && p->isGeneratesTimestamps())
 				{
-					newId = p->nodeId;
+					newId = p->getNodeId();
 				}
 			}
         }

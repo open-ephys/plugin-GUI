@@ -36,6 +36,7 @@ class ControlPanel;
 class AudioComponent;
 class GraphViewer;
 class PluginManager;
+class GenericProcessor;
 
 
 
@@ -83,6 +84,14 @@ PluginManager* getPluginManager();
 
 ActionBroadcaster* getBroadcaster();
 
+MidiBuffer* getProcessorMidiBuffer(GenericProcessor* proc);
+
+class MidiBufferAccessor
+{
+	friend MidiBuffer* getProcessorMidiBuffer(GenericProcessor* proc);
+private:
+	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
+};
 
 };
 

@@ -55,7 +55,7 @@ void HistoryObject::addToHistoricString(String entry)
 
 //SourceProcessorInfo
 SourceProcessorInfo::SourceProcessorInfo(const GenericProcessor* source, uint16 subproc) 
-	:	m_sourceNodeID(source->nodeId),
+	:	m_sourceNodeID(source->getNodeId()),
 		m_sourceSubNodeIndex(subproc), 
 		m_sourceType(source->getName()),
 		m_sourceName(source->getName()) //TODO: fix those two when we have the ability to rename processors
@@ -149,6 +149,7 @@ DataChannel::DataChannel(DataChannelTypes type, GenericProcessor* source, uint16
 	InfoObjectCommon(source->dataChannelCount++, source->dataChannelTypeCount[type]++, source, subproc),
 	m_type(type)
 {
+	setName(getDefaultName());
 }
 
 DataChannel::DataChannel(const DataChannel& ch)
@@ -165,6 +166,11 @@ DataChannel::DataChannel(const DataChannel& ch)
 
 DataChannel::~DataChannel()
 {
+}
+
+InfoObjectCommon::InfoObjectType DataChannel::getInfoObjectType() const
+{
+	return InfoObjectCommon::DATA_CHANNEL;
 }
 
 void DataChannel::setBitVolts(float bitVolts)
@@ -222,14 +228,33 @@ void DataChannel::reset()
 }
 
 //EventChannel
-EventChannel::EventChannel(EventChannelTypes type, GenericProcessor* source, uint16 subproc)
+EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, GenericProcessor* source, uint16 subproc)
 	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, source, subproc),
 		m_type(type)
 {
+	m_numChannels = nChannels;
+	if (m_type == TTL)
+	{
+		m_length = (m_numChannels + 7) / 8;
+		m_dataSize = m_length;
+	}
+	else
+	{
+		m_length = dataLength;
+		m_dataSize = dataLength * getTypeByteSize(m_type);
+		//for messages, add 1 byte to account for the null terminator
+		if (m_type == TEXT) m_dataSize += 1;
+	}
+	setName(getDefaultName());
 }
 
 EventChannel::~EventChannel()
 {
+}
+
+InfoObjectCommon::InfoObjectType EventChannel::getInfoObjectType() const
+{
+	return InfoObjectCommon::EVENT_CHANNEL;
 }
 
 EventChannel::EventChannelTypes EventChannel::getChannelType() const
@@ -237,31 +262,9 @@ EventChannel::EventChannelTypes EventChannel::getChannelType() const
 	return m_type;
 }
 
-void EventChannel::setNumChannels(unsigned int numChannels)
-{
-	m_numChannels = numChannels;
-	//If event is TTL, set size to the needed number of bytes
-	if (m_type == TTL)
-	{
-		m_length = (numChannels + 7) / 8;
-		m_dataSize = m_length;
-	}
-}
-
 unsigned int EventChannel::getNumChannels() const
 {
 	return m_numChannels;
-}
-
-void EventChannel::setLength(unsigned int length)
-{
-	//Do nothing for TTLs, as the bytesize is fixed by the number of available channels
-	if (m_type == TTL) return;
-
-	m_length = length;
-	m_dataSize = length * getTypeByteSize(m_type);
-	//for messages, add 1 byte to account for the null terminator
-	if (m_type == TEXT) m_dataSize += 1;
 }
 
 unsigned int EventChannel::getLength() const
@@ -317,10 +320,16 @@ SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const 
 		info.channelIDX = chan->getSourceIndex();
 		m_sourceInfo.add(info);
 	}
+	setName(getDefaultName());
 }
 
 SpikeChannel::~SpikeChannel()
 {}
+
+InfoObjectCommon::InfoObjectType SpikeChannel::getInfoObjectType() const
+{
+	return InfoObjectCommon::SPIKE_CHANNEL;
+}
 
 SpikeChannel::ElectrodeTypes SpikeChannel::getChannelType() const
 {
@@ -394,6 +403,7 @@ ConfigurationObject::ConfigurationObject(String descriptor, GenericProcessor* so
 	: SourceProcessorInfo(source, subproc)
 {
 	setDescriptor(descriptor);
+	setName(getDefaultName());
 }
 
 void ConfigurationObject::setShouldBeRecorded(bool status)

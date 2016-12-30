@@ -195,7 +195,7 @@ void ChannelSelector::setNumChannels(int numChans)
     //Reassign numbers according to the actual channels (useful for channel mapper)
     for (int n = 0; n < numButtons; ++n)
     {
-        int num = ( (GenericEditor*)getParentComponent())->getChannel (n)->nodeIndex;
+        int num = ( (GenericEditor*)getParentComponent())->getChannelDisplayNumber (n);
         static_cast<ChannelSelectorButton*> (parameterButtonsManager.getButtonAt  (n))->setChannel (n + 1, num + 1);
 
         if (isNotSink)
@@ -650,11 +650,11 @@ void ChannelSelector::buttonClicked(Button* button)
             // get audio node, and inform it of the change
             GenericEditor* editor = (GenericEditor*)getParentComponent();
 
-            Channel* ch = editor->getChannel(b->getChannel() - 1);
+            const DataChannel* ch = editor->getChannel(b->getChannel() - 1);
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 
-            std::cout << "Requesting audio monitor for channel " << ch->nodeIndex + 1 << std::endl;
+         //   std::cout << "Requesting audio monitor for channel " << ch->nodeIndex + 1 << std::endl;
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
@@ -671,7 +671,7 @@ void ChannelSelector::buttonClicked(Button* button)
             // get record node, and inform it of the change
             GenericEditor* editor = (GenericEditor*)getParentComponent();
 
-            Channel* ch = editor->getChannel(b->getChannel() - 1);
+            const DataChannel* ch = editor->getChannel(b->getChannel() - 1);
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 
@@ -684,7 +684,11 @@ void ChannelSelector::buttonClicked(Button* button)
             else     // change parameter directly
             {
                 //std::cout << "Setting record status for channel " << b->getChannel() << std::endl;
-                ch->setRecordState(status);
+
+				//This is another of those ugly things that will go away once the
+				//probe recording system is implemented, but is needed to maintain compatibility
+				//between the older recording system and the newer channel objects.
+                const_cast<DataChannel*>(ch)->setRecordState(status);
             }
 
             AccessClass::getGraphViewer()->repaint();

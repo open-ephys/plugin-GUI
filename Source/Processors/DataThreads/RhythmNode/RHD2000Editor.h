@@ -76,7 +76,7 @@ public:
 
 private:
     Array<float> gains;
-    Array<ChannelType> types;
+    Array<DataChannel::DataChannelTypes> types;
 
     bool chainUpdate;
 
@@ -96,7 +96,7 @@ private:
 class FPGAchannelComponent : public Component, Button::Listener, public ComboBox::Listener, public Label::Listener
 {
 public:
-    FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, ChannelType type_);
+    FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String name_, Array<float> gains_, DataChannel::DataChannelTypes type_);
     ~FPGAchannelComponent();
     Colour getDefaultColor(int ID);
     void setImpedanceValues(float mag, float phase);
@@ -117,7 +117,7 @@ public:
 
     void resized();
 
-	const ChannelType type;
+	const DataChannel::DataChannelTypes type;
 private:
     Array<float> gains;
     FPGAchannelList* channelList;

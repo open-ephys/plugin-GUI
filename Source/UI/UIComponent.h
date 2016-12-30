@@ -25,23 +25,19 @@
 #define __UICOMPONENT_H_D97C73CF__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "InfoLabel.h"
-#include "ControlPanel.h"
-#include "ProcessorList.h"
-#include "EditorViewport.h"
-#include "DataViewport.h"
-#include "../Processors/MessageCenter/MessageCenterEditor.h"
-#include "GraphViewer.h"
-#include "../Processors/ProcessorGraph/ProcessorGraph.h"
-#include "../Audio/AudioComponent.h"
-#include "../MainWindow.h"
+
 
 
 class MainWindow;
 class ProcessorList;
-
+class ControlPanel;
 class EditorViewportButton;
 class PluginManager;
+class ProcessorGraph;
+class AudioComponent;
+class GraphViewer;
+class MessageCenterEditor;
+class InfoLabel;
 
 /**
 

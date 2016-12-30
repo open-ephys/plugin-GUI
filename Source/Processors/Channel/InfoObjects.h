@@ -119,6 +119,7 @@ public:
 	String getDescriptor() const;
 protected:
 	NamedInfoObject();
+	virtual String getDefaultName() const = 0;
 private:
 	String m_name;
 	String m_descriptor;
@@ -128,12 +129,18 @@ private:
 
 /** Common class for all info objects */
 class PLUGIN_API InfoObjectCommon :
-	public NodeInfoBase, public SourceProcessorInfo, NamedInfoObject
+	public NodeInfoBase, public SourceProcessorInfo, public NamedInfoObject
 {
 protected:
 	InfoObjectCommon(uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc = 0);
 
 public:
+	enum InfoObjectType
+	{
+		DATA_CHANNEL,
+		EVENT_CHANNEL,
+		SPIKE_CHANNEL
+	};
 
 	/** Sets the sample rate value for this channel. */
 	void setSampleRate(float sampleRate);
@@ -148,6 +155,8 @@ public:
 	/** Gets the position in the source processor of this channel object, relative
 	to its subtype (HEADSTAGE, AUX or ADC for data channels, TTL, MESSAGE or BINARY for events, etc...) */
 	uint16 getSourceTypeIndex() const;
+
+	virtual InfoObjectType getInfoObjectType() const = 0;
 
 private:
 	/** Index of the object in the source processor */
@@ -220,6 +229,8 @@ public:
 	/** Restores the default settings for a given channel. */
 	void reset();
 
+	InfoObjectType getInfoObjectType() const override;
+	String getDefaultName() const override;
 private:
 	const DataChannelTypes m_type;
 	float m_bitVolts{ 1.0f };
@@ -259,34 +270,32 @@ public:
 
 	/** Default constructor
 	@param type The type of event this channel represents (TTL, TEXT, BYINARY_MSG)
+	@param numChannels The number of virtual channels
+	@param dataLength The length of the event payload
 	@param idx The index of this event channel in the source processor
 	@param typeidx The index of this particular type of event channel in the source processor
 	@param source A pointer to the source processor
 	@param subproc Optional. The source subprocessor index.
+
+	The virtual channels mean:
+	-For TTL signals, it must be the number of bits in the TTL word.
+	-For other events, this might be used to differentiate between different origins within the same processor
+
+	The event length mean:
+	-For TTL signals, this method will do nothing, as the size is fixed by the number of ttl channels
+	-For message events, the length of the string in characters
+	-For typed array events, the number of elements
+
 	*/
-	EventChannel(EventChannelTypes type, GenericProcessor* source, uint16 subproc = 0);
+	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, GenericProcessor* source, uint16 subproc = 0);
 
 	~EventChannel();
 
 	EventChannelTypes getChannelType() const;
 
-	/** Sets the number of virtual channels this event can carry
-		-For TTL signals, it must be the number of bits in the TTL word.
-		-For other events, this might be used to differentiate between different origins within the same processor
-	*/
-	void setNumChannels(unsigned int numChannels);
-
 	/** Gets the number of virtual channels
-		@see setNumChannels
 	*/
 	unsigned int getNumChannels() const;
-
-	/** Sets the length of the event payload
-		-For TTL signals, this method will do nothing, as the size is fixed by the number of ttl channels
-		-For message events, the length of the string in characters
-		-For typed array events, the number of elements
-	*/
-	void setLength(unsigned int length);
 
 	/** Gets the size of the event payload
 		-For TTL, it returns the number of bytes that form the full TTL word, same as getByteDataSize()
@@ -313,6 +322,8 @@ public:
 	/** Gets the size in bytes of an element depending of the type*/
 	static size_t getTypeByteSize(EventChannelTypes type);
 
+	InfoObjectType getInfoObjectType() const override;
+	String getDefaultName() const override;
 private:
 	const EventChannelTypes m_type;
 	unsigned int m_numChannels{ 1 };
@@ -381,6 +392,8 @@ public:
 	/** Gets the number of channels associated with a specific electrode type */
 	static unsigned int getNumChannels(ElectrodeTypes type);
 
+	InfoObjectType getInfoObjectType() const override;
+	String getDefaultName() const override;
 private:
 	const ElectrodeTypes m_type;
 	Array<sourceChannelInfo> m_sourceInfo;
@@ -415,6 +428,7 @@ public:
 	/** Gets the config preference about being recorded */
 	bool getShouldBeRecorded() const;
 
+	String getDefaultName() const override;
 private:
 	bool m_shouldBeRecorded{ true };
 	JUCE_LEAK_DETECTOR(ConfigurationObject);

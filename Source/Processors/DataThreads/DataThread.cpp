@@ -26,15 +26,16 @@
 
 DataThread::DataThread (SourceNode* s)
     : Thread     ("Data Thread")
-    , dataBuffer (0)
 {
     sn = s;
     setPriority (10);
 
-    // set default to zero, so that sources that
-    // do not generate their own timestamps can simply increment
-    // this value
-    timestamp = 0;
+	int nSub = getNumSubProcessors();
+	for (int i = 0; i < nSub; i++)
+	{
+		ttlEventWords.add(0);
+		timestamps.add(0);
+	}
 }
 
 
@@ -61,11 +62,10 @@ void DataThread::run()
 }
 
 
-DataBuffer* DataThread::getBufferAddress() const
+DataBuffer* DataThread::getBufferAddress(int subProcessor) const
 {
-    std::cout << "Setting buffer address to " << dataBuffer << std::endl;
 
-    return dataBuffer;
+	return sourceBuffers[subProcessor];
 }
 
 
@@ -78,15 +78,22 @@ void DataThread::getChannelInfo (Array<ChannelCustomInfo>& infoArray) const
 
 void DataThread::updateChannels()
 {
+	ttlEventWords.clear();
+	timestamps.clear();
+	int nSub = getNumSubProcessors();
+	for (int i = 0; i < nSub; i++)
+	{
+		ttlEventWords.add(0);
+		timestamps.add(0);
+	}
     if (usesCustomNames())
     {
-        channelInfo.resize (sn->channels.size());
+        channelInfo.resize (sn->getTotalDataChannels());
         setDefaultChannelNames();
 
         for (int i = 0; i < channelInfo.size(); ++i)
         {
-            sn->channels[i]->setName (channelInfo[i].name);
-            sn->channels[i]->bitVolts = channelInfo[i].gain;
+			sn->setChannelInfo(i, channelInfo[i].name, channelInfo[i].gain);
         }
     }
 }
@@ -95,9 +102,11 @@ void DataThread::updateChannels()
 void DataThread::setOutputHigh() {}
 void DataThread::setOutputLow() {}
 
-int DataThread::getNumAuxOutputs() const    { return 0; }
-int DataThread::getNumAdcOutputs() const    { return 0; }
-int DataThread::getNumEventChannels() const { return 0; }
+int DataThread::getNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const { return 0; }
+
+unsigned int DataThread::getNumSubProcessors() const { return 0; }
+
+int DataThread::getNumTTLOutputs(int subproc) const { return 0; }
 
 void DataThread::getEventChannelNames (StringArray& names) const { }
 
@@ -119,11 +128,6 @@ bool DataThread::usesCustomNames() const
     return false;
 }
 
-void* DataThread::getDevice()
-{
-    return 0;
-}
-
 void DataThread::setDefaultChannelNames()
 {
 }
@@ -133,7 +137,5 @@ GenericEditor* DataThread::createEditor (SourceNode*)
     return nullptr;
 }
 
-bool DataThread::isDualSampleRate()
-{
-    return false;
-}
+void DataThread::createExtraEvents(Array<EventChannel>&)
+{}

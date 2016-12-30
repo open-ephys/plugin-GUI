@@ -25,7 +25,7 @@
 #include "MessageCenterEditor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../AccessClass.h"
-
+#define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
@@ -37,15 +37,17 @@ MessageCenter::MessageCenter() :
                          0, // number of outputs
                          44100.0, // sampleRate
                          128);    // blockSize
-
-    Channel* ch = new Channel(this, 0, EVENT_CHANNEL);
-    eventChannels.add(ch);
-
 }
 
 MessageCenter::~MessageCenter()
 {
 
+}
+
+void MessageCenter::getDefaultEventInfo(Array<DefaultEventInfo>& events, int sub) const
+{
+	if (sub > 0) return;
+	events.add(DefaultEventInfo(EventChannel::TEXT, 1, MAX_MSG_LENGTH));
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()
@@ -120,22 +122,26 @@ int64 MessageCenter::getTimestamp(bool softwareTime)
         return (softTimestamp);
 }
 
-void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
+void MessageCenter::process(AudioSampleBuffer& buffer)
 {
 	softTimestamp = Time::getHighResolutionTicks() - lastTime;
-    setTimestamp(eventBuffer,getTimestamp());
+    setTimestampAndSamples(getTimestamp(), 0);
     if (needsToSendTimestampMessage)
     {
+		MidiBuffer& eventBuffer = *AccessClass::getProcessorMidiBuffer(this);
         String eventString = "Software time: " + String(getTimestamp(true)) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
-        CharPointer_UTF8 data = eventString.toUTF8();
+        
+		size_t textSize = eventString.getNumBytesAsUTF8();
+		size_t dataSize = 17 + textSize;
+		HeapBlock<char> data(dataSize, true);
+		data[0] = SYSTEM_EVENT;
+		data[1] = TIMESTAMP_SYNC_TEXT;
+		*reinterpret_cast<uint16*>(data.getData() + 2) = getNodeId();
+		*reinterpret_cast<uint16*>(data.getData() + 4) = 0;
+		*reinterpret_cast<uint64*>(data.getData() + 8) = getTimestamp(true);
+		memcpy(data.getData() + 16, eventString.toUTF8(), textSize);
 
-        addEvent(eventBuffer,
-                 MESSAGE,
-                 0,
-                 0,
-                 0,
-                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
-                 (uint8*)data.getAddress());
+		eventBuffer.addEvent(data, dataSize, 0);
 
         needsToSendTimestampMessage = false;
     }
@@ -146,15 +152,10 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 
         String eventString = messageCenterEditor->getLabelString();
 
-        CharPointer_UTF8 data = eventString.toUTF8();
+		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
-        addEvent(eventBuffer,
-                 MESSAGE,
-                 0,
-                 0,
-                 0,
-                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
-                 (uint8*) data.getAddress());
+		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), getTimestamp(), eventString);
+		addEvent(getEventChannel(0), event, 0);
 
         newEventAvailable = false;
     }

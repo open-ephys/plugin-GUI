@@ -127,7 +127,7 @@ void FPGAchannelList::update()
     staticLabels.clear();
 
     RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
-    ChannelType type;
+    DataChannel::DataChannelTypes type;
 
     // find out which streams are active.
     bool hsActive[MAX_NUM_HEADSTAGES+1];

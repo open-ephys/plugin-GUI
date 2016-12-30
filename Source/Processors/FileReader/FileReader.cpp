@@ -96,8 +96,10 @@ float FileReader::getDefaultSampleRate() const
 }
 
 
-int FileReader::getNumHeadstageOutputs() const
+int FileReader::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const
 {
+	if (subproc != 0) return 0;
+	if (type != DataChannel::HEADSTAGE_CHANNEL) return 0;
     if (input)
         return currentNumChannels;
     else
@@ -105,16 +107,10 @@ int FileReader::getNumHeadstageOutputs() const
 }
 
 
-int FileReader::getNumEventChannels() const
-{
-    return 8;
-}
-
-
-float FileReader::getBitVolts (Channel* chan) const
+float FileReader::getBitVolts (const DataChannel* chan) const
 {
     if (input)
-        return chan->bitVolts;
+        return chan->getBitVolts();
     else
         return 0.05f;
 }
@@ -232,9 +228,9 @@ void FileReader::updateSettings()
 }
 
 
-void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void FileReader::process (AudioSampleBuffer& buffer)
 {
-    setTimestamp (events, timestamp);
+    
 
     const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
     // FIXME: needs to account for the fact that the ratio might not be an exact
@@ -270,36 +266,8 @@ void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
     }
 
     timestamp += samplesNeeded;
-    setNumSamples (events, samplesNeeded);
-
-    // code for testing events:
-    // // // ===========================================================================
-
-    // if (counter == 100)
-    // {
-    //     //std::cout << "Adding on event for node id: " << nodeId << std::endl;
-    //     addEvent (events,    // MidiBuffer
-    //               TTL,       // eventType
-    //               0,         // sampleNum
-    //               1,         // eventID
-    //               0);        // eventChannel
-    //     ++counter;
-    // } 
-    // else if (counter > 102)
-    // {
-    //     //std::cout << "Adding off event!" << std::endl;
-    //     addEvent (events,    // MidiBuffer
-    //               TTL,       // eventType
-    //               0,         // sampleNum
-    //               0,         // eventID
-    //               0);        // eventChannel
-    //     counter = 0;
-    // }
-    // else 
-    // {
-    //     ++counter;
-    // }
-    // // // ===========================================================================
+	setTimestampAndSamples(timestamp, samplesNeeded);
+    
 }
 
 

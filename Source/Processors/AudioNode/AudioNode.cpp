@@ -72,7 +72,7 @@ void AudioNode::updateBufferSize()
 
 }
 
-void AudioNode::setChannel(Channel* ch)
+void AudioNode::setChannel(const DataChannel* ch)
 {
 
     int channelNum = channelPointers.indexOf(ch);
@@ -82,7 +82,7 @@ void AudioNode::setChannel(Channel* ch)
     setCurrentChannel(channelNum);
 }
 
-void AudioNode::setChannelStatus(Channel* chan, bool status)
+void AudioNode::setChannelStatus(const DataChannel* chan, bool status)
 {
 
     setChannel(chan); // add 2 to account for 2 output channels
@@ -113,7 +113,7 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
     setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-    channelPointers.add(sourceNode->channels[chan]);
+    channelPointers.add(sourceNode->getDataChannel(chan));
 
 }
 
@@ -177,10 +177,10 @@ void AudioNode::recreateBuffers()
     for (int i = 0; i < channelPointers.size(); i++)
     {
         // processor sample rate divided by sound card sample rate
-        numSamplesExpected.add((int)(channelPointers[i]->sampleRate/destBufferSampleRate*float(estimatedSamples)) + 1);
+        numSamplesExpected.add((int)(channelPointers[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
         samplesInBackupBuffer.add(0);
         samplesInOverflowBuffer.add(0);
-        sourceBufferSampleRate.add(channelPointers[i]->sampleRate);
+        sourceBufferSampleRate.add(channelPointers[i]->getSampleRate());
 
         filters.add(new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
 
@@ -220,8 +220,7 @@ void AudioNode::updateFilter(int i)
 
 }
 
-void AudioNode::process(AudioSampleBuffer& buffer,
-                        MidiBuffer& events)
+void AudioNode::process(AudioSampleBuffer& buffer)
 {
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
@@ -314,13 +313,13 @@ void AudioNode::process(AudioSampleBuffer& buffer,
                         samplesInBackupBuffer.set(i,leftoverSamples);
                     }
 
-                    gain = volume/(float(0x7fff) * channelPointers[i]->bitVolts);
+                    gain = volume/(float(0x7fff) * channelPointers[i]->getBitVolts());
                     // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
                     // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
                     int remainingSamples = numSamplesExpected[i] - samplesToCopyFromOverflowBuffer;
 
-                    int samplesAvailable = numSamples.at(channelPointers[i]->sourceNodeId);
+                    int samplesAvailable = numSamples.at(getProcessorFullId(channelPointers[i]->getSourceNodeID(), channelPointers[i]->getSubProcessorIdx()));
 
                     int samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
                                                            remainingSamples :

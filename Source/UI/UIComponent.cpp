@@ -25,6 +25,17 @@
 #include "../Processors/PluginManager/PluginManager.h"
 #include <stdio.h>
 
+#include "InfoLabel.h"
+#include "ControlPanel.h"
+#include "ProcessorList.h"
+#include "EditorViewport.h"
+#include "DataViewport.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
+#include "GraphViewer.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Audio/AudioComponent.h"
+#include "../MainWindow.h"
+
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
 : mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
 

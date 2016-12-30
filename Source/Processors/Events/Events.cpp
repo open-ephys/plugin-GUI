@@ -215,7 +215,7 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel)
+TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel)
 {
 
 	if (!createChecks(channelInfo, EventChannel::TTL, channel))
@@ -233,7 +233,7 @@ TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 times
 	return new TTLEvent(channelInfo, timestamp, channel, eventData);
 }
 
-TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
+TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
 
 	if (!createChecks(channelInfo, EventChannel::TTL, channel, metaData))
@@ -254,7 +254,7 @@ TTLEvent* TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 times
 	return event;
 }
 
-TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
+TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
 	size_t totalSize = msg.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
@@ -266,7 +266,8 @@ TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventCh
 		return nullptr;
 	}
 	const uint8* buffer = msg.getRawData();
-	if ((buffer + 0) != PROCESSOR_EVENT)
+	//TODO: remove the mask when the probe system is implemented
+	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -278,7 +279,7 @@ TTLEvent* TTLEvent::deserializeFromMessage(const MidiMessage& msg, const EventCh
 		return nullptr;
 	}
 
-	if ((buffer + 1) != EventChannel::TTL) {
+	if (*(buffer + 1) != EventChannel::TTL) {
 		jassertfalse;
 		return nullptr;
 	}
@@ -327,7 +328,7 @@ void TextEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel)
+TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel)
 {
 	if (!createChecks(channelInfo, EventChannel::TEXT, channel))
 	{
@@ -344,7 +345,7 @@ TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 ti
 	return new TextEvent(channelInfo, timestamp, channel, text);
 }
 
-TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel)
+TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel)
 {
 	if (!createChecks(channelInfo, EventChannel::TEXT, channel, metaData))
 	{
@@ -364,7 +365,7 @@ TextEvent* TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 ti
 	return event;
 }
 
-TextEvent* TextEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
+TextEventPtr TextEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
 	size_t totalSize = msg.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
@@ -376,7 +377,8 @@ TextEvent* TextEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 		return nullptr;
 	}
 	const uint8* buffer = msg.getRawData();
-	if ((buffer + 0) != PROCESSOR_EVENT)
+	//TODO: remove the mask when the probe system is implemented
+	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -388,7 +390,7 @@ TextEvent* TextEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 		return nullptr;
 	}
 
-	if ((buffer + 1) != EventChannel::TEXT) {
+	if (*(buffer + 1) != EventChannel::TEXT) {
 		jassertfalse;
 		return nullptr;
 	}
@@ -461,7 +463,7 @@ void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const
 }
 
 template<typename T>
-BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel)
+BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel)
 {
 	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
@@ -486,7 +488,7 @@ BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uin
 }
 
 template<typename T>
-BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
+BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
 	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
@@ -512,7 +514,7 @@ BinaryEvent* BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uin
 	return event;
 }
 
-BinaryEvent* BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
+BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
 	size_t totalSize = msg.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
@@ -524,7 +526,8 @@ BinaryEvent* BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const E
 		return nullptr;
 	}
 	const uint8* buffer = msg.getRawData();
-	if ((buffer + 0) != PROCESSOR_EVENT)
+	//TODO: remove the mask when the probe system is implemented
+	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -647,7 +650,7 @@ SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64
 
 }
 
-SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
 {
 	if (!channelInfo)
 	{
@@ -666,7 +669,7 @@ SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64
 	
 }
 
-SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData)
 {
 	if (!channelInfo)
 	{
@@ -690,7 +693,7 @@ SpikeEvent* SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64
 	return event;
 }
 
-SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo)
+SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo)
 {
 	int nChans = channelInfo->getNumChannels();
 	size_t totalSize = msg.getRawDataSize();
@@ -704,7 +707,8 @@ SpikeEvent* SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const Spi
 		return nullptr;
 	}
 	const uint8* buffer = msg.getRawData();
-	if ((buffer + 0) != SPIKE_EVENT)
+	//TODO: remove the mask when the probe system is implemented
+	if (*(buffer + 0)&0x7F != SPIKE_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -760,24 +764,24 @@ float* SpikeEvent::SpikeBuffer::operator[](const int index)
 }
 
 //Template definitions
-template BinaryEvent* BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
 
-template BinaryEvent* BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
-template BinaryEvent* BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
+template BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);

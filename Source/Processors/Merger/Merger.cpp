@@ -26,7 +26,7 @@
 
 #include "../../UI/EditorViewport.h"
 #include "../../AccessClass.h"
-#include "../Channel/Channel.h"
+
 
 Merger::Merger()
     : GenericProcessor("Merger"),
@@ -121,7 +121,7 @@ bool Merger::sendEventsForSource(GenericProcessor* sourceNode)
     return false;
 }
 
-bool Merger::stillHasSource()
+bool Merger::stillHasSource() const
 {
     if (sourceNodeA == 0 || sourceNodeB == 0)
     {
@@ -159,27 +159,38 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
     {
         settings.numInputs += sn->getNumOutputs();
 
-        for (int i = 0; i < sn->channels.size(); i++)
+        for (int i = 0; i < sn->getTotalDataChannels(); i++)
         {
-            Channel* sourceChan = sn->channels[i];
-            Channel* ch = new Channel(*sourceChan);
-            channels.add(ch);
+            const DataChannel* sourceChan = sn->getDataChannel(i);
+            DataChannel* ch = new DataChannel(*sourceChan);
+            dataChannelArray.add(ch);
         
         }
     }
 
     if (sendEventsForSource(sn))
     {
-        for (int i = 0; i < sn->eventChannels.size(); i++)
+        for (int i = 0; i < sn->getTotalEventChannels(); i++)
         {
-            Channel* sourceChan = sn->eventChannels[i];
-            Channel* ch = new Channel(*sourceChan);
-            eventChannels.add(ch);
+            const EventChannel* sourceChan = sn->getEventChannel(i);
+            EventChannel* ch = new EventChannel(*sourceChan);
+            eventChannelArray.add(ch);
         }
+		for (int i = 0; i < sn->getTotalSpikeChannels(); i++)
+		{
+			const SpikeChannel* sourceChan = sn->getSpikeChannel(i);
+			SpikeChannel* ch = new SpikeChannel(*sourceChan);
+			spikeChannelArray.add(ch);
+		}
     }
+	for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
+	{
+		const ConfigurationObject* sourceChan = sn->getConfigurationObject(i);
+		ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
+		configurationObjectArray.add(ch);
+	}
 
     settings.originalSource = sn->settings.originalSource;
-    settings.sampleRate = sn->settings.sampleRate;
 
     settings.numOutputs = settings.numInputs;
 
@@ -207,17 +218,17 @@ void Merger::updateSettings()
     if (sourceNodeA == 0 && sourceNodeB == 0)
     {
 
-        settings.sampleRate = getDefaultSampleRate();
-        settings.numOutputs = getNumHeadstageOutputs();
 
-        for (int i = 0; i < getNumOutputs(); i++)
+		settings.numOutputs = getNumOutputs();
+
+    /*    for (int i = 0; i < getNumOutputs(); i++)
         {
             Channel* ch = new Channel(this, i, HEADSTAGE_CHANNEL);
             ch->sampleRate = getDefaultSampleRate();
             ch->bitVolts = getDefaultBitVolts();
 
             channels.add(ch);
-        }
+        }*/
 
         //generateDefaultChannelNames(settings.outputChannelNames);
     }

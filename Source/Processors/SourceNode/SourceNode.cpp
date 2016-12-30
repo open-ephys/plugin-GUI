@@ -23,7 +23,6 @@
 
 #include "SourceNode.h"
 #include "../SourceNode/SourceNodeEditor.h"
-#include "../Channel/Channel.h"
 #include <stdio.h>
 #include "../../AccessClass.h"
 #include "../PluginManager/OpenEphysPlugin.h"
@@ -34,7 +33,6 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     , sourceCheckInterval   (2000)
     , wasDisabled           (true)
     , dataThread            (nullptr)
-    , inputBuffer           (0)
     , ttlState              (0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
@@ -48,27 +46,18 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
             setEnabledState (false);
         }
 
-        numEventChannels = dataThread->getNumEventChannels();
-        //eventChannelState = new int[numEventChannels];
-        eventChannelState.malloc (numEventChannels);
-        for (int i = 0; i < numEventChannels; ++i)
-        {
-            eventChannelState[i] = 0;
-        }
+		resizeBuffers();
     }
     else
     {
         setEnabledState (false);
         //   eventChannelState = 0;
-        numEventChannels = 0;
     }
 
     // check for input source every few seconds
     startTimer (sourceCheckInterval);
 
     timestamp = 0;
-    //eventCodeBuffer = new uint64[10000]; //10000 samples per buffer max?
-    eventCodeBuffer.malloc (10000);
 }
 
 
@@ -79,6 +68,25 @@ SourceNode::~SourceNode()
         std::cout << "Forcing thread to stop." << std::endl;
         dataThread->stopThread (500);
     }
+}
+
+//This is going to be quite slow, since is reallocating everything, but it's the 
+//safest way to handle a possible varying number of subprocessors
+void SourceNode::resizeBuffers()
+{
+	inputBuffers.clear();
+	eventCodeBuffers.clear();
+	eventStates.clear();
+	if (dataThread != nullptr)
+	{
+		int numSubProcs = dataThread->getNumSubProcessors();
+		for (int i = 0; i < numSubProcs; i++)
+		{
+			inputBuffers.add(dataThread->getBufferAddress(i));
+			eventCodeBuffers.add(new MemoryBlock(10000*sizeof(uint64)));
+			eventStates.add(0);
+		}
+	}
 }
 
 
@@ -97,13 +105,12 @@ void SourceNode::getEventChannelNames (StringArray& names)
 
 void SourceNode::updateSettings()
 {
-    if (inputBuffer == 0 && dataThread != 0)
-    {
-        inputBuffer = dataThread->getBufferAddress();
-        std::cout << "Input buffer address is " << inputBuffer << std::endl;
-    }
+	if (dataThread)
+	{
+		resizeBuffers();
 
-    dataThread->updateChannels();
+		dataThread->updateChannels();
+	}
 }
 
 
@@ -126,10 +133,10 @@ void SourceNode::actionListenerCallback (const String& msg)
 }
 
 
-float SourceNode::getSampleRate() const
+float SourceNode::getSampleRate(int sub) const
 {
     if (dataThread != nullptr)
-        return dataThread->getSampleRate();
+        return dataThread->getSampleRate(sub);
     else
         return 44100.0;
 }
@@ -138,49 +145,19 @@ float SourceNode::getSampleRate() const
 float SourceNode::getDefaultSampleRate() const
 {
     if (dataThread != nullptr)
-        return dataThread->getSampleRate();
+        return dataThread->getSampleRate(0);
     else
         return 44100.0;
 }
 
-
-int SourceNode::getNumHeadstageOutputs() const
+int SourceNode::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int sub) const
 {
-    if (dataThread != nullptr)
-        return dataThread->getNumHeadstageOutputs();
-    else
-        return 2;
+	if (dataThread)
+		return dataThread->getNumDataOutputs(type, sub);
+	else return 0;
 }
 
-
-int SourceNode::getNumAuxOutputs() const
-{
-    if (dataThread != nullptr)
-        return dataThread->getNumAuxOutputs();
-    else
-        return 0;
-}
-
-
-int SourceNode::getNumAdcOutputs() const
-{
-    if (dataThread != nullptr)
-        return dataThread->getNumAdcOutputs();
-    else
-        return 0;
-}
-
-
-int SourceNode::getNumEventChannels() const
-{
-    if (dataThread != nullptr)
-        return dataThread->getNumEventChannels();
-    else
-        return 0;
-}
-
-
-float SourceNode::getBitVolts (Channel* chan) const
+float SourceNode::getBitVolts (DataChannel* chan) const
 {
     if (dataThread != 0)
         return dataThread->getBitVolts (chan);
@@ -188,6 +165,39 @@ float SourceNode::getBitVolts (Channel* chan) const
         return 1.0f;
 }
 
+void SourceNode::setChannelInfo(int channel, String name, float bitVolts)
+{
+	dataChannelArray[channel]->setName(name);
+	dataChannelArray[channel]->setBitVolts(bitVolts);
+}
+
+void SourceNode::createEventChannels()
+{
+	ttlChannels.clear();
+	if (dataThread)
+	{
+		//Create base TTL event channels
+		int nSubs = dataThread->getNumSubProcessors();
+		for (int i = 0; i < nSubs; i++)
+		{
+			int nChans = dataThread->getNumTTLOutputs(i);
+			nChans = jmin(nChans, 64); //Just 64 TTL channels per source for now
+			if (nChans > 0)
+			{
+				EventChannel* chan = new EventChannel(EventChannel::TTL, nChans, 0, this, i);
+				chan->setSampleRate(dataThread->getSampleRate(i));
+				eventChannelArray.add(chan);
+				ttlChannels.add(chan);
+			}
+			else
+				ttlChannels.add(nullptr);
+		}
+		//Add other events that the source might create
+		Array<EventChannel> events;
+		dataThread->createExtraEvents(events);
+		eventChannelArray.addArray(events);
+	}
+}
 
 void SourceNode::setEnabledState (bool newState)
 {
@@ -329,53 +339,41 @@ void SourceNode::acquisitionStopped()
 }
 
 
-void SourceNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void SourceNode::process(AudioSampleBuffer& buffer)
 {
-    // clear the input buffers
-    events.clear();
-    buffer.clear();
+	int nSubs = dataThread->getNumSubProcessors();
+	for (int sub = 0; sub < nSubs; sub++)
+	{
+		int nSamples = inputBuffers[sub]->readAllFromBuffer(buffer, &timestamp, static_cast<uint64*>(eventCodeBuffers[sub]->getData()), buffer.getNumSamples());
 
-    int nSamples = inputBuffer->readAllFromBuffer (buffer, &timestamp, eventCodeBuffer, buffer.getNumSamples());
+		setTimestampAndSamples(timestamp, nSamples, sub);
 
-    setNumSamples (events, nSamples);
-    setTimestamp (events, timestamp);
-
-    // fill event buffer
-    for (int i = 0; i < nSamples; ++i)
-    {
-        for (int c = 0; c < numEventChannels; ++c)
-        {
-            const int state = eventCodeBuffer[i] & (1 << c);
-
-            if (eventChannelState[c] != state)
-            {
-                if (state == 0)
-                {
-                    // signal channel state is OFF
-                    addEvent (events,   // MidiBuffer
-                              TTL,      // eventType
-                              i,        // sampleNum
-                              0,        // eventID
-                              c,        // eventChannel
-                              8,
-                              (uint8*)(&eventCodeBuffer[i]));
-                }
-                else
-                {
-                    // signal channel state is ON
-                    addEvent(events,    // MidiBuffer
-                             TTL,       // eventType
-                             i,         // sampleNum
-                             1,         // eventID
-                             c,         // eventChannel
-                             8,
-                             (uint8*)(&eventCodeBuffer[i]));
-                }
-
-                eventChannelState[c] = state;
-            }
-        }
-    }
+		if (ttlChannels[sub])
+		{
+			int numEventChannels = ttlChannels[sub]->getNumChannels();
+			// fill event buffer
+			uint64 last = eventStates[sub];
+			for (int i = 0; i < nSamples; ++i)
+			{
+				uint64 current = *(static_cast<uint64*>(eventCodeBuffers[sub]->getData()) + i);
+				//If there has been no change to the TTL word, avoid doing anything at all here
+				if (last != current)
+				{
+					//Create a TTL event for each bit that has changed
+					for (int c = 0; c < numEventChannels; ++c)
+					{
+						if (((current >> c) & 0x01) != ((last >> c) & 0x01))
+						{
+							TTLEventPtr event = TTLEvent::createTTLEvent(ttlChannels[sub], timestamp + i, &current, sizeof(uint64), c);
+							addEvent(ttlChannels[sub], event, i);
+						}
+					}
+					last = current;
+				}
+			}
+			eventStates.set(sub, last);
+		}
+	}
 }
 
 
