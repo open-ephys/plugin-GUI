@@ -61,7 +61,7 @@ void CAR::setGainLevel (float newGain)
 }
 
 
-void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void CAR::process (AudioSampleBuffer& buffer)
 {
     const int numSamples            = buffer.getNumSamples();
     const int numReferenceChannels  = m_referenceChannels.size();

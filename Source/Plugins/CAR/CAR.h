@@ -60,7 +60,7 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
     */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     /** Returns the current gain level that is set in the processor */
     float getGainLevel();
