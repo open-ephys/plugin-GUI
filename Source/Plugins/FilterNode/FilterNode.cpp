@@ -206,11 +206,11 @@ bool FilterNode::getBypassStatusForChannel (int chan) const
 
 void FilterNode::setFilterParameters (double lowCut, double highCut, int chan)
 {
-    if (channels.size() - 1 < chan)
+    if (dataChannelArray.size() - 1 < chan)
         return;
 
     Dsp::Params params;
-    params[0] = channels[chan]->sampleRate; // sample rate
+    params[0] = dataChannelArray[chan]->getSampleRate(); // sample rate
     params[1] = 2;                          // order
     params[2] = (highCut + lowCut) / 2;     // center frequency
     params[3] = highCut - lowCut;           // bandwidth
@@ -257,7 +257,7 @@ void FilterNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void FilterNode::process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void FilterNode::process (AudioSampleBuffer& buffer)
 {
     for (int n = 0; n < getNumOutputs(); ++n)
     {
@@ -272,10 +272,10 @@ void FilterNode::process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 
 void FilterNode::setApplyOnADC (bool state)
 {
-    for (int n = 0; n < channels.size(); ++n)
+    for (int n = 0; n < dataChannelArray.size(); ++n)
     {
-        if (channels[n]->getType() == ADC_CHANNEL
-            || channels[n]->getType() == AUX_CHANNEL)
+        if (dataChannelArray[n]->getChannelType() == DataChannel::ADC_CHANNEL
+            || dataChannelArray[n]->getChannelType() == DataChannel::AUX_CHANNEL)
         {
             setCurrentChannel (n);
 
@@ -288,9 +288,9 @@ void FilterNode::setApplyOnADC (bool state)
 }
 
 
-void FilterNode::saveCustomChannelParametersToXml (XmlElement* channelInfo, int channelNumber, bool isEventChannel)
+void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelType)
 {
-    if (! isEventChannel
+    if (channelType == InfoObjectCommon::DATA_CHANNEL
         && channelNumber > -1
         && channelNumber < highCuts.size())
     {
@@ -304,11 +304,11 @@ void FilterNode::saveCustomChannelParametersToXml (XmlElement* channelInfo, int 
 }
 
 
-void FilterNode::loadCustomChannelParametersFromXml (XmlElement* channelInfo, bool isEventChannel)
+void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)
 {
     int channelNum = channelInfo->getIntAttribute ("number");
 
-    if (! isEventChannel)
+    if (channelType == InfoObjectCommon::DATA_CHANNEL)
     {
         forEachXmlChildElement (*channelInfo, subNode)
         {

@@ -44,14 +44,14 @@ public:
 
     bool hasEditor() const override { return true; }
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
     void updateSettings() override;
 
-    void saveCustomChannelParametersToXml   (XmlElement* channelInfo, int channelNumber, bool isEventChannel) override;
-    void loadCustomChannelParametersFromXml (XmlElement* channelInfo, bool isEventChannel)  override;
+	void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelTypel) override;
+	void loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)  override;
 
     double getLowCutValueForChannel  (int chan) const;
     double getHighCutValueForChannel (int chan) const;
