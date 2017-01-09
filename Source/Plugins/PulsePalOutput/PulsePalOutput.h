@@ -42,11 +42,11 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
+    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
 
 
 private:

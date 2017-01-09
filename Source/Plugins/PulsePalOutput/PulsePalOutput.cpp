@@ -58,17 +58,17 @@ AudioProcessorEditor* PulsePalOutput::createEditor()
 }
 
 
-void PulsePalOutput::handleEvent (int eventType, MidiMessage& event, int sampleNum)
+void PulsePalOutput::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
 {
-    if (eventType == TTL)
+    if (Event::getEventType(event) == EventChannel::TTL)
     {
         //  std::cout << "Received an event!" << std::endl;
 
-        const uint8* dataptr = event.getRawData();
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
 
         // int eventNodeId = *(dataptr+1);
-        const int eventId       = *(dataptr + 2);
-        const int eventChannel  = *(dataptr + 3);
+        const int eventId       = ttl->getState() ? 1 : 0;
+        const int eventChannel  = ttl->getChannel();
 
         for (int i = 0; i < channelTtlTrigger.size(); ++i)
         {
@@ -125,7 +125,7 @@ void PulsePalOutput::setParameter (int parameterIndex, float newValue)
 }
 
 
-void PulsePalOutput::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void PulsePalOutput::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents (events);
+    checkForEvents ();
 }
