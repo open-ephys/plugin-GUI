@@ -53,7 +53,7 @@ void Rectifier::setParameter (int parameterIndex, float newValue)
 }
 
 
-void Rectifier::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void Rectifier::process (AudioSampleBuffer& buffer)
 {
     const int nChannels = buffer.getNumChannels();
 
