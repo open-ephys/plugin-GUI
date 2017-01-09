@@ -33,9 +33,6 @@
 #define EVERY_ENGINE for(int eng = 0; eng < engineArray.size(); eng++) engineArray[eng]
 
 
-
-#include "../Channel/Channel.h"
-
 RecordNode::RecordNode()
     : GenericProcessor("Record Node"),
       newDirectoryNeeded(true),  timestamp(0)
@@ -70,10 +67,9 @@ RecordNode::~RecordNode()
 {
 }
 
-void RecordNode::setChannel(Channel* ch)
+void RecordNode::setChannel(const DataChannel* ch)
 {
-
-    int channelNum = channelPointers.indexOf(ch);
+    int channelNum = dataChannelArray.indexOf(ch);
 
     std::cout << "Record node setting channel to " << channelNum << std::endl;
 
@@ -81,7 +77,7 @@ void RecordNode::setChannel(Channel* ch)
 
 }
 
-void RecordNode::setChannelStatus(Channel* ch, bool status)
+void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
 {
 
     //std::cout << "Setting channel status!" << std::endl;
@@ -102,9 +98,9 @@ void RecordNode::resetConnections()
     wasConnected = false;
     spikeElectrodeIndex = 0;
 
-    channelPointers.clear();
-    eventChannelPointers.clear();
-    spikeElectrodePointers.clear();
+    dataChannelArray.clear();
+    eventChannelArray.clear();
+    spikeChannelArray.clear();
 
     EVERY_ENGINE->resetChannels();
 
@@ -124,9 +120,9 @@ void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<boo
     names.clear();
     recording.clear();
 
-    for (int k = 0; k < channelPointers.size(); k++)
+    for (int k = 0; k < dataChannelArray.size(); k++)
     {
-        if (channelPointers[k] == nullptr)
+        if (dataChannelArray[k] == nullptr)
         {
             names.add("not allocated");
             recording.add(false);
@@ -134,15 +130,15 @@ void RecordNode::getChannelNamesAndRecordingStatus(StringArray& names, Array<boo
         }
         else
         {
-            Channel* ch = channelPointers[k];
-            String n = ch->name;
+            DataChannel* ch = dataChannelArray[k];
+            String n = ch->getName();
             names.add(n);
-            recording.add(channelPointers[k]->getRecordState());
+            recording.add(dataChannelArray[k]->getRecordState());
         }
     }
 }
 
-void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
+void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 {
 
     if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
@@ -150,23 +146,23 @@ void RecordNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
         int channelIndex = getNextChannel(false);
 
-        channelPointers.add(sourceNode->channels[chan]);
+		const DataChannel* orig = sourceNode->getDataChannel(chan);
+		DataChannel* newChannel = new DataChannel(*orig);
+		newChannel->setRecordState(orig->getRecordState());
+        dataChannelArray.add(newChannel);
         setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-        //   std::cout << channelIndex << std::endl;
 
-        channelPointers[channelIndex]->recordIndex = channelIndex;
-
-        EVERY_ENGINE->addChannel(channelIndex,channelPointers[channelIndex]);
+        EVERY_ENGINE->addDataChannel(channelIndex,dataChannelArray[channelIndex]);
 
     }
     else
     {
 
-        for (int n = 0; n < sourceNode->eventChannels.size(); n++)
+        for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
         {
 
-            eventChannelPointers.add(sourceNode->eventChannels[n]);
+            eventChannelArray.add(new EventChannel(*sourceNode->getEventChannel(n)));
 
         }
 
@@ -221,7 +217,7 @@ String RecordNode::generateDirectoryName()
 
 }
 
-String RecordNode::generateDateString()
+String RecordNode::generateDateString() const
 {
     Time calendar = Time::getCurrentTime();
 
@@ -255,12 +251,12 @@ String RecordNode::generateDateString()
 
 }
 
-int RecordNode::getExperimentNumber()
+int RecordNode::getExperimentNumber() const
 {
 	return experimentNumber;
 }
 
-int RecordNode::getRecordingNumber()
+int RecordNode::getRecordingNumber() const
 {
 	return recordingNumber;
 }
@@ -306,7 +302,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		m_recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
 		channelMap.clear();
-		int totChans = channelPointers.size();
+		int totChans = dataChannelArray.size();
 		OwnedArray<RecordProcessorInfo> procInfo;
 		Array<int> chanProcessorMap;
 		Array<int> chanOrderinProc;
@@ -315,17 +311,17 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		int chanProcOrder = 0;
 		for (int ch = 0; ch < totChans; ++ch)
 		{
-			Channel* chan = channelPointers[ch];
+			DataChannel* chan = dataChannelArray[ch];
 			if (chan->getRecordState())
 			{
 				channelMap.add(ch);
 				//This is bassed on the assumption that all channels from the same processor are added contiguously
 				//If this behaviour changes, this check should be most thorough
-				if (chan->nodeId != lastProcessor)
+				if (chan->getCurrentNodeID() != lastProcessor)
 				{
-					lastProcessor = chan->nodeId;
+					lastProcessor = chan->getCurrentNodeID();
 					RecordProcessorInfo* pi = new RecordProcessorInfo();
-					pi->processorId = chan->nodeId;
+					pi->processorId = chan->getCurrentNodeID();
 					procInfo.add(pi);
 					procIndex++;
 					chanProcOrder = 0;
@@ -405,11 +401,11 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
             if (newValue == 0.0f)
             {
-                channelPointers[currentChannel]->setRecordState(false);
+                dataChannelArray[currentChannel]->setRecordState(false);
             }
             else
             {
-                channelPointers[currentChannel]->setRecordState(true);
+                dataChannelArray[currentChannel]->setRecordState(true);
             }
         }
     }
@@ -443,34 +439,40 @@ bool RecordNode::disable()
     return true;
 }
 
-float RecordNode::getFreeSpace()
+float RecordNode::getFreeSpace() const
 {
     return 1.0f - float(dataDirectory.getBytesFreeOnVolume())/float(dataDirectory.getVolumeTotalSize());
 }
 
 
-void RecordNode::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
     if (isRecording)
     {
-        if (isWritableEvent(eventType))
-        {
-            if (*(event.getRawData()+4) > 0) // saving flag > 0 (i.e., event has not already been processed)
+
+            if ((*(event.getRawData()+0) & 0x80) == 0) // saving flag > 0 (i.e., event has not already been processed)
             {
-				uint8 sourceNodeId = event.getNoteNumber();
-				int64 timestamp = timestamps[sourceNodeId] + samplePosition;
-				m_eventQueue->addEvent(event, timestamp, eventType);
+				int64 timestamp = Event::getTimestamp(event);
+				int eventIndex;
+				if (eventInfo)
+					eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
+				else
+					eventIndex = -1;
+				m_eventQueue->addEvent(event, timestamp, eventIndex);
             }
-        }
     }
 }
 
-void RecordNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& events)
+void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
+{
+	handleEvent(nullptr, event, 0);
+}
+
+void RecordNode::process(AudioSampleBuffer& buffer)
 {
 	
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
-    checkForEvents(events);
+    checkForEvents();
 
     if (isRecording)
     {
@@ -479,9 +481,8 @@ void RecordNode::process(AudioSampleBuffer& buffer,
 		for (int chan = 0; chan < recordChans; ++chan)
 		{
 			int realChan = channelMap[chan];
-			int sourceNodeId = channelPointers[realChan]->sourceNodeId;
-			int nSamples = numSamples.at(sourceNodeId);
-			int timestamp = timestamps.at(sourceNodeId);
+			int nSamples = getNumSamples(realChan);
+			int timestamp = getTimestamp(realChan);
 			m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
 		}
 
@@ -497,45 +498,37 @@ void RecordNode::process(AudioSampleBuffer& buffer,
 
 }
 
-void RecordNode::registerProcessor(GenericProcessor* sourceNode)
+void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 {
     EVERY_ENGINE->registerProcessor(sourceNode);
 }
 
-Channel* RecordNode::getDataChannel(int index)
-{
-    return channelPointers[index];
-}
 
 void RecordNode::registerRecordEngine(RecordEngine* engine)
 {
     engineArray.add(engine);
 }
 
-void RecordNode::registerSpikeSource(GenericProcessor* processor) 
+void RecordNode::registerSpikeSource(const GenericProcessor* processor) 
 {
     EVERY_ENGINE->registerSpikeSource(processor);
 }
 
-int RecordNode::addSpikeElectrode(SpikeRecordInfo* elec)
+int RecordNode::addSpikeElectrode(const SpikeChannel* elec)
 {
-    elec->recordIndex=spikeElectrodeIndex;
-    spikeElectrodePointers.add(elec);
+    spikeChannelArray.add(new SpikeChannel(*elec));
     EVERY_ENGINE->addSpikeElectrode(spikeElectrodeIndex,elec);
     return spikeElectrodeIndex++;
 }
 
-void RecordNode::writeSpike(SpikeObject& spike, int electrodeIndex)
+void RecordNode::writeSpike(const SpikeEvent* spike, const SpikeChannel* spikeElectrode)
 {
 	if (isRecording)
 	{
-		m_spikeQueue->addEvent(spike, spike.timestamp, electrodeIndex);
+		int electrodeIndex = spikeChannelArray.indexOf(spikeElectrode);
+		if (electrodeIndex >= 0)
+			m_spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
 	}
-}
-
-SpikeRecordInfo* RecordNode::getSpikeElectrode(int index)
-{
-    return spikeElectrodePointers[index];
 }
 
 void RecordNode::clearRecordEngines()
@@ -546,4 +539,20 @@ void RecordNode::clearRecordEngines()
 const String& RecordNode::getLastSettingsXml() const
 {
 	return m_lastSettingsText;
+}
+
+File RecordNode::getDataDirectory() const
+{
+	return rootFolder;
+}
+
+void RecordNode::updateRecordChannelIndexes()
+{
+	//Keep the nodeIDs of the original processor from each channel comes from
+	updateChannelIndexes(false);
+}
+
+void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
+{
+	eventChannelArray.addArray(channels);
 }

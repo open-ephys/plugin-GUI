@@ -44,10 +44,16 @@ MessageCenter::~MessageCenter()
 
 }
 
-void MessageCenter::getDefaultEventInfo(Array<DefaultEventInfo>& events, int sub) const
+void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
 {
-	if (sub > 0) return;
-	events.add(DefaultEventInfo(EventChannel::TEXT, 1, MAX_MSG_LENGTH));
+	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, this, 0);
+	chan->setName("GUI Messages");
+	chan->setDescription("Messages from the GUI Message Center");
+	if (sourceNodeId)
+		chan->setSampleRate(static_cast<GenericProcessor*>(AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId)->getProcessor())->getSampleRate());
+	channels.add(chan);
+	eventChannelArray.add(new EventChannel(*chan));
+	updateChannelIndexes();
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()
@@ -128,18 +134,9 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
     setTimestampAndSamples(getTimestamp(), 0);
     if (needsToSendTimestampMessage)
     {
-		MidiBuffer& eventBuffer = *AccessClass::getProcessorMidiBuffer(this);
-        String eventString = "Software time: " + String(getTimestamp(true)) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
-        
-		size_t textSize = eventString.getNumBytesAsUTF8();
-		size_t dataSize = 17 + textSize;
-		HeapBlock<char> data(dataSize, true);
-		data[0] = SYSTEM_EVENT;
-		data[1] = TIMESTAMP_SYNC_TEXT;
-		*reinterpret_cast<uint16*>(data.getData() + 2) = getNodeId();
-		*reinterpret_cast<uint16*>(data.getData() + 4) = 0;
-		*reinterpret_cast<uint64*>(data.getData() + 8) = getTimestamp(true);
-		memcpy(data.getData() + 16, eventString.toUTF8(), textSize);
+		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+		HeapBlock<char> data;
+		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, getTimestamp(true), true);
 
 		eventBuffer.addEvent(data, dataSize, 0);
 

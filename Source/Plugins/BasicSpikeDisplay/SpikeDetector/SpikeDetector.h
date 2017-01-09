@@ -27,7 +27,6 @@
 #include <ProcessorHeaders.h>
 #include "SpikeDetectorEditor.h"
 
-#include <SpikeLib.h>
 
 class SpikeDetectorEditor;
 
@@ -39,7 +38,6 @@ struct SimpleElectrode
     int prePeakSamples, postPeakSamples;
     int lastBufferIndex;
     int electrodeID;
-    int sourceNodeId;
 
     bool isMonitored;
 
@@ -61,13 +59,15 @@ public:
     ~SpikeDetector();
 
     /** Processes an incoming continuous buffer and places new spikes into the event buffer. */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     /** Used to alter parameters of data acquisition. */
     void setParameter (int parameterIndex, float newValue) override;
 
     /** Called whenever the signal chain is altered. */
     void updateSettings() override;
+
+	void createSpikeChannels() override;
 
     /** Called prior to start of acquisition. */
     bool enable() override;
@@ -145,7 +145,6 @@ public:
 
 
 private:
-    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
 
     float getDefaultThreshold() const;
 
@@ -153,8 +152,7 @@ private:
     float getCurrentSample (int& chan);
     bool samplesAvailable (int nSamples);
 
-    void addSpikeEvent (SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
-    void addWaveformToSpikeObject (SpikeObject* s,
+      void addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
                                    int& peakIndex,
                                    int& electrodeNumber,
                                    int& currentChannel);
@@ -173,11 +171,6 @@ private:
 
     int currentElectrode;
     int currentChannelIndex;
-    int currentIndex;
-
-    // uint8_t* spikeBuffer;///[256];
-    HeapBlock<uint8_t> spikeBuffer;
-    int64 timestamp;
 
     OwnedArray<SimpleElectrode> electrodes;
     int uniqueID;

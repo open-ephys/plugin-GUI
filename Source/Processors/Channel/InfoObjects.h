@@ -139,7 +139,8 @@ public:
 	{
 		DATA_CHANNEL,
 		EVENT_CHANNEL,
-		SPIKE_CHANNEL
+		SPIKE_CHANNEL,
+		INVALID = 100
 	};
 
 	/** Sets the sample rate value for this channel. */
@@ -177,7 +178,8 @@ public:
 	{
 		HEADSTAGE_CHANNEL = 0,
 		AUX_CHANNEL = 1,
-		ADC_CHANNEL = 2
+		ADC_CHANNEL = 2,
+		INVALID = 100
 	};
 	//--------- CONSTRUCTOR / DESTRUCTOR --------//
 
@@ -342,7 +344,8 @@ public:
 	{
 		SINGLE,
 		STEREOTRODE,
-		TETRODE
+		TETRODE,
+		INVALID = 100
 	};
 
 	/** Default constructor 
@@ -383,6 +386,9 @@ public:
 	/** Gets the number of channels associated with the electrode type */
 	unsigned int getNumChannels() const;
 
+	/** Gets the bitVolt value of one of the source channels*/
+	float getChannelBitVolts(int chan) const;
+
 	/** Gets the total size in bytes for a spike object */
 	size_t getDataSize() const;
 
@@ -392,6 +398,9 @@ public:
 	/** Gets the number of channels associated with a specific electrode type */
 	static unsigned int getNumChannels(ElectrodeTypes type);
 
+	/** Gets the electrode type from a specific number of channels*/
+	static ElectrodeTypes typeFromNumChannels(unsigned int nChannels);
+
 	InfoObjectType getInfoObjectType() const override;
 	String getDefaultName() const override;
 private:
@@ -400,6 +409,7 @@ private:
 	float m_gain{ 1.0f };
 	unsigned int m_numPreSamples{ 8 };
 	unsigned int m_numPostSamples{ 32 };
+	Array<float> m_channelBitVolts;
 
 	JUCE_LEAK_DETECTOR(DataChannel);
 };

@@ -53,7 +53,7 @@ public:
     AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Splitters are not part of the ProcessorGraph. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages) {}
+    void process(AudioSampleBuffer& buffer) override {}
 
     bool isSplitter()
     {

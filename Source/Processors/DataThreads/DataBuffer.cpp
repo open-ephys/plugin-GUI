@@ -99,7 +99,7 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
 int DataBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
 
 
-int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, uint64* eventCodes, int maxSize)
+int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, uint64* eventCodes, int maxSize, int dstStartChannel, int numChannels)
 {
     // check to see if the maximum size is smaller than the total number of available ints
 
@@ -114,11 +114,13 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, u
     int startIndex1, blockSize1, startIndex2, blockSize2;
     abstractFifo.prepareToRead (numItems, startIndex1, blockSize1, startIndex2, blockSize2);
 
+	int channelsToCopy = numChannels < 0 ? data.getNumChannels() : numChannels;
+
     if (blockSize1 > 0)
     {
-        for (int chan = 0; chan < data.getNumChannels(); ++chan)
+        for (int chan = 0; chan < channelsToCopy; ++chan)
         {
-            data.copyFrom (chan,            // destChan
+            data.copyFrom (dstStartChannel+chan,            // destChan
                            0,               // destStartSample
                            buffer,          // source
                            chan,            // sourceChannel
@@ -136,9 +138,9 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, u
 
     if (blockSize2 > 0)
     {
-        for (int chan = 0; chan < data.getNumChannels(); ++chan)
+        for (int chan = 0; chan < channelsToCopy; ++chan)
         {
-            data.copyFrom (chan,            // destChan
+            data.copyFrom (dstStartChannel+chan,            // destChan
                            blockSize1,      // destStartSample
                            buffer,          // source
                            chan,            // sourceChannel

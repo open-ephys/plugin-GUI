@@ -25,7 +25,6 @@
 #define SPIKEDISPLAYNODE_H_
 
 #include <ProcessorHeaders.h>
-#include <SpikeLib.h>
 #include "SpikeDisplayEditor.h"
 
 class DataViewport;
@@ -46,11 +45,11 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    void handleEvent (int, MidiMessage&, int) override;
+	void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) override;
 
     void updateSettings() override;
 
@@ -67,7 +66,7 @@ public:
     void addSpikePlotForElectrode (SpikePlot* sp, int i);
     void removeSpikePlots();
 
-    bool checkThreshold (int, float, SpikeObject&);
+    bool checkThreshold (int, float, SpikeEvent*);
 
 
 private:
@@ -82,14 +81,14 @@ private:
         Array<float> displayThresholds;
         Array<float> detectorThresholds;
 
-        Array<SpikeObject> mostRecentSpikes;
+        OwnedArray<SpikeEvent> mostRecentSpikes;
 
 		float bitVolts;
 
         SpikePlot* spikePlot;
     };
 
-    Array<Electrode> electrodes;
+    OwnedArray<Electrode> electrodes;
 
     int displayBufferSize;
     bool redrawRequested;

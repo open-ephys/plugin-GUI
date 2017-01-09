@@ -137,5 +137,5 @@ GenericEditor* DataThread::createEditor (SourceNode*)
     return nullptr;
 }
 
-void DataThread::createExtraEvents(Array<EventChannel>&)
+void DataThread::createExtraEvents(Array<EventChannel*>&)
 {}

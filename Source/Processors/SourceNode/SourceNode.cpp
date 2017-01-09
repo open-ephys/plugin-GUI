@@ -45,7 +45,6 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
         {
             setEnabledState (false);
         }
-
 		resizeBuffers();
     }
     else
@@ -107,9 +106,8 @@ void SourceNode::updateSettings()
 {
 	if (dataThread)
 	{
-		resizeBuffers();
-
 		dataThread->updateChannels();
+		resizeBuffers();
 	}
 }
 
@@ -157,7 +155,7 @@ int SourceNode::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int
 	else return 0;
 }
 
-float SourceNode::getBitVolts (DataChannel* chan) const
+float SourceNode::getBitVolts (const DataChannel* chan) const
 {
     if (dataThread != 0)
         return dataThread->getBitVolts (chan);
@@ -193,7 +191,7 @@ void SourceNode::createEventChannels()
 				ttlChannels.add(nullptr);
 		}
 		//Add other events that the source might create
-		Array<EventChannel> events;
+		Array<EventChannel*> events;
 		dataThread->createExtraEvents(events);
 		eventChannelArray.addArray(events);
 	}
@@ -338,13 +336,21 @@ void SourceNode::acquisitionStopped()
     }
 }
 
+int SourceNode::getNumSubProcessors() const
+{
+	if (!dataThread) return 0;
+	return dataThread->getNumSubProcessors();
+}
 
 void SourceNode::process(AudioSampleBuffer& buffer)
 {
 	int nSubs = dataThread->getNumSubProcessors();
+	int copiedChannels = 0;
 	for (int sub = 0; sub < nSubs; sub++)
 	{
-		int nSamples = inputBuffers[sub]->readAllFromBuffer(buffer, &timestamp, static_cast<uint64*>(eventCodeBuffers[sub]->getData()), buffer.getNumSamples());
+		int channelsToCopy = getNumOutputs(sub);
+		int nSamples = inputBuffers[sub]->readAllFromBuffer(buffer, &timestamp, static_cast<uint64*>(eventCodeBuffers[sub]->getData()), buffer.getNumSamples(), copiedChannels, channelsToCopy);
+		copiedChannels += channelsToCopy;
 
 		setTimestampAndSamples(timestamp, nSamples, sub);
 

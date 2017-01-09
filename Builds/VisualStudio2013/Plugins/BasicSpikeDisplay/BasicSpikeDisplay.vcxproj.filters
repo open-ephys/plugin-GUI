@@ -37,7 +37,7 @@
       <Filter>Source Files\SpikeDetector</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\Plugins\BasicSpikeDisplay\SpikeDetector\SpikeDetectorEditor.cpp">
-      <Filter>Source Files\SpikeDetector</Filter>
+      <Filter>Source Files\SpikeDisplayNode</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

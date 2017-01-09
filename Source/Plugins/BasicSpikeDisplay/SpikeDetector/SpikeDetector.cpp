@@ -67,8 +67,6 @@ SpikeDetector::SpikeDetector()
         electrodeCounter.add (0);
     }
 
-    //spikeBuffer = new uint8_t[MAX_SPIKE_BUFFER_LEN]; // MAX_SPIKE_BUFFER_LEN defined in SpikeObject.h
-    spikeBuffer.malloc (MAX_SPIKE_BUFFER_LEN);
 }
 
 
@@ -83,20 +81,33 @@ AudioProcessorEditor* SpikeDetector::createEditor()
     return editor;
 }
 
+void SpikeDetector::createSpikeChannels()
+{
+	for (int i = 0; i < electrodes.size(); ++i)
+	{
+		SimpleElectrode* elec = electrodes[i];
+		unsigned int nChans = elec->numChannels;
+		Array<const DataChannel*> chans;
+		for (int c = 0; c < nChans; c++)
+		{
+			chans.add(getDataChannel(elec->channels[c]));
+		}
+		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
+		spk->setNumSamples(elec->prePeakSamples, elec->postPeakSamples);
+		//We currently have no means to prevent creating spikes from channels from different sources
+		//We assume that all come from the same source, thus sharing sample rate ans bitvolts. By default, set it to the
+		//first channel.
+		spk->setSampleRate(chans[0]->getSampleRate());
+		spikeChannelArray.add(spk);
+	}
+}
+
 
 void SpikeDetector::updateSettings()
 {
     if (getNumInputs() > 0)
         overflowBuffer.setSize (getNumInputs(), overflowBufferSize);
 
-    for (int i = 0; i < electrodes.size(); ++i)
-    {
-        Channel* ch = new Channel (this,i,ELECTRODE_CHANNEL);
-        ch->name = generateSpikeElectrodeName (electrodes[i]->numChannels, ch->index);
-        SpikeChannel* spk = new SpikeChannel (SpikeChannel::Plain, electrodes[i]->numChannels, NULL, 0);
-        ch->extraData = spk;
-        eventChannels.add (ch);
-    }
 }
 
 
@@ -166,8 +177,6 @@ bool SpikeDetector::addElectrode (int nChans, int electrodeID)
     {
         newElectrode->electrodeID = ++uniqueID;
     }
-
-    newElectrode->sourceNodeId = channels[*newElectrode->channels]->sourceNodeId;
 
     resetElectrode (newElectrode);
 
@@ -349,24 +358,7 @@ bool SpikeDetector::disable()
 }
 
 
-void SpikeDetector::addSpikeEvent (SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex)
-{
-    // std::cout << "Adding spike event for index " << peakIndex << std::endl;
-
-    s->eventType = SPIKE_EVENT_CODE;
-
-    int numBytes = packSpike (s,                        // SpikeObject
-                              spikeBuffer,              // uint8_t*
-                              MAX_SPIKE_BUFFER_LEN);    // int
-
-    if (numBytes > 0)
-        eventBuffer.addEvent (spikeBuffer, numBytes, peakIndex);
-
-    //std::cout << "Adding spike" << std::endl;
-}
-
-
-void SpikeDetector::addWaveformToSpikeObject (SpikeObject* s,
+void SpikeDetector::addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
                                               int& peakIndex,
                                               int& electrodeNumber,
                                               int& currentChannel)
@@ -374,41 +366,17 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeObject* s,
     int spikeLength = electrodes[electrodeNumber]->prePeakSamples
                       + electrodes[electrodeNumber]->postPeakSamples;
 
-    //    uint8_t     eventType;
-    //    int64_t    timestamp;
-    //    int64_t    timestamp_software;
-    //    uint16_t    source; // used internally, the index of the electrode in the electrode array
-    //    uint16_t    nChannels;
-    //    uint16_t    nSamples;
-    //    uint16_t    sortedId;   // sorted unit ID (or 0 if unsorted)
-    //    uint16_t    electrodeID; // unique electrode ID (regardless electrode position in the array)
-    //    uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
-    //    uint8_t     color[3];
-    //    float       pcProj[2];
-    //    uint16_t    samplingFrequencyHz;
-    //    uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS* MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
-    //    float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
-    //    uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
-
-    s->timestamp    = getTimestamp (currentChannel) + peakIndex;
-    s->nSamples     = spikeLength;
 
     const int chan = *(electrodes[electrodeNumber]->channels + currentChannel);
 
-    s->gain[currentChannel] = (int) (1.0f / channels[chan]->bitVolts) * 1000;
-    s->threshold[currentChannel] = (int) *(electrodes[electrodeNumber]->thresholds+currentChannel); // / channels[chan]->bitVolts * 1000;
-
     // cycle through buffer
-
+	float* data = s[currentChannel];
     if (isChannelActive (electrodeNumber, currentChannel))
     {
+		
         for (int sample = 0; sample < spikeLength; ++sample)
         {
-            // warning -- be careful of bitvolts conversion
-            s->data[currentIndex] = uint16 (getNextSample (*(electrodes[electrodeNumber]->channels+currentChannel)) 
-                                                / channels[chan]->bitVolts + 32768);
-
-            ++currentIndex;
+            data[sample] = getNextSample (*(electrodes[electrodeNumber]->channels+currentChannel));
             ++sampleIndex;
 
             //std::cout << currentIndex << std::endl;
@@ -419,8 +387,7 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeObject* s,
         for (int sample = 0; sample < spikeLength; ++sample)
         {
             // insert a blank spike if the
-            s->data[currentIndex] = 0;
-            ++currentIndex;
+           data[sample] = 0;
             ++sampleIndex;
             //std::cout << currentIndex << std::endl;
         }
@@ -430,24 +397,11 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeObject* s,
 }
 
 
-void SpikeDetector::handleEvent (int eventType, MidiMessage& event, int sampleNum)
-{
-    if (eventType == TIMESTAMP)
-    {
-        const uint8* dataptr = event.getRawData();
-
-        memcpy (&timestamp, dataptr + 4, 8); // remember to skip first four bytes
-    }
-}
-
-
-void SpikeDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void SpikeDetector::process (AudioSampleBuffer& buffer)
 {
     // cycle through electrodes
     SimpleElectrode* electrode;
     dataBuffer = &buffer;
-
-    checkForEvents (events); // need to find any timestamp events before extracting spikes
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 
@@ -491,45 +445,24 @@ void SpikeDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                         peakIndex = sampleIndex;
                         sampleIndex -= (electrode->prePeakSamples + 1);
 
-                        //uint8_t     eventType;
-                        //int64_t    timestamp;
-                        //int64_t    timestamp_software;
-                        //uint16_t    source; // used internally, the index of the electrode in the electrode array
-                        //uint16_t    nChannels;
-                        //uint16_t    nSamples;
-                        //uint16_t    sortedId;   // sorted unit ID (or 0 if unsorted)
-                        //uint16_t    electrodeID; // unique electrode ID (regardless electrode position in the array)
-                        //uint16_t    channel; // the channel in which threshold crossing was detected (index in channel array, not absolute channel number).
-                        //uint8_t     color[3];
-                        //float       pcProj[2];
-                        //uint16_t    samplingFrequencyHz;
-                        //uint16_t    data[MAX_NUMBER_OF_SPIKE_CHANNELS* MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES];
-                        //float       gain[MAX_NUMBER_OF_SPIKE_CHANNELS];
-                        //uint16_t    threshold[MAX_NUMBER_OF_SPIKE_CHANNELS];
-
-                        SpikeObject newSpike;
-                        newSpike.timestamp           = 0; //getTimestamp(currentChannel) + peakIndex;
-                        newSpike.timestamp_software  = -1;
-                        newSpike.source              = i;
-                        newSpike.nChannels           = electrode->numChannels;
-                        newSpike.sortedId            = 0;
-                        newSpike.electrodeID         = electrode->electrodeID;
-                        newSpike.channel             = 0;
-                        newSpike.samplingFrequencyHz = sampleRateForElectrode;
-
-                        currentIndex = 0;
+						const SpikeChannel* spikeChan = getSpikeChannel(i);
+						SpikeEvent::SpikeBuffer spikeData(spikeChan);
+						Array<float> thresholds;
+						for (int channel = 0; channel < electrode->numChannels; ++channel)
+						{
+							addWaveformToSpikeObject(spikeData,
+								peakIndex,
+								i,
+								channel);
+							thresholds.add((int)*(electrode->thresholds + channel));
+						}
+						uint64 timestamp = getTimestamp(electrode->channels[0]) + peakIndex;
+						SpikeEventPtr newSpike = SpikeEvent::createSpikeEvent(spikeChan, timestamp, thresholds, spikeData, 0);
 
                         // package spikes;
-                        for (int channel = 0; channel < electrode->numChannels; ++channel)
-                        {
-                            addWaveformToSpikeObject (&newSpike,
-                                                      peakIndex,
-                                                      i,
-                                                      channel);
-                        }
+                        
+						addSpike(spikeChan, newSpike, peakIndex);
 
-                        //for (int xxx = 0; xxx < 1000; xxx++) // overload with spikes for testing purposes
-                        addSpikeEvent (&newSpike, events, peakIndex);
 
                         // advance the sample index
                         sampleIndex = peakIndex + electrode->postPeakSamples;

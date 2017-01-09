@@ -139,8 +139,8 @@ private:
 	JUCE_LEAK_DETECTOR(MetaDataValue);
 };
 
-typedef ReferenceCountedArray<MetaDataDescriptor> MetaDataDescriptorArray;
-typedef ReferenceCountedArray<MetaDataValue> MetaDataValueArray;
+typedef ReferenceCountedArray<MetaDataDescriptor,CriticalSection> MetaDataDescriptorArray;
+typedef ReferenceCountedArray<MetaDataValue,CriticalSection> MetaDataValueArray;
 typedef ReferenceCountedObjectPtr<MetaDataDescriptor> MetaDataDescriptorPtr;
 typedef ReferenceCountedObjectPtr<MetaDataValue> MetaDataValuePtr;
 

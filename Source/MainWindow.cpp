@@ -22,6 +22,8 @@
  */
 
 #include "MainWindow.h"
+#include "UI/UIComponent.h"
+#include "UI/EditorViewport.h"
 #include <stdio.h>
 //-----------------------------------------------------------------------
 

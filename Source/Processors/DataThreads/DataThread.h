@@ -68,12 +68,6 @@ public:
     /** Returns the address of the DataBuffer that the input source will fill.*/
     DataBuffer* getBufferAddress(int subProcessor) const;
 
-	/** Automatically resizes the buffers by using */
-	virtual void resizeBuffers();
-
-	/** Gets the number of samples the buffer should hold for each of the subprocessors */
-	virtual int getBufferSamples(int subProcessor) const;
-
     /** Fills the DataBuffer with incoming data. This is the most important
     method for each DataThread.*/
     virtual bool updateBuffer() = 0;
@@ -105,10 +99,8 @@ public:
 	/** Returns the number of virtual subprocessors this source can generate */
 	virtual unsigned int getNumSubProcessors() const;
 
-	virtual void getDefaultEventInfo(Array<GenericProcessor::DefaultEventInfo>& info) const;
-
 	/** Called to create extra event channels, apart from the default TTL ones*/
-	virtual void createExtraEvents(Array<EventChannel>& events);
+	virtual void createExtraEvents(Array<EventChannel*>& events);
 
     /** Returns the volts per bit of the data source.*/
     virtual float getBitVolts (const DataChannel* chan) const = 0;

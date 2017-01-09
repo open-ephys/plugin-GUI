@@ -238,6 +238,8 @@ void MetaDataValue::getValue(Array<T>& data) const
 
 //MetaDataInfoObject
 
+MetaDataInfoObject::MetaDataInfoObject() {}
+
 void MetaDataInfoObject::addMetaData(MetaDataDescriptor* desc, MetaDataValue* val)
 {
 	m_metaDataDescriptorArray.add(desc);
@@ -260,6 +262,8 @@ const int MetaDataInfoObject::getMetaDataCount() const
 }
 
 //MetaDataEventObject
+
+MetaDataEventObject::MetaDataEventObject() {}
 
 void MetaDataEventObject::addEventMetaData(MetaDataDescriptor* desc)
 {
@@ -289,6 +293,8 @@ const int MetaDataEventObject::getEventMetaDataCount() const
 }
 
 //MetaDataEvent
+MetaDataEvent::MetaDataEvent() {}
+
 void MetaDataEvent::serializeMetaData(void* dstBuffer) const
 {
 	int metaDataSize = m_metaDataValues.size();
@@ -320,6 +326,8 @@ bool MetaDataEvent::deserializeMetaData(const MetaDataEventObject* info, const v
 	m_metaDataValues.swapWith(metaData);
 	return true;
 }
+
+MetaDataEventLock::MetaDataEventLock() {}
 
 //Specific instantiations for templated metadata members.
 //This is done this way for two reasons

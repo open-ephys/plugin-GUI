@@ -123,6 +123,9 @@ public:
 
 	bool enable() override;
 
+	//Called by ProcessorGraph
+	void updateRecordChannelIndexes();
+
 private:
 	void recreateBuffers();
 
@@ -130,9 +133,6 @@ private:
     Array<int> rightChan;
     float volume;
     float noiseGateLevel; // in microvolts
-
-    /** An array of pointers to the channels that feed into the AudioNode. */
-    Array<const DataChannel*> channelPointers;
 
     OwnedArray<AudioSampleBuffer> bufferA;
     OwnedArray<AudioSampleBuffer> bufferB;

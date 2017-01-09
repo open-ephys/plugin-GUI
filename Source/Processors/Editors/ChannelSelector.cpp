@@ -663,7 +663,10 @@ void ChannelSelector::buttonClicked(Button* button)
             }
             else     // change parameter directly
             {
-                ch->isMonitored = status;
+				//This is another of those ugly things that will go away once the
+				//probe audio system is implemented, but is needed to maintain compatibility
+				//between the older recording system and the newer channel objects.
+				const_cast<DataChannel*>(ch)->setMonitored(status);
             }
         }
         else if (b->getType() == RECORD)

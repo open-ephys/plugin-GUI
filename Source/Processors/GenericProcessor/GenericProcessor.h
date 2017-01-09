@@ -68,7 +68,7 @@ private:
 
 namespace AccessClass
 {
-	class MidiBufferAccessor;
+	class ExternalProcessorAccessor;
 };
 
 
@@ -90,7 +90,7 @@ class PLUGIN_API GenericProcessor   : public AudioProcessor
                                     , public PluginClass
 									, public ChannelCreationIndexes
 {
-	friend AccessClass::MidiBufferAccessor;
+	friend AccessClass::ExternalProcessorAccessor;
 public:
     /** Constructor (sets the processor's name). */
     GenericProcessor (const String& name_);
@@ -414,7 +414,7 @@ public:
     virtual void clearSettings();
 
     /** Default method for updating settings, called by every processor.*/
-    virtual void update();
+    void update();
 
 	/** Toggles record ON for all channels */
     void setAllChannelsToRecord();
@@ -475,7 +475,11 @@ public:
 
 	int getEventChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
 
+	int getEventChannelIndex(const Event*) const;
+
 	int getSpikeChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
+
+	int getSpikeChannelIndex(const SpikeEvent*) const;
 
 	const DataChannel* getDataChannel(int index) const;
 
@@ -515,12 +519,15 @@ protected:
 	/** Makes it easier for processors to respond to incoming events, such as TTLs.
 
 	Called by checkForEvents(). */
-	virtual void handleEvent(EventChannel* eventInfo, MidiMessage& event, int samplePosition = 0);
+	virtual void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0);
 
 	/** Makes it easier for processors to respond to incoming spikes.
 
 	Called by checkForEvents(). */
-	virtual void handleSpike(SpikeChannel* spikeInfo, MidiMessage& event, int samplePosition = 0);
+	virtual void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition = 0);
+
+	/** Responds to TIMESTAMP_SYNC_TEXT system events, in case a processor needs to listen to them (useful for the record node) */
+	virtual void handleTimestampSyncTexts(const MidiMessage& event);
 
 	/** Returns the default number of datachannels outputs for a specific type and a specific subprocessor
 	Called by createDataChannels(). It is not needed to implement if createDataChannels() is overriden */
@@ -544,8 +551,8 @@ protected:
 	void addEvent(int channelIndex, const Event* event, int sampleNum);
 	void addEvent(const EventChannel* channel, const Event* event, int sampleNum);
 
-	void addSpike(int channelIndex, const SpikeEvent& event, int sampleNum);
-	void addSpike(const SpikeChannel* channel, const SpikeEvent& event, int sampleNum);
+	void addSpike(int channelIndex, const SpikeEvent* event, int sampleNum);
+	void addSpike(const SpikeChannel* channel, const SpikeEvent* event, int sampleNum);
 
 	/** Method to create the data channels pertaining to this processor, called automatically by update()*/
 	virtual void createDataChannels();
@@ -565,7 +572,7 @@ protected:
 	/** Custom method for updating settings, called automatically by update() after creating the info objects.*/
 	virtual void updateSettings();
 
-
+	void updateChannelIndexes(bool updateNodeID = true);
 
 private:
 	void createDataChannelsByType(DataChannel::DataChannelTypes type);

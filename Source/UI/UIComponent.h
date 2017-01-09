@@ -38,6 +38,8 @@ class AudioComponent;
 class GraphViewer;
 class MessageCenterEditor;
 class InfoLabel;
+class DataViewport;
+class EditorViewport;
 
 /**
 

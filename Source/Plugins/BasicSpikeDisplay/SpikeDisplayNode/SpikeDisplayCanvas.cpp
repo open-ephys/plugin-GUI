@@ -451,7 +451,7 @@ void SpikeDisplay::invertSpikes(bool shouldInvert_)
     //std::cout << "Invert spikes? " << shouldInvert_ << std::endl;
 }
 
-void SpikeDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
+void SpikeDisplay::plotSpike(const SpikeEvent* spike, int electrodeNum)
 {
     spikePlots[electrodeNum]->processSpikeObject(spike);
 }
@@ -582,7 +582,7 @@ void SpikePlot::paint(Graphics& g)
 
 }
 
-void SpikePlot::processSpikeObject(const SpikeObject& s)
+void SpikePlot::processSpikeObject(const SpikeEvent* s)
 {
     // std::cout << "ElectrodePlot::processSpikeObject()" << std::endl;
 
@@ -886,10 +886,7 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
 
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4, 40);
-
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
 }
 
@@ -945,58 +942,61 @@ void WaveAxes::paint(Graphics& g)
 
 }
 
-void WaveAxes::plotSpike(const SpikeObject& s, Graphics& g)
+void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
 {
+	if (!s) return;
 
     float h = getHeight();
 
     //compute the spatial width for each waveform sample
-    float dx = getWidth()/float(spikeBuffer[0].nSamples);
+	int nSamples = s->getChannelInfo()->getTotalSamples();
+	float dx = getWidth() / float(nSamples);
 
-    if (s.sortedId > 0)
-       g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
-    else
+    //TODO: check for special metadata for this
+	//if (s.sortedId > 0)
+    //   g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+    //else
        g.setColour(Colours::white);
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
-    int sampIdx = 40*type; //spikeBuffer[0].nSamples * type; //
+    int sampIdx = nSamples*type; //spikeBuffer[0].nSamples * type; //
 
     int dSamples = 1;
 
     float x = 0.0f;
+	const float* data = s->getDataPointer();
 
-    for (int i = 0; i < s.nSamples-1; i++)
-    {
-        //std::cout << s.data[sampIdx] << std::endl;
-
-        if (*s.gain != 0)
-        {
-
-            float s1, s2;
-
-            if (spikesInverted)
-            {
-                s1 = h/2 + float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
-                s2 = h/2 + float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h;
-            }
-            else
-            {
-                s1 = h/2 - float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f / range * h;
-                s2 = h/2 - float(s.data[sampIdx+1]-32768)/float(*s.gain)*1000.0f / range * h;
-
-            }
-            g.drawLine(x,
-                       s1,
-                       x+dx,
-                       s2);
-        }
+	for (int i = 0; i < nSamples - 1; i++)
+	{
+		//std::cout << s.data[sampIdx] << std::endl;
 
 
 
-        sampIdx += dSamples;
-        x += dx;
-    }
+		float s1, s2;
+
+		if (spikesInverted)
+		{
+			s1 = h / 2 + data[sampIdx] / range * h;
+			s2 = h / 2 + data[sampIdx + 1] / range * h;
+		}
+		else
+		{
+			s1 = h / 2 - data[sampIdx] / range * h;
+			s2 = h / 2 - data[sampIdx + 1] / range * h;
+
+		}
+		g.drawLine(x,
+			s1,
+			x + dx,
+			s2);
+
+
+
+
+		sampIdx += dSamples;
+		x += dx;
+	}
 
 }
 
@@ -1044,7 +1044,7 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
 
 }
 
-bool WaveAxes::updateSpikeData(const SpikeObject& s)
+bool WaveAxes::updateSpikeData(const SpikeEvent* s)
 {
     if (!gotFirstSpike)
     {
@@ -1054,7 +1054,7 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
     if (spikesReceivedSinceLastRedraw < bufferSize)
     {
 
-        SpikeObject newSpike = s;
+        SpikeEvent* newSpike = new SpikeEvent(*s);
 
         spikeIndex++;
         spikeIndex %= bufferSize;
@@ -1069,14 +1069,16 @@ bool WaveAxes::updateSpikeData(const SpikeObject& s)
 
 }
 
-bool WaveAxes::checkThreshold(const SpikeObject& s)
+bool WaveAxes::checkThreshold(const SpikeEvent* s)
 {
-    int sampIdx = 40*type;
+	int nSamples = s->getChannelInfo()->getTotalSamples();
+    int sampIdx = nSamples*type;
+	const float* data = s->getDataPointer();
 
-    for (int i = 0; i < s.nSamples-1; i++)
+    for (int i = 0; i < nSamples-1; i++)
     {
 
-        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > displayThresholdLevel)
+        if (data[sampIdx] > displayThresholdLevel)
         {
             return true;
         }
@@ -1096,10 +1098,7 @@ void WaveAxes::clear()
 
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4, 40);
-
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
 
     repaint();
@@ -1270,7 +1269,7 @@ void ProjectionAxes::paint(Graphics& g)
                 0, imageDim-rangeY, rangeX, rangeY);
 }
 
-bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
+bool ProjectionAxes::updateSpikeData(const SpikeEvent* s)
 {
     if (!gotFirstSpike)
     {
@@ -1283,17 +1282,19 @@ bool ProjectionAxes::updateSpikeData(const SpikeObject& s)
     // add peaks to image
     Colour col;
 
-    if (s.sortedId > 0)
-        col = Colour(s.color[0], s.color[1], s.color[2]);
-    else
+	//Again, fix this adding proper metadata check
+    //if (s.sortedId > 0)
+    //    col = Colour(s.color[0], s.color[1], s.color[2]);
+    //else
         col = Colours::white;
 
-    updateProjectionImage(s.data[idx1], s.data[idx2], *s.gain, col);
+	const float* data = s->getDataPointer();
+    updateProjectionImage(data[idx1], data[idx2], 1, col);
 
     return true;
 }
 
-void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain, Colour col)
+void ProjectionAxes::updateProjectionImage(float x, float y, float gain, Colour col)
 {
     Graphics g(projectionImage);
 
@@ -1301,8 +1302,8 @@ void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain
 
     if (gain != 0)
     {
-        float xf = float(x-32768)/float(gain)*1000.0f; // in microvolts
-        float yf = float(imageDim) - float(y-32768)/float(gain)*1000.0f; // in microvolts
+		float xf = x;
+        float yf = float(imageDim) - y; // in microvolts
 
         g.setColour(col);
         g.fillEllipse(xf,yf,2.0f,2.0f);
@@ -1310,23 +1311,25 @@ void ProjectionAxes::updateProjectionImage(uint16_t x, uint16_t y, uint16_t gain
 
 }
 
-void ProjectionAxes::calcWaveformPeakIdx(const SpikeObject& s, int d1, int d2, int* idx1, int* idx2)
+void ProjectionAxes::calcWaveformPeakIdx(const SpikeEvent* s, int d1, int d2, int* idx1, int* idx2)
 {
 
-    int max1 = -1*pow(2.0,15);
-    int max2 = max1;
+    float max1 = -1*pow(2.0,15);
+    float max2 = max1;
+	int nSamples = s->getChannelInfo()->getTotalSamples();
+	const float* data = s->getDataPointer();
 
-    for (int i = 0; i < s.nSamples; i++)
+    for (int i = 0; i < nSamples; i++)
     {
-        if (s.data[d1*s.nSamples + i] > max1)
+        if (data[d1*nSamples + i] > max1)
         {
-            *idx1 = d1*s.nSamples+i;
-            max1 = s.data[*idx1];
+            *idx1 = d1*nSamples+i;
+            max1 = data[*idx1];
         }
-        if (s.data[d2*s.nSamples+i] > max2)
+        if (data[d2*nSamples+i] > max2)
         {
-            *idx2 = d2*s.nSamples+i;
-            max2 = s.data[*idx2];
+            *idx2 = d2*nSamples+i;
+            max2 = data[*idx2];
         }
     }
 }
@@ -1405,14 +1408,14 @@ GenericAxes::~GenericAxes()
 
 }
 
-bool GenericAxes::updateSpikeData(const SpikeObject& newSpike)
+bool GenericAxes::updateSpikeData(const SpikeEvent* newSpike)
 {
     if (!gotFirstSpike)
     {
         gotFirstSpike = true;
     }
 
-    s = newSpike;
+  //  s = newSpike;
     return true;
 }
 
@@ -1473,7 +1476,7 @@ void GenericAxes::makeLabel(int val, int gain, bool convert, char* s)
 {
     if (convert)
     {
-        double volt = ad16ToUv(val, gain)/1000.;
+		double volt = ad16ToUv(val, gain);// / 1000.;
         if (abs(val)>1e6)
         {
             //val = val/(1e6);

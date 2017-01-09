@@ -131,13 +131,10 @@ ActionBroadcaster* getBroadcaster()
     return bc.get();
 }
 
-MidiBuffer* getProcessorMidiBuffer(GenericProcessor* proc)
-{
-	return MidiBufferAccessor::getMidiBuffer(proc);
-}
 
-MidiBuffer* MidiBufferAccessor::getMidiBuffer(GenericProcessor* proc)
+MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 {
 	return proc->m_currentMidiBuffer;
 }
+
 }

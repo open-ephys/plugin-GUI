@@ -228,15 +228,15 @@ void MessageCenterEditor::mouseDown(const MouseEvent& event)
         for (int i=0; i < sourcesList.size(); i++)
         {
             GenericProcessor* p = sourcesList[i];
-            sourceMenu->addItem(i+2,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
+            sourceMenu->addItem(i+2,p->getName(),true,(p->getNodeId() == messageCenter->getSourceNodeId()));
         }
         res = sourceMenu->show(0,50,0,0);
 
         if (res > 1)
         {
             GenericProcessor* p = sourcesList[res-2];
-            std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
-            messageCenter->setSourceNodeId(p->nodeId);
+			std::cout << "Selecting " << p->getName() << " with id " << p->getNodeId() << " as message source" << std::endl;
+			messageCenter->setSourceNodeId(p->getNodeId());
         }
         else if (res == 1)
         {

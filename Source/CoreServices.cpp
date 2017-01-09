@@ -29,7 +29,8 @@
 #include "Processors/RecordNode/RecordNode.h"
 #include "UI/EditorViewport.h"
 #include "UI/ControlPanel.h"
-
+#include "Processors/MessageCenter/MessageCenterEditor.h"
+#include "Processors/Events/Events.h"
 
 
 using namespace AccessClass;
@@ -139,9 +140,9 @@ int getExperimentNumber()
 	return getProcessorGraph()->getRecordNode()->getExperimentNumber();
 }
 
-void writeSpike(SpikeObject& spike, int electrodeIndex)
+void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan)
 {
-    getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
+    getProcessorGraph()->getRecordNode()->writeSpike(spike, chan);
 }
 
 void registerSpikeSource(GenericProcessor* processor)
@@ -149,7 +150,7 @@ void registerSpikeSource(GenericProcessor* processor)
     getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
 }
 
-int addSpikeElectrode(SpikeRecordInfo* elec)
+int addSpikeElectrode(const SpikeChannel* elec)
 {
     return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
 }

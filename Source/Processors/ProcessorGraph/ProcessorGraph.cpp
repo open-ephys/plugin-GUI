@@ -370,7 +370,13 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
         } // end while source != 0
     } // end "tabs" for loop
-
+	
+	//Update RecordNode internal channel mappings
+	Array<EventChannel*> extraChannels;
+	getMessageCenter()->addSpecialProcessorChannels(extraChannels);
+	getRecordNode()->addSpecialProcessorChannels(extraChannels);
+	getRecordNode()->updateRecordChannelIndexes();
+	getAudioNode()->updateRecordChannelIndexes();
 } // end method
 
 void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)

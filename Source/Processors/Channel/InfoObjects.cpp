@@ -227,6 +227,23 @@ void DataChannel::reset()
 	setSampleRate(44100);
 }
 
+String DataChannel::getDefaultName() const
+{
+	String name;
+	switch (m_type)
+	{
+	case HEADSTAGE_CHANNEL: name = "CH "; break;
+	case AUX_CHANNEL: name = "AUX "; break;
+	case ADC_CHANNEL: name = "ADC "; break;
+	default: name = "INVALID "; break;
+	}
+	name += "p";
+	name += String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx());
+	name += " n";
+	name += String(getSourceTypeIndex());
+	return name;
+}
+
 //EventChannel
 EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, GenericProcessor* source, uint16 subproc)
 	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, source, subproc),
@@ -303,6 +320,30 @@ size_t EventChannel::getTypeByteSize(EventChannel::EventChannelTypes type)
 	}
 }
 
+String EventChannel::getDefaultName() const
+{
+	String name;
+	switch (m_type)
+	{
+	case TTL: name = "TTL "; break;
+	case TEXT: name = "TEXT "; break;
+	case INT8_ARRAY: name = "INT8 "; break;
+	case UINT8_ARRAY: name = "UINT8 "; break;
+	case INT16_ARRAY: name = "INT16 "; break;
+	case UINT16_ARRAY: name = "UINT16 "; break;
+	case INT32_ARRAY: name = "INT32 "; break;
+	case UINT32_ARRAY: name = "UINT32 "; break;
+	case INT64_ARRAY: name = "INT64 "; break;
+	case UINT64_ARRAY: name = "UINT64 "; break;
+	default: name = "INVALID "; break;
+	}
+	name += "p";
+	name += String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx());
+	name += " n";
+	name += String(getSourceTypeIndex());
+	return name;
+}
+
 //SpikeChannel
 
 SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc)
@@ -319,6 +360,7 @@ SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const 
 		info.subProcessorID = chan->getSubProcessorIdx();
 		info.channelIDX = chan->getSourceIndex();
 		m_sourceInfo.add(info);
+		m_channelBitVolts.add(chan->getBitVolts());
 	}
 	setName(getDefaultName());
 }
@@ -384,7 +426,18 @@ unsigned int SpikeChannel::getNumChannels(SpikeChannel::ElectrodeTypes type)
 	case SINGLE: return 1;
 	case STEREOTRODE: return 2;
 	case TETRODE: return 4;
-	default: return 1;
+	default: return 0;
+	}
+}
+
+SpikeChannel::ElectrodeTypes SpikeChannel::typeFromNumChannels(unsigned int nChannels)
+{
+	switch (nChannels)
+	{
+	case 1: return SINGLE;
+	case 2: return STEREOTRODE;
+	case 4: return TETRODE;
+	default: return INVALID;
 	}
 }
 
@@ -396,6 +449,28 @@ size_t SpikeChannel::getDataSize() const
 size_t SpikeChannel::getChannelDataSize() const
 {
 	return getTotalSamples()*sizeof(float);
+}
+
+float SpikeChannel::getChannelBitVolts(int index) const
+{
+	if (index < 0 || index >= m_channelBitVolts.size())
+		return 1.0f;
+	else
+		return m_channelBitVolts[index];
+}
+
+String SpikeChannel::getDefaultName() const
+{
+	String name;
+	switch (m_type)
+	{
+	case SINGLE: name = "SE "; break;
+	case STEREOTRODE: name = "ST "; break;
+	case TETRODE: name = "TT "; break;
+	default: name = "INVALID "; break;
+	}
+	name += String(" p") + String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx()) + String(" n") + String(getSourceTypeIndex());
+	return name;
 }
 
 //ConfigurationObject
@@ -414,4 +489,9 @@ void ConfigurationObject::setShouldBeRecorded(bool status)
 bool ConfigurationObject::getShouldBeRecorded() const
 {
 	return m_shouldBeRecorded;
+}
+
+String ConfigurationObject::getDefaultName() const
+{
+	return "Config";
 }

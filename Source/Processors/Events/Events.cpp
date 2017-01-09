@@ -33,14 +33,28 @@ EventType EventBase::getBaseType() const
 EventType EventBase::getBaseType(const MidiMessage& msg)
 {
 	const uint8* data = msg.getRawData();
-	return static_cast<EventType>(*data);
+	//TODO: remove the mask when the probe system is implemented
+	return static_cast<EventType>((*data)&0x7F);
 }
 
-EventBase::EventBase(EventType type, uint64 timestamp)
-	: m_baseType(type), m_timestamp(timestamp)
+uint64 EventBase::getTimestamp() const
+{
+	return m_timestamp;
+}
+
+uint64 EventBase::getTimestamp(const MidiMessage& msg)
+{
+	const uint8* data = msg.getRawData();
+	return *reinterpret_cast<const uint64*>(data + 8);
+}
+
+EventBase::EventBase(EventType type, uint64 timestamp, uint16 sourceID, uint16 sourceSubIdx, uint16 sourceIndex)
+	: m_baseType(type), m_timestamp(timestamp), m_sourceID(sourceID), m_sourceSubIdx(sourceSubIdx), m_sourceIndex(sourceIndex)
 {}
 
-EventBase* EventBase::deserializeFromMessage(const MidiMessage& msg, const GenericProcessor* processor)
+EventBase::~EventBase() {}
+
+EventBasePtr EventBase::deserializeFromMessage(const MidiMessage& msg, const GenericProcessor* processor)
 {
 	if (!processor) return nullptr;
 
@@ -54,12 +68,12 @@ EventBase* EventBase::deserializeFromMessage(const MidiMessage& msg, const Gener
 	{
 	case PROCESSOR_EVENT:
 	{		const EventChannel* chan = processor->getEventChannel(processor->getEventChannelIndex(channelIDX, processorID, subProcessorID));
-			return Event::deserializeFromMessage(msg, chan);
+			return Event::deserializeFromMessage(msg, chan).release();
 	}
 	case SPIKE_EVENT:
 	{
 		const SpikeChannel* chan = processor->getSpikeChannel(processor->getSpikeChannelIndex(channelIDX, processorID, subProcessorID));
-		return SpikeEvent::deserializeFromMessage(msg, chan);
+		return SpikeEvent::deserializeFromMessage(msg, chan).release();
 	}
 	default:
 		return nullptr;
@@ -83,19 +97,124 @@ bool EventBase::compareMetaData(const MetaDataEventObject* channelInfo, const Me
 uint16 EventBase::getSourceID(const MidiMessage& msg)
 {
 	const uint8* data = msg.getRawData();
-	return static_cast<uint16>(*data + 2);
+	return *reinterpret_cast<const uint16*>(data + 2);
+}
+
+uint16 EventBase::getSourceID() const
+{
+	return m_sourceID;
 }
 
 uint16 EventBase::getSubProcessorIdx(const MidiMessage& msg)
 {
 	const uint8* data = msg.getRawData();
-	return static_cast<uint16>(*data + 4);
+	return *reinterpret_cast<const uint16*>(data + 4);
+}
+
+uint16 EventBase::getSubProcessorIdx() const
+{
+	return m_sourceSubIdx;
 }
 
 uint16 EventBase::getSourceIndex(const MidiMessage& msg)
 {
 	const uint8* data = msg.getRawData();
-	return static_cast<uint16>(*data + 4);
+	return *reinterpret_cast<const uint16*>(data + 6);
+}
+
+uint16 EventBase::getSourceIndex() const
+{
+	return m_sourceIndex;
+}
+
+//SystemEvent
+SystemEventType SystemEvent::getSystemEventType(const MidiMessage& msg)
+{
+	const uint8* data = msg.getRawData();
+	return static_cast<SystemEventType>(*(data + 1));
+}
+
+size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, uint32 nSamples)
+{
+	/** Event packet structure
+	* SYSTEM_EVENT - 1 byte
+	* TIMESTAMP_AND_SAMPLES - 1 byte
+	* Source processorID - 2 bytes
+	* Source Subprocessor index - 2 bytes
+	* Zero-fill (to maintain aligment with other events) - 2 bytes
+	* Timestamp - 8 bytes
+	* Buffer sample number - 4 bytes
+	*/
+	const int eventSize = 20;
+	data.malloc(eventSize);
+	data[0] = SYSTEM_EVENT;
+	data[1] = TIMESTAMP_AND_SAMPLES;
+	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
+	*reinterpret_cast<uint16*>(data.getData() + 4) = subProcessorIdx;
+	data[6] = 0;
+	data[7] = 0;
+	*reinterpret_cast<uint64*>(data.getData() + 8) = timestamp;
+	*reinterpret_cast<uint32*>(data.getData() + 16) = nSamples;
+	return eventSize;
+}
+
+size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, bool softwareTime)
+{
+	/** Event packet structure
+	* SYSTEM_EVENT - 1 byte
+	* TIMESTAMP_SYNC_TEXT - 1 byte
+	* Source processorID - 2 bytes
+	* Source Subprocessor index - 2 bytes
+	* Zero-fill (to maintain aligment with other events) - 2 bytes
+	* Timestamp - 8 bytes
+	* string - variable
+	*/
+	String eventString;
+	if (softwareTime)
+	{
+		eventString = "Software time: " + String(timestamp) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
+	}
+	else
+	{
+		eventString = "Processor: "
+			+ proc->getName()
+			+ " Id: "
+			+ String(proc->getNodeId())
+			+ " subProcessor: "
+			+ String(subProcessorIdx)
+		+" start time: "
+			+ String(timestamp)
+			+ "@"
+			+ String(proc->getSampleRate())
+			+ "Hz";
+	}
+	size_t textSize = eventString.getNumBytesAsUTF8();
+	size_t dataSize = 17 + textSize;
+	data.allocate(dataSize, true);
+	data[0] = SYSTEM_EVENT;
+	data[1] = TIMESTAMP_SYNC_TEXT;
+	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
+	*reinterpret_cast<uint16*>(data.getData() + 4) = subProcessorIdx;
+	*reinterpret_cast<uint64*>(data.getData() + 8) = timestamp;
+	memcpy(data.getData() + 16, eventString.toUTF8(), textSize);
+	return dataSize;
+}
+
+uint32 SystemEvent::getNumSamples(const MidiMessage& msg)
+{
+	if (getBaseType(msg) != SYSTEM_EVENT && getSystemEventType(msg) != TIMESTAMP_AND_SAMPLES)
+		return 0;
+
+	return *reinterpret_cast<const uint32*>(msg.getRawData() + 16);
+}
+
+String SystemEvent::getSyncText(const MidiMessage& msg)
+{
+	if (getBaseType(msg) != SYSTEM_EVENT && getSystemEventType(msg) != TIMESTAMP_SYNC_TEXT)
+		return String::empty;
+
+	const char* data = reinterpret_cast<const char*>(msg.getRawData());
+	return String::fromUTF8(data + 16, msg.getRawDataSize() - 17);
 }
 
 //Event
@@ -116,22 +235,24 @@ EventChannel::EventChannelTypes Event::getEventType(const MidiMessage& msg)
 }
 
 Event::Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel)
-	: EventBase(PROCESSOR_EVENT, timestamp),
+	: EventBase(PROCESSOR_EVENT, timestamp, channelInfo->getSourceNodeID(), channelInfo->getSubProcessorIdx(), channelInfo->getSourceIndex()),
 	m_channel(channel),
 	m_channelInfo(channelInfo),
 	m_eventType(channelInfo->getChannelType())
 {}
 
-Event* Event::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
+Event::~Event() {}
+
+EventPtr Event::deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo)
 {
 	EventChannel::EventChannelTypes type = channelInfo->getChannelType();
 	
 	if (type == EventChannel::TTL)
-		return TTLEvent::deserializeFromMessage(msg, channelInfo);
+		return TTLEvent::deserializeFromMessage(msg, channelInfo).release();
 	else if (type == EventChannel::TEXT)
-		return TextEvent::deserializeFromMessage(msg, channelInfo);
+		return TextEvent::deserializeFromMessage(msg, channelInfo).release();
 	else if (type >= EventChannel::INT8_ARRAY && type <= EventChannel::DOUBLE_ARRAY)
-		return BinaryEvent::deserializeFromMessage(msg, channelInfo);
+		return BinaryEvent::deserializeFromMessage(msg, channelInfo).release();
 	else return nullptr;
 }
 
@@ -164,7 +285,7 @@ bool Event::serializeHeader(EventChannel::EventChannelTypes type, char* buffer, 
 bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel)
 {
 	if (!channelInfo) return false;
-	if (channelInfo->getChannelType() != EventChannel::TTL) return false;
+	if (channelInfo->getChannelType() != eventType) return false;
 	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
 	if (channelInfo->getEventMetaDataCount() != 0) return false;
 	return true;
@@ -188,6 +309,16 @@ TTLEvent::TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 cha
 	m_data.malloc(size);
 	memcpy(m_data.getData(), eventData, size);
 }
+
+TTLEvent::TTLEvent(const TTLEvent& other)
+	: Event(other)
+{
+	size_t size = other.m_channelInfo->getDataSize();
+	m_data.malloc(size);
+	memcpy(m_data.getData(), other.m_data.getData(), size);
+}
+
+TTLEvent::~TTLEvent() {}
 
 bool TTLEvent::getState() const
 {
@@ -267,7 +398,7 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 	}
 	const uint8* buffer = msg.getRawData();
 	//TODO: remove the mask when the probe system is implemented
-	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
+	if (static_cast<EventType>(*(buffer + 0)&0x7F) != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -279,7 +410,25 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 		return nullptr;
 	}
 
-	if (*(buffer + 1) != EventChannel::TTL) {
+	if (static_cast<EventChannel::EventChannelTypes>(*(buffer + 1)) != EventChannel::TTL) {
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeID())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getSubProcessorIdx())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getSourceIndex())
+	{
 		jassertfalse;
 		return nullptr;
 	}
@@ -307,6 +456,13 @@ TextEvent::TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 c
 	m_text(text)
 {
 }
+
+TextEvent::~TextEvent() {}
+
+TextEvent::TextEvent(const TextEvent& other)
+	: Event(other),
+	m_text(other.m_text)
+{}
 
 String TextEvent::getText() const
 {
@@ -378,7 +534,7 @@ TextEventPtr TextEvent::deserializeFromMessage(const MidiMessage& msg, const Eve
 	}
 	const uint8* buffer = msg.getRawData();
 	//TODO: remove the mask when the probe system is implemented
-	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
+	if (static_cast<EventType>(*(buffer + 0)&0x7F) != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -390,17 +546,34 @@ TextEventPtr TextEvent::deserializeFromMessage(const MidiMessage& msg, const Eve
 		return nullptr;
 	}
 
-	if (*(buffer + 1) != EventChannel::TEXT) {
+	if (static_cast<EventChannel::EventChannelTypes>(*(buffer + 1)) != EventChannel::TEXT) {
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeID())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getSubProcessorIdx())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getSourceIndex())
+	{
 		jassertfalse;
 		return nullptr;
 	}
 
 	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
-	String text = String(CharPointer_UTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE)), dataSize);
+	String text = String::fromUTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE), dataSize);
 
 	ScopedPointer<TextEvent> event = new TextEvent(channelInfo, timestamp, channel, text);
-	bool ret;
+	bool ret = true;
 	if (metaDataSize > 0)
 		ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
@@ -422,6 +595,17 @@ BinaryEvent::BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint
 	m_data.malloc(size);
 	memcpy(m_data.getData(), data, size);
 }
+
+BinaryEvent::BinaryEvent(const BinaryEvent& other)
+	:Event(other),
+	m_type(other.m_type)
+{
+	size_t size = other.m_channelInfo->getDataSize();
+	m_data.malloc(size);
+	memcpy(m_data.getData(), other.m_data.getData(), size);
+}
+
+BinaryEvent::~BinaryEvent() {}
 
 const void* BinaryEvent::getBinaryDataPointer() const
 {
@@ -527,7 +711,7 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 	}
 	const uint8* buffer = msg.getRawData();
 	//TODO: remove the mask when the probe system is implemented
-	if (*(buffer + 0)&0x7F != PROCESSOR_EVENT)
+	if (static_cast<EventType>(*(buffer + 0)&0x7F) != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
@@ -546,6 +730,22 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 		return nullptr;
 	}
 
+	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeID())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getSubProcessorIdx())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getSourceIndex())
+	{
+		jassertfalse;
+		return nullptr;
+	}
 	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
@@ -564,17 +764,36 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 }
 
 //SpikeEvent
-SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data)
-	: EventBase(SPIKE_EVENT, timestamp),
+SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data, uint16 sortedID)
+	: EventBase(SPIKE_EVENT, timestamp, channelInfo->getSourceNodeID(), channelInfo->getSubProcessorIdx(), channelInfo->getSourceIndex()),
 	m_thresholds(thresholds),
-	m_channelInfo(channelInfo)
+	m_channelInfo(channelInfo),
+	m_sortedID(sortedID)
 {
 	m_data.swapWith(data);
 }
 
+SpikeEvent::SpikeEvent(const SpikeEvent& other)
+	:EventBase(other),
+	m_thresholds(other.m_thresholds),
+	m_channelInfo(other.m_channelInfo),
+	m_sortedID(other.m_sortedID)
+{
+	size_t size = m_channelInfo->getDataSize();
+	m_data.malloc(size, sizeof(char));
+	memcpy(m_data.getData(), other.m_data.getData(), size);
+}
+
+SpikeEvent::~SpikeEvent() {}
+
 const float* SpikeEvent::getDataPointer() const
 {
 	return m_data.getData();
+}
+
+uint16 SpikeEvent::getSortedID() const
+{
+	return m_sortedID;
 }
 
 const float* SpikeEvent::getDataPointer(int channel) const
@@ -590,6 +809,11 @@ const float* SpikeEvent::getDataPointer(int channel) const
 float SpikeEvent::getThreshold(int chan) const
 {
 	return m_thresholds[chan];
+}
+
+const SpikeChannel* SpikeEvent::getChannelInfo() const
+{
+	return m_channelInfo;
 }
 
 void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
@@ -611,6 +835,7 @@ void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
 	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
+	*(reinterpret_cast<uint16*>(buffer + 16)) = m_sortedID;
 	int memIdx = SPIKE_BASE_SIZE;
 	for (int i = 0; i < m_thresholds.size(); i++)
 	{
@@ -621,9 +846,14 @@ void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
+SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
 {
 	if (!dataSource.m_ready)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if (channelInfo->getChannelType() == SpikeChannel::INVALID)
 	{
 		jassertfalse;
 		return nullptr;
@@ -646,11 +876,11 @@ SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64
 		return nullptr;
 	}
 	dataSource.m_ready = false;
-	return new SpikeEvent(channelInfo, timestamp, thresholds, dataSource.m_data);
+	return new SpikeEvent(channelInfo, timestamp, thresholds, dataSource.m_data, sortedID);
 
 }
 
-SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
 {
 	if (!channelInfo)
 	{
@@ -665,11 +895,11 @@ SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint
 		return nullptr;
 	}
 
-	return createBasicSpike(channelInfo, timestamp, thresholds, dataSource);	
+	return createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedID);	
 	
 }
 
-SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, const MetaDataValueArray& metaData)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID, const MetaDataValueArray& metaData)
 {
 	if (!channelInfo)
 	{
@@ -682,7 +912,7 @@ SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint
 		jassertfalse;
 		return nullptr;
 	}
-	SpikeEvent* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource);
+	SpikeEvent* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedID);
 	if (!event)
 	{
 		jassertfalse;
@@ -701,6 +931,12 @@ SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const S
 	size_t thresholdSize = nChans*sizeof(float);
 	size_t metaDataSize = channelInfo->getTotalEventMetaDataSize();
 
+	if (channelInfo->getChannelType() == SpikeChannel::INVALID)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
 	if (totalSize != (thresholdSize + dataSize + SPIKE_BASE_SIZE + metaDataSize))
 	{
 		jassertfalse;
@@ -708,25 +944,44 @@ SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const S
 	}
 	const uint8* buffer = msg.getRawData();
 	//TODO: remove the mask when the probe system is implemented
-	if (*(buffer + 0)&0x7F != SPIKE_EVENT)
+	if (static_cast<EventType>(*(buffer + 0)&0x7F) != SPIKE_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
 	}
 
-	if ((buffer + 1) != channelInfo->getChannelType())
+	if (static_cast<SpikeChannel::ElectrodeTypes>(*(buffer + 1)) != channelInfo->getChannelType())
 	{
 		jassertfalse;
 		return nullptr;
 	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeID())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getSubProcessorIdx())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getSourceIndex())
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
 	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	uint16 sortedID = *(reinterpret_cast<const uint16*>(buffer + 16));
 	Array<float> thresholds;
 	thresholds.addArray(reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE), nChans);
 	HeapBlock<float> data;
 	data.malloc(dataSize, sizeof(char));
 	memcpy(data.getData(), (buffer + SPIKE_BASE_SIZE + thresholdSize), dataSize);
 
-	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, thresholds, data);
+	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, thresholds, data, sortedID);
 
 	bool ret;
 	if (metaDataSize > 0)
@@ -760,7 +1015,7 @@ float* SpikeEvent::SpikeBuffer::operator[](const int index)
 		jassertfalse;
 		return nullptr;
 	}
-	return m_data.getData() + (index + m_nSamps);
+	return m_data.getData() + (index * m_nSamps);
 }
 
 //Template definitions

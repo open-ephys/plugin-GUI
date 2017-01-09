@@ -28,9 +28,9 @@
 #include "Processors/PluginManager/OpenEphysPlugin.h"
 
 class GenericEditor;
-struct SpikeObject;
 class GenericProcessor;
-struct SpikeRecordInfo;
+class SpikeChannel;
+class SpikeEvent;
 
 namespace CoreServices
 {
@@ -98,9 +98,9 @@ PLUGIN_API int getExperimentNumber();
 
 /* Spike related methods. See record engine documentation */
 
-PLUGIN_API void writeSpike(SpikeObject& spike, int electrodeIndex);
+PLUGIN_API void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan);
 PLUGIN_API void registerSpikeSource(GenericProcessor* processor);
-PLUGIN_API int addSpikeElectrode(SpikeRecordInfo* elec);
+PLUGIN_API int addSpikeElectrode(const SpikeChannel* elec);
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);

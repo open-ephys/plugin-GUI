@@ -27,6 +27,9 @@
 #include "GraphViewer.h"
 #include "EditorViewportButtons.h"
 #include "../AccessClass.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
+#include "ProcessorList.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
 EditorViewport::EditorViewport()
     : leftmostEditor(0),

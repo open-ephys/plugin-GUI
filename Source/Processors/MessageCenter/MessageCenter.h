@@ -82,8 +82,8 @@ public:
     void removeSourceProcessor(GenericProcessor* p);
 
     int64 getTimestamp(bool softwareTime = false);
-protected:
-	void getDefaultEventInfo(Array<DefaultEventInfo>& events, int) const override;
+	
+	void addSpecialProcessorChannels(Array<EventChannel*>& channel);
 private:
 
     bool newEventAvailable;

@@ -154,9 +154,9 @@ void FPGAchannelList::update()
         }
     }
 
-    if (thread->getNumAdcOutputs() > 0)
+    if (thread->getNumDataOutputs(DataChannel::ADC_CHANNEL,0) > 0)
     {
-        numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = thread->getNumAdcOutputs();
+		numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = thread->getNumDataOutputs(DataChannel::ADC_CHANNEL, 0);
         hsActive[MAX_NUM_HEADSTAGES] = true;
         hsColumn[MAX_NUM_HEADSTAGES] = numActiveHeadstages*columnWidth;
         numActiveHeadstages++;
@@ -203,7 +203,7 @@ void FPGAchannelList::update()
             {
                 int channelGainIndex = 1;
                 int realChan = thread->getChannelFromHeadstage(k, ch);
-                float ch_gain = proc->channels[realChan]->getBitVolts() / proc->getBitVolts(proc->channels[realChan]);
+                float ch_gain = proc->getDataChannel(realChan)->getBitVolts() / proc->getBitVolts(proc->getDataChannel(realChan));
                 for (int j = 0; j < gains.size(); j++)
                 {
                     if (fabs(gains[j] - ch_gain) < 1e-3)
@@ -213,9 +213,9 @@ void FPGAchannelList::update()
                     }
                 }
                 if (k < MAX_NUM_HEADSTAGES)
-                    type = ch < numChannelsPerHeadstage[k] ? HEADSTAGE_CHANNEL : AUX_CHANNEL;
+                    type = ch < numChannelsPerHeadstage[k] ? DataChannel::HEADSTAGE_CHANNEL : DataChannel::AUX_CHANNEL;
                 else
-                    type = ADC_CHANNEL;
+                    type = DataChannel::ADC_CHANNEL;
 
                 FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains,type);
                 comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
@@ -232,7 +232,7 @@ void FPGAchannelList::update()
     // add buttons for TTL channels
     for (int k=0; k<ttlNames.size(); k++)
     {
-        FPGAchannelComponent* comp = new FPGAchannelComponent(this,k, -1, ttlNames[k],gains,EVENT_CHANNEL);
+        FPGAchannelComponent* comp = new FPGAchannelComponent(this,k, -1, ttlNames[k],gains,DataChannel::INVALID); //let's treat invalid as an event channel
         comp->setBounds(10+numActiveHeadstages*columnWidth,70+k*22,columnWidth,22);
         comp->setUserDefinedData(k);
         addAndMakeVisible(comp);
@@ -320,7 +320,7 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
 		if (i >= channelComponents.size())
 			break; //little safety
 
-		if (channelComponents[i]->type != HEADSTAGE_CHANNEL)
+		if (channelComponents[i]->type != DataChannel::HEADSTAGE_CHANNEL)
 		{
 			k--;
 		}
@@ -335,7 +335,7 @@ void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, A
 
 
 /****************************************************/
-FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String N, Array<float> gains_, ChannelType type_) :
+FPGAchannelComponent::FPGAchannelComponent(FPGAchannelList* cl, int ch, int gainIndex_, String N, Array<float> gains_, DataChannel::DataChannelTypes type_) :
 type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gainIndex_)
 {
     Font f = Font("Small Text", 13, Font::plain);
@@ -375,7 +375,7 @@ type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gai
         gainComboBox = nullptr;
     //}
 
-    if (type == HEADSTAGE_CHANNEL)
+    if (type == DataChannel::HEADSTAGE_CHANNEL)
     {
         impedance = new Label("Impedance","? Ohm");
         impedance->setFont(Font("Default", 13, Font::plain));
@@ -415,7 +415,7 @@ void FPGAchannelComponent::comboBoxChanged(ComboBox* comboBox)
     {
         int newGainIndex = gainComboBox->getSelectedId();
         float mult = gains[newGainIndex-1];
-        float bitvolts = channelList->proc->getBitVolts(channelList->proc->channels[channel]);
+        float bitvolts = channelList->proc->getBitVolts(channelList->proc->getDataChannel(channel));
         channelList->setNewGain(channel, mult*bitvolts);
     }
 }

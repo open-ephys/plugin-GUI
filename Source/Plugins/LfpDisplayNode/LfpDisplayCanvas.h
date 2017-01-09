@@ -98,12 +98,12 @@ public:
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
 
-    ChannelType getChannelType(int n);
-    ChannelType getSelectedType();
-    String getTypeName(ChannelType type);
-    int getRangeStep(ChannelType type);
+    DataChannel::DataChannelTypes getChannelType(int n);
+	DataChannel::DataChannelTypes getSelectedType();
+	String getTypeName(DataChannel::DataChannelTypes type);
+	int getRangeStep(DataChannel::DataChannelTypes type);
 
-    void setSelectedType(ChannelType type, bool toggleButton = true);
+	void setSelectedType(DataChannel::DataChannelTypes type, bool toggleButton = true);
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -157,7 +157,7 @@ private:
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
 
-    ChannelType selectedChannelType;
+	DataChannel::DataChannelTypes selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
     float rangeGain[CHANNEL_TYPES];
@@ -228,11 +228,11 @@ public:
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
 
-    void setRange(float range, ChannelType type);
+	void setRange(float range, DataChannel::DataChannelTypes type);
     
     //Withouth parameters returns selected type
     int getRange();
-    int getRange(ChannelType type);
+	int getRange(DataChannel::DataChannelTypes type);
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
@@ -320,7 +320,7 @@ public:
         return isEnabled;
     }
 
-    ChannelType getType();
+	DataChannel::DataChannelTypes getType();
     void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
@@ -351,7 +351,7 @@ protected:
     bool canBeInverted;
     bool drawMethod;
 
-    ChannelType type;
+	DataChannel::DataChannelTypes type;
     String typeStr;
 
 };

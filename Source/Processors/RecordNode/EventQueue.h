@@ -25,9 +25,8 @@
 #define EVENTQUEUE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Events/Events.h"
 #include <vector>
-
-struct SpikeObject;
 
 template <class MsgContainer>
 class AsyncEventMessage :
@@ -133,9 +132,9 @@ private:
 };
 
 typedef EventQueue<MidiMessage> EventMsgQueue;
-typedef EventQueue<SpikeObject> SpikeMsgQueue;
+typedef EventQueue<SpikeEvent> SpikeMsgQueue;
 typedef ReferenceCountedObjectPtr<AsyncEventMessage<MidiMessage>> EventMessagePtr;
-typedef ReferenceCountedObjectPtr<AsyncEventMessage<SpikeObject>> SpikeMessagePtr;
+typedef ReferenceCountedObjectPtr<AsyncEventMessage<SpikeEvent>> SpikeMessagePtr;
 
 #endif  // EVENTQUEUE_H_INCLUDED
 

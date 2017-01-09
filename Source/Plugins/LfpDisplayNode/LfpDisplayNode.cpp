@@ -65,12 +65,12 @@ void LfpDisplayNode::updateSettings()
     eventSourceNodes.clear();
     ttlState.clear();
 
-    for (int i = 0; i < eventChannels.size(); ++i)
+    for (int i = 0; i < eventChannelArray.size(); ++i)
     {
-        if (! eventSourceNodes.contains (eventChannels[i]->sourceNodeId) 
-            && eventChannels[i]->type == EVENT_CHANNEL)
+		uint32 sourceID = getProcessorFullId(eventChannelArray[i]->getSourceNodeID(), eventChannelArray[i]->getSubProcessorIdx());
+        if (! eventSourceNodes.contains (sourceID ))
         {
-            eventSourceNodes.add (eventChannels[i]->sourceNodeId);
+            eventSourceNodes.add (sourceID);
 
         }
     }
@@ -84,9 +84,9 @@ void LfpDisplayNode::updateSettings()
         std::cout << "Adding channel " << getNumInputs() + i << " for event source node " << eventSourceNodes[i] << std::endl;
         channelForEventSource[eventSourceNodes[i]] = getNumInputs() + i;
         ttlState[eventSourceNodes[i]] = 0;
-        Channel* eventChan = new Channel (this, getNumInputs() + i, EVENT_CHANNEL);
-        eventChan->sourceNodeId = eventSourceNodes[i];
-        channels.add (eventChan); // add a channel for event data for each source node
+     //   Channel* eventChan = new Channel (this, getNumInputs() + i, EVENT_CHANNEL);
+      //  eventChan->sourceNodeId = eventSourceNodes[i];
+      //  channels.add (eventChan); // add a channel for event data for each source node
     }
 
     displayBufferIndex.clear();
@@ -152,17 +152,17 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void LfpDisplayNode::handleEvent (int eventType, MidiMessage& event, int sampleNum)
+void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
-    if (eventType == TTL)
+    if (Event::getEventType(event) == EventChannel::TTL)
     {
-        const uint8* dataptr = event.getRawData();
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
 
         //int eventNodeId = *(dataptr+1);
-        const int eventId           = *(dataptr + 2);
-        const int eventChannel      = *(dataptr + 3);
-        const int eventTime         = event.getTimeStamp();
-        const int eventSourceNodeId = *(dataptr + 5);
+        const int eventId           = ttl->getState() ? 1 : 0;
+        const int eventChannel      = ttl->getChannel();
+        const int eventTime         = samplePosition;
+        const uint32 eventSourceNodeId = getProcessorFullId(ttl->getSourceID(), ttl->getSubProcessorIdx());
         const int nSamples          = numSamples.at (eventSourceNodeId);
         const int samplesToFill     = nSamples - eventTime;
 
@@ -264,14 +264,14 @@ void LfpDisplayNode::initializeEventChannels()
 }
 
 
-void LfpDisplayNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 {
     // 1. place any new samples into the displayBuffer
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
     initializeEventChannels();
 
-    checkForEvents (events); // see if we got any TTL events
+    checkForEvents (); // see if we got any TTL events
 
     ScopedLock displayLock (displayMutex);
 

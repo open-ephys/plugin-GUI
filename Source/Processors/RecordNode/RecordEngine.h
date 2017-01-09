@@ -25,9 +25,7 @@
 #define RECORDENGINE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Channel/Channel.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../Visualization/SpikeObject.h"
 
 #include <map>
 
@@ -40,16 +38,6 @@
         v = parameter.floatParam.value
 #define strParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
         v = parameter.strParam.value
-
-struct SpikeRecordInfo
-{
-    String name;
-    int numChannels;
-    int sampleRate;
-	float bitVolts;
-
-    int recordIndex;
-};
 
 struct RecordProcessorInfo
 {
@@ -115,22 +103,28 @@ public:
     virtual void endChannelBlock (bool lastBlock);
 
     /** Write a single event to disk.  */
-    virtual void writeEvent (int eventType, const MidiMessage& event, int64 timestamp) = 0;
+    virtual void writeEvent (int eventChannel, const MidiMessage& event) = 0;
+
+	/** Handle the timestamp sync text messages*/
+	virtual void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text) = 0;
 
     /** Called when acquisition starts once for each processor that might record continuous data */
     virtual void registerProcessor (const GenericProcessor* processor);
 
     /** Called after registerProcessor, once for each output channel of the processor */
-    virtual void addChannel (int index, const Channel* chan);
+    virtual void addDataChannel (int index, const DataChannel* chan);
+
+	/** Called after registerProcessor, once for each output channel of the processor */
+	virtual void addEventChannel(int index, const EventChannel* chan);
 
     /** Called when acquisition starts once for each processor that might record spikes */
-    virtual void registerSpikeSource (GenericProcessor* processor);
+    virtual void registerSpikeSource (const GenericProcessor* processor);
 
     /** Called after registerSpikesource, once for each channel group */
-    virtual void addSpikeElectrode (int index, const SpikeRecordInfo* elec) = 0;
+    virtual void addSpikeElectrode (int index, const SpikeChannel* elec) = 0;
 
     /** Write a spike to disk */
-    virtual void writeSpike (int electrodeIndex, const SpikeObject& spike, int64 timestamp) = 0;
+    virtual void writeSpike (int electrodeIndex, const SpikeEvent* spike) = 0;
 
     /** Called when a new acquisition starts, to clean all channel data before registering the processors */
     virtual void resetChannels();
@@ -160,10 +154,12 @@ protected:
     /** Functions to access RecordNode arrays and utilities */
 
     /** Gets the specified channel from the channel array stored in RecordNode */
-    Channel* getChannel (int index) const;
+    const DataChannel* getDataChannel (int index) const;
+
+	const EventChannel* getEventChannel(int index) const;
 
     /** Gets the specified channel group info structure from the array stored in RecordNode */
-    SpikeRecordInfo* getSpikeElectrode (int index) const;
+    const SpikeChannel* getSpikeChannel (int index) const;
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString() const;

@@ -59,7 +59,7 @@ public:
     int getNumSamples() const;
 
     /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
-    int readAllFromBuffer (AudioSampleBuffer& data, uint64* ts, uint64* eventCodes, int maxSize);
+    int readAllFromBuffer (AudioSampleBuffer& data, uint64* ts, uint64* eventCodes, int maxSize, int dstStartChannel = 0, int numChannels = -1);
 
     /** Resizes the data buffer */
     void resize (int chans, int size);

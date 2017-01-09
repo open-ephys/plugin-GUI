@@ -54,28 +54,25 @@ void SpikeDisplayNode::updateSettings()
     //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
     electrodes.clear();
-    for (int i = 0; i < eventChannels.size(); ++i)
-    {
-        ChannelType type = eventChannels[i]->getType();
+	for (int i = 0; i < spikeChannelArray.size(); ++i)
+	{
 
-        if (type == ELECTRODE_CHANNEL)
-        {
-            Electrode elec;
-            elec.numChannels = static_cast<SpikeChannel*> (eventChannels[i]->extraData.get())->numChannels;
-			elec.bitVolts = eventChannels[i]->getBitVolts();
-            elec.name = eventChannels[i]->getName();
-            elec.currentSpikeIndex = 0;
-            elec.mostRecentSpikes.ensureStorageAllocated (displayBufferSize);
+		Electrode* elec = new Electrode();
+		elec->numChannels = spikeChannelArray[i]->getNumChannels();
+		elec->bitVolts = spikeChannelArray[i]->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
+		elec->name = spikeChannelArray[i]->getName();
+		elec->currentSpikeIndex = 0;
+		elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
-            for (int j = 0; j < elec.numChannels; ++j)
-            {
-                elec.displayThresholds.add  (0);
-                elec.detectorThresholds.add (0);
-            }
+		for (int j = 0; j < elec->numChannels; ++j)
+		{
+			elec->displayThresholds.add(0);
+			elec->detectorThresholds.add(0);
+		}
 
-            electrodes.add (elec);
-        }
-    }
+		electrodes.add(elec);
+
+	}
 }
 
 
@@ -85,15 +82,10 @@ bool SpikeDisplayNode::enable()
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
 
 	CoreServices::RecordNode::registerSpikeSource(this);
-	for (int i = 0; i < electrodes.size(); i ++)
+	for (int i = 0; i < spikeChannelArray.size(); i ++)
 	{
-		Electrode& elec = electrodes.getReference(i);
-		SpikeRecordInfo *recElec = new SpikeRecordInfo();
-		recElec->name = elec.name;
-		recElec->numChannels = elec.numChannels;
-		recElec->bitVolts = elec.bitVolts;
-		recElec->sampleRate = settings.sampleRate;
-		elec.recordIndex = CoreServices::RecordNode::addSpikeElectrode(recElec);
+		Electrode* elec = electrodes[i];
+		elec->recordIndex = CoreServices::RecordNode::addSpikeElectrode(spikeChannelArray[i]);
 	}
 
     editor->enable();
@@ -116,7 +108,7 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode (int i) const
 {
     if (i > -1 && i < electrodes.size())
     {
-        return electrodes[i].numChannels;
+        return electrodes[i]->numChannels;
     }
     else
     {
@@ -129,7 +121,7 @@ String SpikeDisplayNode::getNameForElectrode (int i) const
 {
     if (i > -1 && i < electrodes.size())
     {
-        return electrodes[i].name;
+        return electrodes[i]->name;
     }
     else
     {
@@ -140,8 +132,8 @@ String SpikeDisplayNode::getNameForElectrode (int i) const
 
 void SpikeDisplayNode::addSpikePlotForElectrode (SpikePlot* sp, int i)
 {
-    Electrode& e = electrodes.getReference(i);
-    e.spikePlot = sp;
+    Electrode* e = electrodes[i];
+    e->spikePlot = sp;
 }
 
 
@@ -149,8 +141,8 @@ void SpikeDisplayNode::removeSpikePlots()
 {
     for (int i = 0; i < getNumElectrodes(); ++i)
     {
-        Electrode& e = electrodes.getReference (i);
-        e.spikePlot = nullptr;
+        Electrode* e = electrodes[i];
+        e->spikePlot = nullptr;
     }
 }
 
@@ -192,32 +184,32 @@ void SpikeDisplayNode::setParameter (int param, float val)
 }
 
 
-void SpikeDisplayNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void SpikeDisplayNode::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents (events); // automatically calls 'handleEvent
+    checkForEvents (true); // automatically calls 'handleEvent
 
     if (redrawRequested)
     {
         // update incoming thresholds
         for (int i = 0; i < getNumElectrodes(); ++i)
         {
-            Electrode& e = electrodes.getReference(i);
+            Electrode* e = electrodes[i];
 
             // update thresholds
-            for (int j = 0; j < e.numChannels; ++j)
+            for (int j = 0; j < e->numChannels; ++j)
             {
-                e.displayThresholds.set (j,
-                                         e.spikePlot->getDisplayThresholdForChannel (j));
+                e->displayThresholds.set (j,
+                                         e->spikePlot->getDisplayThresholdForChannel (j));
 
-                e.spikePlot->setDetectorThresholdForChannel (j, e.detectorThresholds[j]);
+                e->spikePlot->setDetectorThresholdForChannel (j, e->detectorThresholds[j]);
             }
 
             // transfer buffered spikes to spike plot
-            for (int j = 0; j < e.currentSpikeIndex; ++j)
+            for (int j = 0; j < e->currentSpikeIndex; ++j)
             {
                 //std::cout << "Transferring spikes." << std::endl;
-                e.spikePlot->processSpikeObject (e.mostRecentSpikes[j]);
-                e.currentSpikeIndex = 0;
+                e->spikePlot->processSpikeObject (e->mostRecentSpikes[j]);
+                e->currentSpikeIndex = 0;
             }
         }
 
@@ -226,72 +218,56 @@ void SpikeDisplayNode::process (AudioSampleBuffer& buffer, MidiBuffer& events)
 }
 
 
-void SpikeDisplayNode::handleEvent (int eventType, MidiMessage& event, int samplePosition)
+void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition)
 {
-    //std::cout << "Received event of type " << eventType << std::endl;
+	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
+	if (!newSpike) return;
 
-    if (eventType == SPIKE)
-    {
-        const uint8_t* dataptr = event.getRawData();
-        int bufferSize = event.getRawDataSize();
+	int electrodeNum = getSpikeChannelIndex(newSpike);
 
-        if (bufferSize > 0)
-        {
-            SpikeObject newSpike;
+	Electrode* e = electrodes[electrodeNum];
+	// std::cout << electrodeNum << std::endl;
 
-            bool isValid = unpackSpike (&newSpike, dataptr, bufferSize);
+	bool aboveThreshold = false;
 
-            if (isValid)
-            {
-                int electrodeNum = newSpike.source;
+	// update threshold / check threshold
+	for (int i = 0; i < e->numChannels; ++i)
+	{
+		e->detectorThresholds.set(i, float(newSpike->getThreshold(i))); // / float(newSpike.gain[i]));
 
-                Electrode& e = electrodes.getReference (electrodeNum);
-                // std::cout << electrodeNum << std::endl;
+		aboveThreshold = aboveThreshold | checkThreshold(i, e->displayThresholds[i], newSpike);
+	}
 
-                bool aboveThreshold = false;
+	if (aboveThreshold)
+	{
+		// save spike
+		if (isRecording)
+		{
+			CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
+		}
+		// add to buffer
+		if (e->currentSpikeIndex < displayBufferSize)
+		{
+			//This releases the spike from the smart pointer to avoid copies, so it's done latest.
+			e->mostRecentSpikes.set(e->currentSpikeIndex, newSpike.release());
+			e->currentSpikeIndex++;
+		}
 
-                // update threshold / check threshold
-                for (int i = 0; i < e.numChannels; ++i)
-                {
-                    e.detectorThresholds.set (i, float (newSpike.threshold[i])); // / float(newSpike.gain[i]));
-
-                    aboveThreshold = aboveThreshold | checkThreshold (i, e.displayThresholds[i], newSpike);
-                }
-
-                if (aboveThreshold)
-                {
-                    // add to buffer
-                    if (e.currentSpikeIndex < displayBufferSize)
-                    {
-                        //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
-                        e.mostRecentSpikes.set (e.currentSpikeIndex, newSpike);
-                        e.currentSpikeIndex++;
-                    }
-
-                    // save spike
-                    if (isRecording)
-                    {
-                        CoreServices::RecordNode::writeSpike (newSpike, e.recordIndex);
-                    }
-                }
-            }
-        }
-    }
+		
+	}
 }
 
 
-bool SpikeDisplayNode::checkThreshold (int chan, float thresh, SpikeObject& s)
+bool SpikeDisplayNode::checkThreshold (int chan, float thresh, SpikeEvent* s)
 {
-    int sampIdx = s.nSamples*chan;
+	int nSamples = getSpikeChannel(getSpikeChannelIndex(s))->getTotalSamples();
 
-    for (int i = 0; i < s.nSamples-1; ++i)
+    for (int i = 0; i < nSamples-1; ++i)
     {
-        if (float (s.data[sampIdx]-32768) / float (*s.gain) * 1000.0f > thresh)
+        if  (s->getDataPointer(chan)[i]  > thresh)
         {
             return true;
         }
-
-        sampIdx++;
     }
 
     return false;

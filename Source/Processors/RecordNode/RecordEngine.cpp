@@ -42,25 +42,34 @@ void RecordEngine::resetChannels() {}
 
 void RecordEngine::registerProcessor (const GenericProcessor* processor) {}
 
-void RecordEngine::addChannel (int index, const Channel* chan) {}
+void RecordEngine::addDataChannel (int index, const DataChannel* chan) {}
+
+void RecordEngine::addEventChannel(int index, const EventChannel* chan) {}
+
+void RecordEngine::addSpikeElectrode(int index, const SpikeChannel* chan) {}
 
 void RecordEngine::startChannelBlock (bool lastBlock) {}
 
 void RecordEngine::endChannelBlock (bool lastBlock) {}
 
-Channel* RecordEngine::getChannel (int index) const
+const DataChannel* RecordEngine::getDataChannel (int index) const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->getDataChannel (index);
+}
+
+const EventChannel* RecordEngine::getEventChannel(int index) const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getEventChannel(index);
+}
+
+const SpikeChannel* RecordEngine::getSpikeChannel(int index) const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeChannel(index);
 }
 
 String RecordEngine::generateDateString() const
 {
     return AccessClass::getProcessorGraph()->getRecordNode()->generateDateString();
-}
-
-SpikeRecordInfo* RecordEngine::getSpikeElectrode (int index) const
-{
-    return AccessClass::getProcessorGraph()->getRecordNode()->getSpikeElectrode (index);
 }
 
 void RecordEngine::updateTimestamps (const Array<int64>& ts, int channel)
@@ -94,7 +103,7 @@ int RecordEngine::getNumRecordedChannels() const
     return channelMap.size();
 }
 
-void RecordEngine::registerSpikeSource (GenericProcessor* processor) {}
+void RecordEngine::registerSpikeSource (const GenericProcessor* processor) {}
 
 int RecordEngine::getNumRecordedProcessors() const
 {
