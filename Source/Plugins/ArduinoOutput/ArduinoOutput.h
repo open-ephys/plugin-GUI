@@ -46,14 +46,14 @@ public:
     ~ArduinoOutput();
 
     /** Searches for events and triggers the Arduino output when appropriate. */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     /** Currently unused. Future uses may include changing the TTL trigger channel
     or the output channel of the Arduino. */
     void setParameter (int parameterIndex, float newValue) override;
 
     /** Convenient interface for responding to incoming events. */
-    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
+    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
 
     /** Called immediately prior to the start of data acquisition. */
     bool enable() override;

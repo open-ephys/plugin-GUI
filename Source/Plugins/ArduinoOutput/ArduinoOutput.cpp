@@ -97,15 +97,15 @@ void ArduinoOutput::setDevice (String devName)
 }
 
 
-void ArduinoOutput::handleEvent (int eventType, MidiMessage& event, int sampleNum)
+void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
 {
-    if (eventType == TTL)
+    if (Event::getEventType(event) == EventChannel::TTL)
     {
-        const uint8* dataptr = event.getRawData();
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
 
         //int eventNodeId = *(dataptr+1);
-        const int eventId         = *(dataptr + 2);
-        const int eventChannel    = *(dataptr + 3);
+        const int eventId         = ttl->getState() ? 1: 0;
+        const int eventChannel    = ttl->getChannel();
 
         // std::cout << "Received event from " << eventNodeId
         //           << " on channel " << eventChannel
@@ -197,7 +197,7 @@ bool ArduinoOutput::disable()
 }
 
 
-void ArduinoOutput::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void ArduinoOutput::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents (events);
+    checkForEvents ();
 }
