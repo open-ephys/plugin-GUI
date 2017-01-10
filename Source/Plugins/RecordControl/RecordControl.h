@@ -40,18 +40,16 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
-    void handleEvent (int eventType, MidiMessage& event, int) override;
+    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int) override;
 
     bool enable() override;
 
-    void updateTriggerChannel (int newChannel);
-
-
 private:
-    int triggerChannel;
+    std::atomic<int> triggerEvent;
+	std::atomic<int> triggerChannel;
 
     enum Edges { RISING = 0, FALLING = 1 };
     enum Types { SET = 0, TOGGLE = 1};

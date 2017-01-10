@@ -437,7 +437,7 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
 	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo, timestamp, channel, (buffer + EVENT_BASE_SIZE));
-	bool ret;
+	bool ret = true;
 	if (metaDataSize > 0)
 		 ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
@@ -445,7 +445,7 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 		return event.release();
 	else
 	{
-		jassertfalse;
+ 		jassertfalse;
 		return nullptr;
 	}
 }
@@ -750,7 +750,7 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
 	ScopedPointer<BinaryEvent> event = new BinaryEvent(channelInfo, timestamp, channel, (buffer + EVENT_BASE_SIZE), type);
-	bool ret;
+	bool ret = true;
 	if (metaDataSize > 0)
 		ret = event->deserializeMetaData(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
@@ -983,7 +983,7 @@ SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const S
 
 	ScopedPointer<SpikeEvent> event = new SpikeEvent(channelInfo, timestamp, thresholds, data, sortedID);
 
-	bool ret;
+	bool ret = true;
 	if (metaDataSize > 0)
 		ret = event->deserializeMetaData(channelInfo, (buffer + SPIKE_BASE_SIZE + dataSize + thresholdSize), metaDataSize);
 

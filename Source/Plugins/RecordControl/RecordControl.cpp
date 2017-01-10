@@ -49,22 +49,20 @@ void RecordControl::setParameter (int parameterIndex, float newValue)
 {
     if (parameterIndex == 0)
     {
-        updateTriggerChannel ((int) newValue);
+		triggerEvent = static_cast<int>(newValue);
     }
-    else if (parameterIndex == 1)
+	else if (parameterIndex == 1)
+	{
+		triggerChannel = static_cast<int>(newValue);
+	}
+    else if (parameterIndex == 2)
     {
         triggerType = (Types)((int)newValue - 1);
     }
-    else if (parameterIndex == 2)
+    else if (parameterIndex == 3)
     {
         triggerEdge = (Edges)((int)newValue - 1);
     }
-}
-
-
-void RecordControl::updateTriggerChannel (int newChannel)
-{
-    triggerChannel = newChannel;
 }
 
 
@@ -74,42 +72,41 @@ bool RecordControl::enable()
 }
 
 
-void RecordControl::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void RecordControl::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents (events);
+    checkForEvents ();
 }
 
 
-void RecordControl::handleEvent (int eventType, MidiMessage& event, int)
+void RecordControl::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int)
 {
-    const uint8* dataptr = event.getRawData();
-
-    const int eventId       = *(dataptr + 2);
-    const int eventChannel  = *(dataptr + 3);
-
-    //std::cout << "Received event with id=" << eventId << " and ch=" << eventChannel << std::endl;
-
-    if (eventType == TTL && eventChannel == triggerChannel)
+	if (triggerEvent < 0) return;
+    if (eventInfo->getChannelType() == EventChannel::TTL && eventInfo == eventChannelArray[triggerEvent])
     {
-        int edge = triggerEdge == RISING ? 1 : 0;
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
+		if (ttl->getChannel() == triggerChannel)
+		{
+			int eventId = ttl->getState() ? 1 : 0;
+			int edge = triggerEdge == RISING ? 1 : 0;
 
-        const MessageManagerLock mmLock;
+			const MessageManagerLock mmLock;
 
-        if (triggerType == SET)
-        {
-            if (eventId == edge)
-            {
-                CoreServices::setRecordingStatus (true);
-            }
-            else
-            {
-                CoreServices::setRecordingStatus (false);
-            }
-        }
-        else if (triggerType == TOGGLE && eventId == edge)
-        {
-            CoreServices::setRecordingStatus (! CoreServices::getRecordingStatus());
-        }
+			if (triggerType == SET)
+			{
+				if (eventId == edge)
+				{
+					CoreServices::setRecordingStatus(true);
+				}
+				else
+				{
+					CoreServices::setRecordingStatus(false);
+				}
+			}
+			else if (triggerType == TOGGLE && eventId == edge)
+			{
+				CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+			}
+		}
     }
 }
 

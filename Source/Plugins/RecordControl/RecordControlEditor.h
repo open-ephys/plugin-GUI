@@ -46,6 +46,13 @@ public:
     void saveCustomParameters(XmlElement*);
 
 private:
+	struct EventSources
+	{
+		unsigned int eventIndex;
+		unsigned int channel;
+	};
+
+	Array<EventSources> eventSourceArray;
     ScopedPointer<ComboBox> availableChans, triggerMode, triggerPol;
     ScopedPointer<Label> chanSel, triggerLabel, polLabel;
 
