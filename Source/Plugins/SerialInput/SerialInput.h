@@ -56,7 +56,7 @@ public:
 
         Adds all the new serial data that is available to the event data buffer.
      */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     /**
         This should only be run by the ProcessorGraph, before acquisition will be started.
@@ -89,6 +89,8 @@ public:
 
     /** Setter, that allows you to set the baudrate that will be used during acquisition */
     void setBaudrate (int baudrate);
+protected:
+	void createEventChannels() override;
 
 
 private:
@@ -103,6 +105,9 @@ private:
 
     // List of baudrates that are available by default.
     static const int BAUDRATES[12];
+
+	HeapBlock<unsigned char> dataBuffer;
+	int lastRecv;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SerialInput);
 };

@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include "SerialInput.h"
+#define MAX_MSG_SIZE 10000
 
 const int SerialInput::BAUDRATES[12] = 
 {
@@ -45,8 +46,10 @@ const int SerialInput::BAUDRATES[12] =
 SerialInput::SerialInput()
     : GenericProcessor  ("Serial Port")
     , baudrate          (0)
+	, lastRecv			(0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
+	dataBuffer.calloc(MAX_MSG_SIZE);
 }
 
 
@@ -55,6 +58,15 @@ SerialInput::~SerialInput()
     serial.close();
 }
 
+//Since the data needs a meximum buffer size but the actual number of read bytes might be less, let's 
+//add that info as a metadata field.
+void SerialInput::createEventChannels()
+{
+	//It's going to be raw binary data, so let's make it uint8
+	EventChannel* chan = new EventChannel(EventChannel::UINT8_ARRAY, 1, MAX_MSG_SIZE, this);
+	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT64, 1, "Read Bytes", "Number of actual read bytes in the buffer", "bufferLength"));
+	eventChannelArray.add(chan);
+}
 
 StringArray SerialInput::getDevices()
 {
@@ -112,8 +124,11 @@ bool SerialInput::disable()
 }
 
 
-void SerialInput::process (AudioSampleBuffer&, MidiBuffer& events)
+void SerialInput::process (AudioSampleBuffer&)
 {
+	uint64 timestamp = CoreServices::getGlobalTimestamp();
+	setTimestampAndSamples(timestamp, 0);
+
     int bytesAvailable = serial.available();
 
     if (bytesAvailable == OF_SERIAL_ERROR)
@@ -125,18 +140,22 @@ void SerialInput::process (AudioSampleBuffer&, MidiBuffer& events)
 
     if (bytesAvailable > 0)
     {
-        unsigned char buffer[10000];
-        int bytesRead = serial.readBytes (buffer, bytesAvailable);
+
+        int bytesRead = serial.readBytes (dataBuffer, bytesAvailable);
 
         if (bytesRead > 0)
         {
-            addEvent (events,       // MidiBuffer
-                      BINARY_MSG,   // eventType
-                      0,            // sampleNum
-                      nodeId,       // eventID
-                      0,            // eventChannel
-                      bytesRead,    // numBytes
-                      buffer);      // data
+			//Clear the rest of the buffer so we don't send garbage.
+			if (bytesRead < lastRecv)
+				zeromem(dataBuffer.getData() + bytesRead, lastRecv - bytesRead);
+			lastRecv = bytesRead;
+			MetaDataValueArray metadata;
+			MetaDataValuePtr bufferRead = new MetaDataValue(MetaDataDescriptor::UINT64, 1);
+			bufferRead->setValue(static_cast<uint64>(bytesRead));
+			metadata.add(bufferRead);
+			const EventChannel* chan = getEventChannel(getEventChannelIndex(0, getNodeId()));
+			BinaryEventPtr event = BinaryEvent::createBinaryEvent(chan, timestamp, static_cast<uint8*>(dataBuffer.getData()), MAX_MSG_SIZE, metadata);
+			addEvent(chan, event, 0);
         }
         else if (bytesRead < 0)
         {

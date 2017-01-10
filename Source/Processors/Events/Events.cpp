@@ -294,7 +294,7 @@ bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventCha
 bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel, const MetaDataValueArray& metaData)
 {
 	if (!channelInfo) return false;
-	if (channelInfo->getChannelType() != EventChannel::TTL) return false;
+	if (channelInfo->getChannelType() != eventType) return false;
 	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
 	if (!compareMetaData(channelInfo, metaData)) return nullptr;
 	return true;
@@ -681,7 +681,7 @@ BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, u
 		return nullptr;
 	}
 
-	if (!createChecks(channelInfo, EventChannel::TTL, channel, metaData))
+	if (!createChecks(channelInfo, type, channel, metaData))
 	{
 		jassertfalse;
 		return nullptr;
@@ -1019,24 +1019,24 @@ float* SpikeEvent::SpikeBuffer::operator[](const int index)
 }
 
 //Template definitions
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
 
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
-template BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);
