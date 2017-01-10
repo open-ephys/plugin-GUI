@@ -278,7 +278,7 @@ bool Event::serializeHeader(EventChannel::EventChannelTypes type, char* buffer, 
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
 	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
-	*(reinterpret_cast<uint64*>(buffer + 16)) = m_channel;
+	*(reinterpret_cast<uint16*>(buffer + 16)) = m_channel;
 	return true;
 }
 
