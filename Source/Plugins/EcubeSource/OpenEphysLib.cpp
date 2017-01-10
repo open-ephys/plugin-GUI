@@ -47,7 +47,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::DatathreadPlugin;
+		info->type = Plugin::PLUGIN_TYPE_DATA_THREAD;
 		info->dataThread.name = "eCube";
 		info->dataThread.creator = &createDataThread<EcubeThread>;
 		break;

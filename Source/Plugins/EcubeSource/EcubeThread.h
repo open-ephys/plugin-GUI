@@ -55,40 +55,36 @@ public:
 
     /** Fills the DataBuffer with incoming data. This is the most important
     method for each DataThread.*/
-    virtual bool updateBuffer();
+    bool updateBuffer() override;
 
     /** Returns true if the data source is connected, false otherwise.*/
-    virtual bool foundInputSource();
+    bool foundInputSource() override;
 
     /** Initializes data transfer.*/
-    virtual bool startAcquisition();
+    bool startAcquisition() override;
 
     /** Stops data transfer.*/
-    virtual bool stopAcquisition();
+    bool stopAcquisition() override;
+
+	int getNumChannels();
 
     /** Returns the number of continuous channels the data source can provide.*/
-    virtual int getNumChannels();
+    int getNumDataOutputs(DataChannel::DataChannelTypes type, int subIdx) const override;
 
-    virtual int getNumHeadstageOutputs();
+	int getNumTTLOutputs(int subIdx) const override;
 
-    virtual int getNumAdcOutputs();
-
-    virtual int getNumAuxOutputs();
-
-    /** Returns the number of event channels of the data source.*/
-    virtual int getNumEventChannels();
-
+    
     /** Returns the sample rate of the data source.*/
-    virtual float getSampleRate();
+    float getSampleRate(int subIdx) const override;
 
     /** Returns the volts per bit of a given data channel.*/
-    virtual float getBitVolts(int chan);
+    float getBitVolts(int chan) const;
 
-    virtual float getBitVolts(Channel* chan);
+    float getBitVolts(const DataChannel* chan) const override;
 
     void setDefaultNamingScheme(int scheme);
 
-    bool usesCustomNames();
+    bool usesCustomNames() const override;
 
     // Custom thread control functions
     void setSpeakerVolume(double volume);
@@ -96,7 +92,7 @@ public:
 
 private:
     int numberingScheme;
-    void setDefaultChannelNames();
+    void setDefaultChannelNames() override;
 
     ScopedPointer<EcubeDevInt> pDevInt;
 
