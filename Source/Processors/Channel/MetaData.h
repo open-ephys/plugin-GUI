@@ -57,13 +57,30 @@ public:
 		DOUBLE
 	};
 
-	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String desc);
+	/**
+	MetaData descriptor constructor
+	@param type The primitive type this metadata field will hold
+	@param length The length of the data. 1 for single value or mroe for arrays.
+	@param name The human-readable name of this metadata field
+	@param humanDescription A human-readable description of what this field represents
+	@param machineDescriptor A simple machine-readable name for this metadata value
+
+	name and humanDescription will be saved in most data formats for latter reference
+	*/
+	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String humanDescription, String machineDescriptor);
 	~MetaDataDescriptor();
+	/** Gets the primitive type of this field */
 	MetaDataTypes getType() const;
+	/** Gets the number of elements in this field */
 	unsigned int getLength() const;
+	/** Gets the total data in bytes for this field */
 	size_t getDataSize() const;
+	/** Gets the human-readable name of this field */
 	String getName() const;
+	/** Gets the human-readable description of the field */
 	String getDescription() const;
+	/** Gets the machine-readable descriptor for this field */
+	String getDescriptor() const;
 
 	bool isEqual(const MetaDataDescriptor& other) const;
 	bool operator==(const MetaDataDescriptor& other) const;
@@ -71,10 +88,11 @@ public:
 	static size_t getTypeSize(MetaDataTypes type);
 private:
 	MetaDataDescriptor() = delete;
-	String m_name;
-	String m_desc;
-	MetaDataTypes m_type;
-	unsigned int m_length;
+	const String m_name;
+	const String m_descriptor;
+	const String m_description;
+	const MetaDataTypes m_type;
+	const unsigned int m_length;
 
 	JUCE_LEAK_DETECTOR(MetaDataDescriptor);
 };

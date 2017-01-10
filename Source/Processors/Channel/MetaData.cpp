@@ -44,8 +44,8 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 
 //MetaDataDescriptor
 
-MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d)
-	: m_type(t), m_length(length), m_name(n), m_desc(d)
+MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d, String dm)
+	: m_name(n), m_description(d), m_descriptor(dm), m_type(t), m_length(length)
 {};
 
 MetaDataDescriptor::~MetaDataDescriptor() {};
@@ -54,7 +54,8 @@ MetaDataDescriptor::MetaDataTypes MetaDataDescriptor::getType() const { return m
 unsigned int MetaDataDescriptor::getLength() const { return m_length; }
 size_t MetaDataDescriptor::getDataSize() const { return m_length*getTypeSize(m_type); }
 String MetaDataDescriptor::getName() const { return m_name; }
-String MetaDataDescriptor::getDescription() const { return m_desc; }
+String MetaDataDescriptor::getDescription() const { return m_description; }
+String MetaDataDescriptor::getDescriptor() const { return m_descriptor; }
 
 bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
 {
