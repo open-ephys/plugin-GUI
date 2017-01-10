@@ -132,7 +132,7 @@ String GenericEditor::getDisplayName()
     return displayName;
 }
 
-int GenericEditor::getChannelDisplayNumber(int chan)
+int GenericEditor::getChannelDisplayNumber(int chan) const
 {
 	return chan;
 }
@@ -506,6 +506,8 @@ void GenericEditor::update()
 
     int numChannels;
 
+	updateSettings();
+
     if (channelSelector != 0)
     {
         if (!p->isSink())
@@ -533,7 +535,7 @@ void GenericEditor::update()
             drawerButton->setVisible(true);
     }
 
-    updateSettings();
+    
 
     updateVisualizer(); // does nothing unless this method
     // has been implemented

@@ -69,6 +69,8 @@ public:
 
 	void startAcquisition();
 
+	int getChannelDisplayNumber(int chan) const override;
+
     String writePrbFile(File filename);
     String loadPrbFile(File filename);
 
@@ -95,6 +97,7 @@ private:
     Array<int> referenceArray;
     Array<int> referenceChannels;
     Array<bool> enabledChannelArray;
+	Array<int> channelCountArray;
 
     int previousChannelCount;
     int selectedReference;

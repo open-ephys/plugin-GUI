@@ -127,6 +127,13 @@ void ChannelMappingEditor::updateSettings()
         createElectrodeButtons(getProcessor()->getNumInputs());
         previousChannelCount = getProcessor()->getNumInputs();
     }
+	channelCountArray.clearQuick();
+	int size = channelArray.size();
+	for (int i = 0; i < size; i++)
+	{
+		if (enabledChannelArray[channelArray[i]-1])
+			channelCountArray.add(channelArray[i]-1);
+	}
 }
 
 void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevious)
@@ -945,6 +952,16 @@ void ChannelMappingEditor::startAcquisition()
 	if (reorderActive)
 		modifyButton->setToggleState(false,sendNotificationSync);
 	GenericEditor::startAcquisition();
+}
+
+int ChannelMappingEditor::getChannelDisplayNumber(int chan) const
+{
+	if (channelCountArray.size() > chan)
+	{
+		return channelCountArray[chan];
+	}
+	else
+		return chan;
 }
 
 String ChannelMappingEditor::writePrbFile(File filename)

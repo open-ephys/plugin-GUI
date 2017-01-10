@@ -70,9 +70,9 @@ void ChannelMappingNode::updateSettings()
 
     if (editorIsConfigured)
     {
-        OwnedArray<Channel> oldChannels;
-        oldChannels.swapWith (channels);
-        channels.clear();
+        OwnedArray<DataChannel> oldChannels;
+        oldChannels.swapWith (dataChannelArray);
+        dataChannelArray.clear();
         Array<bool> recordStates;
 
         settings.numOutputs = 0;
@@ -82,17 +82,18 @@ void ChannelMappingNode::updateSettings()
             if ( (enabledChannelArray[channelArray[i]])
                  && (channelArray[i] < oldChannels.size()))
             {
-                oldChannels[channelArray[i]]->mappedIndex = settings.numOutputs;
-                channels.add     (oldChannels[channelArray[i]]);
-                recordStates.add (oldChannels[i]->getRecordState());
+				DataChannel* oldChan = oldChannels[channelArray[i]];
+				oldChannels.set(channelArray[i], nullptr, false);
+                dataChannelArray.add     (oldChan);
+                recordStates.add (oldChan->getRecordState());
                 settings.numOutputs++;
             }
         }
 
-        oldChannels.clearQuick (false);
+        oldChannels.clear();
         for (int i = 0; i < settings.numOutputs; ++i)
         {
-            channels[i]->setRecordState (recordStates[i]);
+            dataChannelArray[i]->setRecordState (recordStates[i]);
         }
     }
 }
@@ -123,7 +124,7 @@ void ChannelMappingNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void ChannelMappingNode::process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void ChannelMappingNode::process (AudioSampleBuffer& buffer)
 {
     int j = 0;
     int i = 0;
@@ -155,7 +156,7 @@ void ChannelMappingNode::process (AudioSampleBuffer& buffer, MidiBuffer& midiMes
                 buffer.addFrom (j,                                                                // destChannel
                                 0,                                                                // destStartSample
                                 channelBuffer,                                                    // source
-                                channels[referenceChannels[referenceArray[realChan]]]->index - 1, // sourceChannel
+                                channelArray[referenceChannels[referenceArray[realChan]]], // sourceChannel
                                 0,                                                                // sourceStartSample
                                 getNumSamples (j),                                                // numSamples
                                 -1.0f); // gain to apply to source (negative for reference)

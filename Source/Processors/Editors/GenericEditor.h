@@ -149,7 +149,7 @@ public:
     String getDisplayName();
 
 	/** Returns a custom channel number for the Channel Selector buttons. Useful for channel mappers */
-	virtual int getChannelDisplayNumber(int chan);
+	virtual int getChannelDisplayNumber(int chan) const;
 
     /** Determines how wide the editor will be drawn. */
     int desiredWidth;
@@ -225,7 +225,7 @@ public:
     void refreshColors();
 
     /** Called when an editor's processor updates its settings (mainly to update channel count).*/
-    virtual void update();
+    void update();
 
     /** Allows other UI elements to use background color of editor. */
     Colour getBackgroundColor();
