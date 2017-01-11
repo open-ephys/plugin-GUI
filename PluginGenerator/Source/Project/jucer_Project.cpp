@@ -179,6 +179,9 @@ void Project::setMissingOpenEphysPluginDefaultValues()
 {
     const String sanitisedProjectName (CodeHelpers::makeValidIdentifier (getTitle(), false, true, false));
 
+    // TODO<Kirill A>: test if using this value makes sense
+    setValueIfVoid (shouldBuildVST(),                   true);
+
     setValueIfVoid (getPluginName(),                    getTitle());
     setValueIfVoid (getPluginDesc(),                    getTitle());
     setValueIfVoid (getPluginManufacturer(),            "yourcompany");

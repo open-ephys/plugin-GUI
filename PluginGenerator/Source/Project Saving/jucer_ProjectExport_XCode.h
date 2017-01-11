@@ -65,6 +65,14 @@ public:
             if (getScreenOrientationValue().toString().isEmpty())
                 getScreenOrientationValue() = "portraitlandscape";
         }
+
+        // <Open-Ephys>
+        // Modified by Open-Ephys
+        if (p.getProjectType().isOpenEphysPlugin())
+        {
+            getExtraCompilerFlags() = String ("-Wno-inconsistent-missing-override");
+            getExtraLinkerFlags()   = String ("-undefined dynamic_lookup");
+        }
     }
 
     static XCodeProjectExporter* createForSettings (Project& project, const ValueTree& settings)
@@ -298,6 +306,14 @@ public:
             if (targets.size() > 0)
                 targets.add (new Target (Target::SharedCodeTarget, *this));
         }
+        else if (type.isOpenEphysPlugin())
+        {
+            targets.add (new Target (Target::OpenEphysPlugIn, *this));
+
+            // TODO<Kirill A>: do we really need this target?
+            //if (targets.size() > 0)
+            //    targets.add (new Target (Target::SharedCodeTarget, *this));
+        }
 
         if (targets.size() > 1)
             targets.insert (0, new Target (Target::AggregateTarget, *this));
@@ -352,8 +368,21 @@ protected:
               vst3BinaryLocation          (config, Ids::xcodeVst3BinaryLocation,      nullptr, "$(HOME)/Library/Audio/Plug-Ins/VST3/"),
               auBinaryLocation            (config, Ids::xcodeAudioUnitBinaryLocation, nullptr, "$(HOME)/Library/Audio/Plug-Ins/Components/"),
               rtasBinaryLocation          (config, Ids::xcodeRtasBinaryLocation,      nullptr, "/Library/Application Support/Digidesign/Plug-Ins/"),
-              aaxBinaryLocation           (config, Ids::xcodeAaxBinaryLocation,       nullptr, "/Library/Application Support/Avid/Audio/Plug-Ins/")
+              aaxBinaryLocation           (config, Ids::xcodeAaxBinaryLocation,       nullptr, "/Library/Application Support/Avid/Audio/Plug-Ins/"),
+              // <Open-Ephys>
+              // Modified by Open-Ephys.
+              oePluginsBinaryLocation     (config, Ids::xcodeOpenEphysPluginBinaryLocation, nullptr, "$(HOME)/Library/Application Support/open-ephys/PlugIns")
         {
+            // <Open-Ephys>
+            // Modified by Open-Ephys.
+            if (p.getProjectType().isOpenEphysPlugin())
+            {
+                String searchPaths;
+                searchPaths += String ("../../../../../JuceLibraryCode") + newLine;
+                searchPaths += String ("../../../../../JuceLibraryCode/modules") + newLine;
+                searchPaths += String ("../../../../../Source/Plugins/Headers") + newLine;
+                setValueIfVoid (getHeaderSearchPathValue(), searchPaths);
+            }
         }
 
         //==========================================================================
@@ -363,6 +392,10 @@ protected:
                             customXcodeFlags, cppLanguageStandard, cppStandardLibrary, codeSignIdentity;
         CachedValue<bool>   fastMathEnabled, linkTimeOptimisationEnabled, stripLocalSymbolsEnabled;
         CachedValue<String> vstBinaryLocation, vst3BinaryLocation, auBinaryLocation, rtasBinaryLocation, aaxBinaryLocation;
+
+        // <Open-Ephys>
+        // Modified by Open-Ephys.
+        CachedValue<String> oePluginsBinaryLocation;
 
         //==========================================================================
         var getDefaultOptimisationLevel() const override    { return var ((int) (isDebug() ? gccO0 : gccO3)); }
@@ -476,6 +509,7 @@ protected:
             if (project.shouldBuildAAX().getValue())
                 props.add (new TextWithDefaultPropertyComponent<String> (aaxBinaryLocation, "AAX Binary location", 1024),
                            "The folder in which the compiled AAX binary should be placed.");
+            // TODO:<Kirill A> add possibility to set OE plugin location on the setup
         }
     };
 
@@ -523,7 +557,11 @@ public:
             SharedCodeTarget  = 20, // internal
             AggregateTarget   = 21,
 
-            unspecified       = 30
+            unspecified       = 30,
+
+            // <Open-Ephys>
+            // Modified by Open-Ephys.
+            OpenEphysPlugIn   = 42
         };
 
         //==============================================================================
@@ -600,6 +638,22 @@ public:
                     xcodeCopyToProductInstallPathAfterBuild = true;
 
                     break;
+
+                // <Open-Ephys>
+                // Modified by Open-Ephys.
+                case OpenEphysPlugIn:
+                    xcodeIsBundle = true;
+                    xcodeIsExecutable = false;
+                    xcodeCreatePList = true;
+                    xcodePackageType = "BNDL";
+                    xcodeBundleSignature = "????";
+                    xcodeFileType = "wrapper.cfbundle";
+                    xcodeBundleExtension = ".bundle";
+                    xcodeProductType = "com.apple.product-type.bundle";
+                    xcodeCopyToProductInstallPathAfterBuild = true;
+
+                    break;
+
 
                 case AudioUnitPlugIn:
                     xcodeIsBundle = true;
@@ -711,6 +765,10 @@ public:
                 case RTASPlugIn:        return "RTAS";
                 case SharedCodeTarget:  return "Shared Code";
                 case AggregateTarget:   return "All";
+                // <Open-Ephys>
+                // Modified by Open-Ephys.
+                case OpenEphysPlugIn:   return "OEPLUGIN";
+
                 default:                return "undefined";
             }
         }
@@ -1085,6 +1143,9 @@ public:
                 case RTASPlugIn:        return config.rtasBinaryLocation.get();
                 case AAXPlugIn:         return config.aaxBinaryLocation.get();
                 case SharedCodeTarget:  return owner.isiOS() ? "@executable_path/Frameworks" : "@executable_path/../Frameworks";
+                // <Open-Ephys>
+                // Modified by Open-Ephys.
+                case OpenEphysPlugIn:   return config.oePluginsBinaryLocation.get();
                 default:                return String();
             }
         }
@@ -1866,6 +1927,15 @@ private:
         StringArray paths (extraSearchPaths);
         paths.addArray (config.getHeaderSearchPaths());
         paths.add ("$(inherited)");
+
+        // <Open-Ephys>
+        // Modified by Open-Ephys.
+        if (config.project.getProjectType().isOpenEphysPlugin())
+        {
+            // TODO<Kirill A>: think if we need to refactor it
+            // We are removing default path to JuceLibraryCode as we will use plugin-GUI/JuceLibraryCode path
+            paths.remove (0);
+        }
 
         paths = getCleanedStringArray (paths);
 

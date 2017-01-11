@@ -970,7 +970,7 @@ static const unsigned char temp_binary_data_10[] =
 "    content.toBack(); // to be able to see parameters components\n"
 "    setDesiredWidth (EDITOR_DESIRED_WIDTH);\n"
 "\n"
-"    configureParameterEditors();\n"
+"    configureParameterEditors (getProcessor());\n"
 "\n"
 "    //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]\n"
 "\n"
@@ -6157,7 +6157,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes) throw
         case 0xbf9557ba:  numBytes = 923; return openEphys_PluginMakefile_example;
         case 0x0d98caa2:  numBytes = 2993; return openEphys_ProcessorContentComponentTemplate_cpp;
         case 0x20837d27:  numBytes = 2348; return openEphys_ProcessorContentComponentTemplate_h;
-        case 0xc39db71e:  numBytes = 4153; return openEphys_ProcessorEditorPluginTemplate_cpp;
+        case 0xc39db71e:  numBytes = 4168; return openEphys_ProcessorEditorPluginTemplate_cpp;
         case 0x229158a3:  numBytes = 3577; return openEphys_ProcessorEditorPluginTemplate_h;
         case 0xfca5b2d1:  numBytes = 6436; return openEphys_ProcessorPluginTemplate_cpp;
         case 0x40baa516:  numBytes = 3746; return openEphys_ProcessorPluginTemplate_h;

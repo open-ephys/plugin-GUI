@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="M70qfTRRk" name="OpenEphys_PluginGenerator" projectType="guiapp"
-              juceFolder="../../juce" jucerVersion="4.3.0" version="4.2.1"
+              juceFolder="../../juce" jucerVersion="4.2.1" version="4.2.1"
               bundleIdentifier="org.openephys.plugingenerator" defines="" includeBinaryInAppConfig="1"
               companyWebsite="http://open-ephys.org" companyName="Open Ephys"
               companyEmail="info@open-ephys.org">

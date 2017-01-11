@@ -96,6 +96,7 @@ namespace Ids
     DECLARE_ID (xcodeAudioUnitBinaryLocation);
     DECLARE_ID (xcodeRtasBinaryLocation);
     DECLARE_ID (xcodeAaxBinaryLocation);
+    DECLARE_ID (xcodeOpenEphysPluginBinaryLocation);
     DECLARE_ID (osxSDK);
     DECLARE_ID (osxCompatibility);
     DECLARE_ID (osxArchitecture);
