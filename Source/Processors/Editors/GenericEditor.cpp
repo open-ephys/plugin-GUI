@@ -502,7 +502,6 @@ void GenericEditor::textEditorReturnKeyPressed (TextEditor& textEditor)
 {
     // TODO<Kirill A>: change to search for component ID, not name
     const auto textEditorID = textEditor.getName();
-    const bool isParameterExists = getProcessor()->isParameterExists (textEditorID);
 
     if (auto parameter = getParameterForComponent (&textEditor))
     {
