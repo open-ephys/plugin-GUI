@@ -51,6 +51,12 @@ AudioProcessorEditor* PhaseDetector::createEditor()
     return editor;
 }
 
+void PhaseDetector::getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx) const
+{
+	if (subProcessorIdx != 0) return;
+	events.add(DefaultEventInfo(EventChannel::TTL, 8, 1));
+}
+
 
 void PhaseDetector::addModule()
 {
@@ -139,24 +145,26 @@ void PhaseDetector::updateSettings()
 
 bool PhaseDetector::enable()
 {
+	//This is to avoid having to look for the channel every time
+	outputEventChannel = getEventChannel(getEventChannelIndex(0, getNodeId()));
     return true;
 }
 
 
-void PhaseDetector::handleEvent (int eventType, MidiMessage& event, int sampleNum)
+void PhaseDetector::handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int sampleNum)
 {
     // MOVED GATING TO PULSE PAL OUTPUT!
     // now use to randomize phase for next trial
 
     //std::cout << "GOT EVENT." << std::endl;
 
-    if (eventType == TTL)
+    if (Event::getEventType(event)  == EventChannel::TTL)
     {
-        const uint8* dataptr = event.getRawData();
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, channelInfo);
 
         // int eventNodeId = *(dataptr+1);
-        const int eventId       = *(dataptr + 2);
-        const int eventChannel  = *(dataptr + 3);
+		const int eventId = ttl->getState() ? 1 : 0;
+		const int eventChannel = ttl->getChannel();
 
         for (int i = 0; i < modules.size(); ++i)
         {
@@ -174,9 +182,9 @@ void PhaseDetector::handleEvent (int eventType, MidiMessage& event, int sampleNu
 }
 
 
-void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void PhaseDetector::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents (events);
+    checkForEvents ();
 
     // loop through the modules
     for (int i = 0; i < modules.size(); ++i)
@@ -198,7 +206,11 @@ void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                 {
                     if (module.type == PEAK)
                     {
-                        addEvent (events, TTL, i, 1, module.outputChan);
+						//A "whole ttl word" does not have any meaning on this processor, so we just create a dummy one
+						//Another option, to take into account for the future, is to create an entire TTL event object for each module
+						uint8 ttlData = 1 << module.outputChan;
+						TTLEventPtr event = TTLEvent::createTTLEvent(outputEventChannel, getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+						addEvent(outputEventChannel, event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -211,7 +223,9 @@ void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                 {
                     if (module.type == FALLING_ZERO)
                     {
-                        addEvent (events, TTL, i, 1, module.outputChan);
+						uint8 ttlData = 1 << module.outputChan;
+						TTLEventPtr event = TTLEvent::createTTLEvent(outputEventChannel, getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+						addEvent(outputEventChannel, event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -222,7 +236,9 @@ void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                 {
                     if (module.type == TROUGH)
                     {
-                        addEvent (events, TTL, i, 1, module.outputChan);
+						uint8 ttlData = 1 << module.outputChan;
+						TTLEventPtr event = TTLEvent::createTTLEvent(outputEventChannel, getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+						addEvent(outputEventChannel, event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -235,7 +251,9 @@ void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                 {
                     if (module.type == RISING_ZERO)
                     {
-                        addEvent (events, TTL, i, 1, module.outputChan);
+						uint8 ttlData = 1 << module.outputChan;
+						TTLEventPtr event = TTLEvent::createTTLEvent(outputEventChannel, getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+						addEvent(outputEventChannel, event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -249,7 +267,9 @@ void PhaseDetector::process (AudioSampleBuffer& buffer, MidiBuffer& events)
                 {
                     if (module.samplesSinceTrigger > 1000)
                     {
-                        addEvent (events, TTL, i, 0, module.outputChan);
+						uint8 ttlData = 0;
+						TTLEventPtr event = TTLEvent::createTTLEvent(outputEventChannel, getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+						addEvent(outputEventChannel, event, i);
                         module.wasTriggered = false;
                     }
                     else

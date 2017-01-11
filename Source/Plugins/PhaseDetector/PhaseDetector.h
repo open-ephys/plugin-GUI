@@ -45,20 +45,21 @@ public:
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return false; }
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
     bool enable() override;
 
     void updateSettings() override;
+	void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const override;
 
     void addModule();
     void setActiveModule (int);
 
 
 private:
-    void handleEvent (int eventType, MidiMessage& event, int sampleNum) override;
+    void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int sampleNum) override;
 
     void estimateFrequency();
 
@@ -97,6 +98,7 @@ private:
     bool fallingPos;
     bool fallingNeg;
 
+	const EventChannel* outputEventChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
 };

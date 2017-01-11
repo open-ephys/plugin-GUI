@@ -501,8 +501,9 @@ public:
 
 	static uint32 getProcessorFullId(uint16 processorId, uint16 subprocessorIdx);
 
-	struct DefaultEventInfo
+	class PLUGIN_API DefaultEventInfo
 	{
+	public:
 		DefaultEventInfo();
 		DefaultEventInfo(EventChannel::EventChannelTypes type, unsigned int nChans, unsigned int length);
 		EventChannel::EventChannelTypes type{ EventChannel::INVALID };
