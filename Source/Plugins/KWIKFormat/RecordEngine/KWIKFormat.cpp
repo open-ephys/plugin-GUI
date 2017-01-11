@@ -403,12 +403,12 @@ void KWXFile::writeSpike(int groupIndex, int nSamples, const float* data, Array<
     int16* dst=transformVector;
 
     //Given the way we store spike data, we need to transpose it to store in
-    //N x NSAMPLES x NCHANNELS as well as convert from u16 to i16
+    //N x NSAMPLES x NCHANNELS as well as convert from float to i16
     for (int i = 0; i < nSamples; i++)
     {
         for (int j = 0; j < nChans; j++)
-        {
-            *(dst++) = static_cast<int16>((*(data+j*nSamples+i))/bitVolts[j]);
+		{
+			*(dst++) = static_cast<int16>((*(data+j*nSamples+i))/bitVolts[j]);
         }
     }
 

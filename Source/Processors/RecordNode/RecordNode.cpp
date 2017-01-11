@@ -93,7 +93,6 @@ void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
 
 void RecordNode::resetConnections()
 {
-    //std::cout << "Resetting connections" << std::endl;
     nextAvailableChannel = 0;
     wasConnected = false;
     spikeElectrodeIndex = 0;
@@ -143,7 +142,6 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 
     if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
     {
-
         int channelIndex = getNextChannel(false);
 
 		const DataChannel* orig = sourceNode->getDataChannel(chan);
@@ -525,7 +523,7 @@ void RecordNode::writeSpike(const SpikeEvent* spike, const SpikeChannel* spikeEl
 {
 	if (isRecording)
 	{
-		int electrodeIndex = spikeChannelArray.indexOf(spikeElectrode);
+		int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), spikeElectrode->getSourceNodeID(), spikeElectrode->getSubProcessorIdx());
 		if (electrodeIndex >= 0)
 			m_spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
 	}

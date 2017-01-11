@@ -375,8 +375,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 	Array<EventChannel*> extraChannels;
 	getMessageCenter()->addSpecialProcessorChannels(extraChannels);
 	getRecordNode()->addSpecialProcessorChannels(extraChannels);
-	getRecordNode()->updateRecordChannelIndexes();
-	getAudioNode()->updateRecordChannelIndexes();
 } // end method
 
 void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)
@@ -617,6 +615,11 @@ bool ProcessorGraph::enableProcessors()
     }
 
     AccessClass::getEditorViewport()->signalChainCanBeEdited(false);
+
+	//Update special channels indexes, at the end
+	//To change, as many other things, when the probe system is implemented
+	getRecordNode()->updateRecordChannelIndexes();
+	getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
 
