@@ -36,10 +36,11 @@ public:
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-	void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) override;
-	void addChannel(int index, const Channel* chan) override;
-	void addSpikeElectrode(int index,const  SpikeRecordInfo* elec) override;
-	void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
+	void writeEvent(int eventType, const MidiMessage& event) override;
+	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text) override;
+	void addDataChannel(int index, const DataChannel* chan) override;
+	void addSpikeElectrode(int index,const  SpikeChannel* elec) override;
+	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
 	void registerProcessor(const GenericProcessor* processor) override;
 	void resetChannels() override;
 	void startAcquisition() override;

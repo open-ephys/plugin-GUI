@@ -392,7 +392,7 @@ void KWXFile::resetChannels()
     channelArray.clear();
 }
 
-void KWXFile::writeSpike(int groupIndex, int nSamples, const uint16* data, uint64 timestamp)
+void KWXFile::writeSpike(int groupIndex, int nSamples, const float* data, Array<float>& bitVolts, uint64 timestamp)
 {
     if ((groupIndex < 0) || (groupIndex >= numElectrodes))
     {
@@ -408,7 +408,7 @@ void KWXFile::writeSpike(int groupIndex, int nSamples, const uint16* data, uint6
     {
         for (int j = 0; j < nChans; j++)
         {
-            *(dst++) = *(data+j*nSamples+i)-32768;
+            *(dst++) = static_cast<int16>((*(data+j*nSamples+i))/bitVolts[j]);
         }
     }
 

@@ -113,7 +113,7 @@ public:
     void stopRecording();
     void addChannelGroup(int nChannels);
     void resetChannels();
-    void writeSpike(int groupIndex, int nSamples, const uint16* data, uint64 timestamp);
+    void writeSpike(int groupIndex, int nSamples, const float* data, Array<float>& bitVolts, uint64 timestamp);
     String getFileName();
 
 protected:
