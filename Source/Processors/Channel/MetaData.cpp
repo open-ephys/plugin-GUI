@@ -170,7 +170,7 @@ MetaDataValue::MetaDataValue(const MetaDataValue& v)
 	m_type(v.m_type), m_length(v.m_length), m_size(v.m_size)
 {
 	allocSpace();
-	setValue(v.m_data.getData());
+	setValue(static_cast<const void*>(v.m_data.getData()));
 }
 
 MetaDataValue& MetaDataValue::operator=(const MetaDataValue& v)
@@ -251,6 +251,11 @@ void MetaDataValue::getValue(Array<T>& data) const
 {
 	jassert(checkMetaDataType<T>(m_type));
 	data.addArray(reinterpret_cast<const T*>(m_data.getData()), m_length);
+}
+
+void MetaDataValue::setValue(const void* data)
+{
+	memcpy(m_data.getData(), data, m_size);
 }
 
 //Actual template instantiations at the end of the file

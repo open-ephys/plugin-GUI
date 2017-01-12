@@ -43,7 +43,7 @@ public:
     ~PhaseDetector();
 
     AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override { return false; }
+    bool hasEditor() const override { return true; }
 
     void process (AudioSampleBuffer& buffer) override;
 
@@ -52,7 +52,6 @@ public:
     bool enable() override;
 
     void updateSettings() override;
-	void createEventChannels() override;
 
     void addModule();
     void setActiveModule (int);
@@ -97,6 +96,7 @@ private:
     bool risingNeg;
     bool fallingPos;
     bool fallingNeg;
+	int lastNumInputs;
 
 	Array<const EventChannel*> moduleEventChannels;
 

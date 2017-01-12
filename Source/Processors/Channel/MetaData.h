@@ -151,6 +151,7 @@ public:
 
 private:
 	MetaDataValue() = delete;
+	void setValue(const void* data);
 	void allocSpace();
 	HeapBlock<char> m_data;
 	MetaDataDescriptor::MetaDataTypes m_type;

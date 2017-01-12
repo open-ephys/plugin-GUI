@@ -34,6 +34,7 @@ PhaseDetector::PhaseDetector()
     , fallingNeg            (false)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
+	lastNumInputs = 0;
 }
 
 
@@ -49,40 +50,6 @@ AudioProcessorEditor* PhaseDetector::createEditor()
     std::cout << "Creating editor." << std::endl;
 
     return editor;
-}
-
-void PhaseDetector::createEventChannels()
-{
-	moduleEventChannels.clear();
-	for (int i = 0; i < modules.size(); i++)
-	{
-		const DataChannel* in = getDataChannel(modules[i].inputChan);
-		EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, in->getSampleRate(), this);
-		ev->setName("Phase detector output " + String(i+1));
-		ev->setDescription("Triggers when the input signal mets a given phase condition");
-		String typeDesc;
-		switch (modules[i].type)
-		{
-		case PEAK: typeDesc = "Positive peak"; break;
-		case FALLING_ZERO: typeDesc = "Zero crossing with negative slope"; break;
-		case TROUGH: typeDesc = "Negative peak"; break;
-		case RISING_ZERO: typeDesc = "Zero crossing with positive slope"; break;
-		default: typeDesc = "No phase selected"; break;
-		}
-		MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "string.extraInfo");
-		MetaDataValue mv(md);
-		mv.setValue(typeDesc);
-		ev->addMetaData(md, mv);
-		md = MetaDataDescriptor(MetaDataDescriptor::UINT16, 3, "Source Channel",
-			"Index at its source, Source processor ID and Sub Processor index of the channel that triggers this event", "source.channel.identifier.full");
-		mv = MetaDataValue(md);
-		uint16 sourceInfo[3];
-		sourceInfo[0] = in->getSourceIndex();
-		sourceInfo[1] = in->getSourceNodeID();
-		sourceInfo[3] = in->getSubProcessorIdx();
-		mv.setValue(static_cast<const uint16*>(sourceInfo));
-		ev->addMetaData(md, mv);
-	}
 }
 
 void PhaseDetector::addModule()
@@ -164,9 +131,49 @@ void PhaseDetector::setParameter (int parameterIndex, float newValue)
     }
 }
 
-
+//Usually, to be more ordered, we'd create the event channels overriding the createEventChannels() method.
+//However, since in this case there a couple of things we need to do prior to creating the channels (resetting
+//the modules input channels in case the channel count changes, to reflect the same change on the combo box)
+//we think it's better to do all in this method, that gets always called after all the create*Channels.
 void PhaseDetector::updateSettings()
 {
+	moduleEventChannels.clear();
+	for (int i = 0; i < modules.size(); i++)
+	{
+		if (getNumInputs() != lastNumInputs)
+			modules.getReference(i).inputChan = -1;
+		const DataChannel* in = getDataChannel(modules[i].inputChan);
+		EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
+		ev->setName("Phase detector output " + String(i + 1));
+		ev->setDescription("Triggers when the input signal mets a given phase condition");
+		String typeDesc;
+		switch (modules[i].type)
+		{
+		case PEAK: typeDesc = "Positive peak"; break;
+		case FALLING_ZERO: typeDesc = "Zero crossing with negative slope"; break;
+		case TROUGH: typeDesc = "Negative peak"; break;
+		case RISING_ZERO: typeDesc = "Zero crossing with positive slope"; break;
+		default: typeDesc = "No phase selected"; break;
+		}
+		MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "string.extraInfo");
+		MetaDataValue mv(md);
+		mv.setValue(typeDesc);
+		ev->addMetaData(md, mv);
+		if (in)
+		{
+			md = MetaDataDescriptor(MetaDataDescriptor::UINT16, 3, "Source Channel",
+				"Index at its source, Source processor ID and Sub Processor index of the channel that triggers this event", "source.channel.identifier.full");
+			mv = MetaDataValue(md);
+			uint16 sourceInfo[3];
+			sourceInfo[0] = in->getSourceIndex();
+			sourceInfo[1] = in->getSourceNodeID();
+			sourceInfo[3] = in->getSubProcessorIdx();
+			mv.setValue(static_cast<const uint16*>(sourceInfo));
+			ev->addMetaData(md, mv);
+		}
+		eventChannelArray.add(ev);
+		moduleEventChannels.add(ev);
+	}
 }
 
 

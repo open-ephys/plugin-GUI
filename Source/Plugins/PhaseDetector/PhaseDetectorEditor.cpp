@@ -74,7 +74,8 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
     backgroundColours.add(Colours::magenta);
     backgroundColours.add(Colours::blue);
 
-    plusButton->setToggleState(true, sendNotification);
+    //plusButton->setToggleState(true, sendNotification);
+	addDetector();
 
     //interfaces.clear();
 
@@ -126,7 +127,7 @@ void PhaseDetectorEditor::buttonEvent(Button* button)
     {
 
         addDetector();
-
+		CoreServices::updateSignalChain(this);
     }
 
 }
@@ -247,7 +248,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     inputSelector = new ComboBox();
     inputSelector->setBounds(140,5,50,20);
     inputSelector->addItem("-",1);
-    inputSelector->setSelectedId(1);
+    inputSelector->setSelectedId(1, dontSendNotification);
     inputSelector->addListener(this);
     addAndMakeVisible(inputSelector);
 
@@ -319,7 +320,10 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
     }
 
     processor->setParameter(parameterIndex, (float) c->getSelectedId() - 2);
-
+	if (c == inputSelector)
+	{
+		CoreServices::updateSignalChain(processor->getEditor());
+	}
 }
 
 void DetectorInterface::buttonClicked(Button* b)
