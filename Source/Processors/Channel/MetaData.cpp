@@ -46,9 +46,25 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 
 MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d, String dm)
 	: m_name(n), m_description(d), m_descriptor(dm), m_type(t), m_length(length)
-{};
+{}
 
 MetaDataDescriptor::~MetaDataDescriptor() {};
+
+MetaDataDescriptor::MetaDataDescriptor(const MetaDataDescriptor& other)
+	:ReferenceCountedObject(),
+	m_name(other.m_name), m_descriptor(other.m_descriptor), m_description(other.m_description),
+	m_type(other.m_type), m_length(other.m_length)
+{}
+
+MetaDataDescriptor& MetaDataDescriptor::operator=(const MetaDataDescriptor& other)
+{
+	m_name = other.m_name;
+	m_descriptor = other.m_descriptor;
+	m_description = other.m_description;
+	m_type = other.m_type;
+	m_length = other.m_length;
+	return *this;
+}
 
 MetaDataDescriptor::MetaDataTypes MetaDataDescriptor::getType() const { return m_type; }
 unsigned int MetaDataDescriptor::getLength() const { return m_length; }
@@ -149,7 +165,8 @@ void MetaDataValue::allocSpace()
 }
 
 MetaDataValue::MetaDataValue(const MetaDataValue& v)
-	: m_type(v.m_type), m_length(v.m_length), m_size(v.m_size)
+	: ReferenceCountedObject(),
+	m_type(v.m_type), m_length(v.m_length), m_size(v.m_size)
 {
 	allocSpace();
 	setValue(v.m_data.getData());
@@ -243,8 +260,29 @@ MetaDataInfoObject::MetaDataInfoObject() {}
 
 void MetaDataInfoObject::addMetaData(MetaDataDescriptor* desc, MetaDataValue* val)
 {
+	if (desc->getType() != val->getDataType() || desc->getLength() != val->getDataLength())
+	{
+		jassertfalse;
+		//This will cause a segfault if the software tries to use the pointers after calling this method
+		//Since this method should NEVER be called with non-matching metadata description and value, it's
+		//better than just leave dangling pointers.
+		delete desc;
+		delete val;
+		return;
+	}
 	m_metaDataDescriptorArray.add(desc);
 	m_metaDataValueArray.add(val);
+}
+
+void MetaDataInfoObject::addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val)
+{
+	if (desc.getType() != val.getDataType() || desc.getLength() != val.getDataLength())
+	{
+		jassertfalse;
+		return;
+	}
+	m_metaDataDescriptorArray.add(new MetaDataDescriptor(desc));
+	m_metaDataValueArray.add(new MetaDataValue(val));
 }
 
 const MetaDataDescriptor* MetaDataInfoObject::getMetaDataDescriptor(int index) const
@@ -276,6 +314,18 @@ void MetaDataEventObject::addEventMetaData(MetaDataDescriptor* desc)
 	}
 	m_eventMetaDataDescriptorArray.add(desc);
 	m_totalSize += desc->getDataSize();
+}
+
+void MetaDataEventObject::addEventMetaData(const MetaDataDescriptor& desc)
+{
+	if (eventMetaDataLock)
+	{
+		//throw assertion when debugging
+		jassertfalse;
+		return;
+	}
+	m_eventMetaDataDescriptorArray.add(new MetaDataDescriptor(desc));
+	m_totalSize += desc.getDataSize();
 }
 
 size_t MetaDataEventObject::getTotalEventMetaDataSize() const

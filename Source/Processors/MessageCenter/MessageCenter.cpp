@@ -29,7 +29,7 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), 
+GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), sourceNodeSubIdx(0),
 	timestampSource(nullptr), lastTime(0), softTimestamp(0)
 {
 
@@ -46,11 +46,9 @@ MessageCenter::~MessageCenter()
 
 void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
 {
-	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, this, 0);
+	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, getGlobalSampleRate(), this, 0);
 	chan->setName("GUI Messages");
 	chan->setDescription("Messages from the GUI Message Center");
-	if (sourceNodeId)
-		chan->setSampleRate(static_cast<GenericProcessor*>(AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId)->getProcessor())->getSampleRate());
 	channels.add(chan);
 	eventChannelArray.add(new EventChannel(*chan));
 	updateChannelIndexes();
@@ -110,9 +108,15 @@ bool MessageCenter::disable()
     return true;
 }
 
-void MessageCenter::setSourceNodeId(int id)
+void MessageCenter::setSourceNodeId(int id, int sub)
 {
     sourceNodeId = id;
+	sourceNodeSubIdx = sub;
+	AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
+	if (node)
+	{
+		timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
+	}
 }
 
 int MessageCenter::getSourceNodeId()
@@ -120,18 +124,31 @@ int MessageCenter::getSourceNodeId()
     return sourceNodeId;
 }
 
-int64 MessageCenter::getTimestamp(bool softwareTime)
+int MessageCenter::getSourceSubIdx()
 {
-    if (!softwareTime && sourceNodeId > 0)
-        return timestampSource->getTimestamp(0);
+	return sourceNodeSubIdx;
+}
+
+int64 MessageCenter::getGlobalTimestamp(bool softwareTime)
+{
+	if (!softwareTime && sourceNodeId > 0)
+		return timestampSource->getSourceTimestamp(sourceNodeId, sourceNodeSubIdx);
     else
         return (softTimestamp);
+}
+
+float MessageCenter::getGlobalSampleRate()
+{
+	if (sourceNodeId > 0)
+		return timestampSource->getSampleRate(sourceNodeSubIdx);
+	else
+		return Time::getHighResolutionTicksPerSecond();
 }
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
 	softTimestamp = Time::getHighResolutionTicks() - lastTime;
-    setTimestampAndSamples(getTimestamp(), 0);
+    setTimestampAndSamples(getGlobalTimestamp(), 0);
     if (needsToSendTimestampMessage)
     {
 		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
@@ -151,7 +168,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
-		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), getTimestamp(), eventString);
+		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
 
         newEventAvailable = false;

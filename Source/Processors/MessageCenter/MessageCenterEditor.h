@@ -72,8 +72,6 @@ public:
 
     void mouseDown(const MouseEvent& event);
 
-    int64 getTimestamp(bool softwareTimestamp = false);
-
 private:
 
     void buttonClicked(Button* button);

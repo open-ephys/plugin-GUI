@@ -443,8 +443,7 @@ void GenericProcessor::createDataChannelsByType(DataChannel::DataChannelTypes ty
 		int nChans = getDefaultNumDataOutputs(type, sub);
 		for (int i = 0; i < nChans; i++)
 		{
-			DataChannel* chan = new DataChannel(type, this, sub);
-			chan->setSampleRate(getSampleRate(sub));
+			DataChannel* chan = new DataChannel(type, getSampleRate(sub), this, sub);
 			chan->setBitVolts(getBitVolts(sub));
 			chan->addToHistoricString(getName());
 			chan->m_nodeID = nodeId;
@@ -465,8 +464,7 @@ void GenericProcessor::createEventChannels()
 		{
 			if (events[i].type != EventChannel::INVALID && events[i].nChannels > 0 && events[i].length > 0)
 			{
-				EventChannel* chan = new EventChannel(events[i].type, events[i].nChannels, events[i].length, this, sub);
-				chan->setSampleRate(getSampleRate(sub));
+				EventChannel* chan = new EventChannel(events[i].type, events[i].nChannels, events[i].length, events[i].sampleRate, this, sub);
 				chan->m_nodeID = nodeId;
 				eventChannelArray.add(chan);
 			}
@@ -564,7 +562,7 @@ uint32 GenericProcessor::getNumSamples (int channelNum) const
     {
         nSamples = numSamples.at (sourceID);
     }
-    catch (std::exception& e)
+    catch (...)
     {
         return 0;
     }
@@ -598,12 +596,50 @@ uint64 GenericProcessor::getTimestamp (int channelNum) const
     {
         ts = timestamps.at (sourceID);
     }
-    catch (std::exception& e)
+    catch (...)
     {
         return 0;
     }
 
     return ts;
+}
+
+uint32 GenericProcessor::getNumSourceSamples(uint16 processorID, uint16 subProcessorIdx) const
+{
+	return getNumSourceSamples(getProcessorFullId(processorID, subProcessorIdx));
+}
+
+uint32 GenericProcessor::getNumSourceSamples(uint32 fullSourceID) const
+{
+	uint32 nSamples;
+	try
+	{
+		nSamples = numSamples.at(fullSourceID);
+	}
+	catch (...)
+	{
+		return 0;
+	}
+	return nSamples;
+}
+
+uint64 GenericProcessor::getSourceTimestamp(uint16 processorID, uint16 subProcessorIdx) const
+{
+	return getSourceTimestamp(getProcessorFullId(processorID, subProcessorIdx));
+}
+
+uint64 GenericProcessor::getSourceTimestamp(uint32 fullSourceID) const
+{
+	uint64 ts;
+	try
+	{
+		ts = timestamps.at(fullSourceID);
+	}
+	catch (...)
+	{
+		return 0;
+	}
+	return ts;
 }
 
 
@@ -1165,19 +1201,20 @@ bool GenericProcessor::disable()
     return true;
 }
 
-GenericProcessor::DefaultEventInfo::DefaultEventInfo(EventChannel::EventChannelTypes t, unsigned int c, unsigned int l)
+GenericProcessor::DefaultEventInfo::DefaultEventInfo(EventChannel::EventChannelTypes t, unsigned int c, unsigned int l, float s)
 	:type(t),
 	nChannels(c),
-	length(l)
+	length(l),
+	sampleRate(s)
 {
 }
 
 GenericProcessor::DefaultEventInfo::DefaultEventInfo()
 	:type(EventChannel::INVALID),
 	nChannels(0),
-	length(0)
-{
-}
+	length(0),
+	sampleRate(44100)
+{}
 
 uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
 {

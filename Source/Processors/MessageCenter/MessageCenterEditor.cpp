@@ -170,11 +170,6 @@ void MessageCenterEditor::resized()
         sendMessageButton->setBounds(getWidth()-50, 5, 45, getHeight()-10);
 }
 
-int64 MessageCenterEditor::getTimestamp(bool softwareTimestamp)
-{
-    return messageCenter->getTimestamp(softwareTimestamp);
-}
-
 void MessageCenterEditor::actionListenerCallback(const String& message)
 {
 
@@ -189,6 +184,7 @@ void MessageCenterEditor::saveStateToXml(XmlElement* xml)
 {
     XmlElement* messageEditorState = xml->createNewChildElement("MESSAGECENTER");
     messageEditorState->setAttribute("sourceNodeId",messageCenter->getSourceNodeId());
+	messageEditorState->setAttribute("sourceSubProcessorIdx", messageCenter->getSourceSubIdx());
 }
 
 void MessageCenterEditor::loadStateFromXml(XmlElement* xml)
@@ -197,7 +193,7 @@ void MessageCenterEditor::loadStateFromXml(XmlElement* xml)
     {
         if (xmlNode->hasTagName("MESSAGECENTER"))
         {
-            messageCenter->setSourceNodeId(xmlNode->getIntAttribute("sourceNodeId"));
+            messageCenter->setSourceNodeId(xmlNode->getIntAttribute("sourceNodeId"), xmlNode->getIntAttribute("sourceSubProcessorIdx"));
         }
     }
 }
@@ -225,22 +221,31 @@ void MessageCenterEditor::mouseDown(const MouseEvent& event)
         PopupMenu::dismissAllActiveMenus();
         sourceMenu->clear();
         sourceMenu->addItem(1,"Software timer",true,messageCenter->getSourceNodeId() == 0);
+		Array<int> sourceIdx;
+		Array<int> subIdx;
         for (int i=0; i < sourcesList.size(); i++)
         {
             GenericProcessor* p = sourcesList[i];
-            sourceMenu->addItem(i+2,p->getName(),true,(p->getNodeId() == messageCenter->getSourceNodeId()));
+			int numSub = p->getNumSubProcessors();
+			for (int j = 0; j < numSub; j++)
+			{
+				String text = (numSub > 1) ? p->getName() + "(" + String(j + 1) + ")" : p->getName();
+				sourceMenu->addItem(i + 2, text, true, (p->getNodeId() == messageCenter->getSourceNodeId() && j == messageCenter->getSourceSubIdx()));
+				sourceIdx.add(i);
+				subIdx.add(j);
+			}
         }
         res = sourceMenu->show(0,50,0,0);
 
         if (res > 1)
         {
-            GenericProcessor* p = sourcesList[res-2];
-			std::cout << "Selecting " << p->getName() << " with id " << p->getNodeId() << " as message source" << std::endl;
-			messageCenter->setSourceNodeId(p->getNodeId());
+            GenericProcessor* p = sourcesList[sourceIdx[res-2]];
+			std::cout << "Selecting " << p->getName() << " with id " << p->getNodeId() << " subprocessor: " << subIdx[res-2] <<" as message source" << std::endl;
+			messageCenter->setSourceNodeId(p->getNodeId(), subIdx[res-2]);
         }
         else if (res == 1)
         {
-            messageCenter->setSourceNodeId(0);
+            messageCenter->setSourceNodeId(0,0);
         }
     }
 }

@@ -132,7 +132,7 @@ class PLUGIN_API InfoObjectCommon :
 	public NodeInfoBase, public SourceProcessorInfo, public NamedInfoObject
 {
 protected:
-	InfoObjectCommon(uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc = 0);
+	InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate, const GenericProcessor* source, uint16 subproc = 0);
 
 public:
 	enum InfoObjectType
@@ -142,9 +142,6 @@ public:
 		SPIKE_CHANNEL,
 		INVALID = 100
 	};
-
-	/** Sets the sample rate value for this channel. */
-	void setSampleRate(float sampleRate);
 
 	/** Returns the sample rate value for this channel. */
 	float getSampleRate() const;
@@ -164,7 +161,7 @@ private:
 	const uint16 m_sourceIndex;
 	/** Index of this particular subtype in the source processor */
 	const uint16 m_sourceTypeIndex;
-	float m_sampleRate{ 44100.0f };
+	const float m_sampleRate;
 };
 
 // ------- Main objects -------//
@@ -185,12 +182,11 @@ public:
 
 	/** Default constructor for creating Channels from scratch.
 		@param type The type of data this channel represents (HEADSTAGE, ADC, AUX)
-		@param idx The index of this data channel in the source processor
-		@param typeidx The index of this particular type of data channel in the source processor
+		@param sampleRate the sample rate this channel is acquiring data
 		@param source A pointer to the source processor
 		@param subproc Optional. The source subprocessor index.
 	*/
-	DataChannel(DataChannelTypes type, GenericProcessor* source, uint16 subproc = 0);
+	DataChannel(DataChannelTypes type, float sampleRate, GenericProcessor* source, uint16 subproc = 0);
 
 	/** Copy constructor. */
 	DataChannel(const DataChannel& ch);
@@ -274,8 +270,7 @@ public:
 	@param type The type of event this channel represents (TTL, TEXT, BYINARY_MSG)
 	@param numChannels The number of virtual channels
 	@param dataLength The length of the event payload
-	@param idx The index of this event channel in the source processor
-	@param typeidx The index of this particular type of event channel in the source processor
+	@param sampleRate the sample rate this channel timestamps are referred to
 	@param source A pointer to the source processor
 	@param subproc Optional. The source subprocessor index.
 
@@ -289,7 +284,7 @@ public:
 	-For typed array events, the number of elements
 
 	*/
-	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, GenericProcessor* source, uint16 subproc = 0);
+	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc = 0);
 
 	~EventChannel();
 
@@ -350,8 +345,6 @@ public:
 
 	/** Default constructor 
 		@param type The type of electrode this channel represents (SINGLE, STEREOTRODE, TETRODE)
-		@param idx The index of this spike channel in the source processor
-		@param typeidx The index of this particular type of spike channel in the source processor
 		@param source A pointer to the source processor
 		@param souceChannels An array containing const pointers to the channels that originate the data for this spike electrode
 		@param subproc Optional. The source subprocessor index.

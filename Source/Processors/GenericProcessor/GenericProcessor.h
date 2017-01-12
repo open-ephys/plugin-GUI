@@ -466,6 +466,24 @@ public:
     /** Used to get the timestamp for a given buffer, for a given channel. */
     uint64 getTimestamp (int channelNumber) const;
 
+	/** Used to get the number of samples a specific source generates. 
+	Look by source ID and subprocessor index */
+	uint32 getNumSourceSamples(uint16 processorID, uint16 subProcessorIdx) const;
+
+	/** Used to get the number of samples a specific source generates.
+	Look by full source ID.
+	@see GenericProcessor::getProcessorFullId(uint16,uint16) */
+	uint32 getNumSourceSamples(uint32 fullSourceID) const;
+
+	/** Used to get the current timestamp of a specific source.
+	Look by source ID and subprocessor index */
+	uint64 getSourceTimestamp(uint16 processorID, uint16 subProcessorIdx) const;
+
+	/** Used to get the current timestamp of a specific source.
+	Look by full source ID.
+	@see GenericProcessor::getProcessorFullId(uint16,uint16) */
+	uint64 getSourceTimestamp(uint32 fullSourceID) const;
+
     /** Used to set the timestamp for a given buffer, for a given source node. */
     void setTimestampAndSamples (uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
 
@@ -505,10 +523,11 @@ public:
 	{
 	public:
 		DefaultEventInfo();
-		DefaultEventInfo(EventChannel::EventChannelTypes type, unsigned int nChans, unsigned int length);
+		DefaultEventInfo(EventChannel::EventChannelTypes type, unsigned int nChans, unsigned int length, float SampleRate);
 		EventChannel::EventChannelTypes type{ EventChannel::INVALID };
 		unsigned int nChannels{ 0 };
 		unsigned int length{ 0 };
+		float sampleRate{ 44100 };
 	};
 
 protected:
@@ -537,9 +556,6 @@ protected:
 	/** Returns info about the default events a specific subprocessor generates.
 	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
 	virtual void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
-
-	std::map<uint32, uint32> numSamples;
-	std::map<uint32, int64> timestamps;
 
     /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
     void setProcessorType (PluginProcessorType processorType);
@@ -576,6 +592,9 @@ protected:
 	void updateChannelIndexes(bool updateNodeID = true);
 
 private:
+	std::map<uint32, uint32> numSamples;
+	std::map<uint32, int64> timestamps;
+
 	void createDataChannelsByType(DataChannel::DataChannelTypes type);
 
 	/** Each processor has a unique integer ID that can be used to identify it.*/

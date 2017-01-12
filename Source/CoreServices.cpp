@@ -80,12 +80,17 @@ void highlightEditor(GenericEditor* ed)
 
 int64 getGlobalTimestamp()
 {
-    return getMessageCenter()->getTimestamp();
+    return static_cast<MessageCenter*>(&(getMessageCenter()->processor))->getGlobalTimestamp();
 }
 
 int64 getSoftwareTimestamp()
 {
-	return getMessageCenter()->getTimestamp(true);
+	return static_cast<MessageCenter*>(&(getMessageCenter()->processor))->getGlobalTimestamp(true);
+}
+
+float getGlobalSampleRate()
+{
+	return static_cast<MessageCenter*>(&(getMessageCenter()->processor))->getGlobalSampleRate();
 }
 
 void setRecordingDirectory(String dir)

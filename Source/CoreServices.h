@@ -63,6 +63,11 @@ Defaults to the first hardware timestamp source or the software one if
 no hardware timestamping is present*/
 PLUGIN_API int64 getGlobalTimestamp();
 
+/** Gets the sample rate selected on the MessageCenter interface
+Defaults to the dample rate of the first hardware source or 
+the software high resolution timer if no hardware source is present*/
+PLUGIN_API float getGlobalSampleRate();
+
 /** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
 PLUGIN_API int64 getSoftwareTimestamp();
 

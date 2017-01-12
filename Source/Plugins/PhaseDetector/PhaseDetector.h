@@ -52,7 +52,7 @@ public:
     bool enable() override;
 
     void updateSettings() override;
-	void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const override;
+	void createEventChannels() override;
 
     void addModule();
     void setActiveModule (int);
@@ -98,7 +98,7 @@ private:
     bool fallingPos;
     bool fallingNeg;
 
-	const EventChannel* outputEventChannel;
+	Array<const EventChannel*> moduleEventChannels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
 };

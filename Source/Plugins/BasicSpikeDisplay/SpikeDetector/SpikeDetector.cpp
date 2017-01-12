@@ -94,10 +94,6 @@ void SpikeDetector::createSpikeChannels()
 		}
 		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
 		spk->setNumSamples(elec->prePeakSamples, elec->postPeakSamples);
-		//We currently have no means to prevent creating spikes from channels from different sources
-		//We assume that all come from the same source, thus sharing sample rate ans bitvolts. By default, set it to the
-		//first channel.
-		spk->setSampleRate(chans[0]->getSampleRate());
 		spikeChannelArray.add(spk);
 	}
 }

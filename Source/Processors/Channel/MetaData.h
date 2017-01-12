@@ -69,6 +69,9 @@ public:
 	*/
 	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String humanDescription, String machineDescriptor);
 	~MetaDataDescriptor();
+	MetaDataDescriptor(const MetaDataDescriptor& other);
+	MetaDataDescriptor& operator=(const MetaDataDescriptor& other);
+
 	/** Gets the primitive type of this field */
 	MetaDataTypes getType() const;
 	/** Gets the number of elements in this field */
@@ -88,11 +91,11 @@ public:
 	static size_t getTypeSize(MetaDataTypes type);
 private:
 	MetaDataDescriptor() = delete;
-	const String m_name;
-	const String m_descriptor;
-	const String m_description;
-	const MetaDataTypes m_type;
-	const unsigned int m_length;
+	String m_name;
+	String m_descriptor;
+	String m_description;
+	MetaDataTypes m_type;
+	unsigned int m_length;
 
 	JUCE_LEAK_DETECTOR(MetaDataDescriptor);
 };
@@ -169,6 +172,7 @@ protected:
 	MetaDataInfoObject();
 public:
 	void addMetaData(MetaDataDescriptor* desc, MetaDataValue* val);
+	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
 	const MetaDataValue* getMetaDataValue(int index) const;
 	const int getMetaDataCount() const;
@@ -195,6 +199,7 @@ class PLUGIN_API MetaDataEventObject : private MetaDataEventLock
 public:
 	//This method will only work when creating the info object, but not for those copied down the chain
 	void addEventMetaData(MetaDataDescriptor* desc);
+	void addEventMetaData(const MetaDataDescriptor& desc);
 	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
 	size_t getTotalEventMetaDataSize() const;
 	const int getEventMetaDataCount() const;

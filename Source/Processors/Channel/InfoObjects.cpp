@@ -114,17 +114,13 @@ String NamedInfoObject::getDescription() const
 }
 
 //InfoObjectCommon
-InfoObjectCommon::InfoObjectCommon(uint16 idx, uint16 typeidx, const GenericProcessor* source, uint16 subproc)
+InfoObjectCommon::InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate, const GenericProcessor* source, uint16 subproc)
 	:	NodeInfoBase(source->getNodeId()),
 		SourceProcessorInfo(source, subproc),
 		m_sourceIndex(idx),
-		m_sourceTypeIndex(typeidx)
+		m_sourceTypeIndex(typeidx),
+		m_sampleRate(sampleRate)
 {
-}
-
-void InfoObjectCommon::setSampleRate(float sampleRate)
-{
-	m_sampleRate = sampleRate;
 }
 
 float InfoObjectCommon::getSampleRate() const
@@ -145,8 +141,8 @@ uint16 InfoObjectCommon::getSourceTypeIndex() const
 
 //DataChannel
 
-DataChannel::DataChannel(DataChannelTypes type, GenericProcessor* source, uint16 subproc) :
-	InfoObjectCommon(source->dataChannelCount++, source->dataChannelTypeCount[type]++, source, subproc),
+DataChannel::DataChannel(DataChannelTypes type, float sampleRate, GenericProcessor* source, uint16 subproc) :
+	InfoObjectCommon(source->dataChannelCount++, source->dataChannelTypeCount[type]++, sampleRate, source, subproc),
 	m_type(type)
 {
 	setName(getDefaultName());
@@ -224,7 +220,6 @@ void DataChannel::reset()
 	m_isEnabled = true;
 	m_isMonitored = false;
 	m_isRecording = false;
-	setSampleRate(44100);
 }
 
 String DataChannel::getDefaultName() const
@@ -245,8 +240,8 @@ String DataChannel::getDefaultName() const
 }
 
 //EventChannel
-EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, GenericProcessor* source, uint16 subproc)
-	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, source, subproc),
+EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc)
+	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, sampleRate, source, subproc),
 		m_type(type)
 {
 	m_numChannels = nChannels;
@@ -347,8 +342,8 @@ String EventChannel::getDefaultName() const
 //SpikeChannel
 
 SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc)
-	: InfoObjectCommon(source->spikeChannelCount++, source->spikeChannelTypeCount[type]++, source, subproc),
-	m_type(type)
+	: InfoObjectCommon(source->spikeChannelCount++, source->spikeChannelTypeCount[type]++, sourceChannels[0]->getSampleRate(), source, subproc),
+	m_type(type) //We define the sample rate of the whole spike to be equal to that of the first channel. A spike composed from channels from different sample rates has no sense
 {
 	int n = sourceChannels.size();
 	jassert(n == getNumChannels(type));

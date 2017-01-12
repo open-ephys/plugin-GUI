@@ -75,13 +75,15 @@ public:
         needsToSendTimestampMessage = false;
     }
 
-    void setSourceNodeId(int id);
+    void setSourceNodeId(int id, int sub);
     int getSourceNodeId();
+	int getSourceSubIdx();
 
     void addSourceProcessor(GenericProcessor* p);
     void removeSourceProcessor(GenericProcessor* p);
 
-    int64 getTimestamp(bool softwareTime = false);
+    int64 getGlobalTimestamp(bool softwareTime = false);
+	float getGlobalSampleRate();
 	
 	void addSpecialProcessorChannels(Array<EventChannel*>& channel);
 private:
@@ -89,7 +91,8 @@ private:
     bool newEventAvailable;
     bool isRecording;
     int sourceNodeId;
-    GenericProcessor* timestampSource;
+	int sourceNodeSubIdx;
+    const GenericProcessor* timestampSource;
     int64 lastTime, softTimestamp;
     bool needsToSendTimestampMessage;
 

@@ -63,8 +63,11 @@ SerialInput::~SerialInput()
 void SerialInput::createEventChannels()
 {
 	//It's going to be raw binary data, so let's make it uint8
-	EventChannel* chan = new EventChannel(EventChannel::UINT8_ARRAY, 1, MAX_MSG_SIZE, this);
-	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT64, 1, "Read Bytes", "Number of actual read bytes in the buffer", "bufferLength"));
+	EventChannel* chan = new EventChannel(EventChannel::UINT8_ARRAY, 1, MAX_MSG_SIZE, CoreServices::getGlobalSampleRate(), this);
+	chan->setName("Serial message");
+	chan->setDescription("Data received via serial port");
+	chan->setDescriptor("buffer.rawData");
+	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT64, 1, "Read Bytes", "Number of actual read bytes in the buffer", "buffer.size"));
 	eventChannelArray.add(chan);
 }
 

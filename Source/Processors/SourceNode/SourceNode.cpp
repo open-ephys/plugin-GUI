@@ -182,8 +182,7 @@ void SourceNode::createEventChannels()
 			nChans = jmin(nChans, 64); //Just 64 TTL channels per source for now
 			if (nChans > 0)
 			{
-				EventChannel* chan = new EventChannel(EventChannel::TTL, nChans, 0, this, i);
-				chan->setSampleRate(dataThread->getSampleRate(i));
+				EventChannel* chan = new EventChannel(EventChannel::TTL, nChans, 0, dataThread->getSampleRate(i), this, i);
 				eventChannelArray.add(chan);
 				ttlChannels.add(chan);
 			}

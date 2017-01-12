@@ -109,11 +109,11 @@ void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
 			// by default, all source nodes record automatically
 			processor->setAllChannelsToRecord();
 			if (processor->isGeneratesTimestamps())
-			{
+			{ //If there are no source processors and we add one, set it as default for global timestamps and samplerates
 				getMessageCenter()->addSourceProcessor(processor);
 				if (getMessageCenter()->getSourceNodeId() == 0)
 				{
-					getMessageCenter()->setSourceNodeId(processor->getNodeId());
+					getMessageCenter()->setSourceNodeId(processor->getNodeId(),0);
 				}
 			}
 		}
@@ -560,7 +560,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 				}
 			}
         }
-        getMessageCenter()->setSourceNodeId(newId);
+        getMessageCenter()->setSourceNodeId(newId, 0);
     }
 
 }

@@ -163,8 +163,9 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventChannel      = ttl->getChannel();
         const int eventTime         = samplePosition;
         const uint32 eventSourceNodeId = getProcessorFullId(ttl->getSourceID(), ttl->getSubProcessorIdx());
-        const int nSamples          = numSamples.at (eventSourceNodeId);
-        const int samplesToFill     = nSamples - eventTime;
+        const int nSamples          = getNumSourceSamples (eventSourceNodeId);
+        int samplesToFill     = nSamples - eventTime;
+		if (samplesToFill < 0) samplesToFill = 0;
 
         //	std::cout << "Received event from " << eventSourceNode << ", channel "
         //	          << eventChannel << ", with ID " << eventId << ", copying to "
@@ -230,7 +231,7 @@ void LfpDisplayNode::initializeEventChannels()
         const int chan        = channelForEventSource[eventSourceNodes[i]];
         const int index       = displayBufferIndex[chan];
         const int samplesLeft = displayBuffer->getNumSamples() - index;
-        const int nSamples    = numSamples.at(eventSourceNodes[i]);
+        const int nSamples    = getNumSourceSamples(eventSourceNodes[i]);
 
         if (nSamples < samplesLeft)
         {

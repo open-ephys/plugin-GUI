@@ -319,7 +319,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
 
                     int remainingSamples = numSamplesExpected[i] - samplesToCopyFromOverflowBuffer;
 
-                    int samplesAvailable = numSamples.at(getProcessorFullId(dataChannelArray[i]->getSourceNodeID(), dataChannelArray[i]->getSubProcessorIdx()));
+                    int samplesAvailable = getNumSourceSamples(dataChannelArray[i]->getSourceNodeID(), dataChannelArray[i]->getSubProcessorIdx());
 
                     int samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
                                                            remainingSamples :
