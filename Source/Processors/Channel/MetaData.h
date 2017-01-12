@@ -175,13 +175,14 @@ public:
 	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
 	const MetaDataValue* getMetaDataValue(int index) const;
+	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty) const;
 	const int getMetaDataCount() const;
 protected:
 	MetaDataDescriptorArray m_metaDataDescriptorArray;
 	MetaDataValueArray m_metaDataValueArray;
 };
 
-class MetaDataEventLock
+class PLUGIN_API MetaDataEventLock
 {
 	//GenericProcessor will set this to true when copying channels in the update method so no other processor but the one which
 	//created the object can call addEventMetaData. This is done this way because since the events themselves are created by the
@@ -201,6 +202,7 @@ public:
 	void addEventMetaData(MetaDataDescriptor* desc);
 	void addEventMetaData(const MetaDataDescriptor& desc);
 	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
+	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty) const;
 	size_t getTotalEventMetaDataSize() const;
 	const int getEventMetaDataCount() const;
 protected:

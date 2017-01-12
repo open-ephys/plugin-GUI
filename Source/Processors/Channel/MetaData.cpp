@@ -39,6 +39,7 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 	case MetaDataDescriptor::UINT32: return std::is_same<uint32, T>::value;
 	case MetaDataDescriptor::INT64: return std::is_same<int64, T>::value;
 	case MetaDataDescriptor::UINT64: return std::is_same<uint64, T>::value;
+	default: return false;
 	}
 }
 
@@ -300,6 +301,18 @@ const int MetaDataInfoObject::getMetaDataCount() const
 	return m_metaDataDescriptorArray.size();
 }
 
+int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor) const
+{
+	int nMetaData = m_metaDataDescriptorArray.size();
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_metaDataDescriptorArray[i];
+		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || descriptor.equalsIgnoreCase(md->getDescriptor())))
+			return i;
+	}
+	return -1;
+}
+
 //MetaDataEventObject
 
 MetaDataEventObject::MetaDataEventObject() {}
@@ -341,6 +354,18 @@ const MetaDataDescriptor* MetaDataEventObject::getEventMetaDataDescriptor(int in
 const int MetaDataEventObject::getEventMetaDataCount() const
 {
 	return m_eventMetaDataDescriptorArray.size();
+}
+
+int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor) const
+{
+	int nMetaData = m_eventMetaDataDescriptorArray.size();
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_eventMetaDataDescriptorArray[i];
+		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || descriptor.equalsIgnoreCase(md->getDescriptor())))
+			return i;
+	}
+	return -1;
 }
 
 //MetaDataEvent
