@@ -67,7 +67,7 @@ void LfpDisplayNode::updateSettings()
 
     for (int i = 0; i < eventChannelArray.size(); ++i)
     {
-		uint32 sourceID = getProcessorFullId(eventChannelArray[i]->getSourceNodeID(), eventChannelArray[i]->getSubProcessorIdx());
+		uint32 sourceID = getChannelSourceID(eventChannelArray[i]);
         if (! eventSourceNodes.contains (sourceID ))
         {
             eventSourceNodes.add (sourceID);
@@ -93,6 +93,17 @@ void LfpDisplayNode::updateSettings()
     displayBufferIndex.insertMultiple (0, 0, getNumInputs() + numEventChannels);
 }
 
+uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
+{
+	int metaDataIndex = event->findMetaData(MetaDataDescriptor::UINT16, 3, "source.channel.identifier.full");
+	if (metaDataIndex < 0)
+	{
+		return getProcessorFullId(event->getSourceNodeID(), event->getSubProcessorIdx());
+	}
+	uint16 values[3];
+	event->getMetaDataValue(metaDataIndex)->getValue(static_cast<uint16*>(values));
+	return getProcessorFullId(values[1], values[2]);
+}
 
 bool LfpDisplayNode::resizeBuffer()
 {
@@ -162,8 +173,8 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventId           = ttl->getState() ? 1 : 0;
         const int eventChannel      = ttl->getChannel();
         const int eventTime         = samplePosition;
-        const uint32 eventSourceNodeId = getProcessorFullId(ttl->getSourceID(), ttl->getSubProcessorIdx());
-        const int nSamples          = getNumSourceSamples (eventSourceNodeId);
+		const uint32 eventSourceNodeId = getChannelSourceID(eventInfo);
+		const int nSamples = getNumSourceSamples(eventSourceNodeId);
         int samplesToFill     = nSamples - eventTime;
 		if (samplesToFill < 0) samplesToFill = 0;
 

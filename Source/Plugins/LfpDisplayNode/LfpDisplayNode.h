@@ -89,6 +89,8 @@ private:
 
     CriticalSection displayMutex;
 
+	uint32 getChannelSourceID(const EventChannel* event) const;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayNode);
 };
 
