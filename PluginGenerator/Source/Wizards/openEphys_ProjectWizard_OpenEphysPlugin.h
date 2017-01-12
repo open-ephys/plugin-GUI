@@ -22,6 +22,7 @@
 
 
 #include <iostream>
+#import "juce_File.h"
 
 
 // ============================================================================
@@ -32,9 +33,6 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 {
     OpenEphysPluginAppWizard()
     {
-        modulesFolder = File::getCurrentWorkingDirectory()
-                                    .getParentDirectory().getParentDirectory().getParentDirectory()
-                                    .getChildFile ("JuceLibraryCode").getChildFile ("modules");
     }
 
     String getName() const override         { return TRANS("Open-Ephys Plug-In"); }
@@ -43,13 +41,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
 
     StringArray getDefaultModules() override
     {
-        //StringArray s (NewProjectWizard::getDefaultModules());
-        //s.add ("juce_audio_plugin_client");
-
-        // TODO <Kirill A>
-        // Just an empty modules for now
-        StringArray s;
-        return s;
+        return {};
     }
 
 

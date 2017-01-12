@@ -26,6 +26,8 @@
 #define JUCER_NEWPROJECTWIZARDCOMPONENT_H_INCLUDED
 
 
+#import "juce_File.h"
+
 class ModulesFolderPathBox  : public Component,
                               private ButtonListener,
                               private ComboBoxListener
@@ -327,11 +329,24 @@ public:
         updateCustomItems();
         updateCreateButton();
 
+        // <Open-Ephys>
         // Changes by <Open Ephys>
-        fileBrowser.setRoot (File::getCurrentWorkingDirectory()
-                                .getParentDirectory().getParentDirectory().getParentDirectory()
-                                .getChildFile ("Source").getChildFile ("Plugins"));
+        fileBrowser.setRoot (File::getSpecialLocation (File::currentApplicationFile)
+                                 .getParentDirectory().getParentDirectory().getParentDirectory()
+        #ifdef   JUCE_MAC
+                                 .getParentDirectory().getParentDirectory().getParentDirectory()
+        #endif
+                                 .getChildFile ("Source").getChildFile ("Plugins"));
+
+        const File modulesFolder = File::getSpecialLocation (File::currentApplicationFile)
+                                        .getParentDirectory().getParentDirectory().getParentDirectory()
+                #ifdef JUCE_MAC
+                                        .getParentDirectory().getParentDirectory()
+                #endif
+                                        .getChildFile ("JuceLibraryCode").getChildFile ("modules");
+        modulesPathBox.setModulesFolder (modulesFolder);
     }
+
 
     void paint (Graphics& g) override
     {
