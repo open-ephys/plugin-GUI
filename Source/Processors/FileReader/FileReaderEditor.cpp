@@ -204,8 +204,6 @@ void FileReaderEditor::startAcquisition()
 {
     recordSelector->setEnabled (false);
     timeLimits->setEnable (false);
-
-    GenericEditor::startAcquisition();
 }
 
 
@@ -213,8 +211,6 @@ void FileReaderEditor::stopAcquisition()
 {
     recordSelector->setEnabled (true);
     timeLimits->setEnable (true);
-
-    GenericEditor::stopAcquisition();
 }
 
 

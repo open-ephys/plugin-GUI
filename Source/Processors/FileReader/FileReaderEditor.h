@@ -67,8 +67,8 @@ public:
     void setTotalTime   (unsigned int ms);
     void setCurrentTime (unsigned int ms);
 
-    void startAcquisition() override;
-    void stopAcquisition()  override;
+	void startAcquisition() override;
+	void stopAcquisition()  override;
 
     void setFile (String file);
 

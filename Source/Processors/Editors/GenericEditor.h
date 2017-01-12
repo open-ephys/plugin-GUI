@@ -131,10 +131,16 @@ public:
     void stopRecording();
 
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
-    virtual void startAcquisition();
+    void editorStartAcquisition();
+
+	/** Called just prior to the start of acquisition, to allow custom commands. */
+	virtual void startAcquisition();
 
     /** Called after the end of acquisition.*/
-    virtual void stopAcquisition();
+    void editorStopAcquisition();
+
+	/** Called after the end of acquisition, to allow custom commands .*/
+	virtual void stopAcquisition();
 
     /** Returns the name of the editor.*/
     String getName();

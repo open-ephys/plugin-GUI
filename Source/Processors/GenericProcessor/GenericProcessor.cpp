@@ -525,7 +525,7 @@ void GenericProcessor::enableEditor()
     GenericEditor* ed = getEditor();
 
     if (ed != 0)
-        ed->startAcquisition();
+        ed->editorStartAcquisition();
 }
 
 
@@ -534,7 +534,7 @@ void GenericProcessor::disableEditor()
     GenericEditor* ed = getEditor();
 
     if (ed != nullptr)
-        ed->stopAcquisition();
+        ed->editorStopAcquisition();
 }
 
 

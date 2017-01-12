@@ -951,7 +951,6 @@ void ChannelMappingEditor::startAcquisition()
 {
 	if (reorderActive)
 		modifyButton->setToggleState(false,sendNotificationSync);
-	GenericEditor::startAcquisition();
 }
 
 int ChannelMappingEditor::getChannelDisplayNumber(int chan) const

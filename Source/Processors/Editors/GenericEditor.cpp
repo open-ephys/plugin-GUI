@@ -311,9 +311,9 @@ void GenericEditor::stopRecording()
         channelSelector->activateRecButtons();
 }
 
-void GenericEditor::startAcquisition()
+void GenericEditor::editorStartAcquisition()
 {
-
+	startAcquisition();
     //std::cout << "GenericEditor received message to start acquisition." << std::endl;
 
     if (channelSelector != 0)
@@ -331,8 +331,10 @@ void GenericEditor::startAcquisition()
 
 }
 
-void GenericEditor::stopAcquisition()
+void GenericEditor::editorStopAcquisition()
 {
+	stopAcquisition();
+
     if (channelSelector != 0)
         channelSelector->stopAcquisition();
 
@@ -347,6 +349,9 @@ void GenericEditor::stopAcquisition()
     acquisitionIsActive = false;
 
 }
+
+void GenericEditor::startAcquisition() {}
+void GenericEditor::stopAcquisition() {}
 
 void GenericEditor::fadeIn()
 {
