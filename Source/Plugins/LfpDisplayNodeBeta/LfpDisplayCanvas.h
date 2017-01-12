@@ -20,12 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __LFPDISPLAYCANVAS_H_B711873A__
-#define __LFPDISPLAYCANVAS_H_B711873A__
+#ifndef __LFPDISPLAYCANVAS_H_BETA__
+#define __LFPDISPLAYCANVAS_H_BETA__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <VisualizerWindowHeaders.h>
 #include "LfpDisplayNode.h"
-#include "../../Processors/Visualization/Visualizer.h"
 
 #include <vector>
 #include <array>
@@ -127,7 +126,7 @@ public:
 
     void redraw();
 
-    ChannelType selectedChannelType;
+	DataChannel::DataChannelTypes selectedChannelType;
 
     ScopedPointer<LfpViewport> viewport;
 
@@ -227,12 +226,12 @@ public:
     void saveParameters(XmlElement* xml);
     void loadParameters(XmlElement* xml);
 
-    ChannelType getChannelType(int n);
-    ChannelType getSelectedType();
-    String getTypeName(ChannelType type);
-    int getRangeStep(ChannelType type);
+	DataChannel::DataChannelTypes getChannelType(int n);
+	DataChannel::DataChannelTypes getSelectedType();
+    String getTypeName(DataChannel::DataChannelTypes type);
+	int getRangeStep(DataChannel::DataChannelTypes type);
 
-    void setSelectedType(ChannelType type, bool toggleButton = true);
+	void setSelectedType(DataChannel::DataChannelTypes type, bool toggleButton = true);
 
     int selectedSpread;
     String selectedSpreadValue;
@@ -286,7 +285,7 @@ private:
     StringArray overlaps; //
     StringArray saturationThresholds; //default values for when different amplifiers saturate
     
-    ChannelType selectedChannelType;
+	DataChannel::DataChannelTypes selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
     float rangeGain[CHANNEL_TYPES];
@@ -348,11 +347,11 @@ public:
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
 
-    void setRange(float range, ChannelType type);
+	void setRange(float range, DataChannel::DataChannelTypes type);
     
     //Withouth parameters returns selected type
     int getRange();
-    int getRange(ChannelType type);
+	int getRange(DataChannel::DataChannelTypes type);
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
@@ -452,7 +451,7 @@ public:
         return isEnabled;
     }
 
-    ChannelType getType();
+	DataChannel::DataChannelTypes getType();
     void updateType();
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
@@ -485,7 +484,7 @@ protected:
     bool canBeInverted;
     bool drawMethod;
 
-    ChannelType type;
+	DataChannel::DataChannelTypes type;
     String typeStr;
     
     
@@ -556,4 +555,4 @@ private:
 };
 };
 
-#endif  // __LFPDISPLAYCANVAS_H_B711873A__
+#endif  // __LFPDISPLAYCANVAS_H_BETA__

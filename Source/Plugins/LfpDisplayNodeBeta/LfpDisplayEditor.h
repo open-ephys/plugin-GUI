@@ -21,17 +21,12 @@
 
 */
 
-#ifndef __LFPDISPLAYEDITOR_H_3438800D__
-#define __LFPDISPLAYEDITOR_H_3438800D__
+#ifndef __LFPDISPLAYEDITOR_H_BETA__
+#define __LFPDISPLAYEDITOR_H_BETA__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
-#include "../../UI/UIComponent.h"
-#include "../../UI/DataViewport.h"
-#include "../../Processors/Visualization/DataWindow.h"
+#include <VisualizerEditorHeaders.h>
 #include "LfpDisplayNode.h"
 #include "LfpDisplayCanvas.h"
-#include "../../Processors/Editors/VisualizerEditor.h"
 
 class Visualizer;
 
@@ -63,4 +58,4 @@ private:
 
 };
 };
-#endif  // __LFPDISPLAYEDITOR_H_3438800D__
+#endif  // __LFPDISPLAYEDITOR_H_BETA__

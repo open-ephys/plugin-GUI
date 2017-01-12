@@ -21,13 +21,11 @@
 
 */
 
-#ifndef __LFPDISPLAYNODE_H_D969A379__
-#define __LFPDISPLAYNODE_H_D969A379__
+#ifndef __LFPDISPLAYNODE_H_BETA__
+#define __LFPDISPLAYNODE_H_BETA__
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
-#include "../../Processors/Editors/VisualizerEditor.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
 
 
 class DataViewport;
@@ -52,7 +50,7 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
@@ -61,7 +59,7 @@ public:
     bool enable()   override;
     bool disable()  override;
 
-    void handleEvent (int, MidiMessage&, int) override;
+	void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
     AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffer; }
 
@@ -76,8 +74,8 @@ private:
     ScopedPointer<AudioSampleBuffer> displayBuffer;
 
     Array<int> displayBufferIndex;
-    Array<int> eventSourceNodes;
-    std::map<int, int> channelForEventSource;
+    Array<uint32> eventSourceNodes;
+    std::map<uint32, int> channelForEventSource;
 
     int numEventChannels;
 
@@ -87,7 +85,7 @@ private:
     AbstractFifo abstractFifo;
 
     int64 bufferTimestamp;
-    std::map<int, int> ttlState;
+    std::map<uint32, uint64> ttlState;
     float* arrayOfOnes;
     int totalSamples;
 
@@ -95,10 +93,12 @@ private:
 
     CriticalSection displayMutex;
 
+	uint32 getChannelSourceID(const EventChannel* event) const;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
 };
 };
 
 
 
-#endif  // __LFPDISPLAYNODE_H_D969A379__
+#endif  // __LFPDISPLAYNODE_H_BETA__
