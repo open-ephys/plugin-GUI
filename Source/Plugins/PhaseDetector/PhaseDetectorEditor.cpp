@@ -86,6 +86,19 @@ PhaseDetectorEditor::~PhaseDetectorEditor()
 
 }
 
+void PhaseDetectorEditor::startAcquisition()
+{
+	plusButton->setEnabled(false);
+	for (int i = 0; i < interfaces.size(); i++)
+		interfaces[i]->setEnableStatus(false);
+}
+
+void PhaseDetectorEditor::stopAcquisition()
+{
+	plusButton->setEnabled(true);
+	for (int i = 0; i < interfaces.size(); i++)
+		interfaces[i]->setEnableStatus(true);
+}
 void PhaseDetectorEditor::updateSettings()
 {
 
@@ -434,4 +447,10 @@ int DetectorInterface::getOutputChan()
 int DetectorInterface::getGateChan()
 {
     return gateSelector->getSelectedId()-2;
+}
+void DetectorInterface::setEnableStatus(bool status)
+{
+	inputSelector->setEnabled(status);
+	for (int i = 0; i < phaseButtons.size(); i++)
+		phaseButtons[i]->setEnabled(status);
 }

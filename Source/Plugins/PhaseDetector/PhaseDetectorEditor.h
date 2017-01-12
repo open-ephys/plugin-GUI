@@ -56,6 +56,9 @@ public:
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
 
+	void startAcquisition() override;
+	void stopAcquisition() override;
+
 private:
 
     ScopedPointer<ComboBox> detectorSelector;
@@ -104,6 +107,8 @@ public:
     int getInputChan();
     int getOutputChan();
     int getGateChan();
+
+	void setEnableStatus(bool status);
 
 private:
 
