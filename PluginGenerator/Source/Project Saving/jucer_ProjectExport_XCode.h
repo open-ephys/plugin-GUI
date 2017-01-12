@@ -309,10 +309,6 @@ public:
         else if (type.isOpenEphysPlugin())
         {
             targets.add (new Target (Target::OpenEphysPlugIn, *this));
-
-            // TODO<Kirill A>: do we really need this target?
-            //if (targets.size() > 0)
-            //    targets.add (new Target (Target::SharedCodeTarget, *this));
         }
 
         if (targets.size() > 1)
