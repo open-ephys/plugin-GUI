@@ -78,11 +78,11 @@ public:
     // =========================================================================
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    void updateSettings() override;
+    void createEventChannels() override;
 
     void setEnabledState (bool newState) override;
 
@@ -94,7 +94,6 @@ public:
     float getDefaultSampleRate() const override;
     float getDefaultBitVolts()   const override;
 
-    int getNumEventChannels() const override;
     // =========================================================================
 
     int getDefaultNumOutputs() const;
@@ -105,7 +104,7 @@ public:
     std::vector<String> splitString (String S, char sep);
 
     void initSimulation();
-    void simulateDesignAndTrials (juce::MidiBuffer& events);
+    void simulateDesignAndTrials ();
     void simulateSingleTrial();
     void simulateStartRecord();
     void simulateStopRecord();
@@ -113,7 +112,7 @@ public:
     void opensocket();
     bool closesocket();
 
-    void postTimestamppedStringToMidiBuffer (StringTS s, MidiBuffer& events);
+    void postTimestamppedStringToMidiBuffer (StringTS s);
     void setNewListeningPort (int port);
 
     int urlport;
@@ -122,7 +121,6 @@ public:
 
 
 private:
-    void handleEvent (int eventType, MidiMessage& event, int samplePos) override;
     void createZmqContext();
 
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
@@ -147,6 +145,8 @@ private:
 
     CriticalSection lock;
     int64 simulationStartTime;
+
+	const EventChannel* messageChannel{ nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };

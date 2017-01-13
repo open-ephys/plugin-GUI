@@ -224,15 +224,16 @@ bool NetworkEvents::closesocket()
 }
 
 
-int NetworkEvents::getNumEventChannels() const
+void NetworkEvents::createEventChannels()
 {
-    return 1;
-}
-
-
-void NetworkEvents::updateSettings()
-{
-    eventChannels[0]->type = MESSAGE_CHANNEL; // so it's ignored by LFP Viewer
+	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MESSAGE_LENGTH, CoreServices::getGlobalSampleRate(), this);
+	chan->setName("Network messages");
+	chan->setDescription("Messages received through the network events module");
+	chan->setDescriptor("genericevent.network");
+	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::INT64, 1, "Software timestamp",
+		"OS high resolution timer count when the event was received", "timestamp.software"));
+	eventChannelArray.add(chan);
+	messageChannel = chan;
 }
 
 
@@ -272,7 +273,7 @@ void NetworkEvents::initSimulation()
 }
 
 
-void NetworkEvents::simulateDesignAndTrials (juce::MidiBuffer& events)
+void NetworkEvents::simulateDesignAndTrials ()
 {
     Time t;
     while (simulation.size() > 0)
@@ -284,7 +285,7 @@ void NetworkEvents::simulateDesignAndTrials (juce::MidiBuffer& events)
             // handle special messages
             handleSpecialMessages (S);
 
-            postTimestamppedStringToMidiBuffer (S,events);
+            postTimestamppedStringToMidiBuffer (S);
             //getUIComponent()->getLogWindow()->addLineToLog(S.getString());
             simulation.pop();
         }
@@ -296,27 +297,12 @@ void NetworkEvents::simulateDesignAndTrials (juce::MidiBuffer& events)
 
 }
 
-
-void NetworkEvents::handleEvent (int eventType, juce::MidiMessage& event, int samplePosition)
+void NetworkEvents::postTimestamppedStringToMidiBuffer (StringTS s)
 {
-}
-
-
-void NetworkEvents::postTimestamppedStringToMidiBuffer (StringTS s, MidiBuffer& events)
-{
-    uint8* msg_with_ts = new uint8[s.len+1];//+8]; // for the two timestamps
-    memcpy (msg_with_ts, s.str, s.len);
-    *(msg_with_ts + s.len) = '\0';
-
-    addEvent (events,
-              (uint8) MESSAGE,
-              0,
-              1,
-              0,
-              (uint8) s.len + 1,//+8,
-              msg_with_ts);
-
-    delete[] msg_with_ts;
+	MetaDataValueArray md;
+	md.add(new MetaDataValue(MetaDataDescriptor::INT64, 1, &s.timestamp));
+	TextEventPtr event = TextEvent::createTextEvent(messageChannel, CoreServices::getGlobalTimestamp(), String::fromUTF8(reinterpret_cast<const char*>(s.str), s.len), md);
+	addEvent(messageChannel, event, 0);
 }
 
 
@@ -537,17 +523,15 @@ String NetworkEvents::handleSpecialMessages (StringTS msg)
 }
 
 
-void NetworkEvents::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void NetworkEvents::process (AudioSampleBuffer& buffer)
 {
-    setTimestamp (events,CoreServices::getGlobalTimestamp());
-    checkForEvents (events);
-    //simulateDesignAndTrials(events);
+    setTimestampAndSamples(CoreServices::getGlobalTimestamp(),0);
 
     lock.enter();
     while (! networkMessagesQueue.empty())
     {
         StringTS msg = networkMessagesQueue.front();
-        postTimestamppedStringToMidiBuffer (msg, events);
+        postTimestamppedStringToMidiBuffer (msg);
         CoreServices::sendStatusMessage ( ("Network event received: " + msg.getString()).toRawUTF8());
         networkMessagesQueue.pop();
     }
