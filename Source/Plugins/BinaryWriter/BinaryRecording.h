@@ -47,23 +47,24 @@ namespace BinaryRecordingEngine
 		void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 		void closeFiles() override;
 		void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-		void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) override;
+		void writeEvent(int eventType, const MidiMessage& event) override;
 		void resetChannels() override;
-		void addSpikeElectrode(int index, const SpikeRecordInfo* elec) override;
-		void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
+		void addSpikeElectrode(int index, const SpikeChannel* elec) override;
+		void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
+		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text);
 
 		static RecordEngineManager* getEngineManager();
 
 	private:
 
-		void openSpikeFile(String basepath, SpikeRecordInfo* elec, int recordingNumber);
-		String generateSpikeHeader(SpikeRecordInfo* elec);
+		void openSpikeFile(String basepath, int spikeIndex, int recordingNumber);
+		String generateSpikeHeader(const SpikeChannel* elec);
 		String generateEventHeader();
 
 		void openMessageFile(String basepath, int recordingNumber);
 		void openEventFile(String basepath, int recordingNumber);
-		void writeTTLEvent(const MidiMessage& event, int64 timestamp);
-		void writeMessage(const MidiMessage& event, int64 timestamp);
+		void writeTTLEvent(int eventIndex, const MidiMessage& event);
+		void writeMessage(String message, uint16 processorID, uint16 channel, uint64 timestamp);
 
 		HeapBlock<float> m_scaledBuffer;
 		HeapBlock<int16> m_intBuffer;

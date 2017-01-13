@@ -69,7 +69,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 	openMessageFile(basepath, recordingNumber);
 	for (int i = 0; i < spikeFileArray.size(); i++)
 	{
-		openSpikeFile(basepath, getSpikeElectrode(i), recordingNumber);
+		openSpikeFile(basepath, i, recordingNumber);
 	}
 	m_recordingNum = recordingNumber;
 }
@@ -126,7 +126,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 		m_scaledBuffer.malloc(size);
 		m_intBuffer.malloc(size);
 	}
-	double multFactor = 1 / (float(0x7fff) * getChannel(realChannel)->bitVolts);
+	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
@@ -135,7 +135,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 
 //Code below is copied from OriginalRecording, so it's not as clean as newer one
 
-void BinaryRecording::addSpikeElectrode(int index, const SpikeRecordInfo* elec)
+void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
 {
 	spikeFileArray.add(nullptr);
 }
@@ -185,11 +185,11 @@ void BinaryRecording::openEventFile(String basepath, int recordingNumber)
 
 }
 
-void BinaryRecording::openSpikeFile(String basePath, SpikeRecordInfo* elec, int recordingNumber)
+void BinaryRecording::openSpikeFile(String basePath, int spikeIndex, int recordingNumber)
 {
-
+	const SpikeChannel* elec = getSpikeChannel(spikeIndex);
 	FILE* spFile;
-	String fullPath = basePath + "_" + elec->name.removeCharacters(" ") + "_" + String(recordingNumber) + ".spikes";
+	String fullPath = basePath + "_" + elec->getName().removeCharacters(" ") + "_" + String(recordingNumber) + ".spikes";
 	
 	std::cout << "OPENING FILE: " << fullPath << std::endl;
 
@@ -207,7 +207,7 @@ void BinaryRecording::openSpikeFile(String basePath, SpikeRecordInfo* elec, int 
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), spFile);
 	}
 	diskWriteLock.exit();
-	spikeFileArray.set(elec->recordIndex, spFile);
+	spikeFileArray.set(spikeIndex, spFile);
 
 }
 
@@ -263,7 +263,7 @@ String BinaryRecording::generateEventHeader()
 
 	header += "header.sampleRate = ";
 	// all channels need to have the same sample rate under the current scheme
-	header += String(getChannel(0)->sampleRate);
+	header += String(getEventChannel(0)->getSampleRate());
 	header += ";\n";
 	header += "header.blockLength = ";
 	header += BLOCK_LENGTH;
@@ -283,7 +283,7 @@ String BinaryRecording::generateEventHeader()
 
 }
 
-String BinaryRecording::generateSpikeHeader(SpikeRecordInfo* elec)
+String BinaryRecording::generateSpikeHeader(const SpikeChannel* elec)
 {
 	String header = "header.format = 'Open Ephys Data Format'; \n";
 	header += "header.version = " + String(VERSION_STRING) + "; \n";
@@ -300,15 +300,15 @@ String BinaryRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 	header += "';\n";
 
 	header += "header.electrode = '";
-	header += elec->name;
+	header += elec->getName();
 	header += "';\n";
 
 	header += "header.num_channels = ";
-	header += elec->numChannels;
+	header += elec->getNumChannels();
 	header += ";\n";
 
 	header += "header.sampleRate = ";
-	header += String(elec->sampleRate);
+	header += String(elec->getSampleRate());
 	header += ";\n";
 
 	header = header.paddedRight(' ', HEADER_SIZE);
@@ -318,34 +318,41 @@ String BinaryRecording::generateSpikeHeader(SpikeRecordInfo* elec)
 	return header;
 }
 
-void BinaryRecording::writeEvent(int eventType, const MidiMessage& event, int64 timestamp)
+void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 {
-	if (isWritableEvent(eventType))
-		writeTTLEvent(event, timestamp);
-	if (eventType == GenericProcessor::MESSAGE)
-		writeMessage(event, timestamp);
+	writeTTLEvent(eventIndex, event);
+	if (Event::getEventType(event) == EventChannel::TEXT)
+	{
+		TextEventPtr ev = TextEvent::deserializeFromMessage(event, getEventChannel(eventIndex));
+		if (ev == nullptr) return;
+		writeMessage(ev->getText(), ev->getSourceID(), ev->getChannel(), ev->getTimestamp());
+	}
 }
 
-void BinaryRecording::writeMessage(const MidiMessage& event, int64 timestamp)
+void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text)
+{
+	writeMessage(text, sourceID, 255, timestamp);
+}
+
+void BinaryRecording::writeMessage(String message, uint16 processorID, uint16 channel, uint64 timestamp)
 {
 	if (messageFile == nullptr)
 		return;
 
-	int msgLength = event.getRawDataSize() - 6;
-	const char* dataptr = (const char*)event.getRawData() + 6;
+	int msgLength = message.getNumBytesAsUTF8();
 
 	String timestampText(timestamp);
 
 	diskWriteLock.enter();
 	fwrite(timestampText.toUTF8(), 1, timestampText.length(), messageFile);
 	fwrite(" ", 1, 1, messageFile);
-	fwrite(dataptr, 1, msgLength, messageFile);
+	fwrite(message.toUTF8(), 1, msgLength, messageFile);
 	fwrite("\n", 1, 1, messageFile);
 	diskWriteLock.exit();
 
 }
 
-void BinaryRecording::writeTTLEvent(const MidiMessage& event, int64 timestamp)
+void BinaryRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 {
 	// find file and write samples to disk
 	// std::cout << "Received event!" << std::endl;
@@ -353,56 +360,87 @@ void BinaryRecording::writeTTLEvent(const MidiMessage& event, int64 timestamp)
 	if (eventFile == nullptr)
 		return;
 
-	const uint8* dataptr = event.getRawData();
-
+	uint8 data[16];
 	//With the new external recording thread, this field has no sense.
 	int16 samplePos = 0;
 
+	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
+	if (!ev) return;
+	*reinterpret_cast<uint64*>(data) = ev->getTimestamp();
+	*reinterpret_cast<int16*>(data + 8) = samplePos;
+	*(data + 10) = static_cast<uint8>(ev->getEventType());
+	*(data + 11) = static_cast<uint8>(ev->getSourceID());
+	*(data + 12) = (ev->getEventType() == EventChannel::TTL) ? (dynamic_cast<TTLEvent*>(ev.get())->getState() ? 1 : 0) : 0;
+	*(data + 13) = static_cast<uint8>(ev->getChannel());
+	*reinterpret_cast<uint16*>(data + 14) = static_cast<uint16>(m_recordingNum);
+
+
 	diskWriteLock.enter();
 
-	fwrite(&timestamp,					// ptr
-		8,   							// size of each element
-		1, 		  						// count
+	fwrite(&data,					// ptr
+		sizeof(uint8),   							// size of each element
+		16, 		  						// count
 		eventFile);   			// ptr to FILE object
-
-	fwrite(&samplePos,							// ptr
-		2,   							// size of each element
-		1, 		  						// count
-		eventFile);   			// ptr to FILE object
-
-	// write 1st four bytes of event (type, nodeId, eventId, eventChannel)
-	fwrite(dataptr, 1, 4, eventFile);
-	int16 recordingNumber = m_recordingNum;
-	// write recording number
-	fwrite(&recordingNumber,                     // ptr
-		2,                               // size of each element
-		1,                               // count
-		eventFile);             // ptr to FILE object
 
 	diskWriteLock.exit();
 }
 
-void BinaryRecording::writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp)
-{
-	uint8_t spikeBuffer[MAX_SPIKE_BUFFER_LEN];
 
+void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
+{
 	if (spikeFileArray[electrodeIndex] == nullptr)
 		return;
 
-	packSpike(&spike, spikeBuffer, MAX_SPIKE_BUFFER_LEN);
+	HeapBlock<char> spikeBuffer;
+	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
 
-	int totalBytes = spike.nSamples * spike.nChannels * 2 + // account for samples
-		spike.nChannels * 4 +            // acount for gain
-		spike.nChannels * 2 +            // account for thresholds
-		SPIKE_METADATA_SIZE;             // 42, from SpikeObject.h
+	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
+	int numChannels = channel->getNumChannels();
+	int chanSamples = channel->getTotalSamples();
 
+	int totalBytes = totalSamples * 2 + // account for samples
+		numChannels * 4 +            // acount for gain
+		numChannels * 2 +            // account for thresholds
+		42;             // 42, from SpikeObject.h
+	spikeBuffer.malloc(totalBytes);
+	*(spikeBuffer.getData()) = static_cast<char>(channel->getChannelType());
+	*reinterpret_cast<uint64*>(spikeBuffer.getData() + 1) = spike->getTimestamp();
+	*reinterpret_cast<uint64*>(spikeBuffer.getData() + 9) = 0; //Legacy unused value
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getSourceID();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 19) = numChannels;
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 21) = chanSamples;
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 23) = spike->getSortedID();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 25) = electrodeIndex; //Legacy value
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 27) = 0; //Legacy unused value
+	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
+	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
+
+	int ptrIdx = 0;
+	for (int i = 0; i < numChannels; i++)
+	{
+		float scaleFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(i));
+		FloatVectorOperations::copyWithMultiply(m_scaledBuffer + ptrIdx, spike->getDataPointer(i), scaleFactor, chanSamples);
+		ptrIdx += chanSamples;
+	}
+	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer, (spikeBuffer.getData() + 42), totalSamples);
+	ptrIdx = totalSamples * 2 + 42;
+	for (int i = 0; i < numChannels; i++)
+	{
+		*reinterpret_cast<float*>(spikeBuffer.getData() + ptrIdx) = channel->getGain();
+		ptrIdx += sizeof(float);
+	}
+	for (int i = 0; i < numChannels; i++)
+	{
+		*reinterpret_cast<int16*>(spikeBuffer.getData() + ptrIdx) = spike->getThreshold(i);
+		ptrIdx += sizeof(int16);
+	}
 
 	diskWriteLock.enter();
 
 	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
 
-	int16 recordingNumber = m_recordingNum;
-	fwrite(&recordingNumber,                         // ptr
+	fwrite(&m_recordingNum,                         // ptr
 		2,                               // size of each element
 		1,                               // count
 		spikeFileArray[electrodeIndex]); // ptr to FILE object
