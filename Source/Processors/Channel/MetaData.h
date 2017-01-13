@@ -176,7 +176,7 @@ public:
 	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
 	const MetaDataValue* getMetaDataValue(int index) const;
-	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty) const;
+	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty, bool fullDescriptor = true) const;
 	const int getMetaDataCount() const;
 protected:
 	MetaDataDescriptorArray m_metaDataDescriptorArray;

@@ -306,13 +306,14 @@ const int MetaDataInfoObject::getMetaDataCount() const
 	return m_metaDataDescriptorArray.size();
 }
 
-int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor) const
+int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor, bool fullDescriptor) const
 {
 	int nMetaData = m_metaDataDescriptorArray.size();
 	for (int i = 0; i < nMetaData; i++)
 	{
 		MetaDataDescriptorPtr md = m_metaDataDescriptorArray[i];
-		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || descriptor.equalsIgnoreCase(md->getDescriptor())))
+		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || 
+			(fullDescriptor ? descriptor.equalsIgnoreCase(md->getDescriptor()) : StringArray::fromTokens(md->getDescriptor(),".","").contains(descriptor,true))))
 			return i;
 	}
 	return -1;

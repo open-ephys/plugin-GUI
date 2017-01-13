@@ -145,7 +145,7 @@ DataChannel::DataChannel(DataChannelTypes type, float sampleRate, GenericProcess
 	InfoObjectCommon(source->dataChannelCount++, source->dataChannelTypeCount[type]++, sampleRate, source, subproc),
 	m_type(type)
 {
-	setName(getDefaultName());
+	setDefaultNameAndDescription();
 }
 
 DataChannel::DataChannel(const DataChannel& ch)
@@ -222,21 +222,42 @@ void DataChannel::reset()
 	m_isRecording = false;
 }
 
-String DataChannel::getDefaultName() const
+void DataChannel::setDefaultNameAndDescription() 
 {
 	String name;
+	String description;
+	String descriptor = "continuous.";
 	switch (m_type)
 	{
-	case HEADSTAGE_CHANNEL: name = "CH "; break;
-	case AUX_CHANNEL: name = "AUX "; break;
-	case ADC_CHANNEL: name = "ADC "; break;
-	default: name = "INVALID "; break;
+	case HEADSTAGE_CHANNEL: 
+		name = "CH"; 
+		description = "Headstage";
+		descriptor += "headstage";
+		break;
+	case AUX_CHANNEL: 
+		name = "AUX "; 
+		description = "Auxiliar";
+		descriptor += "aux";
+		break;
+	case ADC_CHANNEL: 
+		name = "ADC "; 
+		description = "ADC";
+		descriptor = "adc";
+		break;
+	default: 
+		setName("INVALID");
+		setDescription("Invalid Channel");
+		setDescriptor("invalid");
+		return;
+		break;
 	}
-	name += "p";
+	name += " p";
 	name += String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx());
 	name += " n";
 	name += String(getSourceTypeIndex());
-	return name;
+	setName(name);
+	setDescription(description + " data channel");
+	setDescriptor(descriptor);
 }
 
 //EventChannel
@@ -257,7 +278,7 @@ EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsig
 		//for messages, add 1 byte to account for the null terminator
 		if (m_type == TEXT) m_dataSize += 1;
 	}
-	setName(getDefaultName());
+	setDefaultNameAndDescription();
 }
 
 EventChannel::~EventChannel()
@@ -315,28 +336,51 @@ size_t EventChannel::getTypeByteSize(EventChannel::EventChannelTypes type)
 	}
 }
 
-String EventChannel::getDefaultName() const
+void EventChannel::setDefaultNameAndDescription()
 {
 	String name;
 	switch (m_type)
 	{
-	case TTL: name = "TTL "; break;
-	case TEXT: name = "TEXT "; break;
-	case INT8_ARRAY: name = "INT8 "; break;
-	case UINT8_ARRAY: name = "UINT8 "; break;
-	case INT16_ARRAY: name = "INT16 "; break;
-	case UINT16_ARRAY: name = "UINT16 "; break;
-	case INT32_ARRAY: name = "INT32 "; break;
-	case UINT32_ARRAY: name = "UINT32 "; break;
-	case INT64_ARRAY: name = "INT64 "; break;
-	case UINT64_ARRAY: name = "UINT64 "; break;
-	default: name = "INVALID "; break;
+	case TTL: name = "TTL"; break;
+	case TEXT: name = "TEXT"; break;
+	case INT8_ARRAY: name = "INT8"; break;
+	case UINT8_ARRAY: name = "UINT8"; break;
+	case INT16_ARRAY: name = "INT16"; break;
+	case UINT16_ARRAY: name = "UINT16"; break;
+	case INT32_ARRAY: name = "INT32"; break;
+	case UINT32_ARRAY: name = "UINT32"; break;
+	case INT64_ARRAY: name = "INT64"; break;
+	case UINT64_ARRAY: name = "UINT64"; break;
+	default: 
+		setName("INVALID");
+		setDescription("Invalid channel");
+		setDescriptor("invalid");
+		return;
+		break;
 	}
 	name += "p";
 	name += String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx());
 	name += " n";
 	name += String(getSourceTypeIndex());
-	return name;
+	setName(name);
+	if (m_type == TTL)
+	{
+		setDescription("TTL data input");
+		setDescriptor("genericevent.ttl");
+	}
+	else if (m_type == TEXT)
+	{
+		setDescription("Text event");
+		setDescriptor("genericevent.text");
+	}
+	else
+	{
+		if (m_length > 1)
+			setDescription(name + " data array");
+		else
+			setDescription(name + " single value");
+		setDescriptor("genericevent." + name.toLowerCase());
+	}
 }
 
 //SpikeChannel
@@ -357,7 +401,7 @@ SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const 
 		m_sourceInfo.add(info);
 		m_channelBitVolts.add(chan->getBitVolts());
 	}
-	setName(getDefaultName());
+	setDefaultNameAndDescription();
 }
 
 SpikeChannel::~SpikeChannel()
@@ -454,26 +498,42 @@ float SpikeChannel::getChannelBitVolts(int index) const
 		return m_channelBitVolts[index];
 }
 
-String SpikeChannel::getDefaultName() const
+void SpikeChannel::setDefaultNameAndDescription()
 {
 	String name;
+	String description;
+	String descriptor = "spikesource.";
 	switch (m_type)
 	{
-	case SINGLE: name = "SE "; break;
-	case STEREOTRODE: name = "ST "; break;
-	case TETRODE: name = "TT "; break;
+	case SINGLE: 
+		name = "SE ";
+		description = "Single electrode";
+		descriptor += "single";
+		break;
+	case STEREOTRODE: 
+		name = "ST "; 
+		description = "Stereotrode";
+		descriptor += "stereotrode";
+		break;
+	case TETRODE: 
+		name = "TT ";
+		description = "Tetrode";
+		descriptor += "tetrode";
+		break;
 	default: name = "INVALID "; break;
 	}
 	name += String(" p") + String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx()) + String(" n") + String(getSourceTypeIndex());
-	return name;
+	setName(name);
+	setDescription(description + " spike data source");
+	setDescriptor(descriptor);
 }
 
 //ConfigurationObject
 ConfigurationObject::ConfigurationObject(String descriptor, GenericProcessor* source, uint16 subproc)
 	: SourceProcessorInfo(source, subproc)
 {
+	setDefaultNameAndDescription();
 	setDescriptor(descriptor);
-	setName(getDefaultName());
 }
 
 void ConfigurationObject::setShouldBeRecorded(bool status)
@@ -486,7 +546,8 @@ bool ConfigurationObject::getShouldBeRecorded() const
 	return m_shouldBeRecorded;
 }
 
-String ConfigurationObject::getDefaultName() const
+void ConfigurationObject::setDefaultNameAndDescription()
 {
-	return "Config";
+	setName("Configuration Object");
+	setDescription("Generic configuration object");	
 }

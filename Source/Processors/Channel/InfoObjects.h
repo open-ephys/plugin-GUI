@@ -119,7 +119,7 @@ public:
 	String getDescriptor() const;
 protected:
 	NamedInfoObject();
-	virtual String getDefaultName() const = 0;
+	virtual void setDefaultNameAndDescription() = 0;
 private:
 	String m_name;
 	String m_descriptor;
@@ -228,7 +228,7 @@ public:
 	void reset();
 
 	InfoObjectType getInfoObjectType() const override;
-	String getDefaultName() const override;
+	void setDefaultNameAndDescription() override;
 private:
 	const DataChannelTypes m_type;
 	float m_bitVolts{ 1.0f };
@@ -320,7 +320,7 @@ public:
 	static size_t getTypeByteSize(EventChannelTypes type);
 
 	InfoObjectType getInfoObjectType() const override;
-	String getDefaultName() const override;
+	void setDefaultNameAndDescription() override;
 private:
 	const EventChannelTypes m_type;
 	unsigned int m_numChannels{ 1 };
@@ -395,7 +395,7 @@ public:
 	static ElectrodeTypes typeFromNumChannels(unsigned int nChannels);
 
 	InfoObjectType getInfoObjectType() const override;
-	String getDefaultName() const override;
+	void setDefaultNameAndDescription() override;
 private:
 	const ElectrodeTypes m_type;
 	Array<sourceChannelInfo> m_sourceInfo;
@@ -431,7 +431,7 @@ public:
 	/** Gets the config preference about being recorded */
 	bool getShouldBeRecorded() const;
 
-	String getDefaultName() const override;
+	void setDefaultNameAndDescription() override;
 private:
 	bool m_shouldBeRecorded{ true };
 	JUCE_LEAK_DETECTOR(ConfigurationObject);
