@@ -36,7 +36,7 @@
 #define SPIKE_CHUNK_YSIZE 40
 #endif
 
- NWBFile::NWBFile(String fName, String ver, String idText) : HDF5FileBase(), filename(fName), identifierText(idText), GUIVersion(ver), spikeMaxSize(0)
+ NWBFile::NWBFile(String fName, String ver, String idText) : HDF5FileBase(), filename(fName), identifierText(idText), GUIVersion(ver)
  {
 	 //Init stuff
 	 readyToOpen=true; //In KWIK this is in initFile, but the new recordEngine methods make it safe for it to be here
@@ -97,7 +97,7 @@ int NWBFile::createFileStructure()
 	 for (int i = 0; i < nCont; i++)
 	 {
 		 basePath = "/acquisition/timeseries/continuous";
-		 basePath = basePath + "/processor" + String(continuousInfo[i].processorId) + "_" + String(continuousInfo[i].sourceId);
+		 basePath = basePath + "/processor" + String(continuousInfo[i].processorId) + "_" + String(continuousInfo[i].sourceId) + "." + String(continuousInfo[i].sourceSubIdx);
 		 if (createGroupIfDoesNotExist(basePath)) return false;
 		 basePath = basePath + "/recording" + String(recordingNumber);
 		 if (createGroup(basePath)) return false;
@@ -146,11 +146,7 @@ int NWBFile::createFileStructure()
 		 }
 		 spikeInfoStructs.add(spikeInfo[i]);
 		 numSpikes.add(0);
-		 if (spikeMaxSize < (spikeInfo[i].nChannels * spikeInfo[i].nSamplesPerSpike))
-		 {
-			 spikeMaxSize = (spikeInfo[i].nChannels * spikeInfo[i].nSamplesPerSpike);
-			 transformBlock.malloc(spikeMaxSize);
-		 }
+
 	 }
 
 	 NWBRecordingInfo singleInfo;
@@ -271,33 +267,30 @@ int NWBFile::createFileStructure()
 	 CHECK_ERROR(continuousDataSetsTS[datasetID]->writeDataBlock(nSamples, F64, data));
  }
 
- void NWBFile::writeSpike(int electrodeId, const uint16* data, uint64 timestamp)
+ void NWBFile::writeSpike(int electrodeId, const int16* data, double timestampSec)
  {
 	 if (!spikeDataSets[electrodeId])
 		 return;
 	 int totValues = spikeInfoStructs[electrodeId].nChannels * spikeInfoStructs[electrodeId].nSamplesPerSpike;
-	 for (int i = 0; i < totValues; i++)
-		 transformBlock[i] = data[i] - 32768;
-	 CHECK_ERROR(spikeDataSets[electrodeId]->writeDataBlock(1, I16, transformBlock));
-	 double timestampSec = timestamp / spikeInfoStructs[electrodeId].sampleRate;
-	 CHECK_ERROR(spikeDataSetsTS[electrodeId]->writeDataBlock(1, U64, &timestampSec));
+	 CHECK_ERROR(spikeDataSets[electrodeId]->writeDataBlock(1, I16, data));
+	 CHECK_ERROR(spikeDataSetsTS[electrodeId]->writeDataBlock(1, F64, &timestampSec));
 	 numSpikes.set(electrodeId, numSpikes[electrodeId] + 1);
 
  }
 
- void NWBFile::writeTTLEvent(int channel, int id, uint8 source, uint64 timestamp)
+ void NWBFile::writeTTLEvent(int channel, int id, uint8 source, double timestampSec)
  {
 	 int8 data = id != 0 ? channel : -channel;
 	 CHECK_ERROR(eventsDataSet->writeDataBlock(1, I8, &data));
-	 CHECK_ERROR(eventsDataSetTS->writeDataBlock(1, U64, &timestamp));
+	 CHECK_ERROR(eventsDataSetTS->writeDataBlock(1, F64, &timestampSec));
 	 CHECK_ERROR(eventsControlDataSet->writeDataBlock(1, U8, &source));
 	 numEvents += 1;
  }
 
- void NWBFile::writeMessage(const char* msg, uint64 timestamp)
+ void NWBFile::writeMessage(const char* msg, double timestampSec)
  {
 	 CHECK_ERROR(messagesDataSet->writeDataBlock(1, STR, msg));
-	 CHECK_ERROR(messagesDataSetTS->writeDataBlock(1, U64, &timestamp));
+	 CHECK_ERROR(messagesDataSetTS->writeDataBlock(1, F64, &timestampSec));
 	 numMessages += 1;
  }
  

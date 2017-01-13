@@ -36,6 +36,7 @@ namespace NWBRecording
 		float bitVolts;
 		int processorId;
 		int sourceId;
+		int sourceSubIdx;
 		int nChannels;
 		int nSamplesPerSpike;
 		float sampleRate;
@@ -51,9 +52,9 @@ namespace NWBRecording
 		void stopRecording();
 		void writeData(int datasetID, int channel, int nSamples, const int16* data);
 		void writeTimestamps(int datasetID, int nSamples, const double* data);
-		void writeSpike(int electrodeId, const uint16* data, uint64 timestamp);
-		void writeTTLEvent(int channel, int id, uint8 source, uint64 timestamp);
-		void writeMessage(const char* msg, uint64 timestamp);
+		void writeSpike(int electrodeId, const int16* data, double timestampSec);
+		void writeTTLEvent(int channel, int id, uint8 source, double timestampSec);
+		void writeMessage(const char* msg, double timestampSec);
 		String getFileName() override;
 		void setXmlText(const String& xmlText);
 
@@ -87,9 +88,6 @@ namespace NWBRecording
 		uint64 numMessages;
 
 		ScopedPointer<HDF5RecordingData> eventsControlDataSet;
-
-		HeapBlock<int16> transformBlock;
-		int spikeMaxSize;
 
 		const String* xmlText;
 		const String identifierText;

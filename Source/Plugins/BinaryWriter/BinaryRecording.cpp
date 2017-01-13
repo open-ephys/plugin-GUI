@@ -329,7 +329,7 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	}
 }
 
-void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text)
+void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text)
 {
 	writeMessage(text, sourceID, 255, timestamp);
 }

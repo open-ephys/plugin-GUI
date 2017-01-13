@@ -55,7 +55,7 @@ public:
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
-	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text);
+	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float sourceSampleRate, String text) override;
 
     static RecordEngineManager* getEngineManager();
 

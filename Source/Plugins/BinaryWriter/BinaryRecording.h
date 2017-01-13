@@ -47,11 +47,11 @@ namespace BinaryRecordingEngine
 		void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 		void closeFiles() override;
 		void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-		void writeEvent(int eventType, const MidiMessage& event) override;
+		void writeEvent(int eventIndex, const MidiMessage& event) override;
 		void resetChannels() override;
 		void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 		void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
-		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text);
+		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text) override;
 
 		static RecordEngineManager* getEngineManager();
 

@@ -405,7 +405,7 @@ void OriginalRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	}
 }
 
-void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, String text)
+void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text)
 {
 	writeMessage(text, sourceID, 255, timestamp);
 }

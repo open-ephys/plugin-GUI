@@ -23,6 +23,9 @@
 
 #include "RecordThread.h"
 #include "RecordEngine.h"
+#include "../../AccessClass.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
+#include "RecordNode.h"
 
 #define EVERY_ENGINE for(int eng = 0; eng < m_engineArray.size(); eng++) m_engineArray[eng]
 
@@ -140,9 +143,11 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		if (SystemEvent::getBaseType(event) == SYSTEM_EVENT)
 		{
 			uint16 sourceID = SystemEvent::getSourceID(event);
-			uint16 subprocIdx = SystemEvent::getSubProcessorIdx(event);
+			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
 			uint64 timestamp = SystemEvent::getTimestamp(event);
-			EVERY_ENGINE->writeTimestampSyncText(sourceID, subprocIdx, timestamp, SystemEvent::getSyncText(event));
+			EVERY_ENGINE->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
+				AccessClass::getProcessorGraph()->getRecordNode()->getSourceTimestamp(sourceID, subProcIdx),
+				SystemEvent::getSyncText(event));
 		}
 		else
 			EVERY_ENGINE->writeEvent(events[ev]->getExtra(), events[ev]->getData());

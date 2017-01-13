@@ -66,13 +66,14 @@
 		 {
 			 int recordedChan = procInfo.recordedChannels[chan];
 			 int realChan = getRealChannel(recordedChan);
-			 Channel* channelInfo = getChannel(realChan);
-			 int sourceId = channelInfo->sourceNodeId;
+			 const DataChannel* channelInfo = getDataChannel(realChan);
+			 int sourceId = channelInfo->getSourceNodeID();
+			 int sourceSubIdx = channelInfo->getSubProcessorIdx();
 			 int nInfoArrays = continuousInfo.size();
 			 bool found = false;
 			 for (int i = lastId; i < nInfoArrays; i++)
 			 {
-				 if (sourceId == continuousInfo[i].sourceId)
+				 if (sourceId == continuousInfo[i].sourceId && sourceSubIdx == continuousInfo[i].sourceSubIdx)
 				 {
 					 //A dataset for the current processor from the current source is already present
 					 writeChannelIndexes.set(recordedChan, continuousInfo[i].nChannels);
@@ -85,12 +86,13 @@
 			 if (!found) //a new dataset must be created
 			 {
 				 NWBRecordingInfo recInfo;
-				 recInfo.bitVolts = channelInfo->bitVolts;
+				 recInfo.bitVolts = channelInfo->getBitVolts();
 				 recInfo.nChannels = 1;
 				 recInfo.processorId = procInfo.processorId;
-				 recInfo.sampleRate = channelInfo->sampleRate;
-				 recInfo.sourceName = "processor_(" + String(sourceId) + ")"; //TODO: add a way to get the actual processor name
+				 recInfo.sampleRate = channelInfo->getSampleRate();
+				 recInfo.sourceName = "processor: " + channelInfo->getSourceName() + " (" + String(sourceId) + "." + String(sourceSubIdx) + ")";
 				 recInfo.sourceId = sourceId;
+				 recInfo.sourceSubIdx = sourceSubIdx;
 				 recInfo.spikeElectrodeName = " ";
 				 recInfo.nSamplesPerSpike = 0;
 				 continuousInfo.add(recInfo);
@@ -151,7 +153,7 @@
 		 tsBuffer.malloc(size);
 	 }
 
-	 double multFactor = 1 / (float(0x7fff) * getChannel(realChannel)->bitVolts);
+	 double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	 FloatVectorOperations::copyWithMultiply(scaledBuffer.getData(), buffer, multFactor, size);
 	 AudioDataConverters::convertFloatToInt16LE(scaledBuffer.getData(), intBuffer.getData(), size);
 
@@ -163,7 +165,7 @@
 	 if (writeChannelIndexes[writeChannel] == 0)
 	 {
 		 int64 baseTS = getTimestamp(writeChannel);
-		 double fs = getChannel(realChannel)->sampleRate;
+		 double fs = getDataChannel(realChannel)->getSampleRate();
 		 //Let's hope that the compiler is smart enough to vectorize this. 
 		 for (int i = 0; i < size; i++)
 		 {
@@ -174,43 +176,53 @@
 		 
  }
  
-void NWBRecordEngine::writeEvent(int eventType, const MidiMessage& event, int64 timestamp) 
+void NWBRecordEngine::writeEvent(int eventIndex, const MidiMessage& event) 
 {
-	const uint8* dataptr = event.getRawData();
-	if (eventType == GenericProcessor::TTL)
+	if (Event::getEventType(event) == EventChannel::TTL)
 	{
-		recordFile->writeTTLEvent(*(dataptr + 3), *(dataptr + 2), *(dataptr + 1), timestamp);
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, getEventChannel(eventIndex));
+		recordFile->writeTTLEvent(ttl->getChannel(), ttl->getState() ? 1 : 0, ttl->getSourceID() , double(ttl->getTimestamp()) / getEventChannel(eventIndex)->getSampleRate());
 	}
-	else if (eventType == GenericProcessor::MESSAGE)
+	else if (Event::getEventType(event) == EventChannel::TEXT)
 	{
-		recordFile->writeMessage((const char*)(dataptr + 6), timestamp);
+		TextEventPtr text = TextEvent::deserializeFromMessage(event, getEventChannel(eventIndex));
+		recordFile->writeMessage(text->getText().toUTF8(), double(text->getTimestamp()) / getEventChannel(eventIndex)->getSampleRate());
 	}
 }
 
-void NWBRecordEngine::registerSpikeSource(GenericProcessor* proc)
+void NWBRecordEngine::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float sourceSampleRate, String text)
 {
-	currentSpikeProc = proc->nodeId;
-	currentSpikeProcName = proc->getName();
+	recordFile->writeMessage(text.toUTF8(), double(timestamp) / sourceSampleRate);
 }
 
-void NWBRecordEngine::addSpikeElectrode(int index,const  SpikeRecordInfo* elec) 
+void NWBRecordEngine::addSpikeElectrode(int index,const  SpikeChannel* elec) 
 {
 	//Called during chain update by a processor that records spikes. Allows the RecordEngine to gather data about the electrode, which will usually
 	//be used in openfiles to be sent to startNewRecording so the electrode info is stored into the file.
 	NWBRecordingInfo info;
-	info.bitVolts = elec->bitVolts;
-	info.nChannels = elec->numChannels;
-	info.nSamplesPerSpike = MAX_NUMBER_OF_SPIKE_CHANNEL_SAMPLES; //TODO: forward this information properly through the chain at configuration.
-	info.processorId = currentSpikeProc;
-	info.sourceId = currentSpikeProc;
-	info.sampleRate = elec->sampleRate;
-	info.sourceName = currentSpikeProcName + "_(" + String(currentSpikeProc) + ")";
-	info.spikeElectrodeName = elec->name;
+	info.bitVolts = elec->getChannelBitVolts(0);
+	info.nChannels = elec->getNumChannels();
+	info.nSamplesPerSpike = elec->getTotalSamples();
+	info.processorId = elec->getCurrentNodeID();
+	info.sourceId = elec->getSourceNodeID();
+	info.sourceSubIdx = elec->getSubProcessorIdx();
+	info.sampleRate = elec->getSampleRate();
+	info.sourceName = elec->getSourceName() + " (" + String(info.sourceId) + "." + String(info.sourceSubIdx) + ")";
+	info.spikeElectrodeName = elec->getName();
 	spikeInfo.add(info);
 }
-void NWBRecordEngine::writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) 
+void NWBRecordEngine::writeSpike(int electrodeIndex, const SpikeEvent* spike) 
 {
-	recordFile->writeSpike(electrodeIndex, spike.data, timestamp);
+	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
+
+	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
+	double timestamp = double(spike->getTimestamp()) / channel->getSampleRate();
+
+	double multFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(0));
+	FloatVectorOperations::copyWithMultiply(scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
+	AudioDataConverters::convertFloatToInt16LE(scaledBuffer.getData(), intBuffer.getData(), totalSamples);
+
+	recordFile->writeSpike(electrodeIndex, intBuffer.getData(), timestamp);
 }
 
 RecordEngineManager* NWBRecordEngine::getEngineManager()
