@@ -523,6 +523,7 @@ bool compareIdentifierStrings(const String& identifier, const String& compareWit
 			i2++;
 
 		} while (!match);
+		i1++;
 	}
 	if (i2 < n2) return false;
 	else return true;
