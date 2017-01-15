@@ -45,22 +45,22 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 
 //MetaDataDescriptor
 
-MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d, String dm)
-	: m_name(n), m_description(d), m_descriptor(dm), m_type(t), m_length(length)
+MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d, String id)
+	: m_name(n), m_description(d), m_identifier(id), m_type(t), m_length(length)
 {}
 
 MetaDataDescriptor::~MetaDataDescriptor() {};
 
 MetaDataDescriptor::MetaDataDescriptor(const MetaDataDescriptor& other)
 	:ReferenceCountedObject(),
-	m_name(other.m_name), m_descriptor(other.m_descriptor), m_description(other.m_description),
+	m_name(other.m_name), m_identifier(other.m_identifier), m_description(other.m_description),
 	m_type(other.m_type), m_length(other.m_length)
 {}
 
 MetaDataDescriptor& MetaDataDescriptor::operator=(const MetaDataDescriptor& other)
 {
 	m_name = other.m_name;
-	m_descriptor = other.m_descriptor;
+	m_identifier = other.m_identifier;
 	m_description = other.m_description;
 	m_type = other.m_type;
 	m_length = other.m_length;
@@ -72,7 +72,7 @@ unsigned int MetaDataDescriptor::getLength() const { return m_length; }
 size_t MetaDataDescriptor::getDataSize() const { return m_length*getTypeSize(m_type); }
 String MetaDataDescriptor::getName() const { return m_name; }
 String MetaDataDescriptor::getDescription() const { return m_description; }
-String MetaDataDescriptor::getDescriptor() const { return m_descriptor; }
+String MetaDataDescriptor::getIdentifier() const { return m_identifier; }
 
 bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
 {
@@ -306,14 +306,13 @@ const int MetaDataInfoObject::getMetaDataCount() const
 	return m_metaDataDescriptorArray.size();
 }
 
-int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor, bool fullDescriptor) const
+int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier) const
 {
 	int nMetaData = m_metaDataDescriptorArray.size();
 	for (int i = 0; i < nMetaData; i++)
 	{
 		MetaDataDescriptorPtr md = m_metaDataDescriptorArray[i];
-		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || 
-			(fullDescriptor ? descriptor.equalsIgnoreCase(md->getDescriptor()) : StringArray::fromTokens(md->getDescriptor(),".","").contains(descriptor,true))))
+		if (md->getType() == type && md->getLength() == length && compareIdentifierStrings(identifier,md->getIdentifier()))
 			return i;
 	}
 	return -1;
@@ -368,7 +367,7 @@ int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes typ
 	for (int i = 0; i < nMetaData; i++)
 	{
 		MetaDataDescriptorPtr md = m_eventMetaDataDescriptorArray[i];
-		if (md->getType() == type && md->getLength() == length && (descriptor.isEmpty() || descriptor.equalsIgnoreCase(md->getDescriptor())))
+		if (md->getType() == type && md->getLength() == length && compareIdentifierStrings(descriptor,md->getIdentifier()))
 			return i;
 	}
 	return -1;
@@ -489,3 +488,42 @@ template PLUGIN_API void MetaDataValue::getValue<int64>(Array<int64>&) const;
 template PLUGIN_API void MetaDataValue::getValue<uint64>(Array<uint64>&) const;
 template PLUGIN_API void MetaDataValue::getValue<float>(Array<float>&) const;
 template PLUGIN_API void MetaDataValue::getValue<double>(Array<double>&) const;
+
+//Helper function to compare identifier strings
+bool compareIdentifierStrings(const String& identifier, const String& compareWith)
+{
+	if (identifier.isEmpty()) return true;
+
+	int i1 = 0, i2 = 0;
+	StringArray s1 = StringArray::fromTokens(identifier, ".", "");
+	StringArray s2 = StringArray::fromTokens(compareWith, ".", "");
+	int n1 = s1.size();
+	int n2 = s2.size();
+
+	while (i1 < n1 && i2 < n2)
+	{
+		bool wild = false;
+		if (s1[i1] == "*")
+		{
+			do
+			{
+				i1++;
+				if (i1 >= n1) return true;
+			} while (s1[i1] != "*");
+				wild = true;
+		}
+		bool match = false;
+		do
+		{
+			if (i2 >= n2) return false;
+			if (s1[i1].equalsIgnoreCase(s2[i2]))
+				match = true;
+			else if (!wild)
+				return false;
+			i2++;
+
+		} while (!match);
+	}
+	if (i2 < n2) return false;
+	else return true;
+}

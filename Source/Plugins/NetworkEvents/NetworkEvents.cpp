@@ -229,7 +229,7 @@ void NetworkEvents::createEventChannels()
 	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MESSAGE_LENGTH, CoreServices::getGlobalSampleRate(), this);
 	chan->setName("Network messages");
 	chan->setDescription("Messages received through the network events module");
-	chan->setDescriptor("genericevent.network");
+	chan->setIdentifier("external.network.rawData");
 	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::INT64, 1, "Software timestamp",
 		"OS high resolution timer count when the event was received", "timestamp.software"));
 	eventChannelArray.add(chan);

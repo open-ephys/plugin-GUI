@@ -146,16 +146,18 @@ void PhaseDetector::updateSettings()
 		EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
 		ev->setName("Phase detector output " + String(i + 1));
 		ev->setDescription("Triggers when the input signal mets a given phase condition");
+		String identifier = "dataderived.phase.";
 		String typeDesc;
 		switch (modules[i].type)
 		{
-		case PEAK: typeDesc = "Positive peak"; break;
-		case FALLING_ZERO: typeDesc = "Zero crossing with negative slope"; break;
-		case TROUGH: typeDesc = "Negative peak"; break;
-		case RISING_ZERO: typeDesc = "Zero crossing with positive slope"; break;
+		case PEAK: typeDesc = "Positive peak"; identifier += "peak.positve";  break;
+		case FALLING_ZERO: typeDesc = "Zero crossing with negative slope"; identifier += "zero.negative";  break;
+		case TROUGH: typeDesc = "Negative peak"; identifier += "peak.negative"; break;
+		case RISING_ZERO: typeDesc = "Zero crossing with positive slope"; identifier += "zero.positive"; break;
 		default: typeDesc = "No phase selected"; break;
 		}
-		MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "string.extraInfo");
+		ev->setIdentifier(identifier);
+		MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
 		MetaDataValue mv(md);
 		mv.setValue(typeDesc);
 		ev->addMetaData(md, mv);

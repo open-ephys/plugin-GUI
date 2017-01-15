@@ -113,8 +113,8 @@ public:
 	/** Gets the Channel Info Object description */
 	String getDescription() const;
 
-	/** Sets a machine-readable data descriptor (eg.: data.continuous.headstage ) */
-	void setDescriptor(String descriptor);
+	/** Sets a machine-readable data identifier (eg.: sourcedata.continuous ) */
+	void setIdentifier(String identifier);
 
 	String getDescriptor() const;
 protected:
@@ -122,7 +122,7 @@ protected:
 	virtual void setDefaultNameAndDescription() = 0;
 private:
 	String m_name;
-	String m_descriptor;
+	String m_identifier;
 	String m_description;
 
 };
@@ -416,11 +416,11 @@ class PLUGIN_API ConfigurationObject :
 {
 public:
 	/**Default constructor
-	@param descriptor the descriptor field of NamedInfoObject, required for config objects
+	@param identifier the identifier field of NamedInfoObject, required for config objects
 	@param source The source processor
 	@param subproc Optional. The source subprocessor index
 	*/
-	ConfigurationObject(String descriptor, GenericProcessor* source, uint16 subproc = 0);
+	ConfigurationObject(String identifier, GenericProcessor* source, uint16 subproc = 0);
 
 	/** Sets if the configuration should be recorded or not.
 	Similar to the events, this does not prevent the configuration data to be recorded, but rather states

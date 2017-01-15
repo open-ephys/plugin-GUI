@@ -62,12 +62,12 @@ public:
 	@param type The primitive type this metadata field will hold
 	@param length The length of the data. 1 for single value or mroe for arrays.
 	@param name The human-readable name of this metadata field
-	@param humanDescription A human-readable description of what this field represents
-	@param machineDescriptor A simple machine-readable name for this metadata value
+	@param description A human-readable description of what this field represents
+	@param identifier A simple machine-readable name for this metadata value
 
 	name and humanDescription will be saved in most data formats for latter reference
 	*/
-	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String humanDescription, String machineDescriptor);
+	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String description, String identifier);
 	~MetaDataDescriptor();
 	MetaDataDescriptor(const MetaDataDescriptor& other);
 	MetaDataDescriptor& operator=(const MetaDataDescriptor& other);
@@ -82,8 +82,8 @@ public:
 	String getName() const;
 	/** Gets the human-readable description of the field */
 	String getDescription() const;
-	/** Gets the machine-readable descriptor for this field */
-	String getDescriptor() const;
+	/** Gets the machine-readable identifier for this field */
+	String getIdentifier() const;
 
 	bool isEqual(const MetaDataDescriptor& other) const;
 	bool operator==(const MetaDataDescriptor& other) const;
@@ -92,7 +92,7 @@ public:
 private:
 	MetaDataDescriptor() = delete;
 	String m_name;
-	String m_descriptor;
+	String m_identifier;
 	String m_description;
 	MetaDataTypes m_type;
 	unsigned int m_length;
@@ -176,7 +176,7 @@ public:
 	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
 	const MetaDataValue* getMetaDataValue(int index) const;
-	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty, bool fullDescriptor = true) const;
+	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
 	const int getMetaDataCount() const;
 protected:
 	MetaDataDescriptorArray m_metaDataDescriptorArray;
@@ -203,7 +203,7 @@ public:
 	void addEventMetaData(MetaDataDescriptor* desc);
 	void addEventMetaData(const MetaDataDescriptor& desc);
 	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
-	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String descriptor = String::empty) const;
+	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
 	size_t getTotalEventMetaDataSize() const;
 	const int getEventMetaDataCount() const;
 protected:
@@ -222,5 +222,7 @@ protected:
 	MetaDataValueArray m_metaDataValues;
 };
 
+//Helper function to compare identifier strings
+bool compareIdentifierStrings(const String& identifier, const String& compareWith);
 
 #endif

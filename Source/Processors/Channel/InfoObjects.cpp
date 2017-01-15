@@ -93,14 +93,14 @@ String NamedInfoObject::getName() const
 	return m_name;
 }
 
-void NamedInfoObject::setDescriptor(String descriptor)
+void NamedInfoObject::setIdentifier(String identifier)
 {
-	m_descriptor = descriptor;
+	m_identifier = identifier;
 }
 
 String NamedInfoObject::getDescriptor() const
 {
-	return m_descriptor;
+	return m_identifier;
 }
 
 void NamedInfoObject::setDescription(String description)
@@ -226,28 +226,24 @@ void DataChannel::setDefaultNameAndDescription()
 {
 	String name;
 	String description;
-	String descriptor = "continuous.";
 	switch (m_type)
 	{
 	case HEADSTAGE_CHANNEL: 
 		name = "CH"; 
 		description = "Headstage";
-		descriptor += "headstage";
 		break;
 	case AUX_CHANNEL: 
 		name = "AUX "; 
 		description = "Auxiliar";
-		descriptor += "aux";
 		break;
 	case ADC_CHANNEL: 
 		name = "ADC "; 
 		description = "ADC";
-		descriptor = "adc";
 		break;
 	default: 
 		setName("INVALID");
 		setDescription("Invalid Channel");
-		setDescriptor("invalid");
+		setIdentifier("invalid");
 		return;
 		break;
 	}
@@ -257,7 +253,7 @@ void DataChannel::setDefaultNameAndDescription()
 	name += String(getSourceTypeIndex());
 	setName(name);
 	setDescription(description + " data channel");
-	setDescriptor(descriptor);
+	setIdentifier("genericdata.continuous");
 }
 
 //EventChannel
@@ -354,7 +350,7 @@ void EventChannel::setDefaultNameAndDescription()
 	default: 
 		setName("INVALID");
 		setDescription("Invalid channel");
-		setDescriptor("invalid");
+		setIdentifier("invalid");
 		return;
 		break;
 	}
@@ -366,12 +362,10 @@ void EventChannel::setDefaultNameAndDescription()
 	if (m_type == TTL)
 	{
 		setDescription("TTL data input");
-		setDescriptor("genericevent.ttl");
 	}
 	else if (m_type == TEXT)
 	{
 		setDescription("Text event");
-		setDescriptor("genericevent.text");
 	}
 	else
 	{
@@ -379,8 +373,8 @@ void EventChannel::setDefaultNameAndDescription()
 			setDescription(name + " data array");
 		else
 			setDescription(name + " single value");
-		setDescriptor("genericevent." + name.toLowerCase());
 	}
+	setIdentifier("genericevent");
 }
 
 //SpikeChannel
@@ -502,38 +496,34 @@ void SpikeChannel::setDefaultNameAndDescription()
 {
 	String name;
 	String description;
-	String descriptor = "spikesource.";
 	switch (m_type)
 	{
 	case SINGLE: 
 		name = "SE ";
 		description = "Single electrode";
-		descriptor += "single";
 		break;
 	case STEREOTRODE: 
 		name = "ST "; 
 		description = "Stereotrode";
-		descriptor += "stereotrode";
 		break;
 	case TETRODE: 
 		name = "TT ";
 		description = "Tetrode";
-		descriptor += "tetrode";
 		break;
 	default: name = "INVALID "; break;
 	}
 	name += String(" p") + String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx()) + String(" n") + String(getSourceTypeIndex());
 	setName(name);
 	setDescription(description + " spike data source");
-	setDescriptor(descriptor);
+	setIdentifier("spikesource");
 }
 
 //ConfigurationObject
-ConfigurationObject::ConfigurationObject(String descriptor, GenericProcessor* source, uint16 subproc)
+ConfigurationObject::ConfigurationObject(String identifier, GenericProcessor* source, uint16 subproc)
 	: SourceProcessorInfo(source, subproc)
 {
 	setDefaultNameAndDescription();
-	setDescriptor(descriptor);
+	setIdentifier(identifier);
 }
 
 void ConfigurationObject::setShouldBeRecorded(bool status)

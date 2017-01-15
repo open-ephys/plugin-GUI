@@ -66,8 +66,8 @@ void SerialInput::createEventChannels()
 	EventChannel* chan = new EventChannel(EventChannel::UINT8_ARRAY, 1, MAX_MSG_SIZE, CoreServices::getGlobalSampleRate(), this);
 	chan->setName("Serial message");
 	chan->setDescription("Data received via serial port");
-	chan->setDescriptor("buffer.rawData");
-	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT64, 1, "Read Bytes", "Number of actual read bytes in the buffer", "buffer.size"));
+	chan->setIdentifier("external.serial.rawData");
+	chan->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT64, 1, "Read Bytes", "Number of actual read bytes in the buffer", "eventInfo.data.size"));
 	eventChannelArray.add(chan);
 }
 

@@ -185,7 +185,7 @@ void SourceNode::createEventChannels()
 				EventChannel* chan = new EventChannel(EventChannel::TTL, nChans, 0, dataThread->getSampleRate(i), this, i);
 				chan->setName(getName() + " source TTL events input");
 				chan->setDescription("TTL Events coming from the hardware source processor \"" + getName() + "\"");
-				chan->setDescriptor("sourceevent.ttl");
+				chan->setIdentifier("sourceevent");
 				eventChannelArray.add(chan);
 				ttlChannels.add(chan);
 			}
