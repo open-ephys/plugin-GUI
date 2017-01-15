@@ -163,6 +163,8 @@ class PLUGIN_API TTLEvent
 public:
 	TTLEvent(const TTLEvent& other);
 	~TTLEvent();
+	TTLEvent& operator=(const TTLEvent&) = delete;
+
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	/** Gets the state true ='1' false = '0'*/
@@ -188,6 +190,8 @@ class PLUGIN_API TextEvent
 public:
 	TextEvent(const TextEvent& other);
 	~TextEvent();
+	TextEvent& operator=(const TextEvent&) = delete;
+
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 	String getText() const;
 
@@ -209,6 +213,8 @@ class PLUGIN_API BinaryEvent
 public:
 	BinaryEvent(const BinaryEvent& other);
 	~BinaryEvent();
+	BinaryEvent& operator=(const BinaryEvent&) = delete;
+
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const void* getBinaryDataPointer() const;
@@ -254,7 +260,14 @@ public:
 		friend SpikeEvent;
 	public:
 		SpikeBuffer(const SpikeChannel* channelInfo);
-		float* operator[] (const int index);
+		void set(const int chan, const int samp, const float value);
+		void set(const int index, const float value);
+		void set(const int chan, const float* source, const int n);
+		void set(const int chan, const int start, const float* source, const int n);
+		float get(const int chan, const int samp);
+		float get(const int index);
+		//Caution advised with this method, as the pointer can become inaccessible
+		const float* getRawPointer();
 	private:
 		SpikeBuffer() = delete;
 		HeapBlock<float> m_data;
@@ -264,6 +277,8 @@ public:
 	};
 	SpikeEvent(const SpikeEvent& other);
 	~SpikeEvent();
+	SpikeEvent& operator=(const SpikeEvent&) = delete;
+
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 
 	const SpikeChannel* getChannelInfo() const;

@@ -1003,19 +1003,80 @@ SpikeEvent::SpikeBuffer::SpikeBuffer(const SpikeChannel* channelInfo)
 	m_data.malloc(m_nChans*m_nSamps);
 }
 
-float* SpikeEvent::SpikeBuffer::operator[](const int index)
+void  SpikeEvent::SpikeBuffer::set(const int chan, const int samp, const float value)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return;
+	}
+	jassert(chan >= 0 && samp >= 0 && chan < m_nChans && samp < m_nSamps);
+	m_data[samp + chan*m_nSamps] = value;
+}
+
+void  SpikeEvent::SpikeBuffer::set(const int index, const float value)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return;
+	}
+	jassert(index >= 0 && index < m_nChans * m_nSamps);
+	m_data[index] = value;
+}
+
+void  SpikeEvent::SpikeBuffer::set(const int chan, const float* source, const int n)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return;
+	}
+	jassert(chan >= 0 && chan < m_nChans && n <= m_nSamps);
+	memcpy(m_data.getData(), source, n*sizeof(float));
+}
+
+void  SpikeEvent::SpikeBuffer::set(const int chan, const int start, const float* source, const int n)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return;
+	}
+	jassert(chan >= 0 && chan < m_nChans && (n + start) <= m_nSamps);
+	memcpy(m_data.getData() + start, source, n*sizeof(float));
+}
+
+float SpikeEvent::SpikeBuffer::get(const int chan, const int samp)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return 0;
+	}
+	jassert(chan >= 0 && samp >= 0 && chan < m_nChans && samp < m_nSamps);
+	return m_data[chan*m_nSamps + samp];
+}
+
+float SpikeEvent::SpikeBuffer::get(const int index)
+{
+	if (!m_ready)
+	{
+		jassertfalse;
+		return;
+	}
+	jassert(index >= 0 && index < m_nChans * m_nSamps);
+	return m_data[index];
+}
+
+const float* SpikeEvent::SpikeBuffer::getRawPointer()
 {
 	if (!m_ready)
 	{
 		jassertfalse;
 		return nullptr;
 	}
-	if (index < 0 || index >= m_nChans)
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	return m_data.getData() + (index * m_nSamps);
+	return m_data.getData();
 }
 
 //Template definitions

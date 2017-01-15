@@ -365,14 +365,12 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
 
     const int chan = *(electrodes[electrodeNumber]->channels + currentChannel);
 
-    // cycle through buffer
-	float* data = s[currentChannel];
     if (isChannelActive (electrodeNumber, currentChannel))
     {
 		
         for (int sample = 0; sample < spikeLength; ++sample)
         {
-            data[sample] = getNextSample (*(electrodes[electrodeNumber]->channels+currentChannel));
+            s.set(currentChannel,sample, getNextSample (*(electrodes[electrodeNumber]->channels+currentChannel)));
             ++sampleIndex;
 
             //std::cout << currentIndex << std::endl;
@@ -383,7 +381,7 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
         for (int sample = 0; sample < spikeLength; ++sample)
         {
             // insert a blank spike if the
-           data[sample] = 0;
+			s.set(currentChannel, sample, 0);
             ++sampleIndex;
             //std::cout << currentIndex << std::endl;
         }
