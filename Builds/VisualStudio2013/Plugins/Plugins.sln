@@ -57,6 +57,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common Libs", "Common Libs"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenEphysHDF5Lib", "CommonLibs\OpenEphysHDF5Lib\OpenEphysHDF5Lib.vcxproj", "{F250DB70-6E3E-408C-BD9E-1483D574499D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA470E62-74F7-4AD0-BAF9-D88B68882D43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms

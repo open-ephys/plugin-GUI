@@ -1063,7 +1063,7 @@ float SpikeEvent::SpikeBuffer::get(const int index)
 	if (!m_ready)
 	{
 		jassertfalse;
-		return;
+		return 0;
 	}
 	jassert(index >= 0 && index < m_nChans * m_nSamps);
 	return m_data[index];
