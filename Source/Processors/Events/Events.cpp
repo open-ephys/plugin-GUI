@@ -37,18 +37,18 @@ EventType EventBase::getBaseType(const MidiMessage& msg)
 	return static_cast<EventType>((*data)&0x7F);
 }
 
-uint64 EventBase::getTimestamp() const
+int64 EventBase::getTimestamp() const
 {
 	return m_timestamp;
 }
 
-uint64 EventBase::getTimestamp(const MidiMessage& msg)
+int64 EventBase::getTimestamp(const MidiMessage& msg)
 {
 	const uint8* data = msg.getRawData();
-	return *reinterpret_cast<const uint64*>(data + 8);
+	return *reinterpret_cast<const int64*>(data + 8);
 }
 
-EventBase::EventBase(EventType type, uint64 timestamp, uint16 sourceID, uint16 sourceSubIdx, uint16 sourceIndex)
+EventBase::EventBase(EventType type, int64 timestamp, uint16 sourceID, uint16 sourceSubIdx, uint16 sourceIndex)
 	: m_baseType(type), m_timestamp(timestamp), m_sourceID(sourceID), m_sourceSubIdx(sourceSubIdx), m_sourceIndex(sourceIndex)
 {}
 
@@ -134,7 +134,7 @@ SystemEventType SystemEvent::getSystemEventType(const MidiMessage& msg)
 	return static_cast<SystemEventType>(*(data + 1));
 }
 
-size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, uint32 nSamples)
+size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, int64 timestamp, uint32 nSamples)
 {
 	/** Event packet structure
 	* SYSTEM_EVENT - 1 byte
@@ -153,12 +153,12 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, const Gen
 	*reinterpret_cast<uint16*>(data.getData() + 4) = subProcessorIdx;
 	data[6] = 0;
 	data[7] = 0;
-	*reinterpret_cast<uint64*>(data.getData() + 8) = timestamp;
+	*reinterpret_cast<int64*>(data.getData() + 8) = timestamp;
 	*reinterpret_cast<uint32*>(data.getData() + 16) = nSamples;
 	return eventSize;
 }
 
-size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, bool softwareTime)
+size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, int64 timestamp, bool softwareTime)
 {
 	/** Event packet structure
 	* SYSTEM_EVENT - 1 byte
@@ -195,7 +195,7 @@ size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, const Gener
 	data[1] = TIMESTAMP_SYNC_TEXT;
 	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
 	*reinterpret_cast<uint16*>(data.getData() + 4) = subProcessorIdx;
-	*reinterpret_cast<uint64*>(data.getData() + 8) = timestamp;
+	*reinterpret_cast<int64*>(data.getData() + 8) = timestamp;
 	memcpy(data.getData() + 16, eventString.toUTF8(), textSize);
 	return dataSize;
 }
@@ -234,7 +234,7 @@ EventChannel::EventChannelTypes Event::getEventType(const MidiMessage& msg)
 	return static_cast<EventChannel::EventChannelTypes>(*(data + 1));
 }
 
-Event::Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel)
+Event::Event(const EventChannel* channelInfo, int64 timestamp, uint16 channel)
 	: EventBase(PROCESSOR_EVENT, timestamp, channelInfo->getSourceNodeID(), channelInfo->getSubProcessorIdx(), channelInfo->getSourceIndex()),
 	m_channel(channel),
 	m_channelInfo(channelInfo),
@@ -277,7 +277,7 @@ bool Event::serializeHeader(EventChannel::EventChannelTypes type, char* buffer, 
 	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeID();
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
-	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
+	*(reinterpret_cast<int64*>(buffer + 8)) = m_timestamp;
 	*(reinterpret_cast<uint16*>(buffer + 16)) = m_channel;
 	return true;
 }
@@ -302,7 +302,7 @@ bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventCha
 
 //TTLEvent
 
-TTLEvent::TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* eventData)
+TTLEvent::TTLEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* eventData)
 	: Event(channelInfo, timestamp, channel)
 {
 	size_t size = m_channelInfo->getDataSize();
@@ -346,7 +346,7 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel)
+TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, int64 timestamp, const void* eventData, int dataSize, uint16 channel)
 {
 
 	if (!createChecks(channelInfo, EventChannel::TTL, channel))
@@ -364,7 +364,7 @@ TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 tim
 	return new TTLEvent(channelInfo, timestamp, channel, eventData);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
+TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, int64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
 
 	if (!createChecks(channelInfo, EventChannel::TTL, channel, metaData))
@@ -433,7 +433,7 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 		return nullptr;
 	}
 
-	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	int64 timestamp = *(reinterpret_cast<const int64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
 	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo, timestamp, channel, (buffer + EVENT_BASE_SIZE));
@@ -451,7 +451,7 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 }
 
 //TextEvent
-TextEvent::TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& text)
+TextEvent::TextEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const String& text)
 	: Event(channelInfo, timestamp, channel),
 	m_text(text)
 {
@@ -484,7 +484,7 @@ void TextEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel)
+TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, int64 timestamp, const String& text, uint16 channel)
 {
 	if (!createChecks(channelInfo, EventChannel::TEXT, channel))
 	{
@@ -501,7 +501,7 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 
 	return new TextEvent(channelInfo, timestamp, channel, text);
 }
 
-TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel)
+TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, int64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel)
 {
 	if (!createChecks(channelInfo, EventChannel::TEXT, channel, metaData))
 	{
@@ -568,7 +568,7 @@ TextEventPtr TextEvent::deserializeFromMessage(const MidiMessage& msg, const Eve
 		return nullptr;
 	}
 
-	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	int64 timestamp = *(reinterpret_cast<const int64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 	String text = String::fromUTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE), dataSize);
 
@@ -587,7 +587,7 @@ TextEventPtr TextEvent::deserializeFromMessage(const MidiMessage& msg, const Eve
 }
 
 //BinaryEvent
-BinaryEvent::BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* data, EventChannel::EventChannelTypes type)
+BinaryEvent::BinaryEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* data, EventChannel::EventChannelTypes type)
 	: Event(channelInfo, timestamp, channel),
 	m_type(type)
 {
@@ -647,7 +647,7 @@ void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const
 }
 
 template<typename T>
-BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel)
+BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, int64 timestamp, const T* data, int dataSize, uint16 channel)
 {
 	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
@@ -672,7 +672,7 @@ BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, u
 }
 
 template<typename T>
-BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
+BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, int64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel)
 {
 	EventChannel::EventChannelTypes type = getType<T>();
 	if (type == EventChannel::INVALID)
@@ -746,7 +746,7 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 		jassertfalse;
 		return nullptr;
 	}
-	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	int64 timestamp = *(reinterpret_cast<const int64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 
 	ScopedPointer<BinaryEvent> event = new BinaryEvent(channelInfo, timestamp, channel, (buffer + EVENT_BASE_SIZE), type);
@@ -764,7 +764,7 @@ BinaryEventPtr BinaryEvent::deserializeFromMessage(const MidiMessage& msg, const
 }
 
 //SpikeEvent
-SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data, uint16 sortedID)
+SpikeEvent::SpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, HeapBlock<float>& data, uint16 sortedID)
 	: EventBase(SPIKE_EVENT, timestamp, channelInfo->getSourceNodeID(), channelInfo->getSubProcessorIdx(), channelInfo->getSourceIndex()),
 	m_thresholds(thresholds),
 	m_channelInfo(channelInfo),
@@ -834,7 +834,7 @@ void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeID();
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getSubProcessorIdx();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getSourceIndex();
-	*(reinterpret_cast<uint64*>(buffer + 8)) = m_timestamp;
+	*(reinterpret_cast<int64*>(buffer + 8)) = m_timestamp;
 	*(reinterpret_cast<uint16*>(buffer + 16)) = m_sortedID;
 	int memIdx = SPIKE_BASE_SIZE;
 	for (int i = 0; i < m_thresholds.size(); i++)
@@ -846,7 +846,7 @@ void SpikeEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetaData(buffer + eventSize);
 }
 
-SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
+SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
 {
 	if (!dataSource.m_ready)
 	{
@@ -880,7 +880,7 @@ SpikeEvent* SpikeEvent::createBasicSpike(const SpikeChannel* channelInfo, uint64
 
 }
 
-SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID)
 {
 	if (!channelInfo)
 	{
@@ -899,7 +899,7 @@ SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint
 	
 }
 
-SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID, const MetaDataValueArray& metaData)
+SpikeEventPtr SpikeEvent::createSpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID, const MetaDataValueArray& metaData)
 {
 	if (!channelInfo)
 	{
@@ -973,7 +973,7 @@ SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const S
 		return nullptr;
 	}
 
-	uint64 timestamp = *(reinterpret_cast<const uint64*>(buffer + 8));
+	int64 timestamp = *(reinterpret_cast<const int64*>(buffer + 8));
 	uint16 sortedID = *(reinterpret_cast<const uint16*>(buffer + 16));
 	Array<float> thresholds;
 	thresholds.addArray(reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE), nChans);
@@ -1080,24 +1080,24 @@ const float* SpikeEvent::SpikeBuffer::getRawPointer()
 }
 
 //Template definitions
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, int64, const int8* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, int64, const uint8* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, int64, const int16* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, int64, const uint16* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, int64, const int32* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, int64, const uint32* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, int64, const int64* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, int64, const uint64* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, int64, const float* data, int, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, int64, const double* data, int, uint16);
 
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, uint64, const int8* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, uint64, const uint8* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, uint64, const int16* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, uint64, const uint16* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, uint64, const int32* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, uint64, const uint32* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, uint64, const int64* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, uint64, const uint64* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, uint64, const float* data, int, const MetaDataValueArray&, uint16);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, uint64, const double* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, int64, const int8* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, int64, const uint8* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, int64, const int16* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, int64, const uint16* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, int64, const int32* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, int64, const uint32* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int64>(const EventChannel*, int64, const int64* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint64>(const EventChannel*, int64, const uint64* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, int64, const float* data, int, const MetaDataValueArray&, uint16);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, int64, const double* data, int, const MetaDataValueArray&, uint16);

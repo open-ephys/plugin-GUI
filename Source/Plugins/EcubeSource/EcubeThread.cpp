@@ -54,7 +54,7 @@ public:
     HeapBlock<uint32_t, true> bit_conversion_tables;
     bool buf_timestamp_locked;
     unsigned long buf_timestamp;
-    uint64 buf_timestamp64;
+    int64 buf_timestamp64;
     unsigned long int_buf_size;
     DataFormat data_format;
     unsigned long sampletime_80mhz;

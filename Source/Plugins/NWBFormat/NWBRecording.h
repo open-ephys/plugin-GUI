@@ -41,7 +41,7 @@
 			void writeEvent(int eventIndex, const MidiMessage& event) override;
 			void addSpikeElectrode(int index,const  SpikeChannel* elec) override;
 			void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
-			void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float sourceSampleRate, String text) override;
+			void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text) override;
 			void resetChannels() override;
 			void setParameter(EngineParameter& parameter) override;
 			

@@ -2208,7 +2208,7 @@ int microSecondsToSpikeTimeBin(SorterSpikePtr s, float t, int ch)
 }
 
 
-SorterSpikeContainer::SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& spikedata, uint64 timestamp)
+SorterSpikeContainer::SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& spikedata, int64 timestamp)
 {
 	color[0] = color[1] = color[2] = 127;
 	pcProj[0] = pcProj[1] = 0;
@@ -2230,7 +2230,7 @@ const SpikeChannel* SorterSpikeContainer::getChannel() const
 	return chan;
 }
 
-uint64 SorterSpikeContainer::getTimestamp() const
+int64 SorterSpikeContainer::getTimestamp() const
 {
 	return timestamp;
 }

@@ -450,7 +450,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 								channel);
 							thresholds.add((int)*(electrode->thresholds + channel));
 						}
-						uint64 timestamp = getTimestamp(electrode->channels[0]) + peakIndex;
+						int64 timestamp = getTimestamp(electrode->channels[0]) + peakIndex;
 						SpikeEventPtr newSpike = SpikeEvent::createSpikeEvent(spikeChan, timestamp, thresholds, spikeData, 0);
 
                         // package spikes;

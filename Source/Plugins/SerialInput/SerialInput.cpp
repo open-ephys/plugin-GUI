@@ -129,7 +129,7 @@ bool SerialInput::disable()
 
 void SerialInput::process (AudioSampleBuffer&)
 {
-	uint64 timestamp = CoreServices::getGlobalTimestamp();
+	int64 timestamp = CoreServices::getGlobalTimestamp();
 	setTimestampAndSamples(timestamp, 0);
 
     int bytesAvailable = serial.available();

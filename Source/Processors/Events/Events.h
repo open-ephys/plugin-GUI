@@ -86,7 +86,7 @@ public:
 	virtual ~EventBase();
 	virtual void serialize(void* dstBuffer, size_t dstSize) const = 0;
 	EventType getBaseType() const;
-	uint64 getTimestamp() const;
+	int64 getTimestamp() const;
 	uint16 getSourceID() const;
 	uint16 getSubProcessorIdx() const;
 	uint16 getSourceIndex() const;
@@ -97,15 +97,15 @@ public:
 	static uint16 getSourceID(const MidiMessage& msg);
 	static uint16 getSubProcessorIdx(const MidiMessage& msg);
 	static uint16 getSourceIndex(const MidiMessage& msg);
-	static uint64 getTimestamp(const MidiMessage &msg);
+	static int64 getTimestamp(const MidiMessage &msg);
 protected:
-	EventBase(EventType type, uint64 timestamp, uint16 sourceID, uint16 subIdx, uint16 sourceIndex);
+	EventBase(EventType type, int64 timestamp, uint16 sourceID, uint16 subIdx, uint16 sourceIndex);
 	EventBase() = delete;
 
 	static bool compareMetaData(const MetaDataEventObject* channelInfo, const MetaDataValueArray& metaData);
 
 	const EventType m_baseType;
-	const uint64 m_timestamp;
+	const int64 m_timestamp;
 	const uint16 m_sourceID;
 	const uint16 m_sourceSubIdx;
 	const uint16 m_sourceIndex;
@@ -118,8 +118,8 @@ class PLUGIN_API SystemEvent
 	: public EventBase
 {
 public:
-	static size_t fillTimestampAndSamplesData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, uint32 nSamples);
-	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, uint64 timestamp, bool softwareTime = false);
+	static size_t fillTimestampAndSamplesData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, int64 timestamp, uint32 nSamples);
+	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, const GenericProcessor* proc, int16 subProcessorIdx, int64 timestamp, bool softwareTime = false);
 	static SystemEventType getSystemEventType(const MidiMessage& msg);
 	static uint32 getNumSamples(const MidiMessage& msg);
 	static String getSyncText(const MidiMessage& msg);
@@ -144,7 +144,7 @@ public:
 	static EventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 
 protected:
-	Event(const EventChannel* channelInfo, uint64 timestamp, uint16 channel);
+	Event(const EventChannel* channelInfo, int64 timestamp, uint16 channel);
 	Event() = delete;
 	bool serializeHeader(EventChannel::EventChannelTypes type, char* buffer, size_t dstSize) const;
 	static bool createChecks(const EventChannel* channelInfo, EventChannel::EventChannelTypes eventType, uint16 channel);
@@ -172,12 +172,12 @@ public:
 	
 	const void* getTTLWordPointer() const;
 
-	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, uint16 channel);
-	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, uint64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel);
+	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, int64 timestamp, const void* eventData, int dataSize, uint16 channel);
+	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, int64 timestamp, const void* eventData, int dataSize, const MetaDataValueArray& metaData, uint16 channel);
 	static TTLEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TTLEvent() = delete;
-	TTLEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* eventData);
+	TTLEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* eventData);
 
 	HeapBlock<char> m_data;
 	JUCE_LEAK_DETECTOR(TTLEvent);
@@ -195,12 +195,12 @@ public:
 	void serialize(void* dstBuffer, size_t dstSize) const override;
 	String getText() const;
 
-	static TextEventPtr createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, uint16 channel = 0);
-	static TextEventPtr createTextEvent(const EventChannel* channelInfo, uint64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
+	static TextEventPtr createTextEvent(const EventChannel* channelInfo, int64 timestamp, const String& text, uint16 channel = 0);
+	static TextEventPtr createTextEvent(const EventChannel* channelInfo, int64 timestamp, const String& text, const MetaDataValueArray& metaData, uint16 channel = 0);
 	static TextEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 private:
 	TextEvent() = delete;
-	TextEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const String& text);
+	TextEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const String& text);
 
 	const String m_text;
 	JUCE_LEAK_DETECTOR(TextEvent);
@@ -221,16 +221,16 @@ public:
 	EventChannel::EventChannelTypes getBinaryType() const;
 
 	template<typename T>
-	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, uint16 channel = 0);
+	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, int64 timestamp, const T* data, int dataSize, uint16 channel = 0);
 
 	template<typename T>
-	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, uint64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel = 0);
+	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, int64 timestamp, const T* data, int dataSize, const MetaDataValueArray& metaData, uint16 channel = 0);
 
 	static BinaryEventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 	
 private:
 	BinaryEvent() = delete;
-	BinaryEvent(const EventChannel* channelInfo, uint64 timestamp, uint16 channel, const void* data, EventChannel::EventChannelTypes type);
+	BinaryEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* data, EventChannel::EventChannelTypes type);
 	
 	template<typename T>
 	static EventChannel::EventChannelTypes getType();
@@ -291,14 +291,14 @@ public:
 
 	uint16 getSortedID() const;
 
-	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID);
-	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID, const MetaDataValueArray& metaData);
+	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID);
+	static SpikeEventPtr createSpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, SpikeBuffer& dataSource, uint16 sortedID, const MetaDataValueArray& metaData);
 
 	static SpikeEventPtr deserializeFromMessage(const MidiMessage& msg, const SpikeChannel* channelInfo);
 private:
 	SpikeEvent() = delete;
-	SpikeEvent(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> thresholds, HeapBlock<float>& data, uint16 sortedID);
-	static SpikeEvent* createBasicSpike(const SpikeChannel* channelInfo, uint64 timestamp, Array<float> threshold, SpikeBuffer& dataSource, uint16 sortedID);
+	SpikeEvent(const SpikeChannel* channelInfo, int64 timestamp, Array<float> thresholds, HeapBlock<float>& data, uint16 sortedID);
+	static SpikeEvent* createBasicSpike(const SpikeChannel* channelInfo, int64 timestamp, Array<float> threshold, SpikeBuffer& dataSource, uint16 sortedID);
 
 	const Array<float> m_thresholds;
 	const SpikeChannel* m_channelInfo;

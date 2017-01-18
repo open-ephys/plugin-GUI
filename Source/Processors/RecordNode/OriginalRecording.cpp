@@ -405,12 +405,12 @@ void OriginalRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	}
 }
 
-void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text)
+void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
 	writeMessage(text, sourceID, 255, timestamp);
 }
 
-void OriginalRecording::writeMessage(String message, uint16 processorID, uint16 channel, uint64 timestamp)
+void OriginalRecording::writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp)
 {
     if (messageFile == nullptr)
         return;
@@ -442,7 +442,7 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 
 	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
 	if (!ev) return;
-	*reinterpret_cast<uint64*>(data) = ev->getTimestamp();
+	*reinterpret_cast<int64*>(data) = ev->getTimestamp();
 	*reinterpret_cast<int16*>(data + 8) = samplePos;
 	*(data + 10) = static_cast<uint8>(ev->getEventType());
 	*(data + 11) = static_cast<uint8>(ev->getSourceID());
@@ -663,8 +663,8 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 		42;             // 42, from SpikeObject.h
 	spikeBuffer.malloc(totalBytes);
 	*(spikeBuffer.getData()) = static_cast<char>(channel->getChannelType());
-	*reinterpret_cast<uint64*>(spikeBuffer.getData() + 1) = spike->getTimestamp();
-	*reinterpret_cast<uint64*>(spikeBuffer.getData() + 9) = 0; //Legacy unused value
+	*reinterpret_cast<int64*>(spikeBuffer.getData() + 1) = spike->getTimestamp();
+	*reinterpret_cast<int64*>(spikeBuffer.getData() + 9) = 0; //Legacy unused value
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getSourceID();
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 19) = numChannels;
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 21) = chanSamples;

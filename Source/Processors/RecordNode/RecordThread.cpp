@@ -144,7 +144,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		{
 			uint16 sourceID = SystemEvent::getSourceID(event);
 			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
-			uint64 timestamp = SystemEvent::getTimestamp(event);
+			int64 timestamp = SystemEvent::getTimestamp(event);
 			EVERY_ENGINE->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
 				AccessClass::getProcessorGraph()->getRecordNode()->getSourceTimestamp(sourceID, subProcIdx),
 				SystemEvent::getSyncText(event));

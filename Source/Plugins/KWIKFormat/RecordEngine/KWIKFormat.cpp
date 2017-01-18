@@ -257,7 +257,7 @@ void KWEFile::stopRecording()
     eventData.clear();
 }
 
-void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, uint64 timestamp)
+void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, int64 timestamp)
 {
     if (type > eventNames.size() || type < 0)
     {
@@ -392,7 +392,7 @@ void KWXFile::resetChannels()
     channelArray.clear();
 }
 
-void KWXFile::writeSpike(int groupIndex, int nSamples, const float* data, Array<float>& bitVolts, uint64 timestamp)
+void KWXFile::writeSpike(int groupIndex, int nSamples, const float* data, Array<float>& bitVolts, int64 timestamp)
 {
     if ((groupIndex < 0) || (groupIndex >= numElectrodes))
     {

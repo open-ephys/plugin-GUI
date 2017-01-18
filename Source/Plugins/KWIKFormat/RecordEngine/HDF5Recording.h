@@ -37,7 +37,7 @@ public:
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
 	void writeEvent(int eventType, const MidiMessage& event) override;
-	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text) override;
+	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text) override;
 	void addDataChannel(int index, const DataChannel* chan) override;
 	void addSpikeElectrode(int index,const  SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;

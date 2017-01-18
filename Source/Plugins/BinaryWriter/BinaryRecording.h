@@ -51,7 +51,7 @@ namespace BinaryRecordingEngine
 		void resetChannels() override;
 		void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 		void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
-		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text) override;
+		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text) override;
 
 		static RecordEngineManager* getEngineManager();
 
@@ -64,7 +64,7 @@ namespace BinaryRecordingEngine
 		void openMessageFile(String basepath, int recordingNumber);
 		void openEventFile(String basepath, int recordingNumber);
 		void writeTTLEvent(int eventIndex, const MidiMessage& event);
-		void writeMessage(String message, uint16 processorID, uint16 channel, uint64 timestamp);
+		void writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp);
 
 		HeapBlock<float> m_scaledBuffer;
 		HeapBlock<int16> m_intBuffer;
@@ -76,7 +76,7 @@ namespace BinaryRecordingEngine
 		FILE* messageFile;
 		Array<FILE*> spikeFileArray;
 		int m_recordingNum;
-		Array<uint64> m_startTS;
+		Array<int64> m_startTS;
 
 		CriticalSection diskWriteLock;
 

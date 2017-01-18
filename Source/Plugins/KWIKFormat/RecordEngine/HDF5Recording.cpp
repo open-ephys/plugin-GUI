@@ -260,7 +260,7 @@ void HDF5Recording::writeEvent(int eventChannel, const MidiMessage& event)
 	}
 }
 
-void HDF5Recording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float, String text)
+void HDF5Recording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
 	eventFile->writeEvent(1, 0xFF, sourceID, text.toUTF8().getAddress(), timestamp);
 }

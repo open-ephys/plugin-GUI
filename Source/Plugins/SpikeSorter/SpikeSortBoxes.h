@@ -33,17 +33,17 @@ class SorterSpikeContainer : public ReferenceCountedObject
 {
 public:
 	//This invalidates the original SpikeEventPtr, so be careful
-	SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& data, uint64 timestamp);
+	SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& data, int64 timestamp);
 	SorterSpikeContainer() = delete;
 
 	const float* getData() const;
 	const SpikeChannel* getChannel() const;
-	uint64 getTimestamp() const;
+	int64 getTimestamp() const;
 	uint8 color[3];
 	uint8 pcProj[2];
 	uint16 sortedId;
 private:
-	uint64 timestamp;
+	int64 timestamp;
 	HeapBlock<float> data;
 	const SpikeChannel* chan;
 };

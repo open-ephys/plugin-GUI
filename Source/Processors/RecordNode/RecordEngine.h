@@ -106,7 +106,7 @@ public:
     virtual void writeEvent (int eventChannel, const MidiMessage& event) = 0;
 
 	/** Handle the timestamp sync text messages*/
-	virtual void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float sourceSampleRate, String text) = 0;
+	virtual void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text) = 0;
 
     /** Called when acquisition starts once for each processor that might record continuous data */
     virtual void registerProcessor (const GenericProcessor* processor);

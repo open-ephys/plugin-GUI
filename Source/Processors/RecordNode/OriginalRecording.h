@@ -55,7 +55,7 @@ public:
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
-	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, uint64 timestamp, float sourceSampleRate, String text) override;
+	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text) override;
 
     static RecordEngineManager* getEngineManager();
 
@@ -72,7 +72,7 @@ private:
 
     void openMessageFile(File rootFolder);
     void writeTTLEvent(int eventIndex, const MidiMessage& event);
-    void writeMessage(String message, uint16 processorID, uint16 channel, uint64 timestamp);
+    void writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp);
 
     void writeXml();
 
