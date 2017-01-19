@@ -36,7 +36,6 @@ EventBroadcaster::EventBroadcaster()
     , zmqContext        (getZMQContext())
     , zmqSocket         (nullptr, &closeZMQSocket)
     , listeningPort     (0)
-    , currentSampleRate (0)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
@@ -82,49 +81,37 @@ void EventBroadcaster::setListeningPort(int port, bool forceRestart)
 }
 
 
-void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer)
+void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer)
 {
-    currentSampleRate = getSampleRate();
-    checkForEvents(eventBuffer);
+    checkForEvents(true);
 }
 
 
-void EventBroadcaster::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+//IMPORTANT: The structure of the event buffers has changed drastically, so we need to find a better way of doing this
+void EventBroadcaster::sendEvent(const MidiMessage& event, float eventSampleRate) const
 {
-    const uint8_t* buffer = event.getRawData();
-    uint8_t type = buffer[0];
-    int64_t timestamp;
-    
-    switch (type) {
-        case TTL:
-        case MESSAGE:
-        case BINARY_MSG: {
-            uint8_t nodeID = buffer[1];
-            timestamp = timestamps.at(nodeID) + samplePosition;
-            break;
-        }
-            
-        case SPIKE:
-            std::copy_n(buffer + 1, sizeof(timestamp), reinterpret_cast<uint8_t *>(&timestamp));
-            break;
-            
-        default:
-            // Don't broadcast other event types
-            return;
-    }
-    
-    double timestampSeconds = double(timestamp) / currentSampleRate;
+	double timestampSeconds = double(Event::getTimestamp(event)) / eventSampleRate;
+	uint16 type = Event::getBaseType(event);
 
 #ifdef ZEROMQ
-    if (-1 == zmq_send(zmqSocket.get(), &type, sizeof(type), ZMQ_SNDMORE) ||
-        -1 == zmq_send(zmqSocket.get(), &timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
-        -1 == zmq_send(zmqSocket.get(), buffer + 1, event.getRawDataSize() - 1, 0) /* Omit event type */)
-    {
-        std::cout << "Failed to send message: " << zmq_strerror(zmq_errno()) << std::endl;
-    }
+	if (-1 == zmq_send(zmqSocket.get(), &type, sizeof(type), ZMQ_SNDMORE) ||
+		-1 == zmq_send(zmqSocket.get(), &timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
+		-1 == zmq_send(zmqSocket.get(), event.getRawData(), event.getRawDataSize(), 0))
+	{
+		std::cout << "Failed to send message: " << zmq_strerror(zmq_errno()) << std::endl;
+	}
 #endif
 }
 
+void EventBroadcaster::handleEvent(const EventChannel* channelInfo, const MidiMessage& event, int samplePosition)
+{
+	sendEvent(event, channelInfo->getSampleRate());
+}
+
+void EventBroadcaster::handleSpike(const SpikeChannel* channelInfo, const MidiMessage& event, int samplePosition)
+{
+	sendEvent(event, channelInfo->getSampleRate());
+}
 
 void EventBroadcaster::saveCustomParametersToXml(XmlElement* parentElement)
 {

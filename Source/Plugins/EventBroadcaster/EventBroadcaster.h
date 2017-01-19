@@ -35,14 +35,16 @@ public:
     int getListeningPort() const;
     void setListeningPort (int port, bool forceRestart = false);
 
-    void process (AudioSampleBuffer& continuousBuffer, MidiBuffer& eventBuffer) override;
-    void handleEvent (int eventType, MidiMessage& event, int samplePosition = 0) override;
+    void process (AudioSampleBuffer& continuousBuffer) override;
+    void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
+	void handleSpike(const SpikeChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
 
     void saveCustomParametersToXml (XmlElement* parentElement) override;
     void loadCustomParametersFromXml() override;
 
 
 private:
+	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
     static std::shared_ptr<void> getZMQContext();
     static void closeZMQSocket (void* socket);
 
@@ -50,7 +52,6 @@ private:
     std::unique_ptr<void, decltype (&closeZMQSocket)> zmqSocket;
     int listeningPort;
 
-    float currentSampleRate;
 };
 
 
