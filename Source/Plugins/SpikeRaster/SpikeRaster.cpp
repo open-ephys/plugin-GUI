@@ -63,30 +63,25 @@ void SpikeRaster::updateSettings()
 
     electrodes.clear();
 
-    for (int i = 0; i < eventChannels.size(); i++)
-    {
-        ChannelType type = eventChannels[i]->getType();
+	for (int i = 0; i < spikeChannelArray.size(); i++)
+	{
 
-        if (type == ELECTRODE_CHANNEL)
-        {
+		Electrode* elec = new Electrode();
+		elec->numChannels = spikeChannelArray[i]->getNumChannels();
 
-            Electrode elec;
-			elec.numChannels = static_cast<SpikeChannel*>(eventChannels[i]->extraData.get())->numChannels;
+		elec->name = spikeChannelArray[i]->getName();
+		elec->currentSpikeIndex = 0;
+		elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
-            elec.name = eventChannels[i]->getName();
-            elec.currentSpikeIndex = 0;
-            elec.mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
+		for (int j = 0; j < elec->numChannels; j++)
+		{
+			elec->displayThresholds.add(0);
+			elec->detectorThresholds.add(0);
+		}
 
-            for (int j = 0; j < elec.numChannels; j++)
-            {
-                elec.displayThresholds.add(0);
-                elec.detectorThresholds.add(0);
-            }
+		electrodes.add(elec);
 
-            electrodes.add(elec);
-
-        }
-    }
+	}
 
 }
 
@@ -128,13 +123,14 @@ int SpikeRaster::getNumElectrodes()
 void SpikeRaster::setRasterPlot(RasterPlot* r)
 {
 	canvas = r;
-	r->setSampleRate(settings.sampleRate);
+	//A bit of a hack since a processor doesn't actually have a sample rate unless it is a source one
+	r->setSampleRate(dataChannelArray[0]->getSampleRate());
 }
 
-void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
+void SpikeRaster::process(AudioSampleBuffer& buffer)
 {
 
-    checkForEvents(events); // automatically calls 'handleEvent
+    checkForEvents(true); // automatically calls 'handleEvent
 
     if (redrawRequested)
     {
@@ -144,14 +140,14 @@ void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
         for (int i = 0; i < getNumElectrodes(); i++)
         {
 
-            Electrode& e = electrodes.getReference(i);
+            Electrode* e = electrodes[i];
 
             // transfer buffered spikes to spike plot
-            for (int j = 0; j < e.currentSpikeIndex; j++)
+            for (int j = 0; j < e->currentSpikeIndex; j++)
             {
                 //std::cout << "Transferring spikes." << std::endl;
-                canvas->processSpikeObject(e.mostRecentSpikes[j]);
-                e.currentSpikeIndex = 0;
+                canvas->processSpikeObject(e->mostRecentSpikes[j]);
+                e->currentSpikeIndex = 0;
             }
 
         }
@@ -163,58 +159,47 @@ void SpikeRaster::process(AudioSampleBuffer& buffer, MidiBuffer& events)
 
 }
 
-void SpikeRaster::handleEvent(int eventType, MidiMessage& event, int samplePosition)
+void SpikeRaster::handleSpike(const SpikeChannel* channelInfo, const MidiMessage& event, int samplePosition)
 {
 
-    //std::cout << "Received event of type " << eventType << std::endl;
+	//std::cout << "Received event of type " << eventType << std::endl;
 
-    if (eventType == SPIKE)
-    {
 
-        const uint8_t* dataptr = event.getRawData();
-        int bufferSize = event.getRawDataSize();
+	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, channelInfo);
 
-        if (bufferSize > 0)
-        {
+	if (newSpike > 0)
+	{
 
-            SpikeObject newSpike;
 
-            bool isValid = unpackSpike(&newSpike, dataptr, bufferSize);
+		int electrodeNum = spikeChannelArray.indexOf(channelInfo);
+		if (electrodeNum < 0) return;
 
-            if (isValid)
-            {
-                int electrodeNum = newSpike.source;
+		Electrode* e = electrodes[electrodeNum];
+		// std::cout << electrodeNum << std::endl;
 
-                Electrode& e = electrodes.getReference(electrodeNum);
-                // std::cout << electrodeNum << std::endl;
+		// add to buffer
+		if (e->currentSpikeIndex < displayBufferSize)
+		{
+			//  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
+			e->mostRecentSpikes.set(e->currentSpikeIndex, newSpike.release());
+			e->currentSpikeIndex++;
+		}
 
-                // add to buffer
-                if (e.currentSpikeIndex < displayBufferSize)
-                {
-                    //  std::cout << "Adding spike " << e.currentSpikeIndex + 1 << std::endl;
-                    e.mostRecentSpikes.set(e.currentSpikeIndex, newSpike);
-                    e.currentSpikeIndex++;
-                }
+	}
 
-            }
+}
 
-        }
 
-    } else if (eventType == TTL)
-    {
-    	const uint8* dataptr = event.getRawData();
+void SpikeRaster::handleEvent(const EventChannel* channelInfo, const MidiMessage& event, int samplePosition)
+{
+	if (Event::getEventType(event) == EventChannel::TTL)
+	{
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, channelInfo);
+		int64 timestamp = getSourceTimestamp(ttl->getSourceID(), ttl->getSubProcessorIdx()) + samplePosition;
 
-        //int eventNodeId = *(dataptr+1);
-        int eventId = *(dataptr+2);
-        int eventChannel = *(dataptr+3);
-        uint8 sourceNodeId = event.getNoteNumber();
-
-		int64 timestamp = timestamps[sourceNodeId] + samplePosition;
-
-        if (eventId == 1)
-        {
-        	canvas->processEvent(eventChannel, timestamp);
-        }
-    }
-
+		if (ttl->getState())
+		{
+			canvas->processEvent(ttl->getChannel(), timestamp);
+		}
+	}
 }

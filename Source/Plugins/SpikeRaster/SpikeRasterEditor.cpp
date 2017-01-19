@@ -293,7 +293,8 @@ void SpikeRasterCanvas::buttonClicked(Button* b)
 
 
 
-RasterPlot::RasterPlot(SpikeRasterCanvas*)
+RasterPlot::RasterPlot(SpikeRasterCanvas* c)
+	:processor(c->getProcessor())
 {
 
     rasterWidth = 500;
@@ -558,11 +559,12 @@ void RasterPlot::setSampleRate(float sr)
     sampleRate = sr;
 }
 
-void RasterPlot::processSpikeObject(const SpikeObject& s)
+void RasterPlot::processSpikeObject(const SpikeEvent* s)
 {
-    int electrode = s.source;
+	
+	int electrode = processor->getSpikeChannelIndex(s);
     //int unit = s.sortedId;
-    int timestamp = s.timestamp; // absolute time
+    int timestamp = s->getTimestamp(); // absolute time
 
     float bufferPos = float(timestamp - rasterStartTimestamp) / (sampleRate * rasterTimebase);
 

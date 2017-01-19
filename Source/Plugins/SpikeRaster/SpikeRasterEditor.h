@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <VisualizerEditorHeaders.h>
 #include <VisualizerWindowHeaders.h>
-#include <SpikeLib.h>
 
 #include "SpikeRaster.h"
 
@@ -181,7 +180,7 @@ public:
     void resized();
     
     RasterPlot* getRasterPlot() {return rasterPlot.get();}
-
+	SpikeRaster* getProcessor() { return processor; }
 private:
     SpikeRaster* processor;
     ScopedPointer<RasterPlot> rasterPlot;
@@ -227,7 +226,7 @@ public:
     void resized();
     void reset();
 
-    void processSpikeObject(const SpikeObject& s);
+    void processSpikeObject(const SpikeEvent* s);
     void processEvent(int eventChan, int64 ts);
 
     Random random;
@@ -272,6 +271,8 @@ public:
     float sampleRate;
 
     Colour getColourForChannel(int ch);
+private:
+	const SpikeRaster* const processor;
 
 };
 

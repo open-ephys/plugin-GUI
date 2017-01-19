@@ -29,7 +29,6 @@
 #endif
 
 #include <ProcessorHeaders.h>
-#include <SpikeLib.h>
 
 class RasterPlot;
 
@@ -53,37 +52,38 @@ public:
     ~SpikeRaster();
 
     /** Determines whether the processor is treated as a source. */
-    bool isSource()
+    bool isSource() const override
     {
         return false;
     }
 
     /** Determines whether the processor is treated as a sink. */
-    bool isSink()
+    bool isSink() const override
     {
         return false;
     }
 
     /** Indicates if the processor has a custom editor. Defaults to false */
-    bool hasEditor() const
+    bool hasEditor() const override
     {
         return true;
     }
 
-    void updateSettings();
+    void updateSettings() override;
 
     int getNumElectrodes();
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process(AudioSampleBuffer& buffer) override;
 
-    void handleEvent(int, MidiMessage&, int);
+	void handleSpike(const SpikeChannel*, const MidiMessage&, int) override;
+	void handleEvent(const EventChannel*, const MidiMessage&, int) override;
 
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue) override;
 
-    bool enable();
-    bool disable();
+    bool enable() override;
+    bool disable() override;
 
     void setRasterPlot(RasterPlot*);
 
@@ -98,7 +98,7 @@ private:
         Array<float> displayThresholds;
         Array<float> detectorThresholds;
 
-        Array<SpikeObject> mostRecentSpikes;
+        OwnedArray<SpikeEvent> mostRecentSpikes;
         int currentSpikeIndex;
 
         int recordIndex;
@@ -108,7 +108,7 @@ private:
     RasterPlot* canvas;
 
 
-    Array<Electrode> electrodes;
+    OwnedArray<Electrode> electrodes;
 
     int displayBufferSize;
     bool redrawRequested;
