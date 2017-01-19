@@ -196,7 +196,7 @@ protected:
 };
 
 //Special class for event and spike info objects, whose events can hold extra metadata
-class PLUGIN_API MetaDataEventObject : private MetaDataEventLock
+class PLUGIN_API MetaDataEventObject : public MetaDataEventLock
 {
 public:
 	//This method will only work when creating the info object, but not for those copied down the chain

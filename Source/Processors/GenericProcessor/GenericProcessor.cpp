@@ -320,7 +320,7 @@ void GenericProcessor::update()
         {
             DataChannel* sourceChan = sourceNode->dataChannelArray[i];
             DataChannel* ch = new DataChannel (*sourceChan);
-
+			
 
             if (i < m_recordStatus.size())
             {
@@ -336,12 +336,14 @@ void GenericProcessor::update()
         {
             EventChannel* sourceChan = sourceNode->eventChannelArray[i];
             EventChannel* ch = new EventChannel (*sourceChan);
+			ch->eventMetaDataLock = true;
             eventChannelArray.add (ch);
         }
 		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
 		{
 			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
 			SpikeChannel* ch = new SpikeChannel(*sourceChan);
+			ch->eventMetaDataLock = true;
 			spikeChannelArray.add(ch);
 		}
 		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
