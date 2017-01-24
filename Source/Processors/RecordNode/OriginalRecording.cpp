@@ -676,17 +676,22 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
 
 	int ptrIdx = 0;
+	uint16* dataIntPtr = reinterpret_cast<uint16*>(spikeBuffer.getData() + 42);
+	const float* spikeDataPtr = spike->getDataPointer();
 	for (int i = 0; i < numChannels; i++)
 	{
-		float scaleFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(i));
-		FloatVectorOperations::copyWithMultiply(continuousDataFloatBuffer + ptrIdx, spike->getDataPointer(i), scaleFactor, chanSamples);
-		ptrIdx += chanSamples;
+		const float bitVolts = channel->getChannelBitVolts(i);
+		for (int j = 0; j < chanSamples; j++)
+		{
+			*(dataIntPtr + ptrIdx) = uint16(*(spikeDataPtr + ptrIdx) / bitVolts + 32768);
+			ptrIdx++;
+		}
 	}
-	AudioDataConverters::convertFloatToInt16LE(continuousDataFloatBuffer, (spikeBuffer.getData() + 42), totalSamples);
 	ptrIdx = totalSamples * 2 + 42;
 	for (int i = 0; i < numChannels; i++)
 	{
-		*reinterpret_cast<float*>(spikeBuffer.getData() + ptrIdx) = channel->getGain();
+		//To get the same value as the original version
+		*reinterpret_cast<float*>(spikeBuffer.getData() + ptrIdx) = (int)(1.0f / channel->getChannelBitVolts(i)) * 1000;
 		ptrIdx += sizeof(float);
 	}
 	for (int i = 0; i < numChannels; i++)

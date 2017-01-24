@@ -416,16 +416,6 @@ Array<sourceChannelInfo> SpikeChannel::getSourceChannelInfo() const
 	return m_sourceInfo;
 }
 
-void SpikeChannel::setGain(float gain)
-{
-	m_gain = gain;
-}
-
-float SpikeChannel::getGain() const
-{
-	return m_gain;
-}
-
 void SpikeChannel::setNumSamples(unsigned int preSamples, unsigned int postSamples)
 {
 	m_numPreSamples = preSamples;

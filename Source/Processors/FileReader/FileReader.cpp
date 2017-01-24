@@ -218,13 +218,13 @@ String FileReader::getFile() const
 
 void FileReader::updateSettings()
 {
-    // if (!input) return;
+     if (!input) return;
 
-    // for (int i=0; i < currentNumChannels; i++)
-    // {
-    //     channels[i]->bitVolts = channelInfo[i].bitVolts;
-    //     channels[i]->name = channelInfo[i].name;
-    // }
+     for (int i=0; i < currentNumChannels; i++)
+     {
+         dataChannelArray[i]->setBitVolts(channelInfo[i].bitVolts);
+         dataChannelArray[i]->setName(channelInfo[i].name);
+     }
 }
 
 

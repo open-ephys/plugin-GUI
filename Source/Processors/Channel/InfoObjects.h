@@ -358,12 +358,6 @@ public:
 	/** Returns an array with info about the channels from which the spikes originate */
 	Array<sourceChannelInfo> getSourceChannelInfo() const;
 
-	/** Sets the electrode gain */
-	void setGain(float gain);
-
-	/** Gets the electrode gain */
-	float getGain() const;
-
 	/** Sets the number of samples, pre and post peak */
 	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
 
@@ -399,7 +393,6 @@ public:
 private:
 	const ElectrodeTypes m_type;
 	Array<sourceChannelInfo> m_sourceInfo;
-	float m_gain{ 1.0f };
 	unsigned int m_numPreSamples{ 8 };
 	unsigned int m_numPostSamples{ 32 };
 	Array<float> m_channelBitVolts;
