@@ -69,6 +69,8 @@ public:
     /** Clears the signal chain.*/
     void clearSignalChain();
 
+	void updateProcessorSettings();
+
 private:
 
     /** An array of all currently visible editors.*/

@@ -316,8 +316,12 @@ void EditorViewport::clearSignalChain()
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
 
-    if (editor == 0)
-        return;
+	if (editor == 0)
+	{
+		if (updateSettings)
+			signalChainManager->updateProcessorSettings();
+		return;
+	}
 
     if (!updateSettings)
         signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
@@ -1390,6 +1394,12 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
     xml->addChildElement(audioSettings);
 
+	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
+	int tsID, tsSubID;
+	AccessClass::getProcessorGraph()->getTimestampSources(tsID, tsSubID);
+	timestampSettings->setAttribute("selected_index", tsID);
+	timestampSettings->setAttribute("selected_sub_index", tsSubID);
+	xml->addChildElement(timestampSettings);
 
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize = allProcessors.size();
@@ -1400,7 +1410,6 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
     AccessClass::getProcessorList()->saveStateToXml(xml);
-    AccessClass::getMessageCenter()->saveStateToXml(xml);
     AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
@@ -1627,6 +1636,12 @@ const String EditorViewport::loadState(File fileToLoad)
             int bufferSize = element->getIntAttribute("bufferSize");
             AccessClass::getAudioComponent()->setBufferSize(bufferSize);
         }
+		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
+		{
+			int tsID = element->getIntAttribute("selected_index", -1);
+			int tsSubID = element->getIntAttribute("selected_sub_index");
+			AccessClass::getProcessorGraph()->setTimestampSource(tsID, tsSubID);
+		}
 
     }
 
@@ -1640,7 +1655,6 @@ const String EditorViewport::loadState(File fileToLoad)
 
     AccessClass::getControlPanel()->loadStateFromXml(xml); // save the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml);
-    AccessClass::getMessageCenter()->loadStateFromXml(xml);
     AccessClass::getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     if (editorArray.size() > 0)

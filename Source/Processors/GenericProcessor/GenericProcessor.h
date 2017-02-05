@@ -337,8 +337,12 @@ public:
     /** Returns true if a processor is ready to process data (e.g., all of its parameters are initialized, and its data source is connected).*/
     virtual bool isReady();
 
+	bool enableProcessor();
+
     /** Called immediately prior to the start of data acquisition, once all processors in the signal chain have indicated they are ready to process data.*/
     virtual bool enable();
+
+	bool disableProcessor();
 
     /** Called immediately after the end of data acquisition.*/
     virtual bool disable();
@@ -484,9 +488,6 @@ public:
 	@see GenericProcessor::getProcessorFullId(uint16,uint16) */
 	uint64 getSourceTimestamp(uint32 fullSourceID) const;
 
-    /** Used to set the timestamp for a given buffer, for a given source node. */
-    void setTimestampAndSamples (uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
-
 	virtual int getNumSubProcessors() const;
 
 	int getDataChannelIndex(int channelIdx, int processorID, int subProcessorIdx = 0) const;
@@ -517,6 +518,8 @@ public:
 
     PluginProcessorType getProcessorType() const;
 
+	int64 getLastProcessedsoftwareTime() const;
+
 	static uint32 getProcessorFullId(uint16 processorId, uint16 subprocessorIdx);
 
 	class PLUGIN_API DefaultEventInfo
@@ -531,6 +534,8 @@ public:
 	};
 
 protected:
+	/** Used to set the timestamp for a given buffer, for a given source node. */
+	void setTimestampAndSamples(uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
 
 	/** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
@@ -594,6 +599,8 @@ protected:
 private:
 	std::map<uint32, uint32> numSamples;
 	std::map<uint32, int64> timestamps;
+
+	int64 m_lastProcessTime;
 
 	void createDataChannelsByType(DataChannel::DataChannelTypes type);
 

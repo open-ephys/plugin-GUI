@@ -325,6 +325,7 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp" />
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp" />
+    <ClCompile Include="..\..\Source\UI\TimestampSourceSelection.cpp" />
     <ClCompile Include="..\..\Source\UI\Utils\TiledButtonGroupManager.cpp" />
     <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp" />
     <ClCompile Include="..\..\Source\UI\Utils\ButtonGroupManager.cpp" />
@@ -1994,6 +1995,7 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h" />
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h" />
+    <ClInclude Include="..\..\Source\UI\TimestampSourceSelection.h" />
     <ClInclude Include="..\..\Source\UI\Utils\TiledButtonGroupManager.h" />
     <ClInclude Include="..\..\Source\UI\Utils\LinearButtonGroupManager.h" />
     <ClInclude Include="..\..\Source\UI\Utils\ButtonGroupManager.h" />

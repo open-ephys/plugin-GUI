@@ -29,8 +29,7 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), sourceNodeSubIdx(0),
-	timestampSource(nullptr), lastTime(0), softTimestamp(0)
+GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -46,7 +45,7 @@ MessageCenter::~MessageCenter()
 
 void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
 {
-	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, getGlobalSampleRate(), this, 0);
+	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, CoreServices::getGlobalSampleRate(), this, 0);
 	chan->setName("GUI Messages");
 	chan->setDescription("Messages from the GUI Message Center");
 	channels.add(chan);
@@ -80,25 +79,6 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 bool MessageCenter::enable()
 {
     messageCenterEditor->startAcquisition();
-	lastTime = Time::getHighResolutionTicks();
-	softTimestamp = 0;
-    if (sourceNodeId)
-    {
-        AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
-        if (node)
-        {
-            timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
-        }
-        else
-        {
-            std::cout << "Message Center: BAD node id " << sourceNodeId << std::endl;
-            timestampSource = nullptr;
-            sourceNodeId = 0;
-        }
-    }
-    else
-        timestampSource = nullptr;
-
     return true;
 }
 
@@ -108,52 +88,14 @@ bool MessageCenter::disable()
     return true;
 }
 
-void MessageCenter::setSourceNodeId(int id, int sub)
-{
-    sourceNodeId = id;
-	sourceNodeSubIdx = sub;
-	AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
-	if (node)
-	{
-		timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
-	}
-}
-
-int MessageCenter::getSourceNodeId()
-{
-    return sourceNodeId;
-}
-
-int MessageCenter::getSourceSubIdx()
-{
-	return sourceNodeSubIdx;
-}
-
-int64 MessageCenter::getGlobalTimestamp(bool softwareTime)
-{
-	if (!softwareTime && sourceNodeId > 0)
-		return timestampSource->getSourceTimestamp(sourceNodeId, sourceNodeSubIdx);
-    else
-        return (softTimestamp);
-}
-
-float MessageCenter::getGlobalSampleRate()
-{
-	if (sourceNodeId > 0)
-		return timestampSource->getSampleRate(sourceNodeSubIdx);
-	else
-		return Time::getHighResolutionTicksPerSecond();
-}
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
-	softTimestamp = Time::getHighResolutionTicks() - lastTime;
-    setTimestampAndSamples(getGlobalTimestamp(), 0);
     if (needsToSendTimestampMessage)
     {
 		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 		HeapBlock<char> data;
-		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, getTimestamp(true), true);
+		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
 
 		eventBuffer.addEvent(data, dataSize, 0);
 
@@ -168,21 +110,11 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
-		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), getGlobalTimestamp(), eventString);
+		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
 
         newEventAvailable = false;
     }
 
 
-}
-
-void MessageCenter::addSourceProcessor(GenericProcessor* p)
-{
-    messageCenterEditor->addSourceProcessor(p);
-}
-
-void MessageCenter::removeSourceProcessor(GenericProcessor* p)
-{
-    messageCenterEditor->removeSourceProcessor(p);
 }

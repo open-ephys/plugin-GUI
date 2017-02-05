@@ -46,6 +46,7 @@ GenericProcessor::GenericProcessor (const String& name)
     , m_processorType                   (PROCESSOR_TYPE_UTILITY)
 {
     settings.numInputs = settings.numOutputs = 0;
+	m_lastProcessTime = Time::getHighResolutionTicks();
 }
 
 
@@ -797,8 +798,10 @@ void GenericProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& even
 	m_currentMidiBuffer = &eventBuffer;
     processEventBuffer (); // extract buffer sizes and timestamps,
     // set flag on all TTL events to zero
-
+	
+	m_lastProcessTime = Time::getHighResolutionTicks();
     process (buffer);
+
 }
 
 const DataChannel* GenericProcessor::getDataChannel(int index) const
@@ -1193,6 +1196,17 @@ void GenericProcessor::setEnabledState (bool t)
     isEnabled = t;
 }
 
+bool GenericProcessor::enableProcessor()
+{
+	m_lastProcessTime = Time::getHighResolutionTicks();
+	return enable();
+}
+
+bool GenericProcessor::disableProcessor()
+{
+	return disable();
+}
+
 bool GenericProcessor::enable()
 {
     return isEnabled;
@@ -1221,6 +1235,11 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
 uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
 {
 	return uint32(sid) << 16 + subid;
+}
+
+int64 GenericProcessor::getLastProcessedsoftwareTime() const
+{
+	return m_lastProcessTime;
 }
 
 void ChannelCreationIndexes::clearChannelCreationCounts()

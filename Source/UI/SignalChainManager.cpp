@@ -508,45 +508,50 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     if (action != ACTIVATE)
     {
 
-        // std::cout << "Updating settings." << std::endl;
-
-        Array<GenericProcessor*> splitters;
-
-        for (int n = 0; n < signalChainArray.size(); n++)
-        {
-            // iterate through signal chains
-
-            GenericEditor* source = signalChainArray[n]->getEditor();
-            GenericProcessor* p = source->getProcessor();
-
-            //  p->update();
-
-            //  GenericProcessor* dest = p->getDestNode();
-
-            while (p != 0)
-            {
-                // iterate through processors
-                p->update();
-
-                if (p->isSplitter())
-                {
-                    splitters.add(p);
-                }
-
-                p = p->getDestNode();
-
-                if (p == 0 && splitters.size() > 0)
-                {
-                    splitters.getFirst()->switchIO(); // switch the signal chain
-                    p = splitters[0]->getDestNode();
-                    splitters.getFirst()->switchIO(); // switch it back
-                    splitters.remove(0);
-                }
-            }
-        }
+		updateProcessorSettings();
     }
 
 
     // std::cout << "Finished adding new editor." << std::endl << std::endl << std::endl;
 
+}
+
+void SignalChainManager::updateProcessorSettings()
+{
+	// std::cout << "Updating settings." << std::endl;
+
+	Array<GenericProcessor*> splitters;
+
+	for (int n = 0; n < signalChainArray.size(); n++)
+	{
+		// iterate through signal chains
+
+		GenericEditor* source = signalChainArray[n]->getEditor();
+		GenericProcessor* p = source->getProcessor();
+
+		//  p->update();
+
+		//  GenericProcessor* dest = p->getDestNode();
+
+		while (p != 0)
+		{
+			// iterate through processors
+			p->update();
+
+			if (p->isSplitter())
+			{
+				splitters.add(p);
+			}
+
+			p = p->getDestNode();
+
+			if (p == 0 && splitters.size() > 0)
+			{
+				splitters.getFirst()->switchIO(); // switch the signal chain
+				p = splitters[0]->getDestNode();
+				splitters.getFirst()->switchIO(); // switch it back
+				splitters.remove(0);
+			}
+		}
+	}
 }

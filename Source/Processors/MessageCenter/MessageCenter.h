@@ -75,25 +75,11 @@ public:
         needsToSendTimestampMessage = false;
     }
 
-    void setSourceNodeId(int id, int sub);
-    int getSourceNodeId();
-	int getSourceSubIdx();
-
-    void addSourceProcessor(GenericProcessor* p);
-    void removeSourceProcessor(GenericProcessor* p);
-
-    int64 getGlobalTimestamp(bool softwareTime = false);
-	float getGlobalSampleRate();
-	
 	void addSpecialProcessorChannels(Array<EventChannel*>& channel);
 private:
 
     bool newEventAvailable;
     bool isRecording;
-    int sourceNodeId;
-	int sourceNodeSubIdx;
-    const GenericProcessor* timestampSource;
-    int64 lastTime, softTimestamp;
     bool needsToSendTimestampMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);

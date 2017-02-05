@@ -33,7 +33,7 @@ class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
-
+class TimestampSourceSelectionWindow;
 
 /**
   Owns all processors and constructs the signal chain.
@@ -86,6 +86,19 @@ public:
     void refreshColors();
 
     void createDefaultNodes();
+
+	void setTimestampSource(int sourceIndex, int subIdx);
+
+	void getTimestampSources(Array<const GenericProcessor*>& validSources, int& selectedSource, int& selectedSubIdx) const;
+
+	void getTimestampSources(int& selectedSource, int& selectedSubIdx) const;
+
+	int64 getGlobalTimestamp(bool softwareOnly) const;
+
+	float getGlobalSampleRate(bool softwareOnly) const;
+
+	void setTimestampWindow(TimestampSourceSelectionWindow* window);
+
 private:
     int currentNodeId;
 
@@ -102,6 +115,11 @@ private:
     void connectProcessors(GenericProcessor* source, GenericProcessor* dest);
     void connectProcessorToAudioAndRecordNodes(GenericProcessor* source);
 
+	int64 m_startSoftTimestamp{ 0 };
+	const GenericProcessor* m_timestampSource{ nullptr };
+	int m_timestampSourceSubIdx;
+	Array<const GenericProcessor*> m_validTimestampSources;
+	WeakReference<TimestampSourceSelectionWindow> m_timestampWindow;
 };
 
 

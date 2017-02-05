@@ -176,7 +176,7 @@ EngineConfigWindow::EngineConfigWindow(RecordEngineManager* man)
     setName(man->getName()+" recording configuration");
 
     ui = new EngineConfigComponent(man,height);
-    setContentOwned(ui,true);
+    setContentNonOwned(ui,true);
 }
 
 EngineConfigWindow::~EngineConfigWindow()
