@@ -1726,6 +1726,8 @@ void RHD2000Thread::enableBoardLeds(bool enable)
 
 int RHD2000Thread::setClockDivider(int divide_ratio)
 {
+	if (!deviceFound)
+		return 1;
     
     // Divide ratio should be 1 or an even number
     if (divide_ratio != 1 && divide_ratio % 2) 
