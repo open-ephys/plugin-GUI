@@ -367,8 +367,10 @@
           <FILE id="LHkdoG" name="AudioNode.h" compile="0" resource="0" file="Source/Processors/AudioNode/AudioNode.h"/>
         </GROUP>
         <GROUP id="{46016F19-8F25-F540-AA1C-D6E87E8D7D31}" name="Channel">
-          <FILE id="X3I3e9" name="Channel.cpp" compile="1" resource="0" file="Source/Processors/Channel/Channel.cpp"/>
-          <FILE id="IEZGF3" name="Channel.h" compile="0" resource="0" file="Source/Processors/Channel/Channel.h"/>
+          <FILE id="f2LS2h" name="InfoObjects.cpp" compile="1" resource="0" file="Source/Processors/Channel/InfoObjects.cpp"/>
+          <FILE id="tASc4V" name="InfoObjects.h" compile="0" resource="0" file="Source/Processors/Channel/InfoObjects.h"/>
+          <FILE id="Y8GAEw" name="MetaData.cpp" compile="1" resource="0" file="Source/Processors/Channel/MetaData.cpp"/>
+          <FILE id="AP7SgO" name="MetaData.h" compile="0" resource="0" file="Source/Processors/Channel/MetaData.h"/>
         </GROUP>
         <GROUP id="ZgsuWxi" name="DataThreads">
           <GROUP id="{BD34CF88-82A4-3F88-1664-D862A88E97A9}" name="RhythmNode">
@@ -420,6 +422,10 @@
                 file="Source/Processors/Editors/VisualizerEditor.cpp"/>
           <FILE id="qGudPl" name="VisualizerEditor.h" compile="0" resource="0"
                 file="Source/Processors/Editors/VisualizerEditor.h"/>
+        </GROUP>
+        <GROUP id="{9E6B9B54-91AF-50A2-A815-1397961FA772}" name="Events">
+          <FILE id="cDWAQE" name="Events.cpp" compile="1" resource="0" file="Source/Processors/Events/Events.cpp"/>
+          <FILE id="sz8yyj" name="Events.h" compile="0" resource="0" file="Source/Processors/Events/Events.h"/>
         </GROUP>
         <GROUP id="{27CF9A8D-7C31-9AA9-6DCA-6C719E127923}" name="FileReader">
           <FILE id="O6lxmJ" name="FileSource.cpp" compile="1" resource="0" file="Source/Processors/FileReader/FileSource.cpp"/>
@@ -508,8 +514,6 @@
           <FILE id="Akiup9" name="Visualizer.cpp" compile="1" resource="0" file="Source/Processors/Visualization/Visualizer.cpp"/>
           <FILE id="ETLsfY" name="DataWindow.cpp" compile="1" resource="0" file="Source/Processors/Visualization/DataWindow.cpp"/>
           <FILE id="qDfeYR" name="DataWindow.h" compile="0" resource="0" file="Source/Processors/Visualization/DataWindow.h"/>
-          <FILE id="tuQVXY" name="SpikeObject.cpp" compile="1" resource="0" file="Source/Processors/Visualization/SpikeObject.cpp"/>
-          <FILE id="KyhGmE" name="SpikeObject.h" compile="0" resource="0" file="Source/Processors/Visualization/SpikeObject.h"/>
           <FILE id="MsSuwS" name="Visualizer.h" compile="0" resource="0" file="Source/Processors/Visualization/Visualizer.h"/>
           <FILE id="KQJVIp" name="MatlabLikePlot.cpp" compile="1" resource="0"
                 file="Source/Processors/Visualization/MatlabLikePlot.cpp"/>
@@ -546,6 +550,10 @@
           <FILE id="kGrvSy" name="CustomLookAndFeel.h" compile="0" resource="0"
                 file="Source/UI/LookAndFeel/CustomLookAndFeel.h"/>
         </GROUP>
+        <FILE id="uHkwCY" name="TimestampSourceSelection.cpp" compile="1" resource="0"
+              file="Source/UI/TimestampSourceSelection.cpp"/>
+        <FILE id="hsu7MM" name="TimestampSourceSelection.h" compile="0" resource="0"
+              file="Source/UI/TimestampSourceSelection.h"/>
         <FILE id="gXswXJ" name="CustomArrowButton.cpp" compile="1" resource="0"
               file="Source/UI/CustomArrowButton.cpp"/>
         <FILE id="ECOEoc" name="CustomArrowButton.h" compile="0" resource="0"

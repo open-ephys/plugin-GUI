@@ -68,6 +68,9 @@
     <Filter Include="open-ephys\Source\Processors\Editors">
       <UniqueIdentifier>{E65874A6-23B2-9D76-B12A-15730E2192BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="open-ephys\Source\Processors\Events">
+      <UniqueIdentifier>{1B8D421E-376D-E5E2-3DD7-FC65FCEE6A13}</UniqueIdentifier>
+    </Filter>
     <Filter Include="open-ephys\Source\Processors\FileReader">
       <UniqueIdentifier>{59F490B2-F5D9-601B-01AE-368632E3C9D7}</UniqueIdentifier>
     </Filter>
@@ -553,7 +556,10 @@
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp">
+    <ClCompile Include="..\..\Source\Processors\Channel\InfoObjects.cpp">
+      <Filter>open-ephys\Source\Processors\Channel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Channel\MetaData.cpp">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.cpp">
@@ -594,6 +600,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processors\Events\Events.cpp">
+      <Filter>open-ephys\Source\Processors\Events</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
@@ -664,9 +673,6 @@
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp">
-      <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClCompile>
@@ -687,6 +693,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.cpp">
       <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UI\TimestampSourceSelection.cpp">
+      <Filter>open-ephys\Source\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp">
       <Filter>open-ephys\Source\UI</Filter>
@@ -2565,7 +2574,10 @@
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h">
       <Filter>open-ephys\Source\Processors\AudioNode</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Channel\Channel.h">
+    <ClInclude Include="..\..\Source\Processors\Channel\InfoObjects.h">
+      <Filter>open-ephys\Source\Processors\Channel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Channel\MetaData.h">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.h">
@@ -2606,6 +2618,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h">
       <Filter>open-ephys\Source\Processors\Editors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processors\Events\Events.h">
+      <Filter>open-ephys\Source\Processors\Events</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h">
       <Filter>open-ephys\Source\Processors\FileReader</Filter>
@@ -2676,9 +2691,6 @@
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h">
-      <Filter>open-ephys\Source\Processors\Visualization</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h">
       <Filter>open-ephys\Source\Processors\Visualization</Filter>
     </ClInclude>
@@ -2702,6 +2714,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.h">
       <Filter>open-ephys\Source\UI\LookAndFeel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UI\TimestampSourceSelection.h">
+      <Filter>open-ephys\Source\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h">
       <Filter>open-ephys\Source\UI</Filter>

@@ -77,7 +77,8 @@ OBJECTS := \
   $(OBJDIR)/PluginManager_f764c180.o \
   $(OBJDIR)/AudioEditor_3931be27.o \
   $(OBJDIR)/AudioNode_3db3557c.o \
-  $(OBJDIR)/Channel_5cb2d4d2.o \
+  $(OBJDIR)/InfoObjects_ccadf9d5.o \
+  $(OBJDIR)/MetaData_93b6c72a.o \
   $(OBJDIR)/RHD2000Editor_54b4b441.o \
   $(OBJDIR)/RHD2000Thread_6ad80a5e.o \
   $(OBJDIR)/okFrontPanelDLL_18d33583.o \
@@ -91,6 +92,7 @@ OBJECTS := \
   $(OBJDIR)/GenericEditor_becb2ad6.o \
   $(OBJDIR)/ImageIcon_c89b23a6.o \
   $(OBJDIR)/VisualizerEditor_3672b003.o \
+  $(OBJDIR)/Events_e36a356a.o \
   $(OBJDIR)/FileSource_a1ad7002.o \
   $(OBJDIR)/FileReader_e4a9ccaa.o \
   $(OBJDIR)/FileReaderEditor_e1193ff7.o \
@@ -114,7 +116,6 @@ OBJECTS := \
   $(OBJDIR)/SplitterEditor_93a6dbf7.o \
   $(OBJDIR)/Visualizer_2e631df8.o \
   $(OBJDIR)/DataWindow_83ce6754.o \
-  $(OBJDIR)/SpikeObject_24e8c655.o \
   $(OBJDIR)/MatlabLikePlot_fb09c37f.o \
   $(OBJDIR)/TiledButtonGroupManager_e05788a6.o \
   $(OBJDIR)/LinearButtonGroupManager_ea5cb5bf.o \
@@ -122,6 +123,7 @@ OBJECTS := \
   $(OBJDIR)/MaterialButtonLookAndFeel_d7d19ba2.o \
   $(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o \
   $(OBJDIR)/CustomLookAndFeel_fcb2406a.o \
+  $(OBJDIR)/TimestampSourceSelection_e5ba8277.o \
   $(OBJDIR)/CustomArrowButton_206e4278.o \
   $(OBJDIR)/GraphViewer_e43fd2ce.o \
   $(OBJDIR)/EditorViewportButtons_29af2a5c.o \
@@ -310,9 +312,14 @@ $(OBJDIR)/AudioNode_3db3557c.o: ../../Source/Processors/AudioNode/AudioNode.cpp
 	@echo "Compiling AudioNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Channel_5cb2d4d2.o: ../../Source/Processors/Channel/Channel.cpp
+$(OBJDIR)/InfoObjects_ccadf9d5.o: ../../Source/Processors/Channel/InfoObjects.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Channel.cpp"
+	@echo "Compiling InfoObjects.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MetaData_93b6c72a.o: ../../Source/Processors/Channel/MetaData.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MetaData.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/RHD2000Editor_54b4b441.o: ../../Source/Processors/DataThreads/RhythmNode/RHD2000Editor.cpp
@@ -378,6 +385,11 @@ $(OBJDIR)/ImageIcon_c89b23a6.o: ../../Source/Processors/Editors/ImageIcon.cpp
 $(OBJDIR)/VisualizerEditor_3672b003.o: ../../Source/Processors/Editors/VisualizerEditor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling VisualizerEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Events_e36a356a.o: ../../Source/Processors/Events/Events.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Events.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FileSource_a1ad7002.o: ../../Source/Processors/FileReader/FileSource.cpp
@@ -495,11 +507,6 @@ $(OBJDIR)/DataWindow_83ce6754.o: ../../Source/Processors/Visualization/DataWindo
 	@echo "Compiling DataWindow.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SpikeObject_24e8c655.o: ../../Source/Processors/Visualization/SpikeObject.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SpikeObject.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/MatlabLikePlot_fb09c37f.o: ../../Source/Processors/Visualization/MatlabLikePlot.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MatlabLikePlot.cpp"
@@ -533,6 +540,11 @@ $(OBJDIR)/MaterialSliderLookAndFeel_c97dd613.o: ../../Source/UI/LookAndFeel/Mate
 $(OBJDIR)/CustomLookAndFeel_fcb2406a.o: ../../Source/UI/LookAndFeel/CustomLookAndFeel.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling CustomLookAndFeel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TimestampSourceSelection_e5ba8277.o: ../../Source/UI/TimestampSourceSelection.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TimestampSourceSelection.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/CustomArrowButton_206e4278.o: ../../Source/UI/CustomArrowButton.cpp

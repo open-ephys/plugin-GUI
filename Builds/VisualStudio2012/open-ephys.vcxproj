@@ -84,7 +84,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -129,7 +129,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -176,7 +176,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -219,7 +219,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.1;JUCE_APP_VERSION_HEX=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -283,7 +283,8 @@
     <ClCompile Include="..\..\Source\Processors\PluginManager\PluginManager.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Channel\Channel.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Channel\InfoObjects.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Channel\MetaData.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.cpp"/>
@@ -297,6 +298,7 @@
     <ClCompile Include="..\..\Source\Processors\Editors\GenericEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ImageIcon.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\VisualizerEditor.cpp"/>
+    <ClCompile Include="..\..\Source\Processors\Events\Events.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileSource.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReader.cpp"/>
     <ClCompile Include="..\..\Source\Processors\FileReader\FileReaderEditor.cpp"/>
@@ -320,7 +322,6 @@
     <ClCompile Include="..\..\Source\Processors\Splitter\SplitterEditor.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\Visualizer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\DataWindow.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\Visualization\SpikeObject.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Visualization\MatlabLikePlot.cpp"/>
     <ClCompile Include="..\..\Source\UI\Utils\TiledButtonGroupManager.cpp"/>
     <ClCompile Include="..\..\Source\UI\Utils\LinearButtonGroupManager.cpp"/>
@@ -328,6 +329,7 @@
     <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.cpp"/>
+    <ClCompile Include="..\..\Source\UI\TimestampSourceSelection.cpp"/>
     <ClCompile Include="..\..\Source\UI\CustomArrowButton.cpp"/>
     <ClCompile Include="..\..\Source\UI\GraphViewer.cpp"/>
     <ClCompile Include="..\..\Source\UI\EditorViewportButtons.cpp"/>
@@ -1950,7 +1952,8 @@
     <ClInclude Include="..\..\Source\Processors\PluginManager\PluginManager.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h"/>
-    <ClInclude Include="..\..\Source\Processors\Channel\Channel.h"/>
+    <ClInclude Include="..\..\Source\Processors\Channel\InfoObjects.h"/>
+    <ClInclude Include="..\..\Source\Processors\Channel\MetaData.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.h"/>
@@ -1964,6 +1967,7 @@
     <ClInclude Include="..\..\Source\Processors\Editors\GenericEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ImageIcon.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\VisualizerEditor.h"/>
+    <ClInclude Include="..\..\Source\Processors\Events\Events.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileSource.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReader.h"/>
     <ClInclude Include="..\..\Source\Processors\FileReader\FileReaderEditor.h"/>
@@ -1987,7 +1991,6 @@
     <ClInclude Include="..\..\Source\Processors\Splitter\Splitter.h"/>
     <ClInclude Include="..\..\Source\Processors\Splitter\SplitterEditor.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\DataWindow.h"/>
-    <ClInclude Include="..\..\Source\Processors\Visualization\SpikeObject.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\Visualizer.h"/>
     <ClInclude Include="..\..\Source\Processors\Visualization\MatlabLikePlot.h"/>
     <ClInclude Include="..\..\Source\UI\Utils\TiledButtonGroupManager.h"/>
@@ -1996,6 +1999,7 @@
     <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialButtonLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\MaterialSliderLookAndFeel.h"/>
     <ClInclude Include="..\..\Source\UI\LookAndFeel\CustomLookAndFeel.h"/>
+    <ClInclude Include="..\..\Source\UI\TimestampSourceSelection.h"/>
     <ClInclude Include="..\..\Source\UI\CustomArrowButton.h"/>
     <ClInclude Include="..\..\Source\UI\GraphViewer.h"/>
     <ClInclude Include="..\..\Source\UI\EditorViewportButtons.h"/>
