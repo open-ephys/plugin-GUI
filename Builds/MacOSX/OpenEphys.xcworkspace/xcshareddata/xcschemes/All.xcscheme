@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "0720"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "#!/bin/bash&#10;cd $PROJECT_DIR/Plugins/Config&#10;if [[ ! -a Env.xcconfig ]]&#10;then&#10;touch Env.xcconfig&#10;fi"
+               shellToInvoke = "/bin/bash">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "62F40A2101C1715EE4F8C87B"
+                     BuildableName = "open-ephys.app"
+                     BlueprintName = "open-ephys (App)"
+                     ReferencedContainer = "container:open-ephys.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
