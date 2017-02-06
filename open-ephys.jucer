@@ -45,7 +45,7 @@
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
-                       headerPath="JuceLibraryCode/" libraryPath="" defines=""/>
+                       headerPath="JuceLibraryCode/" libraryPath="" defines="" customXcodeFlags="GCC_INLINES_ARE_PRIVATE_EXTERN = NO"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="open-ephys"
                        osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="default"
                        headerPath="JuceLibraryCode/" libraryPath="" defines=""/>

@@ -17,7 +17,6 @@
 /* Begin PBXFileReference section */
 		E1F559E11C9B42270035F88B /* SpikeSorter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpikeSorter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F559E41C9B42270035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F559EB1C9B42650035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F559EC1C9B42650035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F559ED1C9B42650035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F559F01C9B428E0035F88B /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
@@ -71,7 +70,6 @@
 		E1F559EA1C9B42650035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F559EB1C9B42650035F88B /* Plugin.xcconfig */,
 				E1F559EC1C9B42650035F88B /* Plugin_Debug.xcconfig */,
 				E1F559ED1C9B42650035F88B /* Plugin_Release.xcconfig */,
 			);

@@ -62,7 +62,7 @@ namespace NWBRecording
 		int createFileStructure() override;
 
 	private:
-		HDF5RecordingData* createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry);
+		HDF5RecordingData* createRecordingStructures(String basePath, const NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry);
 		void createTextDataSet(String path, String name, String text);
 
 		const String filename;

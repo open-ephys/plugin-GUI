@@ -24,7 +24,7 @@
 #ifndef KWIKFORMAT_H_INCLUDED
 #define KWIKFORMAT_H_INCLUDED
  
-#include <OpenEphysHDF5Lib\HDF5FileFormat.h>
+#include <OpenEphysHDF5Lib/HDF5FileFormat.h>
 using namespace OpenEphysHDF5;
 
 struct KWIKRecordingInfo

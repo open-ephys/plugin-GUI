@@ -1,0 +1,221 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1D300381DAEBC570050E0F8 /* BinaryRecording.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */; };
+		E1D300391DAEBC570050E0F8 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300351DAEBC570050E0F8 /* OpenEphysLib.cpp */; };
+		E1D3003A1DAEBC570050E0F8 /* SequentialBlockFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300361DAEBC570050E0F8 /* SequentialBlockFile.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1D300281DAEBBBD0050E0F8 /* BinaryWriter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BinaryWriter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1D3002B1DAEBBBD0050E0F8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryRecording.cpp; sourceTree = "<group>"; };
+		E1D300331DAEBC570050E0F8 /* BinaryRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryRecording.h; sourceTree = "<group>"; };
+		E1D300341DAEBC570050E0F8 /* FileMemoryBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileMemoryBlock.h; sourceTree = "<group>"; };
+		E1D300351DAEBC570050E0F8 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1D300361DAEBC570050E0F8 /* SequentialBlockFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SequentialBlockFile.cpp; sourceTree = "<group>"; };
+		E1D300371DAEBC570050E0F8 /* SequentialBlockFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SequentialBlockFile.h; sourceTree = "<group>"; };
+		E1D3003C1DAEBCBD0050E0F8 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1D3003D1DAEBCBD0050E0F8 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1D300251DAEBBBD0050E0F8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1D3001F1DAEBBBD0050E0F8 = {
+			isa = PBXGroup;
+			children = (
+				E1D3003B1DAEBC9D0050E0F8 /* Config */,
+				E1D3002A1DAEBBBD0050E0F8 /* BinaryWriter */,
+				E1D300291DAEBBBD0050E0F8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1D300291DAEBBBD0050E0F8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1D300281DAEBBBD0050E0F8 /* BinaryWriter.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1D3002A1DAEBBBD0050E0F8 /* BinaryWriter */ = {
+			isa = PBXGroup;
+			children = (
+				E1D300311DAEBC140050E0F8 /* Source */,
+				E1D3002B1DAEBBBD0050E0F8 /* Info.plist */,
+			);
+			path = BinaryWriter;
+			sourceTree = "<group>";
+		};
+		E1D300311DAEBC140050E0F8 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1D300331DAEBC570050E0F8 /* BinaryRecording.h */,
+				E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */,
+				E1D300341DAEBC570050E0F8 /* FileMemoryBlock.h */,
+				E1D300371DAEBC570050E0F8 /* SequentialBlockFile.h */,
+				E1D300361DAEBC570050E0F8 /* SequentialBlockFile.cpp */,
+				E1D300351DAEBC570050E0F8 /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/BinaryWriter;
+			sourceTree = "<group>";
+		};
+		E1D3003B1DAEBC9D0050E0F8 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1D3003C1DAEBCBD0050E0F8 /* Plugin_Debug.xcconfig */,
+				E1D3003D1DAEBCBD0050E0F8 /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1D300271DAEBBBD0050E0F8 /* BinaryWriter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1D3002E1DAEBBBD0050E0F8 /* Build configuration list for PBXNativeTarget "BinaryWriter" */;
+			buildPhases = (
+				E1D300241DAEBBBD0050E0F8 /* Sources */,
+				E1D300251DAEBBBD0050E0F8 /* Frameworks */,
+				E1D300261DAEBBBD0050E0F8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BinaryWriter;
+			productName = BinaryWriter;
+			productReference = E1D300281DAEBBBD0050E0F8 /* BinaryWriter.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1D300201DAEBBBD0050E0F8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1D300271DAEBBBD0050E0F8 = {
+						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E1D300231DAEBBBD0050E0F8 /* Build configuration list for PBXProject "BinaryWriter" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1D3001F1DAEBBBD0050E0F8;
+			productRefGroup = E1D300291DAEBBBD0050E0F8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1D300271DAEBBBD0050E0F8 /* BinaryWriter */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1D300261DAEBBBD0050E0F8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1D300241DAEBBBD0050E0F8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1D300381DAEBC570050E0F8 /* BinaryRecording.cpp in Sources */,
+				E1D300391DAEBC570050E0F8 /* OpenEphysLib.cpp in Sources */,
+				E1D3003A1DAEBC570050E0F8 /* SequentialBlockFile.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1D3002C1DAEBBBD0050E0F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1D3003C1DAEBCBD0050E0F8 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1D3002D1DAEBBBD0050E0F8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1D3003D1DAEBCBD0050E0F8 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1D3002F1DAEBBBD0050E0F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BinaryWriter/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.BinaryWriter";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1D300301DAEBBBD0050E0F8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = BinaryWriter/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.BinaryWriter";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1D300231DAEBBBD0050E0F8 /* Build configuration list for PBXProject "BinaryWriter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1D3002C1DAEBBBD0050E0F8 /* Debug */,
+				E1D3002D1DAEBBBD0050E0F8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1D3002E1DAEBBBD0050E0F8 /* Build configuration list for PBXNativeTarget "BinaryWriter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1D3002F1DAEBBBD0050E0F8 /* Debug */,
+				E1D300301DAEBBBD0050E0F8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1D300201DAEBBBD0050E0F8 /* Project object */;
+}

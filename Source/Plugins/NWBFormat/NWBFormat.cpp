@@ -299,7 +299,7 @@ int NWBFile::createFileStructure()
 	 return filename;
  }
 
-  HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry)
+  HDF5RecordingData* NWBFile::createRecordingStructures(String basePath, const NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry)
  {
 	 StringArray ancestryStrings;
 	 ancestryStrings.add("TimeSeries");

@@ -966,8 +966,8 @@ void RatePlot::paint(Graphics& g)
 void RatePlot::resized()
 {
     float electrodeSize = 10.0f;
-    float xLoc;
-    float yLoc;
+    float xLoc = 0;
+    float yLoc = 0;
     float xDist;
 
     if (layout == 0)
