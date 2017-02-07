@@ -296,7 +296,7 @@ bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventCha
 	if (!channelInfo) return false;
 	if (channelInfo->getChannelType() != eventType) return false;
 	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
-	if (!compareMetaData(channelInfo, metaData)) return nullptr;
+	if (!compareMetaData(channelInfo, metaData)) return false;
 	return true;
 }
 

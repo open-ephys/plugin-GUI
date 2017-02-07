@@ -58,11 +58,11 @@ public:
 private:
 	void clearChannelCreationCounts();
 	int dataChannelCount{ 0 };
-	std::unordered_map<DataChannel::DataChannelTypes, int> dataChannelTypeCount;
+	std::unordered_map<DataChannel::DataChannelTypes, int, std::hash<int>> dataChannelTypeCount;
 	int eventChannelCount{ 0 };
-	std::unordered_map<EventChannel::EventChannelTypes, int> eventChannelTypeCount;
+	std::unordered_map<EventChannel::EventChannelTypes, int, std::hash<int>> eventChannelTypeCount;
 	int spikeChannelCount{ 0 };
-	std::unordered_map<SpikeChannel::ElectrodeTypes, int> spikeChannelTypeCount;
+	std::unordered_map<SpikeChannel::ElectrodeTypes, int, std::hash<int>> spikeChannelTypeCount;
 };
 
 

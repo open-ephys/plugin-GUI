@@ -22,8 +22,8 @@
 */
 
 #include "AccessClass.h"
-#include "Processors\GenericProcessor\GenericProcessor.h"
-#include "Processors\MessageCenter\MessageCenterEditor.h"
+#include "Processors/GenericProcessor/GenericProcessor.h"
+#include "Processors/MessageCenter/MessageCenterEditor.h"
 
 #include "UI/UIComponent.h"
 

@@ -492,7 +492,7 @@ void SpikeThresholdDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-void SpikeThresholdDisplay::plotSpike(SorterSpikePtr& spike, int electrodeNum)
+void SpikeThresholdDisplay::plotSpike(SorterSpikePtr spike, int electrodeNum)
 {
     spikePlots[electrodeNum]->processSpikeObject(spike);
 
@@ -643,7 +643,7 @@ void SpikeHistogramPlot::setPCARange(float p1min, float p2min, float p1max, floa
     pAxes[0]->setPCARange(p1min, p2min, p1max, p2max);
 }
 
-void SpikeHistogramPlot::processSpikeObject(SorterSpikePtr& s)
+void SpikeHistogramPlot::processSpikeObject(SorterSpikePtr s)
 {
     const ScopedLock myScopedLock(mut);
     if (nWaveAx > 0)
@@ -911,7 +911,7 @@ GenericDrawAxes::~GenericDrawAxes()
 
 }
 
-bool GenericDrawAxes::updateSpikeData(SorterSpikePtr& newSpike)
+bool GenericDrawAxes::updateSpikeData(SorterSpikePtr newSpike)
 {
     if (!gotFirstSpike)
     {
@@ -1068,7 +1068,7 @@ void WaveformAxes::setRange(float r)
     repaint();
 }
 
-void WaveformAxes::plotSpike(SorterSpikePtr& s, Graphics& g)
+void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
 
     float h = getHeight();
@@ -1156,7 +1156,7 @@ void WaveformAxes::drawWaveformGrid(Graphics& g)
 }
 
 
-bool WaveformAxes::updateSpikeData(SorterSpikePtr& s)
+bool WaveformAxes::updateSpikeData(SorterSpikePtr s)
 {
     if (!gotFirstSpike)
     {
@@ -1179,7 +1179,7 @@ bool WaveformAxes::updateSpikeData(SorterSpikePtr& s)
 
 }
 
-bool WaveformAxes::checkThreshold(SorterSpikePtr& s)
+bool WaveformAxes::checkThreshold(SorterSpikePtr s)
 {
     int sampIdx = s->getChannel()->getTotalSamples()*type;
 
@@ -1868,7 +1868,7 @@ void PCAProjectionAxes::paint(Graphics& g)
 }
 
 
-void PCAProjectionAxes::drawProjectedSpike(SorterSpikePtr& s)
+void PCAProjectionAxes::drawProjectedSpike(SorterSpikePtr s)
 {
     if (s != nullptr && rangeSet)
     {
@@ -1915,7 +1915,7 @@ void PCAProjectionAxes::setPCARange(float p1min, float p2min, float p1max, float
 
 }
 
-bool PCAProjectionAxes::updateSpikeData(SorterSpikePtr& s)
+bool PCAProjectionAxes::updateSpikeData(SorterSpikePtr s)
 {
 
     if (spikesReceivedSinceLastRedraw < bufferSize)

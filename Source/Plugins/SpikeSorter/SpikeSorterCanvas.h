@@ -136,7 +136,7 @@ public:
     void setPolygonMode(bool on);
     void mouseDown(const juce::MouseEvent& event);
 
-    void plotSpike(SorterSpikePtr& spike, int electrodeNum);
+    void plotSpike(SorterSpikePtr spike, int electrodeNum);
 
     int getTotalHeight()
     {
@@ -173,7 +173,7 @@ public:
 
     virtual ~GenericDrawAxes();
 
-	virtual bool updateSpikeData(SorterSpikePtr& s);
+    virtual bool updateSpikeData(SorterSpikePtr s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -211,14 +211,14 @@ public:
     ~WaveformAxes() {}
 
 
-	bool updateSpikeData(SorterSpikePtr& s);
-	bool checkThreshold(SorterSpikePtr& spike);
+	bool updateSpikeData(SorterSpikePtr s);
+	bool checkThreshold(SorterSpikePtr spike);
 
     void setSignalFlip(bool state);
     void paint(Graphics& g);
     void isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where) ;
 
-	void plotSpike(SorterSpikePtr& s, Graphics& g);
+	void plotSpike(SorterSpikePtr s, Graphics& g);
     void drawBoxes(Graphics& g);
 
     void clear();
@@ -294,7 +294,7 @@ public:
     ~PCAProjectionAxes() {}
 
     void setPCARange(float p1min, float p2min, float p1max, float p2max);
-	bool updateSpikeData(SorterSpikePtr& s);
+	bool updateSpikeData(SorterSpikePtr s);
     void resized();
     void paint(Graphics& g);
     void setPolygonDrawingMode(bool on);
@@ -318,19 +318,19 @@ public:
 private:
     float prevx,prevy;
     bool inPolygonDrawingMode;
-	void drawProjectedSpike(SorterSpikePtr& s);
+	void drawProjectedSpike(SorterSpikePtr s);
 
     bool rangeSet;
     SpikeSorter* processor;
     void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t* col);
-	void updateRange(SorterSpikePtr& s);
+	void updateRange(SorterSpikePtr s);
     ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
 
     SorterSpikeArray spikeBuffer;
     int bufferSize;
     int spikeIndex;
     bool updateProcessor;
-	void calcWaveformPeakIdx(SorterSpikePtr&, int, int, int*, int*);
+	void calcWaveformPeakIdx(SorterSpikePtr, int, int, int*, int*);
 
     Image projectionImage;
 
@@ -372,7 +372,7 @@ public:
     void setPCARange(float p1min, float p2min, float p1max, float p2max);
     void modifyRange(int index,bool up);
     void updateUnitsFromProcessor();
-	void processSpikeObject(SorterSpikePtr& s);
+	void processSpikeObject(SorterSpikePtr s);
 
     SpikeSorterCanvas* canvas;
 

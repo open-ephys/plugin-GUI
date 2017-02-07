@@ -304,7 +304,7 @@ String BinaryRecording::generateSpikeHeader(const SpikeChannel* elec)
 	header += "';\n";
 
 	header += "header.num_channels = ";
-	header += elec->getNumChannels();
+	header += String(elec->getNumChannels());
 	header += ";\n";
 
 	header += "header.sampleRate = ";
