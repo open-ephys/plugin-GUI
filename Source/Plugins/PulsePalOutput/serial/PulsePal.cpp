@@ -176,7 +176,7 @@ void PulsePal::setInterPulseInterval(uint8_t channel, float timeInSeconds)
     uint32_t timeInCycles = (uint32_t)(timeInSeconds * CycleFreq);
     constrain(&timeInCycles, 1, MAX_Cycles);
     program(channel, 7, timeInCycles);
-    PulsePal::currentOutputParams[channel].interPhaseInterval = timeInSeconds;
+    PulsePal::currentOutputParams[channel].interPulseInterval = timeInSeconds;
 }
 
 void PulsePal::setBurstDuration(uint8_t channel, float timeInSeconds)
