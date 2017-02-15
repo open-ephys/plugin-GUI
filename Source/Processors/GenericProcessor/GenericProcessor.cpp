@@ -729,10 +729,15 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
     if (m_currentMidiBuffer->getNumEvents() > 0)
     {
+		//Since adding events to the buffer inside this loop could be dangerous, create a temporal event buffer
+		//so any call to addEvent will operate on it;
+		MidiBuffer temporalEventBuffer;
+		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
+		m_currentMidiBuffer = &temporalEventBuffer;
         // int m = midiMessages.getNumEvents();
         //std::cout << m << " events received by node " << getNodeId() << std::endl;
 
-        MidiBuffer::Iterator i (*m_currentMidiBuffer);
+		MidiBuffer::Iterator i(*originalEventBuffer);
         MidiMessage message (0xf4);
 
         int samplePosition = 0;
@@ -760,6 +765,11 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 					handleSpike(spikeChannelArray[index], message, samplePosition);
 			}
         }
+		//Restore the original buffer pointer and, if some new event has been added here, copy it to the original buffer
+		m_currentMidiBuffer = originalEventBuffer;
+		if (temporalEventBuffer.getNumEvents() > 0)
+			m_currentMidiBuffer->addEvents(temporalEventBuffer, 0, -1, 0);
+
 		return 0;
     }
 
