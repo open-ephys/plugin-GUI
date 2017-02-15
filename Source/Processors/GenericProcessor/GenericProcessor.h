@@ -381,7 +381,7 @@ public:
                            int sampleNum,
                            uint8 eventID = 0,
                            uint8 eventChannel = 0,
-                           uint8 numBytes = 0,
+                           int numBytes = 0,
                            uint8* data = 0,
                            bool isTimestamp = false);
 
