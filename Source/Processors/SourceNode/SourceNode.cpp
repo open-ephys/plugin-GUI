@@ -78,6 +78,7 @@ void SourceNode::resizeBuffers()
 	eventStates.clear();
 	if (dataThread != nullptr)
 	{
+		dataThread->resizeBuffers();
 		int numSubProcs = dataThread->getNumSubProcessors();
 		for (int i = 0; i < numSubProcs; i++)
 		{

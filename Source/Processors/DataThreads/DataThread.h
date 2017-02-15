@@ -68,6 +68,9 @@ public:
     /** Returns the address of the DataBuffer that the input source will fill.*/
     DataBuffer* getBufferAddress(int subProcessor) const;
 
+	/** Called when the chain updates, to add, remove or resize the sourceBuffers' DataBuffers as needed*/
+	virtual void resizeBuffers();
+
     /** Fills the DataBuffer with incoming data. This is the most important
     method for each DataThread.*/
     virtual bool updateBuffer() = 0;

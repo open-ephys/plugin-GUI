@@ -139,3 +139,6 @@ GenericEditor* DataThread::createEditor (SourceNode*)
 
 void DataThread::createExtraEvents(Array<EventChannel*>&)
 {}
+
+void DataThread::resizeBuffers()
+{}
