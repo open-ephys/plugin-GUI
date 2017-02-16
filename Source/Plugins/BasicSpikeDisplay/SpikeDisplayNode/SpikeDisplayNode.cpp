@@ -267,12 +267,6 @@ void SpikeDisplayNode::handleEvent (int eventType, MidiMessage& event, int sampl
                         e.mostRecentSpikes.set (e.currentSpikeIndex, newSpike);
                         e.currentSpikeIndex++;
                     }
-
-                    // save spike
-                    if (isRecording)
-                    {
-                        CoreServices::RecordNode::writeSpike (newSpike, e.recordIndex);
-                    }
                 }
             }
         }
