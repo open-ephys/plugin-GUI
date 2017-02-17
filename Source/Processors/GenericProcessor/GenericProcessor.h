@@ -531,6 +531,9 @@ public:
 		unsigned int nChannels{ 0 };
 		unsigned int length{ 0 };
 		float sampleRate{ 44100 };
+		String name;
+		String description;
+		String identifier;
 	};
 
 protected:

@@ -465,10 +465,17 @@ void GenericProcessor::createEventChannels()
 		int nChans = events.size();
 		for (int i = 0; i < nChans; i++)
 		{
-			if (events[i].type != EventChannel::INVALID && events[i].nChannels > 0 && events[i].length > 0)
+			DefaultEventInfo& info = events[i];
+			if (info.type != EventChannel::INVALID && info.nChannels > 0 && info.length > 0)
 			{
-				EventChannel* chan = new EventChannel(events[i].type, events[i].nChannels, events[i].length, events[i].sampleRate, this, sub);
+				EventChannel* chan = new EventChannel(info.type, info.nChannels, info.length, info.sampleRate, this, sub);
 				chan->m_nodeID = nodeId;
+				if (info.name.isNotEmpty())
+					chan->setName(info.name);
+				if (info.description.isNotEmpty())
+					chan->setDescription(info.description);
+				if (info.identifier.isNotEmpty())
+					chan->setIdentifier(info.identifier);
 				eventChannelArray.add(chan);
 			}
 		}
