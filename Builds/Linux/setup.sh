@@ -31,7 +31,7 @@ PROC_DIR=${BUILD_HOME%/*/*}
 make -j4
 
 if [ $? -eq 0 ]; then
-	sudo ln -s -f $BUILD_HOME/build/open-ephys /usr/bin/.
+	sudo ln -s -f $BUILD_HOME/build/open-ephys.so /usr/bin/open-ephys
 	echo "-----> GUI compile successful."
 else
 	echo "-----> GUI compile failed."
