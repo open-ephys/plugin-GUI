@@ -142,3 +142,8 @@ void DataThread::createExtraEvents(Array<EventChannel*>&)
 
 void DataThread::resizeBuffers()
 {}
+
+String DataThread::getChannelUnits(int chanIndex) const
+{
+	return String::empty;
+}

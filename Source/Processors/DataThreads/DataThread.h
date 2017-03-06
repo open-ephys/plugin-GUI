@@ -137,6 +137,8 @@ public:
 
 	void createTTLChannels();
 
+	virtual String getChannelUnits(int chanIndex) const;
+
 protected:
     virtual void setDefaultChannelNames();
 

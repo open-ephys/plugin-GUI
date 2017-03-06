@@ -929,6 +929,19 @@ int RHD2000Thread::getNumDataOutputs(DataChannel::DataChannelTypes type, int sub
 	}
 }
 
+String RHD2000Thread::getChannelUnits(int chanIndex) const
+{
+	switch (sn->getDataChannel(chanIndex)->getChannelType())
+	{
+	case DataChannel::AUX_CHANNEL:
+		return "mV";
+	case DataChannel::ADC_CHANNEL:
+		return "V";
+	default:
+		return "uV";
+	}
+}
+
 
 int RHD2000Thread::getNumTTLOutputs(int subproc) const
 {

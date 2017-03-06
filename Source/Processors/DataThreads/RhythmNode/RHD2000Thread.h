@@ -126,6 +126,8 @@ public:
     String getChannelName (int ch) const;
     void setNumChannels (int hsNum, int nChannels);
 
+	String getChannelUnits(int chanIndex) const override;
+
     int getHeadstageChannels         (int hsNum) const;
     int getActiveChannelsInHeadstage (int hsNum) const;
 

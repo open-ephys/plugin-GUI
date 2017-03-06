@@ -109,6 +109,13 @@ void SourceNode::updateSettings()
 	{
 		dataThread->updateChannels();
 		resizeBuffers();
+		int nChans = dataChannelArray.size();
+		for (int i = 0; i < nChans; i++)
+		{
+			String unit = dataThread->getChannelUnits(i);
+			if (unit.isNotEmpty())
+				dataChannelArray[i]->setDataUnits(unit);
+		}
 	}
 }
 

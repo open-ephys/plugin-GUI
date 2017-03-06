@@ -179,6 +179,16 @@ float DataChannel::getBitVolts() const
 	return m_bitVolts;
 }
 
+void DataChannel::setDataUnits(String unit)
+{
+	m_unitName = unit;
+}
+
+String DataChannel::getDataUnits() const
+{
+	return m_unitName;
+}
+
 DataChannel::DataChannelTypes DataChannel::getChannelType() const
 {
 	return m_type;

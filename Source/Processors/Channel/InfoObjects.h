@@ -201,6 +201,12 @@ public:
 	/** Returns the bitVolts value for this channel. */
 	float getBitVolts() const;
 
+	/** Sets the unit string */
+	void setDataUnits(String unit);
+	
+	/** Gets the data units*/
+	String getDataUnits() const;
+
 	DataChannelTypes getChannelType() const;
 
 	//--------- STATUS METHODS ----------//
@@ -235,6 +241,7 @@ private:
 	bool m_isEnabled{ true };
 	bool m_isMonitored{ false };
 	bool m_isRecording{ false };
+	String m_unitName{ "uV" };
 
 	JUCE_LEAK_DETECTOR(DataChannel);
 };
