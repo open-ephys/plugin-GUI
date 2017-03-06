@@ -750,7 +750,7 @@ void GenericProcessor::addEvent (MidiBuffer& eventBuffer,
                                  int sampleNum,
                                  uint8 eventId,
                                  uint8 eventChannel,
-                                 uint8 numBytes,
+                                 int numBytes,
                                  uint8* eventData,
                                  bool isTimestamp)
 {
