@@ -31,7 +31,7 @@ PROC_DIR=${BUILD_HOME%/*/*}
 make -j4
 
 if [ $? -eq 0 ]; then
-	sudo ln -s -f $BUILD_HOME/build/open-ephys /usr/bin/.
+	sudo ln -s -f $BUILD_HOME/build/open-ephys /usr/bin/open-ephys
 	echo "-----> GUI compile successful."
 else
 	echo "-----> GUI compile failed."
@@ -39,23 +39,7 @@ else
 fi
 
 # Step 2: Compile plugins
-PLUGIN_SRC_DIR="${PROC_DIR}/Source/Processors"
-PLUGINS=`ls -d ${PLUGIN_SRC_DIR}/*`
-
-cd $PLUGIN_SRC_DIR
-for PLUGIN in ${PLUGINS}
-do
-	if [ -f $PLUGIN/Makefile ]; then
-		cd $PLUGIN
-		make clean
-		make
-		if [ $? -ne 0 ]; then
-			echo "-----> Plugin compile failed."
-			exit
-		fi
-		cd ..
-	fi
-done
+make -j4 -f Makefile.plugins
 
 if [ $? -eq 0 ]; then
 	echo "-----> Plugin installation sucessful."
