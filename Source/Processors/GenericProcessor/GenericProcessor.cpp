@@ -465,7 +465,7 @@ void GenericProcessor::createEventChannels()
 		int nChans = events.size();
 		for (int i = 0; i < nChans; i++)
 		{
-			DefaultEventInfo& info = events[i];
+			const DefaultEventInfo& info = events[i];
 			if (info.type != EventChannel::INVALID && info.nChannels > 0 && info.length > 0)
 			{
 				EventChannel* chan = new EventChannel(info.type, info.nChannels, info.length, info.sampleRate, this, sub);
@@ -1251,7 +1251,7 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
 
 uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
 {
-	return uint32(sid) << 16 + subid;
+	return (uint32(sid) << 16) + subid;
 }
 
 int64 GenericProcessor::getLastProcessedsoftwareTime() const

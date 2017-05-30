@@ -46,7 +46,7 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 //MetaDataDescriptor
 
 MetaDataDescriptor::MetaDataDescriptor(MetaDataDescriptor::MetaDataTypes t, unsigned int length, String n, String d, String id)
-	: m_name(n), m_description(d), m_identifier(id), m_type(t), m_length(length)
+	: m_name(n), m_identifier(id), m_description(d), m_type(t), m_length(length)
 {}
 
 MetaDataDescriptor::~MetaDataDescriptor() {};
@@ -264,6 +264,8 @@ void MetaDataValue::setValue(const void* data)
 
 MetaDataInfoObject::MetaDataInfoObject() {}
 
+MetaDataInfoObject::~MetaDataInfoObject() {}
+
 void MetaDataInfoObject::addMetaData(MetaDataDescriptor* desc, MetaDataValue* val)
 {
 	if (desc->getType() != val->getDataType() || desc->getLength() != val->getDataLength())
@@ -322,6 +324,8 @@ int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, uns
 
 MetaDataEventObject::MetaDataEventObject() {}
 
+MetaDataEventObject::~MetaDataEventObject() {}
+
 void MetaDataEventObject::addEventMetaData(MetaDataDescriptor* desc)
 {
 	if (eventMetaDataLock)
@@ -375,6 +379,8 @@ int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes typ
 
 //MetaDataEvent
 MetaDataEvent::MetaDataEvent() {}
+
+MetaDataEvent::~MetaDataEvent() {}
 
 void MetaDataEvent::serializeMetaData(void* dstBuffer) const
 {

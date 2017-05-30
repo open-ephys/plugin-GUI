@@ -172,6 +172,7 @@ class PLUGIN_API MetaDataInfoObject
 protected:
 	MetaDataInfoObject();
 public:
+    virtual ~MetaDataInfoObject();
 	void addMetaData(MetaDataDescriptor* desc, MetaDataValue* val);
 	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
@@ -199,6 +200,7 @@ protected:
 class PLUGIN_API MetaDataEventObject : public MetaDataEventLock
 {
 public:
+    virtual ~MetaDataEventObject();
 	//This method will only work when creating the info object, but not for those copied down the chain
 	void addEventMetaData(MetaDataDescriptor* desc);
 	void addEventMetaData(const MetaDataDescriptor& desc);
@@ -215,6 +217,8 @@ protected:
 //And the base from which event objects can hold their metadata before serializing
 class PLUGIN_API MetaDataEvent
 {
+public:
+    virtual ~MetaDataEvent();
 protected:
 	void serializeMetaData(void* dstBuffer) const;
 	bool deserializeMetaData(const MetaDataEventObject* info, const void* srcBuffer, int size);

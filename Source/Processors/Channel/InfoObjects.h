@@ -47,6 +47,7 @@ class PLUGIN_API NodeInfoBase
 	//This field should never be changed by anything except GenericProcessor base code
 	friend class GenericProcessor;
 public:
+    virtual ~NodeInfoBase();
 	/** Gets the ID of the processor which currently owns this copy of the info object */
 	unsigned int getCurrentNodeID() const;
 protected:
@@ -62,6 +63,7 @@ protected:
 	HistoryObject();
 
 public:
+    virtual ~HistoryObject();
 	/** Returns the historic string */
 	String getHistoricString();
 	/** Adds a new entry in the historic string*/
@@ -77,6 +79,7 @@ protected:
 	SourceProcessorInfo(const GenericProcessor* source, uint16 subproc = 0);
 
 public:
+    virtual ~SourceProcessorInfo();
 	/** Gets the ID of the processor which created the channel object */
 	uint16 getSourceNodeID() const;
 
@@ -101,6 +104,7 @@ private:
 class PLUGIN_API NamedInfoObject
 {
 public:
+    virtual ~NamedInfoObject();
 	/** Sets the object's name*/
 	void setName(String name);
 
@@ -135,6 +139,7 @@ protected:
 	InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate, const GenericProcessor* source, uint16 subproc = 0);
 
 public:
+    virtual ~InfoObjectCommon();
 	enum InfoObjectType
 	{
 		DATA_CHANNEL,
@@ -191,7 +196,7 @@ public:
 	/** Copy constructor. */
 	DataChannel(const DataChannel& ch);
 
-	~DataChannel();
+	virtual ~DataChannel();
 
 	//--------- DATA GET / SET METHODS --------//
 
@@ -293,7 +298,7 @@ public:
 	*/
 	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc = 0);
 
-	~EventChannel();
+	virtual ~EventChannel();
 
 	EventChannelTypes getChannelType() const;
 
@@ -358,7 +363,7 @@ public:
 	*/
 	SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc = 0);
 
-	~SpikeChannel();
+	virtual ~SpikeChannel();
 
 	ElectrodeTypes getChannelType() const;
 
@@ -421,6 +426,7 @@ public:
 	@param subproc Optional. The source subprocessor index
 	*/
 	ConfigurationObject(String identifier, GenericProcessor* source, uint16 subproc = 0);
+    virtual ~ConfigurationObject();
 
 	/** Sets if the configuration should be recorded or not.
 	Similar to the events, this does not prevent the configuration data to be recorded, but rather states

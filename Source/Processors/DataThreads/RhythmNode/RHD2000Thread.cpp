@@ -927,6 +927,7 @@ int RHD2000Thread::getNumDataOutputs(DataChannel::DataChannelTypes type, int sub
 			return 0;
 		}
 	}
+    return 0;
 }
 
 String RHD2000Thread::getChannelUnits(int chanIndex) const
