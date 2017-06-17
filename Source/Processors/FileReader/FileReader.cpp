@@ -245,14 +245,14 @@ void FileReader::process (AudioSampleBuffer& buffer)
         {
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
-                input->readData (readBuffer + samplesRead, samplesToRead);
+                input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
 
             input->seekTo (startSample);
             currentSample = startSample;
         }
         else
         {
-            input->readData (readBuffer + samplesRead, samplesToRead);
+            input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
 
             currentSample += samplesToRead;
         }
