@@ -25,22 +25,22 @@
 #define NWBFORMAT_H
 
 #include <OpenEphysHDF5Lib/HDF5FileFormat.h>
+#include <RecordingLib.h>
 using namespace OpenEphysHDF5;
 
 namespace NWBRecording
 {
-
-	struct NWBRecordingInfo
+	typedef Array<const DataChannel*> ContinuousGroup;
+	class TimeSeries
 	{
-		String sourceName;
-		float bitVolts;
-		int processorId;
-		int sourceId;
-		int sourceSubIdx;
-		int nChannels;
-		int nSamplesPerSpike;
-		float sampleRate;
-		String spikeElectrodeName;
+	public:
+		ScopedPointer<HDF5RecordingData> baseDataSet;
+		ScopedPointer<HDF5RecordingData> timestampDataSet;
+		ScopedPointer<HDF5RecordingData> controlDataSet; //for all but spikes
+		ScopedPointer<HDF5RecordingData> ttlWordDataSet; //just for ttl events
+		OwnedArray<HDF5RecordingData> metaDataSet;
+		String basePath;
+		uint64 numSamples{ 0 };
 	};
 
 	class NWBFile : public HDF5FileBase
@@ -48,13 +48,13 @@ namespace NWBRecording
 	public:
 		NWBFile(String fName, String ver, String idText); //with whatever arguments it's necessary
 		~NWBFile();
-		bool startNewRecording(int recordingNumber, const Array<NWBRecordingInfo>& continuousArray, const Array<NWBRecordingInfo>& electrodeArray);
+		bool startNewRecording(int recordingNumber, const Array<ContinuousGroup>& continuousArray,
+			const Array<const EventChannel*>& eventArray, const Array<const SpikeChannel*>& electrodeArray);
 		void stopRecording();
-		void writeData(int datasetID, int channel, int nSamples, const int16* data);
+		void writeData(int datasetID, int channel, int nSamples, const float* data, float bitVolts);
 		void writeTimestamps(int datasetID, int nSamples, const double* data);
-		void writeSpike(int electrodeId, const int16* data, double timestampSec);
-		void writeTTLEvent(int channel, int id, uint8 source, double timestampSec);
-		void writeMessage(const char* msg, double timestampSec);
+		void writeSpike(int electrodeId, const SpikeChannel* channel, const SpikeEvent* event);
+		void writeEvent(int eventID, const EventChannel* channel, const Event* event);
 		String getFileName() override;
 		void setXmlText(const String& xmlText);
 
@@ -62,35 +62,36 @@ namespace NWBRecording
 		int createFileStructure() override;
 
 	private:
-		HDF5RecordingData* createRecordingStructures(String basePath, const NWBRecordingInfo& info, String helpText, int chunk_size, String ancestry);
+
 		void createTextDataSet(String path, String name, String text);
+		void createBinaryDataSet(String path, String name, HDF5FileBase::BaseDataType type, int length, void* data);
+		static HDF5FileBase::BaseDataType getEventH5Type(EventChannel::EventChannelTypes type, int length = 1);
+		static HDF5FileBase::BaseDataType getMetaDataH5Type(MetaDataDescriptor::MetaDataTypes type, int length = 1);
+
+		bool createTimeSeriesBase(String basePath, String source, String helpText, String description, StringArray ancestry);
+		bool createExtraInfo(String basePath, String name, String desc, String id, uint16 index, uint16 typeIndex);
+		HDF5RecordingData* createTimestampDataSet(String basePath, int chunk_size);
+		void createDataAttributes(String basePath, float conversion, float resolution, String unit);
+		bool createChannelMetaDataSets(String basePath, const MetaDataInfoObject* info);
+		bool createEventMetaDataSets(String basePath, TimeSeries* timeSeries, const MetaDataEventObject* info);
+
+		void writeEventMetaData(TimeSeries* timeSeries, const MetaDataEventObject* info, const MetaDataEvent* event);
+		
 
 		const String filename;
 		const String GUIVersion;
 
-		OwnedArray<HDF5RecordingData> continuousDataSets;
-		OwnedArray<HDF5RecordingData> continuousDataSetsTS;
-		StringArray continuousBasePaths;
-		Array<uint64> numContinuousSamples;
-		Array<NWBRecordingInfo> continuousInfoStructs;
-		OwnedArray<HDF5RecordingData> spikeDataSets;
-		OwnedArray<HDF5RecordingData> spikeDataSetsTS;
-		StringArray spikeBasePaths;
-		Array<uint64> numSpikes;
-		Array<NWBRecordingInfo> spikeInfoStructs;
-		ScopedPointer<HDF5RecordingData> eventsDataSet;
-		ScopedPointer<HDF5RecordingData> eventsDataSetTS;
-		String eventsBasePath;
-		uint64 numEvents;
-		ScopedPointer<HDF5RecordingData> messagesDataSet;
-		ScopedPointer<HDF5RecordingData> messagesDataSetTS;
-		String messagesBasePath;
-		uint64 numMessages;
+		OwnedArray<TimeSeries>  continuousDataSets;
+		OwnedArray<TimeSeries> spikeDataSets;
+		OwnedArray<TimeSeries> eventDataSets;
 
-		ScopedPointer<HDF5RecordingData> eventsControlDataSet;
 
 		const String* xmlText;
 		const String identifierText;
+
+		HeapBlock<float> scaledBuffer;
+		HeapBlock<int16> intBuffer;
+		size_t bufferSize;
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NWBFile);
 
