@@ -111,13 +111,13 @@ void HDF5FileBase::close()
     opened = false;
 }
 
-int HDF5FileBase::setAttribute(DataTypes type, const void* data, String path, String name)
+int HDF5FileBase::setAttribute(BaseDataType type, const void* data, String path, String name)
 {
     return setAttributeArray(type, data, 1, path, name);
 }
 
 
-int HDF5FileBase::setAttributeArray(DataTypes type, const void* data, int size, String path, String name)
+int HDF5FileBase::setAttributeArray(BaseDataType type, const void* data, int size, String path, String name)
 {
     H5Location* loc;
     Group gloc;
@@ -335,13 +335,13 @@ HDF5RecordingData* HDF5FileBase::getDataSet(String path)
     }
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int chunkX, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(BaseDataType type, int sizeX, int chunkX, String path)
 {
     int chunks[3] = {chunkX, 0, 0};
     return createDataSet(type,1,&sizeX,chunks,path);
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int chunkX, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(BaseDataType type, int sizeX, int sizeY, int chunkX, String path)
 {
     int size[2];
     int chunks[3] = {chunkX, 0, 0};
@@ -350,7 +350,7 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int si
     return createDataSet(type,2,size,chunks,path);
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(BaseDataType type, int sizeX, int sizeY, int sizeZ, int chunkX, String path)
 {
     int size[3];
     int chunks[3] = {chunkX, 0, 0};
@@ -360,7 +360,7 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int si
     return createDataSet(type,3,size,chunks,path);
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(BaseDataType type, int sizeX, int sizeY, int sizeZ, int chunkX, int chunkY, String path)
 {
     int size[3];
     int chunks[3] = {chunkX, chunkY, 0};
@@ -370,7 +370,7 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int sizeX, int si
     return createDataSet(type,3,size,chunks,path);
 }
 
-HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, int* size, int* chunking, String path)
+HDF5RecordingData* HDF5FileBase::createDataSet(BaseDataType type, int dimension, int* size, int* chunking, String path)
 {
     ScopedPointer<DataSet> data;
     DSetCreatPropList prop;
@@ -426,87 +426,134 @@ HDF5RecordingData* HDF5FileBase::createDataSet(DataTypes type, int dimension, in
 
 }
 
-H5::DataType HDF5FileBase::getNativeType(DataTypes type)
+H5::DataType HDF5FileBase::getNativeType(BaseDataType type)
 {
-    switch (type)
-    {
-        case I8:
-            return PredType::NATIVE_INT8;
-            break;
-        case I16:
-            return PredType::NATIVE_INT16;
-            break;
-        case I32:
-            return PredType::NATIVE_INT32;
-            break;
-        case I64:
-            return PredType::NATIVE_INT64;
-            break;
-        case U8:
-            return PredType::NATIVE_UINT8;
-            break;
-        case U16:
-            return PredType::NATIVE_UINT16;
-            break;
-        case U32:
-            return PredType::NATIVE_UINT32;
-            break;
-        case U64:
-            return PredType::NATIVE_UINT64;
-            break;
-        case F32:
-            return PredType::NATIVE_FLOAT;
-            break;
-		case F64:
-			return PredType::NATIVE_DOUBLE;
-			break;
-        case STR:
-            return StrType(PredType::C_S1,MAX_STR_SIZE);
-            break;
-    }
-    return PredType::NATIVE_INT32;
+	H5::DataType baseType;
+
+	switch (type.type)
+	{
+	case BaseDataType::Type::T_I8:
+		baseType = PredType::NATIVE_INT8;
+		break;
+	case BaseDataType::Type::T_I16:
+		baseType = PredType::NATIVE_INT16;
+		break;
+	case BaseDataType::Type::T_I32:
+		baseType = PredType::NATIVE_INT32;
+		break;
+	case BaseDataType::Type::T_I64:
+		baseType = PredType::NATIVE_INT64;
+		break;
+	case BaseDataType::Type::T_U8:
+		baseType = PredType::NATIVE_UINT8;
+		break;
+	case BaseDataType::Type::T_U16:
+		baseType = PredType::NATIVE_UINT16;
+		break;
+	case BaseDataType::Type::T_U32:
+		baseType = PredType::NATIVE_UINT32;
+		break;
+	case BaseDataType::Type::T_U64:
+		baseType = PredType::NATIVE_UINT64;
+		break;
+	case BaseDataType::Type::T_F32:
+		baseType = PredType::NATIVE_FLOAT;
+		break;
+	case BaseDataType::Type::T_F64:
+		baseType = PredType::NATIVE_DOUBLE;
+		break;
+	case BaseDataType::Type::T_STR:
+		return StrType(PredType::C_S1, type.typeSize);
+		break;
+	default:
+		baseType = PredType::NATIVE_INT32;
+	}
+	if (type.typeSize > 1)
+	{
+		hsize_t size = type.typeSize;
+		return ArrayType(baseType, 1, &size);
+	}
+	else return baseType;
 }
 
-H5::DataType HDF5FileBase::getH5Type(DataTypes type)
+H5::DataType HDF5FileBase::getH5Type(BaseDataType type)
 {
-    switch (type)
-    {
-        case I8:
-            return PredType::STD_I8LE;
-            break;
-        case I16:
-            return PredType::STD_I16LE;
-            break;
-        case I32:
-            return PredType::STD_I32LE;
-            break;
-        case I64:
-            return PredType::STD_I64LE;
-            break;
-        case U8:
-            return PredType::STD_U8LE;
-            break;
-        case U16:
-            return PredType::STD_U16LE;
-            break;
-        case U32:
-            return PredType::STD_U32LE;
-            break;
-        case U64:
-            return PredType::STD_U64LE;
-            break;
-        case F32:
-            return PredType::IEEE_F32LE;
-            break;
-		case F64:
-			return PredType::IEEE_F64LE;
-			break;
-        case STR:
-            return StrType(PredType::C_S1,MAX_STR_SIZE);
-            break;
-    }
-    return PredType::STD_I32LE;
+	H5::DataType baseType;
+
+	switch (type.type)
+	{
+	case BaseDataType::Type::T_I8:
+		baseType = PredType::STD_I8LE;
+		break;
+	case BaseDataType::Type::T_I16:
+		baseType = PredType::STD_I16LE;
+		break;
+	case BaseDataType::Type::T_I32:
+		baseType = PredType::STD_I32LE;
+		break;
+	case BaseDataType::Type::T_I64:
+		baseType = PredType::STD_I64LE;
+		break;
+	case BaseDataType::Type::T_U8:
+		baseType = PredType::STD_U8LE;
+		break;
+	case BaseDataType::Type::T_U16:
+		baseType = PredType::STD_U16LE;
+		break;
+	case BaseDataType::Type::T_U32:
+		baseType = PredType::STD_U32LE;
+		break;
+	case BaseDataType::Type::T_U64:
+		baseType = PredType::STD_U64LE;
+		break;
+	case BaseDataType::Type::T_F32:
+		return PredType::IEEE_F32LE;
+		break;
+	case BaseDataType::Type::T_F64:
+		baseType = PredType::IEEE_F64LE;
+		break;
+	case BaseDataType::Type::T_STR:
+		return StrType(PredType::C_S1, type.typeSize);
+		break;
+	default:
+		return PredType::STD_I32LE;
+	}
+	if (type.typeSize > 1)
+	{
+		hsize_t size = type.typeSize;
+		return ArrayType(baseType, 1, &size);
+	}
+	else return baseType;
 }
+
+//BaseDataType
+
+HDF5FileBase::BaseDataType::BaseDataType(HDF5FileBase::BaseDataType::Type t, size_t s)
+	: type(t), typeSize(s)
+{}
+
+HDF5FileBase::BaseDataType::BaseDataType()
+	: type(T_I32), typeSize(1)
+{}
+
+HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::STR(size_t size)
+{
+	return HDF5FileBase::BaseDataType(T_STR, size);
+}
+
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::U8 = HDF5FileBase::BaseDataType(T_U8, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::U16 = HDF5FileBase::BaseDataType(T_U16, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::U32 = HDF5FileBase::BaseDataType(T_U32, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::U64 = HDF5FileBase::BaseDataType(T_U64, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::I8 = HDF5FileBase::BaseDataType(T_I8, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::I16 = HDF5FileBase::BaseDataType(T_I16, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::I32 = HDF5FileBase::BaseDataType(T_I32, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::I64 = HDF5FileBase::BaseDataType(T_I64, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::F32 = HDF5FileBase::BaseDataType(T_F32, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::F64 = HDF5FileBase::BaseDataType(T_F64, 1);
+const HDF5FileBase::BaseDataType HDF5FileBase::BaseDataType::DSTR = HDF5FileBase::BaseDataType(T_STR, DEFAULT_STR_SIZE);
+
+//H5RecordingData
 
 HDF5RecordingData::HDF5RecordingData(DataSet* data)
 {
@@ -543,12 +590,12 @@ HDF5RecordingData::~HDF5RecordingData()
 	//Safety
 	dSet->flush(H5F_SCOPE_GLOBAL);
 }
-int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::DataTypes type, const void* data)
+int HDF5RecordingData::writeDataBlock(int xDataSize, HDF5FileBase::BaseDataType type, const void* data)
 {
     return writeDataBlock(xDataSize,size[1],type,data);
 }
 
-int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::DataTypes type, const void* data)
+int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase::BaseDataType type, const void* data)
 {
     hsize_t dim[3],offset[3];
     DataSpace fSpace;
@@ -602,7 +649,7 @@ int HDF5RecordingData::writeDataBlock(int xDataSize, int yDataSize, HDF5FileBase
 }
 
 
-int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::DataTypes type, const void* data)
+int HDF5RecordingData::writeDataRow(int yPos, int xDataSize, HDF5FileBase::BaseDataType type, const void* data)
 {
     hsize_t dim[2],offset[2];
     DataSpace fSpace;
