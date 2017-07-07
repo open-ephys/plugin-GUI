@@ -156,6 +156,7 @@ protected:
     /** Gets the specified channel from the channel array stored in RecordNode */
     const DataChannel* getDataChannel (int index) const;
 
+	/** Gets the specified event channel from the channel array stored in RecordNode */
 	const EventChannel* getEventChannel(int index) const;
 
     /** Gets the specified channel group info structure from the array stored in RecordNode */
@@ -173,6 +174,12 @@ protected:
     /** Gets the number of recorded channels */
     int getNumRecordedChannels() const;
 
+	/** Gets the number of recorded event channels
+	 (right now all channels are recorded) */
+	int getNumRecordedEvents() const;
+
+	/** TODO: to fill when the probe system is implemented*/
+	//int getNumRecordedSpikes() const;
 
     /** Gets the number of processors being recorded
     */

@@ -103,6 +103,11 @@ int RecordEngine::getNumRecordedChannels() const
     return channelMap.size();
 }
 
+int RecordEngine::getNumRecordedEvents() const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getTotalEventChannels();
+}
+
 void RecordEngine::registerSpikeSource (const GenericProcessor* processor) {}
 
 int RecordEngine::getNumRecordedProcessors() const
