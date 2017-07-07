@@ -409,7 +409,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		DataChannel* channel = dataChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		dataChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
@@ -417,7 +421,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		EventChannel* channel = eventChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		eventChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
@@ -425,7 +433,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		SpikeChannel* channel = spikeChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		spikeChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}

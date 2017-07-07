@@ -149,6 +149,11 @@ public:
 	template <typename T>
 	void getValue(Array<T>& data) const;
 
+	/** It is generally not advised to use this method, which can, however, be of use in performance critical modules.
+	It is usually preferable to use the strongly typed copy getter methods, when speed is not an issue.
+	Keep in mind that any pointer returned by this will become invalid after the block execution.*/
+	const void* getRawValuePointer() const;
+
 private:
 	MetaDataValue() = delete;
 	void setValue(const void* data);
@@ -205,16 +210,22 @@ public:
 	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
 	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
 	size_t getTotalEventMetaDataSize() const;
-	const int getEventMetaDataCount() const;
+	int getEventMetaDataCount() const;
+	//gets the largest metadata size, which can be useful to reserve buffers in advance
+	size_t getMaxEventMetaDataSize() const;
 protected:
 	MetaDataDescriptorArray m_eventMetaDataDescriptorArray;
 	MetaDataEventObject();
 	size_t m_totalSize{ 0 };
+	size_t m_maxSize{ 0 };
 };
 
 //And the base from which event objects can hold their metadata before serializing
 class PLUGIN_API MetaDataEvent
 {
+public:
+	int getMetadataValueCount() const;
+	const MetaDataValue* getMetaDataValue(int index) const;
 protected:
 	void serializeMetaData(void* dstBuffer) const;
 	bool deserializeMetaData(const MetaDataEventObject* info, const void* srcBuffer, int size);

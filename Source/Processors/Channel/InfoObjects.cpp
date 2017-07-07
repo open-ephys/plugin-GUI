@@ -39,6 +39,16 @@ unsigned int NodeInfoBase::getCurrentNodeID() const
 	return m_nodeID;
 }
 
+String NodeInfoBase::getCurrentNodeType() const
+{
+	return m_currentNodeType;
+}
+
+String NodeInfoBase::getCurrentNodeName() const
+{
+	return m_currentNodeName;
+}
+
 //History Object
 String HistoryObject::getHistoricString()
 {
@@ -58,7 +68,8 @@ SourceProcessorInfo::SourceProcessorInfo(const GenericProcessor* source, uint16 
 	:	m_sourceNodeID(source->getNodeId()),
 		m_sourceSubNodeIndex(subproc), 
 		m_sourceType(source->getName()),
-		m_sourceName(source->getName()) //TODO: fix those two when we have the ability to rename processors
+		m_sourceName(source->getName()), //TODO: fix those two when we have the ability to rename processors
+		m_sourceSubProcessorCount(source->getNumSubProcessors())
 {
 }
 
@@ -82,6 +93,11 @@ String SourceProcessorInfo::getSourceName() const
 	return m_sourceName;
 }
 
+uint16 SourceProcessorInfo::getSourceSubprocessorCount() const
+{
+	return m_sourceSubProcessorCount;
+}
+
 //NamedInfoObject
 void NamedInfoObject::setName(String name)
 {
@@ -98,7 +114,7 @@ void NamedInfoObject::setIdentifier(String identifier)
 	m_identifier = identifier;
 }
 
-String NamedInfoObject::getDescriptor() const
+String NamedInfoObject::getIdentifier() const
 {
 	return m_identifier;
 }
