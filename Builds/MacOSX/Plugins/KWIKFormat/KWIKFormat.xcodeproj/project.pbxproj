@@ -197,6 +197,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F558DB1C9B23830035F88B /* Plugin_Debug.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../JuceLibraryCode,
+					../../../../JuceLibraryCode/modules,
+					../../../../Source/Plugins/Headers,
+					../../../../Source/Plugins/CommonLibs,
+					"$(MAC_PACKAGE_DIR)/lib/hdf5-18/include",
+					"$(MAC_PACKAGE_DIR)/include",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -204,6 +213,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1F558DC1C9B23830035F88B /* Plugin_Release.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../JuceLibraryCode,
+					../../../../JuceLibraryCode/modules,
+					../../../../Source/Plugins/Headers,
+					../../../../Source/Plugins/CommonLibs,
+					"$(MAC_PACKAGE_DIR)/lib/hdf5-18/include",
+					"$(MAC_PACKAGE_DIR)/include",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};

@@ -34,6 +34,9 @@ NodeInfoBase::NodeInfoBase(uint16 id) :
 	m_nodeID(id)
 {}
 
+NodeInfoBase::~NodeInfoBase()
+{}
+
 unsigned int NodeInfoBase::getCurrentNodeID() const
 {
 	return m_nodeID;
@@ -50,6 +53,9 @@ String NodeInfoBase::getCurrentNodeName() const
 }
 
 //History Object
+HistoryObject::~HistoryObject()
+{}
+
 String HistoryObject::getHistoricString()
 {
 	return m_historicString;
@@ -72,6 +78,9 @@ SourceProcessorInfo::SourceProcessorInfo(const GenericProcessor* source, uint16 
 		m_sourceSubProcessorCount(source->getNumSubProcessors())
 {
 }
+
+SourceProcessorInfo::~SourceProcessorInfo()
+{}
 
 uint16 SourceProcessorInfo::getSourceNodeID() const
 {
@@ -99,6 +108,9 @@ uint16 SourceProcessorInfo::getSourceSubprocessorCount() const
 }
 
 //NamedInfoObject
+NamedInfoObject::~NamedInfoObject()
+{}
+
 void NamedInfoObject::setName(String name)
 {
 	m_name = name;
@@ -138,6 +150,9 @@ InfoObjectCommon::InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate,
 		m_sampleRate(sampleRate)
 {
 }
+
+InfoObjectCommon::~InfoObjectCommon()
+{}
 
 float InfoObjectCommon::getSampleRate() const
 {
@@ -541,6 +556,9 @@ ConfigurationObject::ConfigurationObject(String identifier, GenericProcessor* so
 	setDefaultNameAndDescription();
 	setIdentifier(identifier);
 }
+
+ConfigurationObject::~ConfigurationObject()
+{}
 
 void ConfigurationObject::setShouldBeRecorded(bool status)
 {
