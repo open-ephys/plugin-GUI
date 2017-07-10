@@ -11,7 +11,7 @@
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC"
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN'"
                 extraCompilerFlags="-rdynamic -fvisibility=hidden" extraDefs=""
                 smallIcon="nFMauU" bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
       <CONFIGURATIONS>
