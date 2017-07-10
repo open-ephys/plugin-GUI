@@ -239,6 +239,7 @@
 				E1F91DEC1DBE670500FF13EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

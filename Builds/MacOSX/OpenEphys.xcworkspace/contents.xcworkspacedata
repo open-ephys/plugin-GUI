@@ -36,9 +36,6 @@
          location = "group:FilterNode/FilterNode.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:JuliaProcessor/JuliaProcessor.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:KWIKFormat/KWIKFormat.xcodeproj">
       </FileRef>
       <FileRef
@@ -67,9 +64,6 @@
       </FileRef>
       <FileRef
          location = "group:SerialInput/SerialInput.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:SpikeRaster/SpikeRaster.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:SpikeSorter/SpikeSorter.xcodeproj">
