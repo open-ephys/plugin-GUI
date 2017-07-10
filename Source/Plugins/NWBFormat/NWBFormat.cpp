@@ -532,6 +532,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 		  CHECK_ERROR(setAttributeStr(description, fullPath, "description"));
 		  CHECK_ERROR(setAttributeStr(identifier, fullPath, "identifier"));
 	  }
+      return true;
   }
 
   void NWBFile::writeEventMetaData(TimeSeries* timeSeries, const MetaDataEventObject* info, const MetaDataEvent* event)
