@@ -27,7 +27,7 @@
 #include <CommonLibHeader.h>
 
 #define PROCESS_ERROR std::cerr << error.getCDetailMsg() << std::endl; return -1
-#define CHECK_ERROR(x) if (x) std::cerr << "Error at HDFRecording " << __LINE__ << std::endl;
+#define CHECK_ERROR(x) if (x) std::cerr << "Error at " << __FILE__ " " << __LINE__ << std::endl;
 
 #ifndef CHUNK_XSIZE
 #define CHUNK_XSIZE 2048
