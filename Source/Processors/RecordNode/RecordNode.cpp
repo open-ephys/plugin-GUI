@@ -159,8 +159,10 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 
         for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
         {
-
-            eventChannelArray.add(new EventChannel(*sourceNode->getEventChannel(n)));
+			const EventChannel* orig = sourceNode->getEventChannel(n);
+			//only add to the record node the events originating from this processor, to avoid duplicates
+			if (orig->getSourceNodeID() == sourceNode->getNodeId())
+				eventChannelArray.add(new EventChannel(*orig));
 
         }
 

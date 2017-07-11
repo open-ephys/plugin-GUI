@@ -333,19 +333,20 @@ void GenericProcessor::update()
             dataChannelArray.add (ch);
         }
 
-        for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
-        {
-            EventChannel* sourceChan = sourceNode->eventChannelArray[i];
-            EventChannel* ch = new EventChannel (*sourceChan);
+		for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
+		{
+			EventChannel* sourceChan = sourceNode->eventChannelArray[i];
+			EventChannel* ch = new EventChannel(*sourceChan);
 			ch->eventMetaDataLock = true;
-            eventChannelArray.add (ch);
-        }
+			eventChannelArray.add(ch);
+		}
 		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
 		{
 			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
 			SpikeChannel* ch = new SpikeChannel(*sourceChan);
 			ch->eventMetaDataLock = true;
 			spikeChannelArray.add(ch);
+
 		}
 		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
 		{
