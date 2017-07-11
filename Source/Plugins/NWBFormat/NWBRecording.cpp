@@ -72,11 +72,11 @@
 			 bool found = false;
 			 for (int i = lastId; i < nInfoArrays; i++)
 			 {
-				 if (sourceId == continuousChannels[i][0]->getSourceNodeID() && sourceSubIdx == continuousChannels[i][0]->getSubProcessorIdx())
+				 if (sourceId == continuousChannels.getReference(i)[0]->getSourceNodeID() && sourceSubIdx == continuousChannels.getReference(i)[0]->getSubProcessorIdx())
 				 {
 					 //A dataset for the current processor from the current source is already present
-					 writeChannelIndexes.set(recordedChan, continuousChannels[i].size());
-					 continuousChannels[i].add(getDataChannel(realChan));
+					 writeChannelIndexes.set(recordedChan, continuousChannels.getReference(i).size());
+					 continuousChannels.getReference(i).add(getDataChannel(realChan));
 					 datasetIndexes.set(recordedChan, i);
 					 found = true;
 					 break;
@@ -97,6 +97,7 @@
 	 int nEvents = getNumRecordedEvents();
 	 for (int i = 0; i < nEvents; i++)
 		 eventChannels.add(getEventChannel(i));
+
 	 //open the file
 	 recordFile->open(getNumRecordedChannels() + continuousChannels.size() + eventChannels.size() + spikeChannels.size()); //total channels + timestamp arrays, to create a big enough buffer
 

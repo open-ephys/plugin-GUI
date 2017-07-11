@@ -117,7 +117,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	 {
 		 //All channels in a group will share the same source information (any caller to this method MUST assure this happen
 		 //so we just pick the first channel.
-		 const DataChannel* info = continuousArray[i][0];
+		 const DataChannel* info = continuousArray.getReference(i)[0];
 		 basePath = rootPath + "/continuous/processor" + String(info->getCurrentNodeID()) + "_" + String(info->getSourceNodeID());
 		 if (info->getSourceSubprocessorCount() > 1) basePath += "." + String(info->getSubProcessorIdx());
 		 String name = info->getCurrentNodeName() + " (" + String(info->getCurrentNodeID()) + ") From " + info->getSourceName() + " (" + String(info->getSourceNodeID());
@@ -129,7 +129,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 		 if (!createTimeSeriesBase(basePath, name, "Stores acquired voltage data from extracellular recordings", "", ancestry)) return false;
 		 tsStruct = new TimeSeries();
 		 tsStruct->basePath = basePath;
-		 dSet = createDataSet(BaseDataType::I16, 0, CHUNK_XSIZE, basePath + "/data");
+		 dSet = createDataSet(BaseDataType::I16, 0, continuousArray.getReference(i).size(), CHUNK_XSIZE, basePath + "/data");
 		 if (dSet == nullptr)
 		 {
 			 std::cerr << "Error creating dataset for " << name << std::endl;
@@ -147,11 +147,11 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 
 		 basePath = basePath + "/oe_extra_info";
 		 if (createGroup(basePath)) return false;
-		 int nChans = continuousArray[i].size();
+		 int nChans = continuousArray.getReference(i).size();
 		 for (int j = 0; j < nChans; j++)
 		 {
 			 String channelPath = basePath + "/channel" + String(j + 1);
-			 const DataChannel* chan = continuousArray[i][j];
+			 const DataChannel* chan = continuousArray.getReference(i)[j];
 			 createExtraInfo(channelPath, chan->getName(), chan->getDescription(), chan->getIdentifier(), chan->getSourceIndex(), chan->getSourceTypeIndex());
 			 createChannelMetaDataSets(channelPath + "/channel_metadata", chan);
 		 }
@@ -393,7 +393,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	 switch (event->getEventType())
 	 {
 	 case EventChannel::TTL:
-		 ttlVal = (static_cast<const TTLEvent*>(event)->getState() ? 1 : -1) * event->getChannel();
+		 ttlVal = (static_cast<const TTLEvent*>(event)->getState() ? 1 : -1) * (event->getChannel() + 1);
 		 dataSrc = &ttlVal;
 		 type = BaseDataType::I8;
 		 break;
@@ -413,7 +413,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 
 	 CHECK_ERROR(eventDataSets[eventID]->timestampDataSet->writeDataBlock(1, BaseDataType::F64, &timeSec));
 
-	 uint8 controlValue = event->getChannel();
+	 uint8 controlValue = event->getChannel() + 1;
 
 	 CHECK_ERROR(eventDataSets[eventID]->controlDataSet->writeDataBlock(1, BaseDataType::U8, &controlValue));
 
@@ -486,7 +486,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	  for (int i = 0; i < nMetaData; i++)
 	  {
 		  const MetaDataDescriptor* desc = info->getMetaDataDescriptor(i);
-		  String fieldName = "Field_" + String(i);
+		  String fieldName = "Field_" + String(i+1);
 		  String name = desc->getName();
 		  String description = desc->getDescription();
 		  String identifier = desc->getIdentifier();
@@ -516,17 +516,17 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	  for (int i = 0; i < nMetaData; i++)
 	  {
 		  const MetaDataDescriptor* desc = info->getEventMetaDataDescriptor(i);
-		  String fieldName = "Field_" + String(i);
+		  String fieldName = "Field_" + String(i+1);
 		  String name = desc->getName();
 		  String description = desc->getDescription();
 		  String identifier = desc->getIdentifier();
 		  BaseDataType type = getMetaDataH5Type(desc->getType(), desc->getLength()); //only string types use length, for others is always set to 1. If array types are implemented, change this
 		  int length = desc->getType() == MetaDataDescriptor::CHAR ? 1 : desc->getLength(); //strings are a single element of length set in the type (see above) while other elements are saved as arrays
-		  HDF5RecordingData* dSet = createDataSet(type, 0, length, EVENT_CHUNK_SIZE, fieldName);
+		  String fullPath = basePath + "/" + fieldName;
+		  HDF5RecordingData* dSet = createDataSet(type, 0, length, EVENT_CHUNK_SIZE, fullPath);
 		  if (!dSet) return false;
 		  timeSeries->metaDataSet.add(dSet);
 
-		  String fullPath = basePath + "/" + fieldName;
 		  CHECK_ERROR(setAttributeStr("openephys:<metadata>/", fullPath, "schema_id"));
 		  CHECK_ERROR(setAttributeStr(name, fullPath, "name"));
 		  CHECK_ERROR(setAttributeStr(description, fullPath, "description"));
