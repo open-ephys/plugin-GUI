@@ -166,7 +166,7 @@ void NWBRecordEngine::writeEvent(int eventIndex, const MidiMessage& event)
 
 void NWBRecordEngine::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text)
 {
-	
+	recordFile->writeTimestampSyncText(sourceID, timestamp, sourceSampleRate, text);
 }
 
 void NWBRecordEngine::addSpikeElectrode(int index,const  SpikeChannel* elec) 
