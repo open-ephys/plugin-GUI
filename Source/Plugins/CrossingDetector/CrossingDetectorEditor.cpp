@@ -1,0 +1,352 @@
+/*
+------------------------------------------------------------------
+
+This file is part of the Open Ephys GUI
+Copyright (C) 2014 Open Ephys
+
+------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "CrossingDetectorEditor.h"
+#include "CrossingDetector.h"
+
+// standard component creation methods
+Label* CrossingDetectorEditor::createEditable(const String& name, const String& initialValue,
+	const String& tooltip, const Rectangle bounds)
+{
+	Label* editable = new Label(name, initialValue);
+	editable->setEditable(true);
+	editable->addListener(this);
+	editable->setBounds(bounds);
+	editable->setColour(Label::backgroundColourId, Colours::grey);
+	editable->setColour(Label::textColourId, Colours::white);
+	editable->setTooltip(tooltip);
+	addAndMakeVisible(editable);
+	return editable;
+}
+
+Label* CrossingDetectorEditor::createLabel(const String& name, const String& text, const Rectangle bounds)
+{
+	Label* label = new Label(name, text);
+	label->setBounds(bounds);
+	label->setFont(Font("Small Text", 12, Font::plain));
+	label->setColour(Label::textColourId, Colours::darkgrey);
+	addAndMakeVisible(label);
+	return label;
+}
+
+CrossingDetectorEditor::CrossingDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
+    : GenericEditor(parentNode, useDefaultParameterEditors)
+{
+    desiredWidth = 341;
+	CrossingDetector* processor = static_cast<CrossingDetector*>(parentNode);
+
+    /* ------------- CRITERIA SECTION ---------------- */
+
+	inputLabel = createLabel("InputChanL", "Input", Rectangle(8, 36, 50, 18));
+
+    inputBox = new ComboBox("Input channel");
+	inputBox->setTooltip("Continuous channel to analyze");
+    inputBox->setBounds(60, 36, 40, 18);
+    inputBox->addListener(this);
+    addAndMakeVisible(inputBox);
+
+    risingButton = new UtilityButton("RISING", Font("Default", 10, Font::plain));
+    risingButton->addListener(this);
+    risingButton->setBounds(105, 26, 60, 18);
+    risingButton->setClickingTogglesState(true);
+    bool enable = (processor->START_DIRECTION == dPos || processor->START_DIRECTION == dPosOrNeg);
+    risingButton->setToggleState(enable, dontSendNotification);
+	risingButton->setTooltip("Trigger events when past samples are below and future samples are above the threshold");
+    addAndMakeVisible(risingButton);
+
+    fallingButton = new UtilityButton("FALLING", Font("Default", 10, Font::plain));
+    fallingButton->addListener(this);
+    fallingButton->setBounds(105, 46, 60, 18);
+    fallingButton->setClickingTogglesState(true);
+	enable = (processor->START_DIRECTION == dNeg || processor->START_DIRECTION == dPosOrNeg);
+    fallingButton->setToggleState(enable, dontSendNotification);
+	fallingButton->setTooltip("Trigger events when past samples are above and future samples are below the threshold");
+    addAndMakeVisible(fallingButton);
+
+	acrossLabel = createLabel("AcrossL", "across", Rectangle(168, 36, 60, 18));
+
+	thresholdEditable = createEditable("Threshold", String(processor->START_THRESH),
+		"Threshold voltage", Rectangle(230, 36, 50, 18));
+
+    /* -------------- BEFORE SECTION ----------------- */
+
+	beforeLabel = createLabel("BeforeL", "Before:", Rectangle(8, 68, 65, 18));
+
+	pctPrevEditable = createEditable("Percent Prev", String(100 * processor->START_FRAC_PREV),
+		"Percent of considered past samples required to be above/below threshold", Rectangle(75, 68, 33, 18));
+
+	bPctLabel = createLabel("PctPrevL", "% of", Rectangle(110, 68, 40, 18));
+
+	numPrevEditable = createEditable("Num Prev", String(processor->START_NUM_PREV),
+		"Number of past samples considered", Rectangle(152, 68, 33, 18));
+
+	bSampLabel = createLabel("SampPrevL", "sample(s)", Rectangle(188, 68, 85, 18));
+
+    /* --------------- AFTER SECTION ----------------- */
+
+	afterLabel = createLabel("AfterL", "After:", Rectangle(8, 88, 65, 18));
+
+	pctNextEditable = createEditable("Percent Next", String(100 * processor->START_FRAC_NEXT),
+		"Percent of considered future samples required to be above/below threshold", Rectangle(75, 88, 33, 18));
+
+	aPctLabel = createLabel("PctNextL", "% of", Rectangle(110, 88, 40, 18));
+
+	numNextEditable = createEditable("Num Next", String(processor->START_NUM_NEXT),
+		"Number of future samples considered", Rectangle(152, 88, 33, 18));
+
+	aSampLabel = createLabel("SampNextL", "sample(s)", Rectangle(188, 88, 85, 18));
+
+    /* -------------- OUTPUT SECTION ----------------- */
+
+	outputLabel = createLabel("OutL", "Output:", Rectangle(8, 108, 62, 18));
+
+    eventBox = new ComboBox("Out event channel");
+    for (int chan = 1; chan <= 8; chan++)
+        eventBox->addItem(String(chan), chan);
+	eventBox->setSelectedId(processor->START_OUTPUT + 1);
+    eventBox->setBounds(72, 108, 35, 18);
+	eventBox->setTooltip("Event channel to output on when triggered");
+    eventBox->addListener(this);
+    addAndMakeVisible(eventBox);
+
+	durLabel = createLabel("DurL", "Dur:", Rectangle(112, 108, 35, 18));
+
+	durationEditable = createEditable("Event Duration", String(processor->START_DURATION),
+		"Duration of each event, in samples", Rectangle(151, 108, 50, 18));
+
+	timeoutLabel = createLabel("TimeoutL", "Timeout:", Rectangle(206, 108, 64, 18));
+
+	timeoutEditable = createEditable("Timeout", String(processor->START_TIMEOUT),
+		"Minimum number of samples between consecutive events", Rectangle(274, 108, 50, 18));
+}
+
+CrossingDetectorEditor::~CrossingDetectorEditor() {}
+
+void CrossingDetectorEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+    if (comboBoxThatHasChanged == inputBox)
+        getProcessor()->setParameter(pInputChan, (float)inputBox->getSelectedId() - 1);
+    else if (comboBoxThatHasChanged == eventBox)
+        getProcessor()->setParameter(pEventChan, (float)eventBox->getSelectedId() - 1);
+}
+
+void CrossingDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
+{
+    CrossingDetector* processor = static_cast<CrossingDetector*>(getProcessor());
+
+    if (labelThatHasChanged == durationEditable)
+    {
+        int newVal;
+        bool success = updateIntLabel(labelThatHasChanged, 0, INT_MAX, processor->getEventDuration(), &newVal);
+
+        if (success)
+            processor->setParameter(pEventDur, (float)newVal);
+    }
+    else if (labelThatHasChanged == timeoutEditable)
+    {
+        int newVal;
+        bool success = updateIntLabel(labelThatHasChanged, 0, INT_MAX, processor->getTimeout(), &newVal);
+
+        if (success)
+            processor->setParameter(pTimeout, (float)newVal);
+    }
+    else if (labelThatHasChanged == thresholdEditable)
+    {
+        float newVal;
+        bool success = updateFloatLabel(labelThatHasChanged, -FLT_MAX, FLT_MAX, processor->getThreshold(), &newVal);
+
+        if (success)
+            processor->setParameter(pThreshold, newVal);
+    }
+    else if (labelThatHasChanged == pctPrevEditable)
+    {
+        float newVal;
+        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->getFracPrev(), &newVal);
+
+        if (success)
+            processor->setParameter(pFracPrev, newVal / 100);
+    }
+    else if (labelThatHasChanged == numPrevEditable)
+    {
+        int newVal;
+		bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_PREV, processor->getNumPrev(), &newVal);
+
+        if (success)
+            processor->setParameter(pNumPrev, (float)newVal);
+    }
+    else if (labelThatHasChanged == pctNextEditable)
+    {
+        float newVal;
+        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->getFracNext(), &newVal);
+
+        if (success)
+            processor->setParameter(pFracNext, newVal / 100);
+    }
+    else if (labelThatHasChanged == numNextEditable)
+    {
+        int newVal;
+		bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_NEXT, processor->getNumNext(), &newVal);
+
+        if (success)
+            processor->setParameter(pNumNext, (float)newVal);
+    }
+}
+
+void CrossingDetectorEditor::buttonEvent(Button* button)
+{
+    if (button == risingButton || button == fallingButton)
+    {
+        bool risingOn = risingButton->getToggleState();
+        bool fallingOn = fallingButton->getToggleState();
+
+        CrossingDirection newDirection;
+        if (risingOn)
+            if (fallingOn)
+                newDirection = dPosOrNeg;
+            else
+                newDirection = dPos;
+        else
+            if (fallingOn)
+                newDirection = dNeg;
+            else
+                newDirection = dNone;
+
+        getProcessor()->setParameter(pDirection, (float)newDirection);
+    }
+}
+
+void CrossingDetectorEditor::updateSettings()
+{
+	CrossingDetector* processor = static_cast<CrossingDetector*>(getProcessor());
+
+    // update input combo box
+    int numInputs = processor->settings.numInputs;
+    int numBoxItems = inputBox->getNumItems();
+    if (numInputs != numBoxItems)
+    {
+        int currId = inputBox->getSelectedId();
+        inputBox->clear(dontSendNotification);
+        for (int chan = 1; chan <= numInputs; chan++)
+            // using 1-based ids since 0 is reserved for "nothing selected"
+            inputBox->addItem(String(chan), chan);
+        if (numInputs > 0 && (currId < 1 || currId > numInputs))
+			inputBox->setSelectedId(processor->START_INPUT + 1, sendNotificationAsync);
+        else
+            inputBox->setSelectedId(currId, dontSendNotification);
+    }
+    
+}
+
+void CrossingDetectorEditor::saveCustomParameters(XmlElement* xml)
+{
+    xml->setAttribute("Type", "CrossingDetectorEditor");
+
+    CrossingDetector* processor = static_cast<CrossingDetector*>(getProcessor());
+    XmlElement* paramValues = xml->createNewChildElement("VALUES");
+
+    paramValues->setAttribute("inputChanId", inputBox->getSelectedId());
+    paramValues->setAttribute("bRising", risingButton->getToggleState());
+    paramValues->setAttribute("bFalling", fallingButton->getToggleState());
+    paramValues->setAttribute("threshold", thresholdEditable->getText());
+    paramValues->setAttribute("prevPct", pctPrevEditable->getText());
+    paramValues->setAttribute("prevNum", numPrevEditable->getText());
+    paramValues->setAttribute("nextPct", pctNextEditable->getText());
+    paramValues->setAttribute("nextNum", numNextEditable->getText());
+    paramValues->setAttribute("outputChanId", eventBox->getSelectedId());
+    paramValues->setAttribute("duration", durationEditable->getText());
+    paramValues->setAttribute("timeout", timeoutEditable->getText());
+}
+
+void CrossingDetectorEditor::loadCustomParameters(XmlElement* xml)
+{
+    forEachXmlChildElementWithTagName(*xml, xmlNode, "VALUES")
+    {
+        inputBox->setSelectedId(xmlNode->getIntAttribute("inputChanId", inputBox->getSelectedId()), sendNotificationSync);
+        risingButton->setToggleState(xmlNode->getBoolAttribute("bRising", risingButton->getToggleState()), sendNotificationSync);
+        fallingButton->setToggleState(xmlNode->getBoolAttribute("bFalling", fallingButton->getToggleState()), sendNotificationSync);
+        thresholdEditable->setText(xmlNode->getStringAttribute("threshold", thresholdEditable->getText()), sendNotificationSync);
+        pctPrevEditable->setText(xmlNode->getStringAttribute("prevPct", pctPrevEditable->getText()), sendNotificationSync);
+        numPrevEditable->setText(xmlNode->getStringAttribute("prevNum", numPrevEditable->getText()), sendNotificationSync);
+        pctNextEditable->setText(xmlNode->getStringAttribute("nextPct", pctNextEditable->getText()), sendNotificationSync);
+        numNextEditable->setText(xmlNode->getStringAttribute("nextNum", numNextEditable->getText()), sendNotificationSync);
+        eventBox->setSelectedId(xmlNode->getIntAttribute("outputChanId", eventBox->getSelectedId()), sendNotificationSync);
+        durationEditable->setText(xmlNode->getStringAttribute("duration", durationEditable->getText()), sendNotificationSync);
+        timeoutEditable->setText(xmlNode->getStringAttribute("timeout", timeoutEditable->getText()), sendNotificationSync);
+    }
+}
+
+// static utilities
+
+/* Attempts to parse the current text of a label as an int between min and max inclusive.
+*  If successful, sets "*out" and the label text to this value and and returns true.
+*  Otherwise, sets the label text to defaultValue and returns false.
+*/
+bool CrossingDetectorEditor::updateIntLabel(Label* label, int min, int max, int defaultValue, int* out)
+{
+	String& in = label->getText();
+	int parsedInt;
+	try
+	{
+		parsedInt = std::stoi(in.toRawUTF8());
+	}
+	catch (const std::exception& e)
+	{
+		label->setText(String(defaultValue), dontSendNotification);
+		return false;
+	}
+
+	if (parsedInt < min)
+		*out = min;
+	else if (parsedInt > max)
+		*out = max;
+	else
+		*out = parsedInt;
+
+	label->setText(String(*out), dontSendNotification);
+	return true;
+}
+
+// Like updateIntLabel, but for floats
+bool CrossingDetectorEditor::updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out)
+{
+	String& in = label->getText();
+	float parsedFloat;
+	try
+	{
+		parsedFloat = std::stof(in.toRawUTF8());
+	}
+	catch (const std::exception& e)
+	{
+		label->setText(String(defaultValue), dontSendNotification);
+		return false;
+	}
+
+	if (parsedFloat < min)
+		*out = min;
+	else if (parsedFloat > max)
+		*out = max;
+	else
+		*out = parsedFloat;
+
+	label->setText(String(*out), dontSendNotification);
+	return true;
+}
