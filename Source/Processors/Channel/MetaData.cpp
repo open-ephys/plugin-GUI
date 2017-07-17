@@ -39,6 +39,8 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 	case MetaDataDescriptor::UINT32: return std::is_same<uint32, T>::value;
 	case MetaDataDescriptor::INT64: return std::is_same<int64, T>::value;
 	case MetaDataDescriptor::UINT64: return std::is_same<uint64, T>::value;
+	case MetaDataDescriptor::FLOAT: return std::is_same<float, T>::value;
+	case MetaDataDescriptor::DOUBLE: return std::is_same<double, T>::value;
 	default: return false;
 	}
 }

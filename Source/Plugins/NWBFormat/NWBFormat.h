@@ -55,6 +55,7 @@ namespace NWBRecording
 		void writeTimestamps(int datasetID, int nSamples, const double* data);
 		void writeSpike(int electrodeId, const SpikeChannel* channel, const SpikeEvent* event);
 		void writeEvent(int eventID, const EventChannel* channel, const Event* event);
+		void writeTimestampSyncText(uint16 sourceID, int64 timestamp, float sourceSampleRate, String text);
 		String getFileName() override;
 		void setXmlText(const String& xmlText);
 
@@ -84,7 +85,7 @@ namespace NWBRecording
 		OwnedArray<TimeSeries>  continuousDataSets;
 		OwnedArray<TimeSeries> spikeDataSets;
 		OwnedArray<TimeSeries> eventDataSets;
-
+		ScopedPointer<TimeSeries> syncMsgDataSet;
 
 		const String* xmlText;
 		const String identifierText;
