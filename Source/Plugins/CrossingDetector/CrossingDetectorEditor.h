@@ -65,6 +65,10 @@ public:
     // allow editor to react to changing # of channels
     void updateSettings() override;
 
+	// disable input channel selection during acquisition so that events work correctly
+	void startAcquisition() override;
+	void stopAcquisition() override;
+
     void saveCustomParameters(XmlElement* xml) override;
     void loadCustomParameters(XmlElement* xml) override;
 

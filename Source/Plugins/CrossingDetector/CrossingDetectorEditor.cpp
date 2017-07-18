@@ -256,6 +256,16 @@ void CrossingDetectorEditor::updateSettings()
     
 }
 
+void CrossingDetectorEditor::startAcquisition()
+{
+	inputBox->setEnabled(false);
+}
+
+void CrossingDetectorEditor::stopAcquisition()
+{
+	inputBox->setEnabled(true);
+}
+
 void CrossingDetectorEditor::saveCustomParameters(XmlElement* xml)
 {
     xml->setAttribute("Type", "CrossingDetectorEditor");

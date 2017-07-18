@@ -39,7 +39,9 @@ CrossingDetector::CrossingDetector()
 	, sampsToShutoff	(-1)
 	, sampsToReenable	(numPrev)
 	, shutoffChan		(-1)
-{}
+{
+	setProcessorType(PROCESSOR_TYPE_FILTER);
+}
 
 CrossingDetector::~CrossingDetector() {}
 
@@ -59,6 +61,20 @@ void CrossingDetector::createEventChannels()
 	chan->setDescription("Triggers whenever the input signal crosses a voltage threshold.");
 	chan->setIdentifier("crossing.event");
 
+	// metadata storing source data channel
+	if (in)
+	{
+		MetaDataDescriptor sourceChanDesc(MetaDataDescriptor::UINT16, 3, "Source Channel",
+			"Index at its source, Source processor ID and Sub Processor index of the channel that triggers this event", "source.channel.identifier.full");
+		MetaDataValue sourceChanVal(sourceChanDesc);
+		uint16 sourceInfo[3];
+		sourceInfo[0] = in->getSourceIndex();
+		sourceInfo[1] = in->getSourceNodeID();
+		sourceInfo[2] = in->getSubProcessorIdx();
+		sourceChanVal.setValue(static_cast<const uint16*>(sourceInfo));
+		chan->addMetaData(sourceChanDesc, sourceChanVal);
+	}
+
 	// event-related metadata!
 	eventMetaDataDescriptors.clearQuick();
 
@@ -66,11 +82,6 @@ void CrossingDetector::createEventChannels()
 		"Actual voltage level at sample where event occurred", "crossing.eventLevel");
 	chan->addEventMetaData(eventLevelDesc);
 	eventMetaDataDescriptors.add(eventLevelDesc);
-
-	MetaDataDescriptor* dataChanDesc = new MetaDataDescriptor(MetaDataDescriptor::INT32, 1, "Data channel",
-		"Index of the subscribed data channel", "crossing.dataChannel");
-	chan->addEventMetaData(dataChanDesc);
-	eventMetaDataDescriptors.add(dataChanDesc);
 
 	MetaDataDescriptor* threshDesc = new MetaDataDescriptor(MetaDataDescriptor::FLOAT, 1, "Threshold",
 		"Monitored voltage threshold", "crossing.threshold");
@@ -134,24 +145,23 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 			// The order of metadata has to match the order they are stored in createEventChannels.
 			MetaDataValueArray mdArray;
 
-			MetaDataValue* eventLevelVal = new MetaDataValue(*eventMetaDataDescriptors[0]);
+			int mdInd = 0;
+			MetaDataValue* eventLevelVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
 			eventLevelVal->setValue(rp[eventTime]);
 			mdArray.add(eventLevelVal);
 
-			MetaDataValue* dataChanVal = new MetaDataValue(*eventMetaDataDescriptors[1]);
-			dataChanVal->setValue(static_cast<int32>(currChan));
-			mdArray.add(dataChanVal);
-
-			MetaDataValue* threshVal = new MetaDataValue(*eventMetaDataDescriptors[2]);
+			MetaDataValue* threshVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
 			threshVal->setValue(currThresh);
 			mdArray.add(threshVal);
 
-			MetaDataValue* posOnVal = new MetaDataValue(*eventMetaDataDescriptors[3]);
-			posOnVal->setValue((currDirection == dPos || currDirection == dPosOrNeg) ? 1 : 0);
+			MetaDataValue* posOnVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
+			uint8 posOn = (currDirection == dPos || currDirection == dPosOrNeg) ? 1 : 0;
+			posOnVal->setValue(posOn);
 			mdArray.add(posOnVal);
 
-			MetaDataValue* negOnVal = new MetaDataValue(*eventMetaDataDescriptors[4]);
-			negOnVal->setValue((currDirection == dNeg || currDirection == dPosOrNeg) ? 1 : 0);
+			MetaDataValue* negOnVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
+			uint8 negOn = (currDirection == dNeg || currDirection == dPosOrNeg) ? 1 : 0;
+			negOnVal->setValue(negOn);
 			mdArray.add(negOnVal);
 			
 			if (turnOn)
@@ -169,10 +179,10 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 			else
 			{
 				// add (turning-off) event
+				uint8 ttlData = 0;
 				int realEventChan = (shutoffChan != -1 ? shutoffChan : eventChan);
-				uint8 ttlData = 1 << realEventChan;
-				TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelPtr, timestamp, &ttlData,
-					sizeof(uint8), mdArray, realEventChan);
+				TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelPtr, timestamp, 
+					&ttlData, sizeof(uint8), mdArray, realEventChan);
 				addEvent(eventChannelPtr, event, eventTime);
 
 				// reset shutoffChan (now eventChan has been changed)
@@ -216,7 +226,9 @@ void CrossingDetector::setParameter(int parameterIndex, float newValue)
         break;
 
     case pEventChan:
-        shutoffChan = eventChan;
+		// if we're in the middle of an event, keep track of the old channel until it's done.
+		if (sampsToShutoff > -1)
+			shutoffChan = eventChan;
         eventChan = static_cast<int>(newValue);
         break;
 
