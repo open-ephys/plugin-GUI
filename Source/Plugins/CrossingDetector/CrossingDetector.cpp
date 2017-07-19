@@ -26,16 +26,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 CrossingDetector::CrossingDetector()
 	: GenericProcessor	("Crossing Detector")
-	, threshold			(START_THRESH)
-	, direction			(START_DIRECTION)
-	, inputChan			(START_INPUT)
-	, eventChan			(START_OUTPUT)
-	, eventDuration		(START_DURATION)
-	, timeout			(START_TIMEOUT)
-	, fracPrev			(START_FRAC_PREV)
-	, numPrev			(START_NUM_PREV)
-	, fracNext			(START_FRAC_NEXT)
-	, numNext			(START_NUM_NEXT)
+	, threshold			(0.0f)
+	, posOn				(true)
+	, negOn				(false)
+	, inputChan			(0)
+	, eventChan			(0)
+	, eventDuration		(100)
+	, timeout			(1000)
+	, fracPrev			(1.0f)
+	, numPrev			(1)
+	, fracNext			(1.0f)
+	, numNext			(1)
 	, sampsToShutoff	(-1)
 	, sampsToReenable	(numPrev)
 	, shutoffChan		(-1)
@@ -101,22 +102,12 @@ void CrossingDetector::createEventChannels()
 	eventChannelPtr = eventChannelArray.add(chan);
 }
 
-/*
-* Precondition: eventMetaDataDescriptors has been populated through addEventMetaDataFields (called on 'update')
-*/
-void CrossingDetector::populateMetaDataArray(EventChannel* chan, MetaDataValueArray& mdArray, float eventLevel) const
-{
-	
-}
-
 void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 {
     // atomic field access
     int currChan = inputChan;
     int currNumPrev = numPrev;
     int currNumNext = numNext;
-	float currThresh = threshold;
-	CrossingDirection currDirection = direction;
 
     if (currChan < 0 || currChan >= continuousBuffer.getNumChannels()) // (shouldn't really happen)
         return;
@@ -128,9 +119,14 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
     // or if an event is currently on, turn it off if it has been on for long enough.
     for (int i = -currNumNext + 1; i < nSamples; i++)
     {
+		// atomic field access
+		float currThresh = threshold;
+		bool currPosOn = posOn;
+		bool currNegOn = negOn;
+
         // if enabled, check whether to trigger an event (operates on [-currNumNext+1, nSamples - currNumNext] )
-		bool turnOn = (i >= sampsToReenable && i <= nSamples - currNumNext && shouldTrigger(rp, nSamples, i,
-			currDirection, currNumPrev, currNumNext));
+		bool turnOn = (i >= sampsToReenable && i <= nSamples - currNumNext && shouldTrigger(rp, nSamples, i, currThresh,
+			currPosOn, currNegOn, currNumPrev, currNumNext));
 		
 		// if not triggering, check whether event should be shut off (operates on [0, nSamples) )
 		bool turnOff = (!turnOn && i >= 0 && i == sampsToShutoff);
@@ -155,13 +151,11 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 			mdArray.add(threshVal);
 
 			MetaDataValue* posOnVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
-			uint8 posOn = (currDirection == dPos || currDirection == dPosOrNeg) ? 1 : 0;
-			posOnVal->setValue(posOn);
+			posOnVal->setValue(static_cast<uint8>(posOn));
 			mdArray.add(posOnVal);
 
 			MetaDataValue* negOnVal = new MetaDataValue(*eventMetaDataDescriptors[mdInd++]);
-			uint8 negOn = (currDirection == dNeg || currDirection == dPosOrNeg) ? 1 : 0;
-			negOnVal->setValue(negOn);
+			negOnVal->setValue(static_cast<uint8>(negOn));
 			mdArray.add(negOnVal);
 			
 			if (turnOn)
@@ -216,9 +210,13 @@ void CrossingDetector::setParameter(int parameterIndex, float newValue)
         threshold = newValue;
         break;
 
-    case pDirection:
-        direction = static_cast<CrossingDirection>(static_cast<int>(newValue));
+    case pPosOn:
+        posOn = static_cast<bool>(newValue);
         break;
+
+	case pNegOn:
+		negOn = static_cast<bool>(newValue);
+		break;
 
     case pInputChan:
         if (getNumInputs() > newValue)
@@ -263,60 +261,24 @@ bool CrossingDetector::disable()
 {
     // set this to numPrev so that we don't trigger on old data when we start again.
     sampsToReenable = numPrev;
-	// force signal change update, in case settings have changed during acquisition
-	CoreServices::updateSignalChain(getEditor());
     return true;
 }
 
-float CrossingDetector::getThreshold()
-{
-    return threshold;
-}
-
-int CrossingDetector::getEventDuration()
-{
-    return eventDuration;
-}
-
-int CrossingDetector::getTimeout()
-{
-    return timeout;
-}
-
-float CrossingDetector::getFracPrev()
-{
-    return fracPrev;
-}
-
-int CrossingDetector::getNumPrev()
-{
-    return numPrev;
-}
-
-float CrossingDetector::getFracNext()
-{
-    return fracNext;
-}
-
-int CrossingDetector::getNumNext()
-{
-    return numNext;
-}
-
 // private
-bool CrossingDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, CrossingDirection dir, int nPrev, int nNext)
+bool CrossingDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, float currThresh,
+	bool currPosOn, bool currNegOn, int currNumPrev, int currNumNext)
 {
-    if (dir == dNone)
+    if (!currPosOn && !currNegOn)
         return false;
 
-    if (dir == dPosOrNeg)
-        return shouldTrigger(rpCurr, nSamples, t0, dPos, nPrev, nNext) || shouldTrigger(rpCurr, nSamples, t0, dNeg, nPrev, nNext);
+    if (currPosOn && currNegOn)
+        return shouldTrigger(rpCurr, nSamples, t0, currThresh, true, false, currNumPrev, currNumNext)
+		|| shouldTrigger(rpCurr, nSamples, t0, currThresh, false, true, currNumPrev, currNumNext);
 
-    // atomic field access
-    float currThresh = threshold;
+	// at this point exactly one of posOn and negOn is true.
 
-    int minInd = t0 - nPrev;
-    int maxInd = t0 + nNext - 1;
+    int minInd = t0 - currNumPrev;
+    int maxInd = t0 + currNumNext - 1;
 
     // check whether we have enough data
     if (minInd < -lastBuffer.size() || maxInd >= nSamples)
@@ -327,17 +289,17 @@ bool CrossingDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, 
 // allow us to treat the previous and current buffers as one array
 #define rp(x) ((x)>=0 ? rpCurr[(x)] : rpLast[(x)])
 
-    int numPrevRequired = (int)ceil(nPrev * fracPrev);
-    int numNextRequired = (int)ceil(nNext * fracNext);
+    int numPrevRequired = (int)ceil(currNumPrev * fracPrev);
+    int numNextRequired = (int)ceil(currNumNext * fracNext);
 
     for (int i = minInd; i < t0 && numPrevRequired > 0; i++)
-        if (dir == dPos ? rp(i) < currThresh : rp(i) > currThresh)
+        if (currPosOn ? rp(i) < currThresh : rp(i) > currThresh)
             numPrevRequired--;
 
     if (numPrevRequired == 0) // "prev" condition satisfied
     {
         for (int i = t0; i <= maxInd && numNextRequired > 0; i++)
-            if (dir == dPos ? rp(i) > currThresh : rp(i) < currThresh)
+            if (currPosOn ? rp(i) > currThresh : rp(i) < currThresh)
                 numNextRequired--;
 
         if (numNextRequired == 0) // "next" condition satisfied

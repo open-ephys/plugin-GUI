@@ -49,7 +49,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 enum
 {
     pThreshold,
-    pDirection,
+    pPosOn,
+	pNegOn,
     pInputChan,
     pEventChan,
     pEventDur,
@@ -60,16 +61,15 @@ enum
     pFracNext
 };
 
-enum CrossingDirection { dNone, dPos, dNeg, dPosOrNeg };
-
 class CrossingDetector : public GenericProcessor
 {
+	friend class CrossingDetectorEditor;
+
 public:
     CrossingDetector();
     ~CrossingDetector();
     
 	bool hasEditor() const { return true; }
-
     AudioProcessorEditor* createEditor() override;
 
 	void createEventChannels() override;
@@ -80,33 +80,6 @@ public:
 
     bool disable() override;
 
-    // getters for use in editor controls
-    float getThreshold();
-    int getEventDuration();
-    int getTimeout();
-    float getFracPrev();
-    int getNumPrev();
-    float getFracNext();
-    int getNumNext();
-
-	// start values for parameters
-	const CrossingDirection START_DIRECTION = dPos;
-	const float START_THRESH = 0.0f;
-	const float START_FRAC_PREV = 1.0F;
-	const int START_NUM_PREV = 1;
-	const float START_FRAC_NEXT = 1.0F;
-	const int START_NUM_NEXT = 1;
-	const int START_INPUT = 0;
-	const int START_OUTPUT = 0;
-	const int START_DURATION = 100;
-	const int START_TIMEOUT = 1000;
-
-	// limits on numprev / numnext
-	// (setting these too high could cause events near the end of a buffer to be significantly delayed,
-	// plus we don't want them to exceed the length of a processing buffer)
-	const int MAX_NUM_PREV = 20;
-	const int MAX_NUM_NEXT = 20;
-
 private:
 
     // -----utility func.--------
@@ -114,29 +87,20 @@ private:
     // nSamples is the number of samples in the current buffer, determined within the process function.
     // dir is the crossing direction(s) (see #defines above) (must be explicitly specified)
     // uses passed nPrev and nNext rather than the member variables numPrev and numNext.
-    bool shouldTrigger(const float* rpCurr, int nSamples, int t0, CrossingDirection dir, int nPrev, int nNext);
-
-	// event-related metadata functions - need to use the same descriptors in the same order.
-	void addEventMetaDataFields(EventChannel* chan);
-	void populateMetaDataArray(EventChannel* chan, MetaDataValueArray& mdArray, float eventLevel) const;
+	bool shouldTrigger(const float* rpCurr, int nSamples, int t0, float threshold,
+		bool posOn, bool negOn, int nPrev, int nNext);
 
     // ------parameters------------
 
     float threshold;
-
-    CrossingDirection direction;
-
+	bool posOn;
+	bool negOn;
     int inputChan;
+    int eventChan;    
+    int shutoffChan; // temporary storage of event that must be shut off; allows eventChan to be adjusted during acquisition
 
-    int eventChan;
-
-    // temporary storage of event that must be shut off; allows eventChan to be adjusted during acquisition
-    int shutoffChan; 
-
-    int eventDuration; // in samples
-
-    // number of samples after an event onset which may not trigger another event.
-    int timeout;
+    int eventDuration; // in samples    
+    int timeout; // number of samples after an event onset which may not trigger another event.
 
     /* number of previous and next (including current) samples to look at at each timepoint, and fraction required to be above / below threshold
      * generally, things get messy if we try to look too far back or especially forward compared to the size of the processing buffers
@@ -148,6 +112,12 @@ private:
     int numPrev;
     float fracNext;
     int numNext;
+
+	// limits on numprev / numnext
+	// (setting these too high could cause events near the end of a buffer to be significantly delayed,
+	// plus we don't want them to exceed the length of a processing buffer)
+	const int MAX_NUM_PREV = 20;
+	const int MAX_NUM_NEXT = 20;
 
     // ------internals-----------
 
