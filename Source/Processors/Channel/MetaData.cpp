@@ -441,7 +441,7 @@ bool MetaDataEvent::deserializeMetaData(const MetaDataEventObject* info, const v
 	{
 		const MetaDataDescriptor* desc = info->getEventMetaDataDescriptor(i);
 		size_t dataSize = desc->getDataSize();
-		if ((memIndex + dataSize) < size) return false; //check for buffer boundaries
+		if ((memIndex + dataSize) > size) return false; //check for buffer boundaries
 		
 		metaData.add(new MetaDataValue(*desc, (static_cast<const char*>(srcBuffer) + memIndex)));
 		memIndex += dataSize;
