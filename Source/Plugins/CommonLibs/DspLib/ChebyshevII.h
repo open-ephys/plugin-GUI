@@ -33,8 +33,8 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
-#ifndef DSPFILTERS_CHEBYSHEVI_H
-#define DSPFILTERS_CHEBYSHEVI_H
+#ifndef DSPFILTERS_CHEBYSHEVII_H
+#define DSPFILTERS_CHEBYSHEVII_H
 
 #include "Common.h"
 #include "Cascade.h"
@@ -46,42 +46,42 @@ namespace Dsp
 {
 
 /*
- * Filters with Chebyshev response characteristics
+ * Filters with Inverse Chebyshev response characteristics
  *
  */
 
-namespace ChebyshevI
+namespace ChebyshevII
 {
 
 // Half-band analog prototypes (s-plane)
 
-class AnalogLowPass : public LayoutBase
+class COMMON_LIB AnalogLowPass : public LayoutBase
 {
 public:
     AnalogLowPass();
 
     void design(const int numPoles,
-                double rippleDb);
+                double stopBandDb);
 
 private:
     int m_numPoles;
-    double m_rippleDb;
+    double m_stopBandDb;
 };
 
 //------------------------------------------------------------------------------
 
-class AnalogLowShelf : public LayoutBase
+class COMMON_LIB AnalogLowShelf : public LayoutBase
 {
 public:
     AnalogLowShelf();
 
     void design(int numPoles,
                 double gainDb,
-                double rippleDb);
+                double stopBandDb);
 
 private:
     int m_numPoles;
-    double m_rippleDb;
+    double m_stopBandDb;
     double m_gainDb;
 };
 
@@ -89,66 +89,66 @@ private:
 
 // Factored implementations to reduce template instantiations
 
-struct LowPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB LowPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct HighPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB HighPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct BandPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB BandPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
                double centerFrequency,
                double widthFrequency,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct BandStopBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB BandStopBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
                double centerFrequency,
                double widthFrequency,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct LowShelfBase : PoleFilterBase <AnalogLowShelf>
+struct COMMON_LIB LowShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
                double gainDb,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct HighShelfBase : PoleFilterBase <AnalogLowShelf>
+struct COMMON_LIB HighShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
                double gainDb,
-               double rippleDb);
+               double stopBandDb);
 };
 
-struct BandShelfBase : PoleFilterBase <AnalogLowShelf>
+struct COMMON_LIB BandShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double centerFrequency,
                double widthFrequency,
                double gainDb,
-               double rippleDb);
+               double stopBandDb);
 };
 
 //------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ struct TypeIBase : DesignBase
 
     static const ParamInfo getParamInfo_3()
     {
-        return ParamInfo::defaultRippleDbParam();
+        return ParamInfo::defaultStopDbParam();
     }
 };
 
@@ -257,7 +257,7 @@ struct TypeIIBase : DesignBase
 
     static const ParamInfo getParamInfo_4()
     {
-        return ParamInfo::defaultRippleDbParam();
+        return ParamInfo::defaultStopDbParam();
     }
 };
 
@@ -294,7 +294,7 @@ struct TypeIIIBase : DesignBase
 
     static const ParamInfo getParamInfo_4()
     {
-        return ParamInfo::defaultRippleDbParam();
+        return ParamInfo::defaultStopDbParam();
     }
 };
 
@@ -336,7 +336,7 @@ struct TypeIVBase : DesignBase
 
     static const ParamInfo getParamInfo_5()
     {
-        return ParamInfo::defaultRippleDbParam();
+        return ParamInfo::defaultStopDbParam();
     }
 };
 
@@ -359,7 +359,7 @@ struct LowPassDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I Low Pass";
+        return "Chebyshev II Low Pass";
     }
 };
 
@@ -371,7 +371,7 @@ struct HighPassDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I High Pass";
+        return "Chebyshev II High Pass";
     }
 };
 
@@ -383,7 +383,7 @@ struct BandPassDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I Band Pass";
+        return "Chebyshev II Band Pass";
     }
 };
 
@@ -395,7 +395,7 @@ struct BandStopDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I Band Stop";
+        return "Chebyshev II Band Stop";
     }
 };
 
@@ -407,7 +407,7 @@ struct LowShelfDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I Low Shelf";
+        return "Chebyshev II Low Shelf";
     }
 };
 
@@ -419,7 +419,7 @@ struct HighShelfDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I High Shelf";
+        return "Chebyshev II High Shelf";
     }
 };
 
@@ -431,7 +431,7 @@ struct BandShelfDescription
     }
     static const char* getName()
     {
-        return "Chebyshev I Band Shelf";
+        return "Chebyshev II Band Shelf";
     }
 };
 
@@ -455,50 +455,51 @@ struct OrderBase : TypeClass <FilterClass <MaxOrder> >
 //------------------------------------------------------------------------------
 
 //
-// Design filters
+// Design Filters
 //
 
 template <int MaxOrder>
-struct LowPass : OrderBase <MaxOrder, TypeI, ChebyshevI::LowPass>,
+struct LowPass : OrderBase <MaxOrder, TypeI, ChebyshevII::LowPass>,
         LowPassDescription
 {
 };
 
 template <int MaxOrder>
-struct HighPass : OrderBase <MaxOrder, TypeI, ChebyshevI::HighPass>,
+struct HighPass : OrderBase <MaxOrder, TypeI, ChebyshevII::HighPass>,
         HighPassDescription
 {
 };
 
 template <int MaxOrder>
-struct BandPass : OrderBase <MaxOrder, TypeII, ChebyshevI::BandPass>,
+struct BandPass : OrderBase <MaxOrder, TypeII, ChebyshevII::BandPass>,
         BandPassDescription
 {
 };
 
 template <int MaxOrder>
-struct BandStop : OrderBase <MaxOrder, TypeII, ChebyshevI::BandStop>,
+struct BandStop : OrderBase <MaxOrder, TypeII, ChebyshevII::BandStop>,
         BandStopDescription
 {
 };
 
 template <int MaxOrder>
-struct LowShelf : OrderBase <MaxOrder, TypeIII, ChebyshevI::LowShelf>,
+struct LowShelf : OrderBase <MaxOrder, TypeIII, ChebyshevII::LowShelf>,
         LowShelfDescription
 {
 };
 
 template <int MaxOrder>
-struct HighShelf : OrderBase <MaxOrder, TypeIII, ChebyshevI::HighShelf>,
+struct HighShelf : OrderBase <MaxOrder, TypeIII, ChebyshevII::HighShelf>,
         HighShelfDescription
 {
 };
 
 template <int MaxOrder>
-struct BandShelf : OrderBase <MaxOrder, TypeIV, ChebyshevI::BandShelf>,
+struct BandShelf : OrderBase <MaxOrder, TypeIV, ChebyshevII::BandShelf>,
         BandShelfDescription
 {
 };
+
 
 }
 

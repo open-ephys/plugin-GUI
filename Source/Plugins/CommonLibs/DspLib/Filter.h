@@ -53,7 +53,7 @@ namespace Dsp
  * parameters.
  *
  */
-class Filter
+class COMMON_LIB Filter
 {
 public:
     virtual ~Filter();

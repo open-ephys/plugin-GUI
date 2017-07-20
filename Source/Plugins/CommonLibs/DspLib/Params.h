@@ -106,7 +106,7 @@ struct Params
 // Provides meta-information about a filter parameter
 // to achieve run-time introspection.
 //
-class ParamInfo
+class COMMON_LIB ParamInfo
 {
 public:
     typedef double(ParamInfo::*toControlValue_t)(double) const;

@@ -40,6 +40,8 @@ THE SOFTWARE.
 // This must be the first file included in every DspFilters header and source
 //
 
+#include <CommonLibHeader.h>
+
 #ifdef _MSC_VER
 #  pragma warning (disable: 4100)
 #endif
