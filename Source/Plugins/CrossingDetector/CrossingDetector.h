@@ -55,10 +55,10 @@ enum
     pEventChan,
     pEventDur,
     pTimeout,
-    pNumPrev,
-    pFracPrev,
-    pNumNext,
-    pFracNext
+    pPastSpan,
+    pPastStrict,
+    pFutureSpan,
+    pFutureStrict
 };
 
 class CrossingDetector : public GenericProcessor
@@ -87,8 +87,8 @@ private:
     // nSamples is the number of samples in the current buffer, determined within the process function.
     // dir is the crossing direction(s) (see #defines above) (must be explicitly specified)
     // uses passed nPrev and nNext rather than the member variables numPrev and numNext.
-    bool shouldTrigger(const float* rpCurr, int nSamples, int t0, float threshold,
-        bool posOn, bool negOn, int nPrev, int nNext);
+    bool shouldTrigger(const float* rpCurr, int nSamples, int t0, float currThresh,
+        bool currPosOn, bool currNegOn, int currPastSpan, int currFutureSpan);
 
     // ------parameters------------
 
@@ -102,22 +102,24 @@ private:
     int eventDuration; // in samples    
     int timeout; // number of samples after an event onset which may not trigger another event.
 
-    /* number of previous and next (including current) samples to look at at each timepoint, and fraction required to be above / below threshold
-     * generally, things get messy if we try to look too far back or especially forward compared to the size of the processing buffers
-     *
-     * if numNext samples are not available to look ahead from a timepoint, the test is delayed until the next processing cycle, and if it succeeds,
-     * the event occurs on the first sample of the next buffer. thus, setting numNext too large will delay some events slightly.
-     */
-    float fracPrev;
-    int numPrev;
-    float fracNext;
-    int numNext;
+    /* number of past and future (including current) samples to look at at each timepoint (attention span)
+    * generally, things get messy if we try to look too far back or especially forward compared to the size of the processing buffers
+    *
+    * if futureSpan samples are not available to look ahead from a timepoint, the test is delayed until the next processing cycle, and if it succeeds,
+    * the event occurs on the first sample of the next buffer. thus, setting futureSpan too large will delay some events slightly.
+    */
+    int pastSpan;
+    int futureSpan;
+
+    // fraction of spans required to be above / below threshold
+    float pastStrict;
+    float futureStrict;
 
     // limits on numprev / numnext
     // (setting these too high could cause events near the end of a buffer to be significantly delayed,
     // plus we don't want them to exceed the length of a processing buffer)
-    const int MAX_NUM_PREV = 20;
-    const int MAX_NUM_NEXT = 20;
+    const int MAX_PAST_SPAN = 20;
+    const int MAX_FUTURE_SPAN = 20;
 
     // ------internals-----------
 

@@ -33,12 +33,12 @@ CrossingDetector::CrossingDetector()
     , eventChan         (0)
     , eventDuration     (100)
     , timeout           (1000)
-    , fracPrev          (1.0f)
-    , numPrev           (1)
-    , fracNext          (1.0f)
-    , numNext           (1)
+    , pastStrict        (1.0f)
+    , pastSpan          (1)
+    , futureStrict      (1.0f)
+    , futureSpan        (1)
     , sampsToShutoff    (-1)
-    , sampsToReenable   (numPrev)
+    , sampsToReenable   (pastSpan)
     , shutoffChan       (-1)
 {
     setProcessorType(PROCESSOR_TYPE_FILTER);
@@ -106,8 +106,8 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 {
     // atomic field access
     int currChan = inputChan;
-    int currNumPrev = numPrev;
-    int currNumNext = numNext;
+    int currPastSpan = pastSpan;
+    int currFutureSpan = futureSpan;
 
     if (currChan < 0 || currChan >= continuousBuffer.getNumChannels()) // (shouldn't really happen)
         return;
@@ -117,16 +117,16 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
 
     // loop has two functions: detect crossings and turn on events for the end of the previous buffer and most of the current buffer,
     // or if an event is currently on, turn it off if it has been on for long enough.
-    for (int i = -currNumNext + 1; i < nSamples; i++)
+    for (int i = -currFutureSpan + 1; i < nSamples; i++)
     {
         // atomic field access
         float currThresh = threshold;
         bool currPosOn = posOn;
         bool currNegOn = negOn;
 
-        // if enabled, check whether to trigger an event (operates on [-currNumNext+1, nSamples - currNumNext] )
-        bool turnOn = (i >= sampsToReenable && i <= nSamples - currNumNext && shouldTrigger(rp, nSamples, i, currThresh,
-            currPosOn, currNegOn, currNumPrev, currNumNext));
+        // if enabled, check whether to trigger an event (operates on [-currFutureSpan+1, nSamples - currFutureSpan] )
+        bool turnOn = (i >= sampsToReenable && i <= nSamples - currFutureSpan && shouldTrigger(rp, nSamples, i, currThresh,
+            currPosOn, currNegOn, currPastSpan, currFutureSpan));
         
         // if not triggering, check whether event should be shut off (operates on [0, nSamples) )
         bool turnOff = (!turnOn && i >= 0 && i == sampsToShutoff);
@@ -192,7 +192,7 @@ void CrossingDetector::process(AudioSampleBuffer& continuousBuffer)
         // no scheduled shutoff, so keep it at -1
         sampsToShutoff = -1;
 
-    if (sampsToReenable >= -currNumNext)
+    if (sampsToReenable >= -currFutureSpan)
         // shift so it is relative to the next buffer
         sampsToReenable -= nSamples;
 
@@ -238,47 +238,47 @@ void CrossingDetector::setParameter(int parameterIndex, float newValue)
         timeout = static_cast<int>(newValue);
         break;
 
-    case pNumPrev:
-        numPrev = static_cast<int>(newValue);
-        sampsToReenable = numPrev;
+    case pPastSpan:
+        pastSpan = static_cast<int>(newValue);
+        sampsToReenable = pastSpan;
         break;
 
-    case pFracPrev:
-        fracPrev = newValue;
+    case pPastStrict:
+        pastStrict = newValue;
         break;
 
-    case pNumNext:
-        numNext = static_cast<int>(newValue);
+    case pFutureSpan:
+        futureSpan = static_cast<int>(newValue);
         break;
 
-    case pFracNext:
-        fracNext = newValue;
+    case pFutureStrict:
+        futureStrict = newValue;
         break;
     }
 }
 
 bool CrossingDetector::disable()
 {
-    // set this to numPrev so that we don't trigger on old data when we start again.
-    sampsToReenable = numPrev;
+    // set this to pastSpan so that we don't trigger on old data when we start again.
+    sampsToReenable = pastSpan;
     return true;
 }
 
 // private
 bool CrossingDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, float currThresh,
-    bool currPosOn, bool currNegOn, int currNumPrev, int currNumNext)
+    bool currPosOn, bool currNegOn, int currPastSpan, int currFutureSpan)
 {
     if (!currPosOn && !currNegOn)
         return false;
 
     if (currPosOn && currNegOn)
-        return shouldTrigger(rpCurr, nSamples, t0, currThresh, true, false, currNumPrev, currNumNext)
-        || shouldTrigger(rpCurr, nSamples, t0, currThresh, false, true, currNumPrev, currNumNext);
+        return shouldTrigger(rpCurr, nSamples, t0, currThresh, true, false, currPastSpan, currFutureSpan)
+        || shouldTrigger(rpCurr, nSamples, t0, currThresh, false, true, currPastSpan, currFutureSpan);
 
     // at this point exactly one of posOn and negOn is true.
 
-    int minInd = t0 - currNumPrev;
-    int maxInd = t0 + currNumNext - 1;
+    int minInd = t0 - currPastSpan;
+    int maxInd = t0 + currFutureSpan - 1;
 
     // check whether we have enough data
     if (minInd < -lastBuffer.size() || maxInd >= nSamples)
@@ -289,20 +289,20 @@ bool CrossingDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, 
 // allow us to treat the previous and current buffers as one array
 #define rp(x) ((x)>=0 ? rpCurr[(x)] : rpLast[(x)])
 
-    int numPrevRequired = (int)ceil(currNumPrev * fracPrev);
-    int numNextRequired = (int)ceil(currNumNext * fracNext);
+    int numPastRequired = (int)ceil(currPastSpan * pastStrict);
+    int numFutureRequired = (int)ceil(currFutureSpan * futureStrict);
 
-    for (int i = minInd; i < t0 && numPrevRequired > 0; i++)
+    for (int i = minInd; i < t0 && numPastRequired > 0; i++)
         if (currPosOn ? rp(i) < currThresh : rp(i) > currThresh)
-            numPrevRequired--;
+            numPastRequired--;
 
-    if (numPrevRequired == 0) // "prev" condition satisfied
+    if (numPastRequired == 0) // "prev" condition satisfied
     {
-        for (int i = t0; i <= maxInd && numNextRequired > 0; i++)
+        for (int i = t0; i <= maxInd && numFutureRequired > 0; i++)
             if (currPosOn ? rp(i) > currThresh : rp(i) < currThresh)
-                numNextRequired--;
+                numFutureRequired--;
 
-        if (numNextRequired == 0) // "next" condition satisfied
+        if (numFutureRequired == 0) // "next" condition satisfied
             return true;
     }
     

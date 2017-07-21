@@ -89,21 +89,33 @@ CrossingDetectorEditor::CrossingDetectorEditor(GenericProcessor* parentNode, boo
 
     /* -------------- BEFORE SECTION ----------------- */
 
-    beforeLabel = createLabel("BeforeL", "Before:", Rectangle(8, 68, 65, 18));
+    pastSpanLabel = createLabel("PastSpanL", "Past:   Span:", Rectangle(8, 68, 100, 18));
 
-    pctPrevEditable = createEditable("Percent Prev", String(100 * processor->fracPrev),
-        "Percent of considered past samples required to be above/below threshold", Rectangle(75, 68, 33, 18));
+    pastSpanEditable = createEditable("PastSpanE", String(processor->pastSpan),
+        "Number of samples considered before a potential crossing", Rectangle(110, 68, 33, 18));
 
-    bPctLabel = createLabel("PctPrevL", "% of", Rectangle(110, 68, 40, 18));
+    pastStrictLabel = createLabel("PastStrictL", "Strictness:", Rectangle(155, 68, 110, 18));
 
-    numPrevEditable = createEditable("Num Prev", String(processor->numPrev),
-        "Number of past samples considered", Rectangle(152, 68, 33, 18));
+    pastPctEditable = createEditable("PastPctE", String(100 * processor->pastStrict),
+        "Percent of considered past samples required to be above/below threshold", Rectangle(250, 68, 33, 18));
 
-    bSampLabel = createLabel("SampPrevL", "sample(s)", Rectangle(188, 68, 85, 18));
+    pastPctLabel = createLabel("pastPctL", "%", Rectangle(285, 68, 20, 18));
 
     /* --------------- AFTER SECTION ----------------- */
 
-    afterLabel = createLabel("AfterL", "After:", Rectangle(8, 88, 65, 18));
+    futureSpanLabel = createLabel("FutureSpanL", "Future: Span:", Rectangle(8, 88, 100, 18));
+
+    futureSpanEditable = createEditable("FutureSpanE", String(processor->futureSpan),
+        "Number of samples considered after a potential crossing", Rectangle(110, 88, 33, 18));
+
+    futureStrictLabel = createLabel("FutureStrictL", "Strictness:", Rectangle(155, 88, 110, 18));
+
+    futurePctEditable = createEditable("FuturePctE", String(100 * processor->futureStrict),
+        "Percent of considered future samples required to be above/below threshold", Rectangle(250, 88, 33, 18));
+
+    futurePctLabel = createLabel("futurePctL", "%", Rectangle(285, 88, 20, 18));
+
+ /*   afterLabel = createLabel("AfterL", "After:", Rectangle(8, 88, 65, 18));
 
     pctNextEditable = createEditable("Percent Next", String(100 * processor->fracNext),
         "Percent of considered future samples required to be above/below threshold", Rectangle(75, 88, 33, 18));
@@ -114,7 +126,7 @@ CrossingDetectorEditor::CrossingDetectorEditor(GenericProcessor* parentNode, boo
         "Number of future samples considered", Rectangle(152, 88, 33, 18));
 
     aSampLabel = createLabel("SampNextL", "sample(s)", Rectangle(188, 88, 85, 18));
-
+*/
     /* -------------- OUTPUT SECTION ----------------- */
 
     outputLabel = createLabel("OutL", "Output:", Rectangle(8, 108, 62, 18));
@@ -177,37 +189,37 @@ void CrossingDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
         if (success)
             processor->setParameter(pThreshold, newVal);
     }
-    else if (labelThatHasChanged == pctPrevEditable)
+    else if (labelThatHasChanged == pastPctEditable)
     {
         float newVal;
-        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->fracPrev, &newVal);
+        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->pastStrict, &newVal);
 
         if (success)
-            processor->setParameter(pFracPrev, newVal / 100);
+            processor->setParameter(pPastStrict, newVal / 100);
     }
-    else if (labelThatHasChanged == numPrevEditable)
+    else if (labelThatHasChanged == pastSpanEditable)
     {
         int newVal;
-        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_PREV, processor->numPrev, &newVal);
+        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_PAST_SPAN, processor->pastSpan, &newVal);
 
         if (success)
-            processor->setParameter(pNumPrev, (float)newVal);
+            processor->setParameter(pPastSpan, (float)newVal);
     }
-    else if (labelThatHasChanged == pctNextEditable)
+    else if (labelThatHasChanged == futurePctEditable)
     {
         float newVal;
-        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->fracNext, &newVal);
+        bool success = updateFloatLabel(labelThatHasChanged, 0, 100, 100 * processor->futureStrict, &newVal);
 
         if (success)
-            processor->setParameter(pFracNext, newVal / 100);
+            processor->setParameter(pFutureStrict, newVal / 100);
     }
-    else if (labelThatHasChanged == numNextEditable)
+    else if (labelThatHasChanged == futureSpanEditable)
     {
         int newVal;
-        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_NEXT, processor->numNext, &newVal);
+        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_FUTURE_SPAN, processor->futureSpan, &newVal);
 
         if (success)
-            processor->setParameter(pNumNext, (float)newVal);
+            processor->setParameter(pFutureSpan, (float)newVal);
     }
 }
 
@@ -262,10 +274,10 @@ void CrossingDetectorEditor::saveCustomParameters(XmlElement* xml)
     paramValues->setAttribute("bRising", risingButton->getToggleState());
     paramValues->setAttribute("bFalling", fallingButton->getToggleState());
     paramValues->setAttribute("threshold", thresholdEditable->getText());
-    paramValues->setAttribute("prevPct", pctPrevEditable->getText());
-    paramValues->setAttribute("prevNum", numPrevEditable->getText());
-    paramValues->setAttribute("nextPct", pctNextEditable->getText());
-    paramValues->setAttribute("nextNum", numNextEditable->getText());
+    paramValues->setAttribute("pastPct", pastPctEditable->getText());
+    paramValues->setAttribute("pastSpan", pastSpanEditable->getText());
+    paramValues->setAttribute("futurePct", futurePctEditable->getText());
+    paramValues->setAttribute("futureSpan", futureSpanEditable->getText());
     paramValues->setAttribute("outputChanId", eventBox->getSelectedId());
     paramValues->setAttribute("duration", durationEditable->getText());
     paramValues->setAttribute("timeout", timeoutEditable->getText());
@@ -279,10 +291,10 @@ void CrossingDetectorEditor::loadCustomParameters(XmlElement* xml)
         risingButton->setToggleState(xmlNode->getBoolAttribute("bRising", risingButton->getToggleState()), sendNotificationSync);
         fallingButton->setToggleState(xmlNode->getBoolAttribute("bFalling", fallingButton->getToggleState()), sendNotificationSync);
         thresholdEditable->setText(xmlNode->getStringAttribute("threshold", thresholdEditable->getText()), sendNotificationSync);
-        pctPrevEditable->setText(xmlNode->getStringAttribute("prevPct", pctPrevEditable->getText()), sendNotificationSync);
-        numPrevEditable->setText(xmlNode->getStringAttribute("prevNum", numPrevEditable->getText()), sendNotificationSync);
-        pctNextEditable->setText(xmlNode->getStringAttribute("nextPct", pctNextEditable->getText()), sendNotificationSync);
-        numNextEditable->setText(xmlNode->getStringAttribute("nextNum", numNextEditable->getText()), sendNotificationSync);
+        pastPctEditable->setText(xmlNode->getStringAttribute("pastPct", pastPctEditable->getText()), sendNotificationSync);
+        pastSpanEditable->setText(xmlNode->getStringAttribute("pastSpan", pastSpanEditable->getText()), sendNotificationSync);
+        futurePctEditable->setText(xmlNode->getStringAttribute("futurePct", futurePctEditable->getText()), sendNotificationSync);
+        futureSpanEditable->setText(xmlNode->getStringAttribute("futureSpan", futureSpanEditable->getText()), sendNotificationSync);
         eventBox->setSelectedId(xmlNode->getIntAttribute("outputChanId", eventBox->getSelectedId()), sendNotificationSync);
         durationEditable->setText(xmlNode->getStringAttribute("duration", durationEditable->getText()), sendNotificationSync);
         timeoutEditable->setText(xmlNode->getStringAttribute("timeout", timeoutEditable->getText()), sendNotificationSync);

@@ -93,20 +93,20 @@ private:
     ScopedPointer<Label> durationEditable;
     ScopedPointer<Label> timeoutEditable;
     ScopedPointer<Label> thresholdEditable;
-    ScopedPointer<Label> pctPrevEditable;
-    ScopedPointer<Label> numPrevEditable;
-    ScopedPointer<Label> pctNextEditable;
-    ScopedPointer<Label> numNextEditable;
+    ScopedPointer<Label> pastPctEditable;
+    ScopedPointer<Label> pastSpanEditable;
+    ScopedPointer<Label> futurePctEditable;
+    ScopedPointer<Label> futureSpanEditable;
 
     // static labels
     ScopedPointer<Label> inputLabel;
     ScopedPointer<Label> acrossLabel;
-    ScopedPointer<Label> beforeLabel;
-    ScopedPointer<Label> bPctLabel;
-    ScopedPointer<Label> bSampLabel;
-    ScopedPointer<Label> afterLabel;
-    ScopedPointer<Label> aPctLabel;
-    ScopedPointer<Label> aSampLabel;
+    ScopedPointer<Label> pastSpanLabel;
+    ScopedPointer<Label> pastStrictLabel;
+    ScopedPointer<Label> pastPctLabel;
+    ScopedPointer<Label> futureSpanLabel;
+    ScopedPointer<Label> futureStrictLabel;
+    ScopedPointer<Label> futurePctLabel;
     ScopedPointer<Label> outputLabel;
     ScopedPointer<Label> durLabel;
     ScopedPointer<Label> timeoutLabel;
