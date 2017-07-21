@@ -25,41 +25,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // standard component creation methods
 Label* CrossingDetectorEditor::createEditable(const String& name, const String& initialValue,
-	const String& tooltip, const Rectangle bounds)
+    const String& tooltip, const Rectangle bounds)
 {
-	Label* editable = new Label(name, initialValue);
-	editable->setEditable(true);
-	editable->addListener(this);
-	editable->setBounds(bounds);
-	editable->setColour(Label::backgroundColourId, Colours::grey);
-	editable->setColour(Label::textColourId, Colours::white);
-	editable->setTooltip(tooltip);
-	addAndMakeVisible(editable);
-	return editable;
+    Label* editable = new Label(name, initialValue);
+    editable->setEditable(true);
+    editable->addListener(this);
+    editable->setBounds(bounds);
+    editable->setColour(Label::backgroundColourId, Colours::grey);
+    editable->setColour(Label::textColourId, Colours::white);
+    editable->setTooltip(tooltip);
+    addAndMakeVisible(editable);
+    return editable;
 }
 
 Label* CrossingDetectorEditor::createLabel(const String& name, const String& text, const Rectangle bounds)
 {
-	Label* label = new Label(name, text);
-	label->setBounds(bounds);
-	label->setFont(Font("Small Text", 12, Font::plain));
-	label->setColour(Label::textColourId, Colours::darkgrey);
-	addAndMakeVisible(label);
-	return label;
+    Label* label = new Label(name, text);
+    label->setBounds(bounds);
+    label->setFont(Font("Small Text", 12, Font::plain));
+    label->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(label);
+    return label;
 }
 
 CrossingDetectorEditor::CrossingDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
     : GenericEditor(parentNode, useDefaultParameterEditors)
 {
     desiredWidth = 341;
-	CrossingDetector* processor = static_cast<CrossingDetector*>(parentNode);
+    CrossingDetector* processor = static_cast<CrossingDetector*>(parentNode);
 
     /* ------------- CRITERIA SECTION ---------------- */
 
-	inputLabel = createLabel("InputChanL", "Input", Rectangle(8, 36, 50, 18));
+    inputLabel = createLabel("InputChanL", "Input", Rectangle(8, 36, 50, 18));
 
     inputBox = new ComboBox("Input channel");
-	inputBox->setTooltip("Continuous channel to analyze");
+    inputBox->setTooltip("Continuous channel to analyze");
     inputBox->setBounds(60, 36, 40, 18);
     inputBox->addListener(this);
     addAndMakeVisible(inputBox);
@@ -70,73 +70,73 @@ CrossingDetectorEditor::CrossingDetectorEditor(GenericProcessor* parentNode, boo
     risingButton->setClickingTogglesState(true);
     bool enable = processor->posOn;
     risingButton->setToggleState(enable, dontSendNotification);
-	risingButton->setTooltip("Trigger events when past samples are below and future samples are above the threshold");
+    risingButton->setTooltip("Trigger events when past samples are below and future samples are above the threshold");
     addAndMakeVisible(risingButton);
 
     fallingButton = new UtilityButton("FALLING", Font("Default", 10, Font::plain));
     fallingButton->addListener(this);
     fallingButton->setBounds(105, 46, 60, 18);
     fallingButton->setClickingTogglesState(true);
-	enable = processor->negOn;
+    enable = processor->negOn;
     fallingButton->setToggleState(enable, dontSendNotification);
-	fallingButton->setTooltip("Trigger events when past samples are above and future samples are below the threshold");
+    fallingButton->setTooltip("Trigger events when past samples are above and future samples are below the threshold");
     addAndMakeVisible(fallingButton);
 
-	acrossLabel = createLabel("AcrossL", "across", Rectangle(168, 36, 60, 18));
+    acrossLabel = createLabel("AcrossL", "across", Rectangle(168, 36, 60, 18));
 
-	thresholdEditable = createEditable("Threshold", String(processor->threshold),
-		"Threshold voltage", Rectangle(230, 36, 50, 18));
+    thresholdEditable = createEditable("Threshold", String(processor->threshold),
+        "Threshold voltage", Rectangle(230, 36, 50, 18));
 
     /* -------------- BEFORE SECTION ----------------- */
 
-	beforeLabel = createLabel("BeforeL", "Before:", Rectangle(8, 68, 65, 18));
+    beforeLabel = createLabel("BeforeL", "Before:", Rectangle(8, 68, 65, 18));
 
-	pctPrevEditable = createEditable("Percent Prev", String(100 * processor->fracPrev),
-		"Percent of considered past samples required to be above/below threshold", Rectangle(75, 68, 33, 18));
+    pctPrevEditable = createEditable("Percent Prev", String(100 * processor->fracPrev),
+        "Percent of considered past samples required to be above/below threshold", Rectangle(75, 68, 33, 18));
 
-	bPctLabel = createLabel("PctPrevL", "% of", Rectangle(110, 68, 40, 18));
+    bPctLabel = createLabel("PctPrevL", "% of", Rectangle(110, 68, 40, 18));
 
-	numPrevEditable = createEditable("Num Prev", String(processor->numPrev),
-		"Number of past samples considered", Rectangle(152, 68, 33, 18));
+    numPrevEditable = createEditable("Num Prev", String(processor->numPrev),
+        "Number of past samples considered", Rectangle(152, 68, 33, 18));
 
-	bSampLabel = createLabel("SampPrevL", "sample(s)", Rectangle(188, 68, 85, 18));
+    bSampLabel = createLabel("SampPrevL", "sample(s)", Rectangle(188, 68, 85, 18));
 
     /* --------------- AFTER SECTION ----------------- */
 
-	afterLabel = createLabel("AfterL", "After:", Rectangle(8, 88, 65, 18));
+    afterLabel = createLabel("AfterL", "After:", Rectangle(8, 88, 65, 18));
 
-	pctNextEditable = createEditable("Percent Next", String(100 * processor->fracNext),
-		"Percent of considered future samples required to be above/below threshold", Rectangle(75, 88, 33, 18));
+    pctNextEditable = createEditable("Percent Next", String(100 * processor->fracNext),
+        "Percent of considered future samples required to be above/below threshold", Rectangle(75, 88, 33, 18));
 
-	aPctLabel = createLabel("PctNextL", "% of", Rectangle(110, 88, 40, 18));
+    aPctLabel = createLabel("PctNextL", "% of", Rectangle(110, 88, 40, 18));
 
-	numNextEditable = createEditable("Num Next", String(processor->numNext),
-		"Number of future samples considered", Rectangle(152, 88, 33, 18));
+    numNextEditable = createEditable("Num Next", String(processor->numNext),
+        "Number of future samples considered", Rectangle(152, 88, 33, 18));
 
-	aSampLabel = createLabel("SampNextL", "sample(s)", Rectangle(188, 88, 85, 18));
+    aSampLabel = createLabel("SampNextL", "sample(s)", Rectangle(188, 88, 85, 18));
 
     /* -------------- OUTPUT SECTION ----------------- */
 
-	outputLabel = createLabel("OutL", "Output:", Rectangle(8, 108, 62, 18));
+    outputLabel = createLabel("OutL", "Output:", Rectangle(8, 108, 62, 18));
 
     eventBox = new ComboBox("Out event channel");
     for (int chan = 1; chan <= 8; chan++)
         eventBox->addItem(String(chan), chan);
-	eventBox->setSelectedId(processor->eventChan + 1);
+    eventBox->setSelectedId(processor->eventChan + 1);
     eventBox->setBounds(72, 108, 35, 18);
-	eventBox->setTooltip("Event channel to output on when triggered");
+    eventBox->setTooltip("Event channel to output on when triggered");
     eventBox->addListener(this);
     addAndMakeVisible(eventBox);
 
-	durLabel = createLabel("DurL", "Dur:", Rectangle(112, 108, 35, 18));
+    durLabel = createLabel("DurL", "Dur:", Rectangle(112, 108, 35, 18));
 
-	durationEditable = createEditable("Event Duration", String(processor->eventDuration),
-		"Duration of each event, in samples", Rectangle(151, 108, 50, 18));
+    durationEditable = createEditable("Event Duration", String(processor->eventDuration),
+        "Duration of each event, in samples", Rectangle(151, 108, 50, 18));
 
-	timeoutLabel = createLabel("TimeoutL", "Timeout:", Rectangle(206, 108, 64, 18));
+    timeoutLabel = createLabel("TimeoutL", "Timeout:", Rectangle(206, 108, 64, 18));
 
-	timeoutEditable = createEditable("Timeout", String(processor->timeout),
-		"Minimum number of samples between consecutive events", Rectangle(274, 108, 50, 18));
+    timeoutEditable = createEditable("Timeout", String(processor->timeout),
+        "Minimum number of samples between consecutive events", Rectangle(274, 108, 50, 18));
 }
 
 CrossingDetectorEditor::~CrossingDetectorEditor() {}
@@ -188,7 +188,7 @@ void CrossingDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
     else if (labelThatHasChanged == numPrevEditable)
     {
         int newVal;
-		bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_PREV, processor->numPrev, &newVal);
+        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_PREV, processor->numPrev, &newVal);
 
         if (success)
             processor->setParameter(pNumPrev, (float)newVal);
@@ -204,7 +204,7 @@ void CrossingDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
     else if (labelThatHasChanged == numNextEditable)
     {
         int newVal;
-		bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_NEXT, processor->numNext, &newVal);
+        bool success = updateIntLabel(labelThatHasChanged, 0, processor->MAX_NUM_NEXT, processor->numNext, &newVal);
 
         if (success)
             processor->setParameter(pNumNext, (float)newVal);
@@ -213,15 +213,15 @@ void CrossingDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
 
 void CrossingDetectorEditor::buttonEvent(Button* button)
 {
-	if (button == risingButton)
-		getProcessor()->setParameter(pPosOn, static_cast<float>(button->getToggleState()));
-	else if (button == fallingButton)
-		getProcessor()->setParameter(pNegOn, static_cast<float>(button->getToggleState()));
+    if (button == risingButton)
+        getProcessor()->setParameter(pPosOn, static_cast<float>(button->getToggleState()));
+    else if (button == fallingButton)
+        getProcessor()->setParameter(pNegOn, static_cast<float>(button->getToggleState()));
 }
 
 void CrossingDetectorEditor::updateSettings()
 {
-	CrossingDetector* processor = static_cast<CrossingDetector*>(getProcessor());
+    CrossingDetector* processor = static_cast<CrossingDetector*>(getProcessor());
 
     // update input combo box
     int numInputs = processor->settings.numInputs;
@@ -234,7 +234,7 @@ void CrossingDetectorEditor::updateSettings()
             // using 1-based ids since 0 is reserved for "nothing selected"
             inputBox->addItem(String(chan), chan);
         if (numInputs > 0 && (currId < 1 || currId > numInputs))
-			inputBox->setSelectedId(1, sendNotificationAsync);
+            inputBox->setSelectedId(1, sendNotificationAsync);
         else
             inputBox->setSelectedId(currId, dontSendNotification);
     }
@@ -243,12 +243,12 @@ void CrossingDetectorEditor::updateSettings()
 
 void CrossingDetectorEditor::startAcquisition()
 {
-	inputBox->setEnabled(false);
+    inputBox->setEnabled(false);
 }
 
 void CrossingDetectorEditor::stopAcquisition()
 {
-	inputBox->setEnabled(true);
+    inputBox->setEnabled(true);
 }
 
 void CrossingDetectorEditor::saveCustomParameters(XmlElement* xml)
@@ -297,51 +297,51 @@ void CrossingDetectorEditor::loadCustomParameters(XmlElement* xml)
 */
 bool CrossingDetectorEditor::updateIntLabel(Label* label, int min, int max, int defaultValue, int* out)
 {
-	const String& in = label->getText();
-	int parsedInt;
-	try
-	{
-		parsedInt = std::stoi(in.toRawUTF8());
-	}
-	catch (const std::exception& e)
-	{
-		label->setText(String(defaultValue), dontSendNotification);
-		return false;
-	}
+    const String& in = label->getText();
+    int parsedInt;
+    try
+    {
+        parsedInt = std::stoi(in.toRawUTF8());
+    }
+    catch (const std::exception& e)
+    {
+        label->setText(String(defaultValue), dontSendNotification);
+        return false;
+    }
 
-	if (parsedInt < min)
-		*out = min;
-	else if (parsedInt > max)
-		*out = max;
-	else
-		*out = parsedInt;
+    if (parsedInt < min)
+        *out = min;
+    else if (parsedInt > max)
+        *out = max;
+    else
+        *out = parsedInt;
 
-	label->setText(String(*out), dontSendNotification);
-	return true;
+    label->setText(String(*out), dontSendNotification);
+    return true;
 }
 
 // Like updateIntLabel, but for floats
 bool CrossingDetectorEditor::updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out)
 {
-	const String& in = label->getText();
-	float parsedFloat;
-	try
-	{
-		parsedFloat = std::stof(in.toRawUTF8());
-	}
-	catch (const std::exception& e)
-	{
-		label->setText(String(defaultValue), dontSendNotification);
-		return false;
-	}
+    const String& in = label->getText();
+    float parsedFloat;
+    try
+    {
+        parsedFloat = std::stof(in.toRawUTF8());
+    }
+    catch (const std::exception& e)
+    {
+        label->setText(String(defaultValue), dontSendNotification);
+        return false;
+    }
 
-	if (parsedFloat < min)
-		*out = min;
-	else if (parsedFloat > max)
-		*out = max;
-	else
-		*out = parsedFloat;
+    if (parsedFloat < min)
+        *out = min;
+    else if (parsedFloat > max)
+        *out = max;
+    else
+        *out = parsedFloat;
 
-	label->setText(String(*out), dontSendNotification);
-	return true;
+    label->setText(String(*out), dontSendNotification);
+    return true;
 }

@@ -50,7 +50,7 @@ enum
 {
     pThreshold,
     pPosOn,
-	pNegOn,
+    pNegOn,
     pInputChan,
     pEventChan,
     pEventDur,
@@ -63,16 +63,16 @@ enum
 
 class CrossingDetector : public GenericProcessor
 {
-	friend class CrossingDetectorEditor;
+    friend class CrossingDetectorEditor;
 
 public:
     CrossingDetector();
     ~CrossingDetector();
     
-	bool hasEditor() const { return true; }
+    bool hasEditor() const { return true; }
     AudioProcessorEditor* createEditor() override;
 
-	void createEventChannels() override;
+    void createEventChannels() override;
 
     void process(AudioSampleBuffer& continuousBuffer) override;
 
@@ -87,14 +87,14 @@ private:
     // nSamples is the number of samples in the current buffer, determined within the process function.
     // dir is the crossing direction(s) (see #defines above) (must be explicitly specified)
     // uses passed nPrev and nNext rather than the member variables numPrev and numNext.
-	bool shouldTrigger(const float* rpCurr, int nSamples, int t0, float threshold,
-		bool posOn, bool negOn, int nPrev, int nNext);
+    bool shouldTrigger(const float* rpCurr, int nSamples, int t0, float threshold,
+        bool posOn, bool negOn, int nPrev, int nNext);
 
     // ------parameters------------
 
     float threshold;
-	bool posOn;
-	bool negOn;
+    bool posOn;
+    bool negOn;
     int inputChan;
     int eventChan;    
     int shutoffChan; // temporary storage of event that must be shut off; allows eventChan to be adjusted during acquisition
@@ -113,11 +113,11 @@ private:
     float fracNext;
     int numNext;
 
-	// limits on numprev / numnext
-	// (setting these too high could cause events near the end of a buffer to be significantly delayed,
-	// plus we don't want them to exceed the length of a processing buffer)
-	const int MAX_NUM_PREV = 20;
-	const int MAX_NUM_NEXT = 20;
+    // limits on numprev / numnext
+    // (setting these too high could cause events near the end of a buffer to be significantly delayed,
+    // plus we don't want them to exceed the length of a processing buffer)
+    const int MAX_NUM_PREV = 20;
+    const int MAX_NUM_NEXT = 20;
 
     // ------internals-----------
 

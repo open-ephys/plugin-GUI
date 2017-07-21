@@ -65,24 +65,24 @@ public:
     // allow editor to react to changing # of channels
     void updateSettings() override;
 
-	// disable input channel selection during acquisition so that events work correctly
-	void startAcquisition() override;
-	void stopAcquisition() override;
+    // disable input channel selection during acquisition so that events work correctly
+    void startAcquisition() override;
+    void stopAcquisition() override;
 
     void saveCustomParameters(XmlElement* xml) override;
     void loadCustomParameters(XmlElement* xml) override;
 
 private:
-	typedef juce::Rectangle<int> Rectangle;
+    typedef juce::Rectangle<int> Rectangle;
 
-	Label* createEditable(const String& name, const String& initialValue,
-		const String& tooltip, const Rectangle bounds);
+    Label* createEditable(const String& name, const String& initialValue,
+        const String& tooltip, const Rectangle bounds);
 
-	Label* createLabel(const String& name, const String& text, const Rectangle bounds);
+    Label* createLabel(const String& name, const String& text, const Rectangle bounds);
 
-	// utilities for parsing entered values
-	static bool updateIntLabel(Label* label, int min, int max, int defaultValue, int* out);
-	static bool updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out);
+    // utilities for parsing entered values
+    static bool updateIntLabel(Label* label, int min, int max, int defaultValue, int* out);
+    static bool updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out);
 
     ScopedPointer<ComboBox> inputBox;
     ScopedPointer<ComboBox> eventBox;
