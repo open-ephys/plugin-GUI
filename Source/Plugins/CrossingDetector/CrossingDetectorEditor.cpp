@@ -297,7 +297,7 @@ void CrossingDetectorEditor::loadCustomParameters(XmlElement* xml)
 */
 bool CrossingDetectorEditor::updateIntLabel(Label* label, int min, int max, int defaultValue, int* out)
 {
-	String& in = label->getText();
+	const String& in = label->getText();
 	int parsedInt;
 	try
 	{
@@ -323,7 +323,7 @@ bool CrossingDetectorEditor::updateIntLabel(Label* label, int min, int max, int 
 // Like updateIntLabel, but for floats
 bool CrossingDetectorEditor::updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out)
 {
-	String& in = label->getText();
+	const String& in = label->getText();
 	float parsedFloat;
 	try
 	{
