@@ -59,7 +59,7 @@
 	 int lastId = 0;
 	 for (int proc = 0; proc < recProcs; proc++)
 	 {
-		 const RecordProcessorInfo procInfo = getProcessorInfo(proc);
+		 const RecordProcessorInfo& procInfo = getProcessorInfo(proc);
 		 int recChans = procInfo.recordedChannels.size();
 		 for (int chan = 0; chan < recChans; chan++)
 		 {

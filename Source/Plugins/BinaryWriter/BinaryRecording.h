@@ -56,7 +56,7 @@ namespace BinaryRecordingEngine
 		static RecordEngineManager* getEngineManager();
 
 	private:
-
+		typedef Array<const DataChannel*> ContinuousGroup;
 		void openSpikeFile(String basepath, int spikeIndex, int recordingNumber);
 		String generateSpikeHeader(const SpikeChannel* elec);
 		String generateEventHeader();
@@ -71,6 +71,9 @@ namespace BinaryRecordingEngine
 		int m_bufferSize;
 
 		OwnedArray<SequentialBlockFile>  m_DataFiles;
+		Array<unsigned int> m_channelIndexes;
+		Array<unsigned int> m_fileIndexes;
+		Array<ContinuousGroup> m_dataChannels;
 
 		FILE* eventFile;
 		FILE* messageFile;
