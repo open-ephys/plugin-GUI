@@ -30,7 +30,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
     {
         ToggleButton* but = new ToggleButton();
         but->setToggleState(param.boolParam.value,dontSendNotification);
-        but->setBounds(120,0,20,20);
+        but->setBounds(120,0,100,20);
         addAndMakeVisible(but);
         control = but;
     }
