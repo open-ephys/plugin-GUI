@@ -50,7 +50,6 @@ public:
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
 	void writeEvent(int eventType, const MidiMessage& event, int64 timestamp) override;
-	void addChannel(int index, const Channel* chan) override;
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeRecordInfo* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;

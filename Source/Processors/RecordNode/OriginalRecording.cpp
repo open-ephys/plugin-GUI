@@ -67,14 +67,6 @@ String OriginalRecording::getEngineID() const
     return "OPENEPHYS";
 }
 
-void OriginalRecording::addChannel(int index, const Channel* chan)
-{
-    //Just populate the file array with null so we can address it by index afterwards
-    fileArray.add(nullptr);
-    blockIndex.add(0);
-    samplesSinceLastTimestamp.add(0);
-}
-
 void OriginalRecording::addSpikeElectrode(int index, const SpikeRecordInfo* elec)
 {
     spikeFileArray.add(nullptr);
@@ -100,16 +92,15 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
     openFile(rootFolder,nullptr);
     openMessageFile(rootFolder);
 
-    for (int i = 0; i < fileArray.size(); i++)
-    {
-        if (getChannel(i)->getRecordState())
-        {
-            openFile(rootFolder,getChannel(i));
-            blockIndex.set(i,0);
-            samplesSinceLastTimestamp.set(i,0);
-        }
+	int nChannels = getNumRecordedChannels();
 
-    }
+	for (int i = 0; i < nChannels; i++)
+	{
+		Channel* ch = getChannel(getRealChannel(i));
+		openFile(rootFolder, ch);
+		blockIndex.add(0);
+		samplesSinceLastTimestamp.add(0);
+	}
     for (int i = 0; i < spikeFileArray.size(); i++)
     {
         openSpikeFile(rootFolder,getSpikeElectrode(i));
@@ -175,7 +166,7 @@ void OriginalRecording::openFile(File rootFolder, Channel* ch)
         eventFile = chFile;
     else
     {
-        fileArray.set(ch->recordIndex,chFile);
+        fileArray.add(chFile);
         if (ch->nodeId != lastProcId)
         {
             lastProcId = ch->nodeId;
@@ -450,10 +441,7 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
 {
 	int samplesWritten = 0;
 
-	//int sourceNodeId = getChannel(realChannel)->sourceNodeId;
-
-	//TODO: optimize. Now we use realchannel, we should optimize the whole thing to only use recorded channels
-	samplesSinceLastTimestamp.set(realChannel, 0);
+	samplesSinceLastTimestamp.set(writeChannel, 0);
 
 	int nSamples = size;
 
@@ -461,7 +449,7 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
             {
                 int numSamplesToWrite = nSamples - samplesWritten;
 
-                if (blockIndex[realChannel] + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
+				if (blockIndex[writeChannel] + numSamplesToWrite < BLOCK_LENGTH) // we still have space in this block
                 {
 
                     // write buffer to disk!
@@ -470,15 +458,15 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
                                           writeChannel);
 
                     //timestamp += numSamplesToWrite;
-                    samplesSinceLastTimestamp.set(realChannel, samplesSinceLastTimestamp[realChannel] + numSamplesToWrite);
-                    blockIndex.set(realChannel, blockIndex[realChannel] + numSamplesToWrite);
+					samplesSinceLastTimestamp.set(writeChannel, samplesSinceLastTimestamp[writeChannel] + numSamplesToWrite);
+					blockIndex.set(writeChannel, blockIndex[writeChannel] + numSamplesToWrite);
                     samplesWritten += numSamplesToWrite;
 
                 }
                 else   // there's not enough space left in this block for all remaining samples
                 {
 
-                    numSamplesToWrite = BLOCK_LENGTH - blockIndex[realChannel];
+					numSamplesToWrite = BLOCK_LENGTH - blockIndex[writeChannel];
 
                     // write buffer to disk!
                     writeContinuousBuffer(buffer + samplesWritten,
@@ -488,8 +476,8 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
                     // update our variables
                     samplesWritten += numSamplesToWrite;
                     //timestamp += numSamplesToWrite;
-                    samplesSinceLastTimestamp.set(realChannel, samplesSinceLastTimestamp[realChannel] + numSamplesToWrite);
-                    blockIndex.set(realChannel,0); // back to the beginning of the block
+					samplesSinceLastTimestamp.set(writeChannel, samplesSinceLastTimestamp[writeChannel] + numSamplesToWrite);
+					blockIndex.set(writeChannel, 0); // back to the beginning of the block
                 }
             }
 
@@ -498,13 +486,12 @@ void OriginalRecording::writeData(int writeChannel, int realChannel, const float
 
 void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, int writeChannel)
 {
-	int channel = getRealChannel(writeChannel);
     // check to see if the file exists
-    if (fileArray[channel] == nullptr)
+	if (fileArray[writeChannel] == nullptr)
         return;
 
     // scale the data back into the range of int16
-    float scaleFactor =  float(0x7fff) * getChannel(channel)->bitVolts;
+	float scaleFactor = float(0x7fff) * getChannel(getRealChannel(writeChannel))->bitVolts;
 
     for (int n = 0; n < nSamples; n++)
     {
@@ -512,9 +499,9 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
     }
     AudioDataConverters::convertFloatToInt16BE(continuousDataFloatBuffer, continuousDataIntegerBuffer, nSamples);
 
-    if (blockIndex[channel] == 0)
+	if (blockIndex[writeChannel] == 0)
     {
-        writeTimestampAndSampleCount(fileArray[channel], writeChannel);
+		writeTimestampAndSampleCount(fileArray[writeChannel], writeChannel);
     }
 
     diskWriteLock.enter();
@@ -522,7 +509,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
     size_t count = fwrite(continuousDataIntegerBuffer, // ptr
                           2,                               // size of each element
                           nSamples,                        // count
-                          fileArray[channel]); // ptr to FILE object
+						  fileArray[writeChannel]); // ptr to FILE object
 
     //std::cout << channel << " : " << nSamples << " : " << count << std::endl;
 
@@ -531,9 +518,9 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
 
     diskWriteLock.exit();
 
-    if (blockIndex[channel] + nSamples == BLOCK_LENGTH)
+	if (blockIndex[writeChannel] + nSamples == BLOCK_LENGTH)
     {
-        writeRecordMarker(fileArray[channel]);
+		writeRecordMarker(fileArray[writeChannel]);
     }
 }
 
@@ -590,13 +577,13 @@ void OriginalRecording::closeFiles()
                 writeContinuousBuffer(zeroBuffer.getReadPointer(0), BLOCK_LENGTH - blockIndex[i], i);
                 diskWriteLock.enter();
                 fclose(fileArray[i]);
-                fileArray.set(i,nullptr);
                 diskWriteLock.exit();
             }
         }
-
-        blockIndex.set(i,0);
     }
+	fileArray.clear();
+	blockIndex.clear();
+	samplesSinceLastTimestamp.clear();
     for (int i = 0; i < spikeFileArray.size(); i++)
     {
         if (spikeFileArray[i] != nullptr)
