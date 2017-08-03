@@ -84,8 +84,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -129,8 +129,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -176,8 +176,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -219,8 +219,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCER_VS2012_78A501F=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
