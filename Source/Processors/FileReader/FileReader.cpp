@@ -57,6 +57,12 @@ FileReader::FileReader()
             supportedExtensions.set (extensions[j].toLowerCase(), i + 1);
         }
     }
+    
+    /*
+    const DataChannel* in = getDataChannel(0);
+    EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
+    moduleEventChannels.add(ev);
+*/
 }
 
 
@@ -230,33 +236,43 @@ void FileReader::updateSettings()
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
-    
-
     const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-
     int samplesRead = 0;
 
     while (samplesRead < samplesNeeded)
     {
+        count +=1;
         int samplesToRead = samplesNeeded - samplesRead;
+        int iterationsPerSecond = getDefaultSampleRate()/samplesToRead;
+        int sample = getDefaultSampleRate()-iterationsPerSecond*samplesToRead;
+        //std::cout<<"sample: " <<sample<<"\n";
         if ( (currentSample + samplesToRead) > stopSample)
         {
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
-                input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
+                input->readData (readBuffer + samplesRead, samplesToRead);
 
             input->seekTo (startSample);
             currentSample = startSample;
         }
         else
         {
-            input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
-
+            input->readData (readBuffer + samplesRead, samplesToRead);
             currentSample += samplesToRead;
         }
-
+        //std::cout<<"samplesRead: " << samplesRead << "\n";
+        //std::cout<<"mod operation: " << count % iterationsPerSecond << "\n";
+        if (count % iterationsPerSecond == 0){
+            int *evntData= 0;
+            TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[0], getTimestamp(0),
+                                                    &evntData, sizeof(int), 0);
+            //TTLEvent::createTTLEvent(<#const EventChannel *channelInfo#>, <#int64 timestamp#>, <#const void *eventData#>, <#int dataSize#>, <#uint16 channel#>)
+            addEvent(moduleEventChannels[0], event, sample);
+            //addEvent(<#int channelIndex#>, <#const Event *event#>, <#int sampleNum#>)
+        }
+        
         samplesRead += samplesToRead;
     }
 
@@ -264,7 +280,7 @@ void FileReader::process (AudioSampleBuffer& buffer)
     {
         input->processChannelData (readBuffer, buffer.getWritePointer (i, 0), i, samplesNeeded);
     }
-
+    
     timestamp += samplesNeeded;
 	setTimestampAndSamples(timestamp, samplesNeeded);
     
@@ -308,4 +324,23 @@ unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 int64 FileReader::millisecondsToSamples (unsigned int ms) const
 {
     return (int64) (currentSampleRate * float (ms) / 1000.f);
+}
+
+void FileReader::createEventChannels(){
+    
+    moduleEventChannels.clear();
+   
+        const DataChannel* in = getDataChannel(0);
+        EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
+    
+        ev->setName("regular file reader output ");
+        ev->setDescription("Triggers about every second");
+        String identifier = "secondly.reader.";
+        String typeDesc = "secondly";
+        ev->setIdentifier(identifier);
+        //MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
+        //MetaDataValue mv(md);
+        //mv.setValue(typeDesc);
+        eventChannelArray.add(ev);
+        moduleEventChannels.add(ev);
 }

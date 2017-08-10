@@ -67,9 +67,12 @@ public:
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-
+    void createEventChannels();
 
 private:
+    Array<const EventChannel*> moduleEventChannels;
+    unsigned int count = 0;
+    
     void setActiveRecording (int index);
 
     unsigned int samplesToMilliseconds (int64 samples)  const;
