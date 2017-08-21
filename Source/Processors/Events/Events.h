@@ -143,6 +143,12 @@ public:
 	static EventChannel::EventChannelTypes getEventType(const MidiMessage& msg);
 	static EventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
 
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	static MetaDataDescriptor::MetaDataTypes getEquivalentMetaDataType(const Event& ev);
+
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	MetaDataDescriptor::MetaDataTypes getEquivalentMetaDataType() const;
+
 protected:
 	Event(const EventChannel* channelInfo, int64 timestamp, uint16 channel);
 	Event() = delete;

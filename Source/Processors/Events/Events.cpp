@@ -300,6 +300,42 @@ bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventCha
 	return true;
 }
 
+MetaDataDescriptor::MetaDataTypes Event::getEquivalentMetaDataType(const Event& ev)
+{
+	switch (ev.getEventType())
+	{
+	case EventChannel::TEXT:
+		return MetaDataDescriptor::CHAR;
+	case EventChannel::INT8_ARRAY:
+		return MetaDataDescriptor::INT8;
+	case EventChannel::UINT8_ARRAY:
+		return MetaDataDescriptor::UINT8;
+	case EventChannel::INT16_ARRAY:
+		return MetaDataDescriptor::INT16;
+	case EventChannel::UINT16_ARRAY:
+		return MetaDataDescriptor::UINT16;
+	case EventChannel::INT32_ARRAY:
+		return MetaDataDescriptor::INT32;
+	case EventChannel::UINT32_ARRAY:
+		return MetaDataDescriptor::UINT32;
+	case EventChannel::INT64_ARRAY:
+		return MetaDataDescriptor::INT64;
+	case EventChannel::UINT64_ARRAY:
+		return MetaDataDescriptor::UINT64;
+	case EventChannel::FLOAT_ARRAY:
+		return MetaDataDescriptor::FLOAT;
+	case EventChannel::DOUBLE_ARRAY:
+		return MetaDataDescriptor::DOUBLE;
+	default:
+		return MetaDataDescriptor::UINT8;
+	}
+}
+
+MetaDataDescriptor::MetaDataTypes Event::getEquivalentMetaDataType() const
+{
+	return getEquivalentMetaDataType(*this);
+}
+
 //TTLEvent
 
 TTLEvent::TTLEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* eventData)
