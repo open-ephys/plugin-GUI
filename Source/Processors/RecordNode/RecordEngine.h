@@ -38,6 +38,8 @@
         v = parameter.floatParam.value
 #define strParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
         v = parameter.strParam.value
+#define multiParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::MULTI)) \
+        v = parameter.multiParam.value
 
 struct RecordProcessorInfo
 {
@@ -219,7 +221,7 @@ typedef RecordEngine* (*EngineCreator)();
 struct PLUGIN_API EngineParameter
 {
 public:
-    enum EngineParameterType { STR, INT, FLOAT, BOOL };
+    enum EngineParameterType { STR, INT, FLOAT, BOOL, MULTI };
 
     EngineParameter (EngineParameterType paramType,
                      int paramId,
@@ -250,6 +252,11 @@ public:
         {
             bool value;
         } boolParam;
+		
+		struct 
+		{
+			int value;
+		} multiParam;
     };
 
     //Strings can't be inside an union. This means wasting a bit of memory, but adds more safety than using char*
