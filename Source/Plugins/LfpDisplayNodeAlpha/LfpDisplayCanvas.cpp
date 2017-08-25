@@ -35,7 +35,6 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 {
 
     nChans = processor->getNumInputs();
-    nChansVisible = nChans;
     std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
     displayBuffer = processor->getDisplayBufferAddress();
@@ -1280,7 +1279,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     if (cb == channelDisplaySkipSelection)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 2);
-        std::cout << skipAmt << std::endl;
         
         if (skipAmt != 0) lfpDisplay->removeAllChildren(); // if show all
         
@@ -1407,10 +1405,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         
 //        canvas->resized();
         canvas->resizeToChannels();
-        std::cout << "Number of visible channels: " << drawableChannels.size() << std::endl;
-        for (int i = 0; i < lfpDisplay->getNumChildComponents(); i++) {
-            std::cout << ((LfpChannelDisplay*)lfpDisplay->getChildComponent(i))->getChannelNumber() << std::endl;
-        }
     }
     else if (cb == timebaseSelection)
     {
@@ -1962,6 +1956,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
     channels.clear();
     channelInfo.clear();
+    drawableChannels.clear();
 
     totalHeight = 0;
 
@@ -2077,7 +2072,6 @@ void LfpDisplay::resized()
         totalHeight += disp->getChannelHeight();
         
     }
-    std::cout << "resized to: " << totalHeight << " with drawableChannel size: " << drawableChannels.size() << std::endl;
 
     canvas->fullredraw = true; //issue full redraw
     if (singleChan != -1)
@@ -2339,7 +2333,6 @@ void LfpDisplay::setChannelsReversed(bool state)
     
     // necessary to overwrite lfpChannelBitmap's display
     refresh();
-    std::cout << "reversing channels" << std::endl;
 }
 
 
@@ -2575,10 +2568,20 @@ bool LfpDisplay::getEnabledState(int chan)
 #pragma mark - LfpChannelDisplay -
 // ------------------------------------------------------------------
 
-LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber) :
-    canvas(c), display(d), options(o), isSelected(false), chan(channelNumber),
-    channelOverlap(300), channelHeight(40), range(1000.0f),
-    isEnabled(true), inputInverted(false), canBeInverted(true), drawMethod(false)
+LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
+    : canvas(c),
+      display(d),
+      options(o),
+      isSelected(false),
+      chan(channelNumber),
+      channelOverlap(300),
+      channelHeight(40),
+      range(1000.0f),
+      isEnabled(true),
+      inputInverted(false),
+      canBeInverted(true),
+      drawMethod(false),
+      isHidden(false)
 {
 
 
