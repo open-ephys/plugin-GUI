@@ -417,6 +417,10 @@ public:
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
+    
+    /** Caches a new channel height without updating the channels */
+    void cacheNewChannelHeight(int r);
+    
     void setInputInverted(bool);
     void setDrawMethod(bool);
     
@@ -425,6 +429,12 @@ public:
     
     /** Reorders the displayed channels, reversed if state == true and normal if false */
     void setChannelsReversed(bool state);
+    
+    /** Returns a factor of 2 by which the displayed channels should skip */
+    int getChannelDisplaySkipAmount();
+    
+    /** Set the amount of channels to skip (hide) between each that is displayed */
+    void setChannelDisplaySkipAmount(int skipAmt);
 
     void setColors();
 
@@ -437,7 +447,23 @@ public:
     void setEnabledState(bool state, int chan, bool updateSavedChans = true);
     bool getEnabledState(int);
 
+    /** Returns true if a single channel is focused in viewport */
     bool getSingleChannelState();
+    
+    /** Set the viewport's channel focus behavior.
+     
+        When a single channel is selected, it fills the entire viewport and
+        all other channels are hidden. Double clicking a channel's info/event
+        display toggles this setting.
+     
+        @param chan     If chan is < 0, no channel will be selected for singular
+                        focus. Giving a value of 0 or greater hides all channels
+                        except for the one at that index in channels[].
+     */
+    void toggleSingleChannel(int chan = -2);
+    
+    /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
+    void rebuildDrawableChannelsList();
 
     Colour backgroundColour;
     
@@ -446,16 +472,17 @@ public:
     Array<LfpChannelDisplay*> channels;
     Array<LfpChannelDisplayInfo*> channelInfo;
     
+    /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannel
     {
         LfpChannelDisplay * channel;
         LfpChannelDisplayInfo * channelInfo;
     };
-    Array<LfpChannel> drawableChannels;
+    Array<LfpChannel> drawableChannels; // holds the channels and info that are
+                                        // drawable to the screen
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen bufer updates
-    void toggleSingleChannel(int chan = -2);
 
     LfpDisplayOptions* options;
 
@@ -466,6 +493,8 @@ private:
 	Array<bool> savedChannelState;
 
     int numChans;
+    int displaySkipAmt;
+    int cachedDisplayChannelHeight;
 
     int totalHeight;
 

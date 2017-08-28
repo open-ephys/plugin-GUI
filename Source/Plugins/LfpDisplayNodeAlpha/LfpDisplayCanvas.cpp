@@ -486,7 +486,7 @@ int LfpDisplayCanvas::getNumChannels()
 
 int LfpDisplayCanvas::getNumChannelsVisible()
 {
-    return nChansVisible;
+    return lfpDisplay->drawableChannels.size();
 }
 
 const float LfpDisplayCanvas::getYCoord(int chan, int samp)
@@ -1279,132 +1279,133 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     if (cb == channelDisplaySkipSelection)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 2);
-        
-        if (skipAmt != 0) lfpDisplay->removeAllChildren(); // if show all
-        
-//        Array<LfpChannelDisplay*> channels;
-//        Array<LfpChannelDisplayInfo*> channelInfo;
-        
-        Array<LfpDisplay::LfpChannel> &drawableChannels = lfpDisplay->drawableChannels;
-        drawableChannels = Array<LfpDisplay::LfpChannel>();
-        
-        Array<LfpDisplay::LfpChannel> channelsToDraw;
-        
-        // iterate over all channels and select drawable ones
-        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
-        {
-            if (skipAmt == 0) // no skips, add all channels
-            {
-                lfpDisplay->channels[i]->setHidden(false);
-                lfpDisplay->channelInfo[i]->setHidden(false);
-                
-                channelsToDraw.add(LfpDisplay::LfpChannel{
-                    lfpDisplay->channels[i],
-                    lfpDisplay->channelInfo[i]
-                });
-                
-                lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
-                lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
-            }
-            else // skip some channels
-            {
-                if (i % (skipAmt + 1) == 0) // add these channels
-                {
-                    lfpDisplay->channels[i]->setHidden(false);
-                    lfpDisplay->channelInfo[i]->setHidden(false);
-                    
-                    channelsToDraw.add(LfpDisplay::LfpChannel{
-                        lfpDisplay->channels[i],
-                        lfpDisplay->channelInfo[i]
-                    });
-                    
-                    lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
-                    lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
-                }
-                else // but not these
-                {
-                    lfpDisplay->channels[i]->setHidden(true);
-                    lfpDisplay->channelInfo[i]->setHidden(true);
-                    
-                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
-                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
-                }
-            }
-        }
-        
-        // check if channels should be added to drawableChannels in reverse
-        if (lfpDisplay->getChannelsReversed())
-        {
-            for (int i = channelsToDraw.size() - 1; i >= 0; --i)
-            {
-                drawableChannels.add(channelsToDraw[i]);
-            }
-        }
-        else
-        {
-            for (int i = 0; i < channelsToDraw.size(); ++i)
-            {
-                drawableChannels.add(channelsToDraw[i]);
-            }
-        }
-        
-//        if (lfpDisplay->getChannelsReversed())
+        lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
+//        const int skipAmt = pow(2, cb->getSelectedId() - 2);
+//        
+//        if (skipAmt != 0) lfpDisplay->removeAllChildren(); // if show all
+//        
+////        Array<LfpChannelDisplay*> channels;
+////        Array<LfpChannelDisplayInfo*> channelInfo;
+//        
+//        Array<LfpDisplay::LfpChannel> &drawableChannels = lfpDisplay->drawableChannels;
+//        drawableChannels = Array<LfpDisplay::LfpChannel>();
+//        
+//        Array<LfpDisplay::LfpChannel> channelsToDraw;
+//        
+//        // iterate over all channels and select drawable ones
+//        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
 //        {
-//            for (int i = lfpDisplay->getNumChannels() - 1; i >= 0; --i)
+//            if (skipAmt == 0) // no skips, add all channels
 //            {
-////                channels.add(lfpDisplay->channels[i]);
-////                channelInfo.add(lfpDisplay->channelInfo[i]);
-//                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
+//                lfpDisplay->channels[i]->setHidden(false);
+//                lfpDisplay->channelInfo[i]->setHidden(false);
+//                
+//                channelsToDraw.add(LfpDisplay::LfpChannel{
+//                    lfpDisplay->channels[i],
+//                    lfpDisplay->channelInfo[i]
+//                });
+//                
+//                lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
+//                lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
 //            }
-//            std::cout << "Size of drawableChannels array: " << drawableChannels.size() << std::endl;
-//        }
-//        else
-//        {
-////            channel.addArray(lfpDisplay->channels);
-////            channelInfo.addArray(lfpDisplay->channelInfo);
-//            for (size_t i = 0; i < lfpDisplay->getNumChannels(); ++i)
+//            else // skip some channels
 //            {
-//                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
+//                if (i % (skipAmt + 1) == 0) // add these channels
+//                {
+//                    lfpDisplay->channels[i]->setHidden(false);
+//                    lfpDisplay->channelInfo[i]->setHidden(false);
+//                    
+//                    channelsToDraw.add(LfpDisplay::LfpChannel{
+//                        lfpDisplay->channels[i],
+//                        lfpDisplay->channelInfo[i]
+//                    });
+//                    
+//                    lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
+//                    lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
+//                }
+//                else // but not these
+//                {
+//                    lfpDisplay->channels[i]->setHidden(true);
+//                    lfpDisplay->channelInfo[i]->setHidden(true);
+//                    
+//                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
+//                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
+//                }
 //            }
 //        }
 //        
-////        int numVisible = 0;
-//        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
+//        // check if channels should be added to drawableChannels in reverse
+//        if (lfpDisplay->getChannelsReversed())
 //        {
-//            if (skipAmt == 0)
+//            for (int i = channelsToDraw.size() - 1; i >= 0; --i)
 //            {
-//                channels[i]->setHidden(false);
-//                channelInfo[i]->setHidden(false);
-//                
-//                lfpDisplay->addAndMakeVisible(channels[i]);
-//                lfpDisplay->addAndMakeVisible(channelInfo[i]);
-//                ++numVisible;
-//            }
-//            else
-//            {
-//                bool shouldBeVisible = (i % (skipAmt + 1) == 0);
-//                
-//                channels[i]->setHidden(!shouldBeVisible);
-//                channelInfo[i]->setHidden(!shouldBeVisible);
-//                
-//                if (shouldBeVisible)
-//                {
-//                    lfpDisplay->addAndMakeVisible(channels[i]);
-//                    lfpDisplay->addAndMakeVisible(channelInfo[i]);
-//                    ++numVisible;
-//                }
-////                else
-////                {
-////                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
-////                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
-////                }
+//                drawableChannels.add(channelsToDraw[i]);
 //            }
 //        }
-        
-        canvas->nChansVisible = drawableChannels.size();
-        
-//        canvas->resized();
-        canvas->resizeToChannels();
+//        else
+//        {
+//            for (int i = 0; i < channelsToDraw.size(); ++i)
+//            {
+//                drawableChannels.add(channelsToDraw[i]);
+//            }
+//        }
+//        
+////        if (lfpDisplay->getChannelsReversed())
+////        {
+////            for (int i = lfpDisplay->getNumChannels() - 1; i >= 0; --i)
+////            {
+//////                channels.add(lfpDisplay->channels[i]);
+//////                channelInfo.add(lfpDisplay->channelInfo[i]);
+////                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
+////            }
+////            std::cout << "Size of drawableChannels array: " << drawableChannels.size() << std::endl;
+////        }
+////        else
+////        {
+//////            channel.addArray(lfpDisplay->channels);
+//////            channelInfo.addArray(lfpDisplay->channelInfo);
+////            for (size_t i = 0; i < lfpDisplay->getNumChannels(); ++i)
+////            {
+////                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
+////            }
+////        }
+////        
+//////        int numVisible = 0;
+////        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
+////        {
+////            if (skipAmt == 0)
+////            {
+////                channels[i]->setHidden(false);
+////                channelInfo[i]->setHidden(false);
+////                
+////                lfpDisplay->addAndMakeVisible(channels[i]);
+////                lfpDisplay->addAndMakeVisible(channelInfo[i]);
+////                ++numVisible;
+////            }
+////            else
+////            {
+////                bool shouldBeVisible = (i % (skipAmt + 1) == 0);
+////                
+////                channels[i]->setHidden(!shouldBeVisible);
+////                channelInfo[i]->setHidden(!shouldBeVisible);
+////                
+////                if (shouldBeVisible)
+////                {
+////                    lfpDisplay->addAndMakeVisible(channels[i]);
+////                    lfpDisplay->addAndMakeVisible(channelInfo[i]);
+////                    ++numVisible;
+////                }
+//////                else
+//////                {
+//////                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
+//////                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
+//////                }
+////            }
+////        }
+//        
+//        
+////        canvas->resized();
+//        canvas->resizeToChannels();
     }
     else if (cb == timebaseSelection)
     {
@@ -1632,6 +1633,10 @@ void LfpDisplayOptions::sliderValueChanged(Slider* sl)
     
     if (sl == channelZoomSlider)
     {
+        lfpDisplay->cacheNewChannelHeight(canvas->getChannelHeight() * sl->getValue());
+        
+        if (lfpDisplay->getSingleChannelState()) return;
+        
         lfpDisplay->setChannelHeight(canvas->getChannelHeight() * sl->getValue());
         canvas->resizeToChannels(true);
     }
@@ -1876,8 +1881,12 @@ void LfpTimescale::setTimebase(float t)
 #pragma mark - LfpDisplay -
 // ---------------------------------------------------------------
 
-LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v) :
-    singleChan(-1), canvas(c), viewport(v), channelsReversed(false)
+LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
+    : singleChan(-1)
+    , canvas(c)
+    , viewport(v)
+    , channelsReversed(false)
+    , displaySkipAmt(0)
 {
     totalHeight = 0;
     colorGrouping=1;
@@ -1959,6 +1968,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     drawableChannels.clear();
 
     totalHeight = 0;
+    cachedDisplayChannelHeight = canvas->getChannelHeight();
 
     for (int i = 0; i < numChans; i++)
     {
@@ -2215,7 +2225,8 @@ int LfpDisplay::getRange(DataChannel::DataChannelTypes type)
 
 void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 {
-
+    if (!getSingleChannelState()) cachedDisplayChannelHeight = r;
+    
     for (int i = 0; i < numChans; i++)
     {
         channels[i]->setChannelHeight(r);
@@ -2263,7 +2274,14 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
 
 int LfpDisplay::getChannelHeight()
 {
-    return channels[0]->getChannelHeight();
+//    return cachedDisplayChannelHeight;
+    return drawableChannels[0].channel->getChannelHeight();
+//    return channels[0]->getChannelHeight();
+}
+
+void LfpDisplay::cacheNewChannelHeight(int r)
+{
+    cachedDisplayChannelHeight = r;
 }
 
 
@@ -2271,7 +2289,6 @@ bool LfpDisplay::getChannelsReversed()
 {
     return channelsReversed;
 }
-
 
 void LfpDisplay::setChannelsReversed(bool state)
 {
@@ -2281,7 +2298,9 @@ void LfpDisplay::setChannelsReversed(bool state)
     
     channelsReversed = state;
     
-    // reverse channels
+    if (getSingleChannelState()) return; // don't reverse if single channel
+    
+    // reverse channels that are currently in drawableChannels
     for (size_t i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size()/2;
          i < len;
          i++, j--)
@@ -2335,7 +2354,18 @@ void LfpDisplay::setChannelsReversed(bool state)
     refresh();
 }
 
+int LfpDisplay::getChannelDisplaySkipAmount()
+{
+    return displaySkipAmt;
+}
 
+void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
+{
+    displaySkipAmt = skipAmt;
+    
+    if (!getSingleChannelState())
+        rebuildDrawableChannelsList();
+}
 
 void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel)
 {
@@ -2420,40 +2450,75 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
+    // TODO: (kelly) this breaks with the new reversing and filtering mechanisms
+    
     //std::cout << "Toggle channel " << chan << std::endl;
 
-    if (chan != singleChan)
+    
+    //if (chan != singleChan)
+    if (!getSingleChannelState())
     {
-        std::cout << "Single channel on" << std::endl;
+//        std::cout << "Single channel on" << std::endl;
+//        singleChan = chan;
+//
+//        int newHeight = viewport->getHeight();
+//		channelInfo[chan]->setEnabledState(true);
+//        channelInfo[chan]->setSingleChannelState(true);
+//        setChannelHeight(newHeight, false);
+//        setSize(getWidth(), numChans*getChannelHeight());
+//
+//        viewport->setScrollBarsShown(false,false);
+//        viewport->setViewPosition(Point<int>(0,chan*newHeight));
+//
+//        for (int i = 0; i < channels.size(); i++)
+//        {
+//            if (i != chan)
+//                channels[i]->setEnabledState(false);
+//        }
+        
+        std::cout << "\nSingle channel on (" << chan << ")" << std::endl;
         singleChan = chan;
-
+        
         int newHeight = viewport->getHeight();
-		channelInfo[chan]->setEnabledState(true);
-        channelInfo[chan]->setSingleChannelState(true);
+        LfpChannel lfpChannel{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
+//        drawableChannels[chan].channelInfo->setEnabledState(true);
+//        drawableChannels[chan].channelInfo->setSingleChannelState(true);
+        lfpChannel.channelInfo->setEnabledState(true);
+        lfpChannel.channelInfo->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
-
-        viewport->setScrollBarsShown(false,false);
-        viewport->setViewPosition(Point<int>(0,chan*newHeight));
-
-        for (int i = 0; i < channels.size(); i++)
+        
+        viewport->setScrollBarsShown(false, false);
+        viewport->setViewPosition(Point<int>(0, chan*newHeight));
+//        viewport->setViewPosition(Point<int>(0, 0));
+        
+        for (int i = 0; i < drawableChannels.size(); i++)
         {
-            if (i != chan)
-                channels[i]->setEnabledState(false);
+            if (i != chan) drawableChannels[i].channel->setEnabledState(false);
         }
+        
+        Array<LfpChannel> channelsToDraw{lfpChannel};
+        drawableChannels = channelsToDraw;
+        
+        // remove all other children and show this one channel
+        removeAllChildren();
+        addAndMakeVisible(lfpChannel.channel);
+        addAndMakeVisible(lfpChannel.channelInfo);
 
     }
-    else if (chan == singleChan || chan == -2)
+//    else if (chan == singleChan || chan == -2)
+    else if (getSingleChannelState())
     {
-        std::cout << "Single channel off" << std::endl;
+        std::cout << "\nSingle channel off" << std::endl;
         for (int n = 0; n < numChans; n++)
         {
-
-            channelInfo[chan]->setSingleChannelState(false);
+            channelInfo[n]->setSingleChannelState(false);
         }
-        setChannelHeight(canvas->getChannelHeight());
+        //drawableChannels[0].channelInfo->setSingleChannelState(false);
+        setChannelHeight(cachedDisplayChannelHeight);
 
         reactivateChannels();
+        rebuildDrawableChannelsList();
     }
 }
 
@@ -2465,10 +2530,83 @@ void LfpDisplay::reactivateChannels()
 
 }
 
+void LfpDisplay::rebuildDrawableChannelsList()
+{
+    
+    // TODO: (kelly) possible test here for singleChannel turned ON
+    
+    if (displaySkipAmt != 0) removeAllChildren(); // start with clean slate
+    
+    Array<LfpChannel> channelsToDraw;
+    drawableChannels = Array<LfpDisplay::LfpChannel>();
+    
+    
+    // iterate over all channels and select drawable ones
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        if (displaySkipAmt == 0) // no skips, add all channels
+        {
+            channels[i]->setHidden(false);
+            channelInfo[i]->setHidden(false);
+            
+            channelsToDraw.add(LfpDisplay::LfpChannel{
+                channels[i],
+                channelInfo[i]
+            });
+            
+            addAndMakeVisible(channels[i]);
+            addAndMakeVisible(channelInfo[i]);
+        }
+        else // skip some channels
+        {
+            if (i % (displaySkipAmt + 1) == 0) // add these channels
+            {
+                channels[i]->setHidden(false);
+                channelInfo[i]->setHidden(false);
+                
+                channelsToDraw.add(LfpDisplay::LfpChannel{
+                    channels[i],
+                    channelInfo[i]
+                });
+                
+                addAndMakeVisible(channels[i]);
+                addAndMakeVisible(channelInfo[i]);
+            }
+            else // but not these
+            {
+                channels[i]->setHidden(true);
+                channelInfo[i]->setHidden(true);
+                
+                removeChildComponent(channels[i]);
+                removeChildComponent(channelInfo[i]);
+            }
+        }
+    }
+    
+    // check if channels should be added to drawableChannels in reverse
+    if (getChannelsReversed())
+    {
+        for (int i = channelsToDraw.size() - 1; i >= 0; --i)
+        {
+            drawableChannels.add(channelsToDraw[i]);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < channelsToDraw.size(); ++i)
+        {
+            drawableChannels.add(channelsToDraw[i]);
+        }
+    }
+    
+    canvas->resizeToChannels();
+}
+
 bool LfpDisplay::getSingleChannelState()
 {
-    if (singleChan < 0) return false;
-    else return true;
+    //if (singleChan < 0) return false;
+    //else return true;
+    return singleChan >= 0;
 }
 
 
@@ -2482,14 +2620,14 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     int dist = 0;
     int mindist = 10000;
     int closest = 5;
-    for (int n = 0; n < numChans; n++) // select closest instead of relying on eventComponent
+    for (int n = 0; n < drawableChannels.size(); n++) // select closest instead of relying on eventComponent
     {
-        channels[n]->deselect();
+        drawableChannels[n].channel->deselect();
 
-        int cpos = (channels[n]->getY() + (channels[n]->getHeight()/2));
+        int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-        //std::cout << "Mouse down at " << y << " pos is "<< cpos << "n:" << n << "  dist " << dist << std::endl;
+        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {
@@ -2498,27 +2636,46 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         }
     }
 
-    if (singleChan != -1)
-    {
-        //std::cout << y << " " << channels[singleChan]->getHeight() << " " << getRange() << std::endl;
-        channelInfo[singleChan]->updateXY(
-                float(x)/getWidth()*canvas->timebase, 
-                (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
-                );
-    }
+    drawableChannels[closest].channel->select();
+    options->setSelectedType(drawableChannels[closest].channel->getType());
 
-    channels[closest]->select();
-    options->setSelectedType(channels[closest]->getType());
-
-    if (event.getNumberOfClicks() == 2)
-        toggleSingleChannel(closest);
-
-    if (event.mods.isRightButtonDown())
-    {
+    if (event.mods.isRightButtonDown()) { // if right click
         PopupMenu channelMenu = channels[closest]->getOptions();
         const int result = channelMenu.show();
-        channels[closest]->changeParameter(result);
+        drawableChannels[closest].channel->changeParameter(result);
     }
+    else // if left click
+    {
+//    if (singleChan != -1)
+        if (event.getNumberOfClicks() == 2) {
+            std::cout << "singleChan = " << singleChan << std::endl;
+            toggleSingleChannel(closest);
+            std::cout << "singleChan = " << singleChan << std::endl;
+        }
+        
+        if (getSingleChannelState())
+        {
+            
+            //        std::cout << "singleChan = " << singleChan << " " << y << " " << drawableChannels[0].channel->getHeight() << " " << getRange() << std::endl;
+            //channelInfo[singleChan]->updateXY(
+            drawableChannels[0].channelInfo->updateXY(
+                                                      float(x)/getWidth()*canvas->timebase,
+                                                      (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
+                                                      );
+        }
+    }
+
+//    if (event.getNumberOfClicks() == 2) {
+//        toggleSingleChannel(closest);
+//        return;
+//    }
+
+//    if (event.mods.isRightButtonDown())
+//    {
+//        PopupMenu channelMenu = channels[closest]->getOptions();
+//        const int result = channelMenu.show();
+//        drawableChannels[closest].channel->changeParameter(result);
+//    }
 
     canvas->fullredraw = true;//issue full redraw
 
