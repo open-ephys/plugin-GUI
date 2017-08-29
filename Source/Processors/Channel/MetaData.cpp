@@ -76,9 +76,17 @@ String MetaDataDescriptor::getName() const { return m_name; }
 String MetaDataDescriptor::getDescription() const { return m_description; }
 String MetaDataDescriptor::getIdentifier() const { return m_identifier; }
 
-bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
+bool MetaDataDescriptor::isSimilar(const MetaDataDescriptor& other) const
 {
 	if ((m_type == other.m_type) && (m_length == other.m_length))
+		return true;
+	else
+		return false;
+}
+
+bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
+{
+	if ((m_type == other.m_type) && (m_length == other.m_length) && m_identifier.trim() == other.m_identifier.trim())
 		return true;
 	else
 		return false;
@@ -335,6 +343,36 @@ int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, uns
 	return -1;
 }
 
+bool MetaDataInfoObject::hasSameMetadata(const MetaDataInfoObject& other) const
+{
+	return checkMetaDataCoincidence(other, false);
+}
+
+bool MetaDataInfoObject::hasSimilarMetadata(const MetaDataInfoObject& other) const
+{
+	return checkMetaDataCoincidence(other, true);
+}
+
+bool MetaDataInfoObject::checkMetaDataCoincidence(const MetaDataInfoObject& other, bool similar) const
+{
+	int nMetaData = m_metaDataDescriptorArray.size();
+	if (nMetaData != other.m_metaDataDescriptorArray.size()) return false;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_metaDataDescriptorArray[i];
+		MetaDataDescriptorPtr mdo = other.m_metaDataDescriptorArray[i];
+		if (similar)
+		{
+			if (!md->isSimilar(*mdo)) return false;
+		}
+		else
+		{
+			if (!md->isEqual(*mdo)) return false;
+		}
+	}
+	return true;
+}
+
 //MetaDataEventObject
 
 MetaDataEventObject::MetaDataEventObject() {}
@@ -396,6 +434,36 @@ int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes typ
 			return i;
 	}
 	return -1;
+}
+
+bool MetaDataEventObject::hasSameEventMetadata(const MetaDataEventObject& other) const
+{
+	return checkMetaDataCoincidence(other, false);
+}
+
+bool MetaDataEventObject::hasSimilarEventMetadata(const MetaDataEventObject& other) const
+{
+	return checkMetaDataCoincidence(other, true);
+}
+
+bool MetaDataEventObject::checkMetaDataCoincidence(const MetaDataEventObject& other, bool similar) const
+{
+	int nMetaData = m_eventMetaDataDescriptorArray.size();
+	if (nMetaData != other.m_eventMetaDataDescriptorArray.size()) return false;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_eventMetaDataDescriptorArray[i];
+		MetaDataDescriptorPtr mdo = other.m_eventMetaDataDescriptorArray[i];
+		if (similar)
+		{
+			if (!md->isSimilar(*mdo)) return false;
+		}
+		else
+		{
+			if (!md->isEqual(*mdo)) return false;
+		}
+	}
+	return true;
 }
 
 size_t MetaDataEventObject::getMaxEventMetaDataSize() const

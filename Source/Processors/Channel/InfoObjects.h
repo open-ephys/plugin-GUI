@@ -171,7 +171,13 @@ public:
 
 	virtual InfoObjectType getInfoObjectType() const = 0;
 
+	bool isEqual(const InfoObjectCommon& other) const;
+	bool isSimilar(const InfoObjectCommon& other) const;
+	bool operator==(const InfoObjectCommon& other) const;
+
 private:
+	bool isEqual(const InfoObjectCommon& other, bool similar) const;
+	virtual bool checkEqual(const InfoObjectCommon& other, bool similar) const = 0;
 	/** Index of the object in the source processor */
 	const uint16 m_sourceIndex;
 	/** Index of this particular subtype in the source processor */
@@ -251,6 +257,7 @@ public:
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const DataChannelTypes m_type;
 	float m_bitVolts{ 1.0f };
 	bool m_isEnabled{ true };
@@ -341,9 +348,16 @@ public:
 	/** Gets the size in bytes of an element depending of the type*/
 	static size_t getTypeByteSize(EventChannelTypes type);
 
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	static BaseType getEquivalentMetaDataType(const EventChannel& ev);
+
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	BaseType getEquivalentMetaDataType() const;
+
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const EventChannelTypes m_type;
 	unsigned int m_numChannels{ 1 };
 	size_t m_dataSize{ 1 };
@@ -413,6 +427,7 @@ public:
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const ElectrodeTypes m_type;
 	Array<sourceChannelInfo> m_sourceInfo;
 	unsigned int m_numPreSamples{ 8 };

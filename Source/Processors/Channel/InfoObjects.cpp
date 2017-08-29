@@ -170,6 +170,29 @@ uint16 InfoObjectCommon::getSourceTypeIndex() const
 	return m_sourceTypeIndex;
 }
 
+bool InfoObjectCommon::operator==(const InfoObjectCommon& other) const
+{
+	return isEqual(other);
+}
+
+bool InfoObjectCommon::isEqual(const InfoObjectCommon& other) const
+{
+	return isEqual(other, false);
+}
+
+bool InfoObjectCommon::isSimilar(const InfoObjectCommon& other) const
+{
+	return isEqual(other, true);
+}
+
+bool InfoObjectCommon::isEqual(const InfoObjectCommon& other, bool similar) const
+{
+	if (getInfoObjectType() != other.getInfoObjectType()) return false;
+	if (m_sampleRate != other.m_sampleRate) return false;
+	if (!similar && getIdentifier().trim() != other.getIdentifier().trim()) return false;
+	return checkEqual(other, similar);
+}
+
 //DataChannel
 
 DataChannel::DataChannel(DataChannelTypes type, float sampleRate, GenericProcessor* source, uint16 subproc) :
@@ -297,6 +320,16 @@ void DataChannel::setDefaultNameAndDescription()
 	setIdentifier("genericdata.continuous");
 }
 
+bool DataChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
+{
+	const DataChannel& o = dynamic_cast<const DataChannel&>(other);
+	if (m_bitVolts != o.m_bitVolts) return false;
+	if (!similar && m_unitName != o.m_unitName) return false;
+	if (similar)
+		return hasSimilarMetadata(o);
+	else return hasSameMetadata(o);
+}
+
 //EventChannel
 EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc)
 	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, sampleRate, source, subproc),
@@ -416,6 +449,56 @@ void EventChannel::setDefaultNameAndDescription()
 			setDescription(name + " single value");
 	}
 	setIdentifier("genericevent");
+}
+
+
+BaseType EventChannel::getEquivalentMetaDataType(const EventChannel& ev)
+{
+	switch (ev.getChannelType())
+	{
+	case EventChannel::TEXT:
+		return MetaDataDescriptor::CHAR;
+	case EventChannel::INT8_ARRAY:
+		return MetaDataDescriptor::INT8;
+	case EventChannel::UINT8_ARRAY:
+		return MetaDataDescriptor::UINT8;
+	case EventChannel::INT16_ARRAY:
+		return MetaDataDescriptor::INT16;
+	case EventChannel::UINT16_ARRAY:
+		return MetaDataDescriptor::UINT16;
+	case EventChannel::INT32_ARRAY:
+		return MetaDataDescriptor::INT32;
+	case EventChannel::UINT32_ARRAY:
+		return MetaDataDescriptor::UINT32;
+	case EventChannel::INT64_ARRAY:
+		return MetaDataDescriptor::INT64;
+	case EventChannel::UINT64_ARRAY:
+		return MetaDataDescriptor::UINT64;
+	case EventChannel::FLOAT_ARRAY:
+		return MetaDataDescriptor::FLOAT;
+	case EventChannel::DOUBLE_ARRAY:
+		return MetaDataDescriptor::DOUBLE;
+	default:
+		return MetaDataDescriptor::UINT8;
+	}
+}
+
+BaseType EventChannel::getEquivalentMetaDataType() const
+{
+	return getEquivalentMetaDataType(*this);
+}
+
+bool EventChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
+{
+	const EventChannel& o = dynamic_cast<const EventChannel&>(other);
+	if (m_type != o.m_type) return false;
+	if (m_numChannels != o.m_numChannels) return false;
+	if (m_length != o.m_length) return false;
+	if (similar && !hasSimilarMetadata(o)) return false;
+	if (!similar && !hasSameMetadata(o)) return false;
+	if (similar && !hasSimilarEventMetadata(o)) return false;
+	if (!similar && !hasSameEventMetadata(o)) return false;
+	return true;
 }
 
 //SpikeChannel
@@ -547,6 +630,27 @@ void SpikeChannel::setDefaultNameAndDescription()
 	setName(name);
 	setDescription(description + " spike data source");
 	setIdentifier("spikesource");
+}
+
+bool SpikeChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
+{
+	const SpikeChannel& o = dynamic_cast<const SpikeChannel&>(other);
+	if (m_type != o.m_type) return false;
+	if (m_numPostSamples != o.m_numPostSamples) return false;
+	if (m_numPreSamples != o.m_numPreSamples) return false;
+
+	int nChans = m_channelBitVolts.size();
+	if (nChans != o.m_channelBitVolts.size()) return false;
+	for (int i = 0; i < nChans; i++)
+	{
+		if (m_channelBitVolts[i] != o.m_channelBitVolts[i]) return false;
+	}
+
+	if (similar && !hasSimilarMetadata(o)) return false;
+	if (!similar && !hasSameMetadata(o)) return false;
+	if (similar && !hasSimilarEventMetadata(o)) return false;
+	if (!similar && !hasSameEventMetadata(o)) return false;
+	return true;
 }
 
 //ConfigurationObject
