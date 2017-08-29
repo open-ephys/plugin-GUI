@@ -45,12 +45,17 @@ String BinaryRecording::getEngineID() const
 
 void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
-	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber);
+	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber)
+		+ File::separatorString + "recording" + String(recordingNumber) + File::separatorString;
+	String contPath = basepath + "continuous" + File::separatorString;
 	//Open channel files
 	int nProcessors = getNumRecordedProcessors();
 
 	m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
 	m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
+
+	Array<const DataChannel*> indexedDataChannels;
+	Array<unsigned int> indexedChannelCount;
 
 	int lastId = 0;
 	for (int proc = 0; proc < nProcessors; proc++)
@@ -65,94 +70,221 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			const DataChannel* channelInfo = getDataChannel(realChan);
 			int sourceId = channelInfo->getSourceNodeID();
 			int sourceSubIdx = channelInfo->getSubProcessorIdx();
-			int nInfoArrays = m_dataChannels.size();
+			int nInfoArrays = indexedDataChannels.size();
 			bool found = false;
 			for (int i = lastId; i < nInfoArrays; i++)
 			{
-				if (sourceId == m_dataChannels.getReference(i)[0]->getSourceNodeID() && sourceSubIdx == m_dataChannels.getReference(i)[0]->getSubProcessorIdx())
+				if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
 				{
-					m_channelIndexes.set(recordedChan, m_dataChannels.getReference(i).size());
+					unsigned int count = indexedChannelCount[i];
+					m_channelIndexes.set(recordedChan, count);
 					m_fileIndexes.set(recordedChan, i);
-					m_dataChannels.getReference(i).add(getDataChannel(realChan));
+					indexedChannelCount.set(i, count + 1);
 					found = true;
 					break;
 				}
 			}
 			if (!found)
 			{
-				File datFile(basepath + "_" + String(pInfo.processorId) + "_" + String(sourceId) + "." + String(sourceSubIdx) + "_" + String(recordingNumber) + ".dat");
+				String datPath(contPath + channelInfo->getCurrentNodeName() + "_(" + String(channelInfo->getCurrentNodeID()) + ")" + File::separatorString);
+				String datFileName(datPath + channelInfo->getSourceName() + "_(" + String(sourceId) + "." + String(sourceSubIdx) + ")");
 				ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(pInfo.recordedChannels.size(), samplesPerBlock);
-				if (bFile->openFile(datFile))
+				if (bFile->openFile(datFileName + ".dat"))
 					m_DataFiles.add(bFile.release());
 				else
 					m_DataFiles.add(nullptr);
+				Array<NpyType> tstypes;
+				tstypes.add(NpyType("Timestamp", BaseType::INT64, 1));
+				
+				ScopedPointer<NpyFile> tFile = new NpyFile(datFileName + "_timestamps.npy", tstypes);
+				m_dataTimestampFiles.add(tFile.release());
 
-				ContinuousGroup newGroup;
-				newGroup.add(getDataChannel(realChan));
-				m_dataChannels.add(newGroup);
 				m_fileIndexes.set(recordedChan, nInfoArrays);
 				m_channelIndexes.set(recordedChan, 0);
+				indexedChannelCount.add(1);
 				
 			}
 		}
 	}
 	int nChans = getNumRecordedChannels();
-	//Origin Timestamp
+	//Timestamps
+	Array<uint32> procIDs;
 	for (int i = 0; i < nChans; i++)
 	{
 		m_startTS.add(getTimestamp(i));
 	}
 
-	//Other files, using OriginalRecording code
-	openEventFile(basepath, recordingNumber);
-	openMessageFile(basepath, recordingNumber);
-	for (int i = 0; i < spikeFileArray.size(); i++)
+	int nEvents = getNumRecordedEvents();
+	String eventPath(basepath + "events" + File::separatorString);
+	int binCount = 0, ttlCount = 0, textCount = 0;
+	for (int ev = 0; ev < nEvents; ev++)
 	{
-		openSpikeFile(basepath, i, recordingNumber);
+		const EventChannel* chan = getEventChannel(ev);
+		String fName = eventPath;
+		Array<NpyType> types;
+		switch (chan->getChannelType())
+		{
+		case EventChannel::TEXT:
+			textCount++;
+			fName += "TEXT" + String(textCount);
+			types.add(NpyType("message", BaseType::CHAR, chan->getLength()));
+			break;
+		case EventChannel::TTL:
+			ttlCount++;
+			fName += "TTL" + String(ttlCount);
+			types.add(NpyType("TTL_Channel", BaseType::INT16, 1));
+			break;
+		default:
+			binCount++;
+			fName += "BIN" + String(ttlCount);
+			types.add(NpyType("Data", chan->getEquivalentMetaDataType(), chan->getLength()));
+			break;
+		}
+		fName += "_" + chan->getSourceName() + "(" + String(chan->getSourceNodeID()) + "." + String(chan->getSubProcessorIdx()) + ")";
+		ScopedPointer<EventRecording> rec = new EventRecording();
+		Array<NpyType> tsType;
+		tsType.add(NpyType("Timestamp", BaseType::INT64, 1));
+		//TTL channels behave a bit different
+		if (chan->getChannelType() == EventChannel::TTL)
+		{
+			if (m_TTLMode == TTLMode::JointWord)
+			{
+				types.add(NpyType("TTL_Word", BaseType::UINT8, chan->getDataSize()));
+			}
+			else if (m_TTLMode == TTLMode::SeparateWord)
+			{
+				Array<NpyType> wordType;
+				wordType.add(NpyType("TTL_Word", BaseType::UINT8, chan->getDataSize()));
+				rec->extraFile = new NpyFile(fName + "_TTLWord.npy", wordType);
+			}
+			//since the main TTL file already contins channel numbers, it would be redundant to store them on the timestamp file
+		}
+		else
+		{
+			if (m_eventMode == EventMode::SeparateChannel)
+			{
+				Array<NpyType> chanType;
+				chanType.add(NpyType("Channel", BaseType::UINT16, 1));
+				rec->channelFile = new NpyFile(fName + "_channel.npy", chanType);
+			}
+			else
+				tsType.add(NpyType("Channel", BaseType::UINT16, 1));
+		}
+		rec->mainFile = new NpyFile(fName + ".npy", types);
+		rec->timestampFile = new NpyFile(fName + "_timestamps.npy", tsType);
+		rec->metaDataFile = createEventMetadataFile(chan, fName + "_metadata.npy");
+		m_eventFiles.add(rec.release());
 	}
+
+	int nSpikes = getNumRecordedSpikes();
+	Array<const SpikeChannel*> indexedSpikes;
+	Array<uint16> indexedChannels;
+	m_spikeFileIndexes.insertMultiple(0, 0, nSpikes);
+	m_spikeChannelIndexes.insertMultiple(0, 0, nSpikes);
+	String spikePath(basepath + "spikes" + File::separatorString);
+	for (int sp = 0; sp < nSpikes; sp++)
+	{
+		const SpikeChannel* ch = getSpikeChannel(sp);
+		int nIndexed = indexedSpikes.size();
+		bool found = false;
+		for (int i = 0; i < nIndexed; i++)
+		{
+			const SpikeChannel* ich = indexedSpikes[i];
+			//identical channels (same data and metadata) from the same processor go to the same file
+			if (ch->getCurrentNodeID() == ich->getCurrentNodeID() && ch == ich)
+			{
+				found = true;
+				m_spikeFileIndexes.set(sp, i);
+				unsigned int numChans = indexedChannels[i];
+				indexedChannels.set(i, numChans);
+				m_spikeChannelIndexes.set(sp, numChans + 1);
+				break;
+			}
+		}
+		
+		if (!found)
+		{
+			int fileIndex = m_spikeFiles.size();
+			m_spikeFileIndexes.set(sp, fileIndex);
+			indexedSpikes.add(ch);
+			m_spikeChannelIndexes.set(sp, 0);
+			indexedChannels.add(1);
+			ScopedPointer<EventRecording> rec = new EventRecording();
+			Array<NpyType> spTypes;
+			for (int c = 0; c < ch->getNumChannels(); c++)
+			{
+				spTypes.add(NpyType("channel" + String(c + 1), BaseType::INT16, ch->getTotalSamples()));
+			}
+			String fName(spikePath + "spike_group_" + String(fileIndex + 1));
+			rec->mainFile = new NpyFile(fName + ".npy", spTypes);
+			Array<NpyType> tsTypes;
+			tsTypes.add(NpyType("timestamp", BaseType::INT64, 1));
+			if (m_spikeMode == SpikeMode::AllInOne)
+			{
+				tsTypes.add(NpyType("electrode_index", BaseType::UINT16, 1));
+				tsTypes.add(NpyType("sorted_id", BaseType::UINT16, 1));
+			}
+			else
+			{
+				Array<NpyType> indexType;
+				indexType.add(NpyType("electrode_index", BaseType::UINT16, 1));
+				if (m_spikeMode == SpikeMode::AllSeparated)
+				{
+					Array<NpyType> sortedType;
+					sortedType.add(NpyType("sorted_id", BaseType::UINT16, 1));
+					rec->extraFile = new NpyFile(fName + "_sortedID.npy", sortedType);
+				}
+				else
+				{
+					indexType.add(NpyType("sorted_id", BaseType::UINT16, 1));
+				}
+				rec->channelFile = new NpyFile(fName + "indexes.npy", indexType);
+			}
+			rec->timestampFile = new NpyFile(fName + "_timestamps.npy", tsTypes);
+			rec->metaDataFile = createEventMetadataFile(ch, fName + "_metadata.npy");
+			m_spikeFiles.add(rec.release());
+		}
+	}
+
+	Array<NpyType> msgType;
+	msgType.add(NpyType("sync_text", BaseType::CHAR, 256));
+	m_syncTextFile = new NpyFile(basepath + "sync_text.npy", msgType);
 	m_recordingNum = recordingNumber;
+}
+
+NpyFile* BinaryRecording::createEventMetadataFile(const MetaDataEventObject* channel, String filename)
+{
+	int nMetaData = channel->getEventMetaDataCount();
+	if (nMetaData < 1) return nullptr;
+
+	Array<NpyType> types;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		const MetaDataDescriptor* md = channel->getEventMetaDataDescriptor(i);
+		types.add(NpyType(md->getName(), md->getType(), md->getLength()));
+	}
+	return new NpyFile(filename, types);
 }
 
 void BinaryRecording::closeFiles()
 {
-	m_DataFiles.clear();
-	for (int i = 0; i < spikeFileArray.size(); i++)
-	{
-		if (spikeFileArray[i] != nullptr)
-		{
-			diskWriteLock.enter();
-			fclose(spikeFileArray[i]);
-			spikeFileArray.set(i, nullptr);
-			diskWriteLock.exit();
-		}
-	}
-	if (eventFile != nullptr)
-	{
-		diskWriteLock.enter();
-		fclose(eventFile);
-		eventFile = nullptr;
-		diskWriteLock.exit();
-	}
-	if (messageFile != nullptr)
-	{
-		diskWriteLock.enter();
-		fclose(messageFile);
-		messageFile = nullptr;
-		diskWriteLock.exit();
-	}
-	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
-	m_intBuffer.malloc(MAX_BUFFER_SIZE);
-	m_bufferSize = MAX_BUFFER_SIZE;
-	m_startTS.clear();
+	resetChannels();
 }
 
 void BinaryRecording::resetChannels()
 {
+	m_DataFiles.clear();
+	m_channelIndexes.clear();
+	m_fileIndexes.clear();
+	m_eventFiles.clear();
+	m_spikeChannelIndexes.clear();
+	m_spikeFileIndexes.clear();
+	m_spikeFiles.clear();
+	m_syncTextFile = nullptr;
+
 	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
 	m_bufferSize = MAX_BUFFER_SIZE;
-	m_DataFiles.clear();
-	spikeFileArray.clear();
 	m_startTS.clear();
 }
 
@@ -172,328 +304,136 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	m_DataFiles[m_fileIndexes[writeChannel]]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],m_channelIndexes[writeChannel],m_intBuffer.getData(),size);
 }
 
-//Code below is copied from OriginalRecording, so it's not as clean as newer one
 
 void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
 {
-	spikeFileArray.add(nullptr);
 }
 
-void BinaryRecording::openEventFile(String basepath, int recordingNumber)
+void BinaryRecording::writeEventMetaData(const MetaDataEvent* event, NpyFile* file)
 {
-	FILE* chFile;
-	String fullPath = basepath + "_all_channels_" + String(recordingNumber) + ".events";
-
-
-	
-	std::cout << "OPENING FILE: " << fullPath << std::endl;
-
-	File f = File(fullPath);
-
-	bool fileExists = f.exists();
-
-	diskWriteLock.enter();
-
-	chFile = fopen(fullPath.toUTF8(), "ab");
-
-	if (!fileExists)
+	if (!file || !event) return;
+	int nMetaData = event->getMetadataValueCount();
+	for (int i = 0; i < nMetaData; i++)
 	{
-		// create and write header
-		std::cout << "Writing header." << std::endl;
-		String header = generateEventHeader();
-		//std::cout << header << std::endl;
-		std::cout << "File ID: " << chFile << ", number of bytes: " << header.getNumBytesAsUTF8() << std::endl;
-
-
-		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
-
-		std::cout << "Wrote header." << std::endl;
-
-		// std::cout << "Block index: " << blockIndex << std::endl;
-
+		const MetaDataValue* val = event->getMetaDataValue(i);
+		file->writeData(val->getRawValuePointer(), val->getDataSize());
 	}
-	else
-	{
-		std::cout << "File already exists, just opening." << std::endl;
-		fseek(chFile, 0, SEEK_END);
-	}
-
-	eventFile = chFile;
-	
-	diskWriteLock.exit();
-
-}
-
-void BinaryRecording::openSpikeFile(String basePath, int spikeIndex, int recordingNumber)
-{
-	const SpikeChannel* elec = getSpikeChannel(spikeIndex);
-	FILE* spFile;
-	String fullPath = basePath + "_" + elec->getName().removeCharacters(" ") + "_" + String(recordingNumber) + ".spikes";
-	
-	std::cout << "OPENING FILE: " << fullPath << std::endl;
-
-	File f = File(fullPath);
-
-	bool fileExists = f.exists();
-
-	diskWriteLock.enter();
-
-	spFile = fopen(fullPath.toUTF8(), "ab");
-
-	if (!fileExists)
-	{
-		String header = generateSpikeHeader(elec);
-		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), spFile);
-	}
-	diskWriteLock.exit();
-	spikeFileArray.set(spikeIndex, spFile);
-
-}
-
-void BinaryRecording::openMessageFile(String basepath, int recordNumber)
-{
-	FILE* mFile;
-	String fullPath = basepath + "_messages_" + String(recordNumber) + ".events";
-
-	fullPath += "messages";
-
-
-
-	std::cout << "OPENING FILE: " << fullPath << std::endl;
-
-	File f = File(fullPath);
-
-	//bool fileExists = f.exists();
-
-	diskWriteLock.enter();
-
-	mFile = fopen(fullPath.toUTF8(), "ab");
-
-	//If this file needs a header, it goes here
-
-	diskWriteLock.exit();
-	messageFile = mFile;
-
-}
-
-String BinaryRecording::generateEventHeader()
-{
-
-	String header = "header.format = 'Open Ephys Data Format'; \n";
-
-	header += "header.version = " + String(VERSION_STRING) + "; \n";
-	header += "header.header_bytes = ";
-	header += String(HEADER_SIZE);
-	header += ";\n";
-
-	header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
-
-
-	header += "header.date_created = '";
-	header += generateDateString();
-	header += "';\n";
-
-	header += "header.channel = '";
-	header += "Events";
-	header += "';\n";
-
-    header += "header.channelType = 'Event';\n";
-
-
-	header += "header.sampleRate = ";
-	// all channels need to have the same sample rate under the current scheme
-	header += String(getEventChannel(0)->getSampleRate());
-	header += ";\n";
-	header += "header.blockLength = ";
-	header += BLOCK_LENGTH;
-	header += ";\n";
-	header += "header.bufferSize = ";
-	header += "1024";
-	header += ";\n";
-	header += "header.bitVolts = ";
-	header += "1";
-	header += ";\n";
-
-	header = header.paddedRight(' ', HEADER_SIZE);
-
-	//std::cout << header << std::endl;
-
-	return header;
-
-}
-
-String BinaryRecording::generateSpikeHeader(const SpikeChannel* elec)
-{
-	String header = "header.format = 'Open Ephys Data Format'; \n";
-	header += "header.version = " + String(VERSION_STRING) + "; \n";
-	header += "header.header_bytes = ";
-	header += String(HEADER_SIZE);
-	header += ";\n";
-
-	header += "header.description = 'Each record contains 1 uint8 eventType, 1 int64 timestamp, 1 int64 software timestamp, "
-		"1 uint16 sourceID, 1 uint16 numChannels (n), 1 uint16 numSamples (m), 1 uint16 sortedID, 1 uint16 electrodeID, "
-		"1 uint16 channel, 3 uint8 color codes, 2 float32 component projections, n*m uint16 samples, n float32 channelGains, n uint16 thresholds, and 1 uint16 recordingNumber'; \n";
-
-	header += "header.date_created = '";
-	header += generateDateString();
-	header += "';\n";
-
-	header += "header.electrode = '";
-	header += elec->getName();
-	header += "';\n";
-
-	header += "header.num_channels = ";
-	header += String(elec->getNumChannels());
-	header += ";\n";
-
-	header += "header.sampleRate = ";
-	header += String(elec->getSampleRate());
-	header += ";\n";
-
-	header = header.paddedRight(' ', HEADER_SIZE);
-
-	//std::cout << header << std::endl;
-
-	return header;
 }
 
 void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 {
-	writeTTLEvent(eventIndex, event);
-	if (Event::getEventType(event) == EventChannel::TEXT)
+	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
+	EventRecording* rec = m_eventFiles[eventIndex];
+	if (!rec) return;
+	const EventChannel* info = getEventChannel(eventIndex);
+	int64 ts = ev->getTimestamp();
+	rec->timestampFile->writeData(&ts, sizeof(int64));
+	if (ev->getEventType() == EventChannel::TTL)
 	{
-		TextEventPtr ev = TextEvent::deserializeFromMessage(event, getEventChannel(eventIndex));
-		if (ev == nullptr) return;
-		writeMessage(ev->getText(), ev->getSourceID(), ev->getChannel(), ev->getTimestamp());
+		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
+		int16 data = ttl->getChannel() * (ttl->getState() ? 1 : -1);
+		rec->mainFile->writeData(&data, sizeof(int16));
+		NpyFile* wordFile = nullptr;
+		if (m_TTLMode == TTLMode::JointWord)
+		{
+			wordFile = rec->mainFile;
+		}
+		else if (m_TTLMode == TTLMode::SeparateWord)
+		{
+			wordFile = rec->extraFile;
+		}
+		if (wordFile)
+			wordFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
 	}
+	else
+	{
+		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
+		NpyFile* chanFile = nullptr;
+		if (m_eventMode == EventMode::SeparateChannel)
+		{
+			chanFile = rec->channelFile;
+		}
+		else
+		{
+			chanFile = rec->timestampFile;
+		}
+		uint16 chan = ev->getChannel();
+		chanFile->writeData(&chan, sizeof(uint16));
+	}
+	writeEventMetaData(ev.get(), rec->metaDataFile);
 }
 
 void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
-	writeMessage(text, sourceID, 255, timestamp);
+	text.paddedRight(' ', 256);
+	m_syncTextFile->writeData(text.toUTF8(), 256);
 }
 
-void BinaryRecording::writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp)
-{
-	if (messageFile == nullptr)
-		return;
-
-	int msgLength = message.getNumBytesAsUTF8();
-
-	String timestampText(timestamp);
-
-	diskWriteLock.enter();
-	fwrite(timestampText.toUTF8(), 1, timestampText.length(), messageFile);
-	fwrite(" ", 1, 1, messageFile);
-	fwrite(message.toUTF8(), 1, msgLength, messageFile);
-	fwrite("\n", 1, 1, messageFile);
-	diskWriteLock.exit();
-
-}
-
-void BinaryRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
-{
-	// find file and write samples to disk
-	// std::cout << "Received event!" << std::endl;
-
-	if (eventFile == nullptr)
-		return;
-
-	uint8 data[16];
-	//With the new external recording thread, this field has no sense.
-	int16 samplePos = 0;
-
-	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
-	if (!ev) return;
-	*reinterpret_cast<int64*>(data) = ev->getTimestamp();
-	*reinterpret_cast<int16*>(data + 8) = samplePos;
-	*(data + 10) = static_cast<uint8>(ev->getEventType());
-	*(data + 11) = static_cast<uint8>(ev->getSourceID());
-	*(data + 12) = (ev->getEventType() == EventChannel::TTL) ? (dynamic_cast<TTLEvent*>(ev.get())->getState() ? 1 : 0) : 0;
-	*(data + 13) = static_cast<uint8>(ev->getChannel());
-	*reinterpret_cast<uint16*>(data + 14) = static_cast<uint16>(m_recordingNum);
-
-
-	diskWriteLock.enter();
-
-	fwrite(&data,					// ptr
-		sizeof(uint8),   							// size of each element
-		16, 		  						// count
-		eventFile);   			// ptr to FILE object
-
-	diskWriteLock.exit();
-}
 
 
 void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 {
-	if (spikeFileArray[electrodeIndex] == nullptr)
-		return;
-
-	HeapBlock<char> spikeBuffer;
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
+	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
+	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-	int numChannels = channel->getNumChannels();
-	int chanSamples = channel->getTotalSamples();
+	
 
-	int totalBytes = totalSamples * 2 + // account for samples
-		numChannels * 4 +            // acount for gain
-		numChannels * 2 +            // account for thresholds
-		42;             // 42, from SpikeObject.h
-	spikeBuffer.malloc(totalBytes);
-	*(spikeBuffer.getData()) = static_cast<char>(channel->getChannelType());
-	*reinterpret_cast<int64*>(spikeBuffer.getData() + 1) = spike->getTimestamp();
-	*reinterpret_cast<int64*>(spikeBuffer.getData() + 9) = 0; //Legacy unused value
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getSourceID();
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 19) = numChannels;
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 21) = chanSamples;
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 23) = spike->getSortedID();
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 25) = electrodeIndex; //Legacy value
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 27) = 0; //Legacy unused value
-	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
-	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
-
-	int ptrIdx = 0;
-	uint16* dataIntPtr = reinterpret_cast<uint16*>(spikeBuffer.getData() + 42);
-	const float* spikeDataPtr = spike->getDataPointer();
-	for (int i = 0; i < numChannels; i++)
+	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{
-		const float bitVolts = channel->getChannelBitVolts(i);
-		for (int j = 0; j < chanSamples; j++)
-		{
-			*(dataIntPtr + ptrIdx) = uint16(*(spikeDataPtr + ptrIdx) / bitVolts + 32768);
-			ptrIdx++;
-		}
+		std::cerr << "(spike) Write buffer overrun, resizing to" << totalSamples << std::endl;
+		m_bufferSize = totalSamples;
+		m_scaledBuffer.malloc(totalSamples);
+		m_intBuffer.malloc(totalSamples);
 	}
-	ptrIdx = totalSamples * 2 + 42;
-	for (int i = 0; i < numChannels; i++)
+	double multFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(0));
+	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
+	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), totalSamples);
+	rec->mainFile->writeData(m_intBuffer.getData(), totalSamples*sizeof(int16));
+	int64 ts = spike->getTimestamp();
+	rec->timestampFile->writeData(&ts, sizeof(int64));
+	NpyFile* indexFile;
+	NpyFile* sortedFile;
+	if (m_spikeMode == SpikeMode::AllInOne)
 	{
-		//To get the same value as the original version
-		*reinterpret_cast<float*>(spikeBuffer.getData() + ptrIdx) = (int)(1.0f / channel->getChannelBitVolts(i)) * 1000;
-		ptrIdx += sizeof(float);
+		indexFile = rec->timestampFile;
+		sortedFile = rec->timestampFile;
 	}
-	for (int i = 0; i < numChannels; i++)
+	else if (m_spikeMode == SpikeMode::SeparateTimestamps)
 	{
-		*reinterpret_cast<int16*>(spikeBuffer.getData() + ptrIdx) = spike->getThreshold(i);
-		ptrIdx += sizeof(int16);
+		indexFile = rec->channelFile;
+		sortedFile = rec->channelFile;
 	}
+	else
+	{
+		indexFile = rec->channelFile;
+		sortedFile = rec->extraFile;
+	}
+	indexFile->writeData(&spikeChannel, sizeof(uint16));
 
-	diskWriteLock.enter();
+	uint16 sortedID = spike->getSortedID();
+	sortedFile->writeData(&sortedID, sizeof(uint16));
 
-	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
-
-	fwrite(&m_recordingNum,                         // ptr
-		2,                               // size of each element
-		1,                               // count
-		spikeFileArray[electrodeIndex]); // ptr to FILE object
-
-	diskWriteLock.exit();
+	writeEventMetaData(spike, rec->metaDataFile);
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()
 {
 	RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary", &(engineFactory<BinaryRecording>));
+	EngineParameter* param;
+	param = new EngineParameter(EngineParameter::MULTI, 0, "Spike TS/chan/sortedID File Mode|All in one|Separate timestamps|All Separated", 0);
+	man->addParameter(param);
+	param = new EngineParameter(EngineParameter::MULTI, 1, "TTL Event word file|In main file|Separated|Do not save ttl word", 0);
+	man->addParameter(param);
+	param = new EngineParameter(EngineParameter::MULTI, 2, "Other event channel file|With timestamp|Separate", 0);
+	man->addParameter(param);
 	return man;
+}
+
+void BinaryRecording::setParameter(EngineParameter& parameter)
+{
+	multiParameter(0, reinterpret_cast<int&>(m_spikeMode));
+	multiParameter(1, reinterpret_cast<int&>(m_TTLMode));
+	multiParameter(2, reinterpret_cast<int&>(m_eventMode));
 }
