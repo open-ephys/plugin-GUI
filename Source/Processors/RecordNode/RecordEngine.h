@@ -167,7 +167,7 @@ protected:
     /** Generate a Matlab-compatible datestring */
     String generateDateString() const;
 
-    /** Gets the current block's first timestamp for a given channel */
+    /** Gets the current block's first timestamp for a given recorded channel */
     int64 getTimestamp (int channel) const;
 
     /** Gets the actual channel number from a recorded channel index */
@@ -180,8 +180,9 @@ protected:
 	 (right now all channels are recorded) */
 	int getNumRecordedEvents() const;
 
-	/** TODO: to fill when the probe system is implemented*/
-	//int getNumRecordedSpikes() const;
+	/** Gets the number of recorded spike channels
+	(right now all channels are recorded) */
+	int getNumRecordedSpikes() const;
 
     /** Gets the number of processors being recorded
     */

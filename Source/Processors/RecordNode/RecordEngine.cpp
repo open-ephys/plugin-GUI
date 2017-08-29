@@ -108,6 +108,11 @@ int RecordEngine::getNumRecordedEvents() const
 	return AccessClass::getProcessorGraph()->getRecordNode()->getTotalEventChannels();
 }
 
+int RecordEngine::getNumRecordedSpikes() const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getTotalSpikeChannels();
+}
+
 void RecordEngine::registerSpikeSource (const GenericProcessor* processor) {}
 
 int RecordEngine::getNumRecordedProcessors() const
@@ -186,6 +191,10 @@ EngineParameter::EngineParameter (EngineParameter::EngineParameterType paramType
     {
         strParam.value = defaultValue;
     }
+	else if (paramType == MULTI)
+	{
+		multiParam.value = defaultValue;
+	}
 }
 
 

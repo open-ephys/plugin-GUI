@@ -48,7 +48,6 @@
 			static RecordEngineManager* getEngineManager();
 			
 		private:
-			void resetChannels(bool resetSpikes);
 			ScopedPointer<NWBFile> recordFile;
 			Array<int> datasetIndexes;
 			Array<int> writeChannelIndexes;

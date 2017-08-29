@@ -78,7 +78,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
         addAndMakeVisible(lab);
         control = lab;
     }
-    this->setTooltip(param.name);
+    this->setTooltip(name);
 }
 
 EngineParameterComponent::~EngineParameterComponent()
