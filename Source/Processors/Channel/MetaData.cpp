@@ -39,6 +39,8 @@ bool checkMetaDataType(MetaDataDescriptor::MetaDataTypes baseType)
 	case MetaDataDescriptor::UINT32: return std::is_same<uint32, T>::value;
 	case MetaDataDescriptor::INT64: return std::is_same<int64, T>::value;
 	case MetaDataDescriptor::UINT64: return std::is_same<uint64, T>::value;
+	case MetaDataDescriptor::FLOAT: return std::is_same<float, T>::value;
+	case MetaDataDescriptor::DOUBLE: return std::is_same<double, T>::value;
 	default: return false;
 	}
 }
@@ -162,7 +164,7 @@ size_t MetaDataValue::getDataSize() const
 
 void MetaDataValue::allocSpace()
 {
-	m_data.malloc(m_size);
+	m_data.calloc(m_size);
 }
 
 MetaDataValue::MetaDataValue(const MetaDataValue& v)
@@ -237,6 +239,19 @@ void MetaDataValue::getValue(T* data) const
 {
 	jassert(checkMetaDataType<T>(m_type));
 	memcpy(data, m_data.getData(), m_size);
+}
+
+//Using this version of the method in normal processor operation is not recommended
+//However it is useful for format-agnostic processes.
+template<>
+void MetaDataValue::getValue<void>(void* data) const
+{
+	memcpy(data, m_data.getData(), m_size);
+}
+
+const void* MetaDataValue::getRawValuePointer() const
+{
+	return m_data.getData();
 }
 
 template <typename T>
@@ -335,7 +350,10 @@ void MetaDataEventObject::addEventMetaData(MetaDataDescriptor* desc)
 		return;
 	}
 	m_eventMetaDataDescriptorArray.add(desc);
-	m_totalSize += desc->getDataSize();
+	size_t size = desc->getDataSize();
+	m_totalSize += size;
+	if (m_maxSize < size)
+		m_maxSize = size;
 }
 
 void MetaDataEventObject::addEventMetaData(const MetaDataDescriptor& desc)
@@ -347,7 +365,10 @@ void MetaDataEventObject::addEventMetaData(const MetaDataDescriptor& desc)
 		return;
 	}
 	m_eventMetaDataDescriptorArray.add(new MetaDataDescriptor(desc));
-	m_totalSize += desc.getDataSize();
+	size_t size = desc.getDataSize();
+	m_totalSize += size;
+	if (m_maxSize < size)
+		m_maxSize = size;
 }
 
 size_t MetaDataEventObject::getTotalEventMetaDataSize() const
@@ -360,7 +381,7 @@ const MetaDataDescriptor* MetaDataEventObject::getEventMetaDataDescriptor(int in
 	return m_eventMetaDataDescriptorArray[index];
 }
 
-const int MetaDataEventObject::getEventMetaDataCount() const
+int MetaDataEventObject::getEventMetaDataCount() const
 {
 	return m_eventMetaDataDescriptorArray.size();
 }
@@ -377,16 +398,31 @@ int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes typ
 	return -1;
 }
 
+size_t MetaDataEventObject::getMaxEventMetaDataSize() const
+{
+	return m_maxSize;
+}
+
 //MetaDataEvent
 MetaDataEvent::MetaDataEvent() {}
 
 MetaDataEvent::~MetaDataEvent() {}
 
+int MetaDataEvent::getMetadataValueCount() const
+{
+	return m_metaDataValues.size();
+}
+
+const MetaDataValue* MetaDataEvent::getMetaDataValue(int index) const
+{
+	return m_metaDataValues[index];
+}
+
 void MetaDataEvent::serializeMetaData(void* dstBuffer) const
 {
 	int metaDataSize = m_metaDataValues.size();
 	char* buffer = static_cast<char*>(dstBuffer);
-	int ptrIndex = 0;
+	size_t ptrIndex = 0;
 
 	for (int i = 0; i < metaDataSize; i++)
 	{
@@ -405,7 +441,7 @@ bool MetaDataEvent::deserializeMetaData(const MetaDataEventObject* info, const v
 	{
 		const MetaDataDescriptor* desc = info->getEventMetaDataDescriptor(i);
 		size_t dataSize = desc->getDataSize();
-		if ((memIndex + dataSize) < size) return false; //check for buffer boundaries
+		if ((memIndex + dataSize) > size) return false; //check for buffer boundaries
 		
 		metaData.add(new MetaDataValue(*desc, (static_cast<const char*>(srcBuffer) + memIndex)));
 		memIndex += dataSize;
@@ -494,6 +530,8 @@ template PLUGIN_API void MetaDataValue::getValue<int64>(Array<int64>&) const;
 template PLUGIN_API void MetaDataValue::getValue<uint64>(Array<uint64>&) const;
 template PLUGIN_API void MetaDataValue::getValue<float>(Array<float>&) const;
 template PLUGIN_API void MetaDataValue::getValue<double>(Array<double>&) const;
+
+template PLUGIN_API void MetaDataValue::getValue<void>(void*) const;
 
 //Helper function to compare identifier strings
 bool compareIdentifierStrings(const String& identifier, const String& compareWith)

@@ -333,19 +333,20 @@ void GenericProcessor::update()
             dataChannelArray.add (ch);
         }
 
-        for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
-        {
-            EventChannel* sourceChan = sourceNode->eventChannelArray[i];
-            EventChannel* ch = new EventChannel (*sourceChan);
+		for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
+		{
+			EventChannel* sourceChan = sourceNode->eventChannelArray[i];
+			EventChannel* ch = new EventChannel(*sourceChan);
 			ch->eventMetaDataLock = true;
-            eventChannelArray.add (ch);
-        }
+			eventChannelArray.add(ch);
+		}
 		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
 		{
 			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
 			SpikeChannel* ch = new SpikeChannel(*sourceChan);
 			ch->eventMetaDataLock = true;
 			spikeChannelArray.add(ch);
+
 		}
 		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
 		{
@@ -409,7 +410,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		DataChannel* channel = dataChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		dataChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
@@ -417,7 +422,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		EventChannel* channel = eventChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		eventChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
@@ -425,7 +434,11 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	{
 		SpikeChannel* channel = spikeChannelArray[i];
 		if (updateNodeID)
+		{
 			channel->m_nodeID = nodeId;
+			channel->m_currentNodeName = getName();
+			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
+		}
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		spikeChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}

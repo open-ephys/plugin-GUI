@@ -49,17 +49,16 @@
 			
 		private:
 			void resetChannels(bool resetSpikes);
-			Array<NWBRecordingInfo> continuousInfo;
-			Array<NWBRecordingInfo> spikeInfo;
-
 			ScopedPointer<NWBFile> recordFile;
 			Array<int> datasetIndexes;
 			Array<int> writeChannelIndexes;
 
-			HeapBlock<float> scaledBuffer;
-			HeapBlock<int16> intBuffer;
+			Array<ContinuousGroup> continuousChannels;
+			Array<const EventChannel*> eventChannels;
+			Array<const SpikeChannel*> spikeChannels;
+
 			HeapBlock<double> tsBuffer;
-			int bufferSize;
+			size_t bufferSize;
 
 			String identifierText;
 			

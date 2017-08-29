@@ -281,8 +281,8 @@ void HDF5Recording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 void HDF5Recording::startAcquisition()
 {
     eventFile = new KWEFile();
-    eventFile->addEventType("TTL",HDF5FileBase::U8,"event_channels");
-    eventFile->addEventType("Messages",HDF5FileBase::STR,"Text");
+    eventFile->addEventType("TTL",HDF5FileBase::BaseDataType::U8,"event_channels");
+	eventFile->addEventType("Messages", HDF5FileBase::BaseDataType::DSTR, "Text");
     spikesFile = new KWXFile();
 }
 

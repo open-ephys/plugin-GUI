@@ -69,31 +69,31 @@ void KWDFile::startNewRecording(int recordingNumber, int nChannels, KWIKRecordin
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
     CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-    CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
-    CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
-    CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
-    CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
+	CHECK_ERROR(setAttribute(BaseDataType::U64, &(info->start_time), recordPath, String("start_time")));
+	CHECK_ERROR(setAttribute(BaseDataType::U32, &(info->start_sample), recordPath, String("start_sample")));
+	CHECK_ERROR(setAttribute(BaseDataType::F32, &(info->sample_rate), recordPath, String("sample_rate")));
+	CHECK_ERROR(setAttribute(BaseDataType::U32, &(info->bit_depth), recordPath, String("bit_depth")));
     CHECK_ERROR(createGroup(recordPath+"/application_data"));
    // CHECK_ERROR(setAttributeArray(F32,info->bitVolts.getRawDataPointer(),info->bitVolts.size(),recordPath+"/application_data",String("channel_bit_volts")));
-	bitVoltsSet = createDataSet(F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
+	bitVoltsSet = createDataSet(BaseDataType::F32, info->bitVolts.size(), 0, recordPath + "/application_data/channel_bit_volts");
 	if (bitVoltsSet.get())
-		bitVoltsSet->writeDataBlock(info->bitVolts.size(), F32, info->bitVolts.getRawDataPointer());
+		bitVoltsSet->writeDataBlock(info->bitVolts.size(), BaseDataType::F32, info->bitVolts.getRawDataPointer());
 	else
 		std::cerr << "Error creating bitvolts data set" << std::endl;
 	
-    CHECK_ERROR(setAttribute(U8,&mSample,recordPath+"/application_data",String("is_multiSampleRate_data")));
+	CHECK_ERROR(setAttribute(BaseDataType::U8, &mSample, recordPath + "/application_data", String("is_multiSampleRate_data")));
     //CHECK_ERROR(setAttributeArray(F32,info->channelSampleRates.getRawDataPointer(),info->channelSampleRates.size(),recordPath+"/application_data",String("channel_sample_rates")));
-	sampleRateSet = createDataSet(F32, info->channelSampleRates.size(), 0, recordPath + "/application_data/channel_sample_rates");
+	sampleRateSet = createDataSet(BaseDataType::F32, info->channelSampleRates.size(), 0, recordPath + "/application_data/channel_sample_rates");
 	if (sampleRateSet.get())
-		sampleRateSet->writeDataBlock(info->channelSampleRates.size(), F32, info->channelSampleRates.getRawDataPointer());
+		sampleRateSet->writeDataBlock(info->channelSampleRates.size(), BaseDataType::F32, info->channelSampleRates.getRawDataPointer());
 	else
 		std::cerr << "Error creating sample rates data set" << std::endl;
 
-    recdata = createDataSet(I16,0,nChannels,CHUNK_XSIZE,recordPath+"/data");
+	recdata = createDataSet(BaseDataType::I16, 0, nChannels, CHUNK_XSIZE, recordPath + "/data");
     if (!recdata.get())
         std::cerr << "Error creating data set" << std::endl;
 
-	tsData = createDataSet(I64, 0, nChannels, TIMESTAMP_CHUNK_SIZE, recordPath + "/application_data/timestamps");
+	tsData = createDataSet(BaseDataType::I64, 0, nChannels, TIMESTAMP_CHUNK_SIZE, recordPath + "/application_data/timestamps");
 	if (!tsData.get())
 		std::cerr << "Error creating timestamps data set" << std::endl;
 
@@ -106,7 +106,7 @@ void KWDFile::stopRecording()
     String path = String("/recordings/")+String(recordingNumber)+String("/data");
     recdata->getRowXPositions(samples);
 
-    CHECK_ERROR(setAttributeArray(U32,samples.getRawDataPointer(),samples.size(),path,"valid_samples"));
+	CHECK_ERROR(setAttributeArray(BaseDataType::U32, samples.getRawDataPointer(), samples.size(), path, "valid_samples"));
     //ScopedPointer does the deletion and destructors the closings
     recdata = nullptr;
 	tsData = nullptr;
@@ -116,13 +116,13 @@ int KWDFile::createFileStructure()
 {
     const uint16 ver = 2;
     if (createGroup("/recordings")) return -1;
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
+	if (setAttribute(BaseDataType::U16, (void*)&ver, "/", "kwik_version")) return -1;
     return 0;
 }
 
 void KWDFile::writeBlockData(int16* data, int nSamples)
 {
-    CHECK_ERROR(recdata->writeDataBlock(nSamples,I16,data));
+	CHECK_ERROR(recdata->writeDataBlock(nSamples, BaseDataType::I16, data));
 }
 
 void KWDFile::writeRowData(int16* data, int nSamples)
@@ -131,7 +131,7 @@ void KWDFile::writeRowData(int16* data, int nSamples)
     {
         curChan=0;
     }
-    CHECK_ERROR(recdata->writeDataRow(curChan,nSamples,I16,data));
+	CHECK_ERROR(recdata->writeDataRow(curChan, nSamples, BaseDataType::I16, data));
     curChan++;
 }
 
@@ -139,7 +139,7 @@ void KWDFile::writeRowData(int16* data, int nSamples, int channel)
 {
 	if (channel >= 0 && channel < nChannels)
 	{
-		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, I16, data));
+		CHECK_ERROR(recdata->writeDataRow(channel, nSamples, BaseDataType::I16, data));
 		curChan = channel;
 	}
 }
@@ -148,7 +148,7 @@ void KWDFile::writeTimestamps(int64* ts, int nTs, int channel)
 {
 	if (channel >= 0 && channel < nChannels)
 	{
-		CHECK_ERROR(tsData->writeDataRow(channel, nTs, I64, ts));
+		CHECK_ERROR(tsData->writeDataRow(channel, nTs, BaseDataType::I64, ts));
 	}
 }
 
@@ -190,20 +190,21 @@ int KWEFile::createFileStructure()
         if (createGroup(path)) return -1;
         path += "/events";
         if (createGroup(path)) return -1;
-        dSet = createDataSet(U64,0,EVENT_CHUNK_SIZE,path + "/time_samples");
+		dSet = createDataSet(BaseDataType::U64, 0, EVENT_CHUNK_SIZE, path + "/time_samples");
         if (!dSet) return -1;
-        dSet = createDataSet(U16,0,EVENT_CHUNK_SIZE,path + "/recording");
+		dSet = createDataSet(BaseDataType::U16, 0, EVENT_CHUNK_SIZE, path + "/recording");
         if (!dSet) return -1;
         path += "/user_data";
         if (createGroup(path)) return -1;
-        dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/eventID");
+		dSet = createDataSet(BaseDataType::U8, 0, EVENT_CHUNK_SIZE, path + "/eventID");
         if (!dSet) return -1;
-        dSet = createDataSet(U8,0,EVENT_CHUNK_SIZE,path + "/nodeID");
+		dSet = createDataSet(BaseDataType::U8, 0, EVENT_CHUNK_SIZE, path + "/nodeID");
         if (!dSet) return -1;
         dSet = createDataSet(eventTypes[i],0,EVENT_CHUNK_SIZE,path + "/" + eventDataNames[i]);
         if (!dSet) return -1;
     }
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
+	if (setAttribute(BaseDataType::U16, (void*)&ver, "/", "kwik_version")) return -1;
+
     return 0;
 }
 
@@ -214,10 +215,10 @@ void KWEFile::startNewRecording(int recordingNumber, KWIKRecordingInfo* info)
     String recordPath = String("/recordings/")+String(recordingNumber);
     CHECK_ERROR(createGroup(recordPath));
     CHECK_ERROR(setAttributeStr(info->name,recordPath,String("name")));
-    CHECK_ERROR(setAttribute(U64,&(info->start_time),recordPath,String("start_time")));
+	CHECK_ERROR(setAttribute(BaseDataType::U64, &(info->start_time), recordPath, String("start_time")));
     //	CHECK_ERROR(setAttribute(U32,&(info->start_sample),recordPath,String("start_sample")));
-    CHECK_ERROR(setAttribute(F32,&(info->sample_rate),recordPath,String("sample_rate")));
-    CHECK_ERROR(setAttribute(U32,&(info->bit_depth),recordPath,String("bit_depth")));
+	CHECK_ERROR(setAttribute(BaseDataType::F32, &(info->sample_rate), recordPath, String("sample_rate")));
+	CHECK_ERROR(setAttribute(BaseDataType::U32, &(info->bit_depth), recordPath, String("bit_depth")));
    // CHECK_ERROR(createGroup(recordPath + "/raw"));
   //  CHECK_ERROR(createGroup(recordPath + "/raw/hdf5_paths"));
 
@@ -264,10 +265,10 @@ void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, int64 
         std::cerr << "HDF5::writeEvent Invalid event type " << type << std::endl;
         return;
     }
-    CHECK_ERROR(timeStamps[type]->writeDataBlock(1,U64,&timestamp));
-    CHECK_ERROR(recordings[type]->writeDataBlock(1,I32,&recordingNumber));
-    CHECK_ERROR(eventID[type]->writeDataBlock(1,U8,&id));
-    CHECK_ERROR(nodeID[type]->writeDataBlock(1,U8,&processor));
+	CHECK_ERROR(timeStamps[type]->writeDataBlock(1, BaseDataType::U64, &timestamp));
+	CHECK_ERROR(recordings[type]->writeDataBlock(1, BaseDataType::I32, &recordingNumber));
+	CHECK_ERROR(eventID[type]->writeDataBlock(1, BaseDataType::U8, &id));
+	CHECK_ERROR(nodeID[type]->writeDataBlock(1, BaseDataType::U8, &processor));
     CHECK_ERROR(eventData[type]->writeDataBlock(1,eventTypes[type],data));
 }
 
@@ -283,7 +284,7 @@ void KWEFile::writeEvent(int type, uint8 id, uint8 processor, void* data, int64 
     kwdIndex++;
 }*/
 
-void KWEFile::addEventType(String name, DataTypes type, String dataName)
+void KWEFile::addEventType(String name, BaseDataType type, String dataName)
 {
     eventNames.add(name);
     eventTypes.add(type);
@@ -325,7 +326,7 @@ int KWXFile::createFileStructure()
 {
     const uint16 ver = 2;
     if (createGroup("/channel_groups")) return -1;
-    if (setAttribute(U16,(void*)&ver,"/","kwik_version")) return -1;
+	if (setAttribute(BaseDataType::U16, (void*)&ver, "/", "kwik_version")) return -1;
     for (int i=0; i < channelArray.size(); i++)
     {
         int res = createChannelGroup(i);
@@ -346,11 +347,11 @@ int KWXFile::createChannelGroup(int index)
     int nChannels = channelArray[index];
     String path("/channel_groups/"+String(index));
     CHECK_ERROR(createGroup(path));
-    dSet = createDataSet(I16,0,0,nChannels,SPIKE_CHUNK_XSIZE,SPIKE_CHUNK_YSIZE,path+"/waveforms_filtered");
+	dSet = createDataSet(BaseDataType::I16, 0, 0, nChannels, SPIKE_CHUNK_XSIZE, SPIKE_CHUNK_YSIZE, path + "/waveforms_filtered");
     if (!dSet) return -1;
-    dSet = createDataSet(U64,0,SPIKE_CHUNK_XSIZE,path+"/time_samples");
+	dSet = createDataSet(BaseDataType::U64, 0, SPIKE_CHUNK_XSIZE, path + "/time_samples");
     if (!dSet) return -1;
-    dSet = createDataSet(U16,0,SPIKE_CHUNK_XSIZE,path+"/recordings");
+	dSet = createDataSet(BaseDataType::U16, 0, SPIKE_CHUNK_XSIZE, path + "/recordings");
     if (!dSet) return -1;
     return 0;
 }
@@ -412,7 +413,7 @@ void KWXFile::writeSpike(int groupIndex, int nSamples, const float* data, Array<
         }
     }
 
-    CHECK_ERROR(spikeArray[groupIndex]->writeDataBlock(1,nSamples,I16,transformVector));
-    CHECK_ERROR(recordingArray[groupIndex]->writeDataBlock(1,I32,&recordingNumber));
-    CHECK_ERROR(timeStamps[groupIndex]->writeDataBlock(1,U64,&timestamp));
+	CHECK_ERROR(spikeArray[groupIndex]->writeDataBlock(1, nSamples, BaseDataType::I16, transformVector));
+	CHECK_ERROR(recordingArray[groupIndex]->writeDataBlock(1, BaseDataType::I32, &recordingNumber));
+	CHECK_ERROR(timeStamps[groupIndex]->writeDataBlock(1, BaseDataType::U64, &timestamp));
 }

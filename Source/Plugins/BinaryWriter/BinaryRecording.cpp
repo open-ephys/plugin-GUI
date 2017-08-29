@@ -49,13 +49,52 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 	//Open channel files
 	int nProcessors = getNumRecordedProcessors();
 
-	for (int i = 0; i < nProcessors; i++)
+	m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
+	m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
+
+	int lastId = 0;
+	for (int proc = 0; proc < nProcessors; proc++)
 	{
-		const RecordProcessorInfo& pInfo = getProcessorInfo(i);
-		File datFile(basepath + "_" + String(pInfo.processorId) + "_" + String(recordingNumber) + ".dat");
-		ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(pInfo.recordedChannels.size(), samplesPerBlock);
-		if (bFile->openFile(datFile))
-			m_DataFiles.add(bFile.release());
+		const RecordProcessorInfo& pInfo = getProcessorInfo(proc);
+		int recChans = pInfo.recordedChannels.size();
+
+		for (int chan = 0; chan < recChans; chan++)
+		{
+			int recordedChan = pInfo.recordedChannels[chan];
+			int realChan = getRealChannel(recordedChan);
+			const DataChannel* channelInfo = getDataChannel(realChan);
+			int sourceId = channelInfo->getSourceNodeID();
+			int sourceSubIdx = channelInfo->getSubProcessorIdx();
+			int nInfoArrays = m_dataChannels.size();
+			bool found = false;
+			for (int i = lastId; i < nInfoArrays; i++)
+			{
+				if (sourceId == m_dataChannels.getReference(i)[0]->getSourceNodeID() && sourceSubIdx == m_dataChannels.getReference(i)[0]->getSubProcessorIdx())
+				{
+					m_channelIndexes.set(recordedChan, m_dataChannels.getReference(i).size());
+					m_fileIndexes.set(recordedChan, i);
+					m_dataChannels.getReference(i).add(getDataChannel(realChan));
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				File datFile(basepath + "_" + String(pInfo.processorId) + "_" + String(sourceId) + "." + String(sourceSubIdx) + "_" + String(recordingNumber) + ".dat");
+				ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(pInfo.recordedChannels.size(), samplesPerBlock);
+				if (bFile->openFile(datFile))
+					m_DataFiles.add(bFile.release());
+				else
+					m_DataFiles.add(nullptr);
+
+				ContinuousGroup newGroup;
+				newGroup.add(getDataChannel(realChan));
+				m_dataChannels.add(newGroup);
+				m_fileIndexes.set(recordedChan, nInfoArrays);
+				m_channelIndexes.set(recordedChan, 0);
+				
+			}
+		}
 	}
 	int nChans = getNumRecordedChannels();
 	//Origin Timestamp
@@ -130,7 +169,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
-	m_DataFiles[getProcessorFromChannel(writeChannel)]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],getChannelNumInProc(writeChannel),m_intBuffer.getData(),size);
+	m_DataFiles[m_fileIndexes[writeChannel]]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],m_channelIndexes[writeChannel],m_intBuffer.getData(),size);
 }
 
 //Code below is copied from OriginalRecording, so it's not as clean as newer one

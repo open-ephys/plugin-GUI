@@ -66,9 +66,6 @@
          location = "group:SerialInput/SerialInput.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:SpikeRaster/SpikeRaster.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:SpikeSorter/SpikeSorter.xcodeproj">
       </FileRef>
    </Group>

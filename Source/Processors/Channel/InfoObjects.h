@@ -50,10 +50,16 @@ public:
     virtual ~NodeInfoBase();
 	/** Gets the ID of the processor which currently owns this copy of the info object */
 	unsigned int getCurrentNodeID() const;
+	/** Gets the type of the processor which currently owns this copy of the info object */
+	String getCurrentNodeType() const;
+	/** Gets the name of the processor which currently owns this copy of the info object */
+	String getCurrentNodeName() const;
 protected:
 	NodeInfoBase() = delete;
 	NodeInfoBase(uint16 id);
 	uint16 m_nodeID{ 0 };
+	String m_currentNodeType;
+	String m_currentNodeName;
 };
 
 /** This class allows creating a string with an historic of all the data a node has gone through */
@@ -92,13 +98,17 @@ public:
 	/** Gets the name of the processor which created this object */
 	String getSourceName() const;
 
+	/** Gets the number of subprocessors the source processor has.
+	Useful to determine if a processor has multiple subprocessors and label things accordingly*/
+	uint16 getSourceSubprocessorCount() const;
+ 
 private:
 	SourceProcessorInfo() = delete;
 	const uint16 m_sourceNodeID;
 	const uint16 m_sourceSubNodeIndex;
 	const String m_sourceType;
 	const String m_sourceName;
-
+	const uint16 m_sourceSubProcessorCount;
 };
 
 class PLUGIN_API NamedInfoObject
@@ -120,7 +130,7 @@ public:
 	/** Sets a machine-readable data identifier (eg.: sourcedata.continuous ) */
 	void setIdentifier(String identifier);
 
-	String getDescriptor() const;
+	String getIdentifier() const;
 protected:
 	NamedInfoObject();
 	virtual void setDefaultNameAndDescription() = 0;
