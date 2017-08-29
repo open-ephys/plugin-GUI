@@ -56,7 +56,7 @@ String NodeInfoBase::getCurrentNodeName() const
 HistoryObject::~HistoryObject()
 {}
 
-String HistoryObject::getHistoricString()
+String HistoryObject::getHistoricString() const
 {
 	return m_historicString;
 }

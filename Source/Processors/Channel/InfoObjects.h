@@ -71,7 +71,7 @@ protected:
 public:
     virtual ~HistoryObject();
 	/** Returns the historic string */
-	String getHistoricString();
+	String getHistoricString() const;
 	/** Adds a new entry in the historic string*/
 	void addToHistoricString(String entry);
 
