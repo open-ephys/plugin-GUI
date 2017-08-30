@@ -82,6 +82,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			jsonChan->setProperty("history", channelInfo->getHistoricString());
 			jsonChan->setProperty("bit_volts", channelInfo->getBitVolts());
 			jsonChan->setProperty("units", channelInfo->getDataUnits());
+			jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
+			jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
 			createChannelMetaData(channelInfo, jsonChan);
 			for (int i = lastId; i < nInfoArrays; i++)
 			{
@@ -98,14 +100,13 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			}
 			if (!found)
 			{
-				String datPath(contPath + channelInfo->getCurrentNodeName() + "_(" + String(channelInfo->getCurrentNodeID()) + ")" + File::separatorString);
-				String datFileName(channelInfo->getSourceName() + "_(" + String(sourceId) + "." + String(sourceSubIdx) + ")");
-				continuousFileNames.add(datPath + datFileName + ".dat");
+				String datFileName(channelInfo->getCurrentNodeName() + "_(" + String(channelInfo->getCurrentNodeID()) + ")" + File::separatorString + channelInfo->getSourceName() + "_(" + String(sourceId) + "." + String(sourceSubIdx) + ")");
+				continuousFileNames.add(contPath + datFileName + ".dat");
 				
 				Array<NpyType> tstypes;
 				tstypes.add(NpyType("Timestamp", BaseType::INT64, 1));
 				
-				ScopedPointer<NpyFile> tFile = new NpyFile(datPath + datFileName + "_timestamps.npy", tstypes);
+				ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datFileName + "_timestamps.npy", tstypes);
 				m_dataTimestampFiles.add(tFile.release());
 
 				m_fileIndexes.set(recordedChan, nInfoArrays);
@@ -119,8 +120,11 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 				DynamicObject::Ptr jsonFile = new DynamicObject();
 				jsonFile->setProperty("name", datFileName);
 				jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
-				jsonFile->setProperty("source_processor", channelInfo->getSourceName());
+				jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
+				jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
+				jsonFile->setProperty("source_processor_sub_idx", channelInfo->getSubProcessorIdx());
 				jsonFile->setProperty("recorded_processor", channelInfo->getCurrentNodeName());
+				jsonFile->setProperty("recorded_processor_id", channelInfo->getCurrentNodeID());
 				jsonContinuousfiles.add(var(jsonFile));
 			}
 		}
