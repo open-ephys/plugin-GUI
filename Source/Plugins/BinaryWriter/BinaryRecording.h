@@ -81,8 +81,10 @@ namespace BinaryRecordingEngine
 			SeparateChannel = 1
 		};
 
-		NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName);
+		NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
+		void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
 		void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
+		static String jsonTypeValue(BaseType type);
 
 		SpikeMode m_spikeMode;
 		TTLMode m_TTLMode;
@@ -91,6 +93,7 @@ namespace BinaryRecordingEngine
 
 		HeapBlock<float> m_scaledBuffer;
 		HeapBlock<int16> m_intBuffer;
+		HeapBlock<int64> m_tsBuffer;
 		int m_bufferSize;
 
 		OwnedArray<SequentialBlockFile>  m_DataFiles;
