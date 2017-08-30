@@ -501,13 +501,16 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 
 	m_DataFiles[m_fileIndexes[writeChannel]]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],m_channelIndexes[writeChannel],m_intBuffer.getData(),size);
 
-	int64 baseTS = getTimestamp(writeChannel);
-	//Let's hope that the compiler is smart enough to vectorize this. 
-	for (int i = 0; i < size; i++)
+	if (m_channelIndexes[writeChannel] == 0)
 	{
-		m_tsBuffer[i] = (baseTS + i);
+		int64 baseTS = getTimestamp(writeChannel);
+		//Let's hope that the compiler is smart enough to vectorize this. 
+		for (int i = 0; i < size; i++)
+		{
+			m_tsBuffer[i] = (baseTS + i);
+		}
+		m_dataTimestampFiles[m_fileIndexes[writeChannel]]->writeData(m_tsBuffer, size*sizeof(int64));
 	}
-	m_dataTimestampFiles[m_fileIndexes[writeChannel]]->writeData(m_tsBuffer, size*sizeof(int64));
 }
 
 
