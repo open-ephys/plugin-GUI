@@ -217,7 +217,7 @@ void MetaDataValue::setValue(const String& data)
 void MetaDataValue::getValue(String& data) const
 {
 	jassert(m_type == MetaDataDescriptor::CHAR);
-	data.createStringFromData(m_data.getData(), m_length);
+	data = String::createStringFromData(m_data.getData(), m_length);
 }
 
 template <typename T>
