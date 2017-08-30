@@ -59,7 +59,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 	Array<unsigned int> indexedChannelCount;
 	Array<var> jsonContinuousfiles;
 	Array<var> jsonChannels;
-
+	StringArray continuousFileNames;
 	int lastId = 0;
 	for (int proc = 0; proc < nProcessors; proc++)
 	{
@@ -100,11 +100,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			{
 				String datPath(contPath + channelInfo->getCurrentNodeName() + "_(" + String(channelInfo->getCurrentNodeID()) + ")" + File::separatorString);
 				String datFileName(channelInfo->getSourceName() + "_(" + String(sourceId) + "." + String(sourceSubIdx) + ")");
-				ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(pInfo.recordedChannels.size(), samplesPerBlock);
-				if (bFile->openFile(datPath + datFileName + ".dat"))
-					m_DataFiles.add(bFile.release());
-				else
-					m_DataFiles.add(nullptr);
+				continuousFileNames.add(datPath + datFileName + ".dat");
+				
 				Array<NpyType> tstypes;
 				tstypes.add(NpyType("Timestamp", BaseType::INT64, 1));
 				
@@ -129,12 +126,17 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 		}
 		lastId = indexedDataChannels.size();
 	}
-	int nFiles = jsonContinuousfiles.size();
+	int nFiles = continuousFileNames.size();
 	for (int i = 0; i < nFiles; i++)
 	{
-		int size = jsonChannels.getReference(i).size();
+		int numChannels = jsonChannels.getReference(i).size();
+		ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(numChannels, samplesPerBlock);
+		if (bFile->openFile(continuousFileNames[i]))
+			m_DataFiles.add(bFile.release());
+		else
+			m_DataFiles.add(nullptr);
 		DynamicObject::Ptr jsonFile = jsonContinuousfiles.getReference(i).getDynamicObject();
-		jsonFile->setProperty("num_channels", size);
+		jsonFile->setProperty("num_channels", numChannels);
 		jsonFile->setProperty("channels", jsonChannels.getReference(i));
 	}
 
