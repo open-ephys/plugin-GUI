@@ -35,7 +35,7 @@ class GenericProcessor;
 /**
 Structure with the basic info that identifies a channel
 */
-struct sourceChannelInfo
+struct SourceChannelInfo
 {
 	uint16 processorID;
 	uint16 subProcessorID;
@@ -392,7 +392,7 @@ public:
 	ElectrodeTypes getChannelType() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
-	Array<sourceChannelInfo> getSourceChannelInfo() const;
+	Array<SourceChannelInfo> getSourceChannelInfo() const;
 
 	/** Sets the number of samples, pre and post peak */
 	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
@@ -429,7 +429,7 @@ public:
 private:
 	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const ElectrodeTypes m_type;
-	Array<sourceChannelInfo> m_sourceInfo;
+	Array<SourceChannelInfo> m_sourceInfo;
 	unsigned int m_numPreSamples{ 8 };
 	unsigned int m_numPostSamples{ 32 };
 	Array<float> m_channelBitVolts;

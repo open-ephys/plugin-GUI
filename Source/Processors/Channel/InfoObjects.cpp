@@ -511,7 +511,7 @@ SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const 
 	jassert(n == getNumChannels(type));
 	for (int i = 0; i < n; i++)
 	{
-		sourceChannelInfo info;
+		SourceChannelInfo info;
 		const DataChannel* chan = sourceChannels[i];
 		info.processorID = chan->getSourceNodeID();
 		info.subProcessorID = chan->getSubProcessorIdx();
@@ -535,7 +535,7 @@ SpikeChannel::ElectrodeTypes SpikeChannel::getChannelType() const
 	return m_type;
 }
 
-Array<sourceChannelInfo> SpikeChannel::getSourceChannelInfo() const
+Array<SourceChannelInfo> SpikeChannel::getSourceChannelInfo() const
 {
 	return m_sourceInfo;
 }
