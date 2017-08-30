@@ -30,16 +30,21 @@ HistoryObject::HistoryObject() {}
 NamedInfoObject::NamedInfoObject() {}
 
 //NodeInfoBase
-NodeInfoBase::NodeInfoBase(uint16 id) :
-	m_nodeID(id)
+NodeInfoBase::NodeInfoBase(uint16 id, uint16 idx) :
+m_nodeID(id), m_nodeIdx(idx)
 {}
 
 NodeInfoBase::~NodeInfoBase()
 {}
 
-unsigned int NodeInfoBase::getCurrentNodeID() const
+uint16 NodeInfoBase::getCurrentNodeID() const
 {
 	return m_nodeID;
+}
+
+uint16 NodeInfoBase::getCurrentNodeChannelIdx() const
+{
+	return m_nodeIdx;
 }
 
 String NodeInfoBase::getCurrentNodeType() const
@@ -143,7 +148,7 @@ String NamedInfoObject::getDescription() const
 
 //InfoObjectCommon
 InfoObjectCommon::InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate, const GenericProcessor* source, uint16 subproc)
-	:	NodeInfoBase(source->getNodeId()),
+	:	NodeInfoBase(source->getNodeId(), idx),
 		SourceProcessorInfo(source, subproc),
 		m_sourceIndex(idx),
 		m_sourceTypeIndex(typeidx),

@@ -49,15 +49,19 @@ class PLUGIN_API NodeInfoBase
 public:
     virtual ~NodeInfoBase();
 	/** Gets the ID of the processor which currently owns this copy of the info object */
-	unsigned int getCurrentNodeID() const;
+	uint16 getCurrentNodeID() const;
+	/** Gets the index of this channel in the processor which currently owns this copy of the info object */
+	uint16 getCurrentNodeChannelIdx() const;
 	/** Gets the type of the processor which currently owns this copy of the info object */
 	String getCurrentNodeType() const;
 	/** Gets the name of the processor which currently owns this copy of the info object */
 	String getCurrentNodeName() const;
 protected:
 	NodeInfoBase() = delete;
-	NodeInfoBase(uint16 id);
+	NodeInfoBase(uint16 id, uint16 idx);
+private:
 	uint16 m_nodeID{ 0 };
+	uint16 m_nodeIdx{ 0 };
 	String m_currentNodeType;
 	String m_currentNodeName;
 };

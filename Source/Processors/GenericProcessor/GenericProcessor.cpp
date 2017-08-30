@@ -412,6 +412,7 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		if (updateNodeID)
 		{
 			channel->m_nodeID = nodeId;
+			channel->m_nodeIdx = i;
 			channel->m_currentNodeName = getName();
 			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
 		}
@@ -424,6 +425,7 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		if (updateNodeID)
 		{
 			channel->m_nodeID = nodeId;
+			channel->m_nodeIdx = i;
 			channel->m_currentNodeName = getName();
 			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
 		}
@@ -436,6 +438,7 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		if (updateNodeID)
 		{
 			channel->m_nodeID = nodeId;
+			channel->m_nodeIdx = i;
 			channel->m_currentNodeName = getName();
 			channel->m_currentNodeType = getName(); //Fix when the ability to name individual processors is implemented
 		}
