@@ -46,6 +46,7 @@ class EventDisplayInterface;
 class LfpViewport;
 class LfpDisplayOptions;
 
+#pragma mark - LfpDisplayCanvas -
 //==============================================================================
 /**
 
@@ -76,7 +77,8 @@ public:
     void refresh();
     void resized();
     
-    /** Resizes the LfpDisplay to the size required to fit all channels
+    /** Resizes the LfpDisplay to the size required to fit all channels that are being
+        drawn to the screen.
         
         @param respectViewportPosition  (optional) if true, viewport automatically
                                         scrolls to maintain view prior to resizing
@@ -97,6 +99,8 @@ public:
     int getNumChannelsVisible();
     bool getInputInvertedState();
     bool getDrawMethodState();
+    
+    int getChannelSampleRate(int channel);
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -192,6 +196,7 @@ private:
 };
 
     
+#pragma mark - ShowHideOptionsButton -
 //==============================================================================
 /**
  
@@ -206,7 +211,14 @@ public:
     void paintButton(Graphics& g, bool, bool);
     LfpDisplayOptions* options;
 };
-
+    
+#pragma mark - LfpDisplayOptions -
+//==============================================================================
+/**
+ 
+    Holds the LfpDisplay UI controls
+ 
+ */
 class LfpDisplayOptions : public Component,
     public Slider::Listener,
     public ComboBox::Listener,
@@ -262,6 +274,11 @@ public:
     
     int selectedChannelDisplaySkip;
     String selectedChannelDisplaySkipValue;
+    
+    int selectedStreamRateDisplayed;
+    String selectedStreamRateDisplayedValue;
+    
+    // this enum is a candidate option for refactoring, not used yet
     enum ChannelDisplaySkipValue {
         None = 0,
         One,
@@ -315,6 +332,11 @@ private:
     ScopedPointer<ComboBox> channelDisplaySkipSelection;
     StringArray channelDisplaySkipOptions;
     
+    // label and combobox for stream rate to be displayed (only show one or other)
+    ScopedPointer<Label> streamRateDisplayedLabel;
+    ScopedPointer<ComboBox> streamRateDisplayedSelection;
+    StringArray streamRateDisplayedOptions;
+    
     ScopedPointer<Slider> brightnessSliderA;
     ScopedPointer<Slider> brightnessSliderB;
     
@@ -323,6 +345,8 @@ private:
 
     ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
 
+    // TODO: (kelly) consider moving these into a config singleton (meyers?) to clean up
+    //               the constructor and huge array inits currently in there
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
@@ -341,8 +365,9 @@ private:
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
 
 };
-
     
+    
+#pragma mark - LfpTimeScale -
 //==============================================================================
 /**
  
@@ -372,6 +397,7 @@ private:
 };
 
     
+#pragma mark - LfpDisplay -
 //==============================================================================
 /**
  
@@ -458,7 +484,9 @@ public:
      
         @param chan     If chan is < 0, no channel will be selected for singular
                         focus. Giving a value of 0 or greater hides all channels
-                        except for the one at that index in channels[].
+                        except for the one at that index in drawableChannels[].
+                        Note: this parameter is NOT the index in channel[], but
+                        the index of the channel in drawableChannels[].
      */
     void toggleSingleChannel(int chan = -2);
     
@@ -469,22 +497,40 @@ public:
     
     Array<Colour> channelColours;
 
-    Array<LfpChannelDisplay*> channels;
-    Array<LfpChannelDisplayInfo*> channelInfo;
+    Array<LfpChannelDisplay*> channels;             // all channels
+    Array<LfpChannelDisplayInfo*> channelInfo;      // all channelInfos
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
-    struct LfpChannel
+    struct LfpChannelTrack
     {
         LfpChannelDisplay * channel;
         LfpChannelDisplayInfo * channelInfo;
     };
-    Array<LfpChannel> drawableChannels; // holds the channels and info that are
-                                        // drawable to the screen
+    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
+                                                    // drawable to the screen
 
     bool eventDisplayEnabled[8];
-    bool isPaused; // simple pause function, skips screen bufer updates
+    bool isPaused; // simple pause function, skips screen buffer updates
 
     LfpDisplayOptions* options;
+    
+    /** Convenience struct to store all variables particular to zooming mechanics */
+    struct TrackZoomInfo_Struct
+    {
+        const int minZoomHeight = 10;
+        const int maxZoomHeight = 150;
+        int currentZoomHeight;          // the current zoom height for the drawableChannels (not
+                                        // currently in use)
+        
+        bool isScrollingX = false;
+        bool isScrollingY = false;
+        int componentStartHeight;       // a cache for the dimensions of a component during drag events
+        int componentStartWidth;
+        float zoomPivotRatioX;          // a cache for calculating the anchor point when adjusting viewport
+        float zoomPivotRatioY;
+        Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset
+    }
+    trackZoomInfo; // and create an instance here
 
     
 private:
@@ -494,7 +540,7 @@ private:
 
     int numChans;
     int displaySkipAmt;
-    int cachedDisplayChannelHeight;
+    int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
 
     int totalHeight;
 
@@ -509,7 +555,8 @@ private:
 
 
 };
-
+    
+#pragma mark - LfpChannelDisplay -
 //==============================================================================
 /**
     Displays the information pertaining to a single data channel.
@@ -614,7 +661,8 @@ protected:
     
 
 };
-
+    
+#pragma mark - LfpChannelDisplayInfo -
 //==============================================================================
 /**
     Displays meta data pertaining to an associated channel, such as channel number.
@@ -641,17 +689,32 @@ public:
 
     void setSingleChannelState(bool);
     
+    /** Returns the sample rate associated with this channel */
+    int getChannelSampleRate();
+    /** Sets the sample rate associated with this channel */
+    void setChannelSampleRate(int samplerate);
+    
+    /** Updates the parent LfpDisplay that the track vertical zoom should update */
+    virtual void mouseDrag(const MouseEvent &event) override;
+    
+    /** Disengages the mouse drag to resize track height */
+    virtual void mouseUp(const MouseEvent &event) override;
+    
     
 
 private:
 
     bool isSingleChannel;
     float x, y;
+    
+    int samplerate;
+    
     ScopedPointer<UtilityButton> enableButton;
 
 };
 
     
+#pragma mark - EventDisplayInterface -
 //==============================================================================
 /**
     Interface class for Event Display channels.
@@ -681,7 +744,9 @@ private:
     ScopedPointer<UtilityButton> chButton;
 
 };
-
+    
+    
+#pragma mark - LfpViewport -
 //==============================================================================
 /**
     Encapsulates the logic for the LfpDisplayCanvas's viewable area and user inter-

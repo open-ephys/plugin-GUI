@@ -562,6 +562,12 @@ bool LfpDisplayCanvas::getDrawMethodState()
     return options->getDrawMethodState(); //drawMethodButton->getToggleState();
 }
 
+int LfpDisplayCanvas::getChannelSampleRate(int channel)
+{
+    // TODO: (kelly) should this do a range check?
+    return sampleRate[channel];
+}
+
 void LfpDisplayCanvas::redraw()
 {
     fullredraw=true;
@@ -824,6 +830,24 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     channelDisplaySkipLabel->setFont(labelFont);
     channelDisplaySkipLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(channelDisplaySkipLabel);
+    
+    // init stream rate displaying options
+    streamRateDisplayedOptions.add("High");
+    streamRateDisplayedOptions.add("Low");
+    selectedStreamRateDisplayed = 1;
+    selectedChannelDisplaySkipValue = streamRateDisplayedOptions[selectedStreamRateDisplayed - 1];
+    
+    streamRateDisplayedSelection = new ComboBox("Displayed Stream Rate");
+    streamRateDisplayedSelection->addItemList(streamRateDisplayedOptions, 1);
+    streamRateDisplayedSelection->setSelectedId(selectedStreamRateDisplayed, sendNotification);
+    streamRateDisplayedSelection->setEditableText(false);
+    streamRateDisplayedSelection->addListener(this);
+    addAndMakeVisible(streamRateDisplayedSelection);
+    
+    streamRateDisplayedLabel = new Label("Displayed Stream Rate Label", "Display Stream Rate");
+    streamRateDisplayedLabel->setFont(labelFont);
+    streamRateDisplayedLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(streamRateDisplayedLabel);
 
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
@@ -1067,32 +1091,45 @@ void LfpDisplayOptions::resized()
     pauseButton->setBounds(450,getHeight()-50,50,44);
     
     // Channel Zoom Slider
-    channelZoomSlider->setBounds(pauseButton->getRight() + 10, getHeight() - 30, 100, 22);
+    channelZoomSlider->setBounds(pauseButton->getRight() + 5,
+                                 getHeight() - 30,
+                                 100,
+                                 22);
     channelZoomSliderLabel->setBounds(channelZoomSlider->getX(),
                                       channelZoomSlider->getY() - 20,
                                       180,
                                       22);
     
     // Reverse Channels Display
-    reverseChannelsDisplayButton->setBounds(channelZoomSlider->getX() + channelZoomSlider->getWidth() + 25,
+    reverseChannelsDisplayButton->setBounds(channelZoomSlider->getX() + channelZoomSlider->getWidth() + 5,
                                             getHeight()-50,
                                             20,
                                             20);
-    reverseChannelsDisplayLabel->setBounds(reverseChannelsDisplayButton->getRight() + 5,
+    reverseChannelsDisplayLabel->setBounds(reverseChannelsDisplayButton->getRight(),
                                            reverseChannelsDisplayButton->getY(),
                                            180,
                                            22);
     
     // Channel Display Skip Selector
-    channelDisplaySkipSelection->setBounds(channelZoomSlider->getX() + channelZoomSlider-> getWidth() + 25,
+    channelDisplaySkipSelection->setBounds(channelZoomSlider->getX() + channelZoomSlider-> getWidth() + 5,
                                            channelZoomSlider->getY(),
                                            60,
                                            25);
-    channelDisplaySkipLabel->setBounds(channelDisplaySkipSelection->getRight() + 5,
-                                       channelDisplaySkipSelection->getY(),
+    channelDisplaySkipLabel->setBounds(channelDisplaySkipSelection->getRight(),
+                                       channelDisplaySkipSelection->getY() + 2,
                                        100,
                                        22);
-
+    
+    // Stream Rate Displayed Selector
+    streamRateDisplayedSelection->setBounds(reverseChannelsDisplayButton->getX() + 130,
+                                            channelDisplaySkipSelection->getY(),
+                                            60,
+                                            25);
+    streamRateDisplayedLabel->setBounds(streamRateDisplayedSelection->getX() - 5,
+                                        reverseChannelsDisplayButton->getY(),
+                                        150,
+                                        22);
+    
     // Saturation Warning Selection
     saturationWarningSelection->setBounds(250, getHeight()-90, 60, 25);
     
@@ -1194,6 +1231,7 @@ void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 
 void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate)
 {
+    
     if (canvasMustUpdate)
     {
         spreadSelection->setText(String(spread),sendNotification);
@@ -1989,12 +2027,18 @@ void LfpDisplay::setNumChannels(int numChannels)
         //lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range[options->getChannelType(i)]);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
+        
+        // TODO: (kelly) this won't work... samplerate gets set AFTER this method is called
+        lfpInfo->setChannelSampleRate(canvas->getChannelSampleRate(i));
 
         addAndMakeVisible(lfpInfo);
 
         channelInfo.add(lfpInfo);
         
-        drawableChannels.add(LfpChannel{lfpChan, lfpInfo});
+        drawableChannels.add(LfpChannelTrack{
+            lfpChan,
+            lfpInfo
+        });
 
 		savedChannelState.add(true);
 
@@ -2394,8 +2438,22 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
         if (abs(h) > 100) // accelerate scrolling for large ranges
             hdiff *= 3;
+        
+        int newHeight = h+hdiff;
+        
+        // constrain the spread resizing to max and min values;
+        if (newHeight < trackZoomInfo.minZoomHeight)
+        {
+            newHeight = trackZoomInfo.minZoomHeight;
+            hdiff = 0;
+        }
+        else if (newHeight > trackZoomInfo.maxZoomHeight)
+        {
+            newHeight = trackZoomInfo.maxZoomHeight;
+            hdiff = 0;
+        }
 
-        setChannelHeight(h+hdiff);
+        setChannelHeight(newHeight);
         int oldX=viewport->getViewPositionX();
         int oldY=viewport->getViewPositionY();
 
@@ -2405,7 +2463,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         int scrollBy = (mouseY/h)*hdiff*2;// compensate for motion of point under current mouse position
         viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
 
-        options->setSpreadSelection(h+hdiff); // update combobox
+        options->setSpreadSelection(newHeight); // update combobox
         
         canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
     }
@@ -2450,8 +2508,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-    // TODO: (kelly) this breaks with the new reversing and filtering mechanisms
-    
     //std::cout << "Toggle channel " << chan << std::endl;
 
     
@@ -2476,15 +2532,15 @@ void LfpDisplay::toggleSingleChannel(int chan)
 //                channels[i]->setEnabledState(false);
 //        }
         
-        std::cout << "\nSingle channel on (" << chan << ")" << std::endl;
+        std::cout << "Single channel on (" << chan << ")" << std::endl;
         singleChan = chan;
         
         int newHeight = viewport->getHeight();
-        LfpChannel lfpChannel{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
+        LfpChannelTrack lfpChannelTrack{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
 //        drawableChannels[chan].channelInfo->setEnabledState(true);
 //        drawableChannels[chan].channelInfo->setSingleChannelState(true);
-        lfpChannel.channelInfo->setEnabledState(true);
-        lfpChannel.channelInfo->setSingleChannelState(true);
+        lfpChannelTrack.channelInfo->setEnabledState(true);
+        lfpChannelTrack.channelInfo->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
         
@@ -2492,24 +2548,26 @@ void LfpDisplay::toggleSingleChannel(int chan)
         viewport->setViewPosition(Point<int>(0, chan*newHeight));
 //        viewport->setViewPosition(Point<int>(0, 0));
         
+        // disable unused channels
         for (int i = 0; i < drawableChannels.size(); i++)
         {
             if (i != chan) drawableChannels[i].channel->setEnabledState(false);
         }
         
-        Array<LfpChannel> channelsToDraw{lfpChannel};
+        // update drawableChannels, give only the single channel to focus on
+        Array<LfpChannelTrack> channelsToDraw{lfpChannelTrack};
         drawableChannels = channelsToDraw;
         
         // remove all other children and show this one channel
         removeAllChildren();
-        addAndMakeVisible(lfpChannel.channel);
-        addAndMakeVisible(lfpChannel.channelInfo);
+        addAndMakeVisible(lfpChannelTrack.channel);
+        addAndMakeVisible(lfpChannelTrack.channelInfo);
 
     }
 //    else if (chan == singleChan || chan == -2)
-    else if (getSingleChannelState())
+    else
     {
-        std::cout << "\nSingle channel off" << std::endl;
+        std::cout << "Single channel off" << std::endl;
         for (int n = 0; n < numChans; n++)
         {
             channelInfo[n]->setSingleChannelState(false);
@@ -2533,12 +2591,10 @@ void LfpDisplay::reactivateChannels()
 void LfpDisplay::rebuildDrawableChannelsList()
 {
     
-    // TODO: (kelly) possible test here for singleChannel turned ON
-    
     if (displaySkipAmt != 0) removeAllChildren(); // start with clean slate
     
-    Array<LfpChannel> channelsToDraw;
-    drawableChannels = Array<LfpDisplay::LfpChannel>();
+    Array<LfpChannelTrack> channelsToDraw;
+    drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
     
     
     // iterate over all channels and select drawable ones
@@ -2549,7 +2605,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
             channels[i]->setHidden(false);
             channelInfo[i]->setHidden(false);
             
-            channelsToDraw.add(LfpDisplay::LfpChannel{
+            channelsToDraw.add(LfpDisplay::LfpChannelTrack{
                 channels[i],
                 channelInfo[i]
             });
@@ -2564,7 +2620,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 channels[i]->setHidden(false);
                 channelInfo[i]->setHidden(false);
                 
-                channelsToDraw.add(LfpDisplay::LfpChannel{
+                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
                     channels[i],
                     channelInfo[i]
                 });
@@ -3298,6 +3354,89 @@ void LfpChannelDisplayInfo::setEnabledState(bool state)
 void LfpChannelDisplayInfo::setSingleChannelState(bool state)
 {
     isSingleChannel = state;
+}
+
+int LfpChannelDisplayInfo::getChannelSampleRate()
+{
+    return samplerate;
+}
+
+void LfpChannelDisplayInfo::setChannelSampleRate(int samplerate_)
+{
+    samplerate = samplerate_;
+}
+
+void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
+    {
+        if (e.mods.isCommandDown() && !display->getSingleChannelState())  // CTRL + drag -> change channel spacing
+        {
+            // init state in our track zooming info struct
+            if (!display->trackZoomInfo.isScrollingY)
+            {
+                display->trackZoomInfo.isScrollingY = true;
+                display->trackZoomInfo.componentStartHeight = getChannelHeight();
+                display->trackZoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)display->getHeight();
+                display->trackZoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)display->getWidth();
+                display->trackZoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
+                
+            }
+            
+            int h = display->trackZoomInfo.componentStartHeight;
+            int hdiff=0;
+            int dragDeltaY = -0.1 * (e.getScreenPosition().getY() - e.getMouseDownScreenY()); // invert so drag up -> scale up
+            
+//             std::cout << dragDeltaY << std::endl;
+            if (dragDeltaY > 0)
+            {
+                hdiff = 2 * dragDeltaY;
+            }
+            else
+            {
+                if (h > 5)
+                    hdiff = 2 * dragDeltaY;
+            }
+            
+            if (abs(h) > 100) // accelerate scrolling for large ranges
+                hdiff *= 3;
+            
+            int newHeight = h+hdiff;
+            
+            // constrain the spread resizing to max and min values;
+            if (newHeight < display->trackZoomInfo.minZoomHeight)
+            {
+                newHeight = display->trackZoomInfo.minZoomHeight;
+            }
+            else if (newHeight > display->trackZoomInfo.maxZoomHeight)
+            {
+                newHeight = display->trackZoomInfo.maxZoomHeight;
+            }
+            
+            // set channel heights for all channel
+            display->setChannelHeight(newHeight);
+            display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
+            
+            canvas->viewport->setViewPositionProportionately(display->trackZoomInfo.zoomPivotRatioX, display->trackZoomInfo.zoomPivotRatioY);
+            
+            int newViewportY = display->trackZoomInfo.zoomPivotRatioY * display->getHeight() - display->trackZoomInfo.zoomPivotViewportOffset.getY();
+            if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
+            
+            canvas->viewport->setViewPosition(display->trackZoomInfo.zoomPivotRatioX, newViewportY);
+            
+            options->setSpreadSelection(newHeight); // update combobox
+            
+            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+        }
+    }
+}
+
+void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        display->trackZoomInfo.isScrollingY = false;
+    }
 }
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
