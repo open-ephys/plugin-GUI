@@ -38,6 +38,8 @@
         v = parameter.floatParam.value
 #define strParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
         v = parameter.strParam.value
+#define multiParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::MULTI)) \
+        v = parameter.multiParam.value
 
 struct RecordProcessorInfo
 {
@@ -165,7 +167,7 @@ protected:
     /** Generate a Matlab-compatible datestring */
     String generateDateString() const;
 
-    /** Gets the current block's first timestamp for a given channel */
+    /** Gets the current block's first timestamp for a given recorded channel */
     int64 getTimestamp (int channel) const;
 
     /** Gets the actual channel number from a recorded channel index */
@@ -178,8 +180,9 @@ protected:
 	 (right now all channels are recorded) */
 	int getNumRecordedEvents() const;
 
-	/** TODO: to fill when the probe system is implemented*/
-	//int getNumRecordedSpikes() const;
+	/** Gets the number of recorded spike channels
+	(right now all channels are recorded) */
+	int getNumRecordedSpikes() const;
 
     /** Gets the number of processors being recorded
     */
@@ -219,7 +222,7 @@ typedef RecordEngine* (*EngineCreator)();
 struct PLUGIN_API EngineParameter
 {
 public:
-    enum EngineParameterType { STR, INT, FLOAT, BOOL };
+    enum EngineParameterType { STR, INT, FLOAT, BOOL, MULTI };
 
     EngineParameter (EngineParameterType paramType,
                      int paramId,
@@ -250,6 +253,11 @@ public:
         {
             bool value;
         } boolParam;
+		
+		struct 
+		{
+			int value;
+		} multiParam;
     };
 
     //Strings can't be inside an union. This means wasting a bit of memory, but adds more safety than using char*

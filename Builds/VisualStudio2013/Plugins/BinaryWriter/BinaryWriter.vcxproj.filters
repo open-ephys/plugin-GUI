@@ -24,6 +24,9 @@
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\BinaryRecording.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\SequentialBlockFile.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\OpenEphysLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

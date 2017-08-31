@@ -44,7 +44,7 @@ public:
     OriginalRecording();
     ~OriginalRecording();
 
-    void setParameter(EngineParameter& parameter);
+    void setParameter(EngineParameter& parameter) override;
     String getEngineID() const override;
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;

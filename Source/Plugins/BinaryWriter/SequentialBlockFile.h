@@ -37,7 +37,7 @@ namespace BinaryRecordingEngine
 		SequentialBlockFile(int nChannels, int samplesPerBlock);
 		~SequentialBlockFile();
 
-		bool openFile(File file);
+		bool openFile(String filename);
 		bool writeChannel(uint64 startPos, int channel, int16* data, int nSamples);
 
 	private:

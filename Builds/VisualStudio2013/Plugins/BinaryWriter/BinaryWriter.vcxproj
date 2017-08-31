@@ -117,10 +117,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\BinaryRecording.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\FileMemoryBlock.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\SequentialBlockFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\BinaryRecording.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\OpenEphysLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\SequentialBlockFile.cpp" />
   </ItemGroup>

@@ -43,6 +43,7 @@ private:
     ScopedPointer<Component> control;
     EngineParameter::EngineParameterType type;
     EngineParameter& parameter;
+	String name;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
 };
 
