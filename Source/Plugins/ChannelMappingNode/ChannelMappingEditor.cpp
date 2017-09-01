@@ -67,6 +67,13 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     downButton->setBounds(320,45,10,8);
     addAndMakeVisible(downButton);
     downButton->setVisible(false);
+    
+    addAndMakeVisible(electrodeButtonViewport = new Viewport());
+    electrodeButtonViewport->setBounds(10,30,330,70);
+    electrodeButtonViewport->setScrollBarsShown(false,false,true,true);
+    electrodeButtonHolder = new Component();
+    electrodeButtonViewport->setViewedComponent(electrodeButtonHolder,false);
+    
 
     loadButton = new LoadButton();
     loadButton->addListener(this);
@@ -176,7 +183,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
         // if (!getCollapsedState())
         //     addAndMakeVisible(button);
         // else
-        addChildComponent(button); // determine visibility in refreshButtonLocations()
+        electrodeButtonHolder->addAndMakeVisible(button); // determine visibility in refreshButtonLocations()
 
         button->addListener(this);
         if (reorderActive)
@@ -230,29 +237,28 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
 
 void ChannelMappingEditor::refreshButtonLocations()
 {
+    electrodeButtonViewport->setVisible(!getCollapsedState());
+    
+    electrodeButtonViewport->setViewPosition( 0,scrollDistance);
     int width = 19;
     int height = 15;
-    int row = (int) -scrollDistance;
+    int row = 0;
     int column = 0;
-
+    int totalWidth = 0;
+    int totalHeight = 0;
     for (int i = 0; i < electrodeButtons.size(); i++)
     {
-
         ElectrodeButton* button = electrodeButtons[i];
-
-        button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
-
-        if (row <= 4 && row >= 0 && !getCollapsedState())
-            button->setVisible(true);
-        else
-            button->setVisible(false);
-
+        button->setBounds(column*width, row*height, width, height);
+        totalWidth =  jmax(totalWidth, ++column*width);
+        
         if (column % 16 == 0)
         {
-            column = 0;
-            row++;
+            totalHeight =  jmax(totalHeight, ++row*height);
+            column = 0;            
         }
     }
+    electrodeButtonHolder->setSize(totalWidth,totalHeight);
 }
 
 void ChannelMappingEditor::collapsedStateChanged()
@@ -774,12 +780,26 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
         else if (isDragging)
         {
             MouseEvent ev = e.getEventRelativeTo(this);
-
-            int col = ((ev.x-5) / 20);
+            int mouseDownY = ev.getMouseDownY()-30;
+            int mouseDownX = ev.getMouseDownX()-10;
+            Point<int> viewPosition =electrodeButtonViewport->getViewPosition();
+            
+            int distanceY = ev.getDistanceFromDragStartY();
+            int distanceX = ev.getDistanceFromDragStartX();
+            
+            int newPosY = viewPosition.getY()+ mouseDownY + distanceY;
+            int newPosX = viewPosition.getX()+ mouseDownX + distanceX;
+            if ( mouseDownY + distanceY > 70){
+                electrodeButtonViewport->setViewPosition(viewPosition.getX(),newPosY);
+            }else if( mouseDownY + distanceY < 0 ){
+                electrodeButtonViewport->setViewPosition(viewPosition.getX(),newPosY);
+            }
+            
+            
+            int col = (newPosX / 19);
             if (col < 0) col = 0;
             else if (col > 16) col = 16;
-
-            int row = ((ev.y-30) / 15);
+            int row = (newPosY / 15);
             if (row < 0) row = 0;
 
             int hoverButton = row*16+col;
