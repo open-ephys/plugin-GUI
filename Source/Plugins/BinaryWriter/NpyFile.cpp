@@ -105,7 +105,7 @@ String NpyType::getTypeString() const
 	switch (type)
 	{
 	case BaseType::CHAR:
-		return "U" + String(length);
+		return "S" + String(length + 1); //account for the null separator
 	case BaseType::INT8:
 		return "<i1";
 	case BaseType::UINT8:

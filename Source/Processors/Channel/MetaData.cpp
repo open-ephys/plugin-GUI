@@ -71,7 +71,13 @@ MetaDataDescriptor& MetaDataDescriptor::operator=(const MetaDataDescriptor& othe
 
 MetaDataDescriptor::MetaDataTypes MetaDataDescriptor::getType() const { return m_type; }
 unsigned int MetaDataDescriptor::getLength() const { return m_length; }
-size_t MetaDataDescriptor::getDataSize() const { return m_length*getTypeSize(m_type); }
+size_t MetaDataDescriptor::getDataSize() const 
+{ 
+	if (m_type == CHAR)
+		return m_length*getTypeSize(m_type) + 1; //account for the null-rerminator
+	else
+		return m_length*getTypeSize(m_type);
+}
 String MetaDataDescriptor::getName() const { return m_name; }
 String MetaDataDescriptor::getDescription() const { return m_description; }
 String MetaDataDescriptor::getIdentifier() const { return m_identifier; }
@@ -120,14 +126,14 @@ size_t MetaDataDescriptor::getTypeSize(MetaDataDescriptor::MetaDataTypes type)
 
 //This would be so much easier if VS2012 supported delegating constructors...
 MetaDataValue::MetaDataValue(MetaDataDescriptor::MetaDataTypes t, unsigned int length, const void* d)
-	: m_type(t), m_length(length), m_size(length*MetaDataDescriptor::getTypeSize(t))
+	: m_type(t), m_length(length), m_size(getSize(t, length))
 {	
 	allocSpace();
 	setValue(d);
 }
 
 MetaDataValue::MetaDataValue(MetaDataDescriptor::MetaDataTypes t, unsigned int length) 
-	: m_type(t), m_length(length), m_size(length*MetaDataDescriptor::getTypeSize(t))
+	: m_type(t), m_length(length), m_size(getSize(t, length))
 {
 	allocSpace();
 }
@@ -173,6 +179,14 @@ size_t MetaDataValue::getDataSize() const
 void MetaDataValue::allocSpace()
 {
 	m_data.calloc(m_size);
+}
+
+size_t MetaDataValue::getSize(MetaDataDescriptor::MetaDataTypes type, unsigned int length)
+{
+	if (type == MetaDataDescriptor::CHAR)
+		return length*MetaDataDescriptor::getTypeSize(type) + 1; //account for the null-rerminator
+	else
+		return length*MetaDataDescriptor::getTypeSize(type);
 }
 
 MetaDataValue::MetaDataValue(const MetaDataValue& v)
