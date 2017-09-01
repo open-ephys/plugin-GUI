@@ -162,6 +162,7 @@ private:
 	MetaDataValue() = delete;
 	void setValue(const void* data);
 	void allocSpace();
+	static size_t getSize(MetaDataDescriptor::MetaDataTypes type, unsigned int length);
 	HeapBlock<char> m_data;
 	MetaDataDescriptor::MetaDataTypes m_type;
 	unsigned int m_length;
