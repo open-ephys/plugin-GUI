@@ -84,6 +84,7 @@ namespace BinaryRecordingEngine
 		NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
 		void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
 		void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
+		void increaseEventCounts(EventRecording* rec);
 		static String jsonTypeValue(BaseType type);
 
 		SpikeMode m_spikeMode;

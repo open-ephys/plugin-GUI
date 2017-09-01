@@ -504,8 +504,8 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
-
-	m_DataFiles[m_fileIndexes[writeChannel]]->writeChannel(getTimestamp(writeChannel)-m_startTS[writeChannel],m_channelIndexes[writeChannel],m_intBuffer.getData(),size);
+	int fileIndex = m_fileIndexes[writeChannel];
+	m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel], m_channelIndexes[writeChannel], m_intBuffer.getData(), size);
 
 	if (m_channelIndexes[writeChannel] == 0)
 	{
@@ -515,7 +515,8 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 		{
 			m_tsBuffer[i] = (baseTS + i);
 		}
-		m_dataTimestampFiles[m_fileIndexes[writeChannel]]->writeData(m_tsBuffer, size*sizeof(int64));
+		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
+		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
 	}
 }
 
@@ -576,12 +577,14 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 		chanFile->writeData(&chan, sizeof(uint16));
 	}
 	writeEventMetaData(ev.get(), rec->metaDataFile);
+	increaseEventCounts(rec);
 }
 
 void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
 	text.paddedRight(' ', 256);
 	m_syncTextFile->writeData(text.toUTF8(), 256);
+	m_syncTextFile->increaseRecordCount();
 }
 
 
@@ -593,7 +596,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-	
+
 
 	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{
@@ -629,8 +632,16 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	uint16 sortedID = spike->getSortedID();
 	sortedFile->writeData(&sortedID, sizeof(uint16));
+	increaseEventCounts(rec);
+}
 
-	writeEventMetaData(spike, rec->metaDataFile);
+void BinaryRecording::increaseEventCounts(EventRecording* rec)
+{
+	rec->mainFile->increaseRecordCount();
+	rec->timestampFile->increaseRecordCount();
+	if (rec->extraFile) rec->extraFile->increaseRecordCount();
+	if (rec->channelFile) rec->channelFile->increaseRecordCount();
+	if (rec->metaDataFile) rec->metaDataFile->increaseRecordCount();
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()
