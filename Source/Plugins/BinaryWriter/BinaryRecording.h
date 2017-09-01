@@ -103,7 +103,7 @@ namespace BinaryRecordingEngine
 		OwnedArray<EventRecording> m_eventFiles;
 		OwnedArray<EventRecording> m_spikeFiles;
 		OwnedArray<NpyFile> m_dataTimestampFiles;
-		ScopedPointer<NpyFile> m_syncTextFile;
+		ScopedPointer<FileOutputStream> m_syncTextFile;
 
 		Array<unsigned int> m_spikeFileIndexes;
 		Array<uint16> m_spikeChannelIndexes;

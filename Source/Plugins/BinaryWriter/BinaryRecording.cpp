@@ -346,9 +346,17 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 		jsonFile->setProperty("channels", jsonSpikeChannels.getReference(i));
 	}
 
-	Array<NpyType> msgType;
-	msgType.add(NpyType("sync_text", BaseType::CHAR, 256));
-	m_syncTextFile = new NpyFile(basepath + "sync_text.npy", msgType);
+	File syncFile = File(basepath + "sync_messages.txt");
+	Result res = syncFile.create();
+	if (res.failed())
+	{
+		std::cerr << "Error creating sync text file:" << res.getErrorMessage() << std::endl;
+	}
+	else
+	{
+		m_syncTextFile = syncFile.createOutputStream();
+	}
+	
 	m_recordingNum = recordingNumber;
 
 	DynamicObject::Ptr jsonSettingsFile = new DynamicObject();
@@ -582,9 +590,9 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 
 void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
-	text.paddedRight(' ', 256);
-	m_syncTextFile->writeData(text.toUTF8(), 256);
-	m_syncTextFile->increaseRecordCount();
+	if (!m_syncTextFile)
+		return;
+	m_syncTextFile->writeText(text + "\n", false, false);
 }
 
 
