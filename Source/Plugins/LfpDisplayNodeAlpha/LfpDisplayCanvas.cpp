@@ -809,13 +809,13 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     addAndMakeVisible(channelZoomSliderLabel);
     
     // init channel display skipping options
-    channelDisplaySkipOptions.add("None");
-    channelDisplaySkipOptions.add("1");
+    channelDisplaySkipOptions.add("All");
     channelDisplaySkipOptions.add("2");
     channelDisplaySkipOptions.add("4");
     channelDisplaySkipOptions.add("8");
     channelDisplaySkipOptions.add("16");
     channelDisplaySkipOptions.add("32");
+    channelDisplaySkipOptions.add("64");
     selectedChannelDisplaySkip = 1;
     selectedChannelDisplaySkipValue = channelDisplaySkipOptions[selectedChannelDisplaySkip - 1];
     
@@ -1316,7 +1316,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
     if (cb == channelDisplaySkipSelection)
     {
-        const int skipAmt = pow(2, cb->getSelectedId() - 2);
+        const int skipAmt = pow(2, cb->getSelectedId() - 1);
         lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
 //        const int skipAmt = pow(2, cb->getSelectedId() - 2);
 //        
@@ -2615,7 +2615,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
         else // skip some channels
         {
-            if (i % (displaySkipAmt + 1) == 0) // add these channels
+            std::cout << "displaySkipAmt = " << displaySkipAmt << std::endl;
+            if (i % (displaySkipAmt) == 0) // add these channels
             {
                 channels[i]->setHidden(false);
                 channelInfo[i]->setHidden(false);
