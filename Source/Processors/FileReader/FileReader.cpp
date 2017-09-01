@@ -195,6 +195,7 @@ void FileReader::setActiveRecording (int index)
     currentSample   = 0;
     startSample     = 0;
     stopSample      = currentNumSamples;
+    bufferCacheWindow = 0;
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
@@ -203,7 +204,7 @@ void FileReader::setActiveRecording (int index)
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumSamples));
 
-    readBuffer.malloc (currentNumChannels * BUFFER_SIZE);
+    readBuffer.malloc (currentNumChannels * BUFFER_SIZE * BUFFER_WINDOW_CACHE_SIZE);
 }
 
 
@@ -232,16 +233,18 @@ void FileReader::process (AudioSampleBuffer& buffer)
 {
     
 
-    const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+//    const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
 
     int samplesRead = 0;
 
-    while (samplesRead < samplesNeeded)
+    while (bufferCacheWindow == 0 && samplesRead < samplesNeeded) // only read every 5th window
     {
         int samplesToRead = samplesNeeded - samplesRead;
-        if ( (currentSample + samplesToRead) > stopSample)
+        if ( (currentSample + samplesToRead) > stopSample) // if there are enough samples for full buffer
         {
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
@@ -250,7 +253,7 @@ void FileReader::process (AudioSampleBuffer& buffer)
             input->seekTo (startSample);
             currentSample = startSample;
         }
-        else
+        else // if there aren't enough samples for full buffer
         {
             input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
 
@@ -262,12 +265,14 @@ void FileReader::process (AudioSampleBuffer& buffer)
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        input->processChannelData (readBuffer, buffer.getWritePointer (i, 0), i, samplesNeeded);
+        input->processChannelData (readBuffer + samplesRead * currentNumChannels * bufferCacheWindow, buffer.getWritePointer (i, 0), i, samplesNeededPerBuffer);
     }
 
     timestamp += samplesNeeded;
-	setTimestampAndSamples(timestamp, samplesNeeded);
+	setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
     
+    bufferCacheWindow += 1;
+    bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 }
 
 

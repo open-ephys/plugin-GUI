@@ -32,6 +32,7 @@
 #include "FileSource.h"
 
 #define BUFFER_SIZE 1024
+#define BUFFER_WINDOW_CACHE_SIZE 5
 
 
 /**
@@ -83,6 +84,7 @@ private:
     int64 currentNumSamples;
     int64 startSample;
     int64 stopSample;
+    int64 bufferCacheWindow;
     Array<RecordedChannelInfo> channelInfo;
 
     // for testing purposes only
