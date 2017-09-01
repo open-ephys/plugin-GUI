@@ -108,6 +108,11 @@ int RecordEngine::getNumRecordedEvents() const
 	return AccessClass::getProcessorGraph()->getRecordNode()->getTotalEventChannels();
 }
 
+int RecordEngine::getNumRecordedSpikes() const
+{
+	return AccessClass::getProcessorGraph()->getRecordNode()->getTotalSpikeChannels();
+}
+
 void RecordEngine::registerSpikeSource (const GenericProcessor* processor) {}
 
 int RecordEngine::getNumRecordedProcessors() const
@@ -186,6 +191,10 @@ EngineParameter::EngineParameter (EngineParameter::EngineParameterType paramType
     {
         strParam.value = defaultValue;
     }
+	else if (paramType == MULTI)
+	{
+		multiParam.value = defaultValue;
+	}
 }
 
 
@@ -208,6 +217,9 @@ void EngineParameter::restoreDefault()
         case STR:
             strParam.value = def;
             break;
+
+		case MULTI:
+			multiParam.value = def;
 
         default:
             break;
@@ -329,6 +341,10 @@ void RecordEngineManager::saveParametersToXml (XmlElement* xml)
                 param->setAttribute ("value", parameters[i]->strParam.value);
                 break;
 
+			case EngineParameter::MULTI:
+				param->setAttribute("type", "multi");
+				param->setAttribute("value", parameters[i]->multiParam.value);
+
             default:
                 break;
         }
@@ -363,6 +379,11 @@ void RecordEngineManager::loadParametersFromXml (XmlElement* xml)
                 {
                     parameters[i]->strParam.value = xmlNode->getStringAttribute ("value");
                 }
+				else if ((xmlNode->getStringAttribute("type") == "multi")
+					&& (parameters[i]->type == EngineParameter::MULTI))
+				{
+					parameters[i]->multiParam.value = xmlNode->getIntAttribute("value");
+				}
             }
         }
     }

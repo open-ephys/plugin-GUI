@@ -44,8 +44,15 @@ SequentialBlockFile::~SequentialBlockFile()
 		m_memBlocks.remove(0);
 }
 
-bool SequentialBlockFile::openFile(File file)
+bool SequentialBlockFile::openFile(String filename)
 {
+	File file(filename);
+	Result res = file.create();
+	if (res.failed())
+	{
+		std::cerr << "Error creating file " << filename << ":" << res.getErrorMessage() << std::endl;
+		return false;
+	}
 	m_file = file.createOutputStream(streamBufferSize);
 	if (!m_file)
 		return false;

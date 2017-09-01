@@ -85,8 +85,12 @@ public:
 	/** Gets the machine-readable identifier for this field */
 	String getIdentifier() const;
 
+	/** Returns true if both descriptors have the same type, length and identifier */
 	bool isEqual(const MetaDataDescriptor& other) const;
+	/** Returns true if both descriptors have the same type, length and identifier */
 	bool operator==(const MetaDataDescriptor& other) const;
+	/** Returns true if both descriptors have the same type and length, regardless of the identifier */
+	bool isSimilar(const MetaDataDescriptor& other) const;
 
 	static size_t getTypeSize(MetaDataTypes type);
 private:
@@ -158,6 +162,7 @@ private:
 	MetaDataValue() = delete;
 	void setValue(const void* data);
 	void allocSpace();
+	static size_t getSize(MetaDataDescriptor::MetaDataTypes type, unsigned int length);
 	HeapBlock<char> m_data;
 	MetaDataDescriptor::MetaDataTypes m_type;
 	unsigned int m_length;
@@ -184,9 +189,13 @@ public:
 	const MetaDataValue* getMetaDataValue(int index) const;
 	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
 	const int getMetaDataCount() const;
+	bool hasSameMetadata(const MetaDataInfoObject& other) const;
+	bool hasSimilarMetadata(const MetaDataInfoObject& other) const;
 protected:
 	MetaDataDescriptorArray m_metaDataDescriptorArray;
 	MetaDataValueArray m_metaDataValueArray;
+private:
+	bool checkMetaDataCoincidence(const MetaDataInfoObject& other, bool similar) const;
 };
 
 class PLUGIN_API MetaDataEventLock
@@ -215,11 +224,15 @@ public:
 	int getEventMetaDataCount() const;
 	//gets the largest metadata size, which can be useful to reserve buffers in advance
 	size_t getMaxEventMetaDataSize() const;
+	bool hasSameEventMetadata(const MetaDataEventObject& other) const;
+	bool hasSimilarEventMetadata(const MetaDataEventObject& other) const;
 protected:
 	MetaDataDescriptorArray m_eventMetaDataDescriptorArray;
 	MetaDataEventObject();
 	size_t m_totalSize{ 0 };
 	size_t m_maxSize{ 0 };
+private:
+	bool checkMetaDataCoincidence(const MetaDataEventObject& other, bool similar) const;
 };
 
 //And the base from which event objects can hold their metadata before serializing
@@ -238,5 +251,7 @@ protected:
 
 //Helper function to compare identifier strings
 bool compareIdentifierStrings(const String& identifier, const String& compareWith);
+
+typedef MetaDataDescriptor::MetaDataTypes BaseType;
 
 #endif

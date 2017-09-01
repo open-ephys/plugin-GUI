@@ -71,14 +71,28 @@ MetaDataDescriptor& MetaDataDescriptor::operator=(const MetaDataDescriptor& othe
 
 MetaDataDescriptor::MetaDataTypes MetaDataDescriptor::getType() const { return m_type; }
 unsigned int MetaDataDescriptor::getLength() const { return m_length; }
-size_t MetaDataDescriptor::getDataSize() const { return m_length*getTypeSize(m_type); }
+size_t MetaDataDescriptor::getDataSize() const 
+{ 
+	if (m_type == CHAR)
+		return m_length*getTypeSize(m_type) + 1; //account for the null-rerminator
+	else
+		return m_length*getTypeSize(m_type);
+}
 String MetaDataDescriptor::getName() const { return m_name; }
 String MetaDataDescriptor::getDescription() const { return m_description; }
 String MetaDataDescriptor::getIdentifier() const { return m_identifier; }
 
-bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
+bool MetaDataDescriptor::isSimilar(const MetaDataDescriptor& other) const
 {
 	if ((m_type == other.m_type) && (m_length == other.m_length))
+		return true;
+	else
+		return false;
+}
+
+bool MetaDataDescriptor::isEqual(const MetaDataDescriptor& other) const
+{
+	if ((m_type == other.m_type) && (m_length == other.m_length) && m_identifier.trim() == other.m_identifier.trim())
 		return true;
 	else
 		return false;
@@ -112,14 +126,14 @@ size_t MetaDataDescriptor::getTypeSize(MetaDataDescriptor::MetaDataTypes type)
 
 //This would be so much easier if VS2012 supported delegating constructors...
 MetaDataValue::MetaDataValue(MetaDataDescriptor::MetaDataTypes t, unsigned int length, const void* d)
-	: m_type(t), m_length(length), m_size(length*MetaDataDescriptor::getTypeSize(t))
+	: m_type(t), m_length(length), m_size(getSize(t, length))
 {	
 	allocSpace();
 	setValue(d);
 }
 
 MetaDataValue::MetaDataValue(MetaDataDescriptor::MetaDataTypes t, unsigned int length) 
-	: m_type(t), m_length(length), m_size(length*MetaDataDescriptor::getTypeSize(t))
+	: m_type(t), m_length(length), m_size(getSize(t, length))
 {
 	allocSpace();
 }
@@ -167,6 +181,14 @@ void MetaDataValue::allocSpace()
 	m_data.calloc(m_size);
 }
 
+size_t MetaDataValue::getSize(MetaDataDescriptor::MetaDataTypes type, unsigned int length)
+{
+	if (type == MetaDataDescriptor::CHAR)
+		return length*MetaDataDescriptor::getTypeSize(type) + 1; //account for the null-rerminator
+	else
+		return length*MetaDataDescriptor::getTypeSize(type);
+}
+
 MetaDataValue::MetaDataValue(const MetaDataValue& v)
 	: ReferenceCountedObject(),
 	m_type(v.m_type), m_length(v.m_length), m_size(v.m_size)
@@ -209,7 +231,7 @@ void MetaDataValue::setValue(const String& data)
 void MetaDataValue::getValue(String& data) const
 {
 	jassert(m_type == MetaDataDescriptor::CHAR);
-	data.createStringFromData(m_data.getData(), m_length);
+	data = String::createStringFromData(m_data.getData(), m_length);
 }
 
 template <typename T>
@@ -335,6 +357,36 @@ int MetaDataInfoObject::findMetaData(MetaDataDescriptor::MetaDataTypes type, uns
 	return -1;
 }
 
+bool MetaDataInfoObject::hasSameMetadata(const MetaDataInfoObject& other) const
+{
+	return checkMetaDataCoincidence(other, false);
+}
+
+bool MetaDataInfoObject::hasSimilarMetadata(const MetaDataInfoObject& other) const
+{
+	return checkMetaDataCoincidence(other, true);
+}
+
+bool MetaDataInfoObject::checkMetaDataCoincidence(const MetaDataInfoObject& other, bool similar) const
+{
+	int nMetaData = m_metaDataDescriptorArray.size();
+	if (nMetaData != other.m_metaDataDescriptorArray.size()) return false;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_metaDataDescriptorArray[i];
+		MetaDataDescriptorPtr mdo = other.m_metaDataDescriptorArray[i];
+		if (similar)
+		{
+			if (!md->isSimilar(*mdo)) return false;
+		}
+		else
+		{
+			if (!md->isEqual(*mdo)) return false;
+		}
+	}
+	return true;
+}
+
 //MetaDataEventObject
 
 MetaDataEventObject::MetaDataEventObject() {}
@@ -396,6 +448,36 @@ int MetaDataEventObject::findEventMetaData(MetaDataDescriptor::MetaDataTypes typ
 			return i;
 	}
 	return -1;
+}
+
+bool MetaDataEventObject::hasSameEventMetadata(const MetaDataEventObject& other) const
+{
+	return checkMetaDataCoincidence(other, false);
+}
+
+bool MetaDataEventObject::hasSimilarEventMetadata(const MetaDataEventObject& other) const
+{
+	return checkMetaDataCoincidence(other, true);
+}
+
+bool MetaDataEventObject::checkMetaDataCoincidence(const MetaDataEventObject& other, bool similar) const
+{
+	int nMetaData = m_eventMetaDataDescriptorArray.size();
+	if (nMetaData != other.m_eventMetaDataDescriptorArray.size()) return false;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		MetaDataDescriptorPtr md = m_eventMetaDataDescriptorArray[i];
+		MetaDataDescriptorPtr mdo = other.m_eventMetaDataDescriptorArray[i];
+		if (similar)
+		{
+			if (!md->isSimilar(*mdo)) return false;
+		}
+		else
+		{
+			if (!md->isEqual(*mdo)) return false;
+		}
+	}
+	return true;
 }
 
 size_t MetaDataEventObject::getMaxEventMetaDataSize() const
