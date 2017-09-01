@@ -32,7 +32,7 @@
 #include "FileSource.h"
 
 #define BUFFER_SIZE 1024
-#define BUFFER_WINDOW_CACHE_SIZE 5
+#define BUFFER_WINDOW_CACHE_SIZE 3
 
 
 /**
@@ -84,7 +84,7 @@ private:
     int64 currentNumSamples;
     int64 startSample;
     int64 stopSample;
-    int64 bufferCacheWindow;
+    int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
 
     // for testing purposes only

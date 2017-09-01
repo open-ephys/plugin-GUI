@@ -219,7 +219,8 @@ String SystemEvent::getSyncText(const MidiMessage& msg)
 
 //Event
 Event::Event(const Event& other)
-	: Event(other)
+	//: Event(other)
+    : Event(other.m_channelInfo, other.m_timestamp, other.m_channel)
 {
 	size_t size = other.m_channelInfo->getDataSize();
 	m_data.malloc(size);

@@ -38,6 +38,7 @@ FileReader::FileReader()
     , startSample           (0)
     , stopSample            (0)
     , counter               (0)
+    , bufferCacheWindow     (0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -231,45 +232,55 @@ void FileReader::updateSettings()
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
-    
-
     const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
-//    const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-
+    
     int samplesRead = 0;
-
-    while (bufferCacheWindow == 0 && samplesRead < samplesNeeded) // only read every 5th window
+    
+    // if window id == 0, we need to read and cache BUFFER_WINDOW_CACHE_SIZE more buffer windows
+    if (bufferCacheWindow == 0)
     {
-        int samplesToRead = samplesNeeded - samplesRead;
-        if ( (currentSample + samplesToRead) > stopSample) // if there are enough samples for full buffer
+        
+        // should only loop if reached end of file and resuming from start
+        while (samplesRead < samplesNeeded)
         {
-            samplesToRead = stopSample - currentSample;
-            if (samplesToRead > 0)
+            int samplesToRead = samplesNeeded - samplesRead;
+            
+            // if reached end of file stream
+            if ( (currentSample + samplesToRead) > stopSample)
+            {
+                samplesToRead = stopSample - currentSample;
+                if (samplesToRead > 0)
+                    input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
+                
+                // reset stream to beginning
+                input->seekTo (startSample);
+                currentSample = startSample;
+            }
+            else // else read the block needed
+            {
                 input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
-
-            input->seekTo (startSample);
-            currentSample = startSample;
+                
+                currentSample += samplesToRead;
+            }
+            
+            samplesRead += samplesToRead;
         }
-        else // if there aren't enough samples for full buffer
-        {
-            input->readData (readBuffer + samplesRead * currentNumChannels, samplesToRead);
-
-            currentSample += samplesToRead;
-        }
-
-        samplesRead += samplesToRead;
     }
-
+    
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        input->processChannelData (readBuffer + samplesRead * currentNumChannels * bufferCacheWindow, buffer.getWritePointer (i, 0), i, samplesNeededPerBuffer);
+        // offset readBuffer index by current cache window count * buffer window size * num channels
+        input->processChannelData (readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
+                                   buffer.getWritePointer (i, 0),
+                                   i,
+                                   samplesNeededPerBuffer);
     }
-
-    timestamp += samplesNeeded;
-	setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
+    
+    timestamp += samplesNeededPerBuffer;
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
     
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
