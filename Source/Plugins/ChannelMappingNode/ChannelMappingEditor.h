@@ -90,6 +90,8 @@ private:
     ScopedPointer<TriangleButton> downButton;
     ScopedPointer<LoadButton> loadButton;
     ScopedPointer<SaveButton> saveButton;
+    ScopedPointer<Viewport> electrodeButtonViewport;
+    ScopedPointer<Component> electrodeButtonHolder;
 
     Array<int> channelArray;
     Array<int> referenceArray;
