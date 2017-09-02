@@ -2615,7 +2615,6 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
         else // skip some channels
         {
-            std::cout << "displaySkipAmt = " << displaySkipAmt << std::endl;
             if (i % (displaySkipAmt) == 0) // add these channels
             {
                 channels[i]->setHidden(false);
@@ -2951,7 +2950,7 @@ void LfpChannelDisplay::pxPaint()
                 {
                     if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
                     {
-                        //std::cout << "Drawing event." << std::endl;
+//                        std::cout << "Drawing event." << std::endl;
                         Colour currentcolor=display->channelColours[ev_ch*2];
                         
                         for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++) // draw line
