@@ -63,8 +63,6 @@ public:
 
     void mouseDoubleClick(const MouseEvent& e);
 
-    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
-
     void collapsedStateChanged();
 
 	void startAcquisition();
@@ -88,10 +86,10 @@ private:
     ScopedPointer<ElectrodeEditorButton> selectAllButton;
     ScopedPointer<ElectrodeEditorButton> modifyButton;
     ScopedPointer<ElectrodeEditorButton> resetButton;
-    ScopedPointer<TriangleButton> upButton;
-    ScopedPointer<TriangleButton> downButton;
     ScopedPointer<LoadButton> loadButton;
     ScopedPointer<SaveButton> saveButton;
+    ScopedPointer<Viewport> electrodeButtonViewport;
+    ScopedPointer<Component> electrodeButtonHolder;
 
     Array<int> channelArray;
     Array<int> referenceArray;
@@ -113,9 +111,6 @@ private:
     bool isConfigured;
 
     ScopedPointer<DynamicObject> info;
-
-    float scrollDistance;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingEditor);
 
