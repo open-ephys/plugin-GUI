@@ -45,6 +45,8 @@ class LfpChannelDisplayInfo;
 class EventDisplayInterface;
 class LfpViewport;
 class LfpDisplayOptions;
+class LfpBitmapPlotter;
+class PerPixelBitmapPlotter;
 
 #pragma mark - LfpDisplayCanvas -
 //==============================================================================
@@ -337,6 +339,10 @@ private:
     ScopedPointer<ComboBox> streamRateDisplayedSelection;
     StringArray streamRateDisplayedOptions;
     
+    // label and toggle button for the median offset plotting feature
+    ScopedPointer<Label> medianOffsetPlottingLabel;
+    ScopedPointer<UtilityButton> medianOffsetPlottingButton;
+    
     ScopedPointer<Slider> brightnessSliderA;
     ScopedPointer<Slider> brightnessSliderB;
     
@@ -472,6 +478,12 @@ public:
 
     void setEnabledState(bool state, int chan, bool updateSavedChans = true);
     bool getEnabledState(int);
+    
+    /** Returns true if the median offset is enabled for plotting, else false */
+    bool getMedianOffsetPlotting();
+    
+    /** Sets the state for the median offset plotting function */
+    void setMedianOffsetPlotting(bool isEnabled);
 
     /** Returns true if a single channel is focused in viewport */
     bool getSingleChannelState();
@@ -492,6 +504,9 @@ public:
     
     /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
     void rebuildDrawableChannelsList();
+    
+    /** Returns a const pointer to the internally managed plotter method class */
+    LfpBitmapPlotter * const getPlotterPtr() const;
 
     Colour backgroundColour;
     
@@ -547,11 +562,17 @@ private:
     int colorGrouping;
     
     bool channelsReversed;
+    bool m_MedianOffsetPlottingFlag;
 
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
 
     float range[3];
+    
+    LfpBitmapPlotter * plotter;
+    
+    ScopedPointer<PerPixelBitmapPlotter> perPixelPlotter;
+    //    ScopedPointer<HistogramBitmapPlotter> histogramPlotter;
 
 
 };
@@ -766,6 +787,58 @@ public:
 private:
     LfpDisplayCanvas* canvas;
 };
+
+#pragma mark - LfpBitmapPlotterInfo -
+//==============================================================================
+/**
+    Information struct for plotting method encapsulation classes.
+ */
+struct LfpBitmapPlotterInfo
+{
+    int channelID;
+    int samp;
+    int to;
+    int from;
+    int x;
+    int y;
+    Colour lineColour;
+};
+
+#pragma mark - LfpBitmapPlotter -
+//==============================================================================
+/**
+    Interface class for different plotting methods.
+ */
+class LfpBitmapPlotter
+{
+public:
+    LfpBitmapPlotter(LfpDisplay * lfpDisplay)
+        : display(lfpDisplay)
+    {}
+    virtual ~LfpBitmapPlotter() {}
+    
+    /** Plots one subsample of data from a single channel to the bitmap provided */
+    virtual void plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo) = 0;
+    
+protected:
+    LfpDisplay * display;
+};
+
+#pragma mark - PerPixelBitmapPlotter -
+//==============================================================================
+/**
+    Abstraction of the per-pixel plotting method.
+ */
+class PerPixelBitmapPlotter : public LfpBitmapPlotter
+{
+public:
+    PerPixelBitmapPlotter(LfpDisplay * lfpDisplay);
+    virtual ~PerPixelBitmapPlotter() {}
+    
+    /** Plots one subsample of data from a single channel to the bitmap provided */
+    virtual void plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo) override;
+};
+    
 };
 
 #endif  // __LFPDISPLAYCANVAS_H_Alpha__

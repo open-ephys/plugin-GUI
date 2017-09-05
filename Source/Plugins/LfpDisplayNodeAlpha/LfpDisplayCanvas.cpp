@@ -808,6 +808,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     channelZoomSliderLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(channelZoomSliderLabel);
     
+    
+    
     // init channel display skipping options
     channelDisplaySkipOptions.add("All");
     channelDisplaySkipOptions.add("2");
@@ -831,24 +833,45 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     channelDisplaySkipLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(channelDisplaySkipLabel);
     
+    
+    
     // init stream rate displaying options
-    streamRateDisplayedOptions.add("High");
-    streamRateDisplayedOptions.add("Low");
-    selectedStreamRateDisplayed = 1;
-    selectedChannelDisplaySkipValue = streamRateDisplayedOptions[selectedStreamRateDisplayed - 1];
+//    streamRateDisplayedOptions.add("High");
+//    streamRateDisplayedOptions.add("Low");
+//    selectedStreamRateDisplayed = 1;
+//    selectedChannelDisplaySkipValue = streamRateDisplayedOptions[selectedStreamRateDisplayed - 1];
+//    
+//    streamRateDisplayedSelection = new ComboBox("Displayed Stream Rate");
+//    streamRateDisplayedSelection->addItemList(streamRateDisplayedOptions, 1);
+//    streamRateDisplayedSelection->setSelectedId(selectedStreamRateDisplayed, sendNotification);
+//    streamRateDisplayedSelection->setEditableText(false);
+//    streamRateDisplayedSelection->addListener(this);
+//    addAndMakeVisible(streamRateDisplayedSelection);
+//    
+//    streamRateDisplayedLabel = new Label("Displayed Stream Rate Label", "Display Stream Rate");
+//    streamRateDisplayedLabel->setFont(labelFont);
+//    streamRateDisplayedLabel->setColour(Label::textColourId, labelColour);
+//    addAndMakeVisible(streamRateDisplayedLabel);
     
-    streamRateDisplayedSelection = new ComboBox("Displayed Stream Rate");
-    streamRateDisplayedSelection->addItemList(streamRateDisplayedOptions, 1);
-    streamRateDisplayedSelection->setSelectedId(selectedStreamRateDisplayed, sendNotification);
-    streamRateDisplayedSelection->setEditableText(false);
-    streamRateDisplayedSelection->addListener(this);
-    addAndMakeVisible(streamRateDisplayedSelection);
     
-    streamRateDisplayedLabel = new Label("Displayed Stream Rate Label", "Display Stream Rate");
-    streamRateDisplayedLabel->setFont(labelFont);
-    streamRateDisplayedLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(streamRateDisplayedLabel);
+    
+    // init median offset plotting
+    medianOffsetPlottingLabel = new Label("Median Offset Correction", "Median Offset Correction");
+    medianOffsetPlottingLabel->setFont(labelFont);
+    medianOffsetPlottingLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(medianOffsetPlottingLabel);
+    
+    medianOffsetPlottingButton = new UtilityButton("0", labelFont);
+    medianOffsetPlottingButton->setRadius(5.0f);
+    medianOffsetPlottingButton->setEnabledState(true);
+    medianOffsetPlottingButton->setCorners(true, true, true, true);
+    medianOffsetPlottingButton->addListener(this);
+    medianOffsetPlottingButton->setClickingTogglesState(true);
+    medianOffsetPlottingButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(medianOffsetPlottingButton);
 
+    
+    
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
     showHideOptionsButton->addListener(this);
@@ -1107,7 +1130,7 @@ void LfpDisplayOptions::resized()
                                             20);
     reverseChannelsDisplayLabel->setBounds(reverseChannelsDisplayButton->getRight(),
                                            reverseChannelsDisplayButton->getY(),
-                                           180,
+                                           120,
                                            22);
     
     // Channel Display Skip Selector
@@ -1121,14 +1144,25 @@ void LfpDisplayOptions::resized()
                                        22);
     
     // Stream Rate Displayed Selector
-    streamRateDisplayedSelection->setBounds(reverseChannelsDisplayButton->getX() + 130,
-                                            channelDisplaySkipSelection->getY(),
-                                            60,
-                                            25);
-    streamRateDisplayedLabel->setBounds(streamRateDisplayedSelection->getX() - 5,
-                                        reverseChannelsDisplayButton->getY(),
-                                        150,
-                                        22);
+//    streamRateDisplayedSelection->setBounds(reverseChannelsDisplayButton->getX() + 130,
+//                                            channelDisplaySkipSelection->getY(),
+//                                            60,
+//                                            25);
+//    streamRateDisplayedLabel->setBounds(streamRateDisplayedSelection->getX() - 5,
+//                                        reverseChannelsDisplayButton->getY(),
+//                                        150,
+//                                        22);
+    
+    // Median Offset Plotting Button
+    medianOffsetPlottingButton->setBounds(reverseChannelsDisplayLabel->getRight() + 5,
+                                          reverseChannelsDisplayButton->getY(),
+                                          20,
+                                          20);
+    medianOffsetPlottingLabel->setBounds(medianOffsetPlottingButton->getRight(),
+                                         medianOffsetPlottingButton->getY(),
+                                         150,
+                                         22);
+    
     
     // Saturation Warning Selection
     saturationWarningSelection->setBounds(250, getHeight()-90, 60, 25);
@@ -1264,9 +1298,15 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         lfpDisplay->setChannelsReversed(b->getToggleState());
         return;
     }
+    if (b == medianOffsetPlottingButton)
+    {
+        lfpDisplay->setMedianOffsetPlotting(b->getToggleState());
+        return;
+    }
     if (b == drawMethodButton)
     {
         lfpDisplay->setDrawMethod(b->getToggleState()); // this should be done the same way as drawClipWarning - or the other way around.
+        
         return;
     }
     if (b == drawClipWarningButton)
@@ -1318,132 +1358,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 1);
         lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
-//        const int skipAmt = pow(2, cb->getSelectedId() - 2);
-//        
-//        if (skipAmt != 0) lfpDisplay->removeAllChildren(); // if show all
-//        
-////        Array<LfpChannelDisplay*> channels;
-////        Array<LfpChannelDisplayInfo*> channelInfo;
-//        
-//        Array<LfpDisplay::LfpChannel> &drawableChannels = lfpDisplay->drawableChannels;
-//        drawableChannels = Array<LfpDisplay::LfpChannel>();
-//        
-//        Array<LfpDisplay::LfpChannel> channelsToDraw;
-//        
-//        // iterate over all channels and select drawable ones
-//        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
-//        {
-//            if (skipAmt == 0) // no skips, add all channels
-//            {
-//                lfpDisplay->channels[i]->setHidden(false);
-//                lfpDisplay->channelInfo[i]->setHidden(false);
-//                
-//                channelsToDraw.add(LfpDisplay::LfpChannel{
-//                    lfpDisplay->channels[i],
-//                    lfpDisplay->channelInfo[i]
-//                });
-//                
-//                lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
-//                lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
-//            }
-//            else // skip some channels
-//            {
-//                if (i % (skipAmt + 1) == 0) // add these channels
-//                {
-//                    lfpDisplay->channels[i]->setHidden(false);
-//                    lfpDisplay->channelInfo[i]->setHidden(false);
-//                    
-//                    channelsToDraw.add(LfpDisplay::LfpChannel{
-//                        lfpDisplay->channels[i],
-//                        lfpDisplay->channelInfo[i]
-//                    });
-//                    
-//                    lfpDisplay->addAndMakeVisible(lfpDisplay->channels[i]);
-//                    lfpDisplay->addAndMakeVisible(lfpDisplay->channelInfo[i]);
-//                }
-//                else // but not these
-//                {
-//                    lfpDisplay->channels[i]->setHidden(true);
-//                    lfpDisplay->channelInfo[i]->setHidden(true);
-//                    
-//                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
-//                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
-//                }
-//            }
-//        }
-//        
-//        // check if channels should be added to drawableChannels in reverse
-//        if (lfpDisplay->getChannelsReversed())
-//        {
-//            for (int i = channelsToDraw.size() - 1; i >= 0; --i)
-//            {
-//                drawableChannels.add(channelsToDraw[i]);
-//            }
-//        }
-//        else
-//        {
-//            for (int i = 0; i < channelsToDraw.size(); ++i)
-//            {
-//                drawableChannels.add(channelsToDraw[i]);
-//            }
-//        }
-//        
-////        if (lfpDisplay->getChannelsReversed())
-////        {
-////            for (int i = lfpDisplay->getNumChannels() - 1; i >= 0; --i)
-////            {
-//////                channels.add(lfpDisplay->channels[i]);
-//////                channelInfo.add(lfpDisplay->channelInfo[i]);
-////                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
-////            }
-////            std::cout << "Size of drawableChannels array: " << drawableChannels.size() << std::endl;
-////        }
-////        else
-////        {
-//////            channel.addArray(lfpDisplay->channels);
-//////            channelInfo.addArray(lfpDisplay->channelInfo);
-////            for (size_t i = 0; i < lfpDisplay->getNumChannels(); ++i)
-////            {
-////                drawableChannels.add(LfpDisplay::LfpChannel{lfpDisplay->channels[i], lfpDisplay->channelInfo[i]});
-////            }
-////        }
-////        
-//////        int numVisible = 0;
-////        for (size_t i = 0; i < lfpDisplay->channels.size(); i++)
-////        {
-////            if (skipAmt == 0)
-////            {
-////                channels[i]->setHidden(false);
-////                channelInfo[i]->setHidden(false);
-////                
-////                lfpDisplay->addAndMakeVisible(channels[i]);
-////                lfpDisplay->addAndMakeVisible(channelInfo[i]);
-////                ++numVisible;
-////            }
-////            else
-////            {
-////                bool shouldBeVisible = (i % (skipAmt + 1) == 0);
-////                
-////                channels[i]->setHidden(!shouldBeVisible);
-////                channelInfo[i]->setHidden(!shouldBeVisible);
-////                
-////                if (shouldBeVisible)
-////                {
-////                    lfpDisplay->addAndMakeVisible(channels[i]);
-////                    lfpDisplay->addAndMakeVisible(channelInfo[i]);
-////                    ++numVisible;
-////                }
-//////                else
-//////                {
-//////                    lfpDisplay->removeChildComponent(lfpDisplay->channels[i]);
-//////                    lfpDisplay->removeChildComponent(lfpDisplay->channelInfo[i]);
-//////                }
-////            }
-////        }
-//        
-//        
-////        canvas->resized();
-//        canvas->resizeToChannels();
     }
     else if (cb == timebaseSelection)
     {
@@ -1926,6 +1840,12 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
     , channelsReversed(false)
     , displaySkipAmt(0)
 {
+    perPixelPlotter = new PerPixelBitmapPlotter(this);
+//    histogramPlotter = new HistogramBitmapPlotter(this);
+    
+    plotter = perPixelPlotter;
+    m_MedianOffsetPlottingFlag = false;
+    
     totalHeight = 0;
     colorGrouping=1;
 
@@ -2311,6 +2231,16 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
     {
         channels[i]->setDrawMethod(isDrawMethod);
     }
+    
+    if (isDrawMethod)
+    {
+//        plotter = histogramPlotter;
+    }
+    else
+    {
+        plotter = perPixelPlotter;
+    }
+    
     resized();
 
 }
@@ -2409,6 +2339,16 @@ void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
     
     if (!getSingleChannelState())
         rebuildDrawableChannelsList();
+}
+
+bool LfpDisplay::getMedianOffsetPlotting()
+{
+    return m_MedianOffsetPlottingFlag;
+}
+
+void LfpDisplay::setMedianOffsetPlotting(bool isEnabled)
+{
+    m_MedianOffsetPlottingFlag = isEnabled;
 }
 
 void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel)
@@ -2656,6 +2596,11 @@ void LfpDisplay::rebuildDrawableChannelsList()
     }
     
     canvas->resizeToChannels();
+}
+
+LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
+{
+    return plotter;
 }
 
 bool LfpDisplay::getSingleChannelState()
@@ -2907,6 +2852,10 @@ void LfpChannelDisplay::pxPaint()
         fullredraw = false;
     }
     
+    bool drawWithOffsetCorrection = display->getMedianOffsetPlotting();
+    
+    LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
+    
     
     for (int i = ifrom; i < ito ; i += stepSize) // redraw only changed portion
     {
@@ -2966,6 +2915,14 @@ void LfpChannelDisplay::pxPaint()
             // set max-min range for plotting, used in all methods
             double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
             double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
+            
+            double mean = (canvas->getMean(chan)/range*channelHeightFloat);
+            
+            if (drawWithOffsetCorrection)
+            {
+                a -= mean;
+                b -= mean;
+            }
             
             double a_raw = canvas->getYCoordMax(chan, i);
             double b_raw = canvas->getYCoordMin(chan, i);
@@ -3086,29 +3043,38 @@ void LfpChannelDisplay::pxPaint()
             else //drawmethod
             { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
                 
-                int jfrom=from+getY();
-                int jto=to+getY();
+                plotterInfo.channelID = chan;
+                plotterInfo.y = getY();
+                plotterInfo.from = from;
+                plotterInfo.to = to;
+                plotterInfo.samp = i;
+                plotterInfo.lineColour = lineColour;
                 
-                //if (yofs<0) {yofs=0;};
+                // TODO: (kelly) complete transition toward plotter class encapsulation
+                 display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
                 
-                if (i<0) {i=0;};
-                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
-                
-                if (jfrom<0) {jfrom=0;};
-                if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
-                
-                
-                for (int j = jfrom; j <= jto; j += 1)
-                {
-                    
-                    //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
-                    //*(pu8Pixel)		= 200;
-                    //*(pu8Pixel+1)	= 200;
-                    //*(pu8Pixel+2)	= 200;
-                    
-                    bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
-                    
-                }
+//                int jfrom=from+getY();
+//                int jto=to+getY();
+//                
+//                //if (yofs<0) {yofs=0;};
+//                
+//                if (i<0) {i=0;};
+//                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+//                
+//                if (jfrom<0) {jfrom=0;};
+//                if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
+//                
+//                for (int j = jfrom; j <= jto; j += 1)
+//                {
+//                    
+//                    //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
+//                    //*(pu8Pixel)		= 200;
+//                    //*(pu8Pixel+1)	= 200;
+//                    //*(pu8Pixel+2)	= 200;
+//                    
+//                    bdLfpChannelBitmap.setPixelColour(i, j, lineColour);
+//                    
+//                }
                 
             }
             
@@ -3583,4 +3549,37 @@ void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
     canvas->fullredraw = true;
     canvas->refresh();
+}
+
+#pragma mark - PerPixelBitmapPlotter -
+
+PerPixelBitmapPlotter::PerPixelBitmapPlotter(LfpDisplay * lfpDisplay)
+    : LfpBitmapPlotter(lfpDisplay)
+{ }
+
+void PerPixelBitmapPlotter::plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo)
+{
+    int jfrom = plotterInfo.from + plotterInfo.y;
+    int jto = plotterInfo.to + plotterInfo.y;
+    
+    //if (yofs<0) {yofs=0;};
+    
+    if (plotterInfo.samp < 0) {plotterInfo.samp = 0;};
+    if (plotterInfo.samp >= display->lfpChannelBitmap.getWidth()) {plotterInfo.samp = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+    
+    if (jfrom<0) {jfrom=0;};
+    if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
+    
+    
+    for (int j = jfrom; j <= jto; j += 1)
+    {
+        
+        //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
+        //*(pu8Pixel)		= 200;
+        //*(pu8Pixel+1)	= 200;
+        //*(pu8Pixel+2)	= 200;
+        
+        bitmapData.setPixelColour(plotterInfo.samp,j,plotterInfo.lineColour);
+        
+    }
 }
