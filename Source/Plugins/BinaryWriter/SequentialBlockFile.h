@@ -47,8 +47,10 @@ namespace BinaryRecordingEngine
 		const int m_blockSize;
 		OwnedArray<FileBlock> m_memBlocks;
 		Array<int> m_currentBlock;
+		size_t m_lastBlockFill;
 
 		void allocateBlocks(uint64 startIndex, int numSamples);
+
 
 		//Compile-time parameters
 		const int streamBufferSize{ 0 };
