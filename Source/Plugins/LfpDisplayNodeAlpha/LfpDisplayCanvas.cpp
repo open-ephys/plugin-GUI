@@ -222,7 +222,9 @@ void LfpDisplayCanvas::update()
 			}
 		}
 		else
+        {
 			sampleRate.add(30000);
+        }
         
        // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
         displayBufferIndex.add(0);
@@ -264,6 +266,8 @@ void LfpDisplayCanvas::update()
         }
         
     }
+    
+    lfpDisplay->rebuildDrawableChannelsList();
 
 }
 
@@ -564,8 +568,13 @@ bool LfpDisplayCanvas::getDrawMethodState()
 
 int LfpDisplayCanvas::getChannelSampleRate(int channel)
 {
-    // TODO: (kelly) should this do a range check?
     return sampleRate[channel];
+}
+
+void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
+{
+    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
+    lfpDisplay->setDisplayedSampleRate(samplerate);
 }
 
 void LfpDisplayCanvas::redraw()
@@ -1947,9 +1956,6 @@ void LfpDisplay::setNumChannels(int numChannels)
         //lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range[options->getChannelType(i)]);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
-        
-        // TODO: (kelly) this won't work... samplerate gets set AFTER this method is called
-        lfpInfo->setChannelSampleRate(canvas->getChannelSampleRate(i));
 
         addAndMakeVisible(lfpInfo);
 
@@ -1992,35 +1998,7 @@ int LfpDisplay::getTotalHeight()
 
 void LfpDisplay::resized()
 {
-    
-    //canvas->channelOverlapFactor
-
     int totalHeight = 0;
-
-//    for (int i = 0; i < channels.size(); i++)
-//    {
-//
-//        LfpChannelDisplay* disp = channels[i];
-//        
-//        if (disp->getHidden()) continue;
-//
-//        disp->setBounds(canvas->leftmargin,
-//                        totalHeight-(disp->getChannelOverlap()*canvas->channelOverlapFactor)/2,
-//                        getWidth(),
-//                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
-//
-//        disp-> resized();
-//        
-//        LfpChannelDisplayInfo* info = channelInfo[i];
-//
-//        info->setBounds(0,
-//                        totalHeight-disp->getChannelHeight()/4,
-//                        canvas->leftmargin + 50,
-//                        disp->getChannelHeight());
-//
-//        totalHeight += disp->getChannelHeight();
-//
-//    }
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -2189,6 +2167,7 @@ int LfpDisplay::getRange(DataChannel::DataChannelTypes type)
 
 void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 {
+    std::cout << "setting channel height in LfpDisplay" << std::endl;
     if (!getSingleChannelState()) cachedDisplayChannelHeight = r;
     
     for (int i = 0; i < numChans; i++)
@@ -2258,6 +2237,18 @@ void LfpDisplay::cacheNewChannelHeight(int r)
     cachedDisplayChannelHeight = r;
 }
 
+float LfpDisplay::getDisplayedSampleRate()
+{
+    return drawableSampleRate;
+}
+
+// Must manually call rebuildDrawableChannelsList after this is set, typically will happen
+// already as a result of some other procedure
+void LfpDisplay::setDisplayedSampleRate(float samplerate)
+{
+    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
+    drawableSampleRate = samplerate;
+}
 
 bool LfpDisplay::getChannelsReversed()
 {
@@ -2266,8 +2257,6 @@ bool LfpDisplay::getChannelsReversed()
 
 void LfpDisplay::setChannelsReversed(bool state)
 {
-    // TODO: (kelly) clean up this method
-    
     if (state == channelsReversed) return; // bail early, in case bookkeeping error
     
     channelsReversed = state;
@@ -2288,7 +2277,6 @@ void LfpDisplay::setChannelsReversed(bool state)
         
         // swap front and back, moving towards middle
         drawableChannels.swap(i, j);
-//        channelInfo.swap(i, j);
         
         // also swap coords
         {
@@ -2448,37 +2436,14 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-    //std::cout << "Toggle channel " << chan << std::endl;
-
-    
-    //if (chan != singleChan)
     if (!getSingleChannelState())
     {
-//        std::cout << "Single channel on" << std::endl;
-//        singleChan = chan;
-//
-//        int newHeight = viewport->getHeight();
-//		channelInfo[chan]->setEnabledState(true);
-//        channelInfo[chan]->setSingleChannelState(true);
-//        setChannelHeight(newHeight, false);
-//        setSize(getWidth(), numChans*getChannelHeight());
-//
-//        viewport->setScrollBarsShown(false,false);
-//        viewport->setViewPosition(Point<int>(0,chan*newHeight));
-//
-//        for (int i = 0; i < channels.size(); i++)
-//        {
-//            if (i != chan)
-//                channels[i]->setEnabledState(false);
-//        }
         
         std::cout << "Single channel on (" << chan << ")" << std::endl;
         singleChan = chan;
         
         int newHeight = viewport->getHeight();
         LfpChannelTrack lfpChannelTrack{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
-//        drawableChannels[chan].channelInfo->setEnabledState(true);
-//        drawableChannels[chan].channelInfo->setSingleChannelState(true);
         lfpChannelTrack.channelInfo->setEnabledState(true);
         lfpChannelTrack.channelInfo->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
@@ -2486,7 +2451,6 @@ void LfpDisplay::toggleSingleChannel(int chan)
         
         viewport->setScrollBarsShown(false, false);
         viewport->setViewPosition(Point<int>(0, chan*newHeight));
-//        viewport->setViewPosition(Point<int>(0, 0));
         
         // disable unused channels
         for (int i = 0; i < drawableChannels.size(); i++)
@@ -2512,7 +2476,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
         {
             channelInfo[n]->setSingleChannelState(false);
         }
-        //drawableChannels[0].channelInfo->setSingleChannelState(false);
+        
         setChannelHeight(cachedDisplayChannelHeight);
 
         reactivateChannels();
@@ -2536,10 +2500,17 @@ void LfpDisplay::rebuildDrawableChannelsList()
     Array<LfpChannelTrack> channelsToDraw;
     drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
     
-    
     // iterate over all channels and select drawable ones
     for (size_t i = 0; i < channels.size(); i++)
     {
+        // if channel[i] is not the right samplerate, hide it and continue
+        if (canvas->getChannelSampleRate(i) != getDisplayedSampleRate())
+        {
+            channels[i]->setHidden(true);
+            channelInfo[i]->setHidden(true);
+            continue;
+        }
+        
         if (displaySkipAmt == 0) // no skips, add all channels
         {
             channels[i]->setHidden(false);
@@ -2595,7 +2566,12 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
     
-    canvas->resizeToChannels();
+    // this guards against an exception where the editor sets the drawable samplerate
+    // before the lfpDisplay is fully initialized
+    if (getHeight() > 0 && getWidth() > 0)
+    {
+        canvas->resizeToChannels();
+    }
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const

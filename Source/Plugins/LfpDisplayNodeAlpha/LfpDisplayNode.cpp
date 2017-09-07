@@ -92,6 +92,10 @@ void LfpDisplayNode::updateSettings()
 
     displayBufferIndex.clear();
     displayBufferIndex.insertMultiple (0, 0, getNumInputs() + numEventChannels);
+    
+    // update the editor's subprocessor selection display
+    LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
+    ed->updateSubprocessorSelectorOptions();
 }
 
 uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
