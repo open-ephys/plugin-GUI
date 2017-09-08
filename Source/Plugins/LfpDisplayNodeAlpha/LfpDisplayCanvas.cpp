@@ -1876,16 +1876,11 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
     {
         if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
         {
-//            lfpDisplay->options-
             // init state in our track zooming info struct
             if (!lfpDisplay->trackZoomInfo.isScrollingX)
             {
                 lfpDisplay->trackZoomInfo.isScrollingX = true;
                 lfpDisplay->trackZoomInfo.timescaleStartScale = timebase;
-//                lfpDisplay->trackZoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)lfpDisplay->getHeight();
-//                lfpDisplay->trackZoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)lfpDisplay->getWidth();
-//                lfpDisplay->trackZoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
-                
             }
 
             float timescale = lfpDisplay->trackZoomInfo.timescaleStartScale;
@@ -1927,31 +1922,6 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
                 lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
                 setTimebase(canvas->timebase);
             }
-//
-//            // constrain the spread resizing to max and min values;
-//            if (newHeight < lfpDisplay->trackZoomInfo.minZoomHeight)
-//            {
-//                newHeight = lfpDisplay->trackZoomInfo.minZoomHeight;
-//            }
-//            else if (newHeight > lfpDisplay->trackZoomInfo.maxZoomHeight)
-//            {
-//                newHeight = lfpDisplay->trackZoomInfo.maxZoomHeight;
-//            }
-//            
-//            // set channel heights for all channel
-//            lfpDisplay->setChannelHeight(newHeight);
-//            lfpDisplay->setBounds(0,0,lfpDisplay->getWidth()-0, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size()); // update height so that the scrollbar is correct
-//            
-//            canvas->viewport->setViewPositionProportionately(lfpDisplay->trackZoomInfo.zoomPivotRatioX, lfpDisplay->trackZoomInfo.zoomPivotRatioY);
-//            
-//            int newViewportY = lfpDisplay->trackZoomInfo.zoomPivotRatioY * lfpDisplay->getHeight() - lfpDisplay->trackZoomInfo.zoomPivotViewportOffset.getY();
-//            if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
-//            
-//            canvas->viewport->setViewPosition(lfpDisplay->trackZoomInfo.zoomPivotRatioX, newViewportY);
-//            
-//            setTimebase(newHeight); // update combobox
-//            
-//            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
         }
     }
 }
