@@ -124,6 +124,7 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
     
     if (sampleRateToSet >= 0)
     {
+        subprocessorSelection->setSelectedId(sampleRateToSet + 1, dontSendNotification);
         setCanvasDrawableSampleRate(sampleRateToSet);
     }
 }
@@ -132,7 +133,6 @@ void LfpDisplayEditor::setCanvasDrawableSampleRate(int index)
 {
     if (canvas)
     {
-        std::cout << "selected index = " << index << std::endl;
         ((LfpDisplayCanvas*)canvas.get())->setDrawableSampleRate(*(inputSampleRates.begin() + (index)));
     }
 }

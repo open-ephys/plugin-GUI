@@ -573,7 +573,7 @@ int LfpDisplayCanvas::getChannelSampleRate(int channel)
 
 void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
 {
-    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
+//    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
     lfpDisplay->setDisplayedSampleRate(samplerate);
 }
 
@@ -2167,7 +2167,6 @@ int LfpDisplay::getRange(DataChannel::DataChannelTypes type)
 
 void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 {
-    std::cout << "setting channel height in LfpDisplay" << std::endl;
     if (!getSingleChannelState()) cachedDisplayChannelHeight = r;
     
     for (int i = 0; i < numChans; i++)
@@ -2246,7 +2245,7 @@ float LfpDisplay::getDisplayedSampleRate()
 // already as a result of some other procedure
 void LfpDisplay::setDisplayedSampleRate(float samplerate)
 {
-    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
+//    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
     drawableSampleRate = samplerate;
 }
 
