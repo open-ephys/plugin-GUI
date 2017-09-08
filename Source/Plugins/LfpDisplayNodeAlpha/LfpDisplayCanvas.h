@@ -107,6 +107,13 @@ public:
     
     /** Delegates a samplerate for drawing to the LfpDisplay referenced by this canvas */
     void setDrawableSampleRate(float samplerate);
+    
+    /** Returns the subprocessor index of the given channel */
+    int getChannelSubprocessorIdx(int channel);
+    
+    /** Delegates a subprocessor index for drawing to the LfpDisplay referenced by this
+        this canvas */
+    void setDrawableSubprocessor(int idx);
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -467,6 +474,10 @@ public:
      */
     void setDisplayedSampleRate(float samplerate);
     
+    int getDisplayedSubprocessor();
+    
+    void setDisplayedSubprocessor(int subProcessorIdx);
+    
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
     
@@ -574,6 +585,7 @@ private:
     int displaySkipAmt;
     int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
     float drawableSampleRate;
+    int drawableSubprocessorIdx;
 
     int totalHeight;
 
@@ -712,6 +724,7 @@ protected:
 class LfpChannelDisplayInfo : public LfpChannelDisplay,
     public Button::Listener
 {
+    friend class LfpDisplay;
 public:
     LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
@@ -733,6 +746,10 @@ public:
     /** Sets the sample rate associated with this channel */
     void setChannelSampleRate(int samplerate);
     
+    int getSubprocessorIdx() { return subProcessorIdx; }
+    
+    void setSubprocessorIdx(int subProcessorIdx_) { subProcessorIdx = subProcessorIdx_; }
+    
     /** Updates the parent LfpDisplay that the track vertical zoom should update */
     virtual void mouseDrag(const MouseEvent &event) override;
     
@@ -747,6 +764,7 @@ private:
     float x, y;
     
     int samplerate;
+    int subProcessorIdx;
     
     ScopedPointer<UtilityButton> enableButton;
 

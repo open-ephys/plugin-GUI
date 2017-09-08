@@ -73,7 +73,8 @@ public:
 
 private:
     
-    SortedSet<float> inputSampleRates; // hold the possible subprocessor sample rates
+    HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
+    SortedSet<int> inputSubprocessorIndices;
     
     LfpDisplayNode* lfpProcessor;
 
@@ -81,10 +82,12 @@ private:
     ScopedPointer<Label> subprocessorSelectionLabel;
     ScopedPointer<ComboBox> subprocessorSelection;
     
-    /** Communicates the drawable sample rate information to the canvas, if
-        one exists
+    ScopedPointer<Label> subprocessorSampleRateLabel;
+    
+    /** Communicates the drawable subprocessor information to the canvas, if
+     one exists
      */
-    void setCanvasDrawableSampleRate(int index);
+    void setCanvasDrawableSubprocessor(int index);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 

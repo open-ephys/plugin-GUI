@@ -493,6 +493,11 @@ int LfpDisplayCanvas::getNumChannelsVisible()
     return lfpDisplay->drawableChannels.size();
 }
 
+int LfpDisplayCanvas::getChannelSubprocessorIdx(int channel)
+{
+    return processor->getDataChannel(channel)->getSubProcessorIdx();
+}
+
 const float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
     return *screenBuffer->getReadPointer(chan, samp);
@@ -575,6 +580,11 @@ void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
 {
 //    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
     lfpDisplay->setDisplayedSampleRate(samplerate);
+}
+
+void LfpDisplayCanvas::setDrawableSubprocessor(int idx)
+{
+    lfpDisplay->setDisplayedSubprocessor(idx);
 }
 
 void LfpDisplayCanvas::redraw()
@@ -1956,6 +1966,7 @@ void LfpDisplay::setNumChannels(int numChannels)
         //lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range[options->getChannelType(i)]);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
+        lfpInfo->setSubprocessorIdx(canvas->getChannelSubprocessorIdx(i));
 
         addAndMakeVisible(lfpInfo);
 
@@ -2249,6 +2260,16 @@ void LfpDisplay::setDisplayedSampleRate(float samplerate)
     drawableSampleRate = samplerate;
 }
 
+int LfpDisplay::getDisplayedSubprocessor()
+{
+    return drawableSubprocessorIdx;
+}
+
+void LfpDisplay::setDisplayedSubprocessor(int subProcessorIdx)
+{
+    drawableSubprocessorIdx = subProcessorIdx;
+}
+
 bool LfpDisplay::getChannelsReversed()
 {
     return channelsReversed;
@@ -2502,8 +2523,9 @@ void LfpDisplay::rebuildDrawableChannelsList()
     // iterate over all channels and select drawable ones
     for (size_t i = 0; i < channels.size(); i++)
     {
-        // if channel[i] is not the right samplerate, hide it and continue
-        if (canvas->getChannelSampleRate(i) != getDisplayedSampleRate())
+//        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
+        // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
+        if (channelInfo[i]->getSubprocessorIdx() != getDisplayedSubprocessor())
         {
             channels[i]->setHidden(true);
             channelInfo[i]->setHidden(true);
