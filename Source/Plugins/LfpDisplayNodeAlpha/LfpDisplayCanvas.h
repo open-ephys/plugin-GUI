@@ -250,6 +250,9 @@ public:
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
     
+    /** Changes the timebase value used by LfpTimescale and LfpDisplayCanvas. */
+    void setTimebaseAndSelectionText(float timebase);
+    
     /** Handles slider events for all editors. */
     void sliderValueChanged(Slider* sl);
     
@@ -394,16 +397,23 @@ private:
 class LfpTimescale : public Component
 {
 public:
-    LfpTimescale(LfpDisplayCanvas*);
+    LfpTimescale(LfpDisplayCanvas*, LfpDisplay*);
     ~LfpTimescale();
 
     void paint(Graphics& g);
+    
+    /** Handles the drag to zoom feature on the timescale. The display must
+        be paused to zoom */
+    virtual void mouseDrag(const MouseEvent &e) override;
+    
+    virtual void mouseUp(const MouseEvent &e) override;
 
     void setTimebase(float t);
 
 private:
 
     LfpDisplayCanvas* canvas;
+    LfpDisplay* lfpDisplay;
 
     float timebase;
 
@@ -568,7 +578,7 @@ public:
         bool isScrollingX = false;
         bool isScrollingY = false;
         int componentStartHeight;       // a cache for the dimensions of a component during drag events
-        int componentStartWidth;
+        float timescaleStartScale;        // a cache for the timescale size during drag events
         float zoomPivotRatioX;          // a cache for calculating the anchor point when adjusting viewport
         float zoomPivotRatioY;
         Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset

@@ -53,7 +53,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     viewport = new LfpViewport(this);
     lfpDisplay = new LfpDisplay(this, viewport);
-    timescale = new LfpTimescale(this);
+    timescale = new LfpTimescale(this, lfpDisplay);
     options = new LfpDisplayOptions(this, timescale, lfpDisplay, processor);
 
     lfpDisplay->options = options;
@@ -1370,6 +1370,42 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
 }
 
+void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
+{
+    canvas->timebase = timebase;
+    
+    if (canvas->timebase) // if timebase != 0
+    {
+        if (canvas->timebase < timebases[0].getFloatValue())
+        {
+            timebaseSelection->setSelectedId(1, dontSendNotification);
+            canvas->timebase = timebases[0].getFloatValue();
+        }
+        else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
+        {
+            timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
+            canvas->timebase = timebases[timebases.size()-1].getFloatValue();
+        }
+        else{
+            timebaseSelection->setText(String(canvas->timebase, 1), dontSendNotification);
+        }
+    }
+    else
+    {
+        if (selectedSpread == 0)
+        {
+            timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
+            canvas->timebase = selectedTimebaseValue.getFloatValue();
+        }
+        else
+        {
+            timebaseSelection->setSelectedId(selectedTimebase,dontSendNotification);
+            canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
+        }
+        
+    }
+}
+
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
@@ -1386,37 +1422,38 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         }
         else
         {
-            canvas->timebase = cb->getText().getFloatValue();
-
-            if (canvas->timebase)
-            {
-                if (canvas->timebase < timebases[0].getFloatValue())
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    canvas->timebase = timebases[0].getFloatValue();
-                }
-                else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
-                {
-                    cb->setSelectedId(timebases.size(),dontSendNotification);
-                    canvas->timebase = timebases[timebases.size()-1].getFloatValue();
-                }
-                else
-                    cb->setText(String(canvas->timebase,1), dontSendNotification);
-            }
-            else
-            {
-                if (selectedSpread == 0)
-                {
-                    cb->setText(selectedTimebaseValue, dontSendNotification);
-                    canvas->timebase = selectedTimebaseValue.getFloatValue();
-                }
-                else
-                {
-                    cb->setSelectedId(selectedTimebase,dontSendNotification);
-                    canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
-                }
-
-            }
+            setTimebaseAndSelectionText(cb->getText().getFloatValue());
+//            canvas->timebase = cb->getText().getFloatValue();
+//
+//            if (canvas->timebase)
+//            {
+//                if (canvas->timebase < timebases[0].getFloatValue())
+//                {
+//                    cb->setSelectedId(1,dontSendNotification);
+//                    canvas->timebase = timebases[0].getFloatValue();
+//                }
+//                else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
+//                {
+//                    cb->setSelectedId(timebases.size(),dontSendNotification);
+//                    canvas->timebase = timebases[timebases.size()-1].getFloatValue();
+//                }
+//                else
+//                    cb->setText(String(canvas->timebase,1), dontSendNotification);
+//            }
+//            else
+//            {
+//                if (selectedSpread == 0)
+//                {
+//                    cb->setText(selectedTimebaseValue, dontSendNotification);
+//                    canvas->timebase = selectedTimebaseValue.getFloatValue();
+//                }
+//                else
+//                {
+//                    cb->setSelectedId(selectedTimebase,dontSendNotification);
+//                    canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
+//                }
+//
+//            }
         }
     }
     else if (cb == rangeSelection)
@@ -1799,7 +1836,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 #pragma mark - LfpTimescale -
 // -------------------------------------------------------------
 
-LfpTimescale::LfpTimescale(LfpDisplayCanvas* c) : canvas(c)
+LfpTimescale::LfpTimescale(LfpDisplayCanvas* c, LfpDisplay* lfpDisplay)
+    : canvas(c)
+    , lfpDisplay(lfpDisplay)
 {
 
     font = Font("Default", 16, Font::plain);
@@ -1829,6 +1868,100 @@ void LfpTimescale::paint(Graphics& g)
         g.drawText(labels[i-1],getWidth()/10*i+3,0,100,getHeight(),Justification::left, false);
     }
 
+}
+
+void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
+    {
+        if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
+        {
+//            lfpDisplay->options-
+            // init state in our track zooming info struct
+            if (!lfpDisplay->trackZoomInfo.isScrollingX)
+            {
+                lfpDisplay->trackZoomInfo.isScrollingX = true;
+                lfpDisplay->trackZoomInfo.timescaleStartScale = timebase;
+//                lfpDisplay->trackZoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)lfpDisplay->getHeight();
+//                lfpDisplay->trackZoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)lfpDisplay->getWidth();
+//                lfpDisplay->trackZoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
+                
+            }
+
+            float timescale = lfpDisplay->trackZoomInfo.timescaleStartScale;
+            float dTimescale=0;
+            int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
+
+            std::cout << dragDeltaX << std::endl;
+            if (dragDeltaX > 0)
+            {
+                dTimescale = 0.01 * dragDeltaX;
+            }
+            else
+            {
+                if (timescale > 0.25)
+                    dTimescale = 0.01 * dragDeltaX;
+            }
+            
+            if (timescale >= 1) // accelerate scrolling for large ranges
+                dTimescale *= 4;
+            
+            if (timescale >= 5)
+                dTimescale *= 4;
+            
+            if (timescale >= 10)
+                dTimescale *= 4;
+            
+            // round dTimescale to the nearest 0.005 sec
+            dTimescale = ((dTimescale + (0.005/2)) / 0.005) * 0.005;
+            
+            float newTimescale = timescale+dTimescale;
+            std::cout << "new timescale: " << newTimescale << std::endl;
+            if (newTimescale < 0.25) newTimescale = 0.250;
+            if (newTimescale > 20) newTimescale = 20;
+            std::cout << "new timescale: " << newTimescale << std::endl;
+            
+            // don't bother updating if the new timebase is the same as the old (if clipped, for example)
+            if (timescale != newTimescale)
+            {
+                lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
+                setTimebase(canvas->timebase);
+            }
+//
+//            // constrain the spread resizing to max and min values;
+//            if (newHeight < lfpDisplay->trackZoomInfo.minZoomHeight)
+//            {
+//                newHeight = lfpDisplay->trackZoomInfo.minZoomHeight;
+//            }
+//            else if (newHeight > lfpDisplay->trackZoomInfo.maxZoomHeight)
+//            {
+//                newHeight = lfpDisplay->trackZoomInfo.maxZoomHeight;
+//            }
+//            
+//            // set channel heights for all channel
+//            lfpDisplay->setChannelHeight(newHeight);
+//            lfpDisplay->setBounds(0,0,lfpDisplay->getWidth()-0, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size()); // update height so that the scrollbar is correct
+//            
+//            canvas->viewport->setViewPositionProportionately(lfpDisplay->trackZoomInfo.zoomPivotRatioX, lfpDisplay->trackZoomInfo.zoomPivotRatioY);
+//            
+//            int newViewportY = lfpDisplay->trackZoomInfo.zoomPivotRatioY * lfpDisplay->getHeight() - lfpDisplay->trackZoomInfo.zoomPivotViewportOffset.getY();
+//            if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
+//            
+//            canvas->viewport->setViewPosition(lfpDisplay->trackZoomInfo.zoomPivotRatioX, newViewportY);
+//            
+//            setTimebase(newHeight); // update combobox
+//            
+//            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+        }
+    }
+}
+
+void LfpTimescale::mouseUp(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        lfpDisplay->trackZoomInfo.isScrollingX = false;
+    }
 }
 
 void LfpTimescale::setTimebase(float t)
