@@ -27,37 +27,75 @@ using namespace BinaryRecordingEngine;
 
 NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 {
+	m_dim1 = 1;
+	m_dim2 = 1;
+	if (!openFile(path))
+		return;
+	writeHeader(typeList);
+		
+}
+
+NpyFile::NpyFile(String path, NpyType type, unsigned int dim)
+{
+	
+	if (!openFile(path))
+		return;
+
+	Array<NpyType> typeList;
+	typeList.add(type);
+	m_dim1 = dim;
+	m_dim2 = type.getTypeLength();
+	writeHeader(typeList);
+
+}
+
+bool NpyFile::openFile(String path)
+{
 	File file(path);
 	Result res = file.create();
 	if (res.failed())
 	{
 		std::cerr << "Error creating file " << path << ":" << res.getErrorMessage() << std::endl;
-		return;
+		return false;
 	}
 	m_file = file.createOutputStream();
 	if (!m_file)
-		return;
+		return false;
 
 	m_okOpen = true;
+	return true;
+}
 
-	String header = "{'descr': [";
+void NpyFile::writeHeader(const Array<NpyType>& typeList)
+{
+	bool multiValue = typeList.size() > 1;
+	String header = "{'descr': ";
+	header.preallocateBytes(100);
+	
+	if (multiValue)
+		header += "[";
 
 	int nTypes = typeList.size();
-	String name;
 
 	for (int i = 0; i < nTypes; i++)
 	{
 		NpyType& type = typeList.getReference(i);
 		if (i > 0) header += ", ";
-		header += "('" + type.getName() + "', '" + type.getTypeString() + "', (" + String(type.getTypeLength()) + ",))";
+		if (multiValue)
+			header += "('" + type.getName() + "', '" + type.getTypeString() + "', (" + String(type.getTypeLength()) + ",))";
+		else
+			header += "'" + type.getTypeString() + "'";
 	}
-	header += "], 'fortran_order': False, 'shape': (1,), }";
+	if (multiValue)
+		header += "]";
+	header += ", 'fortran_order': False, 'shape': ";
 
-	int headLength = header.length();
-	int padding = (int((headLength + 30 ) / 16) + 1) * 16;
+	m_countPos = header.length() + 10;
+	header += "(1,), }";
+	int padding = (int((header.length() + 30) / 16) + 1) * 16;
 	header = header.paddedRight(' ', padding);
 	header += '\n';
-	
+
 	uint8 magicNum = 0x093;
 	m_file->write(&magicNum, sizeof(uint8));
 	String magic = "NUMPY";
@@ -67,15 +105,22 @@ NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 	m_file->write(&ver, sizeof(uint16));
 	m_file->write(&len, sizeof(uint16));
 	m_file->write(header.toUTF8(), len);
-	m_countPos = headLength + 4; //10-6
-	
 }
 
 NpyFile::~NpyFile()
 {
 	if (m_file->setPosition(m_countPos))
 	{
-		String newShape = String(m_recordCount) + ",), }";
+		String newShape = "(";
+		newShape.preallocateBytes(20);
+		newShape += String(m_recordCount) + ",";
+		if (m_dim1 > 1)
+		{
+			newShape += String(m_dim1) + ",";
+		}
+		if (m_dim2 > 1)
+			newShape += String(m_dim2);
+		newShape += "), }";
 		m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
 	}
 	else
@@ -98,6 +143,17 @@ void NpyFile::increaseRecordCount(int count)
 NpyType::NpyType(String n, BaseType t, size_t l)
 	: name(n), type(t), length(l)
 {
+}
+
+NpyType::NpyType(BaseType t, size_t l)
+	: name(String::empty), type(t), length(l)
+{
+}
+
+NpyType::NpyType()
+	: name(String::empty), type(BaseType::INT8), length(1)
+{
+
 }
 
 String NpyType::getTypeString() const
@@ -142,4 +198,9 @@ int NpyType::getTypeLength() const
 String NpyType::getName() const
 {
 	return name;
+}
+
+BaseType NpyType::getType() const
+{
+	return type;
 }
