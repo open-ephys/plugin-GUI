@@ -30,8 +30,8 @@ HistoryObject::HistoryObject() {}
 NamedInfoObject::NamedInfoObject() {}
 
 //NodeInfoBase
-NodeInfoBase::NodeInfoBase(uint16 id, uint16 idx) :
-m_nodeID(id), m_nodeIdx(idx)
+NodeInfoBase::NodeInfoBase(uint16 id, uint16 idx, String type, String name) :
+m_nodeID(id), m_nodeIdx(idx), m_currentNodeType(type), m_currentNodeName(name)
 {}
 
 NodeInfoBase::~NodeInfoBase()
@@ -148,7 +148,7 @@ String NamedInfoObject::getDescription() const
 
 //InfoObjectCommon
 InfoObjectCommon::InfoObjectCommon(uint16 idx, uint16 typeidx, float sampleRate, const GenericProcessor* source, uint16 subproc)
-	:	NodeInfoBase(source->getNodeId(), idx),
+	:	NodeInfoBase(source->getNodeId(), idx, source->getName(), source->getName()), //TODO: fix those two when we have the ability to rename processors
 		SourceProcessorInfo(source, subproc),
 		m_sourceIndex(idx),
 		m_sourceTypeIndex(typeidx),
