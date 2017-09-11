@@ -1862,12 +1862,35 @@ void LfpTimescale::paint(Graphics& g)
     const int steps = labels.size() + 1;
     for (int i = 1; i < steps; i++)
     {
-        if (i != 0 && i % 5 == 0)
-            g.drawLine(getWidth()/steps*i,0,getWidth()/steps*i,getHeight(),3.0f);
+        
+        // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
+        if (i != 0 && i % 4 == 0)
+        {
+            g.drawLine(getWidth()/steps*i,
+                       0,
+                       getWidth()/steps*i,
+                       getHeight(),
+                       3.0f);
+        }
+        else if (i != 0 && i % 2 == 0)
+        {
+            g.drawLine(getWidth()/steps*i,
+                       getHeight(),
+                       getWidth()/steps*i,
+                       getHeight() / 2,
+                       3.0f);
+        }
         else
-            g.drawLine(getWidth()/steps*i,0,getWidth()/steps*i,getHeight(),1.0f);
+        {
+            g.drawLine(getWidth()/steps*i,
+                       getHeight(),
+                       getWidth()/steps*i,
+                       3 * getHeight()/4,
+                       2.0f);
+        }
 
-        g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
+        if (i % 2 == 0)
+            g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
     }
 
 }
