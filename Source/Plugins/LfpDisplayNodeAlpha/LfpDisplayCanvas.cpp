@@ -1858,16 +1858,22 @@ void LfpTimescale::paint(Graphics& g)
 
     g.drawText("ms:",5,0,100,getHeight(),Justification::left, false);
 
-    for (int i = 1; i < 10; i++)
+    const int steps = labels.size() + 1;
+    for (int i = 1; i < steps; i++)
     {
-        if (i == 5)
-            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),3.0f);
+        if (i != 0 && i % 5 == 0)
+            g.drawLine(getWidth()/steps*i,0,getWidth()/steps*i,getHeight(),3.0f);
         else
-            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
+            g.drawLine(getWidth()/steps*i,0,getWidth()/steps*i,getHeight(),1.0f);
 
-        g.drawText(labels[i-1],getWidth()/10*i+3,0,100,getHeight(),Justification::left, false);
+        g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
     }
 
+}
+
+void LfpTimescale::resized()
+{
+    setTimebase(timebase);
 }
 
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
@@ -1887,7 +1893,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             float dTimescale=0;
             int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
 
-            std::cout << dragDeltaX << std::endl;
+//            std::cout << dragDeltaX << std::endl;
             if (dragDeltaX > 0)
             {
                 dTimescale = 0.01 * dragDeltaX;
@@ -1911,10 +1917,9 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             dTimescale = ((dTimescale + (0.005/2)) / 0.005) * 0.005;
             
             float newTimescale = timescale+dTimescale;
-            std::cout << "new timescale: " << newTimescale << std::endl;
+            
             if (newTimescale < 0.25) newTimescale = 0.250;
             if (newTimescale > 20) newTimescale = 20;
-            std::cout << "new timescale: " << newTimescale << std::endl;
             
             // don't bother updating if the new timebase is the same as the old (if clipped, for example)
             if (timescale != newTimescale)
@@ -1939,11 +1944,24 @@ void LfpTimescale::setTimebase(float t)
     timebase = t;
 
     labels.clear();
-
-    for (float i = 1.0f; i < 10.0; i++)
+    
+    const int minWidth = 60;
+    labelIncrement = 0.025f;
+    
+    
+    while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
+           getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
     {
-        String labelString = String(timebase/10.0f*1000.0f*i);
-
+//        std::cout << getWidth() / (timebase / labelIncrement) << " is smaller than minimum width, calculating new step size" << std::endl;
+        if (labelIncrement < 0.2)
+            labelIncrement *= 2;
+        else
+            labelIncrement += 0.2;
+    }
+    
+    for (float i = labelIncrement; i < timebase; i += labelIncrement)
+    {
+        String labelString = String(i * 1000.0f);
         labels.add(labelString.substring(0,6));
     }
 

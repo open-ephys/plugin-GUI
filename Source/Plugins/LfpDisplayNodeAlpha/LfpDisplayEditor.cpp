@@ -47,7 +47,7 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
     addAndMakeVisible(subprocessorSelectionLabel);
     
     subprocessorSampleRateLabel = new Label("Subprocessor sample rate label", "Sample Rate:");
-    subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14, italic));
+    subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14, Font::plain));
     subprocessorSampleRateLabel->setBounds(subprocessorSelection->getX(), subprocessorSelection->getBottom() + 10, 200, 40);
     addAndMakeVisible(subprocessorSampleRateLabel);
 }

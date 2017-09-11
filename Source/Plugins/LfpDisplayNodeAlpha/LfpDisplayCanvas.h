@@ -402,6 +402,8 @@ public:
 
     void paint(Graphics& g);
     
+    virtual void resized();
+    
     /** Handles the drag to zoom feature on the timescale. The display must
         be paused to zoom */
     virtual void mouseDrag(const MouseEvent &e) override;
@@ -416,6 +418,8 @@ private:
     LfpDisplay* lfpDisplay;
 
     float timebase;
+    float labelIncrement;
+    float numIncrements;
 
     Font font;
 
