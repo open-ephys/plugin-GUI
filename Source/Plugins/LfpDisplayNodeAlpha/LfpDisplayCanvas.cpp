@@ -1901,6 +1901,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             }
             else
             {
+                // TODO: (kelly) change this to scale appropriately for -dragDeltaX
                 if (timescale > 0.25)
                     dTimescale = 0.01 * dragDeltaX;
             }
