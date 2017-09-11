@@ -1856,7 +1856,8 @@ void LfpTimescale::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("ms:",5,0,100,getHeight(),Justification::left, false);
+    const String timeScaleUnitLabel = (timebase >= 2)?("s:"):("ms:");
+    g.drawText(timeScaleUnitLabel,5,0,100,getHeight(),Justification::left, false);
 
     const int steps = labels.size() + 1;
     for (int i = 1; i < steps; i++)
@@ -1961,7 +1962,7 @@ void LfpTimescale::setTimebase(float t)
     
     for (float i = labelIncrement; i < timebase; i += labelIncrement)
     {
-        String labelString = String(i * 1000.0f);
+        String labelString = String(i * ((timebase >= 2)?(1):(1000.0f)));
         labels.add(labelString.substring(0,6));
     }
 
