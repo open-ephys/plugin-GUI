@@ -3626,11 +3626,9 @@ void LfpChannelDisplayInfo::setEnabledButtonVisibility(bool shouldBeVisible)
     if (shouldBeVisible)
     {
         addAndMakeVisible(enableButton);
-        std::cout << "adding enableButton to view for channel " << getChannelNumber() << std::endl;
     }
     else if (enableButton->isVisible())
     {
-        std::cout << "removing enableButton for channel " << getChannelNumber() + 1 << std::endl;
         removeChildComponent(enableButton);
         enableButton->setVisible(false);
     }
