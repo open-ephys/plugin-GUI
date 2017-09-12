@@ -1895,10 +1895,18 @@ void LfpTimescale::paint(Graphics& g)
     g.drawText(timeScaleUnitLabel,5,0,100,getHeight(),Justification::left, false);
 
     const int steps = labels.size() + 1;
-    for (int i = 1; i < steps; i++)
+    for (int i = 0; i < steps; i++)
     {
         
         // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
+        if (i == 0)
+        {
+            g.drawLine(1,
+                       0,
+                       1,
+                       getHeight(),
+                       3.0f);
+        }
         if (i != 0 && i % 4 == 0)
         {
             g.drawLine(getWidth()/steps*i,
@@ -1924,7 +1932,7 @@ void LfpTimescale::paint(Graphics& g)
                        2.0f);
         }
 
-        if (i % 2 == 0)
+        if (i != 0 && i % 2 == 0)
             g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
     }
 
