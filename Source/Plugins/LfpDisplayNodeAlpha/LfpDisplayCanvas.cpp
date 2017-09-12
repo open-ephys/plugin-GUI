@@ -2576,6 +2576,8 @@ void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
     
     if (!getSingleChannelState())
         rebuildDrawableChannelsList();
+    
+    canvas->redraw();
 }
 
 bool LfpDisplay::getMedianOffsetPlotting()
