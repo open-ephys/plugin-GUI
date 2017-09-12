@@ -33,9 +33,12 @@ namespace BinaryRecordingEngine
 	{
 	public:
 		NpyType(String, BaseType, size_t);
+		NpyType(BaseType, size_t);
+		NpyType();
 		String getName() const;
 		String getTypeString() const;
 		int getTypeLength() const;
+		BaseType getType() const;
 	private:
 		String name;
 		BaseType type;
@@ -46,14 +49,19 @@ namespace BinaryRecordingEngine
 	{
 	public:
 		NpyFile(String path, const Array<NpyType>& typeList);
+		NpyFile(String path, NpyType type, unsigned int dim = 1);
 		~NpyFile();
 		void writeData(const void* data, size_t size);
 		void increaseRecordCount(int count = 1);
 	private:
+		bool openFile(String path);
+		void writeHeader(const Array<NpyType>& typeList);
 		ScopedPointer<FileOutputStream> m_file;
 		bool m_okOpen{ false };
 		int64 m_recordCount{ 0 };
 		size_t m_countPos;
+		unsigned int m_dim1;
+		unsigned int m_dim2;
 	};
 
 };
