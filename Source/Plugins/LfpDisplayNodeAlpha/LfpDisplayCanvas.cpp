@@ -3643,7 +3643,7 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
-    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
 //    g.setColour(lineColour);
     //if (chan > 98)
@@ -3712,7 +3712,7 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 void LfpChannelDisplayInfo::resized()
 {
 
-//    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
     //if (chan > 98)
     //  enableButton->setBounds(8,center-5,45,16);
@@ -3723,10 +3723,10 @@ void LfpChannelDisplayInfo::resized()
     
     if (getEnabledButtonVisibility())
     {
-        enableButton->setBounds(getWidth()/4 + 5, (getHeight()/2) - 7, 15, 15);
+        enableButton->setBounds(getWidth()/4 + 5, (center) - 7, 15, 15);
     }
     
-    setChannelNumberIsHidden(getHeight() < 16 && getChannelNumber() % 5 != 0);
+    setChannelNumberIsHidden(getHeight() < 16 && (getChannelNumber() + 1) % 10 != 0);
     
     setChannelTypeStringVisibility(getHeight() > 34);
 }
