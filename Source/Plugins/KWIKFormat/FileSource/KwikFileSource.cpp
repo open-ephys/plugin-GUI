@@ -172,7 +172,7 @@ void KWIKFileSource::updateActiveRecord()
     samplePos=0;
     try
     {
-        String path = "/recordings/" + String(availableDataSets[activeRecord]) + "/data";
+        String path = "/recordings/" + String(availableDataSets[activeRecord.get()]) + "/data";
         dataSet = new DataSet(sourceFile->openDataSet(path.toUTF8()));
     }
     catch (FileIException error)
