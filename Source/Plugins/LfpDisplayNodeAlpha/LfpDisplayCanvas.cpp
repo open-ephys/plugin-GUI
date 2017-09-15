@@ -362,15 +362,15 @@ void LfpDisplayCanvas::updateScreenBuffer()
         dbi %= displayBufferSize; // make sure we're not overshooting
         int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
-        // if (channel == 0)
-        //     std::cout << "Channel " 
-        //               << channel << " : " 
-        //               << sbi << " : " 
-        //               << index << " : " 
-        //               << dbi << " : " 
-        //               << valuesNeeded << " : " 
-        //               << ratio 
-        //                             << std::endl;
+//         if (channel == 0)
+//             std::cout << "Channel " 
+//                       << channel << " : " 
+//                       << sbi << " : " 
+//                       << index << " : " 
+//                       << dbi << " : " 
+//                       << valuesNeeded << " : " 
+//                       << ratio 
+//                                     << std::endl;
         
         if (valuesNeeded > 0 && valuesNeeded < 1000000)
         {
@@ -387,21 +387,25 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     screenBufferMin->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
-                     dbi %= displayBufferSize; // just to be sure
+                    dbi %= displayBufferSize; // just to be sure
+                    
+                    // update continuous data channels
+                    if (channel != nChans)
+                    {
+                        // interpolate between two samples with invAlpha and alpha
+                        screenBuffer->addFrom(channel, // destChannel
+                                              sbi, // destStartSample
+                                              displayBuffer->getReadPointer(channel, dbi), // source
+                                              1, // numSamples
+                                              invAlpha*gain); // gain
 
-                    // interpolate between two samples with invAlpha and alpha
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, dbi), // source
-                                          1, // numSamples
-                                          invAlpha*gain); // gain
 
-
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, nextPos), // source
-                                          1, // numSamples
-                                          alpha*gain); // gain
+                        screenBuffer->addFrom(channel, // destChannel
+                                              sbi, // destStartSample
+                                              displayBuffer->getReadPointer(channel, nextPos), // source
+                                              1, // numSamples
+                                              alpha*gain); // gain
+                    }
 
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
@@ -432,13 +436,19 @@ void LfpDisplayCanvas::updateScreenBuffer()
                        
                     }
                     
+                    // update event channel
+                    if (channel == nChans)
+                    {
+                        screenBuffer->setSample(channel, sbi, sample_max);
+                    }
+                    
                     // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
                     // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
                     // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             int c = 0;
-                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -454,26 +464,26 @@ void LfpDisplayCanvas::updateScreenBuffer()
                             
                             screenBufferMin->addSample(channel, sbi, sample_min*gain);
                             screenBufferMax->addSample(channel, sbi, sample_max*gain);
-                    }
-                sbi++;
+                        }
+                    sbi++;
                 }
             
-            subSampleOffset += ratio;
-
-            while (subSampleOffset >= 1.0)
-            {
-                if (++dbi > displayBufferSize)
-                    dbi = 0;
-
-                nextPos = (dbi + 1) % displayBufferSize;
-                subSampleOffset -= 1.0;
+                subSampleOffset += ratio;
+                
+                while (subSampleOffset >= 1.0)
+                {
+                    if (++dbi > displayBufferSize)
+                        dbi = 0;
+                    
+                    nextPos = (dbi + 1) % displayBufferSize;
+                    subSampleOffset -= 1.0;
+                }
+                
             }
-
-        }
-
-        // update values after we're done
-        screenBufferIndex.set(channel, sbi);
-        displayBufferIndex.set(channel, dbi);
+            
+            // update values after we're done
+            screenBufferIndex.set(channel, sbi);
+            displayBufferIndex.set(channel, dbi);
         }
 
     }
@@ -1931,11 +1941,20 @@ void LfpTimescale::paint(Graphics& g)
                        3 * getHeight()/4,
                        2.0f);
         }
+        
 
         if (i != 0 && i % 2 == 0)
             g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
-    }
 
+    }
+}
+
+void LfpTimescale::mouseUp(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        lfpDisplay->trackZoomInfo.isScrollingX = false;
+    }
 }
 
 void LfpTimescale::resized()
@@ -1996,14 +2015,6 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
                 setTimebase(canvas->timebase);
             }
         }
-    }
-}
-
-void LfpTimescale::mouseUp(const MouseEvent &e)
-{
-    if (e.mods.isLeftButtonDown())
-    {
-        lfpDisplay->trackZoomInfo.isScrollingX = false;
     }
 }
 
@@ -3121,9 +3132,6 @@ void LfpChannelDisplay::pxPaint()
             // draw event markers
             int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
             
-            //if (i == ifrom)
-            //    std::cout << rawEventState << std::endl;
-            
             for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
             {
                 if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
@@ -3281,8 +3289,19 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.samp = i;
                 plotterInfo.lineColour = lineColour;
                 
+//                if (plotterInfo.samp == canvas->lastScreenBufferIndex[chan])
+//                {
+//                    for (int j = jfrom_wholechannel; j <= jto_wholechannel; j++)
+//                    {
+//                        bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
+//                    }
+//                }
+                
+//                if (getChannelNumber() == 0)
+//                    std::cout << "plotting " << i << std::endl;
+                
                 // TODO: (kelly) complete transition toward plotter class encapsulation
-                 display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
+                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
                 
 //                int jfrom=from+getY();
 //                int jto=to+getY();
@@ -3769,6 +3788,7 @@ bool LfpChannelDisplayInfo::isChannelNumberHidden()
 {
     return channelNumberHidden;
 }
+
 
 
 

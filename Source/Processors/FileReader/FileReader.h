@@ -69,8 +69,6 @@ public:
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-    
-    virtual void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subproc) const override;
 
 
 private:

@@ -270,39 +270,8 @@ void FileReader::process (AudioSampleBuffer& buffer)
     timestamp += samplesNeededPerBuffer;
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
     
-    // TODO: (kelly) clean this up, testing event display
-    {
-        static bool flag = false;
-//        if (counter == 0)
-        if (counter % 3 == 0)
-        {
-            flag = !flag;
-//            TextEventPtr textEvent = TextEvent::createTextEvent(getEventChannel(0), timestamp, "Test Event");
-            //            TextEvent::createTextEvent
-//            addEvent(0, textEvent, 0);
-            uint8 value = 1;
-            std::cout << "\n\nSending event with value " << (int)value << std::endl;
-            TTLEventPtr ttlEvent = TTLEvent::createTTLEvent(getEventChannel(0), timestamp, &value, sizeof(uint8), 0);
-            addEvent(0, ttlEvent, 0);
-            
-            value = 0;
-            std::cout << "Sending event with value " << (int) value << std::endl;
-            TTLEventPtr ttlEvent2 = TTLEvent::createTTLEvent(getEventChannel(0), timestamp + 10, &value, sizeof(uint8), 0);
-            addEvent(0, ttlEvent2, 100);
-        }
-        counter++;
-    }
-    // END_TODO
-    
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
-}
-
-void FileReader::getDefaultEventInfo(Array<DefaultEventInfo> &events, int subproc) const
-{
-    events.clear();
-    
-    events.add(DefaultEventInfo(EventChannel::TTL, 1, sizeof(uint8), 44100));
 }
 
 
