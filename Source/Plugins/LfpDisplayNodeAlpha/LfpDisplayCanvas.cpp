@@ -1334,7 +1334,7 @@ void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 
 }
 
-void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate)
+void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate, bool deferDisplayRefresh)
 {
     
     if (canvasMustUpdate)
@@ -1347,8 +1347,11 @@ void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate)
         selectedSpread = spreadSelection->getSelectedId();
         selectedSpreadValue = spreadSelection->getText();
 
-        canvas->repaint();
-        canvas->refresh();
+        if (!deferDisplayRefresh)
+        {
+            canvas->repaint();
+            canvas->refresh();
+        }
     }
 }
 
@@ -3592,6 +3595,7 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
     {
         if (e.mods.isCommandDown() && !display->getSingleChannelState())  // CTRL + drag -> change channel spacing
         {
+            
             // init state in our track zooming info struct
             if (!display->trackZoomInfo.isScrollingY)
             {
@@ -3634,19 +3638,24 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
             }
             
             // set channel heights for all channel
-            display->setChannelHeight(newHeight);
-            display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
+//            display->setChannelHeight(newHeight);
+            for (int i = 0; i < display->getNumChannels(); ++i)
+            {
+                display->channels[i]->setChannelHeight(newHeight);
+                display->channelInfo[i]->setChannelHeight(newHeight);
+            }
             
-            canvas->viewport->setViewPositionProportionately(display->trackZoomInfo.zoomPivotRatioX, display->trackZoomInfo.zoomPivotRatioY);
+            options->setSpreadSelection(newHeight, false, true); // update combobox
+            
+            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+            
+            display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
             
             int newViewportY = display->trackZoomInfo.zoomPivotRatioY * display->getHeight() - display->trackZoomInfo.zoomPivotViewportOffset.getY();
             if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
             
-            canvas->viewport->setViewPosition(display->trackZoomInfo.zoomPivotRatioX, newViewportY);
+            canvas->viewport->setViewPosition(0, newViewportY);
             
-            options->setSpreadSelection(newHeight); // update combobox
-            
-            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
         }
     }
 }

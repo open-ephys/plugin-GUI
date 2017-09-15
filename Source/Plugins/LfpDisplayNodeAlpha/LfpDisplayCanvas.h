@@ -251,7 +251,7 @@ public:
     void resized();
 
     void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
-    void setSpreadSelection(int spread, bool canvasMustUpdate = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
+    void setSpreadSelection(int spread, bool canvasMustUpdate = false, bool deferDisplayRefresh = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
