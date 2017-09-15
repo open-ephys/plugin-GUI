@@ -47,7 +47,10 @@ class LfpViewport;
 class LfpDisplayOptions;
 class LfpBitmapPlotter;
 class PerPixelBitmapPlotter;
+class LfpChannelColourScheme;
 
+    
+    
 #pragma mark - LfpDisplayCanvas -
 //==============================================================================
 /**
@@ -96,6 +99,7 @@ public:
     float histogramParameterA;
     float histogramParameterB;
 
+    /** Returns the number of both continuous and event channels tracked by the canvas */
     int getNumChannels();
     /** Returns the number of channels NOT hidden for display */
     int getNumChannelsVisible();
@@ -103,6 +107,16 @@ public:
     bool getDrawMethodState();
     
     int getChannelSampleRate(int channel);
+    
+    /** Delegates a samplerate for drawing to the LfpDisplay referenced by this canvas */
+    void setDrawableSampleRate(float samplerate);
+    
+    /** Returns the subprocessor index of the given channel */
+    int getChannelSubprocessorIdx(int channel);
+    
+    /** Delegates a subprocessor index for drawing to the LfpDisplay referenced by this
+        this canvas */
+    void setDrawableSubprocessor(int idx);
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -137,7 +151,7 @@ public:
     bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
     
     int nChans;
-    int nChansVisible; // the number of channels NOT hidden for display
+    //int nChansVisible; // the number of channels NOT hidden for display
 
     float timebase;
 
@@ -198,6 +212,7 @@ private:
 };
 
     
+    
 #pragma mark - ShowHideOptionsButton -
 //==============================================================================
 /**
@@ -213,6 +228,8 @@ public:
     void paintButton(Graphics& g, bool, bool);
     LfpDisplayOptions* options;
 };
+    
+    
     
 #pragma mark - LfpDisplayOptions -
 //==============================================================================
@@ -238,6 +255,9 @@ public:
 
     void comboBoxChanged(ComboBox* cb);
     void buttonClicked(Button* button);
+    
+    /** Changes the timebase value used by LfpTimescale and LfpDisplayCanvas. */
+    void setTimebaseAndSelectionText(float timebase);
     
     /** Handles slider events for all editors. */
     void sliderValueChanged(Slider* sl);
@@ -343,6 +363,10 @@ private:
     ScopedPointer<Label> medianOffsetPlottingLabel;
     ScopedPointer<UtilityButton> medianOffsetPlottingButton;
     
+    // label and combobox for color scheme options
+    ScopedPointer<Label> colourSchemeOptionLabel;
+    ScopedPointer<ComboBox> colourSchemeOptionSelection;
+    
     ScopedPointer<Slider> brightnessSliderA;
     ScopedPointer<Slider> brightnessSliderB;
     
@@ -373,6 +397,7 @@ private:
 };
     
     
+    
 #pragma mark - LfpTimeScale -
 //==============================================================================
 /**
@@ -383,18 +408,29 @@ private:
 class LfpTimescale : public Component
 {
 public:
-    LfpTimescale(LfpDisplayCanvas*);
+    LfpTimescale(LfpDisplayCanvas*, LfpDisplay*);
     ~LfpTimescale();
 
     void paint(Graphics& g);
+    
+    void resized();
+    
+    /** Handles the drag to zoom feature on the timescale. The display must
+        be paused to zoom */
+    void mouseDrag(const MouseEvent &e) override;
+    
+    void mouseUp(const MouseEvent &e) override;
 
     void setTimebase(float t);
 
 private:
 
     LfpDisplayCanvas* canvas;
+    LfpDisplay* lfpDisplay;
 
     float timebase;
+    float labelIncrement;
+    float numIncrements;
 
     Font font;
 
@@ -402,6 +438,7 @@ private:
 
 };
 
+    
     
 #pragma mark - LfpDisplay -
 //==============================================================================
@@ -450,6 +487,25 @@ public:
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
     
+    LfpChannelColourScheme * getColourSchemePtr();
+    
+    /** Returns the sample rate that is currently filtering the drawable channels */
+    float getDisplayedSampleRate();
+    
+    /** Sets the samplerate that displayed channels must be set to. No channels with
+        differing samplerates will be drawn to screen.
+     
+        This function does not automatically repopulate the drawableChannels list, so
+        rebuildDrawableChannelsList must be called before the screen is updated.
+     
+        @see LfpDisplayCanvas::setDrawableSampleRate, LfpDisplayNode::updateSettings
+     */
+    void setDisplayedSampleRate(float samplerate);
+    
+    int getDisplayedSubprocessor();
+    
+    void setDisplayedSubprocessor(int subProcessorIdx);
+    
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
     
@@ -469,6 +525,12 @@ public:
     void setChannelDisplaySkipAmount(int skipAmt);
 
     void setColors();
+    
+    void setActiveColourSchemeIdx(int index);
+    int getActiveColourSchemeIdx();
+    
+    int getNumColourSchemes();
+    StringArray getColourSchemeNameArray();
 
     bool setEventDisplayState(int ch, bool state);
     bool getEventDisplayState(int ch);
@@ -540,7 +602,7 @@ public:
         bool isScrollingX = false;
         bool isScrollingY = false;
         int componentStartHeight;       // a cache for the dimensions of a component during drag events
-        int componentStartWidth;
+        float timescaleStartScale;        // a cache for the timescale size during drag events
         float zoomPivotRatioX;          // a cache for calculating the anchor point when adjusting viewport
         float zoomPivotRatioY;
         Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset
@@ -556,6 +618,8 @@ private:
     int numChans;
     int displaySkipAmt;
     int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
+    float drawableSampleRate;
+    int drawableSubprocessorIdx;
 
     int totalHeight;
 
@@ -574,8 +638,13 @@ private:
     ScopedPointer<PerPixelBitmapPlotter> perPixelPlotter;
     //    ScopedPointer<HistogramBitmapPlotter> histogramPlotter;
 
-
+    // TODO: (kelly) add reference to a color scheme
+//    LfpChannelColourScheme * colourScheme;
+    uint8 activeColourScheme;
+    OwnedArray<LfpChannelColourScheme> colourSchemeList;
 };
+  
+    
     
 #pragma mark - LfpChannelDisplay -
 //==============================================================================
@@ -682,6 +751,8 @@ protected:
     
 
 };
+   
+    
     
 #pragma mark - LfpChannelDisplayInfo -
 //==============================================================================
@@ -694,6 +765,7 @@ protected:
 class LfpChannelDisplayInfo : public LfpChannelDisplay,
     public Button::Listener
 {
+    friend class LfpDisplay;
 public:
     LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
@@ -715,6 +787,10 @@ public:
     /** Sets the sample rate associated with this channel */
     void setChannelSampleRate(int samplerate);
     
+    int getSubprocessorIdx() { return subProcessorIdx; }
+    
+    void setSubprocessorIdx(int subProcessorIdx_) { subProcessorIdx = subProcessorIdx_; }
+    
     /** Updates the parent LfpDisplay that the track vertical zoom should update */
     virtual void mouseDrag(const MouseEvent &event) override;
     
@@ -729,11 +805,24 @@ private:
     float x, y;
     
     int samplerate;
+    int subProcessorIdx;
     
     ScopedPointer<UtilityButton> enableButton;
+    
+    bool channelTypeStringIsVisible;
+    bool channelNumberHidden;
+    
+    void setEnabledButtonVisibility(bool shouldBeVisible);
+    bool getEnabledButtonVisibility();
 
+    void setChannelTypeStringVisibility(bool shouldBeVisible);
+    bool getChannelTypeStringVisibility();
+    
+    void setChannelNumberIsHidden(bool shouldBeHidden);
+    bool isChannelNumberHidden();
 };
 
+    
     
 #pragma mark - EventDisplayInterface -
 //==============================================================================
@@ -767,6 +856,7 @@ private:
 };
     
     
+    
 #pragma mark - LfpViewport -
 //==============================================================================
 /**
@@ -788,6 +878,8 @@ private:
     LfpDisplayCanvas* canvas;
 };
 
+    
+    
 #pragma mark - LfpBitmapPlotterInfo -
 //==============================================================================
 /**
@@ -804,6 +896,8 @@ struct LfpBitmapPlotterInfo
     Colour lineColour;
 };
 
+    
+    
 #pragma mark - LfpBitmapPlotter -
 //==============================================================================
 /**
@@ -824,6 +918,8 @@ protected:
     LfpDisplay * display;
 };
 
+    
+    
 #pragma mark - PerPixelBitmapPlotter -
 //==============================================================================
 /**
@@ -837,6 +933,108 @@ public:
     
     /** Plots one subsample of data from a single channel to the bitmap provided */
     virtual void plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo) override;
+};
+   
+    
+    
+#pragma mark - LfpChannelColourScheme -
+/**
+ Interface for a color scheme object
+ */
+class LfpChannelColourScheme : public Component
+{
+public:
+    LfpChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplayCanvas* canvas)
+    : lfpDisplay(display)
+    , canvas(canvas)
+    , numColourChannels(numColourChannels_)
+    { }
+    
+    virtual ~LfpChannelColourScheme() {}
+    
+    void paint(Graphics &g) override {}
+    void resized() override {}
+    
+    virtual const Colour getColourForIndex(int index) const = 0;
+    
+    /** Returns true if a color scheme has configurable UI elements that
+        must be drawn to the options drawer. Subclasses should override this
+        if they have drawable elements in the options drawer. */
+    virtual bool hasConfigurableElements() { return false; }
+    
+    void setColourGrouping(int grouping);
+    int getColourGrouping();
+    
+protected:
+    LfpDisplay * lfpDisplay;
+    LfpDisplayCanvas * canvas;
+    
+    int numColourChannels;
+    static int colourGrouping;
+};
+    
+    
+    
+#pragma mark - LfpDefaultColourScheme -
+class LfpDefaultColourScheme : public LfpChannelColourScheme
+{
+public:
+    LfpDefaultColourScheme(LfpDisplay*, LfpDisplayCanvas*);
+    virtual ~LfpDefaultColourScheme() {}
+    
+    void paint(Graphics &g) override;
+    void resized() override;
+    
+    virtual const Colour getColourForIndex(int index) const override;
+    
+private:
+    static Array<Colour> colourList;
+};
+    
+    
+    
+#pragma mark - LfpMonochromaticColourScheme -
+class LfpMonochromaticColourScheme : public LfpChannelColourScheme,
+    public ComboBox::Listener,
+    public Slider::Listener
+{
+public:
+    LfpMonochromaticColourScheme(LfpDisplay*, LfpDisplayCanvas*);
+    virtual ~LfpMonochromaticColourScheme() {}
+    
+    void paint(Graphics &g) override;
+    void resized() override;
+    
+    virtual bool hasConfigurableElements() override { return true; };
+    
+    void sliderValueChanged(Slider* sl);
+    void comboBoxChanged(ComboBox *cb);
+    
+    /** Catches mouseUp to determine whether the base hue has changed. */
+    void mouseUp(const MouseEvent &e) override;
+    
+    void setBaseHue(Colour base);
+    const Colour getBaseHue() const;
+    
+    void setNumColourSeriesSteps(int numSteps);
+    int getNumColourSeriesSteps();
+    
+    virtual const Colour getColourForIndex(int index) const override;
+    
+private:
+    bool isBlackAndWhite;
+    Colour baseHue;
+    Colour swatchHue;
+    Array<Colour> colourList;
+    
+    ScopedPointer<Label> numChannelsLabel;
+    ScopedPointer<ComboBox> numChannelsSelection;
+    ScopedPointer<Label> baseHueLabel;
+    ScopedPointer<Slider> baseHueSlider;
+    
+    Rectangle<int> colourSwatchRect;
+    
+    void calculateColourSeriesFromBaseHue();
 };
     
 };

@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace LfpDisplayNodeAlpha;
 
+
+
 #pragma mark - LfpDisplayCanvas -
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
@@ -53,7 +55,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     viewport = new LfpViewport(this);
     lfpDisplay = new LfpDisplay(this, viewport);
-    timescale = new LfpTimescale(this);
+    timescale = new LfpTimescale(this, lfpDisplay);
     options = new LfpDisplayOptions(this, timescale, lfpDisplay, processor);
 
     lfpDisplay->options = options;
@@ -222,7 +224,9 @@ void LfpDisplayCanvas::update()
 			}
 		}
 		else
+        {
 			sampleRate.add(30000);
+        }
         
        // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
         displayBufferIndex.add(0);
@@ -264,6 +268,8 @@ void LfpDisplayCanvas::update()
         }
         
     }
+    
+    lfpDisplay->rebuildDrawableChannelsList();
 
 }
 
@@ -489,6 +495,11 @@ int LfpDisplayCanvas::getNumChannelsVisible()
     return lfpDisplay->drawableChannels.size();
 }
 
+int LfpDisplayCanvas::getChannelSubprocessorIdx(int channel)
+{
+    return processor->getDataChannel(channel)->getSubProcessorIdx();
+}
+
 const float LfpDisplayCanvas::getYCoord(int chan, int samp)
 {
     return *screenBuffer->getReadPointer(chan, samp);
@@ -564,8 +575,18 @@ bool LfpDisplayCanvas::getDrawMethodState()
 
 int LfpDisplayCanvas::getChannelSampleRate(int channel)
 {
-    // TODO: (kelly) should this do a range check?
     return sampleRate[channel];
+}
+
+void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
+{
+//    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
+    lfpDisplay->setDisplayedSampleRate(samplerate);
+}
+
+void LfpDisplayCanvas::setDrawableSubprocessor(int idx)
+{
+    lfpDisplay->setDisplayedSubprocessor(idx);
 }
 
 void LfpDisplayCanvas::redraw()
@@ -655,6 +676,8 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 }
 
+
+
 #pragma mark - ShowHideOptionsButton -
 // =============================================================
 
@@ -696,6 +719,7 @@ void ShowHideOptionsButton::paintButton(Graphics& g, bool, bool)
 }
 
 
+
 #pragma mark - LfpDisplayOptions -
 // -------------------------------------------------------------
 
@@ -709,6 +733,24 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
       labelFont("Default", 13.0f, Font::plain),
       labelColour(100, 100, 100)
 {
+    // draw the colour scheme options
+    // TODO: (kelly) this might be better as a modal window
+    colourSchemeOptionLabel = new Label("colorSchemeOptionLabel", "Color Scheme");
+    colourSchemeOptionLabel->setFont(labelFont);
+    colourSchemeOptionLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(colourSchemeOptionLabel);
+    
+    StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
+    colourSchemeOptionSelection = new ComboBox("colorSchemeOptionSelection");
+    colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
+    colourSchemeOptionSelection->setEditableText(false);
+    colourSchemeOptionSelection->addListener(this);
+    colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(colourSchemeOptionSelection);
+    
+    if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+        addAndMakeVisible(lfpDisplay->getColourSchemePtr());
+    
  //Ranges for neural data
 	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
 	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
@@ -1189,6 +1231,25 @@ void LfpDisplayOptions::resized()
     {
         typeButtons[i]->setBounds(95,getHeight()-30+i*bh,50,bh);
     }
+    
+    
+    colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
+                                       getHeight()-180,
+                                       100,
+                                       22);
+    colourSchemeOptionSelection->setBounds(colourSchemeOptionLabel->getRight(),
+                                           colourSchemeOptionLabel->getY(),
+                                           80,
+                                           25);
+    
+    // set the size of the active colour scheme's options, if it has configurable options
+    if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+    {
+        lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
+                                                    colourSchemeOptionLabel->getBottom(),
+                                                    200,
+                                                    60);
+    }
 }
 
 void LfpDisplayOptions::paint(Graphics& g)
@@ -1351,6 +1412,42 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
 }
 
+void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
+{
+    canvas->timebase = timebase;
+    
+    if (canvas->timebase) // if timebase != 0
+    {
+        if (canvas->timebase < timebases[0].getFloatValue())
+        {
+            timebaseSelection->setSelectedId(1, dontSendNotification);
+            canvas->timebase = timebases[0].getFloatValue();
+        }
+        else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
+        {
+            timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
+            canvas->timebase = timebases[timebases.size()-1].getFloatValue();
+        }
+        else{
+            timebaseSelection->setText(String(canvas->timebase, 1), dontSendNotification);
+        }
+    }
+    else
+    {
+        if (selectedSpread == 0)
+        {
+            timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
+            canvas->timebase = selectedTimebaseValue.getFloatValue();
+        }
+        else
+        {
+            timebaseSelection->setSelectedId(selectedTimebase,dontSendNotification);
+            canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
+        }
+        
+    }
+}
+
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
@@ -1358,6 +1455,30 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 1);
         lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
+    }
+    else if (cb == colourSchemeOptionSelection)
+    {
+        // hide the old colour scheme config options if they are displayed
+        if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+            removeChildComponent(lfpDisplay->getColourSchemePtr());
+        
+        // change the active colour scheme ptr
+        lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
+        
+        // show the new colour scheme's config options if has any
+        
+        if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+        {
+            lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
+                                                        colourSchemeOptionLabel->getBottom(),
+                                                        200,
+                                                        60);
+            addAndMakeVisible(lfpDisplay->getColourSchemePtr());
+        }
+        
+        // update the lfpDisplay's colors and redraw
+        lfpDisplay->setColors();
+        canvas->redraw();
     }
     else if (cb == timebaseSelection)
     {
@@ -1367,37 +1488,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         }
         else
         {
-            canvas->timebase = cb->getText().getFloatValue();
-
-            if (canvas->timebase)
-            {
-                if (canvas->timebase < timebases[0].getFloatValue())
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    canvas->timebase = timebases[0].getFloatValue();
-                }
-                else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
-                {
-                    cb->setSelectedId(timebases.size(),dontSendNotification);
-                    canvas->timebase = timebases[timebases.size()-1].getFloatValue();
-                }
-                else
-                    cb->setText(String(canvas->timebase,1), dontSendNotification);
-            }
-            else
-            {
-                if (selectedSpread == 0)
-                {
-                    cb->setText(selectedTimebaseValue, dontSendNotification);
-                    canvas->timebase = selectedTimebaseValue.getFloatValue();
-                }
-                else
-                {
-                    cb->setSelectedId(selectedTimebase,dontSendNotification);
-                    canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
-                }
-
-            }
+            setTimebaseAndSelectionText(cb->getText().getFloatValue());
         }
     }
     else if (cb == rangeSelection)
@@ -1780,7 +1871,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 #pragma mark - LfpTimescale -
 // -------------------------------------------------------------
 
-LfpTimescale::LfpTimescale(LfpDisplayCanvas* c) : canvas(c)
+LfpTimescale::LfpTimescale(LfpDisplayCanvas* c, LfpDisplay* lfpDisplay)
+    : canvas(c)
+    , lfpDisplay(lfpDisplay)
 {
 
     font = Font("Default", 16, Font::plain);
@@ -1798,18 +1891,120 @@ void LfpTimescale::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("ms:",5,0,100,getHeight(),Justification::left, false);
+    const String timeScaleUnitLabel = (timebase >= 2)?("s:"):("ms:");
+    g.drawText(timeScaleUnitLabel,5,0,100,getHeight(),Justification::left, false);
 
-    for (int i = 1; i < 10; i++)
+    const int steps = labels.size() + 1;
+    for (int i = 0; i < steps; i++)
     {
-        if (i == 5)
-            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),3.0f);
+        
+        // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
+        if (i == 0)
+        {
+            g.drawLine(1,
+                       0,
+                       1,
+                       getHeight(),
+                       3.0f);
+        }
+        if (i != 0 && i % 4 == 0)
+        {
+            g.drawLine(getWidth()/steps*i,
+                       0,
+                       getWidth()/steps*i,
+                       getHeight(),
+                       3.0f);
+        }
+        else if (i != 0 && i % 2 == 0)
+        {
+            g.drawLine(getWidth()/steps*i,
+                       getHeight(),
+                       getWidth()/steps*i,
+                       getHeight() / 2,
+                       3.0f);
+        }
         else
-            g.drawLine(getWidth()/10*i,0,getWidth()/10*i,getHeight(),1.0f);
+        {
+            g.drawLine(getWidth()/steps*i,
+                       getHeight(),
+                       getWidth()/steps*i,
+                       3 * getHeight()/4,
+                       2.0f);
+        }
 
-        g.drawText(labels[i-1],getWidth()/10*i+3,0,100,getHeight(),Justification::left, false);
+        if (i != 0 && i % 2 == 0)
+            g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
     }
 
+}
+
+void LfpTimescale::resized()
+{
+    setTimebase(timebase);
+}
+
+void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
+    {
+        if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
+        {
+            // init state in our track zooming info struct
+            if (!lfpDisplay->trackZoomInfo.isScrollingX)
+            {
+                lfpDisplay->trackZoomInfo.isScrollingX = true;
+                lfpDisplay->trackZoomInfo.timescaleStartScale = timebase;
+            }
+
+            float timescale = lfpDisplay->trackZoomInfo.timescaleStartScale;
+            float dTimescale=0;
+            int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
+
+//            std::cout << dragDeltaX << std::endl;
+            if (dragDeltaX > 0)
+            {
+                dTimescale = 0.01 * dragDeltaX;
+            }
+            else
+            {
+                // TODO: (kelly) change this to scale appropriately for -dragDeltaX
+                if (timescale > 0.25)
+                    dTimescale = 0.01 * dragDeltaX;
+            }
+            
+            if (timescale >= 1) // accelerate scrolling for large ranges
+                dTimescale *= 4;
+            
+            if (timescale >= 5)
+                dTimescale *= 4;
+            
+            if (timescale >= 10)
+                dTimescale *= 4;
+            
+            // round dTimescale to the nearest 0.005 sec
+            dTimescale = ((dTimescale + (0.005/2)) / 0.005) * 0.005;
+            
+            float newTimescale = timescale+dTimescale;
+            
+            if (newTimescale < 0.25) newTimescale = 0.250;
+            if (newTimescale > 20) newTimescale = 20;
+            
+            // don't bother updating if the new timebase is the same as the old (if clipped, for example)
+            if (timescale != newTimescale)
+            {
+                lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
+                setTimebase(canvas->timebase);
+            }
+        }
+    }
+}
+
+void LfpTimescale::mouseUp(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        lfpDisplay->trackZoomInfo.isScrollingX = false;
+    }
 }
 
 void LfpTimescale::setTimebase(float t)
@@ -1817,17 +2012,31 @@ void LfpTimescale::setTimebase(float t)
     timebase = t;
 
     labels.clear();
-
-    for (float i = 1.0f; i < 10.0; i++)
+    
+    const int minWidth = 60;
+    labelIncrement = 0.025f;
+    
+    
+    while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
+           getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
     {
-        String labelString = String(timebase/10.0f*1000.0f*i);
-
+//        std::cout << getWidth() / (timebase / labelIncrement) << " is smaller than minimum width, calculating new step size" << std::endl;
+        if (labelIncrement < 0.2)
+            labelIncrement *= 2;
+        else
+            labelIncrement += 0.2;
+    }
+    
+    for (float i = labelIncrement; i < timebase; i += labelIncrement)
+    {
+        String labelString = String(i * ((timebase >= 2)?(1):(1000.0f)));
         labels.add(labelString.substring(0,6));
     }
 
     repaint();
 
 }
+
 
 
 #pragma mark - LfpDisplay -
@@ -1842,6 +2051,13 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
 {
     perPixelPlotter = new PerPixelBitmapPlotter(this);
 //    histogramPlotter = new HistogramBitmapPlotter(this);
+    
+//    colorScheme = new LfpDefaultColourScheme();
+    colourSchemeList.add(new LfpDefaultColourScheme(this, canvas));
+    colourSchemeList.add(new LfpMonochromaticColourScheme(this, canvas));
+    
+    activeColourScheme = 0;
+    
     
     plotter = perPixelPlotter;
     m_MedianOffsetPlottingFlag = false;
@@ -1861,7 +2077,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
     //    channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
     //}
     
-    setBufferedToImage(true); // TODO: (kelly) test
+//    setBufferedToImage(true); // TODO: (kelly) test
 
     backgroundColour = Colour(0,18,43);
     
@@ -1909,10 +2125,15 @@ int LfpDisplay::getColorGrouping()
 void LfpDisplay::setColorGrouping(int i)
 {
     colorGrouping=i;
+    getColourSchemePtr()->setColourGrouping(i);
     setColors(); // so that channel colors get re-assigned
 
 }
 
+LfpChannelColourScheme * LfpDisplay::getColourSchemePtr()
+{
+    return colourSchemeList[activeColourScheme];
+}
 
 void LfpDisplay::setNumChannels(int numChannels)
 {
@@ -1947,9 +2168,7 @@ void LfpDisplay::setNumChannels(int numChannels)
         //lfpInfo->setColour(channelColours[i % channelColours.size()]);
         lfpInfo->setRange(range[options->getChannelType(i)]);
         lfpInfo->setChannelHeight(canvas->getChannelHeight());
-        
-        // TODO: (kelly) this won't work... samplerate gets set AFTER this method is called
-        lfpInfo->setChannelSampleRate(canvas->getChannelSampleRate(i));
+        lfpInfo->setSubprocessorIdx(canvas->getChannelSubprocessorIdx(i));
 
         addAndMakeVisible(lfpInfo);
 
@@ -1975,15 +2194,40 @@ void LfpDisplay::setNumChannels(int numChannels)
 
 void LfpDisplay::setColors()
 {
-    for (int i = 0; i < numChans; i++)
+    for (int i = 0; i < drawableChannels.size(); i++)
     {
 
-        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);
-        channelInfo[i]->setColour(channelColours[(int(i/colorGrouping)+1)  % channelColours.size()]);
+//        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);
+//        channelInfo[i]->setColour(channelColours[(int(i/colorGrouping)+1)  % channelColours.size()]);
+        drawableChannels[i].channel->setColour(getColourSchemePtr()->getColourForIndex(i));
+        drawableChannels[i].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(i));
     }
 
 }
 
+void LfpDisplay::setActiveColourSchemeIdx(int index)
+{
+    activeColourScheme = index;
+}
+
+int LfpDisplay::getActiveColourSchemeIdx()
+{
+    return activeColourScheme;
+}
+
+int LfpDisplay::getNumColourSchemes()
+{
+    return colourSchemeList.size();
+}
+
+StringArray LfpDisplay::getColourSchemeNameArray()
+{
+    StringArray nameList;
+    for (auto scheme : colourSchemeList)
+        nameList.add(scheme->getName());
+    
+    return nameList;
+}
 
 int LfpDisplay::getTotalHeight()
 {
@@ -1992,35 +2236,7 @@ int LfpDisplay::getTotalHeight()
 
 void LfpDisplay::resized()
 {
-    
-    //canvas->channelOverlapFactor
-
     int totalHeight = 0;
-
-//    for (int i = 0; i < channels.size(); i++)
-//    {
-//
-//        LfpChannelDisplay* disp = channels[i];
-//        
-//        if (disp->getHidden()) continue;
-//
-//        disp->setBounds(canvas->leftmargin,
-//                        totalHeight-(disp->getChannelOverlap()*canvas->channelOverlapFactor)/2,
-//                        getWidth(),
-//                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
-//
-//        disp-> resized();
-//        
-//        LfpChannelDisplayInfo* info = channelInfo[i];
-//
-//        info->setBounds(0,
-//                        totalHeight-disp->getChannelHeight()/4,
-//                        canvas->leftmargin + 50,
-//                        disp->getChannelHeight());
-//
-//        totalHeight += disp->getChannelHeight();
-//
-//    }
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -2039,9 +2255,11 @@ void LfpDisplay::resized()
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
         
         info->setBounds(0,
-                        totalHeight-disp->getChannelHeight()/4,
+//                        totalHeight-disp->getChannelHeight()/4,
+                        totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvas->channelOverlapFactor)/4.0,
                         canvas->leftmargin + 50,
                         disp->getChannelHeight());
+//                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
         
         totalHeight += disp->getChannelHeight();
         
@@ -2258,6 +2476,28 @@ void LfpDisplay::cacheNewChannelHeight(int r)
     cachedDisplayChannelHeight = r;
 }
 
+float LfpDisplay::getDisplayedSampleRate()
+{
+    return drawableSampleRate;
+}
+
+// Must manually call rebuildDrawableChannelsList after this is set, typically will happen
+// already as a result of some other procedure
+void LfpDisplay::setDisplayedSampleRate(float samplerate)
+{
+//    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
+    drawableSampleRate = samplerate;
+}
+
+int LfpDisplay::getDisplayedSubprocessor()
+{
+    return drawableSubprocessorIdx;
+}
+
+void LfpDisplay::setDisplayedSubprocessor(int subProcessorIdx)
+{
+    drawableSubprocessorIdx = subProcessorIdx;
+}
 
 bool LfpDisplay::getChannelsReversed()
 {
@@ -2266,8 +2506,6 @@ bool LfpDisplay::getChannelsReversed()
 
 void LfpDisplay::setChannelsReversed(bool state)
 {
-    // TODO: (kelly) clean up this method
-    
     if (state == channelsReversed) return; // bail early, in case bookkeeping error
     
     channelsReversed = state;
@@ -2288,7 +2526,6 @@ void LfpDisplay::setChannelsReversed(bool state)
         
         // swap front and back, moving towards middle
         drawableChannels.swap(i, j);
-//        channelInfo.swap(i, j);
         
         // also swap coords
         {
@@ -2339,6 +2576,8 @@ void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
     
     if (!getSingleChannelState())
         rebuildDrawableChannelsList();
+    
+    canvas->redraw();
 }
 
 bool LfpDisplay::getMedianOffsetPlotting()
@@ -2448,37 +2687,14 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-    //std::cout << "Toggle channel " << chan << std::endl;
-
-    
-    //if (chan != singleChan)
     if (!getSingleChannelState())
     {
-//        std::cout << "Single channel on" << std::endl;
-//        singleChan = chan;
-//
-//        int newHeight = viewport->getHeight();
-//		channelInfo[chan]->setEnabledState(true);
-//        channelInfo[chan]->setSingleChannelState(true);
-//        setChannelHeight(newHeight, false);
-//        setSize(getWidth(), numChans*getChannelHeight());
-//
-//        viewport->setScrollBarsShown(false,false);
-//        viewport->setViewPosition(Point<int>(0,chan*newHeight));
-//
-//        for (int i = 0; i < channels.size(); i++)
-//        {
-//            if (i != chan)
-//                channels[i]->setEnabledState(false);
-//        }
         
         std::cout << "Single channel on (" << chan << ")" << std::endl;
         singleChan = chan;
         
         int newHeight = viewport->getHeight();
         LfpChannelTrack lfpChannelTrack{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
-//        drawableChannels[chan].channelInfo->setEnabledState(true);
-//        drawableChannels[chan].channelInfo->setSingleChannelState(true);
         lfpChannelTrack.channelInfo->setEnabledState(true);
         lfpChannelTrack.channelInfo->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
@@ -2486,7 +2702,6 @@ void LfpDisplay::toggleSingleChannel(int chan)
         
         viewport->setScrollBarsShown(false, false);
         viewport->setViewPosition(Point<int>(0, chan*newHeight));
-//        viewport->setViewPosition(Point<int>(0, 0));
         
         // disable unused channels
         for (int i = 0; i < drawableChannels.size(); i++)
@@ -2512,7 +2727,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
         {
             channelInfo[n]->setSingleChannelState(false);
         }
-        //drawableChannels[0].channelInfo->setSingleChannelState(false);
+        
         setChannelHeight(cachedDisplayChannelHeight);
 
         reactivateChannels();
@@ -2536,10 +2751,18 @@ void LfpDisplay::rebuildDrawableChannelsList()
     Array<LfpChannelTrack> channelsToDraw;
     drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
     
-    
     // iterate over all channels and select drawable ones
     for (size_t i = 0; i < channels.size(); i++)
     {
+//        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
+        // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
+        if (channelInfo[i]->getSubprocessorIdx() != getDisplayedSubprocessor())
+        {
+            channels[i]->setHidden(true);
+            channelInfo[i]->setHidden(true);
+            continue;
+        }
+        
         if (displaySkipAmt == 0) // no skips, add all channels
         {
             channels[i]->setHidden(false);
@@ -2595,7 +2818,14 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
     
-    canvas->resizeToChannels();
+    // this guards against an exception where the editor sets the drawable samplerate
+    // before the lfpDisplay is fully initialized
+    if (getHeight() > 0 && getWidth() > 0)
+    {
+        canvas->resizeToChannels();
+    }
+    
+    setColors();
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
@@ -2628,7 +2858,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+//        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {
@@ -2721,6 +2951,7 @@ bool LfpDisplay::getEnabledState(int chan)
 
     return false;
 }
+
 
 
 #pragma mark - LfpChannelDisplay -
@@ -3261,6 +3492,7 @@ DataChannel::DataChannelTypes LfpChannelDisplay::getType()
 }
 
 
+
 #pragma mark - LfpChannelDisplayInfo -
 // -------------------------------
 
@@ -3272,7 +3504,8 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     x = -1.0f;
     y = -1.0f;
 
-    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
+//    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
+    enableButton = new UtilityButton("*", Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
 
     enableButton->setEnabledState(true);
@@ -3280,6 +3513,8 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
     enableButton->setToggleState(true, dontSendNotification);
+    
+    isSingleChannel = false;
 
     addAndMakeVisible(enableButton);
 
@@ -3408,39 +3643,58 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
-    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
-    g.setColour(lineColour);
-
+//    g.setColour(lineColour);
     //if (chan > 98)
     //  g.fillRoundedRectangle(5,center-8,51,22,8.0f);
     //else
-    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
-
-    g.setFont(Font("Small Text", 13, Font::plain));
-    g.drawText(typeStr,5,center+16,41,10,Justification::centred,false);
+    
+//    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
+    
+    // Draw the channel numbers
+    g.setColour(Colours::grey);
+    const String channelString = (isChannelNumberHidden() ? ("--") : String(getChannelNumber() + 1));
+    bool isCentered = !getEnabledButtonVisibility();
+    
+    g.drawText(channelString,
+               2,
+               center-4,
+               isCentered ? (getWidth()/2-4) : (getWidth()/4),
+               10,
+               isCentered ? Justification::centred : Justification::centredRight,
+               false);
+    
+    g.setColour(lineColour);
+    g.fillRect(0, 0, 2, getHeight());
+    
+    if (getChannelTypeStringVisibility())
+    {
+        g.setFont(Font("Small Text", 13, Font::plain));
+        g.drawText(typeStr,5,center+10,41,10,Justification::centred,false);
+    }
     // g.setFont(channelHeightFloat*0.3);
     g.setFont(Font("Small Text", 11, Font::plain));
 
     if (isSingleChannel)
     {
         g.setColour(Colours::darkgrey);
-        g.drawText("STD:", 5, center+100,41,10,Justification::centred,false);
-        g.drawText("MEAN:", 5, center+50,41,10,Justification::centred,false);
+        g.drawText("STD:", 5, center+90,41,10,Justification::centred,false);
+        g.drawText("MEAN:", 5, center+40,41,10,Justification::centred,false);
         
         if (x > 0)
         {
-            g.drawText("uV:", 5, center+150,41,10,Justification::centred,false);
+            g.drawText("uV:", 5, center+140,41,10,Justification::centred,false);
         }
         //g.drawText("Y:", 5, center+200,41,10,Justification::centred,false);
 
         g.setColour(Colours::grey);
-        g.drawText(String(canvas->getStd(chan)), 5, center+120,41,10,Justification::centred,false);
-        g.drawText(String(canvas->getMean(chan)), 5, center+70,41,10,Justification::centred,false);
+        g.drawText(String(canvas->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
+        g.drawText(String(canvas->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
         if (x > 0)
         {
             //g.drawText(String(x), 5, center+150,41,10,Justification::centred,false);
-            g.drawText(String(y), 5, center+170,41,10,Justification::centred,false);
+            g.drawText(String(y), 5, center+160,41,10,Justification::centred,false);
         }
         
     }
@@ -3458,13 +3712,64 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 void LfpChannelDisplayInfo::resized()
 {
 
-    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
     //if (chan > 98)
     //  enableButton->setBounds(8,center-5,45,16);
     //else
-    enableButton->setBounds(8,center-5,35,16);
+//    enableButton->setBounds(8,center-5,35,16);
+    
+    setEnabledButtonVisibility(getHeight() >= 16);
+    
+    if (getEnabledButtonVisibility())
+    {
+        enableButton->setBounds(getWidth()/4 + 5, (center) - 7, 15, 15);
+    }
+    
+    setChannelNumberIsHidden(getHeight() < 16 && (getChannelNumber() + 1) % 10 != 0);
+    
+    setChannelTypeStringVisibility(getHeight() > 34);
 }
+
+void LfpChannelDisplayInfo::setEnabledButtonVisibility(bool shouldBeVisible)
+{
+    if (shouldBeVisible)
+    {
+        addAndMakeVisible(enableButton);
+    }
+    else if (enableButton->isVisible())
+    {
+        removeChildComponent(enableButton);
+        enableButton->setVisible(false);
+    }
+    
+}
+
+bool LfpChannelDisplayInfo::getEnabledButtonVisibility()
+{
+    return enableButton->isVisible();
+}
+
+void LfpChannelDisplayInfo::setChannelTypeStringVisibility(bool shouldBeVisible)
+{
+    channelTypeStringIsVisible = shouldBeVisible;
+}
+
+bool LfpChannelDisplayInfo::getChannelTypeStringVisibility()
+{
+    return channelTypeStringIsVisible || isSingleChannel;
+}
+
+void LfpChannelDisplayInfo::setChannelNumberIsHidden(bool shouldBeHidden)
+{
+    channelNumberHidden = shouldBeHidden;
+}
+
+bool LfpChannelDisplayInfo::isChannelNumberHidden()
+{
+    return channelNumberHidden;
+}
+
 
 
 #pragma mark - EventDisplayInterface -
@@ -3536,6 +3841,7 @@ void EventDisplayInterface::paint(Graphics& g)
 }
 
 
+
 #pragma mark - LfpViewport -
 // Lfp Viewport -------------------------------------------
 
@@ -3550,6 +3856,8 @@ void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
     canvas->fullredraw = true;
     canvas->refresh();
 }
+
+
 
 #pragma mark - PerPixelBitmapPlotter -
 
@@ -3581,5 +3889,216 @@ void PerPixelBitmapPlotter::plot(Image::BitmapData &bitmapData, LfpBitmapPlotter
         
         bitmapData.setPixelColour(plotterInfo.samp,j,plotterInfo.lineColour);
         
+    }
+}
+
+
+
+#pragma mark - LfpChannelColourScheme -
+
+int LfpChannelColourScheme::colourGrouping = 1;
+
+void LfpChannelColourScheme::setColourGrouping(int grouping)
+{
+    colourGrouping = grouping;
+}
+
+int LfpChannelColourScheme::getColourGrouping()
+{
+    return colourGrouping;
+}
+
+
+
+#pragma mark - LfpDefaultColourScheme -
+
+Array<Colour> LfpDefaultColourScheme::colourList = []() -> Array<Colour> {
+    Array<Colour> colours;
+    colours.add(Colour(224,185,36));
+    colours.add(Colour(214,210,182));
+    colours.add(Colour(243,119,33));
+    colours.add(Colour(186,157,168));
+    colours.add(Colour(237,37,36));
+    colours.add(Colour(179,122,79));
+    colours.add(Colour(217,46,171));
+    colours.add(Colour(217, 139,196));
+    colours.add(Colour(101,31,255));
+    colours.add(Colour(141,111,181));
+    colours.add(Colour(48,117,255));
+    colours.add(Colour(184,198,224));
+    colours.add(Colour(116,227,156));
+    colours.add(Colour(150,158,155));
+    colours.add(Colour(82,173,0));
+    colours.add(Colour(125,99,32));
+    return colours;
+}();
+
+LfpDefaultColourScheme::LfpDefaultColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
+    : LfpDisplayNodeAlpha::LfpChannelColourScheme(LfpDefaultColourScheme::colourList.size(), display, canvas)
+{
+    setName("Default");
+}
+
+void LfpDefaultColourScheme::paint(Graphics &g)
+{
+    
+}
+
+void LfpDefaultColourScheme::resized()
+{
+    
+}
+
+const Colour LfpDefaultColourScheme::getColourForIndex(int index) const
+{
+//    return colourList[index % colourList.size()];
+    return colourList[(int(index/colourGrouping)) % colourList.size()];
+}
+
+
+
+#pragma mark - LfpMonochromaticColorScheme
+
+LfpMonochromaticColourScheme::LfpMonochromaticColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
+    : LfpChannelColourScheme(8, display, canvas)
+    , isBlackAndWhite(false)
+{
+    setName("Monochromatic");
+    
+    numChannelsLabel = new Label("numChannelsLabel", "Num Color Steps");
+    numChannelsLabel->setFont(Font("Default", 13.0f, Font::plain));
+    numChannelsLabel->setColour(Label::textColourId, Colour(100, 100, 100));
+    addAndMakeVisible(numChannelsLabel);
+    
+    StringArray numChannelsSelectionOptions = {"4", "8", "16"};
+    numChannelsSelection = new ComboBox("numChannelsSelection");
+    numChannelsSelection->addItemList(numChannelsSelectionOptions, 1);
+    numChannelsSelection->setEditableText(true);
+    numChannelsSelection->addListener(this);
+    numChannelsSelection->setSelectedId(2, dontSendNotification);
+    addAndMakeVisible(numChannelsSelection);
+    
+    
+    baseHueLabel = new Label("baseHue", "Hue");
+    baseHueLabel->setFont(Font("Default", 13.0f, Font::plain));
+    baseHueLabel->setColour(Label::textColourId, Colour(100, 100, 100));
+    addAndMakeVisible(baseHueLabel);
+    
+    baseHueSlider = new Slider;
+    baseHueSlider->setRange(0, 1);
+    baseHueSlider->setValue(0);
+    baseHueSlider->setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+    baseHueSlider->addListener(this);
+    addAndMakeVisible(baseHueSlider);
+    
+    baseHueSlider->addMouseListener(this, true);
+    
+    baseHue = Colour::fromHSV(0, 1, 1, 1);
+    swatchHue = baseHue;
+    
+    calculateColourSeriesFromBaseHue();
+}
+
+void LfpMonochromaticColourScheme::paint(Graphics &g)
+{
+    g.setColour(swatchHue);
+    g.fillRect(colourSwatchRect);
+}
+
+void LfpMonochromaticColourScheme::resized()
+{
+    numChannelsLabel->setBounds(0, 5, 120, 25);
+    numChannelsSelection->setBounds(numChannelsLabel->getRight(),
+                                    numChannelsLabel->getY(),
+                                    60,
+                                    25);
+    
+    baseHueLabel->setBounds(0, numChannelsLabel->getBottom() + 10, 35, 25);
+    baseHueSlider->setBounds(baseHueLabel->getRight(),
+                             baseHueLabel->getY(),
+                             numChannelsSelection->getRight() - baseHueLabel->getRight() - 20,
+                             25);
+    
+    colourSwatchRect.setBounds(baseHueSlider->getRight() + 5, baseHueSlider->getY() + 5, 15, baseHueSlider->getHeight() - 10);
+    
+}
+
+void LfpMonochromaticColourScheme::sliderValueChanged(Slider *sl)
+{
+    swatchHue = Colour::fromHSV(sl->getValue(), 1, 1, 1);
+//    calculateColourSeriesFromBaseHue();
+//    lfpDisplay->setColors();
+    repaint(colourSwatchRect);
+}
+
+void LfpMonochromaticColourScheme::comboBoxChanged(ComboBox *cb)
+{
+    int numChannelsColourSpread = 0;
+    if (cb->getSelectedId())
+    {
+        numChannelsColourSpread = cb->getText().getIntValue();
+    }
+    else
+    {
+        numChannelsColourSpread = cb->getText().getIntValue();
+        if (numChannelsColourSpread < 1) numChannelsColourSpread = 1;
+        else if (numChannelsColourSpread > 16) numChannelsColourSpread = 16;
+        
+        cb->setText(String(numChannelsColourSpread), dontSendNotification);
+    }
+    
+    setNumColourSeriesSteps(numChannelsColourSpread);
+    calculateColourSeriesFromBaseHue();
+    lfpDisplay->setColors();
+//    canvas->fullredraw = true;
+    canvas->redraw();
+}
+
+void LfpMonochromaticColourScheme::mouseUp(const MouseEvent &e)
+{
+    if (swatchHue.getARGB() != baseHue.getARGB())
+    {
+        baseHue = swatchHue;
+        calculateColourSeriesFromBaseHue();
+        lfpDisplay->setColors();
+        canvas->redraw();
+    }
+}
+
+void LfpMonochromaticColourScheme::setBaseHue(Colour base)
+{
+    baseHue = base;
+    calculateColourSeriesFromBaseHue();
+}
+
+const Colour LfpMonochromaticColourScheme::getBaseHue() const
+{
+    return baseHue;
+}
+
+void LfpMonochromaticColourScheme::setNumColourSeriesSteps(int numSteps)
+{
+    numColourChannels = numSteps;
+}
+
+int LfpMonochromaticColourScheme::getNumColourSeriesSteps()
+{
+    return numColourChannels;
+}
+
+const Colour LfpMonochromaticColourScheme::getColourForIndex(int index) const
+{
+//    std::cout << "getting colour for channel " << index << std::endl;
+    return colourList[(int(index/colourGrouping)) % colourList.size()];
+}
+
+void LfpMonochromaticColourScheme::calculateColourSeriesFromBaseHue()
+{
+    colourList.clear();
+    for (int i = 0; i < numColourChannels; ++i)
+    {
+        float saturation = 1 - (i / float(numColourChannels + 1));
+        colourList.add(baseHue.withMultipliedSaturation(saturation));
+//        std::cout << colourList[i].toString() << std::endl;
     }
 }

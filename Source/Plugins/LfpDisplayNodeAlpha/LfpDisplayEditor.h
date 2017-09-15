@@ -30,7 +30,10 @@
 
 class Visualizer;
 
-namespace LfpDisplayNodeAlpha { 
+namespace LfpDisplayNodeAlpha {
+    
+class LfpDisplayNode;
+class LfpDisplayCanvas;
 
 /**
 
@@ -40,19 +43,51 @@ namespace LfpDisplayNodeAlpha {
 
 */
 
-class LfpDisplayEditor : public VisualizerEditor
+class LfpDisplayEditor : public VisualizerEditor,
+                         public ComboBox::Listener
 {
 public:
     LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~LfpDisplayEditor();
 
+    /** Override the default VisualizerEditor behavior slightly, only for
+        initialization 
+     */
+    void buttonClicked(Button* button) override;
     // not really being used (yet) ...
     void buttonEvent(Button* button);
+    /** Respond to user's subprocessor sample rate selection */
+    void comboBoxChanged(ComboBox *cb);
 
+    /** Called by the base class VisualizerEditor to display the canvas
+        when the user chooses to display one
+     
+        @see VisualizerEditor::buttonClicked
+     */
     Visualizer* createNewCanvas();
+    
+    /** Handle the state and options within the subprocessor sample rate
+        selection combobox 
+     */
+    void updateSubprocessorSelectorOptions();
 
 private:
+    
+    HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
+    SortedSet<int> inputSubprocessorIndices;
+    
+    LfpDisplayNode* lfpProcessor;
 
+    // label and combobox for subprocessor selection
+    ScopedPointer<Label> subprocessorSelectionLabel;
+    ScopedPointer<ComboBox> subprocessorSelection;
+    
+    ScopedPointer<Label> subprocessorSampleRateLabel;
+    
+    /** Communicates the drawable subprocessor information to the canvas, if
+     one exists
+     */
+    void setCanvasDrawableSubprocessor(int index);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 
