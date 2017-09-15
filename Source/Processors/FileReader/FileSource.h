@@ -81,7 +81,7 @@ protected:
 
     bool fileOpened;
     int numRecords;
-    int activeRecord;
+    Atomic<int> activeRecord;       // atomic to protect against threaded data race in FileReader
     String filename;
 
 

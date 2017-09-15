@@ -808,7 +808,18 @@ private:
     int subProcessorIdx;
     
     ScopedPointer<UtilityButton> enableButton;
+    
+    bool channelTypeStringIsVisible;
+    bool channelNumberHidden;
+    
+    void setEnabledButtonVisibility(bool shouldBeVisible);
+    bool getEnabledButtonVisibility();
 
+    void setChannelTypeStringVisibility(bool shouldBeVisible);
+    bool getChannelTypeStringVisibility();
+    
+    void setChannelNumberIsHidden(bool shouldBeHidden);
+    bool isChannelNumberHidden();
 };
 
     

@@ -1895,10 +1895,18 @@ void LfpTimescale::paint(Graphics& g)
     g.drawText(timeScaleUnitLabel,5,0,100,getHeight(),Justification::left, false);
 
     const int steps = labels.size() + 1;
-    for (int i = 1; i < steps; i++)
+    for (int i = 0; i < steps; i++)
     {
         
         // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
+        if (i == 0)
+        {
+            g.drawLine(1,
+                       0,
+                       1,
+                       getHeight(),
+                       3.0f);
+        }
         if (i != 0 && i % 4 == 0)
         {
             g.drawLine(getWidth()/steps*i,
@@ -1924,7 +1932,7 @@ void LfpTimescale::paint(Graphics& g)
                        2.0f);
         }
 
-        if (i % 2 == 0)
+        if (i != 0 && i % 2 == 0)
             g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
     }
 
@@ -2247,9 +2255,11 @@ void LfpDisplay::resized()
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
         
         info->setBounds(0,
-                        totalHeight-disp->getChannelHeight()/4,
+//                        totalHeight-disp->getChannelHeight()/4,
+                        totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvas->channelOverlapFactor)/4.0,
                         canvas->leftmargin + 50,
                         disp->getChannelHeight());
+//                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
         
         totalHeight += disp->getChannelHeight();
         
@@ -2566,6 +2576,8 @@ void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
     
     if (!getSingleChannelState())
         rebuildDrawableChannelsList();
+    
+    canvas->redraw();
 }
 
 bool LfpDisplay::getMedianOffsetPlotting()
@@ -2846,7 +2858,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+//        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {
@@ -3492,7 +3504,8 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     x = -1.0f;
     y = -1.0f;
 
-    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
+//    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
+    enableButton = new UtilityButton("*", Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
 
     enableButton->setEnabledState(true);
@@ -3500,6 +3513,8 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
     enableButton->setToggleState(true, dontSendNotification);
+    
+    isSingleChannel = false;
 
     addAndMakeVisible(enableButton);
 
@@ -3628,39 +3643,58 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
-    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
-    g.setColour(lineColour);
-
+//    g.setColour(lineColour);
     //if (chan > 98)
     //  g.fillRoundedRectangle(5,center-8,51,22,8.0f);
     //else
-    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
-
-    g.setFont(Font("Small Text", 13, Font::plain));
-    g.drawText(typeStr,5,center+16,41,10,Justification::centred,false);
+    
+//    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
+    
+    // Draw the channel numbers
+    g.setColour(Colours::grey);
+    const String channelString = (isChannelNumberHidden() ? ("--") : String(getChannelNumber() + 1));
+    bool isCentered = !getEnabledButtonVisibility();
+    
+    g.drawText(channelString,
+               2,
+               center-4,
+               isCentered ? (getWidth()/2-4) : (getWidth()/4),
+               10,
+               isCentered ? Justification::centred : Justification::centredRight,
+               false);
+    
+    g.setColour(lineColour);
+    g.fillRect(0, 0, 2, getHeight());
+    
+    if (getChannelTypeStringVisibility())
+    {
+        g.setFont(Font("Small Text", 13, Font::plain));
+        g.drawText(typeStr,5,center+10,41,10,Justification::centred,false);
+    }
     // g.setFont(channelHeightFloat*0.3);
     g.setFont(Font("Small Text", 11, Font::plain));
 
     if (isSingleChannel)
     {
         g.setColour(Colours::darkgrey);
-        g.drawText("STD:", 5, center+100,41,10,Justification::centred,false);
-        g.drawText("MEAN:", 5, center+50,41,10,Justification::centred,false);
+        g.drawText("STD:", 5, center+90,41,10,Justification::centred,false);
+        g.drawText("MEAN:", 5, center+40,41,10,Justification::centred,false);
         
         if (x > 0)
         {
-            g.drawText("uV:", 5, center+150,41,10,Justification::centred,false);
+            g.drawText("uV:", 5, center+140,41,10,Justification::centred,false);
         }
         //g.drawText("Y:", 5, center+200,41,10,Justification::centred,false);
 
         g.setColour(Colours::grey);
-        g.drawText(String(canvas->getStd(chan)), 5, center+120,41,10,Justification::centred,false);
-        g.drawText(String(canvas->getMean(chan)), 5, center+70,41,10,Justification::centred,false);
+        g.drawText(String(canvas->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
+        g.drawText(String(canvas->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
         if (x > 0)
         {
             //g.drawText(String(x), 5, center+150,41,10,Justification::centred,false);
-            g.drawText(String(y), 5, center+170,41,10,Justification::centred,false);
+            g.drawText(String(y), 5, center+160,41,10,Justification::centred,false);
         }
         
     }
@@ -3678,12 +3712,62 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 void LfpChannelDisplayInfo::resized()
 {
 
-    int center = getHeight()/2;
+    int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
     //if (chan > 98)
     //  enableButton->setBounds(8,center-5,45,16);
     //else
-    enableButton->setBounds(8,center-5,35,16);
+//    enableButton->setBounds(8,center-5,35,16);
+    
+    setEnabledButtonVisibility(getHeight() >= 16);
+    
+    if (getEnabledButtonVisibility())
+    {
+        enableButton->setBounds(getWidth()/4 + 5, (center) - 7, 15, 15);
+    }
+    
+    setChannelNumberIsHidden(getHeight() < 16 && (getChannelNumber() + 1) % 10 != 0);
+    
+    setChannelTypeStringVisibility(getHeight() > 34);
+}
+
+void LfpChannelDisplayInfo::setEnabledButtonVisibility(bool shouldBeVisible)
+{
+    if (shouldBeVisible)
+    {
+        addAndMakeVisible(enableButton);
+    }
+    else if (enableButton->isVisible())
+    {
+        removeChildComponent(enableButton);
+        enableButton->setVisible(false);
+    }
+    
+}
+
+bool LfpChannelDisplayInfo::getEnabledButtonVisibility()
+{
+    return enableButton->isVisible();
+}
+
+void LfpChannelDisplayInfo::setChannelTypeStringVisibility(bool shouldBeVisible)
+{
+    channelTypeStringIsVisible = shouldBeVisible;
+}
+
+bool LfpChannelDisplayInfo::getChannelTypeStringVisibility()
+{
+    return channelTypeStringIsVisible || isSingleChannel;
+}
+
+void LfpChannelDisplayInfo::setChannelNumberIsHidden(bool shouldBeHidden)
+{
+    channelNumberHidden = shouldBeHidden;
+}
+
+bool LfpChannelDisplayInfo::isChannelNumberHidden()
+{
+    return channelNumberHidden;
 }
 
 
