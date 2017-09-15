@@ -1248,7 +1248,7 @@ void LfpDisplayOptions::resized()
         lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                     colourSchemeOptionLabel->getBottom(),
                                                     200,
-                                                    60);
+                                                    100);
     }
 }
 
@@ -1472,7 +1472,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                         colourSchemeOptionLabel->getBottom(),
                                                         200,
-                                                        60);
+                                                        100);
             addAndMakeVisible(lfpDisplay->getColourSchemePtr());
         }
         
@@ -3876,8 +3876,9 @@ const Colour LfpDefaultColourScheme::getColourForIndex(int index) const
 #pragma mark - LfpMonochromaticColorScheme
 
 LfpMonochromaticColourScheme::LfpMonochromaticColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
-    : LfpChannelColourScheme(8, display, canvas)
-    , isBlackAndWhite(false)
+    : LfpChannelColourScheme (8, display, canvas)
+    , isBlackAndWhite (false)
+    , colourPattern (DOWN_UP)
 {
     setName("Monochromatic");
     
@@ -3909,6 +3910,20 @@ LfpMonochromaticColourScheme::LfpMonochromaticColourScheme(LfpDisplay* display, 
     
     baseHueSlider->addMouseListener(this, true);
     
+    
+    colourPatternLabel = new Label("colourPatternLabel", "Pattern");
+    colourPatternLabel->setFont(Font("Default", 13.0f, Font::plain));
+    colourPatternLabel->setColour(Label::textColourId, Colour(100, 100, 100));
+    addAndMakeVisible(colourPatternLabel);
+    
+    StringArray colourPatternSelectionOptions = {"Down", "Up", "Down-Up", "Up-Down"};
+    colourPatternSelection = new ComboBox("colourPatternSelection");
+    colourPatternSelection->addItemList(colourPatternSelectionOptions, 1);
+    colourPatternSelection->setEditableText(false);
+    colourPatternSelection->addListener(this);
+    colourPatternSelection->setSelectedId(colourPattern + 1, dontSendNotification);
+    addAndMakeVisible(colourPatternSelection);
+    
     baseHue = Colour::fromHSV(0, 1, 1, 1);
     swatchHue = baseHue;
     
@@ -3929,7 +3944,7 @@ void LfpMonochromaticColourScheme::resized()
                                     60,
                                     25);
     
-    baseHueLabel->setBounds(0, numChannelsLabel->getBottom() + 10, 35, 25);
+    baseHueLabel->setBounds(0, numChannelsLabel->getBottom(), 35, 25);
     baseHueSlider->setBounds(baseHueLabel->getRight(),
                              baseHueLabel->getY(),
                              numChannelsSelection->getRight() - baseHueLabel->getRight() - 20,
@@ -3937,33 +3952,44 @@ void LfpMonochromaticColourScheme::resized()
     
     colourSwatchRect.setBounds(baseHueSlider->getRight() + 5, baseHueSlider->getY() + 5, 15, baseHueSlider->getHeight() - 10);
     
+    colourPatternLabel->setBounds(0, baseHueLabel->getBottom(), 80, 25);
+    colourPatternSelection->setBounds(colourPatternLabel->getRight(),
+                                      colourPatternLabel->getY(),
+                                      numChannelsSelection->getRight() - colourPatternLabel->getRight(),
+                                      25);
+    
 }
 
 void LfpMonochromaticColourScheme::sliderValueChanged(Slider *sl)
 {
     swatchHue = Colour::fromHSV(sl->getValue(), 1, 1, 1);
-//    calculateColourSeriesFromBaseHue();
-//    lfpDisplay->setColors();
     repaint(colourSwatchRect);
 }
 
 void LfpMonochromaticColourScheme::comboBoxChanged(ComboBox *cb)
 {
-    int numChannelsColourSpread = 0;
-    if (cb->getSelectedId())
+    if (cb == numChannelsSelection)
     {
-        numChannelsColourSpread = cb->getText().getIntValue();
-    }
-    else
-    {
-        numChannelsColourSpread = cb->getText().getIntValue();
-        if (numChannelsColourSpread < 1) numChannelsColourSpread = 1;
-        else if (numChannelsColourSpread > 16) numChannelsColourSpread = 16;
+        int numChannelsColourSpread = 0;
+        if (cb->getSelectedId())
+        {
+            numChannelsColourSpread = cb->getText().getIntValue();
+        }
+        else
+        {
+            numChannelsColourSpread = cb->getText().getIntValue();
+            if (numChannelsColourSpread < 1) numChannelsColourSpread = 1;
+            else if (numChannelsColourSpread > 16) numChannelsColourSpread = 16;
+            
+            cb->setText(String(numChannelsColourSpread), dontSendNotification);
+        }
         
-        cb->setText(String(numChannelsColourSpread), dontSendNotification);
+        setNumColourSeriesSteps(numChannelsColourSpread);
     }
-    
-    setNumColourSeriesSteps(numChannelsColourSpread);
+    else if (cb == colourPatternSelection)
+    {
+        setColourPattern((ColourPattern)(cb->getSelectedId() - 1));
+    }
     calculateColourSeriesFromBaseHue();
     lfpDisplay->setColors();
 //    canvas->fullredraw = true;
@@ -4004,17 +4030,48 @@ int LfpMonochromaticColourScheme::getNumColourSeriesSteps()
 
 const Colour LfpMonochromaticColourScheme::getColourForIndex(int index) const
 {
-//    std::cout << "getting colour for channel " << index << std::endl;
-    return colourList[(int(index/colourGrouping)) % colourList.size()];
+    int colourIdx = (int(index/colourGrouping) % numColourChannels);
+    
+    // adjust for oscillating patterns
+    if (colourPattern == DOWN_UP || colourPattern == UP_DOWN)
+    {
+        int mid = numColourChannels / 2;
+        if (colourIdx > mid)
+        {
+            if (numColourChannels % 2 == 0)
+                colourIdx = numColourChannels - colourIdx;
+            else
+                colourIdx = (numColourChannels - colourIdx) * 2 - 1;
+        }
+        else if (numColourChannels % 2 != 0)
+        {
+            colourIdx *= 2;
+        }
+    }
+    
+    // invert if the pattern is UP or UP_DOWN
+    if (colourPattern == UP)
+        colourIdx = (numColourChannels - 1) - colourIdx;
+    else if (colourPattern == UP_DOWN)
+        colourIdx = (colourList.size() - 1) - colourIdx;
+    
+    return colourList[colourIdx];
 }
 
 void LfpMonochromaticColourScheme::calculateColourSeriesFromBaseHue()
 {
     colourList.clear();
-    for (int i = 0; i < numColourChannels; ++i)
+    
+    int coloursToCalculate = numColourChannels;
+    
+    if (numColourChannels % 2 == 0 && (colourPattern == DOWN_UP || colourPattern == UP_DOWN))
     {
-        float saturation = 1 - (i / float(numColourChannels + 1));
+        coloursToCalculate = coloursToCalculate / 2 + 1;
+    }
+    
+    for (int i = 0; i < coloursToCalculate; ++i)
+    {
+        float saturation = 1 - (i / float(coloursToCalculate + 1));
         colourList.add(baseHue.withMultipliedSaturation(saturation));
-//        std::cout << colourList[i].toString() << std::endl;
     }
 }

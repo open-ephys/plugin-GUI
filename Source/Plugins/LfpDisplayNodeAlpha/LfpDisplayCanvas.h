@@ -983,6 +983,14 @@ private:
     
     
 #pragma mark - LfpMonochromaticColourScheme -
+enum ColourPattern
+{
+    DOWN = 0,
+    UP,
+    DOWN_UP,
+    UP_DOWN
+};
+    
 class LfpMonochromaticColourScheme : public LfpChannelColourScheme,
     public ComboBox::Listener,
     public Slider::Listener
@@ -1005,21 +1013,28 @@ public:
     void setBaseHue(Colour base);
     const Colour getBaseHue() const;
     
+    void setColourPattern(ColourPattern newPattern) { colourPattern = newPattern; }
+    ColourPattern getColourPattern() { return colourPattern; }
+    
     void setNumColourSeriesSteps(int numSteps);
     int getNumColourSeriesSteps();
     
     virtual const Colour getColourForIndex(int index) const override;
     
 private:
-    bool isBlackAndWhite;
+    bool isBlackAndWhite; // Not used yet
     Colour baseHue;
     Colour swatchHue;
     Array<Colour> colourList;
+    
+    ColourPattern colourPattern;
     
     ScopedPointer<Label> numChannelsLabel;
     ScopedPointer<ComboBox> numChannelsSelection;
     ScopedPointer<Label> baseHueLabel;
     ScopedPointer<Slider> baseHueSlider;
+    ScopedPointer<Label> colourPatternLabel;
+    ScopedPointer<ComboBox> colourPatternSelection;
     
     Rectangle<int> colourSwatchRect;
     
