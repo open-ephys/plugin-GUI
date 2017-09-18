@@ -3637,7 +3637,7 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
                 newHeight = display->trackZoomInfo.maxZoomHeight;
             }
             
-            // return early if the
+            // return early if there is nothing to update
             if (newHeight == getChannelHeight())
             {
                 return;
