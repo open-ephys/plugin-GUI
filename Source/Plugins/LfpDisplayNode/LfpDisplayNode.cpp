@@ -225,12 +225,12 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
                                      block2Size,                                // numSamples
                                      float (ttlState[eventSourceNodeId]));      // gain
         }
-        // 	std::cout << "ttlState: " << ttlState << std::endl;
-
-        // std::cout << "Received event from " << eventNodeId <<
-        //              " on channel " << eventChannel <<
-        //             " with value " << eventId <<
-        //             " at timestamp " << event.getTimeStamp() << std::endl;
+//        std::cout << "ttlState: " << ttlState[eventSourceNodeId] << std::endl;
+//
+//        std::cout << "Received event from " << eventSourceNodeId <<
+//                     " on channel " << eventChannel <<
+//                     " with value " << eventId <<
+//                     " at timestamp " << event.getTimeStamp() << std::endl;
     }
 }
 

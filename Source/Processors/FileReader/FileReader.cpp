@@ -245,7 +245,6 @@ void FileReader::updateSettings()
      }
 }
 
-
 void FileReader::process (AudioSampleBuffer& buffer)
 {
     const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));

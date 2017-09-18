@@ -70,6 +70,7 @@ public:
 
 private:
     void initializeEventChannels();
+    void finalizeEventChannels();
 
     ScopedPointer<AudioSampleBuffer> displayBuffer;
 

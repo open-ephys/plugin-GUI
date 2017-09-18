@@ -133,7 +133,9 @@ void LfpDisplayCanvas::resizeSamplesPerPixelBuffer(int numCh)
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
+    auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
     resized();
+    viewport->setViewPosition(0, viewportPosition);         // return viewport position
 }
 
 void LfpDisplayCanvas::resized()
@@ -362,15 +364,15 @@ void LfpDisplayCanvas::updateScreenBuffer()
         dbi %= displayBufferSize; // make sure we're not overshooting
         int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
-        // if (channel == 0)
-        //     std::cout << "Channel " 
-        //               << channel << " : " 
-        //               << sbi << " : " 
-        //               << index << " : " 
-        //               << dbi << " : " 
-        //               << valuesNeeded << " : " 
-        //               << ratio 
-        //                             << std::endl;
+//         if (channel == 0)
+//             std::cout << "Channel " 
+//                       << channel << " : " 
+//                       << sbi << " : " 
+//                       << index << " : " 
+//                       << dbi << " : " 
+//                       << valuesNeeded << " : " 
+//                       << ratio 
+//                                     << std::endl;
         
         if (valuesNeeded > 0 && valuesNeeded < 1000000)
         {
@@ -387,21 +389,25 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     screenBufferMin->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
-                     dbi %= displayBufferSize; // just to be sure
+                    dbi %= displayBufferSize; // just to be sure
+                    
+                    // update continuous data channels
+                    if (channel != nChans)
+                    {
+                        // interpolate between two samples with invAlpha and alpha
+                        screenBuffer->addFrom(channel, // destChannel
+                                              sbi, // destStartSample
+                                              displayBuffer->getReadPointer(channel, dbi), // source
+                                              1, // numSamples
+                                              invAlpha*gain); // gain
 
-                    // interpolate between two samples with invAlpha and alpha
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, dbi), // source
-                                          1, // numSamples
-                                          invAlpha*gain); // gain
 
-
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, nextPos), // source
-                                          1, // numSamples
-                                          alpha*gain); // gain
+                        screenBuffer->addFrom(channel, // destChannel
+                                              sbi, // destStartSample
+                                              displayBuffer->getReadPointer(channel, nextPos), // source
+                                              1, // numSamples
+                                              alpha*gain); // gain
+                    }
 
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
@@ -432,13 +438,19 @@ void LfpDisplayCanvas::updateScreenBuffer()
                        
                     }
                     
+                    // update event channel
+                    if (channel == nChans)
+                    {
+                        screenBuffer->setSample(channel, sbi, sample_max);
+                    }
+                    
                     // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
                     // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
                     // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             int c = 0;
-                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -454,26 +466,26 @@ void LfpDisplayCanvas::updateScreenBuffer()
                             
                             screenBufferMin->addSample(channel, sbi, sample_min*gain);
                             screenBufferMax->addSample(channel, sbi, sample_max*gain);
-                    }
-                sbi++;
+                        }
+                    sbi++;
                 }
             
-            subSampleOffset += ratio;
-
-            while (subSampleOffset >= 1.0)
-            {
-                if (++dbi > displayBufferSize)
-                    dbi = 0;
-
-                nextPos = (dbi + 1) % displayBufferSize;
-                subSampleOffset -= 1.0;
+                subSampleOffset += ratio;
+                
+                while (subSampleOffset >= 1.0)
+                {
+                    if (++dbi > displayBufferSize)
+                        dbi = 0;
+                    
+                    nextPos = (dbi + 1) % displayBufferSize;
+                    subSampleOffset -= 1.0;
+                }
+                
             }
-
-        }
-
-        // update values after we're done
-        screenBufferIndex.set(channel, sbi);
-        displayBufferIndex.set(channel, dbi);
+            
+            // update values after we're done
+            screenBufferIndex.set(channel, sbi);
+            displayBufferIndex.set(channel, dbi);
         }
 
     }
@@ -1324,7 +1336,7 @@ void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 
 }
 
-void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate)
+void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate, bool deferDisplayRefresh)
 {
     
     if (canvasMustUpdate)
@@ -1337,14 +1349,17 @@ void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate)
         selectedSpread = spreadSelection->getSelectedId();
         selectedSpreadValue = spreadSelection->getText();
 
-        canvas->repaint();
-        canvas->refresh();
+        if (!deferDisplayRefresh)
+        {
+            canvas->repaint();
+            canvas->refresh();
+        }
     }
 }
 
-void LfpDisplayOptions::togglePauseButton()
+void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
 {
-    pauseButton->setToggleState(!pauseButton->getToggleState(), sendNotification);
+    pauseButton->setToggleState(!pauseButton->getToggleState(), sendUpdate ? sendNotification : dontSendNotification);
 }
 
 void LfpDisplayOptions::buttonClicked(Button* b)
@@ -1931,11 +1946,20 @@ void LfpTimescale::paint(Graphics& g)
                        3 * getHeight()/4,
                        2.0f);
         }
+        
 
         if (i != 0 && i % 2 == 0)
             g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
-    }
 
+    }
+}
+
+void LfpTimescale::mouseUp(const MouseEvent &e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        lfpDisplay->trackZoomInfo.isScrollingX = false;
+    }
 }
 
 void LfpTimescale::resized()
@@ -1996,14 +2020,6 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
                 setTimebase(canvas->timebase);
             }
         }
-    }
-}
-
-void LfpTimescale::mouseUp(const MouseEvent &e)
-{
-    if (e.mods.isLeftButtonDown())
-    {
-        lfpDisplay->trackZoomInfo.isScrollingX = false;
     }
 }
 
@@ -2106,7 +2122,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
 
 LfpDisplay::~LfpDisplay()
 {
-    deleteAllChildren();
+//    deleteAllChildren();
 }
 
 
@@ -2141,7 +2157,8 @@ void LfpDisplay::setNumChannels(int numChannels)
     numChans = numChannels;
     
 
-    deleteAllChildren();
+//    deleteAllChildren();
+    removeAllChildren();
 
     channels.clear();
     channelInfo.clear();
@@ -2297,6 +2314,7 @@ void LfpDisplay::paint(Graphics& g)
 
 void LfpDisplay::refresh()
 {
+    
     // X-bounds of this update
     int fillfrom = canvas->lastScreenBufferIndex[0];
     int fillto = (canvas->screenBufferIndex[0]);
@@ -2698,26 +2716,34 @@ void LfpDisplay::toggleSingleChannel(int chan)
         LfpChannelTrack lfpChannelTrack{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
         lfpChannelTrack.channelInfo->setEnabledState(true);
         lfpChannelTrack.channelInfo->setSingleChannelState(true);
-        setChannelHeight(newHeight, false);
-        setSize(getWidth(), numChans*getChannelHeight());
         
-        viewport->setScrollBarsShown(false, false);
-        viewport->setViewPosition(Point<int>(0, chan*newHeight));
+        removeAllChildren();
         
         // disable unused channels
-        for (int i = 0; i < drawableChannels.size(); i++)
+        for (int i = 0; i < getNumChannels(); i++)
         {
-            if (i != chan) drawableChannels[i].channel->setEnabledState(false);
+            if (i != chan)
+            {
+                drawableChannels[i].channel->setEnabledState(false);
+            }
         }
         
         // update drawableChannels, give only the single channel to focus on
         Array<LfpChannelTrack> channelsToDraw{lfpChannelTrack};
         drawableChannels = channelsToDraw;
         
-        // remove all other children and show this one channel
-        removeAllChildren();
         addAndMakeVisible(lfpChannelTrack.channel);
         addAndMakeVisible(lfpChannelTrack.channelInfo);
+        
+        // set channel height and position (so that we allocate the smallest
+        // necessary image size for drawing)
+        setChannelHeight(newHeight, false);
+        
+        lfpChannelTrack.channel->setTopLeftPosition(canvas->leftmargin, 0);
+        lfpChannelTrack.channelInfo->setTopLeftPosition(0, 0);
+        setSize(getWidth(), getChannelHeight());
+        
+        viewport->setViewPosition(0, 0);
 
     }
 //    else if (chan == singleChan || chan == -2)
@@ -2880,9 +2906,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     {
 //    if (singleChan != -1)
         if (event.getNumberOfClicks() == 2) {
-            std::cout << "singleChan = " << singleChan << std::endl;
             toggleSingleChannel(closest);
-            std::cout << "singleChan = " << singleChan << std::endl;
         }
         
         if (getSingleChannelState())
@@ -2897,21 +2921,9 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         }
     }
 
-//    if (event.getNumberOfClicks() == 2) {
-//        toggleSingleChannel(closest);
-//        return;
-//    }
+//    canvas->fullredraw = true;//issue full redraw
 
-//    if (event.mods.isRightButtonDown())
-//    {
-//        PopupMenu channelMenu = channels[closest]->getOptions();
-//        const int result = channelMenu.show();
-//        drawableChannels[closest].channel->changeParameter(result);
-//    }
-
-    canvas->fullredraw = true;//issue full redraw
-
-    refresh();
+//    refresh();
 
 }
 
@@ -3122,16 +3134,13 @@ void LfpChannelDisplay::pxPaint()
             // draw event markers
             int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
             
-            //if (i == ifrom)
-            //    std::cout << rawEventState << std::endl;
-            
             for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
             {
                 if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
                 {
                     if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
                     {
-                        //std::cout << "Drawing event." << std::endl;
+//                        std::cout << "Drawing event." << std::endl;
                         Colour currentcolor=display->channelColours[ev_ch*2];
                         
                         for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++) // draw line
@@ -3282,8 +3291,19 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.samp = i;
                 plotterInfo.lineColour = lineColour;
                 
+//                if (plotterInfo.samp == canvas->lastScreenBufferIndex[chan])
+//                {
+//                    for (int j = jfrom_wholechannel; j <= jto_wholechannel; j++)
+//                    {
+//                        bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
+//                    }
+//                }
+                
+//                if (getChannelNumber() == 0)
+//                    std::cout << "plotting " << i << std::endl;
+                
                 // TODO: (kelly) complete transition toward plotter class encapsulation
-                 display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
+                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
                 
 //                int jfrom=from+getY();
 //                int jto=to+getY();
@@ -3574,15 +3594,20 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
     {
         if (e.mods.isCommandDown() && !display->getSingleChannelState())  // CTRL + drag -> change channel spacing
         {
+            
             // init state in our track zooming info struct
             if (!display->trackZoomInfo.isScrollingY)
             {
-                display->trackZoomInfo.isScrollingY = true;
-                display->trackZoomInfo.componentStartHeight = getChannelHeight();
-                display->trackZoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)display->getHeight();
-                display->trackZoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)display->getWidth();
-                display->trackZoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
+                auto & zoomInfo = display->trackZoomInfo;
                 
+                zoomInfo.isScrollingY = true;
+                zoomInfo.componentStartHeight = getChannelHeight();
+                zoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)display->getHeight();
+                zoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)display->getWidth();
+                zoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
+                
+                zoomInfo.unpauseOnScrollEnd = !display->isPaused;
+                if (!display->isPaused) display->options->togglePauseButton(true);
             }
             
             int h = display->trackZoomInfo.componentStartHeight;
@@ -3615,29 +3640,44 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
                 newHeight = display->trackZoomInfo.maxZoomHeight;
             }
             
-            // set channel heights for all channel
-            display->setChannelHeight(newHeight);
-            display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
+            // return early if there is nothing to update
+            if (newHeight == getChannelHeight())
+            {
+                return;
+            }
             
-            canvas->viewport->setViewPositionProportionately(display->trackZoomInfo.zoomPivotRatioX, display->trackZoomInfo.zoomPivotRatioY);
+            // set channel heights for all channel
+//            display->setChannelHeight(newHeight);
+            for (int i = 0; i < display->getNumChannels(); ++i)
+            {
+                display->channels[i]->setChannelHeight(newHeight);
+                display->channelInfo[i]->setChannelHeight(newHeight);
+            }
+            
+            options->setSpreadSelection(newHeight, false, true); // update combobox
+            
+            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+            
+            display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
             
             int newViewportY = display->trackZoomInfo.zoomPivotRatioY * display->getHeight() - display->trackZoomInfo.zoomPivotViewportOffset.getY();
             if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
             
-            canvas->viewport->setViewPosition(display->trackZoomInfo.zoomPivotRatioX, newViewportY);
-            
-            options->setSpreadSelection(newHeight); // update combobox
-            
-            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+            canvas->viewport->setViewPosition(0, newViewportY);
         }
     }
 }
 
 void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 {
-    if (e.mods.isLeftButtonDown())
+    if (e.mods.isLeftButtonDown() && display->trackZoomInfo.isScrollingY)
     {
         display->trackZoomInfo.isScrollingY = false;
+        if (display->trackZoomInfo.unpauseOnScrollEnd)
+        {
+            display->isPaused = false;
+            display->options->togglePauseButton(false);
+        }
     }
 }
 
@@ -3770,6 +3810,7 @@ bool LfpChannelDisplayInfo::isChannelNumberHidden()
 {
     return channelNumberHidden;
 }
+
 
 
 
