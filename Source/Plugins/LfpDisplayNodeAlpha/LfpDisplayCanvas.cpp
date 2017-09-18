@@ -133,7 +133,9 @@ void LfpDisplayCanvas::resizeSamplesPerPixelBuffer(int numCh)
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
+    auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
     resized();
+    viewport->setViewPosition(0, viewportPosition);         // return viewport position
 }
 
 void LfpDisplayCanvas::resized()
