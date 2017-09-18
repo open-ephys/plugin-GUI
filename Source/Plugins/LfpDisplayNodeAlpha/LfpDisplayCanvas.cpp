@@ -1248,7 +1248,7 @@ void LfpDisplayOptions::resized()
         lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                     colourSchemeOptionLabel->getBottom(),
                                                     200,
-                                                    100);
+                                                    120);
     }
 }
 
@@ -2055,6 +2055,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
 //    colorScheme = new LfpDefaultColourScheme();
     colourSchemeList.add(new LfpDefaultColourScheme(this, canvas));
     colourSchemeList.add(new LfpMonochromaticColourScheme(this, canvas));
+    colourSchemeList.add(new LfpGradientColourScheme(this, canvas));
     
     activeColourScheme = 0;
     
@@ -4157,5 +4158,133 @@ void LfpMonochromaticColourScheme::calculateColourSeriesFromBaseHue()
     {
         float saturation = 1 - (i / float(coloursToCalculate + 1));
         colourList.add(baseHue.withMultipliedSaturation(saturation));
+    }
+}
+
+
+
+#pragma mark - LfpGradientColourScheme
+
+LfpGradientColourScheme::LfpGradientColourScheme(LfpDisplay * display, LfpDisplayCanvas * canvas)
+    : LfpMonochromaticColourScheme(display, canvas)
+{
+    setName("Gradient");
+    
+    baseHueLabel->setName("baseHueA");
+    baseHueLabel->setText("Hue A", dontSendNotification);
+    
+    baseHueLabelB = new Label("baseHueB", "Hue B");
+    baseHueLabelB->setFont(Font("Default", 13.0f, Font::plain));
+    baseHueLabelB->setColour(Label::textColourId, Colour(100, 100, 100));
+    addAndMakeVisible(baseHueLabelB);
+    
+    baseHueSliderB = new Slider;
+    baseHueSliderB->setRange(0, 1);
+    baseHueSliderB->setValue(0.5);
+    baseHueSliderB->setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+    baseHueSliderB->addListener(this);
+    addAndMakeVisible(baseHueSliderB);
+    
+    baseHueSliderB->addMouseListener(this, true);
+    
+    baseHueB = Colour::fromHSV(0.5, 1.0, 1.0, 1.0);
+    swatchHueB = baseHueB;
+    
+    calculateColourSeriesFromBaseHue();
+}
+
+void LfpGradientColourScheme::paint(Graphics &g)
+{
+    g.setColour(swatchHue);
+    g.fillRect(colourSwatchRect);
+    
+    g.setColour(swatchHueB);
+    g.fillRect(colourSwatchRectB);
+}
+
+void LfpGradientColourScheme::resized()
+{
+    numChannelsLabel->setBounds(0, 5, 120, 25);
+    numChannelsSelection->setBounds(numChannelsLabel->getRight(),
+                                    numChannelsLabel->getY(),
+                                    60,
+                                    25);
+    
+    baseHueLabel->setBounds(0, numChannelsLabel->getBottom(), 35, 25);
+    baseHueSlider->setBounds(baseHueLabel->getRight(),
+                             baseHueLabel->getY(),
+                             numChannelsSelection->getRight() - baseHueLabel->getRight() - 20,
+                             25);
+    
+    colourSwatchRect.setBounds(baseHueSlider->getRight() + 5, baseHueSlider->getY() + 5, 15, baseHueSlider->getHeight() - 10);
+    
+    baseHueLabelB->setBounds(0, baseHueLabel->getBottom(), 35, 25);
+    baseHueSliderB->setBounds(baseHueLabelB->getRight(),
+                             baseHueLabelB->getY(),
+                             numChannelsSelection->getRight() - baseHueLabelB->getRight() - 20,
+                             25);
+    
+    colourSwatchRectB.setBounds(baseHueSliderB->getRight() + 5, baseHueSliderB->getY() + 5, 15, baseHueSliderB->getHeight() - 10);
+    
+    colourPatternLabel->setBounds(0, baseHueLabelB->getBottom(), 80, 25);
+    colourPatternSelection->setBounds(colourPatternLabel->getRight(),
+                                      colourPatternLabel->getY(),
+                                      numChannelsSelection->getRight() - colourPatternLabel->getRight(),
+                                      25);
+}
+
+void LfpGradientColourScheme::sliderValueChanged(Slider *sl)
+{
+    if (sl == baseHueSlider)
+    {
+        swatchHue = Colour::fromHSV(sl->getValue(), 1, 1, 1);
+        repaint(colourSwatchRect);
+    }
+    else
+    {
+        swatchHueB = Colour::fromHSV(sl->getValue(), 1, 1, 1);
+        repaint(colourSwatchRectB);
+    }
+}
+
+void LfpGradientColourScheme::mouseUp(const MouseEvent &e)
+{
+    if (e.originalComponent == baseHueSlider)
+    {
+        if (swatchHue.getARGB() != baseHue.getARGB())
+        {
+            baseHue = swatchHue;
+            calculateColourSeriesFromBaseHue();
+            lfpDisplay->setColors();
+            canvas->redraw();
+        }
+    }
+    else
+    {
+        if (swatchHueB.getARGB() != baseHueB.getARGB())
+        {
+            baseHueB = swatchHueB;
+            calculateColourSeriesFromBaseHue();
+            lfpDisplay->setColors();
+            canvas->redraw();
+        }
+    }
+}
+
+void LfpGradientColourScheme::calculateColourSeriesFromBaseHue()
+{
+    colourList.clear();
+    
+    int coloursToCalculate = numColourChannels;
+    
+    if (numColourChannels % 2 == 0 && (colourPattern == DOWN_UP || colourPattern == UP_DOWN))
+    {
+        coloursToCalculate = coloursToCalculate / 2 + 1;
+    }
+    
+    for (int i = 0; i < coloursToCalculate; ++i)
+    {
+        float hue = (baseHueB.getHue() - baseHue.getHue()) * i / float(coloursToCalculate - 1);
+        colourList.add(baseHue.withRotatedHue(hue));
     }
 }
