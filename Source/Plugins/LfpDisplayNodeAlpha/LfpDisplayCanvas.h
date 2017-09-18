@@ -273,7 +273,7 @@ public:
     //void setRangeSelection(float range, bool canvasMustUpdate);
     void setSpreadSelection();
 
-    void togglePauseButton();
+    void togglePauseButton(bool sendUpdate = true);
 
     void saveParameters(XmlElement* xml);
     void loadParameters(XmlElement* xml);
@@ -574,8 +574,8 @@ public:
     
     Array<Colour> channelColours;
 
-    Array<LfpChannelDisplay*> channels;             // all channels
-    Array<LfpChannelDisplayInfo*> channelInfo;      // all channelInfos
+    OwnedArray<LfpChannelDisplay> channels;             // all channels
+    OwnedArray<LfpChannelDisplayInfo> channelInfo;      // all channelInfos
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannelTrack
@@ -606,8 +606,10 @@ public:
         float zoomPivotRatioX;          // a cache for calculating the anchor point when adjusting viewport
         float zoomPivotRatioY;
         Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset
-    }
-    trackZoomInfo; // and create an instance here
+        bool unpauseOnScrollEnd;
+    };
+    
+    TrackZoomInfo_Struct trackZoomInfo; // and create an instance here
 
     
 private:
