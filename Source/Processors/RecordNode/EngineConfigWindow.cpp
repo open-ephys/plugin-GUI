@@ -30,14 +30,29 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
     {
         ToggleButton* but = new ToggleButton();
         but->setToggleState(param.boolParam.value,dontSendNotification);
-        but->setBounds(120,0,40,20);
+        but->setBounds(120,0,100,20);
         addAndMakeVisible(but);
         control = but;
+		name = param.name;
     }
+	else if (param.type == EngineParameter::MULTI)
+	{
+		ComboBox* box = new ComboBox();
+		box->setBounds(120, 0, 100, 20);
+		StringArray options = StringArray::fromTokens(param.name, "|", "\"");
+		name = options[0];
+		options.remove(0);
+		box->addItemList(options, 1);
+		box->setSelectedId(param.multiParam.value + 1, dontSendNotification);
+		box->setEditableText(false);
+		addAndMakeVisible(box);
+		control = box;
+	}
     else
     {
         Label* lab = new Label();
         lab->setFont(Font("Small Text",10,Font::plain));
+		name = param.name;
         switch (param.type)
         {
             case EngineParameter::BOOL:
@@ -63,7 +78,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
         addAndMakeVisible(lab);
         control = lab;
     }
-    this->setTooltip(param.name);
+    this->setTooltip(name);
 }
 
 EngineParameterComponent::~EngineParameterComponent()
@@ -74,7 +89,7 @@ void EngineParameterComponent::paint(Graphics& g)
 {
     g.setColour(Colours::black);
     g.setFont(13);
-    g.drawText(parameter.name+":",0,0,100,30,Justification::left,true);
+    g.drawText(name+":",0,0,100,30,Justification::left,true);
 }
 
 void EngineParameterComponent::labelTextChanged(Label* l)
@@ -104,25 +119,28 @@ void EngineParameterComponent::saveValue()
     switch (parameter.type)
     {
         case EngineParameter::BOOL:
-            parameter.boolParam.value = ((ToggleButton*)control.get())->getToggleState();
+            parameter.boolParam.value = static_cast<ToggleButton*>(control.get())->getToggleState();
             break;
         case EngineParameter::INT:
-            parameter.intParam.value = ((Label*)control.get())->getText().getIntValue();
+            parameter.intParam.value = static_cast<Label*>(control.get())->getText().getIntValue();
             if (parameter.intParam.value < parameter.intParam.min)
                 parameter.intParam.value = parameter.intParam.min;
             if (parameter.intParam.value > parameter.intParam.max)
                 parameter.intParam.value = parameter.intParam.max;
             break;
         case EngineParameter::FLOAT:
-            parameter.floatParam.value = ((Label*)control.get())->getText().getFloatValue();
+            parameter.floatParam.value = static_cast<Label*>(control.get())->getText().getFloatValue();
             if (parameter.floatParam.value < parameter.floatParam.min)
                 parameter.floatParam.value = parameter.floatParam.min;
             if (parameter.floatParam.value > parameter.floatParam.max)
                 parameter.floatParam.value = parameter.floatParam.max;
             break;
         case EngineParameter::STR:
-            parameter.strParam.value = ((Label*)control.get())->getText();
+            parameter.strParam.value = static_cast<Label*>(control.get())->getText();
             break;
+		case EngineParameter::MULTI:
+			parameter.multiParam.value = static_cast<ComboBox*>(control.get())->getSelectedId() - 1;
+			break;
     }
 }
 
@@ -135,7 +153,7 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
     for (int i = 0; i < man->getNumParameters(); i++)
     {
         EngineParameterComponent* par = new EngineParameterComponent(man->getParameter(i));
-        if (man->getParameter(i).type == EngineParameter::STR)
+        if (man->getParameter(i).type == EngineParameter::STR || man->getParameter(i).type == EngineParameter::MULTI)
             hasString=true;
         par->setBounds(10,10+40*i,300,30);
         addAndMakeVisible(par);

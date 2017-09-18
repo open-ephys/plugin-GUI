@@ -134,11 +134,17 @@ class PLUGIN_API Event
 public:
 	virtual ~Event();
 	virtual void serialize(void* dstBuffer, size_t dstSize) const override = 0;
+	Event(const Event& other);
+	Event& operator=(const Event&) = delete;
+
 	EventChannel::EventChannelTypes getEventType() const;
 	const EventChannel* getChannelInfo() const;
 
 	/** Gets the channel that triggered the event */
 	uint16 getChannel() const;
+
+	/* Gets the raw data payload */
+	const void* getRawDataPointer() const;
 
 	static EventChannel::EventChannelTypes getEventType(const MidiMessage& msg);
 	static EventPtr deserializeFromMessage(const MidiMessage& msg, const EventChannel* channelInfo);
@@ -153,6 +159,8 @@ protected:
 	const uint16 m_channel;
 	const EventChannel* m_channelInfo;
 	const EventChannel::EventChannelTypes m_eventType;
+
+	HeapBlock<char> m_data;
 
 };
 
@@ -179,7 +187,6 @@ private:
 	TTLEvent() = delete;
 	TTLEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const void* eventData);
 
-	HeapBlock<char> m_data;
 	JUCE_LEAK_DETECTOR(TTLEvent);
 };
 
@@ -202,7 +209,6 @@ private:
 	TextEvent() = delete;
 	TextEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const String& text);
 
-	const String m_text;
 	JUCE_LEAK_DETECTOR(TextEvent);
 };
 
@@ -235,7 +241,6 @@ private:
 	template<typename T>
 	static EventChannel::EventChannelTypes getType();
 
-	HeapBlock<char> m_data;
 	const EventChannel::EventChannelTypes m_type;
 	JUCE_LEAK_DETECTOR(BinaryEvent);
 };

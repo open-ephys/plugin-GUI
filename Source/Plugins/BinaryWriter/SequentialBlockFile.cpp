@@ -29,7 +29,8 @@ SequentialBlockFile::SequentialBlockFile(int nChannels, int samplesPerBlock) :
 m_file(nullptr),
 m_nChannels(nChannels),
 m_samplesPerBlock(samplesPerBlock),
-m_blockSize(nChannels*samplesPerBlock)
+m_blockSize(nChannels*samplesPerBlock),
+m_lastBlockFill(0)
 {
 	m_memBlocks.ensureStorageAllocated(blockArrayInitSize);
 	for (int i = 0; i < nChannels; i++)
@@ -38,14 +39,26 @@ m_blockSize(nChannels*samplesPerBlock)
 
 SequentialBlockFile::~SequentialBlockFile()
 {
-	//Ensure that all remaining blocks are flushed in order
+	//Ensure that all remaining blocks are flushed in order. Keep the last one
 	int n = m_memBlocks.size();
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < n - 1; i++)
+	{
 		m_memBlocks.remove(0);
+	}
+
+	//manually flush the last one to avoid trailing zeroes
+	m_memBlocks[0]->partialFlush(m_lastBlockFill * m_nChannels);
 }
 
-bool SequentialBlockFile::openFile(File file)
+bool SequentialBlockFile::openFile(String filename)
 {
+	File file(filename);
+	Result res = file.create();
+	if (res.failed())
+	{
+		std::cerr << "Error creating file " << filename << ":" << res.getErrorMessage() << std::endl;
+		return false;
+	}
 	m_file = file.createOutputStream(streamBufferSize);
 	if (!m_file)
 		return false;
@@ -79,6 +92,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	int startIdx = startPos - m_memBlocks[bIndex]->getOffset();
 	int startMemPos = startIdx*m_nChannels;
 	int dataIdx = 0;
+	int lastBlockIdx = m_memBlocks.size() - 1;
 	while (writtenSamples < nSamples)
 	{
 		int16* blockPtr = m_memBlocks[bIndex]->getData();
@@ -89,6 +103,14 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 			dataIdx++;
 		}
 		writtenSamples += samplesToWrite;
+
+		//Update the last block fill index
+		size_t samplePos = startIdx + samplesToWrite;
+		if (bIndex == lastBlockIdx && samplePos > m_lastBlockFill)
+		{
+			m_lastBlockFill = samplePos;
+		}
+
 		startIdx = 0;
 		startMemPos = 0;
 		bIndex++;
@@ -133,6 +155,7 @@ void SequentialBlockFile::allocateBlocks(uint64 startIndex, int numSamples)
 		lastOffset += m_samplesPerBlock;
 		m_memBlocks.add(new FileBlock(m_file, m_blockSize, lastOffset));
 	}
-
+	if (newBlocks > 0)
+		m_lastBlockFill = 0; //we've added some new blocks, so the last one will be empty
 }
 

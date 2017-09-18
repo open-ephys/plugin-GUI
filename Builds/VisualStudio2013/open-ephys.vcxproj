@@ -84,8 +84,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -130,8 +130,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -178,8 +178,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -222,8 +222,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>c:\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2.1;JUCE_APP_VERSION_HEX=0x40201;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>

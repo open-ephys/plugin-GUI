@@ -59,7 +59,7 @@
 	 int lastId = 0;
 	 for (int proc = 0; proc < recProcs; proc++)
 	 {
-		 const RecordProcessorInfo procInfo = getProcessorInfo(proc);
+		 const RecordProcessorInfo& procInfo = getProcessorInfo(proc);
 		 int recChans = procInfo.recordedChannels.size();
 		 for (int chan = 0; chan < recChans; chan++)
 		 {
@@ -98,6 +98,10 @@
 	 for (int i = 0; i < nEvents; i++)
 		 eventChannels.add(getEventChannel(i));
 
+	 int nSpikes = getNumRecordedSpikes();
+	 for (int i = 0; i < nSpikes; i++)
+		 spikeChannels.add(getSpikeChannel(i));
+
 	 //open the file
 	 recordFile->open(getNumRecordedChannels() + continuousChannels.size() + eventChannels.size() + spikeChannels.size()); //total channels + timestamp arrays, to create a big enough buffer
 
@@ -113,19 +117,14 @@
 	 recordFile->stopRecording();
 	 recordFile->close();
 	 recordFile = nullptr;
-	 resetChannels(false);
+	 resetChannels();
  }
 
- void NWBRecordEngine::resetChannels()
- {
-	 resetChannels(true);
- }
 
  
- void NWBRecordEngine::resetChannels(bool resetSpikes)
+ void NWBRecordEngine::resetChannels()
  {
-	 if (resetSpikes)
-		 spikeChannels.clear();
+	 spikeChannels.clear();
 	 eventChannels.clear();
 	 continuousChannels.clear();
 	 datasetIndexes.clear();
@@ -171,7 +170,6 @@ void NWBRecordEngine::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, 
 
 void NWBRecordEngine::addSpikeElectrode(int index,const  SpikeChannel* elec) 
 {
-	spikeChannels.add(elec);
 }
 
 void NWBRecordEngine::writeSpike(int electrodeIndex, const SpikeEvent* spike) 

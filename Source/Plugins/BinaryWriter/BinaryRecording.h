@@ -25,14 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <RecordingLib.h>
 #include "SequentialBlockFile.h"
-
-//Defines for the old-stype original recording spikes and event files
-#define HEADER_SIZE 1024
-#define BLOCK_LENGTH 1024
-#define VERSION 0.4
-#define VSTR(s) #s
-#define VSTR2(s) VSTR(s)
-#define VERSION_STRING VSTR2(VERSION)
+#include "NpyFile.h"
 
 namespace BinaryRecordingEngine
 {
@@ -52,33 +45,51 @@ namespace BinaryRecordingEngine
 		void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 		void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
 		void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text) override;
+		void setParameter(EngineParameter& parameter) override;
 
 		static RecordEngineManager* getEngineManager();
 
 	private:
 
-		void openSpikeFile(String basepath, int spikeIndex, int recordingNumber);
-		String generateSpikeHeader(const SpikeChannel* elec);
-		String generateEventHeader();
+		class EventRecording
+		{
+		public:
+			ScopedPointer<NpyFile> mainFile;
+			ScopedPointer<NpyFile> timestampFile;
+			ScopedPointer<NpyFile> metaDataFile;
+			ScopedPointer<NpyFile> channelFile;
+			ScopedPointer<NpyFile> extraFile;
+		};
+		
 
-		void openMessageFile(String basepath, int recordingNumber);
-		void openEventFile(String basepath, int recordingNumber);
-		void writeTTLEvent(int eventIndex, const MidiMessage& event);
-		void writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp);
+		NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
+		void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
+		void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
+		void increaseEventCounts(EventRecording* rec);
+		static String jsonTypeValue(BaseType type);
+		static String getProcessorString(const InfoObjectCommon* channelInfo);
 
+		bool m_saveTTLWords{ true };
+	
 		HeapBlock<float> m_scaledBuffer;
 		HeapBlock<int16> m_intBuffer;
+		HeapBlock<int64> m_tsBuffer;
 		int m_bufferSize;
 
 		OwnedArray<SequentialBlockFile>  m_DataFiles;
+		Array<unsigned int> m_channelIndexes;
+		Array<unsigned int> m_fileIndexes;
+		OwnedArray<EventRecording> m_eventFiles;
+		OwnedArray<EventRecording> m_spikeFiles;
+		OwnedArray<NpyFile> m_dataTimestampFiles;
+		ScopedPointer<FileOutputStream> m_syncTextFile;
 
-		FILE* eventFile;
-		FILE* messageFile;
-		Array<FILE*> spikeFileArray;
+		Array<unsigned int> m_spikeFileIndexes;
+		Array<uint16> m_spikeChannelIndexes;
+
 		int m_recordingNum;
 		Array<int64> m_startTS;
 
-		CriticalSection diskWriteLock;
 
 		//Compile-time constants
 		const int samplesPerBlock{ 4096 };

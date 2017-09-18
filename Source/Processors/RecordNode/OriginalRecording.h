@@ -44,14 +44,12 @@ public:
     OriginalRecording();
     ~OriginalRecording();
 
-    void setParameter(EngineParameter& parameter);
+    void setParameter(EngineParameter& parameter) override;
     String getEngineID() const override;
     void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
 	void writeEvent(int eventIndex, const MidiMessage& event) override;
-	void registerProcessor(const GenericProcessor* proc) override;
-	void addDataChannel(int index, const DataChannel* chan) override;
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;

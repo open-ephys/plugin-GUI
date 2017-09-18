@@ -218,6 +218,17 @@ String SystemEvent::getSyncText(const MidiMessage& msg)
 }
 
 //Event
+Event::Event(const Event& other)
+	: EventBase(other), 
+	m_channel(other.m_channel), 
+	m_channelInfo(other.m_channelInfo),
+	m_eventType(other.m_eventType)
+{
+	size_t size = other.m_channelInfo->getDataSize();
+	m_data.malloc(size);
+	memcpy(m_data.getData(), other.m_data.getData(), size);
+}
+
 EventChannel::EventChannelTypes Event::getEventType() const
 {
 	return m_eventType;
@@ -298,6 +309,11 @@ bool Event::createChecks(const EventChannel* channelInfo, EventChannel::EventCha
 	if ((channel < 0) || (channel >= channelInfo->getNumChannels())) return false;
 	if (!compareMetaData(channelInfo, metaData)) return false;
 	return true;
+}
+
+const void* Event::getRawDataPointer() const
+{
+	return m_data.getData();
 }
 
 //TTLEvent
@@ -452,21 +468,22 @@ TTLEventPtr TTLEvent::deserializeFromMessage(const MidiMessage& msg, const Event
 
 //TextEvent
 TextEvent::TextEvent(const EventChannel* channelInfo, int64 timestamp, uint16 channel, const String& text)
-	: Event(channelInfo, timestamp, channel),
-	m_text(text)
+	: Event(channelInfo, timestamp, channel)
 {
+	m_data.calloc(channelInfo->getDataSize());
+	text.copyToUTF8(m_data.getData(), channelInfo->getDataSize());
 }
 
 TextEvent::~TextEvent() {}
 
 TextEvent::TextEvent(const TextEvent& other)
-	: Event(other),
-	m_text(other.m_text)
-{}
+	: Event(other)
+{
+}
 
 String TextEvent::getText() const
 {
-	return m_text;
+	return String(m_data.getData(), m_channelInfo->getLength());
 }
 
 void TextEvent::serialize(void* dstBuffer, size_t dstSize) const
@@ -477,10 +494,10 @@ void TextEvent::serialize(void* dstBuffer, size_t dstSize) const
 
 	size_t dataSize = m_channelInfo->getDataSize();
 	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	size_t stringSize = m_text.getNumBytesAsUTF8();
-	memcpy((buffer + EVENT_BASE_SIZE), m_text.toUTF8(), stringSize);
-	if ((dataSize - stringSize) > 0)
-		zeromem((buffer + EVENT_BASE_SIZE + stringSize), dataSize - stringSize);
+	//size_t stringSize = m_text.getNumBytesAsUTF8();
+	memcpy((buffer + EVENT_BASE_SIZE), m_data, dataSize);
+//	if ((dataSize - stringSize) > 0)
+//		zeromem((buffer + EVENT_BASE_SIZE + stringSize), dataSize - stringSize);
 	serializeMetaData(buffer + eventSize);
 }
 
@@ -492,7 +509,7 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, int64 t
 		return nullptr;
 	}
 
-	if (text.length() > channelInfo->getLength())
+	if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
 	{
 		jassertfalse;
 		return nullptr;
@@ -509,7 +526,7 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, int64 t
 		return nullptr;
 	}
 
-	if (text.length() > channelInfo->getLength())
+	if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
 	{
 		jassertfalse;
 		return nullptr;
@@ -600,9 +617,6 @@ BinaryEvent::BinaryEvent(const BinaryEvent& other)
 	:Event(other),
 	m_type(other.m_type)
 {
-	size_t size = other.m_channelInfo->getDataSize();
-	m_data.malloc(size);
-	memcpy(m_data.getData(), other.m_data.getData(), size);
 }
 
 BinaryEvent::~BinaryEvent() {}

@@ -35,7 +35,7 @@ class GenericProcessor;
 /**
 Structure with the basic info that identifies a channel
 */
-struct sourceChannelInfo
+struct SourceChannelInfo
 {
 	uint16 processorID;
 	uint16 subProcessorID;
@@ -49,15 +49,19 @@ class PLUGIN_API NodeInfoBase
 public:
     virtual ~NodeInfoBase();
 	/** Gets the ID of the processor which currently owns this copy of the info object */
-	unsigned int getCurrentNodeID() const;
+	uint16 getCurrentNodeID() const;
+	/** Gets the index of this channel in the processor which currently owns this copy of the info object */
+	uint16 getCurrentNodeChannelIdx() const;
 	/** Gets the type of the processor which currently owns this copy of the info object */
 	String getCurrentNodeType() const;
 	/** Gets the name of the processor which currently owns this copy of the info object */
 	String getCurrentNodeName() const;
 protected:
 	NodeInfoBase() = delete;
-	NodeInfoBase(uint16 id);
+	NodeInfoBase(uint16 id, uint16 idx, String type, String name);
+private:
 	uint16 m_nodeID{ 0 };
+	uint16 m_nodeIdx{ 0 };
 	String m_currentNodeType;
 	String m_currentNodeName;
 };
@@ -71,7 +75,7 @@ protected:
 public:
     virtual ~HistoryObject();
 	/** Returns the historic string */
-	String getHistoricString();
+	String getHistoricString() const;
 	/** Adds a new entry in the historic string*/
 	void addToHistoricString(String entry);
 
@@ -171,7 +175,13 @@ public:
 
 	virtual InfoObjectType getInfoObjectType() const = 0;
 
+	bool isEqual(const InfoObjectCommon& other) const;
+	bool isSimilar(const InfoObjectCommon& other) const;
+	bool operator==(const InfoObjectCommon& other) const;
+
 private:
+	bool isEqual(const InfoObjectCommon& other, bool similar) const;
+	virtual bool checkEqual(const InfoObjectCommon& other, bool similar) const = 0;
 	/** Index of the object in the source processor */
 	const uint16 m_sourceIndex;
 	/** Index of this particular subtype in the source processor */
@@ -251,6 +261,7 @@ public:
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const DataChannelTypes m_type;
 	float m_bitVolts{ 1.0f };
 	bool m_isEnabled{ true };
@@ -341,9 +352,16 @@ public:
 	/** Gets the size in bytes of an element depending of the type*/
 	static size_t getTypeByteSize(EventChannelTypes type);
 
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	static BaseType getEquivalentMetaDataType(const EventChannel& ev);
+
+	/** Handy method to get an equivalente metadata value type for the main event data*/
+	BaseType getEquivalentMetaDataType() const;
+
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const EventChannelTypes m_type;
 	unsigned int m_numChannels{ 1 };
 	size_t m_dataSize{ 1 };
@@ -378,7 +396,7 @@ public:
 	ElectrodeTypes getChannelType() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
-	Array<sourceChannelInfo> getSourceChannelInfo() const;
+	Array<SourceChannelInfo> getSourceChannelInfo() const;
 
 	/** Sets the number of samples, pre and post peak */
 	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
@@ -413,8 +431,9 @@ public:
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
+	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
 	const ElectrodeTypes m_type;
-	Array<sourceChannelInfo> m_sourceInfo;
+	Array<SourceChannelInfo> m_sourceInfo;
 	unsigned int m_numPreSamples{ 8 };
 	unsigned int m_numPostSamples{ 32 };
 	Array<float> m_channelBitVolts;
