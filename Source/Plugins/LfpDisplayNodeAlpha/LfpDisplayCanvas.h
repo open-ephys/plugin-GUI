@@ -47,6 +47,7 @@ class LfpViewport;
 class LfpDisplayOptions;
 class LfpBitmapPlotter;
 class PerPixelBitmapPlotter;
+class SupersampledBitmapPlotter;
 class LfpChannelColourScheme;
 
     
@@ -638,7 +639,7 @@ private:
     LfpBitmapPlotter * plotter;
     
     ScopedPointer<PerPixelBitmapPlotter> perPixelPlotter;
-    //    ScopedPointer<HistogramBitmapPlotter> histogramPlotter;
+    ScopedPointer<SupersampledBitmapPlotter> supersampledPlotter;
 
     // TODO: (kelly) add reference to a color scheme
 //    LfpChannelColourScheme * colourScheme;
@@ -685,6 +686,14 @@ public:
     
     /** Return the assigned channel number for this display */
     int getChannelNumber();
+    
+    /** Returns the assigned channel number for this display, relative
+        to the subset of channels being drawn to the canvas */
+    int getDrawableChannelNumber();
+    
+    /** Set the channel number of this channel relative to the subset of
+        channels being drawn to the canvas */
+    void setDrawableChannelNumber(int channelId);
 
     void setRange(float range);
     int getRange();
@@ -729,6 +738,7 @@ protected:
     bool isHidden;
 
     int chan;
+    int drawableChan;
 
     String name;
 
@@ -895,7 +905,17 @@ struct LfpBitmapPlotterInfo
     int from;
     int x;
     int y;
+    int height;
+    int width;
+    float channelHeightFloat;
+    std::array<float, MAX_N_SAMP_PER_PIXEL> samplesPerPixel;
+    int sampleCountPerPixel;
+    float range;
+    int samplerange;
+    float histogramParameterA;
     Colour lineColour;
+    Colour lineColourBright;
+    Colour lineColourDark;
 };
 
     
@@ -932,6 +952,23 @@ class PerPixelBitmapPlotter : public LfpBitmapPlotter
 public:
     PerPixelBitmapPlotter(LfpDisplay * lfpDisplay);
     virtual ~PerPixelBitmapPlotter() {}
+    
+    /** Plots one subsample of data from a single channel to the bitmap provided */
+    virtual void plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo) override;
+};
+    
+    
+    
+#pragma mark - SupersampledBitmapPlotter -
+//==============================================================================
+/**
+ Abstraction of the supersampled line-based plotting method.
+ */
+class SupersampledBitmapPlotter : public LfpBitmapPlotter
+{
+public:
+    SupersampledBitmapPlotter(LfpDisplay * lfpDisplay);
+    virtual ~SupersampledBitmapPlotter() {}
     
     /** Plots one subsample of data from a single channel to the bitmap provided */
     virtual void plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo) override;

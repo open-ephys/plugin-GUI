@@ -1552,10 +1552,18 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == spreadSelection)
     {
+        
         if (cb->getSelectedId())
         {
-            lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
-            resized();
+            if (lfpDisplay->getSingleChannelState())
+            {
+                lfpDisplay->cacheNewChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
+            }
+            else
+            {
+                lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
+                resized();
+            }
         }
         else
         {
@@ -1576,8 +1584,17 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
                 {
                     cb->setText(String(spread),dontSendNotification);
                 }
-                lfpDisplay->setChannelHeight(spread);
-                canvas->resized();
+                
+                // if single channel focus is on, cache the value
+                if (lfpDisplay->getSingleChannelState())
+                {
+                    lfpDisplay->cacheNewChannelHeight(spread);
+                }
+                else
+                {
+                    lfpDisplay->setChannelHeight(spread);
+                    canvas->resized();
+                }
             }
             else
             {
@@ -1590,7 +1607,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedSpread = cb->getSelectedId();
         selectedSpreadValue = cb->getText();
 
-        canvas->redraw();
+        if (!lfpDisplay->getSingleChannelState()) canvas->redraw();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == saturationWarningSelection)
@@ -2066,7 +2083,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
     , displaySkipAmt(0)
 {
     perPixelPlotter = new PerPixelBitmapPlotter(this);
-//    histogramPlotter = new HistogramBitmapPlotter(this);
+    supersampledPlotter = new SupersampledBitmapPlotter(this);
     
 //    colorScheme = new LfpDefaultColourScheme();
     colourSchemeList.add(new LfpDefaultColourScheme(this, canvas));
@@ -2471,7 +2488,7 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
     
     if (isDrawMethod)
     {
-//        plotter = histogramPlotter;
+        plotter = supersampledPlotter;
     }
     else
     {
@@ -2779,7 +2796,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
     
     // iterate over all channels and select drawable ones
-    for (size_t i = 0; i < channels.size(); i++)
+    for (size_t i = 0, drawableChannelNum = 0; i < channels.size(); i++)
     {
 //        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
         // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
@@ -2790,10 +2807,13 @@ void LfpDisplay::rebuildDrawableChannelsList()
             continue;
         }
         
-        if (displaySkipAmt == 0) // no skips, add all channels
+        if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
         {
             channels[i]->setHidden(false);
             channelInfo[i]->setHidden(false);
+            
+            channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
+            channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
             
             channelsToDraw.add(LfpDisplay::LfpChannelTrack{
                 channels[i],
@@ -2805,27 +2825,27 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
         else // skip some channels
         {
-            if (i % (displaySkipAmt) == 0) // add these channels
-            {
-                channels[i]->setHidden(false);
-                channelInfo[i]->setHidden(false);
-                
-                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
-                    channels[i],
-                    channelInfo[i]
-                });
-                
-                addAndMakeVisible(channels[i]);
-                addAndMakeVisible(channelInfo[i]);
-            }
-            else // but not these
-            {
+//            if (i % (displaySkipAmt) == 0) // add these channels
+//            {
+//                channels[i]->setHidden(false);
+//                channelInfo[i]->setHidden(false);
+//                
+//                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
+//                    channels[i],
+//                    channelInfo[i]
+//                });
+//                
+//                addAndMakeVisible(channels[i]);
+//                addAndMakeVisible(channelInfo[i]);
+//            }
+//            else // but not these
+//            {
                 channels[i]->setHidden(true);
                 channelInfo[i]->setHidden(true);
                 
                 removeChildComponent(channels[i]);
                 removeChildComponent(channelInfo[i]);
-            }
+//            }
         }
     }
     
@@ -2971,19 +2991,20 @@ bool LfpDisplay::getEnabledState(int chan)
 // ------------------------------------------------------------------
 
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
-    : canvas(c),
-      display(d),
-      options(o),
-      isSelected(false),
-      chan(channelNumber),
-      channelOverlap(300),
-      channelHeight(40),
-      range(1000.0f),
-      isEnabled(true),
-      inputInverted(false),
-      canBeInverted(true),
-      drawMethod(false),
-      isHidden(false)
+    : canvas(c)
+    , display(d)
+    , options(o)
+    , isSelected(false)
+    , chan(channelNumber)
+    , drawableChan(channelNumber)
+    , channelOverlap(300)
+    , channelHeight(40)
+    , range(1000.0f)
+    , isEnabled(true)
+    , inputInverted(false)
+    , canBeInverted(true)
+    , drawMethod(false)
+    , isHidden(false)
 {
 
 
@@ -3207,78 +3228,22 @@ void LfpChannelDisplay::pxPaint()
             
             if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
             { // histogram based supersampling method
+                plotterInfo.channelID = chan;
+                plotterInfo.samp = i;
+                plotterInfo.y = getY();
+                plotterInfo.from = from;
+                plotterInfo.height = getHeight();
+                plotterInfo.lineColourBright = lineColourBright;
+                plotterInfo.lineColourDark = lineColourDark;
+                plotterInfo.range = range;
+                plotterInfo.channelHeightFloat = channelHeightFloat;
+                plotterInfo.sampleCountPerPixel = canvas->getSampleCountPerPixel(i);
+                plotterInfo.samplesPerPixel = canvas->getSamplesPerPixel(chan, i);
+                plotterInfo.histogramParameterA = canvas->histogramParameterA;
+                plotterInfo.samplerange = samplerange;
                 
-                std::array<float, MAX_N_SAMP_PER_PIXEL> samplesThisPixel = canvas->getSamplesPerPixel(chan, i);
-                int sampleCountThisPixel = canvas->getSampleCountPerPixel(i);
-                
-                if (samplerange>0 & sampleCountThisPixel>0)
-                {
-                    
-                    //float localHist[samplerange]; // simple histogram
-                    Array<float> rangeHist; // [samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
-                    
-                    for (int k = 0; k <= samplerange; k++)
-                        rangeHist.add(0);
-                    
-                    for (int k = 0; k <= sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
-                    {
-                        int cs_this = (((samplesThisPixel[k]/range*channelHeightFloat)+getHeight()/2)-from); // sample values -> pixel coordinates relative to from
-                        int cs_next = (((samplesThisPixel[k+1]/range*channelHeightFloat)+getHeight()/2)-from);
-                        
-                        
-                        if (cs_this<0) {cs_this=0;};                        //here we could clip the diaplay to the max/min, or ignore out of bound values, not sure which one is better
-                        if (cs_this>samplerange) {cs_this=samplerange;};
-                        if (cs_next<0) {cs_next=0;};
-                        if (cs_next>samplerange) {cs_next=samplerange;};
-                        
-                        int hfrom=0;
-                        int hto=0;
-                        
-                        if (cs_this<cs_next)
-                        {
-                            hfrom = (cs_this);  hto = (cs_next);
-                        }
-                        else
-                        {
-                            hfrom = (cs_next);  hto = (cs_this);
-                        }
-                        //float hrange=hto-hfrom;
-                        float ha=1;
-                        for (int l=hfrom; l<hto; l++)
-                        {
-                            rangeHist.set(l, rangeHist[l] + ha); //this emphasizes fast Y components
-                            
-                            //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
-                        }
-                    }
-                    
-                    
-                    for (int s = 0; s <= samplerange; s ++)  // plot histogram one pixel per bin
-                    {
-                        float a=15*((rangeHist[s])/(sampleCountThisPixel)) *(2*(0.2+canvas->histogramParameterA));
-                        if (a>1.0f) {a=1.0f;};
-                        if (a<0.0f) {a=0.0f;};
-                        
-                        
-                        //Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
-                        Colour gradedColor =  lineColourBright.interpolatedWith(lineColourDark,1-a);
-                        //Colour gradedColor =  Colour(0,255,0);
-                        
-                        int ploty = from+s+getY();
-                        if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
-                            bdLfpChannelBitmap.setPixelColour(i,from+s+getY(),gradedColor);
-                        }
-                    }
-                    
-                } else {
-                    
-                    int ploty = from+getY();
-                    if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
-                        bdLfpChannelBitmap.setPixelColour(i,ploty,lineColour);
-                    }
-                }
-                
-                
+                // TODO: (kelly) complete transition toward plotter class encapsulation
+                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
                 
             }
             else //drawmethod
@@ -3291,42 +3256,8 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.samp = i;
                 plotterInfo.lineColour = lineColour;
                 
-//                if (plotterInfo.samp == canvas->lastScreenBufferIndex[chan])
-//                {
-//                    for (int j = jfrom_wholechannel; j <= jto_wholechannel; j++)
-//                    {
-//                        bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
-//                    }
-//                }
-                
-//                if (getChannelNumber() == 0)
-//                    std::cout << "plotting " << i << std::endl;
-                
                 // TODO: (kelly) complete transition toward plotter class encapsulation
                 display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
-                
-//                int jfrom=from+getY();
-//                int jto=to+getY();
-//                
-//                //if (yofs<0) {yofs=0;};
-//                
-//                if (i<0) {i=0;};
-//                if (i >= display->lfpChannelBitmap.getWidth()) {i = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
-//                
-//                if (jfrom<0) {jfrom=0;};
-//                if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
-//                
-//                for (int j = jfrom; j <= jto; j += 1)
-//                {
-//                    
-//                    //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
-//                    //*(pu8Pixel)		= 200;
-//                    //*(pu8Pixel+1)	= 200;
-//                    //*(pu8Pixel+2)	= 200;
-//                    
-//                    bdLfpChannelBitmap.setPixelColour(i, j, lineColour);
-//                    
-//                }
                 
             }
             
@@ -3478,6 +3409,16 @@ int LfpChannelDisplay::getChannelOverlap()
 int LfpChannelDisplay::getChannelNumber()
 {
     return chan;
+}
+
+int LfpChannelDisplay::getDrawableChannelNumber()
+{
+    return drawableChan;
+}
+
+void LfpChannelDisplay::setDrawableChannelNumber(int channelId)
+{
+    drawableChan = channelId;
 }
 
 void LfpChannelDisplay::setCanBeInverted(bool _canBeInverted)
@@ -3767,7 +3708,7 @@ void LfpChannelDisplayInfo::resized()
         enableButton->setBounds(getWidth()/4 + 5, (center) - 7, 15, 15);
     }
     
-    setChannelNumberIsHidden(getHeight() < 16 && (getChannelNumber() + 1) % 10 != 0);
+    setChannelNumberIsHidden(getHeight() < 16 && (getDrawableChannelNumber() + 1) % 10 != 0);
     
     setChannelTypeStringVisibility(getHeight() > 34);
 }
@@ -3907,15 +3848,15 @@ PerPixelBitmapPlotter::PerPixelBitmapPlotter(LfpDisplay * lfpDisplay)
     : LfpBitmapPlotter(lfpDisplay)
 { }
 
-void PerPixelBitmapPlotter::plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &plotterInfo)
+void PerPixelBitmapPlotter::plot(Image::BitmapData &bitmapData, LfpBitmapPlotterInfo &pInfo)
 {
-    int jfrom = plotterInfo.from + plotterInfo.y;
-    int jto = plotterInfo.to + plotterInfo.y;
+    int jfrom = pInfo.from + pInfo.y;
+    int jto = pInfo.to + pInfo.y;
     
     //if (yofs<0) {yofs=0;};
     
-    if (plotterInfo.samp < 0) {plotterInfo.samp = 0;};
-    if (plotterInfo.samp >= display->lfpChannelBitmap.getWidth()) {plotterInfo.samp = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
+    if (pInfo.samp < 0) {pInfo.samp = 0;};
+    if (pInfo.samp >= display->lfpChannelBitmap.getWidth()) {pInfo.samp = display->lfpChannelBitmap.getWidth()-1;}; // this shouldnt happen, there must be some bug above - to replicate, run at max refresh rate where draws overlap the right margin by a lot
     
     if (jfrom<0) {jfrom=0;};
     if (jto >= display->lfpChannelBitmap.getHeight()) {jto=display->lfpChannelBitmap.getHeight()-1;};
@@ -3929,8 +3870,90 @@ void PerPixelBitmapPlotter::plot(Image::BitmapData &bitmapData, LfpBitmapPlotter
         //*(pu8Pixel+1)	= 200;
         //*(pu8Pixel+2)	= 200;
         
-        bitmapData.setPixelColour(plotterInfo.samp,j,plotterInfo.lineColour);
+        bitmapData.setPixelColour(pInfo.samp,j,pInfo.lineColour);
         
+    }
+}
+
+
+
+#pragma mark - LfpSupersampledBitmapPlotter -
+
+SupersampledBitmapPlotter::SupersampledBitmapPlotter(LfpDisplay * lfpDisplay)
+    : LfpBitmapPlotter(lfpDisplay)
+{ }
+
+void SupersampledBitmapPlotter::plot(Image::BitmapData &bdLfpChannelBitmap, LfpBitmapPlotterInfo &pInfo)
+{
+    std::array<float, MAX_N_SAMP_PER_PIXEL> samplesThisPixel = pInfo.samplesPerPixel;
+//    int sampleCountThisPixel = lfpDisplay->canvas->getSampleCountPerPixel(pInfo.samp);
+    int sampleCountThisPixel = pInfo.sampleCountPerPixel;
+    
+    if (pInfo.samplerange>0 & sampleCountThisPixel>0)
+    {
+        
+        //float localHist[samplerange]; // simple histogram
+        Array<float> rangeHist; // [samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
+        
+        for (int k = 0; k <= pInfo.samplerange; k++)
+            rangeHist.add(0);
+        
+        for (int k = 0; k <= sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
+        {
+            int cs_this = (((samplesThisPixel[k]/pInfo.range*pInfo.channelHeightFloat)+pInfo.height/2)-pInfo.from); // sample values -> pixel coordinates relative to from
+            int cs_next = (((samplesThisPixel[k+1]/pInfo.range*pInfo.channelHeightFloat)+pInfo.height/2)-pInfo.from);
+            
+            
+            if (cs_this<0) {cs_this=0;};                        //here we could clip the diaplay to the max/min, or ignore out of bound values, not sure which one is better
+            if (cs_this>pInfo.samplerange) {cs_this=pInfo.samplerange;};
+            if (cs_next<0) {cs_next=0;};
+            if (cs_next>pInfo.samplerange) {cs_next=pInfo.samplerange;};
+            
+            int hfrom=0;
+            int hto=0;
+            
+            if (cs_this<cs_next)
+            {
+                hfrom = (cs_this);  hto = (cs_next);
+            }
+            else
+            {
+                hfrom = (cs_next);  hto = (cs_this);
+            }
+            //float hrange=hto-hfrom;
+            float ha=1;
+            for (int l=hfrom; l<hto; l++)
+            {
+                rangeHist.set(l, rangeHist[l] + ha); //this emphasizes fast Y components
+                
+                //rangeHist[l]+=1/hrange; // this is like an oscilloscope, same energy depositetd per dx, not dy
+            }
+        }
+        
+        
+        for (int s = 0; s <= pInfo.samplerange; s ++)  // plot histogram one pixel per bin
+        {
+            float a=15*((rangeHist[s])/(sampleCountThisPixel)) * (2*(0.2+pInfo.histogramParameterA));
+            if (a>1.0f) {a=1.0f;};
+            if (a<0.0f) {a=0.0f;};
+            
+            
+            //Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
+            Colour gradedColor =  pInfo.lineColourBright.interpolatedWith(pInfo.lineColourDark,1-a);
+            //Colour gradedColor =  Colour(0,255,0);
+            
+            int ploty = pInfo.from + s + pInfo.y;
+            if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
+                bdLfpChannelBitmap.setPixelColour(pInfo.samp, pInfo.from + s + pInfo.y, gradedColor);
+            }
+        }
+        
+    } else {
+        
+        int ploty = pInfo.from + pInfo.y;
+        if(ploty>0 && ploty < display->lfpChannelBitmap.getHeight()) {
+            bdLfpChannelBitmap.setPixelColour(pInfo.samp, ploty, pInfo.lineColour);
+        }
     }
 }
 
