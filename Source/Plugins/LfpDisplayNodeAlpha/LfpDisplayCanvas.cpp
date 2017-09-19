@@ -849,19 +849,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 	selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
 	selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
     
-    channelZoomSlider = new Slider;
-    channelZoomSlider->setRange(0.1, 4.0);
-    channelZoomSlider->setValue(1.0);
-    channelZoomSlider->setSkewFactor(0.75);
-    channelZoomSlider->setTextBoxStyle(Slider::NoTextBox, false, 50, 30);
-    channelZoomSlider->addListener(this);
-    addAndMakeVisible(channelZoomSlider);
-    
-    channelZoomSliderLabel = new Label("Channel Zoom", "Channel Zoom");
-    channelZoomSliderLabel->setFont(labelFont);
-    channelZoomSliderLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(channelZoomSliderLabel);
-    
     
     
     // init channel display skipping options
@@ -1162,50 +1149,31 @@ void LfpDisplayOptions::resized()
     
     colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
 
-    invertInputButton->setBounds(35,getHeight()-180,100,22);
-    drawMethodButton->setBounds(35,getHeight()-150,100,22);
+    invertInputButton->setBounds(35,getHeight()-190,100,22);
+    drawMethodButton->setBounds(35,getHeight()-160,100,22);
 
     pauseButton->setBounds(450,getHeight()-50,50,44);
     
     // Channel Zoom Slider
-    channelZoomSlider->setBounds(pauseButton->getRight() + 5,
-                                 getHeight() - 30,
-                                 100,
-                                 22);
-    channelZoomSliderLabel->setBounds(channelZoomSlider->getX(),
-                                      channelZoomSlider->getY() - 20,
-                                      180,
-                                      22);
-    
     // Reverse Channels Display
-    reverseChannelsDisplayButton->setBounds(channelZoomSlider->getX() + channelZoomSlider->getWidth() + 5,
-                                            getHeight()-50,
-                                            20,
-                                            20);
+    reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 5,
+                                 getHeight() - 50,
+                                 20,
+                                 20);
     reverseChannelsDisplayLabel->setBounds(reverseChannelsDisplayButton->getRight(),
                                            reverseChannelsDisplayButton->getY(),
                                            120,
                                            22);
     
     // Channel Display Skip Selector
-    channelDisplaySkipSelection->setBounds(channelZoomSlider->getX() + channelZoomSlider-> getWidth() + 5,
-                                           channelZoomSlider->getY(),
+    channelDisplaySkipSelection->setBounds(reverseChannelsDisplayButton->getX(),
+                                           reverseChannelsDisplayButton->getBottom(),
                                            60,
                                            25);
     channelDisplaySkipLabel->setBounds(channelDisplaySkipSelection->getRight(),
                                        channelDisplaySkipSelection->getY() + 2,
                                        100,
                                        22);
-    
-    // Stream Rate Displayed Selector
-//    streamRateDisplayedSelection->setBounds(reverseChannelsDisplayButton->getX() + 130,
-//                                            channelDisplaySkipSelection->getY(),
-//                                            60,
-//                                            25);
-//    streamRateDisplayedLabel->setBounds(streamRateDisplayedSelection->getX() - 5,
-//                                        reverseChannelsDisplayButton->getY(),
-//                                        150,
-//                                        22);
     
     // Median Offset Plotting Button
     medianOffsetPlottingButton->setBounds(reverseChannelsDisplayLabel->getRight() + 5,
@@ -1228,12 +1196,12 @@ void LfpDisplayOptions::resized()
         eventDisplayInterfaces[i]->repaint();
     }
     
-    brightnessSliderA->setBounds(170,getHeight()-180,100,22);
-    sliderALabel->setBounds(270, getHeight()-180, 180, 22);
+    brightnessSliderA->setBounds(170,getHeight()-190,100,22);
+    sliderALabel->setBounds(270, getHeight()-190, 180, 22);
     brightnessSliderA->setValue(0.9); //set default value
     
-    brightnessSliderB->setBounds(170,getHeight()-150,100,22);
-    sliderBLabel->setBounds(270, getHeight()-150, 180, 22);
+    brightnessSliderB->setBounds(170,getHeight()-160,100,22);
+    sliderBLabel->setBounds(270, getHeight()-160, 180, 22);
     brightnessSliderB->setValue(0.1); //set default value
 
     showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
@@ -1246,7 +1214,7 @@ void LfpDisplayOptions::resized()
     
     
     colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
-                                       getHeight()-180,
+                                       getHeight()-190,
                                        100,
                                        22);
     colourSchemeOptionSelection->setBounds(colourSchemeOptionLabel->getRight(),
@@ -1260,7 +1228,7 @@ void LfpDisplayOptions::resized()
         lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                     colourSchemeOptionLabel->getBottom(),
                                                     200,
-                                                    120);
+                                                    110);
     }
 }
 
@@ -1487,7 +1455,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                         colourSchemeOptionLabel->getBottom(),
                                                         200,
-                                                        100);
+                                                        110);
             addAndMakeVisible(lfpDisplay->getColourSchemePtr());
         }
         
@@ -1705,16 +1673,7 @@ void LfpDisplayOptions::sliderValueChanged(Slider* sl)
 
     if (sl == brightnessSliderB)
         canvas->histogramParameterB = sl->getValue();
-    
-    if (sl == channelZoomSlider)
-    {
-        lfpDisplay->cacheNewChannelHeight(canvas->getChannelHeight() * sl->getValue());
-        
-        if (lfpDisplay->getSingleChannelState()) return;
-        
-        lfpDisplay->setChannelHeight(canvas->getChannelHeight() * sl->getValue());
-        canvas->resizeToChannels(true);
-    }
+
     
     canvas->fullredraw=true;
     //repaint();

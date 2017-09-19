@@ -342,10 +342,6 @@ private:
     ScopedPointer<UtilityButton> pauseButton;
     OwnedArray<UtilityButton> typeButtons;
     
-    // label and slider for channel vertical zoom
-    ScopedPointer<Label> channelZoomSliderLabel;
-    ScopedPointer<Slider> channelZoomSlider;
-    
     // label and button for reversing the order of displayed channels
     ScopedPointer<Label> reverseChannelsDisplayLabel;
     ScopedPointer<UtilityButton> reverseChannelsDisplayButton;
