@@ -386,6 +386,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     float invAlpha = 1.0f - alpha;
 
                     screenBuffer->clear(channel, sbi, 1);
+                    screenBufferMean->clear(channel, sbi, 1);
                     screenBufferMin->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
@@ -412,6 +413,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
                     float sample_max   = -10000000;
+                    float sample_mean  =  0;
                     
                     int nextpix = (dbi +(int)ratio +1) % (displayBufferSize+1); //  position to next pixels index
                     
@@ -423,8 +425,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     for (int j = dbi; j < nextpix; j++)
                     {
                         
-                         float sample_current = displayBuffer->getSample(channel, j);
-                        //sample_mean = sample_mean + sample_current;
+                        float sample_current = displayBuffer->getSample(channel, j);
+                        sample_mean = sample_mean + sample_current;
 
                         if (sample_min>sample_current)
                         {
@@ -461,8 +463,8 @@ void LfpDisplayCanvas::updateScreenBuffer()
                             }else{
                                 sampleCountPerPixel[sbi]=0;
                             }
-                            //sample_mean = sample_mean/c;
-                            //screenBufferMean->addSample(channel, sbi, sample_mean*gain);
+                            sample_mean = sample_mean/c;
+                            screenBufferMean->addSample(channel, sbi, sample_mean*gain);
                             
                             screenBufferMin->addSample(channel, sbi, sample_min*gain);
                             screenBufferMax->addSample(channel, sbi, sample_max*gain);
@@ -577,6 +579,11 @@ float LfpDisplayCanvas::getStd(int chan)
 bool LfpDisplayCanvas::getInputInvertedState()
 {
     return options->getInputInvertedState(); //invertInputButton->getToggleState();
+}
+
+bool LfpDisplayCanvas::getDisplaySpikeRasterizerState()
+{
+    return options->getDisplaySpikeRasterizerState();
 }
 
 bool LfpDisplayCanvas::getDrawMethodState()
@@ -876,23 +883,22 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     
     
     
-    // init stream rate displaying options
-//    streamRateDisplayedOptions.add("High");
-//    streamRateDisplayedOptions.add("Low");
-//    selectedStreamRateDisplayed = 1;
-//    selectedChannelDisplaySkipValue = streamRateDisplayedOptions[selectedStreamRateDisplayed - 1];
-//    
-//    streamRateDisplayedSelection = new ComboBox("Displayed Stream Rate");
-//    streamRateDisplayedSelection->addItemList(streamRateDisplayedOptions, 1);
-//    streamRateDisplayedSelection->setSelectedId(selectedStreamRateDisplayed, sendNotification);
-//    streamRateDisplayedSelection->setEditableText(false);
-//    streamRateDisplayedSelection->addListener(this);
-//    addAndMakeVisible(streamRateDisplayedSelection);
-//    
-//    streamRateDisplayedLabel = new Label("Displayed Stream Rate Label", "Display Stream Rate");
-//    streamRateDisplayedLabel->setFont(labelFont);
-//    streamRateDisplayedLabel->setColour(Label::textColourId, labelColour);
-//    addAndMakeVisible(streamRateDisplayedLabel);
+    // init spike raster options
+    spikeRasterSelectionOptions = {"Off", "-50", "-100", "-150", "-200", "-300", "-400", "-500"};
+    selectedSpikeRasterThreshold = 1;
+    selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
+    
+    spikeRasterSelection = new ComboBox("spikeRasterSelection");
+    spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
+    spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
+    spikeRasterSelection->setEditableText(true);
+    spikeRasterSelection->addListener(this);
+    addAndMakeVisible(spikeRasterSelection);
+    
+    spikeRasterLabel = new Label("spikeRasterLabel", "Spike Raster Thresh.");
+    spikeRasterLabel->setFont(labelFont);
+    spikeRasterLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(spikeRasterLabel);
     
     
     
@@ -1154,7 +1160,7 @@ void LfpDisplayOptions::resized()
 
     pauseButton->setBounds(450,getHeight()-50,50,44);
     
-    // Channel Zoom Slider
+    
     // Reverse Channels Display
     reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 5,
                                  getHeight() - 50,
@@ -1184,6 +1190,17 @@ void LfpDisplayOptions::resized()
                                          medianOffsetPlottingButton->getY(),
                                          150,
                                          22);
+    
+    
+    // Spike raster plotting button
+    spikeRasterSelection->setBounds(medianOffsetPlottingButton->getX(),
+                                    medianOffsetPlottingButton->getBottom(),
+                                    60,
+                                    25);
+    spikeRasterLabel->setBounds(spikeRasterSelection->getRight(),
+                                spikeRasterSelection->getY(),
+                                120,
+                                22);
     
     
     // Saturation Warning Selection
@@ -1285,6 +1302,19 @@ bool LfpDisplayOptions::getInputInvertedState()
     return invertInputButton->getToggleState();
 }
 
+bool LfpDisplayOptions::getDisplaySpikeRasterizerState()
+{
+//    return spikeRasterButton->getToggleState();
+    return false;
+}
+
+void LfpDisplayOptions::setDisplaySpikeRasterizerState(bool isEnabled)
+{
+//    spikeRasterButton->setToggleState(isEnabled, dontSendNotification);
+    
+//    if (isEnabled) medianOffsetPlottingButton->setToggleState(true, sendNotification);
+}
+
 void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 {
     if (canvasMustUpdate)
@@ -1344,7 +1374,14 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     }
     if (b == medianOffsetPlottingButton)
     {
-        lfpDisplay->setMedianOffsetPlotting(b->getToggleState());
+        if (lfpDisplay->getSpikeRasterPlotting())
+        {
+            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
+        }
+        else
+        {
+            lfpDisplay->setMedianOffsetPlotting(b->getToggleState());
+        }
         return;
     }
     if (b == drawMethodButton)
@@ -1438,6 +1475,48 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 1);
         lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
+    }
+    else if (cb == spikeRasterSelection)
+    {
+        // if custom value
+        if (cb->getSelectedId() == 0)
+        {
+            auto val = fabsf(cb->getText().getFloatValue());
+            
+            if (val == 0) // if value is zero, just disable plotting and set text to "Off"
+            {
+                cb->setSelectedItemIndex(0, dontSendNotification);
+                lfpDisplay->setSpikeRasterPlotting(false);
+                return;
+            }
+            
+            if (val > 500)
+            {
+                val = 500;
+            }
+            
+            val *= -1;
+            
+            spikeRasterSelection->setText(String(val), dontSendNotification);
+            lfpDisplay->setSpikeRasterThreshold(val);
+            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
+            lfpDisplay->setMedianOffsetPlotting(true);
+            lfpDisplay->setSpikeRasterPlotting(true);
+        }
+        else if (cb->getSelectedItemIndex() == 0) // if "Off"
+        {
+            lfpDisplay->setSpikeRasterPlotting(false);
+            return;
+        }
+        else
+        {
+            auto val = cb->getText().getFloatValue();
+            
+            lfpDisplay->setSpikeRasterThreshold(val);
+            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
+            lfpDisplay->setMedianOffsetPlotting(true);
+            lfpDisplay->setSpikeRasterPlotting(true);
+        }
     }
     else if (cb == colourSchemeOptionSelection)
     {
@@ -2585,6 +2664,26 @@ void LfpDisplay::setMedianOffsetPlotting(bool isEnabled)
     m_MedianOffsetPlottingFlag = isEnabled;
 }
 
+bool LfpDisplay::getSpikeRasterPlotting()
+{
+    return m_SpikeRasterPlottingFlag;
+}
+
+void LfpDisplay::setSpikeRasterPlotting(bool isEnabled)
+{
+    m_SpikeRasterPlottingFlag = isEnabled;
+}
+
+float LfpDisplay::getSpikeRasterThreshold()
+{
+    return m_SpikeRasterThreshold;
+}
+
+void LfpDisplay::setSpikeRasterThreshold(float thresh)
+{
+    m_SpikeRasterThreshold = thresh;
+}
+
 void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&   wheel)
 {
 
@@ -3179,6 +3278,10 @@ void LfpChannelDisplay::pxPaint()
             if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo=true;};
             if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo=true;};
             
+            bool spikeFlag = display->getSpikeRasterPlotting()
+                && !(saturateWarningHi || saturateWarningLo)
+                && (from_raw - canvas->getYCoordMean(chan, i) < display->getSpikeRasterThreshold()
+                        || to_raw - canvas->getYCoordMean(chan, i) < display->getSpikeRasterThreshold());
             
             from = from + getHeight()/2;       // so the plot is centered in the channeldisplay
             to = to + getHeight()/2;
@@ -3202,7 +3305,7 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.samplerange = samplerange;
                 
                 // TODO: (kelly) complete transition toward plotter class encapsulation
-                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
+//                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
                 
             }
             else //drawmethod
@@ -3216,10 +3319,17 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.lineColour = lineColour;
                 
                 // TODO: (kelly) complete transition toward plotter class encapsulation
-                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
+//                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
                 
             }
             
+            // Do the actual plotting for the selected plotting method
+            if (!display->getSpikeRasterPlotting())
+                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
+            
+                
+                
+                
             // now draw warnings, if needed
             if (canvas->drawClipWarning) // draw simple warning if display cuts off data
             {
@@ -3248,6 +3358,15 @@ void LfpChannelDisplay::pxPaint()
                 
                 clipWarningHi=false;
                 clipWarningLo=false;
+            }
+            
+            if (spikeFlag) // draw spikes
+            {
+                for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
+                    if(k>0 & k<display->lfpChannelBitmap.getHeight()){
+                        bdLfpChannelBitmap.setPixelColour(i,k,lineColour);
+                    }
+                };
             }
             
             

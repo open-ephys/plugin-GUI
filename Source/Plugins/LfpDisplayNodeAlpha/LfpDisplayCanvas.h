@@ -105,6 +105,10 @@ public:
     /** Returns the number of channels NOT hidden for display */
     int getNumChannelsVisible();
     bool getInputInvertedState();
+    
+    /** Returns a bool describing whether the spike raster functionality is enabled */
+    bool getDisplaySpikeRasterizerState();
+    
     bool getDrawMethodState();
     
     int getChannelSampleRate(int channel);
@@ -270,6 +274,12 @@ public:
     int getChannelHeight();
     bool getDrawMethodState();
     bool getInputInvertedState();
+    
+    /** Return a bool describing whether the spike raster functionality is enabled */
+    bool getDisplaySpikeRasterizerState();
+    
+    /** Sets the state of the spike raster functionality on/off */
+    void setDisplaySpikeRasterizerState(bool isEnabled);
 
     //void setRangeSelection(float range, bool canvasMustUpdate);
     void setSpreadSelection();
@@ -298,8 +308,8 @@ public:
     int selectedChannelDisplaySkip;
     String selectedChannelDisplaySkipValue;
     
-    int selectedStreamRateDisplayed;
-    String selectedStreamRateDisplayedValue;
+    int selectedSpikeRasterThreshold;
+    String selectedSpikeRasterThresholdValue;
     
     // this enum is a candidate option for refactoring, not used yet
     enum ChannelDisplaySkipValue {
@@ -341,6 +351,11 @@ private:
     ScopedPointer<UtilityButton> drawMethodButton;
     ScopedPointer<UtilityButton> pauseButton;
     OwnedArray<UtilityButton> typeButtons;
+    
+    // label and button for spike raster functionality
+    ScopedPointer<Label> spikeRasterLabel;
+    ScopedPointer<ComboBox> spikeRasterSelection;
+    StringArray spikeRasterSelectionOptions;
     
     // label and button for reversing the order of displayed channels
     ScopedPointer<Label> reverseChannelsDisplayLabel;
@@ -543,6 +558,18 @@ public:
     
     /** Sets the state for the median offset plotting function */
     void setMedianOffsetPlotting(bool isEnabled);
+    
+    /** Returns true if spike raster is enabled for plotting, else false */
+    bool getSpikeRasterPlotting();
+    
+    /** Sets the state for the spike raster plotting function */
+    void setSpikeRasterPlotting(bool isEnabled);
+    
+    /** Returns the value at which the spike raster will detect and draw spikes */
+    float getSpikeRasterThreshold();
+    
+    /** Set the threshold value for the spike raster plotting function */
+    void setSpikeRasterThreshold(float thresh);
 
     /** Returns true if a single channel is focused in viewport */
     bool getSingleChannelState();
@@ -626,6 +653,8 @@ private:
     
     bool channelsReversed;
     bool m_MedianOffsetPlottingFlag;
+    bool m_SpikeRasterPlottingFlag;
+    float m_SpikeRasterThreshold;
 
     LfpDisplayCanvas* canvas;
     Viewport* viewport;
