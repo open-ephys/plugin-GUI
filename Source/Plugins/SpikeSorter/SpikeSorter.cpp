@@ -207,12 +207,13 @@ void SpikeSorter::updateSettings()
 
 Electrode::~Electrode()
 {
-    delete thresholds;
-    delete isActive;
-    delete voltageScale;
-    delete channels;
-    delete spikeSort;
-    delete runningStats;
+    delete[] thresholds;
+    delete[] isActive;
+    delete[] voltageScale;
+    delete[] channels;
+    delete[] runningStats;
+
+	delete spikeSort;
 
 }
 
