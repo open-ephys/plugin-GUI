@@ -626,8 +626,8 @@ void SpikeSortBoxes::resizeWaveform(int numSamples)
     const ScopedLock myScopedLock(mut);
     //StartCriticalSection();
     waveformLength = numSamples;
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = new float[numChannels * waveformLength];
     pc2 = new float[numChannels * waveformLength];
     spikeBuffer.clear();
@@ -681,8 +681,8 @@ void SpikeSortBoxes::loadCustomParametersFromXml(XmlElement* electrodeNode)
                     bPCAjobFinished = UnitNode->getBoolAttribute("PCAjobFinished");
                     bPCAcomputed = UnitNode->getBoolAttribute("PCAcomputed");
 
-                    delete(pc1);
-                    delete(pc2);
+                    delete[] pc1;
+                    delete[] pc2;
 
                     pc1 = new float[waveformLength*numChannels];
                     pc2 = new float[waveformLength*numChannels];
@@ -833,8 +833,8 @@ void SpikeSortBoxes::saveCustomParametersToXml(XmlElement* electrodeNode)
 SpikeSortBoxes::~SpikeSortBoxes()
 {
     // wait until PCA job is done (if one was submitted).
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = nullptr;
     pc2 = nullptr;
 }
@@ -1974,7 +1974,7 @@ int PCAjob::svdcmp(float** a, int nRows, int nCols, float* w, float** v)
         }
     }
 
-    delete rv1;
+    delete[] rv1;
 
     return (0);
 }
@@ -2122,16 +2122,16 @@ void PCAjob::computeSVD()
     // clear memory
     for (int k = 0; k < dim; k++)
     {
-        delete eigvec[k];
+        delete[] eigvec[k];
     }
-    delete eigvec;
-    delete sigvalues;
+    delete[] eigvec;
+    delete[] sigvalues;
 
     // delete covariances
     for (int k = 0; k < dim; k++)
         delete cov[k];
 
-    delete(cov);
+    delete[] cov;
     cov = nullptr;
 
 }

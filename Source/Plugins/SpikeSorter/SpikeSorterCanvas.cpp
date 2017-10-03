@@ -1070,7 +1070,7 @@ void WaveformAxes::setRange(float r)
 
 void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
-
+	if (s.get() == nullptr) return;
     float h = getHeight();
 	g.setColour(Colour(s->color[0], s->color[1], s->color[2]));
     //g.setColour(Colours::pink);

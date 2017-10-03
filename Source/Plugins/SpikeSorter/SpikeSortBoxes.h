@@ -40,7 +40,7 @@ public:
 	const SpikeChannel* getChannel() const;
 	int64 getTimestamp() const;
 	uint8 color[3];
-	uint8 pcProj[2];
+	float pcProj[2];
 	uint16 sortedId;
 private:
 	int64 timestamp;
