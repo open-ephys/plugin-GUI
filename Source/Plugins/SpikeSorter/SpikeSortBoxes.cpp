@@ -1705,7 +1705,7 @@ static int iminarg1,iminarg2;
 static double sqrarg;
 #define SQR(a) ((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 
-PCAjob::PCAjob(SorterSpikeArray _spikes, float* _pc1, float* _pc2,
+PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
                float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, bool* _reportDone) : spikes(_spikes), reportDone(_reportDone)
 {
     cov = nullptr;
@@ -2142,7 +2142,11 @@ void PCAjob::computeSVD()
 
 void PCAcomputingThread::addPCAjob(PCAjob job)
 {
-    jobs.push(job);
+	{
+		ScopedLock critical(lock);
+		jobs.push(job);
+	}
+	
     if (!isThreadRunning())
     {
         startThread();
@@ -2153,8 +2157,10 @@ void PCAcomputingThread::run()
 {
     while (jobs.size() > 0)
     {
+		lock.enter();
         PCAjob J = jobs.front();
         jobs.pop();
+		lock.exit();
         // compute PCA
         // 1. Compute Covariance matrix
         // 2. Apply SVD on covariance matrix
