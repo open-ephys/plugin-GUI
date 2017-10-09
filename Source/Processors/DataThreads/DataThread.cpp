@@ -102,9 +102,7 @@ void DataThread::updateChannels()
 void DataThread::setOutputHigh() {}
 void DataThread::setOutputLow() {}
 
-int DataThread::getNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const { return 0; }
-
-unsigned int DataThread::getNumSubProcessors() const { return 0; }
+unsigned int DataThread::getNumSubProcessors() const { return 1; }
 
 int DataThread::getNumTTLOutputs(int subproc) const { return 0; }
 
