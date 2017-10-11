@@ -82,7 +82,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 
     optionsDrawerIsOpen = false;
-    m_SpikeRasterPlottingFlag = false;
+
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -2120,6 +2120,7 @@ LfpDisplay::LfpDisplay(LfpDisplayCanvas* c, Viewport* v)
     , viewport(v)
     , channelsReversed(false)
     , displaySkipAmt(0)
+    , m_SpikeRasterPlottingFlag(false)
 {
     perPixelPlotter = new PerPixelBitmapPlotter(this);
     supersampledPlotter = new SupersampledBitmapPlotter(this);

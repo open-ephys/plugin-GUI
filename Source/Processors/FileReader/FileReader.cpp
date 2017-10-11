@@ -60,12 +60,6 @@ FileReader::FileReader()
             supportedExtensions.set (extensions[j].toLowerCase(), i + 1);
         }
     }
-    
-    /*
-    const DataChannel* in = getDataChannel(0);
-    EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
-    moduleEventChannels.add(ev);
-*/
 }
 
 
@@ -83,6 +77,12 @@ AudioProcessorEditor* FileReader::createEditor()
     return editor;
 }
 
+void FileReader::createEventChannels()
+{
+    //editor = new FileReaderEditor (this, true);
+
+    //return editor;
+}
 
 bool FileReader::isReady()
 {
@@ -109,8 +109,8 @@ float FileReader::getDefaultSampleRate() const
 
 int FileReader::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const
 {
-	if (subproc != 0) return 0;
-	if (type != DataChannel::HEADSTAGE_CHANNEL) return 0;
+    if (subproc != 0) return 0;
+    if (type != DataChannel::HEADSTAGE_CHANNEL) return 0;
     if (input)
         return currentNumChannels;
     else
@@ -253,45 +253,15 @@ void FileReader::updateSettings()
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
-
-    const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-    int samplesRead = 0;
-
-    while (samplesRead < samplesNeeded)
+    
+    // if cache window id == 0, we need to read and cache BUFFER_WINDOW_CACHE_SIZE more buffer windows
+    if (bufferCacheWindow == 0)
     {
-        count +=1;
-        int samplesToRead = samplesNeeded - samplesRead;
-        int iterationsPerSecond = getDefaultSampleRate()/samplesToRead;
-        int sample = getDefaultSampleRate()-iterationsPerSecond*samplesToRead;
-        //std::cout<<"sample: " <<sample<<"\n";
-        if ( (currentSample + samplesToRead) > stopSample)
-        {
-            samplesToRead = stopSample - currentSample;
-            if (samplesToRead > 0)
-                input->readData (readBuffer + samplesRead, samplesToRead);
-
-            input->seekTo (startSample);
-            currentSample = startSample;
-        }
-        else
-        {
-            input->readData (readBuffer + samplesRead, samplesToRead);
-            currentSample += samplesToRead;
-        }
-        //std::cout<<"samplesRead: " << samplesRead << "\n";
-        //std::cout<<"mod operation: " << count % iterationsPerSecond << "\n";
-        if (count % iterationsPerSecond == 0){
-            int *evntData= 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[0], getTimestamp(0),
-                                                    &evntData, sizeof(int), 0);
-            //TTLEvent::createTTLEvent(<#const EventChannel *channelInfo#>, <#int64 timestamp#>, <#const void *eventData#>, <#int dataSize#>, <#uint16 channel#>)
-            addEvent(moduleEventChannels[0], event, sample);
-            //addEvent(<#int channelIndex#>, <#const Event *event#>, <#int sampleNum#>)
-        }
-        
-        samplesRead += samplesToRead;
+        switchBuffer();
     }
     
     for (int i = 0; i < currentNumChannels; ++i)
@@ -302,9 +272,9 @@ void FileReader::process (AudioSampleBuffer& buffer)
                                    i,
                                    samplesNeededPerBuffer);
     }
-
-    timestamp += samplesNeeded;
-	setTimestampAndSamples(timestamp, samplesNeeded);
+    
+    timestamp += samplesNeededPerBuffer;
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
     
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
@@ -350,25 +320,6 @@ int64 FileReader::millisecondsToSamples (unsigned int ms) const
     return (int64) (currentSampleRate * float (ms) / 1000.f);
 }
 
-<<<<<<< HEAD
-void FileReader::createEventChannels(){
-    
-    moduleEventChannels.clear();
-   
-        const DataChannel* in = getDataChannel(0);
-        EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
-    
-        ev->setName("regular file reader output ");
-        ev->setDescription("Triggers about every second");
-        String identifier = "secondly.reader.";
-        String typeDesc = "secondly";
-        ev->setIdentifier(identifier);
-        //MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
-        //MetaDataValue mv(md);
-        //mv.setValue(typeDesc);
-        eventChannelArray.add(ev);
-        moduleEventChannels.add(ev);
-=======
 void FileReader::switchBuffer()
 {
     if (readBuffer == &bufferA)
@@ -437,5 +388,4 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         
         samplesRead += samplesToRead;
     }
->>>>>>> a6a98f9d600ce0aa2a396ca953f6a6d68e488e54
 }
