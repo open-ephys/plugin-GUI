@@ -40,7 +40,7 @@ public:
 	const SpikeChannel* getChannel() const;
 	int64 getTimestamp() const;
 	uint8 color[3];
-	uint8 pcProj[2];
+	float pcProj[2];
 	uint16 sortedId;
 private:
 	int64 timestamp;
@@ -179,7 +179,7 @@ PCAjob();
 class PCAjob
 {
 public:
-    PCAjob(SorterSpikeArray _spikes, float* _pc1, float* _pc2,
+    PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
            float*, float*, float*, float*, bool* _reportDone);
     ~PCAjob();
     void computeCov();
@@ -215,7 +215,9 @@ public:
     void run(); // computes PCA on waveforms
     void addPCAjob(PCAjob job);
 
+private:
     std::queue<PCAjob> jobs;
+	CriticalSection lock;
 };
 
 class PCAUnit

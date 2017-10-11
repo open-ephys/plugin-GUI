@@ -58,7 +58,7 @@ public:
 	String getCurrentNodeName() const;
 protected:
 	NodeInfoBase() = delete;
-	NodeInfoBase(uint16 id, uint16 idx);
+	NodeInfoBase(uint16 id, uint16 idx, String type, String name);
 private:
 	uint16 m_nodeID{ 0 };
 	uint16 m_nodeIdx{ 0 };

@@ -44,6 +44,21 @@ String BinaryRecording::getEngineID() const
 	return "RAWBINARY";
 }
 
+String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
+{
+	String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" + String(channelInfo->getCurrentNodeID()));
+	if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID()) //it is the channel source
+	{
+		fName += "." + String(channelInfo->getSubProcessorIdx());
+	}
+	else
+	{
+		fName += "_" + String(channelInfo->getSourceNodeID()) + "." + String(channelInfo->getSubProcessorIdx());
+	}
+	fName += File::separatorString;
+	return fName;
+}
+
 void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
 	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber)
@@ -76,7 +91,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			int nInfoArrays = indexedDataChannels.size();
 			bool found = false;
 			DynamicObject::Ptr jsonChan = new DynamicObject();
-			jsonChan->setProperty("name", channelInfo->getName());
+			jsonChan->setProperty("channel_name", channelInfo->getName());
 			jsonChan->setProperty("description", channelInfo->getDescription());
 			jsonChan->setProperty("identifier", channelInfo->getIdentifier());
 			jsonChan->setProperty("history", channelInfo->getHistoricString());
@@ -100,13 +115,10 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			}
 			if (!found)
 			{
-				String datFileName(channelInfo->getCurrentNodeName() + "_(" + String(channelInfo->getCurrentNodeID()) + ")" + File::separatorString + channelInfo->getSourceName() + "_(" + String(sourceId) + "." + String(sourceSubIdx) + ")");
-				continuousFileNames.add(contPath + datFileName + ".dat");
+				String datPath = getProcessorString(channelInfo);
+				continuousFileNames.add(contPath + datPath + "continuous.dat");
 				
-				Array<NpyType> tstypes;
-				tstypes.add(NpyType("Timestamp", BaseType::INT64, 1));
-				
-				ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datFileName + "_timestamps.npy", tstypes);
+				ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
 				m_dataTimestampFiles.add(tFile.release());
 
 				m_fileIndexes.set(recordedChan, nInfoArrays);
@@ -118,7 +130,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 				jsonChanArray.add(var(jsonChan));
 				jsonChannels.add(var(jsonChanArray));
 				DynamicObject::Ptr jsonFile = new DynamicObject();
-				jsonFile->setProperty("name", datFileName);
+				jsonFile->setProperty("folder_name", datPath.replace(File::separatorString, "/")); //to make it more system agnostic, replace separator with only one slash
 				jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
 				jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
 				jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
@@ -154,81 +166,56 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
 	int nEvents = getNumRecordedEvents();
 	String eventPath(basepath + "events" + File::separatorString);
-	int binCount = 0, ttlCount = 0, textCount = 0;
 	Array<var> jsonEventFiles;
 
 	for (int ev = 0; ev < nEvents; ev++)
 	{
 		const EventChannel* chan = getEventChannel(ev);
-		String eventName;
-		Array<NpyType> types;
-		String typeName;
+		String eventName = getProcessorString(chan);
+		NpyType type;
+		String dataFileName;
 
 		switch (chan->getChannelType())
 		{
 		case EventChannel::TEXT:
-			textCount++;
-			eventName += "TEXT" + String(textCount);
-			types.add(NpyType("message", BaseType::CHAR, chan->getLength()));
-			typeName = "text_message";
+			eventName += "TEXT_group";
+			type = NpyType(BaseType::CHAR, chan->getLength());
+			dataFileName = "text";
 			break;
 		case EventChannel::TTL:
-			ttlCount++;
-			eventName += "TTL" + String(ttlCount);
-			types.add(NpyType("TTL_Channel", BaseType::INT16, 1));
-			typeName = "ttl";
+			eventName += "TTL";
+			type = NpyType(BaseType::INT16, 1);
+			dataFileName = "channel_states";
 			break;
 		default:
-			binCount++;
-			eventName += "BIN" + String(ttlCount);
-			types.add(NpyType("Data", chan->getEquivalentMetaDataType(), chan->getLength()));
-			typeName = jsonTypeValue(chan->getEquivalentMetaDataType());
+			eventName += "BINARY_group";
+			type = NpyType(chan->getEquivalentMetaDataType(), chan->getLength());
+			dataFileName = "data_array";
 			break;
 		}
-		eventName += "_" + chan->getSourceName() + "(" + String(chan->getSourceNodeID()) + "." + String(chan->getSubProcessorIdx()) + ")";
-		String fName = eventPath + eventName;
+		eventName += "_" + String(chan->getSourceIndex() + 1) + File::separatorString;
 		ScopedPointer<EventRecording> rec = new EventRecording();
-		Array<NpyType> tsType;
-		tsType.add(NpyType("Timestamp", BaseType::INT64, 1));
-		//TTL channels behave a bit different
-		if (chan->getChannelType() == EventChannel::TTL)
+		
+		rec->mainFile = new NpyFile(eventPath + eventName + dataFileName + ".npy", type);
+		rec->timestampFile = new NpyFile(eventPath + eventName + "timestamps.npy", NpyType(BaseType::INT64, 1));
+		rec->channelFile = new NpyFile(eventPath + eventName + "channels.npy", NpyType(BaseType::UINT16, 1));
+		if (chan->getChannelType() == EventChannel::TTL && m_saveTTLWords)
 		{
-			if (m_TTLMode == TTLMode::JointWord)
-			{
-				types.add(NpyType("TTL_Word", BaseType::UINT8, chan->getDataSize()));
-			}
-			else if (m_TTLMode == TTLMode::SeparateWord)
-			{
-				Array<NpyType> wordType;
-				wordType.add(NpyType("TTL_Word", BaseType::UINT8, chan->getDataSize()));
-				rec->extraFile = new NpyFile(fName + "_TTLWord.npy", wordType);
-			}
-			//since the main TTL file already contins channel numbers, it would be redundant to store them on the timestamp file
+			rec->extraFile = new NpyFile(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
 		}
-		else
-		{
-			if (m_eventMode == EventMode::SeparateChannel)
-			{
-				Array<NpyType> chanType;
-				chanType.add(NpyType("Channel", BaseType::UINT16, 1));
-				rec->channelFile = new NpyFile(fName + "_channel.npy", chanType);
-			}
-			else
-				tsType.add(NpyType("Channel", BaseType::UINT16, 1));
-		}
-		rec->mainFile = new NpyFile(fName + ".npy", types);
-		rec->timestampFile = new NpyFile(fName + "_timestamps.npy", tsType);
+
 		DynamicObject::Ptr jsonChannel = new DynamicObject();
-		jsonChannel->setProperty("name", chan->getName());
+		jsonChannel->setProperty("folder_name", eventName.replace(File::separatorString, "/"));
+		jsonChannel->setProperty("channel_name", chan->getName());
 		jsonChannel->setProperty("description", chan->getDescription());
 		jsonChannel->setProperty("identifier", chan->getIdentifier());
 		jsonChannel->setProperty("sample_rate", chan->getSampleRate());
-		jsonChannel->setProperty("type", typeName);
+		jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
 		jsonChannel->setProperty("num_channels", (int)chan->getNumChannels());
 		jsonChannel->setProperty("source_processor", chan->getSourceName());
 		createChannelMetaData(chan, jsonChannel);
 
-		rec->metaDataFile = createEventMetadataFile(chan, fName + "_metadata.npy", jsonChannel);
+		rec->metaDataFile = createEventMetadataFile(chan, eventPath + eventName + "metadata.npy", jsonChannel);
 		m_eventFiles.add(rec.release());
 		jsonEventFiles.add(var(jsonChannel));
 	}
@@ -241,12 +228,13 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 	String spikePath(basepath + "spikes" + File::separatorString);
 	Array<var> jsonSpikeFiles;
 	Array<var> jsonSpikeChannels;
+	std::map<uint32, int> groupMap;
 	for (int sp = 0; sp < nSpikes; sp++)
 	{
 		const SpikeChannel* ch = getSpikeChannel(sp);
 		DynamicObject::Ptr jsonChannel = new DynamicObject();
 		unsigned int numSpikeChannels = ch->getNumChannels();
-		jsonChannel->setProperty("name", ch->getName());
+		jsonChannel->setProperty("channel_name", ch->getName());
 		jsonChannel->setProperty("description", ch->getDescription());
 		jsonChannel->setProperty("identifier", ch->getIdentifier());
 		Array<var> jsonChannelInfo;
@@ -288,51 +276,31 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 			m_spikeChannelIndexes.set(sp, 0);
 			indexedChannels.add(1);
 			ScopedPointer<EventRecording> rec = new EventRecording();
-			Array<NpyType> spTypes;
-			for (int c = 0; c < ch->getNumChannels(); c++)
-			{
-				spTypes.add(NpyType("channel" + String(c + 1), BaseType::INT16, ch->getTotalSamples()));
-			}
-			String spikeName("spike_group_" + String(fileIndex + 1));
-			String fName(spikePath + spikeName);
-			rec->mainFile = new NpyFile(fName + ".npy", spTypes);
+			
+			uint32 procID = GenericProcessor::getProcessorFullId(ch->getSourceNodeID(), ch->getSubProcessorIdx());
+			int groupIndex = ++groupMap[procID];
+
+			String spikeName = getProcessorString(ch) + "spike_group_" + String(groupIndex) + File::separatorString;
+
+			rec->mainFile = new NpyFile(spikePath + spikeName + "spike_waveforms.npy", NpyType(BaseType::INT16, ch->getTotalSamples()), ch->getNumChannels());
+			rec->timestampFile = new NpyFile(spikePath + spikeName + "spike_times.npy", NpyType(BaseType::INT64, 1));
+			rec->channelFile = new NpyFile(spikePath + spikeName + "spike_electrode_indices.npy", NpyType(BaseType::UINT16, 1));
+			rec->extraFile = new NpyFile(spikePath + spikeName + "spike_clusters.npy", NpyType(BaseType::UINT16, 1));
 			Array<NpyType> tsTypes;
-			tsTypes.add(NpyType("timestamp", BaseType::INT64, 1));
-			if (m_spikeMode == SpikeMode::AllInOne)
-			{
-				tsTypes.add(NpyType("electrode_index", BaseType::UINT16, 1));
-				tsTypes.add(NpyType("sorted_id", BaseType::UINT16, 1));
-			}
-			else
-			{
-				Array<NpyType> indexType;
-				indexType.add(NpyType("electrode_index", BaseType::UINT16, 1));
-				if (m_spikeMode == SpikeMode::AllSeparated)
-				{
-					Array<NpyType> sortedType;
-					sortedType.add(NpyType("sorted_id", BaseType::UINT16, 1));
-					rec->extraFile = new NpyFile(fName + "_sortedID.npy", sortedType);
-				}
-				else
-				{
-					indexType.add(NpyType("sorted_id", BaseType::UINT16, 1));
-				}
-				rec->channelFile = new NpyFile(fName + "indexes.npy", indexType);
-			}
-			rec->timestampFile = new NpyFile(fName + "_timestamps.npy", tsTypes);
+			
 			Array<var> jsonChanArray;
 			jsonChanArray.add(var(jsonChannel));
 			jsonSpikeChannels.add(var(jsonChanArray));
 			DynamicObject::Ptr jsonFile = new DynamicObject();
 			
-			jsonFile->setProperty("name", spikeName);
+			jsonFile->setProperty("folder_name", spikeName.replace(File::separatorString,"/"));
 			jsonFile->setProperty("sample_rate", ch->getSampleRate());
 			jsonFile->setProperty("source_processor", ch->getSourceName());
 			jsonFile->setProperty("num_channels", (int)numSpikeChannels);
 			jsonFile->setProperty("pre_peak_samples", (int)ch->getPrePeakSamples());
 			jsonFile->setProperty("post_peak_samples", (int)ch->getPostPeakSamples());
 			
-			rec->metaDataFile = createEventMetadataFile(ch, fName + "_metadata.npy", jsonFile);
+			rec->metaDataFile = createEventMetadataFile(ch, spikePath + spikeName + "metadata.npy", jsonFile);
 			m_spikeFiles.add(rec.release());
 			jsonSpikeFiles.add(var(jsonFile));
 		}
@@ -552,38 +520,23 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	const EventChannel* info = getEventChannel(eventIndex);
 	int64 ts = ev->getTimestamp();
 	rec->timestampFile->writeData(&ts, sizeof(int64));
+
+	uint16 chan = ev->getChannel();
+	rec->channelFile->writeData(&chan, sizeof(uint16));
+
 	if (ev->getEventType() == EventChannel::TTL)
 	{
 		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
 		int16 data = ttl->getChannel() * (ttl->getState() ? 1 : -1);
 		rec->mainFile->writeData(&data, sizeof(int16));
-		NpyFile* wordFile = nullptr;
-		if (m_TTLMode == TTLMode::JointWord)
-		{
-			wordFile = rec->mainFile;
-		}
-		else if (m_TTLMode == TTLMode::SeparateWord)
-		{
-			wordFile = rec->extraFile;
-		}
-		if (wordFile)
-			wordFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+		if (rec->extraFile)
+			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
 	}
 	else
 	{
 		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
-		NpyFile* chanFile = nullptr;
-		if (m_eventMode == EventMode::SeparateChannel)
-		{
-			chanFile = rec->channelFile;
-		}
-		else
-		{
-			chanFile = rec->timestampFile;
-		}
-		uint16 chan = ev->getChannel();
-		chanFile->writeData(&chan, sizeof(uint16));
 	}
+	
 	writeEventMetaData(ev.get(), rec->metaDataFile);
 	increaseEventCounts(rec);
 }
@@ -617,29 +570,15 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), totalSamples);
 	rec->mainFile->writeData(m_intBuffer.getData(), totalSamples*sizeof(int16));
+	
 	int64 ts = spike->getTimestamp();
 	rec->timestampFile->writeData(&ts, sizeof(int64));
-	NpyFile* indexFile;
-	NpyFile* sortedFile;
-	if (m_spikeMode == SpikeMode::AllInOne)
-	{
-		indexFile = rec->timestampFile;
-		sortedFile = rec->timestampFile;
-	}
-	else if (m_spikeMode == SpikeMode::SeparateTimestamps)
-	{
-		indexFile = rec->channelFile;
-		sortedFile = rec->channelFile;
-	}
-	else
-	{
-		indexFile = rec->channelFile;
-		sortedFile = rec->extraFile;
-	}
-	indexFile->writeData(&spikeChannel, sizeof(uint16));
+
+	rec->channelFile->writeData(&spikeChannel, sizeof(uint16));
 
 	uint16 sortedID = spike->getSortedID();
-	sortedFile->writeData(&sortedID, sizeof(uint16));
+	rec->extraFile->writeData(&sortedID, sizeof(uint16));
+
 	increaseEventCounts(rec);
 }
 
@@ -656,20 +595,15 @@ RecordEngineManager* BinaryRecording::getEngineManager()
 {
 	RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary", &(engineFactory<BinaryRecording>));
 	EngineParameter* param;
-	param = new EngineParameter(EngineParameter::MULTI, 0, "Spike TS/chan/sortedID File Mode|All in one|Separate timestamps|All Separated", 0);
+	param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
 	man->addParameter(param);
-	param = new EngineParameter(EngineParameter::MULTI, 1, "TTL Event word file|In main file|Separated|Do not save ttl word", 0);
-	man->addParameter(param);
-	param = new EngineParameter(EngineParameter::MULTI, 2, "Other event channel file|With timestamp|Separate", 0);
-	man->addParameter(param);
+	
 	return man;
 }
 
 void BinaryRecording::setParameter(EngineParameter& parameter)
 {
-	multiParameter(0, reinterpret_cast<int&>(m_spikeMode));
-	multiParameter(1, reinterpret_cast<int&>(m_TTLMode));
-	multiParameter(2, reinterpret_cast<int&>(m_eventMode));
+	boolParameter(0, m_saveTTLWords);
 }
 
 String BinaryRecording::jsonTypeValue(BaseType type)

@@ -61,37 +61,16 @@ namespace BinaryRecordingEngine
 			ScopedPointer<NpyFile> extraFile;
 		};
 		
-		enum SpikeMode
-		{
-			AllInOne = 0,
-			SeparateTimestamps = 1,
-			AllSeparated = 2
-		};
-
-		enum TTLMode
-		{
-			JointWord = 0,
-			SeparateWord = 1,
-			NoWord = 2
-		};
-
-		enum EventMode
-		{
-			JointChannel = 0,
-			SeparateChannel = 1
-		};
 
 		NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
 		void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
 		void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
 		void increaseEventCounts(EventRecording* rec);
 		static String jsonTypeValue(BaseType type);
+		static String getProcessorString(const InfoObjectCommon* channelInfo);
 
-		SpikeMode m_spikeMode;
-		TTLMode m_TTLMode;
-		EventMode m_eventMode;
-
-
+		bool m_saveTTLWords{ true };
+	
 		HeapBlock<float> m_scaledBuffer;
 		HeapBlock<int16> m_intBuffer;
 		HeapBlock<int64> m_tsBuffer;

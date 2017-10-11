@@ -73,11 +73,11 @@ private:
 
 
     //  ComboBox* electrodeTypes;
-    ScopedPointer<ComboBox> electrodeList,dacCombo;
+	ScopedPointer<ComboBox> electrodeList;// , dacCombo;
     ScopedPointer<ComboBox> advancerList;
     ScopedPointer<Label> advancerLabel, depthOffsetLabel, depthOffsetEdit;
     ScopedPointer<Label> numElectrodes;
-    ScopedPointer<Label> thresholdLabel,dacAssignmentLabel;
+	ScopedPointer<Label> thresholdLabel; // , dacAssignmentLabel;
     ScopedPointer<TriangleButton> upButton;
     ScopedPointer<TriangleButton> downButton;
     ScopedPointer<UtilityButton> plusButton;
