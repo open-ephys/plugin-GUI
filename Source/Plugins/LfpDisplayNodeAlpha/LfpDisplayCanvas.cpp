@@ -82,6 +82,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 
     optionsDrawerIsOpen = false;
+    m_SpikeRasterPlottingFlag = false;
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
