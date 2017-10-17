@@ -144,10 +144,18 @@ void LfpDisplayCanvas::resized()
     timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
     viewport->setBounds(0,30,getWidth(),getHeight()-90);
 
-    if (lfpDisplay->getSingleChannelState())
-        lfpDisplay->setChannelHeight(viewport->getHeight(),false);
-
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+    if (nChans > 0)
+    {
+        if (lfpDisplay->getSingleChannelState())
+            lfpDisplay->setChannelHeight(viewport->getHeight(),false);
+        
+        std::cout << "number of channels " << nChans << std::endl;
+        lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+    }
+    else
+    {
+        lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+    }
 
     if (optionsDrawerIsOpen)
         options->setBounds(0, getHeight()-200, getWidth(), 200);
@@ -197,7 +205,7 @@ void LfpDisplayCanvas::endAnimation()
 
 void LfpDisplayCanvas::update()
 {
-    nChans = jmax(processor->getNumInputs(),1);
+    nChans = jmax(processor->getNumInputs(), 0);
 
     resizeSamplesPerPixelBuffer(nChans);
 
@@ -205,6 +213,8 @@ void LfpDisplayCanvas::update()
     screenBufferIndex.clear();
     lastScreenBufferIndex.clear();
     displayBufferIndex.clear();
+    
+    options->setEnabled(nChans != 0);
 
     for (int i = 0; i <= nChans; i++) // extra channel for events
     {
@@ -256,9 +266,12 @@ void LfpDisplayCanvas::update()
             lfpDisplay->setEnabledState(isChannelEnabled[i], i);
 
         }
-
-        lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-
+        
+        if (nChans > 0)
+            lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+        else
+            lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+        
         resized();
     }
     else
@@ -271,7 +284,8 @@ void LfpDisplayCanvas::update()
         
     }
     
-    lfpDisplay->rebuildDrawableChannelsList();
+    if (nChans > 0)
+        lfpDisplay->rebuildDrawableChannelsList();
 
 }
 
@@ -1471,6 +1485,8 @@ void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
+    if (canvas->getNumChannels() == 0) return;
+    
     if (cb == channelDisplaySkipSelection)
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 1);

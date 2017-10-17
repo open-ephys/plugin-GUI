@@ -84,6 +84,8 @@ private:
     
     ScopedPointer<Label> subprocessorSampleRateLabel;
     
+    bool hasNoInputs;
+    
     /** Communicates the drawable subprocessor information to the canvas, if
      one exists
      */

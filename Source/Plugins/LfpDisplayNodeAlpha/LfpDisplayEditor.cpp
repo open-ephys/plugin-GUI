@@ -28,7 +28,7 @@ using namespace LfpDisplayNodeAlpha;
 
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : VisualizerEditor(parentNode, useDefaultParameterEditors)
-
+, hasNoInputs(true)
 {
     lfpProcessor = (LfpDisplayNode*) parentNode;
     tabText = "LFP";
@@ -74,8 +74,8 @@ void LfpDisplayEditor::buttonClicked(Button *button)
         // (else) initialization errors. lots of time-critical cross dependencies here,
         // should be cleaned up
         updateSubprocessorSelectorOptions();
-        ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + (subprocessorSelection->getSelectedId() - 1)));
-//        ((LfpDisplayCanvas*)canvas.get())->setDrawableSampleRate(*(inputSampleRates.begin() + (subprocessorSelection->getSelectedId() - 1)));
+        //((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + (subprocessorSelection->getSelectedId() - 1)));
+//        setCanvasDrawableSubprocessor(subprocessorSelection->getSelectedId() - 1);
         
         canvas->update();
         
@@ -110,6 +110,8 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
     inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
+    hasNoInputs = lfpProcessor->getTotalDataChannels() != 0;
+    
     for (int i = 0, len = lfpProcessor->getTotalDataChannels(); i < len; ++i)
     {
         int subProcessorIdx = lfpProcessor->getDataChannel(i)->getSubProcessorIdx();
@@ -142,13 +144,26 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
         subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
         setCanvasDrawableSubprocessor(subprocessorToSet);
     }
+    else
+    {
+        subprocessorSelection->addItem ("None", 1);
+        subprocessorSelection->setSelectedId(1, dontSendNotification);
+        
+        String sampleRateLabelText = "Sample Rate: <not available>";
+        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+        setCanvasDrawableSubprocessor(-1);
+        
+    }
 }
 
 void LfpDisplayEditor::setCanvasDrawableSubprocessor(int index)
 {
     if (canvas)
     {
-        ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+        if (index >= 0)
+            ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+        else
+            ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(-1);
     }
 }
 
