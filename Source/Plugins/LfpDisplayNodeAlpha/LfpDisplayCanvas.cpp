@@ -149,7 +149,6 @@ void LfpDisplayCanvas::resized()
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
         
-        std::cout << "number of channels " << nChans << std::endl;
         lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     }
     else
