@@ -74,8 +74,6 @@ void LfpDisplayEditor::buttonClicked(Button *button)
         // (else) initialization errors. lots of time-critical cross dependencies here,
         // should be cleaned up
         updateSubprocessorSelectorOptions();
-        //((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + (subprocessorSelection->getSelectedId() - 1)));
-//        setCanvasDrawableSubprocessor(subprocessorSelection->getSelectedId() - 1);
         
         canvas->update();
         
@@ -98,7 +96,6 @@ void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
 {
     if (cb == subprocessorSelection)
     {
-//        setCanvasDrawableSampleRate(cb->getSelectedId() - 1);
         setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
     }
 }
@@ -120,7 +117,6 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
         
         if (success) inputSampleRates.set(subProcessorIdx, lfpProcessor->getDataChannel(i)->getSampleRate());
         
-//        if (success) std::cout << "\t\tadding subprocessor index " << subProcessorIdx << std::endl;
     }
     
     int subprocessorToSet = -1;
