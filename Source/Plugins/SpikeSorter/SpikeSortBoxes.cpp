@@ -626,8 +626,8 @@ void SpikeSortBoxes::resizeWaveform(int numSamples)
     const ScopedLock myScopedLock(mut);
     //StartCriticalSection();
     waveformLength = numSamples;
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = new float[numChannels * waveformLength];
     pc2 = new float[numChannels * waveformLength];
     spikeBuffer.clear();
@@ -681,8 +681,8 @@ void SpikeSortBoxes::loadCustomParametersFromXml(XmlElement* electrodeNode)
                     bPCAjobFinished = UnitNode->getBoolAttribute("PCAjobFinished");
                     bPCAcomputed = UnitNode->getBoolAttribute("PCAcomputed");
 
-                    delete(pc1);
-                    delete(pc2);
+                    delete[] pc1;
+                    delete[] pc2;
 
                     pc1 = new float[waveformLength*numChannels];
                     pc2 = new float[waveformLength*numChannels];
@@ -833,8 +833,8 @@ void SpikeSortBoxes::saveCustomParametersToXml(XmlElement* electrodeNode)
 SpikeSortBoxes::~SpikeSortBoxes()
 {
     // wait until PCA job is done (if one was submitted).
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = nullptr;
     pc2 = nullptr;
 }
@@ -1705,7 +1705,7 @@ static int iminarg1,iminarg2;
 static double sqrarg;
 #define SQR(a) ((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 
-PCAjob::PCAjob(SorterSpikeArray _spikes, float* _pc1, float* _pc2,
+PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
                float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, bool* _reportDone) : spikes(_spikes), reportDone(_reportDone)
 {
     cov = nullptr;
@@ -1974,7 +1974,7 @@ int PCAjob::svdcmp(float** a, int nRows, int nCols, float* w, float** v)
         }
     }
 
-    delete rv1;
+    delete[] rv1;
 
     return (0);
 }
@@ -2122,16 +2122,16 @@ void PCAjob::computeSVD()
     // clear memory
     for (int k = 0; k < dim; k++)
     {
-        delete eigvec[k];
+        delete[] eigvec[k];
     }
-    delete eigvec;
-    delete sigvalues;
+    delete[] eigvec;
+    delete[] sigvalues;
 
     // delete covariances
     for (int k = 0; k < dim; k++)
         delete cov[k];
 
-    delete(cov);
+    delete[] cov;
     cov = nullptr;
 
 }
@@ -2142,7 +2142,11 @@ void PCAjob::computeSVD()
 
 void PCAcomputingThread::addPCAjob(PCAjob job)
 {
-    jobs.push(job);
+	{
+		ScopedLock critical(lock);
+		jobs.push(job);
+	}
+	
     if (!isThreadRunning())
     {
         startThread();
@@ -2153,8 +2157,10 @@ void PCAcomputingThread::run()
 {
     while (jobs.size() > 0)
     {
+		lock.enter();
         PCAjob J = jobs.front();
         jobs.pop();
+		lock.exit();
         // compute PCA
         // 1. Compute Covariance matrix
         // 2. Apply SVD on covariance matrix

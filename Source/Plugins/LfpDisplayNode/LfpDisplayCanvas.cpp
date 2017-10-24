@@ -1388,7 +1388,7 @@ int LfpDisplay::getRange(DataChannel::DataChannelTypes type)
 
 void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 {
-
+    
     for (int i = 0; i < numChans; i++)
     {
         channels[i]->setChannelHeight(r);

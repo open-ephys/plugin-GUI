@@ -58,7 +58,7 @@ int FileSource::getRecordNumChannels (int index) const
 
 int FileSource::getActiveNumChannels() const
 {
-    return getRecordNumChannels (activeRecord);
+    return getRecordNumChannels (activeRecord.get());
 }
 
 
@@ -70,7 +70,7 @@ float FileSource::getRecordSampleRate (int index) const
 
 float FileSource::getActiveSampleRate() const
 {
-    return getRecordSampleRate (activeRecord);
+    return getRecordSampleRate (activeRecord.get());
 }
 
 
@@ -82,13 +82,13 @@ int64 FileSource::getRecordNumSamples (int index) const
 
 int64 FileSource::getActiveNumSamples() const
 {
-    return getRecordNumSamples (activeRecord);
+    return getRecordNumSamples (activeRecord.get());
 }
 
 
 int FileSource::getActiveRecord() const
 {
-    return activeRecord;
+    return activeRecord.get();
 }
 
 
@@ -100,13 +100,14 @@ RecordedChannelInfo FileSource::getChannelInfo (int recordIndex, int channel) co
 
 RecordedChannelInfo FileSource::getChannelInfo (int channel) const
 {
-    return getChannelInfo (activeRecord, channel);
+    return getChannelInfo (activeRecord.get(), channel);
 }
 
 
 void FileSource::setActiveRecord (int index)
 {
-    activeRecord = index;
+//    activeRecord = index;
+    activeRecord.set(index);
     updateActiveRecord();
 }
 

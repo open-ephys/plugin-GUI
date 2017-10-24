@@ -1070,12 +1070,12 @@ void WaveformAxes::setRange(float r)
 
 void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
-
+	if (s.get() == nullptr) return;
     float h = getHeight();
 	g.setColour(Colour(s->color[0], s->color[1], s->color[2]));
     //g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
-    float dx = getWidth()/float(spikeBuffer[0]->getChannel()->getTotalSamples());
+    float dx = getWidth()/float(s->getChannel()->getTotalSamples());
 
     /*
     float align = 8 * getWidth()/float(spikeBuffer[0].nSamples);

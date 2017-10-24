@@ -32,6 +32,7 @@
 #include "FileSource.h"
 
 #define BUFFER_SIZE 1024
+#define BUFFER_WINDOW_CACHE_SIZE 10
 
 
 /**
@@ -39,7 +40,8 @@
 
   @see GenericProcessor
 */
-class FileReader : public GenericProcessor
+class FileReader : public GenericProcessor,
+    private Thread
 {
 public:
     FileReader();
@@ -67,9 +69,12 @@ public:
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-
+    void createEventChannels();
 
 private:
+    Array<const EventChannel*> moduleEventChannels;
+    unsigned int count = 0;
+    
     void setActiveRecording (int index);
 
     unsigned int samplesToMilliseconds (int64 samples)  const;
@@ -83,6 +88,7 @@ private:
     int64 currentNumSamples;
     int64 startSample;
     int64 stopSample;
+    int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
 
     // for testing purposes only
@@ -90,9 +96,30 @@ private:
 
     ScopedPointer<FileSource> input;
 
-    HeapBlock<int16> readBuffer;
+    HeapBlock<int16> * readBuffer;      // Ptr to the current "front" buffer
+    HeapBlock<int16> bufferA;
+    HeapBlock<int16> bufferB;
 
     HashMap<String, int> supportedExtensions;
+    
+    Atomic<int> m_shouldFillBackBuffer;
+    Atomic<int> m_samplesPerBuffer;
+    
+    /** Swaps the backbuffer to the front and flags the background reader
+        thread to update the new backbuffer */
+    void switchBuffer();
+    
+    HeapBlock<int16>* getFrontBuffer();
+    HeapBlock<int16>* getBackBuffer();
+    
+    /** Executes the background thread task */
+    void run() override;
+    
+    /** Reads a chunk of the file that fills an entire buffer cache.
+     
+        This method will read into the buffer that passed in by the param 
+     */
+    void readAndFillBufferCache(HeapBlock<int16> &cacheBuffer);
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
