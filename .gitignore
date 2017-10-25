@@ -8,24 +8,31 @@
 Builds/Linux/build/open-ephys
 Builds/Linux/build/open-ephys-release
 Resources/Fonts/font_serializer/Builds/Linux/build/
-Introjucer/Builds/Linux/build
-Introjucer/Builds/VisualStudio2010/Debug
-Introjucer/Builds/VisualStudio2010/Release
-Introjucer/Builds/VisualStudio2010/*.user
-Introjucer/Builds/VisualStudio2010/*.sdf
-Introjucer/Builds/VisualStudio2010/*.suo
-Introjucer/Builds/VisualStudio2012/Debug
-Introjucer/Builds/VisualStudio2012/Release
-Introjucer/Builds/VisualStudio2012/*.user
-Introjucer/Builds/VisualStudio2012/*.sdf
-Introjucer/Builds/VisualStudio2012/*.opensdf
-Introjucer/Builds/VisualStudio2012/*.suo
-Introjucer/Builds/VisualStudio2013/Debug
-Introjucer/Builds/VisualStudio2013/Release
-Introjucer/Builds/VisualStudio2013/*.user
-Introjucer/Builds/VisualStudio2013/*.sdf
-Introjucer/Builds/VisualStudio2013/*.opensdf
-Introjucer/Builds/VisualStudio2013/*.suo
+Projucer/Builds/Linux/build
+Projucer/Builds/VisualStudio2010/Debug
+Projucer/Builds/VisualStudio2010/Release
+Projucer/Builds/VisualStudio2010/*.user
+Projucer/Builds/VisualStudio2010/*.sdf
+Projucer/Builds/VisualStudio2010/*.suo
+Projucer/Builds/VisualStudio2012/Debug
+Projucer/Builds/VisualStudio2012/Release
+Projucer/Builds/VisualStudio2012/*.user
+Projucer/Builds/VisualStudio2012/*.sdf
+Projucer/Builds/VisualStudio2012/*.opensdf
+Projucer/Builds/VisualStudio2012/*.suo
+Projucer/Builds/VisualStudio2013/Debug
+Projucer/Builds/VisualStudio2013/Release
+Projucer/Builds/VisualStudio2013/x64
+Projucer/Builds/VisualStudio2013/*.user
+Projucer/Builds/VisualStudio2013/*.sdf
+Projucer/Builds/VisualStudio2013/*.opensdf
+Projucer/Builds/VisualStudio2013/*.suo
+
+PluginGenerator/Builds/VisualStudio2013/x64
+PluginGenerator/Builds/VisualStudio2013/*.user
+PluginGenerator/Builds/VisualStudio2013/*.sdf
+PluginGenerator/Builds/VisualStudio2013/*.opensdf
+PluginGenerator/Builds/VisualStudio2013/*.suo
 
 # 3. extra files
 Builds/Linux/build/data
@@ -113,11 +120,11 @@ Builds/MacOSX/open-ephys.xcodeproj/*.pbxuser
 Builds/MacOSX/open-ephys.xcodeproj/xcuserdata
 Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace
 Builds/MacOSX/build
-Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/*.mode1v3
-Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/*.pbxuser
-Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/xcuserdata
-Introjucer/Builds/MacOSX/The Introjucer.xcodeproj/project.xcworkspace
-Introjucer/Builds/MacOSX/build
+Projucer/Builds/MacOSX/The Projucer.xcodeproj/*.mode1v3
+Projucer/Builds/MacOSX/The Projucer.xcodeproj/*.pbxuser
+Projucer/Builds/MacOSX/The Projucer.xcodeproj/xcuserdata
+Projucer/Builds/MacOSX/The Projucer.xcodeproj/project.xcworkspace
+Projucer/Builds/MacOSX/build
 Projucer/Builds/MacOSX/Projucer.xcodeproj/xcuserdata
 Projucer/Builds/MacOSX/Projucer.xcodeproj/project.xcworkspace
 
