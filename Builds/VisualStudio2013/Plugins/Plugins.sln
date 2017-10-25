@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenEphysHDF5Lib", "CommonL
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA470E62-74F7-4AD0-BAF9-D88B68882D43}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer_Alpha", "LFP_Viewer_Alpha\LFP_Viewer_Alpha.vcxproj", "{13A9AA65-5A8C-4DDF-B005-4477D4154E76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -305,6 +307,18 @@ Global
 		{F250DB70-6E3E-408C-BD9E-1483D574499D}.Release|Win32.Build.0 = Release|Win32
 		{F250DB70-6E3E-408C-BD9E-1483D574499D}.Release|x64.ActiveCfg = Release|x64
 		{F250DB70-6E3E-408C-BD9E-1483D574499D}.Release|x64.Build.0 = Release|x64
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|Win32.Build.0 = Debug|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|x64.ActiveCfg = Debug|x64
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Debug|x64.Build.0 = Debug|x64
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|Win32.ActiveCfg = Release|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|Win32.Build.0 = Release|Win32
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|x64.ActiveCfg = Release|x64
+		{13A9AA65-5A8C-4DDF-B005-4477D4154E76}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
