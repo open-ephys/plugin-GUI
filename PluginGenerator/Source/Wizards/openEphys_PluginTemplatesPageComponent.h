@@ -67,7 +67,7 @@ public:
     void showGenericEditorTemplates();
     void showVisualizerEditorTemplates();
 
-    static constexpr const char* TEMPLATES_PAGE_CREATE_PROJECT_BUTTON_ID    = "templatesPageComponent_createProjectButton";
+    static const char* TEMPLATES_PAGE_CREATE_PROJECT_BUTTON_ID;
 
 
 private:
@@ -117,8 +117,8 @@ private:
     ScopedPointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
     // Some constants
-    static constexpr const char* GENERIC_EDITOR_TEMPLATES_TAB_BUTTON_ID     = "genericEditorPluginTemplatesTab";
-    static constexpr const char* VISUALIZER_EDITOR_TEMPLATES_TAB_BUTTON_ID  = "visualizerEditorPluginTemplatesTab";
+    const char* GENERIC_EDITOR_TEMPLATES_TAB_BUTTON_ID     = "genericEditorPluginTemplatesTab";
+    const char* VISUALIZER_EDITOR_TEMPLATES_TAB_BUTTON_ID  = "visualizerEditorPluginTemplatesTab";
 
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginTemplatesPageComponent);
