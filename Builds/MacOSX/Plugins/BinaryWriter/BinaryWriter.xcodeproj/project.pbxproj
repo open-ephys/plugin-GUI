@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		95FF1CA51FA30A040093371B /* NpyFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95FF1CA31FA30A040093371B /* NpyFile.cpp */; };
 		E1D300381DAEBC570050E0F8 /* BinaryRecording.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */; };
 		E1D300391DAEBC570050E0F8 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300351DAEBC570050E0F8 /* OpenEphysLib.cpp */; };
 		E1D3003A1DAEBC570050E0F8 /* SequentialBlockFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D300361DAEBC570050E0F8 /* SequentialBlockFile.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		95FF1CA31FA30A040093371B /* NpyFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NpyFile.cpp; sourceTree = "<group>"; };
+		95FF1CA41FA30A040093371B /* NpyFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NpyFile.h; sourceTree = "<group>"; };
 		E1D300281DAEBBBD0050E0F8 /* BinaryWriter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BinaryWriter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1D3002B1DAEBBBD0050E0F8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinaryRecording.cpp; sourceTree = "<group>"; };
@@ -65,6 +68,8 @@
 		E1D300311DAEBC140050E0F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				95FF1CA31FA30A040093371B /* NpyFile.cpp */,
+				95FF1CA41FA30A040093371B /* NpyFile.h */,
 				E1D300331DAEBC570050E0F8 /* BinaryRecording.h */,
 				E1D300321DAEBC570050E0F8 /* BinaryRecording.cpp */,
 				E1D300341DAEBC570050E0F8 /* FileMemoryBlock.h */,
@@ -156,6 +161,7 @@
 				E1D300381DAEBC570050E0F8 /* BinaryRecording.cpp in Sources */,
 				E1D300391DAEBC570050E0F8 /* OpenEphysLib.cpp in Sources */,
 				E1D3003A1DAEBC570050E0F8 /* SequentialBlockFile.cpp in Sources */,
+				95FF1CA51FA30A040093371B /* NpyFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
