@@ -131,10 +131,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E1F558741C9B1F920035F88B"
-               BuildableName = "FilterNode.bundle"
-               BlueprintName = "FilterNode"
-               ReferencedContainer = "container:Plugins/FilterNode/FilterNode.xcodeproj">
+               BlueprintIdentifier = "038981D21FA2EFB500D25D7A"
+               BuildableName = "EvntTrigAvg.bundle"
+               BlueprintName = "EvntTrigAvg"
+               ReferencedContainer = "container:Plugins/EvntTrigAvg/EvntTrigAvg.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -145,10 +145,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E14A22111DA80A9700134197"
-               BuildableName = "JuliaProcessor.bundle"
-               BlueprintName = "JuliaProcessor"
-               ReferencedContainer = "container:Plugins/JuliaProcessor/JuliaProcessor.xcodeproj">
+               BlueprintIdentifier = "E1F558741C9B1F920035F88B"
+               BuildableName = "FilterNode.bundle"
+               BlueprintName = "FilterNode"
+               ReferencedContainer = "container:Plugins/FilterNode/FilterNode.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -313,20 +313,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0363EF941CF9D6F90077C530"
-               BuildableName = "SpikeRaster.bundle"
-               BlueprintName = "SpikeRaster"
-               ReferencedContainer = "container:Plugins/SpikeRaster/SpikeRaster.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F559E01C9B42270035F88B"
                BuildableName = "SpikeSorter.bundle"
                BlueprintName = "SpikeSorter"
@@ -339,6 +325,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
@@ -358,6 +345,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
