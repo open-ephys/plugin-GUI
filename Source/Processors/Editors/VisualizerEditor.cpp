@@ -266,8 +266,7 @@ void VisualizerEditor::buttonClicked (Button* button)
         }
     }
 
-    // Pass the button event along to subclasses.
-    buttonEvent (button);
+ 
 }
 
 
