@@ -427,6 +427,8 @@ private:
  //   RHD2000Thread* getRhythmAccess();
     bool flipSignal;
 
+	bool sorterReady{ false };
+
     Time timer;
 
     void addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,

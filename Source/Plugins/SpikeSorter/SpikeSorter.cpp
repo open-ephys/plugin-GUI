@@ -172,6 +172,7 @@ void SpikeSorter::updateSettings()
 {
 
     mut.enter();
+	sorterReady = false;
     int numChannels = getNumInputs();
     if (numChannels > 0)
         overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
@@ -191,7 +192,13 @@ void SpikeSorter::updateSettings()
 		Array<const DataChannel*> chans;
 		for (int c = 0; c < nChans; c++)
 		{
-			chans.add(getDataChannel(elec->channels[c]));
+			const DataChannel* ch = getDataChannel(elec->channels[c]);
+			if (!ch)
+			{
+				//not enough channels for the electrodes
+				return;
+			}
+			chans.add(ch);
 		}
 
 		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
@@ -200,7 +207,7 @@ void SpikeSorter::updateSettings()
 
         spikeChannelArray.add(spk);
     }
-
+	sorterReady = true;
     mut.exit();
 }
 
@@ -647,6 +654,12 @@ bool SpikeSorter::enable()
 {
 
     useOverflowBuffer.clear();
+	if (!sorterReady)
+	{
+		CoreServices::sendStatusMessage("Not enough channels for the configured electrodes");
+		std::cout << "SpikeSorter: Not enough channels for the configured electrodes" << std::endl;
+		return false;
+	}
 
     for (int i = 0; i < electrodes.size(); i++)
         useOverflowBuffer.add(false);
