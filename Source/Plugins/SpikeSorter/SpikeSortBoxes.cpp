@@ -884,7 +884,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SorterSpikePtr so)
             bPCAJobSubmitted = true;
             bRePCA = false;
             // submit a new job to compute the spike buffer.
-            PCAJobPtr job = new PCAjob(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, bPCAjobFinished);
+            PCAJobPtr job = new PCAjob(spikeBuffer,pc1,pc2, pc1min, pc2min, pc1max, pc2max, bPCAjobFinished);
             computingThread->addPCAjob(job);
         }
     }
@@ -1706,15 +1706,13 @@ static double sqrarg;
 #define SQR(a) ((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 
 PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
-               float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, std::atomic<bool>& _reportDone) : spikes(_spikes), reportDone(_reportDone)
+                std::atomic<float>& pc1Min,  std::atomic<float>& pc2Min,  std::atomic<float>&pc1Max,  std::atomic<float>& pc2Max, std::atomic<bool>& _reportDone) : spikes(_spikes),
+pc1min(pc1Min), pc2min(pc2Min), pc1max(pc1Max), pc2max(pc2Max), reportDone(_reportDone)
 {
     cov = nullptr;
     pc1 = _pc1;
     pc2 = _pc2;
-    pc1min = pc1Min;
-    pc2min = pc2Min;
-    pc1max = pc1Max;
-    pc2max = pc2Max;
+
     dim = spikes[0]->getChannel()->getNumChannels()*spikes[0]->getChannel()->getTotalSamples();
 
 };
@@ -2114,10 +2112,10 @@ void PCAjob::computeSVD()
     }
 
 
-    *pc1min = min1 - 1.5 * (max1-min1);
-    *pc2min = min2 - 1.5 * (max2-min2);
-    *pc1max = max1 + 1.5 * (max1-min1);
-    *pc2max = max2 + 1.5 * (max2-min2);
+    pc1min = min1 - 1.5 * (max1-min1);
+    pc2min = min2 - 1.5 * (max2-min2);
+    pc1max = max1 + 1.5 * (max1-min1);
+    pc2max = max2 + 1.5 * (max2-min2);
 
     // clear memory
     for (int k = 0; k < dim; k++)

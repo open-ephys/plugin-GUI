@@ -181,7 +181,7 @@ class PCAjob : public ReferenceCountedObject
 {
 public:
     PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
-           float*, float*, float*, float*, std::atomic<bool>& _reportDone);
+           std::atomic<float>&,  std::atomic<float>&,  std::atomic<float>&,  std::atomic<float>&, std::atomic<bool>& _reportDone);
     ~PCAjob();
     void computeCov();
     void computeSVD();
@@ -189,7 +189,7 @@ public:
     float** cov;
     SorterSpikeArray spikes;
     float* pc1, *pc2;
-    float* pc1min, *pc2min, *pc1max, *pc2max;
+    std::atomic<float>& pc1min, &pc2min, &pc1max, &pc2max;
     std::atomic<bool>& reportDone;
 private:
     int svdcmp(float** a, int nRows, int nCols, float* w, float** v);
@@ -302,7 +302,7 @@ private:
     std::vector<BoxUnit> boxUnits;
     std::vector<PCAUnit> pcaUnits;
     float* pc1, *pc2;
-    float pc1min, pc2min, pc1max, pc2max;
+    std::atomic<float> pc1min, pc2min, pc1max, pc2max;
     SorterSpikeArray spikeBuffer;
     int bufferSize,spikeBufferIndex;
     PCAcomputingThread* computingThread;
