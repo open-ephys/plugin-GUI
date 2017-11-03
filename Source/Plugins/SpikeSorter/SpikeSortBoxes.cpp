@@ -884,7 +884,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SorterSpikePtr so)
             bPCAJobSubmitted = true;
             bRePCA = false;
             // submit a new job to compute the spike buffer.
-            PCAjob job(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, &bPCAjobFinished);
+            PCAjob job(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, bPCAjobFinished);
             computingThread->addPCAjob(job);
         }
     }
@@ -1706,7 +1706,7 @@ static double sqrarg;
 #define SQR(a) ((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 
 PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
-               float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, bool* _reportDone) : spikes(_spikes), reportDone(_reportDone)
+               float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, std::atomic<bool>& _reportDone) : spikes(_spikes), reportDone(_reportDone)
 {
     cov = nullptr;
     pc1 = _pc1;
@@ -2170,7 +2170,7 @@ void PCAcomputingThread::run()
         J.computeSVD();
 
         // 4. Report to the spike sorting electrode that PCA is finished
-        *(J.reportDone) = true;
+        J.reportDone = true;
     }
 }
 

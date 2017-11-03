@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>    // std::sort
 #include <list>
 #include <queue>
+#include <atomic>
 
 class SorterSpikeContainer : public ReferenceCountedObject
 {
@@ -180,7 +181,7 @@ class PCAjob
 {
 public:
     PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
-           float*, float*, float*, float*, bool* _reportDone);
+           float*, float*, float*, float*, std::atomic<bool>& _reportDone);
     ~PCAjob();
     void computeCov();
     void computeSVD();
@@ -189,7 +190,7 @@ public:
     SorterSpikeArray spikes;
     float* pc1, *pc2;
     float* pc1min, *pc2min, *pc1max, *pc2max;
-    bool* reportDone;
+    std::atomic<bool>& reportDone;
 private:
     int svdcmp(float** a, int nRows, int nCols, float* w, float** v);
     float pythag(float a, float b);
@@ -303,7 +304,8 @@ private:
     SorterSpikeArray spikeBuffer;
     int bufferSize,spikeBufferIndex;
     PCAcomputingThread* computingThread;
-    bool bPCAJobSubmitted,bPCAcomputed,bRePCA,bPCAjobFinished ;
+    bool bPCAJobSubmitted,bPCAcomputed,bRePCA;
+    std::atomic<bool> bPCAjobFinished ;
 
 
 };
