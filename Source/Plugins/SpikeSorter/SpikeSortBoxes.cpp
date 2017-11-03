@@ -2129,7 +2129,7 @@ void PCAjob::computeSVD()
 
     // delete covariances
     for (int k = 0; k < dim; k++)
-        delete cov[k];
+        delete[] cov[k];
 
     delete[] cov;
     cov = nullptr;

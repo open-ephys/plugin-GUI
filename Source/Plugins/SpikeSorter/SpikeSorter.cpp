@@ -219,9 +219,6 @@ Electrode::~Electrode()
     delete[] voltageScale;
     delete[] channels;
     delete[] runningStats;
-
-	delete spikeSort;
-
 }
 
 Electrode::Electrode(int ID, UniqueIDgenerator* uniqueIDgenerator_, PCAcomputingThread* pth, String _name, int _numChannels, int* _channels, float default_threshold, int pre, int post, float samplingRate , int sourceId, int subIdx)
@@ -1125,7 +1122,7 @@ void SpikeSorter::addProbes(String probeType,int numProbes, int nElectrodesPerPr
         increaseUniqueProbeID(probeType);
     }
 }
-Array<Electrode*> SpikeSorter::getElectrodes()
+const OwnedArray<Electrode>& SpikeSorter::getElectrodes()
 {
     return electrodes;
 }

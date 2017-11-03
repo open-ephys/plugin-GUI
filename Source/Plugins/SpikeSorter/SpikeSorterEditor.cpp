@@ -463,7 +463,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
-        Array<Electrode*> electrodes = processor->getElectrodes();
+        const OwnedArray<Electrode>& electrodes = processor->getElectrodes();
 
         for (int i = 0; i < electrodes.size(); i++)
         {
