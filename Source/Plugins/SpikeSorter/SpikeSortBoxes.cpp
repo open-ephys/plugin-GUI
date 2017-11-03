@@ -882,6 +882,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SorterSpikePtr so)
         if ((spikeBufferIndex == bufferSize -1 && !bPCAcomputed && !bPCAJobSubmitted) || bRePCA)
         {
             bPCAJobSubmitted = true;
+	    bPCAcomputed = false;
             bRePCA = false;
             // submit a new job to compute the spike buffer.
             PCAJobPtr job = new PCAjob(spikeBuffer,pc1,pc2, pc1min, pc2min, pc1max, pc2max, bPCAjobFinished);

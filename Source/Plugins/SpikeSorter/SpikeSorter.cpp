@@ -463,6 +463,7 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
         eventlog += String(chans[k])+ " " + name;
 
     //addNetworkEventToQueue(StringTS(eventlog));
+    delete[] chans;
 
     resetElectrode(newElectrode);
     electrodes.add(newElectrode);
@@ -1302,6 +1303,9 @@ void SpikeSorter::loadCustomParametersFromXml()
                             newElectrode->thresholds[k] = thres[k];
                             newElectrode->isActive[k] = isActive[k];
                         }
+			delete[] channels;
+			delete[] thres;
+			delete[] isActive;
 
                         newElectrode->advancerID = advancerID;
                         newElectrode->depthOffsetMM = depthOffsetMM;
