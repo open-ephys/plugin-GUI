@@ -177,7 +177,7 @@ class PCAjob
 public:
 PCAjob();
 };*/
-class PCAjob
+class PCAjob : public ReferenceCountedObject
 {
 public:
     PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
@@ -197,6 +197,8 @@ private:
     int dim;
 };
 
+typedef ReferenceCountedObjectPtr<PCAjob> PCAJobPtr;
+typedef ReferenceCountedArray<PCAjob, CriticalSection> PCAJobArray;
 
 class cPolygon
 {
@@ -214,10 +216,10 @@ class PCAcomputingThread : juce::Thread
 public:
     PCAcomputingThread();
     void run(); // computes PCA on waveforms
-    void addPCAjob(PCAjob job);
+    void addPCAjob(PCAJobPtr job);
 
 private:
-    std::queue<PCAjob> jobs;
+    PCAJobArray jobs;
 	CriticalSection lock;
 };
 

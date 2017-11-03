@@ -884,7 +884,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SorterSpikePtr so)
             bPCAJobSubmitted = true;
             bRePCA = false;
             // submit a new job to compute the spike buffer.
-            PCAjob job(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, bPCAjobFinished);
+            PCAJobPtr job = new PCAjob(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, bPCAjobFinished);
             computingThread->addPCAjob(job);
         }
     }
@@ -2140,11 +2140,11 @@ void PCAjob::computeSVD()
 /**********************/
 
 
-void PCAcomputingThread::addPCAjob(PCAjob job)
+void PCAcomputingThread::addPCAjob(PCAJobPtr job)
 {
 	{
 		ScopedLock critical(lock);
-		jobs.push(job);
+		jobs.add(job);
 	}
 	
     if (!isThreadRunning())
@@ -2158,19 +2158,19 @@ void PCAcomputingThread::run()
     while (jobs.size() > 0)
     {
 		lock.enter();
-        PCAjob J = jobs.front();
-        jobs.pop();
+        PCAJobPtr J = jobs.removeAndReturn(0);
+	if (J == nullptr) continue;
 		lock.exit();
         // compute PCA
         // 1. Compute Covariance matrix
         // 2. Apply SVD on covariance matrix
         // 3. Extract the two principal components corresponding to the largest singular values
 
-        J.computeCov();
-        J.computeSVD();
+        J->computeCov();
+        J->computeSVD();
 
         // 4. Report to the spike sorting electrode that PCA is finished
-        J.reportDone = true;
+        J->reportDone = true;
     }
 }
 
