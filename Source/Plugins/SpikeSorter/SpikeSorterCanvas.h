@@ -25,8 +25,6 @@
 #define SPIKESORTERCANVAS_H_
 
 #include <VisualizerWindowHeaders.h>
-#include <SpikeLib.h>
-
 #include "SpikeSorter.h"
 
 #include <vector>
@@ -102,21 +100,22 @@ public:
 
     SpikeSorter* processor;
 
+    // added editAllThresholds
     ScopedPointer<UtilityButton> addPolygonUnitButton,
-                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits;
+                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits,editAllThresholds;
 
 private:
     void removeUnitOrBox();
     ScopedPointer<SpikeThresholdDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
+    
     bool inDrawingPolygonMode;
     bool newSpike;
-    SpikeObject spike;
+  //  SpikeObject spike;
     Electrode* electrode;
     int scrollBarThickness;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
 
 };
 
@@ -138,7 +137,7 @@ public:
     void setPolygonMode(bool on);
     void mouseDown(const juce::MouseEvent& event);
 
-    void plotSpike(const SpikeObject& spike, int electrodeNum);
+    void plotSpike(SorterSpikePtr spike, int electrodeNum);
 
     int getTotalHeight()
     {
@@ -148,7 +147,7 @@ public:
 private:
     int numColumns;
     int totalHeight;
-
+    
     SpikeSorter* processor;
     SpikeSorterCanvas* canvas;
     Viewport* viewport;
@@ -175,7 +174,7 @@ public:
 
     virtual ~GenericDrawAxes();
 
-    virtual bool updateSpikeData(const SpikeObject& s);
+    virtual bool updateSpikeData(SorterSpikePtr s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -194,7 +193,7 @@ protected:
     double xlims[2];
     double ylims[2];
 
-    SpikeObject s;
+    SorterSpikePtr s;
 
     bool gotFirstSpike;
 
@@ -213,14 +212,14 @@ public:
     ~WaveformAxes() {}
 
 
-    bool updateSpikeData(const SpikeObject& s);
-    bool checkThreshold(const SpikeObject& spike);
+	bool updateSpikeData(SorterSpikePtr s);
+	bool checkThreshold(SorterSpikePtr spike);
 
     void setSignalFlip(bool state);
     void paint(Graphics& g);
     void isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where) ;
 
-    void plotSpike(const SpikeObject& s, Graphics& g);
+	void plotSpike(SorterSpikePtr s, Graphics& g);
     void drawBoxes(Graphics& g);
 
     void clear();
@@ -248,6 +247,9 @@ public:
 
 private:
     int electrodeID;
+    // new
+    bool editAll = false;
+    //
     bool signalFlipped;
     bool bDragging ;
     Colour waveColour;
@@ -268,7 +270,7 @@ private:
     Font font;
     float mouseDownX, mouseDownY;
     float mouseOffsetX,mouseOffsetY;
-    Array<SpikeObject> spikeBuffer;
+    SorterSpikeArray spikeBuffer;
 
     int spikeIndex;
     int bufferSize;
@@ -296,7 +298,7 @@ public:
     ~PCAProjectionAxes() {}
 
     void setPCARange(float p1min, float p2min, float p1max, float p2max);
-    bool updateSpikeData(const SpikeObject& s);
+	bool updateSpikeData(SorterSpikePtr s);
     void resized();
     void paint(Graphics& g);
     void setPolygonDrawingMode(bool on);
@@ -320,19 +322,19 @@ public:
 private:
     float prevx,prevy;
     bool inPolygonDrawingMode;
-    void drawProjectedSpike(SpikeObject s);
+	void drawProjectedSpike(SorterSpikePtr s);
 
     bool rangeSet;
     SpikeSorter* processor;
     void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t* col);
-    void updateRange(const SpikeObject& s);
+	void updateRange(SorterSpikePtr s);
     ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
 
-    Array<SpikeObject> spikeBuffer;
+    SorterSpikeArray spikeBuffer;
     int bufferSize;
     int spikeIndex;
     bool updateProcessor;
-    void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
+	void calcWaveformPeakIdx(SorterSpikePtr, int, int, int*, int*);
 
     Image projectionImage;
 
@@ -374,7 +376,7 @@ public:
     void setPCARange(float p1min, float p2min, float p1max, float p2max);
     void modifyRange(int index,bool up);
     void updateUnitsFromProcessor();
-    void processSpikeObject(const SpikeObject& s);
+	void processSpikeObject(SorterSpikePtr s);
 
     SpikeSorterCanvas* canvas;
 
