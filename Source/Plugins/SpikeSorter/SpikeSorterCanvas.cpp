@@ -81,7 +81,14 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     prevElectrode->setRadius(3.0f);
     prevElectrode->addListener(this);
     addAndMakeVisible(prevElectrode);
-
+    
+    editAllThresholds = new UtilityButton("Edit All Thresholds",Font("Small Text", 13, Font::plain));
+    editAllThresholds->addListener(this);
+    editAllThresholds->setBounds(140,30,60,20);
+    editAllThresholds->setClickingTogglesState(true);
+    addAndMakeVisible(editAllThresholds);
+    //
+    
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
@@ -159,6 +166,8 @@ void SpikeSorterCanvas::resized()
 
     newIDbuttons->setBounds(0, 270, 120,20);
     deleteAllUnits->setBounds(0, 300, 120,20);
+    
+    editAllThresholds->setBounds(0, 330, 120,20);
 
 }
 
@@ -402,7 +411,15 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
         electrode->spikePlot->updateUnitsFromProcessor();
         processor->removeAllUnits(electrode->electrodeID);
     }
-
+    else if (button == editAllThresholds){
+        
+    }
+    
+    // new
+    if (button == editAllThresholds){
+        processor->setEditAllState(button->getToggleState());
+    }
+    
     repaint();
 }
 
@@ -492,7 +509,7 @@ void SpikeThresholdDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-void SpikeThresholdDisplay::plotSpike(const SpikeObject& spike, int electrodeNum)
+void SpikeThresholdDisplay::plotSpike(SorterSpikePtr spike, int electrodeNum)
 {
     spikePlots[electrodeNum]->processSpikeObject(spike);
 
@@ -643,7 +660,7 @@ void SpikeHistogramPlot::setPCARange(float p1min, float p2min, float p1max, floa
     pAxes[0]->setPCARange(p1min, p2min, p1max, p2max);
 }
 
-void SpikeHistogramPlot::processSpikeObject(const SpikeObject& s)
+void SpikeHistogramPlot::processSpikeObject(SorterSpikePtr s)
 {
     const ScopedLock myScopedLock(mut);
     if (nWaveAx > 0)
@@ -911,7 +928,7 @@ GenericDrawAxes::~GenericDrawAxes()
 
 }
 
-bool GenericDrawAxes::updateSpikeData(const SpikeObject& newSpike)
+bool GenericDrawAxes::updateSpikeData(SorterSpikePtr newSpike)
 {
     if (!gotFirstSpike)
     {
@@ -1038,10 +1055,7 @@ WaveformAxes::WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p,int electrode
     int numSamples = 40;
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4, numSamples);
-
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
 }
 
@@ -1071,14 +1085,15 @@ void WaveformAxes::setRange(float r)
     repaint();
 }
 
-void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
+void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
 
     float h = getHeight();
-    g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+    // find me
+	g.setColour(Colour(s->color[0], s->color[1], s->color[2]));
     //g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
-    float dx = getWidth()/float(spikeBuffer[0].nSamples);
+    float dx = getWidth()/float(spikeBuffer[0]->getChannel()->getTotalSamples());
 
     /*
     float align = 8 * getWidth()/float(spikeBuffer[0].nSamples);
@@ -1087,35 +1102,36 @@ void WaveformAxes::plotSpike(const SpikeObject& s, Graphics& g)
                        align,
                        h);
     */
-
+	
+	int spikeSamples = s->getChannel()->getTotalSamples();
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
-    int offset = channel*s.nSamples; //spikeBuffer[0].nSamples * type; //
+	int offset = channel*spikeSamples; //spikeBuffer[0].nSamples * type; //
 
     //int dSamples = 1;
 
     float x = 0.0f;
+    
+	for (int i = 0; i < spikeSamples - 1; i++)
+	{
+		//std::cout << s.data[sampIdx] << std::endl;
+        
 
-    for (int i = 0; i < s.nSamples-1; i++)
-    {
-        //std::cout << s.data[sampIdx] << std::endl;
+		float s1 = h - (h / 2 + s->getData()[offset + i] / (range)* h);
+		float s2 = h - (h / 2 + s->getData()[offset + i + 1] / (range)* h);
+        
+		if (signalFlipped)
+		{
+			s1 = h - s1;
+			s2 = h - s2;
+		}
+		g.drawLine(x,
+			s1,
+			x + dx,
+			s2);
 
-        if (*s.gain != 0)
-        {
-            float s1 =h- (h/2 + float(s.data[offset+i]-32768)/float(*s.gain)*1000.0f / (range) * h);
-            float s2 =h- (h/2 + float(s.data[offset+i+1]-32768)/float(*s.gain)*1000.0f / (range) * h);
-            if (signalFlipped)
-            {
-                s1=h-s1;
-                s2=h-s2;
-            }
-            g.drawLine(x,
-                       s1,
-                       x+dx,
-                       s2);
-        }
-        x += dx;
-    }
+		x += dx;
+	}
 
 }
 
@@ -1159,7 +1175,7 @@ void WaveformAxes::drawWaveformGrid(Graphics& g)
 }
 
 
-bool WaveformAxes::updateSpikeData(const SpikeObject& s)
+bool WaveformAxes::updateSpikeData(SorterSpikePtr s)
 {
     if (!gotFirstSpike)
     {
@@ -1169,12 +1185,10 @@ bool WaveformAxes::updateSpikeData(const SpikeObject& s)
     if (spikesReceivedSinceLastRedraw < bufferSize)
     {
 
-        SpikeObject newSpike = s;
-
         spikeIndex++;
         spikeIndex %= bufferSize;
 
-        spikeBuffer.set(spikeIndex, newSpike);
+        spikeBuffer.set(spikeIndex, s);
 
         spikesReceivedSinceLastRedraw++;
 
@@ -1184,14 +1198,14 @@ bool WaveformAxes::updateSpikeData(const SpikeObject& s)
 
 }
 
-bool WaveformAxes::checkThreshold(const SpikeObject& s)
+bool WaveformAxes::checkThreshold(SorterSpikePtr s)
 {
-    int sampIdx = 40*type;
+    int sampIdx = s->getChannel()->getTotalSamples()*type;
 
-    for (int i = 0; i < s.nSamples-1; i++)
+	for (int i = 0; i < s->getChannel()->getTotalSamples() - 1; i++)
     {
 
-        if (float(s.data[sampIdx]-32768)/float(*s.gain)*1000.0f > displayThresholdLevel)
+        if (s->getData()[sampIdx] > displayThresholdLevel)
         {
             return true;
         }
@@ -1211,10 +1225,7 @@ void WaveformAxes::clear()
     int numSamples=40;
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4,numSamples);
-
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
 
     repaint();
@@ -1464,7 +1475,20 @@ void WaveformAxes::mouseDrag(const MouseEvent& event)
 
         displayThresholdLevel = (0.5f - thresholdSliderPosition) * range;
         // update processor
-        processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
+        
+         if (processor->getEditAllState()){
+             int numElectrodes = processor->getNumElectrodes();
+             for (int electrodeIt = 0 ; electrodeIt < numElectrodes ; electrodeIt++){
+             //processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),i,slider->getValue());
+                 for (int channelIt = 0 ; channelIt < processor->getNumChannels(electrodeIt) ; channelIt++){
+                 processor->setChannelThreshold(electrodeIt,channelIt,displayThresholdLevel);
+                 }
+             }
+         }
+        else{
+            processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
+        }
+
         SpikeSorterEditor* edt = (SpikeSorterEditor*) processor->getEditor();
         for (int k=0; k<processor->getActiveElectrode()->numChannels; k++)
             edt->electrodeButtons[k]->setToggleState(false, dontSendNotification);
@@ -1692,7 +1716,7 @@ void WaveformAxes::paint(Graphics& g)
     for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
     {
 
-        if (spikeNum != spikeIndex)
+        if (spikeNum != spikeIndex && spikeBuffer[spikeNum] != nullptr)
         {
             g.setColour(Colours::grey);
             plotSpike(spikeBuffer[spikeNum], g);
@@ -1701,7 +1725,8 @@ void WaveformAxes::paint(Graphics& g)
     }
 
     g.setColour(Colours::white);
-    plotSpike(spikeBuffer[spikeIndex], g);
+    if (spikeBuffer[spikeIndex] != nullptr)
+        plotSpike(spikeBuffer[spikeIndex], g);
 
     spikesReceivedSinceLastRedraw = 0;
 
@@ -1876,16 +1901,16 @@ void PCAProjectionAxes::paint(Graphics& g)
 }
 
 
-void PCAProjectionAxes::drawProjectedSpike(SpikeObject s)
+void PCAProjectionAxes::drawProjectedSpike(SorterSpikePtr s)
 {
-    if (rangeSet)
+    if (s != nullptr && rangeSet)
     {
         Graphics g(projectionImage);
 
-        g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
+        g.setColour(Colour(s->color[0],s->color[1],s->color[2]));
 
-        float x = (s.pcProj[0] - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * rangeX;
-        float y = (s.pcProj[1] - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * rangeY;
+        float x = (s->pcProj[0] - pcaMin[0]) / (pcaMax[0]-pcaMin[0]) * rangeX;
+        float y = (s->pcProj[1] - pcaMin[1]) / (pcaMax[1]-pcaMin[1]) * rangeY;
         if (x >= 0 & y >= 0 & x <= rangeX & y <= rangeY)
             g.fillEllipse(x,y,2,2);
     }
@@ -1923,18 +1948,16 @@ void PCAProjectionAxes::setPCARange(float p1min, float p2min, float p1max, float
 
 }
 
-bool PCAProjectionAxes::updateSpikeData(const SpikeObject& s)
+bool PCAProjectionAxes::updateSpikeData(SorterSpikePtr s)
 {
 
     if (spikesReceivedSinceLastRedraw < bufferSize)
     {
 
-        SpikeObject newSpike = s;
-
         spikeIndex++;
         spikeIndex %= bufferSize;
 
-        spikeBuffer.set(spikeIndex, newSpike);
+        spikeBuffer.set(spikeIndex, s);
 
         spikesReceivedSinceLastRedraw++;
         //drawProjectedSpike(newSpike);
