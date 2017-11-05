@@ -101,8 +101,11 @@ void SpikeDetector::createSpikeChannels()
 
 void SpikeDetector::updateSettings()
 {
-    if (getNumInputs() > 0)
-        overflowBuffer.setSize (getNumInputs(), overflowBufferSize);
+	if (getNumInputs() > 0)
+	{
+		overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
+		overflowBuffer.clear();
+	}
 
 }
 
@@ -516,7 +519,7 @@ float SpikeDetector::getNextSample (int& chan)
     }
     else
     {
-        if (sampleIndex < dataBuffer->getNumSamples())
+        if (sampleIndex < getNumSamples(chan))
             return *dataBuffer->getWritePointer (chan, sampleIndex);
         else
             return 0;

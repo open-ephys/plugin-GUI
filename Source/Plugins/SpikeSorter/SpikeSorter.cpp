@@ -174,8 +174,11 @@ void SpikeSorter::updateSettings()
     mut.enter();
 	sorterReady = false;
     int numChannels = getNumInputs();
-    if (numChannels > 0)
-        overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
+	if (numChannels > 0)
+	{
+		overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
+		overflowBuffer.clear();
+	}
 
     if (channelBuffers != nullptr)
         delete channelBuffers;
@@ -1047,7 +1050,7 @@ float SpikeSorter::getNextSample(int& chan)
         //  useOverflowBuffer = false;
         // std::cout << "  sample index " << sampleIndex << "from regular buffer" << std::endl;
 
-        if (sampleIndex < dataBuffer->getNumSamples())
+        if (sampleIndex < getNumSamples(chan))
             return (*dataBuffer->getReadPointer(chan, sampleIndex));
         else
             return 0;
