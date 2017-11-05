@@ -25,7 +25,6 @@
 #define __SPIKESORTER_H_3F920F95__
 
 #include <ProcessorHeaders.h>
-#include <SpikeLib.h>
 #include "SpikeSorterEditor.h"
 #include "SpikeSortBoxes.h"
 #include <algorithm>    // std::sort
@@ -149,7 +148,7 @@ private:
 class Electrode
 {
 public:
-    Electrode(int electrodeID, UniqueIDgenerator* uniqueIDgenerator_, PCAcomputingThread* pth,String _name, int _numChannels, int* _channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId);
+    Electrode(int electrodeID, UniqueIDgenerator* uniqueIDgenerator_, PCAcomputingThread* pth,String _name, int _numChannels, int* _channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId, int sourceSubIdx);
     ~Electrode();
 
     void resizeWaveform(int numPre, int numPost);
@@ -164,7 +163,8 @@ public:
     float depthOffsetMM;
 
     int electrodeID;
-    int sourceNodeId;
+    int sourceNodeId_;
+	int sourceSubIdx;
     int* channels;
     double* thresholds;
     bool* isActive;
@@ -178,7 +178,6 @@ public:
     UniqueIDgenerator* uniqueIDgenerator;
     bool isMonitored;
 };
-
 
 class ContinuousCircularBuffer
 {
@@ -228,24 +227,24 @@ public:
 
     /** Processes an incoming continuous buffer and places new
         spikes into the event buffer. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& events);
+    void process(AudioSampleBuffer& buffer) override;
 
     /** Used to alter parameters of data acquisition. */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue) override;
 
     /** Called whenever the signal chain is altered. */
-    void updateSettings();
+    void updateSettings() override;
 
     /** Called prior to start of acquisition. */
-    bool enable();
+    bool enable() override;
 
     /** Called after acquisition is finished. */
-    bool disable();
+    bool disable() override;
 
 
-    bool isReady();
+    bool isReady() override;
     /** Creates the SpikeSorterEditor. */
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
     float getSelectedElectrodeNoise();
     void clearRunningStatForSelectedElectrode();
@@ -365,7 +364,10 @@ public:
     Array<Electrode*> getElectrodes();
 
     std::vector<String> electrodeTypes;
-
+    
+    void setEditAllState(bool val);
+    bool getEditAllState();
+    
 #if 0
     /** sync PSTH : inform of a new electrode added  */
     void updateSinks(Electrode* newElectrode);
@@ -385,7 +387,7 @@ public:
 private:
     UniqueIDgenerator uniqueIDgenerator;
     long uniqueSpikeID;
-    SpikeObject prevSpike;
+    SorterSpikePtr prevSpike;
 
     void addElectrode(Electrode* newElectrode);
     void increaseUniqueProbeID(String type);
@@ -416,17 +418,10 @@ private:
 
 
     int numPreSamples,numPostSamples;
-    uint8_t* spikeBuffer;///[256];
-    //int64 timestamp;
-    int64 hardware_timestamp;
-    int64 software_timestamp;
+
 
     bool PCAbeforeBoxes;
     ContinuousCircularBuffer* channelBuffers; // used to compute auto threshold
-
-    void handleEvent(int eventType, MidiMessage& event, int sampleNum);
-
-    void addSpikeEvent(SpikeObject* s, MidiBuffer& eventBuffer, int peakIndex);
 
     void resetElectrode(Electrode*);
     CriticalSection mut;
@@ -437,7 +432,7 @@ private:
 
     Time timer;
 
-    void addWaveformToSpikeObject(SpikeObject* s,
+    void addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
                                   int& peakIndex,
                                   int& electrodeNumber,
                                   int& currentChannel);
@@ -445,6 +440,8 @@ private:
 
     Array<Electrode*> electrodes;
     PCAcomputingThread computingThread;
+
+    bool editAll = false;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorter);
 
 };
