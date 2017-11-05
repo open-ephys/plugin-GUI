@@ -21,469 +21,417 @@
 
 */
 
-#ifndef __SPIKESORTER_H_3F920F95__
-#define __SPIKESORTER_H_3F920F95__
+#ifndef SPIKESORTERCANVAS_H_
+#define SPIKESORTERCANVAS_H_
 
-#include <ProcessorHeaders.h>
-#include "SpikeSorterEditor.h"
-#include "SpikeSortBoxes.h"
-#include <algorithm>    // std::sort
-#include <queue>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <VisualizerWindowHeaders.h>
+#include "SpikeSorter.h"
 
-class SpikeSorterEditor;
+#include <vector>
+
+#define WAVE1 0
+#define WAVE2 1
+#define WAVE3 2
+#define WAVE4 3
+#define PROJ1x2 4
+#define PROJ1x3 5
+#define PROJ1x4 6
+#define PROJ2x3 7
+#define PROJ2x4 8
+#define PROJ3x4 9
+
+#define TETRODE_PLOT 1004
+#define STEREO_PLOT  1002
+#define SINGLE_PLOT  1001
+
+#define MAX_NUMBER_OF_SPIKE_SOURCES 128
+#define MAX_N_CHAN 4
+
 class SpikeHistogramPlot;
-class Trial;
+class SpikeThresholdDisplay;
+class SpikeDisplayNode;
+class SpikePlot;
+class SpikeDisplay;
+class GenericAxes;
+class ProjectionAxes;
+class WaveAxes;
+class SpikePlot;
+class RecordNode;
+
 /**
 
-  Detects spikes in a continuous signal and outputs events containing the spike data.
+  Displays spike waveforms and projections for Spike Sorter
 
-  Allows the user to draw boundaries around clusters.
-
-  @see GenericProcessor, SpikeSorterEditor
+  @see SpikeDisplayNode, SpikeDisplayEditor, Visualizer
 
 */
 
-/*
-class Histogram {
-public:
-	Histogram(float _minValue, float _maxValue, float _resolution, bool _throwOutsideSamples);
-	//Histogram(float _minValue, float _maxValue, int _numBins, bool _throwOutsideSamples);
-	void addSamples(float *Samples, int numSamples);
-	~Histogram();
-	void clear();
+class SpikeSorterCanvas : public Visualizer, public Button::Listener
 
-	float minValue, maxValue, resolution;
-	int numBins;
-	bool throwOutsideSamples;
-	unsigned long *binCounts;
-	float *binCenters;
-};
-*/
-
-class PCAjob;
-class PCAcomputingThread;
-class UniqueIDgenerator
 {
 public:
-    UniqueIDgenerator()
-    {
-        globalUniqueID=0;
-    }
-    int generateUniqueID()
-    {
-        return ++globalUniqueID;
-    };
-    void setUniqueID(int ID)
-    {
-        globalUniqueID= ID;
-    }
-    int getLastUniqueID()
-    {
-        return globalUniqueID;
-    }
+    SpikeSorterCanvas(SpikeSorter* n);
+    ~SpikeSorterCanvas();
+
+    void paint(Graphics& g);
+
+    void refresh();
+
+    void processSpikeEvents();
+
+    void beginAnimation();
+    void endAnimation();
+
+    void refreshState();
+
+    void setParameter(int, float) {}
+    void setParameter(int, int, int, float) {}
+
+    void update();
+
+    void resized();
+
+    bool keyPressed(const KeyPress& key);
+
+    void buttonClicked(Button* button);
+
+    void startRecording() { } // unused
+    void stopRecording() { } // unused
+
+    SpikeSorter* processor;
+
+    // added editAllThresholds
+    ScopedPointer<UtilityButton> addPolygonUnitButton,
+                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits,editAllThresholds;
+
 private:
-    int globalUniqueID;
+    void removeUnitOrBox();
+    ScopedPointer<SpikeThresholdDisplay> spikeDisplay;
+    ScopedPointer<Viewport> viewport;
+
+    
+    bool inDrawingPolygonMode;
+    bool newSpike;
+  //  SpikeObject spike;
+    Electrode* electrode;
+    int scrollBarThickness;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
+
 };
 
-/* snatched from http://www.johndcook.com/blog/standard_deviation/ */
-class RunningStat
+
+class SpikeThresholdDisplay : public Component
 {
 public:
-    RunningStat() : m_n(0) {}
+    SpikeThresholdDisplay(SpikeSorter*, SpikeSorterCanvas*, Viewport*);
 
-    void Clear()
+    ~SpikeThresholdDisplay();
+
+    void removePlots();
+    void clear();
+    SpikeHistogramPlot* addSpikePlot(int numChannels, int electrodeNum, String name);
+
+    void paint(Graphics& g);
+
+    void resized();
+    void setPolygonMode(bool on);
+    void mouseDown(const juce::MouseEvent& event);
+
+    void plotSpike(SorterSpikePtr spike, int electrodeNum);
+
+    int getTotalHeight()
     {
-        m_n = 0;
-    }
-
-    void Push(double x)
-    {
-        m_n++;
-
-        // See Knuth TAOCP vol 2, 3rd edition, page 232
-        if (m_n == 1)
-        {
-            m_oldM = m_newM = x;
-            m_oldS = 0.0;
-        }
-        else
-        {
-            m_newM = m_oldM + (x - m_oldM) / m_n;
-            m_newS = m_oldS + (x - m_oldM)*(x - m_newM);
-
-            // set up for next iteration
-            m_oldM = m_newM;
-            m_oldS = m_newS;
-        }
-    }
-
-    int NumDataValues() const
-    {
-        return m_n;
-    }
-
-    double Mean() const
-    {
-        return (m_n > 0) ? m_newM : 0.0;
-    }
-
-    double Variance() const
-    {
-        return ((m_n > 1) ? m_newS / (m_n - 1) : 0.0);
-    }
-
-    double StandardDeviation() const
-    {
-        return sqrt(Variance());
+        return totalHeight;
     }
 
 private:
-    int m_n;
-    double m_oldM, m_newM, m_oldS, m_newS;
+    int numColumns;
+    int totalHeight;
+    
+    SpikeSorter* processor;
+    SpikeSorterCanvas* canvas;
+    Viewport* viewport;
+
+    OwnedArray<SpikeHistogramPlot> spikePlots;
+
+
 };
 
-class Electrode
+
+
+class UnitWaveformAxes : public Component
 {
 public:
-    Electrode(int electrodeID, UniqueIDgenerator* uniqueIDgenerator_, PCAcomputingThread* pth,String _name, int _numChannels, int* _channels, float default_threshold, int pre, int post, float samplingRate , int sourceNodeId, int sourceSubIdx);
-    ~Electrode();
+    UnitWaveformAxes();
 
-    void resizeWaveform(int numPre, int numPost);
+};
+
+class GenericDrawAxes : public Component
+{
+public:
+
+    GenericDrawAxes(int t);
+
+    virtual ~GenericDrawAxes();
+
+    virtual bool updateSpikeData(SorterSpikePtr s);
+
+    void setXLims(double xmin, double xmax);
+    void getXLims(double* xmin, double* xmax);
+    void setYLims(double ymin, double ymax);
+    void getYLims(double* ymin, double* ymax);
+
+    void setType(int type);
+    int getType();
+
+    virtual void paint(Graphics& g) = 0;
+
+    int roundUp(int, int);
+    void makeLabel(int val, int gain, bool convert, char* s);
+
+protected:
+    double xlims[2];
+    double ylims[2];
+
+    SorterSpikePtr s;
+
+    bool gotFirstSpike;
+
+    int type;
+
+    Font font;
+
+    double ad16ToUv(int x, int gain);
+
+};
+
+class WaveformAxes : public GenericDrawAxes
+{
+public:
+    WaveformAxes(SpikeHistogramPlot* plt, SpikeSorter* p, int electrodeID_, int channel);
+    ~WaveformAxes() {}
+
+
+	bool updateSpikeData(SorterSpikePtr s);
+	bool checkThreshold(SorterSpikePtr spike);
+
+    void setSignalFlip(bool state);
+    void paint(Graphics& g);
+    void isOverUnitBox(float x, float y, int& UnitID, int& BoxID, String& where) ;
+
+	void plotSpike(SorterSpikePtr s, Graphics& g);
+    void drawBoxes(Graphics& g);
+
+    void clear();
+    int findUnitIndexByID(int ID);
+    void mouseMove(const MouseEvent& event);
+    void mouseExit(const MouseEvent& event);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void mouseUp(const MouseEvent& event);
+
+    void setRange(float);
+    float getRange()
+    {
+        return range;
+    }
+
+    float getDisplayThreshold();
+    void setDetectorThreshold(float);
+
+    //MouseCursor getMouseCursor();
+    void updateUnits(std::vector<BoxUnit> _units);
+
+    //	int selectedUnit, selectedBox;
+
+private:
+    int electrodeID;
+    // new
+    bool editAll = false;
+    //
+    bool signalFlipped;
+    bool bDragging ;
+    Colour waveColour;
+    Colour thresholdColour;
+    Colour gridColour;
+    int channel;
+    bool drawGrid;
+
+    float displayThresholdLevel;
+    float detectorThresholdLevel;
+
+    void drawWaveformGrid(Graphics& g);
+
+    void drawThresholdSlider(Graphics& g);
+
+    int spikesReceivedSinceLastRedraw;
+
+    Font font;
+    float mouseDownX, mouseDownY;
+    float mouseOffsetX,mouseOffsetY;
+    SorterSpikeArray spikeBuffer;
+
+    int spikeIndex;
+    int bufferSize;
+
+    float range;
+
+    bool isOverThresholdSlider;
+    bool isDraggingThresholdSlider;
+    int isOverUnit,isOverBox;
+    String strOverWhere;
+
+    std::vector<BoxUnit> units;
+    SpikeSorter* processor;
+    SpikeHistogramPlot* spikeHistogramPlot;
+    MouseCursor::StandardCursorType cursorType;
+
+};
+
+
+
+class PCAProjectionAxes : public GenericDrawAxes,  Button::Listener
+{
+public:
+    PCAProjectionAxes(SpikeSorter* p);
+    ~PCAProjectionAxes() {}
+
+    void setPCARange(float p1min, float p2min, float p1max, float p2max);
+	bool updateSpikeData(SorterSpikePtr s);
+    void resized();
+    void paint(Graphics& g);
+    void setPolygonDrawingMode(bool on);
+    void clear();
+    void mouseDown(const juce::MouseEvent& event);
+    void mouseUp(const juce::MouseEvent& event);
+    void mouseMove(const juce::MouseEvent& event);
+    void mouseDrag(const juce::MouseEvent& event);
+    bool keyPressed(const KeyPress& key);
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void redraw(bool subsample);
+
+    void updateUnits(std::vector<PCAUnit> _units);
+
+    void buttonClicked(Button* button);
+
+    void drawUnit(Graphics& g, PCAUnit unit);
+    void rangeDown();
+    void rangeUp();
+
+private:
+    float prevx,prevy;
+    bool inPolygonDrawingMode;
+	void drawProjectedSpike(SorterSpikePtr s);
+
+    bool rangeSet;
+    SpikeSorter* processor;
+    void updateProjectionImage(uint16_t, uint16_t, uint16_t, const uint8_t* col);
+	void updateRange(SorterSpikePtr s);
+    ScopedPointer<UtilityButton> rangeDownButton, rangeUpButton;
+
+    SorterSpikeArray spikeBuffer;
+    int bufferSize;
+    int spikeIndex;
+    bool updateProcessor;
+	void calcWaveformPeakIdx(SorterSpikePtr, int, int, int*, int*);
+
+    Image projectionImage;
+
+    Colour pointColour;
+    Colour gridColour;
+
+    int imageDim;
+
+    int rangeX;
+    int rangeY;
+
+    int spikesReceivedSinceLastRedraw;
+
+    float pcaMin[2],pcaMax[2];
+    std::list<PointD> drawnPolygon;
+
+    std::vector<PCAUnit> units;
+    int isOverUnit;
+    PCAUnit drawnUnit;
+
+    bool redrawSpikes;
+};
+
+
+class SpikeHistogramPlot : public Component, Button::Listener
+{
+public:
+    SpikeHistogramPlot(SpikeSorter*, SpikeSorterCanvas*, int electrodeID, int plotType, String name_);
+    virtual ~SpikeHistogramPlot();
+
+    void paint(Graphics& g);
+    void resized();
+    void setFlipSignal(bool state);
+
+    void select();
+    void deselect();
+
+    void setPolygonDrawingMode(bool on);
+    void setPCARange(float p1min, float p2min, float p1max, float p2max);
+    void modifyRange(int index,bool up);
+    void updateUnitsFromProcessor();
+	void processSpikeObject(SorterSpikePtr s);
+
+    SpikeSorterCanvas* canvas;
+
+    bool isSelected;
+
+    int electrodeNumber;
+
+    void getSelectedUnitAndBox(int& unitID, int& boxID);
+    void setSelectedUnitAndBox(int unitID, int boxID);
+    int nChannels;
+
+    void initAxes(std::vector<float> scales);
+    void getBestDimensions(int*, int*);
+
+    void clear();
+
+    float minWidth;
+    float aspectRatio;
+
+    void buttonClicked(Button* button);
+
+    float getDisplayThresholdForChannel(int);
+    void setDisplayThresholdForChannel(int channelNum, float thres);
+    //void setDetectorThresholdForChannel(int, float);
+
+private:
+    void modifyRange(std::vector<float> values);
+
+    int plotType;
+    int nWaveAx;
+    int nProjAx;
+    int electrodeID;
+    bool limitsChanged;
+
+    double limits[MAX_N_CHAN][2];
+
+    std::vector<BoxUnit> boxUnits;
+    std::vector<PCAUnit> pcaUnits;
+    SpikeSorter* processor;
+    OwnedArray<PCAProjectionAxes> pAxes;
+    OwnedArray<WaveformAxes> wAxes;
+    OwnedArray<UtilityButton> rangeButtons;
+    Array<float> ranges;
+
+    void initLimits();
+    void setLimitsOnAxes();
+    void updateAxesPositions();
+
 
     String name;
-
-    int numChannels;
-    int prePeakSamples, postPeakSamples;
-    int lastBufferIndex;
-
-    int advancerID;
-    float depthOffsetMM;
-
-    int electrodeID;
-    int sourceNodeId_;
-	int sourceSubIdx;
-    int* channels;
-    double* thresholds;
-    bool* isActive;
-    double* voltageScale;
-    //float PCArange[4];
-
-    RunningStat* runningStats;
-    SpikeHistogramPlot* spikePlot;
-    SpikeSortBoxes* spikeSort;
-    PCAcomputingThread* computingThread;
-    UniqueIDgenerator* uniqueIDgenerator;
-    bool isMonitored;
-};
-
-class ContinuousCircularBuffer
-{
-public:
-    ContinuousCircularBuffer(int NumCh, float SamplingRate, int SubSampling, float NumSecInBuffer);
-    void reallocate(int N);
-    void update(std::vector<std::vector<bool>> contdata, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(AudioSampleBuffer& buffer, int64 hardware_ts, int64 software_ts, int numpts);
-    void update(int channel, int64 hardware_ts, int64 software_ts, bool rise);
-    int GetPtr();
-    void addTrialStartToSmartBuffer(int trialID);
-    int numCh;
-    int subSampling;
-    float samplingRate;
     CriticalSection mut;
-    int numSamplesInBuf;
-    double numTicksPerSecond;
-    int ptr;
-    int bufLen;
-    int leftover_k;
-    double buffer_dx;
+    Font font;
 
-    std::vector<std::vector<float> > Buf;
-    std::vector<bool> valid;
-    std::vector<int64> hardwareTS,softwareTS;
-};
 
-
-//class StringTS;
-
-
-
-class SpikeSorter : public GenericProcessor
-{
-public:
-
-    // CONSTRUCTOR AND DESTRUCTOR //
-
-    /** constructor */
-    SpikeSorter();
-
-    /** destructor */
-    ~SpikeSorter();
-
-
-    // PROCESSOR METHODS //
-
-    /** Processes an incoming continuous buffer and places new
-        spikes into the event buffer. */
-    void process(AudioSampleBuffer& buffer) override;
-
-    /** Used to alter parameters of data acquisition. */
-    void setParameter(int parameterIndex, float newValue) override;
-
-    /** Called whenever the signal chain is altered. */
-    void updateSettings() override;
-
-    /** Called prior to start of acquisition. */
-    bool enable() override;
-
-    /** Called after acquisition is finished. */
-    bool disable() override;
-
-
-    bool isReady() override;
-    /** Creates the SpikeSorterEditor. */
-    AudioProcessorEditor* createEditor() override;
-
-    float getSelectedElectrodeNoise();
-    void clearRunningStatForSelectedElectrode();
-
-    //void addNetworkEventToQueue(StringTS S);
-
-    void postEventsInQueue(MidiBuffer& events);
-
-    // INTERNAL BUFFERS //
-
-    /** Extra samples are placed in this buffer to allow seamless
-        transitions between callbacks. */
-    AudioSampleBuffer overflowBuffer;
-
-
-    // CREATE AND DELETE ELECTRODES //
-
-    /** Adds an electrode with n channels to be processed. */
-    bool addElectrode(int nChans, String name, double depth);
-
-    void addProbes(String probeType,int numProbes, int nElectrodesPerProbe, int nChansPerElectrode,  double firstContactOffset, double interelectrodeDistance);
-
-    /** Removes an electrode with a given index. */
-    bool removeElectrode(int index);
-
-
-    // EDIT AND QUERY ELECTRODE SETTINGS //
-
-    /** Returns the number of channels for a given electrode. */
-    int getNumChannels(int index);
-
-    /** Edits the mapping between input channels and electrode channels. */
-    void setChannel(int electrodeIndex, int channelNum, int newChannel);
-
-    /** Returns the continuous channel that maps to a given
-    	electrode channel. */
-    int getChannel(int index, int chan);
-
-    /** Sets the name of a given electrode. */
-    void setElectrodeName(int index, String newName);
-
-    /** */
-    void setChannelActive(int electrodeIndex, int channelNum, bool active);
-
-    /** */
-    bool isChannelActive(int electrodeIndex, int channelNum);
-
-    /** returns the current active electrode, i.e., the one displayed in the editor */
-    Electrode* getActiveElectrode();
-
-    /** Returns a StringArray containing the names of all electrodes */
-    StringArray getElectrodeNames();
-
-    /** modify a channel spike detection threshold */
-    void setChannelThreshold(int electrodeNum, int channelNum, float threshold);
-
-    /** returns a channel's detection threshold */
-    double getChannelThreshold(int electrodeNum, int channelNum);
-
-    /** used to generate messages over the network and to inform PSTH sink */
-    void addNewUnit(int electrodeID, int newUnitID, uint8 r, uint8 g, uint8 b);
-    void removeUnit(int electrodeID, int newUnitID);
-
-    /** saves all electrodes, thresholds, units, etc to xml */
-    void saveCustomParametersToXml(XmlElement* parentElement);
-    void loadCustomParametersFromXml();
-
-    /** returns the depth of an electrode. The depth is calculated as the
-    known depth of the advancer that is used to control that electrode, plus
-    the defined depth offset. Depth offset is mainly useful for depth probes,
-    in which the contact position is not always the at the tip */
-    //double getElectrodeDepth(int electrodeID);
-
-    /** returns the number of electrodes */
-    int getNumElectrodes();
-
-    /** clears up the spike plots. Called during updates */
-    void removeSpikePlots();
-
-    int getNumberOfChannelsForElectrode(int i);
-    String getNameForElectrode(int i);
-    void addSpikePlotForElectrode(SpikeHistogramPlot* sp, int i);
-    int getCurrentElectrodeIndex();
-    Electrode* setCurrentElectrodeIndex(int i);
-    Electrode* getElectrode(int i);
-    //StringTS createStringTS(String S);
-    //int64 getExtrapolatedHardwareTimestamp(int64 softwareTS);
-    //void postTimestamppedStringToMidiBuffer(StringTS s, MidiBuffer& events);
-    //void setElectrodeAdvancer(int i,int ID);
-    //void setElectrodeAdvancerOffset(int i, double v);
-    //double getAdvancerPosition(int advancerID);
-    //double getSelectedElectrodeDepth();
-    bool getAutoDacAssignmentStatus();
-    void seteAutoDacAssignment(bool status);
-    int getNumPreSamples();
-    int getNumPostSamples();
-    void setNumPreSamples(int numSamples);
-    void setNumPostSamples(int numSamples);
-    int getDACassignment(int channel);
-    void assignDACtoChannel(int dacOutput, int channel);
-    Array<int> getDACassignments();
-    void updateDACthreshold(int dacChannel, float threshold);
-    bool getThresholdSyncStatus();
-    void setThresholdSyncStatus(bool status);
-    bool getFlipSignalState();
-    void setFlipSignalState(bool state);
-    void startRecording();
-    std::vector<float> getElectrodeVoltageScales(int electrodeID);
-    //void getElectrodePCArange(int electrodeID, float &minX,float &maxX,float &minY,float &maxY);
-    //void setElectrodePCArange(int electrodeID, float minX,float maxX,float minY,float maxY);
-
-    void removeAllUnits(int electrodeID);
-
-    void setElectrodeVoltageScale(int electrodeID, int index, float newvalue);
-    std::vector<int> getElectrodeChannels(int ID);
-
-    Array<Electrode*> getElectrodes();
-
-    std::vector<String> electrodeTypes;
-    
-    void setEditAllState(bool val);
-    bool getEditAllState();
-    
-#if 0
-    /** sync PSTH : inform of a new electrode added  */
-    void updateSinks(Electrode* newElectrode);
-    /** sync PSTH : inform of an electrode removal */
-    void updateSinks(int electrodeID);
-    /** sync PSTH : inform of a channel swap */
-    void updateSinks(int electrodeID, int channelindex, int newchannel);
-    /** sync PSTH: inform of a new unit added / removed */
-    void updateSinks(int electrodeID, int unitID, uint8 r, uint8 g, uint8 b, bool addRemove);
-    /** sync PSTH: inform of a name change*/
-    void updateSinks(int electrodeID, String NewName);
-    /** sync PSTH: remove all units*/
-    void updateSinks(int electrodeID, bool b);
-#endif
-
-
-private:
-    UniqueIDgenerator uniqueIDgenerator;
-    long uniqueSpikeID;
-    SorterSpikePtr prevSpike;
-
-    void addElectrode(Electrode* newElectrode);
-    void increaseUniqueProbeID(String type);
-    int getUniqueProbeID(String type);
-
-    float ticksPerSec;
-    int uniqueID;
-    //std::queue<StringTS> eventQueue;
-    /** pointer to a continuous buffer. */
-    AudioSampleBuffer* dataBuffer;
-
-    float getDefaultThreshold();
-
-    int overflowBufferSize;
-
-    int sampleIndex;
-
-    std::vector<int> electrodeCounter;
-    float getNextSample(int& chan);
-    float getCurrentSample(int& chan);
-    bool samplesAvailable(int nSamples);
-
-    Array<bool> useOverflowBuffer;
-
-    int currentElectrode;
-    int currentChannelIndex;
-    int currentIndex;
-
-
-    int numPreSamples,numPostSamples;
-
-
-    bool PCAbeforeBoxes;
-    ContinuousCircularBuffer* channelBuffers; // used to compute auto threshold
-
-    void resetElectrode(Electrode*);
-    CriticalSection mut;
-    bool autoDACassignment;
-    bool syncThresholds;
- //   RHD2000Thread* getRhythmAccess();
-    bool flipSignal;
-
-    Time timer;
-
-    void addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
-                                  int& peakIndex,
-                                  int& electrodeNumber,
-                                  int& currentChannel);
-
-
-    Array<Electrode*> electrodes;
-    PCAcomputingThread computingThread;
-
-    bool editAll = false;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorter);
 
 };
 
-
-
-
-/*
-
-class circularBuffer {
-public:
-	circularBuffer(int NumCh, int NumSamplesToHoldPerChannel, double SamplingRate);
-	~circularBuffer();
-
-	std::vector<double> getDataArray(int channel, int N);
-	double findThresholdForChannel(int channel);
-	void update(AudioSampleBuffer& buffer);
-
-private:
-     CriticalSection mut;
-
-	int numCh;
-	int numSamplesInBuf;
-	int ptr;
-	double samplingRate;
-	int bufLen;
-	std::vector<std::vector<double>> Buf;
-	std::vector<double> BufTS_H;
-	std::vector<double> BufTS_S;
-};
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-#endif  // __SPIKESORTER_H_3F920F95__
+#endif  // SPIKESORTERCANVAS_H_
