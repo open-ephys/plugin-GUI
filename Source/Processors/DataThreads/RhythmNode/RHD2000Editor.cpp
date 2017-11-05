@@ -671,7 +671,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     ttlSettleLabel = new Label("TTL Settle","TTL Settle");
     ttlSettleLabel->setFont(Font("Small Text", 11, Font::plain));
-    ttlSettleLabel->setBounds(255,80,100,20);
+    ttlSettleLabel->setBounds(255,80,70,20);
     ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(ttlSettleLabel);
 
@@ -697,7 +697,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     dacHPFlabel = new Label("DAC HPF","DAC HPF");
     dacHPFlabel->setFont(Font("Small Text", 11, Font::plain));
-    dacHPFlabel->setBounds(260,42,100,20);
+    dacHPFlabel->setBounds(260,42,65,20);
     dacHPFlabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(dacHPFlabel);
 
