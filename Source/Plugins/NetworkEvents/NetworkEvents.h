@@ -117,7 +117,7 @@ public:
 
     int urlport;
     String socketStatus;
-    bool threadRunning;
+    std::atomic<bool> threadRunning;
 
 
 private:
