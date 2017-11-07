@@ -216,8 +216,14 @@ bool NetworkEvents::closesocket()
         zmq_ctx_destroy (zmqcontext); // this will cause the thread to exit
         zmqcontext = nullptr;
 
+		if (!stopThread(500))
+		{
+			std::cerr << "Network thread timeout. Forcing thread termination, system could be lefr in an unstable state" << std::endl;
+		}
+
         if (! shutdown)
             createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
+	
     }
 #endif
     return true;
