@@ -574,9 +574,7 @@ void NetworkEvents::run()
 
     while (threadRunning)
     {
-		lock.enter();
         result = zmq_recv (responder, buffer, MAX_MESSAGE_LENGTH - 1, 0);  // blocking
-		lock.exit();
 
         juce::int64 timestamp_software = timer.getHighResolutionTicks();
 
