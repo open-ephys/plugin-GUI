@@ -212,9 +212,11 @@ bool NetworkEvents::closesocket()
 #ifdef ZEROMQ
     if (threadRunning)
     {
+		lock.enter();
         zmq_close (responder);
         zmq_ctx_destroy (zmqcontext); // this will cause the thread to exit
         zmqcontext = nullptr;
+		lock.exit();
 
 		if (!stopThread(500))
 		{
@@ -572,7 +574,9 @@ void NetworkEvents::run()
 
     while (threadRunning)
     {
+		lock.enter();
         result = zmq_recv (responder, buffer, MAX_MESSAGE_LENGTH - 1, 0);  // blocking
+		lock.exit();
 
         juce::int64 timestamp_software = timer.getHighResolutionTicks();
 
@@ -664,8 +668,10 @@ void NetworkEvents::loadCustomParametersFromXml()
 void NetworkEvents::createZmqContext()
 {
 #ifdef ZEROMQ
+	lock.enter();
     if (zmqcontext == nullptr)
         zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
+	lock.exit();
 #endif
 }
 
