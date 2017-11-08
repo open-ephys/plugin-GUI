@@ -1637,6 +1637,14 @@ public:
                 hints->min_height = hints->max_height = hints->height;
                 hints->flags |= PMinSize | PMaxSize;
             }
+            /* ----------- OPEN_EPHYS ADDITION ----------- */
+            else
+            {
+                hints->min_width = 484;
+                hints->min_height = 437;
+                hints->flags |= PMinSize;
+            }
+            /* --------- END OPEN_EPHYS ADDITION --------- */
 
             XSetWMNormalHints (display, windowH, hints);
             XFree (hints);
