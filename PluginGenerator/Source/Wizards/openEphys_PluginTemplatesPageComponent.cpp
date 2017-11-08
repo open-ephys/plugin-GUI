@@ -30,6 +30,8 @@
 #include "../../../Source/UI/Utils/TiledButtonGroupManager.h"
 
 
+const char* PluginTemplatesPageComponent::TEMPLATES_PAGE_CREATE_PROJECT_BUTTON_ID = "templatesPageComponent_createProjectButton";
+
 PluginTemplatesPageComponent::PluginTemplatesPageComponent()
     : m_createProjectButton                 (new TextButton ("Create project...", "Create new project"))
     , m_pluginTypeComboBox                  (new ComboBox ("Plugin type"))

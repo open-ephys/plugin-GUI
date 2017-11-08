@@ -1,0 +1,222 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		038C244D1FA389C4006EA927 /* EvntTrigAvg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 038981DE1FA2F00200D25D7A /* EvntTrigAvg.cpp */; };
+		038C244E1FA389C4006EA927 /* EvntTrigAvgCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 038981E31FA2F00300D25D7A /* EvntTrigAvgCanvas.cpp */; };
+		038C244F1FA389C4006EA927 /* EvntTrigAvgEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 038981E21FA2F00200D25D7A /* EvntTrigAvgEditor.cpp */; };
+		038C24501FA38A0F006EA927 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 038981E11FA2F00200D25D7A /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		038981D31FA2EFB500D25D7A /* EvntTrigAvg.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EvntTrigAvg.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		038981D61FA2EFB500D25D7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		038981DD1FA2F00200D25D7A /* EvntTrigAvg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EvntTrigAvg.h; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvg.h; sourceTree = "<group>"; };
+		038981DE1FA2F00200D25D7A /* EvntTrigAvg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EvntTrigAvg.cpp; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvg.cpp; sourceTree = "<group>"; };
+		038981DF1FA2F00200D25D7A /* EvntTrigAvgCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EvntTrigAvgCanvas.h; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvgCanvas.h; sourceTree = "<group>"; };
+		038981E01FA2F00200D25D7A /* EvntTrigAvgEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EvntTrigAvgEditor.h; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvgEditor.h; sourceTree = "<group>"; };
+		038981E11FA2F00200D25D7A /* OpenEphysLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../../../Source/Plugins/EvntTrigAvg/OpenEphysLib.cpp; sourceTree = "<group>"; };
+		038981E21FA2F00200D25D7A /* EvntTrigAvgEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EvntTrigAvgEditor.cpp; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvgEditor.cpp; sourceTree = "<group>"; };
+		038981E31FA2F00300D25D7A /* EvntTrigAvgCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EvntTrigAvgCanvas.cpp; path = ../../../../../../Source/Plugins/EvntTrigAvg/EvntTrigAvgCanvas.cpp; sourceTree = "<group>"; };
+		038981E51FA2F04100D25D7A /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		038981E61FA2F04100D25D7A /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		038981D01FA2EFB500D25D7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		038981CA1FA2EFB500D25D7A = {
+			isa = PBXGroup;
+			children = (
+				038981E41FA2F02500D25D7A /* Config */,
+				038981D51FA2EFB500D25D7A /* EvntTrigAvg */,
+				038981D41FA2EFB500D25D7A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		038981D41FA2EFB500D25D7A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				038981D31FA2EFB500D25D7A /* EvntTrigAvg.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		038981D51FA2EFB500D25D7A /* EvntTrigAvg */ = {
+			isa = PBXGroup;
+			children = (
+				038981DC1FA2EFDA00D25D7A /* Source */,
+				038981D61FA2EFB500D25D7A /* Info.plist */,
+			);
+			path = EvntTrigAvg;
+			sourceTree = "<group>";
+		};
+		038981DC1FA2EFDA00D25D7A /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				038981DE1FA2F00200D25D7A /* EvntTrigAvg.cpp */,
+				038981DD1FA2F00200D25D7A /* EvntTrigAvg.h */,
+				038981E31FA2F00300D25D7A /* EvntTrigAvgCanvas.cpp */,
+				038981DF1FA2F00200D25D7A /* EvntTrigAvgCanvas.h */,
+				038981E21FA2F00200D25D7A /* EvntTrigAvgEditor.cpp */,
+				038981E01FA2F00200D25D7A /* EvntTrigAvgEditor.h */,
+				038981E11FA2F00200D25D7A /* OpenEphysLib.cpp */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		038981E41FA2F02500D25D7A /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				038981E61FA2F04100D25D7A /* Plugin_Debug.xcconfig */,
+				038981E51FA2F04100D25D7A /* Plugin_Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		038981D21FA2EFB500D25D7A /* EvntTrigAvg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 038981D91FA2EFB500D25D7A /* Build configuration list for PBXNativeTarget "EvntTrigAvg" */;
+			buildPhases = (
+				038981CF1FA2EFB500D25D7A /* Sources */,
+				038981D01FA2EFB500D25D7A /* Frameworks */,
+				038981D11FA2EFB500D25D7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EvntTrigAvg;
+			productName = EvntTrigAvg;
+			productReference = 038981D31FA2EFB500D25D7A /* EvntTrigAvg.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		038981CB1FA2EFB500D25D7A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					038981D21FA2EFB500D25D7A = {
+						CreatedOnToolsVersion = 9.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 038981CE1FA2EFB500D25D7A /* Build configuration list for PBXProject "EvntTrigAvg" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 038981CA1FA2EFB500D25D7A;
+			productRefGroup = 038981D41FA2EFB500D25D7A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				038981D21FA2EFB500D25D7A /* EvntTrigAvg */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		038981D11FA2EFB500D25D7A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		038981CF1FA2EFB500D25D7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				038C24501FA38A0F006EA927 /* OpenEphysLib.cpp in Sources */,
+				038C244D1FA389C4006EA927 /* EvntTrigAvg.cpp in Sources */,
+				038C244E1FA389C4006EA927 /* EvntTrigAvgCanvas.cpp in Sources */,
+				038C244F1FA389C4006EA927 /* EvntTrigAvgEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		038981D71FA2EFB500D25D7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 038981E61FA2F04100D25D7A /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		038981D81FA2EFB500D25D7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 038981E51FA2F04100D25D7A /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		038981DA1FA2EFB500D25D7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = EvntTrigAvg/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.EvntTrigAvg";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		038981DB1FA2EFB500D25D7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = EvntTrigAvg/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.EvntTrigAvg";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		038981CE1FA2EFB500D25D7A /* Build configuration list for PBXProject "EvntTrigAvg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				038981D71FA2EFB500D25D7A /* Debug */,
+				038981D81FA2EFB500D25D7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		038981D91FA2EFB500D25D7A /* Build configuration list for PBXNativeTarget "EvntTrigAvg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				038981DA1FA2EFB500D25D7A /* Debug */,
+				038981DB1FA2EFB500D25D7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 038981CB1FA2EFB500D25D7A /* Project object */;
+}

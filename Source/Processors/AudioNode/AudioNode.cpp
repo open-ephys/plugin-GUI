@@ -75,7 +75,7 @@ void AudioNode::updateBufferSize()
 void AudioNode::setChannel(const DataChannel* ch)
 {
 
-    int channelNum = dataChannelArray.indexOf(ch);
+	int channelNum = getDataChannelIndex(ch->getSourceIndex(), ch->getSourceNodeID(), ch->getSubProcessorIdx());
 
     std::cout << "Audio node setting channel to " << channelNum << std::endl;
 

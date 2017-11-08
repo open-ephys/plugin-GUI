@@ -463,9 +463,15 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
-        Array<Electrode*> electrodes = processor->getElectrodes();
+        const OwnedArray<Electrode>& electrodes = processor->getElectrodes();
+		int nElectrodes = electrodes.size();
+		if (nElectrodes <= 0)
+		{
+			audioMonitorButton->setToggleState(false, dontSendNotification);
+			return;
+		}
 
-        for (int i = 0; i < electrodes.size(); i++)
+        for (int i = 0; i < nElectrodes; i++)
         {
             Electrode* e = electrodes[i];
             e->isMonitored = false;

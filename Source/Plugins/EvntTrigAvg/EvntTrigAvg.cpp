@@ -196,7 +196,7 @@ void EvntTrigAvg::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& 
         // extract information from spike
         
         const SpikeChannel* chan = newSpike->getChannelInfo();
-        Array<sourceChannelInfo> chanInfo = chan->getSourceChannelInfo();
+        Array<SourceChannelInfo> chanInfo = chan->getSourceChannelInfo();
         //int chanIDX = chanInfo[0].channelIDX;
         int electrode = getSpikeChannelIndex(newSpike);
         //std::cout<<"chanIDX: " << chanIDX << "\n";
@@ -308,7 +308,7 @@ std::vector<int> EvntTrigAvg::createElectrodeMap()
         const SpikeChannel* chan = getSpikeChannel(chanIt);
         // add to running count of each electrode
         map.resize(map.size()+chan->getNumChannels());
-        Array<sourceChannelInfo> chanInfo = chan->getSourceChannelInfo();
+        Array<SourceChannelInfo> chanInfo = chan->getSourceChannelInfo();
         for (int subChanIt = 0 ; subChanIt < chan->getNumChannels() ; subChanIt++){
             map[chanInfo[subChanIt].channelIDX]=electrodeCounter;
         }

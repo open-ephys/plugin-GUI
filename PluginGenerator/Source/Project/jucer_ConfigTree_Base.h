@@ -422,8 +422,8 @@ private:
 
         SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
-        static constexpr const char* PROJECT_SETTINGS_BUTTON_ID     = "projectSettingsTab";
-        static constexpr const char* PLUGIN_SETTINGS_BUTTON_ID      = "pluginSettingsTab";
+        const char* PROJECT_SETTINGS_BUTTON_ID     = "projectSettingsTab";
+        const char* PLUGIN_SETTINGS_BUTTON_ID      = "pluginSettingsTab";
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SettingsComp)
     };

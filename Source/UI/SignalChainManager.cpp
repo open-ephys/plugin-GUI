@@ -229,20 +229,23 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
 
         // std::cout << editorArray.size() << " " << t << std::endl;
 
-        bool merger;
+		bool merger = false;
 
         if (editorArray.size() > 0)
         {
             // take the next processor in the array
             GenericProcessor* p2 = (GenericProcessor*) editorArray[0]->getProcessor();
             merger = (p2->isMerger() && p2->stillHasSource());
-            if (merger)
+            if (p2->isMerger())
             {
                 //  std::cout << "We've got a merger!" << std::endl;
                 //p2->switchIO(0);
                 p2->setMergerSourceNode(p->getSourceNode());
-                MergerEditor* me = (MergerEditor*) editorArray[0];
-                me->switchSource();
+				if (p2->stillHasSource())
+				{
+					MergerEditor* me = static_cast<MergerEditor*>(p2->getEditor());
+					me->switchSource();
+				}
                 // p2->setMergerSourceNode(nullptr);
             }
         }
