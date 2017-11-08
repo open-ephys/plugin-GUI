@@ -149,7 +149,7 @@ void LfpDisplayCanvas::resized()
     {
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
-        
+        std::cout << "resizing canvas" << std::endl;
         lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     }
     else
@@ -215,6 +215,8 @@ void LfpDisplayCanvas::update()
     displayBufferIndex.clear();
     
     options->setEnabled(nChans != 0);
+    // must manually ensure that overlapSelection propagates up to canvas
+    channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
     for (int i = 0; i <= nChans; i++) // extra channel for events
     {
@@ -248,7 +250,7 @@ void LfpDisplayCanvas::update()
 
     if (nChans != lfpDisplay->getNumChannels())
     {
-        //std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
         refreshScreenBuffer();
 
@@ -267,10 +269,14 @@ void LfpDisplayCanvas::update()
 
         }
         
-        if (nChans > 0)
-            lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-        else
-            lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+//        if (nChans > 0)
+//            lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+//        else
+        if (nChans == 0) lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+        else {
+            lfpDisplay->rebuildDrawableChannelsList();
+            lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+        }
         
         resized();
     }
@@ -282,10 +288,10 @@ void LfpDisplayCanvas::update()
             lfpDisplay->channelInfo[i]->updateType();
         }
         
+        if (nChans > 0)
+            lfpDisplay->rebuildDrawableChannelsList();
     }
     
-    if (nChans > 0)
-        lfpDisplay->rebuildDrawableChannelsList();
 
 }
 
@@ -656,9 +662,9 @@ void LfpDisplayCanvas::paint(Graphics& g)
     for (int i = 0; i < 10; i++)
     {
         if (i == 5 || i == 0)
-            g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,3.0f);
+            g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),3.0f);
         else
-            g.drawLine(w/10*i+leftmargin,0,w/10*i+leftmargin,getHeight()-60,1.0f);
+            g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),1.0f);
     }
 
     g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
@@ -2278,7 +2284,7 @@ void LfpDisplay::setNumChannels(int numChannels)
     setColors();
     
 
-    //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
+    std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
 }
 
@@ -2327,6 +2333,7 @@ int LfpDisplay::getTotalHeight()
 void LfpDisplay::resized()
 {
     int totalHeight = 0;
+    std::cout << "channelOverlapFactor " << canvas->channelOverlapFactor << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -3107,6 +3114,7 @@ void LfpChannelDisplay::resized()
     // all of this will likely need to be moved into the sharedLfpDisplay image in the lfpDisplay, not here
     // now that the complete height is know, the sharedLfpDisplay image that we'll draw the pixel-wise lfp plot to needs to be resized
     //lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+    std::cout << "[channel " << chan << "] " << getPosition().toString() << std::endl;
 }
 
 
