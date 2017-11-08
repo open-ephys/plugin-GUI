@@ -250,7 +250,6 @@ void LfpDisplayCanvas::update()
 
     if (nChans != lfpDisplay->getNumChannels())
     {
-//        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
         refreshScreenBuffer();
 
@@ -262,16 +261,11 @@ void LfpDisplayCanvas::update()
 
             String chName = processor->getDataChannel(i)->getName();
 
-            //std::cout << chName << std::endl;
-
             lfpDisplay->channelInfo[i]->setName(chName);
             lfpDisplay->setEnabledState(isChannelEnabled[i], i);
 
         }
         
-//        if (nChans > 0)
-//            lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-//        else
         if (nChans == 0) lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
         else {
             lfpDisplay->rebuildDrawableChannelsList();
