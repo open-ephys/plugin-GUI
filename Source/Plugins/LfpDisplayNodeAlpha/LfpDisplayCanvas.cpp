@@ -149,7 +149,7 @@ void LfpDisplayCanvas::resized()
     {
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
-        std::cout << "resizing canvas" << std::endl;
+        
         lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     }
     else
@@ -250,7 +250,7 @@ void LfpDisplayCanvas::update()
 
     if (nChans != lfpDisplay->getNumChannels())
     {
-        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
+//        std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
         refreshScreenBuffer();
 
@@ -2333,7 +2333,6 @@ int LfpDisplay::getTotalHeight()
 void LfpDisplay::resized()
 {
     int totalHeight = 0;
-    std::cout << "channelOverlapFactor " << canvas->channelOverlapFactor << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -2352,11 +2351,9 @@ void LfpDisplay::resized()
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
         
         info->setBounds(0,
-//                        totalHeight-disp->getChannelHeight()/4,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvas->channelOverlapFactor)/4.0,
                         canvas->leftmargin + 50,
                         disp->getChannelHeight());
-//                        disp->getChannelHeight()+(disp->getChannelOverlap()*canvas->channelOverlapFactor));
         
         totalHeight += disp->getChannelHeight();
         
@@ -3114,7 +3111,6 @@ void LfpChannelDisplay::resized()
     // all of this will likely need to be moved into the sharedLfpDisplay image in the lfpDisplay, not here
     // now that the complete height is know, the sharedLfpDisplay image that we'll draw the pixel-wise lfp plot to needs to be resized
     //lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
-    std::cout << "[channel " << chan << "] " << getPosition().toString() << std::endl;
 }
 
 
