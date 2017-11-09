@@ -120,13 +120,35 @@ Builds/MacOSX/open-ephys.xcodeproj/*.pbxuser
 Builds/MacOSX/open-ephys.xcodeproj/xcuserdata
 Builds/MacOSX/open-ephys.xcodeproj/project.xcworkspace
 Builds/MacOSX/build
-Projucer/Builds/MacOSX/The Projucer.xcodeproj/*.mode1v3
-Projucer/Builds/MacOSX/The Projucer.xcodeproj/*.pbxuser
-Projucer/Builds/MacOSX/The Projucer.xcodeproj/xcuserdata
-Projucer/Builds/MacOSX/The Projucer.xcodeproj/project.xcworkspace
+Projucer/Builds/MacOSX/Projucer.xcodeproj/*.mode1v3
+Projucer/Builds/MacOSX/Projucer.xcodeproj/*.pbxuser
+Projucer/Builds/MacOSX/Projucer.xcodeproj/xcuserdata
+Projucer/Builds/MacOSX/Projucer.xcodeproj/project.xcworkspace
 Projucer/Builds/MacOSX/build
 Projucer/Builds/MacOSX/Projucer.xcodeproj/xcuserdata
 Projucer/Builds/MacOSX/Projucer.xcodeproj/project.xcworkspace
+
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+*default.perspectivev3
+xcuserdata/
+
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+
+PluginGenerator/Builds/MacOSX/OpenEphys_PluginGenerator.xcodeproj/project.xcworkspace/contents.xcworkspacedata
 
 # 9. Plugin build dirs
 build/
