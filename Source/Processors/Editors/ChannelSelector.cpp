@@ -680,9 +680,16 @@ void ChannelSelector::buttonClicked(Button* button)
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
-                AccessClass::getProcessorGraph()->
+                if ( AccessClass::getProcessorGraph()->
                 getRecordNode()->
-                setChannelStatus(ch, status);
+                setChannelStatus(ch, status) )
+                {
+                    const_cast<DataChannel*>(ch)->setRecordState(status);
+                }
+                
+                // make sure that the button matches the system's actual state, in case
+                // user's interaction was disallowed
+                b->setToggleState(const_cast<DataChannel*>(ch)->getRecordState(), dontSendNotification);
             }
             else     // change parameter directly
             {

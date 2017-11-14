@@ -113,7 +113,11 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
     setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-    dataChannelArray.add(new DataChannel(*sourceNode->getDataChannel(chan)));
+    auto dataChannel = sourceNode->getDataChannel(chan);
+    auto dataChannelCopy = new DataChannel(*dataChannel);
+    dataChannelCopy->setMonitored(dataChannel->isMonitored());
+    
+    dataChannelArray.add(dataChannelCopy);
 
 }
 
