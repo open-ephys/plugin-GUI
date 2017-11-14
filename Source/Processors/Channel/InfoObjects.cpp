@@ -214,8 +214,8 @@ DataChannel::DataChannel(const DataChannel& ch)
 		m_type(ch.m_type),
 		m_bitVolts(ch.m_bitVolts),
 		m_isEnabled(true),
-		m_isMonitored(false),
-		m_isRecording(false)
+		m_isMonitored(ch.m_isMonitored),
+		m_isRecording(ch.m_isRecording)
 {
 }
 
