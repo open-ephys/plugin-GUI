@@ -69,7 +69,8 @@ RecordNode::~RecordNode()
 
 void RecordNode::setChannel(const DataChannel* ch)
 {
-    int channelNum = dataChannelArray.indexOf(ch);
+//    int channelNum = dataChannelArray.indexOf(ch);
+    int channelNum = getDataChannelIndex(ch->getSourceIndex(), ch->getSourceNodeID(), ch->getSubProcessorIdx());
 
     std::cout << "Record node setting channel to " << channelNum << std::endl;
 
@@ -77,7 +78,7 @@ void RecordNode::setChannel(const DataChannel* ch)
 
 }
 
-void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
+bool RecordNode::setChannelStatus(const DataChannel* ch, bool status)
 {
 
     //std::cout << "Setting channel status!" << std::endl;
@@ -87,7 +88,8 @@ void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
         setParameter(2, 1.0f);
     else
         setParameter(2, 0.0f);
-
+    
+    return status == dataChannelArray[currentChannel]->getRecordState();
 }
 
 

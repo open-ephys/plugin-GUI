@@ -106,8 +106,11 @@ public:
     /** Turns recording on and off for a particular channel.
 
         Channel numbers are absolute (based on RecordNode channel mapping).
+        
+        Returns a bool indicating whether the status update was successful (true)
+        or blocked (false) because recording is currently in progress.
     */
-    void setChannelStatus(const DataChannel* ch, bool status);
+    bool setChannelStatus(const DataChannel* ch, bool status);
 
     /** Used to clear all connections prior to the start of acquisition.
     */
