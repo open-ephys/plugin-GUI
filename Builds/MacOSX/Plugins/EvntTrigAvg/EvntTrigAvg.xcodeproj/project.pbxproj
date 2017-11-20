@@ -189,6 +189,14 @@
 		038981DB1FA2EFB500D25D7A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../JuceLibraryCode,
+					../../../../JuceLibraryCode/modules,
+					../../../../Source/Plugins/Headers,
+					../../../../Source/Plugins/CommonLibs,
+					"$(MAC_PACKAGE_DIR)/include",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = EvntTrigAvg/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.EvntTrigAvg";
 				PRODUCT_NAME = "$(TARGET_NAME)";
