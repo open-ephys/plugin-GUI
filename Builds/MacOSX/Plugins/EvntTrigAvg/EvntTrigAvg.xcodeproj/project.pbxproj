@@ -6,6 +6,13 @@
 	objectVersion = 48;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		274EC05B1FC3203100242F92 /* EvntTrigAvg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274EC0511FC30EFE00242F92 /* EvntTrigAvg.cpp */; };
+		274EC05C1FC3203400242F92 /* EvntTrigAvgCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274EC0521FC30EFE00242F92 /* EvntTrigAvgCanvas.cpp */; };
+		274EC05D1FC3203800242F92 /* EvntTrigAvgEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274EC0501FC30EFE00242F92 /* EvntTrigAvgEditor.cpp */; };
+		274EC05E1FC3203B00242F92 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 274EC0551FC30EFE00242F92 /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		274EC0331FC30DB200242F92 /* EvntTrigAvg.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EvntTrigAvg.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		274EC0361FC30DB200242F92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -147,6 +154,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				274EC05B1FC3203100242F92 /* EvntTrigAvg.cpp in Sources */,
+				274EC05D1FC3203800242F92 /* EvntTrigAvgEditor.cpp in Sources */,
+				274EC05C1FC3203400242F92 /* EvntTrigAvgCanvas.cpp in Sources */,
+				274EC05E1FC3203B00242F92 /* OpenEphysLib.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
