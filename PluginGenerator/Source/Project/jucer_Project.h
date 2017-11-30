@@ -160,6 +160,7 @@ public:
     String getPluginVSTCategoryString();
 
     // <Open Ephys>
+    Value shouldBuildOpenEphysPlugin()                  { return getProjectValue ("buildOpenEphys"); }
     Value getOpenEphysPluginType()                      { return getProjectValue ("openEphysPluginType"); }
     Value getOpenEphysPluginProcessorType()             { return getProjectValue ("openEphysPluginProcessorType"); }
     Value getOpenEphysPluginFileSourceSupportedExts()   { return getProjectValue ("openEphysFileSourcePluginSupportedExtensions"); }
