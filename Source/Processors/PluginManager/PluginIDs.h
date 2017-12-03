@@ -46,6 +46,7 @@ namespace Ids
     
     DECLARE_OPENEPHYS_ID(xcodeOpenEphysProjectLocation);
     DECLARE_OPENEPHYS_ID(xcodeOpenEphysBinaryLocation);
+	DECLARE_OPENEPHYS_ID(msvcOpenEphysProjectLocation);
 }
 
 namespace Plugin
