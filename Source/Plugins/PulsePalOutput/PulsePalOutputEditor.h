@@ -24,7 +24,7 @@
 #ifndef __PULSEPALOUTPUTEDITOR_H_BB5F0ECC__
 #define __PULSEPALOUTPUTEDITOR_H_BB5F0ECC__
 
-#include <EditorHeaders.h>
+#include <VisualizerEditorHeaders.h>
 
 /**
 
@@ -40,24 +40,22 @@ class PulsePalOutput;
 
 class UtilityButton;
 
-class PulsePalOutputEditor : public GenericEditor
+class PulsePalOutputEditor : public VisualizerEditor
 
 {
 public:
     PulsePalOutputEditor(GenericProcessor* parentNode, PulsePal* pp, bool useDefaultParameterEditors);
     virtual ~PulsePalOutputEditor();
+    void updateSettings();
+    Visualizer* createNewCanvas();
 
 private:
-
     OwnedArray<ChannelTriggerInterface> channelTriggerInterfaces;
-
     PulsePal* pulsePal;
-
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PulsePalOutputEditor);
-
 };
 
 
@@ -70,10 +68,14 @@ public:
     ~ChannelTriggerInterface();
 
     void paint(Graphics& g);
+    /**
+     * @brief updateSources checks sources available from the Pulse Pal processor
+     *        and updates the trigger and gate comboboxes
+     */
+    void updateSources();
 
     void setTriggerChannel(int chan);
     void setGateChannel(int chan);
-
     int getTriggerChannel();
     int getGateChannel();
 
@@ -81,19 +83,18 @@ public:
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
 
 private:
-
     PulsePal* pulsePal;
     PulsePalOutput* processor;
 
+    int m_triggerSelected;
+    int m_gateSelected;
     bool isEnabled;
-
     int channelNumber;
     String name;
 
     ScopedPointer<UtilityButton> triggerButton;
     ScopedPointer<ComboBox> triggerSelector;
     ScopedPointer<ComboBox> gateSelector;
-
 };
 
 

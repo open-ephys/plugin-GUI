@@ -220,7 +220,8 @@ void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
         if (comboBoxThatHasChanged->getSelectedId() - 1 > 0)
             m_gateSelected = comboBoxThatHasChanged->getSelectedId() - 1;
         else
-            m_gateSelected = 1;    }
+            m_gateSelected = 1;    
+    }
 }
 
 int ChannelTriggerInterface::getTriggerChannel()
