@@ -718,7 +718,7 @@ public:
                     xcodeFileType = "wrapper.cfbundle";
                     xcodeBundleExtension = ".bundle";
                     xcodeProductType = "com.apple.product-type.bundle";
-                    xcodeCopyToProductInstallPathAfterBuild = false;
+                    xcodeCopyToProductInstallPathAfterBuild = true;
                     break;
 
                 default:

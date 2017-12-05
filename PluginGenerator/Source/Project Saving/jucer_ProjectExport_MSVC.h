@@ -31,7 +31,7 @@ protected:
 public:
     MSVCProjectExporterBase (Project& p, const ValueTree& t, const char* const folderName)
         : ProjectExporter (p, t),
-		  openEphysProjectLocation(project.getProjectRoot(), Ids::msvcOpenEphysProjectLocation, nullptr, "../../../plugin-gui")
+		  openEphysProjectLocation(settings, Ids::msvcOpenEphysProjectLocation, nullptr, "../../../plugin-gui")
     {
 		msvcFolderName = folderName; // Open-Ephys
 		msvcFolderName += "\\";
