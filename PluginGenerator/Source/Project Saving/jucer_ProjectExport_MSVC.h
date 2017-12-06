@@ -24,10 +24,18 @@
 
 class MSVCProjectExporterBase   : public ProjectExporter
 {
+	// Open-Ephys
+protected:
+	CachedValue<String> openEphysProjectLocation;
+
 public:
     MSVCProjectExporterBase (Project& p, const ValueTree& t, const char* const folderName)
-        : ProjectExporter (p, t)
+        : ProjectExporter (p, t),
+		  openEphysProjectLocation(settings, Ids::msvcOpenEphysProjectLocation, nullptr, "../../../plugin-gui")
     {
+		msvcFolderName = folderName; // Open-Ephys
+		msvcFolderName += "\\";
+
         if (getTargetLocationString().isEmpty())
             getTargetLocationValue() = getDefaultBuildsRootFolder() + folderName;
 
@@ -84,8 +92,12 @@ public:
        #endif
     }
 
-    void createExporterProperties (PropertyListBuilder&) override
+    void createExporterProperties (PropertyListBuilder& props) override
     {
+		// Open-Ephys
+		if (isOpenEphysPlugin())
+			props.add(new TextPropertyComponent(openEphysProjectLocation.getPropertyAsValue(), "Plugin GUI Project Location", 1024, false),
+				"The location of the Open-Ephys plugin-gui project root directory.");
     }
 
     enum OptimisationLevel
@@ -122,6 +134,11 @@ public:
             msvcExtraPreprocessorDefs.set ("_LIB", "");
             msvcIsDLL = true;
         }
+		else if (type.isOpenEphysPlugin())
+		{
+			msvcTargetSuffix = ".dll";
+			addOpenEphysPluginSettings();
+		}
         else if (type.isAudioPlugin())
         {
             msvcTargetSuffix = ".dll";
@@ -151,6 +168,77 @@ private:
                  ? CppTokeniserFunctions::addEscapeChars (rebasedPath.quoted())
                  : CppTokeniserFunctions::addEscapeChars (rebasedPath).quoted();
     }
+
+	// Open-Ephys
+	virtual void createDefaultConfigs() override
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			addNewConfiguration(nullptr);
+			BuildConfiguration::Ptr config(getConfiguration(i));
+
+			const bool debugConfig = i % 2 == 0;
+			const bool is64Bit = i >= 2;
+
+			String name = debugConfig ? "Debug" : "Release";
+			if (is64Bit) name += "64";
+			config->getNameValue() = name;
+			config->isDebugValue() = debugConfig;
+			config->getOptimisationLevel() = config->getDefaultOptimisationLevel();
+			config->getTargetBinaryName() = project.getProjectFilenameRoot();
+			if (is64Bit) config->getValue(Ids::winArchitecture).setValue("x64");
+		}
+	}
+
+	// Open-Ephys
+	void addOpenEphysPluginSettings()
+	{
+		msvcExtraPreprocessorDefs.set("_LIB", "");
+		msvcExtraPreprocessorDefs.set("OEPLUGIN", "");
+		msvcIsDLL = true;
+		msvcIsOpenEphysPlugin = true;
+
+
+
+		String pluginGuiDir = "$(GuiDir)";
+		extraSearchPaths.add(pluginGuiDir + "JuceLibraryCode\\");
+		extraSearchPaths.add(pluginGuiDir + "JuceLibraryCode\\modules\\");
+		extraSearchPaths.add(pluginGuiDir + "Source\\Plugins\\Headers");
+		extraSearchPaths.add(pluginGuiDir + "Source\\Plugins\\CommonHeaders");
+
+		// create the 64 bit configurations
+		String buildDir = pluginGuiDir + "Builds\\" + msvcFolderName + "\\";
+		/*int numConfigs = getNumConfigurations();
+		for (int i = numConfigs; i < numConfigs+2; ++i)
+		{
+			addNewConfiguration(nullptr);
+			BuildConfiguration::Ptr config(getConfiguration(i));
+
+			const bool debugConfig = i % 2 == 0;
+			const bool is64Bit = i >= 2;
+
+			config->getNameValue() = debugConfig ? "Debug64" : "Release64";
+			config->isDebugValue() = debugConfig;
+			config->getOptimisationLevel() = config->getDefaultOptimisationLevel();
+			config->getTargetBinaryName() = project.getProjectFilenameRoot();
+			config->getValue(Ids::winArchitecture).setValue("x64");
+		}*/
+
+		for (ProjectExporter::ConfigIterator config(*this); config.next();)
+		{
+			if (config->getValue (Ids::useRuntimeLibDLL).getValue().isVoid())
+				config->getValue (Ids::useRuntimeLibDLL) = true;
+
+			String libraryPath = config->getLibrarySearchPathString();
+			bool is64Bit = config->getValue(Ids::winArchitecture).getValue() == "x64";
+			String configuration = config->isDebug() ? "Debug" : "Release";
+			if (is64Bit) configuration += "64";
+			String configurationPath = (is64Bit ? "x64\\" : "") + configuration + "\\bin\\";
+			config->getLibrarySearchPathValue().setValue("$(GuiDir)Builds\\" + msvcFolderName + configurationPath + ";" + libraryPath);
+		}
+
+		getExternalLibraries().setValue("open-ephys.lib " + getExternalLibrariesString());
+	}
 
     void addVSTPluginSettings (bool isVST3)
     {
@@ -256,11 +344,13 @@ protected:
     //==============================================================================
     String projectGUID;
     mutable File rcFile, iconFile;
+	String msvcFolderName;
 
     File getProjectFile (const String& extension) const   { return getTargetFolder().getChildFile (project.getProjectFilenameRoot()).withFileExtension (extension); }
     File getSLNFile() const     { return getProjectFile (".sln"); }
 
     bool isLibraryDLL() const   { return msvcIsDLL || projectType.isDynamicLibrary(); }
+	bool isOpenEphysPlugin() const { return msvcIsOpenEphysPlugin || projectType.isOpenEphysPlugin(); }
 
     static String prependIfNotAbsolute (const String& file, const char* prefix)
     {
@@ -346,6 +436,9 @@ protected:
 
         String getCharacterSet() const              { return config [Ids::characterSet].toString(); }
         Value getCharacterSetValue()                { return getValue (Ids::characterSet); }
+
+		String getOpenEphysProjectDir() const		{ return config[Ids::msvcOpenEphysProjectLocation].toString(); }
+		Value getOpenEphysProjectDirValue()			{ return getValue(Ids::msvcOpenEphysProjectLocation); }
 
         String getOutputFilename (const String& suffix, bool forceSuffix) const
         {
@@ -473,6 +566,9 @@ protected:
     StringArray getHeaderSearchPaths (const BuildConfiguration& config) const
     {
         StringArray searchPaths (extraSearchPaths);
+
+		if (isLibraryDLL())
+
         searchPaths.addArray (config.getHeaderSearchPaths());
         return getCleanedStringArray (searchPaths);
     }
@@ -755,6 +851,10 @@ protected:
         rtasPath.referTo (Value (new DependencyPathValueSource (getSetting (Ids::rtasFolder),
                                                                 Ids::rtasPath,
                                                                 TargetOS::windows)));
+
+		/*openEphysPath.referTo (Value (new DependencyPathValueSource (getSetting(Ids::msvcOpenEphysProjectLocation),
+																	 Ids::msvcOpenEphysProjectLocation,
+																	 TargetOS::windows)));*/
     }
 
     static bool shouldUseStdCall (const RelativePath& path)
@@ -1396,6 +1496,10 @@ protected:
         {
             XmlElement* e = projectXml.createNewChildElement ("PropertyGroup");
             e->setAttribute ("Label", "UserMacros");
+			XmlElement* p = e->createNewChildElement("GuiDir");
+			String pathname = File::getCurrentWorkingDirectory().getChildFile(String(openEphysProjectLocation)).getFullPathName();
+			if (pathname.getLastCharacters(1) != "\\") pathname.append("\\", 1);
+			p->addTextElement(pathname);
         }
 
         {

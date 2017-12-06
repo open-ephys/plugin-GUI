@@ -16,22 +16,22 @@ namespace BinaryData
     const int            OE_GUI_MoonShard_hSize = 2656;
 
     extern const char*   openEphys_DataThreadPluginTemplate_cpp;
-    const int            openEphys_DataThreadPluginTemplate_cppSize = 1561;
+    const int            openEphys_DataThreadPluginTemplate_cppSize = 1627;
 
     extern const char*   openEphys_DataThreadPluginTemplate_h;
-    const int            openEphys_DataThreadPluginTemplate_hSize = 1817;
+    const int            openEphys_DataThreadPluginTemplate_hSize = 1881;
 
     extern const char*   openEphys_FileSourcePluginTemplate_cpp;
-    const int            openEphys_FileSourcePluginTemplate_cppSize = 1487;
+    const int            openEphys_FileSourcePluginTemplate_cppSize = 1560;
 
     extern const char*   openEphys_FileSourcePluginTemplate_h;
-    const int            openEphys_FileSourcePluginTemplate_hSize = 1450;
+    const int            openEphys_FileSourcePluginTemplate_hSize = 1501;
 
     extern const char*   openEphys_OpenEphysLibTemplate_cpp;
-    const int            openEphys_OpenEphysLibTemplate_cppSize = 4255;
+    const int            openEphys_OpenEphysLibTemplate_cppSize = 4366;
 
     extern const char*   openEphys_PluginMakefile_example;
-    const int            openEphys_PluginMakefile_exampleSize = 923;
+    const int            openEphys_PluginMakefile_exampleSize = 968;
 
     extern const char*   openEphys_ProcessorContentComponentTemplate_cpp;
     const int            openEphys_ProcessorContentComponentTemplate_cppSize = 2993;
@@ -40,34 +40,34 @@ namespace BinaryData
     const int            openEphys_ProcessorContentComponentTemplate_hSize = 2348;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4043;
+    const int            openEphys_ProcessorEditorPluginTemplate_cppSize = 4153;
 
     extern const char*   openEphys_ProcessorEditorPluginTemplate_h;
-    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3454;
+    const int            openEphys_ProcessorEditorPluginTemplate_hSize = 3550;
 
     extern const char*   openEphys_ProcessorPluginTemplate_cpp;
-    const int            openEphys_ProcessorPluginTemplate_cppSize = 6425;
+    const int            openEphys_ProcessorPluginTemplate_cppSize = 6598;
 
     extern const char*   openEphys_ProcessorPluginTemplate_h;
-    const int            openEphys_ProcessorPluginTemplate_hSize = 3746;
+    const int            openEphys_ProcessorPluginTemplate_hSize = 3832;
 
     extern const char*   openEphys_ProcessorVisualizerCanvasTemplate_cpp;
-    const int            openEphys_ProcessorVisualizerCanvasTemplate_cppSize = 1972;
+    const int            openEphys_ProcessorVisualizerCanvasTemplate_cppSize = 2057;
 
     extern const char*   openEphys_ProcessorVisualizerCanvasTemplate_h;
-    const int            openEphys_ProcessorVisualizerCanvasTemplate_hSize = 2797;
+    const int            openEphys_ProcessorVisualizerCanvasTemplate_hSize = 2881;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_cpp;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4286;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_cppSize = 4406;
 
     extern const char*   openEphys_ProcessorVisualizerEditorPluginTemplate_h;
-    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3306;
+    const int            openEphys_ProcessorVisualizerEditorPluginTemplate_hSize = 3403;
 
     extern const char*   openEphys_RecordEnginePluginTemplate_cpp;
-    const int            openEphys_RecordEnginePluginTemplate_cppSize = 2169;
+    const int            openEphys_RecordEnginePluginTemplate_cppSize = 2270;
 
     extern const char*   openEphys_RecordEnginePluginTemplate_h;
-    const int            openEphys_RecordEnginePluginTemplate_hSize = 2052;
+    const int            openEphys_RecordEnginePluginTemplate_hSize = 2113;
 
     extern const char*   jucer_AnimatedComponentTemplate_cpp;
     const int            jucer_AnimatedComponentTemplate_cppSize = 1949;
