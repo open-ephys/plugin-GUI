@@ -131,7 +131,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "038981D21FA2EFB500D25D7A"
+               BlueprintIdentifier = "274EC0321FC30DB200242F92"
                BuildableName = "EvntTrigAvg.bundle"
                BlueprintName = "EvntTrigAvg"
                ReferencedContainer = "container:Plugins/EvntTrigAvg/EvntTrigAvg.xcodeproj">

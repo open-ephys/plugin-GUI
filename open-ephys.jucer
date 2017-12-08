@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.4.2.1"
+<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.4.3"
               juceLinkage="amalg_multi" buildVST="1" buildRTAS="0" buildAU="1"
               pluginName="Juce Project" pluginDesc="Juce Project" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
@@ -12,7 +12,7 @@
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN'"
-                extraCompilerFlags="-rdynamic -fvisibility=hidden" extraDefs=""
+                extraCompilerFlags="-rdynamic -fvisibility=hidden" extraDefs="JUCE_DISABLE_NATIVE_FILECHOOSERS=1"
                 smallIcon="nFMauU" bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="3" targetName="open-ephys"
@@ -622,4 +622,7 @@
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

@@ -212,12 +212,20 @@ bool NetworkEvents::closesocket()
 #ifdef ZEROMQ
     if (threadRunning)
     {
+		lock.enter();
         zmq_close (responder);
         zmq_ctx_destroy (zmqcontext); // this will cause the thread to exit
         zmqcontext = nullptr;
+		lock.exit();
+
+		if (!stopThread(500))
+		{
+			std::cerr << "Network thread timeout. Forcing thread termination, system could be lefr in an unstable state" << std::endl;
+		}
 
         if (! shutdown)
             createZmqContext();// and this will take care that processor graph doesn't attempt to delete the context again
+	
     }
 #endif
     return true;
@@ -658,8 +666,10 @@ void NetworkEvents::loadCustomParametersFromXml()
 void NetworkEvents::createZmqContext()
 {
 #ifdef ZEROMQ
+	lock.enter();
     if (zmqcontext == nullptr)
         zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
+	lock.exit();
 #endif
 }
 
