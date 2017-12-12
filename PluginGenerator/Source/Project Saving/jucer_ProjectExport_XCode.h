@@ -268,6 +268,13 @@ public:
 
         else if (type.isDynamicLibrary())
             targets.add (new Target (Target::DynamicLibrary, *this));
+            
+        // Open-Ephys
+        else if (type.isOpenEphysPlugin())
+        {
+            targets.add (new Target (Target::OpenEphysPlugIn, *this));
+            addOpenEphysPluginSettings();
+        }
 
         else if (type.isAudioPlugin())
         {
@@ -352,7 +359,10 @@ protected:
               vst3BinaryLocation          (config, Ids::xcodeVst3BinaryLocation,      nullptr, "$(HOME)/Library/Audio/Plug-Ins/VST3/"),
               auBinaryLocation            (config, Ids::xcodeAudioUnitBinaryLocation, nullptr, "$(HOME)/Library/Audio/Plug-Ins/Components/"),
               rtasBinaryLocation          (config, Ids::xcodeRtasBinaryLocation,      nullptr, "/Library/Application Support/Digidesign/Plug-Ins/"),
-              aaxBinaryLocation           (config, Ids::xcodeAaxBinaryLocation,       nullptr, "/Library/Application Support/Avid/Audio/Plug-Ins/")
+              aaxBinaryLocation           (config, Ids::xcodeAaxBinaryLocation,       nullptr, "/Library/Application Support/Avid/Audio/Plug-Ins/"),
+        // Open-Ephys
+              openEphysProjectLocation    (config, Ids::xcodeOpenEphysProjectLocation, nullptr, "../../../plugin-gui"),
+              openEphysBinaryLocation     (config, Ids::xcodeOpenEphysBinaryLocation,  nullptr, "$(HOME)/Library/Application Support/open-ephys/PlugIns/")
         {
         }
 
@@ -363,6 +373,7 @@ protected:
                             customXcodeFlags, cppLanguageStandard, cppStandardLibrary, codeSignIdentity;
         CachedValue<bool>   fastMathEnabled, linkTimeOptimisationEnabled, stripLocalSymbolsEnabled;
         CachedValue<String> vstBinaryLocation, vst3BinaryLocation, auBinaryLocation, rtasBinaryLocation, aaxBinaryLocation;
+        CachedValue<String> openEphysProjectLocation, openEphysBinaryLocation; // Open-Ephys
 
         //==========================================================================
         var getDefaultOptimisationLevel() const override    { return var ((int) (isDebug() ? gccO0 : gccO3)); }
@@ -439,6 +450,11 @@ protected:
 
             props.add (new ChoicePropertyComponent (cppStandardLibrary.getPropertyAsValue(), "C++ Library", StringArray (cppLibNames), cppLibValues),
                        "The type of C++ std lib that will be linked.");
+            
+            // Open-Ephys
+            if (project.getProjectType().isOpenEphysPlugin())
+                props.add (new TextWithDefaultPropertyComponent<String> (openEphysProjectLocation, "Plugin GUI Project Location", 1024),
+                           "The location of the Open-Ephys plugin-gui project root directory.");
 
             props.add (new TextWithDefaultPropertyComponent<String> (codeSignIdentity, "Code-signing Identity", 1024),
                        "The name of a code-signing identity for Xcode to apply.");
@@ -476,6 +492,11 @@ protected:
             if (project.shouldBuildAAX().getValue())
                 props.add (new TextWithDefaultPropertyComponent<String> (aaxBinaryLocation, "AAX Binary location", 1024),
                            "The folder in which the compiled AAX binary should be placed.");
+            
+            // Open-Ephys
+            if (project.shouldBuildOpenEphysPlugin().getValue())
+                props.add (new TextWithDefaultPropertyComponent<String> (openEphysBinaryLocation, "Open Ephys Plugin Binary location", 1024),
+                          "The folder in which the compiled Open Ephys Plugin should be placed.");
         }
     };
 
@@ -519,6 +540,7 @@ public:
             AudioUnitPlugIn   = 14,
             AudioUnitv3PlugIn = 15,
             StandalonePlugIn  = 16,
+            OpenEphysPlugIn   = 17,
 
             SharedCodeTarget  = 20, // internal
             AggregateTarget   = 21,
@@ -686,6 +708,18 @@ public:
                     xcodeCreatePList = false;
                     xcodeCopyToProductInstallPathAfterBuild = false;
                     break;
+                    
+                case OpenEphysPlugIn:
+                    xcodeIsBundle = true;
+                    xcodeIsExecutable = false;
+                    xcodeCreatePList = true;
+                    xcodePackageType = "BNDL";
+                    xcodeBundleSignature = "????";
+                    xcodeFileType = "wrapper.cfbundle";
+                    xcodeBundleExtension = ".bundle";
+                    xcodeProductType = "com.apple.product-type.bundle";
+                    xcodeCopyToProductInstallPathAfterBuild = true;
+                    break;
 
                 default:
                     // unknown target type!
@@ -711,6 +745,7 @@ public:
                 case RTASPlugIn:        return "RTAS";
                 case SharedCodeTarget:  return "Shared Code";
                 case AggregateTarget:   return "All";
+                case OpenEphysPlugIn:   return "OpenEphys Plugin";
                 default:                return "undefined";
             }
         }
@@ -727,6 +762,9 @@ public:
         bool shouldBuildAU()   const                      { return owner.supportsAU()   && owner.project.shouldBuildAU().getValue()   && (type == SharedCodeTarget || type == AudioUnitPlugIn); }
         bool shouldBuildAUv3() const                      { return owner.supportsAUv3() && owner.project.shouldBuildAUv3().getValue() && (type == SharedCodeTarget || type == AudioUnitv3PlugIn); }
         bool shouldBuildStandalone() const                { return owner.project.shouldBuildStandalone().getValue()                   && (type == SharedCodeTarget || type == StandalonePlugIn); }
+        
+        // Open-Ephys
+        bool shouldBuildOpenEphys() const                 { return owner.project.shouldBuildOpenEphysPlugin().getValue() && (type == SharedCodeTarget || type == OpenEphysPlugIn); }
 
         String getID() const
         {
@@ -1051,6 +1089,9 @@ public:
                 defines.set ("JucePlugin_Build_AAX",        (shouldBuildAAX()        ? "1" : "0"));
                 defines.set ("JucePlugin_Build_Standalone", (shouldBuildStandalone() ? "1" : "0"));
             }
+            
+            if (type == Target::OpenEphysPlugIn)
+                defines.set ("JucePlugin_Build_OpenEphys",  (shouldBuildOpenEphys()  ? "1" : "0"));
 
             defines = mergePreprocessorDefs (defines, owner.getAllPreprocessorDefs (config));
 
@@ -1085,6 +1126,7 @@ public:
                 case RTASPlugIn:        return config.rtasBinaryLocation.get();
                 case AAXPlugIn:         return config.aaxBinaryLocation.get();
                 case SharedCodeTarget:  return owner.isiOS() ? "@executable_path/Frameworks" : "@executable_path/../Frameworks";
+                case OpenEphysPlugIn:   return config.openEphysBinaryLocation.get(); // Open-Ephys
                 default:                return String();
             }
         }
@@ -1094,6 +1136,9 @@ public:
         {
             if (xcodeIsBundle)
                 flags.add ("-bundle");
+            
+            if (owner.project.getProjectType().isOpenEphysPlugin())
+                flags.add ("-undefined dynamic_lookup");
 
             const Array<RelativePath>& extraLibs = config.isDebug() ? xcodeExtraLibrariesDebug
                                                                     : xcodeExtraLibrariesRelease;
@@ -1920,7 +1965,7 @@ private:
         s.add ("GCC_WARN_MISSING_PARENTHESES = YES");
         s.add ("GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES");
         s.add ("GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES");
-        s.add ("WARNING_CFLAGS = -Wreorder");
+        s.add (projectType.isOpenEphysPlugin()?"WARNING_CFLAGS = \"-Wreorder -Wno-inconsistent-missing-override\"":"WARNING_CFLAGS = -Wreorder"); // Open-Ephys
         s.add ("GCC_MODEL_TUNING = G5");
 
         if (projectType.isStaticLibrary())
@@ -1963,6 +2008,10 @@ private:
             s.add ("DEBUG_INFORMATION_FORMAT = \"dwarf\"");
 
         s.add ("PRODUCT_NAME = \"" + replacePreprocessorTokens (config, config.getTargetBinaryNameString()) + "\"");
+        
+        if (project.getProjectType().isOpenEphysPlugin());
+            s.add ("PLUGIN_GUI_PROJECT_DIR = " + config.openEphysProjectLocation.get().quoted());
+        
         return s;
     }
 
@@ -2753,6 +2802,14 @@ private:
 
         for (int i = 0; i < numElementsInArray (p); ++i)
             addToExtraSearchPaths (rtasFolder.getChildFile (p[i]));
+    }
+    
+    void addOpenEphysPluginSettings()
+    {
+        extraSearchPaths.add ("$(PLUGIN_GUI_PROJECT_DIR)/JuceLibraryCode");
+        extraSearchPaths.add ("$(PLUGIN_GUI_PROJECT_DIR)/JuceLibraryCode/modules");
+        extraSearchPaths.add ("$(PLUGIN_GUI_PROJECT_DIR)/Source/Plugins/Headers");
+        extraSearchPaths.add ("$(PLUGIN_GUI_PROJECT_DIR)/Source/Plugins/CommonLibs");
     }
 
     JUCE_DECLARE_NON_COPYABLE (XCodeProjectExporter)

@@ -179,6 +179,8 @@ void Project::setMissingOpenEphysPluginDefaultValues()
 {
     const String sanitisedProjectName (CodeHelpers::makeValidIdentifier (getTitle(), false, true, false));
 
+	setValueIfVoid(shouldBuildOpenEphysPlugin(),		true);
+
     setValueIfVoid (getPluginName(),                    getTitle());
     setValueIfVoid (getPluginDesc(),                    getTitle());
     setValueIfVoid (getPluginManufacturer(),            "yourcompany");

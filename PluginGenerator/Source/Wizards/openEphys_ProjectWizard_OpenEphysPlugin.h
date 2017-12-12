@@ -109,6 +109,7 @@ struct OpenEphysPluginAppWizard   : public NewProjectWizard
         project.getConfigFlag ("JUCE_QUICKTIME") = Project::configFlagDisabled; // disabled because it interferes with RTAS build on PC
         project.shouldBuildVST().setValue (false);
         project.shouldBuildVST3().setValue (false);
+		project.shouldBuildOpenEphysPlugin().setValue (true);
 
         setExecutableNameForAllTargets (project, File::createLegalFileName (appTitle));
 

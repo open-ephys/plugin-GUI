@@ -77,7 +77,7 @@ void RecordNode::setChannel(const DataChannel* ch)
 
 }
 
-void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
+bool RecordNode::setChannelStatus(const DataChannel* ch, bool status)
 {
 
     //std::cout << "Setting channel status!" << std::endl;
@@ -87,7 +87,8 @@ void RecordNode::setChannelStatus(const DataChannel* ch, bool status)
         setParameter(2, 1.0f);
     else
         setParameter(2, 0.0f);
-
+    
+    return status == dataChannelArray[currentChannel]->getRecordState();
 }
 
 

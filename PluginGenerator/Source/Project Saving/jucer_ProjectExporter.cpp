@@ -175,6 +175,7 @@ bool ProjectExporter::canProjectBeLaunched (Project* project)
 ProjectExporter::ProjectExporter (Project& p, const ValueTree& state)
     : makefileIsDLL (false),
       msvcIsDLL (false),
+	  msvcIsOpenEphysPlugin (false), // Open-Ephys
       msvcIsWindowsSubsystem (true),
       settings (state),
       project (p),
@@ -617,7 +618,7 @@ void ProjectExporter::BuildConfiguration::removeFromExporter()
 void ProjectExporter::createDefaultConfigs()
 {
     settings.getOrCreateChildWithName (Ids::CONFIGURATIONS, nullptr);
-
+	
     for (int i = 0; i < 2; ++i)
     {
         addNewConfiguration (nullptr);

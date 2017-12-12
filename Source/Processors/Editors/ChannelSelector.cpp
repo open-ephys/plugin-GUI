@@ -655,18 +655,18 @@ void ChannelSelector::buttonClicked(Button* button)
             bool status = b->getToggleState();
 
          //   std::cout << "Requesting audio monitor for channel " << ch->nodeIndex + 1 << std::endl;
+            
+            // change parameter directly on editor
+            //     This is another of those ugly things that will go away once the
+            //     probe audio system is implemented, but is needed to maintain compatibility
+            //     between the older recording system and the newer channel objects.
+            const_cast<DataChannel*>(ch)->setMonitored(status);
 
-            if (acquisitionIsActive) // use setParameter to change parameter safely
+            
+            if (acquisitionIsActive) // use setParameter to change audio node's copy of parameter safely, if running
             {
                 AccessClass::getProcessorGraph()->
                 getAudioNode()->setChannelStatus(ch, status);
-            }
-            else     // change parameter directly
-            {
-				//This is another of those ugly things that will go away once the
-				//probe audio system is implemented, but is needed to maintain compatibility
-				//between the older recording system and the newer channel objects.
-				const_cast<DataChannel*>(ch)->setMonitored(status);
             }
         }
         else if (b->getType() == RECORD)
@@ -680,9 +680,16 @@ void ChannelSelector::buttonClicked(Button* button)
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
-                AccessClass::getProcessorGraph()->
+                if ( AccessClass::getProcessorGraph()->
                 getRecordNode()->
-                setChannelStatus(ch, status);
+                setChannelStatus(ch, status) )
+                {
+                    const_cast<DataChannel*>(ch)->setRecordState(status);
+                }
+                
+                // make sure that the button matches the system's actual state, in case
+                // user's interaction was disallowed
+                b->setToggleState(const_cast<DataChannel*>(ch)->getRecordState(), dontSendNotification);
             }
             else     // change parameter directly
             {
