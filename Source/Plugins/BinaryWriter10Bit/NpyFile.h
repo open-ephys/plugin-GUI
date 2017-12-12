@@ -26,9 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <RecordingLib.h>
 
-namespace BinaryWriter16Bit
+namespace BinaryWriter10Bit
 {
-
 	namespace BinaryRecordingEngine
 	{
 

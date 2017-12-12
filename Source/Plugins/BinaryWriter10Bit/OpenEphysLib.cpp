@@ -38,7 +38,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "Binary recording";
+	info->name = "Binary 10-Bit recording";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -49,8 +49,8 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
-		info->recordEngine.name = "Binary";
-		info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryWriter16Bit::BinaryRecordingEngine::BinaryRecording>);
+		info->recordEngine.name = "Binary(10Bit)";
+		info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryWriter10Bit::BinaryRecordingEngine::BinaryRecording>);
 		break;
 	default:
 		return -1;

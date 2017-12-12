@@ -27,9 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SequentialBlockFile.h"
 #include "NpyFile.h"
 
-namespace BinaryWriter16Bit
+namespace BinaryWriter10Bit
 {
-
 	namespace BinaryRecordingEngine
 	{
 
@@ -95,7 +94,8 @@ namespace BinaryWriter16Bit
 
 
 			//Compile-time constants
-			const int samplesPerBlock{ 4096 };
+			//const int samplesPerBlock{ 4096 };
+			int samplesPerBlock{ 4096 };
 
 		};
 

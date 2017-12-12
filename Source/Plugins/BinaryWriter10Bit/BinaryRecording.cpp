@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_BUFFER_SIZE 40960
 
-using namespace BinaryWriter16Bit::BinaryRecordingEngine;
+using namespace BinaryWriter10Bit::BinaryRecordingEngine;
 
 BinaryRecording::BinaryRecording()
 {
@@ -41,7 +41,7 @@ BinaryRecording::~BinaryRecording()
 
 String BinaryRecording::getEngineID() const
 {
-	return "RAWBINARY";
+	return "RAWBINARY10BIT";
 }
 
 String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
@@ -467,6 +467,41 @@ void BinaryRecording::resetChannels()
 	m_startTS.clear();
 }
 
+namespace { namespace AudioDataConverters10Bit {
+	size_t convertFloatToPackedInt10LE(const float *source, void* dest, int numSamples)
+	{
+		const double maxVal = (double)0x7fff;
+		char* intData = static_cast<char*> (dest);
+		const uint16 bitMask = 0xFFC0;
+		uint8 bitOffset = 0;
+
+		size_t bytesWritten = 0;
+			
+		for (int i = 0; i < numSamples; ++i)
+		{
+			uint16 val = ((uint16)(short)roundToInt(jlimit(-maxVal, maxVal, maxVal * source[i]))) & bitMask;
+			if (bitOffset == 0)
+			{
+				*(uint16*)intData = ByteOrder::swapIfBigEndian(val);
+				++bytesWritten;
+			}
+			else
+			{
+				*(uint16*)intData += ByteOrder::swapIfBigEndian(val >> bitOffset);
+				intData += 2;
+
+				if (bitOffset > 4) {
+					*(uint16*)(intData) = ByteOrder::swapIfBigEndian(val << (16 - bitOffset));
+					++bytesWritten;
+				}
+			}
+			if ((bitOffset += 10) >= 16) bitOffset %= 16;
+		}
+
+		return bytesWritten;
+	}
+}}
+
 void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
 	if (size > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
@@ -479,9 +514,10 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	}
 	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+	//AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+	const auto packedSize = AudioDataConverters10Bit::convertFloatToPackedInt10LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 	int fileIndex = m_fileIndexes[writeChannel];
-	m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel], m_channelIndexes[writeChannel], m_intBuffer.getData(), size);
+	m_DataFiles[fileIndex]->writeChannel((getTimestamp(writeChannel) - m_startTS[writeChannel]) * 10 / 16, m_channelIndexes[writeChannel], m_intBuffer.getData(), packedSize);
 
 	if (m_channelIndexes[writeChannel] == 0)
 	{

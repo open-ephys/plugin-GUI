@@ -22,8 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SequentialBlockFile.h"
+#include <bitset>
 
-using namespace BinaryWriter16Bit::BinaryRecordingEngine;
+using namespace BinaryWriter10Bit::BinaryRecordingEngine;
 
 SequentialBlockFile::SequentialBlockFile(int nChannels, int samplesPerBlock) :
 m_file(nullptr),
@@ -34,7 +35,9 @@ m_lastBlockFill(0)
 {
 	m_memBlocks.ensureStorageAllocated(blockArrayInitSize);
 	for (int i = 0; i < nChannels; i++)
+	{
 		m_currentBlock.add(-1);
+	}
 }
 
 SequentialBlockFile::~SequentialBlockFile()
@@ -67,11 +70,88 @@ bool SequentialBlockFile::openFile(String filename)
 	return true;
 }
 
+//namespace {
+//	namespace AudioDataConverters10Bit {
+//		/** Similar to juce::AudioDataConverter::convertFloatToInt16LE, except bitmasks the 10 most significant
+//		*	bits (negative flag + 9 highest digits) and overlaps 10-bit values onto 16-bit ones.
+//		*
+//		*  Example:
+//		*       & Samp 1          & Samp 2          & Samp 3-N
+//		*		[00101110 10010110 10010101 01001011 ... ]
+//		*		|		 &  	  |
+//		*       00000011 11111111 -> (masking an LE 16-bit int)
+//		*								|
+//		*								v (combine this value with next, and next, ...)
+//		*		[10100101 10010100 1011...]
+//		*		 &Samp 1    &Samp 2    &Samp 3-N ...
+//		*
+//		*
+//		*	Returns the new number of 16-bit samples packed with overlapping 10-bit values.
+//		*/
+//		size_t convertFloatTo10BitBEPackedInt16(const float* source, void* dest, int numSamples, int destBytesPerSample = 2)
+//		{
+//			const double maxVal = (double)0x7fff;
+//			char* intData = static_cast<char*> (dest);
+//
+//			bool first = true;
+//			uint8 bitOffset = 0;
+//
+//			if (dest != (void*)source || destBytesPerSample <= 4)
+//			{
+//				for (int i = 0; i < numSamples; ++i)
+//				{
+//					uint16 val = (short)roundToInt(jlimit(-maxVal, maxVal, maxVal * source[i]));
+//					if (first)
+//					{
+//						first = false;
+//						DBG("raw uint16 value: " + String(val));
+//						DBG("raw uint16 binary: " << std::bitset<8>(*(uint8*)&val).to_string() << std::bitset<8>(*(((uint8*)&val) + 1)).to_string());
+//						DBG("raw uint16 bitset binary: " << std::bitset<16>(val).to_string());
+//						DBG("raw uint16 value interpreted as signed: " << String(*(int16*)&val));
+//						auto longVal = std::bitset<16>(val).to_ulong();
+//						DBG("raw uint16 value as ulong bitset: " << std::bitset<8 * sizeof(unsigned long)>(longVal).to_string());
+//						DBG("raw uint16 value as ulong" << String(longVal));
+//					}
+//					*(uint16*)intData = ByteOrder::swapIfBigEndian(val >> 6);
+//					intData += destBytesPerSample;
+//				}
+//			}
+//			else
+//			{
+//				intData += destBytesPerSample * numSamples;
+//
+//				for (int i = numSamples; --i >= 0;)
+//				{
+//					intData -= destBytesPerSample;
+//					*(uint16*)intData = ByteOrder::swapIfBigEndian((uint16)(short)roundToInt(jlimit(-maxVal, maxVal, maxVal * source[i])));
+//				}
+//			}
+//
+//			return 0;
+//		}
+//	}
+//}
+
+namespace {namespace AudioData10BitHelper {
+
+	uint16 endianSafeLeftShift(uint16 val, uint8 bitsToMove)
+	{
+		return ByteOrder::swapIfBigEndian(ByteOrder::swapIfBigEndian(val) << bitsToMove);
+	}
+
+	uint16 endianSafeRightShift(uint16 val, uint8 bitsToMove)
+	{
+		return ByteOrder::swapIfBigEndian(ByteOrder::swapIfBigEndian(val) >> bitsToMove);
+	}
+} }
+
+//
+
 bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data, int nSamples)
 {
 	if (!m_file)
 		return false;
-	
+
 	int bIndex = m_memBlocks.size() - 1;
 	if ((bIndex < 0) || (m_memBlocks[bIndex]->getOffset() + m_samplesPerBlock) < (startPos + nSamples))
 		allocateBlocks(startPos, nSamples);
@@ -83,14 +163,14 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	}
 	if (bIndex < 0)
 	{
-		std::cerr << "BINARY WRITER: Memory block unloaded ahead of time for chan " << channel << " start " << startPos << " ns " << nSamples << " first " << m_memBlocks[0]->getOffset() <<std::endl;
+		std::cerr << "BINARY WRITER: Memory block unloaded ahead of time for chan " << channel << " start " << startPos << " ns " << nSamples << " first " << m_memBlocks[0]->getOffset() << std::endl;
 		for (int i = 0; i < m_nChannels; i++)
 			std::cout << "channel " << i << " last block " << m_currentBlock[i] << std::endl;
 		return false;
 	}
 	int writtenSamples = 0;
 	int startIdx = startPos - m_memBlocks[bIndex]->getOffset();
-	int startMemPos = startIdx*m_nChannels;
+	int startMemPos = startIdx * m_nChannels;
 	int dataIdx = 0;
 	int lastBlockIdx = m_memBlocks.size() - 1;
 	while (writtenSamples < nSamples)
@@ -99,7 +179,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		int samplesToWrite = jmin((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
 		for (int i = 0; i < samplesToWrite; i++)
 		{
-			*(blockPtr + startMemPos + channel + i*m_nChannels) = *(data + dataIdx);
+			*(blockPtr + startMemPos + channel + i * m_nChannels) = *(data + dataIdx);
 			dataIdx++;
 		}
 		writtenSamples += samplesToWrite;
