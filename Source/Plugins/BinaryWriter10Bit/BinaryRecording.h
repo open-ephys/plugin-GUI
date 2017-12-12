@@ -98,8 +98,44 @@ namespace BinaryWriter10Bit
 			int samplesPerBlock{ 4096 };
 
 		};
-
-	}
+        
+    };
+    
+    namespace AudioDataConverters10Bit
+    {
+        inline uint32 convertFloatToPackedInt10LE(const float *source, void* dest, int numSamples)
+        {
+            static const double maxVal = (double)0x7fff;
+            char* intData = static_cast<char*> (dest);
+            static const uint16 bitMask = 0xFFC0;
+            uint8 bitOffset = 0;
+            
+            uint32 bytesWritten = 0;
+            
+            for (int i = 0; i < numSamples; ++i)
+            {
+                const uint16 val = ((uint16)(short)roundToInt(jlimit(-maxVal, maxVal, maxVal * source[i]))) & bitMask;
+                if (bitOffset == 0)
+                {
+                    *(uint16*)intData = ByteOrder::swapIfBigEndian(val);
+                    ++bytesWritten;
+                }
+                else
+                {
+                    *(uint16*)intData += ByteOrder::swapIfBigEndian(val >> bitOffset);
+                    intData += 2;
+                    
+                    if (bitOffset > 4) {
+                        *(uint16*)(intData) = ByteOrder::swapIfBigEndian(val << (16 - bitOffset));
+                        ++bytesWritten;
+                    }
+                }
+                if ((bitOffset += 10) >= 16) bitOffset %= 16;
+            }
+            
+            return bytesWritten;
+        }
+    };
 
 }
 
