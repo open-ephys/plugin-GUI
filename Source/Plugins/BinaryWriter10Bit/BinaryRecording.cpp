@@ -479,7 +479,6 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	}
 	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-	//AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 	const auto packedSize = AudioDataConverters10Bit::convertFloatToPackedInt10LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 	int fileIndex = m_fileIndexes[writeChannel];
 	m_DataFiles[fileIndex]->writeChannel((getTimestamp(writeChannel) - m_startTS[writeChannel]) * 10 / 16, m_channelIndexes[writeChannel], m_intBuffer.getData(), packedSize);
