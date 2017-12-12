@@ -69,7 +69,7 @@ RecordNode::~RecordNode()
 
 void RecordNode::setChannel(const DataChannel* ch)
 {
-    int channelNum = dataChannelArray.indexOf(ch);
+	int channelNum = getDataChannelIndex(ch->getSourceIndex(), ch->getSourceNodeID(), ch->getSubProcessorIdx());
 
     std::cout << "Record node setting channel to " << channelNum << std::endl;
 
