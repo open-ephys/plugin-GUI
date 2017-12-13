@@ -97,7 +97,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	 //for that specific recording
 	 String basePath;
 	 StringArray ancestry;
-	 String rootPath = "/acquisition/timeseries/recording" + String(recordingNumber);
+	 String rootPath = "/acquisition/timeseries/recording" + String(recordingNumber + 1);
 	 if (createGroup(rootPath)) return false;
 	 if (createGroupIfDoesNotExist(rootPath + "/continuous")) return false;
 	 if (createGroupIfDoesNotExist(rootPath + "/spikes")) return false;
