@@ -83,7 +83,7 @@ int NWBFile::createFileStructure()
 	String time = Time::getCurrentTime().formatted("%Y-%m-%dT%H:%M:%S");
 	createTextDataSet("", "file_create_date", time);
 	createTextDataSet("", "identifier", identifierText);
-	createTextDataSet("", "nwb_version", "NWB-1.0.4_beta");
+	createTextDataSet("", "nwb_version", "NWB-1.0.6");
 	createTextDataSet("", "session_description", " ");
 	createTextDataSet("", "session_start_time", time);
 	
@@ -97,7 +97,7 @@ bool NWBFile::startNewRecording(int recordingNumber, const Array<ContinuousGroup
 	 //for that specific recording
 	 String basePath;
 	 StringArray ancestry;
-	 String rootPath = "/acquisition/timeseries/recording" + String(recordingNumber);
+	 String rootPath = "/acquisition/timeseries/recording" + String(recordingNumber + 1);
 	 if (createGroup(rootPath)) return false;
 	 if (createGroupIfDoesNotExist(rootPath + "/continuous")) return false;
 	 if (createGroupIfDoesNotExist(rootPath + "/spikes")) return false;
