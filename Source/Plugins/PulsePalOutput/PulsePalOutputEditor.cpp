@@ -152,7 +152,7 @@ void ChannelTriggerInterface::paint(Graphics& g)
 
 void ChannelTriggerInterface::buttonClicked(Button* button)
 {
-    pulsePal->triggerChannel(channelNumber);
+    pulsePal->triggerChannel(channelNumber + 1);
 }
 
 void ChannelTriggerInterface::updateSources()
