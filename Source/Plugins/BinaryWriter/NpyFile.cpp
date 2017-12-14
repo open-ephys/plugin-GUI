@@ -27,8 +27,20 @@ using namespace BinaryRecordingEngine;
 
 NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 {
+		
 	m_dim1 = 1;
 	m_dim2 = 1;
+
+	/*If there is only one element on the list but is
+	an array, make this a multidimensional file.
+	*/
+	if (typeList.size() == 1)
+	{
+		NpyType type = typeList[0];
+		if (type.getType() != BaseType::CHAR) //strings work different
+			m_dim1 = type.getTypeLength();
+	}
+	
 	if (!openFile(path))
 		return;
 	writeHeader(typeList);
