@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}</ProjectGuid>
+    <ProjectGuid>{69D8F588-788F-41D1-9F86-B85302F6DC49}</ProjectGuid>
     <RootNamespace>BinaryWriter10Bit</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
