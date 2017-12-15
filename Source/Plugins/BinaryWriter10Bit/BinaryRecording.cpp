@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_BUFFER_SIZE 40960
 
-using namespace BinaryWriter16Bit::BinaryRecordingEngine;
+using namespace BinaryWriter10Bit::BinaryRecordingEngine;
 
 BinaryRecording::BinaryRecording()
 {
@@ -41,7 +41,7 @@ BinaryRecording::~BinaryRecording()
 
 String BinaryRecording::getEngineID() const
 {
-	return "RAWBINARY";
+	return "RAWBINARY10BIT";
 }
 
 String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
@@ -479,9 +479,9 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	}
 	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+	const auto packedSize = AudioDataConverters10Bit::convertFloatToPackedInt10LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 	int fileIndex = m_fileIndexes[writeChannel];
-	m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel], m_channelIndexes[writeChannel], m_intBuffer.getData(), size);
+	m_DataFiles[fileIndex]->writeChannel((getTimestamp(writeChannel) - m_startTS[writeChannel]) * 10 / 16, m_channelIndexes[writeChannel], m_intBuffer.getData(), packedSize);
 
 	if (m_channelIndexes[writeChannel] == 0)
 	{

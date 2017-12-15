@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SequentialBlockFile.h"
 
-using namespace BinaryWriter16Bit::BinaryRecordingEngine;
+using namespace BinaryWriter10Bit::BinaryRecordingEngine;
 
 SequentialBlockFile::SequentialBlockFile(int nChannels, int samplesPerBlock) :
 m_file(nullptr),
@@ -34,7 +34,9 @@ m_lastBlockFill(0)
 {
 	m_memBlocks.ensureStorageAllocated(blockArrayInitSize);
 	for (int i = 0; i < nChannels; i++)
+	{
 		m_currentBlock.add(-1);
+	}
 }
 
 SequentialBlockFile::~SequentialBlockFile()
@@ -71,7 +73,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 {
 	if (!m_file)
 		return false;
-	
+
 	int bIndex = m_memBlocks.size() - 1;
 	if ((bIndex < 0) || (m_memBlocks[bIndex]->getOffset() + m_samplesPerBlock) < (startPos + nSamples))
 		allocateBlocks(startPos, nSamples);
@@ -83,14 +85,14 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	}
 	if (bIndex < 0)
 	{
-		std::cerr << "BINARY WRITER: Memory block unloaded ahead of time for chan " << channel << " start " << startPos << " ns " << nSamples << " first " << m_memBlocks[0]->getOffset() <<std::endl;
+		std::cerr << "BINARY WRITER: Memory block unloaded ahead of time for chan " << channel << " start " << startPos << " ns " << nSamples << " first " << m_memBlocks[0]->getOffset() << std::endl;
 		for (int i = 0; i < m_nChannels; i++)
 			std::cout << "channel " << i << " last block " << m_currentBlock[i] << std::endl;
 		return false;
 	}
 	int writtenSamples = 0;
 	int startIdx = startPos - m_memBlocks[bIndex]->getOffset();
-	int startMemPos = startIdx*m_nChannels;
+	int startMemPos = startIdx * m_nChannels;
 	int dataIdx = 0;
 	int lastBlockIdx = m_memBlocks.size() - 1;
 	while (writtenSamples < nSamples)
@@ -99,7 +101,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		int samplesToWrite = jmin((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
 		for (int i = 0; i < samplesToWrite; i++)
 		{
-			*(blockPtr + startMemPos + channel + i*m_nChannels) = *(data + dataIdx);
+			*(blockPtr + startMemPos + channel + i * m_nChannels) = *(data + dataIdx);
 			dataIdx++;
 		}
 		writtenSamples += samplesToWrite;

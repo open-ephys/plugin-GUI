@@ -20,6 +20,9 @@
          location = "group:BinaryWriter/BinaryWriter.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:BinaryWriter10Bit/BinaryWriter10Bit.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:CAR/CAR.xcodeproj">
       </FileRef>
       <FileRef

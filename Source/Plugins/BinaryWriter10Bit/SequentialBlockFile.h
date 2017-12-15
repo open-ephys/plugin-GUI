@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2017 Open Ephys
+Copyright (C) 2013 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -21,53 +21,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef NPYFILE_H
-#define NPYFILE_H
+#ifndef SEQUENTIALBLOCKFILE_H
+#define SEQUENTIALBLOCKFILE_H
 
-#include <RecordingLib.h>
+#include "FileMemoryBlock.h"
 
-namespace BinaryWriter16Bit
+namespace BinaryWriter10Bit
 {
-
 	namespace BinaryRecordingEngine
 	{
 
-		class NpyType
-		{
-		public:
-			NpyType(String, BaseType, size_t);
-			NpyType(BaseType, size_t);
-			NpyType();
-			String getName() const;
-			String getTypeString() const;
-			int getTypeLength() const;
-			BaseType getType() const;
-		private:
-			String name;
-			BaseType type;
-			size_t length;
-		};
+		typedef FileMemoryBlock<int16> FileBlock;
 
-		class NpyFile
+		class SequentialBlockFile
 		{
 		public:
-			NpyFile(String path, const Array<NpyType>& typeList);
-			NpyFile(String path, NpyType type, unsigned int dim = 1);
-			~NpyFile();
-			void writeData(const void* data, size_t size);
-			void increaseRecordCount(int count = 1);
+			SequentialBlockFile(int nChannels, int samplesPerBlock);
+			~SequentialBlockFile();
+
+			bool openFile(String filename);
+			bool writeChannel(uint64 startPos, int channel, int16* data, int nSamples);
+
 		private:
-			bool openFile(String path);
-			void writeHeader(const Array<NpyType>& typeList);
 			ScopedPointer<FileOutputStream> m_file;
-			bool m_okOpen{ false };
-			int64 m_recordCount{ 0 };
-			size_t m_countPos;
-			unsigned int m_dim1;
-			unsigned int m_dim2;
+			const int m_nChannels;
+			const int m_samplesPerBlock;
+			const int m_blockSize;
+			OwnedArray<FileBlock> m_memBlocks;
+			Array<int> m_currentBlock;
+			size_t m_lastBlockFill;
+
+			void allocateBlocks(uint64 startIndex, int numSamples);
+
+
+			//Compile-time parameters
+			const int streamBufferSize{ 0 };
+			const int blockArrayInitSize{ 128 };
+
 		};
 
 	}
 
-};
+}
+
 #endif

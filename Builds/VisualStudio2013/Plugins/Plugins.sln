@@ -42,6 +42,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleProcessor", "Example
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BinaryWriter", "BinaryWriter\BinaryWriter.vcxproj", "{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BinaryWriter10Bit", "BinaryWriter10Bit\BinaryWriter10Bit.vcxproj", "{69D8F588-788F-41D1-9F86-B85302F6DC49}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer_Beta", "LFP_Viewer_Beta\LFP_Viewer_Beta.vcxproj", "{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWBFormat", "NWBFormat\NWBFormat.vcxproj", "{270F2CBD-EE26-44CF-B53C-068CA80BFBF7}"
@@ -273,6 +275,17 @@ Global
 		{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}.Release|Win32.Build.0 = Release|Win32
 		{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}.Release|x64.ActiveCfg = Release|x64
 		{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}.Release|x64.Build.0 = Release|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Debug|Win32.Build.0 = Debug|Win32
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Debug|x64.ActiveCfg = Debug|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Debug|x64.Build.0 = Debug|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|Mixed Platforms.Build.0 = Release|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|Win32.ActiveCfg = Release|Win32
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|Win32.Build.0 = Release|Win32
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|x64.ActiveCfg = Release|x64
+		{69D8F588-788F-41D1-9F86-B85302F6DC49}.Release|x64.Build.0 = Release|x64
 		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Mixed Platforms.ActiveCfg = Release|x64
 		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Mixed Platforms.Build.0 = Release|x64
 		{A6E2C4F0-63A3-496B-8929-1B2785FDBBFD}.Debug|Win32.ActiveCfg = Debug|Win32

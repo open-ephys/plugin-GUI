@@ -26,37 +26,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "FileMemoryBlock.h"
 
-namespace BinaryRecordingEngine
+namespace BinaryWriter16Bit
 {
 
-	typedef FileMemoryBlock<int16> FileBlock;
-
-	class SequentialBlockFile
+	namespace BinaryRecordingEngine
 	{
-	public:
-		SequentialBlockFile(int nChannels, int samplesPerBlock);
-		~SequentialBlockFile();
 
-		bool openFile(String filename);
-		bool writeChannel(uint64 startPos, int channel, int16* data, int nSamples);
+		typedef FileMemoryBlock<int16> FileBlock;
 
-	private:
-		ScopedPointer<FileOutputStream> m_file;
-		const int m_nChannels;
-		const int m_samplesPerBlock;
-		const int m_blockSize;
-		OwnedArray<FileBlock> m_memBlocks;
-		Array<int> m_currentBlock;
-		size_t m_lastBlockFill;
+		class SequentialBlockFile
+		{
+		public:
+			SequentialBlockFile(int nChannels, int samplesPerBlock);
+			~SequentialBlockFile();
 
-		void allocateBlocks(uint64 startIndex, int numSamples);
+			bool openFile(String filename);
+			bool writeChannel(uint64 startPos, int channel, int16* data, int nSamples);
+
+		private:
+			ScopedPointer<FileOutputStream> m_file;
+			const int m_nChannels;
+			const int m_samplesPerBlock;
+			const int m_blockSize;
+			OwnedArray<FileBlock> m_memBlocks;
+			Array<int> m_currentBlock;
+			size_t m_lastBlockFill;
+
+			void allocateBlocks(uint64 startIndex, int numSamples);
 
 
-		//Compile-time parameters
-		const int streamBufferSize{ 0 };
-		const int blockArrayInitSize{ 128 };
+			//Compile-time parameters
+			const int streamBufferSize{ 0 };
+			const int blockArrayInitSize{ 128 };
 
-	};
+		};
+
+	}
 
 }
 

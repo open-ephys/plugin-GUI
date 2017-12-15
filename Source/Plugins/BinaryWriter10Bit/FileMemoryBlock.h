@@ -26,12 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <BasicJuceHeader.h>
 
-namespace BinaryWriter16Bit
+namespace BinaryWriter10Bit
 {
-
 	namespace BinaryRecordingEngine
 	{
-
 		template <class StorageType = int16>
 		class FileMemoryBlock
 		{
@@ -45,6 +43,7 @@ namespace BinaryWriter16Bit
 			~FileMemoryBlock() {
 				if (!m_flushed)
 				{
+					//m_file->write(m_data, m_blockSize/(8*sizeof(StorageType))*10 * sizeof(StorageType));
 					m_file->write(m_data, m_blockSize * sizeof(StorageType));
 				}
 			};
@@ -54,6 +53,7 @@ namespace BinaryWriter16Bit
 			void partialFlush(size_t size, bool markFlushed = true)
 			{
 				std::cout << "flushing last block " << size << std::endl;
+				//m_file->write(m_data, (size * 10 + 8 * sizeof(StorageType) - 1) / (2 * sizeof(StorageType));
 				m_file->write(m_data, size * sizeof(StorageType));
 				if (markFlushed)
 					m_flushed = true;
@@ -67,8 +67,6 @@ namespace BinaryWriter16Bit
 			bool m_flushed{ false };
 			JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileMemoryBlock);
 		};
-
 	}
-
 }
 #endif

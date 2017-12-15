@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "NpyFile.h"
 
-using namespace BinaryWriter16Bit::BinaryRecordingEngine;
+using namespace BinaryWriter10Bit::BinaryRecordingEngine;
 
 NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 {
