@@ -68,7 +68,7 @@ public:
         Continuous signals arrive in the "buffer" variable, event data (such as TTLs
         and spikes) is contained in the "events" variable.
     */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    void process (AudioSampleBuffer& buffer) override;
 
     /** The method that standard controls on the editor will call.
         It is recommended that any variables used by the "process" function

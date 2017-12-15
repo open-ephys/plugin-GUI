@@ -194,7 +194,7 @@ public:
     //==============================================================================
     String msvcTargetSuffix;
     StringPairArray msvcExtraPreprocessorDefs;
-    bool msvcIsDLL, msvcIsWindowsSubsystem;
+    bool msvcIsDLL, msvcIsWindowsSubsystem, msvcIsOpenEphysPlugin; // Open-Ephys
     String msvcDelayLoadedDLLs;
     StringArray mingwLibs;
 
@@ -308,7 +308,7 @@ public:
     BuildConfiguration::Ptr getConfiguration (int index) const;
 
     ValueTree getConfigurations() const;
-    void createDefaultConfigs();
+    virtual void createDefaultConfigs();
     void createDefaultModulePaths();
 
     //==============================================================================
@@ -342,6 +342,7 @@ protected:
     const String projectName;
     const File projectFolder;
     Value vst2Path, vst3Path, rtasPath, aaxPath; // these must be initialised in the specific exporter c'tors!
+	Value openEphysPath; // Open-Ephys
 
     mutable Array<Project::Item> itemGroups;
     void initItemGroups() const;

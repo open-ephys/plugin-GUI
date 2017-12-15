@@ -77,7 +77,7 @@ void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 }
 
 
-void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer)
 {
     /**
       Generic structure for processing buffer data

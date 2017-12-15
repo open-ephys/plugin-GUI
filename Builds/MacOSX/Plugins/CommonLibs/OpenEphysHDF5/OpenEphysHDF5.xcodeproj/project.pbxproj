@@ -173,14 +173,14 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(MAC_PACKAGE_DIR)/include",
 					"$(MAC_PACKAGE_DIR)/lib/hdf5-18/include",
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libsz.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libhdf5.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libhdf5_cpp.a",
+					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5.a",
+					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -191,14 +191,14 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(MAC_PACKAGE_DIR)/include",
 					"$(MAC_PACKAGE_DIR)/lib/hdf5-18/include",
+					"$(MAC_PACKAGE_DIR)/include",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libsz.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libhdf5.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libhdf5_cpp.a",
+					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5.a",
+					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
