@@ -233,7 +233,7 @@ void PulsePalOutputCanvas::buttonClicked(Button* button)
 
 bool PulsePalOutputCanvas::keyPressed(const KeyPress &key, Component *originatingComponent)
 {
-
+	return false;
 }
 
 void PulsePalOutputCanvas::labelTextChanged(Label *label)
