@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -24,14 +24,14 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.cpp">
       <Filter>Source Files\serial</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,11 +41,11 @@
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputEditor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.h">
       <Filter>Source Files\serial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
