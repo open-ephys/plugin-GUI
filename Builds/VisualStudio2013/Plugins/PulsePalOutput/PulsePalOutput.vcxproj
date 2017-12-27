@@ -120,11 +120,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\OpenEphysLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutput.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputEditor.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutput.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputEditor.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.h" />
   </ItemGroup>
