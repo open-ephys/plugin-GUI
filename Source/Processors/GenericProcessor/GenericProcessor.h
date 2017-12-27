@@ -468,7 +468,7 @@ public:
     uint32 getNumSamples (int channelNumber) const;
 
     /** Used to get the timestamp for a given buffer, for a given channel. */
-    uint64 getTimestamp (int channelNumber) const;
+    juce::uint64 getTimestamp (int channelNumber) const;
 
 	/** Used to get the number of samples a specific source generates. 
 	Look by source ID and subprocessor index */
@@ -481,12 +481,12 @@ public:
 
 	/** Used to get the current timestamp of a specific source.
 	Look by source ID and subprocessor index */
-	uint64 getSourceTimestamp(uint16 processorID, uint16 subProcessorIdx) const;
+	juce::uint64 getSourceTimestamp(uint16 processorID, uint16 subProcessorIdx) const;
 
 	/** Used to get the current timestamp of a specific source.
 	Look by full source ID.
 	@see GenericProcessor::getProcessorFullId(uint16,uint16) */
-	uint64 getSourceTimestamp(uint32 fullSourceID) const;
+	juce::uint64 getSourceTimestamp(uint32 fullSourceID) const;
 
 	virtual int getNumSubProcessors() const;
 
@@ -518,7 +518,7 @@ public:
 
     PluginProcessorType getProcessorType() const;
 
-	int64 getLastProcessedsoftwareTime() const;
+	juce::int64 getLastProcessedsoftwareTime() const;
 
 	static uint32 getProcessorFullId(uint16 processorId, uint16 subprocessorIdx);
 
@@ -538,7 +538,7 @@ public:
 
 protected:
 	/** Used to set the timestamp for a given buffer, for a given source node. */
-	void setTimestampAndSamples(uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
+	void setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
 
 	/** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
@@ -601,9 +601,9 @@ protected:
 
 private:
 	std::map<uint32, uint32> numSamples;
-	std::map<uint32, int64> timestamps;
+	std::map<uint32, juce::int64> timestamps;
 
-	int64 m_lastProcessTime;
+	juce::int64 m_lastProcessTime;
 
 	void createDataChannelsByType(DataChannel::DataChannelTypes type);
 

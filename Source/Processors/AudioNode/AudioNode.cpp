@@ -113,7 +113,11 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
     setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
-    dataChannelArray.add(new DataChannel(*sourceNode->getDataChannel(chan)));
+    auto dataChannel = sourceNode->getDataChannel(chan);
+    auto dataChannelCopy = new DataChannel(*dataChannel);
+    dataChannelCopy->setMonitored(dataChannel->isMonitored());
+    
+    dataChannelArray.add(dataChannelCopy);
 
 }
 
@@ -193,7 +197,8 @@ void AudioNode::recreateBuffers()
 
     }
 
-    tempBuffer->setSize(getNumInputs(), 4096);
+//    tempBuffer->setSize(getNumInputs(), 4096);
+    tempBuffer->setSize(1, 4096);
 }
 
 bool AudioNode::enable()
@@ -240,14 +245,14 @@ void AudioNode::process(AudioSampleBuffer& buffer)
         if (dataChannelArray.size() > 0) // we have some channels
         {
 
-            tempBuffer->clear();
+//            tempBuffer->clear();
 
             for (int i = 0; i < buffer.getNumChannels()-2; i++) // cycle through them all
             {
-
+                
                 if (dataChannelArray[i]->isMonitored())
                 {
-
+                    tempBuffer->clear();
                     //std::cout << "Processing channel " << i << std::endl;
 
                     if (!bufferSwap[i])
@@ -331,7 +336,8 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                     if (samplesToCopyFromIncomingBuffer > 0)
                     {
 
-                        tempBuffer->addFrom(i,       // destination channel
+                        //tempBuffer->addFrom(i,       // destination channel
+                        tempBuffer->addFrom(0,       // destination channel
                                             samplesToCopyFromOverflowBuffer,           // destination start sample
                                             buffer,      // source
                                             i+2,           // source channel (add 2 to account for output channels)
@@ -399,7 +405,8 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                         buffer.addFrom(0,    // destChannel
                                        destBufferPos,  // destSampleOffset
                                        *tempBuffer,     // source
-                                       i,    // sourceChannel
+                                       //i,    // sourceChannel
+                                       0,       // sourceChannel
                                        sourceBufferPos,// sourceSampleOffset
                                        1,        // number of samples
                                        invAlpha*gain);      // gain to apply to source
@@ -407,7 +414,8 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                         buffer.addFrom(0,    // destChannel
                                        destBufferPos,   // destSampleOffset
                                        *tempBuffer,     // source
-                                       i,      // sourceChannel
+                                       //i,      // sourceChannel
+                                       0,      // sourceChannel
                                        nextPos,      // sourceSampleOffset
                                        1,        // number of samples
                                        alpha*gain);       // gain to apply to source
