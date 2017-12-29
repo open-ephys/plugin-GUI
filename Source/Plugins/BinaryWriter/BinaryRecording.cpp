@@ -578,6 +578,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	uint16 sortedID = spike->getSortedID();
 	rec->extraFile->writeData(&sortedID, sizeof(uint16));
+	writeEventMetaData(spike, rec->metaDataFile);
 
 	increaseEventCounts(rec);
 }
