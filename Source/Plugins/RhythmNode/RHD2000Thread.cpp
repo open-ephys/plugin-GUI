@@ -23,7 +23,6 @@
 
 #include "RHD2000Thread.h"
 #include "RHD2000Editor.h"
-#include "../../SourceNode/SourceNode.h"
 
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"

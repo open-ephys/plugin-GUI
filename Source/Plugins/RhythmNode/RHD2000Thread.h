@@ -24,7 +24,7 @@
 #ifndef __RHD2000THREAD_H_2C4CBD67__
 #define __RHD2000THREAD_H_2C4CBD67__
 
-#include "../../../../JuceLibraryCode/JuceHeader.h"
+#include <DataThreadHeaders.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -33,9 +33,6 @@
 #include "rhythm-api/rhd2000registers.h"
 #include "rhythm-api/rhd2000datablock.h"
 #include "rhythm-api/okFrontPanelDLL.h"
-
-#include "../../DataThreads/DataThread.h"
-#include "../../GenericProcessor/GenericProcessor.h"
 
 #define MAX_NUM_DATA_STREAMS_USB2 8
 #define MAX_NUM_DATA_STREAMS_USB3 16

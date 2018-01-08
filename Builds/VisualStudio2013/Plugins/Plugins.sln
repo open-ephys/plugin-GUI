@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EvntTrigAvg", "EvntTrigAvg\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LFP_Viewer", "LFP_Viewer\LFP_Viewer.vcxproj", "{41BD734E-4939-47AD-9714-9629538F7206}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RhythmNode", "RhythmNode\RhythmNode.vcxproj", "{3FFC6E87-5767-4245-9760-249E239965AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -305,6 +307,18 @@ Global
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|Win32.Build.0 = Release|Win32
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|x64.ActiveCfg = Release|x64
 		{41BD734E-4939-47AD-9714-9629538F7206}.Release|x64.Build.0 = Release|x64
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|Win32.Build.0 = Debug|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|x64.ActiveCfg = Debug|x64
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Debug|x64.Build.0 = Debug|x64
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|Win32.ActiveCfg = Release|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|Win32.Build.0 = Release|Win32
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|x64.ActiveCfg = Release|x64
+		{3FFC6E87-5767-4245-9760-249E239965AB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
