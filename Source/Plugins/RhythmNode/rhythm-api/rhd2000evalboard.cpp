@@ -31,6 +31,7 @@
 #include "okFrontPanelDLL.h"
 
 using namespace std;
+using namespace OpalKellyLegacy;
 
 // This class provides access to and control of the Opal Kelly XEM6010 USB/FPGA
 // interface board running the Rhythm interface Verilog code.
@@ -66,11 +67,11 @@ int Rhd2000EvalBoard::open(const char* libname)
     int i, nDevices;
 
     cout << "---- Intan Technologies ---- Rhythm RHD2000 Controller v1.41 ----" << endl << endl;
-    if (okFrontPanelDLL_LoadLib(libname) == false) {
-        cerr << "FrontPanel DLL could not be loaded.  " <<
-                "Make sure this DLL is in the application start directory." << endl;
-        return -1;
-    }
+//    if (okFrontPanelDLL_LoadLib(libname) == false) {
+//        cerr << "FrontPanel DLL could not be loaded.  " <<
+//                "Make sure this DLL is in the application start directory." << endl;
+//        return -1;
+//    }
     okFrontPanelDLL_GetVersion(dll_date, dll_time);
     cout << endl << "FrontPanel DLL loaded.  Built: " << dll_date << "  " << dll_time << endl;
 
@@ -1595,8 +1596,6 @@ string Rhd2000EvalBoard::opalKellyModelName(int model) const
         return("XEM6110V2LX150");
     case OK_PRODUCT_XEM6002LX9:
         return("XEM6002LX9");
-    case OK_PRODUCT_XEM6310MTLX45:
-        return("XEM6310MTLX45");
     case OK_PRODUCT_XEM6320LX130T:
         return("XEM6320LX130T");
     default:

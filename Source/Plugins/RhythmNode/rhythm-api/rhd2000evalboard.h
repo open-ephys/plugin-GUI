@@ -37,7 +37,10 @@
 
 using namespace std;
 
-class okCFrontPanel;
+namespace OpalKellyLegacy
+{
+	class okCFrontPanel;
+}
 class Rhd2000DataBlock;
 
 class Rhd2000EvalBoard
@@ -172,7 +175,7 @@ public:
 	bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
 
 private:
-    okCFrontPanel *dev;
+	OpalKellyLegacy::okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
     int dataStreamEnabled[MAX_NUM_DATA_STREAMS_USB3]; // 0 (disabled) or 1 (enabled), set for maximum stream number
