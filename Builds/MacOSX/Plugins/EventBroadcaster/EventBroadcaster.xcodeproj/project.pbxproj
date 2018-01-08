@@ -13,6 +13,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2749688D2003FFD5008E0E8D /* libokFrontPanel.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libokFrontPanel.dylib; path = ../../../../Resources/DLLs/libokFrontPanel.dylib; sourceTree = "<group>"; };
 		E1C3F9781C99A20D00719A9F /* EventBroadcaster.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EventBroadcaster.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1C3F97B1C99A20D00719A9F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1F557C31C9B020A0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
@@ -35,12 +36,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2749688C2003FFD5008E0E8D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2749688D2003FFD5008E0E8D /* libokFrontPanel.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E1C3F96F1C99A20D00719A9F = {
 			isa = PBXGroup;
 			children = (
 				E1F557C11C9B020A0035F88B /* Config */,
 				E1C3F97A1C99A20D00719A9F /* EventBroadcaster */,
 				E1C3F9791C99A20D00719A9F /* Products */,
+				2749688C2003FFD5008E0E8D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
