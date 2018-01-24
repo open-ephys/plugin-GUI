@@ -41,6 +41,7 @@
 class SourceNode;
 class RHDHeadstage;
 class RHDImpedanceMeasure;
+class USBThread;
 
 struct ImpedanceData
 {
@@ -212,6 +213,7 @@ private:
     Array<float> adcBitVolts;
     bool newScan;
     ScopedPointer<RHDImpedanceMeasure> impedanceThread;
+	ScopedPointer<USBThread> usbThread;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };

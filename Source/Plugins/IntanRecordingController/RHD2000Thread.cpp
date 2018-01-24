@@ -23,6 +23,7 @@
 
 #include "RHD2000Thread.h"
 #include "RHD2000Editor.h"
+#include "USBThread.h"
 
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
@@ -367,6 +368,10 @@ void RHD2000Thread::initializeBoard()
     {
         return;
     }
+
+	//Instantiate usb thread
+	usbThread = new USBThread(evalBoard);
+
     // Initialize the board
     std::cout << "Initializing acquisition board." << std::endl;
     evalBoard->initialize();
@@ -1403,24 +1408,31 @@ bool RHD2000Thread::startAcquisition()
     //std::cout << "Setting max timestep." << std::endl;
     //evalBoard->setMaxTimeStep(100);
 
-
-    std::cout << "Starting acquisition." << std::endl;
-    if (1)
-    {
-        // evalBoard->setContinuousRunMode(false);
-        //  evalBoard->setMaxTimeStep(0);
-        std::cout << "Flushing FIFO." << std::endl;
-        evalBoard->flush();
-        evalBoard->setContinuousRunMode(true);
-		//evalBoard->printFIFOmetrics();
-        evalBoard->run();
-		//evalBoard->printFIFOmetrics();
-    }
-
-    blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
+	blockSize = dataBlock->calculateDataBlockSizeInWords(evalBoard->getNumEnabledDataStreams());
 	std::cout << "Expecting blocksize of " << blockSize << " for " << evalBoard->getNumEnabledDataStreams() << " streams" << std::endl;
+
 	//evalBoard->printFIFOmetrics();
-    startThread();
+
+	// evalBoard->setContinuousRunMode(false);
+	//  evalBoard->setMaxTimeStep(0);
+	std::cout << "Flushing FIFO." << std::endl;
+	evalBoard->flush();
+	std::cout << "FIFO count " << evalBoard->getNumWordsInFifo() << std::endl;
+
+	std::cout << "Starting usb thread with buffer of " << blockSize * 2 << " bytes" << std::endl;
+	usbThread->startAcquisition(blockSize * 2);
+
+	std::cout << "Starting acquisition." << std::endl;
+	evalBoard->setContinuousRunMode(true);
+	//evalBoard->printFIFOmetrics();
+	evalBoard->run();
+	//evalBoard->printFIFOmetrics();
+	startThread();
+	
+
+
+    
+    
 
 
     isTransmitting = true;
@@ -1433,6 +1445,7 @@ bool RHD2000Thread::stopAcquisition()
 
     //  isTransmitting = false;
     std::cout << "RHD2000 data thread stopping acquisition." << std::endl;
+	usbThread->stopAcquisition();
 
     if (isThreadRunning())
     {
@@ -1482,14 +1495,15 @@ bool RHD2000Thread::stopAcquisition()
 bool RHD2000Thread::updateBuffer()
 {
 	//int chOffset;
-	unsigned char* bufferPtr;
     //cout << "Number of 16-bit words in FIFO: " << evalBoard->numWordsInFifo() << endl;
 	//cout << "Block size: " << blockSize << endl;
-
+	unsigned char* bufferPtr;
 	//std::cout << "Current number of words: " <<  evalBoard->numWordsInFifo() << " for " << blockSize << std::endl;
-	bool return_code;
+	long return_code;
 
-	return_code = evalBoard->readDataBlocksRaw(1,bufferPtr);
+	return_code = usbThread->usbRead(bufferPtr);
+	if (return_code == 0)
+		return true;
 
 	int index = 0;
 	int auxIndex, chanIndex;
@@ -1504,6 +1518,7 @@ bool RHD2000Thread::updateBuffer()
 		if (!Rhd2000DataBlockUsb3::checkUsbHeader(bufferPtr, index))
 		{
 			cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+			cerr << "Read code: " << return_code << endl;
 			break;
 		}
 
@@ -1584,7 +1599,6 @@ bool RHD2000Thread::updateBuffer()
 
 	if (dacOutputShouldChange)
 	{
-		std::cout << "DAC" << std::endl;
         for (int k=0; k<8; k++)
         {
             if (dacChannelsToUpdate[k])

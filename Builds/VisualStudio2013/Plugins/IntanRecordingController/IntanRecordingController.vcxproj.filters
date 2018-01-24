@@ -36,6 +36,9 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\IntanRecordingController\rhythm-api\rhd2000registersusb3.cpp">
       <Filter>Source Files\rhythm-api</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\IntanRecordingController\USBThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\IntanRecordingController\RHD2000Editor.h">
@@ -55,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\IntanRecordingController\rhythm-api\rhd2000registersusb3.h">
       <Filter>Source Files\rhythm-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\IntanRecordingController\USBThread.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

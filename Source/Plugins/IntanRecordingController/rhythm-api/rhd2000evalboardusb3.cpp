@@ -1494,8 +1494,7 @@ long Rhd2000EvalBoardUsb3::readDataBlocksRaw(int numBlocks, unsigned char* buffe
     unsigned int numWordsToRead = numBlocks * Rhd2000DataBlockUsb3::calculateDataBlockSizeInWords(numDataStreams, nSamples);
 
     if (numWordsInFifo() < numWordsToRead)
-        return 0;
-
+	   return 0;
     long result = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, 2 * numWordsToRead, buffer);
 
     if (result == ok_Failed) {
