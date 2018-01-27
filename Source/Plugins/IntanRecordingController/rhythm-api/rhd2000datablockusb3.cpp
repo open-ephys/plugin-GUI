@@ -165,13 +165,15 @@ int Rhd2000DataBlockUsb3::convertUsbWord(unsigned char usbBuffer[], int index)
 }
 
 // Fill data block with raw data from USB input buffer.
-void Rhd2000DataBlockUsb3::fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams)
+void Rhd2000DataBlockUsb3::fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams, int nSamples)
 {
     int index, t, channel, stream, i;
 
+	int samplesToRead = nSamples <= 0 ? SAMPLES_PER_DATA_BLOCK : nSamples;
+
     int ampIndex = 0;
     index = blockIndex * 2 * calculateDataBlockSizeInWords(numDataStreams);
-    for (t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t) {
+	for (t = 0; t < samplesToRead; ++t) {
         if (!checkUsbHeader(usbBuffer, index)) {
             cout << "Error in Rhd2000DataBlockUsb3::fillFromUsbBuffer: Incorrect header." << endl;
         }

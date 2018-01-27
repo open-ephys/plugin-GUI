@@ -46,7 +46,7 @@ public:
 
     static unsigned int calculateDataBlockSizeInWords(int numDataStreams, int nSamples = -1);
     static unsigned int getSamplesPerDataBlock();
-    void fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams);
+    void fillFromUsbBuffer(unsigned char usbBuffer[], int blockIndex, int numDataStreams, int nSamples = -1);
     void print(int stream) const;
     void write(ofstream &saveOut, int numDataStreams) const;
     static bool checkUsbHeader(unsigned char usbBuffer[], int index);

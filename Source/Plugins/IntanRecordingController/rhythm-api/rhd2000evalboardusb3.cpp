@@ -1471,8 +1471,9 @@ bool Rhd2000EvalBoardUsb3::readDataBlock(Rhd2000DataBlockUsb3 *dataBlock, int nS
                 "Increase value of MAX_NUM_BLOCKS." << endl;
         return false;
     }
-
+	std::cout << " Reading " << nSamples << " samples " << numBytesToRead << " bytes with block size " << USB3_BLOCK_SIZE << std::endl;
     result = dev->ReadFromBlockPipeOut(PipeOutData, USB3_BLOCK_SIZE, USB3_BLOCK_SIZE * max(numBytesToRead / USB3_BLOCK_SIZE, (unsigned int)1), usbBuffer);
+	std::cout << "Read " << result << std::endl;
 
     if (result == ok_Failed) {
         cerr << "CRITICAL (readDataBlock): Failure on pipe read.  Check block and buffer sizes." << endl;
@@ -1480,7 +1481,7 @@ bool Rhd2000EvalBoardUsb3::readDataBlock(Rhd2000DataBlockUsb3 *dataBlock, int nS
         cerr << "CRITICAL (readDataBlock): Timeout on pipe read.  Check block and buffer sizes." << endl;
     }
 
-    dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams);
+    dataBlock->fillFromUsbBuffer(usbBuffer, 0, numDataStreams, nSamples);
 
     return true;
 }

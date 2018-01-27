@@ -566,7 +566,7 @@ void RHD2000Thread::scanPorts()
 		}
 		// Read the resulting single data block from the USB interface.
 		evalBoard->readDataBlock(dataBlock, INIT_STEP);
-
+		
 		// Read the Intan chip ID number from each RHD2000 chip found.
 		// Record delay settings that yield good communication with the chip.
 		for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)//MAX_NUM_DATA_STREAMS; ++stream)
@@ -626,6 +626,9 @@ void RHD2000Thread::scanPorts()
             enableHeadstage(hs, false);
         }
     }
+
+//	for (int i = 0; i < 16; i++)
+//		enableHeadstage(i, true, 2, 32);
 	updateBoardStreams();
 
 

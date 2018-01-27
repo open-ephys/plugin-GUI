@@ -33,7 +33,7 @@
 
 #define FIFO_CAPACITY_WORDS 67108864
 
-#define USB3_BLOCK_SIZE	2048
+#define USB3_BLOCK_SIZE	1024
 #define RAM_BURST_SIZE 32
 
 #include <queue>
