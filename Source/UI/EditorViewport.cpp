@@ -1586,6 +1586,8 @@ const String EditorViewport::loadState(File fileToLoad)
 								procDesc.set(3, 1); //index
 								procDesc.set(4, "Rhytm FPGA"); //libraryName
 							}
+							else
+								procDesc.set(3, int(procDesc[3]) - 1); //arrange old nodes to its current index
 						}
 					}
 
