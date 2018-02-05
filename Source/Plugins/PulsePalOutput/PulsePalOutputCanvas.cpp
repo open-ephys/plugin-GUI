@@ -76,7 +76,7 @@ void PulsePalOutputCanvas::paint (Graphics& g)
     else
         pulsePalLabel->setText(String("Pulse Pal: ") +=  String("NOT CONNECTED"), dontSendNotification);
 
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         g.setColour(Colours::grey);
         g.fillRoundedRectangle(0.005*getWidth() + 0.25*i*getWidth(), 0.1*getHeight(), 0.23*getWidth(), 0.89*getHeight(), 4.0f);
@@ -88,7 +88,7 @@ void PulsePalOutputCanvas::resized()
 {
     pulsePalLabel->setBounds(0.01*getWidth(), 0.02*getHeight(), 0.5*getWidth(),0.04*getHeight());
 
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         channelLabel[i]->setBounds(0.01*getWidth() + 0.25*i*getWidth(), 0.1*getHeight(), 0.1*getWidth(),0.04*getHeight());
 
@@ -130,7 +130,7 @@ void PulsePalOutputCanvas::resized()
 
 void PulsePalOutputCanvas::buttonClicked(Button* button)
 {
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         if (button == biphasicButton[i])
         {
@@ -238,7 +238,7 @@ bool PulsePalOutputCanvas::keyPressed(const KeyPress &key, Component *originatin
 
 void PulsePalOutputCanvas::labelTextChanged(Label *label)
 {
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         if (label == phase1EditLabel[i])
         {
@@ -402,7 +402,7 @@ void PulsePalOutputCanvas::labelTextChanged(Label *label)
 
 void PulsePalOutputCanvas::comboBoxChanged(ComboBox *combobox)
 {
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
         if (combobox == triggerMode[i])
             processor->setTriggerMode(i, combobox->getSelectedId() - 1);
 }
@@ -410,7 +410,7 @@ void PulsePalOutputCanvas::comboBoxChanged(ComboBox *combobox)
 void PulsePalOutputCanvas::initButtons()
 {
 
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         ScopedPointer<UtilityButton> biph = new UtilityButton("biphasic", Font("Small Text", 20, Font::plain));
         biph->setRadius(3.0f);
@@ -493,7 +493,7 @@ void PulsePalOutputCanvas::initLabels()
     pulsePalLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(pulsePalLabel);
 
-    for (int i; i < PULSEPALCHANNELS; i++)
+    for (int i = 0; i < PULSEPALCHANNELS; i++)
     {
         ScopedPointer<Label> chan = new Label("s_phase1", "Channel "+String(i+1));
         chan->setFont(Font(30));
