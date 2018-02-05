@@ -44,8 +44,5 @@
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.h">
       <Filter>Source Files\serial</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

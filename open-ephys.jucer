@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.4.3"
+<JUCERPROJECT id="ynSYIrr" name="open-ephys" projectType="guiapp" version="0.4.4"
               juceLinkage="amalg_multi" buildVST="1" buildRTAS="0" buildAU="1"
               pluginName="Juce Project" pluginDesc="Juce Project" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
@@ -373,32 +373,6 @@
           <FILE id="AP7SgO" name="MetaData.h" compile="0" resource="0" file="Source/Processors/Channel/MetaData.h"/>
         </GROUP>
         <GROUP id="ZgsuWxi" name="DataThreads">
-          <GROUP id="{BD34CF88-82A4-3F88-1664-D862A88E97A9}" name="RhythmNode">
-            <FILE id="xQbHVL" name="RHD2000Editor.cpp" compile="1" resource="0"
-                  file="Source/Processors/DataThreads/RhythmNode/RHD2000Editor.cpp"/>
-            <FILE id="TMBLKC" name="RHD2000Editor.h" compile="0" resource="0" file="Source/Processors/DataThreads/RhythmNode/RHD2000Editor.h"/>
-            <FILE id="DKBn3T" name="RHD2000Thread.cpp" compile="1" resource="0"
-                  file="Source/Processors/DataThreads/RhythmNode/RHD2000Thread.cpp"/>
-            <FILE id="kaL3pT" name="RHD2000Thread.h" compile="0" resource="0" file="Source/Processors/DataThreads/RhythmNode/RHD2000Thread.h"/>
-            <GROUP id="{4425F060-F758-7F68-C196-636EEF60FC60}" name="rhythm-api">
-              <FILE id="EFsQFM" name="okFrontPanelDLL.cpp" compile="1" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/okFrontPanelDLL.cpp"/>
-              <FILE id="fEbj7b" name="okFrontPanelDLL.h" compile="0" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/okFrontPanelDLL.h"/>
-              <FILE id="vPnpve" name="rhd2000datablock.cpp" compile="1" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000datablock.cpp"/>
-              <FILE id="GHibPN" name="rhd2000datablock.h" compile="0" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000datablock.h"/>
-              <FILE id="cnR4ob" name="rhd2000evalboard.cpp" compile="1" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000evalboard.cpp"/>
-              <FILE id="AYC8YL" name="rhd2000evalboard.h" compile="0" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000evalboard.h"/>
-              <FILE id="R8uSuo" name="rhd2000registers.cpp" compile="1" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000registers.cpp"/>
-              <FILE id="MXULmw" name="rhd2000registers.h" compile="0" resource="0"
-                    file="Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000registers.h"/>
-            </GROUP>
-          </GROUP>
           <FILE id="Qfe0ygk" name="DataBuffer.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataBuffer.cpp"/>
           <FILE id="VCRMcQP" name="DataBuffer.h" compile="0" resource="0" file="Source/Processors/DataThreads/DataBuffer.h"/>
           <FILE id="9JbVKlA" name="DataThread.cpp" compile="1" resource="0" file="Source/Processors/DataThreads/DataThread.cpp"/>

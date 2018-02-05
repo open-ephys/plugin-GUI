@@ -31,12 +31,11 @@
 #include "../FileReader/FileReader.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
-#include "../DataThreads/RhythmNode/RHD2000Thread.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
 /** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 4
+#define BUILTIN_PROCESSORS 3
 
 namespace ProcessorManager
 {
@@ -51,18 +50,14 @@ namespace ProcessorManager
 			type = UtilityProcessor;
 			break;
 		case 0:
-			name = "Rhythm FPGA";
-			type = SourceProcessor;
-			break;
-		case 1:
 			name = "Merger";
 			type = UtilityProcessor;
 			break;
-		case 2:
+		case 1:
 			name = "Splitter";
 			type = UtilityProcessor;
 			break;
-		case 3:
+		case 2:
 			name = "File Reader";
 			type = SourceProcessor;
 			break;
@@ -83,15 +78,12 @@ namespace ProcessorManager
 			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0, false, false);
 			break;
 		case 0:
-			proc = new SourceNode("Rhythm FPGA", &RHD2000Thread::createDataThread);
-			break;
-		case 1:
 			proc = new Merger();
 			break;
-		case 2:
+		case 1:
 			proc = new Splitter();
 			break;
-		case 3:
+		case 2:
 			proc = new FileReader();
 			break;
 		default:

@@ -126,7 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutput.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputEditor.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.h" />
   </ItemGroup>

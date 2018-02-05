@@ -1466,6 +1466,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     bool sameVersion = false;
 	bool pluginAPI = false;
+	bool rhythmNodePatch = false;
     String versionString;
 	
     forEachXmlChildElement(*xml, element)
@@ -1477,8 +1478,12 @@ const String EditorViewport::loadState(File fileToLoad)
                 if (element2->hasTagName("VERSION"))
                 {
                     versionString = element2->getAllSubText();
-                    // float majorVersion = versionString.upToFirstOccurrenceOf(".", false, true).getIntValue();
-                    //             float minorVersion = versionString.fromFirstOccurrenceOf(".", false, true).getFloatValue();
+					StringArray tokens;
+					tokens.addTokens(versionString, ".", String::empty);
+
+					//Patch to correctly load saved chains from before 0.4.4
+					if (tokens[0].getIntValue() == 0 && tokens[1].getIntValue() == 4 && tokens[2].getIntValue() < 4)
+						rhythmNodePatch = true;
 
                     if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
                         sameVersion = true;
@@ -1570,6 +1575,22 @@ const String EditorViewport::loadState(File fileToLoad)
 					procDesc.add(processor->getIntAttribute("libraryVersion"));
 					procDesc.add(processor->getBoolAttribute("isSource"));
 					procDesc.add(processor->getBoolAttribute("isSink"));
+
+					if (rhythmNodePatch) //old version, when rhythm was a plugin
+					{
+						if (int(procDesc[2]) == -1) //if builtin
+						{
+							if (int(procDesc[3]) == 0) //Rhythm node
+							{
+								procDesc.set(2, 4); //DataThread
+								procDesc.set(3, 1); //index
+								procDesc.set(4, "Rhytm FPGA"); //libraryName
+							}
+							else
+								procDesc.set(3, int(procDesc[3]) - 1); //arrange old nodes to its current index
+						}
+					}
+
                     SourceDetails sd = SourceDetails(procDesc,
                                                      0,
                                                      Point<int>(0,0));

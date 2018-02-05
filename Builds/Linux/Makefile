@@ -18,12 +18,12 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.3" -D "JUCE_APP_VERSION_HEX=0x403" -I /usr/include -I /usr/include/freetype2 -I ~/SDKs/VST3\ SDK -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I JuceLibraryCode/
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.4" -D "JUCE_APP_VERSION_HEX=0x404" -I /usr/include -I /usr/include/freetype2 -I ~/SDKs/VST3\ SDK -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I JuceLibraryCode/
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -rdynamic -fvisibility=hidden
   CXXFLAGS += $(CFLAGS) -std=c++11
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN'
 
-  TARGET := open-ephys
+  TARGET := open-ephys.so
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
@@ -38,12 +38,12 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.3" -D "JUCE_APP_VERSION_HEX=0x403" -I /usr/include -I /usr/include/freetype2 -I ~/SDKs/VST3\ SDK -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I JuceLibraryCode/
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.4" -D "JUCE_APP_VERSION_HEX=0x404" -I /usr/include -I /usr/include/freetype2 -I ~/SDKs/VST3\ SDK -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules -I JuceLibraryCode/
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -rdynamic -fvisibility=hidden
   CXXFLAGS += $(CFLAGS) -std=c++11
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN'
 
-  TARGET := open-ephys-release
+  TARGET := open-ephys-release.so
   BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
   CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
 endif
@@ -79,12 +79,6 @@ OBJECTS := \
   $(OBJDIR)/AudioNode_3db3557c.o \
   $(OBJDIR)/InfoObjects_ccadf9d5.o \
   $(OBJDIR)/MetaData_93b6c72a.o \
-  $(OBJDIR)/RHD2000Editor_54b4b441.o \
-  $(OBJDIR)/RHD2000Thread_6ad80a5e.o \
-  $(OBJDIR)/okFrontPanelDLL_18d33583.o \
-  $(OBJDIR)/rhd2000datablock_e1a710b.o \
-  $(OBJDIR)/rhd2000evalboard_7ca0f632.o \
-  $(OBJDIR)/rhd2000registers_6b59b998.o \
   $(OBJDIR)/DataBuffer_6ae4f549.o \
   $(OBJDIR)/DataThread_b2a47a13.o \
   $(OBJDIR)/ChannelSelector_c1430874.o \
@@ -320,36 +314,6 @@ $(OBJDIR)/InfoObjects_ccadf9d5.o: ../../Source/Processors/Channel/InfoObjects.cp
 $(OBJDIR)/MetaData_93b6c72a.o: ../../Source/Processors/Channel/MetaData.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MetaData.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RHD2000Editor_54b4b441.o: ../../Source/Processors/DataThreads/RhythmNode/RHD2000Editor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RHD2000Editor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/RHD2000Thread_6ad80a5e.o: ../../Source/Processors/DataThreads/RhythmNode/RHD2000Thread.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling RHD2000Thread.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/okFrontPanelDLL_18d33583.o: ../../Source/Processors/DataThreads/RhythmNode/rhythm-api/okFrontPanelDLL.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling okFrontPanelDLL.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000datablock_e1a710b.o: ../../Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000datablock.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000datablock.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000evalboard_7ca0f632.o: ../../Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000evalboard.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000evalboard.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/rhd2000registers_6b59b998.o: ../../Source/Processors/DataThreads/RhythmNode/rhythm-api/rhd2000registers.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling rhd2000registers.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/DataBuffer_6ae4f549.o: ../../Source/Processors/DataThreads/DataBuffer.cpp

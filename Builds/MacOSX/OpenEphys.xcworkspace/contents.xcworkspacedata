@@ -45,12 +45,6 @@
          location = "group:LfpDisplayNode/LfpDisplayNode.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:LfpDisplayNodeBeta/LfpDisplayNodeBeta.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:LfpDisplayNodeAlpha/LfpDisplayNodeAlpha.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:NetworkEvents/NetworkEvents.xcodeproj">
       </FileRef>
       <FileRef
