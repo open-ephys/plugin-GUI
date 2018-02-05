@@ -175,6 +175,14 @@ void FPGAchannelList::update()
     streamNames.add("Port C2");
     streamNames.add("Port D1");
     streamNames.add("Port D2");
+	streamNames.add("Port E1");
+	streamNames.add("Port E2");
+	streamNames.add("Port F1");
+	streamNames.add("Port F2");
+	streamNames.add("Port G1");
+	streamNames.add("Port G2");
+	streamNames.add("Port H1");
+	streamNames.add("Port H2");
     streamNames.add("ADC");
 
     for (int k = 0; k < MAX_NUM_HEADSTAGES + 1; k++)

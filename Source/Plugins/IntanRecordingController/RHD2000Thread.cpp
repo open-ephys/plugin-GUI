@@ -465,6 +465,7 @@ void RHD2000Thread::scanPorts()
 	impedanceThread->stopThreadSafely();
 	//Clear previous known streams
 	enabledStreams.clear();
+	numChannelsPerDataStream.clear();
 
 	// Scan SPI ports
 
@@ -489,7 +490,8 @@ void RHD2000Thread::scanPorts()
 	};
 	*/
 
-	chipId.insertMultiple(0, -1, 8);
+	chipId.clearQuick();
+	chipId.insertMultiple(0, -1, MAX_NUM_HEADSTAGES);
 	Array<int> tmpChipId(chipId);
 
 	setSampleRate(Rhd2000EvalBoardUsb3::SampleRate30000Hz, true); // set to 30 kHz temporarily
@@ -531,13 +533,13 @@ void RHD2000Thread::scanPorts()
 		new Rhd2000DataBlockUsb3(evalBoard->getNumEnabledDataStreams());
 
 	Array<int> sumGoodDelays;
-	sumGoodDelays.insertMultiple(0, 0, 8);
+	sumGoodDelays.insertMultiple(0, 0, MAX_NUM_HEADSTAGES);
 
 	Array<int> indexFirstGoodDelay;
-	indexFirstGoodDelay.insertMultiple(0, -1, 8);
+	indexFirstGoodDelay.insertMultiple(0, -1, MAX_NUM_HEADSTAGES);
 
 	Array<int> indexSecondGoodDelay;
-	indexSecondGoodDelay.insertMultiple(0, -1, 8);
+	indexSecondGoodDelay.insertMultiple(0, -1, MAX_NUM_HEADSTAGES);
 
 
 	// Run SPI command sequence at all 16 possible FPGA MISO delay settings
@@ -813,6 +815,14 @@ void RHD2000Thread::setDefaultChannelNames()
     stream_prefix.add("C2");
     stream_prefix.add("D1");
     stream_prefix.add("D2");
+	stream_prefix.add("E1");
+	stream_prefix.add("E2");
+	stream_prefix.add("F1");
+	stream_prefix.add("F2");
+	stream_prefix.add("G1");
+	stream_prefix.add("G2");
+	stream_prefix.add("H1");
+	stream_prefix.add("H2");
 
     for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
     {
@@ -1801,7 +1811,7 @@ RHDImpedanceMeasure::RHDImpedanceMeasure(RHD2000Thread* b) : Thread(""), data(nu
 {
 	// to perform electrode impedance measurements at very low frequencies.
 	const int maxNumBlocks = 120;
-	int numStreams = 8;
+	int numStreams = MAX_NUM_DATA_STREAMS;
 	allocateDoubleArray3D(amplifierPreFilter, numStreams, 32, SAMPLES_PER_DATA_BLOCK * maxNumBlocks);
 }
 
