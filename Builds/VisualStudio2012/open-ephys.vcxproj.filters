@@ -59,12 +59,6 @@
     <Filter Include="open-ephys\Source\Processors\DataThreads">
       <UniqueIdentifier>{AA123918-8642-2612-7B72-C63DA032271B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="open-ephys\Source\Processors\DataThreads\RhythmNode">
-      <UniqueIdentifier>{ACBDC612-339C-4E74-75BC-3E75843FD61D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api">
-      <UniqueIdentifier>{2107D2E9-A134-3C5F-3DD6-867FA7172E43}</UniqueIdentifier>
-    </Filter>
     <Filter Include="open-ephys\Source\Processors\Editors">
       <UniqueIdentifier>{E65874A6-23B2-9D76-B12A-15730E2192BC}</UniqueIdentifier>
     </Filter>
@@ -561,24 +555,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\Channel\MetaData.cpp">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000datablock.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000evalboard.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.cpp">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>
@@ -2579,24 +2555,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\Channel\MetaData.h">
       <Filter>open-ephys\Source\Processors\Channel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000datablock.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000evalboard.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.h">
-      <Filter>open-ephys\Source\Processors\DataThreads\RhythmNode\rhythm-api</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h">
       <Filter>open-ephys\Source\Processors\DataThreads</Filter>

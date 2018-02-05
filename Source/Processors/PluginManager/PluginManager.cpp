@@ -254,7 +254,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			LoadedPluginInfo<Plugin::RecordEngineInfo> info;
 			info.creator = pInfo.recordEngine.creator;
 			info.name = pInfo.recordEngine.name;
-			info.libIndex = libArray.size();
+			info.libIndex = libArray.size() - 1;
 			recordEnginePlugins.add(info);
 			break;
 		}
@@ -263,7 +263,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			LoadedPluginInfo<Plugin::DataThreadInfo> info;
 			info.creator = pInfo.dataThread.creator;
 			info.name = pInfo.dataThread.name;
-			info.libIndex = libArray.size();
+			info.libIndex = libArray.size() - 1;
 			dataThreadPlugins.add(info);
 			break;
 		}

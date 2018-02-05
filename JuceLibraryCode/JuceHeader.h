@@ -42,8 +42,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "open-ephys";
-    const char* const  versionString  = "0.4.3";
-    const int          versionNumber  = 0x403;
+    const char* const  versionString  = "0.4.4";
+    const int          versionNumber  = 0x404;
 }
 #endif
 

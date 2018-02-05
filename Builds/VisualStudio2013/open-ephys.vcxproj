@@ -85,7 +85,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.3;JUCE_APP_VERSION_HEX=0x403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.4;JUCE_APP_VERSION_HEX=0x404;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -131,7 +131,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.3;JUCE_APP_VERSION_HEX=0x403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.4;JUCE_APP_VERSION_HEX=0x404;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -179,7 +179,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.3;JUCE_APP_VERSION_HEX=0x403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;DEBUG;_DEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.4;JUCE_APP_VERSION_HEX=0x404;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>~\SDKs\VST3 SDK;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;JuceLibraryCode/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.3;JUCE_APP_VERSION_HEX=0x403;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;NDEBUG;NOMINMAX;JUCE_API=__declspec(dllexport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.4;JUCE_APP_VERSION_HEX=0x404;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -289,12 +289,6 @@
     <ClCompile Include="..\..\Source\Processors\AudioNode\AudioNode.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel\InfoObjects.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Channel\MetaData.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000datablock.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000evalboard.cpp"/>
-    <ClCompile Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataBuffer.cpp"/>
     <ClCompile Include="..\..\Source\Processors\DataThreads\DataThread.cpp"/>
     <ClCompile Include="..\..\Source\Processors\Editors\ChannelSelector.cpp"/>
@@ -1958,12 +1952,6 @@
     <ClInclude Include="..\..\Source\Processors\AudioNode\AudioNode.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel\InfoObjects.h"/>
     <ClInclude Include="..\..\Source\Processors\Channel\MetaData.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Editor.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\RHD2000Thread.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\okFrontPanelDLL.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000datablock.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000evalboard.h"/>
-    <ClInclude Include="..\..\Source\Processors\DataThreads\RhythmNode\rhythm-api\rhd2000registers.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataBuffer.h"/>
     <ClInclude Include="..\..\Source\Processors\DataThreads\DataThread.h"/>
     <ClInclude Include="..\..\Source\Processors\Editors\ChannelSelector.h"/>
