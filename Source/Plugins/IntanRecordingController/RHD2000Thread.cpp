@@ -46,6 +46,16 @@
 
 #define INIT_STEP 256
 
+//#define SCAN_DEBUG
+#ifdef SCAN_DEBUG
+#define PRINT_ARRAYS  for (int i = 0; i < MAX_NUM_HEADSTAGES; i++) {\
+	std::cout << "c" << chipId[i] << " t" << tmpChipId[i] << " s" << sumGoodDelays[i] << " if" << indexFirstGoodDelay[i] << " is" << indexSecondGoodDelay[i] << std::endl;}
+#define S_DEBUG(x) do { x } while(false);
+#else
+#define PRINT_ARRAYS {}
+#define S_DEBUG(x) {}
+#endif
+
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
                            int xSize, int ySize, int zSize)
@@ -455,9 +465,6 @@ void RHD2000Thread::initializeBoard()
 
 }
 
-#define PRINT_ARRAYS  for (int i = 0; i < MAX_NUM_HEADSTAGES; i++) {\
-	std::cout << "c" << chipId[i] << " t" << tmpChipId[i] << " s" << sumGoodDelays[i] << " if" << indexFirstGoodDelay[i] << " is" << indexSecondGoodDelay[i] << std::endl;}
-
 void RHD2000Thread::scanPorts()
 {
 	if (!deviceFound) //Safety to avoid crashes if board not present
@@ -578,11 +585,11 @@ void RHD2000Thread::scanPorts()
 		// Record delay settings that yield good communication with the chip.
 		for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)//MAX_NUM_DATA_STREAMS; ++stream)
 		{
-			std::cout << "Stream number " << hs << ", delay = " << delay << std::endl;
-			dataBlock->print(hs);
+			S_DEBUG(std::cout << "Stream number " << hs << ", delay = " << delay << std::endl;
+			dataBlock->print(hs);)
 
 			id = deviceId(dataBlock, hs, register59Value);
-			std::cout << "h " << hs << " id " << id << std::endl;
+			S_DEBUG(std::cout << "h " << hs << " id " << id << std::endl;)
 
 			if (id == CHIP_ID_RHD2132 || id == CHIP_ID_RHD2216 ||
 				(id == CHIP_ID_RHD2164 && register59Value == REGISTER_59_MISO_A))
@@ -605,6 +612,7 @@ void RHD2000Thread::scanPorts()
 		}
 	}
 	PRINT_ARRAYS;
+	S_DEBUG(
 	std::cout << "s: " << enabledStreams.size() << std::endl;
 	for (int i = 0; i < enabledStreams.size(); i++)
 		std::cout << "s " << enabledStreams[i];
@@ -612,6 +620,7 @@ void RHD2000Thread::scanPorts()
 	std::cout << "n: " << numChannelsPerDataStream.size() << std::endl;
 	for (int i = 0; i < numChannelsPerDataStream.size(); i++)
 		std::cout << "n " << numChannelsPerDataStream[i];
+	)
     // Now, disable data streams where we did not find chips present.
     int chipIdx = 0;
     for (hs = 0; hs < MAX_NUM_HEADSTAGES; ++hs)
@@ -619,7 +628,7 @@ void RHD2000Thread::scanPorts()
         if ((tmpChipId[hs] > 0) && (enabledStreams.size() < MAX_NUM_DATA_STREAMS))
         {
             chipId.set(chipIdx++,tmpChipId[hs]);
-            std::cout << "Enabling headstage on stream " << hs << std::endl;
+			S_DEBUG(std::cout << "Enabling headstage on stream " << hs << std::endl;)
             if (tmpChipId[hs] == CHIP_ID_RHD2164) //RHD2164
             {
                 if (enabledStreams.size() < MAX_NUM_DATA_STREAMS - 1)
@@ -639,10 +648,11 @@ void RHD2000Thread::scanPorts()
         }
         else
         {
-			std::cout << "Disabling headstage on stream " << hs << std::endl;
+			S_DEBUG(std::cout << "Disabling headstage on stream " << hs << std::endl;)
             enableHeadstage(hs, false);
         }
     }
+	S_DEBUG(
 	std::cout << "s: " << enabledStreams.size() << std::endl;
 	for (int i = 0; i < enabledStreams.size(); i++)
 		std::cout << "s " << enabledStreams[i];
@@ -650,7 +660,7 @@ void RHD2000Thread::scanPorts()
 	std::cout << "n: " << numChannelsPerDataStream.size() << std::endl;
 	for (int i = 0; i < numChannelsPerDataStream.size(); i++)
 		std::cout << "n " << numChannelsPerDataStream[i];
-
+	)
 //	for (int i = 0; i < 16; i++)
 //		enableHeadstage(i, true, 2, 32);
 	updateBoardStreams();
