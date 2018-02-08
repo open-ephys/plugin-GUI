@@ -27,6 +27,7 @@
 #include <ProcessorHeaders.h>
 #include "EvntTrigAvgEditor.h"
 #include <vector>
+#include <map>
 
 class EvntTrigAvgEditor;
 
@@ -90,8 +91,8 @@ public:
     float findMax(uint64* data_);
     float findMean(uint64* data_); // TODO make running
     
-    
-    std::vector<int> createElectrodeMap();
+    //TODO electrodeMap is not being used right now, fix it to actually work with SourceInfo instead of just indexes
+    //std::map<SourceChannelInfo,int> createElectrodeMap();
     std::vector<String> createElectrodeLabels();
     
     void saveCustomParametersToXml (XmlElement* parentElement) override;
@@ -120,7 +121,7 @@ private:
     void clearHistogramData(uint64 * const);
     Array<uint64*> histogramData; // shared data
     Array<float*> minMaxMean; // shared data
-    std::vector<int> electrodeMap; // Used to identify what electrode a spike came from
+    //std::map<SourceChannelInfo,int> electrodeMap; // Used to identify what electrode a spike came from
     std::vector<String> electrodeLabels;
     std::vector<int> idIndex; //sorted ID, electrode. used to match a sortedID with its electrode
     std::vector<std::vector<int>> electrodeSortedId; 
