@@ -319,6 +319,20 @@
                ReferencedContainer = "container:Plugins/SpikeSorter/SpikeSorter.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2749684C2003F902008E0E8D"
+               BuildableName = "RhythmNode.bundle"
+               BlueprintName = "RhythmNode"
+               ReferencedContainer = "container:Plugins/RhythmNode/RhythmNode.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
