@@ -67,40 +67,6 @@
         <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2012 targetFolder="Builds/VisualStudio2012" libraryType="1" extraDefs="NOMINMAX &#10;"
-            externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;"
-            toolset="v110" smallIcon="txUyO4" bigIcon="nFMauU" vstFolder="">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\*.dll&quot; &quot;$(OutDir)&quot;"/>
-        <CONFIGURATION name="Debug64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Debug64\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
-        <CONFIGURATION name="Release64" winWarningLevel="2" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2012\Release64\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy &quot;..\..\Resources\DLLs\Win64\*.dll&quot; &quot;$(OutDir)&quot;"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_opengl" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_cryptography" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="JuceLibraryCode/modules"/>
-      </MODULEPATHS>
-    </VS2012>
     <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="setupapi.lib&#10;opengl32.lib&#10;glu32.lib&#10;"
             extraDefs="NOMINMAX &#10;JUCE_API=__declspec(dllexport) &#10;"
             smallIcon="txUyO4" bigIcon="nFMauU" vstFolder="">

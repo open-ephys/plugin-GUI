@@ -1,0 +1,265 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2785925B2004111A007FD314 /* RHD2000Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2785925820041119007FD314 /* RHD2000Thread.cpp */; };
+		2785925C2004111A007FD314 /* RHD2000Editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2785925920041119007FD314 /* RHD2000Editor.cpp */; };
+		2785925D2004111A007FD314 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2785925A2004111A007FD314 /* OpenEphysLib.cpp */; };
+		278592662004114A007FD314 /* rhd2000evalboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2785925F2004114A007FD314 /* rhd2000evalboard.cpp */; };
+		278592672004114A007FD314 /* rhd2000datablock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278592632004114A007FD314 /* rhd2000datablock.cpp */; };
+		278592682004114A007FD314 /* rhd2000registers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278592652004114A007FD314 /* rhd2000registers.cpp */; };
+		2785926A200411BD007FD314 /* libokFrontPanel.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2785925420040EF2007FD314 /* libokFrontPanel.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2785926C200414B9007FD314 /* libokFrontPanel.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2785925420040EF2007FD314 /* libokFrontPanel.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		27859269200411B0007FD314 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				2785926A200411BD007FD314 /* libokFrontPanel.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2749684D2003F902008E0E8D /* RhythmNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RhythmNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		274968502003F902008E0E8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2749687D2003FA38008E0E8D /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		2749687E2003FA38008E0E8D /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		2785925420040EF2007FD314 /* libokFrontPanel.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libokFrontPanel.dylib; path = ../../../../../Resources/DLLs/libokFrontPanel.dylib; sourceTree = "<group>"; };
+		2785925620041119007FD314 /* RHD2000Editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RHD2000Editor.h; path = ../../../../../Source/Plugins/RhythmNode/RHD2000Editor.h; sourceTree = "<group>"; };
+		2785925720041119007FD314 /* RHD2000Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RHD2000Thread.h; path = ../../../../../Source/Plugins/RhythmNode/RHD2000Thread.h; sourceTree = "<group>"; };
+		2785925820041119007FD314 /* RHD2000Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RHD2000Thread.cpp; path = ../../../../../Source/Plugins/RhythmNode/RHD2000Thread.cpp; sourceTree = "<group>"; };
+		2785925920041119007FD314 /* RHD2000Editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RHD2000Editor.cpp; path = ../../../../../Source/Plugins/RhythmNode/RHD2000Editor.cpp; sourceTree = "<group>"; };
+		2785925A2004111A007FD314 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../../Source/Plugins/RhythmNode/OpenEphysLib.cpp; sourceTree = "<group>"; };
+		2785925F2004114A007FD314 /* rhd2000evalboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rhd2000evalboard.cpp; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000evalboard.cpp"; sourceTree = "<group>"; };
+		278592602004114A007FD314 /* rhd2000evalboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rhd2000evalboard.h; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000evalboard.h"; sourceTree = "<group>"; };
+		278592612004114A007FD314 /* rhd2000datablock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rhd2000datablock.h; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000datablock.h"; sourceTree = "<group>"; };
+		278592622004114A007FD314 /* rhd2000registers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rhd2000registers.h; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000registers.h"; sourceTree = "<group>"; };
+		278592632004114A007FD314 /* rhd2000datablock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rhd2000datablock.cpp; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000datablock.cpp"; sourceTree = "<group>"; };
+		278592642004114A007FD314 /* okFrontPanelDLL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = okFrontPanelDLL.h; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/okFrontPanelDLL.h"; sourceTree = "<group>"; };
+		278592652004114A007FD314 /* rhd2000registers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rhd2000registers.cpp; path = "../../../../../../Source/Plugins/RhythmNode/rhythm-api/rhd2000registers.cpp"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2749684A2003F902008E0E8D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2785926C200414B9007FD314 /* libokFrontPanel.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		274968442003F901008E0E8D = {
+			isa = PBXGroup;
+			children = (
+				2785925320040ED3007FD314 /* Frameworks */,
+				2749687C2003F9D9008E0E8D /* Config */,
+				2749684F2003F902008E0E8D /* RhythmNode */,
+				2749684E2003F902008E0E8D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2749684E2003F902008E0E8D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2749684D2003F902008E0E8D /* RhythmNode.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2749684F2003F902008E0E8D /* RhythmNode */ = {
+			isa = PBXGroup;
+			children = (
+				2785925E20041120007FD314 /* rhythm-api */,
+				2785925A2004111A007FD314 /* OpenEphysLib.cpp */,
+				2785925920041119007FD314 /* RHD2000Editor.cpp */,
+				2785925620041119007FD314 /* RHD2000Editor.h */,
+				2785925820041119007FD314 /* RHD2000Thread.cpp */,
+				2785925720041119007FD314 /* RHD2000Thread.h */,
+				274968502003F902008E0E8D /* Info.plist */,
+			);
+			path = RhythmNode;
+			sourceTree = "<group>";
+		};
+		2749687C2003F9D9008E0E8D /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				2749687D2003FA38008E0E8D /* Plugin_Debug.xcconfig */,
+				2749687E2003FA38008E0E8D /* Plugin_Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		2785925320040ED3007FD314 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2785925420040EF2007FD314 /* libokFrontPanel.dylib */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		2785925E20041120007FD314 /* rhythm-api */ = {
+			isa = PBXGroup;
+			children = (
+				278592642004114A007FD314 /* okFrontPanelDLL.h */,
+				278592632004114A007FD314 /* rhd2000datablock.cpp */,
+				278592612004114A007FD314 /* rhd2000datablock.h */,
+				2785925F2004114A007FD314 /* rhd2000evalboard.cpp */,
+				278592602004114A007FD314 /* rhd2000evalboard.h */,
+				278592652004114A007FD314 /* rhd2000registers.cpp */,
+				278592622004114A007FD314 /* rhd2000registers.h */,
+			);
+			path = "rhythm-api";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2749684C2003F902008E0E8D /* RhythmNode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 274968532003F902008E0E8D /* Build configuration list for PBXNativeTarget "RhythmNode" */;
+			buildPhases = (
+				27859269200411B0007FD314 /* CopyFiles */,
+				274968492003F902008E0E8D /* Sources */,
+				2749684A2003F902008E0E8D /* Frameworks */,
+				2749684B2003F902008E0E8D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RhythmNode;
+			productName = RhythmNode;
+			productReference = 2749684D2003F902008E0E8D /* RhythmNode.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		274968452003F901008E0E8D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					2749684C2003F902008E0E8D = {
+						CreatedOnToolsVersion = 9.2;
+					};
+				};
+			};
+			buildConfigurationList = 274968482003F902008E0E8D /* Build configuration list for PBXProject "RhythmNode" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 274968442003F901008E0E8D;
+			productRefGroup = 2749684E2003F902008E0E8D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2749684C2003F902008E0E8D /* RhythmNode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2749684B2003F902008E0E8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		274968492003F902008E0E8D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2785925D2004111A007FD314 /* OpenEphysLib.cpp in Sources */,
+				278592662004114A007FD314 /* rhd2000evalboard.cpp in Sources */,
+				2785925B2004111A007FD314 /* RHD2000Thread.cpp in Sources */,
+				2785925C2004111A007FD314 /* RHD2000Editor.cpp in Sources */,
+				278592672004114A007FD314 /* rhd2000datablock.cpp in Sources */,
+				278592682004114A007FD314 /* rhd2000registers.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		274968512003F902008E0E8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2749687D2003FA38008E0E8D /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		274968522003F902008E0E8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2749687E2003FA38008E0E8D /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		274968542003F902008E0E8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = RhythmNode/Info.plist;
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/RhythmNode.bundle/Contents/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.openephys.RhythmNode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		274968552003F902008E0E8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = RhythmNode/Info.plist;
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/RhythmNode.bundle/Contents/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.openephys.RhythmNode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		274968482003F902008E0E8D /* Build configuration list for PBXProject "RhythmNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				274968512003F902008E0E8D /* Debug */,
+				274968522003F902008E0E8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		274968532003F902008E0E8D /* Build configuration list for PBXNativeTarget "RhythmNode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				274968542003F902008E0E8D /* Debug */,
+				274968552003F902008E0E8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 274968452003F901008E0E8D /* Project object */;
+}

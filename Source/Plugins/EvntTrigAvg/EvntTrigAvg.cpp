@@ -81,8 +81,8 @@ void EvntTrigAvg::updateSettings()
     clearHistogramArray();
     initializeHistogramArray();
     initializeMinMaxMean();
-    electrodeMap.clear();
-    electrodeMap = createElectrodeMap();
+  //  electrodeMap.clear();
+ //   electrodeMap = createElectrodeMap();
     electrodeLabels.clear();
     electrodeLabels = createElectrodeLabels();
     if(spikeData.size()!=getTotalSpikeChannels())
@@ -201,7 +201,7 @@ void EvntTrigAvg::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& 
         int electrode = getSpikeChannelIndex(newSpike);
         //std::cout<<"chanIDX: " << chanIDX << "\n";
         int sortedID = newSpike->getSortedID();
-        //int electrode = electrodeMap[chanIDX];
+        //int electrode = electrodeMap[chanInfo];
         if(sortedID!=0 && sortedID>idIndex.size()){ // respond to new sortedID
             idIndex.push_back(spikeData[electrode].size());// update map of what sorted ID is on what electrode
         }
@@ -299,23 +299,25 @@ int EvntTrigAvg::getLastTTLCalculated()
 }
 
 /** creates map to convert channelIDX to electrode number */
-std::vector<int> EvntTrigAvg::createElectrodeMap()
+/*
+std::map<SourceChannelInfo, int> EvntTrigAvg::createElectrodeMap()
 {
-    std::vector<int> map;
+    std::map<SourceChannelInfo,int> map;
     int numSpikeChannels = getTotalSpikeChannels();
     int electrodeCounter=0;
     for (int chanIt = 0 ; chanIt < numSpikeChannels ; chanIt++){
         const SpikeChannel* chan = getSpikeChannel(chanIt);
         // add to running count of each electrode
-        map.resize(map.size()+chan->getNumChannels());
+
         Array<SourceChannelInfo> chanInfo = chan->getSourceChannelInfo();
         for (int subChanIt = 0 ; subChanIt < chan->getNumChannels() ; subChanIt++){
-            map[chanInfo[subChanIt].channelIDX]=electrodeCounter;
+			
+            map[chanInfo[subChanIt]]=electrodeCounter;
         }
         electrodeCounter+=1;
     }
     return map;
-}
+}*/
 
 std::vector<String> EvntTrigAvg::createElectrodeLabels()
 {
