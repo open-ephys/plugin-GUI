@@ -197,8 +197,8 @@ void AudioNode::recreateBuffers()
 
     }
 
-//    tempBuffer->setSize(getNumInputs(), 4096);
-    tempBuffer->setSize(1, 4096);
+    tempBuffer->setSize(getNumInputs(), 4096);
+//    tempBuffer->setSize(1, 4096);
 }
 
 bool AudioNode::enable()
