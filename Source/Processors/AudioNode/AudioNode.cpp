@@ -289,7 +289,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                     if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
                     {
 
-                        tempBuffer->addFrom(i,    // destination channel
+                        tempBuffer->addFrom(0,    // destination channel
                                             0,                // destination start sample
                                             *overflowBuffer,  // source
                                             0,                // source channel
