@@ -176,6 +176,8 @@ private:
     float timeOffset;
     //int spread ; // vertical spacing between channels
 
+	int drawableSubprocessor;
+	float displayedSampleRate;
     
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 

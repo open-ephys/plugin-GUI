@@ -50,10 +50,22 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
     subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14, Font::plain));
     subprocessorSampleRateLabel->setBounds(subprocessorSelection->getX(), subprocessorSelection->getBottom() + 10, 200, 40);
     addAndMakeVisible(subprocessorSampleRateLabel);
+
+	defaultSubprocessor = 0;
 }
 
 LfpDisplayEditor::~LfpDisplayEditor()
 {
+}
+
+void LfpDisplayEditor::startAcquisition()
+{
+	subprocessorSelection->setEnabled(false);
+}
+
+void LfpDisplayEditor::stopAcquisition()
+{
+	subprocessorSelection->setEnabled(true);
 }
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
@@ -96,6 +108,7 @@ void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
 {
     if (cb == subprocessorSelection)
     {
+		std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl; 
         setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
     }
 }
@@ -119,26 +132,20 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
         
     }
     
-    int subprocessorToSet = -1;
-    if (inputSubprocessorIndices.size() > 0)
-    {
-        subprocessorToSet = 0;
-    }
-    
     for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
     {
         subprocessorSelection->addItem (String (*(inputSubprocessorIndices.begin() + i)), i + 1);
     }
     
-    if (subprocessorToSet >= 0)
+    if (defaultSubprocessor >= 0)
     {
-        subprocessorSelection->setSelectedId(subprocessorToSet + 1, dontSendNotification);
+		subprocessorSelection->setSelectedId(defaultSubprocessor + 1, dontSendNotification);
         
         String sampleRateLabelText = "Sample Rate: ";
-        sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin()+subprocessorToSet)]);
+		sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);
         
         subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        setCanvasDrawableSubprocessor(subprocessorToSet);
+		//setCanvasDrawableSubprocessor(defaultSubprocessor);
     }
     else
     {
@@ -147,7 +154,7 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
         
         String sampleRateLabelText = "Sample Rate: <not available>";
         subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        setCanvasDrawableSubprocessor(-1);
+        //setCanvasDrawableSubprocessor(-1);
         
     }
 }
@@ -156,10 +163,49 @@ void LfpDisplayEditor::setCanvasDrawableSubprocessor(int index)
 {
     if (canvas)
     {
-        if (index >= 0)
-            ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
-        else
-            ((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(-1);
+		if (index >= 0)
+		{
+			((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+			float rate = lfpProcessor->getSubprocessorSampleRate();
+
+			String sampleRateLabelText = "Sample Rate: ";
+			sampleRateLabelText += String(rate);
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+
+			std::cout << sampleRateLabelText << std::endl;
+		}
+		else
+		{
+			((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(-1);
+		}
+            
     }
 }
 
+
+void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
+{
+
+	xml->setAttribute("Type", "LfpDisplayEditor");
+
+	int subprocessorItemId = subprocessorSelection->getSelectedId();
+
+	XmlElement* values = xml->createNewChildElement("VALUES");
+	values->setAttribute("SubprocessorId", subprocessorItemId - 1);
+}
+
+void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
+{
+
+	forEachXmlChildElement(*xml, xmlNode)
+	{
+		if (xmlNode->hasTagName("VALUES"))
+		{
+			std::cout << "LfpDisplay found " << xmlNode->getIntAttribute("SubprocessorId") << std::endl;
+			defaultSubprocessor = xmlNode->getIntAttribute("SubprocessorId");
+			subprocessorSelection->setSelectedItemIndex(defaultSubprocessor + 1, sendNotification);
+
+		}
+	}
+
+}

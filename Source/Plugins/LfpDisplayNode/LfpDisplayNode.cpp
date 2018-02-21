@@ -31,7 +31,7 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
     , displayGain       (1)
-    , bufferLength      (20.0f)
+    , bufferLength      (10.0f)
     , abstractFifo      (100)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
@@ -44,6 +44,10 @@ LfpDisplayNode::LfpDisplayNode()
     {
         arrayOfOnes[n] = 1;
     }
+
+	subprocessorToDraw = 0;
+	numChannelsInSubprocessor = 0;
+	updateSubprocessorsFlag = true;
 }
 
 
@@ -62,7 +66,22 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 
 void LfpDisplayNode::updateSettings()
 {
+
     std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+
+	numChannelsInSubprocessor = 0;
+
+	for (int i = 0; i < getNumInputs(); i++)
+	{
+		if (getDataChannel(i)->getSubProcessorIdx() == subprocessorToDraw)
+		{
+			numChannelsInSubprocessor++;
+			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
+		}
+	}
+
+	std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChannelsInSubprocessor << std::endl;
+	std::cout << "Sample rate = " << subprocessorSampleRate << std::endl;
 
     channelForEventSource.clear();
     eventSourceNodes.clear();
@@ -84,18 +103,25 @@ void LfpDisplayNode::updateSettings()
 
     for (int i = 0; i < eventSourceNodes.size(); ++i)
     {
-        std::cout << "Adding channel " << getNumInputs() + i << " for event source node " << eventSourceNodes[i] << std::endl;
+		std::cout << "Adding channel " << numChannelsInSubprocessor + i << " for event source node " << eventSourceNodes[i] << std::endl;
 
-        channelForEventSource[eventSourceNodes[i]] = getNumInputs() + i;
+		channelForEventSource[eventSourceNodes[i]] = numChannelsInSubprocessor + i;
         ttlState[eventSourceNodes[i]] = 0;
     }
 
     displayBufferIndex.clear();
-    displayBufferIndex.insertMultiple (0, 0, getNumInputs() + numEventChannels);
+	displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
     
     // update the editor's subprocessor selection display
-    LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
-    ed->updateSubprocessorSelectorOptions();
+	if (updateSubprocessorsFlag)
+	{
+		LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
+		ed->updateSubprocessorSelectorOptions();
+	}
+	else {
+		updateSubprocessorsFlag = true;
+	}
+    
 }
 
 uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
@@ -110,39 +136,62 @@ uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
 	return getProcessorFullId(values[1], values[2]);
 }
 
+void LfpDisplayNode::setSubprocessor(int sp)
+{
+
+	subprocessorToDraw = sp;
+	std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;
+	updateSubprocessorsFlag = false;
+	updateSettings();
+	
+}
+
+int LfpDisplayNode::getNumSubprocessorChannels()
+{
+	return numChannelsInSubprocessor;
+}
+
+float LfpDisplayNode::getSubprocessorSampleRate()
+{
+	return subprocessorSampleRate;
+}
+
 bool LfpDisplayNode::resizeBuffer()
 {
-    int nSamples = (int) getSampleRate() * bufferLength;
-    int nInputs = getNumInputs();
+	int nSamples = (int)subprocessorSampleRate * bufferLength;
+	int nInputs = numChannelsInSubprocessor;
 
-    std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << ", event channels: " << numEventChannels << std::endl;
 
-    if (nSamples > 0 && nInputs > 0)
-    {
-        abstractFifo.setTotalSize (nSamples);
-        displayBuffer->setSize (nInputs + numEventChannels, nSamples); // add extra channels for TTLs
+	if (nSamples > 0 && nInputs > 0)
+	{
+		abstractFifo.setTotalSize(nSamples);
+		displayBuffer->setSize(nInputs + numEventChannels, nSamples); // add extra channels for TTLs
 
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	
 }
 
 
 bool LfpDisplayNode::enable()
 {
-    if (resizeBuffer())
-    {
-        LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-        editor->enable();
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+	if (resizeBuffer())
+	{
+		LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
+		editor->enable();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
 
 
@@ -181,6 +230,8 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventTime = samplePosition;
         const uint32 eventSourceNodeId = getChannelSourceID(eventInfo);
         
+		//std::cout << "Received event on channel " << eventChannel << std::endl;
+		//std::cout << "Copying to channel " << channelForEventSource[eventSourceNodeId] << std::endl;
         
         const int chan          = channelForEventSource[eventSourceNodeId];
         const int index         = (displayBufferIndex[chan] + eventTime) % displayBuffer->getNumSamples();
@@ -231,12 +282,17 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
 
 void LfpDisplayNode::initializeEventChannels()
 {
+
+	//std::cout << "Initializing events..." << std::endl;
+
     for (int i = 0; i < eventSourceNodes.size(); ++i)
     {
         const int chan          = channelForEventSource[eventSourceNodes[i]];
         const int index         = displayBufferIndex[chan];
         const int samplesLeft   = displayBuffer->getNumSamples() - index;
 		const int nSamples = getNumSourceSamples(eventSourceNodes[i]);
+
+		//std::cout << chan << " " << index << " " << samplesLeft << " " << nSamples << std::endl;
         
         if (nSamples < samplesLeft)
         {
@@ -296,49 +352,63 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
     // 1. place any new samples into the displayBuffer
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
-    ScopedLock displayLock (displayMutex);
-    
-    initializeEventChannels();
-    checkForEvents (); // see if we got any TTL events
-    finalizeEventChannels();
+	if (true)
+	{
+		ScopedLock displayLock(displayMutex);
 
+		if (true)
+		{
+			initializeEventChannels();
+			checkForEvents(); // see if we got any TTL events
+			finalizeEventChannels();
+		}
 
-    for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
-    {
-        const int samplesLeft  = displayBuffer->getNumSamples() - displayBufferIndex[chan];
-        const int nSamples     = getNumSamples (chan);
+		if (true)
+		{
+			int channelIndex = -1;
 
-        if (nSamples < samplesLeft)
-        {
-            displayBuffer->copyFrom (chan,                      // destChannel
-                                     displayBufferIndex[chan],  // destStartSample
-                                     buffer,                    // source
-                                     chan,                      // source channel
-                                     0,                         // source start sample
-                                     nSamples);                 // numSamples
+			for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
+			{
+				if (getDataChannel(chan)->getSubProcessorIdx() == subprocessorToDraw)
+				{
+					channelIndex++;
+					const int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex[channelIndex];
+					const int nSamples = getNumSamples(chan);
 
-            displayBufferIndex.set (chan, displayBufferIndex[chan] + nSamples);
-        }
-        else
-        {
-            const int extraSamples = nSamples - samplesLeft;
+					if (nSamples < samplesLeft)
+					{
+						displayBuffer->copyFrom(channelIndex,                      // destChannel
+							displayBufferIndex[channelIndex],  // destStartSample
+							buffer,                    // source
+							chan,                      // source channel
+							0,                         // source start sample
+							nSamples);                 // numSamples
 
-            displayBuffer->copyFrom (chan,                      // destChannel
-                                     displayBufferIndex[chan],  // destStartSample
-                                     buffer,                    // source
-                                     chan,                      // source channel
-                                     0,                         // source start sample
-                                     samplesLeft);              // numSamples
+						displayBufferIndex.set(channelIndex, displayBufferIndex[channelIndex] + nSamples);
+					}
+					else
+					{
+						const int extraSamples = nSamples - samplesLeft;
 
-            displayBuffer->copyFrom (chan,                      // destChannel
-                                     0,                         // destStartSample
-                                     buffer,                    // source
-                                     chan,                      // source channel
-                                     samplesLeft,               // source start sample
-                                     extraSamples);             // numSamples
+						displayBuffer->copyFrom(channelIndex,                      // destChannel
+							displayBufferIndex[channelIndex],  // destStartSample
+							buffer,                    // source
+							chan,                      // source channel
+							0,                         // source start sample
+							samplesLeft);              // numSamples
 
-            displayBufferIndex.set (chan, extraSamples);
-        }
-    }
+						displayBuffer->copyFrom(channelIndex,                      // destChannel
+							0,                         // destStartSample
+							buffer,                    // source
+							chan,                      // source channel
+							samplesLeft,               // source start sample
+							extraSamples);             // numSamples
+
+						displayBufferIndex.set(channelIndex, extraSamples);
+					}
+				}
+			}
+		}
+	}
 }
 

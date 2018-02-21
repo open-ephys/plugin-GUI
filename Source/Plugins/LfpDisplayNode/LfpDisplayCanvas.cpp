@@ -36,7 +36,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     processor(processor_)
 {
 
-    nChans = processor->getNumInputs();
+	nChans = processor->getNumSubprocessorChannels();
     std::cout << "Setting num inputs on LfpDisplayCanvas to " << nChans << std::endl;
 
     displayBuffer = processor->getDisplayBufferAddress();
@@ -184,28 +184,39 @@ void LfpDisplayCanvas::resizeToChannels(bool respectViewportPosition)
 
 void LfpDisplayCanvas::beginAnimation()
 {
-    std::cout << "Beginning animation." << std::endl;
+	std::cout << "Beginning animation." << std::endl;
 
-    displayBufferSize = displayBuffer->getNumSamples();
+	if (true)
+	{
 
-    for (int i = 0; i < screenBufferIndex.size(); i++)
-    {
-        screenBufferIndex.set(i,0);
-    }
+		displayBufferSize = displayBuffer->getNumSamples();
 
-    startCallbacks();
+		for (int i = 0; i < screenBufferIndex.size(); i++)
+		{
+			screenBufferIndex.set(i, 0);
+		}
+
+		startCallbacks();
+	}	
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
-    std::cout << "Ending animation." << std::endl;
+	if (true)
+	{
+		std::cout << "Ending animation." << std::endl;
 
-    stopCallbacks();
+		stopCallbacks();
+	}
 }
 
 void LfpDisplayCanvas::update()
 {
-    nChans = jmax(processor->getNumInputs(), 0);
+	if (true)
+	{
+    nChans = jmax(processor->getNumSubprocessorChannels(), 0);
+
+	std::cout << "Num chans: " << nChans << std::endl;
 
     resizeSamplesPerPixelBuffer(nChans);
 
@@ -218,21 +229,33 @@ void LfpDisplayCanvas::update()
     // must manually ensure that overlapSelection propagates up to canvas
     channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
-    for (int i = 0; i <= nChans; i++) // extra channel for events
+	std::cout << "Checking channels: " << nChans << std::endl;
+	for (int i = 0; i <= processor->getNumInputs() + 1; i++) // extra channel for events
     {
+		//std::cout << i << std::endl;
 		if (processor->getNumInputs() > 0)
 		{
-			if (i < nChans)
-				sampleRate.add(processor->getDataChannel(i)->getSampleRate());
+			if (i < processor->getNumInputs())
+			{
+				if (processor->getDataChannel(i)->getSubProcessorIdx() == drawableSubprocessor)
+				{
+					sampleRate.add(processor->getDataChannel(i)->getSampleRate());
+					//std::cout << "Adding sample rate " << processor->getDataChannel(i)->getSampleRate() << std::endl;
+				}
+					
+			}
 			else
 			{
 				//Since for now the canvas only supports one event channel, find the first TTL one and use that as sampleRate.
 				//This is a bit hackish and should be fixed for proper multi-ttl-channel support
+
 				for (int c = 0; c < processor->getTotalEventChannels(); c++)
 				{
 					if (processor->getEventChannel(c)->getChannelType() == EventChannel::TTL)
 					{
 						sampleRate.add(processor->getEventChannel(c)->getSampleRate());
+						std::cout << "Sample rate = " << processor->getEventChannel(c)->getSampleRate() << std::endl;
+
 					}
 				}
 			}
@@ -248,18 +271,25 @@ void LfpDisplayCanvas::update()
         lastScreenBufferIndex.add(0);
     }
 
+	lfpDisplay->setDisplayedSampleRate(sampleRate[0]); // only one sample rate possible for now
+	std::cout << "Setting display sample rate to " << sampleRate[0] << std::endl;
+
+	std::cout << "Checking channel alignment: " << nChans << std::endl;
     if (nChans != lfpDisplay->getNumChannels())
     {
-
+		std::cout << "Refreshing screen buffer" << std::endl;
         refreshScreenBuffer();
 
-        lfpDisplay->setNumChannels(nChans); // add an extra channel for events
+		std::cout << "Changing channels on LFP display" << std::endl;
+		if (nChans > 0)
+			lfpDisplay->setNumChannels(nChans + 1); // add an extra channel for events
 
         // update channel names
-        for (int i = 0; i < processor->getNumInputs(); i++)
+		//std::cout << "Updating channel names" << std::endl;
+		for (int i = 0; i < nChans; i++)
         {
 
-            String chName = processor->getDataChannel(i)->getName();
+           String chName = processor->getDataChannel(i)->getName();
 
             lfpDisplay->channelInfo[i]->setName(chName);
             lfpDisplay->setEnabledState(isChannelEnabled[i], i);
@@ -276,17 +306,19 @@ void LfpDisplayCanvas::update()
     }
     else
     {
-        for (int i = 0; i < processor->getNumInputs(); i++)
+		for (int i = 0; i < nChans; i++)
         {
+			//std::cout << i << std::endl;
             lfpDisplay->channels[i]->updateType();
             lfpDisplay->channelInfo[i]->updateType();
         }
         
-        if (nChans > 0)
+		if (nChans > 0)
+			std::cout << "Rebuilding drawable channels" << std::endl;
             lfpDisplay->rebuildDrawableChannelsList();
     }
     
-
+	}
 }
 
 
@@ -309,202 +341,220 @@ void LfpDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
 
-    for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
-    {
+	if (true)
+	{
+		for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
+		{
 
-        displayBufferIndex.set(i, processor->getDisplayBufferIndex(i));
-        screenBufferIndex.set(i,0);
-    }
+			displayBufferIndex.set(i, processor->getDisplayBufferIndex(i));
+			screenBufferIndex.set(i, 0);
+		}
+	}
 
 }
 
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
+	if (true)
+	{
+		for (int i = 0; i < screenBufferIndex.size(); i++)
+			screenBufferIndex.set(i, 0);
 
-    for (int i = 0; i < screenBufferIndex.size(); i++)
-        screenBufferIndex.set(i,0);
-
-    screenBuffer->clear();
-    screenBufferMin->clear();
-    screenBufferMean->clear();
-    screenBufferMax->clear();
+		screenBuffer->clear();
+		screenBufferMin->clear();
+		screenBufferMean->clear();
+		screenBufferMax->clear();
+	}
 
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
 {
+	if (true)
+	{
+		// copy new samples from the displayBuffer into the screenBuffer
+		int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
-    // copy new samples from the displayBuffer into the screenBuffer
-    int maxSamples = lfpDisplay->getWidth() - leftmargin;
+		ScopedLock displayLock(*processor->getMutex());
 
-	ScopedLock displayLock(*processor->getMutex());
+		for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
+		{
 
-    for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
-    {
+			//if (channel == 0)
+			//	std::cout << sampleRate[channel] << std::endl;
 
-        if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
-            screenBufferIndex.set(channel, 0);
+			if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
+				screenBufferIndex.set(channel, 0);
 
-         // hold these values locally for each channel - is this a good idea?
-        int sbi = screenBufferIndex[channel];
-        int dbi = displayBufferIndex[channel];
-        
-        lastScreenBufferIndex.set(channel,sbi);
+			// hold these values locally for each channel - is this a good idea?
+			int sbi = screenBufferIndex[channel];
+			int dbi = displayBufferIndex[channel];
 
-        int index = processor->getDisplayBufferIndex(channel);
+			
 
-        int nSamples =  index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
+			lastScreenBufferIndex.set(channel, sbi);
 
-        if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
-        {
-            nSamples = (displayBufferSize - dbi) + index +1;
-           //  std::cout << "nsamples 0 " ;
-        }
+			int index = processor->getDisplayBufferIndex(channel);
 
-        //if (channel == 15 || channel == 16)
-        //     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
+			int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
+			if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
+			{
+				nSamples = (displayBufferSize - dbi) + index + 1;
+				//  std::cout << "nsamples 0 " ;
+			}
 
-        float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
-        // this number is crucial: converting from samples to values (in px) for the screen buffer
-        int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
-
-        if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width
-        {
-            valuesNeeded = maxSamples - sbi;
-        }
-        float subSampleOffset = 0.0;
-
-        dbi %= displayBufferSize; // make sure we're not overshooting
-        int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
-
-//         if (channel == 0)
-//             std::cout << "Channel " 
-//                       << channel << " : " 
-//                       << sbi << " : " 
-//                       << index << " : " 
-//                       << dbi << " : " 
-//                       << valuesNeeded << " : " 
-//                       << ratio 
-//                                     << std::endl;
-        
-        if (valuesNeeded > 0 && valuesNeeded < 1000000)
-        {
-            for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
-            {
-                //If paused don't update screen buffers, but update all indexes as needed
-                if (!lfpDisplay->isPaused)
-                {
-                    float gain = 1.0;
-                    float alpha = (float) subSampleOffset;
-                    float invAlpha = 1.0f - alpha;
-
-                    screenBuffer->clear(channel, sbi, 1);
-                    screenBufferMean->clear(channel, sbi, 1);
-                    screenBufferMin->clear(channel, sbi, 1);
-                    screenBufferMax->clear(channel, sbi, 1);
-
-                    dbi %= displayBufferSize; // just to be sure
-                    
-                    // update continuous data channels
-                    if (channel != nChans)
-                    {
-                        // interpolate between two samples with invAlpha and alpha
-                        screenBuffer->addFrom(channel, // destChannel
-                                              sbi, // destStartSample
-                                              displayBuffer->getReadPointer(channel, dbi), // source
-                                              1, // numSamples
-                                              invAlpha*gain); // gain
+			//if (channel == 15 || channel == 16)
+			//     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
 
 
-                        screenBuffer->addFrom(channel, // destChannel
-                                              sbi, // destStartSample
-                                              displayBuffer->getReadPointer(channel, nextPos), // source
-                                              1, // numSamples
-                                              alpha*gain); // gain
-                    }
+			float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
+			// this number is crucial: converting from samples to values (in px) for the screen buffer
+			int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
 
-                    // same thing again, but this time add the min,mean, and max of all samples in current pixel
-                    float sample_min   =  10000000;
-                    float sample_max   = -10000000;
-                    float sample_mean  =  0;
-                    
-                    int nextpix = (dbi +(int)ratio +1) % (displayBufferSize+1); //  position to next pixels index
-                    
-                    if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
-                    //    std::cout << "np " ;
-                        nextpix=dbi;
-                    }
-                   
-                    for (int j = dbi; j < nextpix; j++)
-                    {
-                        
-                        float sample_current = displayBuffer->getSample(channel, j);
-                        sample_mean = sample_mean + sample_current;
+			if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width
+			{
+				valuesNeeded = maxSamples - sbi;
+			}
+			float subSampleOffset = 0.0;
 
-                        if (sample_min>sample_current)
-                        {
-                            sample_min=sample_current;
-                        }
+			dbi %= displayBufferSize; // make sure we're not overshooting
+			int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
-                        if (sample_max<sample_current)
-                        {
-                            sample_max=sample_current;
-                        }
-                       
-                    }
-                    
-                    // update event channel
-                    if (channel == nChans)
-                    {
-                        screenBuffer->setSample(channel, sbi, sample_max);
-                    }
-                    
-                    // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
-                    // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
-                    // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
-                    if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
-                        {
-                            int c = 0;
-                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
-                            {
-                                float sample_current = displayBuffer->getSample(channel, j);
-                                samplesPerPixel[channel][sbi][c]=sample_current;
-                                c++;
-                            }
-                            if (c>0){
-                                sampleCountPerPixel[sbi]=c-1; // save count of samples for this pixel
-                            }else{
-                                sampleCountPerPixel[sbi]=0;
-                            }
-                            sample_mean = sample_mean/c;
-                            screenBufferMean->addSample(channel, sbi, sample_mean*gain);
-                            
-                            screenBufferMin->addSample(channel, sbi, sample_min*gain);
-                            screenBufferMax->addSample(channel, sbi, sample_max*gain);
-                        }
-                    sbi++;
-                }
-            
-                subSampleOffset += ratio;
-                
-                while (subSampleOffset >= 1.0)
-                {
-                    if (++dbi > displayBufferSize)
-                        dbi = 0;
-                    
-                    nextPos = (dbi + 1) % displayBufferSize;
-                    subSampleOffset -= 1.0;
-                }
-                
-            }
-            
-            // update values after we're done
-            screenBufferIndex.set(channel, sbi);
-            displayBufferIndex.set(channel, dbi);
-        }
+			//         if (channel == 0)
+			//             std::cout << "Channel " 
+			//                       << channel << " : " 
+			//                       << sbi << " : " 
+			//                       << index << " : " 
+			//                       << dbi << " : " 
+			//                       << valuesNeeded << " : " 
+			//                       << ratio 
+			//                                     << std::endl;
 
-    }
+			if (valuesNeeded > 0 && valuesNeeded < 1000000)
+			{
+				for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
+				{
+					//If paused don't update screen buffers, but update all indexes as needed
+					if (!lfpDisplay->isPaused)
+					{
+						float gain = 1.0;
+						float alpha = (float)subSampleOffset;
+						float invAlpha = 1.0f - alpha;
+
+						screenBuffer->clear(channel, sbi, 1);
+						screenBufferMean->clear(channel, sbi, 1);
+						screenBufferMin->clear(channel, sbi, 1);
+						screenBufferMax->clear(channel, sbi, 1);
+
+						dbi %= displayBufferSize; // just to be sure
+
+						// update continuous data channels
+						if (channel != nChans)
+						{
+							// interpolate between two samples with invAlpha and alpha
+							screenBuffer->addFrom(channel, // destChannel
+								sbi, // destStartSample
+								displayBuffer->getReadPointer(channel, dbi), // source
+								1, // numSamples
+								invAlpha*gain); // gain
+
+
+							screenBuffer->addFrom(channel, // destChannel
+								sbi, // destStartSample
+								displayBuffer->getReadPointer(channel, nextPos), // source
+								1, // numSamples
+								alpha*gain); // gain
+						}
+						
+
+						// same thing again, but this time add the min,mean, and max of all samples in current pixel
+						float sample_min = 10000000;
+						float sample_max = -10000000;
+						float sample_mean = 0;
+
+						int nextpix = (dbi + (int)ratio + 1) % (displayBufferSize + 1); //  position to next pixels index
+
+						if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
+							//    std::cout << "np " ;
+							nextpix = dbi;
+						}
+
+						for (int j = dbi; j < nextpix; j++)
+						{
+
+							float sample_current = displayBuffer->getSample(channel, j);
+							sample_mean = sample_mean + sample_current;
+
+							if (sample_min > sample_current)
+							{
+								sample_min = sample_current;
+							}
+
+							if (sample_max < sample_current)
+							{
+								sample_max = sample_current;
+							}
+
+						}
+
+						// update event channel
+						if (channel == nChans)
+						{
+							//std::cout << sample_max << std::endl;
+							screenBuffer->setSample(channel, sbi, sample_max);
+							//if (screenBuffer->getSample(channel, sbi - 1) != sample_max)
+							//	std::cout << "Sample changed" << std::endl;
+							//screenBuffer->setSample(channel, sbi, sample_max);
+						}
+
+						// similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
+						// for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
+						// with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
+						if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
+						{
+							int c = 0;
+							for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
+							{
+								float sample_current = displayBuffer->getSample(channel, j);
+								samplesPerPixel[channel][sbi][c] = sample_current;
+								c++;
+							}
+							if (c > 0){
+								sampleCountPerPixel[sbi] = c - 1; // save count of samples for this pixel
+							}
+							else{
+								sampleCountPerPixel[sbi] = 0;
+							}
+							sample_mean = sample_mean / c;
+							screenBufferMean->addSample(channel, sbi, sample_mean*gain);
+
+							screenBufferMin->addSample(channel, sbi, sample_min*gain);
+							screenBufferMax->addSample(channel, sbi, sample_max*gain);
+						}
+						sbi++;
+					}
+
+					subSampleOffset += ratio;
+
+					while (subSampleOffset >= 1.0)
+					{
+						if (++dbi > displayBufferSize)
+							dbi = 0;
+
+						nextPos = (dbi + 1) % displayBufferSize;
+						subSampleOffset -= 1.0;
+					}
+
+				}
+
+				// update values after we're done
+				screenBufferIndex.set(channel, sbi);
+				displayBufferIndex.set(channel, dbi);
+			}
+
+		}
+	}
 
 }
 
@@ -614,12 +664,17 @@ int LfpDisplayCanvas::getChannelSampleRate(int channel)
 void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
 {
 //    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
+	displayedSampleRate = samplerate;
     lfpDisplay->setDisplayedSampleRate(samplerate);
 }
 
 void LfpDisplayCanvas::setDrawableSubprocessor(int idx)
 {
+	drawableSubprocessor = idx;
     lfpDisplay->setDisplayedSubprocessor(idx);
+	std::cout << "Setting LFP canvas subprocessor to " << idx << std::endl;
+	processor->setSubprocessor(idx);
+	update();
 }
 
 void LfpDisplayCanvas::redraw()
@@ -668,11 +723,12 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 void LfpDisplayCanvas::refresh()
 {
-
+	if (true)
+	{ 
     updateScreenBuffer();
 
     lfpDisplay->refresh(); // redraws only the new part of the screen buffer
-
+	}
 }
 
 bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
@@ -700,13 +756,16 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
 
     options->saveParameters(xml);
+	LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
+	ed->saveVisualizerParameters(xml);
 }
 
 
 void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 {
     options->loadParameters(xml);
-
+	LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
+	ed->loadVisualizerParameters(xml);
 }
 
 
@@ -797,7 +856,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
 	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
 	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
-	selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 8;
+	selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 4;
 	rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
 	rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
     rangeUnits.add("uV");
@@ -928,7 +987,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     medianOffsetPlottingButton->setCorners(true, true, true, true);
     medianOffsetPlottingButton->addListener(this);
     medianOffsetPlottingButton->setClickingTogglesState(true);
-    medianOffsetPlottingButton->setToggleState(false, sendNotification);
+    medianOffsetPlottingButton->setToggleState(true, sendNotification);
     addAndMakeVisible(medianOffsetPlottingButton);
 
     
@@ -961,7 +1020,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     spreads.add("80");
     spreads.add("90");
     spreads.add("100");
-    selectedSpread = 5;
+    selectedSpread = 4;
     selectedSpreadValue = spreads[selectedSpread-1];
 
 
@@ -1137,7 +1196,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
-        lfpDisplay->setEventDisplayState(i,true);
+        lfpDisplay->setEventDisplayState(i,false);
 
     }
 
@@ -1234,7 +1293,7 @@ void LfpDisplayOptions::resized()
     brightnessSliderB->setBounds(170,getHeight()-160,100,22);
     sliderBLabel->setBounds(270, getHeight()-160, 180, 22);
     brightnessSliderB->setValue(0.1); //set default value
-
+	
     showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
     
     int bh = 25/typeButtons.size();
@@ -2239,42 +2298,46 @@ void LfpDisplay::setNumChannels(int numChannels)
     totalHeight = 0;
     cachedDisplayChannelHeight = canvas->getChannelHeight();
 
-    for (int i = 0; i < numChans; i++)
-    {
-        //std::cout << "Adding new display for channel " << i << std::endl;
+	if (numChans > 0)
+	{
+		for (int i = 0; i < numChans; i++)
+		{
+			//std::cout << "Adding new display for channel " << i << std::endl;
 
-        LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, options, i);
+			LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvas, this, options, i);
 
-        //lfpChan->setColour(channelColours[i % channelColours.size()]);
-        lfpChan->setRange(range[options->getChannelType(i)]);
-        lfpChan->setChannelHeight(canvas->getChannelHeight());
-        
-        addAndMakeVisible(lfpChan);
+			//lfpChan->setColour(channelColours[i % channelColours.size()]);
+			lfpChan->setRange(range[options->getChannelType(i)]);
+			lfpChan->setChannelHeight(canvas->getChannelHeight());
 
-        channels.add(lfpChan);
+			addAndMakeVisible(lfpChan);
 
-        LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvas, this, options, i);
+			channels.add(lfpChan);
 
-        //lfpInfo->setColour(channelColours[i % channelColours.size()]);
-        lfpInfo->setRange(range[options->getChannelType(i)]);
-        lfpInfo->setChannelHeight(canvas->getChannelHeight());
-        lfpInfo->setSubprocessorIdx(canvas->getChannelSubprocessorIdx(i));
+			LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvas, this, options, i);
 
-        addAndMakeVisible(lfpInfo);
+			//lfpInfo->setColour(channelColours[i % channelColours.size()]);
+			lfpInfo->setRange(range[options->getChannelType(i)]);
+			lfpInfo->setChannelHeight(canvas->getChannelHeight());
+			lfpInfo->setSubprocessorIdx(canvas->getChannelSubprocessorIdx(i));
 
-        channelInfo.add(lfpInfo);
-        
-        drawableChannels.add(LfpChannelTrack{
-            lfpChan,
-            lfpInfo
-        });
+			addAndMakeVisible(lfpInfo);
 
-		savedChannelState.add(true);
+			channelInfo.add(lfpInfo);
 
-        totalHeight += lfpChan->getChannelHeight();
+			drawableChannels.add(LfpChannelTrack{
+				lfpChan,
+				lfpInfo
+			});
 
-    }
+			savedChannelState.add(true);
 
+			totalHeight += lfpChan->getChannelHeight();
+
+		}
+
+	}
+    
     setColors();
     
 
@@ -2384,7 +2447,8 @@ void LfpDisplay::paint(Graphics& g)
 
 void LfpDisplay::refresh()
 {
-    
+	if (true)
+	{ 
     // X-bounds of this update
     int fillfrom = canvas->lastScreenBufferIndex[0];
     int fillto = (canvas->screenBufferIndex[0]);
@@ -2457,6 +2521,7 @@ void LfpDisplay::refresh()
     }
     
     canvas->fullredraw = false;
+	}
     
 }
 
@@ -2574,7 +2639,7 @@ float LfpDisplay::getDisplayedSampleRate()
 // already as a result of some other procedure
 void LfpDisplay::setDisplayedSampleRate(float samplerate)
 {
-//    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
+    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
     drawableSampleRate = samplerate;
 }
 
@@ -2586,6 +2651,8 @@ int LfpDisplay::getDisplayedSubprocessor()
 void LfpDisplay::setDisplayedSubprocessor(int subProcessorIdx)
 {
     drawableSubprocessorIdx = subProcessorIdx;
+	refresh();
+
 }
 
 bool LfpDisplay::getChannelsReversed()
@@ -2873,13 +2940,14 @@ void LfpDisplay::rebuildDrawableChannelsList()
     {
 //        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
         // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
-        if (channelInfo[i]->getSubprocessorIdx() != getDisplayedSubprocessor())
-        {
-            channels[i]->setHidden(true);
-            channelInfo[i]->setHidden(true);
-            continue;
-        }
+        //if (channelInfo[i]->getSubprocessorIdx() != getDisplayedSubprocessor())
+        //{
+        //    channels[i]->setHidden(true);
+        //    channelInfo[i]->setHidden(true);
+        //    continue;
+        //}
         
+		//std::cout << "Checking for hidden channels" << std::endl;
         if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
         {
             channels[i]->setHidden(false);
@@ -3071,8 +3139,8 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisp
     , chan(channelNumber)
     , drawableChan(channelNumber)
     , channelOverlap(300)
-    , channelHeight(40)
-    , range(1000.0f)
+    , channelHeight(30)
+    , range(250.0f)
     , isEnabled(true)
     , inputInverted(false)
     , canBeInverted(true)

@@ -65,6 +65,12 @@ public:
         @see VisualizerEditor::buttonClicked
      */
     Visualizer* createNewCanvas();
+
+	void startAcquisition();
+	void stopAcquisition();
+
+	void saveVisualizerParameters(XmlElement* xml);
+	void loadVisualizerParameters(XmlElement* xml);
     
     /** Handle the state and options within the subprocessor sample rate
         selection combobox 
@@ -90,6 +96,8 @@ private:
      one exists
      */
     void setCanvasDrawableSubprocessor(int index);
+
+	int defaultSubprocessor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 
