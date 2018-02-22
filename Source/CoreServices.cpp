@@ -29,7 +29,8 @@
 #include "Processors/RecordNode/RecordNode.h"
 #include "UI/EditorViewport.h"
 #include "UI/ControlPanel.h"
-
+#include "Processors/MessageCenter/MessageCenterEditor.h"
+#include "Processors/Events/Events.h"
 
 
 using namespace AccessClass;
@@ -77,14 +78,24 @@ void highlightEditor(GenericEditor* ed)
     getEditorViewport()->makeEditorVisible(ed);
 }
 
-int64 getGlobalTimestamp()
+juce::int64 getGlobalTimestamp()
 {
-    return getMessageCenter()->getTimestamp();
+	return getProcessorGraph()->getGlobalTimestamp(false);
 }
 
-int64 getSoftwareTimestamp()
+juce::int64 getSoftwareTimestamp()
 {
-	return getMessageCenter()->getTimestamp(true);
+	return getProcessorGraph()->getGlobalTimestamp(true);
+}
+
+float getGlobalSampleRate()
+{
+	return getProcessorGraph()->getGlobalSampleRate(false);
+}
+
+float getSoftwareSampleRate()
+{
+	return getProcessorGraph()->getGlobalSampleRate(true);
 }
 
 void setRecordingDirectory(String dir)
@@ -139,9 +150,9 @@ int getExperimentNumber()
 	return getProcessorGraph()->getRecordNode()->getExperimentNumber();
 }
 
-void writeSpike(SpikeObject& spike, int electrodeIndex)
+void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan)
 {
-    getProcessorGraph()->getRecordNode()->writeSpike(spike, electrodeIndex);
+    getProcessorGraph()->getRecordNode()->writeSpike(spike, chan);
 }
 
 void registerSpikeSource(GenericProcessor* processor)
@@ -149,7 +160,7 @@ void registerSpikeSource(GenericProcessor* processor)
     getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
 }
 
-int addSpikeElectrode(SpikeRecordInfo* elec)
+int addSpikeElectrode(const SpikeChannel* elec)
 {
     return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
 }
@@ -171,6 +182,13 @@ File getDefaultUserSaveDirectory()
 #else
     return File::getCurrentWorkingDirectory();
 #endif
+}
+
+String getGUIVersion()
+{
+#define XSTR_DEF(s) #s
+#define STR_DEF(s) XSTR_DEF(s)
+	return STR_DEF(JUCE_APP_VERSION);
 }
 
 };

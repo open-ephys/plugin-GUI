@@ -22,8 +22,10 @@
 	*/
 
 #include "RecordThread.h"
-#include "../Visualization/SpikeObject.h"
 #include "RecordEngine.h"
+#include "../../AccessClass.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
+#include "RecordNode.h"
 
 #define EVERY_ENGINE for(int eng = 0; eng < m_engineArray.size(); eng++) m_engineArray[eng]
 
@@ -137,14 +139,25 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
-		EVERY_ENGINE->writeEvent(events[ev]->getExtra(), events[ev]->getData(), events[ev]->getTimestamp());
+		const MidiMessage& event = events[ev]->getData();
+		if (SystemEvent::getBaseType(event) == SYSTEM_EVENT)
+		{
+			uint16 sourceID = SystemEvent::getSourceID(event);
+			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
+			int64 timestamp = SystemEvent::getTimestamp(event);
+			EVERY_ENGINE->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
+				AccessClass::getProcessorGraph()->getRecordNode()->getSourceTimestamp(sourceID, subProcIdx),
+				SystemEvent::getSyncText(event));
+		}
+		else
+			EVERY_ENGINE->writeEvent(events[ev]->getExtra(), events[ev]->getData());
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
 	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		EVERY_ENGINE->writeSpike(spikes[sp]->getExtra(), spikes[sp]->getData(), spikes[sp]->getTimestamp());
+		EVERY_ENGINE->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
 	}
 }
 

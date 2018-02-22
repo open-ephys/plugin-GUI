@@ -27,6 +27,9 @@
 #include "GraphViewer.h"
 #include "EditorViewportButtons.h"
 #include "../AccessClass.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
+#include "ProcessorList.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
 EditorViewport::EditorViewport()
     : leftmostEditor(0),
@@ -80,8 +83,8 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
+	signalChainManager = nullptr;
     deleteAllChildren();
-    delete signalChainManager;
 }
 
 void EditorViewport::signalChainCanBeEdited(bool t)
@@ -313,8 +316,12 @@ void EditorViewport::clearSignalChain()
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
 
-    if (editor == 0)
-        return;
+	if (editor == 0)
+	{
+		if (updateSettings)
+			signalChainManager->updateProcessorSettings();
+		return;
+	}
 
     if (!updateSettings)
         signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
@@ -1223,7 +1230,12 @@ XmlElement* EditorViewport::switchNodeXml(GenericProcessor* processor)
 
 }
 
-const String EditorViewport::saveState(File fileToUse)
+const String EditorViewport::saveState(File fileToUse, String& xmlText)
+{
+	return saveState(fileToUse, &xmlText);
+}
+
+const String EditorViewport::saveState(File fileToUse, String* xmlText)
 {
 
     String error;
@@ -1382,6 +1394,12 @@ const String EditorViewport::saveState(File fileToUse)
     audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
     xml->addChildElement(audioSettings);
 
+	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
+	int tsID, tsSubID;
+	AccessClass::getProcessorGraph()->getTimestampSources(tsID, tsSubID);
+	timestampSettings->setAttribute("selected_index", tsID);
+	timestampSettings->setAttribute("selected_sub_index", tsSubID);
+	xml->addChildElement(timestampSettings);
 
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize = allProcessors.size();
@@ -1392,7 +1410,6 @@ const String EditorViewport::saveState(File fileToUse)
 
     AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
     AccessClass::getProcessorList()->saveStateToXml(xml);
-    AccessClass::getMessageCenter()->saveStateToXml(xml);
     AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
     if (! xml->writeToFile(currentFile, String::empty))
@@ -1401,6 +1418,13 @@ const String EditorViewport::saveState(File fileToUse)
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
+
+	if (xmlText != nullptr)
+	{
+		(*xmlText) = xml->createDocument(String::empty);
+		if ((*xmlText).isEmpty())
+			(*xmlText) = "Couldn't create configuration xml";
+	}
 
     delete xml;
 
@@ -1442,6 +1466,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     bool sameVersion = false;
 	bool pluginAPI = false;
+	bool rhythmNodePatch = false;
     String versionString;
 	
     forEachXmlChildElement(*xml, element)
@@ -1453,8 +1478,12 @@ const String EditorViewport::loadState(File fileToLoad)
                 if (element2->hasTagName("VERSION"))
                 {
                     versionString = element2->getAllSubText();
-                    // float majorVersion = versionString.upToFirstOccurrenceOf(".", false, true).getIntValue();
-                    //             float minorVersion = versionString.fromFirstOccurrenceOf(".", false, true).getFloatValue();
+					StringArray tokens;
+					tokens.addTokens(versionString, ".", String::empty);
+
+					//Patch to correctly load saved chains from before 0.4.4
+					if (tokens[0].getIntValue() == 0 && tokens[1].getIntValue() == 4 && tokens[2].getIntValue() < 4)
+						rhythmNodePatch = true;
 
                     if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
                         sameVersion = true;
@@ -1546,6 +1575,22 @@ const String EditorViewport::loadState(File fileToLoad)
 					procDesc.add(processor->getIntAttribute("libraryVersion"));
 					procDesc.add(processor->getBoolAttribute("isSource"));
 					procDesc.add(processor->getBoolAttribute("isSink"));
+
+					if (rhythmNodePatch) //old version, when rhythm was a plugin
+					{
+						if (int(procDesc[2]) == -1) //if builtin
+						{
+							if (int(procDesc[3]) == 0) //Rhythm node
+							{
+								procDesc.set(2, 4); //DataThread
+								procDesc.set(3, 1); //index
+								procDesc.set(4, "Rhytm FPGA"); //libraryName
+							}
+							else
+								procDesc.set(3, int(procDesc[3]) - 1); //arrange old nodes to its current index
+						}
+					}
+
                     SourceDetails sd = SourceDetails(procDesc,
                                                      0,
                                                      Point<int>(0,0));
@@ -1612,6 +1657,12 @@ const String EditorViewport::loadState(File fileToLoad)
             int bufferSize = element->getIntAttribute("bufferSize");
             AccessClass::getAudioComponent()->setBufferSize(bufferSize);
         }
+		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
+		{
+			int tsID = element->getIntAttribute("selected_index", -1);
+			int tsSubID = element->getIntAttribute("selected_sub_index");
+			AccessClass::getProcessorGraph()->setTimestampSource(tsID, tsSubID);
+		}
 
     }
 
@@ -1625,7 +1676,6 @@ const String EditorViewport::loadState(File fileToLoad)
 
     AccessClass::getControlPanel()->loadStateFromXml(xml); // save the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml);
-    AccessClass::getMessageCenter()->loadStateFromXml(xml);
     AccessClass::getUIComponent()->loadStateFromXml(xml);  // save the UI settings
 
     if (editorArray.size() > 0)

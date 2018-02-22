@@ -25,6 +25,17 @@
 #include "../Processors/PluginManager/PluginManager.h"
 #include <stdio.h>
 
+#include "InfoLabel.h"
+#include "ControlPanel.h"
+#include "ProcessorList.h"
+#include "EditorViewport.h"
+#include "DataViewport.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
+#include "GraphViewer.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Audio/AudioComponent.h"
+#include "../MainWindow.h"
+
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
 : mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
 
@@ -98,6 +109,8 @@
 UIComponent::~UIComponent()
 {
 	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
+	if (timestampWindow)
+		delete timestampWindow;
 	AccessClass::shutdownBroadcaster();
 }
 
@@ -373,6 +386,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, pasteSignalChain);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, clearSignalChain);
+		menu.addSeparator();
+		menu.addCommandItem(commandManager, openTimestampSelectionWindow);
 
 	}
 	else if (menuIndex == 2)
@@ -424,7 +439,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleSignalChain,
 		toggleFileInfo,
 		showHelp,
-		resizeWindow
+		resizeWindow,
+		openTimestampSelectionWindow
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -506,6 +522,10 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("File Info", "Show/hide File Info.", "General", 0);
 			result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
 			result.setTicked(controlPanel->isOpen());
+			break;
+
+		case openTimestampSelectionWindow:
+			result.setInfo("Timestamp Source", "Show timestamp source selection window.", "General", 0);
 			break;
 
 		case showHelp:
@@ -634,6 +654,13 @@ bool UIComponent::perform(const InvocationInfo& info)
 			mainWindow->centreWithSize(800, 600);
 			break;
 
+		case openTimestampSelectionWindow:
+			if (timestampWindow == nullptr)
+			{
+				timestampWindow = new TimestampSourceSelectionWindow();
+			}
+			timestampWindow->setVisible(true);
+			timestampWindow->toFront(true);
 		default:
 			break;
 

@@ -30,9 +30,6 @@
 static const Colour COLOUR_SLIDER_TRACK         (Colour::fromRGB (92, 92, 92));
 static const Colour COLOUR_SLIDER_TRACK_FILL    (Colour::fromRGB (255, 255, 255));
 
-static const Font FONT_LABEL ("Small Text", 12, Font::plain);
-
-
 MuteButton::MuteButton()
     : ImageButton ("MuteButton")
 {
@@ -79,7 +76,7 @@ void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
-    g.setFont (FONT_LABEL);
+    g.setFont (Font("Small Text", 12, Font::plain));
     g.drawSingleLineText (textToDraw, 0, 15);
 }
 
@@ -251,7 +248,7 @@ void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
     g.setColour (Colours::lightgrey);
-    g.setFont (FONT_LABEL);
+    g.setFont (Font("Small Text", 12, Font::plain));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 }
 
@@ -289,7 +286,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
     , controlButton (cButton)
 
 {
-    centreWithSize (360,300);
+    centreWithSize (360,500);
     setUsingNativeTitleBar (true);
     setResizable (false,false);
 
@@ -306,7 +303,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
          false, // showChannelsAsStereoPairs
          false); // hideAdvancedOptionsWithButton
 
-    adsc->setBounds (0, 0, 450, 240);
+    adsc->setBounds (0, 0, 450, 440);
 
     setContentOwned (adsc, true);
     setVisible (false);

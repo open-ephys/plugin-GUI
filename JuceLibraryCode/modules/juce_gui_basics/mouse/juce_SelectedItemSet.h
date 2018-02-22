@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -38,8 +38,6 @@
 
     To be informed when items are selected/deselected, register a ChangeListener with
     this object.
-
-    @see SelectableObject
 */
 template <class SelectableItemType>
 class SelectedItemSet   : public ChangeBroadcaster
@@ -73,8 +71,20 @@ public:
     {
         if (selectedItems != other.selectedItems)
         {
-            selectedItems = other.selectedItems;
             changed();
+
+            for (int i = selectedItems.size(); --i >= 0;)
+                if (! other.isSelected (selectedItems.getReference (i)))
+                    itemDeselected (selectedItems.remove (i));
+
+            for (SelectableItemType* i = other.selectedItems.begin(), *e = other.selectedItems.end(); i != e; ++i)
+            {
+                if (! isSelected (*i))
+                {
+                    selectedItems.add (*i);
+                    itemSelected (*i);
+                }
+            }
         }
 
         return *this;
@@ -103,8 +113,8 @@ public:
         }
         else
         {
-            deselectAll();
             changed();
+            deselectAll();
 
             selectedItems.add (item);
             itemSelected (item);

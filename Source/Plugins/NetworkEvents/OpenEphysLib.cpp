@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 using namespace Plugin;
@@ -47,7 +47,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::ProcessorPlugin;
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
 		info->processor.name = "Network Events";
 		info->processor.type = Plugin::SourceProcessor;
 		info->processor.creator = &(Plugin::createProcessor<NetworkEvents>);

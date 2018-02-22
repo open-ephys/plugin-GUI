@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -32,54 +32,53 @@
 #include "FileSource.h"
 
 #define BUFFER_SIZE 1024
+#define BUFFER_WINDOW_CACHE_SIZE 10
+
 
 /**
-
   Reads data from a file.
 
   @see GenericProcessor
-
 */
-
-class FileReader : public GenericProcessor
+class FileReader : public GenericProcessor,
+    private Thread
 {
 public:
     FileReader();
     ~FileReader();
 
-    void process (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
-    void setParameter (int parameterIndex, float newValue);
+    void process (AudioSampleBuffer& buffer) override;
+    void setParameter (int parameterIndex, float newValue) override;
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    // We should make all these override methods as constant
-    // so we also need to refactor GenericProcessor and appropriate plugins
-    bool hasEditor()                const       override { return true; }
-    bool isSource()                 /* const */ override { return true; }
-    bool generatesTimestamps()      /* const */ override { return true; }
-    bool isReady()                  /* const */ override;
+    bool hasEditor()                const  override { return true; }
+    bool isGeneratesTimestamps()    const  override { return true; }
+    bool isReady()                  override;
 
-    int getNumHeadstageOutputs()        /* const */ override;
-    int getNumEventChannels()           /* const */ override;
-    float getDefaultSampleRate()        /* const */ override;
-    float getBitVolts (Channel* chan)   /* const */ override;
+    int getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int)        const override;
 
-    void updateSettings()       override;
-    void enabledState (bool t)  override;
+    float getDefaultSampleRate()        const override;
+    float getBitVolts (const DataChannel* chan)   const override;
+
+    void updateSettings() override;
+    void setEnabledState (bool t)  override;
 
     String getFile() const;
     bool setFile (String fullpath);
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-
+    void createEventChannels();
 
 private:
+    Array<const EventChannel*> moduleEventChannels;
+    unsigned int count = 0;
+    
     void setActiveRecording (int index);
 
     unsigned int samplesToMilliseconds (int64 samples)  const;
     int64 millisecondsToSamples (unsigned int ms)       const;
-
 
     int64 timestamp;
 
@@ -89,6 +88,7 @@ private:
     int64 currentNumSamples;
     int64 startSample;
     int64 stopSample;
+    int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
 
     // for testing purposes only
@@ -96,9 +96,30 @@ private:
 
     ScopedPointer<FileSource> input;
 
-    HeapBlock<int16> readBuffer;
+    HeapBlock<int16> * readBuffer;      // Ptr to the current "front" buffer
+    HeapBlock<int16> bufferA;
+    HeapBlock<int16> bufferB;
 
     HashMap<String, int> supportedExtensions;
+    
+    Atomic<int> m_shouldFillBackBuffer;
+    Atomic<int> m_samplesPerBuffer;
+    
+    /** Swaps the backbuffer to the front and flags the background reader
+        thread to update the new backbuffer */
+    void switchBuffer();
+    
+    HeapBlock<int16>* getFrontBuffer();
+    HeapBlock<int16>* getBackBuffer();
+    
+    /** Executes the background thread task */
+    void run() override;
+    
+    /** Reads a chunk of the file that fills an entire buffer cache.
+     
+        This method will read into the buffer that passed in by the param 
+     */
+    void readAndFillBufferCache(HeapBlock<int16> &cacheBuffer);
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);

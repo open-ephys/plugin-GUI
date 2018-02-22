@@ -52,24 +52,24 @@ public:
     AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages) {}
+    void process(AudioSampleBuffer& buffer) override {}
 
-    bool isMerger()
+    bool isMerger() const override
     {
         return true;
     }
 
-    void switchIO(int);
-    void switchIO();
-    void setMergerSourceNode(GenericProcessor* sn);
+    void switchIO(int) override;
+    void switchIO() override;
+    void setMergerSourceNode(GenericProcessor* sn) override;
 
-    void updateSettings();
+    void updateSettings() override;
     void addSettingsFromSourceNode(GenericProcessor* sn);
 
-    bool stillHasSource();
+    bool stillHasSource() const override;
 
-    void saveCustomParametersToXml(XmlElement* parentElement);
-    void loadCustomParametersFromXml();
+    void saveCustomParametersToXml(XmlElement* parentElement) override;
+    void loadCustomParametersFromXml() override;
 
     bool sendContinuousForSource(GenericProcessor* sn);
     bool sendEventsForSource(GenericProcessor* sn);

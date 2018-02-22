@@ -33,6 +33,7 @@
 #include "../Splitter/Splitter.h"
 #include "../../UI/UIComponent.h"
 #include "../../UI/EditorViewport.h"
+#include "../../UI/TimestampSourceSelection.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
     
@@ -108,13 +109,16 @@ void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
 		{
 			// by default, all source nodes record automatically
 			processor->setAllChannelsToRecord();
-			if (processor->generatesTimestamps())
-			{
-				getMessageCenter()->addSourceProcessor(processor);
-				if (getMessageCenter()->getSourceNodeId() == 0)
+			if (processor->isGeneratesTimestamps())
+			{ //If there are no source processors and we add one, set it as default for global timestamps and samplerates
+				m_validTimestampSources.add(processor);
+				if (m_timestampSource == nullptr)
 				{
-					getMessageCenter()->setSourceNodeId(processor->getNodeId());
+					m_timestampSource = processor;
+					m_timestampSourceSubIdx = 0;
 				}
+				if (m_timestampWindow)
+					m_timestampWindow->updateProcessorList();
 			}
 		}
 		return processor->createEditor();
@@ -272,7 +276,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             std::cout << "Source node: " << source->getName() << "." << std::endl;
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
-            if (source->enabledState())
+            if (source->isEnabledState())
             {
                 // add the connections to audio and record nodes if necessary
                 if (!(source->isSink()     ||
@@ -329,7 +333,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                         if (dest != nullptr)
                         {
 
-                            if (dest->enabledState())
+                            if (dest->isEnabledState())
                             {
                                 connectProcessors(source, dest);
                             }
@@ -370,7 +374,11 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
         } // end while source != 0
     } // end "tabs" for loop
-
+	
+	//Update RecordNode internal channel mappings
+	Array<EventChannel*> extraChannels;
+	getMessageCenter()->addSpecialProcessorChannels(extraChannels);
+	getRecordNode()->addSpecialProcessorChannels(extraChannels);
 } // end method
 
 void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)
@@ -435,7 +443,9 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
         // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
         // IT CAN CAUSE PROBLEMS IF THE SAMPLE RATE VARIES ACROSS PROCESSORS
-        getAudioNode()->settings.sampleRate = source->getSampleRate();
+
+		//TODO: See if this causes problems with the newer architectures
+        //getAudioNode()->settings.sampleRate = source->getSampleRate();
 
         addConnection(source->getNodeId(),                   // sourceNodeID
                       chan,                                  // sourceNodeChannelIndex
@@ -529,33 +539,36 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     int nodeId = processor->getNodeId();
 
-    if (processor->isSource())
-    {
-        getMessageCenter()->removeSourceProcessor(processor);
-    }
-
     disconnectNode(nodeId);
     removeNode(nodeId);
 
-    if (getMessageCenter()->getSourceNodeId() == nodeId)
-    {
-        int newId = 0;
+	if (processor->isSource())
+	{
+		m_validTimestampSources.removeAllInstancesOf(processor);
 
-        //Look for the next source node. If none is found, set the sourceid to 0
-        for (int i = 0; i < getNumNodes() && newId == 0; i++)
-        {
-			if (getNode(i)->nodeId != OUTPUT_NODE_ID)
+		if (m_timestampSource == processor)
+		{
+			const GenericProcessor* newProc = 0;
+
+			//Look for the next source node. If none is found, set the sourceid to 0
+			for (int i = 0; i < getNumNodes() && newProc == nullptr; i++)
 			{
-				GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
-				//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
-				if (p && p->isSource() && p->generatesTimestamps())
+				if (getNode(i)->nodeId != OUTPUT_NODE_ID)
 				{
-					newId = p->nodeId;
+					GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
+					//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
+					if (p && p->isSource() && p->isGeneratesTimestamps())
+					{
+						newProc = p;
+					}
 				}
 			}
-        }
-        getMessageCenter()->setSourceNodeId(newId);
-    }
+			m_timestampSource = newProc;
+			m_timestampSourceSubIdx = 0;
+		}
+		if (m_timestampWindow)
+			m_timestampWindow->updateProcessorList();
+	}
 
 }
 
@@ -604,14 +617,21 @@ bool ProcessorGraph::enableProcessors()
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->enableEditor();
-            p->enable();
+            p->enableProcessor();
         }
     }
 
     AccessClass::getEditorViewport()->signalChainCanBeEdited(false);
 
-    //	sendActionMessage("Acquisition started.");
+	//Update special channels indexes, at the end
+	//To change, as many other things, when the probe system is implemented
+	getRecordNode()->updateRecordChannelIndexes();
+	getAudioNode()->updateRecordChannelIndexes();
 
+    //	sendActionMessage("Acquisition started.");
+	m_startSoftTimestamp = Time::getHighResolutionTicks();
+	if (m_timestampWindow)
+		m_timestampWindow->setAcquisitionState(true);
     return true;
 }
 
@@ -631,7 +651,7 @@ bool ProcessorGraph::disableProcessors()
             std::cout << "Disabling " << p->getName() << std::endl;
 			if (node->nodeId != MESSAGE_CENTER_ID)
 				p->disableEditor();
-            allClear = p->disable();
+            allClear = p->disableProcessor();
 
             if (!allClear)
             {
@@ -642,7 +662,8 @@ bool ProcessorGraph::disableProcessors()
     }
 
     AccessClass::getEditorViewport()->signalChainCanBeEdited(true);
-
+	if (m_timestampWindow)
+		m_timestampWindow->setAcquisitionState(false);
     //	sendActionMessage("Acquisition ended.");
 
     return true;
@@ -700,4 +721,63 @@ MessageCenter* ProcessorGraph::getMessageCenter()
     Node* node = getNodeForId(MESSAGE_CENTER_ID);
     return (MessageCenter*) node->getProcessor();
 
+}
+
+
+void ProcessorGraph::setTimestampSource(int sourceIndex, int subIdx)
+{
+	m_timestampSource = m_validTimestampSources[sourceIndex];
+	if (m_timestampSource)
+	{
+		m_timestampSourceSubIdx = subIdx;
+	}
+	else
+	{
+		m_timestampSourceSubIdx = 0;
+	}
+}
+
+void ProcessorGraph::getTimestampSources(Array<const GenericProcessor*>& validSources, int& selectedSource, int& selectedSubId) const
+{
+	validSources = m_validTimestampSources;
+	getTimestampSources(selectedSource, selectedSubId);
+}
+
+void ProcessorGraph::getTimestampSources(int& selectedSource, int& selectedSubId) const
+{
+	if (m_timestampSource)
+		selectedSource = m_validTimestampSources.indexOf(m_timestampSource);
+	else
+		selectedSource = -1;
+	selectedSubId = m_timestampSourceSubIdx;
+}
+
+int64 ProcessorGraph::getGlobalTimestamp(bool softwareOnly) const
+{
+	if (softwareOnly || !m_timestampSource)
+	{
+		return (Time::getHighResolutionTicks() - m_startSoftTimestamp);
+	}
+	else
+	{
+		return static_cast<int64>((Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - m_timestampSource->getLastProcessedsoftwareTime())
+			* m_timestampSource->getSampleRate(m_timestampSourceSubIdx)) + m_timestampSource->getSourceTimestamp(m_timestampSource->getNodeId(), m_timestampSourceSubIdx));
+	}
+}
+
+float ProcessorGraph::getGlobalSampleRate(bool softwareOnly) const
+{
+	if (softwareOnly || !m_timestampSource)
+	{
+		return Time::getHighResolutionTicksPerSecond();
+	}
+	else
+	{
+		return m_timestampSource->getSampleRate(m_timestampSourceSubIdx);
+	}
+}
+
+void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
+{
+	m_timestampWindow = window;
 }

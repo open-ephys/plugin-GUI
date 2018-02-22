@@ -22,6 +22,8 @@
  */
 
 #include "MainWindow.h"
+#include "UI/UIComponent.h"
+#include "UI/EditorViewport.h"
 #include <stdio.h>
 //-----------------------------------------------------------------------
 
@@ -79,7 +81,7 @@ static inline File getSavedStateDirectory() {
 	setVisible(true);
 
 	// Constraining the window's size doesn't seem to work:
-	setResizeLimits(300, 200, 10000, 10000);
+	setResizeLimits(500, 500, 10000, 10000);
 
 	if (shouldReloadOnStartup)
 	{

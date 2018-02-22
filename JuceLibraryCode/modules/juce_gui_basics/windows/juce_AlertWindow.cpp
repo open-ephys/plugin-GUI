@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -89,7 +89,7 @@ void AlertWindow::addButton (const String& name,
                              const KeyPress& shortcutKey1,
                              const KeyPress& shortcutKey2)
 {
-    TextButton* const b = new TextButton (name, String::empty);
+    TextButton* const b = new TextButton (name, String());
     buttons.add (b);
 
     b->setWantsKeyboardFocus (true);
@@ -143,9 +143,9 @@ void AlertWindow::addTextEditor (const String& name,
 
     ed->setColour (TextEditor::outlineColourId, findColour (ComboBox::outlineColourId));
     ed->setFont (getLookAndFeel().getAlertWindowMessageFont());
+    addAndMakeVisible (ed);
     ed->setText (initialContents);
     ed->setCaretPosition (initialContents.length());
-    addAndMakeVisible (ed);
     textboxNames.add (onScreenLabel);
 
     updateLayout (false);
@@ -165,7 +165,7 @@ String AlertWindow::getTextEditorContents (const String& nameOfTextEditor) const
     if (TextEditor* const t = getTextEditor (nameOfTextEditor))
         return t->getText();
 
-    return String::empty;
+    return String();
 }
 
 
@@ -197,11 +197,10 @@ ComboBox* AlertWindow::getComboBoxComponent (const String& nameOfList) const
 }
 
 //==============================================================================
-class AlertTextComp : public TextEditor
+class AlertTextComp  : public TextEditor
 {
 public:
-    AlertTextComp (const String& message,
-                   const Font& font)
+    AlertTextComp (AlertWindow& owner, const String& message, const Font& font)
     {
         setReadOnly (true);
         setMultiLine (true, true);
@@ -214,6 +213,9 @@ public:
         setText (message, false);
 
         bestWidth = 2 * (int) std::sqrt (font.getHeight() * font.getStringWidth (message));
+
+        if (owner.isColourSpecified (AlertWindow::textColourId))
+            setColour (TextEditor::textColourId, owner.findColour (AlertWindow::textColourId));
 
         setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
         setColour (TextEditor::outlineColourId, Colours::transparentBlack);
@@ -241,7 +243,7 @@ private:
 
 void AlertWindow::addTextBlock (const String& textBlock)
 {
-    AlertTextComp* const c = new AlertTextComp (textBlock, getLookAndFeel().getAlertWindowMessageFont());
+    AlertTextComp* const c = new AlertTextComp (*this, textBlock, getLookAndFeel().getAlertWindowMessageFont());
     textBlocks.add (c);
     allComps.add (c);
 
@@ -343,22 +345,24 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
     const int titleH = 24;
     const int iconWidth = 80;
 
-    const Font font (getLookAndFeel().getAlertWindowMessageFont());
+    LookAndFeel& lf = getLookAndFeel();
 
-    const int wid = jmax (font.getStringWidth (text),
-                          font.getStringWidth (getName()));
+    const Font messageFont (lf.getAlertWindowMessageFont());
 
-    const int sw = (int) std::sqrt (font.getHeight() * wid);
+    const int wid = jmax (messageFont.getStringWidth (text),
+                          messageFont.getStringWidth (getName()));
+
+    const int sw = (int) std::sqrt (messageFont.getHeight() * wid);
     int w = jmin (300 + sw * 2, (int) (getParentWidth() * 0.7f));
     const int edgeGap = 10;
     const int labelHeight = 18;
     int iconSpace = 0;
 
     AttributedString attributedText;
-    attributedText.append (getName(), font.withHeight (font.getHeight() * 1.1f).boldened());
+    attributedText.append (getName(), lf.getAlertWindowTitleFont());
 
     if (text.isNotEmpty())
-        attributedText.append ("\n\n" + text, font);
+        attributedText.append ("\n\n" + text, messageFont);
 
     attributedText.setColour (findColour (textColourId));
 
@@ -383,18 +387,18 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
 
     int buttonW = 40;
     for (int i = 0; i < buttons.size(); ++i)
-        buttonW += 16 + buttons.getUnchecked(i)->getWidth();
+        buttonW += 16 + buttons.getUnchecked (i)->getWidth();
 
     w = jmax (buttonW, w);
 
     h += (textBoxes.size() + comboBoxes.size() + progressBars.size()) * 50;
 
     if (buttons.size() > 0)
-        h += 20 + buttons.getUnchecked(0)->getHeight();
+        h += 20 + buttons.getUnchecked (0)->getHeight();
 
     for (int i = customComps.size(); --i >= 0;)
     {
-        Component* c = customComps.getUnchecked(i);
+        Component* c = customComps.getUnchecked (i);
         w = jmax (w, (c->getWidth() * 100) / 80);
         h += 10 + c->getHeight();
 
@@ -404,7 +408,7 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
 
     for (int i = textBlocks.size(); --i >= 0;)
     {
-        const AlertTextComp* const ac = static_cast <const AlertTextComp*> (textBlocks.getUnchecked(i));
+        const AlertTextComp* const ac = static_cast<const AlertTextComp*> (textBlocks.getUnchecked(i));
         w = jmax (w, ac->getPreferredWidth());
     }
 
@@ -412,7 +416,7 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
 
     for (int i = textBlocks.size(); --i >= 0;)
     {
-        AlertTextComp* const ac = static_cast <AlertTextComp*> (textBlocks.getUnchecked(i));
+        AlertTextComp* const ac = static_cast<AlertTextComp*> (textBlocks.getUnchecked(i));
         ac->updateLayout ((int) (w * 0.8f));
         h += ac->getHeight() + 10;
     }
@@ -426,18 +430,9 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
     }
 
     if (! isVisible())
-    {
         centreAroundComponent (associatedComponent, w, h);
-    }
     else
-    {
-        const int cx = getX() + getWidth() / 2;
-        const int cy = getY() + getHeight() / 2;
-
-        setBounds (cx - w / 2,
-                   cy - h / 2,
-                   w, h);
-    }
+        setBounds (getBounds().withSizeKeepingCentre (w, h));
 
     textArea.setBounds (edgeGap, edgeGap, w - (edgeGap * 2), h - edgeGap);
 
@@ -470,11 +465,11 @@ void AlertWindow::updateLayout (const bool onlyIncreaseSize)
         Component* const c = allComps.getUnchecked(i);
         h = 22;
 
-        const int comboIndex = comboBoxes.indexOf (dynamic_cast <ComboBox*> (c));
+        const int comboIndex = comboBoxes.indexOf (dynamic_cast<ComboBox*> (c));
         if (comboIndex >= 0 && comboBoxNames [comboIndex].isNotEmpty())
             y += labelHeight;
 
-        const int tbIndex = textBoxes.indexOf (dynamic_cast <TextEditor*> (c));
+        const int tbIndex = textBoxes.indexOf (dynamic_cast<TextEditor*> (c));
         if (tbIndex >= 0 && textboxNames[tbIndex].isNotEmpty())
             y += labelHeight;
 
@@ -536,7 +531,8 @@ bool AlertWindow::keyPressed (const KeyPress& key)
         exitModalState (0);
         return true;
     }
-    else if (key.isKeyCode (KeyPress::returnKey) && buttons.size() == 1)
+
+    if (key.isKeyCode (KeyPress::returnKey) && buttons.size() == 1)
     {
         buttons.getUnchecked(0)->triggerClick();
         return true;
@@ -592,8 +588,8 @@ private:
         LookAndFeel& lf = associatedComponent != nullptr ? associatedComponent->getLookAndFeel()
                                                          : LookAndFeel::getDefaultLookAndFeel();
 
-        ScopedPointer <Component> alertBox (lf.createAlertWindow (title, message, button1, button2, button3,
-                                                                  iconType, numButtons, associatedComponent));
+        ScopedPointer<Component> alertBox (lf.createAlertWindow (title, message, button1, button2, button3,
+                                                                 iconType, numButtons, associatedComponent));
 
         jassert (alertBox != nullptr); // you have to return one of these!
 
@@ -605,7 +601,7 @@ private:
         else
        #endif
         {
-            (void) modal; // (to avoid an unused variable warning)
+            ignoreUnused (modal);
 
             alertBox->enterModalState (true, callback, true);
             alertBox.release();
@@ -614,7 +610,7 @@ private:
 
     static void* showCallback (void* userData)
     {
-        static_cast <AlertWindowInfo*> (userData)->show();
+        static_cast<AlertWindowInfo*> (userData)->show();
         return nullptr;
     }
 };

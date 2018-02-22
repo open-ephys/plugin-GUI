@@ -34,8 +34,8 @@ public:
     EngineParameterComponent(EngineParameter& param);
     ~EngineParameterComponent();
 
-    void paint(Graphics& g);
-    void labelTextChanged(Label* lab);
+    void paint(Graphics& g) override;
+    void labelTextChanged(Label* lab) override;
 
     void saveValue();
 
@@ -43,6 +43,7 @@ private:
     ScopedPointer<Component> control;
     EngineParameter::EngineParameterType type;
     EngineParameter& parameter;
+	String name;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
 };
 
@@ -51,7 +52,7 @@ class EngineConfigComponent : public Component
 public:
     EngineConfigComponent(RecordEngineManager* man, int height);
     ~EngineConfigComponent();
-    void paint(Graphics& g);
+    void paint(Graphics& g) override;
     void saveParameters();
 
 private:

@@ -31,12 +31,11 @@
 #include "../FileReader/FileReader.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
-#include "../DataThreads/RhythmNode/RHD2000Thread.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
 /** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 4
+#define BUILTIN_PROCESSORS 3
 
 namespace ProcessorManager
 {
@@ -51,18 +50,14 @@ namespace ProcessorManager
 			type = UtilityProcessor;
 			break;
 		case 0:
-			name = "Rhythm FPGA";
-			type = SourceProcessor;
-			break;
-		case 1:
 			name = "Merger";
 			type = UtilityProcessor;
 			break;
-		case 2:
+		case 1:
 			name = "Splitter";
 			type = UtilityProcessor;
 			break;
-		case 3:
+		case 2:
 			name = "File Reader";
 			type = SourceProcessor;
 			break;
@@ -83,21 +78,18 @@ namespace ProcessorManager
 			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0, false, false);
 			break;
 		case 0:
-			proc = new SourceNode("Rhythm FPGA", &RHD2000Thread::createDataThread);
-			break;
-		case 1:
 			proc = new Merger();
 			break;
-		case 2:
+		case 1:
 			proc = new Splitter();
 			break;
-		case 3:
+		case 2:
 			proc = new FileReader();
 			break;
 		default:
 			return nullptr;
 		}
-		proc->setPluginData(Plugin::NotAPlugin, index);
+		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, index);
 		return proc;
 	}
 
@@ -158,7 +150,7 @@ namespace ProcessorManager
 			{
 				Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
 				GenericProcessor* proc = info.creator();
-				proc->setPluginData(Plugin::ProcessorPlugin, index);
+				proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, index);
 				return proc;
 				break;
 			}
@@ -166,7 +158,7 @@ namespace ProcessorManager
 		{
 			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
 			GenericProcessor* proc = new SourceNode(info.name, info.creator);
-			proc->setPluginData(Plugin::DatathreadPlugin, index);
+			proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, index);
 			return proc;
 			break;
 		}
@@ -182,39 +174,39 @@ namespace ProcessorManager
 		GenericProcessor* proc = nullptr;
 		if (index > -1)
 		{
-			if (type == Plugin::NotAPlugin)
+			if (type == Plugin::NOT_A_PLUGIN_TYPE)
 			{
 				return createBuiltInProcessor(index);
 			}
-			else if (type == Plugin::ProcessorPlugin)
+			else if (type == Plugin::PLUGIN_TYPE_PROCESSOR)
 			{
 				for (int i = 0; i < pm->getNumProcessors(); i++)
 				{
 					Plugin::ProcessorInfo info = pm->getProcessorInfo(i);
 					if (procName.equalsIgnoreCase(info.name))
 					{
-						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::ProcessorPlugin, i);
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_PROCESSOR, i);
 						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
 						{
 							proc = info.creator();
-							proc->setPluginData(Plugin::ProcessorPlugin, i);
+							proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, i);
 							return proc;
 						}
 					}
 				}
 			}
-			else if (type == Plugin::DatathreadPlugin)
+			else if (type == Plugin::PLUGIN_TYPE_DATA_THREAD)
 			{
 				for (int i = 0; i < pm->getNumDataThreads(); i++)
 				{
 					Plugin::DataThreadInfo info = pm->getDataThreadInfo(i);
 					if (procName.equalsIgnoreCase(info.name))
 					{
-						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::DatathreadPlugin, i);
+						int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
 						if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
 						{
 							proc = new SourceNode(info.name, info.creator);
-							proc->setPluginData(Plugin::DatathreadPlugin, i);
+							proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
 							return proc;
 						}
 					}
@@ -222,7 +214,7 @@ namespace ProcessorManager
 			}
 		}		
 		proc = new PlaceholderProcessor(procName, libName, libVersion, source, sink);
-		proc->setPluginData(Plugin::NotAPlugin, -1);
+		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, -1);
 		return proc;
 	}
 };

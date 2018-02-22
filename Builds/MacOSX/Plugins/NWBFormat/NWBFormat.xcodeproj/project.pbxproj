@@ -1,0 +1,247 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1F91DFA1DBE69C400FF13EA /* NWBFormat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F91DF51DBE69C400FF13EA /* NWBFormat.cpp */; };
+		E1F91DFB1DBE69C400FF13EA /* NWBRecording.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F91DF71DBE69C400FF13EA /* NWBRecording.cpp */; };
+		E1F91DFC1DBE69C400FF13EA /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F91DF91DBE69C400FF13EA /* OpenEphysLib.cpp */; };
+		E1F91DFF1DBE6B0400FF13EA /* libOpenEphysHDF5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F91DFE1DBE6B0400FF13EA /* libOpenEphysHDF5.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1F91DE41DBE670500FF13EA /* NWBFormat.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NWBFormat.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F91DE71DBE670500FF13EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1F91DF21DBE684700FF13EA /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E1F91DF31DBE684700FF13EA /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		E1F91DF51DBE69C400FF13EA /* NWBFormat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NWBFormat.cpp; sourceTree = "<group>"; };
+		E1F91DF61DBE69C400FF13EA /* NWBFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWBFormat.h; sourceTree = "<group>"; };
+		E1F91DF71DBE69C400FF13EA /* NWBRecording.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NWBRecording.cpp; sourceTree = "<group>"; };
+		E1F91DF81DBE69C400FF13EA /* NWBRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWBRecording.h; sourceTree = "<group>"; };
+		E1F91DF91DBE69C400FF13EA /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E1F91DFE1DBE6B0400FF13EA /* libOpenEphysHDF5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libOpenEphysHDF5.dylib; path = ../Frameworks/libOpenEphysHDF5.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1F91DE11DBE670500FF13EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F91DFF1DBE6B0400FF13EA /* libOpenEphysHDF5.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1F91DDB1DBE670500FF13EA = {
+			isa = PBXGroup;
+			children = (
+				E1F91DED1DBE67A600FF13EA /* Config */,
+				E1F91DE61DBE670500FF13EA /* NWBFormat */,
+				E1F91DFD1DBE6B0400FF13EA /* Frameworks */,
+				E1F91DE51DBE670500FF13EA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1F91DE51DBE670500FF13EA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1F91DE41DBE670500FF13EA /* NWBFormat.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1F91DE61DBE670500FF13EA /* NWBFormat */ = {
+			isa = PBXGroup;
+			children = (
+				E1F91DF41DBE698E00FF13EA /* Source */,
+				E1F91DE71DBE670500FF13EA /* Info.plist */,
+			);
+			path = NWBFormat;
+			sourceTree = "<group>";
+		};
+		E1F91DED1DBE67A600FF13EA /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1F91DF21DBE684700FF13EA /* Plugin_Debug.xcconfig */,
+				E1F91DF31DBE684700FF13EA /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+		E1F91DF41DBE698E00FF13EA /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E1F91DF61DBE69C400FF13EA /* NWBFormat.h */,
+				E1F91DF51DBE69C400FF13EA /* NWBFormat.cpp */,
+				E1F91DF81DBE69C400FF13EA /* NWBRecording.h */,
+				E1F91DF71DBE69C400FF13EA /* NWBRecording.cpp */,
+				E1F91DF91DBE69C400FF13EA /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/NWBFormat;
+			sourceTree = "<group>";
+		};
+		E1F91DFD1DBE6B0400FF13EA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E1F91DFE1DBE6B0400FF13EA /* libOpenEphysHDF5.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E1F91DE31DBE670500FF13EA /* NWBFormat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1F91DEA1DBE670500FF13EA /* Build configuration list for PBXNativeTarget "NWBFormat" */;
+			buildPhases = (
+				E1F91DE01DBE670500FF13EA /* Sources */,
+				E1F91DE11DBE670500FF13EA /* Frameworks */,
+				E1F91DE21DBE670500FF13EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NWBFormat;
+			productName = NWBFormat;
+			productReference = E1F91DE41DBE670500FF13EA /* NWBFormat.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E1F91DDC1DBE670500FF13EA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E1F91DE31DBE670500FF13EA = {
+						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E1F91DDF1DBE670500FF13EA /* Build configuration list for PBXProject "NWBFormat" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E1F91DDB1DBE670500FF13EA;
+			productRefGroup = E1F91DE51DBE670500FF13EA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E1F91DE31DBE670500FF13EA /* NWBFormat */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E1F91DE21DBE670500FF13EA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1F91DE01DBE670500FF13EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1F91DFC1DBE69C400FF13EA /* OpenEphysLib.cpp in Sources */,
+				E1F91DFA1DBE69C400FF13EA /* NWBFormat.cpp in Sources */,
+				E1F91DFB1DBE69C400FF13EA /* NWBRecording.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1F91DE81DBE670500FF13EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F91DF21DBE684700FF13EA /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E1F91DE91DBE670500FF13EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1F91DF31DBE684700FF13EA /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E1F91DEB1DBE670500FF13EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(MAC_PACKAGE_DIR)/include",
+				);
+				INFOPLIST_FILE = NWBFormat/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/../Frameworks",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NWBFormat";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E1F91DEC1DBE670500FF13EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(MAC_PACKAGE_DIR)/include",
+				);
+				INFOPLIST_FILE = NWBFormat/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/../Frameworks",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NWBFormat";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1F91DDF1DBE670500FF13EA /* Build configuration list for PBXProject "NWBFormat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F91DE81DBE670500FF13EA /* Debug */,
+				E1F91DE91DBE670500FF13EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1F91DEA1DBE670500FF13EA /* Build configuration list for PBXNativeTarget "NWBFormat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F91DEB1DBE670500FF13EA /* Debug */,
+				E1F91DEC1DBE670500FF13EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1F91DDC1DBE670500FF13EA /* Project object */;
+}

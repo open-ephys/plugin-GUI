@@ -86,12 +86,12 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode, bool useD
     addAndMakeVisible(triggerPol);
 
     availableChans->addItem("None",1);
-    for (int i = 0; i < 10 ; i++)
+  /*  for (int i = 0; i < 10 ; i++)
     {
         String channelName = "Channel ";
         channelName += i + 1;
         availableChans->addItem(channelName,i+2);
-    }
+    }*/
     availableChans->setSelectedId(1, sendNotification);
 
     triggerMode->addItem("Edge set", 1);
@@ -113,28 +113,59 @@ void RecordControlEditor::comboBoxChanged(ComboBox* comboBox)
 
     if (comboBox == availableChans)
     {
-        if (comboBox->getSelectedId() > 1)
-            getProcessor()->setParameter(0, (float)comboBox->getSelectedId() - 2);
+		if (comboBox->getSelectedId() > 1)
+		{
+			int index = comboBox->getSelectedId() - 2;
+			//invalidate the input first to ensure there are no race conditions
+			getProcessor()->setParameter(0, -1);
+			getProcessor()->setParameter(1, eventSourceArray[index].channel);
+			getProcessor()->setParameter(0, eventSourceArray[index].eventIndex);
+		}
         else
             getProcessor()->setParameter(0, -1);
     }
     else if (comboBox == triggerMode)
     {
-        getProcessor()->setParameter(1, comboBox->getSelectedId());
+        getProcessor()->setParameter(2, comboBox->getSelectedId());
     }
     else if (comboBox == triggerPol)
     {
-        getProcessor()->setParameter(2, comboBox->getSelectedId());
+        getProcessor()->setParameter(3, comboBox->getSelectedId());
     }
 }
 
 
 void RecordControlEditor::updateSettings()
 {
-    //availableChans->clear();
-    //GenericProcessor* processor = getProcessor();
-
-
+	EventSources s;
+	String name;
+	int oldId = availableChans->getSelectedId();
+    availableChans->clear();
+    GenericProcessor* processor = getProcessor();
+	availableChans->addItem("None", 1);
+	int nextItem = 2;
+	int nEvents = processor->getTotalEventChannels();
+	for (int i = 0; i < nEvents; i++)
+	{
+		const EventChannel* event = processor->getEventChannel(i);
+		if (event->getChannelType() == EventChannel::TTL)
+		{
+			s.eventIndex = i;
+			int nChans = event->getNumChannels();
+			for (int c = 0; c < nChans; c++)
+			{
+				s.channel = c;
+				name = event->getSourceName() + " (TTL" + String(c+1) + ")";
+				eventSourceArray.add(s);
+				availableChans->addItem(name, nextItem++);
+			}
+		}
+	}
+	if (oldId > availableChans->getNumItems())
+	{
+		oldId = 1;
+	}
+	availableChans->setSelectedId(oldId, sendNotification);
 }
 
 void RecordControlEditor::saveCustomParameters(XmlElement* xml)

@@ -32,8 +32,6 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
 
 {
     desiredWidth = 350;
-	
-    scrollDistance = 0;
 
     selectAllButton = new ElectrodeEditorButton("Select All",Font("Small Text",14,Font::plain));
     selectAllButton->addListener(this);
@@ -56,17 +54,13 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool us
     resetButton->setClickingTogglesState(false);
     resetButton->setEnabled(false);
 
-    upButton = new TriangleButton(1);
-    upButton->addListener(this);
-    upButton->setBounds(320,30,10,8);
-    addAndMakeVisible(upButton);
-    upButton->setVisible(false);
-
-    downButton = new TriangleButton(2);
-    downButton->addListener(this);
-    downButton->setBounds(320,45,10,8);
-    addAndMakeVisible(downButton);
-    downButton->setVisible(false);
+    
+    addAndMakeVisible(electrodeButtonViewport = new Viewport());
+    electrodeButtonViewport->setBounds(10,30,330,70);
+    electrodeButtonViewport->setScrollBarsShown(true,false,true,true);
+    electrodeButtonHolder = new Component();
+    electrodeButtonViewport->setViewedComponent(electrodeButtonHolder,false);
+    
 
     loadButton = new LoadButton();
     loadButton->addListener(this);
@@ -127,6 +121,13 @@ void ChannelMappingEditor::updateSettings()
         createElectrodeButtons(getProcessor()->getNumInputs());
         previousChannelCount = getProcessor()->getNumInputs();
     }
+	channelCountArray.clearQuick();
+	int size = channelArray.size();
+	for (int i = 0; i < size; i++)
+	{
+		if (enabledChannelArray[channelArray[i]-1])
+			channelCountArray.add(channelArray[i]-1);
+	}
 }
 
 void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevious)
@@ -169,7 +170,7 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
         // if (!getCollapsedState())
         //     addAndMakeVisible(button);
         // else
-        addChildComponent(button); // determine visibility in refreshButtonLocations()
+        electrodeButtonHolder->addAndMakeVisible(button); // determine visibility in refreshButtonLocations()
 
         button->addListener(this);
         if (reorderActive)
@@ -210,42 +211,30 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
     channelSelector->setRadioStatus(true);
 
     refreshButtonLocations();
-
-    if (numNeeded > 100)
-    {
-        upButton->setVisible(true);
-        downButton->setVisible(true);
-    } else {
-        upButton->setVisible(false);
-        downButton->setVisible(false);
-    }
 }
 
 void ChannelMappingEditor::refreshButtonLocations()
 {
+    electrodeButtonViewport->setVisible(!getCollapsedState());
     int width = 19;
     int height = 15;
-    int row = (int) -scrollDistance;
+    int row = 0;
     int column = 0;
-
+    int totalWidth = 0;
+    int totalHeight = 0;
     for (int i = 0; i < electrodeButtons.size(); i++)
     {
-
         ElectrodeButton* button = electrodeButtons[i];
-
-        button->setBounds(10+(column++)*(width), 30+row*(height), width, 15);
-
-        if (row <= 4 && row >= 0 && !getCollapsedState())
-            button->setVisible(true);
-        else
-            button->setVisible(false);
-
+        button->setBounds(column*width, row*height, width, height);
+        totalWidth =  jmax(totalWidth, ++column*width);
+        
         if (column % 16 == 0)
         {
-            column = 0;
-            row++;
+            totalHeight =  jmax(totalHeight, ++row*height);
+            column = 0;            
         }
     }
+    electrodeButtonHolder->setSize(totalWidth,totalHeight);
 }
 
 void ChannelMappingEditor::collapsedStateChanged()
@@ -524,28 +513,6 @@ void ChannelMappingEditor::buttonEvent(Button* button)
 
 
         }
-    } else if (button == upButton)
-    {
-
-        scrollDistance -= 1;
-
-        if (scrollDistance < 0)
-            scrollDistance = 0;
-
-        refreshButtonLocations();
-
-    } else if (button == downButton)
-    {
-
-        float maxScrollDistance = ceil(float(electrodeButtons.size() - 80) / 16.0f);
-        
-        scrollDistance += 1;
-
-        if (scrollDistance > maxScrollDistance)
-            scrollDistance = maxScrollDistance;
-
-        refreshButtonLocations();
-    
     } else if (button == saveButton)
     {
         //std::cout << "Save button clicked." << std::endl;
@@ -767,12 +734,26 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
         else if (isDragging)
         {
             MouseEvent ev = e.getEventRelativeTo(this);
-
-            int col = ((ev.x-5) / 20);
+            int mouseDownY = ev.getMouseDownY()-30;
+            int mouseDownX = ev.getMouseDownX()-10;
+            Point<int> viewPosition =electrodeButtonViewport->getViewPosition();
+            
+            int distanceY = ev.getDistanceFromDragStartY();
+            int distanceX = ev.getDistanceFromDragStartX();
+            
+            int newPosY = viewPosition.getY()+ mouseDownY + distanceY;
+            int newPosX = viewPosition.getX()+ mouseDownX + distanceX;
+            if ( mouseDownY + distanceY > 70){
+                electrodeButtonViewport->setViewPosition(viewPosition.getX(),newPosY);
+            }else if( mouseDownY + distanceY < 0 ){
+                electrodeButtonViewport->setViewPosition(viewPosition.getX(),newPosY);
+            }
+            
+            
+            int col = (newPosX / 19);
             if (col < 0) col = 0;
             else if (col > 16) col = 16;
-
-            int row = ((ev.y-30) / 15);
+            int row = (newPosY / 15);
             if (row < 0) row = 0;
 
             int hoverButton = row*16+col;
@@ -892,25 +873,6 @@ void ChannelMappingEditor::mouseDoubleClick(const MouseEvent& e)
     }
 }
 
-void ChannelMappingEditor::mouseWheelMove(const MouseEvent& event,
-                                          const MouseWheelDetails& wheel)
-{
-
-    float maxScrollDistance = ceil(float(electrodeButtons.size() - 80) / 16.0f);
-
-    // std::cout << "Got wheel move: " << wheel.deltaY << std::endl;
-    // channelSelector->shiftChannelsVertical(-wheel.deltaY);
-    scrollDistance -= wheel.deltaY*2;
-
-    if (scrollDistance > maxScrollDistance)
-        scrollDistance = maxScrollDistance;
-
-    if (scrollDistance < 0)
-        scrollDistance = 0;
-
-    refreshButtonLocations();
-}
-
 void ChannelMappingEditor::checkUnusedChannels()
 {
     for (int i = 0; i < electrodeButtons.size(); i++)
@@ -944,7 +906,16 @@ void ChannelMappingEditor::startAcquisition()
 {
 	if (reorderActive)
 		modifyButton->setToggleState(false,sendNotificationSync);
-	GenericEditor::startAcquisition();
+}
+
+int ChannelMappingEditor::getChannelDisplayNumber(int chan) const
+{
+	if (channelCountArray.size() > chan)
+	{
+		return channelCountArray[chan];
+	}
+	else
+		return chan;
 }
 
 String ChannelMappingEditor::writePrbFile(File filename)

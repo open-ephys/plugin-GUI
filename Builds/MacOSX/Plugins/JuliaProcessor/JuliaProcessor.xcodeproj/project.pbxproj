@@ -1,0 +1,255 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E14A22211DA80B4400134197 /* JuliaEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E14A221C1DA80B4400134197 /* JuliaEditor.cpp */; };
+		E14A22221DA80B4400134197 /* JuliaProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E14A221E1DA80B4400134197 /* JuliaProcessor.cpp */; };
+		E14A22231DA80B4400134197 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E14A22201DA80B4400134197 /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E14A22121DA80A9700134197 /* JuliaProcessor.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JuliaProcessor.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		E14A22151DA80A9700134197 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E14A221C1DA80B4400134197 /* JuliaEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JuliaEditor.cpp; sourceTree = "<group>"; };
+		E14A221D1DA80B4400134197 /* JuliaEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JuliaEditor.h; sourceTree = "<group>"; };
+		E14A221E1DA80B4400134197 /* JuliaProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JuliaProcessor.cpp; sourceTree = "<group>"; };
+		E14A221F1DA80B4400134197 /* JuliaProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JuliaProcessor.h; sourceTree = "<group>"; };
+		E14A22201DA80B4400134197 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		E14A22251DA80BDF00134197 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		E14A22261DA80BDF00134197 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E14A220F1DA80A9700134197 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E14A22091DA80A9700134197 = {
+			isa = PBXGroup;
+			children = (
+				E14A22241DA80BBA00134197 /* Config */,
+				E14A22141DA80A9700134197 /* JuliaProcessor */,
+				E14A22131DA80A9700134197 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E14A22131DA80A9700134197 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E14A22121DA80A9700134197 /* JuliaProcessor.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E14A22141DA80A9700134197 /* JuliaProcessor */ = {
+			isa = PBXGroup;
+			children = (
+				E14A221B1DA80B0F00134197 /* Source */,
+				E14A22151DA80A9700134197 /* Info.plist */,
+			);
+			path = JuliaProcessor;
+			sourceTree = "<group>";
+		};
+		E14A221B1DA80B0F00134197 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E14A221F1DA80B4400134197 /* JuliaProcessor.h */,
+				E14A221E1DA80B4400134197 /* JuliaProcessor.cpp */,
+				E14A221D1DA80B4400134197 /* JuliaEditor.h */,
+				E14A221C1DA80B4400134197 /* JuliaEditor.cpp */,
+				E14A22201DA80B4400134197 /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ../../../../../Source/Plugins/JuliaProcessor;
+			sourceTree = "<group>";
+		};
+		E14A22241DA80BBA00134197 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E14A22251DA80BDF00134197 /* Plugin_Debug.xcconfig */,
+				E14A22261DA80BDF00134197 /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			path = ../Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E14A22111DA80A9700134197 /* JuliaProcessor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E14A22181DA80A9700134197 /* Build configuration list for PBXNativeTarget "JuliaProcessor" */;
+			buildPhases = (
+				E14A220E1DA80A9700134197 /* Sources */,
+				E14A220F1DA80A9700134197 /* Frameworks */,
+				E14A22101DA80A9700134197 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JuliaProcessor;
+			productName = JuliaProcessor;
+			productReference = E14A22121DA80A9700134197 /* JuliaProcessor.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E14A220A1DA80A9700134197 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					E14A22111DA80A9700134197 = {
+						CreatedOnToolsVersion = 8.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E14A220D1DA80A9700134197 /* Build configuration list for PBXProject "JuliaProcessor" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E14A22091DA80A9700134197;
+			productRefGroup = E14A22131DA80A9700134197 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E14A22111DA80A9700134197 /* JuliaProcessor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E14A22101DA80A9700134197 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E14A220E1DA80A9700134197 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E14A22231DA80B4400134197 /* OpenEphysLib.cpp in Sources */,
+				E14A22221DA80B4400134197 /* JuliaProcessor.cpp in Sources */,
+				E14A22211DA80B4400134197 /* JuliaEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E14A22161DA80A9700134197 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E14A22251DA80BDF00134197 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E14A22171DA80A9700134197 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E14A22261DA80BDF00134197 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E14A22191DA80A9700134197 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"JULIA_ENABLE_THREADING=1",
+					"JULIA_INIT_DIR=\"$(JULIA_PATH)/lib\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(JULIA_PATH)/include/julia",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = JuliaProcessor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(JULIA_PATH)/lib";
+				LIBRARY_SEARCH_PATHS = (
+					"$(JULIA_PATH)/lib",
+					"$(inherited)",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ljulia",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.JuliaProcessor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E14A221A1DA80A9700134197 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"JULIA_ENABLE_THREADING=1",
+					"JULIA_INIT_DIR=\"$(JULIA_PATH)/lib\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(JULIA_PATH)/include/julia",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = JuliaProcessor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(JULIA_PATH)/lib";
+				LIBRARY_SEARCH_PATHS = (
+					"$(JULIA_PATH)/lib",
+					"$(inherited)",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ljulia",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.JuliaProcessor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E14A220D1DA80A9700134197 /* Build configuration list for PBXProject "JuliaProcessor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E14A22161DA80A9700134197 /* Debug */,
+				E14A22171DA80A9700134197 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E14A22181DA80A9700134197 /* Build configuration list for PBXNativeTarget "JuliaProcessor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E14A22191DA80A9700134197 /* Debug */,
+				E14A221A1DA80A9700134197 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E14A220A1DA80A9700134197 /* Project object */;
+}

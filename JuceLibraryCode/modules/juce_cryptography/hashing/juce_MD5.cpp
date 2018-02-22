@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -56,12 +56,12 @@ public:
             transform (buffer);
 
             for (i = spaceLeft; i + 64 <= dataSize; i += 64)
-                transform (static_cast <const char*> (data) + i);
+                transform (static_cast<const char*> (data) + i);
 
             bufferPos = 0;
         }
 
-        memcpy (buffer + bufferPos, static_cast <const char*> (data) + i, dataSize - i);
+        memcpy (buffer + bufferPos, static_cast<const char*> (data) + i, dataSize - i);
     }
 
     void transform (const void* bufferToTransform) noexcept
@@ -321,7 +321,7 @@ public:
         }
     }
 
-    void runTest()
+    void runTest() override
     {
         beginTest ("MD5");
 

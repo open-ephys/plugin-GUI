@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 using namespace Plugin;
@@ -37,7 +37,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "Pulse Pal Output";
+    info->name = "Pulse Pal Output";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -47,8 +47,8 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::ProcessorPlugin;
-		info->processor.name = "Pulse Pal";
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+        info->processor.name = "Pulse Pal";
 		info->processor.type = Plugin::SinkProcessor;
 		info->processor.creator = &(Plugin::createProcessor<PulsePalOutput>);
 		break;

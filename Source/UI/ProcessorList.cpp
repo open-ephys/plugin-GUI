@@ -28,7 +28,7 @@
 #include "UIComponent.h"
 #include "../AccessClass.h"
 #include "../Processors/ProcessorManager/ProcessorManager.h"
-
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
 
 enum colorIds

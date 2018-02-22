@@ -10,11 +10,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\Source\Plugins\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OEPLUGIN;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.3.5;JUCE_APP_VERSION_HEX=0x305;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;JuceLibraryCode/;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OEPLUGIN;WIN32;_WINDOWS;DEBUG;_DEBUG;JUCE_API=__declspec(dllimport);JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.4.2;JUCE_APP_VERSION_HEX=0x402;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(GUIDir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreLinkEvent>

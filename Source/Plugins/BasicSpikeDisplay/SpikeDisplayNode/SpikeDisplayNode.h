@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,98 +25,88 @@
 #define SPIKEDISPLAYNODE_H_
 
 #include <ProcessorHeaders.h>
-#include <SpikeLib.h>
 #include "SpikeDisplayEditor.h"
 
 class DataViewport;
 class SpikePlot;
 
-/**
 
- Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers.
- Those Events are then held in a queue until they are pulled by the SpikeDisplayCanvas.
+/**
+  Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers.
+  Those Events are then held in a queue until they are pulled by the SpikeDisplayCanvas.
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
-
 */
-
 class SpikeDisplayNode :  public GenericProcessor
 {
 public:
-
     SpikeDisplayNode();
     ~SpikeDisplayNode();
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    bool isSink()
-    {
-        return true;
-    }
+    void process (AudioSampleBuffer& buffer) override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void setParameter(int, float);
+	void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) override;
 
-    void handleEvent(int, MidiMessage&, int);
+    void updateSettings() override;
 
-    void updateSettings();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool enable();
-    bool disable();
+    void startRecording()   override;
+    void stopRecording()    override;
 
-    void startRecording();
-    void stopRecording();
+    String getNameForElectrode (int i) const;
+    int getNumberOfChannelsForElectrode (int i) const;
+    int getNumElectrodes() const;
 
-    String getNameForElectrode(int i);
-    int getNumberOfChannelsForElectrode(int i);
-    int getNumElectrodes();
-
-    void addSpikePlotForElectrode(SpikePlot* sp, int i);
+    void addSpikePlotForElectrode (SpikePlot* sp, int i);
     void removeSpikePlots();
 
-    bool checkThreshold(int, float, SpikeObject&);
+    bool checkThreshold (int, float, SpikeEvent*);
+
 
 private:
-
     struct Electrode
     {
         String name;
 
         int numChannels;
+        int recordIndex;
+        int currentSpikeIndex;
 
         Array<float> displayThresholds;
         Array<float> detectorThresholds;
 
-        Array<SpikeObject> mostRecentSpikes;
-        int currentSpikeIndex;
+        OwnedArray<SpikeEvent> mostRecentSpikes;
+
+		float bitVolts;
 
         SpikePlot* spikePlot;
-
-        int recordIndex;
-
     };
 
-    Array<Electrode> electrodes;
+    OwnedArray<Electrode> electrodes;
 
     int displayBufferSize;
     bool redrawRequested;
 
     // members for recording
     bool isRecording;
- //   bool signalFilesShouldClose;
- //   RecordNode* recordNode;
- //   String baseDirectory;
- //   File dataDirectory;
- //   uint8_t* spikeBuffer;
- //   SpikeObject currentSpike;
+    //   bool signalFilesShouldClose;
+    //   RecordNode* recordNode;
+    //   String baseDirectory;
+    //   File dataDirectory;
+    //   uint8_t* spikeBuffer;
+    //   SpikeObject currentSpike;
 
- //   uint16 recordingNumber;
+    //   uint16 recordingNumber;
 
-//    CriticalSection* diskWriteLock;
+    //    CriticalSection* diskWriteLock;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
 };
 
 

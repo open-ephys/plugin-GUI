@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -37,7 +37,7 @@ StringArray::StringArray (const StringArray& other)
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 StringArray::StringArray (StringArray&& other) noexcept
-    : strings (static_cast <Array <String>&&> (other.strings))
+    : strings (static_cast<Array <String>&&> (other.strings))
 {
 }
 #endif
@@ -81,8 +81,15 @@ StringArray& StringArray::operator= (const StringArray& other)
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 StringArray& StringArray::operator= (StringArray&& other) noexcept
 {
-    strings = static_cast <Array<String>&&> (other.strings);
+    strings = static_cast<Array<String>&&> (other.strings);
     return *this;
+}
+#endif
+
+#if JUCE_COMPILER_SUPPORTS_INITIALIZER_LISTS
+StringArray::StringArray (const std::initializer_list<const char*>& stringList)
+{
+    strings.addArray (stringList);
 }
 #endif
 
@@ -166,6 +173,12 @@ void StringArray::addArray (const StringArray& otherArray, int startIndex, int n
         strings.add (otherArray.strings.getReference (startIndex++));
 }
 
+void StringArray::mergeArray (const StringArray& otherArray, const bool ignoreCase)
+{
+    for (int i = 0; i < otherArray.size(); ++i)
+        addIfNotAlreadyThere (otherArray[i], ignoreCase);
+}
+
 void StringArray::set (const int index, const String& newString)
 {
     strings.set (index, newString);
@@ -197,6 +210,11 @@ int StringArray::indexOf (StringRef stringToLookFor, const bool ignoreCase, int 
     }
 
     return -1;
+}
+
+void StringArray::move (const int currentIndex, const int newIndex) noexcept
+{
+    strings.move (currentIndex, newIndex);
 }
 
 //==============================================================================
@@ -255,12 +273,17 @@ void StringArray::trim()
 //==============================================================================
 struct InternalStringArrayComparator_CaseSensitive
 {
-    static int compareElements (String& first, String& second)      { return first.compare (second); }
+    static int compareElements (String& s1, String& s2) noexcept    { return s1.compare (s2); }
 };
 
 struct InternalStringArrayComparator_CaseInsensitive
 {
-    static int compareElements (String& first, String& second)      { return first.compareIgnoreCase (second); }
+    static int compareElements (String& s1, String& s2) noexcept    { return s1.compareIgnoreCase (s2); }
+};
+
+struct InternalStringArrayComparator_Natural
+{
+    static int compareElements (String& s1, String& s2) noexcept    { return s1.compareNatural (s2); }
 };
 
 void StringArray::sort (const bool ignoreCase)
@@ -277,11 +300,11 @@ void StringArray::sort (const bool ignoreCase)
     }
 }
 
-void StringArray::move (const int currentIndex, int newIndex) noexcept
+void StringArray::sortNatural()
 {
-    strings.move (currentIndex, newIndex);
+    InternalStringArrayComparator_Natural comp;
+    strings.sort (comp);
 }
-
 
 //==============================================================================
 String StringArray::joinIntoString (StringRef separator, int start, int numberToJoin) const

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -39,6 +39,11 @@ void ImagePixelData::sendDataChangeMessage()
     listeners.call (&Listener::imageDataChanged, this);
 }
 
+int ImagePixelData::getSharedCount() const noexcept
+{
+    return getReferenceCount();
+}
+
 //==============================================================================
 ImageType::ImageType() {}
 ImageType::~ImageType() {}
@@ -53,10 +58,17 @@ Image ImageType::convert (const Image& source) const
     Image newImage (create (src.pixelFormat, src.width, src.height, false));
     Image::BitmapData dest (newImage, Image::BitmapData::writeOnly);
 
-    jassert (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat);
-
-    for (int y = 0; y < dest.height; ++y)
-        memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.lineStride);
+    if (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat)
+    {
+        for (int y = 0; y < dest.height; ++y)
+            memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.lineStride);
+    }
+    else
+    {
+        for (int y = 0; y < dest.height; ++y)
+            for (int x = 0; x < dest.width; ++x)
+                dest.setPixelColour (x, y, src.getPixelColour (x, y));
+    }
 
     return newImage;
 }
@@ -177,9 +189,13 @@ public:
         return newImage.getPixelData();
     }
 
-    ImageType* createType() const override    { return image->createType(); }
+    ImageType* createType() const override          { return image->createType(); }
+
+    /* as we always hold a reference to image, don't double count */
+    int getSharedCount() const noexcept override    { return getReferenceCount() + image->getSharedCount() - 1; }
 
 private:
+    friend class Image;
     const ImagePixelData::Ptr image;
     const Rectangle<int> area;
 
@@ -197,11 +213,11 @@ Image Image::getClippedImage (const Rectangle<int>& area) const
 
 
 //==============================================================================
-Image::Image()
+Image::Image() noexcept
 {
 }
 
-Image::Image (ImagePixelData* const instance)
+Image::Image (ImagePixelData* const instance) noexcept
     : image (instance)
 {
 }
@@ -216,7 +232,7 @@ Image::Image (const PixelFormat format, int width, int height, bool clearImage, 
 {
 }
 
-Image::Image (const Image& other)
+Image::Image (const Image& other) noexcept
     : image (other.image)
 {
 }
@@ -229,13 +245,13 @@ Image& Image::operator= (const Image& other)
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 Image::Image (Image&& other) noexcept
-    : image (static_cast <ImagePixelData::Ptr&&> (other.image))
+    : image (static_cast<ImagePixelData::Ptr&&> (other.image))
 {
 }
 
 Image& Image::operator= (Image&& other) noexcept
 {
-    image = static_cast <ImagePixelData::Ptr&&> (other.image);
+    image = static_cast<ImagePixelData::Ptr&&> (other.image);
     return *this;
 }
 #endif
@@ -246,7 +262,7 @@ Image::~Image()
 
 const Image Image::null;
 
-int Image::getReferenceCount() const noexcept           { return image == nullptr ? 0 : image->getReferenceCount(); }
+int Image::getReferenceCount() const noexcept           { return image == nullptr ? 0 : image->getSharedCount(); }
 int Image::getWidth() const noexcept                    { return image == nullptr ? 0 : image->width; }
 int Image::getHeight() const noexcept                   { return image == nullptr ? 0 : image->height; }
 Rectangle<int> Image::getBounds() const noexcept        { return image == nullptr ? Rectangle<int>() : Rectangle<int> (image->width, image->height); }
@@ -263,7 +279,7 @@ LowLevelGraphicsContext* Image::createLowLevelContext() const
 
 void Image::duplicateIfShared()
 {
-    if (image != nullptr && image->getReferenceCount() > 1)
+    if (getReferenceCount() > 1)
         image = image->clone();
 }
 
@@ -398,9 +414,9 @@ Colour Image::BitmapData::getPixelColour (const int x, const int y) const noexce
 
     switch (pixelFormat)
     {
-        case Image::ARGB:           return Colour (((const PixelARGB*)  pixel)->getUnpremultipliedARGB());
-        case Image::RGB:            return Colour (((const PixelRGB*)   pixel)->getUnpremultipliedARGB());
-        case Image::SingleChannel:  return Colour (((const PixelAlpha*) pixel)->getUnpremultipliedARGB());
+        case Image::ARGB:           return Colour ( ((const PixelARGB*)  pixel)->getUnpremultiplied());
+        case Image::RGB:            return Colour (*((const PixelRGB*)   pixel));
+        case Image::SingleChannel:  return Colour (*((const PixelAlpha*) pixel));
         default:                    jassertfalse; break;
     }
 

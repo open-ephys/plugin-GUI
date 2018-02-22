@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,17 +18,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include <stdio.h>
 #include "FilterNode.h"
 #include "FilterEditor.h"
 
-FilterNode::FilterNode()
-    : GenericProcessor("Bandpass Filter"), defaultLowCut(300.0f), defaultHighCut(6000.0f)
 
+FilterNode::FilterNode()
+    : GenericProcessor  ("Bandpass Filter")
+    , defaultLowCut     (300.0f)
+    , defaultHighCut    (6000.0f)
 {
+    setProcessorType (PROCESSOR_TYPE_FILTER);
 
     // // Deprecated "parameters" class // //
     // Array<var> lowCutValues;
@@ -49,19 +51,18 @@ FilterNode::FilterNode()
     applyOnADC = false;
 }
 
+
 FilterNode::~FilterNode()
 {
-
 }
+
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-    editor = new FilterEditor(this, true);
+    editor = new FilterEditor (this, true);
 
     FilterEditor* ed = (FilterEditor*) getEditor();
-    ed->setDefaults(defaultLowCut, defaultHighCut);
-
-    //std::cout << "Creating editor." << std::endl;
+    ed->setDefaults (defaultLowCut, defaultHighCut);
 
     return editor;
 }
@@ -132,7 +133,8 @@ void FilterNode::updateSettings()
     if (numInputs < 1024 && numInputs != numfilt)
     {
         // SO fixed this. I think values were never restored correctly because you cleared lowCuts.
-        Array<double> oldlowCuts, oldhighCuts;
+        Array<double> oldlowCuts;
+        Array<double> oldhighCuts;
         oldlowCuts = lowCuts;
         oldhighCuts = highCuts;
 
@@ -141,17 +143,13 @@ void FilterNode::updateSettings()
         highCuts.clear();
         shouldFilterChannel.clear();
 
-        for (int n = 0; n < getNumInputs(); n++)
+        for (int n = 0; n < getNumInputs(); ++n)
         {
-
-            // std::cout << "Creating filter number " << n << std::endl;
-
-            filters.add(new Dsp::SmoothedFilterDesign
-                        <Dsp::Butterworth::Design::BandPass 	// design type
-                        <2>,								 	// order
-                        1,										// number of channels (must be const)
-                        Dsp::DirectFormII>						// realization
-                        (1));
+            filters.add (new Dsp::SmoothedFilterDesign
+                         <Dsp::Butterworth::Design::BandPass    // design type
+                         <2>,                                   // order
+                         1,                                     // number of channels (must be const)
+                         Dsp::DirectFormII> (1));               // realization
 
 
             //Parameter& p1 =  parameters.getReference(0);
@@ -161,177 +159,167 @@ void FilterNode::updateSettings()
 
             // restore defaults
 
-            shouldFilterChannel.add(true);
+            shouldFilterChannel.add (true);
 
-            float lc, hc;
+            float newLowCut  = 0.f;
+            float newHighCut = 0.f;
 
             if (oldlowCuts.size() > n)
             {
-                lc = oldlowCuts[n];
-                hc = oldhighCuts[n];
+                newLowCut  = oldlowCuts[n];
+                newHighCut = oldhighCuts[n];
             }
             else
             {
-                lc = defaultLowCut;
-                hc = defaultHighCut;
+                newLowCut  = defaultLowCut;
+                newHighCut = defaultHighCut;
             }
 
-            lowCuts.add(lc);
-            highCuts.add(hc);
+            lowCuts.add  (newLowCut);
+            highCuts.add (newHighCut);
 
-            setFilterParameters(lc, hc, n);
+            setFilterParameters (newLowCut, newHighCut, n);
         }
-
     }
 
-    setApplyOnADC(applyOnADC);
-
+    setApplyOnADC (applyOnADC);
 }
 
-double FilterNode::getLowCutValueForChannel(int chan)
+
+double FilterNode::getLowCutValueForChannel (int chan) const
 {
     return lowCuts[chan];
 }
 
-double FilterNode::getHighCutValueForChannel(int chan)
+
+double FilterNode::getHighCutValueForChannel (int chan) const
 {
     return highCuts[chan];
 }
 
-bool FilterNode::getBypassStatusForChannel(int chan)
+
+bool FilterNode::getBypassStatusForChannel (int chan) const
 {
     return shouldFilterChannel[chan];
 }
 
-void FilterNode::setFilterParameters(double lowCut, double highCut, int chan)
+
+void FilterNode::setFilterParameters (double lowCut, double highCut, int chan)
 {
-	if (channels.size()-1 < chan)
-		return;
+    if (dataChannelArray.size() - 1 < chan)
+        return;
+
     Dsp::Params params;
-    params[0] = channels[chan]->sampleRate; // sample rate
-    params[1] = 2; // order
-    params[2] = (highCut + lowCut)/2; // center frequency
-    params[3] = highCut - lowCut; // bandwidth
+    params[0] = dataChannelArray[chan]->getSampleRate(); // sample rate
+    params[1] = 2;                          // order
+    params[2] = (highCut + lowCut) / 2;     // center frequency
+    params[3] = highCut - lowCut;           // bandwidth
 
     if (filters.size() > chan)
-        filters[chan]->setParams(params);
-
+        filters[chan]->setParams (params);
 }
 
-void FilterNode::setParameter(int parameterIndex, float newValue)
-{
 
+void FilterNode::setParameter (int parameterIndex, float newValue)
+{
     if (parameterIndex < 2) // change filter settings
     {
-
         if (newValue <= 0.01 || newValue >= 10000.0f)
             return;
 
-        //std::cout << "Setting channel " << currentChannel;// << std::endl;
-
         if (parameterIndex == 0)
         {
-            // std::cout << " low cut to " << newValue << std::endl;
-            lowCuts.set(currentChannel,newValue);
+            lowCuts.set (currentChannel,newValue);
         }
         else if (parameterIndex == 1)
         {
-            //std::cout << " high cut to " << newValue << std::endl;
-            highCuts.set(currentChannel,newValue);
+            highCuts.set (currentChannel,newValue);
         }
 
-        setFilterParameters(lowCuts[currentChannel],
-                            highCuts[currentChannel],
-                            currentChannel);
+        setFilterParameters (lowCuts[currentChannel],
+                             highCuts[currentChannel],
+                             currentChannel);
 
-        editor->updateParameterButtons(parameterIndex);
-
+        editor->updateParameterButtons (parameterIndex);
     }
-    else   // change channel bypass state
+    // change channel bypass state
+    else
     {
         if (newValue == 0)
         {
-            shouldFilterChannel.set(currentChannel, false);
+            shouldFilterChannel.set (currentChannel, false);
         }
         else
         {
-            shouldFilterChannel.set(currentChannel, true);
+            shouldFilterChannel.set (currentChannel, true);
         }
-
     }
 }
 
-void FilterNode::process(AudioSampleBuffer& buffer,
-                         MidiBuffer& midiMessages)
-{
 
-    for (int n = 0; n < getNumOutputs(); n++)
+void FilterNode::process (AudioSampleBuffer& buffer)
+{
+    for (int n = 0; n < getNumOutputs(); ++n)
     {
         if (shouldFilterChannel[n])
         {
-            float* ptr = buffer.getWritePointer(n);
-            filters[n]->process(getNumSamples(n), &ptr);
+            float* ptr = buffer.getWritePointer (n);
+            filters[n]->process (getNumSamples (n), &ptr);
         }
     }
-
 }
 
-void FilterNode::setApplyOnADC(bool state)
-{
 
-    for (int n = 0; n < channels.size(); n++)
+void FilterNode::setApplyOnADC (bool state)
+{
+    for (int n = 0; n < dataChannelArray.size(); ++n)
     {
-        if (channels[n]->getType() == ADC_CHANNEL || channels[n]->getType() == AUX_CHANNEL)
+        if (dataChannelArray[n]->getChannelType() == DataChannel::ADC_CHANNEL
+            || dataChannelArray[n]->getChannelType() == DataChannel::AUX_CHANNEL)
         {
-            setCurrentChannel(n);
+            setCurrentChannel (n);
 
             if (state)
-                setParameter(2,1.0);
+                setParameter (2,1.0);
             else
-                setParameter(2,0.0);
+                setParameter (2,0.0);
         }
     }
 }
 
-void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, bool isEventChannel)
+
+void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelType)
 {
-
-    //std::cout << "CHANNEL: " << channelNumber << std::endl;
-
-    if (!isEventChannel && channelNumber > -1 && channelNumber < highCuts.size())
+    if (channelType == InfoObjectCommon::DATA_CHANNEL
+        && channelNumber > -1
+        && channelNumber < highCuts.size())
     {
         //std::cout << "Saving custom parameters for filter node." << std::endl;
 
-        XmlElement* channelParams = channelInfo->createNewChildElement("PARAMETERS");
-        channelParams->setAttribute("highcut",highCuts[channelNumber]);
-        channelParams->setAttribute("lowcut",lowCuts[channelNumber]);
-        channelParams->setAttribute("shouldFilter",shouldFilterChannel[channelNumber]);
+        XmlElement* channelParams = channelInfo->createNewChildElement ("PARAMETERS");
+        channelParams->setAttribute ("highcut",         highCuts[channelNumber]);
+        channelParams->setAttribute ("lowcut",          lowCuts[channelNumber]);
+        channelParams->setAttribute ("shouldFilter",    shouldFilterChannel[channelNumber]);
     }
-
 }
 
-void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, bool isEventChannel)
+
+void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)
 {
+    int channelNum = channelInfo->getIntAttribute ("number");
 
-    int channelNum = channelInfo->getIntAttribute("number");
-
-    if (!isEventChannel)
+    if (channelType == InfoObjectCommon::DATA_CHANNEL)
     {
-        forEachXmlChildElement(*channelInfo, subNode)
+        forEachXmlChildElement (*channelInfo, subNode)
         {
-            if (subNode->hasTagName("PARAMETERS"))
+            if (subNode->hasTagName ("PARAMETERS"))
             {
-                highCuts.set(channelNum, subNode->getDoubleAttribute("highcut",defaultHighCut));
-                lowCuts.set(channelNum, subNode->getDoubleAttribute("lowcut",defaultLowCut));
-                shouldFilterChannel.set(channelNum, subNode->getBoolAttribute("shouldFilter",true));
+                highCuts.set (channelNum, subNode->getDoubleAttribute ("highcut", defaultHighCut));
+                lowCuts.set  (channelNum, subNode->getDoubleAttribute ("lowcut",  defaultLowCut));
+                shouldFilterChannel.set (channelNum, subNode->getBoolAttribute ("shouldFilter", true));
 
-                setFilterParameters(lowCuts[channelNum],
-                                    highCuts[channelNum],
-                                    channelNum);
-
+                setFilterParameters (lowCuts[channelNum], highCuts[channelNum], channelNum);
             }
         }
     }
-
-
 }

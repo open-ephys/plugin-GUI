@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ public:
     virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples) = 0;
     virtual void seekTo (int64 sample) = 0;
 
-	virtual bool isReady();
+    virtual bool isReady();
 
 protected:
     struct RecordInfo
@@ -81,7 +81,7 @@ protected:
 
     bool fileOpened;
     int numRecords;
-    int activeRecord;
+    Atomic<int> activeRecord;       // atomic to protect against threaded data race in FileReader
     String filename;
 
 

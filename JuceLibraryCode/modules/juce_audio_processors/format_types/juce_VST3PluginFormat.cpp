@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -93,7 +93,7 @@ static int getHashForTUID (const TUID& tuid) noexcept
     return value;
 }
 
-template<typename ObjectType>
+template <typename ObjectType>
 static void fillDescriptionWith (PluginDescription& description, ObjectType& object)
 {
     description.version  = toString (object.version).trim();
@@ -110,6 +110,7 @@ static void createPluginDescription (PluginDescription& description,
 {
     description.fileOrIdentifier    = pluginFile.getFullPathName();
     description.lastFileModTime     = pluginFile.getLastModificationTime();
+    description.lastInfoUpdateTime  = Time::getCurrentTime();
     description.manufacturerName    = company;
     description.name                = name;
     description.descriptiveName     = name;
@@ -364,7 +365,6 @@ class VST3HostContext  : public Vst::IComponentHandler,  // From VST V3.0.0
                          public Vst::IComponentHandler3, // From VST V3.5.0 (also very well named!)
                          public Vst::IContextMenuTarget,
                          public Vst::IHostApplication,
-                         public Vst::IParamValueQueue,
                          public Vst::IUnitHandler
 {
 public:
@@ -428,16 +428,11 @@ public:
 
             if (hasFlag (flags, Vst::kIoChanged))
             {
-                double sampleRate = owner->getSampleRate();
-                int numSamples = owner->getBlockSize();
+                const double sampleRate = owner->getSampleRate();
+                const int blockSize = owner->getBlockSize();
 
-                if (sampleRate <= 8000.0)
-                    sampleRate = 44100.0;
-
-                if (numSamples <= 0)
-                    numSamples = 1024;
-
-                owner->prepareToPlay (owner->getSampleRate(), owner->getBlockSize());
+                owner->prepareToPlay (sampleRate >= 8000 ? sampleRate : 44100.0,
+                                      blockSize > 0 ? blockSize : 1024);
             }
 
             if (hasFlag (flags, Vst::kLatencyChanged))
@@ -460,7 +455,7 @@ public:
 
     tresult PLUGIN_API requestOpenEditor (FIDString name) override
     {
-        (void) name;
+        ignoreUnused (name);
         jassertfalse;
         return kResultFalse;
     }
@@ -690,31 +685,6 @@ public:
     }
 
     //==============================================================================
-    Vst::ParamID PLUGIN_API getParameterId() override
-    {
-        jassertfalse;
-        return 0;
-    }
-
-    Steinberg::int32 PLUGIN_API getPointCount() override
-    {
-        jassertfalse;
-        return 0;
-    }
-
-    tresult PLUGIN_API getPoint (Steinberg::int32, Steinberg::int32&, Vst::ParamValue&) override
-    {
-        jassertfalse;
-        return kResultFalse;
-    }
-
-    tresult PLUGIN_API addPoint (Steinberg::int32, Vst::ParamValue, Steinberg::int32&) override
-    {
-        jassertfalse;
-        return kResultFalse;
-    }
-
-    //==============================================================================
     tresult PLUGIN_API notifyUnitSelection (Vst::UnitID) override
     {
         jassertfalse;
@@ -741,7 +711,6 @@ public:
         TEST_FOR_AND_RETURN_IF_VALID (iid, Vst::IComponentHandler3)
         TEST_FOR_AND_RETURN_IF_VALID (iid, Vst::IContextMenuTarget)
         TEST_FOR_AND_RETURN_IF_VALID (iid, Vst::IHostApplication)
-        TEST_FOR_AND_RETURN_IF_VALID (iid, Vst::IParamValueQueue)
         TEST_FOR_AND_RETURN_IF_VALID (iid, Vst::IUnitHandler)
         TEST_FOR_COMMON_BASE_AND_RETURN_IF_VALID (iid, FUnknown, Vst::IComponentHandler)
 
@@ -842,47 +811,26 @@ private:
         //==============================================================================
         tresult PLUGIN_API setInt (AttrID id, Steinberg::int64 value) override
         {
-            jassert (id != nullptr);
-
-            if (! setValueForId (id, value))
-                owner->messageQueue.add (ComSmartPtr<Message> (new Message (*owner, this, id, value)));
-
+            addMessageToQueue (id, value);
             return kResultTrue;
         }
 
         tresult PLUGIN_API setFloat (AttrID id, double value) override
         {
-            jassert (id != nullptr);
-
-            if (! setValueForId (id, value))
-                owner->messageQueue.add (ComSmartPtr<Message> (new Message (*owner, this, id, value)));
-
+            addMessageToQueue (id, value);
             return kResultTrue;
         }
 
         tresult PLUGIN_API setString (AttrID id, const Vst::TChar* string) override
         {
-            jassert (id != nullptr);
-            jassert (string != nullptr);
-
-            const String text (toString (string));
-
-            if (! setValueForId (id, text))
-                owner->messageQueue.add (ComSmartPtr<Message> (new Message (*owner, this, id, text)));
-
+            addMessageToQueue (id, toString (string));
             return kResultTrue;
         }
 
         tresult PLUGIN_API setBinary (AttrID id, const void* data, Steinberg::uint32 size) override
         {
-            jassert (id != nullptr);
-            jassert (data != nullptr && size > 0);
-
-            MemoryBlock block (data, (size_t) size);
-
-            if (! setValueForId (id, block))
-                owner->messageQueue.add (ComSmartPtr<Message> (new Message (*owner, this, id, block)));
-
+            jassert (size >= 0 && (data != nullptr || size == 0));
+            addMessageToQueue (id, MemoryBlock (data, (size_t) size));
             return kResultTrue;
         }
 
@@ -891,7 +839,7 @@ private:
         {
             jassert (id != nullptr);
 
-            if (fetchValueForId (id, result))
+            if (findMessageOnQueueWithID (id, result))
                 return kResultTrue;
 
             jassertfalse;
@@ -902,7 +850,7 @@ private:
         {
             jassert (id != nullptr);
 
-            if (fetchValueForId (id, result))
+            if (findMessageOnQueueWithID (id, result))
                 return kResultTrue;
 
             jassertfalse;
@@ -914,7 +862,7 @@ private:
             jassert (id != nullptr);
 
             String stringToFetch;
-            if (fetchValueForId (id, stringToFetch))
+            if (findMessageOnQueueWithID (id, stringToFetch))
             {
                 Steinberg::String str (stringToFetch.toRawUTF8());
                 str.copyTo (result, 0, (Steinberg::int32) jmin (length, (Steinberg::uint32) std::numeric_limits<Steinberg::int32>::max()));
@@ -953,8 +901,8 @@ private:
         Atomic<int> refCount;
 
         //==============================================================================
-        template<typename Type>
-        bool setValueForId (AttrID id, const Type& value)
+        template <typename Type>
+        void addMessageToQueue (AttrID id, const Type& value)
         {
             jassert (id != nullptr);
 
@@ -965,15 +913,15 @@ private:
                 if (std::strcmp (message->getMessageID(), id) == 0)
                 {
                     message->value = value;
-                    return true;
+                    return;
                 }
             }
 
-            return false; // No message found with that Id
+            owner->messageQueue.add (ComSmartPtr<Message> (new Message (*owner, this, id, value)));
         }
 
-        template<typename Type>
-        bool fetchValueForId (AttrID id, Type& value)
+        template <typename Type>
+        bool findMessageOnQueueWithID (AttrID id, Type& value)
         {
             jassert (id != nullptr);
 
@@ -1242,6 +1190,7 @@ private:
         if (library.open (filePath))
         {
             typedef bool (PLUGIN_API *InitModuleProc) ();
+
             if (InitModuleProc proc = (InitModuleProc) getFunction ("InitDll"))
             {
                 if (proc())
@@ -1449,7 +1398,9 @@ public:
     ~VST3PluginWindow()
     {
         warnOnFailure (view->removed());
-        getAudioProcessor()->editorBeingDeleted (this);
+        warnOnFailure (view->setFrame (nullptr));
+
+        processor.editorBeingDeleted (this);
 
        #if JUCE_MAC
         dummyComponent.setView (nullptr);
@@ -1626,6 +1577,11 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VST3PluginWindow)
 };
 
+#if JUCE_MSVC
+ #pragma warning (push)
+ #pragma warning (disable: 4996) // warning about overriding deprecated methods
+#endif
+
 //==============================================================================
 class VST3PluginInstance : public AudioPluginInstance
 {
@@ -1634,8 +1590,8 @@ public:
       : module (handle),
         numInputAudioBusses (0),
         numOutputAudioBusses (0),
-        inputParameterChanges (new ParameterChangeList()),
-        outputParameterChanges (new ParameterChangeList()),
+        inputParameterChanges (new ParamValueQueueList()),
+        outputParameterChanges (new ParamValueQueueList()),
         midiInputs (new MidiEventList()),
         midiOutputs (new MidiEventList()),
         isComponentInitialised (false),
@@ -1715,8 +1671,8 @@ public:
         createPluginDescription (description, module->file,
                                  company, module->name,
                                  *info, info2, infoW,
-                                 getNumInputChannels(),
-                                 getNumOutputChannels());
+                                 getTotalNumInputChannels(),
+                                 getTotalNumOutputChannels());
     }
 
     void* getPlatformSpecificData() override   { return component; }
@@ -1725,7 +1681,7 @@ public:
     //==============================================================================
     const String getName() const override
     {
-        return module != nullptr ? module->name : String::empty;
+        return module != nullptr ? module->name : String();
     }
 
     void repopulateArrangements()
@@ -1741,20 +1697,20 @@ public:
             outputArrangements.add (getArrangementForBus (processor, false, i));
     }
 
-    void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock) override
+    void prepareToPlay (double newSampleRate, int estimatedSamplesPerBlock) override
     {
         // Avoid redundantly calling things like setActive, which can be a heavy-duty call for some plugins:
         if (isActive
-              && getSampleRate() == sampleRate
+              && getSampleRate() == newSampleRate
               && getBlockSize() == estimatedSamplesPerBlock)
             return;
 
         using namespace Vst;
 
         ProcessSetup setup;
-        setup.symbolicSampleSize    = kSample32;
+        setup.symbolicSampleSize    = isUsingDoublePrecision() ? kSample64 : kSample32;
         setup.maxSamplesPerBlock    = estimatedSamplesPerBlock;
-        setup.sampleRate            = sampleRate;
+        setup.sampleRate            = newSampleRate;
         setup.processMode           = isNonRealtime() ? kOffline : kRealtime;
 
         warnOnFailure (processor->setupProcessing (setup));
@@ -1787,7 +1743,7 @@ public:
         // Needed for having the same sample rate in processBlock(); some plugins need this!
         setPlayConfigDetails (getNumSingleDirectionChannelsFor (component, true, true),
                               getNumSingleDirectionChannelsFor (component, false, true),
-                              sampleRate, estimatedSamplesPerBlock);
+                              newSampleRate, estimatedSamplesPerBlock);
 
         setStateForAllBusses (true);
 
@@ -1804,52 +1760,67 @@ public:
         if (! isActive)
             return; // Avoids redundantly calling things like setActive
 
-        JUCE_TRY
-        {
-            isActive = false;
+        isActive = false;
 
-            setStateForAllBusses (false);
+        setStateForAllBusses (false);
 
-            if (processor != nullptr)
-                warnOnFailure (processor->setProcessing (false));
+        if (processor != nullptr)
+            warnOnFailure (processor->setProcessing (false));
 
-            if (component != nullptr)
-                warnOnFailure (component->setActive (false));
-        }
-        JUCE_CATCH_ALL_ASSERT
+        if (component != nullptr)
+            warnOnFailure (component->setActive (false));
     }
 
-    void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages) override
+    bool supportsDoublePrecisionProcessing() const override
+    {
+        return (processor->canProcessSampleSize (Vst::kSample64) == kResultTrue);
+    }
+
+    void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override
+    {
+        jassert (! isUsingDoublePrecision());
+
+        if (isActive && processor != nullptr)
+            processAudio (buffer, midiMessages, Vst::kSample32);
+    }
+
+    void processBlock (AudioBuffer<double>& buffer, MidiBuffer& midiMessages) override
+    {
+        jassert (isUsingDoublePrecision());
+
+        if (isActive && processor != nullptr)
+            processAudio (buffer, midiMessages, Vst::kSample64);
+    }
+
+    template <typename FloatType>
+    void processAudio (AudioBuffer<FloatType>& buffer, MidiBuffer& midiMessages,
+                       Vst::SymbolicSampleSizes sampleSize)
     {
         using namespace Vst;
+        const int numSamples = buffer.getNumSamples();
 
-        if (isActive
-             && processor != nullptr
-             && processor->canProcessSampleSize (kSample32) == kResultTrue)
-        {
-            const int numSamples = buffer.getNumSamples();
+        ProcessData data;
+        data.processMode            = isNonRealtime() ? kOffline : kRealtime;
+        data.symbolicSampleSize     = sampleSize;
+        data.numInputs              = numInputAudioBusses;
+        data.numOutputs             = numOutputAudioBusses;
+        data.inputParameterChanges  = inputParameterChanges;
+        data.outputParameterChanges = outputParameterChanges;
+        data.numSamples             = (Steinberg::int32) numSamples;
 
-            ProcessData data;
-            data.processMode            = isNonRealtime() ? kOffline : kRealtime;
-            data.symbolicSampleSize     = kSample32;
-            data.numInputs              = numInputAudioBusses;
-            data.numOutputs             = numOutputAudioBusses;
-            data.inputParameterChanges  = inputParameterChanges;
-            data.outputParameterChanges = outputParameterChanges;
-            data.numSamples             = (Steinberg::int32) numSamples;
+        updateTimingInformation (data, getSampleRate());
 
-            updateTimingInformation (data, getSampleRate());
+        for (int i = getTotalNumInputChannels(); i < buffer.getNumChannels(); ++i)
+            buffer.clear (i, 0, numSamples);
 
-            for (int i = getNumInputChannels(); i < buffer.getNumChannels(); ++i)
-                buffer.clear (i, 0, numSamples);
+        associateTo (data, buffer);
+        associateTo (data, midiMessages);
 
-            associateTo (data, buffer);
-            associateTo (data, midiMessages);
+        processor->process (data);
 
-            processor->process (data);
+        MidiEventList::toMidiBuffer (midiMessages, *midiOutputs);
 
-            MidiEventList::toMidiBuffer (midiMessages, *midiOutputs);
-        }
+        inputParameterChanges->clearAllQueues();
     }
 
     //==============================================================================
@@ -1868,7 +1839,7 @@ public:
                 return toString (busInfo.name);
         }
 
-        return String::empty;
+        return String();
     }
 
     const String getInputChannelName  (int channelIndex) const override   { return getChannelName (channelIndex, true, true); }
@@ -1876,32 +1847,20 @@ public:
 
     bool isInputChannelStereoPair (int channelIndex) const override
     {
-        if (channelIndex < 0 || channelIndex >= getNumInputChannels())
-            return false;
-
-        return getBusInfo (true, true).channelCount == 2;
+        return isPositiveAndBelow (channelIndex, getTotalNumInputChannels())
+                 && getBusInfo (true, true).channelCount == 2;
     }
 
     bool isOutputChannelStereoPair (int channelIndex) const override
     {
-        if (channelIndex < 0 || channelIndex >= getNumOutputChannels())
-            return false;
-
-        return getBusInfo (false, true).channelCount == 2;
+        return isPositiveAndBelow (channelIndex, getTotalNumOutputChannels())
+                 && getBusInfo (false, true).channelCount == 2;
     }
 
     bool acceptsMidi() const override    { return getBusInfo (true,  false).channelCount > 0; }
     bool producesMidi() const override   { return getBusInfo (false, false).channelCount > 0; }
 
     //==============================================================================
-    bool silenceInProducesSilenceOut() const override
-    {
-        if (processor != nullptr)
-            return processor->getTailSamples() == Vst::kNoTail;
-
-        return true;
-    }
-
     /** May return a negative value as a means of informing us that the plugin has "infinite tail," or 0 for "no tail." */
     double getTailLengthSeconds() const override
     {
@@ -1972,15 +1931,18 @@ public:
             return toString (result);
         }
 
-        return String::empty;
+        return String();
     }
 
     void setParameter (int parameterIndex, float newValue) override
     {
         if (editController != nullptr)
         {
-            const uint32 id = getParameterInfoForIndex (parameterIndex).id;
-            editController->setParamNormalized (id, (double) newValue);
+            const uint32 paramID = getParameterInfoForIndex (parameterIndex).id;
+            editController->setParamNormalized (paramID, (double) newValue);
+
+            Steinberg::int32 index;
+            inputParameterChanges->addParameterData (paramID, index)->addPoint (0, newValue, index);
         }
     }
 
@@ -2051,9 +2013,117 @@ public:
     /** @note Not applicable to VST3 */
     void setCurrentProgramStateInformation (const void* data, int sizeInBytes) override
     {
-        (void) data;
-        (void) sizeInBytes;
+        ignoreUnused (data, sizeInBytes);
     }
+
+    //==============================================================================
+    // NB: this class and its subclasses must be public to avoid problems in
+    // DLL builds under MSVC.
+    class ParamValueQueueList  : public Vst::IParameterChanges
+    {
+    public:
+        ParamValueQueueList() {}
+        virtual ~ParamValueQueueList() {}
+
+        JUCE_DECLARE_VST3_COM_REF_METHODS
+        JUCE_DECLARE_VST3_COM_QUERY_METHODS
+
+        Steinberg::int32 PLUGIN_API getParameterCount() override                                { return (Steinberg::int32) queues.size(); }
+        Vst::IParamValueQueue* PLUGIN_API getParameterData (Steinberg::int32 index) override    { return queues[(int) index]; }
+
+        Vst::IParamValueQueue* PLUGIN_API addParameterData (const Vst::ParamID& id, Steinberg::int32& index) override
+        {
+            for (int i = queues.size(); --i >= 0;)
+            {
+                if (queues.getUnchecked (i)->getParameterId() == id)
+                {
+                    index = (Steinberg::int32) i;
+                    return queues.getUnchecked (i);
+                }
+            }
+
+            index = getParameterCount();
+            return queues.add (new ParamValueQueue (id));
+        }
+
+        void clearAllQueues() noexcept
+        {
+            for (int i = queues.size(); --i >= 0;)
+                queues.getUnchecked (i)->clear();
+        }
+
+        struct ParamValueQueue  : public Vst::IParamValueQueue
+        {
+            ParamValueQueue (Vst::ParamID parameterID) : paramID (parameterID)
+            {
+                points.ensureStorageAllocated (1024);
+            }
+
+            virtual ~ParamValueQueue() {}
+
+            JUCE_DECLARE_VST3_COM_REF_METHODS
+            JUCE_DECLARE_VST3_COM_QUERY_METHODS
+
+            Steinberg::Vst::ParamID PLUGIN_API getParameterId() override    { return paramID; }
+            Steinberg::int32 PLUGIN_API getPointCount() override            { return (Steinberg::int32) points.size(); }
+
+            Steinberg::tresult PLUGIN_API getPoint (Steinberg::int32 index,
+                                                    Steinberg::int32& sampleOffset,
+                                                    Steinberg::Vst::ParamValue& value) override
+            {
+                const ScopedLock sl (pointLock);
+
+                if (isPositiveAndBelow ((int) index, points.size()))
+                {
+                    ParamPoint e (points.getUnchecked ((int) index));
+                    sampleOffset = e.sampleOffset;
+                    value = e.value;
+                    return kResultTrue;
+                }
+
+                sampleOffset = -1;
+                value = 0.0;
+                return kResultFalse;
+            }
+
+            Steinberg::tresult PLUGIN_API addPoint (Steinberg::int32 sampleOffset,
+                                                    Steinberg::Vst::ParamValue value,
+                                                    Steinberg::int32& index) override
+            {
+                ParamPoint p = { sampleOffset, value };
+
+                const ScopedLock sl (pointLock);
+                index = (Steinberg::int32) points.size();
+                points.add (p);
+                return kResultTrue;
+            }
+
+            void clear() noexcept
+            {
+                const ScopedLock sl (pointLock);
+                points.clearQuick();
+            }
+
+        private:
+            struct ParamPoint
+            {
+                Steinberg::int32 sampleOffset;
+                Steinberg::Vst::ParamValue value;
+            };
+
+            Atomic<int> refCount;
+            const Vst::ParamID paramID;
+            Array<ParamPoint> points;
+            CriticalSection pointLock;
+
+            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamValueQueue)
+        };
+
+        Atomic<int> refCount;
+        OwnedArray<ParamValueQueue> queues;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamValueQueueList)
+    };
 
 private:
     //==============================================================================
@@ -2087,7 +2157,7 @@ private:
     */
     int numInputAudioBusses, numOutputAudioBusses;
     Array<Vst::SpeakerArrangement> inputArrangements, outputArrangements; // Caching to improve performance and to avoid possible non-thread-safe calls to getBusArrangements().
-    VST3BufferExchange::BusMap inputBusMap, outputBusMap;
+    VST3FloatAndDoubleBusMapComposite inputBusMap, outputBusMap;
     Array<Vst::AudioBusBuffers> inputBusses, outputBusses;
 
     //==============================================================================
@@ -2100,7 +2170,7 @@ private:
 
             if (object->getState (&stream) == kResultTrue)
             {
-                MemoryBlock info (stream.getData(), (std::size_t) stream.getSize());
+                MemoryBlock info (stream.getData(), (size_t) stream.getSize());
                 head.createNewChildElement (identifier)->addTextElement (info.toBase64Encoding());
             }
         }
@@ -2115,42 +2185,17 @@ private:
             MemoryBlock mem;
 
             if (mem.fromBase64Encoding (state->getAllSubText()))
-                stream = new Steinberg::MemoryStream (mem.getData(), (TSize) mem.getSize());
+            {
+                stream = new Steinberg::MemoryStream();
+                stream->setSize ((TSize) mem.getSize());
+                mem.copyTo (stream->getData(), 0, mem.getSize());
+            }
         }
 
         return stream;
     }
 
-    //==============================================================================
-    class ParameterChangeList  : public Vst::IParameterChanges
-    {
-    public:
-        ParameterChangeList() {}
-        virtual ~ParameterChangeList() {}
-
-        JUCE_DECLARE_VST3_COM_REF_METHODS
-        JUCE_DECLARE_VST3_COM_QUERY_METHODS
-
-        Steinberg::int32 PLUGIN_API getParameterCount() override   { return 0; }
-
-        Vst::IParamValueQueue* PLUGIN_API getParameterData (Steinberg::int32) override
-        {
-            return nullptr;
-        }
-
-        Vst::IParamValueQueue* PLUGIN_API addParameterData (const Vst::ParamID&, Steinberg::int32& index) override
-        {
-            index = 0;
-            return nullptr;
-        }
-
-    private:
-        Atomic<int> refCount;
-
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParameterChangeList)
-    };
-
-    ComSmartPtr<ParameterChangeList> inputParameterChanges, outputParameterChanges;
+    ComSmartPtr<ParamValueQueueList> inputParameterChanges, outputParameterChanges;
     ComSmartPtr<MidiEventList> midiInputs, midiOutputs;
     Vst::ProcessContext timingInfo; //< Only use this in processBlock()!
     bool isComponentInitialised, isControllerInitialised, isActive;
@@ -2354,12 +2399,11 @@ private:
     }
 
     //==============================================================================
-    void associateTo (Vst::ProcessData& destination, AudioSampleBuffer& buffer)
+    template <typename FloatType>
+    void associateTo (Vst::ProcessData& destination, AudioBuffer<FloatType>& buffer)
     {
-        using namespace VST3BufferExchange;
-
-        mapBufferToBusses (inputBusses, inputBusMap, inputArrangements, buffer);
-        mapBufferToBusses (outputBusses, outputBusMap, outputArrangements, buffer);
+        VST3BufferExchange<FloatType>::mapBufferToBusses (inputBusses, inputBusMap.get<FloatType>(), inputArrangements, buffer);
+        VST3BufferExchange<FloatType>::mapBufferToBusses (outputBusses, outputBusMap.get<FloatType>(), outputArrangements, buffer);
 
         destination.inputs  = inputBusses.getRawDataPointer();
         destination.outputs = outputBusses.getRawDataPointer();
@@ -2405,6 +2449,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VST3PluginInstance)
 };
 
+#if JUCE_MSVC
+ #pragma warning (pop)
+#endif
+
 };
 
 //==============================================================================
@@ -2419,9 +2467,14 @@ void VST3PluginFormat::findAllTypesForFile (OwnedArray<PluginDescription>& resul
     VST3Classes::VST3ModuleHandle::getAllDescriptionsForFile (results, fileOrIdentifier);
 }
 
-AudioPluginInstance* VST3PluginFormat::createInstanceFromDescription (const PluginDescription& description, double, int)
+void VST3PluginFormat::createPluginInstance (const PluginDescription& description,
+                                             double,
+                                             int,
+                                             void* userData,
+                                             void (*callback) (void*, AudioPluginInstance*, const String&))
 {
     ScopedPointer<VST3Classes::VST3PluginInstance> result;
+
 
     if (fileMightContainThisPluginType (description.fileOrIdentifier))
     {
@@ -2441,7 +2494,17 @@ AudioPluginInstance* VST3PluginFormat::createInstanceFromDescription (const Plug
         previousWorkingDirectory.setAsCurrentWorkingDirectory();
     }
 
-    return result.release();
+    String errorMsg;
+
+    if (result == nullptr)
+        errorMsg = String (NEEDS_TRANS ("Unable to load XXX plug-in file")).replace ("XXX", "VST-3");
+
+    callback (userData, result.release(), errorMsg);
+}
+
+bool VST3PluginFormat::requiresUnblockedMessageThreadDuringCreation (const PluginDescription&) const noexcept
+{
+    return false;
 }
 
 bool VST3PluginFormat::fileMightContainThisPluginType (const String& fileOrIdentifier)
@@ -2471,7 +2534,7 @@ bool VST3PluginFormat::doesPluginStillExist (const PluginDescription& descriptio
     return File (description.fileOrIdentifier).exists();
 }
 
-StringArray VST3PluginFormat::searchPathsForPlugins (const FileSearchPath& directoriesToSearch, const bool recursive)
+StringArray VST3PluginFormat::searchPathsForPlugins (const FileSearchPath& directoriesToSearch, const bool recursive, bool)
 {
     StringArray results;
 

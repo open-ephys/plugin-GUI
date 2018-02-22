@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,34 +26,36 @@
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 
-SelectorButton::SelectorButton(const String& name_)
-    : Button(name_)
+
+SelectorButton::SelectorButton (const String& buttonName)
+    : Button (buttonName)
 {
-    setClickingTogglesState(true);
+    setClickingTogglesState (true);
 
-    if (getName().equalsIgnoreCase("window"))
-        setTooltip("Open this visualizer in its own window");
+    if (getName().equalsIgnoreCase ("window"))
+        setTooltip ("Open this visualizer in its own window");
     else
-        setTooltip("Open this visualizer in a tab");
-
+        setTooltip ("Open this visualizer in a tab");
 }
+
 
 SelectorButton::~SelectorButton()
 {
 }
 
-void SelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+
+void SelectorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
-        g.setColour(Colours::white);
+        g.setColour (Colours::white);
     else
-        g.setColour(Colours::darkgrey);
+        g.setColour (Colours::darkgrey);
 
     if (isMouseOver)
-        g.setColour(Colours::yellow);
+        g.setColour (Colours::yellow);
 
 
-    if (getName().equalsIgnoreCase("window"))
+    if (getName().equalsIgnoreCase ("window"))
     {
         // window icon
         g.drawRect(0,0,getWidth(),getHeight(),1.0);
@@ -70,58 +72,85 @@ void SelectorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 }
 
 
-VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, int width, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors=true),
-      dataWindow(0), canvas(0), tabText("Tab"), isPlaying(false), tabIndex(-1)
+bool SelectorButton::isOpenWindowButton() const
 {
+    return getName().equalsIgnoreCase ("window");
+}
 
+
+bool SelectorButton::isOpenTabButton() const
+{
+    return ! isOpenWindowButton();
+}
+
+
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, bool useDefaultParameterEditors)
+    : GenericEditor (parentNode, useDefaultParameterEditors)
+    , dataWindow    (nullptr)
+    , canvas        (nullptr)
+    , tabText       ("Tab")
+    , isPlaying     (false)
+    , tabIndex      (-1)
+{
     desiredWidth = width;
 
     initializeSelectors();
 }
 
 
-VisualizerEditor::VisualizerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors),
-      dataWindow(nullptr), canvas(nullptr), isPlaying(false), tabIndex(-1)
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors)
+    : GenericEditor (parentNode, useDefaultParameterEditors)
+    , dataWindow    (nullptr)
+    , canvas        (nullptr)
+    , isPlaying     (false)
+    , tabIndex      (-1)
 {
-
     desiredWidth = 180;
     initializeSelectors();
-
 }
+
 
 void VisualizerEditor::initializeSelectors()
 {
+    windowSelector = new SelectorButton ("window");
+    windowSelector->setBounds (desiredWidth - 40, 7, 14, 10);
+    windowSelector->setToggleState (false, dontSendNotification);
+    windowSelector->addListener (this);
+    addAndMakeVisible (windowSelector);
 
-    windowSelector = new SelectorButton("window");
-    windowSelector->addListener(this);
-    windowSelector->setBounds(desiredWidth - 40,7,14,10);
-
-    windowSelector->setToggleState(false, dontSendNotification);
-    addAndMakeVisible(windowSelector);
-
-    tabSelector = new SelectorButton("tab");
-    tabSelector->addListener(this);
-    tabSelector->setBounds(desiredWidth - 20,7,15,10);
-
+    tabSelector = new SelectorButton ("tab");
+    tabSelector->setToggleState (false, dontSendNotification);
+    tabSelector->setBounds (desiredWidth - 20, 7, 15, 10);
+    tabSelector->addListener (this);
     addAndMakeVisible(tabSelector);
-    tabSelector->setToggleState(false, dontSendNotification);
 }
+
 
 VisualizerEditor::~VisualizerEditor()
 {
-
     if (tabIndex > -1)
     {
-		AccessClass::getDataViewport()->destroyTab(tabIndex);
+        AccessClass::getDataViewport()->destroyTab (tabIndex);
     }
+    if (dataWindow != nullptr)
+        dataWindow->removeListener (this);
 
     deleteAllChildren();
-
 }
 
-void VisualizerEditor::buttonCallback(Button* button) {}
+
+void VisualizerEditor::resized()
+{
+    GenericEditor::resized();
+
+    windowSelector->setBounds   (desiredWidth - 40, 7, 14, 10);
+    tabSelector->setBounds      (desiredWidth - 20, 7, 15, 10);
+}
+
+
+// All additional buttons inside the VisualizerEditor should use this instead of buttonClicked()
+void VisualizerEditor::buttonEvent (Button* button) {}
+
 
 void VisualizerEditor::enable()
 {
@@ -132,6 +161,7 @@ void VisualizerEditor::enable()
     isPlaying = true;
 }
 
+
 void VisualizerEditor::disable()
 {
     if (canvas != 0)
@@ -140,202 +170,222 @@ void VisualizerEditor::disable()
     isPlaying = false;
 }
 
+
 void VisualizerEditor::updateVisualizer()
 {
-
     if (canvas != 0)
         canvas->update();
-
 }
+
+
+void VisualizerEditor::windowClosed()
+{
+}
+
 
 void VisualizerEditor::editorWasClicked()
 {
-
     if (tabIndex > -1)
     {
         std::cout << "Setting tab index to " << tabIndex << std::endl;
-		AccessClass::getDataViewport()->selectTab(tabIndex);
+        AccessClass::getDataViewport()->selectTab (tabIndex);
     }
-
 }
 
-void VisualizerEditor::buttonEvent(Button* button)
+
+// This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
+// Use VisualizerEditor::buttonEvent instead
+void VisualizerEditor::buttonClicked (Button* button)
 {
+    // To handle default buttons, like the Channel Selector Drawer.
+    GenericEditor::buttonClicked (button);
 
-    int gId = button->getRadioGroupId();
-
-    if (gId > 0)
+    // Handle the buttons to open the canvas in a tab or window
+    if (canvas == nullptr)
     {
-        if (canvas != nullptr)
-        {
-            canvas->setParameter(gId-1, button->getName().getFloatValue());
-        }
+        canvas = createNewCanvas();
+        canvas->update();
 
+        if (isPlaying)
+            canvas->beginAnimation();
     }
-    else
+
+    if (button == windowSelector)
     {
-
-        if (canvas == nullptr)
+        if (tabSelector->getToggleState() && windowSelector->getToggleState())
         {
-
-            canvas = createNewCanvas();
-            canvas->update();
-
-            if (isPlaying)
-                canvas->beginAnimation();
+            tabSelector->setToggleState (false, dontSendNotification);
+            // AccessClass::getDataViewport()->destroyTab(tabIndex);
+            // tabIndex = -1;
+            removeTab (tabIndex);
         }
 
-        if (button == windowSelector)
+        if (dataWindow == nullptr) // have we created a window already?
         {
+            makeNewWindow();
 
-            if (tabSelector->getToggleState() && windowSelector->getToggleState())
+            dataWindow->setContentNonOwned (canvas, false);
+            dataWindow->setVisible (true);
+            // enable windowClosed() callback
+            dataWindow->addListener (this);
+            //canvas->refreshState();
+        }
+        else
+        {
+            dataWindow->setVisible (windowSelector->getToggleState());
+
+            if (windowSelector->getToggleState())
             {
-                tabSelector->setToggleState(false, dontSendNotification);
-				AccessClass::getDataViewport()->destroyTab(tabIndex);
-                tabIndex = -1;
-            }
-
-            if (dataWindow == nullptr) // have we created a window already?
-            {
-
-                dataWindow = new DataWindow(windowSelector, tabText);
-                dataWindow->setContentNonOwned(canvas, false);
-                dataWindow->setVisible(true);
-                //canvas->refreshState();
-
+                dataWindow->setContentNonOwned (canvas, false);
+                canvas->setBounds (0, 0, canvas->getParentWidth(), canvas->getParentHeight());
+                //  canvas->refreshState();
             }
             else
             {
-
-                dataWindow->setVisible(windowSelector->getToggleState());
-
-                if (windowSelector->getToggleState())
-                {
-                    dataWindow->setContentNonOwned(canvas, false);
-                    canvas->setBounds(0,0,canvas->getParentWidth(), canvas->getParentHeight());
-                  //  canvas->refreshState();
-                }
-                else
-                {
-                    dataWindow->setContentNonOwned(0, false);
-                }
-
-            }
-
-        }
-        else if (button == tabSelector)
-        {
-            if (tabSelector->getToggleState() && tabIndex < 0)
-            {
-
-                if (windowSelector->getToggleState())
-                {
-                    dataWindow->setContentNonOwned(0, false);
-                    windowSelector->setToggleState(false, dontSendNotification);
-                    dataWindow->setVisible(false);
-                }
-
-				tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
-
-
-            }
-            else if (!tabSelector->getToggleState() && tabIndex > -1)
-            {
-				AccessClass::getDataViewport()->destroyTab(tabIndex);
-                tabIndex = -1;
-
+                dataWindow->setContentNonOwned (0, false);
             }
         }
-
     }
-
-    buttonCallback(button);
-
-    if (button == drawerButton)
+    else if (button == tabSelector)
     {
-        std::cout<<"Drawer button clicked"<<std::endl;
-        windowSelector->setBounds(desiredWidth - 40,7,14,10);
-        tabSelector->setBounds(desiredWidth - 20,7,15,10);
+        if (tabSelector->getToggleState() && tabIndex < 0)
+        {
+            if (windowSelector->getToggleState())
+            {
+                dataWindow->setContentNonOwned (0, false);
+                windowSelector->setToggleState (false, dontSendNotification);
+                dataWindow->setVisible (false);
+            }
 
+            // tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
+            addTab (tabText, canvas);
+        }
+        else if (! tabSelector->getToggleState() && tabIndex > -1)
+        {
+            removeTab (tabIndex);
+        }
     }
 
+ 
 }
 
-void VisualizerEditor::saveCustomParameters(XmlElement* xml)
+
+void VisualizerEditor::saveCustomParameters (XmlElement* xml)
 {
+    xml->setAttribute ("Type", "Visualizer");
 
-    xml->setAttribute("Type", "Visualizer");
+    XmlElement* tabButtonState = xml->createNewChildElement (EDITOR_TAG_TAB);
+    tabButtonState->setAttribute ("Active",tabSelector->getToggleState());
 
-    XmlElement* tabButtonState = xml->createNewChildElement("TAB");
-    tabButtonState->setAttribute("Active",tabSelector->getToggleState());
-
-    XmlElement* windowButtonState = xml->createNewChildElement("WINDOW");
-    windowButtonState->setAttribute("Active",windowSelector->getToggleState());
+    XmlElement* windowButtonState = xml->createNewChildElement (EDITOR_TAG_WINDOW);
+    windowButtonState->setAttribute ("Active",windowSelector->getToggleState());
 
     if (dataWindow != nullptr)
     {
-        windowButtonState->setAttribute("x",dataWindow->getX());
-        windowButtonState->setAttribute("y",dataWindow->getY());
-        windowButtonState->setAttribute("width",dataWindow->getWidth());
-        windowButtonState->setAttribute("height",dataWindow->getHeight());
+        windowButtonState->setAttribute ("x",       dataWindow->getX());
+        windowButtonState->setAttribute ("y",       dataWindow->getY());
+        windowButtonState->setAttribute ("width",   dataWindow->getWidth());
+        windowButtonState->setAttribute ("height",  dataWindow->getHeight());
     }
 
     if (canvas != nullptr)
     {
-        canvas->saveVisualizerParameters(xml);
+        canvas->saveVisualizerParameters (xml);
     }
-
 }
 
-void VisualizerEditor::loadCustomParameters(XmlElement* xml)
+
+void VisualizerEditor::loadCustomParameters (XmlElement* xml)
 {
-
-    forEachXmlChildElement(*xml, xmlNode)
+    forEachXmlChildElement (*xml, xmlNode)
     {
-        if (xmlNode->hasTagName("TAB"))
+        if (xmlNode->hasTagName (EDITOR_TAG_TAB))
         {
-
-            bool tabState = xmlNode->getBoolAttribute("Active");
+            bool tabState = xmlNode->getBoolAttribute ("Active");
 
             if (tabState)
-                tabSelector->setToggleState(true, sendNotification);
-
-
+                tabSelector->setToggleState (true, sendNotification);
         }
-        else if (xmlNode->hasTagName("WINDOW"))
+        else if (xmlNode->hasTagName (EDITOR_TAG_WINDOW))
         {
-
-            bool windowState = xmlNode->getBoolAttribute("Active");
+            bool windowState = xmlNode->getBoolAttribute ("Active");
 
             if (windowState)
             {
-                windowSelector->setToggleState(true, sendNotification);
+                windowSelector->setToggleState (true, sendNotification);
                 if (dataWindow != nullptr)
                 {
-                    dataWindow->setBounds(xmlNode->getIntAttribute("x"),
-                                          xmlNode->getIntAttribute("y"),
-                                          xmlNode->getIntAttribute("width"),
-                                          xmlNode->getIntAttribute("height"));
+                    dataWindow->setBounds (xmlNode->getIntAttribute ("x"),
+                                           xmlNode->getIntAttribute ("y"),
+                                           xmlNode->getIntAttribute ("width"),
+                                           xmlNode->getIntAttribute ("height"));
                 }
-
             }
-
         }
     }
 
     if (canvas != nullptr)
     {
-        canvas->loadVisualizerParameters(xml);
+        canvas->loadVisualizerParameters (xml);
     }
 }
 
 
-void VisualizerEditor::saveVisualizerParameters(XmlElement* xml)
+void VisualizerEditor::makeNewWindow()
 {
-
+    dataWindow = new DataWindow (windowSelector, tabText);
 }
 
-void VisualizerEditor::loadVisualizerParameters(XmlElement* xml)
-{
 
+/* static method */
+void VisualizerEditor::addWindowListener (DataWindow* dataWindowToUse, DataWindow::Listener* newListener)
+{
+    if (dataWindowToUse != nullptr && newListener != nullptr)
+        dataWindowToUse->addListener (newListener);
+}
+
+
+/* static method */
+void VisualizerEditor::removeWindowListener (DataWindow* dataWindowToUse, DataWindow::Listener* oldListener)
+{
+    if (dataWindowToUse != nullptr && oldListener != nullptr)
+        dataWindowToUse->removeListener (oldListener);
+}
+
+
+Component* VisualizerEditor::getActiveTabContentComponent() const
+{
+    return AccessClass::getDataViewport()->getCurrentContentComponent();
+}
+
+
+void VisualizerEditor::setActiveTabId (int tindex)
+{
+    AccessClass::getDataViewport()->selectTab (tindex);
+}
+
+
+void VisualizerEditor::removeTab (int tindex)
+{
+    AccessClass::getDataViewport()->destroyTab (tindex);
+    tabIndex = -1;
+}
+
+
+int VisualizerEditor::addTab (String textOfTab, Visualizer* contentComponent)
+{
+    tabText  = textOfTab;
+    tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab, contentComponent, this);
+
+    return tabIndex;
+}
+
+
+void VisualizerEditor::saveVisualizerParameters (XmlElement* xml)
+{
+}
+
+
+void VisualizerEditor::loadVisualizerParameters (XmlElement* xml)
+{
 }

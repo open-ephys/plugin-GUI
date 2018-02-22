@@ -30,7 +30,6 @@
 
 
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../Channel/Channel.h"
 #include "EventQueue.h"
 
 #define WRITE_BLOCK_LENGTH 1024
@@ -38,8 +37,6 @@
 #define EVENT_BUFFER_NEVENTS 512
 #define SPIKE_BUFFER_NSPIKES 512
 
-struct SpikeRecordInfo;
-struct SpikeObject;
 class RecordEngine;
 class RecordThread;
 class DataQueue;
@@ -65,7 +62,7 @@ public:
 
     /** Handle incoming data and decide which files and events to write to disk.
     */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer);
+    void process(AudioSampleBuffer& buffer) override;
 
 
     /** Overrides implementation in GenericProcessor; used to change recording parameters
@@ -77,19 +74,19 @@ public:
               newValue = 0: turn off recording for current channel
               newValue = 1: turn on recording for current channel
     */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue) override;
 
 	/** returns current experiment number */
-	int getExperimentNumber();
+	int getExperimentNumber() const;
 	/** returns current recording number */
-	int getRecordingNumber();
+	int getRecordingNumber() const;
 
     /** Called by the processor graph for each processor that could record data
     */
-    void registerProcessor(GenericProcessor* sourceNode);
+    void registerProcessor(const GenericProcessor* sourceNode);
     /** Called by the processor graph for each recordable channel
     */
-    void addInputChannel(GenericProcessor* sourceNode, int chan);
+    void addInputChannel(const GenericProcessor* sourceNode, int chan);
 
     bool enable();
     bool disable();
@@ -97,24 +94,23 @@ public:
     /** returns channel names and whether we record them */
     void getChannelNamesAndRecordingStatus(StringArray& names, Array<bool>& recording);
 
-    /** Get channel stored in channelPointers array
-    */
-    Channel* getDataChannel(int index);
-
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
     */
-    float getFreeSpace();
+    float getFreeSpace() const;
 
     /** Selects a channel relative to a particular processor with ID = id
     */
-    void setChannel(Channel* ch);
+    void setChannel(const DataChannel* ch);
 
     /** Turns recording on and off for a particular channel.
 
         Channel numbers are absolute (based on RecordNode channel mapping).
+        
+        Returns a bool indicating whether the status update was successful (true)
+        or blocked (false) because recording is currently in progress.
     */
-    void setChannelStatus(Channel* ch, bool status);
+    bool setChannelStatus(const DataChannel* ch, bool status);
 
     /** Used to clear all connections prior to the start of acquisition.
     */
@@ -129,10 +125,7 @@ public:
     void createNewDirectory();
 
 
-    File getDataDirectory()
-    {
-        return rootFolder;
-    }
+	File getDataDirectory() const;
 
     /** Adds a Record Engine to use
     */
@@ -144,19 +137,17 @@ public:
 
     /** Must be called by a spike recording source on the "enable" method
     */
-    void registerSpikeSource(GenericProcessor* processor);
+    void registerSpikeSource(const GenericProcessor* processor);
 
     /** Registers an electrode group for spike recording
     Must be called by a spike recording source on the "enable" method
     after the call to registerSpikeSource
     */
-    int addSpikeElectrode(SpikeRecordInfo* elec);
+    int addSpikeElectrode(const SpikeChannel* elec);
 
     /** Called by a spike recording source to write a spike to file
     */
-    void writeSpike(SpikeObject& spike, int electrodeIndex);
-
-    SpikeRecordInfo* getSpikeElectrode(int index);
+    void writeSpike(const SpikeEvent* spike, const SpikeChannel* spikeElectrode);
 
     /** Signals when to create a new data directory when recording starts.*/
     bool newDirectoryNeeded;
@@ -164,7 +155,14 @@ public:
     std::atomic<bool> isRecording;
 
     /** Generate a Matlab-compatible datestring */
-    String generateDateString();
+    String generateDateString() const;
+
+	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
+	const String& getLastSettingsXml() const;
+
+	//Called by ProcessorGraph
+	void updateRecordChannelIndexes();
+	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
 
 private:
 
@@ -193,15 +191,7 @@ private:
     */
     Time timer;
 
-    /** Pointers to all continuous channels */
-    Array<Channel*> channelPointers;
-
-    /** Pointers to all event channels */
-    Array<Channel*> eventChannelPointers;
-
 	Array<int> channelMap;
-
-    OwnedArray<SpikeRecordInfo> spikeElectrodePointers;
 
     int spikeElectrodeIndex;
 
@@ -213,7 +203,9 @@ private:
     String generateDirectoryName();
 
     /** Cycle through the event buffer, looking for data to save */
-    void handleEvent(int eventType, MidiMessage& event, int samplePos);
+	void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) override;
+
+	virtual void handleTimestampSyncTexts(const MidiMessage& event);
 
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
@@ -224,6 +216,8 @@ private:
 	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
 	
 	Array<int> m_recordedChannelMap;
+
+	String m_lastSettingsText;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

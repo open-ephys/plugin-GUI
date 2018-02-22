@@ -15,7 +15,6 @@
 /* Begin PBXFileReference section */
 		E1F5591A1C9B29D20035F88B /* NetworkEvents.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkEvents.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F5591D1C9B29D20035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1F559241C9B2A0B0035F88B /* Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin.xcconfig; sourceTree = "<group>"; };
 		E1F559251C9B2A0B0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F559261C9B2A0B0035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
 		E1F559291C9B2A340035F88B /* NetworkEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkEvents.cpp; sourceTree = "<group>"; };
@@ -65,7 +64,6 @@
 		E1F559231C9B2A0B0035F88B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				E1F559241C9B2A0B0035F88B /* Plugin.xcconfig */,
 				E1F559251C9B2A0B0035F88B /* Plugin_Debug.xcconfig */,
 				E1F559261C9B2A0B0035F88B /* Plugin_Release.xcconfig */,
 			);
@@ -189,7 +187,7 @@
 				INFOPLIST_FILE = NetworkEvents/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NetworkEvents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -210,7 +208,7 @@
 				INFOPLIST_FILE = NetworkEvents/Info.plist;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					/opt/local/lib/libzmq.a,
+					"$(MAC_PACKAGE_DIR)/lib/libzmq.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.NetworkEvents";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -25,23 +25,22 @@
 #define __UICOMPONENT_H_D97C73CF__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "InfoLabel.h"
-#include "ControlPanel.h"
-#include "ProcessorList.h"
-#include "EditorViewport.h"
-#include "DataViewport.h"
-#include "../Processors/MessageCenter/MessageCenterEditor.h"
-#include "GraphViewer.h"
-#include "../Processors/ProcessorGraph/ProcessorGraph.h"
-#include "../Audio/AudioComponent.h"
-#include "../MainWindow.h"
+#include "TimestampSourceSelection.h"
 
 
 class MainWindow;
 class ProcessorList;
-
+class ControlPanel;
 class EditorViewportButton;
 class PluginManager;
+class ProcessorGraph;
+class AudioComponent;
+class GraphViewer;
+class MessageCenterEditor;
+class InfoLabel;
+class DataViewport;
+class EditorViewport;
+class TimestampSourceSelectionWindow;
 
 /**
 
@@ -139,7 +138,7 @@ public:
     StringArray getRecentlyUsedFilenames();
 
     void setRecentlyUsedFilenames(const StringArray& filenames);
-
+	
 private:
 
     ScopedPointer<DataViewport> dataViewport;
@@ -151,6 +150,8 @@ private:
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
 	ScopedPointer<PluginManager> pluginManager;
+
+	WeakReference<TimestampSourceSelectionWindow> timestampWindow;
 
     Viewport processorListViewport;
 
@@ -187,7 +188,8 @@ private:
         showHelp				= 0x2011,
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
-        saveConfigurationAs     = 0x2014
+        saveConfigurationAs     = 0x2014,
+		openTimestampSelectionWindow = 0x2015
     };
 
     File currentConfigFile;

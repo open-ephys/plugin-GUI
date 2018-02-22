@@ -83,7 +83,7 @@ void KWIKFileSource::fillRecordInfo()
     try
     {
         recordings = sourceFile->openGroup("/recordings");
-        int numObjs = recordings.getNumObjs();
+        int numObjs = (int) recordings.getNumObjs();
 
         for (int i=0; i < numObjs; i++)
         {
@@ -117,9 +117,22 @@ void KWIKFileSource::fillRecordInfo()
                 try
                 {
                     recordN = recordings.openGroup((String(i) + "/application_data").toUTF8());
-                    attr=recordN.openAttribute("channel_bit_volts");
-                    attr.read(ArrayType(PredType::NATIVE_FLOAT,1,&dims[1]),bitVoltArray);
-                    foundBitVoltArray = true;
+					try 
+					{
+						DataSet bV = recordN.openDataSet("channel_bit_volts");
+						bV.read(bitVoltArray.getData(), PredType::NATIVE_FLOAT);
+						foundBitVoltArray = true;
+					}
+					catch (GroupIException)
+					{ }
+					catch (DataSetIException)
+					{ }
+					if (!foundBitVoltArray)
+					{
+						attr = recordN.openAttribute("channel_bit_volts");
+						attr.read(ArrayType(PredType::NATIVE_FLOAT, 1, &dims[1]), bitVoltArray);
+						foundBitVoltArray = true;
+					}
                 } catch (GroupIException)
                 {
                 } catch (AttributeIException)
@@ -172,7 +185,7 @@ void KWIKFileSource::updateActiveRecord()
     samplePos=0;
     try
     {
-        String path = "/recordings/" + String(availableDataSets[activeRecord]) + "/data";
+        String path = "/recordings/" + String(availableDataSets[activeRecord.get()]) + "/data";
         dataSet = new DataSet(sourceFile->openDataSet(path.toUTF8()));
     }
     catch (FileIException error)
@@ -199,7 +212,7 @@ int KWIKFileSource::readData(int16* buffer, int nSamples)
 
     if (samplePos + nSamples > getActiveNumSamples())
     {
-        samplesToRead = getActiveNumSamples() - samplePos;
+        samplesToRead = (int) getActiveNumSamples() - (int) samplePos;
     }
     else
     {

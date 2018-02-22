@@ -62,17 +62,7 @@ public:
 
     void messageReceived(bool state);
 
-    void saveStateToXml(XmlElement* xml);
-    void loadStateFromXml(XmlElement* xml);
-
-    void addSourceProcessor(GenericProcessor* p);
-    void removeSourceProcessor(GenericProcessor* p);
-
     String getLabelString();
-
-    void mouseDown(const MouseEvent& event);
-
-    int64 getTimestamp(bool softwareTimestamp = false);
 
 private:
 
@@ -95,9 +85,6 @@ private:
     /** A JUCE button used to send messages. */
     ScopedPointer<Button> sendMessageButton;
 
-    ScopedPointer<PopupMenu> sourceMenu;
-    Array<GenericProcessor*> sourcesList;
-
     MessageCenter* messageCenter;
 
     Colour incomingBackground;
@@ -111,7 +98,6 @@ class MessageLabel : public Label
 {
 public:
     MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
-    void mouseDown(const MouseEvent& event);
 };
 
 #endif  // MESSAGECENTEREDITOR_H_INCLUDED

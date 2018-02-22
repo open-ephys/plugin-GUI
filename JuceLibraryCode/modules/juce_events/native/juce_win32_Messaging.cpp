@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -30,23 +30,56 @@ CheckEventBlockedByModalComps isEventBlockedByModalComps = nullptr;
 //==============================================================================
 namespace WindowsMessageHelpers
 {
-    const unsigned int specialId   = WM_APP + 0x4400;
-    const unsigned int broadcastId = WM_APP + 0x4403;
+    const unsigned int customMessageID = WM_USER + 123;
+    const unsigned int broadcastMessageMagicNumber = 0xc403;
 
     const TCHAR messageWindowName[] = _T("JUCEWindow");
     ScopedPointer<HiddenMessageWindow> messageWindow;
 
     void dispatchMessageFromLParam (LPARAM lParam)
     {
-        MessageManager::MessageBase* const message = reinterpret_cast <MessageManager::MessageBase*> (lParam);
-
-        JUCE_TRY
+        if (MessageManager::MessageBase* message = reinterpret_cast<MessageManager::MessageBase*> (lParam))
         {
-            message->messageCallback();
-        }
-        JUCE_CATCH_EXCEPTION
+            JUCE_TRY
+            {
+                message->messageCallback();
+            }
+            JUCE_CATCH_EXCEPTION
 
-        message->decReferenceCount();
+            message->decReferenceCount();
+        }
+    }
+
+    BOOL CALLBACK broadcastEnumWindowProc (HWND hwnd, LPARAM lParam)
+    {
+        if (hwnd != juce_messageWindowHandle)
+        {
+            TCHAR windowName[64] = { 0 }; // no need to read longer strings than this
+            GetWindowText (hwnd, windowName, 63);
+
+            if (String (windowName) == messageWindowName)
+                reinterpret_cast<Array<HWND>*> (lParam)->add (hwnd);
+        }
+
+        return TRUE;
+    }
+
+    void handleBroadcastMessage (const COPYDATASTRUCT* const data)
+    {
+        if (data != nullptr && data->dwData == broadcastMessageMagicNumber)
+        {
+            struct BroadcastMessage  : public CallbackMessage
+            {
+                BroadcastMessage (CharPointer_UTF32 text, size_t length) : message (text, length) {}
+                void messageCallback() override { MessageManager::getInstance()->deliverBroadcastMessage (message); }
+
+                String message;
+            };
+
+            (new BroadcastMessage (CharPointer_UTF32 ((const CharPointer_UTF32::CharType*) data->lpData),
+                                   data->cbData / sizeof (CharPointer_UTF32::CharType)))
+                ->post();
+        }
     }
 
     //==============================================================================
@@ -54,43 +87,22 @@ namespace WindowsMessageHelpers
     {
         if (h == juce_messageWindowHandle)
         {
-            if (message == specialId)
+            if (message == customMessageID)
             {
                 // (These are trapped early in our dispatch loop, but must also be checked
                 // here in case some 3rd-party code is running the dispatch loop).
                 dispatchMessageFromLParam (lParam);
                 return 0;
             }
-            else if (message == broadcastId)
+
+            if (message == WM_COPYDATA)
             {
-                const ScopedPointer<String> messageString ((String*) lParam);
-                MessageManager::getInstance()->deliverBroadcastMessage (*messageString);
+                handleBroadcastMessage (reinterpret_cast<const COPYDATASTRUCT*> (lParam));
                 return 0;
-            }
-            else if (message == WM_COPYDATA)
-            {
-                const COPYDATASTRUCT* const data = reinterpret_cast <const COPYDATASTRUCT*> (lParam);
-
-                if (data->dwData == broadcastId)
-                {
-                    const String messageString (CharPointer_UTF32 ((const CharPointer_UTF32::CharType*) data->lpData),
-                                                data->cbData / sizeof (CharPointer_UTF32::CharType));
-
-                    PostMessage (juce_messageWindowHandle, broadcastId, 0, (LPARAM) new String (messageString));
-                    return 0;
-                }
             }
         }
 
         return DefWindowProc (h, message, wParam, lParam);
-    }
-
-    BOOL CALLBACK broadcastEnumWindowProc (HWND hwnd, LPARAM lParam)
-    {
-        if (hwnd != juce_messageWindowHandle)
-            reinterpret_cast <Array<HWND>*> (lParam)->add (hwnd);
-
-        return TRUE;
     }
 }
 
@@ -105,7 +117,7 @@ bool MessageManager::dispatchNextMessageOnSystemQueue (const bool returnIfNoPend
 
     if (GetMessage (&m, (HWND) 0, 0, 0) >= 0)
     {
-        if (m.message == specialId && m.hwnd == juce_messageWindowHandle)
+        if (m.message == customMessageID && m.hwnd == juce_messageWindowHandle)
         {
             dispatchMessageFromLParam (m.lParam);
         }
@@ -138,37 +150,28 @@ bool MessageManager::dispatchNextMessageOnSystemQueue (const bool returnIfNoPend
 bool MessageManager::postMessageToSystemQueue (MessageManager::MessageBase* const message)
 {
     message->incReferenceCount();
-    return PostMessage (juce_messageWindowHandle, WindowsMessageHelpers::specialId, 0, (LPARAM) message) != 0;
+    return PostMessage (juce_messageWindowHandle, WindowsMessageHelpers::customMessageID, 0, (LPARAM) message) != 0;
 }
 
 void MessageManager::broadcastMessage (const String& value)
 {
+    const String localCopy (value);
+
     Array<HWND> windows;
     EnumWindows (&WindowsMessageHelpers::broadcastEnumWindowProc, (LPARAM) &windows);
 
-    const String localCopy (value);
-
-    COPYDATASTRUCT data;
-    data.dwData = WindowsMessageHelpers::broadcastId;
-    data.cbData = (localCopy.length() + 1) * sizeof (CharPointer_UTF32::CharType);
-    data.lpData = (void*) localCopy.toUTF32().getAddress();
-
     for (int i = windows.size(); --i >= 0;)
     {
-        HWND hwnd = windows.getUnchecked(i);
+        COPYDATASTRUCT data;
+        data.dwData = WindowsMessageHelpers::broadcastMessageMagicNumber;
+        data.cbData = (localCopy.length() + 1) * sizeof (CharPointer_UTF32::CharType);
+        data.lpData = (void*) localCopy.toUTF32().getAddress();
 
-        TCHAR windowName [64]; // no need to read longer strings than this
-        GetWindowText (hwnd, windowName, 64);
-        windowName [63] = 0;
-
-        if (String (windowName) == WindowsMessageHelpers::messageWindowName)
-        {
-            DWORD_PTR result;
-            SendMessageTimeout (hwnd, WM_COPYDATA,
-                                (WPARAM) juce_messageWindowHandle,
-                                (LPARAM) &data,
-                                SMTO_BLOCK | SMTO_ABORTIFHUNG, 8000, &result);
-        }
+        DWORD_PTR result;
+        SendMessageTimeout (windows.getUnchecked(i), WM_COPYDATA,
+                            (WPARAM) juce_messageWindowHandle,
+                            (LPARAM) &data,
+                            SMTO_BLOCK | SMTO_ABORTIFHUNG, 8000, &result);
     }
 }
 
@@ -188,3 +191,30 @@ void MessageManager::doPlatformSpecificShutdown()
 
     OleUninitialize();
 }
+
+//==============================================================================
+struct MountedVolumeListChangeDetector::Pimpl   : private DeviceChangeDetector
+{
+    Pimpl (MountedVolumeListChangeDetector& d) : DeviceChangeDetector (L"MountedVolumeList"), owner (d)
+    {
+        File::findFileSystemRoots (lastVolumeList);
+    }
+
+    void systemDeviceChanged() override
+    {
+        Array<File> newList;
+        File::findFileSystemRoots (newList);
+
+        if (lastVolumeList != newList)
+        {
+            lastVolumeList = newList;
+            owner.mountedVolumeListChanged();
+        }
+    }
+
+    MountedVolumeListChangeDetector& owner;
+    Array<File> lastVolumeList;
+};
+
+MountedVolumeListChangeDetector::MountedVolumeListChangeDetector()  { pimpl = new Pimpl (*this); }
+MountedVolumeListChangeDetector::~MountedVolumeListChangeDetector() {}

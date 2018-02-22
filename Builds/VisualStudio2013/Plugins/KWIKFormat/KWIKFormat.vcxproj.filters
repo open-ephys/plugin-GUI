@@ -18,10 +18,10 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.cpp">
       <Filter>Source Files\FileSource</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.cpp">
       <Filter>Source Files\RecordEngine</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.cpp">
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\KWIKFormat.cpp">
       <Filter>Source Files\RecordEngine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.h">
       <Filter>Source Files\FileSource</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.h">
       <Filter>Source Files\RecordEngine</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.h">
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\KWIKFormat.h">
       <Filter>Source Files\RecordEngine</Filter>
     </ClInclude>
   </ItemGroup>

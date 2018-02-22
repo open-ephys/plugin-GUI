@@ -26,6 +26,8 @@
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/EditorViewport.h"
 #include "../../AccessClass.h"
+#include "../../UI/GraphViewer.h"
+#include "../MessageCenter/MessageCenterEditor.h"
 
 // PipelineSelectorButton::PipelineSelectorButton()
 // 	: DrawableButton ("Selector", DrawableButton::ImageFitted)

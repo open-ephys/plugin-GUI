@@ -24,11 +24,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SPIKESORTBOXES_H
 #define __SPIKESORTBOXES_H
 
-#include <SpikeLib.h>
 #include "SpikeSorterEditor.h"
 #include <algorithm>    // std::sort
 #include <list>
 #include <queue>
+#include <atomic>
+
+class SorterSpikeContainer : public ReferenceCountedObject
+{
+public:
+	//This invalidates the original SpikeEventPtr, so be careful
+	SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& data, int64 timestamp);
+	SorterSpikeContainer() = delete;
+
+	const float* getData() const;
+	const SpikeChannel* getChannel() const;
+	int64 getTimestamp() const;
+	uint8 color[3];
+	float pcProj[2];
+	uint16 sortedId;
+private:
+	int64 timestamp;
+	HeapBlock<float> data;
+	const SpikeChannel* chan;
+};
+typedef ReferenceCountedObjectPtr<SorterSpikeContainer> SorterSpikePtr;
+typedef ReferenceCountedArray<SorterSpikeContainer, CriticalSection> SorterSpikeArray;
 
 class PCAcomputingThread;
 class UniqueIDgenerator;
@@ -59,7 +80,7 @@ public:
     Box(int channel);
     Box(float X, float Y, float W, float H, int ch=0);
     bool LineSegmentIntersection(PointD p11, PointD p12, PointD p21, PointD p22);
-    bool isWaveFormInside(SpikeObject* so);
+    bool isWaveFormInside(SorterSpikePtr so);
     double x,y,w,h; // x&w and specified in microseconds. y&h in microvolts
     int channel;
 };
@@ -96,7 +117,7 @@ public:
     Histogram getHistogram();
     std::vector<double> getMean(int index);
     std::vector<double> getStandardDeviation(int index);
-    void update(SpikeObject* so);
+    void update(SorterSpikePtr so);
     bool queryNewData();
 
     double LastSpikeTime;
@@ -116,7 +137,7 @@ public:
     BoxUnit();
     BoxUnit(int ID, int localID);
     BoxUnit(Box B, int ID, int localID);
-    bool isWaveFormInsideAllBoxes(SpikeObject* so);
+    bool isWaveFormInsideAllBoxes(SorterSpikePtr so);
     bool isActivated();
     void activateUnit();
     void deactivateUnit();
@@ -135,7 +156,7 @@ public:
     std::vector<Box> getBoxes();
     int getUnitID();
     int getLocalID();
-    void updateWaveform(SpikeObject* so);
+	void updateWaveform(SorterSpikePtr so);
     static void setDefaultColors(uint8_t col[3], int ID);
     void resizeWaveform(int newlength);
 public:
@@ -156,26 +177,28 @@ class PCAjob
 public:
 PCAjob();
 };*/
-class PCAjob
+class PCAjob : public ReferenceCountedObject
 {
 public:
-    PCAjob(Array<SpikeObject> _spikes, float* _pc1, float* _pc2,
-           float*, float*, float*, float*, bool* _reportDone);
+    PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
+           std::atomic<float>&,  std::atomic<float>&,  std::atomic<float>&,  std::atomic<float>&, std::atomic<bool>& _reportDone);
     ~PCAjob();
     void computeCov();
     void computeSVD();
 
     float** cov;
-    Array<SpikeObject> spikes;
+    SorterSpikeArray spikes;
     float* pc1, *pc2;
-    float* pc1min, *pc2min, *pc1max, *pc2max;
-    bool* reportDone;
+    std::atomic<float>& pc1min, &pc2min, &pc1max, &pc2max;
+    std::atomic<bool>& reportDone;
 private:
     int svdcmp(float** a, int nRows, int nCols, float* w, float** v);
     float pythag(float a, float b);
     int dim;
 };
 
+typedef ReferenceCountedObjectPtr<PCAjob> PCAJobPtr;
+typedef ReferenceCountedArray<PCAjob, CriticalSection> PCAJobArray;
 
 class cPolygon
 {
@@ -193,9 +216,11 @@ class PCAcomputingThread : juce::Thread
 public:
     PCAcomputingThread();
     void run(); // computes PCA on waveforms
-    void addPCAjob(PCAjob job);
+    void addPCAjob(PCAJobPtr job);
 
-    std::queue<PCAjob> jobs;
+private:
+    PCAJobArray jobs;
+	CriticalSection lock;
 };
 
 class PCAUnit
@@ -207,10 +232,10 @@ public:
     ~PCAUnit();
     int getUnitID();
     int getLocalID();
-    bool isWaveFormInsidePolygon(SpikeObject* so);
+	bool isWaveFormInsidePolygon(SorterSpikePtr so);
     bool isPointInsidePolygon(PointD p);
     void resizeWaveform(int newlength);
-    void updateWaveform(SpikeObject* so);
+	void updateWaveform(SorterSpikePtr so);
 public:
     int UnitID;
     int localID; // used internally, for colors and position.
@@ -234,8 +259,8 @@ public:
     void resizeWaveform(int numSamples);
 
 
-    void projectOnPrincipalComponents(SpikeObject* so);
-    bool sortSpike(SpikeObject* so, bool PCAfirst);
+	void projectOnPrincipalComponents(SorterSpikePtr so);
+	bool sortSpike(SorterSpikePtr so, bool PCAfirst);
     void RePCA();
     void addPCAunit(PCAUnit unit);
     int addBoxUnit(int channel);
@@ -277,13 +302,21 @@ private:
     std::vector<BoxUnit> boxUnits;
     std::vector<PCAUnit> pcaUnits;
     float* pc1, *pc2;
-    float pc1min, pc2min, pc1max, pc2max;
-    Array<SpikeObject> spikeBuffer;
+    std::atomic<float> pc1min, pc2min, pc1max, pc2max;
+    SorterSpikeArray spikeBuffer;
     int bufferSize,spikeBufferIndex;
     PCAcomputingThread* computingThread;
-    bool bPCAJobSubmitted,bPCAcomputed,bRePCA,bPCAjobFinished ;
+    bool bPCAJobSubmitted,bPCAcomputed,bRePCA;
+    std::atomic<bool> bPCAjobFinished ;
 
 
 };
+
+//Those are legacy methods from the old spike system that are must likely not needed in the new one
+float spikeDataBinToMicrovolts(SorterSpikePtr  s, int bin, int ch = 0);
+float spikeDataIndexToMicrovolts(SorterSpikePtr s, int index = 0);
+float spikeTimeBinToMicrosecond(SorterSpikePtr s, int bin, int ch = 0);
+int microSecondsToSpikeTimeBin(SorterSpikePtr s, float t, int ch = 0);
+
 
 #endif // __SPIKESORTBOXES_H

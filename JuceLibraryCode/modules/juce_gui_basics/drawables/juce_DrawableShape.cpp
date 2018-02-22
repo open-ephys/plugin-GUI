@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -32,6 +32,7 @@ DrawableShape::DrawableShape()
 DrawableShape::DrawableShape (const DrawableShape& other)
     : Drawable (other),
       strokeType (other.strokeType),
+      dashLengths (other.dashLengths),
       mainFill (other.mainFill),
       strokeFill (other.strokeFill)
 {
@@ -53,14 +54,14 @@ public:
     {
     }
 
-    bool registerCoordinates()
+    bool registerCoordinates() override
     {
         bool ok = addPoint (fill.gradientPoint1);
         ok = addPoint (fill.gradientPoint2) && ok;
         return addPoint (fill.gradientPoint3) && ok;
     }
 
-    void applyToComponentBounds()
+    void applyToComponentBounds() override
     {
         ComponentScope scope (owner);
         if (isMainFill ? owner.mainFill.recalculateCoords (&scope)
@@ -68,7 +69,7 @@ public:
             owner.repaint();
     }
 
-    void applyNewBounds (const Rectangle<int>&)
+    void applyNewBounds (const Rectangle<int>&) override
     {
         jassertfalse; // drawables can't be resized directly!
     }
@@ -132,6 +133,15 @@ void DrawableShape::setStrokeType (const PathStrokeType& newStrokeType)
     }
 }
 
+void DrawableShape::setDashLengths (const Array<float>& newDashLengths)
+{
+    if (dashLengths != newDashLengths)
+    {
+        dashLengths = newDashLengths;
+        strokeChanged();
+    }
+}
+
 void DrawableShape::setStrokeThickness (const float newThickness)
 {
     setStrokeType (PathStrokeType (newThickness, strokeType.getJointStyle(), strokeType.getEndStyle()));
@@ -178,7 +188,13 @@ void DrawableShape::pathChanged()
 void DrawableShape::strokeChanged()
 {
     strokePath.clear();
-    strokeType.createStrokedPath (strokePath, path, AffineTransform::identity, 4.0f);
+    const float extraAccuracy = 4.0f;
+
+    if (dashLengths.isEmpty())
+        strokeType.createStrokedPath (strokePath, path, AffineTransform(), extraAccuracy);
+    else
+        strokeType.createDashedStroke (strokePath, path, dashLengths.getRawDataPointer(),
+                                       dashLengths.size(), AffineTransform(), extraAccuracy);
 
     setBoundsToEnclose (getDrawableBounds());
     repaint();
@@ -224,7 +240,7 @@ DrawableShape::RelativeFillType::RelativeFillType (const FillType& fill_)
         gradientPoint3 = Point<float> (g.point1.x + g.point2.y - g.point1.y,
                                        g.point1.y + g.point1.x - g.point2.x)
                             .transformedBy (fill.transform);
-        fill.transform = AffineTransform::identity;
+        fill.transform = AffineTransform();
     }
 }
 
@@ -375,7 +391,7 @@ bool DrawableShape::RelativeFillType::readFrom (const ValueTree& v, ComponentBui
         if (imageProvider != nullptr)
             im = imageProvider->getImageForIdentifier (v [FillAndStrokeState::imageId]);
 
-        fill.setTiledImage (im, AffineTransform::identity);
+        fill.setTiledImage (im, AffineTransform());
         fill.setOpacity ((float) v.getProperty (FillAndStrokeState::imageOpacity, 1.0f));
         return true;
     }

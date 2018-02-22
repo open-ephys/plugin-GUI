@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,131 +18,130 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "DataThread.h"
 #include "../SourceNode/SourceNode.h"
 
 
-DataThread::DataThread(SourceNode* s) : Thread("Data Thread"), dataBuffer(0)
+DataThread::DataThread (SourceNode* s)
+    : Thread     ("Data Thread")
 {
     sn = s;
-    setPriority(10);
+    setPriority (10);
 
-    timestamp = 0; // set default to zero, so that sources that
-    // do not generate their own timestamps can simply increment
-    // this value
-
+	int nSub = getNumSubProcessors();
+	for (int i = 0; i < nSub; i++)
+	{
+		ttlEventWords.add(0);
+		timestamps.add(0);
+	}
 }
+
 
 DataThread::~DataThread()
 {
     //deleteAndZero(dataBuffer);
 }
 
+
 void DataThread::run()
 {
-
-    while (!threadShouldExit())
+    while (! threadShouldExit())
     {
-
-        if (!updateBuffer())
+        if (! updateBuffer())
         {
-
-            const MessageManagerLock mmLock(Thread::getCurrentThread());
+            const MessageManagerLock mmLock (Thread::getCurrentThread());
 
             std::cout << "Aquisition error...stopping thread." << std::endl;
             signalThreadShouldExit();
             std::cout << "Notifying source node to stop acqusition." << std::endl;
             sn->acquisitionStopped();
         }
-
     }
 }
 
-DataBuffer* DataThread::getBufferAddress()
+
+DataBuffer* DataThread::getBufferAddress(int subProcessor) const
 {
 
-    std::cout << "Setting buffer address to " << dataBuffer << std::endl;
-
-    return dataBuffer;
+	return sourceBuffers[subProcessor];
 }
 
-void DataThread::getChannelInfo(Array<ChannelCustomInfo>& infoArray)
+
+void DataThread::getChannelInfo (Array<ChannelCustomInfo>& infoArray) const
 {
     infoArray.clear();
-    infoArray.addArray(channelInfo);
+    infoArray.addArray (channelInfo);
 }
 
 
 void DataThread::updateChannels()
 {
+	ttlEventWords.clear();
+	timestamps.clear();
+	int nSub = getNumSubProcessors();
+	for (int i = 0; i < nSub; i++)
+	{
+		ttlEventWords.add(0);
+		timestamps.add(0);
+	}
     if (usesCustomNames())
     {
-        channelInfo.resize(sn->channels.size());
+        channelInfo.resize (sn->getTotalDataChannels());
         setDefaultChannelNames();
-        for (int i = 0; i < channelInfo.size(); i++)
+
+        for (int i = 0; i < channelInfo.size(); ++i)
         {
-            sn->channels[i]->setName(channelInfo[i].name);
-            sn->channels[i]->bitVolts = channelInfo[i].gain;
+			sn->setChannelInfo(i, channelInfo[i].name, channelInfo[i].gain);
         }
     }
 }
 
-void DataThread::setOutputHigh() {}
 
+void DataThread::setOutputHigh() {}
 void DataThread::setOutputLow() {}
 
-int DataThread::getNumAuxOutputs()
+unsigned int DataThread::getNumSubProcessors() const { return 1; }
+
+int DataThread::getNumTTLOutputs(int subproc) const { return 0; }
+
+void DataThread::getEventChannelNames (StringArray& names) const { }
+
+bool DataThread::isReady() { return true; }
+
+
+int DataThread::modifyChannelName (int channel, String newName)
 {
-	return 0;
+    return -1;
 }
 
-int DataThread::getNumAdcOutputs()
+int DataThread::modifyChannelGain (int channel, float gain)
 {
-	return 0;
+    return -1;
 }
 
-int DataThread::getNumEventChannels()
+bool DataThread::usesCustomNames() const
 {
-	return 0;
-}
-
-bool DataThread::isReady()
-{
-	return true;
-}
-
-int DataThread::modifyChannelName(int channel, String newName)
-{
-	return -1;
-}
-
-int DataThread::modifyChannelGain(int channel, float gain)
-{
-	return -1;
-}
-
-void DataThread::getEventChannelNames(StringArray& names)
-{
-}
-
-bool DataThread::usesCustomNames()
-{
-	return false;
-}
-
-void* DataThread::getDevice()
-{
-	return 0;
+    return false;
 }
 
 void DataThread::setDefaultChannelNames()
 {
 }
 
-GenericEditor* DataThread::createEditor(SourceNode* )
+GenericEditor* DataThread::createEditor (SourceNode*)
 {
-	return nullptr;
+    return nullptr;
+}
+
+void DataThread::createExtraEvents(Array<EventChannel*>&)
+{}
+
+void DataThread::resizeBuffers()
+{}
+
+String DataThread::getChannelUnits(int chanIndex) const
+{
+	return String::empty;
 }

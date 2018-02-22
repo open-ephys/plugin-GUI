@@ -142,7 +142,7 @@ bool Box::LineSegmentIntersection(PointD p11, PointD p12, PointD p21, PointD p22
 #define MIN(x,y)((x)<(y))?(x):(y)
 #endif
 
-bool Box::isWaveFormInside(SpikeObject* so)
+bool Box::isWaveFormInside(SorterSpikePtr so)
 {
     PointD BoxTopLeft(x, y);
     PointD BoxBottomLeft(x, (y - h));
@@ -228,7 +228,7 @@ BoxUnit::BoxUnit(Box B, int ID, int localID_) : UnitID(ID), localID(localID_)
     addBox(B);
 }
 
-bool BoxUnit::isWaveFormInsideAllBoxes(SpikeObject* so)
+bool BoxUnit::isWaveFormInsideAllBoxes(SorterSpikePtr so)
 {
     for (int k=0; k< lstBoxes.size(); k++)
     {
@@ -285,7 +285,7 @@ void BoxUnit::addBox()
 
 int BoxUnit::getNumBoxes()
 {
-    return lstBoxes.size();
+    return (int) lstBoxes.size();
 }
 
 void BoxUnit::modifyBox(int boxindex, Box b)
@@ -460,7 +460,7 @@ std::vector<double> RunningStats::getMean(int index)
         return m;
     }
 
-    int numSamplesInWaveForm = WaveFormMean[0].size();
+    int numSamplesInWaveForm = (int) WaveFormMean[0].size();
     m.resize(numSamplesInWaveForm);
 
     for (int k = 0; k < numSamplesInWaveForm; k++)
@@ -476,7 +476,7 @@ std::vector<double> RunningStats::getStandardDeviation(int index)
     {
         return WaveFormVar;
     }
-    int numSamplesInWaveForm = WaveFormMean[0].size();
+    int numSamplesInWaveForm = (int) WaveFormMean[0].size();
     WaveFormVar.resize(numSamplesInWaveForm);
 
     for (int j = 0; j < numSamplesInWaveForm; j++)
@@ -495,9 +495,9 @@ void RunningStats::resizeWaveform(int newlength)
     numSamples = 0; // this should ensure that update reallocates upon the next update.
 }
 
-void RunningStats::update(SpikeObject* so)
+void RunningStats::update(SorterSpikePtr so)
 {
-    double ts = so->timestamp/so->samplingFrequencyHz;
+    double ts = so->getTimestamp()/so->getChannel()->getSampleRate();
     if (numSamples == 0)
     {
         LastSpikeTime = ts;
@@ -509,39 +509,41 @@ void RunningStats::update(SpikeObject* so)
     }
 
     newData = true;
+	int nChannels = so->getChannel()->getNumChannels();
+	int nSamples = so->getChannel()->getTotalSamples();
     if (numSamples == 0)
     {
         // allocate
-        WaveFormMean.resize(so->nChannels);
-        WaveFormSk.resize(so->nChannels);
-        WaveFormMk.resize(so->nChannels);
-        for (int k=0; k<so->nChannels; k++)
+        WaveFormMean.resize(nChannels);
+        WaveFormSk.resize(nChannels);
+        WaveFormMk.resize(nChannels);
+        for (int k=0; k<nChannels; k++)
         {
-            WaveFormMean[k].resize(so->nSamples);
-            WaveFormSk[k].resize(so->nSamples);
-            WaveFormMk[k].resize(so->nSamples);
+            WaveFormMean[k].resize(nSamples);
+            WaveFormSk[k].resize(nSamples);
+            WaveFormMk[k].resize(nSamples);
         }
 
-        for (int i = 0; i < so->nChannels; i++)
+        for (int i = 0; i < nChannels; i++)
         {
-            for (int j = 0; j < so->nSamples; j++)
+            for (int j = 0; j < nSamples; j++)
             {
-                WaveFormMean[i][j] = so->data[j + i*so->nSamples];
+				WaveFormMean[i][j] = so->getData()[j + i*nSamples];
                 WaveFormSk[i][j] = 0;
-                WaveFormMk[i][j] = so->data[j + i*so->nSamples];
+				WaveFormMk[i][j] = so->getData()[j + i*nSamples];
             }
         }
         numSamples += 1.0F;
         return;
     }
     // running mean
-    for (int i = 0; i < so->nChannels; i++)
+    for (int i = 0; i < nChannels; i++)
     {
-        for (int j = 0; j < so->nSamples; j++)
+        for (int j = 0; j < nSamples; j++)
         {
-            WaveFormMean[i][j] = (numSamples * WaveFormMean[i][j] + so->data[j + i*so->nSamples]) / (numSamples + 1);
-            WaveFormMk[i][j] += (so->data[j + i*so->nSamples] - WaveFormMk[i][j]) / numSamples;
-            WaveFormSk[i][j] += (so->data[j + i*so->nSamples] - WaveFormMk[i][j]) * (so->data[j + i*so->nSamples] - WaveFormMk[i][j]);
+			WaveFormMean[i][j] = (numSamples * WaveFormMean[i][j] + so->getData()[j + i*nSamples]) / (numSamples + 1);
+			WaveFormMk[i][j] += (so->getData()[j + i*nSamples] - WaveFormMk[i][j]) / numSamples;
+			WaveFormSk[i][j] += (so->getData()[j + i*nSamples] - WaveFormMk[i][j]) * (so->getData()[j + i*nSamples] - WaveFormMk[i][j]);
         }
     }
     numSamples += 1.0F;
@@ -556,7 +558,7 @@ bool RunningStats::queryNewData()
     return true;
 }
 
-void BoxUnit::updateWaveform(SpikeObject* so)
+void BoxUnit::updateWaveform(SorterSpikePtr so)
 {
     WaveformStat.update(so);
 }
@@ -614,10 +616,8 @@ SpikeSortBoxes::SpikeSortBoxes(UniqueIDgenerator* uniqueIDgenerator_,PCAcomputin
     pc2 = new float[numChannels * waveformLength];
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4,waveformLength);
 
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
 }
 
@@ -626,16 +626,14 @@ void SpikeSortBoxes::resizeWaveform(int numSamples)
     const ScopedLock myScopedLock(mut);
     //StartCriticalSection();
     waveformLength = numSamples;
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = new float[numChannels * waveformLength];
     pc2 = new float[numChannels * waveformLength];
     spikeBuffer.clear();
     for (int n = 0; n < bufferSize; n++)
     {
-        SpikeObject so;
-        generateEmptySpike(&so, 4,waveformLength);
-        spikeBuffer.add(so);
+        spikeBuffer.add(nullptr);
     }
     bPCAcomputed = false;
     spikeBufferIndex = 0;
@@ -683,8 +681,8 @@ void SpikeSortBoxes::loadCustomParametersFromXml(XmlElement* electrodeNode)
                     bPCAjobFinished = UnitNode->getBoolAttribute("PCAjobFinished");
                     bPCAcomputed = UnitNode->getBoolAttribute("PCAcomputed");
 
-                    delete(pc1);
-                    delete(pc2);
+                    delete[] pc1;
+                    delete[] pc2;
 
                     pc1 = new float[waveformLength*numChannels];
                     pc2 = new float[waveformLength*numChannels];
@@ -835,8 +833,8 @@ void SpikeSortBoxes::saveCustomParametersToXml(XmlElement* electrodeNode)
 SpikeSortBoxes::~SpikeSortBoxes()
 {
     // wait until PCA job is done (if one was submitted).
-    delete pc1;
-    delete pc2;
+    delete[] pc1;
+    delete[] pc2;
     pc1 = nullptr;
     pc2 = nullptr;
 }
@@ -853,12 +851,11 @@ void SpikeSortBoxes::getSelectedUnitAndBox(int& unitID, int& boxid)
     boxid = selectedBox;
 }
 
-void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject* so)
+void SpikeSortBoxes::projectOnPrincipalComponents(SorterSpikePtr so)
 {
-    SpikeObject copySpike = *so;
     spikeBufferIndex++;
     spikeBufferIndex %= bufferSize;
-    spikeBuffer.set(spikeBufferIndex, copySpike);
+    spikeBuffer.set(spikeBufferIndex, so);
     if (bPCAjobFinished)
     {
         bPCAcomputed = true;
@@ -867,7 +864,7 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject* so)
     if (bPCAcomputed)
     {
         so->pcProj[0] = so->pcProj[1] = 0;
-        for (int k=0; k<so->nChannels*so->nSamples; k++)
+        for (int k=0; k<so->getChannel()->getNumChannels()*so->getChannel()->getTotalSamples(); k++)
         {
             float v = spikeDataIndexToMicrovolts(so, k);
             so->pcProj[0] += pc1[k]* v;
@@ -885,9 +882,10 @@ void SpikeSortBoxes::projectOnPrincipalComponents(SpikeObject* so)
         if ((spikeBufferIndex == bufferSize -1 && !bPCAcomputed && !bPCAJobSubmitted) || bRePCA)
         {
             bPCAJobSubmitted = true;
+	    bPCAcomputed = false;
             bRePCA = false;
             // submit a new job to compute the spike buffer.
-            PCAjob job(spikeBuffer,pc1,pc2, &pc1min, &pc2min, &pc1max, &pc2max, &bPCAjobFinished);
+            PCAJobPtr job = new PCAjob(spikeBuffer,pc1,pc2, pc1min, pc2min, pc1max, pc2max, bPCAjobFinished);
             computingThread->addPCAjob(job);
         }
     }
@@ -1100,7 +1098,7 @@ bool SpikeSortBoxes::addBoxToUnit(int channel, int unitID)
             B.y -= 30;
             B.channel = channel;
             boxUnits[k].addBox(B);
-            setSelectedUnitAndBox(unitID, boxUnits[k].lstBoxes.size() - 1);
+            setSelectedUnitAndBox(unitID, (int) boxUnits[k].lstBoxes.size() - 1);
             // EndCriticalSection();
             return true;
         }
@@ -1166,7 +1164,7 @@ void SpikeSortBoxes::updateBoxUnits(std::vector<BoxUnit> _units)
 
 
 // tests whether a candidate spike belongs to one of the defined units
-bool SpikeSortBoxes::sortSpike(SpikeObject* so, bool PCAfirst)
+bool SpikeSortBoxes::sortSpike(SorterSpikePtr so, bool PCAfirst)
 {
     const ScopedLock myScopedLock(mut);
     if (PCAfirst)
@@ -1674,7 +1672,7 @@ bool PCAUnit::isPointInsidePolygon(PointD p)
     return poly.isPointInside(p);
 }
 
-bool PCAUnit::isWaveFormInsidePolygon(SpikeObject* so)
+bool PCAUnit::isWaveFormInsidePolygon(SorterSpikePtr so)
 {
     return poly.isPointInside(PointD(so->pcProj[0],so->pcProj[1]));
 }
@@ -1684,7 +1682,7 @@ void PCAUnit::resizeWaveform(int newlength)
 }
 
 
-void PCAUnit::updateWaveform(SpikeObject* so)
+void PCAUnit::updateWaveform(SorterSpikePtr so)
 {
     WaveformStat.update(so);
 }
@@ -1708,17 +1706,15 @@ static int iminarg1,iminarg2;
 static double sqrarg;
 #define SQR(a) ((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 
-PCAjob::PCAjob(Array<SpikeObject> _spikes, float* _pc1, float* _pc2,
-               float* pc1Min, float* pc2Min, float* pc1Max, float* pc2Max, bool* _reportDone) : spikes(_spikes), reportDone(_reportDone)
+PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
+                std::atomic<float>& pc1Min,  std::atomic<float>& pc2Min,  std::atomic<float>&pc1Max,  std::atomic<float>& pc2Max, std::atomic<bool>& _reportDone) : spikes(_spikes),
+pc1min(pc1Min), pc2min(pc2Min), pc1max(pc1Max), pc2max(pc2Max), reportDone(_reportDone)
 {
     cov = nullptr;
     pc1 = _pc1;
     pc2 = _pc2;
-    pc1min = pc1Min;
-    pc2min = pc2Min;
-    pc1max = pc1Max;
-    pc2max = pc2Max;
-    dim = spikes[0].nChannels*spikes[0].nSamples;
+
+    dim = spikes[0]->getChannel()->getNumChannels()*spikes[0]->getChannel()->getTotalSamples();
 
 };
 
@@ -1977,7 +1973,7 @@ int PCAjob::svdcmp(float** a, int nRows, int nCols, float* w, float** v)
         }
     }
 
-    delete rv1;
+    delete[] rv1;
 
     return (0);
 }
@@ -2003,8 +1999,8 @@ void PCAjob::computeCov()
         mean[j] = 0;
         for (int i=0; i<spikes.size(); i++)
         {
-            SpikeObject spike = spikes[i];
-            float v = spikeDataIndexToMicrovolts(&spike, j) ;
+            SorterSpikePtr spike = spikes[i];
+            float v = spikeDataIndexToMicrovolts(spike, j) ;
             mean[j] += v / dim;
         }
     }
@@ -2020,9 +2016,9 @@ void PCAjob::computeCov()
             for (int k=0; k<spikes.size(); k++)
             {
 
-                SpikeObject spike = spikes[k];
-                float vi = spikeDataIndexToMicrovolts(&spike, i);
-                float vj = spikeDataIndexToMicrovolts(&spike, j);
+                SorterSpikePtr spike = spikes[k];
+                float vi = spikeDataIndexToMicrovolts(spike, i);
+                float vj = spikeDataIndexToMicrovolts(spike, j);
                 sum += (vi-mean[i]) * (vj-mean[j]);
             }
             cov[i][j] = sum / (dim-1);
@@ -2102,9 +2098,9 @@ void PCAjob::computeSVD()
         float sum1 = 0, sum2=0;
         for (int k = 0; k < dim; k++)
         {
-            SpikeObject spike = spikes[j];
-            sum1 += spikeDataIndexToMicrovolts(&spike,k) * pc1[k];
-            sum2 += spikeDataIndexToMicrovolts(&spike,k) * pc2[k];
+            SorterSpikePtr spike = spikes[j];
+            sum1 += spikeDataIndexToMicrovolts(spike,k) * pc1[k];
+            sum2 += spikeDataIndexToMicrovolts(spike,k) * pc2[k];
         }
         if (sum1 < min1)
             min1 = sum1;
@@ -2117,24 +2113,24 @@ void PCAjob::computeSVD()
     }
 
 
-    *pc1min = min1 - 1.5 * (max1-min1);
-    *pc2min = min2 - 1.5 * (max2-min2);
-    *pc1max = max1 + 1.5 * (max1-min1);
-    *pc2max = max2 + 1.5 * (max2-min2);
+    pc1min = min1 - 1.5 * (max1-min1);
+    pc2min = min2 - 1.5 * (max2-min2);
+    pc1max = max1 + 1.5 * (max1-min1);
+    pc2max = max2 + 1.5 * (max2-min2);
 
     // clear memory
     for (int k = 0; k < dim; k++)
     {
-        delete eigvec[k];
+        delete[] eigvec[k];
     }
-    delete eigvec;
-    delete sigvalues;
+    delete[] eigvec;
+    delete[] sigvalues;
 
     // delete covariances
     for (int k = 0; k < dim; k++)
-        delete cov[k];
+        delete[] cov[k];
 
-    delete(cov);
+    delete[] cov;
     cov = nullptr;
 
 }
@@ -2143,9 +2139,13 @@ void PCAjob::computeSVD()
 /**********************/
 
 
-void PCAcomputingThread::addPCAjob(PCAjob job)
+void PCAcomputingThread::addPCAjob(PCAJobPtr job)
 {
-    jobs.push(job);
+	{
+		ScopedLock critical(lock);
+		jobs.add(job);
+	}
+	
     if (!isThreadRunning())
     {
         startThread();
@@ -2156,18 +2156,20 @@ void PCAcomputingThread::run()
 {
     while (jobs.size() > 0)
     {
-        PCAjob J = jobs.front();
-        jobs.pop();
+		lock.enter();
+        PCAJobPtr J = jobs.removeAndReturn(0);
+	if (J == nullptr) continue;
+		lock.exit();
         // compute PCA
         // 1. Compute Covariance matrix
         // 2. Apply SVD on covariance matrix
         // 3. Extract the two principal components corresponding to the largest singular values
 
-        J.computeCov();
-        J.computeSVD();
+        J->computeCov();
+        J->computeSVD();
 
         // 4. Report to the spike sorting electrode that PCA is finished
-        *(J.reportDone) = true;
+        J->reportDone = true;
     }
 }
 
@@ -2175,4 +2177,65 @@ void PCAcomputingThread::run()
 PCAcomputingThread::PCAcomputingThread() : Thread("PCA")
 {
 
+}
+
+
+/**************************/
+
+float spikeDataBinToMicrovolts(SorterSpikePtr s, int bin, int ch)
+{
+	jassert(ch >= 0 && ch < s->getChannel()->getNumChannels());
+	jassert(bin >= 0 && bin <= s->getChannel()->getTotalSamples());
+	float v = s->getData()[bin + ch*s->getChannel()->getTotalSamples()];
+	return v;
+}
+
+
+float spikeDataIndexToMicrovolts(SorterSpikePtr s, int index)
+{
+	float v = s->getData()[index];
+	return v;
+}
+
+float spikeTimeBinToMicrosecond(SorterSpikePtr s, int bin, int ch)
+{
+	float spikeTimeSpan = 1.0f / s->getChannel()->getSampleRate() * s->getChannel()->getTotalSamples() * 1e6;
+	return float(bin) / (s->getChannel()->getTotalSamples() - 1) * spikeTimeSpan;
+}
+
+int microSecondsToSpikeTimeBin(SorterSpikePtr s, float t, int ch)
+{
+	// Lets say we have 32 samples per wave form
+
+	// t = 0 corresponds to the left most index.
+	float spikeTimeSpan = (1.0f / s->getChannel()->getSampleRate() * s->getChannel()->getTotalSamples())*1e6;
+	return MIN(s->getChannel()->getTotalSamples() - 1, MAX(0, t / spikeTimeSpan * (s->getChannel()->getTotalSamples() - 1)));
+}
+
+
+SorterSpikeContainer::SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& spikedata, int64 timestamp)
+{
+	color[0] = color[1] = color[2] = 127;
+	pcProj[0] = pcProj[1] = 0;
+	sortedId = 0;
+	this->timestamp = timestamp;
+	chan = channel;
+	int nSamples = chan->getNumChannels() * chan->getTotalSamples();
+	data.malloc(nSamples);
+	memcpy(data.getData(), spikedata.getRawPointer(), nSamples*sizeof(float));
+}
+
+const float* SorterSpikeContainer::getData() const
+{
+	return data.getData();
+}
+
+const SpikeChannel* SorterSpikeContainer::getChannel() const
+{
+	return chan;
+}
+
+int64 SorterSpikeContainer::getTimestamp() const
+{
+	return timestamp;
 }

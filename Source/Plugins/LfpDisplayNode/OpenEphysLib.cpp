@@ -21,17 +21,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <PluginInfo.h>
+#include "../../Processors/PluginManager/OpenEphysPlugin.h"
 #include "LfpDisplayNode.h"
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 using namespace Plugin;
+using namespace LfpViewer;
+
 #define NUM_PLUGINS 1
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
@@ -47,10 +49,10 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::ProcessorPlugin;
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
 		info->processor.name = "LFP Viewer";
 		info->processor.type = Plugin::SinkProcessor;
-		info->processor.creator = &(Plugin::createProcessor<LfpDisplayNode>);
+		info->processor.creator = &(Plugin::createProcessor<LfpViewer::LfpDisplayNode>);
 		break;
 	default:
 		return -1;

@@ -36,6 +36,7 @@ class ControlPanel;
 class AudioComponent;
 class GraphViewer;
 class PluginManager;
+class GenericProcessor;
 
 
 
@@ -83,6 +84,17 @@ PluginManager* getPluginManager();
 
 ActionBroadcaster* getBroadcaster();
 
+//Methods to access some private members of GenericProcessors.
+//Like all of the AccessClass methods, this ones are meant to be
+//used by various internal parts of the core GUI which need access
+//to those members, while keeping them inaccessible by normal plugins
+
+class ExternalProcessorAccessor
+{
+
+public:
+	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
+};
 
 };
 

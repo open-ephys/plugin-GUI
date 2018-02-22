@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Dsp">
-      <UniqueIdentifier>{498a08b2-88ff-4385-8928-7e98dd1597a4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\FilterEditor.cpp">
@@ -27,57 +24,6 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\OpenEphysLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Bessel.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Biquad.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Butterworth.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Cascade.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\ChebyshevI.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\ChebyshevII.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Custom.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Design.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Documentation.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Elliptic.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Filter.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Legendre.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Param.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\PoleFilter.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\RBJ.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\RootFinder.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\State.cpp">
-      <Filter>Source Files\Dsp</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\FilterEditor.h">
@@ -85,75 +31,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\FilterNode.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Bessel.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Biquad.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Butterworth.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Cascade.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\ChebyshevI.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\ChebyshevII.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Common.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Custom.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Design.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Dsp.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Elliptic.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Filter.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Layout.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Legendre.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\MathSupplement.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Params.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\PoleFilter.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\RBJ.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\RootFinder.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\SmoothedFilter.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\State.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Types.h">
-      <Filter>Source Files\Dsp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\Dsp\Utilities.h">
-      <Filter>Source Files\Dsp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

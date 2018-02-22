@@ -50,17 +50,16 @@ String HDF5Recording::getEngineID() const
 
 void HDF5Recording::registerProcessor(const GenericProcessor* proc)
 {
-    HDF5RecordingInfo* info = new HDF5RecordingInfo();
-	//This is a VERY BAD thig to do. temporary only until we fix const-correctness on GenericEditor methods
-	//(which implies modifying all the plugins and processors)
-    info->sample_rate = const_cast<GenericProcessor*>(proc)->getSampleRate();
+    KWIKRecordingInfo* info = new KWIKRecordingInfo();
+    info->sample_rate = proc->getSampleRate();
     info->bit_depth = 16;
     info->multiSample = false;
-    infoArray.add(info);
-    fileArray.add(new KWDFile());
-    bitVoltsArray.add(new Array<float>);
-    sampleRatesArray.add(new Array<float>);
-	channelsPerProcessor.add(0);
+    infoArray.add (info);
+
+    fileArray.add (new KWDFile());
+    bitVoltsArray.add (new Array<float>);
+    sampleRatesArray.add (new Array<float>);
+    channelsPerProcessor.add (0);
     processorIndex++;
 }
 
@@ -83,7 +82,7 @@ void HDF5Recording::resetChannels()
         spikesFile->resetChannels();
 }
 
-void HDF5Recording::addChannel(int index,const Channel* chan)
+void HDF5Recording::addDataChannel(int index,const DataChannel* chan)
 {
     processorMap.add(processorIndex);
 }
@@ -121,14 +120,14 @@ void HDF5Recording::openFiles(File rootFolder, int experimentNumber, int recordi
 		int index = processorMap[getRealChannel(i)];
 		if (!fileArray[index]->isOpen())
 		{
-			fileArray[index]->initFile(getChannel(getRealChannel(i))->nodeId, basepath);
+			fileArray[index]->initFile(getDataChannel(getRealChannel(i))->getCurrentNodeID(), basepath);
 			infoArray[index]->start_time = getTimestamp(i);
 		}
 
 		channelsPerProcessor.set(index, channelsPerProcessor[index] + 1);
-		bitVoltsArray[index]->add(getChannel(getRealChannel(i))->bitVolts);
-		sampleRatesArray[index]->add(getChannel(getRealChannel(i))->sampleRate);
-		if (getChannel(getRealChannel(i))->sampleRate != infoArray[index]->sample_rate)
+		bitVoltsArray[index]->add(getDataChannel(getRealChannel(i))->getBitVolts());
+		sampleRatesArray[index]->add(getDataChannel(getRealChannel(i))->getSampleRate());
+		if (getDataChannel(getRealChannel(i))->getSampleRate() != infoArray[index]->sample_rate)
 		{
 			infoArray[index]->multiSample = true;
 		}
@@ -200,15 +199,15 @@ void HDF5Recording::writeData(int writeChannel, int realChannel, const float* bu
 		scaledBuffer.malloc(size);
 		intBuffer.malloc(size);
 	}
-	double multFactor = 1 / (float(0x7fff) * getChannel(realChannel)->bitVolts);
-	int index = processorMap[getChannel(realChannel)->recordIndex];
+	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
+	int index = processorMap[realChannel]; //CHECK
 	FloatVectorOperations::copyWithMultiply(scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(scaledBuffer.getData(), intBuffer.getData(), size);
 	fileArray[index]->writeRowData(intBuffer.getData(), size, recordedChanToKWDChan[writeChannel]);
 
 	int sampleOffset = channelLeftOverSamples[writeChannel];
 	int blockStart = sampleOffset;
-	int64 currentTS = getTimestamp(realChannel);
+	int64 currentTS = getTimestamp(writeChannel);
 
 	if (sampleOffset > 0)
 	{
@@ -236,36 +235,54 @@ void HDF5Recording::endChannelBlock(bool lastBlock)
 		if ((tsSize > 0) && ((tsSize > CHANNEL_TIMESTAMP_MIN_WRITE) || lastBlock))
 		{
 			int realChan = getRealChannel(ch);
-			int index = processorMap[getChannel(realChan)->recordIndex];
+			int index = processorMap[realChan]; //CHECK
 			fileArray[index]->writeTimestamps(channelTimestampArray[ch]->getRawDataPointer(), tsSize, recordedChanToKWDChan[ch]);
 			channelTimestampArray[ch]->clearQuick();
 		}
 	}
 }
 
-void HDF5Recording::writeEvent(int eventType, const MidiMessage& event, int64 timestamp)
+void HDF5Recording::writeEvent(int eventChannel, const MidiMessage& event)
 {
-    const uint8* dataptr = event.getRawData();
-    if (eventType == GenericProcessor::TTL)
-        eventFile->writeEvent(0,*(dataptr+2),*(dataptr+1),(void*)(dataptr+3),timestamp);
-    else if (eventType == GenericProcessor::MESSAGE)
-        eventFile->writeEvent(1,*(dataptr+2),*(dataptr+1),(void*)(dataptr+6),timestamp);
+	if (Event::getEventType(event) == EventChannel::TTL)
+	{
+		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, getEventChannel(eventChannel));
+		if (ttl == nullptr) return;
+		uint8 channel = ttl->getChannel();
+		eventFile->writeEvent(0, (ttl->getState() ? 1 : 0), ttl->getSourceID(), &channel, ttl->getTimestamp());
+	}
+	else if (Event::getEventType(event) == EventChannel::TEXT)
+	{
+		TextEventPtr text = TextEvent::deserializeFromMessage(event, getEventChannel(eventChannel));
+		if (text == nullptr) return;
+		String textMsg = text->getText();
+		eventFile->writeEvent(1, 0, text->getSourceID(), textMsg.toUTF8().getAddress(), text->getTimestamp());
+	}
 }
 
-void HDF5Recording::addSpikeElectrode(int index, const SpikeRecordInfo* elec)
+void HDF5Recording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
-    spikesFile->addChannelGroup(elec->numChannels);
+	eventFile->writeEvent(1, 0xFF, sourceID, text.toUTF8().getAddress(), timestamp);
 }
-void HDF5Recording::writeSpike(int electrodeIndex, const SpikeObject& spike, int64 /*timestamp*/)
+
+void HDF5Recording::addSpikeElectrode(int index, const SpikeChannel* elec)
 {
-    spikesFile->writeSpike(electrodeIndex,spike.nSamples,spike.data,spike.timestamp);
+    spikesFile->addChannelGroup(elec->getNumChannels());
+}
+void HDF5Recording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
+{
+	const SpikeChannel* spikeInfo = getSpikeChannel(electrodeIndex);
+	Array<float> bitVolts;
+	for (int i = 0; i < spikeInfo->getNumChannels(); i++)
+		bitVolts.add(spikeInfo->getChannelBitVolts(i));
+    spikesFile->writeSpike(electrodeIndex,spikeInfo->getTotalSamples(),spike->getDataPointer(), bitVolts, spike->getTimestamp());
 }
 
 void HDF5Recording::startAcquisition()
 {
     eventFile = new KWEFile();
-    eventFile->addEventType("TTL",HDF5FileBase::U8,"event_channels");
-    eventFile->addEventType("Messages",HDF5FileBase::STR,"Text");
+    eventFile->addEventType("TTL",HDF5FileBase::BaseDataType::U8,"event_channels");
+	eventFile->addEventType("Messages", HDF5FileBase::BaseDataType::DSTR, "Text");
     spikesFile = new KWXFile();
 }
 

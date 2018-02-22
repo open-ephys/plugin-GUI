@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -22,11 +22,36 @@
   ==============================================================================
 */
 
+/*******************************************************************************
+ The block below describes the properties of this module, and is read by
+ the Projucer to automatically generate project code that uses it.
+ For details about the syntax and how to create or use a module, see the
+ JUCE Module Format.txt file.
+
+
+ BEGIN_JUCE_MODULE_DECLARATION
+
+  ID:               juce_events
+  vendor:           juce
+  version:          4.2.1
+  name:             JUCE message and event handling classes
+  description:      Classes for running an application's main event loop and sending/receiving messages, timers, etc.
+  website:          http://www.juce.com/juce
+  license:          GPL/Commercial
+
+  dependencies:     juce_core
+  linuxLibs:        X11
+
+ END_JUCE_MODULE_DECLARATION
+
+*******************************************************************************/
+
+
 #ifndef JUCE_EVENTS_H_INCLUDED
 #define JUCE_EVENTS_H_INCLUDED
 
-//=============================================================================
-#include "../juce_core/juce_core.h"
+//==============================================================================
+#include <juce_core/juce_core.h>
 
 namespace juce
 {
@@ -39,7 +64,7 @@ namespace juce
 #include "messages/juce_NotificationType.h"
 #include "messages/juce_ApplicationBase.h"
 #include "messages/juce_Initialisation.h"
-#include "broadcasters/juce_ListenerList.h"
+#include "messages/juce_MountedVolumeListChangeDetector.h"
 #include "broadcasters/juce_ActionBroadcaster.h"
 #include "broadcasters/juce_ActionListener.h"
 #include "broadcasters/juce_AsyncUpdater.h"
@@ -51,6 +76,10 @@ namespace juce
 #include "interprocess/juce_InterprocessConnectionServer.h"
 #include "interprocess/juce_ConnectedChildProcess.h"
 #include "native/juce_ScopedXLock.h"
+
+#if JUCE_EVENTS_INCLUDE_WIN32_MESSAGE_WINDOW && JUCE_WINDOWS
+ #include "native/juce_win32_HiddenMessageWindow.h"
+#endif
 
 }
 

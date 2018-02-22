@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -47,7 +47,7 @@ BigInteger::BigInteger (const int32 value)
       negative (value < 0)
 {
     values.calloc (numValues + 1);
-    values[0] = (uint32) abs (value);
+    values[0] = (uint32) std::abs (value);
     highestBit = getHighestBit();
 }
 
@@ -87,7 +87,7 @@ BigInteger::BigInteger (const BigInteger& other)
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 BigInteger::BigInteger (BigInteger&& other) noexcept
-    : values (static_cast <HeapBlock <uint32>&&> (other.values)),
+    : values (static_cast<HeapBlock<uint32>&&> (other.values)),
       numValues (other.numValues),
       highestBit (other.highestBit),
       negative (other.negative)
@@ -96,7 +96,7 @@ BigInteger::BigInteger (BigInteger&& other) noexcept
 
 BigInteger& BigInteger::operator= (BigInteger&& other) noexcept
 {
-    values = static_cast <HeapBlock <uint32>&&> (other.values);
+    values = static_cast<HeapBlock<uint32>&&> (other.values);
     numValues = other.numValues;
     highestBit = other.highestBit;
     negative = other.negative;
@@ -307,41 +307,28 @@ void BigInteger::negate() noexcept
     negative = (! negative) && ! isZero();
 }
 
-#if JUCE_USE_INTRINSICS && ! defined (__INTEL_COMPILER)
+#if JUCE_MSVC && ! defined (__INTEL_COMPILER)
  #pragma intrinsic (_BitScanReverse)
 #endif
 
-namespace BitFunctions
+inline static int highestBitInInt (uint32 n) noexcept
 {
-    inline int countBitsInInt32 (uint32 n) noexcept
-    {
-        n -= ((n >> 1) & 0x55555555);
-        n =  (((n >> 2) & 0x33333333) + (n & 0x33333333));
-        n =  (((n >> 4) + n) & 0x0f0f0f0f);
-        n += (n >> 8);
-        n += (n >> 16);
-        return (int) (n & 0x3f);
-    }
+    jassert (n != 0); // (the built-in functions may not work for n = 0)
 
-    inline int highestBitInInt (uint32 n) noexcept
-    {
-        jassert (n != 0); // (the built-in functions may not work for n = 0)
-
-      #if JUCE_GCC
-        return 31 - __builtin_clz (n);
-      #elif JUCE_USE_INTRINSICS
-        unsigned long highest;
-        _BitScanReverse (&highest, n);
-        return (int) highest;
-      #else
-        n |= (n >> 1);
-        n |= (n >> 2);
-        n |= (n >> 4);
-        n |= (n >> 8);
-        n |= (n >> 16);
-        return countBitsInInt32 (n >> 1);
-      #endif
-    }
+  #if JUCE_GCC || JUCE_CLANG
+    return 31 - __builtin_clz (n);
+  #elif JUCE_MSVC
+    unsigned long highest;
+    _BitScanReverse (&highest, n);
+    return (int) highest;
+  #else
+    n |= (n >> 1);
+    n |= (n >> 2);
+    n |= (n >> 4);
+    n |= (n >> 8);
+    n |= (n >> 16);
+    return countBitsInInt32 (n >> 1);
+  #endif
 }
 
 int BigInteger::countNumberOfSetBits() const noexcept
@@ -349,7 +336,7 @@ int BigInteger::countNumberOfSetBits() const noexcept
     int total = 0;
 
     for (int i = (int) bitToIndex (highestBit) + 1; --i >= 0;)
-        total += BitFunctions::countBitsInInt32 (values[i]);
+        total += countNumberOfBits (values[i]);
 
     return total;
 }
@@ -361,7 +348,7 @@ int BigInteger::getHighestBit() const noexcept
         const uint32 n = values[i];
 
         if (n != 0)
-            return BitFunctions::highestBitInInt (n) + (i << 5);
+            return highestBitInInt (n) + (i << 5);
     }
 
     return -1;
@@ -657,15 +644,15 @@ BigInteger& BigInteger::operator>>= (const int numBits)              { shiftBits
 //==============================================================================
 int BigInteger::compare (const BigInteger& other) const noexcept
 {
-    if (isNegative() == other.isNegative())
+    const bool isNeg = isNegative();
+
+    if (isNeg == other.isNegative())
     {
         const int absComp = compareAbsolute (other);
-        return isNegative() ? -absComp : absComp;
+        return isNeg ? -absComp : absComp;
     }
-    else
-    {
-        return isNegative() ? -1 : 1;
-    }
+
+    return isNeg ? -1 : 1;
 }
 
 int BigInteger::compareAbsolute (const BigInteger& other) const noexcept
@@ -673,10 +660,8 @@ int BigInteger::compareAbsolute (const BigInteger& other) const noexcept
     const int h1 = getHighestBit();
     const int h2 = other.getHighestBit();
 
-    if (h1 > h2)
-        return 1;
-    else if (h1 < h2)
-        return -1;
+    if (h1 > h2) return 1;
+    if (h1 < h2) return -1;
 
     for (int i = (int) bitToIndex (h1) + 1; --i >= 0;)
         if (values[i] != other.values[i])
@@ -687,9 +672,9 @@ int BigInteger::compareAbsolute (const BigInteger& other) const noexcept
 
 bool BigInteger::operator== (const BigInteger& other) const noexcept    { return compare (other) == 0; }
 bool BigInteger::operator!= (const BigInteger& other) const noexcept    { return compare (other) != 0; }
-bool BigInteger::operator<  (const BigInteger& other) const noexcept    { return compare (other) < 0; }
+bool BigInteger::operator<  (const BigInteger& other) const noexcept    { return compare (other) <  0; }
 bool BigInteger::operator<= (const BigInteger& other) const noexcept    { return compare (other) <= 0; }
-bool BigInteger::operator>  (const BigInteger& other) const noexcept    { return compare (other) > 0; }
+bool BigInteger::operator>  (const BigInteger& other) const noexcept    { return compare (other) >  0; }
 bool BigInteger::operator>= (const BigInteger& other) const noexcept    { return compare (other) >= 0; }
 
 //==============================================================================
@@ -816,7 +801,7 @@ BigInteger BigInteger::findGreatestCommonDivisor (BigInteger n) const
 
     while (! n.isZero())
     {
-        if (abs (m.getHighestBit() - n.getHighestBit()) <= 16)
+        if (std::abs (m.getHighestBit() - n.getHighestBit()) <= 16)
             return simpleGCD (&m, &n);
 
         BigInteger temp2;
@@ -866,17 +851,14 @@ void BigInteger::inverseModulo (const BigInteger& modulus)
     if (isOne())
         return;
 
-    if (! (*this)[0])
+    if (findGreatestCommonDivisor (modulus) != 1)
     {
-        // not invertible
-        clear();
+        clear();  // not invertible!
         return;
     }
 
-    BigInteger a1 (modulus);
-    BigInteger a2 (*this);
-    BigInteger b1 (modulus);
-    BigInteger b2 (1);
+    BigInteger a1 (modulus), a2 (*this);
+    BigInteger b1 (modulus), b2 (1);
 
     while (! a2.isOne())
     {
@@ -1013,15 +995,83 @@ MemoryBlock BigInteger::toMemoryBlock() const
     MemoryBlock mb ((size_t) numBytes);
 
     for (int i = 0; i < numBytes; ++i)
-        mb[i] = (char) getBitRangeAsInt (i << 3, 8);
+        mb[i] = (char) ((values[i / 4] >> ((i & 3) * 8)) & 0xff);
 
     return mb;
 }
 
 void BigInteger::loadFromMemoryBlock (const MemoryBlock& data)
 {
-    clear();
+    const size_t numBytes = data.getSize();
+    numValues = 1 + (numBytes / sizeof (uint32));
+    values.malloc (numValues + 1);
 
-    for (int i = (int) data.getSize(); --i >= 0;)
+    for (int i = 0; i < (int) numValues - 1; ++i)
+        values[i] = (uint32) ByteOrder::littleEndianInt (addBytesToPointer (data.getData(), sizeof (uint32) * (size_t) i));
+
+    values[numValues - 1] = 0;
+    values[numValues] = 0;
+
+    for (int i = (int) (numBytes & ~3u); i < (int) numBytes; ++i)
         this->setBitRangeAsInt (i << 3, 8, (uint32) data [i]);
+
+    highestBit = (int) numBytes * 8;
+    highestBit = getHighestBit();
 }
+
+
+//==============================================================================
+//==============================================================================
+#if JUCE_UNIT_TESTS
+
+class BigIntegerTests  : public UnitTest
+{
+public:
+    BigIntegerTests() : UnitTest ("BigInteger") {}
+
+    static BigInteger getBigRandom (Random& r)
+    {
+        BigInteger b;
+
+        while (b < 2)
+            r.fillBitsRandomly (b, 0, r.nextInt (150) + 1);
+
+        return b;
+    }
+
+    void runTest() override
+    {
+        beginTest ("BigInteger");
+
+        Random r = getRandom();
+
+        expect (BigInteger().isZero());
+        expect (BigInteger(1).isOne());
+
+        for (int j = 10000; --j >= 0;)
+        {
+            BigInteger b1 (getBigRandom(r)),
+                       b2 (getBigRandom(r));
+
+            BigInteger b3 = b1 + b2;
+            expect (b3 > b1 && b3 > b2);
+            expect (b3 - b1 == b2);
+            expect (b3 - b2 == b1);
+
+            BigInteger b4 = b1 * b2;
+            expect (b4 > b1 && b4 > b2);
+            expect (b4 / b1 == b2);
+            expect (b4 / b2 == b1);
+
+            // TODO: should add tests for other ops (although they also get pretty well tested in the RSA unit test)
+
+            BigInteger b5;
+            b5.loadFromMemoryBlock (b3.toMemoryBlock());
+            expect (b3 == b5);
+        }
+    }
+};
+
+static BigIntegerTests bigIntegerTests;
+
+#endif

@@ -36,7 +36,7 @@ EcubeEditor::EcubeEditor(GenericProcessor* parentNode, EcubeThread* npThread, bo
 {
     desiredWidth = 180;
 
-    if (pThread->getNumHeadstageOutputs())
+    if (pThread->getNumDataOutputs(DataChannel::HEADSTAGE_CHANNEL, 0))
     {
         volLabel = new Label("Volume text label", "Volume");
         volLabel->setBounds(35, 20, 180, 20);
@@ -71,14 +71,14 @@ EcubeEditor::EcubeEditor(GenericProcessor* parentNode, EcubeThread* npThread, bo
         chanComboBox->addListener(this);
         addAndMakeVisible(chanComboBox);
     }
-    else if (pThread->getNumAdcOutputs())
+    else if (pThread->getNumDataOutputs(DataChannel::ADC_CHANNEL, 0))
     {
         samplerateLabel = new Label("Samplerate label", "Sample Rate (Hz):");
         samplerateLabel->setBounds(10, 20, 180, 20);
         samplerateLabel->setFont(Font("Small Text", 12, Font::plain));
         addAndMakeVisible(samplerateLabel);
 
-        samplerateValueLabel = new Label("Samplerate label", String(pThread->getSampleRate(),3));
+        samplerateValueLabel = new Label("Samplerate label", String(pThread->getSampleRate(0),3));
         samplerateValueLabel->setBounds(20, 40, 180, 20);
         samplerateValueLabel->setFont(Font("Small Text", 12, Font::plain));
         addAndMakeVisible(samplerateValueLabel);

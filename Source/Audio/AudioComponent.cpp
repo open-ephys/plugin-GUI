@@ -180,7 +180,7 @@ void AudioComponent::restartDevice()
 void AudioComponent::stopDevice()
 {
 
-    deviceManager.closeAudioDevice();
+    //deviceManager.closeAudioDevice();
 }
 
 void AudioComponent::beginCallbacks()

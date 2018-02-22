@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\serial\PulsePal.cpp">
       <Filter>Source Files\serial</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutputCanvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\PulsePalOutput\PulsePalOutput.h">

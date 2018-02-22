@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -30,32 +30,40 @@ import android.content.DialogInterface;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Handler;
+import android.os.ParcelUuid;
+import android.os.Environment;
 import android.view.*;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.graphics.*;
-import android.opengl.*;
 import android.text.ClipboardManager;
 import android.text.InputType;
 import android.util.DisplayMetrics;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import android.util.Log;
+import java.lang.Runnable;
+import java.util.*;
+import java.io.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 import android.media.AudioManager;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
+import android.Manifest;
+$$JuceAndroidMidiImports$$ // If you get an error here, you need to re-save your project with the Projucer!
+
 
 //==============================================================================
-public final class JuceAppActivity   extends Activity
+public class JuceAppActivity   extends Activity
 {
     //==============================================================================
     static
@@ -63,42 +71,162 @@ public final class JuceAppActivity   extends Activity
         System.loadLibrary ("juce_jni");
     }
 
+    //==============================================================================
+    public boolean isPermissionDeclaredInManifest (int permissionID)
+    {
+        String permissionToCheck = getAndroidPermissionName(permissionID);
+
+        try
+        {
+            PackageInfo info = getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
+
+            if (info.requestedPermissions != null)
+                for (String permission : info.requestedPermissions)
+                    if (permission.equals (permissionToCheck))
+                        return true;
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            Log.d ("JUCE", "isPermissionDeclaredInManifest: PackageManager.NameNotFoundException = " + e.toString());
+        }
+
+        Log.d ("JUCE", "isPermissionDeclaredInManifest: could not find requested permission " + permissionToCheck);
+        return false;
+    }
+
+    //==============================================================================
+    // these have to match the values of enum PermissionID in C++ class RuntimePermissions:
+    private static final int JUCE_PERMISSIONS_RECORD_AUDIO = 1;
+    private static final int JUCE_PERMISSIONS_BLUETOOTH_MIDI = 2;
+
+    private static String getAndroidPermissionName (int permissionID)
+    {
+        switch (permissionID)
+        {
+            case JUCE_PERMISSIONS_RECORD_AUDIO:     return Manifest.permission.RECORD_AUDIO;
+            case JUCE_PERMISSIONS_BLUETOOTH_MIDI:   return Manifest.permission.ACCESS_COARSE_LOCATION;
+        }
+
+        // unknown permission ID!
+        assert false;
+        return new String();
+    }
+
+    public boolean isPermissionGranted (int permissionID)
+    {
+        return ContextCompat.checkSelfPermission (this, getAndroidPermissionName (permissionID)) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private Map<Integer, Long> permissionCallbackPtrMap;
+
+    public void requestRuntimePermission (int permissionID, long ptrToCallback)
+    {
+        String permissionName = getAndroidPermissionName (permissionID);
+
+        if (ContextCompat.checkSelfPermission (this, permissionName) != PackageManager.PERMISSION_GRANTED)
+        {
+            // remember callbackPtr, request permissions, and let onRequestPermissionResult call callback asynchronously
+            permissionCallbackPtrMap.put (permissionID, ptrToCallback);
+            ActivityCompat.requestPermissions (this, new String[]{permissionName}, permissionID);
+        }
+        else
+        {
+            // permissions were already granted before, we can call callback directly
+            androidRuntimePermissionsCallback (true, ptrToCallback);
+        }
+    }
+
+    private native void androidRuntimePermissionsCallback (boolean permissionWasGranted, long ptrToCallback);
+
+    $$JuceAndroidRuntimePermissionsCode$$ // If you get an error here, you need to re-save your project with the Projucer!
+
+    //==============================================================================
+    public static class MidiPortID extends Object
+    {
+        public MidiPortID (int index, boolean direction)
+        {
+            androidIndex = index;
+            isInput = direction;
+        }
+
+        public int androidIndex;
+        public boolean isInput;
+
+        @Override
+        public int hashCode()
+        {
+            Integer i = new Integer (androidIndex);
+            return i.hashCode() * (isInput ? -1 : 1);
+        }
+
+        @Override
+        public boolean equals (Object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (getClass() != obj.getClass())
+                return false;
+
+            MidiPortID other = (MidiPortID) obj;
+            return (androidIndex == other.androidIndex && isInput == other.isInput);
+        }
+    }
+
+    public interface JuceMidiPort
+    {
+        boolean isInputPort();
+
+        // start, stop does nothing on an output port
+        void start();
+        void stop();
+
+        void close();
+        MidiPortID getPortId();
+
+        // send will do nothing on an input port
+        void sendMidi (byte[] msg, int offset, int count);
+    }
+
+    //==============================================================================
+    $$JuceAndroidMidiCode$$ // If you get an error here, you need to re-save your project with the Projucer!
+
+    //==============================================================================
     @Override
-    public final void onCreate (Bundle savedInstanceState)
+    public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate (savedInstanceState);
 
+        isScreenSaverEnabled = true;
+        hideActionBar();
         viewHolder = new ViewHolder (this);
         setContentView (viewHolder);
 
         setVolumeControlStream (AudioManager.STREAM_MUSIC);
+
+        permissionCallbackPtrMap = new HashMap<Integer, Long>();
     }
 
     @Override
-    protected final void onDestroy()
+    protected void onDestroy()
     {
         quitApp();
         super.onDestroy();
+
+        clearDataCache();
     }
 
     @Override
-    protected final void onPause()
+    protected void onPause()
     {
-        if (viewHolder != null)
-            viewHolder.onPause();
-
         suspendApp();
         super.onPause();
     }
 
     @Override
-    protected final void onResume()
+    protected void onResume()
     {
         super.onResume();
-
-        if (viewHolder != null)
-            viewHolder.onResume();
-
         resumeApp();
     }
 
@@ -113,6 +241,49 @@ public final class JuceAppActivity   extends Activity
     {
         launchApp (getApplicationInfo().publicSourceDir,
                    getApplicationInfo().dataDir);
+    }
+
+    private void hideActionBar()
+    {
+        // get "getActionBar" method
+        java.lang.reflect.Method getActionBarMethod = null;
+        try
+        {
+            getActionBarMethod = this.getClass().getMethod ("getActionBar");
+        }
+        catch (SecurityException e)     { return; }
+        catch (NoSuchMethodException e) { return; }
+        if (getActionBarMethod == null) return;
+
+        // invoke "getActionBar" method
+        Object actionBar = null;
+        try
+        {
+            actionBar = getActionBarMethod.invoke (this);
+        }
+        catch (java.lang.IllegalArgumentException e) { return; }
+        catch (java.lang.IllegalAccessException e) { return; }
+        catch (java.lang.reflect.InvocationTargetException e) { return; }
+        if (actionBar == null) return;
+
+        // get "hide" method
+        java.lang.reflect.Method actionBarHideMethod = null;
+        try
+        {
+            actionBarHideMethod = actionBar.getClass().getMethod ("hide");
+        }
+        catch (SecurityException e)     { return; }
+        catch (NoSuchMethodException e) { return; }
+        if (actionBarHideMethod == null) return;
+
+        // invoke "hide" method
+        try
+        {
+            actionBarHideMethod.invoke (actionBar);
+        }
+        catch (java.lang.IllegalArgumentException e) {}
+        catch (java.lang.IllegalAccessException e) {}
+        catch (java.lang.reflect.InvocationTargetException e) {}
     }
 
     //==============================================================================
@@ -141,6 +312,10 @@ public final class JuceAppActivity   extends Activity
 
     //==============================================================================
     private ViewHolder viewHolder;
+    private MidiDeviceManager midiDeviceManager = null;
+    private BluetoothManager bluetoothManager = null;
+    private boolean isScreenSaverEnabled;
+    private java.util.Timer keepAliveTimer;
 
     public final ComponentPeerView createNewView (boolean opaque, long host)
     {
@@ -150,6 +325,14 @@ public final class JuceAppActivity   extends Activity
     }
 
     public final void deleteView (ComponentPeerView view)
+    {
+        ViewGroup group = (ViewGroup) (view.getParent());
+
+        if (group != null)
+            group.removeView (view);
+    }
+
+    public final void deleteNativeSurfaceView (NativeSurfaceView view)
     {
         ViewGroup group = (ViewGroup) (view.getParent());
 
@@ -177,28 +360,6 @@ public final class JuceAppActivity   extends Activity
             }
         }
 
-        public final void onPause()
-        {
-            for (int i = getChildCount(); --i >= 0;)
-            {
-                View v = getChildAt (i);
-
-                if (v instanceof ComponentPeerView)
-                    ((ComponentPeerView) v).onPause();
-            }
-        }
-
-        public final void onResume()
-        {
-            for (int i = getChildCount(); --i >= 0;)
-            {
-                View v = getChildAt (i);
-
-                if (v instanceof ComponentPeerView)
-                    ((ComponentPeerView) v).onResume();
-             }
-         }
-
         private final int getDPI()
         {
             DisplayMetrics metrics = new DisplayMetrics();
@@ -212,6 +373,56 @@ public final class JuceAppActivity   extends Activity
     public final void excludeClipRegion (android.graphics.Canvas canvas, float left, float top, float right, float bottom)
     {
         canvas.clipRect (left, top, right, bottom, android.graphics.Region.Op.DIFFERENCE);
+    }
+
+    //==============================================================================
+    public final void setScreenSaver (boolean enabled)
+    {
+        if (isScreenSaverEnabled != enabled)
+        {
+            isScreenSaverEnabled = enabled;
+
+            if (keepAliveTimer != null)
+            {
+                keepAliveTimer.cancel();
+                keepAliveTimer = null;
+            }
+
+            if (enabled)
+            {
+                getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+            else
+            {
+                getWindow().addFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                // If no user input is received after about 3 seconds, the OS will lower the
+                // task's priority, so this timer forces it to be kept active.
+                keepAliveTimer = new java.util.Timer();
+
+                keepAliveTimer.scheduleAtFixedRate (new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        android.app.Instrumentation instrumentation = new android.app.Instrumentation();
+
+                        try
+                        {
+                            instrumentation.sendKeyDownUpSync (KeyEvent.KEYCODE_UNKNOWN);
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+                }, 2000, 2000);
+            }
+        }
+    }
+
+    public final boolean getScreenSaver()
+    {
+        return isScreenSaverEnabled;
     }
 
     //==============================================================================
@@ -323,15 +534,26 @@ public final class JuceAppActivity   extends Activity
             setFocusableInTouchMode (true);
             setOnFocusChangeListener (this);
             requestFocus();
+
+            // swap red and blue colours to match internal opengl texture format
+            ColorMatrix colorMatrix = new ColorMatrix();
+
+            float[] colorTransform = { 0,    0,    1.0f, 0,    0,
+                                       0,    1.0f, 0,    0,    0,
+                                       1.0f, 0,    0,    0,    0,
+                                       0,    0,    0,    1.0f, 0 };
+
+            colorMatrix.set (colorTransform);
+            paint.setColorFilter (new ColorMatrixColorFilter (colorMatrix));
         }
 
         //==============================================================================
-        private native void handlePaint (long host, Canvas canvas);
+        private native void handlePaint (long host, Canvas canvas, Paint paint);
 
         @Override
         public void onDraw (Canvas canvas)
         {
-            handlePaint (host, canvas);
+            handlePaint (host, canvas, paint);
         }
 
         @Override
@@ -342,6 +564,7 @@ public final class JuceAppActivity   extends Activity
 
         private boolean opaque;
         private long host;
+        private Paint paint = new Paint();
 
         //==============================================================================
         private native void handleMouseDown (long host, int index, float x, float y, long time);
@@ -440,6 +663,22 @@ public final class JuceAppActivity   extends Activity
             return true;
         }
 
+        @Override
+        public boolean onKeyMultiple (int keyCode, int count, KeyEvent event)
+        {
+            if (keyCode != KeyEvent.KEYCODE_UNKNOWN || event.getAction() != KeyEvent.ACTION_MULTIPLE)
+                return super.onKeyMultiple (keyCode, count, event);
+
+            if (event.getCharacters() != null)
+            {
+                int utf8Char = event.getCharacters().codePointAt (0);
+                handleKeyDown (host, utf8Char, utf8Char);
+                return true;
+            }
+
+            return false;
+        }
+
         // this is here to make keyboard entry work on a Galaxy Tab2 10.1
         @Override
         public InputConnection onCreateInputConnection (EditorInfo outAttrs)
@@ -490,70 +729,83 @@ public final class JuceAppActivity   extends Activity
         {
             return true; //xxx needs to check overlapping views
         }
-
-        public final void onPause()
-        {
-            for (int i = getChildCount(); --i >= 0;)
-            {
-                View v = getChildAt (i);
-
-                if (v instanceof OpenGLView)
-                    ((OpenGLView) v).onPause();
-            }
-        }
-
-        public final void onResume()
-        {
-            for (int i = getChildCount(); --i >= 0;)
-            {
-                View v = getChildAt (i);
-
-                if (v instanceof OpenGLView)
-                    ((OpenGLView) v).onResume();
-            }
-        }
-
-        public OpenGLView createGLView()
-        {
-            OpenGLView glView = new OpenGLView (getContext());
-            addView (glView);
-            return glView;
-        }
     }
 
     //==============================================================================
-    public final class OpenGLView   extends GLSurfaceView
-                                    implements GLSurfaceView.Renderer
+    public static class NativeSurfaceView    extends SurfaceView
+                                          implements SurfaceHolder.Callback
     {
-        OpenGLView (Context context)
+        private long nativeContext = 0;
+
+        NativeSurfaceView (Context context, long nativeContextPtr)
         {
             super (context);
-            setEGLContextClientVersion (2);
-            setRenderer (this);
-            setRenderMode (RENDERMODE_WHEN_DIRTY);
+            nativeContext = nativeContextPtr;
+        }
+
+        public Surface getNativeSurface()
+        {
+            Surface retval = null;
+
+            SurfaceHolder holder = getHolder();
+            if (holder != null)
+                retval = holder.getSurface();
+
+            return retval;
+        }
+
+        //==============================================================================
+        @Override
+        public void surfaceChanged (SurfaceHolder holder, int format, int width, int height)
+        {
+            surfaceChangedNative (nativeContext, holder, format, width, height);
         }
 
         @Override
-        public void onSurfaceCreated (GL10 unused, EGLConfig config)
+        public void surfaceCreated (SurfaceHolder holder)
         {
-            contextCreated();
+            surfaceCreatedNative (nativeContext, holder);
         }
 
         @Override
-        public void onSurfaceChanged (GL10 unused, int width, int height)
+        public void surfaceDestroyed (SurfaceHolder holder)
         {
-            contextChangedSize();
+            surfaceDestroyedNative (nativeContext, holder);
         }
 
         @Override
-        public void onDrawFrame (GL10 unused)
+        protected void dispatchDraw (Canvas canvas)
         {
-            render();
+            super.dispatchDraw (canvas);
+            dispatchDrawNative (nativeContext, canvas);
         }
 
-        private native void contextCreated();
-        private native void contextChangedSize();
-        private native void render();
+        //==============================================================================
+        @Override
+        protected void onAttachedToWindow ()
+        {
+            super.onAttachedToWindow();
+            getHolder().addCallback (this);
+        }
+
+        @Override
+        protected void onDetachedFromWindow ()
+        {
+            super.onDetachedFromWindow();
+            getHolder().removeCallback (this);
+        }
+
+        //==============================================================================
+        private native void dispatchDrawNative (long nativeContextPtr, Canvas canvas);
+        private native void surfaceCreatedNative (long nativeContextptr, SurfaceHolder holder);
+        private native void surfaceDestroyedNative (long nativeContextptr, SurfaceHolder holder);
+        private native void surfaceChangedNative (long nativeContextptr, SurfaceHolder holder,
+                                                  int format, int width, int height);
+    }
+
+    public NativeSurfaceView createNativeSurfaceView (long nativeSurfacePtr)
+    {
+        return new NativeSurfaceView (this, nativeSurfacePtr);
     }
 
     //==============================================================================
@@ -605,7 +857,7 @@ public final class JuceAppActivity   extends Activity
             }
             catch (IOException e)
             {
-                if (connection.getResponseCode() < org.apache.http.HttpStatus.SC_BAD_REQUEST)
+                if (connection.getResponseCode() < 400)
                     throw e;
             }
             finally
@@ -613,7 +865,7 @@ public final class JuceAppActivity   extends Activity
                 statusCode[0] = connection.getResponseCode();
             }
 
-            if (statusCode[0] >= org.apache.http.HttpStatus.SC_BAD_REQUEST)
+            if (statusCode[0] >= 400)
                 inputStream = connection.getErrorStream();
             else
                 inputStream = connection.getInputStream();
@@ -663,41 +915,105 @@ public final class JuceAppActivity   extends Activity
         private long position;
     }
 
-    public static final HTTPStream createHTTPStream (String address,
-                                                     boolean isPost, byte[] postData, String headers,
-                                                     int timeOutMs, int[] statusCode,
-                                                     StringBuffer responseHeaders)
+    public static final HTTPStream createHTTPStream (String address, boolean isPost, byte[] postData,
+                                                     String headers, int timeOutMs, int[] statusCode,
+                                                     StringBuffer responseHeaders, int numRedirectsToFollow,
+                                                     String httpRequestCmd)
     {
-        try
-        {
-            HttpURLConnection connection = (HttpURLConnection) (new URL(address)
-                    .openConnection());
-            if (connection != null)
-            {
-                try
-                {
-                    if (isPost)
-                    {
-                        connection.setRequestMethod("POST");
-                        connection.setConnectTimeout(timeOutMs);
-                        connection.setDoOutput(true);
-                        connection.setChunkedStreamingMode(0);
-                        OutputStream out = connection.getOutputStream();
-                        out.write(postData);
-                        out.flush();
-                    }
+        // timeout parameter of zero for HttpUrlConnection is a blocking connect (negative value for juce::URL)
+        if (timeOutMs < 0)
+            timeOutMs = 0;
+        else if (timeOutMs == 0)
+            timeOutMs = 30000;
 
-                    return new HTTPStream (connection, statusCode, responseHeaders);
-                }
-                catch (Throwable e)
+        // headers - if not empty, this string is appended onto the headers that are used for the request. It must therefore be a valid set of HTML header directives, separated by newlines.
+        // So convert headers string to an array, with an element for each line
+        String headerLines[] = headers.split("\\n");
+
+        for (;;)
+        {
+            try
+            {
+                HttpURLConnection connection = (HttpURLConnection) (new URL(address).openConnection());
+
+                if (connection != null)
                 {
-                    connection.disconnect();
+                    try
+                    {
+                        connection.setInstanceFollowRedirects (false);
+                        connection.setConnectTimeout (timeOutMs);
+                        connection.setReadTimeout (timeOutMs);
+
+                        // Set request headers
+                        for (int i = 0; i < headerLines.length; ++i)
+                        {
+                            int pos = headerLines[i].indexOf (":");
+
+                            if (pos > 0 && pos < headerLines[i].length())
+                            {
+                                String field = headerLines[i].substring (0, pos);
+                                String value = headerLines[i].substring (pos + 1);
+
+                                if (value.length() > 0)
+                                    connection.setRequestProperty (field, value);
+                            }
+                        }
+
+                        connection.setRequestMethod (httpRequestCmd);
+                        if (isPost)
+                        {
+                            connection.setDoOutput (true);
+
+                            if (postData != null)
+                            {
+                                OutputStream out = connection.getOutputStream();
+                                out.write(postData);
+                                out.flush();
+                            }
+                        }
+
+                        HTTPStream httpStream = new HTTPStream (connection, statusCode, responseHeaders);
+
+                        // Process redirect & continue as necessary
+                        int status = statusCode[0];
+
+                        if (--numRedirectsToFollow >= 0
+                             && (status == 301 || status == 302 || status == 303 || status == 307))
+                        {
+                            // Assumes only one occurrence of "Location"
+                            int pos1 = responseHeaders.indexOf ("Location:") + 10;
+                            int pos2 = responseHeaders.indexOf ("\n", pos1);
+
+                            if (pos2 > pos1)
+                            {
+                                String newLocation = responseHeaders.substring(pos1, pos2);
+                                // Handle newLocation whether it's absolute or relative
+                                URL baseUrl = new URL (address);
+                                URL newUrl = new URL (baseUrl, newLocation);
+                                String transformedNewLocation = newUrl.toString();
+
+                                if (transformedNewLocation != address)
+                                {
+                                    address = transformedNewLocation;
+                                    // Clear responseHeaders before next iteration
+                                    responseHeaders.delete (0, responseHeaders.length());
+                                    continue;
+                                }
+                            }
+                        }
+
+                        return httpStream;
+                    }
+                    catch (Throwable e)
+                    {
+                        connection.disconnect();
+                    }
                 }
             }
-        }
-        catch (Throwable e) {}
+            catch (Throwable e) {}
 
-        return null;
+            return null;
+        }
     }
 
     public final void launchURL (String url)
@@ -712,6 +1028,17 @@ public final class JuceAppActivity   extends Activity
         return isRegion ? locale.getDisplayCountry  (java.util.Locale.US)
                         : locale.getDisplayLanguage (java.util.Locale.US);
     }
+
+    private static final String getFileLocation (String type)
+    {
+        return Environment.getExternalStoragePublicDirectory (type).getAbsolutePath();
+    }
+
+    public static final String getDocumentsFolder()  { return Environment.getDataDirectory().getAbsolutePath(); }
+    public static final String getPicturesFolder()   { return getFileLocation (Environment.DIRECTORY_PICTURES); }
+    public static final String getMusicFolder()      { return getFileLocation (Environment.DIRECTORY_MUSIC); }
+    public static final String getMoviesFolder()     { return getFileLocation (Environment.DIRECTORY_MOVIES); }
+    public static final String getDownloadsFolder()  { return getFileLocation (Environment.DIRECTORY_DOWNLOADS); }
 
     //==============================================================================
     private final class SingleMediaScanner  implements MediaScannerConnectionClient
@@ -742,5 +1069,153 @@ public final class JuceAppActivity   extends Activity
     public final void scanFile (String filename)
     {
         new SingleMediaScanner (this, filename);
+    }
+
+    public final Typeface getTypeFaceFromAsset (String assetName)
+    {
+        try
+        {
+            return Typeface.createFromAsset (this.getResources().getAssets(), assetName);
+        }
+        catch (Throwable e) {}
+
+        return null;
+    }
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex (byte[] bytes)
+    {
+        char[] hexChars = new char[bytes.length * 2];
+
+        for (int j = 0; j < bytes.length; ++j)
+        {
+            int v = bytes[j] & 0xff;
+            hexChars[j * 2]     = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0f];
+        }
+
+        return new String (hexChars);
+    }
+
+    final private java.util.Map dataCache = new java.util.HashMap();
+
+    synchronized private final File getDataCacheFile (byte[] data)
+    {
+        try
+        {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance ("MD5");
+            digest.update (data);
+
+            String key = bytesToHex (digest.digest());
+
+            if (dataCache.containsKey (key))
+                return (File) dataCache.get (key);
+
+            File f = new File (this.getCacheDir(), "bindata_" + key);
+            f.delete();
+            FileOutputStream os = new FileOutputStream (f);
+            os.write (data, 0, data.length);
+            dataCache.put (key, f);
+            return f;
+        }
+        catch (Throwable e) {}
+
+        return null;
+    }
+
+    private final void clearDataCache()
+    {
+        java.util.Iterator it = dataCache.values().iterator();
+
+        while (it.hasNext())
+        {
+            File f = (File) it.next();
+            f.delete();
+        }
+    }
+
+    public final Typeface getTypeFaceFromByteArray (byte[] data)
+    {
+        try
+        {
+            File f = getDataCacheFile (data);
+
+            if (f != null)
+                return Typeface.createFromFile (f);
+        }
+        catch (Exception e)
+        {
+            Log.e ("JUCE", e.toString());
+        }
+
+        return null;
+    }
+
+    public final int getAndroidSDKVersion()
+    {
+        return android.os.Build.VERSION.SDK_INT;
+    }
+
+    public final String audioManagerGetProperty (String property)
+    {
+        Object obj = getSystemService (AUDIO_SERVICE);
+        if (obj == null)
+            return null;
+
+        java.lang.reflect.Method method;
+
+        try
+        {
+            method = obj.getClass().getMethod ("getProperty", String.class);
+        }
+        catch (SecurityException e)     { return null; }
+        catch (NoSuchMethodException e) { return null; }
+
+        if (method == null)
+            return null;
+
+        try
+        {
+            return (String) method.invoke (obj, property);
+        }
+        catch (java.lang.IllegalArgumentException e) {}
+        catch (java.lang.IllegalAccessException e) {}
+        catch (java.lang.reflect.InvocationTargetException e) {}
+
+        return null;
+    }
+
+    public final int setCurrentThreadPriority (int priority)
+    {
+        android.os.Process.setThreadPriority (android.os.Process.myTid(), priority);
+        return android.os.Process.getThreadPriority (android.os.Process.myTid());
+    }
+
+    public final boolean hasSystemFeature (String property)
+    {
+        return getPackageManager().hasSystemFeature (property);
+    }
+
+    private static class JuceThread extends Thread
+    {
+        public JuceThread (long host, String threadName, long threadStackSize)
+        {
+            super (null, null, threadName, threadStackSize);
+            _this = host;
+        }
+
+        public void run()
+        {
+            runThread(_this);
+        }
+
+        private native void runThread (long host);
+        private long _this;
+    }
+
+    public final Thread createNewThread(long host, String threadName, long threadStackSize)
+    {
+        return new JuceThread(host, threadName, threadStackSize);
     }
 }

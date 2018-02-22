@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -51,7 +51,7 @@ public:
     void pushMidiData (const void* inputData, int numBytes, double time,
                        UserDataType* input, CallbackType& callback)
     {
-        const uint8* d = static_cast <const uint8*> (inputData);
+        const uint8* d = static_cast<const uint8*> (inputData);
 
         while (numBytes > 0)
         {

@@ -25,27 +25,32 @@
 #include "MessageCenterEditor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../AccessClass.h"
-
+#define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-    GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false), sourceNodeId(0), 
-	timestampSource(nullptr), lastTime(0), softTimestamp(0)
+GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
 {
 
     setPlayConfigDetails(0, // number of inputs
                          0, // number of outputs
                          44100.0, // sampleRate
                          128);    // blockSize
-
-    Channel* ch = new Channel(this, 0, EVENT_CHANNEL);
-    eventChannels.add(ch);
-
 }
 
 MessageCenter::~MessageCenter()
 {
 
+}
+
+void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
+{
+	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, CoreServices::getGlobalSampleRate(), this, 0);
+	chan->setName("GUI Messages");
+	chan->setDescription("Messages from the GUI Message Center");
+	channels.add(chan);
+	eventChannelArray.add(new EventChannel(*chan));
+	updateChannelIndexes();
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()
@@ -74,25 +79,6 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 bool MessageCenter::enable()
 {
     messageCenterEditor->startAcquisition();
-	lastTime = Time::getHighResolutionTicks();
-	softTimestamp = 0;
-    if (sourceNodeId)
-    {
-        AudioProcessorGraph::Node* node = AccessClass::getProcessorGraph()->getNodeForId(sourceNodeId);
-        if (node)
-        {
-            timestampSource = static_cast<GenericProcessor*>(node->getProcessor());
-        }
-        else
-        {
-            std::cout << "Message Center: BAD node id " << sourceNodeId << std::endl;
-            timestampSource = nullptr;
-            sourceNodeId = 0;
-        }
-    }
-    else
-        timestampSource = nullptr;
-
     return true;
 }
 
@@ -102,40 +88,16 @@ bool MessageCenter::disable()
     return true;
 }
 
-void MessageCenter::setSourceNodeId(int id)
-{
-    sourceNodeId = id;
-}
 
-int MessageCenter::getSourceNodeId()
+void MessageCenter::process(AudioSampleBuffer& buffer)
 {
-    return sourceNodeId;
-}
-
-int64 MessageCenter::getTimestamp(bool softwareTime)
-{
-    if (!softwareTime && sourceNodeId > 0)
-        return timestampSource->getTimestamp(0);
-    else
-        return (softTimestamp);
-}
-
-void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
-{
-	softTimestamp = Time::getHighResolutionTicks() - lastTime;
-    setTimestamp(eventBuffer,getTimestamp());
     if (needsToSendTimestampMessage)
     {
-        String eventString = "Software time: " + String(getTimestamp(true)) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
-        CharPointer_UTF8 data = eventString.toUTF8();
+		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+		HeapBlock<char> data;
+		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
 
-        addEvent(eventBuffer,
-                 MESSAGE,
-                 0,
-                 0,
-                 0,
-                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
-                 (uint8*)data.getAddress());
+		eventBuffer.addEvent(data, dataSize, 0);
 
         needsToSendTimestampMessage = false;
     }
@@ -146,28 +108,13 @@ void MessageCenter::process(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 
         String eventString = messageCenterEditor->getLabelString();
 
-        CharPointer_UTF8 data = eventString.toUTF8();
+		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
-        addEvent(eventBuffer,
-                 MESSAGE,
-                 0,
-                 0,
-                 0,
-                 data.sizeInBytes(), //It doesn't hurt to send the end-string null and can help avoid issues
-                 (uint8*) data.getAddress());
+		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
+		addEvent(getEventChannel(0), event, 0);
 
         newEventAvailable = false;
     }
 
 
-}
-
-void MessageCenter::addSourceProcessor(GenericProcessor* p)
-{
-    messageCenterEditor->addSourceProcessor(p);
-}
-
-void MessageCenter::removeSourceProcessor(GenericProcessor* p)
-{
-    messageCenterEditor->removeSourceProcessor(p);
 }

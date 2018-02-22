@@ -43,8 +43,6 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     sendMessageButton->setTooltip("Send a message to be saved by the record node");
     addAndMakeVisible(sendMessageButton);
 
-    sourceMenu = new PopupMenu();
-
 }
 
 MessageCenterEditor::~MessageCenterEditor()
@@ -170,11 +168,6 @@ void MessageCenterEditor::resized()
         sendMessageButton->setBounds(getWidth()-50, 5, 45, getHeight()-10);
 }
 
-int64 MessageCenterEditor::getTimestamp(bool softwareTimestamp)
-{
-    return messageCenter->getTimestamp(softwareTimestamp);
-}
-
 void MessageCenterEditor::actionListenerCallback(const String& message)
 {
 
@@ -185,75 +178,10 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
 
 }
 
-void MessageCenterEditor::saveStateToXml(XmlElement* xml)
-{
-    XmlElement* messageEditorState = xml->createNewChildElement("MESSAGECENTER");
-    messageEditorState->setAttribute("sourceNodeId",messageCenter->getSourceNodeId());
-}
-
-void MessageCenterEditor::loadStateFromXml(XmlElement* xml)
-{
-    forEachXmlChildElement(*xml, xmlNode)
-    {
-        if (xmlNode->hasTagName("MESSAGECENTER"))
-        {
-            messageCenter->setSourceNodeId(xmlNode->getIntAttribute("sourceNodeId"));
-        }
-    }
-}
-
-void MessageCenterEditor::addSourceProcessor(GenericProcessor* p)
-{
-    sourcesList.add(p);
-}
-
-void MessageCenterEditor::removeSourceProcessor(GenericProcessor* p)
-{
-    sourcesList.removeAllInstancesOf(p);
-}
-
-void MessageCenterEditor::mouseDown(const MouseEvent& event)
-{
-    int res;
-    if (event.mods.isPopupMenu())
-    {
-        if (acquisitionIsActive)
-        {
-            CoreServices::sendStatusMessage("Cannot change timestamp source while acquisition is active");
-            return;
-        }
-        PopupMenu::dismissAllActiveMenus();
-        sourceMenu->clear();
-        sourceMenu->addItem(1,"Software timer",true,messageCenter->getSourceNodeId() == 0);
-        for (int i=0; i < sourcesList.size(); i++)
-        {
-            GenericProcessor* p = sourcesList[i];
-            sourceMenu->addItem(i+2,p->getName(),true,(p->nodeId == messageCenter->getSourceNodeId()));
-        }
-        res = sourceMenu->show(0,50,0,0);
-
-        if (res > 1)
-        {
-            GenericProcessor* p = sourcesList[res-2];
-            std::cout << "Selecting " << p->getName() << " with id " << p->nodeId << " as message source" << std::endl;
-            messageCenter->setSourceNodeId(p->nodeId);
-        }
-        else if (res == 1)
-        {
-            messageCenter->setSourceNodeId(0);
-        }
-    }
-}
 
 MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     : Label(componentName,labelText)
 {
 }
 
-void MessageLabel::mouseDown(const MouseEvent& event)
-{
-    if (event.mods.isPopupMenu())
-    {
-        getParentComponent()->mouseDown(event.getEventRelativeTo(getParentComponent()));
-    }
-}
+

@@ -1,8 +1,8 @@
 /*
 ----------------------------------------------------------------------------
 
-This file is part of the PulsePal Project
-Copyright (C) 2014 Joshua I. Sanders, Cold Spring Harbor Laboratory, NY, USA
+This file is part of the Pulse Pal Project
+Copyright (C) 2016 Joshua I. Sanders, Sanworks LLC, NY, USA
 
 ----------------------------------------------------------------------------
 
@@ -26,10 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string.h>
 
+//#include "ofSerial.h"
 #include <SerialLib.h>
 
 /**
-  Interface to PulsePal 
+  Interface to PulsePal
   @see PulsePalOutput
 
 */
@@ -42,7 +43,9 @@ public:
     PulsePal();
     ~PulsePal();
     void initialize();
+    void end();
     uint32_t getFirmwareVersion();
+    uint32_t getFirmwareVersionFromPulsePal();
     void disconnectClient();
 
     void setDefaultParameters();
@@ -70,7 +73,7 @@ public:
     void syncAllParams();
 
     // Upload a custom pulse train
-    void sendCustomPulseTrain(uint8_t ID, uint8_t nPulses, float customPulseTimes[], float customVoltages[]);
+    void sendCustomPulseTrain(uint8_t ID, uint16_t nPulses, float customPulseTimes[], float customVoltages[]);
 
     // Operations and settings
     void triggerChannel(uint8_t channel);
@@ -81,7 +84,7 @@ public:
     void setContinuousLoop(uint8_t channel, uint8_t state);
     void setTriggerMode(uint8_t channel, uint8_t mode);
     void setClientIDString(string idString);
-    
+
     // Fields
     struct OutputParams {
         int isBiphasic;
@@ -109,9 +112,12 @@ public:
 private:
     void constrain(uint32_t* value, uint32_t min, uint32_t max);
     void program(uint8_t channel, uint8_t paramCode, uint32_t paramValue);
+    void program(uint8_t channel, uint8_t paramCode, uint16_t paramValue);
     void program(uint8_t channel, uint8_t paramCode, uint8_t paramValue);
     uint8_t voltageToByte(float voltage);
+    uint16_t voltageToInt16(float voltage);
     ofSerial serial;
+    uint8_t firmwareVersion;
 
 };
 

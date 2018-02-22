@@ -52,9 +52,9 @@ void TiledButtonGroupManager::resized()
     if (! width)
         return;
 
-    const int numButtonsInTheRow = width / (m_buttonWidth + m_minPaddingForButtons);
+    const int numButtonsInTheRow = jmax (1, width / (m_buttonWidth + m_minPaddingForButtons));
     const int padding = jmax (m_minPaddingForButtons,
-                              (width - numButtonsInTheRow * m_buttonWidth) / (numButtonsInTheRow - 1));
+                              (width - numButtonsInTheRow * m_buttonWidth) / jmax (numButtonsInTheRow - 1, 1));
 
     juce::Rectangle<int> buttonBounds (0, 0, m_buttonWidth, m_buttonHeight);
     const int numButtons = m_buttons.size();
@@ -153,9 +153,9 @@ void TiledButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 }
 
 
-void TiledButtonGroupManager::addButton (Button* newButton)
+void TiledButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
 {
-    ButtonGroupManager::addButton (newButton);
+    ButtonGroupManager::addButton (newButton, useDefaultLookAndFeel);
 
     // Disable default clicking on button
     newButton->addMouseListener (this, false);

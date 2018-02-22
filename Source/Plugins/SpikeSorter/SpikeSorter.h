@@ -173,9 +173,11 @@ public:
 
     RunningStat* runningStats;
     SpikeHistogramPlot* spikePlot;
-    SpikeSortBoxes* spikeSort;
+    
     PCAcomputingThread* computingThread;
     UniqueIDgenerator* uniqueIDgenerator;
+
+	ScopedPointer<SpikeSortBoxes> spikeSort;
     bool isMonitored;
 };
 
@@ -361,7 +363,7 @@ public:
     void setElectrodeVoltageScale(int electrodeID, int index, float newvalue);
     std::vector<int> getElectrodeChannels(int ID);
 
-    Array<Electrode*> getElectrodes();
+    const OwnedArray<Electrode>& getElectrodes();
 
     std::vector<String> electrodeTypes;
     
@@ -430,6 +432,8 @@ private:
  //   RHD2000Thread* getRhythmAccess();
     bool flipSignal;
 
+	bool sorterReady{ false };
+
     Time timer;
 
     void addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
@@ -438,7 +442,7 @@ private:
                                   int& currentChannel);
 
 
-    Array<Electrode*> electrodes;
+    OwnedArray<Electrode> electrodes;
     PCAcomputingThread computingThread;
 
     bool editAll = false;

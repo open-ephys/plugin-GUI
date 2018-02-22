@@ -74,7 +74,8 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode, bool useD
     backgroundColours.add(Colours::magenta);
     backgroundColours.add(Colours::blue);
 
-    plusButton->setToggleState(true, sendNotification);
+    //plusButton->setToggleState(true, sendNotification);
+	addDetector();
 
     //interfaces.clear();
 
@@ -85,6 +86,19 @@ PhaseDetectorEditor::~PhaseDetectorEditor()
 
 }
 
+void PhaseDetectorEditor::startAcquisition()
+{
+	plusButton->setEnabled(false);
+	for (int i = 0; i < interfaces.size(); i++)
+		interfaces[i]->setEnableStatus(false);
+}
+
+void PhaseDetectorEditor::stopAcquisition()
+{
+	plusButton->setEnabled(true);
+	for (int i = 0; i < interfaces.size(); i++)
+		interfaces[i]->setEnableStatus(true);
+}
 void PhaseDetectorEditor::updateSettings()
 {
 
@@ -126,7 +140,7 @@ void PhaseDetectorEditor::buttonEvent(Button* button)
     {
 
         addDetector();
-
+		CoreServices::updateSignalChain(this);
     }
 
 }
@@ -247,7 +261,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     inputSelector = new ComboBox();
     inputSelector->setBounds(140,5,50,20);
     inputSelector->addItem("-",1);
-    inputSelector->setSelectedId(1);
+    inputSelector->setSelectedId(1, dontSendNotification);
     inputSelector->addListener(this);
     addAndMakeVisible(inputSelector);
 
@@ -301,7 +315,7 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
 
     processor->setActiveModule(idNum);
 
-    int parameterIndex;
+    int parameterIndex = 0;
 
     if (c == inputSelector)
     {
@@ -314,11 +328,15 @@ void DetectorInterface::comboBoxChanged(ComboBox* c)
     else if (c == gateSelector)
     {
         parameterIndex = 4;
+    } else {
+        
     }
 
-
     processor->setParameter(parameterIndex, (float) c->getSelectedId() - 2);
-
+	if (c == inputSelector)
+	{
+		CoreServices::updateSignalChain(processor->getEditor());
+	}
 }
 
 void DetectorInterface::buttonClicked(Button* b)
@@ -429,4 +447,10 @@ int DetectorInterface::getOutputChan()
 int DetectorInterface::getGateChan()
 {
     return gateSelector->getSelectedId()-2;
+}
+void DetectorInterface::setEnableStatus(bool status)
+{
+	inputSelector->setEnabled(status);
+	for (int i = 0; i < phaseButtons.size(); i++)
+		phaseButtons[i]->setEnabled(status);
 }

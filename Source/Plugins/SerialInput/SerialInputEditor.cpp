@@ -73,7 +73,6 @@ void SerialInputEditor::startAcquisition()
     deviceList->setEnabled(false);
     baudrateList->setEnabled(false);
     refreshButton->setEnabled(false);
-    GenericEditor::startAcquisition();
 }
 
 void SerialInputEditor::stopAcquisition()
@@ -82,7 +81,6 @@ void SerialInputEditor::stopAcquisition()
     deviceList->setEnabled(true);
     baudrateList->setEnabled(true);
     refreshButton->setEnabled(true);
-    GenericEditor::stopAcquisition();
 }
 
 

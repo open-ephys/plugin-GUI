@@ -25,9 +25,8 @@
 #define EVENTQUEUE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Events/Events.h"
 #include <vector>
-
-struct SpikeObject;
 
 template <class MsgContainer>
 class AsyncEventMessage :
@@ -131,11 +130,12 @@ private:
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventQueue);
 };
-
+//NOTE: Events are sent as midimessages while spikes as spike objects due to the difference on how they are passed to the record node.
+//Once the probe system is implemented, this will be normalized
 typedef EventQueue<MidiMessage> EventMsgQueue;
-typedef EventQueue<SpikeObject> SpikeMsgQueue;
+typedef EventQueue<SpikeEvent> SpikeMsgQueue;
 typedef ReferenceCountedObjectPtr<AsyncEventMessage<MidiMessage>> EventMessagePtr;
-typedef ReferenceCountedObjectPtr<AsyncEventMessage<SpikeObject>> SpikeMessagePtr;
+typedef ReferenceCountedObjectPtr<AsyncEventMessage<SpikeEvent>> SpikeMessagePtr;
 
 #endif  // EVENTQUEUE_H_INCLUDED
 

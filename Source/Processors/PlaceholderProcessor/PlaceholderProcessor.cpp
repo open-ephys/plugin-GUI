@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,45 +24,55 @@
 #include "PlaceholderProcessor.h"
 #include "PlaceholderProcessorEditor.h"
 
-PlaceholderProcessor::PlaceholderProcessor(String pName, String lName, int lVer, bool pSource, bool pSink) :
-					GenericProcessor(pName), processorName(pName), libName(lName), libVersion(lVer), 
-					processorSource(pSource), processorSink(pSink)
-{
 
+PlaceholderProcessor::PlaceholderProcessor (String pName, String lName, int lVer, bool pSource, bool pSink) 
+    : GenericProcessor      (pName)
+    , m_processorName       (pName)
+    , m_libName             (lName)
+    , m_libVersion          (lVer)
+    , m_isSourceProcessor   (pSource)
+    , m_isSinkProcessor     (pSink)
+{
 }
+
 
 PlaceholderProcessor::~PlaceholderProcessor()
 {
-
 }
+
 
 bool PlaceholderProcessor::hasEditor() const
 {
-	return true;
+    return true;
 }
+
 
 AudioProcessorEditor* PlaceholderProcessor::createEditor()
 {
-	editor = new PlaceholderProcessorEditor(this, processorName, libName, libVersion);
-	return editor;
+    editor = new PlaceholderProcessorEditor (this, m_processorName, m_libName, m_libVersion);
+    return editor;
 }
 
-void PlaceholderProcessor::process(AudioSampleBuffer& continuousBuffer,	MidiBuffer& eventBuffer)
-{
 
+void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer)
+{
 }
 
-bool PlaceholderProcessor::isSource()
+
+bool PlaceholderProcessor::isSource() const
 {
-	return processorSource;
+    return m_isSourceProcessor;
 }
-bool PlaceholderProcessor::isSink()
+
+
+bool PlaceholderProcessor::isSink() const
 {
-	return processorSink;
+    return m_isSinkProcessor;
 }
+
 
 bool PlaceholderProcessor::isReady()
 {
-	CoreServices::sendStatusMessage("Cannot acquire with placeholder nodes");
-	return false; //This processor never allows processing
+    CoreServices::sendStatusMessage ("Cannot acquire with placeholder nodes");
+    return false; //This processor never allows processing
 }

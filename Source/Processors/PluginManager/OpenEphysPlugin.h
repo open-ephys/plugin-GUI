@@ -24,18 +24,19 @@
 #ifndef OPENEPHYSPLUGIN_H_INCLUDED
 #define OPENEPHYSPLUGIN_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
+#include "PluginIDs.h"
 
 
 #ifdef WIN32
-#ifdef OEPLUGIN
-#define PLUGIN_API __declspec(dllimport)
+    #ifdef OEPLUGIN
+        #define PLUGIN_API __declspec(dllimport)
 #else
-#define PLUGIN_API __declspec(dllexport)
+    #define PLUGIN_API __declspec(dllexport)
 #endif
 #else
-#define PLUGIN_API __attribute__((visibility("default")))
+    #define PLUGIN_API __attribute__((visibility("default")))
 #endif
 
 struct ProcessorInfo;
@@ -47,7 +48,7 @@ class SourceNode;
 class RecordEngineManager;
 class FileSource;
 
-#define PLUGIN_API_VER 3
+#define PLUGIN_API_VER 5
 
 typedef GenericProcessor*(*ProcessorCreator)();
 typedef DataThread*(*DataThreadCreator)(SourceNode*);
@@ -56,11 +57,6 @@ typedef FileSource*(*FileSourceCreator)();
 
 namespace Plugin
 {
-	enum PluginType
-	{
-		ProcessorPlugin = 0, RecordEnginePlugin = 1, DatathreadPlugin = 2, FileSourcePlugin = 3, NotAPlugin = -1
-	};
-
 	enum ProcessorType
 	{
 		SourceProcessor = 0, FilterProcessor = 1, SinkProcessor = 2, UtilityProcessor = 3, InvalidProcessor = -1

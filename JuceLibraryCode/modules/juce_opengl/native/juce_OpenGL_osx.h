@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -28,34 +28,12 @@ public:
     NativeContext (Component& component,
                    const OpenGLPixelFormat& pixFormat,
                    void* contextToShare,
-                   bool /*useMultisampling*/,
+                   bool shouldUseMultisampling,
                    OpenGLVersion version)
         : lastSwapTime (0), minSwapTimeMs (0), underrunCounter (0)
     {
-        (void) version;
-
-        NSOpenGLPixelFormatAttribute attribs[] =
-        {
-           #if JUCE_OPENGL3
-            NSOpenGLPFAOpenGLProfile, version >= openGL3_2 ? NSOpenGLProfileVersion3_2Core : NSOpenGLProfileVersionLegacy,
-           #endif
-            NSOpenGLPFADoubleBuffer,
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-            NSOpenGLPFAMPSafe,
-#pragma GCC diagnostic pop
-            NSOpenGLPFAClosestPolicy,
-            NSOpenGLPFANoRecovery,
-            NSOpenGLPFAColorSize,   (NSOpenGLPixelFormatAttribute) (pixFormat.redBits + pixFormat.greenBits + pixFormat.blueBits),
-            NSOpenGLPFAAlphaSize,   (NSOpenGLPixelFormatAttribute) pixFormat.alphaBits,
-            NSOpenGLPFADepthSize,   (NSOpenGLPixelFormatAttribute) pixFormat.depthBufferBits,
-            NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute) pixFormat.stencilBufferBits,
-            NSOpenGLPFAAccumSize,   (NSOpenGLPixelFormatAttribute) (pixFormat.accumulationBufferRedBits + pixFormat.accumulationBufferGreenBits
-                                        + pixFormat.accumulationBufferBlueBits + pixFormat.accumulationBufferAlphaBits),
-            pixFormat.multisamplingLevel > 0 ? NSOpenGLPFASamples : (NSOpenGLPixelFormatAttribute) 0,
-            (NSOpenGLPixelFormatAttribute) pixFormat.multisamplingLevel,
-            0
-        };
+        NSOpenGLPixelFormatAttribute attribs[64] = { 0 };
+        createAttribs (attribs, version, pixFormat, shouldUseMultisampling);
 
         NSOpenGLPixelFormat* format = [[NSOpenGLPixelFormat alloc] initWithAttributes: attribs];
 
@@ -91,11 +69,48 @@ public:
         renderContext = nil;
     }
 
+    static void createAttribs (NSOpenGLPixelFormatAttribute* attribs, OpenGLVersion version,
+                               const OpenGLPixelFormat& pixFormat, bool shouldUseMultisampling)
+    {
+        ignoreUnused (version);
+        int numAttribs = 0;
+
+       #if JUCE_OPENGL3
+        attribs [numAttribs++] = NSOpenGLPFAOpenGLProfile;
+        attribs [numAttribs++] = version >= openGL3_2 ? NSOpenGLProfileVersion3_2Core
+                                                      : NSOpenGLProfileVersionLegacy;
+       #endif
+
+        attribs [numAttribs++] = NSOpenGLPFADoubleBuffer;
+        attribs [numAttribs++] = NSOpenGLPFAClosestPolicy;
+        attribs [numAttribs++] = NSOpenGLPFANoRecovery;
+        attribs [numAttribs++] = NSOpenGLPFAColorSize;
+        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.redBits + pixFormat.greenBits + pixFormat.blueBits);
+        attribs [numAttribs++] = NSOpenGLPFAAlphaSize;
+        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.alphaBits;
+        attribs [numAttribs++] = NSOpenGLPFADepthSize;
+        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.depthBufferBits;
+        attribs [numAttribs++] = NSOpenGLPFAStencilSize;
+        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.stencilBufferBits;
+        attribs [numAttribs++] = NSOpenGLPFAAccumSize;
+        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.accumulationBufferRedBits + pixFormat.accumulationBufferGreenBits
+                                                                   + pixFormat.accumulationBufferBlueBits + pixFormat.accumulationBufferAlphaBits);
+
+        if (shouldUseMultisampling)
+        {
+            attribs [numAttribs++] = NSOpenGLPFAMultisample;
+            attribs [numAttribs++] = NSOpenGLPFASampleBuffers;
+            attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) 1;
+            attribs [numAttribs++] = NSOpenGLPFASamples;
+            attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.multisamplingLevel;
+        }
+    }
+
     void initialiseOnRenderThread (OpenGLContext&) {}
     void shutdownOnRenderThread()               { deactivateCurrentContext(); }
 
     bool createdOk() const noexcept             { return getRawContext() != nullptr; }
-    void* getRawContext() const noexcept        { return static_cast <void*> (renderContext); }
+    void* getRawContext() const noexcept        { return static_cast<void*> (renderContext); }
     GLuint getFrameBufferID() const noexcept    { return 0; }
 
     bool makeActive() const noexcept
@@ -142,9 +157,37 @@ public:
 
     void swapBuffers()
     {
+        double now = Time::getMillisecondCounterHiRes();
         [renderContext flushBuffer];
 
-        sleepIfRenderingTooFast();
+        if (minSwapTimeMs > 0)
+        {
+            // When our window is entirely occluded by other windows, flushBuffer
+            // fails to wait for the swap interval, so the render loop spins at full
+            // speed, burning CPU. This hack detects when things are going too fast
+            // and sleeps if necessary.
+
+            const double swapTime = Time::getMillisecondCounterHiRes() - now;
+            const int frameTime = (int) (now - lastSwapTime);
+
+            if (swapTime < 0.5 && frameTime < minSwapTimeMs - 3)
+            {
+                if (underrunCounter > 3)
+                {
+                    Thread::sleep (2 * (minSwapTimeMs - frameTime));
+                    now = Time::getMillisecondCounterHiRes();
+                }
+                else
+                    ++underrunCounter;
+            }
+            else
+            {
+                if (underrunCounter > 0)
+                    --underrunCounter;
+            }
+        }
+
+        lastSwapTime = now;
     }
 
     void updateWindowPosition (const Rectangle<int>&) {}
@@ -167,33 +210,6 @@ public:
         return numFrames;
     }
 
-    void sleepIfRenderingTooFast()
-    {
-        // When our window is entirely occluded by other windows, the system
-        // fails to correctly implement the swap interval time, so the render
-        // loop spins at full speed, burning CPU. This hack detects when things
-        // are going too fast and slows things down if necessary.
-
-        if (minSwapTimeMs > 0)
-        {
-            const double now = Time::getMillisecondCounterHiRes();
-            const int elapsed = (int) (now - lastSwapTime);
-            lastSwapTime = now;
-
-            if (isPositiveAndBelow (elapsed, minSwapTimeMs - 3))
-            {
-                if (underrunCounter > 3)
-                    Thread::sleep (minSwapTimeMs - elapsed);
-                else
-                    ++underrunCounter;
-            }
-            else
-            {
-                underrunCounter = 0;
-            }
-        }
-    }
-
     NSOpenGLContext* renderContext;
     NSOpenGLView* view;
     ReferenceCountedObjectPtr<ReferenceCountedObject> viewAttachment;
@@ -201,9 +217,9 @@ public:
     int minSwapTimeMs, underrunCounter;
 
     //==============================================================================
-    struct MouseForwardingNSOpenGLViewClass  : public ObjCClass <NSOpenGLView>
+    struct MouseForwardingNSOpenGLViewClass  : public ObjCClass<NSOpenGLView>
     {
-        MouseForwardingNSOpenGLViewClass()  : ObjCClass <NSOpenGLView> ("JUCEGLView_")
+        MouseForwardingNSOpenGLViewClass()  : ObjCClass<NSOpenGLView> ("JUCEGLView_")
         {
             addMethod (@selector (rightMouseDown:),      rightMouseDown,     "v@:@");
             addMethod (@selector (rightMouseUp:),        rightMouseUp,       "v@:@");

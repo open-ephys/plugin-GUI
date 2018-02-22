@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -136,7 +136,8 @@ public:
         sortByCategory,
         sortByManufacturer,
         sortByFormat,
-        sortByFileSystemLocation
+        sortByFileSystemLocation,
+        sortByInfoUpdateTime
     };
 
     //==============================================================================
@@ -147,7 +148,8 @@ public:
 
         Use getIndexChosenByMenu() to find out the type that was chosen.
     */
-    void addToMenu (PopupMenu& menu, SortMethod sortMethod) const;
+    void addToMenu (PopupMenu& menu, SortMethod sortMethod,
+                    const String& currentlyTickedPluginID = String()) const;
 
     /** Converts a menu item index that has been chosen into its index in this list.
         Returns -1 if it's not an ID that was used.

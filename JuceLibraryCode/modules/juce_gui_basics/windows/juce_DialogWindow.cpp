@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -33,13 +33,21 @@ DialogWindow::~DialogWindow()
 {
 }
 
-bool DialogWindow::keyPressed (const KeyPress& key)
+bool DialogWindow::escapeKeyPressed()
 {
-    if (escapeKeyTriggersCloseButton && key == KeyPress::escapeKey)
+    if (escapeKeyTriggersCloseButton)
     {
         setVisible (false);
         return true;
     }
+
+    return false;
+}
+
+bool DialogWindow::keyPressed (const KeyPress& key)
+{
+    if (key == KeyPress::escapeKey && escapeKeyPressed())
+        return true;
 
     return DocumentWindow::keyPressed (key);
 }

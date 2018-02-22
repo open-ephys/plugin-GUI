@@ -149,7 +149,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     channelSelector->paramButtonsToggledByDefault(false);
     //	updateAdvancerList();
 
-    dacAssignmentLabel= new Label("DAC output","DAC output");
+ /*   dacAssignmentLabel= new Label("DAC output","DAC output");
     dacAssignmentLabel->setFont(Font("Default", 10, Font::plain));
     dacAssignmentLabel->setEditable(false);
     dacAssignmentLabel->setBounds(210,115,80,20);
@@ -165,7 +165,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
         dacCombo->addItem("DAC"+String(k+1),k+2);
     }
     dacCombo->setSelectedId(1);
-    addAndMakeVisible(dacCombo);
+    addAndMakeVisible(dacCombo);*/
 
 }
 
@@ -223,13 +223,13 @@ void SpikeSorterEditor::sliderEvent(Slider* slider)
         }
 
 
-        //Array<int> dacChannels = processor->getDACassignments;
+     /*   //Array<int> dacChannels = processor->getDACassignments;
         int dacChannel = dacCombo->getSelectedId()-2;
         if (dacChannel >= 0)
         {
             // update dac threshold.
             processor->updateDACthreshold(dacChannel, slider->getValue());
-        }
+        }*/
 
     }
     repaint();
@@ -271,7 +271,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
                                                                      electrodeButtons.indexOf((ElectrodeButton*) button)));
 
 
-            if (processor->getAutoDacAssignmentStatus())
+        /*    if (processor->getAutoDacAssignmentStatus())
             {
                 processor->assignDACtoChannel(0, channelNum);
                 processor->assignDACtoChannel(1, channelNum);
@@ -286,7 +286,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
                     dacCombo->setSelectedId(i+2, sendNotification);
                     break;
                 }
-            }
+            }*/
 
         }
     }
@@ -475,9 +475,15 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
-        Array<Electrode*> electrodes = processor->getElectrodes();
+        const OwnedArray<Electrode>& electrodes = processor->getElectrodes();
+		int nElectrodes = electrodes.size();
+		if (nElectrodes <= 0)
+		{
+			audioMonitorButton->setToggleState(false, dontSendNotification);
+			return;
+		}
 
-        for (int i = 0; i < electrodes.size(); i++)
+        for (int i = 0; i < nElectrodes; i++)
         {
             Electrode* e = electrodes[i];
             e->isMonitored = false;
@@ -529,7 +535,7 @@ void SpikeSorterEditor::channelChanged (int channel, bool newState)
                                   i,
                                   channel - 1);
 
-            // if DAC is selected, update the mapping.
+         /*   // if DAC is selected, update the mapping.
             int dacchannel = dacCombo->getSelectedId() - 2;
             if (dacchannel >=0)
             {
@@ -540,7 +546,7 @@ void SpikeSorterEditor::channelChanged (int channel, bool newState)
                 processor->assignDACtoChannel (0, channel - 1);
                 processor->assignDACtoChannel (1, channel - 1);
                 break;
-            }
+            }*/
         }
     }
 }
@@ -599,7 +605,7 @@ void SpikeSorterEditor::refreshElectrodeList(int selected)
             processor->assignDACtoChannel(0, e->channels[0]);
             processor->assignDACtoChannel(1, e->channels[0]);
         }
-        Array<int> dacAssignmentToChannels = processor->getDACassignments();
+     /*   Array<int> dacAssignmentToChannels = processor->getDACassignments();
         // search for channel[0]. If found, set the combo box accordingly...
         dacCombo->setSelectedId(1, sendNotification);
         for (int i=0; i<dacAssignmentToChannels.size(); i++)
@@ -610,7 +616,7 @@ void SpikeSorterEditor::refreshElectrodeList(int selected)
                 processor->updateDACthreshold(i+2, e->thresholds[0]);
                 break;
             }
-        }
+        }*/
 
 
 
@@ -676,7 +682,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
 {
     SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
-    if (comboBox == dacCombo)
+   /* if (comboBox == dacCombo)
     {
         int selection = dacCombo->getSelectedId();
         // modify the dac channel assignment...
@@ -700,7 +706,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
         }
 
     }
-    else if (comboBox == electrodeList)
+    else*/ if (comboBox == electrodeList)
     {
         int ID = comboBox->getSelectedId();
 
@@ -738,7 +744,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
                 processor->assignDACtoChannel(0, e->channels[0]);
                 processor->assignDACtoChannel(1, e->channels[0]);
             }
-            Array<int> dacAssignmentToChannels = processor->getDACassignments();
+         /*   Array<int> dacAssignmentToChannels = processor->getDACassignments();
             // search for channel[0]. If found, set the combo box accordingly...
             dacCombo->setSelectedId(1, sendNotification);
             for (int i=0; i<dacAssignmentToChannels.size(); i++)
@@ -748,7 +754,7 @@ void SpikeSorterEditor::comboBoxChanged(ComboBox* comboBox)
                     dacCombo->setSelectedId(i+2, sendNotification);
                     break;
                 }
-            }
+            }*/
 
         }
 

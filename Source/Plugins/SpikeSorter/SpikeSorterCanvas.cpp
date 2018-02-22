@@ -1087,13 +1087,13 @@ void WaveformAxes::setRange(float r)
 
 void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
-
+	if (s.get() == nullptr) return;
     float h = getHeight();
-    // find me
+
 	g.setColour(Colour(s->color[0], s->color[1], s->color[2]));
     //g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
-    float dx = getWidth()/float(spikeBuffer[0]->getChannel()->getTotalSamples());
+    float dx = getWidth()/float(s->getChannel()->getTotalSamples());
 
     /*
     float align = 8 * getWidth()/float(spikeBuffer[0].nSamples);
@@ -1111,15 +1111,16 @@ void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
     //int dSamples = 1;
 
     float x = 0.0f;
-    
+
+
 	for (int i = 0; i < spikeSamples - 1; i++)
 	{
 		//std::cout << s.data[sampIdx] << std::endl;
-        
+
 
 		float s1 = h - (h / 2 + s->getData()[offset + i] / (range)* h);
 		float s2 = h - (h / 2 + s->getData()[offset + i + 1] / (range)* h);
-        
+
 		if (signalFlipped)
 		{
 			s1 = h - s1;

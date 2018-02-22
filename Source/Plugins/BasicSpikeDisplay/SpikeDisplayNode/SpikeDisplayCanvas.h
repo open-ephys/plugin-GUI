@@ -27,7 +27,6 @@
 #include <VisualizerWindowHeaders.h>
 
 #include "SpikeDisplayNode.h"
-#include <SpikeLib.h>
 
 #include <vector>
 
@@ -113,7 +112,7 @@ private:
     ScopedPointer<UtilityButton> clearButton;
 
     bool newSpike;
-    SpikeObject spike;
+  //  SpikeObject spike;
 
     int scrollBarThickness;
 
@@ -142,7 +141,7 @@ public:
 
     void mouseDown(const MouseEvent& event);
 
-    void plotSpike(const SpikeObject& spike, int electrodeNum);
+    void plotSpike(const SpikeEvent* spike, int electrodeNum);
 
     void invertSpikes(bool);
 
@@ -205,7 +204,7 @@ public:
     void select();
     void deselect();
 
-    void processSpikeObject(const SpikeObject& s);
+    void processSpikeObject(const SpikeEvent* s);
 
     SpikeDisplayCanvas* canvas;
 
@@ -281,7 +280,7 @@ public:
 
     virtual ~GenericAxes();
 
-    virtual bool updateSpikeData(const SpikeObject& s);
+    virtual bool updateSpikeData(const SpikeEvent* s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -300,7 +299,7 @@ protected:
     double xlims[2];
     double ylims[2];
 
-    SpikeObject s;
+   // SpikeObject s;
 
     bool gotFirstSpike;
 
@@ -325,12 +324,12 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
-    bool updateSpikeData(const SpikeObject& s);
-    bool checkThreshold(const SpikeObject& spike);
+    bool updateSpikeData(const SpikeEvent* s);
+    bool checkThreshold(const SpikeEvent* spike);
 
     void paint(Graphics& g);
 
-    void plotSpike(const SpikeObject& s, Graphics& g);
+    void plotSpike(const SpikeEvent* s, Graphics& g);
 
     void clear();
 
@@ -379,7 +378,7 @@ private:
 
     Font font;
 
-    Array<SpikeObject> spikeBuffer;
+   OwnedArray<SpikeEvent> spikeBuffer;
 
     int spikeIndex;
     int bufferSize;
@@ -412,7 +411,7 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
-    bool updateSpikeData(const SpikeObject& s);
+    bool updateSpikeData(const SpikeEvent* s);
 
     void paint(Graphics& g);
 
@@ -424,9 +423,9 @@ public:
 
 private:
 
-    void updateProjectionImage(uint16_t, uint16_t, uint16_t, Colour);
+    void updateProjectionImage(float, float, float, Colour);
 
-    void calcWaveformPeakIdx(const SpikeObject&, int, int, int*, int*);
+    void calcWaveformPeakIdx(const SpikeEvent*, int, int, int*, int*);
 
     int ampDim1, ampDim2;
 

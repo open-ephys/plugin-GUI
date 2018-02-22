@@ -1,0 +1,221 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0363EFA31CF9D7220077C530 /* SpikeRasterEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EF9E1CF9D7220077C530 /* SpikeRasterEditor.cpp */; };
+		0363EFA41CF9D7220077C530 /* SpikeRaster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EFA01CF9D7220077C530 /* SpikeRaster.cpp */; };
+		0363EFA51CF9D7220077C530 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0363EFA21CF9D7220077C530 /* OpenEphysLib.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0363EF951CF9D6F90077C530 /* SpikeRaster.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpikeRaster.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		0363EF981CF9D6F90077C530 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0363EF9E1CF9D7220077C530 /* SpikeRasterEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeRasterEditor.cpp; path = ../../../../Source/Plugins/SpikeRaster/SpikeRasterEditor.cpp; sourceTree = "<group>"; };
+		0363EF9F1CF9D7220077C530 /* SpikeRasterEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpikeRasterEditor.h; path = ../../../../Source/Plugins/SpikeRaster/SpikeRasterEditor.h; sourceTree = "<group>"; };
+		0363EFA01CF9D7220077C530 /* SpikeRaster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpikeRaster.cpp; path = ../../../../Source/Plugins/SpikeRaster/SpikeRaster.cpp; sourceTree = "<group>"; };
+		0363EFA11CF9D7220077C530 /* SpikeRaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpikeRaster.h; path = ../../../../Source/Plugins/SpikeRaster/SpikeRaster.h; sourceTree = "<group>"; };
+		0363EFA21CF9D7220077C530 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../Source/Plugins/SpikeRaster/OpenEphysLib.cpp; sourceTree = "<group>"; };
+		0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0363EF921CF9D6F90077C530 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0363EF8C1CF9D6F90077C530 = {
+			isa = PBXGroup;
+			children = (
+				0363EFA91CF9D7ED0077C530 /* Config */,
+				0363EF971CF9D6F90077C530 /* SpikeRaster */,
+				0363EF961CF9D6F90077C530 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0363EF961CF9D6F90077C530 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0363EF951CF9D6F90077C530 /* SpikeRaster.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0363EF971CF9D6F90077C530 /* SpikeRaster */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFAB1CF9D8110077C530 /* Source */,
+				0363EF981CF9D6F90077C530 /* Info.plist */,
+			);
+			path = SpikeRaster;
+			sourceTree = "<group>";
+		};
+		0363EFA91CF9D7ED0077C530 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */,
+				0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+		0363EFAB1CF9D8110077C530 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				0363EF9E1CF9D7220077C530 /* SpikeRasterEditor.cpp */,
+				0363EF9F1CF9D7220077C530 /* SpikeRasterEditor.h */,
+				0363EFA01CF9D7220077C530 /* SpikeRaster.cpp */,
+				0363EFA11CF9D7220077C530 /* SpikeRaster.h */,
+				0363EFA21CF9D7220077C530 /* OpenEphysLib.cpp */,
+			);
+			name = Source;
+			path = ..;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0363EF941CF9D6F90077C530 /* SpikeRaster */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0363EF9B1CF9D6F90077C530 /* Build configuration list for PBXNativeTarget "SpikeRaster" */;
+			buildPhases = (
+				0363EF911CF9D6F90077C530 /* Sources */,
+				0363EF921CF9D6F90077C530 /* Frameworks */,
+				0363EF931CF9D6F90077C530 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpikeRaster;
+			productName = SpikeRaster;
+			productReference = 0363EF951CF9D6F90077C530 /* SpikeRaster.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0363EF8D1CF9D6F90077C530 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					0363EF941CF9D6F90077C530 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 0363EF901CF9D6F90077C530 /* Build configuration list for PBXProject "SpikeRaster" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0363EF8C1CF9D6F90077C530;
+			productRefGroup = 0363EF961CF9D6F90077C530 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0363EF941CF9D6F90077C530 /* SpikeRaster */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0363EF931CF9D6F90077C530 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0363EF911CF9D6F90077C530 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0363EFA51CF9D7220077C530 /* OpenEphysLib.cpp in Sources */,
+				0363EFA31CF9D7220077C530 /* SpikeRasterEditor.cpp in Sources */,
+				0363EFA41CF9D7220077C530 /* SpikeRaster.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0363EF991CF9D6F90077C530 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		0363EF9A1CF9D6F90077C530 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		0363EF9C1CF9D6F90077C530 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFA71CF9D7D50077C530 /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SpikeRaster/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.SpikeRaster";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0363EF9D1CF9D6F90077C530 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0363EFA81CF9D7D50077C530 /* Plugin_Release.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SpikeRaster/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.SpikeRaster";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0363EF901CF9D6F90077C530 /* Build configuration list for PBXProject "SpikeRaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0363EF991CF9D6F90077C530 /* Debug */,
+				0363EF9A1CF9D6F90077C530 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0363EF9B1CF9D6F90077C530 /* Build configuration list for PBXNativeTarget "SpikeRaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0363EF9C1CF9D6F90077C530 /* Debug */,
+				0363EF9D1CF9D6F90077C530 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0363EF8D1CF9D6F90077C530 /* Project object */;
+}

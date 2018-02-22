@@ -28,9 +28,9 @@
 #include "Processors/PluginManager/OpenEphysPlugin.h"
 
 class GenericEditor;
-struct SpikeObject;
 class GenericProcessor;
-struct SpikeRecordInfo;
+class SpikeChannel;
+class SpikeEvent;
 
 namespace CoreServices
 {
@@ -61,10 +61,18 @@ PLUGIN_API void highlightEditor(GenericEditor* ed);
 /** Gets the timestamp selected on the MessageCenter interface
 Defaults to the first hardware timestamp source or the software one if
 no hardware timestamping is present*/
-PLUGIN_API int64 getGlobalTimestamp();
+PLUGIN_API juce::int64 getGlobalTimestamp();
+
+/** Gets the sample rate selected on the MessageCenter interface
+Defaults to the dample rate of the first hardware source or 
+the software high resolution timer if no hardware source is present*/
+PLUGIN_API float getGlobalSampleRate();
 
 /** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
-PLUGIN_API int64 getSoftwareTimestamp();
+PLUGIN_API juce::int64 getSoftwareTimestamp();
+
+/** Gets the ticker frequency of the software timestamp clock*/
+PLUGIN_API float getSoftwareSampleRate();
 
 /** Set new recording directory */
 PLUGIN_API void setRecordingDirectory(String dir);
@@ -98,15 +106,18 @@ PLUGIN_API int getExperimentNumber();
 
 /* Spike related methods. See record engine documentation */
 
-PLUGIN_API void writeSpike(SpikeObject& spike, int electrodeIndex);
+PLUGIN_API void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan);
 PLUGIN_API void registerSpikeSource(GenericProcessor* processor);
-PLUGIN_API int addSpikeElectrode(SpikeRecordInfo* elec);
+PLUGIN_API int addSpikeElectrode(const SpikeChannel* elec);
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);
     
 /** Gets the default directory for user-initiated file saving/loading */
 PLUGIN_API File getDefaultUserSaveDirectory();
+
+/** Gets the GUI version */
+PLUGIN_API String getGUIVersion();
 
 };
 

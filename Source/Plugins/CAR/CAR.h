@@ -32,17 +32,13 @@
 #include <ProcessorHeaders.h>
 
 /**
-
     This is a simple filter that subtracts the average of all other channels from 
     each channel. The gain parameter allows you to subtract a percentage of the total avg.
 
     See Ludwig et al. 2009 Using a common average reference to improve cortical
     neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
     discussion
-
-
 */
-
 class CAR : public GenericProcessor
 {
 public:
@@ -51,12 +47,6 @@ public:
 
     /** The class destructor, used to deallocate memory */
     ~CAR();
-
-    /** Determines whether the processor is treated as a source. */
-    bool isSource() override { return false; }
-
-    /** Determines whether the processor is treated as a sink. */
-    bool isSink()   override { return false; }
 
     /** Defines the functionality of the processor.
 
@@ -69,8 +59,8 @@ public:
         and spikes) is contained in the "events" variable, and "nSamples" holds the
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
-         */
-    void process (AudioSampleBuffer& buffer, MidiBuffer& events) override;
+    */
+    void process (AudioSampleBuffer& buffer) override;
 
     /** Returns the current gain level that is set in the processor */
     float getGainLevel();

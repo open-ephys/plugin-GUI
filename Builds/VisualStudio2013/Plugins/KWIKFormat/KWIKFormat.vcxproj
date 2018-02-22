@@ -21,13 +21,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\OpenEphysLib.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\KWIKFormat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\FileSource\KwikFileSource.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5FileFormat.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\HDF5Recording.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\KWIKFormat\RecordEngine\KWIKFormat.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{554C8744-32CD-427C-A9E5-BF9A44440CED}</ProjectGuid>
@@ -86,26 +86,24 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x86;$(GUIDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;OpenEphysHDF5Lib.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x86;$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;JuceLibraryCode/;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x64;$(GUIDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;OpenEphysHDF5Lib.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x64;$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,15 +112,14 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x86;$(GUIDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;OpenEphysHDF5Lib.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x86;$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,15 +128,14 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../Resources/windows-libs/HDF5/include;..\..\..\..\JuceLibraryCode;..\..\..\..\JuceLibraryCode\modules;..\..\..\..\Source\Plugins\Headers;..\..\..\..\Source\Plugins\CommonLibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x64;$(GUIDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;OpenEphysHDF5Lib.lib;open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../../Resources/windows-libs/HDF5/lib/x64;$(GUIDir);$(OutDir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -179,6 +179,11 @@ String URL::toString (const bool includeGetParameters) const
     return url;
 }
 
+bool URL::isEmpty() const noexcept
+{
+    return url.isEmpty();
+}
+
 bool URL::isWellFormed() const
 {
     //xxx TODO
@@ -244,7 +249,7 @@ void URL::createHeadersAndPostData (String& headers, MemoryBlock& headersAndPost
     if (filesToUpload.size() > 0)
     {
         // (this doesn't currently support mixing custom post-data with uploads..)
-        jassert (postData.isEmpty());
+        jassert (postData.getSize() == 0);
 
         const String boundary (String::toHexString (Random::getSystemRandom().nextInt64()));
 
@@ -329,7 +334,9 @@ InputStream* URL::createInputStream (const bool usePostCommand,
                                      String headers,
                                      const int timeOutMs,
                                      StringPairArray* const responseHeaders,
-                                     int* statusCode) const
+                                     int* statusCode,
+                                     const int numRedirectsToFollow,
+                                     String httpRequestCmd) const
 {
     MemoryBlock headersAndPostData;
 
@@ -342,10 +349,14 @@ InputStream* URL::createInputStream (const bool usePostCommand,
     if (! headers.endsWithChar ('\n'))
         headers << "\r\n";
 
+    if (httpRequestCmd.isEmpty())
+        httpRequestCmd = usePostCommand ? "POST" : "GET";
+
     ScopedPointer<WebInputStream> wi (new WebInputStream (toString (! usePostCommand),
                                                           usePostCommand, headersAndPostData,
                                                           progressCallback, progressCallbackContext,
-                                                          headers, timeOutMs, responseHeaders));
+                                                          headers, timeOutMs, responseHeaders,
+                                                          numRedirectsToFollow, httpRequestCmd));
 
     if (statusCode != nullptr)
         *statusCode = wi->statusCode;
@@ -392,7 +403,23 @@ URL URL::withParameter (const String& parameterName,
     return u;
 }
 
+URL URL::withParameters (const StringPairArray& parametersToAdd) const
+{
+    URL u (*this);
+
+    for (int i = 0; i < parametersToAdd.size(); ++i)
+        u.addParameter (parametersToAdd.getAllKeys()[i],
+                        parametersToAdd.getAllValues()[i]);
+
+    return u;
+}
+
 URL URL::withPOSTData (const String& newPostData) const
+{
+    return withPOSTData (MemoryBlock (newPostData.toRawUTF8(), newPostData.getNumBytesAsUTF8()));
+}
+
+URL URL::withPOSTData (const MemoryBlock& newPostData) const
 {
     URL u (*this);
     u.postData = newPostData;
@@ -477,8 +504,8 @@ String URL::addEscapeChars (const String& s, const bool isParameter)
                  || legalChars.indexOf ((juce_wchar) c) >= 0))
         {
             utf8.set (i, '%');
-            utf8.insert (++i, "0123456789abcdef" [((uint8) c) >> 4]);
-            utf8.insert (++i, "0123456789abcdef" [c & 15]);
+            utf8.insert (++i, "0123456789ABCDEF" [((uint8) c) >> 4]);
+            utf8.insert (++i, "0123456789ABCDEF" [c & 15]);
         }
     }
 

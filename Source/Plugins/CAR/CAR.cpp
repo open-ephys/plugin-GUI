@@ -30,6 +30,8 @@
 CAR::CAR()
     : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
 {
+    setProcessorType (PROCESSOR_TYPE_FILTER);
+
     m_avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
 }
 
@@ -59,7 +61,7 @@ void CAR::setGainLevel (float newGain)
 }
 
 
-void CAR::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void CAR::process (AudioSampleBuffer& buffer)
 {
     const int numSamples            = buffer.getNumSamples();
     const int numReferenceChannels  = m_referenceChannels.size();

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -30,6 +30,7 @@
 
 FileReader::FileReader()
     : GenericProcessor ("File Reader")
+    , Thread ("filereader_Async_Reader")
     , timestamp             (0)
     , currentSampleRate     (0)
     , currentNumChannels    (0)
@@ -38,8 +39,12 @@ FileReader::FileReader()
     , startSample           (0)
     , stopSample            (0)
     , counter               (0)
+    , bufferCacheWindow     (0)
+    , m_shouldFillBackBuffer(false)
 {
-    enabledState (false);
+    setProcessorType (PROCESSOR_TYPE_SOURCE);
+
+    setEnabledState (false);
 
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
     for (int i = 0; i < numFileSources; ++i)
@@ -60,6 +65,8 @@ FileReader::FileReader()
 
 FileReader::~FileReader()
 {
+    signalThreadShouldExit();
+    notify();
 }
 
 
@@ -70,8 +77,14 @@ AudioProcessorEditor* FileReader::createEditor()
     return editor;
 }
 
+void FileReader::createEventChannels()
+{
+    //editor = new FileReaderEditor (this, true);
 
-bool FileReader::isReady() /* const */
+    //return editor;
+}
+
+bool FileReader::isReady()
 {
     if (! input)
     {
@@ -85,7 +98,7 @@ bool FileReader::isReady() /* const */
 }
 
 
-float FileReader::getDefaultSampleRate() /* const */
+float FileReader::getDefaultSampleRate() const
 {
     if (input)
         return currentSampleRate;
@@ -94,8 +107,10 @@ float FileReader::getDefaultSampleRate() /* const */
 }
 
 
-int FileReader::getNumHeadstageOutputs() /* const */
+int FileReader::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const
 {
+    if (subproc != 0) return 0;
+    if (type != DataChannel::HEADSTAGE_CHANNEL) return 0;
     if (input)
         return currentNumChannels;
     else
@@ -103,22 +118,16 @@ int FileReader::getNumHeadstageOutputs() /* const */
 }
 
 
-int FileReader::getNumEventChannels() /* const */
-{
-    return 8;
-}
-
-
-float FileReader::getBitVolts (Channel* chan) /* const */
+float FileReader::getBitVolts (const DataChannel* chan) const
 {
     if (input)
-        return chan->bitVolts;
+        return chan->getBitVolts();
     else
         return 0.05f;
 }
 
 
-void FileReader::enabledState (bool t)
+void FileReader::setEnabledState (bool t)
 {
     isEnabled = t;
 }
@@ -181,13 +190,19 @@ bool FileReader::setFile (String fullpath)
 
     static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
     setActiveRecording (0);
+    
+    m_samplesPerBuffer.set(float(BUFFER_SIZE) * (getDefaultSampleRate() / 44100.0f));
+    
+    readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
+    
+    startThread(); // start async file reader thread
 
     return true;
 }
 
 
 void FileReader::setActiveRecording (int index)
-{
+{    
     input->setActiveRecord (index);
 
     currentNumChannels  = input->getActiveNumChannels();
@@ -197,6 +212,7 @@ void FileReader::setActiveRecording (int index)
     currentSample   = 0;
     startSample     = 0;
     stopSample      = currentNumSamples;
+    bufferCacheWindow = 0;
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
@@ -205,7 +221,13 @@ void FileReader::setActiveRecording (int index)
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumSamples));
 
-    readBuffer.malloc (currentNumChannels * BUFFER_SIZE);
+    bufferA.malloc (currentNumChannels * BUFFER_SIZE * BUFFER_WINDOW_CACHE_SIZE);
+    bufferB.malloc (currentNumChannels * BUFFER_SIZE * BUFFER_WINDOW_CACHE_SIZE);
+    
+    // set the backbuffer so that on the next call to process() we start with bufferA and buffer
+    // cache window id = 0
+    readBuffer = &bufferB;
+    bufferCacheWindow = 0;
 }
 
 
@@ -220,84 +242,42 @@ String FileReader::getFile() const
 
 void FileReader::updateSettings()
 {
-    // if (!input) return;
+     if (!input) return;
 
-    // for (int i=0; i < currentNumChannels; i++)
-    // {
-    //     channels[i]->bitVolts = channelInfo[i].bitVolts;
-    //     channels[i]->name = channelInfo[i].name;
-    // }
+     for (int i=0; i < currentNumChannels; i++)
+     {
+         dataChannelArray[i]->setBitVolts(channelInfo[i].bitVolts);
+         dataChannelArray[i]->setName(channelInfo[i].name);
+     }
 }
 
-
-void FileReader::process (AudioSampleBuffer& buffer, MidiBuffer& events)
+void FileReader::process (AudioSampleBuffer& buffer)
 {
-    setTimestamp (events, timestamp);
-
-    const int samplesNeeded = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-
-    int samplesRead = 0;
-
-    while (samplesRead < samplesNeeded)
+    
+    // if cache window id == 0, we need to read and cache BUFFER_WINDOW_CACHE_SIZE more buffer windows
+    if (bufferCacheWindow == 0)
     {
-        int samplesToRead = samplesNeeded - samplesRead;
-        if ( (currentSample + samplesToRead) > stopSample)
-        {
-            samplesToRead = stopSample - currentSample;
-            if (samplesToRead > 0)
-                input->readData (readBuffer + samplesRead, samplesToRead);
-
-            input->seekTo (startSample);
-            currentSample = startSample;
-        }
-        else
-        {
-            input->readData (readBuffer + samplesRead, samplesToRead);
-
-            currentSample += samplesToRead;
-        }
-
-        samplesRead += samplesToRead;
+        switchBuffer();
     }
-
+    
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        input->processChannelData (readBuffer, buffer.getWritePointer (i, 0), i, samplesNeeded);
+        // offset readBuffer index by current cache window count * buffer window size * num channels
+        input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
+                                   buffer.getWritePointer (i, 0),
+                                   i,
+                                   samplesNeededPerBuffer);
     }
-
-    timestamp += samplesNeeded;
-    setNumSamples (events, samplesNeeded);
-
-    // code for testing events:
-    // // ===========================================================================
-
-    // if (counter == 100)
-    // {
-    //     //std::cout << "Adding on event for node id: " << nodeId << std::endl;
-    //     addEvent (events,    // MidiBuffer
-    //               TTL,       // eventType
-    //               0,         // sampleNum
-    //               1,         // eventID
-    //               0);        // eventChannel
-    //     ++counter;
-    // } 
-    // else if (counter > 120)
-    // {
-    //     //std::cout << "Adding off event!" << std::endl;
-    //     addEvent (events,    // MidiBuffer
-    //               TTL,       // eventType
-    //               0,         // sampleNum
-    //               0,         // eventID
-    //               0);        // eventChannel
-    //     counter = 0;
-    // }
-    // else 
-    // {
-    //     ++counter;
-    // }
-    // // ===========================================================================
+    
+    timestamp += samplesNeededPerBuffer;
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
+    
+    bufferCacheWindow += 1;
+    bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 }
 
 
@@ -338,4 +318,74 @@ unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 int64 FileReader::millisecondsToSamples (unsigned int ms) const
 {
     return (int64) (currentSampleRate * float (ms) / 1000.f);
+}
+
+void FileReader::switchBuffer()
+{
+    if (readBuffer == &bufferA)
+        readBuffer = &bufferB;
+    else
+        readBuffer = &bufferA;
+    
+    m_shouldFillBackBuffer.set(true);
+    notify();
+}
+
+HeapBlock<int16>* FileReader::getFrontBuffer()
+{
+    return readBuffer;
+}
+
+HeapBlock<int16>* FileReader::getBackBuffer()
+{
+    if (readBuffer == &bufferA) return &bufferB;
+    
+    return &bufferA;
+}
+
+void FileReader::run()
+{
+    while (!threadShouldExit())
+    {
+        if (m_shouldFillBackBuffer.compareAndSetBool(false, true))
+        {
+            readAndFillBufferCache(*getBackBuffer());
+        }
+        
+        wait(30);
+    }
+}
+
+void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
+{
+    const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
+    const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
+    
+    int samplesRead = 0;
+    
+    // should only loop if reached end of file and resuming from start
+    while (samplesRead < samplesNeeded)
+    {
+        int samplesToRead = samplesNeeded - samplesRead;
+        
+        // if reached end of file stream
+        if ( (currentSample + samplesToRead) > stopSample)
+        {
+            samplesToRead = stopSample - currentSample;
+            if (samplesToRead > 0)
+                input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
+            
+            // reset stream to beginning
+            input->seekTo (startSample);
+            currentSample = startSample;
+        }
+        else // else read the block needed
+        {
+            input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
+            
+            currentSample += samplesToRead;
+        }
+        
+        samplesRead += samplesToRead;
+    }
 }

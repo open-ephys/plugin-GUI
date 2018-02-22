@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,13 +21,17 @@
 
 */
 
-#ifndef __LFPDISPLAYNODE_H_D969A379__
-#define __LFPDISPLAYNODE_H_D969A379__
+#ifndef __LFPDISPLAYNODE_H_Alpha__
+#define __LFPDISPLAYNODE_H_Alpha__
 
 #include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
 
+
 class DataViewport;
+
+namespace LfpViewer
+{
 
 /**
 
@@ -37,56 +41,46 @@ class DataViewport;
   @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
 
 */
-
 class LfpDisplayNode :  public GenericProcessor
 
 {
 public:
-
     LfpDisplayNode();
     ~LfpDisplayNode();
 
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
-    bool isSink()
-    {
-        return true;
-    }
+    void process (AudioSampleBuffer& buffer) override;
 
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void setParameter (int parameterIndex, float newValue) override;
 
-    void setParameter(int, float);
+    void updateSettings() override;
 
-    void updateSettings();
+    bool enable()   override;
+    bool disable()  override;
 
-    bool enable();
-    bool disable();
+	void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
-    void handleEvent(int, MidiMessage&, int);
+    AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffer; }
 
-    AudioSampleBuffer* getDisplayBufferAddress()
-    {
-        return displayBuffer;
-    }
-    int getDisplayBufferIndex(int chan)
-    {
-        return displayBufferIndex[chan];
-    }
+    int getDisplayBufferIndex (int chan) const { return displayBufferIndex[chan]; }
 
-	CriticalSection* getMutex()
-	{
-		return &displayMutex;
-	}
+    CriticalSection* getMutex() { return &displayMutex; }
+
+	void setSubprocessor(int sp);
+	int getNumSubprocessorChannels();
+
+	float getSubprocessorSampleRate();
 
 private:
-
     void initializeEventChannels();
+    void finalizeEventChannels();
 
     ScopedPointer<AudioSampleBuffer> displayBuffer;
 
     Array<int> displayBufferIndex;
-    Array<int> eventSourceNodes;
-    std::map<int, int> channelForEventSource;
+    Array<uint32> eventSourceNodes;
+    std::map<uint32, int> channelForEventSource;
 
     int numEventChannels;
 
@@ -96,19 +90,25 @@ private:
     AbstractFifo abstractFifo;
 
     int64 bufferTimestamp;
-    std::map<int, int> ttlState;
-    HeapBlock<float> arrayOfOnes;
+    std::map<uint32, uint64> ttlState;
+    float* arrayOfOnes;
     int totalSamples;
 
     bool resizeBuffer();
 
-	CriticalSection displayMutex;
+	int subprocessorToDraw;
+	int numChannelsInSubprocessor;
+	float subprocessorSampleRate;
+
+    CriticalSection displayMutex;
+	bool updateSubprocessorsFlag;
+
+	uint32 getChannelSourceID(const EventChannel* event) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
-
+};
 };
 
 
 
-
-#endif  // __LFPDISPLAYNODE_H_D969A379__
+#endif  // __LFPDISPLAYNODE_H_Alpha__

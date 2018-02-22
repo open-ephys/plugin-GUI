@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -62,7 +62,6 @@ public:
     };
 
     typedef var (*NativeFunction) (const NativeFunctionArgs&);
-    typedef Identifier identifier;
 
     //==============================================================================
     /** Creates a void variant. */
@@ -101,12 +100,12 @@ public:
     var& operator= (NativeFunction method);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    var (var&& other) noexcept;
-    var (String&& value);
-    var (MemoryBlock&& binaryData);
-    var (Array<var>&& value);
-    var& operator= (var&& other) noexcept;
-    var& operator= (String&& value);
+    var (var&&) noexcept;
+    var (String&&);
+    var (MemoryBlock&&);
+    var (Array<var>&&);
+    var& operator= (var&&) noexcept;
+    var& operator= (String&&);
    #endif
 
     void swapWith (var& other) noexcept;
@@ -242,27 +241,27 @@ public:
 
     //==============================================================================
     /** If this variant is an object, this returns one of its properties. */
-    var operator[] (Identifier propertyName) const;
+    const var& operator[] (const Identifier& propertyName) const;
     /** If this variant is an object, this returns one of its properties. */
-    var operator[] (const char* propertyName) const;
+    const var& operator[] (const char* propertyName) const;
     /** If this variant is an object, this returns one of its properties, or a default
         fallback value if the property is not set. */
-    var getProperty (Identifier propertyName, const var& defaultReturnValue) const;
+    var getProperty (const Identifier& propertyName, const var& defaultReturnValue) const;
 
     /** Invokes a named method call with no arguments. */
-    var call (Identifier method) const;
+    var call (const Identifier& method) const;
     /** Invokes a named method call with one argument. */
-    var call (Identifier method, const var& arg1) const;
+    var call (const Identifier& method, const var& arg1) const;
     /** Invokes a named method call with 2 arguments. */
-    var call (Identifier method, const var& arg1, const var& arg2) const;
+    var call (const Identifier& method, const var& arg1, const var& arg2) const;
     /** Invokes a named method call with 3 arguments. */
-    var call (Identifier method, const var& arg1, const var& arg2, const var& arg3);
+    var call (const Identifier& method, const var& arg1, const var& arg2, const var& arg3);
     /** Invokes a named method call with 4 arguments. */
-    var call (Identifier method, const var& arg1, const var& arg2, const var& arg3, const var& arg4) const;
+    var call (const Identifier& method, const var& arg1, const var& arg2, const var& arg3, const var& arg4) const;
     /** Invokes a named method call with 5 arguments. */
-    var call (Identifier method, const var& arg1, const var& arg2, const var& arg3, const var& arg4, const var& arg5) const;
+    var call (const Identifier& method, const var& arg1, const var& arg2, const var& arg3, const var& arg4, const var& arg5) const;
     /** Invokes a named method call with a list of arguments. */
-    var invoke (Identifier method, const var* arguments, int numArguments) const;
+    var invoke (const Identifier& method, const var* arguments, int numArguments) const;
     /** If this object is a method, this returns the function pointer. */
     NativeFunction getNativeFunction() const;
 
@@ -315,13 +314,30 @@ private:
 };
 
 /** Compares the values of two var objects, using the var::equals() comparison. */
-bool operator== (const var& v1, const var& v2) noexcept;
+bool operator== (const var&, const var&) noexcept;
 /** Compares the values of two var objects, using the var::equals() comparison. */
-bool operator!= (const var& v1, const var& v2) noexcept;
-bool operator== (const var& v1, const String& v2);
-bool operator!= (const var& v1, const String& v2);
-bool operator== (const var& v1, const char* v2);
-bool operator!= (const var& v1, const char* v2);
+bool operator!= (const var&, const var&) noexcept;
+bool operator== (const var&, const String&);
+bool operator!= (const var&, const String&);
+bool operator== (const var&, const char*);
+bool operator!= (const var&, const char*);
+
+//==============================================================================
+/** This template-overloaded class can be used to convert between var and custom types. */
+template <typename Type>
+struct VariantConverter
+{
+    static Type fromVar (const var& v)             { return static_cast<Type> (v); }
+    static var toVar (const Type& t)               { return t; }
+};
+
+/** This template-overloaded class can be used to convert between var and custom types. */
+template <>
+struct VariantConverter<String>
+{
+    static String fromVar (const var& v)           { return v.toString(); }
+    static var toVar (const String& s)             { return s; }
+};
 
 
 #endif   // JUCE_VARIANT_H_INCLUDED

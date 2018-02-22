@@ -32,7 +32,6 @@
 #include "AudioEditor.h"
 #include "../Dsp/Dsp.h"
 
-#include "../Channel/Channel.h"
 
 class AudioEditor;
 
@@ -89,26 +88,26 @@ public:
 
     /** Handle incoming data and decide which channels to monitor
     */
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void process(AudioSampleBuffer& buffer) override;
 
     /** Used to change audio monitoring parameters (such as channels to monitor and volume) while acquisition is active.
     */
-    void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue) override;
 
     /** Creates the AudioEditor (located in the ControlPanel). */
-    AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* createEditor() override;
 
     /** Sets the current channel (in advance of a parameter change). */
-    void setChannel(Channel* ch);
+    void setChannel(const DataChannel* ch);
 
     /** Used to turn audio monitoring on and off for individual channels. */
-    void setChannelStatus(Channel* ch, bool status);
+    void setChannelStatus(const DataChannel* ch, bool status);
 
     /** Resets the connections prior to a new round of data acquisition. */
-    void resetConnections();
+    void resetConnections() override;
 
     /** Resets the connections prior to a new round of data acquisition. */
-    void enableCurrentChannel(bool);
+    void enableCurrentChannel(bool) override;
 
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
     void addInputChannel(GenericProcessor* source, int chan);
@@ -118,11 +117,14 @@ public:
 
     void updateBufferSize();
 
-    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock);
+    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
 
     void updateFilter(int i);
 
-	bool enable();
+	bool enable() override;
+
+	//Called by ProcessorGraph
+	void updateRecordChannelIndexes();
 
 private:
 	void recreateBuffers();
@@ -131,9 +133,6 @@ private:
     Array<int> rightChan;
     float volume;
     float noiseGateLevel; // in microvolts
-
-    /** An array of pointers to the channels that feed into the AudioNode. */
-    Array<Channel*> channelPointers;
 
     OwnedArray<AudioSampleBuffer> bufferA;
     OwnedArray<AudioSampleBuffer> bufferB;
