@@ -19,7 +19,7 @@ If you want to add files to the core GUI, you'll have to do that through the "In
 New plugin developers can publish links to their work in `this list`_ to make them available to the general public.
 
 .. _source: https://github.com/julianstorer/juce
-.. _JUCE: http://www.rawmaterialsoftware.com/juce.php
+.. _JUCE: https://juce.com/
 .. _wiki: http://open-ephys.atlassian.net
 .. _different branches: https://open-ephys.atlassian.net/wiki/display/OEW/Using+Git
 .. _this list: https://open-ephys.atlassian.net/wiki/display/OEW/Third-party+plugin+repositories
