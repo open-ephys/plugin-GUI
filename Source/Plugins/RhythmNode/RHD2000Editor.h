@@ -320,6 +320,8 @@ public:
     int getSelectedId();
     void setSelectedId(int);
 
+	String getText();
+
     void paint(Graphics& g);
     void comboBoxChanged(ComboBox* cb);
 

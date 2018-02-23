@@ -904,6 +904,7 @@ void RHD2000Editor::stopAcquisition()
 void RHD2000Editor::saveCustomParameters(XmlElement* xml)
 {
     xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
+	xml->setAttribute("SampleRateString", sampleRateInterface->getText());
     xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
     xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
     xml->setAttribute("ADCsOn", adcButton->getToggleState());
@@ -1179,6 +1180,11 @@ int SampleRateInterface::getSelectedId()
 void SampleRateInterface::setSelectedId(int id)
 {
     rateSelection->setSelectedId(id);
+}
+
+String SampleRateInterface::getText()
+{
+	return rateSelection->getText();
 }
 
 
