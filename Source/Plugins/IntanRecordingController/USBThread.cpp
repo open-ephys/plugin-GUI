@@ -51,9 +51,12 @@ void USBThread::startAcquisition(int nBytes)
 void USBThread::stopAcquisition()
 {
 	std::cout << "Stopping usb thread" << std::endl;
-	if (!stopThread(1000))
+	if (isThreadRunning())
 	{
-		std::cerr << "USB Thread could not stop cleanly. Force quitting it" << std::endl;
+		if (!stopThread(1000))
+		{
+			std::cerr << "USB Thread could not stop cleanly. Force quitting it" << std::endl;
+		}
 	}
 }
 
