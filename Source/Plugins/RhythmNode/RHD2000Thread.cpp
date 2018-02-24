@@ -97,6 +97,9 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 	memset(auxBuffer, 0, sizeof(auxBuffer));
 	memset(auxSamples, 0, sizeof(auxSamples));
 
+	for (int i = 0; i < 8; i++)
+		adcRangeSettings[i] = 0;
+
     for (int i=0; i < MAX_NUM_HEADSTAGES; i++)
         headstagesArray.add(new RHDHeadstage(static_cast<Rhd2000EvalBoard::BoardDataSource>(i)));
 
@@ -1578,9 +1581,10 @@ bool RHD2000Thread::updateBuffer()
 
 					channel++;
 					// ADC waveform units = volts
-					thisSample[channel] =
+					thisSample[channel] = adcRangeSettings[adcChan] == 0 ?
 						//0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
-						0.00015258789 * float(*(uint16*)(bufferPtr + index)) - 5 - 0.4096; // account for +/-5V input range and DC offset
+						0.00015258789 * float(*(uint16*)(bufferPtr + index)) - 5 - 0.4096 : // account for +/-5V input range and DC offset
+						0.00030517578 * float(*(uint16*)(bufferPtr + index));
 					index += 2;
 				}
 			}
@@ -1762,6 +1766,16 @@ int RHD2000Thread::setClockDivider(int divide_ratio)
         evalBoard->setClockDivider(clockDivideFactor);
 
     return divide_ratio;
+}
+
+void RHD2000Thread::setAdcRange(int channel, short range)
+{
+	adcRangeSettings[channel] = range;
+}
+
+short RHD2000Thread::getAdcRange(int channel) const
+{
+	return adcRangeSettings[channel];
 }
 
 void RHD2000Thread::runImpedanceTest(ImpedanceData* data)

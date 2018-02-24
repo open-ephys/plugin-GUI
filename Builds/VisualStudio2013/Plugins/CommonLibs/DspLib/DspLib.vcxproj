@@ -19,54 +19,54 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7B23828E-559F-4AD2-B75D-D05786F6329C}</ProjectGuid>
-    <RootNamespace>FilterNode</RootNamespace>
+    <ProjectGuid>{1DD9DB7A-A9D8-4982-9FA3-1AEAFEC5FC1B}</ProjectGuid>
+    <RootNamespace>DspLib</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Plugin_Debug32.props" />
+    <Import Project="..\..\PluginCommonLib_Debug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Plugin_Debug64.props" />
+    <Import Project="..\..\PluginCommonLib_Debug64.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Plugin_Release32.props" />
+    <Import Project="..\..\PluginCommonLib_Release32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Plugin_Release64.props" />
+    <Import Project="..\..\PluginCommonLib_Release64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -74,20 +74,20 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DspLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DspLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,12 +96,12 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DspLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,22 +110,57 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DspLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\FilterEditor.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\FilterNode.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\FilterNode\OpenEphysLib.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Bessel.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Biquad.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Butterworth.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Cascade.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\ChebyshevI.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\ChebyshevII.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Custom.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Design.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Documentation.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Elliptic.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Filter.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Legendre.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Param.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\PoleFilter.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\RBJ.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\RootFinder.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\State.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\FilterEditor.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\FilterNode\FilterNode.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Bessel.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Biquad.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Butterworth.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Cascade.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\ChebyshevI.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\ChebyshevII.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Common.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Custom.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Design.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Dsp.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Elliptic.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Filter.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Layout.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Legendre.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\MathSupplement.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Params.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\PoleFilter.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\RBJ.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\RootFinder.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\SmoothedFilter.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\State.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Types.h" />
+    <ClInclude Include="..\..\..\..\..\Source\Plugins\CommonLibs\DspLib\Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

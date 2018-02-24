@@ -33,129 +33,34 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
-#ifndef DSPFILTERS_LEGENDRE_H
-#define DSPFILTERS_LEGENDRE_H
+#ifndef DSPFILTERS_BUTTERWORTH_H
+#define DSPFILTERS_BUTTERWORTH_H
 
 #include "Common.h"
 #include "Cascade.h"
 #include "Design.h"
 #include "Filter.h"
 #include "PoleFilter.h"
-#include "RootFinder.h"
 
 namespace Dsp
 {
 
 /*
- * Filters with Legendre / "Optimum-L" response characteristics
+ * Filters with Butterworth response characteristics
  *
  */
 
-namespace Legendre
+namespace Butterworth
 {
-
-// Numerical computation of Legendre "Optimum-L" polynomials
-
-class PolynomialFinderBase
-{
-public:
-    void solve(int n);
-
-    double* coef()
-    {
-        return m_w;
-    }
-
-private:
-    void legendre(double* p, int n);
-
-protected:
-    int m_maxN;
-    double* m_w;
-    double* m_a;
-    double* m_p;
-    double* m_s;
-    double* m_v;
-    double* m_aa;
-    double* m_bb;
-};
-
-template <int maxN>
-class PolynomialFinder : public PolynomialFinderBase
-{
-public:
-    PolynomialFinder()
-    {
-        m_maxN = maxN;
-        m_w = m_ws;
-        m_a = m_as;
-        m_p = m_ps;
-        m_s = m_ss;
-        m_v = m_vs;
-        m_aa = m_aas;
-        m_bb = m_bbs;
-    }
-
-    void solve(int n)
-    {
-        assert(n <= maxN);
-        PolynomialFinderBase::solve(n);
-    }
-
-private:
-    double m_ws  [2 * maxN + 1];
-    double m_as  [    maxN + 1];
-    double m_ps  [2 * maxN + 1];
-    double m_ss  [2 * maxN + 1];
-    double m_vs  [2 * maxN + 4];
-    double m_aas [    maxN + 1];
-    double m_bbs [    maxN + 1];
-};
-
-//------------------------------------------------------------------------------
-
-// A Workspace is necessary to construct the polynomial and find its roots
-
-struct WorkspaceBase
-{
-    WorkspaceBase(PolynomialFinderBase* polyBase,
-                  RootFinderBase* rootsBase)
-        : poly(*polyBase)
-        , roots(*rootsBase)
-    {
-    }
-
-    PolynomialFinderBase& poly;
-    RootFinderBase& roots;
-
-private:
-    WorkspaceBase(WorkspaceBase&);
-    WorkspaceBase& operator= (WorkspaceBase&);
-};
-
-template <int MaxOrder>
-struct Workspace : WorkspaceBase
-{
-    Workspace()
-        : WorkspaceBase(&m_poly, &m_roots)
-    {
-    }
-
-private:
-    PolynomialFinder <MaxOrder> m_poly;
-    RootFinder <MaxOrder * 2> m_roots;
-};
-
-//------------------------------------------------------------------------------
 
 // Half-band analog prototypes (s-plane)
 
-class AnalogLowPass : public LayoutBase
+class COMMON_LIB AnalogLowPass : public LayoutBase
 {
 public:
     AnalogLowPass();
 
-    void design(const int numPoles, WorkspaceBase* w);
+    void design(const int numPoles);
 
 private:
     int m_numPoles;
@@ -163,40 +68,75 @@ private:
 
 //------------------------------------------------------------------------------
 
+class COMMON_LIB AnalogLowShelf : public LayoutBase
+{
+public:
+    AnalogLowShelf();
+
+    void design(int numPoles, double gainDb);
+
+private:
+    int m_numPoles;
+    double m_gainDb;
+};
+
+//------------------------------------------------------------------------------
+
 // Factored implementations to reduce template instantiations
 
-struct LowPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB LowPassBase : PoleFilterBase <AnalogLowPass>
+{
+    void setup(int order,
+               double sampleRate,
+               double cutoffFrequency);
+};
+
+struct COMMON_LIB HighPassBase : PoleFilterBase <AnalogLowPass>
+{
+    void setup(int order,
+               double sampleRate,
+               double cutoffFrequency);
+};
+
+struct COMMON_LIB BandPassBase : PoleFilterBase <AnalogLowPass>
+{
+    void setup(int order,
+               double sampleRate,
+               double centerFrequency,
+               double widthFrequency);
+};
+
+struct COMMON_LIB BandStopBase : PoleFilterBase <AnalogLowPass>
+{
+    void setup(int order,
+               double sampleRate,
+               double centerFrequency,
+               double widthFrequency);
+};
+
+struct COMMON_LIB LowShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
-               WorkspaceBase* w);
+               double gainDb);
 };
 
-struct HighPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB HighShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double cutoffFrequency,
-               WorkspaceBase* w);
+               double gainDb);
 };
 
-struct BandPassBase : PoleFilterBase <AnalogLowPass>
+struct COMMON_LIB BandShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
                double centerFrequency,
                double widthFrequency,
-               WorkspaceBase* w);
-};
-
-struct BandStopBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               WorkspaceBase* w);
+               double gainDb);
 };
 
 //------------------------------------------------------------------------------
@@ -208,65 +148,36 @@ struct BandStopBase : PoleFilterBase <AnalogLowPass>
 template <int MaxOrder>
 struct LowPass : PoleFilter <LowPassBase, MaxOrder>
 {
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency)
-    {
-        Workspace <MaxOrder> w;
-        LowPassBase::setup(order,
-                           sampleRate,
-                           cutoffFrequency,
-                           &w);
-    }
 };
 
 template <int MaxOrder>
 struct HighPass : PoleFilter <HighPassBase, MaxOrder>
 {
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency)
-    {
-        Workspace <MaxOrder> w;
-        HighPassBase::setup(order,
-                            sampleRate,
-                            cutoffFrequency,
-                            &w);
-    }
 };
 
 template <int MaxOrder>
-struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder*2>
+struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder * 2>
 {
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency)
-    {
-        Workspace <MaxOrder> w;
-        BandPassBase::setup(order,
-                            sampleRate,
-                            centerFrequency,
-                            widthFrequency,
-                            &w);
-    }
 };
 
 template <int MaxOrder>
-struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder*2>
+struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder * 2>
 {
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency)
-    {
-        Workspace <MaxOrder> w;
-        BandStopBase::setup(order,
-                            sampleRate,
-                            centerFrequency,
-                            widthFrequency,
-                            &w);
-    }
+};
+
+template <int MaxOrder>
+struct LowShelf : PoleFilter <LowShelfBase, MaxOrder>
+{
+};
+
+template <int MaxOrder>
+struct HighShelf : PoleFilter <HighShelfBase, MaxOrder>
+{
+};
+
+template <int MaxOrder>
+struct BandShelf : PoleFilter <BandShelfBase, MaxOrder, MaxOrder * 2>
+{
 };
 
 //------------------------------------------------------------------------------
@@ -337,6 +248,78 @@ struct TypeII : TypeIIBase, FilterClass
     }
 };
 
+struct TypeIIIBase : DesignBase
+{
+    enum
+    {
+        NumParams = 4
+    };
+
+    static int getNumParams()
+    {
+        return 4;
+    }
+
+    static const ParamInfo getParamInfo_2()
+    {
+        return ParamInfo::defaultCutoffFrequencyParam();
+    }
+
+    static const ParamInfo getParamInfo_3()
+    {
+        return ParamInfo::defaultGainParam();
+    }
+};
+
+template <class FilterClass>
+struct TypeIII : TypeIIIBase, FilterClass
+{
+    void setParams(const Params& params)
+    {
+        FilterClass::setup(int(params[1]),
+                           params[0],
+                           params[2],
+                           params[3]);
+    }
+};
+
+struct TypeIVBase : DesignBase
+{
+    enum
+    {
+        NumParams = 5
+    };
+
+    static int getNumParams()
+    {
+        return 5;
+    }
+
+    static const ParamInfo getParamInfo_2()
+    {
+        return ParamInfo::defaultCenterFrequencyParam();
+    }
+
+    static const ParamInfo getParamInfo_3()
+    {
+        return ParamInfo::defaultBandwidthHzParam();
+    }
+
+    static const ParamInfo getParamInfo_4()
+    {
+        return ParamInfo::defaultGainParam();
+    }
+};
+
+template <class FilterClass>
+struct TypeIV : TypeIVBase, FilterClass
+{
+    void setParams(const Params& params)
+    {
+        FilterClass::setup(int(params[1]), params[0], params[2], params[3], params[4]);
+    }
+};
+
 // Factored kind and name
 
 struct LowPassDescription
@@ -347,7 +330,7 @@ struct LowPassDescription
     }
     static const char* getName()
     {
-        return "Legendre Low Pass";
+        return "Butterworth Low Pass";
     }
 };
 
@@ -359,7 +342,7 @@ struct HighPassDescription
     }
     static const char* getName()
     {
-        return "Legendre High Pass";
+        return "Butterworth High Pass";
     }
 };
 
@@ -371,7 +354,7 @@ struct BandPassDescription
     }
     static const char* getName()
     {
-        return "Legendre Band Pass";
+        return "Butterworth Band Pass";
     }
 };
 
@@ -383,7 +366,43 @@ struct BandStopDescription
     }
     static const char* getName()
     {
-        return "Legendre Band Stop";
+        return "Butterworth Band Stop";
+    }
+};
+
+struct LowShelfDescription
+{
+    static Kind getKind()
+    {
+        return kindLowShelf;
+    }
+    static const char* getName()
+    {
+        return "Butterworth Low Shelf";
+    }
+};
+
+struct HighShelfDescription
+{
+    static Kind getKind()
+    {
+        return kindHighShelf;
+    }
+    static const char* getName()
+    {
+        return "Butterworth High Shelf";
+    }
+};
+
+struct BandShelfDescription
+{
+    static Kind getKind()
+    {
+        return kindBandShelf;
+    }
+    static const char* getName()
+    {
+        return "Butterworth Band Shelf";
     }
 };
 
@@ -411,26 +430,44 @@ struct OrderBase : TypeClass <FilterClass <MaxOrder> >
 //
 
 template <int MaxOrder>
-struct LowPass : OrderBase <MaxOrder, TypeI, Legendre::LowPass>,
+struct LowPass : OrderBase <MaxOrder, TypeI, Butterworth::LowPass>,
         LowPassDescription
 {
 };
 
 template <int MaxOrder>
-struct HighPass : OrderBase <MaxOrder, TypeI, Legendre::HighPass>,
+struct HighPass : OrderBase <MaxOrder, TypeI, Butterworth::HighPass>,
         HighPassDescription
 {
 };
 
 template <int MaxOrder>
-struct BandPass : OrderBase <MaxOrder, TypeII, Legendre::BandPass>,
+struct BandPass : OrderBase <MaxOrder, TypeII, Butterworth::BandPass>,
         BandPassDescription
 {
 };
 
 template <int MaxOrder>
-struct BandStop : OrderBase <MaxOrder, TypeII, Legendre::BandStop>,
+struct BandStop : OrderBase <MaxOrder, TypeII, Butterworth::BandStop>,
         BandStopDescription
+{
+};
+
+template <int MaxOrder>
+struct LowShelf : OrderBase <MaxOrder, TypeIII, Butterworth::LowShelf>,
+        LowShelfDescription
+{
+};
+
+template <int MaxOrder>
+struct HighShelf : OrderBase <MaxOrder, TypeIII, Butterworth::HighShelf>,
+        HighShelfDescription
+{
+};
+
+template <int MaxOrder>
+struct BandShelf : OrderBase <MaxOrder, TypeIV, Butterworth::BandShelf>,
+        BandShelfDescription
 {
 };
 

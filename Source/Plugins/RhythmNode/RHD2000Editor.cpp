@@ -349,40 +349,30 @@ type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gai
     editName->setColour(Label::backgroundColourId,juce::Colours::lightgrey);
     editName->addListener(this);
     addAndMakeVisible(editName);
-/*    if (gainIndex > 0)
-    {
 
-        gainComboBox = new ComboBox("Gains");
-        for (int k=0; k<gains.size(); k++)
-        {
-            if (gains[k] < 1)
-            {
-                gainComboBox->addItem("x"+String(gains[k],2),k+1);
-            }
-            else
-            {
-                gainComboBox->addItem("x"+String((int)gains[k]),k+1);
-            }
-        }
-        gainComboBox->setSelectedId(gainIndex, sendNotificationSync);
-        gainComboBox->addListener(this);
-        addAndMakeVisible(gainComboBox);
-    }
-    else
-    {*/
-        gainComboBox = nullptr;
-    //}
-
-    if (type == DataChannel::HEADSTAGE_CHANNEL)
+	if (type == DataChannel::HEADSTAGE_CHANNEL)
     {
         impedance = new Label("Impedance","? Ohm");
         impedance->setFont(Font("Default", 13, Font::plain));
         impedance->setEditable(false);
         addAndMakeVisible(impedance);
     }
+	else if (type == DataChannel::ADC_CHANNEL)
+	{
+		impedance = nullptr;
+		rangeComboBox = new ComboBox("ADC Ranges");
+		rangeComboBox->addItem("-5V - +5V",1);
+		rangeComboBox->addItem("0V - +5V",2);
+		SourceNode* proc = channelList->proc;
+		RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
+		rangeComboBox->setSelectedId(thread->getAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex()) + 1, dontSendNotification);
+		rangeComboBox->addListener(this);
+		addAndMakeVisible(rangeComboBox);
+	}
     else
     {
         impedance = nullptr;
+		rangeComboBox = nullptr;
     }
 }
 FPGAchannelComponent::~FPGAchannelComponent()
@@ -409,12 +399,11 @@ void FPGAchannelComponent::setImpedanceValues(float mag, float phase)
 
 void FPGAchannelComponent::comboBoxChanged(ComboBox* comboBox)
 {
-    if (comboBox == gainComboBox)
+    if (comboBox == rangeComboBox)
     {
-        int newGainIndex = gainComboBox->getSelectedId();
-        float mult = gains[newGainIndex-1];
-        float bitvolts = channelList->proc->getBitVolts(channelList->proc->getDataChannel(channel));
-        channelList->setNewGain(channel, mult*bitvolts);
+		SourceNode* proc = channelList->proc;
+		RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
+		thread->setAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex(), comboBox->getSelectedId() - 1);
     }
 }
 void FPGAchannelComponent::labelTextChanged(Label* lbl)
@@ -450,9 +439,9 @@ int FPGAchannelComponent::getUserDefinedData()
 void FPGAchannelComponent::resized()
 {
     editName->setBounds(0,0,90,20);
-    if (gainComboBox != nullptr)
+    if (rangeComboBox != nullptr)
     {
-        gainComboBox->setBounds(100,0,70,20);
+        rangeComboBox->setBounds(100,0,80,20);
     }
     if (impedance != nullptr)
     {
@@ -934,6 +923,12 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("auto_measure_impedances",measureWhenRecording);
 	xml->setAttribute("LEDs", ledButton->getToggleState());
 	xml->setAttribute("ClockDivideRatio", clockInterface->getClockDivideRatio());
+	for (int i = 0; i < 8; i++)
+	{
+		XmlElement* adc = xml->createNewChildElement("ADCRANGE");
+		adc->setAttribute("Channel", i);
+		adc->setAttribute("Range", board->getAdcRange(i));
+	}
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -957,6 +952,13 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
 	ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
     clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio")); 
+	forEachXmlChildElementWithTagName(*xml, adc, "ADCRANGE")
+	{
+		int channel = adc->getIntAttribute("Channel", -1);
+		int range = adc->getIntAttribute("Range", -1);
+		if (channel >= 0 && range >= 0)
+			board->setAdcRange(channel, range);
+	}
 }
 
 

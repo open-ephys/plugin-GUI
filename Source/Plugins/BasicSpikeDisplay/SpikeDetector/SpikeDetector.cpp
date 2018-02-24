@@ -90,7 +90,13 @@ void SpikeDetector::createSpikeChannels()
 		Array<const DataChannel*> chans;
 		for (int c = 0; c < nChans; c++)
 		{
-			chans.add(getDataChannel(elec->channels[c]));
+			const DataChannel* ch = getDataChannel(elec->channels[c]);
+			if (!ch)
+			{
+				//not enough channels for the electrodes
+				return;
+			}
+			chans.add(ch);
 		}
 		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
 		spk->setNumSamples(elec->prePeakSamples, elec->postPeakSamples);

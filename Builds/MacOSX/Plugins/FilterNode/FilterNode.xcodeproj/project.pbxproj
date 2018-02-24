@@ -7,71 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E1F558B21C9B20070035F88B /* Bessel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558841C9B20070035F88B /* Bessel.cpp */; };
-		E1F558B31C9B20070035F88B /* Biquad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558861C9B20070035F88B /* Biquad.cpp */; };
-		E1F558B41C9B20070035F88B /* Butterworth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558881C9B20070035F88B /* Butterworth.cpp */; };
-		E1F558B51C9B20070035F88B /* Cascade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5588A1C9B20070035F88B /* Cascade.cpp */; };
-		E1F558B61C9B20070035F88B /* ChebyshevI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5588C1C9B20070035F88B /* ChebyshevI.cpp */; };
-		E1F558B71C9B20070035F88B /* ChebyshevII.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5588E1C9B20070035F88B /* ChebyshevII.cpp */; };
-		E1F558B81C9B20070035F88B /* Custom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558911C9B20070035F88B /* Custom.cpp */; };
-		E1F558B91C9B20070035F88B /* Design.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558931C9B20070035F88B /* Design.cpp */; };
-		E1F558BB1C9B20070035F88B /* Elliptic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558971C9B20070035F88B /* Elliptic.cpp */; };
-		E1F558BC1C9B20070035F88B /* Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558991C9B20070035F88B /* Filter.cpp */; };
-		E1F558BD1C9B20070035F88B /* Legendre.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5589C1C9B20070035F88B /* Legendre.cpp */; };
-		E1F558BE1C9B20070035F88B /* Param.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F5589F1C9B20070035F88B /* Param.cpp */; };
-		E1F558BF1C9B20070035F88B /* PoleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558A11C9B20070035F88B /* PoleFilter.cpp */; };
-		E1F558C01C9B20070035F88B /* RBJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558A31C9B20070035F88B /* RBJ.cpp */; };
-		E1F558C11C9B20070035F88B /* RootFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558A51C9B20070035F88B /* RootFinder.cpp */; };
-		E1F558C21C9B20070035F88B /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558A81C9B20070035F88B /* State.cpp */; };
+		277C42AE202CC33D00A9FFD6 /* libDspLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */; };
 		E1F558C31C9B20070035F88B /* FilterEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558AC1C9B20070035F88B /* FilterEditor.cpp */; };
 		E1F558C41C9B20070035F88B /* FilterNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558AE1C9B20070035F88B /* FilterNode.cpp */; };
 		E1F558C61C9B20070035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558B11C9B20070035F88B /* OpenEphysLib.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = libDspLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558751C9B1F920035F88B /* FilterNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilterNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558781C9B1F920035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1F558801C9B1FDC0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
 		E1F558811C9B1FDC0035F88B /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Release.xcconfig; sourceTree = "<group>"; };
-		E1F558841C9B20070035F88B /* Bessel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bessel.cpp; sourceTree = "<group>"; };
-		E1F558851C9B20070035F88B /* Bessel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bessel.h; sourceTree = "<group>"; };
-		E1F558861C9B20070035F88B /* Biquad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Biquad.cpp; sourceTree = "<group>"; };
-		E1F558871C9B20070035F88B /* Biquad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Biquad.h; sourceTree = "<group>"; };
-		E1F558881C9B20070035F88B /* Butterworth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Butterworth.cpp; sourceTree = "<group>"; };
-		E1F558891C9B20070035F88B /* Butterworth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Butterworth.h; sourceTree = "<group>"; };
-		E1F5588A1C9B20070035F88B /* Cascade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cascade.cpp; sourceTree = "<group>"; };
-		E1F5588B1C9B20070035F88B /* Cascade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cascade.h; sourceTree = "<group>"; };
-		E1F5588C1C9B20070035F88B /* ChebyshevI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChebyshevI.cpp; sourceTree = "<group>"; };
-		E1F5588D1C9B20070035F88B /* ChebyshevI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChebyshevI.h; sourceTree = "<group>"; };
-		E1F5588E1C9B20070035F88B /* ChebyshevII.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChebyshevII.cpp; sourceTree = "<group>"; };
-		E1F5588F1C9B20070035F88B /* ChebyshevII.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChebyshevII.h; sourceTree = "<group>"; };
-		E1F558901C9B20070035F88B /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
-		E1F558911C9B20070035F88B /* Custom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Custom.cpp; sourceTree = "<group>"; };
-		E1F558921C9B20070035F88B /* Custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Custom.h; sourceTree = "<group>"; };
-		E1F558931C9B20070035F88B /* Design.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Design.cpp; sourceTree = "<group>"; };
-		E1F558941C9B20070035F88B /* Design.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Design.h; sourceTree = "<group>"; };
-		E1F558961C9B20070035F88B /* Dsp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dsp.h; sourceTree = "<group>"; };
-		E1F558971C9B20070035F88B /* Elliptic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Elliptic.cpp; sourceTree = "<group>"; };
-		E1F558981C9B20070035F88B /* Elliptic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Elliptic.h; sourceTree = "<group>"; };
-		E1F558991C9B20070035F88B /* Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Filter.cpp; sourceTree = "<group>"; };
-		E1F5589A1C9B20070035F88B /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
-		E1F5589B1C9B20070035F88B /* Layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layout.h; sourceTree = "<group>"; };
-		E1F5589C1C9B20070035F88B /* Legendre.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Legendre.cpp; sourceTree = "<group>"; };
-		E1F5589D1C9B20070035F88B /* Legendre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Legendre.h; sourceTree = "<group>"; };
-		E1F5589E1C9B20070035F88B /* MathSupplement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathSupplement.h; sourceTree = "<group>"; };
-		E1F5589F1C9B20070035F88B /* Param.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Param.cpp; sourceTree = "<group>"; };
-		E1F558A01C9B20070035F88B /* Params.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Params.h; sourceTree = "<group>"; };
-		E1F558A11C9B20070035F88B /* PoleFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PoleFilter.cpp; sourceTree = "<group>"; };
-		E1F558A21C9B20070035F88B /* PoleFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PoleFilter.h; sourceTree = "<group>"; };
-		E1F558A31C9B20070035F88B /* RBJ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBJ.cpp; sourceTree = "<group>"; };
-		E1F558A41C9B20070035F88B /* RBJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBJ.h; sourceTree = "<group>"; };
-		E1F558A51C9B20070035F88B /* RootFinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RootFinder.cpp; sourceTree = "<group>"; };
-		E1F558A61C9B20070035F88B /* RootFinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootFinder.h; sourceTree = "<group>"; };
-		E1F558A71C9B20070035F88B /* SmoothedFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmoothedFilter.h; sourceTree = "<group>"; };
-		E1F558A81C9B20070035F88B /* State.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = State.cpp; sourceTree = "<group>"; };
-		E1F558A91C9B20070035F88B /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = State.h; sourceTree = "<group>"; };
-		E1F558AA1C9B20070035F88B /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
-		E1F558AB1C9B20070035F88B /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		E1F558AC1C9B20070035F88B /* FilterEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FilterEditor.cpp; sourceTree = "<group>"; };
 		E1F558AD1C9B20070035F88B /* FilterEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterEditor.h; sourceTree = "<group>"; };
 		E1F558AE1C9B20070035F88B /* FilterNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FilterNode.cpp; sourceTree = "<group>"; };
@@ -84,18 +31,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				277C42AE202CC33D00A9FFD6 /* libDspLib.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		277C42AD202CC33D00A9FFD6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E1F5586C1C9B1F920035F88B = {
 			isa = PBXGroup;
 			children = (
 				E1F5587E1C9B1FDC0035F88B /* Config */,
 				E1F558771C9B1F920035F88B /* FilterNode */,
 				E1F558761C9B1F920035F88B /* Products */,
+				277C42AD202CC33D00A9FFD6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -129,7 +86,6 @@
 		E1F558821C9B20070035F88B /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				E1F558831C9B20070035F88B /* Dsp */,
 				E1F558AD1C9B20070035F88B /* FilterEditor.h */,
 				E1F558AC1C9B20070035F88B /* FilterEditor.cpp */,
 				E1F558AF1C9B20070035F88B /* FilterNode.h */,
@@ -138,52 +94,6 @@
 			);
 			name = Source;
 			path = ../../../../../Source/Plugins/FilterNode;
-			sourceTree = "<group>";
-		};
-		E1F558831C9B20070035F88B /* Dsp */ = {
-			isa = PBXGroup;
-			children = (
-				E1F558851C9B20070035F88B /* Bessel.h */,
-				E1F558841C9B20070035F88B /* Bessel.cpp */,
-				E1F558871C9B20070035F88B /* Biquad.h */,
-				E1F558861C9B20070035F88B /* Biquad.cpp */,
-				E1F558891C9B20070035F88B /* Butterworth.h */,
-				E1F558881C9B20070035F88B /* Butterworth.cpp */,
-				E1F5588B1C9B20070035F88B /* Cascade.h */,
-				E1F5588A1C9B20070035F88B /* Cascade.cpp */,
-				E1F5588D1C9B20070035F88B /* ChebyshevI.h */,
-				E1F5588C1C9B20070035F88B /* ChebyshevI.cpp */,
-				E1F5588F1C9B20070035F88B /* ChebyshevII.h */,
-				E1F5588E1C9B20070035F88B /* ChebyshevII.cpp */,
-				E1F558901C9B20070035F88B /* Common.h */,
-				E1F558921C9B20070035F88B /* Custom.h */,
-				E1F558911C9B20070035F88B /* Custom.cpp */,
-				E1F558941C9B20070035F88B /* Design.h */,
-				E1F558931C9B20070035F88B /* Design.cpp */,
-				E1F558961C9B20070035F88B /* Dsp.h */,
-				E1F558981C9B20070035F88B /* Elliptic.h */,
-				E1F558971C9B20070035F88B /* Elliptic.cpp */,
-				E1F5589A1C9B20070035F88B /* Filter.h */,
-				E1F558991C9B20070035F88B /* Filter.cpp */,
-				E1F5589B1C9B20070035F88B /* Layout.h */,
-				E1F5589D1C9B20070035F88B /* Legendre.h */,
-				E1F5589C1C9B20070035F88B /* Legendre.cpp */,
-				E1F5589E1C9B20070035F88B /* MathSupplement.h */,
-				E1F558A01C9B20070035F88B /* Params.h */,
-				E1F5589F1C9B20070035F88B /* Param.cpp */,
-				E1F558A21C9B20070035F88B /* PoleFilter.h */,
-				E1F558A11C9B20070035F88B /* PoleFilter.cpp */,
-				E1F558A41C9B20070035F88B /* RBJ.h */,
-				E1F558A31C9B20070035F88B /* RBJ.cpp */,
-				E1F558A61C9B20070035F88B /* RootFinder.h */,
-				E1F558A51C9B20070035F88B /* RootFinder.cpp */,
-				E1F558A71C9B20070035F88B /* SmoothedFilter.h */,
-				E1F558A91C9B20070035F88B /* State.h */,
-				E1F558A81C9B20070035F88B /* State.cpp */,
-				E1F558AA1C9B20070035F88B /* Types.h */,
-				E1F558AB1C9B20070035F88B /* Utilities.h */,
-			);
-			path = Dsp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -252,25 +162,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1F558B51C9B20070035F88B /* Cascade.cpp in Sources */,
-				E1F558BE1C9B20070035F88B /* Param.cpp in Sources */,
 				E1F558C41C9B20070035F88B /* FilterNode.cpp in Sources */,
-				E1F558BB1C9B20070035F88B /* Elliptic.cpp in Sources */,
-				E1F558B41C9B20070035F88B /* Butterworth.cpp in Sources */,
-				E1F558BC1C9B20070035F88B /* Filter.cpp in Sources */,
-				E1F558B61C9B20070035F88B /* ChebyshevI.cpp in Sources */,
-				E1F558C01C9B20070035F88B /* RBJ.cpp in Sources */,
-				E1F558B81C9B20070035F88B /* Custom.cpp in Sources */,
-				E1F558B71C9B20070035F88B /* ChebyshevII.cpp in Sources */,
-				E1F558C21C9B20070035F88B /* State.cpp in Sources */,
 				E1F558C31C9B20070035F88B /* FilterEditor.cpp in Sources */,
-				E1F558BF1C9B20070035F88B /* PoleFilter.cpp in Sources */,
-				E1F558C11C9B20070035F88B /* RootFinder.cpp in Sources */,
-				E1F558B91C9B20070035F88B /* Design.cpp in Sources */,
-				E1F558B21C9B20070035F88B /* Bessel.cpp in Sources */,
 				E1F558C61C9B20070035F88B /* OpenEphysLib.cpp in Sources */,
-				E1F558B31C9B20070035F88B /* Biquad.cpp in Sources */,
-				E1F558BD1C9B20070035F88B /* Legendre.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +189,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = FilterNode/Info.plist;
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.FilterNode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -304,6 +199,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = FilterNode/Info.plist;
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.FilterNode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

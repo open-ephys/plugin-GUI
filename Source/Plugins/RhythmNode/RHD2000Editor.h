@@ -118,7 +118,7 @@ private:
     Array<float> gains;
     FPGAchannelList* channelList;
     ScopedPointer<Label> staticLabel, editName, impedance;
-    ScopedPointer<ComboBox> gainComboBox;
+    ScopedPointer<ComboBox> rangeComboBox;
     int channel;
     String name;
     int gainIndex;

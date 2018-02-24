@@ -137,7 +137,7 @@ Layout <MaxDigitalPoles> m_digitalStorage;
  */
 
 // low pass to low pass
-class LowPassTransform
+class COMMON_LIB LowPassTransform
 {
 public:
     LowPassTransform(double fc,
@@ -153,7 +153,7 @@ private:
 //------------------------------------------------------------------------------
 
 // low pass to high pass
-class HighPassTransform
+class COMMON_LIB HighPassTransform
 {
 public:
     HighPassTransform(double fc,
@@ -169,7 +169,7 @@ private:
 //------------------------------------------------------------------------------
 
 // low pass to band pass transform
-class BandPassTransform
+class COMMON_LIB BandPassTransform
 {
 
 public:
@@ -194,7 +194,7 @@ private:
 //------------------------------------------------------------------------------
 
 // low pass to band stop transform
-class BandStopTransform
+class COMMON_LIB BandStopTransform
 {
 public:
     BandStopTransform(double fc,

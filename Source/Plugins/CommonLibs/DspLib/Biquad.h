@@ -52,7 +52,7 @@ struct BiquadPoleState;
  */
 
 // Factored interface to prevent outsiders from fiddling
-class BiquadBase
+class COMMON_LIB BiquadBase
 {
 public:
     template <class StateType>
@@ -148,7 +148,7 @@ public:
 
 // Expresses a biquad as a pair of pole/zeros, with gain
 // values so that the coefficients can be reconstructed precisely.
-struct BiquadPoleState : PoleZeroPair
+struct COMMON_LIB BiquadPoleState : PoleZeroPair
 {
     BiquadPoleState() { }
 
@@ -158,7 +158,7 @@ struct BiquadPoleState : PoleZeroPair
 };
 
 // More permissive interface for fooling around
-class Biquad : public BiquadBase
+class COMMON_LIB Biquad : public BiquadBase
 {
 public:
     Biquad();
