@@ -412,9 +412,3 @@ void Rhd2000DataBlockUsb3::write(ofstream &saveOut, int numDataStreams) const
         writeWordLittleEndian(saveOut, ttlOut[t]);
     }
 }
-
-// Inline function to address data stored in amplifierDataFast[] array
-inline int Rhd2000DataBlockUsb3::fastIndex(int stream, int channel, int t) const
-{
-    return ((t * numDataStreamsStored * CHANNELS_PER_STREAM) + (channel * numDataStreamsStored) + stream);
-}

@@ -51,7 +51,10 @@ public:
     void write(ofstream &saveOut, int numDataStreams) const;
     static bool checkUsbHeader(unsigned char usbBuffer[], int index);
 	static unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
-    inline int fastIndex(int stream, int channel, int t) const;
+    inline int fastIndex(int stream, int channel, int t) const
+    {
+    	return ((t * numDataStreamsStored * CHANNELS_PER_STREAM) + (channel * numDataStreamsStored) + stream);
+    }
 
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
