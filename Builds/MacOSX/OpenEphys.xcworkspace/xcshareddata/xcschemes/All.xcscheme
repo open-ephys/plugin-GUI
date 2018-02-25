@@ -333,6 +333,20 @@
                ReferencedContainer = "container:Plugins/RhythmNode/RhythmNode.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2775FF342043399F0022A8FA"
+               BuildableName = "IntanRecordingController.bundle"
+               BlueprintName = "IntanRecordingController"
+               ReferencedContainer = "container:Plugins/IntanRecordingController/IntanRecordingController.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

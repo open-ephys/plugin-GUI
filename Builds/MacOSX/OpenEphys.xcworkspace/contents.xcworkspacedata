@@ -8,6 +8,9 @@
       location = "container:Plugins"
       name = "Plugins">
       <FileRef
+         location = "group:IntanRecordingController/IntanRecordingController.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:RhythmNode/RhythmNode.xcodeproj">
       </FileRef>
       <FileRef

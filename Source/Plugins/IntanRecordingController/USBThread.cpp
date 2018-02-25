@@ -36,7 +36,7 @@ USBThread::~USBThread()
 
 void USBThread::startAcquisition(int nBytes)
 {
-	ScopedLock lock(m_lock);
+    ScopedLock lock(m_lock);
 	for (int i = 0; i < 2; i++)
 	{
 		m_lastRead[i] = 0;
