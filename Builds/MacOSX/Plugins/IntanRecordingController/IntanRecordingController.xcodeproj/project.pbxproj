@@ -1,0 +1,294 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2775FF562043420F0022A8FA /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4320433A5B0022A8FA /* OpenEphysLib.cpp */; };
+		2775FF572043420F0022A8FA /* RHD2000Editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4220433A5B0022A8FA /* RHD2000Editor.cpp */; };
+		2775FF582043420F0022A8FA /* RHD2000Editor.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4120433A5B0022A8FA /* RHD2000Editor.h */; };
+		2775FF592043420F0022A8FA /* RHD2000Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4E20433A5C0022A8FA /* RHD2000Thread.cpp */; };
+		2775FF5A2043420F0022A8FA /* RHD2000Thread.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4420433A5C0022A8FA /* RHD2000Thread.h */; };
+		2775FF5B2043420F0022A8FA /* rhd2000evalboardusb3.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4620433A5C0022A8FA /* rhd2000evalboardusb3.h */; };
+		2775FF5C2043420F0022A8FA /* okFrontPanelDLL.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4720433A5C0022A8FA /* okFrontPanelDLL.h */; };
+		2775FF5D2043420F0022A8FA /* rhd2000datablockusb3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4820433A5C0022A8FA /* rhd2000datablockusb3.cpp */; };
+		2775FF5E2043420F0022A8FA /* rhd2000datablockusb3.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4920433A5C0022A8FA /* rhd2000datablockusb3.h */; };
+		2775FF5F2043420F0022A8FA /* rhd2000registersusb3.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4A20433A5C0022A8FA /* rhd2000registersusb3.h */; };
+		2775FF602043420F0022A8FA /* rhd2000registersusb3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4B20433A5C0022A8FA /* rhd2000registersusb3.cpp */; };
+		2775FF612043420F0022A8FA /* rhd2000evalboardusb3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4C20433A5C0022A8FA /* rhd2000evalboardusb3.cpp */; };
+		2775FF622043420F0022A8FA /* USBThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4D20433A5C0022A8FA /* USBThread.cpp */; };
+		2775FF632043420F0022A8FA /* USBThread.h in Sources */ = {isa = PBXBuildFile; fileRef = 2775FF4F20433A5C0022A8FA /* USBThread.h */; };
+		2775FF64204342890022A8FA /* libokFrontPanel.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2775FF55204340280022A8FA /* libokFrontPanel.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2775FF65204342980022A8FA /* libokFrontPanel.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2775FF55204340280022A8FA /* libokFrontPanel.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2775FF5020433C1D0022A8FA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				2775FF64204342890022A8FA /* libokFrontPanel.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2775FF352043399F0022A8FA /* IntanRecordingController.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntanRecordingController.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		2775FF382043399F0022A8FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2775FF3F20433A210022A8FA /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = ../Config/Plugin_Debug.xcconfig; sourceTree = "<group>"; };
+		2775FF4020433A210022A8FA /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = ../Config/Plugin_Release.xcconfig; sourceTree = "<group>"; };
+		2775FF4120433A5B0022A8FA /* RHD2000Editor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RHD2000Editor.h; path = ../../../../../Source/Plugins/IntanRecordingController/RHD2000Editor.h; sourceTree = "<group>"; };
+		2775FF4220433A5B0022A8FA /* RHD2000Editor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RHD2000Editor.cpp; path = ../../../../../Source/Plugins/IntanRecordingController/RHD2000Editor.cpp; sourceTree = "<group>"; };
+		2775FF4320433A5B0022A8FA /* OpenEphysLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = OpenEphysLib.cpp; path = ../../../../../Source/Plugins/IntanRecordingController/OpenEphysLib.cpp; sourceTree = "<group>"; };
+		2775FF4420433A5C0022A8FA /* RHD2000Thread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RHD2000Thread.h; path = ../../../../../Source/Plugins/IntanRecordingController/RHD2000Thread.h; sourceTree = "<group>"; };
+		2775FF4620433A5C0022A8FA /* rhd2000evalboardusb3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rhd2000evalboardusb3.h; sourceTree = "<group>"; };
+		2775FF4720433A5C0022A8FA /* okFrontPanelDLL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = okFrontPanelDLL.h; sourceTree = "<group>"; };
+		2775FF4820433A5C0022A8FA /* rhd2000datablockusb3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rhd2000datablockusb3.cpp; sourceTree = "<group>"; };
+		2775FF4920433A5C0022A8FA /* rhd2000datablockusb3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rhd2000datablockusb3.h; sourceTree = "<group>"; };
+		2775FF4A20433A5C0022A8FA /* rhd2000registersusb3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rhd2000registersusb3.h; sourceTree = "<group>"; };
+		2775FF4B20433A5C0022A8FA /* rhd2000registersusb3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rhd2000registersusb3.cpp; sourceTree = "<group>"; };
+		2775FF4C20433A5C0022A8FA /* rhd2000evalboardusb3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rhd2000evalboardusb3.cpp; sourceTree = "<group>"; };
+		2775FF4D20433A5C0022A8FA /* USBThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = USBThread.cpp; path = ../../../../../Source/Plugins/IntanRecordingController/USBThread.cpp; sourceTree = "<group>"; };
+		2775FF4E20433A5C0022A8FA /* RHD2000Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RHD2000Thread.cpp; path = ../../../../../Source/Plugins/IntanRecordingController/RHD2000Thread.cpp; sourceTree = "<group>"; };
+		2775FF4F20433A5C0022A8FA /* USBThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = USBThread.h; path = ../../../../../Source/Plugins/IntanRecordingController/USBThread.h; sourceTree = "<group>"; };
+		2775FF55204340280022A8FA /* libokFrontPanel.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libokFrontPanel.dylib; path = ../../../../Resources/DLLs/libokFrontPanel.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2775FF322043399F0022A8FA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2775FF65204342980022A8FA /* libokFrontPanel.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2775FF2C2043399F0022A8FA = {
+			isa = PBXGroup;
+			children = (
+				2775FF3E204339FA0022A8FA /* Config */,
+				2775FF372043399F0022A8FA /* IntanRecordingController */,
+				2775FF362043399F0022A8FA /* Products */,
+				2775FF5320433CAA0022A8FA /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		2775FF362043399F0022A8FA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2775FF352043399F0022A8FA /* IntanRecordingController.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2775FF372043399F0022A8FA /* IntanRecordingController */ = {
+			isa = PBXGroup;
+			children = (
+				2775FF4320433A5B0022A8FA /* OpenEphysLib.cpp */,
+				2775FF4220433A5B0022A8FA /* RHD2000Editor.cpp */,
+				2775FF4120433A5B0022A8FA /* RHD2000Editor.h */,
+				2775FF4E20433A5C0022A8FA /* RHD2000Thread.cpp */,
+				2775FF4420433A5C0022A8FA /* RHD2000Thread.h */,
+				2775FF4520433A5C0022A8FA /* rhythm-api */,
+				2775FF4D20433A5C0022A8FA /* USBThread.cpp */,
+				2775FF4F20433A5C0022A8FA /* USBThread.h */,
+				2775FF382043399F0022A8FA /* Info.plist */,
+			);
+			path = IntanRecordingController;
+			sourceTree = "<group>";
+		};
+		2775FF3E204339FA0022A8FA /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				2775FF3F20433A210022A8FA /* Plugin_Debug.xcconfig */,
+				2775FF4020433A210022A8FA /* Plugin_Release.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+		2775FF4520433A5C0022A8FA /* rhythm-api */ = {
+			isa = PBXGroup;
+			children = (
+				2775FF4620433A5C0022A8FA /* rhd2000evalboardusb3.h */,
+				2775FF4720433A5C0022A8FA /* okFrontPanelDLL.h */,
+				2775FF4820433A5C0022A8FA /* rhd2000datablockusb3.cpp */,
+				2775FF4920433A5C0022A8FA /* rhd2000datablockusb3.h */,
+				2775FF4A20433A5C0022A8FA /* rhd2000registersusb3.h */,
+				2775FF4B20433A5C0022A8FA /* rhd2000registersusb3.cpp */,
+				2775FF4C20433A5C0022A8FA /* rhd2000evalboardusb3.cpp */,
+			);
+			name = "rhythm-api";
+			path = "../../../../../Source/Plugins/IntanRecordingController/rhythm-api";
+			sourceTree = "<group>";
+		};
+		2775FF5320433CAA0022A8FA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2775FF55204340280022A8FA /* libokFrontPanel.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2775FF342043399F0022A8FA /* IntanRecordingController */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2775FF3B2043399F0022A8FA /* Build configuration list for PBXNativeTarget "IntanRecordingController" */;
+			buildPhases = (
+				2775FF5020433C1D0022A8FA /* CopyFiles */,
+				2775FF312043399F0022A8FA /* Sources */,
+				2775FF322043399F0022A8FA /* Frameworks */,
+				2775FF332043399F0022A8FA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IntanRecordingController;
+			productName = IntanRecordingController;
+			productReference = 2775FF352043399F0022A8FA /* IntanRecordingController.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2775FF2D2043399F0022A8FA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+				ORGANIZATIONNAME = "Open Ephys";
+				TargetAttributes = {
+					2775FF342043399F0022A8FA = {
+						CreatedOnToolsVersion = 9.2;
+					};
+				};
+			};
+			buildConfigurationList = 2775FF302043399F0022A8FA /* Build configuration list for PBXProject "IntanRecordingController" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2775FF2C2043399F0022A8FA;
+			productRefGroup = 2775FF362043399F0022A8FA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2775FF342043399F0022A8FA /* IntanRecordingController */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2775FF332043399F0022A8FA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2775FF312043399F0022A8FA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2775FF562043420F0022A8FA /* OpenEphysLib.cpp in Sources */,
+				2775FF572043420F0022A8FA /* RHD2000Editor.cpp in Sources */,
+				2775FF582043420F0022A8FA /* RHD2000Editor.h in Sources */,
+				2775FF592043420F0022A8FA /* RHD2000Thread.cpp in Sources */,
+				2775FF5A2043420F0022A8FA /* RHD2000Thread.h in Sources */,
+				2775FF5B2043420F0022A8FA /* rhd2000evalboardusb3.h in Sources */,
+				2775FF5C2043420F0022A8FA /* okFrontPanelDLL.h in Sources */,
+				2775FF5D2043420F0022A8FA /* rhd2000datablockusb3.cpp in Sources */,
+				2775FF5E2043420F0022A8FA /* rhd2000datablockusb3.h in Sources */,
+				2775FF5F2043420F0022A8FA /* rhd2000registersusb3.h in Sources */,
+				2775FF602043420F0022A8FA /* rhd2000registersusb3.cpp in Sources */,
+				2775FF612043420F0022A8FA /* rhd2000evalboardusb3.cpp in Sources */,
+				2775FF622043420F0022A8FA /* USBThread.cpp in Sources */,
+				2775FF632043420F0022A8FA /* USBThread.h in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2775FF392043399F0022A8FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2775FF3F20433A210022A8FA /* Plugin_Debug.xcconfig */;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks";
+			};
+			name = Debug;
+		};
+		2775FF3A2043399F0022A8FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2775FF4020433A210022A8FA /* Plugin_Release.xcconfig */;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks";
+			};
+			name = Release;
+		};
+		2775FF3C2043399F0022A8FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = IntanRecordingController/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openephys.IntanRecordingController;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2775FF3D2043399F0022A8FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = IntanRecordingController/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)/IntanRecordingController.bundle/Contents/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openephys.IntanRecordingController;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2775FF302043399F0022A8FA /* Build configuration list for PBXProject "IntanRecordingController" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2775FF392043399F0022A8FA /* Debug */,
+				2775FF3A2043399F0022A8FA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2775FF3B2043399F0022A8FA /* Build configuration list for PBXNativeTarget "IntanRecordingController" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2775FF3C2043399F0022A8FA /* Debug */,
+				2775FF3D2043399F0022A8FA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2775FF2D2043399F0022A8FA /* Project object */;
+}
