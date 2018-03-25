@@ -120,43 +120,46 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
     inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
-    hasNoInputs = lfpProcessor->getTotalDataChannels() != 0;
-    
-    for (int i = 0, len = lfpProcessor->getTotalDataChannels(); i < len; ++i)
-    {
-        int subProcessorIdx = lfpProcessor->getDataChannel(i)->getSubProcessorIdx();
-        
-        bool success = inputSubprocessorIndices.add(subProcessorIdx);
-        
-        if (success) inputSampleRates.set(subProcessorIdx, lfpProcessor->getDataChannel(i)->getSampleRate());
-        
-    }
-    
-    for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
-    {
-        subprocessorSelection->addItem (String (*(inputSubprocessorIndices.begin() + i)), i + 1);
-    }
-    
-    if (defaultSubprocessor >= 0)
-    {
-		subprocessorSelection->setSelectedId(defaultSubprocessor + 1, dontSendNotification);
-        
-        String sampleRateLabelText = "Sample Rate: ";
-		sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);
-        
-        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-		//setCanvasDrawableSubprocessor(defaultSubprocessor);
-    }
-    else
-    {
-        subprocessorSelection->addItem ("None", 1);
-        subprocessorSelection->setSelectedId(1, dontSendNotification);
-        
-        String sampleRateLabelText = "Sample Rate: <not available>";
-        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        //setCanvasDrawableSubprocessor(-1);
-        
-    }
+	if (lfpProcessor->getTotalDataChannels() != 0)
+
+	{
+
+		for (int i = 0, len = lfpProcessor->getTotalDataChannels(); i < len; ++i)
+		{
+			int subProcessorIdx = lfpProcessor->getDataChannel(i)->getSubProcessorIdx();
+
+			bool success = inputSubprocessorIndices.add(subProcessorIdx);
+
+			if (success) inputSampleRates.set(subProcessorIdx, lfpProcessor->getDataChannel(i)->getSampleRate());
+
+		}
+
+		for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
+		{
+			subprocessorSelection->addItem(String(*(inputSubprocessorIndices.begin() + i)), i + 1);
+		}
+
+		if (defaultSubprocessor >= 0)
+		{
+			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, dontSendNotification);
+
+			String sampleRateLabelText = "Sample Rate: ";
+			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);
+
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+			//setCanvasDrawableSubprocessor(defaultSubprocessor);
+		}
+		else
+		{
+			subprocessorSelection->addItem("None", 1);
+			subprocessorSelection->setSelectedId(1, dontSendNotification);
+
+			String sampleRateLabelText = "Sample Rate: <not available>";
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+			//setCanvasDrawableSubprocessor(-1);
+
+		}
+	}
 }
 
 void LfpDisplayEditor::setCanvasDrawableSubprocessor(int index)

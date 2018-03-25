@@ -98,6 +98,7 @@ private:
 
 	int subprocessorToDraw;
 	int numChannelsInSubprocessor;
+	int numSubprocessors;
 	float subprocessorSampleRate;
 
     CriticalSection displayMutex;

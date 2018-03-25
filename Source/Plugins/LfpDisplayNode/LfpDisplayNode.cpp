@@ -46,6 +46,7 @@ LfpDisplayNode::LfpDisplayNode()
     }
 
 	subprocessorToDraw = 0;
+	numSubprocessors = -1;
 	numChannelsInSubprocessor = 0;
 	updateSubprocessorsFlag = true;
 }
@@ -70,10 +71,20 @@ void LfpDisplayNode::updateSettings()
     std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 
 	numChannelsInSubprocessor = 0;
+	int totalSubprocessors = 0;
+	int currentSubprocessor = -1;
 
 	for (int i = 0; i < getNumInputs(); i++)
 	{
-		if (getDataChannel(i)->getSubProcessorIdx() == subprocessorToDraw)
+		int channelSubprocessor = getDataChannel(i)->getSubProcessorIdx();
+
+		if (currentSubprocessor != channelSubprocessor)
+		{
+			totalSubprocessors++;
+			currentSubprocessor = channelSubprocessor;
+		}
+
+		if (channelSubprocessor == subprocessorToDraw)
 		{
 			numChannelsInSubprocessor++;
 			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
@@ -112,16 +123,13 @@ void LfpDisplayNode::updateSettings()
     displayBufferIndex.clear();
 	displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
     
-    // update the editor's subprocessor selection display
-	if (updateSubprocessorsFlag)
+    // update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
+	if (numSubprocessors != totalSubprocessors)
 	{
 		LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
 		ed->updateSubprocessorSelectorOptions();
+		numSubprocessors = totalSubprocessors;
 	}
-	else {
-		updateSubprocessorsFlag = true;
-	}
-    
 }
 
 uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const

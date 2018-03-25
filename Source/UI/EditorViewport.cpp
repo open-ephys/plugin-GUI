@@ -1584,7 +1584,7 @@ const String EditorViewport::loadState(File fileToLoad)
 							{
 								procDesc.set(2, 4); //DataThread
 								procDesc.set(3, 1); //index
-								procDesc.set(4, "Rhytm FPGA"); //libraryName
+								procDesc.set(4, "Rhythm FPGA"); //libraryName
 							}
 							else
 								procDesc.set(3, int(procDesc[3]) - 1); //arrange old nodes to its current index
@@ -1684,7 +1684,6 @@ const String EditorViewport::loadState(File fileToLoad)
     refreshEditors();
 
     AccessClass::getProcessorGraph()->restoreParameters();
-
 
     String error = "Opened ";
     error += currentFile.getFileName();
