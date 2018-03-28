@@ -206,7 +206,7 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 		{
 			std::cout << "LfpDisplay found " << xmlNode->getIntAttribute("SubprocessorId") << std::endl;
 			defaultSubprocessor = xmlNode->getIntAttribute("SubprocessorId");
-			subprocessorSelection->setSelectedItemIndex(defaultSubprocessor + 1, sendNotification);
+			subprocessorSelection->setSelectedItemIndex(defaultSubprocessor, sendNotification);
 
 		}
 	}
