@@ -123,13 +123,10 @@ void LfpDisplayNode::updateSettings()
     displayBufferIndex.clear();
 	displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
     
-    // update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
-	if (numSubprocessors != totalSubprocessors)
-	{
-		LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
-		ed->updateSubprocessorSelectorOptions();
-		numSubprocessors = totalSubprocessors;
-	}
+    // update the editor's subprocessor selection display and sample rate
+	LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
+	ed->updateSubprocessorSelectorOptions();
+	numSubprocessors = totalSubprocessors;
 }
 
 uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
