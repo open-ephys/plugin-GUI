@@ -230,7 +230,7 @@ void LfpDisplayCanvas::update()
     channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
 	std::cout << "Checking channels: " << nChans << std::endl;
-	for (int i = 0; i <= processor->getNumInputs() + 1; i++) // extra channel for events
+	for (int i = 0; i < processor->getNumInputs() + 1; i++) // extra channel for events
     {
 		//std::cout << i << std::endl;
 		if (processor->getNumInputs() > 0)
@@ -282,7 +282,7 @@ void LfpDisplayCanvas::update()
 
 		std::cout << "Changing channels on LFP display" << std::endl;
 		if (nChans > 0)
-			lfpDisplay->setNumChannels(nChans + 1); // add an extra channel for events
+			lfpDisplay->setNumChannels(nChans);
 
         // update channel names
 		//std::cout << "Updating channel names" << std::endl;
