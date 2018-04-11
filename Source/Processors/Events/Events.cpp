@@ -185,7 +185,7 @@ size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, const Gener
 		+" start time: "
 			+ String(timestamp)
 			+ "@"
-			+ String(proc->getSampleRate())
+			+ String(proc->getSampleRate(subProcessorIdx))
 			+ "Hz";
 	}
 	size_t textSize = eventString.getNumBytesAsUTF8();
