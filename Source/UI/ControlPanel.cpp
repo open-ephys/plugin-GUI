@@ -887,15 +887,16 @@ void ControlPanel::buttonClicked(Button* button)
                 {
                     if (recordEngines[recordSelector->getSelectedId()-1]->isWindowOpen())
                         recordEngines[recordSelector->getSelectedId()-1]->toggleConfigWindow();
-
-                    audio->beginCallbacks();
+					
+					startRecording();
                     masterClock->start();
+					audio->beginCallbacks();
                     audioEditor->disable();
 
                     stopTimer();
                     startTimer(250); // refresh every 250 ms
 
-                    startRecording();
+                    
 
                     playButton->setToggleState(true, dontSendNotification);
                     recordSelector->setEnabled(false);
