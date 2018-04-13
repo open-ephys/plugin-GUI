@@ -45,6 +45,7 @@ MessageCenter::~MessageCenter()
 
 void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
 {
+	clearSettings();
 	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, CoreServices::getGlobalSampleRate(), this, 0);
 	chan->setName("GUI Messages");
 	chan->setDescription("Messages from the GUI Message Center");
