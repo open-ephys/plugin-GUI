@@ -80,7 +80,7 @@ void RecordThread::run()
 	//1-Wait until the first block has arrived, so we can align the timestamps
 	while (!m_receivedFirstBlock && !threadShouldExit())
 	{
-		wait(100);
+		wait(1);
 	}
 
 	//2-Open Files
@@ -145,7 +145,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 			uint16 sourceID = SystemEvent::getSourceID(event);
 			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
 			int64 timestamp = SystemEvent::getTimestamp(event);
-			EVERY_ENGINE->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
+				EVERY_ENGINE->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
 				AccessClass::getProcessorGraph()->getRecordNode()->getSourceTimestamp(sourceID, subProcIdx),
 				SystemEvent::getSyncText(event));
 		}

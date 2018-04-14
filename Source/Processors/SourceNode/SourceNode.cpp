@@ -356,13 +356,15 @@ void SourceNode::process(AudioSampleBuffer& buffer)
 {
 	int nSubs = dataThread->getNumSubProcessors();
 	int copiedChannels = 0;
+
 	for (int sub = 0; sub < nSubs; sub++)
 	{
 		int channelsToCopy = getNumOutputs(sub);
+		
 		int nSamples = inputBuffers[sub]->readAllFromBuffer(buffer, &timestamp, static_cast<uint64*>(eventCodeBuffers[sub]->getData()), buffer.getNumSamples(), copiedChannels, channelsToCopy);
 		copiedChannels += channelsToCopy;
 
-		setTimestampAndSamples(timestamp, nSamples, sub);
+		setTimestampAndSamples(timestamp, nSamples, sub); 
 
 		if (ttlChannels[sub])
 		{
