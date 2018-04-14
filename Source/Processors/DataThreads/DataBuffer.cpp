@@ -30,6 +30,8 @@ DataBuffer::DataBuffer (int chans, int size)
 {
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+
+	lastTimestamp = 0;
 }
 
 
@@ -40,6 +42,7 @@ void DataBuffer::clear()
 {
     buffer.clear();
     abstractFifo.reset();
+	lastTimestamp = 0;
 }
 
 
@@ -49,6 +52,8 @@ void DataBuffer::resize (int chans, int size)
 
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+
+	lastTimestamp = 0;
 
     numChans = chans;
 }
@@ -64,6 +69,9 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
     int cSize = 0;
     int idx = 0;
     int blkIdx;
+
+	if (numItems > 0)
+		lastTimestamp = timestamps[numItems-1]; 
 
     for (int i = 0; bs[i] != 0; ++i)
     {                                // for each of the dest blocks we can write to...
@@ -88,6 +96,8 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
             blkIdx  += cSize;
         }
     }
+
+	
 
     // finish write
     abstractFifo.finishedWrite (idx);
@@ -133,7 +143,7 @@ int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, u
     }
     else
     {
-        memcpy (timestamp, timestampBuffer + startIndex2, 8);
+		memcpy(timestamp, &lastTimestamp, 8);
     }
 
     if (blockSize2 > 0)
