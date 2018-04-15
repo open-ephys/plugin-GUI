@@ -12,6 +12,9 @@
 #include <dirent.h>
 #endif
 
+#ifdef TARGET_LINUX
+	#include <linux/serial.h>
+#endif
 
 #pragma comment(lib, "setupapi.lib")
 #include <fcntl.h>
@@ -418,8 +421,21 @@ bool ofSerial::setup(string portName, int baud)
     options.c_cflag &= ~PARENB;
     options.c_cflag &= ~CSTOPB;
     options.c_cflag &= ~CSIZE;
+	options.c_iflag &= (tcflag_t) ~(INLCR | IGNCR | ICRNL | IGNBRK);
+	options.c_oflag &= (tcflag_t) ~(OPOST);
+	#if defined( TARGET_LINUX )
+		options.c_cflag |= CRTSCTS;
+		options.c_lflag &= ~(ICANON | ECHO | ISIG);
+	#endif
     options.c_cflag |= CS8;
     tcsetattr(fd,TCSANOW,&options);
+	#ifdef TARGET_LINUX
+		struct serial_struct kernel_serial_settings;
+		if (ioctl(fd, TIOCGSERIAL, &kernel_serial_settings) == 0) {
+			kernel_serial_settings.flags |= ASYNC_LOW_LATENCY;
+			ioctl(fd, TIOCSSERIAL, &kernel_serial_settings);
+		}
+	#endif
 
     bInited = true;
     printf("Success in opening serial connection!\n\n");
