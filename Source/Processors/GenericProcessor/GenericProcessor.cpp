@@ -321,7 +321,7 @@ void GenericProcessor::update()
         {
             DataChannel* sourceChan = sourceNode->dataChannelArray[i];
             DataChannel* ch = new DataChannel (*sourceChan);
-			
+
 
             if (i < m_recordStatus.size())
             {
@@ -384,7 +384,7 @@ void GenericProcessor::update()
 
     updateSettings(); // allow processors to change custom settings
 
-	updateChannelIndexes();	
+	updateChannelIndexes();
 
 	m_needsToSendTimestampMessages.clear();
 	m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumSubProcessors());
@@ -606,7 +606,7 @@ juce::uint64 GenericProcessor::getTimestamp (int channelNum) const
 	int subProcessorIdx = 0;
     int64 ts         = 0;
 
-    if (channelNum >= 0 
+    if (channelNum >= 0
         && channelNum < dataChannelArray.size())
     {
         sourceNodeId = dataChannelArray[channelNum]->getSourceNodeID();
@@ -678,7 +678,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, subProcessorIdx, timestamp, nSamples);
-	
+
 
 	eventBuffer.addEvent(data, dataSize, 0);
 
@@ -831,7 +831,7 @@ void GenericProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& even
 	m_currentMidiBuffer = &eventBuffer;
     processEventBuffer (); // extract buffer sizes and timestamps,
     // set flag on all TTL events to zero
-	
+
 	m_lastProcessTime = Time::getHighResolutionTicks();
     process (buffer);
 
@@ -1079,7 +1079,7 @@ void GenericProcessor::loadChannelParametersFromXml (XmlElement* channelInfo, In
         {
             if (subNode->hasTagName ("SELECTIONSTATE"))
             {
-                getEditor()->setChannelSelectionState (channelNum - 1,
+                getEditor()->setChannelSelectionState (channelNum,
                                                        subNode->getBoolAttribute ("param"),
                                                        subNode->getBoolAttribute ("record"),
                                                        subNode->getBoolAttribute ("audio"));
@@ -1167,7 +1167,7 @@ int GenericProcessor::getCurrentProgram()   { return 0; }
 
 int GenericProcessor::getNumInputs() const                  { return settings.numInputs; }
 int GenericProcessor::getNumOutputs() const                 { return settings.numOutputs; }
-int GenericProcessor::getNumOutputs(int subProcessorIdx) const 
+int GenericProcessor::getNumOutputs(int subProcessorIdx) const
 {
 	uint32 sourceId = getProcessorFullId(nodeId, subProcessorIdx);
 	try
