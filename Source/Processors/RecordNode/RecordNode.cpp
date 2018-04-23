@@ -448,7 +448,7 @@ float RecordNode::getFreeSpace() const
 
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
-    if (true)
+    if (isRecording)
     {
 
             if ((*(event.getRawData()+0) & 0x80) == 0) // saving flag > 0 (i.e., event has not already been processed)
@@ -476,6 +476,8 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents();
 
+	bool noEmptyBuffers = true;
+
     if (isRecording)
     {
         // SECOND: write channel data
@@ -484,19 +486,32 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 		{
 			int realChan = channelMap[chan];
 			int nSamples = getNumSamples(realChan);
-			int timestamp = getTimestamp(realChan);
-			m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
+
+			if (nSamples == 0)
+				noEmptyBuffers = false;
+		}
+
+		if (noEmptyBuffers || setFirstBlock)
+		{
+			for (int chan = 0; chan < recordChans; ++chan)
+			{
+				int realChan = channelMap[chan];
+				int nSamples = getNumSamples(realChan);
+				int timestamp = getTimestamp(realChan);
+				m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
+			}
+			if (!setFirstBlock)
+			{
+
+				m_recordThread->setFirstBlockFlag(true);
+				setFirstBlock = true;
+			}
 		}
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
-		if (!setFirstBlock)
-		{
-			m_recordThread->setFirstBlockFlag(true);
-			setFirstBlock = true;
-		}
+		
         
     }
-
 
 }
 

@@ -99,6 +99,12 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		int samplesToWrite = jmin((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
 		for (int i = 0; i < samplesToWrite; i++)
 		{
+			//if (writtenSamples == 0 && *(data + dataIdx) == 0)
+			//{
+			//	std::cout << "Found a zero." << std::endl;
+			//	break;
+			//}
+
 			*(blockPtr + startMemPos + channel + i*m_nChannels) = *(data + dataIdx);
 			dataIdx++;
 		}

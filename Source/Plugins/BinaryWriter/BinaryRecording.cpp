@@ -161,6 +161,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 	Array<uint32> procIDs;
 	for (int i = 0; i < nChans; i++)
 	{
+		if (i == 0)
+			std::cout << "Start timestamp: " << getTimestamp(i) << std::endl;
 		m_startTS.add(getTimestamp(i));
 	}
 
