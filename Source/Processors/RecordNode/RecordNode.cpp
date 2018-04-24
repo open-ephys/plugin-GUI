@@ -336,6 +336,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		std::cout << "Num Recording Processors: " << procInfo.size() << std::endl;
 		int numRecordedChannels = channelMap.size();
 
+		m_validBlocks.clear();
+		m_validBlocks.insertMultiple(0, false, numRecordedChannels);
+
 		//WARNING: If at some point we record at more that one recordEngine at once, we should change this, as using OwnedArrays only works for the first
 		EVERY_ENGINE->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 		m_recordThread->setChannelMap(channelMap);
@@ -485,14 +488,34 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 			int realChan = channelMap[chan];
 			int nSamples = getNumSamples(realChan);
 			int timestamp = getTimestamp(realChan);
-			m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
+			bool shouldWrite = m_validBlocks[chan];
+			if (!shouldWrite && nSamples > 0)
+			{
+				shouldWrite = true;
+				m_validBlocks.set(chan, true);
+			}
+
+			if (shouldWrite)
+				m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
 		}
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
 		if (!setFirstBlock)
 		{
-			m_recordThread->setFirstBlockFlag(true);
-			setFirstBlock = true;
+			bool shouldSetFlag = true;
+			for (int chan = 0; chan < recordChans; ++chan)
+			{
+				if (!m_validBlocks[chan])
+				{
+					shouldSetFlag = false;
+					break;
+				}
+			}
+			if (shouldSetFlag)
+			{
+				m_recordThread->setFirstBlockFlag(true);
+				setFirstBlock = true;
+			}
 		}
         
     }

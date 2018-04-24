@@ -216,6 +216,7 @@ private:
 	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
 	
 	Array<int> m_recordedChannelMap;
+	Array<bool> m_validBlocks;
 
 	String m_lastSettingsText;
 
