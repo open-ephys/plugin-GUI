@@ -987,7 +987,7 @@ String RHD2000Thread::getChannelUnits(int chanIndex) const
 int RHD2000Thread::getNumTTLOutputs(int subproc) const
 {
 	if (subproc > 0) return 0;
-	return 8;
+	return 16;
 }
 
 float RHD2000Thread::getSampleRate(int subproc) const
