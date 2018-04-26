@@ -448,7 +448,7 @@ float RecordNode::getFreeSpace() const
 
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
-    if (isRecording)
+    if (true)
     {
 
             if ((*(event.getRawData()+0) & 0x80) == 0) // saving flag > 0 (i.e., event has not already been processed)
@@ -459,7 +459,8 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 					eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
 				else
 					eventIndex = -1;
-				m_eventQueue->addEvent(event, timestamp, eventIndex);
+				if (isRecording)
+					m_eventQueue->addEvent(event, timestamp, eventIndex);
             }
     }
 }
