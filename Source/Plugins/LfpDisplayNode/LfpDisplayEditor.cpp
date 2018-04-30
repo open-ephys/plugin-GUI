@@ -71,7 +71,6 @@ void LfpDisplayEditor::stopAcquisition()
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
     canvas = new LfpDisplayCanvas(lfpProcessor);
-    updateSubprocessorSelectorOptions();
     return canvas;
 }
 
@@ -141,7 +140,7 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
 
 		if (defaultSubprocessor >= 0)
 		{
-			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, dontSendNotification);
+			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, sendNotification);
 
 			String sampleRateLabelText = "Sample Rate: ";
 			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);
