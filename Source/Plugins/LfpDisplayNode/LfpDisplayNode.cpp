@@ -147,7 +147,6 @@ void LfpDisplayNode::setSubprocessor(int sp)
 	subprocessorToDraw = sp;
 	std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;
 	updateSubprocessorsFlag = false;
-	updateSettings();
 	
 }
 
