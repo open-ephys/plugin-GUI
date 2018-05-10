@@ -179,8 +179,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libsz.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5_cpp.a",
+					"-Wl,-force_load,$(MAC_HDF5_BASE)/lib/libhdf5.a",
+					"-Wl,-force_load,$(MAC_HDF5_BASE)/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -197,8 +197,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/libsz.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5.a",
-					"-Wl,-force_load,$(MAC_PACKAGE_DIR)/lib/hdf5-18/lib/libhdf5_cpp.a",
+					"-Wl,-force_load,$(MAC_HDF5_BASE)/lib/libhdf5.a",
+					"-Wl,-force_load,$(MAC_HDF5_BASE)/lib/libhdf5_cpp.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

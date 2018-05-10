@@ -1,6 +1,7 @@
 // Defaults for values that might be overridden in Env.xcconfig
 JULIA_PATH = /Applications/Julia-0.5.app/Contents/Resources/julia
 MAC_PACKAGE_DIR = /opt/local
+MAC_HDF5_BASE = $(MAC_PACKAGE_DIR)/lib/hdf5-18
 
 // Pull in machine-specific settings from git-ignored file, if it exists.
 #include? "Env.xcconfig"
