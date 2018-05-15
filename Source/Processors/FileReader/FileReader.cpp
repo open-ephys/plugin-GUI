@@ -301,7 +301,9 @@ void FileReader::process (AudioSampleBuffer& buffer)
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 	timestamp += samplesNeededPerBuffer;
- 
+
+	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
+    
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 }
