@@ -25,6 +25,7 @@
 #include "FileReaderEditor.h"
 #include <stdio.h>
 #include "../../AccessClass.h"
+#include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 
 
@@ -41,6 +42,8 @@ FileReader::FileReader()
     , counter               (0)
     , bufferCacheWindow     (0)
     , m_shouldFillBackBuffer(false)
+	, m_bufferSize(1024)
+	, m_sysSampleRate(44100)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -135,7 +138,36 @@ void FileReader::setEnabledState (bool t)
 bool FileReader::enable()
 {
 	timestamp = 0;
+
+	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
+	AudioDeviceManager::AudioDeviceSetup ads;
+	adm.getAudioDeviceSetup(ads);
+	m_sysSampleRate = ads.sampleRate;
+	m_bufferSize = ads.bufferSize;
+	if (m_bufferSize == 0) m_bufferSize = 1024;
+
+	m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
+
+	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+
+	readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
+
+	// set the backbuffer so that on the next call to process() we start with bufferA and buffer
+	// cache window id = 0
+	readBuffer = &bufferB;
+	bufferCacheWindow = 0;
+	m_shouldFillBackBuffer.set(false);
+
+	startThread(); // start async file reader thread
+
 	return isEnabled;
+}
+
+bool FileReader::disable()
+{
+	stopThread(100);
+	return true;
 }
 
 bool FileReader::isFileSupported (const String& fileName) const
@@ -196,12 +228,6 @@ bool FileReader::setFile (String fullpath)
     static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
     setActiveRecording (0);
     
-    m_samplesPerBuffer.set(float(BUFFER_SIZE) * (getDefaultSampleRate() / 44100.0f));
-    
-    readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
-    
-    startThread(); // start async file reader thread
-
     return true;
 }
 
@@ -225,14 +251,9 @@ void FileReader::setActiveRecording (int index)
     }
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumSamples));
+	input->seekTo(startSample);
 
-    bufferA.malloc (currentNumChannels * BUFFER_SIZE * BUFFER_WINDOW_CACHE_SIZE);
-    bufferB.malloc (currentNumChannels * BUFFER_SIZE * BUFFER_WINDOW_CACHE_SIZE);
-    
-    // set the backbuffer so that on the next call to process() we start with bufferA and buffer
-    // cache window id = 0
-    readBuffer = &bufferB;
-    bufferCacheWindow = 0;
+   
 }
 
 
@@ -258,7 +279,7 @@ void FileReader::updateSettings()
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
-    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / 44100.0f));
+    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
@@ -280,7 +301,7 @@ void FileReader::process (AudioSampleBuffer& buffer)
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 	timestamp += samplesNeededPerBuffer;
-    
+ 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 }
