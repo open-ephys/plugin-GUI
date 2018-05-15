@@ -132,6 +132,11 @@ void FileReader::setEnabledState (bool t)
     isEnabled = t;
 }
 
+bool FileReader::enable()
+{
+	timestamp = 0;
+	return isEnabled;
+}
 
 bool FileReader::isFileSupported (const String& fileName) const
 {
@@ -273,8 +278,8 @@ void FileReader::process (AudioSampleBuffer& buffer)
                                    samplesNeededPerBuffer);
     }
     
-    timestamp += samplesNeededPerBuffer;
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
+	timestamp += samplesNeededPerBuffer;
     
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;

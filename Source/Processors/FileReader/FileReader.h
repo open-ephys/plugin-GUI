@@ -63,6 +63,7 @@ public:
 
     void updateSettings() override;
     void setEnabledState (bool t)  override;
+	bool enable() override;
 
     String getFile() const;
     bool setFile (String fullpath);
