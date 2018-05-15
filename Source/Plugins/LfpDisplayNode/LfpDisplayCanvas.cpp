@@ -313,9 +313,11 @@ void LfpDisplayCanvas::update()
             lfpDisplay->channelInfo[i]->updateType();
         }
         
-		if (nChans > 0)
-			std::cout << "Rebuilding drawable channels" << std::endl;
+        if (nChans > 0)
+        {
+            std::cout << "Rebuilding drawable channels" << std::endl;
             lfpDisplay->rebuildDrawableChannelsList();
+        }
     }
     
 	}
