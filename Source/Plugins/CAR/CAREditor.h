@@ -58,6 +58,9 @@ public:
     void sliderEvent (Slider* sliderWhichValueHasChanged) override;
     void channelChanged (int channel, bool newState) override;
 
+    /** Saving/loading parameters */
+    void saveCustomParameters(XmlElement* xml) override;
+    void loadCustomParameters(XmlElement* xml) override;
 
 private:
     enum ChannelsType

@@ -138,3 +138,43 @@ void CAR::setAffectedChannelState (int channel, bool newState)
         m_affectedChannels.add (channel);
 }
 
+void CAR::saveCustomChannelParametersToXml(XmlElement* channelElement,
+    int channelNumber, InfoObjectCommon::InfoObjectType channelType)
+{
+    if (channelType == InfoObjectCommon::DATA_CHANNEL)
+    {
+        XmlElement* groupState = channelElement->createNewChildElement("GROUPSTATE");
+        
+        const Array<int>& referenceChannels = getReferenceChannels();
+        bool isReferenceChannel = referenceChannels.contains(channelNumber);
+        groupState->setAttribute("reference", isReferenceChannel);
+
+        const Array<int>& affectedChannels = getAffectedChannels();
+        bool isAffectedChannel = affectedChannels.contains(channelNumber);
+        groupState->setAttribute("affected", isAffectedChannel);
+    }
+}
+
+void CAR::loadCustomChannelParametersFromXml(XmlElement* channelElement,
+    InfoObjectCommon::InfoObjectType channelType)
+{
+    if (channelType == InfoObjectCommon::DATA_CHANNEL)
+    {
+        int channelNumber = channelElement->getIntAttribute("number");
+
+        forEachXmlChildElementWithTagName(*channelElement, groupState, "GROUPSTATE")
+        {
+            if (groupState->hasAttribute("reference"))
+            {
+                bool isReferenceChannel = groupState->getBoolAttribute("reference");
+                setReferenceChannelState(channelNumber, isReferenceChannel);
+            }
+
+            if (groupState->hasAttribute("affected"))
+            {
+                bool isAffectedChannel = groupState->getBoolAttribute("affected");
+                setAffectedChannelState(channelNumber, isAffectedChannel);
+            }
+        }
+    }
+}
