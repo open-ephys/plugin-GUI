@@ -144,3 +144,24 @@ void CAREditor::sliderEvent (Slider* sliderWhichValueHasChanged)
 
     processor->setGainLevel ( (float)sliderWhichValueHasChanged->getValue());
 }
+
+void CAREditor::saveCustomParameters(XmlElement* xml)
+{
+    auto processor = static_cast<CAR*> (getProcessor());
+
+    xml->setAttribute("Type", "CAREditor");
+
+    XmlElement* paramValues = xml->createNewChildElement("VALUES");
+    paramValues->setAttribute("gainLevel", processor->getGainLevel());
+}
+
+void CAREditor::loadCustomParameters(XmlElement* xml)
+{
+    auto processor = static_cast<CAR*> (getProcessor());
+
+    forEachXmlChildElementWithTagName(*xml, xmlNode, "VALUES")
+    {
+        double gain = xmlNode->getDoubleAttribute("gainLevel", m_gainSlider->getValue());
+        m_gainSlider->setValue(gain, sendNotificationSync);
+    }
+}
