@@ -19,6 +19,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+Specification of the .npy file format is at:
+
+http://www.numpy.org/neps/nep-0001-npy-format.html
+
+Python implementation is at:
+
+https://github.com/numpy/numpy/blob/master/numpy/lib/format.py
+
 */
 
 #include "NpyFile.h"
@@ -27,7 +35,6 @@ using namespace BinaryRecordingEngine;
 
 NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 {
-		
 	m_dim1 = 1;
 	m_dim2 = 1;
 
@@ -44,12 +51,10 @@ NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 	if (!openFile(path))
 		return;
 	writeHeader(typeList);
-		
 }
 
 NpyFile::NpyFile(String path, NpyType type, unsigned int dim)
 {
-	
 	if (!openFile(path))
 		return;
 
@@ -58,7 +63,6 @@ NpyFile::NpyFile(String path, NpyType type, unsigned int dim)
 	m_dim1 = dim;
 	m_dim2 = type.getTypeLength();
 	writeHeader(typeList);
-
 }
 
 bool NpyFile::openFile(String path)
@@ -67,9 +71,13 @@ bool NpyFile::openFile(String path)
 	Result res = file.create();
 	if (res.failed())
 	{
-		std::cerr << "Error creating file " << path << ":" << res.getErrorMessage() << std::endl;
+		std::cerr << "Error creating file " << path << ":" << res.getErrorMessage()
+				  << std::endl;
 		return false;
 	}
+	file.deleteFile(); // overwrite, never append a new .npy file to end of an existing one
+	// output stream buffer size defaults to 32768 bytes, but is irrelevant because
+	// each updateHeader() call triggers a m_file->flush() to disk:
 	m_file = file.createOutputStream();
 	if (!m_file)
 		return false;
@@ -78,67 +86,101 @@ bool NpyFile::openFile(String path)
 	return true;
 }
 
+String NpyFile::getShapeString()
+{
+	String shape;
+	shape.preallocateBytes(32);
+	shape = "(";
+	shape += String(m_recordCount) + ",";
+	if (m_dim1 > 1)
+	{
+		shape += " " + String(m_dim1) + ",";
+	}
+	if (m_dim2 > 1)
+		shape += " " + String(m_dim2);
+	shape += "), }";
+	return shape;
+}
+
 void NpyFile::writeHeader(const Array<NpyType>& typeList)
 {
+	uint8 magicNum = 0x93;
+	String magicStr = "NUMPY";
+	uint16 ver = 0x0001;
+	// magic = magic number + magic string + magic version
+	int magicLen = sizeof(uint8) + magicStr.getNumBytesAsUTF8() + sizeof(uint16);
+	int nbytesAlign = 64; // header should use an integer multiple of this many bytes
+
 	bool multiValue = typeList.size() > 1;
-	String header = "{'descr': ";
-	header.preallocateBytes(100);
+	String strHeader;
+	strHeader.preallocateBytes(128);
+	strHeader = "{'descr': ";
 	
 	if (multiValue)
-		header += "[";
+		strHeader += "[";
 
 	int nTypes = typeList.size();
 
 	for (int i = 0; i < nTypes; i++)
 	{
 		NpyType& type = typeList.getReference(i);
-		if (i > 0) header += ", ";
+		if (i > 0) strHeader += ", ";
 		if (multiValue)
-			header += "('" + type.getName() + "', '" + type.getTypeString() + "', (" + String(type.getTypeLength()) + ",))";
+			strHeader += "('" + type.getName() + "', '" + type.getTypeString()
+					   + "', (" + String(type.getTypeLength()) + ",))";
 		else
-			header += "'" + type.getTypeString() + "'";
+			strHeader += "'" + type.getTypeString() + "'";
 	}
 	if (multiValue)
-		header += "]";
-	header += ", 'fortran_order': False, 'shape': ";
+		strHeader += "]";
+	strHeader += ", 'fortran_order': False, 'shape': ";
 
-	m_countPos = header.length() + 10;
-	header += "(1,), }";
-	int padding = (int((header.length() + 30) / 16) + 1) * 16;
-	header = header.paddedRight(' ', padding);
-	header += '\n';
+	// save byte offset of shape field in .npy file
+	// magic + header length field + current string header length:
+	m_shapePos = magicLen + sizeof(uint16) + strHeader.length();
+	strHeader += getShapeString(); // inits to 0 records, i.e. 1st dim has length 0
+	int baseHeaderLen = magicLen + sizeof(uint16) + strHeader.length() + 1; // +1 for newline
+	int padlen = nbytesAlign - (baseHeaderLen % nbytesAlign);
+	strHeader = strHeader.paddedRight(' ', strHeader.length() + padlen);
+	strHeader += '\n';
+	uint16 strHeaderLen = strHeader.length();
 
-	uint8 magicNum = 0x093;
 	m_file->write(&magicNum, sizeof(uint8));
-	String magic = "NUMPY";
-	uint16 len = header.length();
-	m_file->write(magic.toUTF8(), magic.getNumBytesAsUTF8());
-	uint16 ver = 0x0001;
+	m_file->write(magicStr.toUTF8(), magicStr.getNumBytesAsUTF8());
 	m_file->write(&ver, sizeof(uint16));
-	m_file->write(&len, sizeof(uint16));
-	m_file->write(header.toUTF8(), len);
+	m_file->write(&strHeaderLen, sizeof(uint16));
+	m_file->write(strHeader.toUTF8(), strHeaderLen);
+	m_headerLen = m_file->getPosition(); // total header length
+	m_file->flush();
+}
+
+void NpyFile::updateHeader()
+{
+	// overwrite the shape part of the header - even without explicitly calling
+	// m_file->flush(), overwriting seems to trigger a flush to disk,
+	// while appending to end of file does not
+	int currentPos = m_file->getPosition();
+	if (m_file->setPosition(m_shapePos))
+	{
+		String newShape = getShapeString();
+		if (m_shapePos + newShape.getNumBytesAsUTF8() + 1 > m_headerLen) // +1 for newline
+		{
+			std::cerr << "Error. Header has grown too big to update in-place " << std::endl;
+		}
+		m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
+		//m_file->flush(); // doesn't seem to be necessary, already flushed due to overwrite
+		m_file->setPosition(currentPos); // restore position to end of file
+	}
+	else
+	{
+		std::cerr << "Error. Unable to seek to update file header"
+				  << m_file->getFile().getFullPathName() << std::endl;
+	}
 }
 
 NpyFile::~NpyFile()
 {
-	if (m_file->setPosition(m_countPos))
-	{
-		String newShape = "(";
-		newShape.preallocateBytes(20);
-		newShape += String(m_recordCount) + ",";
-		if (m_dim1 > 1)
-		{
-			newShape += String(m_dim1) + ",";
-		}
-		if (m_dim2 > 1)
-			newShape += String(m_dim2);
-		newShape += "), }";
-		m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
-	}
-	else
-	{
-		std::cerr << "Error. Unable to seek to update header on file " << m_file->getFile().getFullPathName() << std::endl;
-	}
+	updateHeader();
 }
 
 void NpyFile::writeData(const void* data, size_t size)
@@ -149,8 +191,9 @@ void NpyFile::writeData(const void* data, size_t size)
 void NpyFile::increaseRecordCount(int count)
 {
 	m_recordCount += count;
+	if (m_recordCount % recordBufferSize == 0)
+		updateHeader(); // also triggers a flush to disk
 }
-
 
 NpyType::NpyType(String n, BaseType t, size_t l)
 	: name(n), type(t), length(l)
@@ -173,11 +216,11 @@ String NpyType::getTypeString() const
 	switch (type)
 	{
 	case BaseType::CHAR:
-		return "S" + String(length + 1); //account for the null separator
+		return "|S" + String(length + 1); // null-terminated bytes, account for null separator
 	case BaseType::INT8:
-		return "<i1";
+		return "|i1";
 	case BaseType::UINT8:
-		return "<u1";
+		return "|u1";
 	case BaseType::INT16:
 		return "<i2";
 	case BaseType::UINT16:
@@ -195,7 +238,7 @@ String NpyType::getTypeString() const
 	case BaseType::DOUBLE:
 		return "<f8";
 	default:
-		return "<b1";
+		return "|i1"; // signed byte
 	}
 }
 

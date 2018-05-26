@@ -55,13 +55,22 @@ namespace BinaryRecordingEngine
 		void increaseRecordCount(int count = 1);
 	private:
 		bool openFile(String path);
+		String getShapeString();
 		void writeHeader(const Array<NpyType>& typeList);
+		void updateHeader();
 		ScopedPointer<FileOutputStream> m_file;
+		int64 m_headerLen; // total header length
 		bool m_okOpen{ false };
 		int64 m_recordCount{ 0 };
-		size_t m_countPos;
+		size_t m_shapePos;
 		unsigned int m_dim1;
 		unsigned int m_dim2;
+
+		// Compile-time constants
+
+		// flush file buffer to disk and update the .npy header every this many records:
+		const int recordBufferSize{ 128 };
+
 	};
 
 };
