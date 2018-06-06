@@ -288,12 +288,9 @@ void LfpDisplayCanvas::update()
         //std::cout << "Updating channel names" << std::endl;
         for (int i = 0; i < nChans; i++)
         {
-
-           String chName = processor->getDataChannel(i)->getName();
-
+            String chName = processor->getDataChannel(i)->getName();
             lfpDisplay->channelInfo[i]->setName(chName);
             lfpDisplay->setEnabledState(isChannelEnabled[i], i);
-
         }
 
         if (nChans == 0) lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
@@ -308,7 +305,8 @@ void LfpDisplayCanvas::update()
     {
         for (int i = 0; i < nChans; i++)
         {
-            //std::cout << i << std::endl;
+            String chName = processor->getDataChannel(i)->getName();
+            lfpDisplay->channelInfo[i]->setName(chName);
             lfpDisplay->channels[i]->updateType();
             lfpDisplay->channelInfo[i]->updateType();
         }
@@ -3137,6 +3135,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisp
     , options(o)
     , isSelected(false)
     , chan(channelNumber)
+    , name("")
     , drawableChan(channelNumber)
     , channelOverlap(300)
     , channelHeight(30)
@@ -3572,6 +3571,11 @@ int LfpChannelDisplay::getChannelNumber()
     return chan;
 }
 
+String LfpChannelDisplay::getName()
+{
+    return name;
+}
+
 int LfpChannelDisplay::getDrawableChannelNumber()
 {
     return drawableChan;
@@ -3628,7 +3632,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDispl
     y = -1.0f;
 
 //    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
-    enableButton = new UtilityButton("*", Font("Small Text", 13, Font::plain));
+    enableButton = new UtilityButton("", Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
 
     enableButton->setEnabledState(true);
@@ -3788,24 +3792,17 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
 
-//    g.setColour(lineColour);
-    //if (chan > 98)
-    //  g.fillRoundedRectangle(5,center-8,51,22,8.0f);
-    //else
-
-//    g.fillRoundedRectangle(5,center-8,41,22,8.0f);
-
     // Draw the channel numbers
     g.setColour(Colours::grey);
-    const String channelString = (isChannelNumberHidden() ? ("--") : String(getChannelNumber() + 1));
+    const String channelString = (isChannelNumberHidden() ? ("--") : getName());
     bool isCentered = !getEnabledButtonVisibility();
 
     g.drawText(channelString,
                2,
                center-4,
-               isCentered ? (getWidth()/2-4) : (getWidth()/4),
+               getWidth()/2,
                10,
-               isCentered ? Justification::centred : Justification::centredRight,
+               isCentered ? Justification::centred : Justification::centredLeft,
                false);
 
     g.setColour(lineColour);
@@ -3856,17 +3853,11 @@ void LfpChannelDisplayInfo::resized()
 {
 
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
-
-    //if (chan > 98)
-    //  enableButton->setBounds(8,center-5,45,16);
-    //else
-//    enableButton->setBounds(8,center-5,35,16);
-
     setEnabledButtonVisibility(getHeight() >= 16);
 
     if (getEnabledButtonVisibility())
     {
-        enableButton->setBounds(getWidth()/4 + 5, (center) - 7, 15, 15);
+        enableButton->setBounds(getWidth()/2 - 10, center - 5, 10, 10);
     }
 
     setChannelNumberIsHidden(getHeight() < 16 && (getDrawableChannelNumber() + 1) % 10 != 0);
