@@ -74,12 +74,12 @@ public:
     // for communication with SourceNode processors:
     bool foundInputSource() override;
 
-	int getNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessor) const override;
+    int getNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessor) const override;
 
-	unsigned int getNumSubProcessors() const override;
+    unsigned int getNumSubProcessors() const override;
 
-	int getNumTTLOutputs(int subprocessor) const override;
-    
+    int getNumTTLOutputs(int subprocessor) const override;
+
     bool usesCustomNames() const override;
 
     float getSampleRate(int subprocessor) const override;
@@ -125,7 +125,7 @@ public:
     String getChannelName (int ch) const;
     void setNumChannels (int hsNum, int nChannels);
 
-	String getChannelUnits(int chanIndex) const override;
+    String getChannelUnits(int chanIndex) const override;
 
     int getHeadstageChannels         (int hsNum) const;
     int getActiveChannelsInHeadstage (int hsNum) const;
@@ -139,8 +139,8 @@ public:
     void enableBoardLeds( bool enable);
     int setClockDivider (int divide_ratio);
 
-	void setAdcRange(int adcChannel, short rangeType);
-	short getAdcRange(int adcChannel) const;
+    void setAdcRange(int adcChannel, short rangeType);
+    short getAdcRange(int adcChannel) const;
 
     GenericEditor* createEditor (SourceNode* sn);
 
@@ -227,8 +227,8 @@ private:
     // Sync ouput divide factor
     uint16 clockDivideFactor;
 
-	//ADC ranges
-	std::array<atomic_short, 8> adcRangeSettings;
+    //ADC ranges
+    std::array<atomic_short, 8> adcRangeSettings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Thread);
 };
@@ -240,7 +240,7 @@ public:
     RHDHeadstage (Rhd2000EvalBoard::BoardDataSource stream);
     ~RHDHeadstage();
 
-	int getStreamIndex (int index)  const;
+    int getStreamIndex (int index)  const;
     int getNumChannels()            const;
     int getNumStreams()             const;
     int getNumActiveChannels()      const;

@@ -113,7 +113,7 @@ public:
 
     void resized();
 
-	const DataChannel::DataChannelTypes type;
+    const DataChannel::DataChannelTypes type;
 private:
     Array<float> gains;
     FPGAchannelList* channelList;
@@ -184,7 +184,7 @@ public:
     bool getSaveImpedance();
     bool getAutoMeasureImpedance();
 
-	void handleAsyncUpdate();
+    void handleAsyncUpdate();
 
 private:
 
@@ -200,7 +200,7 @@ private:
 
     ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
     ScopedPointer<UtilityButton> adcButton;
-	ScopedPointer<UtilityButton> ledButton;
+    ScopedPointer<UtilityButton> ledButton;
 
     ScopedPointer<UtilityButton> dspoffsetButton;
     ScopedPointer<ComboBox> ttlSettleCombo,dacHPFcombo;
@@ -213,7 +213,7 @@ private:
     RHD2000Thread* board;
     FPGAcanvas* canvas;
 
-	ScopedPointer<ImpedanceData> impedanceData;
+    ScopedPointer<ImpedanceData> impedanceData;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RHD2000Editor);
 
@@ -320,7 +320,7 @@ public:
     int getSelectedId();
     void setSelectedId(int);
 
-	String getText();
+    String getText();
 
     void paint(Graphics& g);
     void comboBoxChanged(ComboBox* cb);
