@@ -68,7 +68,7 @@ void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& arra
 
 DataThread* RHD2000Thread::createDataThread(SourceNode *sn)
 {
-	return new RHD2000Thread(sn);
+    return new RHD2000Thread(sn);
 }
 
 RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
@@ -77,8 +77,8 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     deviceFound(false),
     isTransmitting(false),
     dacOutputShouldChange(false),
+    acquireAuxChannels(false),
     acquireAdcChannels(false),
-    acquireAuxChannels(true),
     fastSettleEnabled(false),
     fastTTLSettleEnabled(false),
     fastSettleTTLChannel(-1),
@@ -818,6 +818,7 @@ void RHD2000Thread::setDefaultChannelNames()
     stream_prefix.add("D1");
     stream_prefix.add("D2");
 
+    // headstage channels
     for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
     {
         if (headstagesArray[i]->isPlugged())
@@ -839,32 +840,33 @@ void RHD2000Thread::setDefaultChannelNames()
             }
         }
     }
-    //Aux channels
-    for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
+    // AUX channels
+    if (acquireAuxChannels)
     {
-        if (headstagesArray[i]->isPlugged())
+        for (int i = 0; i < MAX_NUM_HEADSTAGES; i++)
         {
-            for (int k = 0; k < 3; k++)
+            if (headstagesArray[i]->isPlugged())
             {
-                int chn = channelNumber - 1;
-
-                if (newScan || !channelInfo[chn].modified)
+                for (int k = 0; k < 3; k++)
                 {
-                    ChannelCustomInfo in;
-                    if (numberingScheme == 1)
-                        in.name = "AUX" + String(aux_counter);
-                    else
-                        in.name = "AUX_" + stream_prefix[i] + "_" + String(1 + k);
-                    in.gain = getBitVolts(sn->getDataChannel(chn));
-                    channelInfo.set(chn, in);
-
+                    int chn = channelNumber - 1;
+                    if (newScan || !channelInfo[chn].modified)
+                    {
+                        ChannelCustomInfo in;
+                        if (numberingScheme == 1)
+                            in.name = "AUX" + String(aux_counter);
+                        else
+                            in.name = "AUX_" + stream_prefix[i] + "_" + String(1 + k);
+                        in.gain = getBitVolts(sn->getDataChannel(chn));
+                        channelInfo.set(chn, in);
+                    }
+                    channelNumber++;
+                    aux_counter++;
                 }
-                channelNumber++;
-                aux_counter++;
             }
         }
     }
-    //ADC channels
+    // ADC channels
     if (acquireAdcChannels)
     {
         for (int k = 0; k < 8; k++)
@@ -1168,12 +1170,23 @@ int RHD2000Thread::getChannelsInHeadstage (int hsNum) const
 
 }*/
 
+void RHD2000Thread::enableAuxs(bool t)
+{
+    acquireAuxChannels = t;
+    sourceBuffers[0]->resize(getNumChannels(), 10000);
+    updateRegisters();
+}
+
 void RHD2000Thread::enableAdcs(bool t)
 {
     acquireAdcChannels = t;
     sourceBuffers[0]->resize(getNumChannels(), 10000);
 }
 
+bool RHD2000Thread::isAuxEnabled()
+{
+    return acquireAuxChannels;
+}
 
 void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 {
@@ -1344,10 +1357,10 @@ void RHD2000Thread::updateRegisters()
     chipRegisters.enableDsp(dspEnabled);
     //std::cout << "DSP Offset Status " << dspEnabled << std::endl;
 
-    // turn on aux inputs
-    chipRegisters.enableAux1(true);
-    chipRegisters.enableAux2(true);
-    chipRegisters.enableAux3(true);
+    // enable/disable aux inputs:
+    chipRegisters.enableAux1(acquireAuxChannels);
+    chipRegisters.enableAux2(acquireAuxChannels);
+    chipRegisters.enableAux3(acquireAuxChannels);
 
     chipRegisters.createCommandListRegisterConfig(commandList, true);
     // Upload version with ADC calibration to AuxCmd3 RAM Bank 0.
@@ -1513,11 +1526,13 @@ bool RHD2000Thread::updateBuffer()
         bool return_code;
 
         return_code = evalBoard->readRawDataBlock(&bufferPtr);
+        // see Rhd2000DataBlock::fillFromUsbBuffer() for an idea of data order in bufferPtr
 
         int index = 0;
         int auxIndex, chanIndex;
         int numStreams = enabledStreams.size();
         int nSamps = Rhd2000DataBlock::getSamplesPerDataBlock(evalBoard->isUSB3());
+
         //evalBoard->printFIFOmetrics();
         for (int samp = 0; samp < nSamps; samp++)
         {
@@ -1529,71 +1544,74 @@ bool RHD2000Thread::updateBuffer()
                 break;
             }
 
-			index += 8;
-			timestamps.set(0,Rhd2000DataBlock::convertUsbTimeStamp(bufferPtr,index));
-			index += 4;
-			auxIndex = index;
-			//skip the aux channels
-			index += numStreams * 6;
-			// do the neural data channels first
-			for (int dataStream = 0; dataStream < numStreams; dataStream++)
-			{
-				int nChans = numChannelsPerDataStream[dataStream];
-				chanIndex = index + 2*dataStream;
-				if ((chipId[dataStream] == CHIP_ID_RHD2132) && (nChans == 16)) //RHD2132 16ch. headstage
-				{
-					chanIndex += 2 * RHD2132_16CH_OFFSET*numStreams;
-				}
-				for (int chan = 0; chan < nChans; chan++)
-				{
-					channel++;
-					thisSample[channel] = float(*(uint16*)(bufferPtr + chanIndex) - 32768)*0.195f;
-					chanIndex += 2*numStreams;
-				}
-			}
-			index += 64 * numStreams;
-			//now we can do the aux channels
-			auxIndex += 2*numStreams;
-			for (int dataStream = 0; dataStream < numStreams; dataStream++)
-			{
-				if (chipId[dataStream] != CHIP_ID_RHD2164_B)
-				{
-					int auxNum = (samp+3) % 4;
-					if (auxNum < 3)
-					{
-						auxSamples[dataStream][auxNum] = float(*(uint16*)(bufferPtr + auxIndex) - 32768)*0.0000374;
-					}
-					for (int chan = 0; chan < 3; chan++)
-					{
-						channel++;
-						if (auxNum == 3)
-						{
-							auxBuffer[channel] = auxSamples[dataStream][chan];
-						}
-						thisSample[channel] = auxBuffer[channel];
-					}
-				}
-				auxIndex += 2;
+            index += 8; // magic number header width (bytes)
+            timestamps.set(0, Rhd2000DataBlock::convertUsbTimeStamp(bufferPtr, index));
+            index += 4; // timestamp width
+            auxIndex = index; // aux chans start at this offset
+            // skip aux channels for now
+            index += 6 * numStreams; // width of the 3 aux chans
+            // copy 64 neural data channels
+            for (int dataStream = 0; dataStream < numStreams; dataStream++)
+            {
+                int nChans = numChannelsPerDataStream[dataStream];
+                chanIndex = index + 2*dataStream;
+                if ((chipId[dataStream] == CHIP_ID_RHD2132) && (nChans == 16)) //RHD2132 16ch. headstage
+                {
+                    chanIndex += 2 * RHD2132_16CH_OFFSET*numStreams;
+                }
+                for (int chan = 0; chan < nChans; chan++)
+                {
+                    channel++;
+                    thisSample[channel] = float(*(uint16*)(bufferPtr + chanIndex) - 32768)*0.195f;
+                    chanIndex += 2*numStreams; // single chan width (2 bytes)
+                }
+            }
+            index += 64 * numStreams; // neural data width
+            auxIndex += 2 * numStreams; // mspacek: not clear why this is here
+            // copy the 3 aux channels
+            if (acquireAuxChannels)
+            {
+                for (int dataStream = 0; dataStream < numStreams; dataStream++)
+                {
+                    if (chipId[dataStream] != CHIP_ID_RHD2164_B)
+                    {
+                        int auxNum = (samp+3) % 4;
+                        if (auxNum < 3)
+                        {
+                            auxSamples[dataStream][auxNum] = float(*(uint16*)(bufferPtr + auxIndex) - 32768)*0.0000374;
+                        }
+                        for (int chan = 0; chan < 3; chan++)
+                        {
+                            channel++;
+                            if (auxNum == 3)
+                            {
+                                auxBuffer[channel] = auxSamples[dataStream][chan];
+                            }
+                            thisSample[channel] = auxBuffer[channel];
+                        }
+                    }
+                    auxIndex += 2; // single chan width (2 bytes)
+                }
+            }
+            index += 2 * numStreams; // skip over filler word at the end of each data stream
+            // copy the 8 ADC channels
+            if (acquireAdcChannels)
+            {
+                for (int adcChan = 0; adcChan < 8; ++adcChan)
+                {
 
-			}
-			index += 2 * numStreams;
-			if (acquireAdcChannels)
-			{
-				for (int adcChan = 0; adcChan < 8; ++adcChan)
-				{
-
-					index += 2;
-				index += 16;
                     channel++;
                     // ADC waveform units = volts
                     thisSample[channel] = adcRangeSettings[adcChan] == 0 ?
                         //0.000050354 * float(dataBlock->boardAdcData[adcChan][samp]);
                         0.00015258789 * float(*(uint16*)(bufferPtr + index)) - 5 - 0.4096 : // account for +/-5V input range and DC offset
                         0.00030517578 * float(*(uint16*)(bufferPtr + index));
+                    index += 2; // single chan width (2 bytes)
                 }
             }
             else
             {
+                index += 16; // skip ADC chans (8 * 2 bytes)
             }
             ttlEventWords.set(0, *(uint16*)(bufferPtr + index));
             index += 4;

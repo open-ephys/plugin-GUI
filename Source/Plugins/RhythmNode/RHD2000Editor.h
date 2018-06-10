@@ -199,6 +199,7 @@ private:
     ScopedPointer<ClockDivideInterface> clockInterface;
 
     ScopedPointer<UtilityButton> rescanButton,dacTTLButton;
+    ScopedPointer<UtilityButton> auxButton;
     ScopedPointer<UtilityButton> adcButton;
     ScopedPointer<UtilityButton> ledButton;
 
