@@ -909,16 +909,16 @@ int RHD2000Thread::getNumDataOutputs(DataChannel::DataChannelTypes type, int sub
     if (type == DataChannel::AUX_CHANNEL)
     {
         if (acquireAuxChannels)
-    {
-        int numAuxOutputs = 0;
-        for (int i = 0; i < MAX_NUM_HEADSTAGES; ++i)
         {
-            if (headstagesArray[i]->isPlugged() > 0)
+            int numAuxOutputs = 0;
+            for (int i = 0; i < MAX_NUM_HEADSTAGES; ++i)
             {
-                numAuxOutputs += 3;
+                if (headstagesArray[i]->isPlugged() > 0)
+                {
+                    numAuxOutputs += 3;
+                }
             }
-        }
-        return numAuxOutputs;
+            return numAuxOutputs;
         }
         else
         {
