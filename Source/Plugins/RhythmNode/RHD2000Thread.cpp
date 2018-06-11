@@ -1567,7 +1567,7 @@ bool RHD2000Thread::updateBuffer()
                 }
             }
             index += 64 * numStreams; // neural data width
-            auxIndex += 2 * numStreams; // mspacek: not clear why this is here
+            auxIndex += 2 * numStreams; // skip AuxCmd1 slots (see updateRegisters())
             // copy the 3 aux channels
             if (acquireAuxChannels)
             {
