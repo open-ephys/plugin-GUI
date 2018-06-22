@@ -36,7 +36,7 @@
 #include "../../UI/TimestampSourceSelection.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
-    
+
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
 
@@ -293,58 +293,33 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
 
+                 // find the next dest that's not a merger or splitter
+                while (dest != nullptr && (dest->isMerger() || dest->isSplitter()))
+                {
+                    if (dest->isSplitter() && !dest->wasConnected)
+                    {
+                        if (!splitters.contains(dest))
+                        {
+                            splitters.add(dest);
+                            dest->switchIO(0); // go down first path
+                        }
+                        else
+                        {
+                            int splitterIndex = splitters.indexOf(dest);
+                            splitters.remove(splitterIndex);
+                            dest->switchIO(1); // go down second path
+                            dest->wasConnected = true; // make sure we don't re-use this splitter
+                        }
+                    }
+                    dest = dest->getDestNode();
+                }
+
                 if (dest != nullptr)
                 {
-
-                    while (dest->isMerger()) // find the next dest that's not a merger
+                    if (dest->isEnabledState())
                     {
-                        dest = dest->getDestNode();
-
-                        if (dest == nullptr)
-                            break;
+                        connectProcessors(source, dest);
                     }
-
-                    if (dest != nullptr)
-                    {
-                        while (dest->isSplitter())
-                        {
-                            if (!dest->wasConnected)
-                            {
-                                if (!splitters.contains(dest))
-                                {
-                                    splitters.add(dest);
-                                    dest->switchIO(0); // go down first path
-                                }
-                                else
-                                {
-                                    int splitterIndex = splitters.indexOf(dest);
-                                    splitters.remove(splitterIndex);
-                                    dest->switchIO(1); // go down second path
-                                    dest->wasConnected = true; // make sure we don't re-use this splitter
-                                }
-                            }
-
-                            dest = dest->getDestNode();
-
-                            if (dest == nullptr)
-                                break;
-                        }
-
-                        if (dest != nullptr)
-                        {
-
-                            if (dest->isEnabledState())
-                            {
-                                connectProcessors(source, dest);
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        std::cout << "     No dest node." << std::endl;
-                    }
-
                 }
                 else
                 {
@@ -509,7 +484,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& des
 
 		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)processorType, processorIndex, processorName, libName, libVersion, isSource, isSink);
 	}
-   
+
 	String msg = "New " + processorName + " created";
 	CoreServices::sendStatusMessage(msg);
 
