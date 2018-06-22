@@ -54,7 +54,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
                 String("Retry"),
                 String("Quit"));
 
-            if (!retryButtonClicked)
+            if (!retryButtonClicked) // quit button clicked
             {
                 JUCEApplication::quit();
                 break;
