@@ -1075,15 +1075,15 @@ SignalChainTabButton::SignalChainTabButton() : Button("Name"),
 
 void SignalChainTabButton::clicked()
 {
+    if (getToggleState())
+    {
+        //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
+        EditorViewport* ev = (EditorViewport*) getParentComponent();
 
-    //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
-    EditorViewport* ev = (EditorViewport*) getParentComponent();
-
-    scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE);
-    ev->leftmostEditor = offset;
-    ev->refreshEditors();
-
-
+        scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE);
+        ev->leftmostEditor = offset;
+        ev->refreshEditors();
+    }
 }
 
 void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
@@ -1468,7 +1468,7 @@ const String EditorViewport::loadState(File fileToLoad)
 	bool pluginAPI = false;
 	bool rhythmNodePatch = false;
     String versionString;
-	
+
     forEachXmlChildElement(*xml, element)
     {
         if (element->hasTagName("INFO"))
