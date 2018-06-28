@@ -69,7 +69,7 @@ namespace BinaryRecordingEngine
         // Compile-time constants
 
         // flush file buffer to disk and update the .npy header every this many records:
-        const int recordBufferSize{ 128 };
+        const int recordBufferSize{ 1024 };
 
     };
 
