@@ -76,7 +76,7 @@ namespace BinaryRecordingEngine
         HeapBlock<int64> m_tsBuffer;
         int m_bufferSize;
 
-        OwnedArray<SequentialBlockFile>  m_DataFiles;
+        OwnedArray<SequentialBlockFile> m_DataFiles;
         Array<unsigned int> m_channelIndexes;
         Array<unsigned int> m_fileIndexes;
         OwnedArray<EventRecording> m_eventFiles;

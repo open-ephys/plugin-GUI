@@ -46,14 +46,17 @@ String BinaryRecording::getEngineID() const
 
 String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
 {
-    String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" + String(channelInfo->getCurrentNodeID()));
-    if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID()) //it is the channel source
+    String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" +
+                    String(channelInfo->getCurrentNodeID()));
+    if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID())
+    // found the channel source
     {
         fName += "." + String(channelInfo->getSubProcessorIdx());
     }
     else
     {
-        fName += "_" + String(channelInfo->getSourceNodeID()) + "." + String(channelInfo->getSubProcessorIdx());
+        fName += "_" + String(channelInfo->getSourceNodeID()) + "." +
+                 String(channelInfo->getSubProcessorIdx());
     }
     fName += File::separatorString;
     return fName;
@@ -469,9 +472,11 @@ void BinaryRecording::resetChannels()
     m_startTS.clear();
 }
 
-void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
+void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer,
+                                int size)
 {
-    if (size > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
+    if (size > m_bufferSize)
+    // shouldn't happen, and if it does it'll be slow, but better this than crashing
     {
         std::cerr << "Write buffer overrun, resizing to" << size << std::endl;
         m_bufferSize = size;
@@ -480,10 +485,14 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
         m_tsBuffer.malloc(size);
     }
     double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
-    FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-    AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+    FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor,
+                                            size);
+    AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(),
+                                               size);
     int fileIndex = m_fileIndexes[writeChannel];
-    m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel], m_channelIndexes[writeChannel], m_intBuffer.getData(), size);
+    m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel],
+                                         m_channelIndexes[writeChannel],
+                                         m_intBuffer.getData(), size);
 
     if (m_channelIndexes[writeChannel] == 0)
     {
@@ -543,7 +552,8 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
     increaseEventCounts(rec);
 }
 
-void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
+void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx,
+                                             int64 timestamp, float, String text)
 {
     if (!m_syncTextFile)
         return;
@@ -596,11 +606,11 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
 
 RecordEngineManager* BinaryRecording::getEngineManager()
 {
-    RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary", &(engineFactory<BinaryRecording>));
+    RecordEngineManager* man = new RecordEngineManager("BUSSELABRAWBINARY", "Binary",
+                                                       &(engineFactory<BinaryRecording>));
     EngineParameter* param;
     param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
     man->addParameter(param);
-
     return man;
 }
 
