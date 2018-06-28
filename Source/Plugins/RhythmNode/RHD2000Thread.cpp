@@ -23,6 +23,7 @@
 
 #include "RHD2000Thread.h"
 #include "RHD2000Editor.h"
+using namespace RhythmNode;
 
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"

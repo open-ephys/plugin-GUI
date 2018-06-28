@@ -25,6 +25,8 @@
 #include "RHD2000Editor.h"
 #include "USBThread.h"
 
+using namespace IntanRecordingController;
+
 #if defined(_WIN32)
 #define okLIB_NAME "okFrontPanel.dll"
 #define okLIB_EXTENSION "*.dll"

@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <PluginInfo.h>
-#include "RHD2000Thread.h"
+#include "../../Processors/PluginManager/OpenEphysPlugin.h"
+#include "LfpDisplayNode.h"
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
@@ -32,12 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace Plugin;
+using namespace LfpDisplayNodeBeta;
+
 #define NUM_PLUGINS 1
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "Intan Recording Controller";
+	info->name = "LFP viewer Beta";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -47,9 +49,10 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PLUGIN_TYPE_DATA_THREAD;
-		info->dataThread.name = "Intan Rec. Controller";
-		info->dataThread.creator = &createDataThread<IntanRecordingController::RHD2000Thread>;
+		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->processor.name = "LFP Viewer Beta";
+		info->processor.type = Plugin::SinkProcessor;
+		info->processor.creator = &(Plugin::createProcessor<LfpDisplayNodeBeta::LfpDisplayNode>);
 		break;
 	default:
 		return -1;
