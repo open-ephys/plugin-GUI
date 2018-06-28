@@ -190,9 +190,10 @@ void NpyFile::writeData(const void* data, size_t size)
 
 void NpyFile::increaseRecordCount(int count)
 {
+    int64 old_recordCount = m_recordCount;
     m_recordCount += count;
-    if (m_recordCount % recordBufferSize == 0)
-        updateHeader(); // also triggers a flush to disk
+    if ((old_recordCount / recordBufferSize) != (m_recordCount / recordBufferSize))
+        updateHeader(); // crossed recordBufferSize threshold, update header
 }
 
 NpyType::NpyType(String n, BaseType t, size_t l)
