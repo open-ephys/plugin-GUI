@@ -168,7 +168,7 @@ void NpyFile::updateHeader()
             std::cerr << "Error. Header has grown too big to update in-place " << std::endl;
         }
         m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
-        //m_file->flush(); // doesn't seem to be necessary, already flushed due to overwrite
+        m_file->flush(); // not necessary, already flushed due to overwrite? do it anyway
         m_file->setPosition(currentPos); // restore position to end of file
     }
     else
