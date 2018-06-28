@@ -159,7 +159,7 @@ void NpyFile::updateHeader()
     // overwrite the shape part of the header - even without explicitly calling
     // m_file->flush(), overwriting seems to trigger a flush to disk,
     // while appending to end of file does not
-    int currentPos = m_file->getPosition();
+    int64 currentPos = m_file->getPosition(); // returns int64, necessary for big files
     if (m_file->setPosition(m_shapePos))
     {
         String newShape = getShapeString();
