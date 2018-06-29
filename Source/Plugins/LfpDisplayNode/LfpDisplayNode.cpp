@@ -146,6 +146,7 @@ void LfpDisplayNode::setSubprocessor(int sp)
 
 	subprocessorToDraw = sp;
 	std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;
+
 	updateSubprocessorsFlag = false;
 	
 }
@@ -171,6 +172,10 @@ bool LfpDisplayNode::resizeBuffer()
 	{
 		abstractFifo.setTotalSize(nSamples);
 		displayBuffer->setSize(nInputs + numEventChannels, nSamples); // add extra channels for TTLs
+		displayBuffer->clear();
+
+		displayBufferIndex.clear();
+		displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
 
 		return true;
 	}
