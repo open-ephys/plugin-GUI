@@ -37,34 +37,34 @@ using namespace Plugin;
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
-	info->apiVersion = PLUGIN_API_VER;
-	info->name = "Binary recording";
-	info->libVersion = 1;
-	info->numPlugins = NUM_PLUGINS;
+    info->apiVersion = PLUGIN_API_VER;
+    info->name = "Binary recording";
+    info->libVersion = 1;
+    info->numPlugins = NUM_PLUGINS;
 }
 
 extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 {
-	switch (index)
-	{
-	case 0:
-		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
-		info->recordEngine.name = "Binary";
-		info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryRecordingEngine::BinaryRecording>);
-		break;
-	default:
-		return -1;
-	}
+    switch (index)
+    {
+    case 0:
+        info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
+        info->recordEngine.name = "Binary";
+        info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryRecordingEngine::BinaryRecording>);
+        break;
+    default:
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 #ifdef WIN32
 BOOL WINAPI DllMain(IN HINSTANCE hDllHandle,
-	IN DWORD     nReason,
-	IN LPVOID    Reserved)
+    IN DWORD     nReason,
+    IN LPVOID    Reserved)
 {
-	return TRUE;
+    return TRUE;
 }
 
 #endif
