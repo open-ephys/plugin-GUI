@@ -383,11 +383,10 @@ void EditorViewport::refreshEditors()
 {
 
     int lastBound = borderSize+tabSize;
-    int totalWidth = 0;
 
     //std::cout << insertionPoint << std::endl;
 
-    bool tooLong;
+    bool pastRightEdge = false;
 
     for (int n = 0; n < signalChainArray.size(); n++)
     {
@@ -397,96 +396,56 @@ void EditorViewport::refreshEditors()
         }
     }
 
-    for (int n = 0; n < editorArray.size(); n++)
+    int rightEdge = getWidth() - tabSize;
+    int numEditors = editorArray.size();
+
+    for (int n = 0; n < numEditors; n++)
     {
 
         //   std::cout << "Refreshing editor number" << n << std::endl;
 
-        int componentWidth = editorArray[n]->desiredWidth;
+        GenericEditor* editor = editorArray[n];
+        int componentWidth = editor->desiredWidth;
 
-        if (lastBound + componentWidth < getWidth() - tabSize && n >= leftmostEditor)
+        pastRightEdge = pastRightEdge || lastBound + componentWidth >= rightEdge;
+
+        if (!pastRightEdge && n >= leftmostEditor)
         {
 
-            if (n == 0)
+            if (n == 0 && !editor->getProcessor()->isSource())
             {
-                if (!editorArray[n]->getEnabledState())
-                {
-                    GenericProcessor* p = (GenericProcessor*) editorArray[n]->getProcessor();
-                    if (!p->isSource())
-                        lastBound += borderSize*10;
-                    // signalChainNeedsSource = true;
-                }
-                else
-                {
-                    //  signalChainNeedsSource = false;
-                }
+                // leave room to drop a source node
+                lastBound += borderSize * 10;
             }
 
             if (somethingIsBeingDraggedOver && n == insertionPoint)
             {
-                if (indexOfMovingComponent > -1)
-                {
-                    if (n != indexOfMovingComponent && n != indexOfMovingComponent+1)
-                    {
-                        if (n == 0)
-                            lastBound += borderSize*3;
-                        else
-                            lastBound += borderSize*2;
-                    }
-                }
-                else
+                if (indexOfMovingComponent == -1 // adding new processor
+                    || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
                 {
                     if (n == 0)
                         lastBound += borderSize*3;
                     else
                         lastBound += borderSize*2;
                 }
-
             }
 
-            editorArray[n]->setVisible(true);
+            editor->setVisible(true);
             //   std::cout << "setting visible." << std::endl;
-            editorArray[n]->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
+            editor->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
             lastBound += (componentWidth + borderSize);
-
-            tooLong = false;
-
-            totalWidth = lastBound;
-
         }
         else
         {
-            editorArray[n]->setVisible(false);
-
-            totalWidth += componentWidth + borderSize;
-
+            editor->setVisible(false);
             // std::cout << "setting invisible." << std::endl;
-
-            if (lastBound + componentWidth > getWidth()-tabSize)
-                tooLong = true;
-
         }
     }
 
-    // BUG: variable is used without being initialized
-    if (tooLong && editorArray.size() > 0)
-        rightButton->setActive(true);
-    else
-        rightButton->setActive(false);
-
-    if (leftmostEditor == 0 || editorArray.size() == 0)
-        leftButton->setActive(false);
-    else
-        leftButton->setActive(true);
+    rightButton->setActive(pastRightEdge);
+    leftButton->setActive(leftmostEditor != 0 && editorArray.size() != 0);
 
     // std::cout << totalWidth << " " << getWidth() - tabSize << std::endl;
-
-    // if (totalWidth < getWidth()-tabSize && leftButton->isActive)
-    // {
-    //     leftmostEditor -= 1;
-    //     refreshEditors();
-    // }
-
 }
 
 void EditorViewport::moveSelection(const KeyPress& key)
