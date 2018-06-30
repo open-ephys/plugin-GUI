@@ -266,7 +266,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 found = true;
                 m_spikeFileIndexes.set(sp, i);
                 unsigned int numChans = indexedChannels[i];
-                indexedChannels.set(i, numChans);
+                indexedChannels.set(i, numChans + 1);
                 m_spikeChannelIndexes.set(sp, numChans + 1);
                 jsonSpikeChannels.getReference(i).append(var(jsonChannel));
                 break;
@@ -278,7 +278,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             int fileIndex = m_spikeFiles.size();
             m_spikeFileIndexes.set(sp, fileIndex);
             indexedSpikes.add(ch);
-            m_spikeChannelIndexes.set(sp, 0);
+            m_spikeChannelIndexes.set(sp, 1);
             indexedChannels.add(1);
             ScopedPointer<EventRecording> rec = new EventRecording();
 
