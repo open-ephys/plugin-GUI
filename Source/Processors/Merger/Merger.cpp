@@ -70,6 +70,11 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     if (sn != nullptr)
     {
+        // attempt to choose the right path if source is a splitter
+        if (sn->isSplitter() && sn->getDestNode() != nullptr && sn->getDestNode() != this)
+        {
+            sn->switchIO();
+        }
         sn->setDestNode(this);
     }
 }

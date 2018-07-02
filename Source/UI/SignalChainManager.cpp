@@ -168,6 +168,18 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     // Step 1: update the editor array
     if (action == ADD)
     {
+        if (insertionPoint == -1)
+        {
+            // insert in new signal chain
+            for (int n = 0; n < editorArray.size(); n++)
+            {
+                editorArray[n]->setVisible(false);
+            }
+
+            editorArray.clear();
+
+            insertionPoint = 0;
+        }
         //std::cout << "    Adding editor." << std::endl;
         editorArray.insert(insertionPoint, activeEditor);
 
@@ -370,6 +382,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     // std::cout << "Cleared editor array." << std::endl;
 
     GenericEditor* editorToAdd = activeEditor;
+    GenericEditor* sourceEditor;
 
     while (editorToAdd != 0)
     {
@@ -383,17 +396,24 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         {
             //   std::cout << "Source: " << source->getName() << std::endl;
 
+            sourceEditor = (GenericEditor*)source->getEditor();
+
             // need to switch the splitter somehow
             if (action == ACTIVATE || action == UPDATE)
             {
                 if (source->isSplitter())
                 {
-                    source->setPathToProcessor(currentProcessor);
+                    sourceEditor->getPathForEditor(editorToAdd);
+
+                    // hack: calling getPathForEditor switches the splitter node
+                    // to point at editorToAdd, so call switchDest twice to align
+                    // the editor with the correct path.
+                    sourceEditor->switchDest();
+                    sourceEditor->switchDest();
                 }
             }
 
-            editorToAdd = (GenericEditor*) source->getEditor();
-
+            editorToAdd = sourceEditor;
         }
         else
         {
