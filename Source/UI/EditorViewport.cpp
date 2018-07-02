@@ -1498,12 +1498,14 @@ const String EditorViewport::loadState(File fileToLoad)
 
     GenericProcessor* p;
 
+    bool startNewTab;
+
     forEachXmlChildElement(*xml, element)
     {
 
         if (element->hasTagName("SIGNALCHAIN"))
         {
-
+            startNewTab = true;
             forEachXmlChildElement(*element, processor)
             {
 
@@ -1517,7 +1519,15 @@ const String EditorViewport::loadState(File fileToLoad)
 
                     if (insertionPt == 1)
                     {
-                        insertionPoint = editorArray.size();
+                        if (startNewTab)
+                        {
+                            insertionPoint = -1;
+                            startNewTab = false;
+                        }
+                        else
+                        {
+                            insertionPoint = editorArray.size();
+                        }
                     }
                     else
                     {
