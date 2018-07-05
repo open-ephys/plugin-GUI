@@ -606,7 +606,7 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
 
 RecordEngineManager* BinaryRecording::getEngineManager()
 {
-    RecordEngineManager* man = new RecordEngineManager("BUSSELABRAWBINARY", "Binary",
+    RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary",
                                                        &(engineFactory<BinaryRecording>));
     EngineParameter* param;
     param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
