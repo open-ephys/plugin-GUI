@@ -90,6 +90,7 @@ private:
     ScopedPointer<UtilityButton> ttlButton[PULSEPALCHANNELS];
     ScopedPointer<UtilityButton> link2tr1Button[PULSEPALCHANNELS];
     ScopedPointer<UtilityButton> link2tr2Button[PULSEPALCHANNELS];
+	ScopedPointer<UtilityButton> continuousButton[PULSEPALCHANNELS];
     ScopedPointer<ComboBox> triggerMode[PULSEPALCHANNELS];
 
     ScopedPointer<Label> channelLabel[PULSEPALCHANNELS];

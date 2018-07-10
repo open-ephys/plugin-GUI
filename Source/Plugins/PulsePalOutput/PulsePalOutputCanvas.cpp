@@ -122,7 +122,8 @@ void PulsePalOutputCanvas::resized()
         link2tr2Button[i]->setBounds(0.12*getWidth() + 0.25*i*getWidth(), 0.83*getHeight(), 0.11*getWidth(), 0.03*getHeight());
         biphasicButton[i]->setBounds(0.01*getWidth() + 0.25*i*getWidth(), 0.87*getHeight(), 0.11*getWidth(), 0.03*getHeight());
         burstButton[i]->setBounds(0.12*getWidth() + 0.25*i*getWidth(), 0.87*getHeight(), 0.11*getWidth(), 0.03*getHeight());
-        ttlButton[i]->setBounds(0.01*getWidth() + 0.25*i*getWidth(), 0.91*getHeight(), 0.22*getWidth(), 0.06*getHeight());
+        ttlButton[i]->setBounds(0.01*getWidth() + 0.25*i*getWidth(), 0.91*getHeight(), 0.11*getWidth(), 0.06*getHeight());
+		continuousButton[i]->setBounds(0.12*getWidth() + 0.25*i*getWidth(), 0.91*getHeight(), 0.11*getWidth(), 0.06*getHeight());
     }
 
     refresh();
@@ -220,6 +221,13 @@ void PulsePalOutputCanvas::buttonClicked(Button* button)
                 burstButton[i]->setToggleState(false, dontSendNotification);
             }
         }
+		else if (button == continuousButton[i])
+		{
+			if (button->getToggleState() == true)
+				processor->setContinuous(i, 1);
+			else if (button->getToggleState() == false)
+				processor->setContinuous(i, 0);
+		}
         if (!processor->checkParameterConsistency(i))
         {
             CoreServices::sendStatusMessage("Inconsistent parameters: set train duration first");
@@ -445,6 +453,14 @@ void PulsePalOutputCanvas::initButtons()
         ttl->addListener(this);
         ttlButton[i] = ttl;
         addAndMakeVisible(ttlButton[i]);
+
+		ScopedPointer<UtilityButton> continuous = new UtilityButton("continuous", Font("Small Text", 20, Font::plain));;
+		continuous->setRadius(3.0f);
+		continuous->addListener(this);
+		continuous->setClickingTogglesState(true);
+		continuousButton[i] = continuous;
+		addAndMakeVisible(continuousButton[i]);
+
 
         ScopedPointer<ComboBox> mode = new ComboBox();
         mode->addListener(this);
