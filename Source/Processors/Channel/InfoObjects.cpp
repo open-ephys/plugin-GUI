@@ -407,6 +407,8 @@ size_t EventChannel::getTypeByteSize(EventChannel::EventChannelTypes type)
 	case UINT32_ARRAY: return sizeof(uint32);
 	case INT64_ARRAY: return sizeof(int64);
 	case UINT64_ARRAY: return sizeof(uint64);
+	case FLOAT_ARRAY: return sizeof(float);
+	case DOUBLE_ARRAY: return sizeof(double);
 	default: return sizeof(char);
 	}
 }
@@ -426,6 +428,8 @@ void EventChannel::setDefaultNameAndDescription()
 	case UINT32_ARRAY: name = "UINT32"; break;
 	case INT64_ARRAY: name = "INT64"; break;
 	case UINT64_ARRAY: name = "UINT64"; break;
+	case FLOAT_ARRAY: name = "FLOAT"; break;
+	case DOUBLE_ARRAY: name = "DOUBLE"; break;
 	default: 
 		setName("INVALID");
 		setDescription("Invalid channel");
