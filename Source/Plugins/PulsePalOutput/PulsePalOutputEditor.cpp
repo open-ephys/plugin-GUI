@@ -205,14 +205,14 @@ void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(1, (float) comboBoxThatHasChanged->getSelectedId() - 2);
-        m_triggerSelected = comboBoxThatHasChanged->getSelectedId();
+        m_triggerSelected = jmax(1, comboBoxThatHasChanged->getSelectedId());
 
     }
     else if (comboBoxThatHasChanged == gateSelector)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(2, (float) comboBoxThatHasChanged->getSelectedId() - 2);
-        m_gateSelected = comboBoxThatHasChanged->getSelectedId();
+        m_gateSelected = jmax(1, comboBoxThatHasChanged->getSelectedId());
     }
 }
 
