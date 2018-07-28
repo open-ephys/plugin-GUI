@@ -809,7 +809,7 @@ void GenericProcessor::addEvent(const EventChannel* channel, const Event* event,
 	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + EVENT_BASE_SIZE;
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
-	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
 }
 
 void GenericProcessor::addSpike(int channelIndex, const SpikeEvent* event, int sampleNum)
@@ -822,7 +822,7 @@ void GenericProcessor::addSpike(const SpikeChannel* channel, const SpikeEvent* e
 	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + SPIKE_BASE_SIZE + channel->getNumChannels()*sizeof(float);
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
-	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
 }
 
 
