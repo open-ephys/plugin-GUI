@@ -219,6 +219,7 @@ void AudioEditor::buttonClicked (Button* button)
             {
                 audioConfigurationWindow = new AudioConfigurationWindow (AccessClass::getAudioComponent()->deviceManager,
                                                                          audioWindowButton);
+                audioConfigurationWindow->addComponentListener(this);
             }
 
             AccessClass::getAudioComponent()->restartDevice();
@@ -226,9 +227,7 @@ void AudioEditor::buttonClicked (Button* button)
         }
         else
         {
-            updateBufferSizeText();
             audioConfigurationWindow->setVisible (false);
-            AccessClass::getAudioComponent()->stopDevice();
         }
     }
 
@@ -243,6 +242,14 @@ void AudioEditor::sliderValueChanged (Slider* slider)
         getAudioProcessor()->setParameter (2, slider->getValue());
 }
 
+void AudioEditor::componentVisibilityChanged(Component& component)
+{
+    if (component.getName() == audioConfigurationWindow->getName() && !component.isVisible())
+    {
+        updateBufferSizeText();
+        AccessClass::getAudioComponent()->stopDevice();
+    }
+}
 
 void AudioEditor::paint (Graphics& g)
 {
@@ -318,11 +325,6 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 void AudioConfigurationWindow::closeButtonPressed()
 {
     controlButton->setToggleState (false, dontSendNotification);
-
-    String t = String (AccessClass::getAudioComponent()->getBufferSizeMs());
-    t += " ms";
-    controlButton->setText (t);
-    AccessClass::getAudioComponent()->stopDevice();
     setVisible (false);
 }
 
