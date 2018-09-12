@@ -1808,6 +1808,9 @@ void LfpDisplay::paint(Graphics& g)
 
 void LfpDisplay::refresh()
 {
+    // Ensure the lfpChannelBitmap has been initialized
+    if (lfpChannelBitmap.isNull()) { resized(); }
+
     // X-bounds of this update
     int fillfrom = canvas->lastScreenBufferIndex[0];
     int fillto = (canvas->screenBufferIndex[0]);
