@@ -201,7 +201,7 @@ void VisualizerEditor::buttonClicked (Button* button)
     GenericEditor::buttonClicked (button);
 
     // Handle the buttons to open the canvas in a tab or window
-    if (canvas == nullptr)
+    if ((button == windowSelector || button == tabSelector) && canvas == nullptr)
     {
         canvas = createNewCanvas();
         canvas->update();
