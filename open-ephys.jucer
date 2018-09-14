@@ -545,7 +545,9 @@
       <FILE id="JiA1GET" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
     </GROUP>
   </MAINGROUP>
-  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled" JUCE_USE_FLAC="disabled" JUCE_USE_OGGVORBIS="disabled"
+               JUCE_USE_MP3AUDIOFORMAT="disabled" JUCE_USE_LAME_AUDIO_FORMAT="disabled"
+               JUCE_USE_WINDOWS_MEDIA_FORMAT="disabled"/>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
