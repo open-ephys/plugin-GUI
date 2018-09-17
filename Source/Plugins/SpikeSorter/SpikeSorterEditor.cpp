@@ -78,6 +78,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     electrodeList->setEditableText(false);
     electrodeList->setJustificationType(Justification::centredLeft);
     electrodeList->addListener(this);
+    //electrodeList->setBounds(65,30,130,20);
     electrodeList->setBounds(65,30,130,20);
     addAndMakeVisible(electrodeList);
 
@@ -204,11 +205,22 @@ void SpikeSorterEditor::sliderEvent(Slider* slider)
 
     if (electrodeNum > -1)
     {
+        // new
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
+        if (processor->getEditAllState()){
+            int numElectrodes = processor->getNumElectrodes();
+            for (int electrodeIt = 0 ; electrodeIt < numElectrodes ; electrodeIt++){
+                //processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),i,slider->getValue());
+                for (int channelIt = 0 ; channelIt < processor->getNumChannels(electrodeIt) ; channelIt++){
+                    processor->setChannelThreshold(electrodeIt,channelIt,slider->getValue());
+                }
+            }
+        }
+        else{
         processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),
                                        electrodeNum,
                                        slider->getValue());
-
+        }
 
 
      /*   //Array<int> dacChannels = processor->getDACassignments;
@@ -231,7 +243,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
 {
  
     SpikeSorter* processor = (SpikeSorter*) getProcessor();
-
+    
     if (electrodeButtons.contains((ElectrodeButton*) button))
     {
 

@@ -138,6 +138,13 @@ int SpikeSorter::getUniqueProbeID(String type)
     return 1;
 }
 
+void SpikeSorter::setEditAllState(bool val){
+    editAll = val;
+}
+
+bool SpikeSorter::getEditAllState(){
+    return editAll;
+}
 
 void SpikeSorter::increaseUniqueProbeID(String type)
 {
@@ -195,6 +202,7 @@ void SpikeSorter::updateSettings()
 		Array<const DataChannel*> chans;
 		for (int c = 0; c < nChans; c++)
 		{
+
 			const DataChannel* ch = getDataChannel(elec->channels[c]);
 			if (!ch)
 			{
@@ -202,6 +210,7 @@ void SpikeSorter::updateSettings()
 				return;
 			}
 			chans.add(ch);
+
 		}
 
 		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
@@ -709,8 +718,8 @@ void SpikeSorter::addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
 	int spikeLength = electrodes[electrodeNumber]->prePeakSamples
 		+ electrodes[electrodeNumber]->postPeakSamples;
 
-
 	const int chan = *(electrodes[electrodeNumber]->channels + currentChannel);
+
 
 	if (isChannelActive(electrodeNumber, currentChannel))
 	{
@@ -1928,6 +1937,4 @@ int ContinuousCircularBuffer::GetPtr()
 }
 
 /************************************************************/
-
-
 

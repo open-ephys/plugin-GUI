@@ -81,7 +81,14 @@ SpikeSorterCanvas::SpikeSorterCanvas(SpikeSorter* n) :
     prevElectrode->setRadius(3.0f);
     prevElectrode->addListener(this);
     addAndMakeVisible(prevElectrode);
-
+    
+    editAllThresholds = new UtilityButton("Edit All Thresholds",Font("Small Text", 13, Font::plain));
+    editAllThresholds->addListener(this);
+    editAllThresholds->setBounds(140,30,60,20);
+    editAllThresholds->setClickingTogglesState(true);
+    addAndMakeVisible(editAllThresholds);
+    //
+    
     addAndMakeVisible(viewport);
 
     setWantsKeyboardFocus(true);
@@ -159,6 +166,8 @@ void SpikeSorterCanvas::resized()
 
     newIDbuttons->setBounds(0, 270, 120,20);
     deleteAllUnits->setBounds(0, 300, 120,20);
+    
+    editAllThresholds->setBounds(0, 330, 120,20);
 
 }
 
@@ -402,7 +411,15 @@ void SpikeSorterCanvas::buttonClicked(Button* button)
         electrode->spikePlot->updateUnitsFromProcessor();
         processor->removeAllUnits(electrode->electrodeID);
     }
-
+    else if (button == editAllThresholds){
+        
+    }
+    
+    // new
+    if (button == editAllThresholds){
+        processor->setEditAllState(button->getToggleState());
+    }
+    
     repaint();
 }
 
@@ -1072,6 +1089,7 @@ void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 {
 	if (s.get() == nullptr) return;
     float h = getHeight();
+
 	g.setColour(Colour(s->color[0], s->color[1], s->color[2]));
     //g.setColour(Colours::pink);
     //compute the spatial width for each waveform sample
@@ -1094,6 +1112,7 @@ void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 
     float x = 0.0f;
 
+
 	for (int i = 0; i < spikeSamples - 1; i++)
 	{
 		//std::cout << s.data[sampIdx] << std::endl;
@@ -1101,6 +1120,7 @@ void WaveformAxes::plotSpike(SorterSpikePtr s, Graphics& g)
 
 		float s1 = h - (h / 2 + s->getData()[offset + i] / (range)* h);
 		float s2 = h - (h / 2 + s->getData()[offset + i + 1] / (range)* h);
+
 		if (signalFlipped)
 		{
 			s1 = h - s1;
@@ -1456,7 +1476,20 @@ void WaveformAxes::mouseDrag(const MouseEvent& event)
 
         displayThresholdLevel = (0.5f - thresholdSliderPosition) * range;
         // update processor
-        processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
+        
+         if (processor->getEditAllState()){
+             int numElectrodes = processor->getNumElectrodes();
+             for (int electrodeIt = 0 ; electrodeIt < numElectrodes ; electrodeIt++){
+             //processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),i,slider->getValue());
+                 for (int channelIt = 0 ; channelIt < processor->getNumChannels(electrodeIt) ; channelIt++){
+                 processor->setChannelThreshold(electrodeIt,channelIt,displayThresholdLevel);
+                 }
+             }
+         }
+        else{
+            processor->getActiveElectrode()->thresholds[channel] = displayThresholdLevel;
+        }
+
         SpikeSorterEditor* edt = (SpikeSorterEditor*) processor->getEditor();
         for (int k=0; k<processor->getActiveElectrode()->numChannels; k++)
             edt->electrodeButtons[k]->setToggleState(false, dontSendNotification);
@@ -1684,7 +1717,7 @@ void WaveformAxes::paint(Graphics& g)
     for (int spikeNum = 0; spikeNum < bufferSize; spikeNum++)
     {
 
-        if (spikeNum != spikeIndex)
+        if (spikeNum != spikeIndex && spikeBuffer[spikeNum] != nullptr)
         {
             g.setColour(Colours::grey);
             plotSpike(spikeBuffer[spikeNum], g);
@@ -1693,7 +1726,8 @@ void WaveformAxes::paint(Graphics& g)
     }
 
     g.setColour(Colours::white);
-    plotSpike(spikeBuffer[spikeIndex], g);
+    if (spikeBuffer[spikeIndex] != nullptr)
+        plotSpike(spikeBuffer[spikeIndex], g);
 
     spikesReceivedSinceLastRedraw = 0;
 
