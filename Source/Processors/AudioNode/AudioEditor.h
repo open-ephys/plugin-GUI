@@ -99,6 +99,7 @@ private:
 class AudioEditor : public AudioProcessorEditor
                   , public Button::Listener
                   , public Slider::Listener
+                  , public ComponentListener
 {
 public:
     AudioEditor (AudioNode* owner);
@@ -122,6 +123,7 @@ private:
 
     void sliderValueChanged (Slider* slider) override;
 
+    void componentVisibilityChanged(Component& component) override;
 
     float lastValue;
 
