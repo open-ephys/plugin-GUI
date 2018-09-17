@@ -366,7 +366,10 @@ public:
     const OwnedArray<Electrode>& getElectrodes();
 
     std::vector<String> electrodeTypes;
-
+    
+    void setEditAllState(bool val);
+    bool getEditAllState();
+    
 #if 0
     /** sync PSTH : inform of a new electrode added  */
     void updateSinks(Electrode* newElectrode);
@@ -441,6 +444,8 @@ private:
 
     OwnedArray<Electrode> electrodes;
     PCAcomputingThread computingThread;
+
+    bool editAll = false;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorter);
 
 };

@@ -100,21 +100,22 @@ public:
 
     SpikeSorter* processor;
 
+    // added editAllThresholds
     ScopedPointer<UtilityButton> addPolygonUnitButton,
-                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits;
+                  addUnitButton, delUnitButton, addBoxButton, delBoxButton, rePCAButton,nextElectrode,prevElectrode,newIDbuttons,deleteAllUnits,editAllThresholds;
 
 private:
     void removeUnitOrBox();
     ScopedPointer<SpikeThresholdDisplay> spikeDisplay;
     ScopedPointer<Viewport> viewport;
 
+    
     bool inDrawingPolygonMode;
     bool newSpike;
   //  SpikeObject spike;
     Electrode* electrode;
     int scrollBarThickness;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeSorterCanvas);
 
 };
 
@@ -146,7 +147,7 @@ public:
 private:
     int numColumns;
     int totalHeight;
-
+    
     SpikeSorter* processor;
     SpikeSorterCanvas* canvas;
     Viewport* viewport;
@@ -246,6 +247,9 @@ public:
 
 private:
     int electrodeID;
+    // new
+    bool editAll = false;
+    //
     bool signalFlipped;
     bool bDragging ;
     Colour waveColour;
