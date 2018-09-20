@@ -989,7 +989,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     medianOffsetPlottingButton->setCorners(true, true, true, true);
     medianOffsetPlottingButton->addListener(this);
     medianOffsetPlottingButton->setClickingTogglesState(true);
-    medianOffsetPlottingButton->setToggleState(true, sendNotification);
+    medianOffsetPlottingButton->setToggleState(false, sendNotification);
     addAndMakeVisible(medianOffsetPlottingButton);
 
     
