@@ -1198,7 +1198,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
-        lfpDisplay->setEventDisplayState(i,false);
+        lfpDisplay->setEventDisplayState(i,true);
 
     }
 
