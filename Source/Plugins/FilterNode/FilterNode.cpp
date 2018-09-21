@@ -310,6 +310,9 @@ void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, Inf
 
     if (channelType == InfoObjectCommon::DATA_CHANNEL)
     {
+        // restore high and low cut text in case they were changed by channelChanged
+        static_cast<FilterEditor*>(getEditor())->resetToSavedText();
+
         forEachXmlChildElement (*channelInfo, subNode)
         {
             if (subNode->hasTagName ("PARAMETERS"))
