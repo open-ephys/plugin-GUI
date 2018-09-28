@@ -290,7 +290,7 @@ AudioProcessorEditor* EvntTrigAvg::createEditor()
 
 float EvntTrigAvg::getSampleRate()
 {
-    return juce::AudioProcessor::getSampleRate();
+	return CoreServices::getGlobalSampleRate();
 }
 
 int EvntTrigAvg::getLastTTLCalculated()
