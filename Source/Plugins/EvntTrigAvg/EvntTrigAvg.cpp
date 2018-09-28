@@ -182,7 +182,7 @@ void EvntTrigAvg::handleEvent(const EventChannel* eventInfo, const MidiMessage& 
     else if (eventInfo->getChannelType() == EventChannel::TTL && eventInfo == eventChannelArray[triggerEvent])
     {// if TTL from right channel
         TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
-        if (ttl->getChannel() == triggerChannel)
+        if (ttl->getChannel() == triggerChannel && ttl->getState())
             ttlTimestampBuffer.push_back(Event::getTimestamp(event)); // add timestamp of TTL to buffer
     }
 }
