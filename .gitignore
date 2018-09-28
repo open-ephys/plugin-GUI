@@ -27,12 +27,25 @@ Projucer/Builds/VisualStudio2013/*.user
 Projucer/Builds/VisualStudio2013/*.sdf
 Projucer/Builds/VisualStudio2013/*.opensdf
 Projucer/Builds/VisualStudio2013/*.suo
+Projucer/Builds/VisualStudio2017/Debug
+Projucer/Builds/VisualStudio2017/Release
+Projucer/Builds/VisualStudio2017/x64
+Projucer/Builds/VisualStudio2017/*.user
+Projucer/Builds/VisualStudio2017/*.sdf
+Projucer/Builds/VisualStudio2017/*.opensdf
+Projucer/Builds/VisualStudio2017/*.suo
 
 PluginGenerator/Builds/VisualStudio2013/x64
 PluginGenerator/Builds/VisualStudio2013/*.user
 PluginGenerator/Builds/VisualStudio2013/*.sdf
 PluginGenerator/Builds/VisualStudio2013/*.opensdf
 PluginGenerator/Builds/VisualStudio2013/*.suo
+PluginGenerator/Builds/VisualStudio2017/x64
+PluginGenerator/Builds/VisualStudio2017/*.user
+PluginGenerator/Builds/VisualStudio2017/*.sdf
+PluginGenerator/Builds/VisualStudio2017/*.opensdf
+PluginGenerator/Builds/VisualStudio2017/*.suo
+
 
 # 3. extra files
 Builds/Linux/build/data
@@ -71,6 +84,20 @@ Builds/VisualStudio2013/open-ephys.vcxproj.user
 Builds/VisualStudio2013/windowState.xml
 Builds/VisualStudio2013/pipetest.bit
 
+Builds/VisualStudio2017/Debug
+Builds/VisualStudio2017/Release
+Builds/VisualStudio2017/Debug64
+Builds/VisualStudio2017/Release64
+Builds/VisualStudio2017/x64
+Builds/VisualStudio2017/ipch
+Builds/VisualStudio2017/open-ephys.sdf
+Builds/VisualStudio2017/open-ephys.opensdf
+Builds/VisualStudio2017/open-ephys.suo
+Builds/VisualStudio2017/open-ephys.v12.suo
+Builds/VisualStudio2017/open-ephys.vcxproj.user
+Builds/VisualStudio2017/windowState.xml
+Builds/VisualStudio2017/pipetest.bit
+
 Builds/VisualStudio2010/Debug
 Builds/VisualStudio2010/Release
 Builds/VisualStudio2010/ipch
@@ -94,9 +121,27 @@ Builds/VisualStudio2013/Plugins/**/x64
 Builds/VisualStudio2013/Plugins/**/Debug
 Builds/VisualStudio2013/Plugins/**/Release
 
+Builds/VisualStudio2017/Plugins/*.user
+Builds/VisualStudio2017/Plugins/*.suo
+Builds/VisualStudio2017/Plugins/*.sdf
+Builds/VisualStudio2017/Plugins/*.opensdf
+Builds/VisualStudio2017/Plugins/*/*.user
+Builds/VisualStudio2017/Plugins/*/*.suo
+Builds/VisualStudio2017/Plugins/*/*.sdf
+Builds/VisualStudio2017/Plugins/*/*.opensdf
+Builds/VisualStudio2017/Plugins/**/x64
+Builds/VisualStudio2017/Plugins/**/Debug
+Builds/VisualStudio2017/Plugins/**/Release
+
+
+
 Builds/VisualStudio2013/Plugins/Debug
 Builds/VisualStudio2013/Plugins/Release
 Builds/VisualStudio2013/Plugins/x64
+
+Builds/VisualStudio2017/Plugins/Debug
+Builds/VisualStudio2017/Plugins/Release
+Builds/VisualStudio2017/Plugins/x64
 
 # 5. Miscellanous generated files (Doxygen, etc.)
 Source/Docs/*
