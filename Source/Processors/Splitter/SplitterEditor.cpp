@@ -100,23 +100,11 @@ void SplitterEditor::buttonEvent(Button* button)
 {
     if (button == pipelineSelectorA)
     {
-        pipelineSelectorA->setToggleState(true, dontSendNotification);
-        pipelineSelectorB->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(0);
-
-		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
-
+        switchDest(0);
     }
     else if (button == pipelineSelectorB)
     {
-        pipelineSelectorB->setToggleState(true, dontSendNotification);
-        pipelineSelectorA->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(1);
-
-		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
-
+        switchDest(1);
     }
 }
 
@@ -126,20 +114,38 @@ void SplitterEditor::switchDest(int dest)
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(0);
+        getProcessor()->switchIO(0);
 
     }
     else if (dest == 1)
     {
         pipelineSelectorB->setToggleState(true, dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(1);
+        getProcessor()->switchIO(1);
 
     }
 
 	AccessClass::getEditorViewport()->makeEditorVisible(this, false);
+}
+
+void SplitterEditor::switchDest()
+{
+    Splitter* processor = (Splitter*)getProcessor();
+    processor->switchIO();
+
+    int path = processor->getPath();
+
+    if (path == 0)
+    {
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
+
+    }
+    else if (path == 1)
+    {
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
+    }
 }
 
 void SplitterEditor::switchIO(int dest)
@@ -188,25 +194,4 @@ Array<GenericEditor*> SplitterEditor::getConnectedEditors()
 
     return editors;
 
-}
-
-void SplitterEditor::switchDest()
-{
-    Splitter* processor = (Splitter*) getProcessor();
-    processor->switchIO();
-
-    int path = processor->getPath();
-
-    if (path == 0)
-    {
-        pipelineSelectorA->setToggleState(true, dontSendNotification);
-        pipelineSelectorB->setToggleState(false, dontSendNotification);
-
-    }
-    else if (path == 1)
-    {
-        pipelineSelectorB->setToggleState(true,dontSendNotification);
-        pipelineSelectorA->setToggleState(false, dontSendNotification);
-
-    }
 }

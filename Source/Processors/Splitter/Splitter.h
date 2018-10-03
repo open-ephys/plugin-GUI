@@ -55,16 +55,17 @@ public:
     /** Nothing happens here, because Splitters are not part of the ProcessorGraph. */
     void process(AudioSampleBuffer& buffer) override {}
 
-    bool isSplitter()
+    bool isSplitter() const override
     {
         return true;
     }
 
-    void switchIO(int);
-    void switchIO();
-    void setSplitterDestNode(GenericProcessor* dn);
+    void switchIO(int) override;
+    void switchIO() override;
+    
+    void setSplitterDestNode(GenericProcessor* dn) override;
 
-    void setPathToProcessor(GenericProcessor* processor);
+    void setPathToProcessor(GenericProcessor* processor) override;
 
     int getPath();
 

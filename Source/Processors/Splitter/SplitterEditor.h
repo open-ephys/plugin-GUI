@@ -42,15 +42,15 @@ public:
     SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~SplitterEditor();
 
-    void buttonEvent(Button* button);
+    void buttonEvent(Button* button) override;
 
-    void switchDest(int);
-    void switchDest();
+    void switchDest(int dest);
+    void switchDest() override;
 
-    void switchIO(int i);
+    void switchIO(int) override;
 
-    int getPathForEditor(GenericEditor* editor);
-    Array<GenericEditor*> getConnectedEditors();
+    int getPathForEditor(GenericEditor* editor) override;
+    Array<GenericEditor*> getConnectedEditors() override;
 
 
 private:
