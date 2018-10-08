@@ -33,7 +33,8 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     int getListeningPort() const;
-    void setListeningPort (int port, bool forceRestart = false);
+    // returns 0 on success, else the errno value for the error that occurred.
+    int setListeningPort (int port, bool forceRestart = false);
 
     void process (AudioSampleBuffer& continuousBuffer) override;
     void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
@@ -46,10 +47,23 @@ public:
 private:
 	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
     static std::shared_ptr<void> getZMQContext();
+    int unbindZMQSocket();
+    int rebindZMQSocket();
     static void closeZMQSocket (void* socket);
+    static String getEndpoint(int port);
+    // called from getListeningPort() depending on success/failure of ZMQ operations
+    void reportActualListeningPort(int port);
+
+    // encapuslate closing sockets when their pointers go out of scope
+    struct zmqSocketPtr : public std::unique_ptr<void, decltype(&closeZMQSocket)>
+    {
+        zmqSocketPtr(void* ptr) 
+            : std::unique_ptr<void, decltype(&closeZMQSocket)>(ptr, &closeZMQSocket)
+        {}
+    };
 
     const std::shared_ptr<void> zmqContext;
-    std::unique_ptr<void, decltype (&closeZMQSocket)> zmqSocket;
+    zmqSocketPtr zmqSocket;
     int listeningPort;
 
 };
