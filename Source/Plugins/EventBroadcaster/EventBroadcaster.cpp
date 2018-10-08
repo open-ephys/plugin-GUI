@@ -55,7 +55,7 @@ void EventBroadcaster::closeZMQSocket(void* socket)
 
 String EventBroadcaster::getEndpoint(int port)
 {
-    return (String("tcp://*:") + String(port));
+    return String("tcp://*:") + String(port);
 }
 
 void EventBroadcaster::reportActualListeningPort(int port)
