@@ -46,7 +46,14 @@ void EventBroadcasterEditor::buttonEvent(Button* button)
     if (button == restartConnection)
     {
         EventBroadcaster* p = (EventBroadcaster*)getProcessor();
-        p->setListeningPort(p->getListeningPort(), true);
+        int status = p->setListeningPort(p->getListeningPort(), true);
+
+#ifdef ZEROMQ
+        if (status != 0)
+        {
+            CoreServices::sendStatusMessage(String("Restart failed: ") + zmq_strerror(status));
+        }
+#endif
     }
 }
 
@@ -58,6 +65,18 @@ void EventBroadcasterEditor::labelTextChanged(juce::Label* label)
         Value val = label->getTextValue();
 
         EventBroadcaster* p = (EventBroadcaster*)getProcessor();
-        p->setListeningPort(val.getValue());
+        int status = p->setListeningPort(val.getValue());
+
+#ifdef ZEROMQ
+        if (status != 0)
+        {
+            CoreServices::sendStatusMessage(String("Port change failed: ") + zmq_strerror(status));
+        }
+#endif
     }
+}
+
+void EventBroadcasterEditor::setDisplayedPort(int port)
+{
+    portLabel->setText(String(port), dontSendNotification);
 }

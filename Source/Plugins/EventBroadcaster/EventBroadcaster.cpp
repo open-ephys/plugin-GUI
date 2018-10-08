@@ -22,6 +22,29 @@ std::shared_ptr<void> EventBroadcaster::getZMQContext() {
     return ctx;
 }
 
+int EventBroadcaster::unbindZMQSocket()
+{
+#ifdef ZEROMQ
+    void* socket = zmqSocket.get();
+    if (socket != nullptr && listeningPort != 0)
+    {
+        return zmq_unbind(socket, getEndpoint(listeningPort).toRawUTF8());
+    }
+#endif
+    return 0;
+}
+
+int EventBroadcaster::rebindZMQSocket()
+{
+#ifdef ZEROMQ
+    void* socket = zmqSocket.get();
+    if (socket != nullptr && listeningPort != 0)
+    {
+        return zmq_bind(socket, getEndpoint(listeningPort).toRawUTF8());
+    }
+#endif
+    return 0;
+}
 
 void EventBroadcaster::closeZMQSocket(void* socket)
 {
@@ -30,16 +53,35 @@ void EventBroadcaster::closeZMQSocket(void* socket)
 #endif
 }
 
+String EventBroadcaster::getEndpoint(int port)
+{
+    return String("tcp://*:") + String(port);
+}
+
+void EventBroadcaster::reportActualListeningPort(int port)
+{
+    listeningPort = port;
+    auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
+    if (editor)
+    {
+        editor->setDisplayedPort(port);
+    }
+}
 
 EventBroadcaster::EventBroadcaster()
     : GenericProcessor  ("Event Broadcaster")
     , zmqContext        (getZMQContext())
-    , zmqSocket         (nullptr, &closeZMQSocket)
+    , zmqSocket         (nullptr)
     , listeningPort     (0)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
-    setListeningPort(5557);
+    int portToTry = 5557;
+    while (setListeningPort(portToTry) == EADDRINUSE)
+    {
+        // try the next port, looking for one not in use
+        portToTry++;
+    }
 }
 
 
@@ -56,27 +98,53 @@ int EventBroadcaster::getListeningPort() const
 }
 
 
-void EventBroadcaster::setListeningPort(int port, bool forceRestart)
+int EventBroadcaster::setListeningPort(int port, bool forceRestart)
 {
     if ((listeningPort != port) || forceRestart)
     {
 #ifdef ZEROMQ
-        zmqSocket.reset(zmq_socket(zmqContext.get(), ZMQ_PUB));
-        if (!zmqSocket)
+        // unbind current socket (if any) to free up port
+        unbindZMQSocket();
+        zmqSocketPtr newSocket(zmq_socket(zmqContext.get(), ZMQ_PUB));
+        auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
+        int status = 0;
+
+        if (!newSocket.get())
         {
-            std::cout << "Failed to create socket: " << zmq_strerror(zmq_errno()) << std::endl;
-            return;
+            status = zmq_errno();
+            std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
+        }
+        else
+        {
+            if (0 != zmq_bind(newSocket.get(), getEndpoint(port).toRawUTF8()))
+            {
+                status = zmq_errno();
+                std::cout << "Failed to open socket: " << zmq_strerror(status) << std::endl;
+            }
+            else
+            {
+                // success
+                zmqSocket.swap(newSocket);
+                reportActualListeningPort(port);
+                return status;
+            }
         }
 
-        String url = String("tcp://*:") + String(port);
-        if (0 != zmq_bind(zmqSocket.get(), url.toRawUTF8()))
+        // failure, try to rebind current socket to previous port
+        if (0 == rebindZMQSocket())
         {
-            std::cout << "Failed to open socket: " << zmq_strerror(zmq_errno()) << std::endl;
-            return;
+            reportActualListeningPort(listeningPort);
         }
+        else
+        {
+            reportActualListeningPort(0);
+        }
+        return status;
+
+#else
+        reportActualListeningPort(port);
+        return 0;
 #endif
-
-        listeningPort = port;
     }
 }
 
