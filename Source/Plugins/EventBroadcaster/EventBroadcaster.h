@@ -24,7 +24,6 @@
 
 #include <memory>
 
-
 class EventBroadcaster : public GenericProcessor
 {
 public:
@@ -45,27 +44,42 @@ public:
 
 
 private:
-	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
-    static std::shared_ptr<void> getZMQContext();
+    class ZMQContext : public ReferenceCountedObject
+    {
+    public:
+        ZMQContext(const ScopedLock& lock);
+        ~ZMQContext() override;
+        void* createZMQSocket();
+    private:
+        void* context;
+    };
+
+    static void closeZMQSocket(void* socket);
+
+    class ZMQSocketPtr : public std::unique_ptr<void, decltype(&closeZMQSocket)>
+    {
+    public:
+        ZMQSocketPtr();
+        ~ZMQSocketPtr();
+    private:
+        ReferenceCountedObjectPtr<ZMQContext> context;
+    };
+    
     int unbindZMQSocket();
     int rebindZMQSocket();
-    static void closeZMQSocket (void* socket);
+
+	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
     static String getEndpoint(int port);
     // called from getListeningPort() depending on success/failure of ZMQ operations
     void reportActualListeningPort(int port);
 
-    // encapuslate closing sockets when their pointers go out of scope
-    struct zmqSocketPtr : public std::unique_ptr<void, decltype(&closeZMQSocket)>
-    {
-        zmqSocketPtr(void* ptr) 
-            : std::unique_ptr<void, decltype(&closeZMQSocket)>(ptr, &closeZMQSocket)
-        {}
-    };
-
-    const std::shared_ptr<void> zmqContext;
-    zmqSocketPtr zmqSocket;
+    // share a "dumb" pointer that doesn't take part in reference counting.
+    // want the context to be terminated by the time the static members are
+    // destroyed (see: https://github.com/zeromq/libzmq/issues/1708)
+    static ZMQContext* sharedContext;
+    static CriticalSection sharedContextLock;
+    ZMQSocketPtr zmqSocket;
     int listeningPort;
-
 };
 
 

@@ -11,15 +11,60 @@
 #include "EventBroadcaster.h"
 #include "EventBroadcasterEditor.h"
 
-std::shared_ptr<void> EventBroadcaster::getZMQContext() {
-    // Note: C++11 guarantees that initialization of static local variables occurs exactly once, even
-    // if multiple threads attempt to initialize the same static local variable concurrently.
+EventBroadcaster::ZMQContext* EventBroadcaster::sharedContext = nullptr;
+CriticalSection EventBroadcaster::sharedContextLock{};
+
+EventBroadcaster::ZMQContext::ZMQContext(const ScopedLock& lock)
 #ifdef ZEROMQ
-    static const std::shared_ptr<void> ctx(zmq_ctx_new(), zmq_ctx_destroy);
-#else
-    static const std::shared_ptr<void> ctx;
+    : context(zmq_ctx_new())
 #endif
-    return ctx;
+{
+    sharedContext = this;
+}
+
+// ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
+// socket pointer, so this only happens when the last instance is destroyed.
+EventBroadcaster::ZMQContext::~ZMQContext()
+{
+    ScopedLock lock(sharedContextLock);
+    sharedContext = nullptr;
+#ifdef ZEROMQ
+    zmq_ctx_destroy(context);
+#endif
+}
+
+void* EventBroadcaster::ZMQContext::createZMQSocket()
+{
+#ifdef ZEROMQ
+    jassert(context != nullptr);
+    return zmq_socket(context, ZMQ_PUB);
+#endif
+}
+
+EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
+    : std::unique_ptr<void, decltype(&closeZMQSocket)>(nullptr, &closeZMQSocket)
+{
+    ScopedLock lock(sharedContextLock);
+    if (sharedContext == nullptr)
+    {
+        // first one, create the context
+        context = new ZMQContext(lock);
+    }
+    else
+    {
+        // use already-created context
+        context = sharedContext;
+    }
+
+#ifdef ZEROMQ
+    reset(context->createZMQSocket());
+#endif
+}
+
+EventBroadcaster::ZMQSocketPtr::~ZMQSocketPtr()
+{
+    // close the socket before the context might get destroyed.
+    reset(nullptr);
 }
 
 int EventBroadcaster::unbindZMQSocket()
@@ -70,8 +115,6 @@ void EventBroadcaster::reportActualListeningPort(int port)
 
 EventBroadcaster::EventBroadcaster()
     : GenericProcessor  ("Event Broadcaster")
-    , zmqContext        (getZMQContext())
-    , zmqSocket         (nullptr)
     , listeningPort     (0)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
@@ -105,7 +148,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
 #ifdef ZEROMQ
         // unbind current socket (if any) to free up port
         unbindZMQSocket();
-        zmqSocketPtr newSocket(zmq_socket(zmqContext.get(), ZMQ_PUB));
+        ZMQSocketPtr newSocket;
         auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
         int status = 0;
 
