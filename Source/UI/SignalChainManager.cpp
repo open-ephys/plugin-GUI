@@ -376,23 +376,30 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
         // std::cout << "Inserting " << editorToAdd->getName() << " at point 0." << std::endl;
 
         editorArray.insert(0,editorToAdd);
-        GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
+        GenericProcessor* currentProcessor = editorToAdd->getProcessor();
         GenericProcessor* source = currentProcessor->getSourceNode();
 
         if (source != nullptr)
         {
             //   std::cout << "Source: " << source->getName() << std::endl;
 
+            GenericEditor* sourceEditor = source->getEditor();
+
             // need to switch the splitter somehow
             if (action == ACTIVATE || action == UPDATE)
             {
-                if (source->isSplitter())
+                if (source->isSplitter() && sourceEditor != nullptr)
                 {
-                    source->setPathToProcessor(currentProcessor);
+                    // a little hacky - switch editor (including buttons)
+                    // to path with current editor without calling makeEditorVisible
+                    int path = sourceEditor->getPathForEditor(editorToAdd);
+                    jassert(path == 0 || path == 1);
+                    source->switchIO(1 - path);
+                    sourceEditor->switchDest();
                 }
             }
 
-            editorToAdd = (GenericEditor*) source->getEditor();
+            editorToAdd = sourceEditor;
 
         }
         else
