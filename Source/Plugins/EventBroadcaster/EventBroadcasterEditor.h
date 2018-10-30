@@ -30,6 +30,8 @@ public:
     void buttonEvent(Button* button) override;
     void labelTextChanged(juce::Label* label) override;
 
+    void setDisplayedPort(int port);
+
 private:
     ScopedPointer<UtilityButton> restartConnection;
     ScopedPointer<Label> urlLabel;
