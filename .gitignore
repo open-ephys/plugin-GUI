@@ -84,6 +84,7 @@ Builds/VisualStudio2013/open-ephys.vcxproj.user
 Builds/VisualStudio2013/windowState.xml
 Builds/VisualStudio2013/pipetest.bit
 
+Builds/VisualStudio2017/.vs
 Builds/VisualStudio2017/Debug
 Builds/VisualStudio2017/Release
 Builds/VisualStudio2017/Debug64
@@ -121,6 +122,7 @@ Builds/VisualStudio2013/Plugins/**/x64
 Builds/VisualStudio2013/Plugins/**/Debug
 Builds/VisualStudio2013/Plugins/**/Release
 
+Builds/VisualStudio2017/Plugins/.vs
 Builds/VisualStudio2017/Plugins/*.user
 Builds/VisualStudio2017/Plugins/*.suo
 Builds/VisualStudio2017/Plugins/*.sdf
