@@ -77,7 +77,7 @@ private:
     bool separateFiles;
     Array<int> blockIndex;
     Array<int> samplesSinceLastTimestamp;
-    int recordingNumber;
+    uint16 recordingNumber;
     int experimentNumber;
 
     bool renameFiles;
@@ -96,7 +96,7 @@ private:
     //float* continuousDataFloatBuffer;
 
     /** Used to indicate the end of each record */
-	HeapBlock<char> recordMarker;
+	HeapBlock<uint8> recordMarker;
     //char* recordMarker;
 
     AudioSampleBuffer zeroBuffer;

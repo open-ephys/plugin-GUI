@@ -432,7 +432,7 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 	*(data + 11) = static_cast<uint8>(ev->getSourceID());
 	*(data + 12) = (ev->getEventType() == EventChannel::TTL) ? (dynamic_cast<TTLEvent*>(ev.get())->getState() ? 1 : 0) : 0;
 	*(data + 13) = static_cast<uint8>(ev->getChannel());
-	*reinterpret_cast<uint16*>(data + 14) = static_cast<uint16>(recordingNumber);
+	*reinterpret_cast<uint16*>(data + 14) = recordingNumber;
     
 
     diskWriteLock.enter();
