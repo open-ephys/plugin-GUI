@@ -8,13 +8,13 @@ The Open Ephys GUI was designed to provide a fast and flexible interface for acq
 - [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
 - [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (supports up to 6144 channels)
 
-The GUI based around a *true plugin architecture*, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding new functionality, since new modules can be created without the need to re-compile the entire application.
+The GUI is based around a *true plugin architecture*, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be created without the need to re-compile the entire application.
 
-Our primary user base is scientists performing ephys experiments with tetrodes or silicon probes, but the GUI can also be adapted for use with many other types of sensors.
+Our primary user base is scientists performing ekectrophysiology experiments with tetrodes or silicon probes, but the GUI can also be adapted for use with other types of sensors.
 
 [![docs](https://img.shields.io/badge/docs-confluence-blue.svg)](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491527/Open+Ephys+GUI)
 [![latest release](https://img.shields.io/github/release/open-ephys/plugin-gui.svg)](https://github.com/open-ephys/plugin-GUI/releases)
-![platforms](https://img.shields.io/badge/platforms-macos%20|%20windows%20|%20linux-lightgray.svg)
+![platforms](https://img.shields.io/badge/platforms-macOS%20|%20windows%20|%20linux-lightgray.svg)
 ![language](https://img.shields.io/badge/language-c++-blue.svg)
 [![license](https://img.shields.io/badge/license-GPL3-blue.svg)](https://github.com/open-ephys/plugin-GUI/blob/master/Licenses/Open-Ephys-GPL-3.txt)
 
