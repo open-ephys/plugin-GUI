@@ -10,7 +10,7 @@ The Open Ephys GUI was designed to provide a fast and flexible interface for acq
 
 The GUI is based around a *true plugin architecture*, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be created without the need to re-compile the entire application.
 
-Our primary user base is scientists performing ekectrophysiology experiments with tetrodes or silicon probes, but the GUI can also be adapted for use with other types of sensors.
+Our primary user base is scientists performing electrophysiology experiments with tetrodes or silicon probes, but the GUI can also be adapted for use with other types of sensors.
 
 [![docs](https://img.shields.io/badge/docs-confluence-blue.svg)](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491527/Open+Ephys+GUI)
 [![latest release](https://img.shields.io/github/release/open-ephys/plugin-gui.svg)](https://github.com/open-ephys/plugin-GUI/releases)
