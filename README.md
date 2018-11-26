@@ -2,7 +2,7 @@
 
 ![GUI screenshot](https://static1.squarespace.com/static/53039db8e4b0649958e13c7b/t/53bc11f0e4b0e16f33110ad8/1404834318628/?format=1000w)
 
-The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring and visualizing data from extracellular electrodes. Compatible data acquisition hardware includes:
+The Open Ephys GUI is designed to provide a fast and flexible interface for acquiring and visualizing data from extracellular electrodes. Compatible data acquisition hardware includes:
 - [Open Ephys Acquisition Board](http://www.open-ephys.org/acq-board/) (supports up to 512 channels)
 - [Intan RHD2000 Evaluation System](http://intantech.com/RHD2000_evaluation_system.html) (supports up to 256 channels)
 - [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
@@ -24,6 +24,9 @@ The easiest way to get started is to use the pre-compiled binaries for your plat
 - [macOS](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/mac.zip)
 - [Linux (64-bit)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/linux.zip)
 - [Windows (7 & 10)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/windows.zip)
+
+The Neuropixels version of the GUI is currently only available for Windows:
+- [Open Ephys for Neuropixels](https://github.com/open-ephys-gui-binaries/open-ephys/tree/neuropix)
 
 To compile the GUI from source, follow the instructions on our wiki for [macOS](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491555/macOS), [Linux](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491546/Linux), or [Windows](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491621/Windows).
 
