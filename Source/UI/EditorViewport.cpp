@@ -1353,6 +1353,10 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
     xml->addChildElement(audioSettings);
 
+	XmlElement* recordSettings = new XmlElement("RECORDING");
+	recordSettings->setAttribute("isRecordThreadEnabled", CoreServices::RecordNode::getRecordThreadStatus());
+	xml->addChildElement(recordSettings);
+
 	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
 	int tsID, tsSubID;
 	AccessClass::getProcessorGraph()->getTimestampSources(tsID, tsSubID);
@@ -1615,7 +1619,12 @@ const String EditorViewport::loadState(File fileToLoad)
         {
             int bufferSize = element->getIntAttribute("bufferSize");
             AccessClass::getAudioComponent()->setBufferSize(bufferSize);
-        }
+		}
+		else if (element->hasTagName("RECORDING"))
+		{
+			bool recordThreadStatus = element->getBoolAttribute("isRecordThreadEnabled");
+			CoreServices::RecordNode::toggleRecordThread(recordThreadStatus);
+		}
 		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
 		{
 			int tsID = element->getIntAttribute("selected_index", -1);
@@ -1633,9 +1642,9 @@ const String EditorViewport::loadState(File fileToLoad)
 
     AccessClass::getProcessorGraph()->restoreParameters();
 
-    AccessClass::getControlPanel()->loadStateFromXml(xml); // save the control panel settings
-    AccessClass::getProcessorList()->loadStateFromXml(xml);
-    AccessClass::getUIComponent()->loadStateFromXml(xml);  // save the UI settings
+    AccessClass::getControlPanel()->loadStateFromXml(xml); // load the control panel settings
+    AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
+    AccessClass::getUIComponent()->loadStateFromXml(xml);  // load the UI settings
 
     if (editorArray.size() > 0)
         signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);

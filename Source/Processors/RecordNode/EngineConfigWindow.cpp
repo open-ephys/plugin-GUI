@@ -150,7 +150,9 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
     bool hasString = false;
     setName(man->getName()+" Recording Configuration");
 
-    for (int i = 0; i < man->getNumParameters(); i++)
+	int i;
+
+    for (i = 0; i < man->getNumParameters(); i++)
     {
         EngineParameterComponent* par = new EngineParameterComponent(man->getParameter(i));
         if (man->getParameter(i).type == EngineParameter::STR || man->getParameter(i).type == EngineParameter::MULTI)
@@ -159,14 +161,60 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
         addAndMakeVisible(par);
         parameters.add(par);
     }
+
+	ToggleButton* but = new ToggleButton();
+	but->setToggleState(CoreServices::RecordNode::getRecordThreadStatus(), dontSendNotification);
+	but->setBounds(10, 10+40*(i+1), 100, 20);
+	but->addListener(this);
+	addAndMakeVisible(but);
+
+	Label* label = new Label();
+	label->setText("Is record thread enabled?", NotificationType::dontSendNotification);
+	label->setBounds(30, 10 + 40 * (i + 1), 240, 20);
+	addAndMakeVisible(label);
+
+	height = 10 + 40 * (i + 1) + 30;
+
     if (hasString)
-        this->setSize(300,height);
+        this->setSize(350,height);
     else
-        this->setSize(200,height);
+        this->setSize(350,height);
+
+
 }
 
 EngineConfigComponent::~EngineConfigComponent()
 {
+}
+
+void EngineConfigComponent::buttonClicked(Button* b)
+{
+
+	if (!CoreServices::getRecordingStatus())
+	{
+		if (b->getToggleState() == false)
+		{
+		
+			int response = AlertWindow::showOkCancelBox(AlertWindow::AlertIconType::WarningIcon,
+				"Disable record thread?",
+				"Are you sure you want to disable the record thread? You'll need to have a processor capable of recording data on its own.",
+				"Yes", "No");
+
+			if (response == 1)
+				CoreServices::RecordNode::toggleRecordThread(false);
+			else
+				b->setToggleState(true, false);
+
+
+		}
+		else {
+			CoreServices::RecordNode::toggleRecordThread(true);
+		}
+		
+	}
+	else {
+		CoreServices::sendStatusMessage("Cannot toggle record thread status while recording is active.");
+	}
 }
 
 void EngineConfigComponent::saveParameters()
@@ -193,7 +241,7 @@ EngineConfigWindow::EngineConfigWindow(RecordEngineManager* man)
     setResizable(false,false);
     setName(man->getName()+" recording configuration");
 
-    ui = new EngineConfigComponent(man,height);
+    ui = new EngineConfigComponent(man, height);
     setContentNonOwned(ui,true);
 }
 

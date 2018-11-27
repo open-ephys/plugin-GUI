@@ -47,11 +47,12 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
 };
 
-class EngineConfigComponent : public Component
+class EngineConfigComponent : public Component, public Button::Listener
 {
 public:
     EngineConfigComponent(RecordEngineManager* man, int height);
     ~EngineConfigComponent();
+	void buttonClicked(Button*);
     void paint(Graphics& g) override;
     void saveParameters();
 
