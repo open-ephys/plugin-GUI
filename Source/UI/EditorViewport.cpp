@@ -1354,7 +1354,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     xml->addChildElement(audioSettings);
 
 	XmlElement* recordSettings = new XmlElement("RECORDING");
-	recordSettings->setAttribute("isRecordThreadEnabled", CoreServices::RecordNode::getRecordThreadStatus());
+	recordSettings->setAttribute("isRecordThreadEnabled", AccessClass::getProcessorGraph()->getRecordNode()->getRecordThreadStatus());
 	xml->addChildElement(recordSettings);
 
 	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
@@ -1623,7 +1623,11 @@ const String EditorViewport::loadState(File fileToLoad)
 		else if (element->hasTagName("RECORDING"))
 		{
 			bool recordThreadStatus = element->getBoolAttribute("isRecordThreadEnabled");
-			CoreServices::RecordNode::toggleRecordThread(recordThreadStatus);
+
+			if (recordThreadStatus)
+				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 1.0f);
+			else
+				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 0.0f);
 		}
 		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
 		{
