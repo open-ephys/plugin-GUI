@@ -165,18 +165,6 @@ namespace CoreServices
 			return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
 		}
 
-		void toggleRecordThread(bool status)
-		{
-			if (status)
-				getProcessorGraph()->getRecordNode()->setParameter(3, 1.0);
-			else
-				getProcessorGraph()->getRecordNode()->setParameter(3, 0.0);
-		}
-
-		bool getRecordThreadStatus()
-		{
-			return getProcessorGraph()->getRecordNode()->getRecordThreadStatus();
-		}
 	};
 
 	const char* getApplicationResource(const char* name, int& size)

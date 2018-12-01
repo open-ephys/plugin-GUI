@@ -110,9 +110,6 @@ PLUGIN_API void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan);
 PLUGIN_API void registerSpikeSource(GenericProcessor* processor);
 PLUGIN_API int addSpikeElectrode(const SpikeChannel* elec);
 
-/* Don't mess with this unless you know what you're doing.*/
-PLUGIN_API void toggleRecordThread(bool status);
-PLUGIN_API bool getRecordThreadStatus();
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);
