@@ -23,6 +23,8 @@
 
 #include "EngineConfigWindow.h"
 
+#include "../../AccessClass.h"
+
 EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
     : Component(param.name), type(param.type), parameter(param)
 {
@@ -162,16 +164,17 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
         parameters.add(par);
     }
 
-	ToggleButton* but = new ToggleButton();
-	but->setToggleState(CoreServices::RecordNode::getRecordThreadStatus(), dontSendNotification);
-	but->setBounds(10, 10+40*(i+1), 100, 20);
-	but->addListener(this);
-	addAndMakeVisible(but);
+	recordThreadToggleButton = new ToggleButton();
 
-	Label* label = new Label();
-	label->setText("Is record thread enabled?", NotificationType::dontSendNotification);
-	label->setBounds(30, 10 + 40 * (i + 1), 240, 20);
-	addAndMakeVisible(label);
+	recordThreadToggleButton->setToggleState(AccessClass::getProcessorGraph()->getRecordNode()->getRecordThreadStatus(), dontSendNotification);
+	recordThreadToggleButton->setBounds(10, 10 + 40 * (i + 1), 100, 20);
+	recordThreadToggleButton->addListener(this);
+	addAndMakeVisible(recordThreadToggleButton);
+
+	recordThreadToggleLabel = new Label();
+	recordThreadToggleLabel->setText("Is record thread enabled?", NotificationType::dontSendNotification);
+	recordThreadToggleLabel->setBounds(30, 10 + 40 * (i + 1), 240, 20);
+	addAndMakeVisible(recordThreadToggleLabel);
 
 	height = 10 + 40 * (i + 1) + 30;
 
@@ -201,14 +204,14 @@ void EngineConfigComponent::buttonClicked(Button* b)
 				"Yes", "No");
 
 			if (response == 1)
-				CoreServices::RecordNode::toggleRecordThread(false);
+				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 0.0);
 			else
 				b->setToggleState(true, false);
 
 
 		}
 		else {
-			CoreServices::RecordNode::toggleRecordThread(true);
+			AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 1.0);
 		}
 		
 	}
