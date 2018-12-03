@@ -70,6 +70,7 @@ public:
 */
 class NetworkEvents : public GenericProcessor
                     , public Thread
+                    , public Value::Listener
 {
 public:
     NetworkEvents();
@@ -116,6 +117,10 @@ public:
     void postTimestamppedStringToMidiBuffer (StringTS s);
     void setNewListeningPort (int port);
 
+    // to monitor responderStatus and connect to last good port if necessary
+    void valueChanged(Value& value) override;
+
+
     int urlport;
     String socketStatus;
     std::atomic<bool> threadRunning;
@@ -124,8 +129,20 @@ public:
 private:
     void createZmqContext();
 
-    static void closeZmqSocket(void* socket);
-    typedef std::unique_ptr<void, decltype(&closeZmqSocket)> SocketPtr;
+    // RAII wrapper for ZMQ socket
+    class Responder
+    {
+    public:
+        Responder(void* context);
+        ~Responder();
+        operator void*();
+    private:
+        void* socket;
+    };
+
+    // allow reconnecting to last good port if connection fails
+    Value connectionErr;
+    int lastGoodPort;
 
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
     StringPairArray parseNetworkMessage (String msg);

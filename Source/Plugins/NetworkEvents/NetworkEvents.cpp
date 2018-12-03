@@ -163,8 +163,12 @@ NetworkEvents::NetworkEvents()
     , threshold         (200.0)
     , bufferZone        (5.0f)
     , state             (false)
+    , connectionErr     (var(false))
+    , lastGoodPort      (0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
+
+    connectionErr.addListener(this);
 
     createZmqContext();
 
@@ -193,7 +197,15 @@ void NetworkEvents::setNewListeningPort (int port)
 #endif
 
     urlport = port;
+    connectionErr = false;
     opensocket();
+
+    // update editor
+    auto ed = static_cast<NetworkEventsEditor*>(getEditor());
+    if (ed)
+    {
+        ed->setPortString(String(port));
+    }
 }
 
 
@@ -201,6 +213,19 @@ NetworkEvents::~NetworkEvents()
 {
     shutdown = true;
     closesocket();
+}
+
+
+void NetworkEvents::valueChanged(Value& value)
+{
+    if (value.refersToSameSourceAs(connectionErr))
+    {
+        if ((bool)value.getValue() && lastGoodPort > 0 && lastGoodPort != urlport)
+        {
+            // try to connect to the last good port
+            setNewListeningPort(lastGoodPort);
+        }
+    }
 }
 
 
@@ -555,24 +580,28 @@ void NetworkEvents::opensocket()
 void NetworkEvents::run()
 {
 #ifdef ZEROMQ
-    SocketPtr responder(zmq_socket(zmqcontext, ZMQ_REP), &closeZmqSocket);
+    Responder responder(zmqcontext);
     String url= String ("tcp://*:") + String (urlport);
-    int rc = zmq_bind (responder.get(), url.toRawUTF8());
+    int rc = zmq_bind (responder, url.toRawUTF8());
 
     if (rc != 0)
     {
         // failed to open or bind socket?
-        std::cout << "Failed to open socket: " << zmq_strerror (zmq_errno()) << std::endl;
+        String msg = String("Network Events failed to open socket: ") + zmq_strerror(zmq_errno());
+        std::cout << msg << std::endl;
+        CoreServices::sendStatusMessage(msg);
+        connectionErr = true;
         return;
     }
 
     threadRunning = true;
+    lastGoodPort = urlport;
     HeapBlock<unsigned char> buffer(MAX_MESSAGE_LENGTH);
     int result = -1;
 
     while (threadRunning)
     {
-        result = zmq_recv (responder.get(), buffer, MAX_MESSAGE_LENGTH - 1, 0);  // blocking
+        result = zmq_recv (responder, buffer, MAX_MESSAGE_LENGTH - 1, 0);  // blocking
 
         juce::int64 timestamp_software = timer.getHighResolutionTicks();
 
@@ -590,19 +619,18 @@ void NetworkEvents::run()
             // handle special messages
             String response = handleSpecialMessages (Msg);
 
-            zmq_send (responder.get(), response.getCharPointer(), response.length(), 0);
+            zmq_send (responder, response.getCharPointer(), response.length(), 0);
         }
         else
         {
             String zeroMessageError = "Recieved Zero Message?!?!?";
             //std::cout << "Received Zero Message!" << std::endl;
 
-            zmq_send (responder.get(), zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
+            zmq_send (responder, zeroMessageError.getCharPointer(), zeroMessageError.length(), 0);
         }
     }
 
     threadRunning = false;
-
     return;
 #endif
 }
@@ -651,9 +679,7 @@ void NetworkEvents::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName ("NETWORKEVENTS"))
             {
-                auto ed = static_cast<NetworkEventsEditor*>(getEditor());
-                if (!ed) { return; }
-                ed->setPortString(mainNode->getStringAttribute("port"));
+                setNewListeningPort(mainNode->getIntAttribute("port"));
             }
         }
     }
@@ -671,11 +697,24 @@ void NetworkEvents::createZmqContext()
 }
 
 
-void NetworkEvents::closeZmqSocket(void* socket)
+NetworkEvents::Responder::Responder(void* context)
+#ifdef ZEROMQ
+    : socket(zmq_socket(context, ZMQ_REP))
+#endif
+{}
+
+
+NetworkEvents::Responder::~Responder()
 {
 #ifdef ZEROMQ
     zmq_close(socket);
 #endif
+}
+
+
+NetworkEvents::Responder::operator void*()
+{
+    return socket;
 }
 
 
