@@ -115,6 +115,10 @@ void NetworkEventsEditor::setLabelColor(juce::Colour color)
 	labelPort->setColour(Label::backgroundColourId, color);
 }
 
+void NetworkEventsEditor::setPortString(const String& port)
+{
+    labelPort->setText(port, sendNotification);
+}
 
 void NetworkEventsEditor::labelTextChanged(juce::Label *label)
 {

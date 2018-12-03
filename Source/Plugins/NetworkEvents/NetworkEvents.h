@@ -39,6 +39,7 @@
 
 #include <list>
 #include <queue>
+#include <memory>
 
 class StringTS
 {
@@ -123,13 +124,15 @@ public:
 private:
     void createZmqContext();
 
+    static void closeZmqSocket(void* socket);
+    typedef std::unique_ptr<void, decltype(&closeZmqSocket)> SocketPtr;
+
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
     StringPairArray parseNetworkMessage (String msg);
 
     StringTS createStringTS (String S, int64 t);
 
     static void* zmqcontext;
-    void* responder;
 
     float threshold;
     float bufferZone;
