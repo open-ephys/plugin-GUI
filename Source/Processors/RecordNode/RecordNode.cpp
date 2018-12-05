@@ -54,7 +54,7 @@ RecordNode::RecordNode()
     settingsNeeded = false;
 
     // 128 inputs, 0 outputs
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,1024);
+    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 	m_recordThread = new RecordThread(engineArray);
 	m_dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	m_eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
