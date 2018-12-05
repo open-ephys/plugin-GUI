@@ -39,7 +39,6 @@
 
 #include <list>
 #include <queue>
-#include <memory>
 
 class StringTS
 {
@@ -50,14 +49,13 @@ public:
 	StringTS(String S, int64 ts_software);
 	StringTS(const StringTS& s);
 	StringTS(unsigned char* buf, int _len, int64 ts_software);
-	~StringTS();
 
 	std::vector<String> splitString(char sep);
 	String getString();
 
 	StringTS& operator= (const StringTS& rhs);
 
-	juce::uint8* str;
+	HeapBlock<juce::uint8> str;
 	int len;
 	juce::int64 timestamp;
 };
@@ -70,7 +68,6 @@ public:
 */
 class NetworkEvents : public GenericProcessor
                     , public Thread
-                    , public Value::Listener
 {
 public:
     NetworkEvents();
@@ -112,50 +109,85 @@ public:
     void simulateStopRecord();
     void run();
     void opensocket();
-    bool closesocket();
+    void closesocket(bool shutdown = false);
 
     void postTimestamppedStringToMidiBuffer (StringTS s);
-    void setNewListeningPort (int port);
+    void setNewListeningPort (uint16 port);
 
-    // to monitor responderStatus and connect to last good port if necessary
-    void valueChanged(Value& value) override;
-
-
-    int urlport;
-    String socketStatus;
-    std::atomic<bool> threadRunning;
-
+    uint16 urlport;
 
 private:
-    void createZmqContext();
-
-    // RAII wrapper for ZMQ socket
-    class Responder
-    {
-    public:
-        Responder(void* context);
-        ~Responder();
-        operator void*();
-    private:
-        void* socket;
-    };
-
-    // allow reconnecting to last good port if connection fails
-    Value connectionErr;
-    int lastGoodPort;
 
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
-    StringPairArray parseNetworkMessage (String msg);
+    StringPairArray parseNetworkMessage(String msg);
+    
+    // Set the urlport and reflect it on the editor
+    void updatePort(uint16 port);
 
-    StringTS createStringTS (String S, int64 t);
+    // RAII wrapper for ZMQ context
+    class ZMQContext
+    {
+    public:
+        ZMQContext();
+        ~ZMQContext();
+        void* makeReplySocket();
+    private:
+        void* context;
+    };
 
-    static void* zmqcontext;
+
+    // RAII wrapper for responder socket
+    class Responder
+    {
+    public:        
+        Responder();
+        ~Responder();
+
+        // creates socket from given context and tries to bind to port, then lastGoodPort (if nonzero).
+        // if port is 0, chooses an available ephemeral port.
+        // returns true on success.
+        bool initialize(ZMQContext& context, uint16 port, uint16 lastGoodPort);
+
+        // returns the latest errno value and resets it to 0.
+        int getErr();
+        
+        // returns the port if the socket was successfully bound to one.
+        // if not, or if the socket is invalid, returns 0.
+        uint16 getBoundPort() const;
+
+        // receives message into buf (blocking call).
+        // returns the number of bytes actually received, or -1 if there is an error.
+        int receive(void* buf);
+
+        // sends a message. returns the same as zmq_send.
+        int send(StringRef response);
+
+    private:
+        void* socket;
+        uint16 boundPort; // 0 indicates not bound
+        int lastErrno;
+        bool initialized;
+    };
+    
+
+    //class Responder
+    //{
+    //public:
+    //    Responder(void* context);
+    //    ~Responder();
+    //    operator void*() const;
+    //private:
+    //    ScopedPointer<ZMQSocket> socket;
+    //    uint16 lastGoodPort; // 0 indicates none
+    //};
+
+    ScopedPointer<ZMQContext> zmqcontext;
+    uint16 lastGoodPort;
 
     float threshold;
     float bufferZone;
 
     bool state;
-    bool shutdown;
     bool firstTime;
 
     Time timer;
@@ -163,7 +195,9 @@ private:
     std::queue<StringTS> networkMessagesQueue;
     std::queue<StringTS> simulation;
 
-    CriticalSection lock;
+    CriticalSection queueLock;
+    CriticalSection contextLock;
+    
     int64 simulationStartTime;
 
 	const EventChannel* messageChannel{ nullptr };

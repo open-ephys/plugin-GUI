@@ -124,10 +124,16 @@ void NetworkEventsEditor::labelTextChanged(juce::Label *label)
 {
 	if (label == labelPort)
 	{
-	   Value val = label->getTextValue();
+	    int32 portInput = label->getText().getIntValue();
+        if (portInput < 0 || portInput > (1 << 16) - 1)
+        {
+            CoreServices::sendStatusMessage("Warning: port out of range; selecting one automatically");
+            portInput = 0;
+        }
+        auto port = static_cast<uint16>(portInput);
 
 		NetworkEvents *p= (NetworkEvents *)getProcessor();
-		p->setNewListeningPort(val.getValue());
+		p->setNewListeningPort(port);
 	}
 }
 
