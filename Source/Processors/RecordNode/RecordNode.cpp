@@ -42,7 +42,7 @@ RecordNode::RecordNode()
     isRecording = false;
 	setFirstBlock = false;
 
-    settings.numInputs = 2048;
+    settings.numInputs = 8;
     settings.numOutputs = 0;
 
     recordingNumber = -1;
@@ -54,7 +54,7 @@ RecordNode::RecordNode()
     settingsNeeded = false;
 
     // 128 inputs, 0 outputs
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
+    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,1024);
 	m_recordThread = new RecordThread(engineArray);
 	m_dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	m_eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
@@ -580,4 +580,6 @@ void RecordNode::updateRecordChannelIndexes()
 void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
 {
 	eventChannelArray.addArray(channels);
+	settings.numInputs = dataChannelArray.size();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
 }
