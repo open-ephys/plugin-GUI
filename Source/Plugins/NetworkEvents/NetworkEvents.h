@@ -37,21 +37,9 @@
 
 #include <ProcessorHeaders.h>
 
+#include <vector>
 #include <list>
 #include <queue>
-
-class StringTS
-{
-public:
-	StringTS();
-    StringTS(String S, int64 ts_software = CoreServices::getGlobalTimestamp());
-    StringTS(MidiMessage& event);
-
-	std::vector<String> splitString(char sep) const;
-
-	String str;
-	juce::int64 timestamp;
-};
 
 
 /**
@@ -108,6 +96,20 @@ public:
     uint16 urlport;
 
 private:
+    // combines a string and a timestamp
+    class StringTS
+    {
+    public:
+        StringTS();
+        StringTS(String S, int64 ts_software = CoreServices::getGlobalTimestamp());
+        StringTS(MidiMessage& event);
+
+        std::vector<String> splitString(char sep) const;
+
+        String str;
+        juce::int64 timestamp;
+    };
+
     void createZmqContext();
 
     void postTimestamppedStringToMidiBuffer(StringTS s);

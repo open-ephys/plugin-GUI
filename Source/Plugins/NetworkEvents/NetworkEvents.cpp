@@ -35,67 +35,6 @@ const int MAX_MESSAGE_LENGTH = 64000;
     #include <unistd.h>
 #endif
 
-
-StringTS::StringTS()
-    : timestamp(0)
-{}
-
-
-StringTS::StringTS(String S, int64 ts_software)
-    : str(S)
-    , timestamp(ts_software)
-{}
-
-
-StringTS::StringTS(MidiMessage& event)
-    : timestamp(EventBase::getTimestamp(event))
-{
-    if (Event::getEventType(event) != EventChannel::EventChannelTypes::TEXT)
-    {
-        return; // only handles text events
-    }
-
-    const uint8* dataptr = event.getRawData();
-    // relying on null terminator to get end of string...
-    str = String::fromUTF8(reinterpret_cast<const char*>(dataptr + EVENT_BASE_SIZE));
-}
-
-
-std::vector<String> StringTS::splitString (char sep) const
-{
-    String curr;
-
-    std::list<String> ls;
-    for (int k = 0; k < str.length(); ++k)
-    {
-        if (str[k] != sep)
-        {
-            curr+=str[k];
-        }
-        else
-        {
-            ls.push_back (curr);
-            while (str[k] == sep && k < str.length())
-                ++k;
-
-            curr = "";
-            if (str[k] != sep && k < str.length())
-                curr += str[k];
-        }
-    }
-    if (str.length() > 0)
-    {
-        if (str[str.length() - 1] != sep)
-            ls.push_back (curr);
-    }
-
-    std::vector<String> Svec (ls.begin(), ls.end());
-    return Svec;
-}
-
-
-/*********************************************/
-
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
@@ -645,6 +584,66 @@ void NetworkEvents::updatePort(uint16 port)
     {
         ed->setPortString(String(port));
     }
+}
+
+
+/*** StringTS ***/
+
+NetworkEvents::StringTS::StringTS()
+    : timestamp(0)
+{}
+
+
+NetworkEvents::StringTS::StringTS(String S, int64 ts_software)
+    : str(S)
+    , timestamp(ts_software)
+{}
+
+
+NetworkEvents::StringTS::StringTS(MidiMessage& event)
+    : timestamp(EventBase::getTimestamp(event))
+{
+    if (Event::getEventType(event) != EventChannel::EventChannelTypes::TEXT)
+    {
+        return; // only handles text events
+    }
+
+    const uint8* dataptr = event.getRawData();
+    // relying on null terminator to get end of string...
+    str = String::fromUTF8(reinterpret_cast<const char*>(dataptr + EVENT_BASE_SIZE));
+}
+
+
+std::vector<String> NetworkEvents::StringTS::splitString(char sep) const
+{
+    String curr;
+
+    std::list<String> ls;
+    for (int k = 0; k < str.length(); ++k)
+    {
+        if (str[k] != sep)
+        {
+            curr += str[k];
+        }
+        else
+        {
+            ls.push_back(curr);
+            while (str[k] == sep && k < str.length())
+                ++k;
+
+            curr = "";
+            if (str[k] != sep && k < str.length())
+                curr += str[k];
+        }
+    }
+    if (str.length() > 0)
+    {
+        if (str[str.length() - 1] != sep)
+            ls.push_back(curr);
+    }
+
+    std::vector<String> Svec(ls.begin(), ls.end());
+    return Svec;
 }
 
 
