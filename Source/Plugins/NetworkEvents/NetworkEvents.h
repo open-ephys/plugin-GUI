@@ -44,19 +44,12 @@ class StringTS
 {
 public:
 	StringTS();
-	StringTS(MidiMessage& event);
-	StringTS(String S);
-	StringTS(String S, int64 ts_software);
-	StringTS(const StringTS& s);
-	StringTS(unsigned char* buf, int _len, int64 ts_software);
+    StringTS(String S, int64 ts_software = CoreServices::getGlobalTimestamp());
+    StringTS(MidiMessage& event);
 
-	std::vector<String> splitString(char sep);
-	String getString();
+	std::vector<String> splitString(char sep) const;
 
-	StringTS& operator= (const StringTS& rhs);
-
-	HeapBlock<juce::uint8> str;
-	int len;
+	String str;
 	juce::int64 timestamp;
 };
 
@@ -99,7 +92,6 @@ public:
 
     //int64 getExtrapolatedHardwareTimestamp (int64 softwareTS) const;
 
-    String handleSpecialMessages    (StringTS msg);
     std::vector<String> splitString (String S, char sep);
 
     void initSimulation();
@@ -111,42 +103,33 @@ public:
     void opensocket();
     void closesocket(bool shutdown = false);
 
-    void postTimestamppedStringToMidiBuffer (StringTS s);
     void setNewListeningPort (uint16 port);
 
     uint16 urlport;
 
 private:
+    void createZmqContext();
+
+    void postTimestamppedStringToMidiBuffer(StringTS s);
+    
+    String handleSpecialMessages(const String& s);
 
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
-    StringPairArray parseNetworkMessage(String msg);
+    StringPairArray parseNetworkMessage(StringRef msg);
     
     // Set the urlport and reflect it on the editor
     void updatePort(uint16 port);
 
-    // RAII wrapper for ZMQ context
-    class ZMQContext
-    {
-    public:
-        ZMQContext();
-        ~ZMQContext();
-        void* makeReplySocket();
-    private:
-        void* context;
-    };
-
-
     // RAII wrapper for responder socket
     class Responder
     {
-    public:        
-        Responder();
+    public:
+        // creates socket from given context and tries to bind to port, then backupPort (if nonzero).
+        // if port is 0, chooses an available ephemeral port.
+        Responder(void* context, uint16 port, uint16 backupPort);
         ~Responder();
 
-        // creates socket from given context and tries to bind to port, then lastGoodPort (if nonzero).
-        // if port is 0, chooses an available ephemeral port.
-        // returns true on success.
-        bool initialize(ZMQContext& context, uint16 port, uint16 lastGoodPort);
+        bool initialize();
 
         // returns the latest errno value and resets it to 0.
         int getErr();
@@ -169,19 +152,7 @@ private:
         bool initialized;
     };
     
-
-    //class Responder
-    //{
-    //public:
-    //    Responder(void* context);
-    //    ~Responder();
-    //    operator void*() const;
-    //private:
-    //    ScopedPointer<ZMQSocket> socket;
-    //    uint16 lastGoodPort; // 0 indicates none
-    //};
-
-    ScopedPointer<ZMQContext> zmqcontext;
+    void* zmqcontext;
     uint16 lastGoodPort;
 
     float threshold;
@@ -196,7 +167,6 @@ private:
     std::queue<StringTS> simulation;
 
     CriticalSection queueLock;
-    CriticalSection contextLock;
     
     int64 simulationStartTime;
 
