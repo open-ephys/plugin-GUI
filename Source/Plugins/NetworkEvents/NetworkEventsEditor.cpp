@@ -56,7 +56,7 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
     addAndMakeVisible(startRecord);
 	*/
 
-	labelPort = new Label("Port", String(p->urlport));
+	labelPort = new Label("Port", p->getPortString());
     labelPort->setBounds(70,85,80,18);
     labelPort->setFont(Font("Default", 15, Font::plain));
     labelPort->setColour(Label::textColourId, Colours::white);
@@ -76,7 +76,6 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
     addAndMakeVisible(labelPort);
 
     setEnabledState(false);
-
 }
 
 
@@ -87,7 +86,7 @@ void NetworkEventsEditor::buttonEvent(Button* button)
 	if (button == restartConnection)
 	{
 		NetworkEvents *p= (NetworkEvents *)getProcessor();
-		p->setNewListeningPort(p->urlport);
+		p->restartConnection();
 	}
 			/*
 	if (button == trialSimulation)
@@ -115,25 +114,33 @@ void NetworkEventsEditor::setLabelColor(juce::Colour color)
 	labelPort->setColour(Label::backgroundColourId, color);
 }
 
-void NetworkEventsEditor::setPortString(const String& port)
+
+void NetworkEventsEditor::setPortText(const String& text)
 {
-    labelPort->setText(port, dontSendNotification);
+    labelPort->setText(text, dontSendNotification);
 }
+
 
 void NetworkEventsEditor::labelTextChanged(juce::Label *label)
 {
-	if (label == labelPort)
-	{
-	    int32 portInput = label->getText().getIntValue();
-        if (portInput < 0 || portInput > (1 << 16) - 1)
+    if (label == labelPort)
+    {
+        NetworkEvents *p = (NetworkEvents *)getProcessor();
+        bool success = true;
+        
+        uint16 port;
+        if (!portFromString(label->getText(), &port))
         {
-            CoreServices::sendStatusMessage("Warning: port out of range; selecting one automatically");
-            portInput = 0;
+            CoreServices::sendStatusMessage("NetworkEvents: Invalid port");
+            success = false;
         }
-        auto port = static_cast<uint16>(portInput);
 
-		NetworkEvents *p= (NetworkEvents *)getProcessor();
-		p->setNewListeningPort(port);
+        success = success && p->setNewListeningPort(port);
+        if (!success)
+        {
+            // revert to reflect current port
+            setPortText(p->getPortString());
+        }
 	}
 }
 
@@ -144,3 +151,24 @@ NetworkEventsEditor::~NetworkEventsEditor()
 }
 
 
+bool NetworkEventsEditor::portFromString(const String& portString, uint16* port)
+{
+    if (portString.trim() == "*") // wildcard, special case
+    {
+        *port = 0;
+        return true;
+    }
+
+    if (portString.indexOfAnyOf("0123456789") == -1)
+    {
+        return false;
+    }
+
+    int32 portInput = portString.getIntValue();
+    if (portInput <= 0 || portInput > (1 << 16) - 1)
+    {
+        return false;
+    }
+    *port = static_cast<uint16>(portInput);
+    return true;
+}

@@ -35,63 +35,81 @@ const int MAX_MESSAGE_LENGTH = 64000;
     #include <unistd.h>
 #endif
 
+NetworkEvents::ZMQContext* NetworkEvents::sharedContext = nullptr;
+CriticalSection NetworkEvents::sharedContextLock{};
+
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
     , threshold         (200.0)
     , bufferZone        (5.0f)
     , state             (false)
-    , zmqcontext        (nullptr)
-    , lastGoodPort      (0)
+    , urlport           (0)
+    , firstTime         (true)
+    , restart           (0)
+    , portString        (getPortString())
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
-    createZmqContext();
+    if (!setNewListeningPort(5556))
+    {
+        // resort to choosing a port automatically
+        setNewListeningPort(0);
+    }
 
-    firstTime = true;
-    urlport = 5556;
-
-    opensocket();
+    portString.addListener(this);
 
     sendSampleCount = false; // disable updating the continuous buffer sample counts,
     // since this processor only sends events
-}
 
-
-void NetworkEvents::setNewListeningPort (uint16 port)
-{
-    closesocket();
-    updatePort(port);
-    opensocket();
+    startThread();
 }
 
 
 NetworkEvents::~NetworkEvents()
 {
-    closesocket(true);
+    if (!stopThread(1000))
+    {
+        jassertfalse; // shouldn't block for more than 100 ms, something's wrong
+        std::cerr << "Network thread timeout. Forcing thread termination, system could be left in an unstable state" << std::endl;
+    }
 }
 
 
-void NetworkEvents::closesocket(bool shutdown)
+bool NetworkEvents::setNewListeningPort(uint16 port)
 {
-    std::cout << "Disabling network node" << std::endl;
-
-#ifdef ZEROMQ
-    void* oldContext = zmqcontext;
-    zmqcontext = nullptr; // this will cause the thread to exit if socket hasn't been created
-    zmq_ctx_destroy(oldContext); // this will cause the thread to exit if socket has been created	
-
-    if (!stopThread(500))
+    if (port == 0)
     {
-        jassertfalse;
-        std::cerr << "Network thread timeout. Forcing thread termination, system could be left in an unstable state" << std::endl;
+        CoreServices::sendStatusMessage("NetworkEvents: Selecting port automatically");
     }
 
-    if (!shutdown)
+    ScopedPointer<Responder> newResponder = Responder::makeResponder(port);
+    if (newResponder == nullptr)
     {
-        createZmqContext(); // so another socket can be opened later
+        return false;
     }
-#endif
+
+    ScopedLock nrLock(nextResponderLock);
+    nextResponder = newResponder;
+    return true;
+}
+
+
+String NetworkEvents::getPortString() const
+{
+    uint16 port = urlport;
+    if (port == 0)
+    {
+        return "<no cxn>";
+    }
+
+    return String(port);
+}
+
+
+void NetworkEvents::restartConnection()
+{
+    restart = 1;
 }
 
 
@@ -232,160 +250,141 @@ void NetworkEvents::simulateSingleTrial()
 }
 
 
-String NetworkEvents::handleSpecialMessages (const String& s)
+String NetworkEvents::handleSpecialMessages(const String& s)
 {
     /*
     std::vector<String> input = msg.splitString(' ');
     if (input[0] == "StartRecord")
     {
-    	 getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
+    getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
 
-    	if (input.size() > 1)
-    	{
-    		getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
-    		// session name was also given.
-    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-    	}
-        const MessageManagerLock mmLock;
-    	getControlPanel()->recordButton->setToggleState(true,true);
-    	return String("OK");
+    if (input.size() > 1)
+    {
+    getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
+    // session name was also given.
+    getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    }
+    const MessageManagerLock mmLock;
+    getControlPanel()->recordButton->setToggleState(true,true);
+    return String("OK");
     //	getControlPanel()->placeMessageInQueue("StartRecord");
     } if (input[0] == "SetSessionName")
     {
-    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
     } else if (input[0] == "StopRecord")
     {
-    	const MessageManagerLock mmLock;
-    	//getControlPanel()->placeMessageInQueue("StopRecord");
-    	getControlPanel()->recordButton->setToggleState(false,true);
-    	return String("OK");
+    const MessageManagerLock mmLock;
+    //getControlPanel()->placeMessageInQueue("StopRecord");
+    getControlPanel()->recordButton->setToggleState(false,true);
+    return String("OK");
     } else if (input[0] == "ProcessorCommunication")
     {
-    	ProcessorGraph *g = getProcessorGraph();
-    	Array<GenericProcessor*> p = g->getListOfProcessors();
-    	for (int k=0;k<p.size();k++)
-    	{
-    		if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
-    		{
-    			String Query="";
-    			for (int i=2;i<input.size();i++)
-    			{
-    				if (i == input.size()-1)
-    					Query+=input[i];
-    				else
-    					Query+=input[i]+" ";
-    			}
+    ProcessorGraph *g = getProcessorGraph();
+    Array<GenericProcessor*> p = g->getListOfProcessors();
+    for (int k=0;k<p.size();k++)
+    {
+    if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
+    {
+    String Query="";
+    for (int i=2;i<input.size();i++)
+    {
+    if (i == input.size()-1)
+    Query+=input[i];
+    else
+    Query+=input[i]+" ";
+    }
 
-    			return p[k]->interProcessorCommunication(Query);
-    		}
-    	}
+    return p[k]->interProcessorCommunication(Query);
+    }
+    }
 
-    	return String("OK");
+    return String("OK");
     }
 
     */
 
     /** Command is first substring */
     String cmd = s.initialSectionNotContaining(" ");
+    String params = s.substring(cmd.length()).trim();
 
     const MessageManagerLock mmLock;
-    if (cmd.compareIgnoreCase ("StartAcquisition") == 0)
+    if (cmd.equalsIgnoreCase("StartAcquisition"))
     {
-        if (! CoreServices::getAcquisitionStatus())
-        {
-            CoreServices::setAcquisitionStatus (true);
-        }
-        return String ("StartedAcquisition");
+        CoreServices::setAcquisitionStatus(true);
+        return "StartedAcquisition";
     }
-    else if (cmd.compareIgnoreCase ("StopAcquisition") == 0)
+    else if (cmd.equalsIgnoreCase("StopAcquisition"))
     {
-        if (CoreServices::getAcquisitionStatus())
-        {
-            CoreServices::setAcquisitionStatus (false);
-        }
-        return String ("StoppedAcquisition");
+        CoreServices::setAcquisitionStatus(false);
+        return "StoppedAcquisition";
     }
-    else if (String ("StartRecord").compareIgnoreCase (cmd) == 0)
+    else if (cmd.equalsIgnoreCase("StartRecord"))
     {
-        if (! CoreServices::getRecordingStatus())
+        if (!CoreServices::getRecordingStatus())
         {
             /** First set optional parameters (name/value pairs)*/
-            if (s.contains ("="))
+            StringPairArray dict = parseNetworkMessage(params);
+
+            StringArray keys = dict.getAllKeys();
+            for (int i = 0; i < keys.size(); ++i)
             {
-                String params = s.substring (cmd.length());
-                StringPairArray dict = parseNetworkMessage (params);
+                String key = keys[i];
+                String value = dict[key];
 
-                StringArray keys = dict.getAllKeys();
-                for (int i = 0; i < keys.size(); ++i)
+                if (key.equalsIgnoreCase("CreateNewDir"))
                 {
-                    String key   = keys[i];
-                    String value = dict[key];
-
-                    if (key.compareIgnoreCase ("CreateNewDir") == 0)
+                    if (value.equalsIgnoreCase("1"))
                     {
-                        if (value.compareIgnoreCase ("1") == 0)
-                        {
-                            CoreServices::createNewRecordingDir();
-                        }
+                        CoreServices::createNewRecordingDir();
                     }
-                    else if (key.compareIgnoreCase ("RecDir") == 0)
-                    {
-                        CoreServices::setRecordingDirectory (value);
-                    }
-                    else if (key.compareIgnoreCase ("PrependText") == 0)
-                    {
-                        CoreServices::setPrependTextToRecordingDir (value);
-                    }
-                    else if (key.compareIgnoreCase ("AppendText") == 0)
-                    {
-                        CoreServices::setAppendTextToRecordingDir (value);
-                    }
+                }
+                else if (key.equalsIgnoreCase("RecDir"))
+                {
+                    CoreServices::setRecordingDirectory(value);
+                }
+                else if (key.equalsIgnoreCase("PrependText"))
+                {
+                    CoreServices::setPrependTextToRecordingDir(value);
+                }
+                else if (key.equalsIgnoreCase("AppendText"))
+                {
+                    CoreServices::setAppendTextToRecordingDir(value);
                 }
             }
 
             /** Start recording */
-            CoreServices::setRecordingStatus (true);
-            return String ("StartedRecording");
+            CoreServices::setRecordingStatus(true);
+            return "StartedRecording";
         }
     }
-    else if (String ("StopRecord").compareIgnoreCase (cmd) == 0)
+    else if (cmd.equalsIgnoreCase("StopRecord"))
     {
-        if (CoreServices::getRecordingStatus())
-        {
-            CoreServices::setRecordingStatus (false);
-            return String ("StoppedRecording");
-        }
+        CoreServices::setRecordingStatus(false);
+        return "StoppedRecording";
     }
-    else if (cmd.compareIgnoreCase ("IsAcquiring") == 0)
+    else if (cmd.equalsIgnoreCase("IsAcquiring"))
     {
-        String status = CoreServices::getAcquisitionStatus() ? String ("1") : String ("0");
-        return status;
+        return CoreServices::getAcquisitionStatus() ? String("1") : String("0");
     }
-    else if (cmd.compareIgnoreCase ("IsRecording") == 0)
+    else if (cmd.equalsIgnoreCase("IsRecording"))
     {
-        String status = CoreServices::getRecordingStatus() ? String ("1") : String ("0");
-        return status;
+        return CoreServices::getRecordingStatus() ? String("1") : String("0");
     }
-    else if (cmd.compareIgnoreCase ("GetRecordingPath") == 0)
+    else if (cmd.equalsIgnoreCase("GetRecordingPath"))
     {
         File file = CoreServices::RecordNode::getRecordingPath();
-        String msg (file.getFullPathName());
-        return msg;
+        return file.getFullPathName();
     }
-    else if (cmd.compareIgnoreCase ("GetRecordingNumber") == 0)
+    else if (cmd.equalsIgnoreCase("GetRecordingNumber"))
     {
-        String status;
-        status += (CoreServices::RecordNode::getRecordingNumber() + 1);
-        return status;
+        return String(CoreServices::RecordNode::getRecordingNumber() + 1);
     }
-    else if (cmd.compareIgnoreCase ("GetExperimentNumber") == 0)
+    else if (cmd.equalsIgnoreCase("GetExperimentNumber"))
     {
-        String status;
-        status += CoreServices::RecordNode::getExperimentNumber();
-        return status;
+        return String(CoreServices::RecordNode::getExperimentNumber());
     }
 
-    return String ("NotHandled");
+    return "NotHandled";
 }
 
 
@@ -403,92 +402,82 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
 }
 
 
-void NetworkEvents::opensocket()
-{
-    startThread();
-}
-
-
 void NetworkEvents::run()
 {
 #ifdef ZEROMQ
-    Responder responder(zmqcontext, urlport, lastGoodPort);
-    
-    uint16 boundPort = responder.getBoundPort();
-    if (boundPort == 0)
-    {
-        // failed to open or bind socket?
-        int err = responder.getErr();
-        String msg = String("Network Events failed to open socket: ") + zmq_strerror(err);
-        std::cout << msg << std::endl;
-        if (err != EFAULT && err != ETERM) // errors that could occur normally when context is being terminated
-        {
-            CoreServices::sendStatusMessage(msg);
-        }
-        return;
-    }
-    
-    if (urlport != boundPort)
-    {
-        // update urlport and the editor. this would happen if a new port couldn't be
-        // bound to or if 0 was entered, resulting in an ephemeral port being chosen.
-
-        if (urlport == 0)
-        {
-            CoreServices::sendStatusMessage("Selecting Network Events port automatically");
-        }
-        else if (boundPort == lastGoodPort)
-        {
-            CoreServices::sendStatusMessage("Could not bind to port " + String(urlport) + " (" +
-                zmq_strerror(responder.getErr()) + "); reverting to port " + String(lastGoodPort));
-        }
-        else
-        {
-            jassertfalse;
-        }
-
-        const MessageManagerLock mmLock; // to update the editor safely from a thread
-        updatePort(boundPort);
-    }
-
-    lastGoodPort = urlport;
+    ScopedPointer<Responder> responder;
     char buffer[MAX_MESSAGE_LENGTH];
-    int result = -1;
+    bool connected = false;
 
-    while (true)
+    while (!threadShouldExit())
     {
-        result = responder.receive(buffer);  // blocking
-
-        juce::int64 timestamp = CoreServices::getGlobalTimestamp();
-
-        if (result < 0)
+        // reopen connection if necessary
+        if (restart.compareAndSetBool(0, 1))
         {
-            // context has been terminated
-            break;
+            responder = nullptr; // destroy old one, which frees the port
+            responder = Responder::makeResponder(urlport);
+
+            if (responder != nullptr)
+            {
+                connected = true;
+                updatePort(responder->getBoundPort());
+            }
         }
 
+        // switch to responder with new port if necessary
+        // unfortunately, atomic operations aren't available for smart pointers
+        {
+            const ScopedTryLock nrLock(nextResponderLock);
+            if (nrLock.isLocked() && nextResponder != nullptr)
+            {
+                responder = nextResponder;
+                connected = true;
+                updatePort(responder->getBoundPort());
+            }
+        }
+
+        // if we don't have a vaild (connected) socket, keep looping until we do
+        if (responder == nullptr)
+        {
+            if (connected)
+            {
+                connected = false;
+                updatePort(0);
+            }
+            wait(100);
+            continue;
+        }
+
+        int result = responder->receive(buffer);  // times out after RECV_TIMEOUT_MS ms
+
+        juce::int64 timestamp_software = Time::getHighResolutionTicks();
+
+        if (result == -1)
+        {
+            jassert(responder->getErr() == EAGAIN); // if not, figure out why!
+            continue;
+        }
+
+        // received message. read string from the buffer.
         String msgStr = String::fromUTF8(buffer, result);
 
         {
-            StringTS Msg(msgStr, timestamp);
+            StringTS Msg(msgStr, timestamp_software);
             ScopedLock lock(queueLock);
             networkMessagesQueue.push(Msg);
         }
 
         CoreServices::sendStatusMessage("Network event received: " + msgStr);
-
         //std::cout << "Received message!" << std::endl;
-        // handle special messages
-        String response = handleSpecialMessages (msgStr);
-        
-        if (responder.send(response) < 0)
+
+        String response = handleSpecialMessages(msgStr);
+
+        if (responder->send(response) == -1)
         {
-            // context has been terminated
-            break;
+            jassertfalse; // figure out why this is failing!
         }
     }
 
-    jassert(responder.getErr() == ETERM);
 #endif
 }
 
@@ -536,21 +525,14 @@ void NetworkEvents::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName ("NETWORKEVENTS"))
             {
-                setNewListeningPort(static_cast<uint16>(mainNode->getIntAttribute("port")));
+                auto port = static_cast<uint16>(mainNode->getIntAttribute("port"));
+                if (port != 0)
+                {
+                    setNewListeningPort(port);
+                }
             }
         }
     }
-}
-
-
-void NetworkEvents::createZmqContext()
-{
-#ifdef ZEROMQ
-    if (zmqcontext == nullptr)
-    {
-        zmqcontext = zmq_ctx_new(); //<-- this is only available in version 3+
-    }
-#endif
 }
 
 
@@ -575,15 +557,29 @@ StringPairArray NetworkEvents::parseNetworkMessage(StringRef msg)
 }
 
 
+void NetworkEvents::valueChanged(Value& value)
+{
+    if (value.refersToSameSourceAs(portString))
+    {
+        auto ed = static_cast<NetworkEventsEditor*>(getEditor());
+        if (ed)
+        {
+            ed->setPortText(value.toString());
+        }
+    }
+}
+
+
 void NetworkEvents::updatePort(uint16 port)
 {
     urlport = port;
+    portString = getPortString();
+}
 
-    auto ed = static_cast<NetworkEventsEditor*>(getEditor());
-    if (ed)
-    {
-        ed->setPortString(String(port));
-    }
+
+String NetworkEvents::getEndpoint(uint16 port)
+{
+    return "tcp://*:" + (port == 0 ? "*" : String(port));
 }
 
 
@@ -647,46 +643,78 @@ std::vector<String> NetworkEvents::StringTS::splitString(char sep) const
 }
 
 
-/*** Responder ***/
+/*** ZMQContext ***/
 
-NetworkEvents::Responder::Responder(void* context, uint16 port, uint16 backupPort)
-    : socket        (nullptr)
-    , boundPort     (0)
-    , lastErrno     (0)
-    , initialized   (false)
+NetworkEvents::ZMQContext::ZMQContext(const ScopedLock& lock)
+#ifdef ZEROMQ
+    : context(zmq_ctx_new())
+#endif
+{
+    sharedContext = this;
+}
+
+// ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
+// socket pointer, so this only happens when the last instance is destroyed.
+NetworkEvents::ZMQContext::~ZMQContext()
+{
+    ScopedLock lock(sharedContextLock);
+    sharedContext = nullptr;
+#ifdef ZEROMQ
+    zmq_ctx_destroy(context);
+#endif
+}
+
+void* NetworkEvents::ZMQContext::createSocket()
 {
 #ifdef ZEROMQ
-    socket = zmq_socket(context, ZMQ_REP);
+    jassert(context != nullptr);
+    return zmq_socket(context, ZMQ_REP);
+#endif
+}
+
+
+/*** Responder ***/
+
+NetworkEvents::Responder::Responder(uint16 port)
+    : socket(nullptr)
+    , boundPort(0)
+    , lastErrno(0)
+{
+    {
+        ScopedLock lock(sharedContextLock);
+        if (sharedContext == nullptr)
+        {
+            // first one, create the context
+            context = new ZMQContext(lock);
+        }
+        else
+        {
+            // use already-created context
+            context = sharedContext;
+        }
+    }
+
+#ifdef ZEROMQ
+    socket = context->createSocket();
     if (!socket)
     {
         lastErrno = zmq_errno();
         return;
     }
 
-    String url("tcp://*:" + (port == 0 ? "*" : String(port)));
-    int rc = zmq_bind(socket, url.toRawUTF8());
-    if (rc == -1)
+    // set socket to timeout when receiving rather than blocking forever
+    if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &RECV_TIMEOUT_MS, sizeof(RECV_TIMEOUT_MS)) == -1)
     {
         lastErrno = zmq_errno();
-
-        // try again with last good port, if any
-        if (backupPort != 0 && backupPort != port)
-        {
-            port = backupPort;
-            url = "tcp://*:" + String(port);
-            if (zmq_bind(socket, url.toRawUTF8()) == -1)
-            {
-                // don't set errno, since the error for the original port is more relevant
-                return;
-            }
-        }
-        else
-        {
-            return;
-        }
+        return;
     }
 
-    // bound successfully!
+    // bind to endpoint
+    if (zmq_bind(socket, getEndpoint(port).toRawUTF8()) == -1)
+    {
+        lastErrno = zmq_errno();
+        return;
+    }
 
     // if requested port was 0, find out which port was actually used
     if (port == 0)
@@ -709,11 +737,37 @@ NetworkEvents::Responder::Responder(void* context, uint16 port, uint16 backupPor
 }
 
 
+NetworkEvents::Responder* NetworkEvents::Responder::makeResponder(uint16 port)
+{
+    ScopedPointer<Responder> socketPtr = new Responder(port);
+    uint16 boundPort = socketPtr->getBoundPort();
+    if (boundPort == 0)
+    {
+        socketPtr->reportErr("Failed to connect to port " + String(port));
+        return nullptr;
+    }
+
+    if (port != 0 && boundPort != port)
+    {
+        jassertfalse; // huh?
+        return nullptr;
+    }
+    return socketPtr.release();
+}
+
+
+
 NetworkEvents::Responder::~Responder()
 {
 #ifdef ZEROMQ
     if (socket)
     {
+        if (boundPort != 0)
+        {
+            // unbind/disconnect to free the port (critical for restarts)
+            zmq_unbind(socket, getEndpoint(boundPort).toRawUTF8());
+        }
+
         int linger = 0;
         zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger));
         zmq_close(socket);
@@ -722,12 +776,20 @@ NetworkEvents::Responder::~Responder()
 }
 
 
-int NetworkEvents::Responder::getErr()
+int NetworkEvents::Responder::getErr() const
 {
-    int err = lastErrno;
-    lastErrno = 0;
-    return err;
+    return lastErrno;
 }
+
+
+void NetworkEvents::Responder::reportErr(const String& message) const
+{
+#ifdef ZEROMQ
+    String msg = "NetworkEvents: " + message + " (" + zmq_strerror(lastErrno) + ")";
+    std::cout << msg << std::endl;
+    CoreServices::sendStatusMessage(msg);
+#endif
+};
 
 
 uint16 NetworkEvents::Responder::getBoundPort() const
@@ -739,7 +801,7 @@ uint16 NetworkEvents::Responder::getBoundPort() const
 int NetworkEvents::Responder::receive(void* buf)
 {
 #ifdef ZEROMQ
-    int res = zmq_recv(socket, buf, MAX_MESSAGE_LENGTH, 0); // blocking
+    int res = zmq_recv(socket, buf, MAX_MESSAGE_LENGTH, 0);
     if (res == -1)
     {
         lastErrno = zmq_errno();
