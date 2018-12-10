@@ -3033,6 +3033,11 @@ bool LfpDisplay::getSingleChannelState()
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
+    if (drawableChannels.isEmpty())
+    {
+        return;
+    }
+
     //int y = event.getMouseDownY(); //relative to each channel pos
     MouseEvent canvasevent = event.getEventRelativeTo(viewport);
     int y = canvasevent.getMouseDownY() + viewport->getViewPositionY(); // need to account for scrolling
