@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-const int AudioProcessorGraph::midiChannelIndex = 0x1000;
+const int AudioProcessorGraph::midiChannelIndex = 0x8000;
 
 //==============================================================================
 template <typename FloatType, typename Impl> struct FloatDoubleUtil {};
