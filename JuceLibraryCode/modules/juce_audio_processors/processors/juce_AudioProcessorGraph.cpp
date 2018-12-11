@@ -767,7 +767,9 @@ private:
             }
             else
             {
-                for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
+				//Open ephys modification
+				unsigned int numInputChannels = node->getProcessor()->getTotalNumInputChannels();
+                for (int i = 0; i < numInputChannels; ++i)
                     if (i != inputChannelOfIndexToIgnore
                          && graph.getConnectionBetween (nodeId, outputChanIndex,
                                                         node->nodeId, i) != nullptr)
