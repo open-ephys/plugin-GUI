@@ -77,21 +77,6 @@ void RecordNode::setChannel(const DataChannel* ch)
 
 }
 
-bool RecordNode::setChannelStatus(const DataChannel* ch, bool status)
-{
-
-    //std::cout << "Setting channel status!" << std::endl;
-    setChannel(ch);
-
-    if (status)
-        setParameter(2, 1.0f);
-    else
-        setParameter(2, 0.0f);
-    
-    return status == dataChannelArray[currentChannel]->getRecordState();
-}
-
-
 void RecordNode::resetConnections()
 {
     nextAvailableChannel = 0;

@@ -671,6 +671,7 @@ void ChannelSelector::buttonClicked(Button* button)
         }
         else if (b->getType() == RECORD)
         {
+			
             // get record node, and inform it of the change
             GenericEditor* editor = (GenericEditor*)getParentComponent();
 
@@ -680,15 +681,8 @@ void ChannelSelector::buttonClicked(Button* button)
 
             if (acquisitionIsActive) // use setParameter to change parameter safely
             {
-                if ( AccessClass::getProcessorGraph()->
-                getRecordNode()->
-                setChannelStatus(ch, status) )
-                {
-                    const_cast<DataChannel*>(ch)->setRecordState(status);
-                }
-                
-                // make sure that the button matches the system's actual state, in case
-                // user's interaction was disallowed
+                               
+                // disable toggling when acquisition is active
                 b->setToggleState(const_cast<DataChannel*>(ch)->getRecordState(), dontSendNotification);
             }
             else     // change parameter directly
