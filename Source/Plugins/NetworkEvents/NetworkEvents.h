@@ -115,6 +115,8 @@ private:
 
         String str;
         juce::int64 timestamp;
+
+        JUCE_LEAK_DETECTOR(StringTS);
     };
 
     class ZMQContext : public ReferenceCountedObject
@@ -128,6 +130,8 @@ private:
 
     private:
         void* context;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ZMQContext);
     };
 
     // RAII wrapper for REP socket
@@ -135,8 +139,7 @@ private:
     {
     public:
         // tries to create a responder and bind to given port; returns nullptr on failure.
-        // caller must own and destroy the returned responder if it succeeds.
-        static Responder* makeResponder(uint16 port);
+        static ScopedPointer<Responder> makeResponder(uint16 port);
         ~Responder();
 
         // returns the latest errno value
@@ -166,7 +169,9 @@ private:
         uint16 boundPort; // 0 indicates not bound
         int lastErrno;
 
-        static const int RECV_TIMEOUT_MS = 100;
+        static const int RECV_TIMEOUT_MS;
+        
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Responder);
     };
 
     void postTimestamppedStringToMidiBuffer(StringTS s);
@@ -183,8 +188,7 @@ private:
     // get an endpoint url for the given port (using 0 to represent *)
     static String getEndpoint(uint16 port);
 
-    Value portString; // underlying value of the editor's port input
-     
+
     // share a "dumb" pointer that doesn't take part in reference counting.
     // want the context to be terminated by the time the static members are
     // destroyed (see: https://github.com/zeromq/libzmq/issues/1708)
@@ -196,9 +200,12 @@ private:
     ScopedPointer<Responder> nextResponder;
     CriticalSection nextResponderLock;
 
-    uint16 urlport;  // 0 indicates not connected
+    bool restart;
+    bool changeResponder;
 
-    Atomic<int> restart;
+    uint16 urlport;   // 0 indicates not connected
+    // thread can modify this to update editor's port text without acquiring MessageManagerLock
+    Value portString;
 
     float threshold;
     float bufferZone;

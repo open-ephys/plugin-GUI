@@ -46,18 +46,19 @@ NetworkEvents::NetworkEvents()
     , state             (false)
     , urlport           (0)
     , firstTime         (true)
-    , restart           (0)
-    , portString        (getPortString())
+    , restart           (false)
+    , changeResponder   (false)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
+
+    portString = getPortString();
+    portString.addListener(this);
 
     if (!setNewListeningPort(5556))
     {
         // resort to choosing a port automatically
         setNewListeningPort(0);
     }
-
-    portString.addListener(this);
 
     sendSampleCount = false; // disable updating the continuous buffer sample counts,
     // since this processor only sends events
@@ -78,11 +79,6 @@ NetworkEvents::~NetworkEvents()
 
 bool NetworkEvents::setNewListeningPort(uint16 port)
 {
-    if (port == 0)
-    {
-        CoreServices::sendStatusMessage("NetworkEvents: Selecting port automatically");
-    }
-
     ScopedPointer<Responder> newResponder = Responder::makeResponder(port);
     if (newResponder == nullptr)
     {
@@ -91,12 +87,14 @@ bool NetworkEvents::setNewListeningPort(uint16 port)
 
     ScopedLock nrLock(nextResponderLock);
     nextResponder = newResponder;
+    changeResponder = true;
     return true;
 }
 
 
 String NetworkEvents::getPortString() const
 {
+#ifdef ZEROMQ
     uint16 port = urlport;
     if (port == 0)
     {
@@ -104,12 +102,15 @@ String NetworkEvents::getPortString() const
     }
 
     return String(port);
+#else
+    return "<no zeromq>";
+#endif
 }
 
 
 void NetworkEvents::restartConnection()
 {
-    restart = 1;
+    restart = true;
 }
 
 
@@ -412,8 +413,9 @@ void NetworkEvents::run()
     while (!threadShouldExit())
     {
         // reopen connection if necessary
-        if (restart.compareAndSetBool(0, 1))
+        if (restart)
         {
+            restart = false; // the other thread only sets restart to true, so it's not a race condition
             responder = nullptr; // destroy old one, which frees the port
             responder = Responder::makeResponder(urlport);
 
@@ -424,15 +426,20 @@ void NetworkEvents::run()
             }
         }
 
-        // switch to responder with new port if necessary
-        // unfortunately, atomic operations aren't available for smart pointers
+        // switch to new responder if necessary
+        if (changeResponder)
         {
-            const ScopedTryLock nrLock(nextResponderLock);
-            if (nrLock.isLocked() && nextResponder != nullptr)
+            const ScopedLock nrLock(nextResponderLock);
+            if (nextResponder != nullptr)
             {
+                changeResponder = false; // this is also controlled by the nextResponderLock
                 responder = nextResponder;
                 connected = true;
                 updatePort(responder->getBoundPort());
+            }
+            else
+            {
+                jassertfalse; // huh? a new responder should be available
             }
         }
 
@@ -650,6 +657,7 @@ NetworkEvents::ZMQContext::ZMQContext(const ScopedLock& lock)
     : context(zmq_ctx_new())
 #endif
 {
+    // sharedContextLock should already be held here
     sharedContext = this;
 }
 
@@ -669,11 +677,15 @@ void* NetworkEvents::ZMQContext::createSocket()
 #ifdef ZEROMQ
     jassert(context != nullptr);
     return zmq_socket(context, ZMQ_REP);
+#else
+    return nullptr;
 #endif
 }
 
 
 /*** Responder ***/
+
+const int NetworkEvents::Responder::RECV_TIMEOUT_MS = 100;
 
 NetworkEvents::Responder::Responder(uint16 port)
     : socket(nullptr)
@@ -719,6 +731,7 @@ NetworkEvents::Responder::Responder(uint16 port)
     // if requested port was 0, find out which port was actually used
     if (port == 0)
     {
+        CoreServices::sendStatusMessage("NetworkEvents: Selecting port automatically");
         const size_t BUF_LEN = 32;
         size_t len = BUF_LEN;
         char endpoint[BUF_LEN];
@@ -737,7 +750,7 @@ NetworkEvents::Responder::Responder(uint16 port)
 }
 
 
-NetworkEvents::Responder* NetworkEvents::Responder::makeResponder(uint16 port)
+ScopedPointer<NetworkEvents::Responder> NetworkEvents::Responder::makeResponder(uint16 port)
 {
     ScopedPointer<Responder> socketPtr = new Responder(port);
     uint16 boundPort = socketPtr->getBoundPort();
@@ -752,7 +765,7 @@ NetworkEvents::Responder* NetworkEvents::Responder::makeResponder(uint16 port)
         jassertfalse; // huh?
         return nullptr;
     }
-    return socketPtr.release();
+    return socketPtr;
 }
 
 
