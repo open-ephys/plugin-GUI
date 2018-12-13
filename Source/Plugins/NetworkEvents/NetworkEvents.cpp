@@ -41,16 +41,11 @@ CriticalSection NetworkEvents::sharedContextLock{};
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
-    , threshold         (200.0)
-    , bufferZone        (5.0f)
-    , state             (false)
     , restart           (false)
     , changeResponder   (false)
+    , urlport           (0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
-
-    firstTime = true;
-    urlport = 0;
 
     if (!setNewListeningPort(5556))
     {
@@ -133,59 +128,7 @@ AudioProcessorEditor* NetworkEvents::createEditor ()
 }
 
 
-void NetworkEvents::setParameter (int parameterIndex, float newValue)
-{
-    /*
-       editor->updateParameterButtons(parameterIndex);
-
-       Parameter& p =  parameters.getReference(parameterIndex);
-       p.setValue(newValue, 0);
-
-       threshold = newValue;
-    */
-    //std::cout << float(p[0]) << std::endl;
-}
-
-
-void NetworkEvents::initSimulation()
-{
-    Time t;
-
-    const int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
-    simulationStartTime = 3 * secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
-
-    simulation.push (StringTS ("ClearDesign",    simulationStartTime));
-    simulation.push (StringTS ("NewDesign Test", simulationStartTime + 0.5 * secondsToTicks));
-    simulation.push (StringTS ("AddCondition Name GoRight TrialTypes 1 2 3", simulationStartTime + 0.6 * secondsToTicks));
-    simulation.push (StringTS ("AddCondition Name GoLeft TrialTypes 4 5 6",  simulationStartTime + 0.6 * secondsToTicks));
-}
-
-
-void NetworkEvents::simulateDesignAndTrials ()
-{
-    Time t;
-    while (simulation.size() > 0)
-    {
-        int64 currenttime = t.getHighResolutionTicks();
-        StringTS S = simulation.front();
-        if (currenttime > S.timestamp)
-        {
-            // handle special messages
-            handleSpecialMessages (S.str);
-
-            postTimestamppedStringToMidiBuffer (S);
-            //getUIComponent()->getLogWindow()->addLineToLog(S.getString());
-            simulation.pop();
-        }
-        else
-        {
-            break;
-        }
-    }
-
-}
-
-void NetworkEvents::postTimestamppedStringToMidiBuffer (StringTS s)
+void NetworkEvents::postTimestamppedStringToMidiBuffer (const StringTS& s)
 {
 	MetaDataValueArray md;
 	md.add(new MetaDataValue(MetaDataDescriptor::INT64, 1, &s.timestamp));
@@ -194,114 +137,8 @@ void NetworkEvents::postTimestamppedStringToMidiBuffer (StringTS s)
 }
 
 
-void NetworkEvents::simulateStopRecord()
-{
-    Time t;
-    simulation.push (StringTS ("StopRecord", t.getHighResolutionTicks()));
-}
-
-
-void NetworkEvents::simulateStartRecord()
-{
-    Time t;
-    simulation.push (StringTS ("StartRecord", t.getHighResolutionTicks()));
-}
-
-
-void NetworkEvents::simulateSingleTrial()
-{
-    std::cout << "Simulating trial." << std::endl;
-
-    const int numTrials = 1;
-    const float ITI         = 0.7;
-    const float TrialLength = 0.4;
-
-    Time t;
-
-    if (firstTime)
-    {
-        firstTime = false;
-        initSimulation();
-    }
-
-    int64 secondsToTicks = t.getHighResolutionTicksPerSecond();
-    simulationStartTime = 3 * secondsToTicks + t.getHighResolutionTicks(); // start 10 seconds after
-
-    // trial every 5 seconds
-    for (int k = 0; k < numTrials; ++k)
-    {
-        simulation.push (StringTS ("TrialStart", simulationStartTime + ITI * k * secondsToTicks));
-
-        if (k % 2 == 0)
-            // 100 ms after trial start
-            simulation.push (StringTS ("TrialType 2", simulationStartTime + (ITI * k + 0.1) * secondsToTicks));
-        else
-            // 100 ms after trial start
-            simulation.push (StringTS ("TrialType 4", simulationStartTime + (ITI * k + 0.1) * secondsToTicks));
-
-        // 100 ms after trial start
-        simulation.push (StringTS ("TrialAlign",     simulationStartTime + (ITI * k + 0.1)         * secondsToTicks));
-        // 300 ms after trial start
-        simulation.push (StringTS ("TrialOutcome 1", simulationStartTime + (ITI * k + 0.3)         * secondsToTicks));
-        // 400 ms after trial start
-        simulation.push (StringTS ("TrialEnd",       simulationStartTime + (ITI * k + TrialLength) * secondsToTicks));
-    }
-}
-
-
 String NetworkEvents::handleSpecialMessages(const String& s)
 {
-    /*
-    std::vector<String> input = msg.splitString(' ');
-    if (input[0] == "StartRecord")
-    {
-    	 getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
-
-    	if (input.size() > 1)
-    	{
-    		getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
-    		// session name was also given.
-    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-    	}
-        const MessageManagerLock mmLock;
-    	getControlPanel()->recordButton->setToggleState(true,true);
-    	return String("OK");
-    //	getControlPanel()->placeMessageInQueue("StartRecord");
-    } if (input[0] == "SetSessionName")
-    {
-    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-    } else if (input[0] == "StopRecord")
-    {
-    	const MessageManagerLock mmLock;
-    	//getControlPanel()->placeMessageInQueue("StopRecord");
-    	getControlPanel()->recordButton->setToggleState(false,true);
-    	return String("OK");
-    } else if (input[0] == "ProcessorCommunication")
-    {
-    	ProcessorGraph *g = getProcessorGraph();
-    	Array<GenericProcessor*> p = g->getListOfProcessors();
-    	for (int k=0;k<p.size();k++)
-    	{
-    		if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
-    		{
-    			String Query="";
-    			for (int i=2;i<input.size();i++)
-    			{
-    				if (i == input.size()-1)
-    					Query+=input[i];
-    				else
-    					Query+=input[i]+" ";
-    			}
-
-    			return p[k]->interProcessorCommunication(Query);
-    		}
-    	}
-
-    	return String("OK");
-    }
-
-    */
-
     /** Command is first substring */
     String cmd = s.initialSectionNotContaining(" ");
 
@@ -413,7 +250,7 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
     ScopedLock lock(queueLock);
     while (! networkMessagesQueue.empty())
     {
-        StringTS msg = networkMessagesQueue.front();
+        const StringTS& msg = networkMessagesQueue.front();
         postTimestamppedStringToMidiBuffer (msg);
         networkMessagesQueue.pop();
     }
@@ -483,18 +320,16 @@ void NetworkEvents::run()
         }
 
         // received message. read string from the buffer.
-        String msgStr = String::fromUTF8(buffer, result);
-
+        String msg = String::fromUTF8(buffer, result);
         {
-            StringTS Msg(msgStr, timestamp_software);
             ScopedLock lock(queueLock);
-            networkMessagesQueue.push(Msg);
+            networkMessagesQueue.push({ msg, timestamp_software });
         }
 
-        CoreServices::sendStatusMessage("Network event received: " + msgStr);
+        CoreServices::sendStatusMessage("Network event received: " + msg);
         //std::cout << "Received message!" << std::endl;
 
-        String response = handleSpecialMessages(msgStr);
+        String response = handleSpecialMessages(msg);
 
         if (responder->send(response) == -1)
         {
@@ -505,11 +340,6 @@ void NetworkEvents::run()
 #endif
 }
 
-
-int NetworkEvents::getDefaultNumOutputs() const
-{
-    return 0;
-}
 
 bool NetworkEvents::isReady()
 {
@@ -596,66 +426,6 @@ void NetworkEvents::updatePort(uint16 port)
 String NetworkEvents::getEndpoint(uint16 port)
 {
     return "tcp://*:" + (port == 0 ? "*" : String(port));
-}
-
-
-/*** StringTS ***/
-
-NetworkEvents::StringTS::StringTS()
-    : timestamp(0)
-{}
-
-
-NetworkEvents::StringTS::StringTS(String S, int64 ts_software)
-    : str(S)
-    , timestamp(ts_software)
-{}
-
-
-NetworkEvents::StringTS::StringTS(MidiMessage& event)
-    : timestamp(EventBase::getTimestamp(event))
-{
-    if (Event::getEventType(event) != EventChannel::EventChannelTypes::TEXT)
-    {
-        return; // only handles text events
-    }
-
-    const uint8* dataptr = event.getRawData();
-    // relying on null terminator to get end of string...
-    str = String::fromUTF8(reinterpret_cast<const char*>(dataptr + EVENT_BASE_SIZE));
-}
-
-
-std::vector<String> NetworkEvents::StringTS::splitString(char sep) const
-{
-    String curr;
-
-    std::list<String> ls;
-    for (int k = 0; k < str.length(); ++k)
-    {
-        if (str[k] != sep)
-        {
-            curr += str[k];
-        }
-        else
-        {
-            ls.push_back(curr);
-            while (str[k] == sep && k < str.length())
-                ++k;
-
-            curr = "";
-            if (str[k] != sep && k < str.length())
-                curr += str[k];
-        }
-    }
-    if (str.length() > 0)
-    {
-        if (str[str.length() - 1] != sep)
-            ls.push_back(curr);
-    }
-
-    std::vector<String> Svec(ls.begin(), ls.end());
-    return Svec;
 }
 
 

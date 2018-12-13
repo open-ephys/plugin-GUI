@@ -42,35 +42,11 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
     restartConnection->addListener(this);
     addAndMakeVisible(restartConnection);
 
-	
-	/*
-	trialSimulation = new UtilityButton("Trial",Font("Default", 15, Font::plain));
-    trialSimulation->setBounds(20,25,80,18);
-    trialSimulation->addListener(this);
-    addAndMakeVisible(trialSimulation);
-
-	
-	startRecord = new UtilityButton("Start Record",Font("Default", 15, Font::plain));
-    startRecord->setBounds(20,55,100,18);
-    startRecord->addListener(this);
-    addAndMakeVisible(startRecord);
-	*/
-
 	labelPort = new Label("Port", p->getPortString());
     labelPort->setBounds(70,85,80,18);
     labelPort->setFont(Font("Default", 15, Font::plain));
     labelPort->setColour(Label::textColourId, Colours::white);
-
-
-
-//		NetworkEvents *processor  = (NetworkEvents*) getProcessor();
-
-	//if (processor->threadRunning)
-		labelPort->setColour(Label::backgroundColourId, Colours::grey);
-//	else
-//		labelPort->setColour(Label::backgroundColourId, Colours::red);
-
-
+    labelPort->setColour(Label::backgroundColourId, Colours::grey);
     labelPort->setEditable(true);
     labelPort->addListener(this);
     addAndMakeVisible(labelPort);
@@ -82,31 +58,11 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
 
 void NetworkEventsEditor::buttonEvent(Button* button)
 {
-			//NetworkEvents *processor  = (NetworkEvents*) getProcessor();
 	if (button == restartConnection)
 	{
 		NetworkEvents *p= (NetworkEvents *)getProcessor();
 		p->restartConnection();
 	}
-			/*
-	if (button == trialSimulation)
-	{
-		processor->simulateSingleTrial();
-
-	} else if (button == startRecord)
-	{
-		if (startRecord->getLabel() == "Start Record") 
-		{
-			processor->simulateStartRecord();
-			startRecord->setLabel("Stop Record");
-		} else if (startRecord->getLabel() == "Stop Record") 
-		{
-			processor->simulateStopRecord();
-			startRecord->setLabel("Start Record");
-		}
-	}
-    */
-
 }
 
 void NetworkEventsEditor::setLabelColor(juce::Colour color)

@@ -37,7 +37,6 @@
 
 #include <ProcessorHeaders.h>
 
-#include <vector>
 #include <list>
 #include <queue>
 
@@ -60,8 +59,6 @@ public:
 
     void process (AudioSampleBuffer& buffer) override;
 
-    void setParameter (int parameterIndex, float newValue) override;
-
     void createEventChannels() override;
 
     void setEnabledState (bool newState) override;
@@ -76,18 +73,7 @@ public:
 
     // =========================================================================
 
-    int getDefaultNumOutputs() const;
-
-    //int64 getExtrapolatedHardwareTimestamp (int64 softwareTS) const;
-
-    std::vector<String> splitString (String S, char sep);
-
-    void initSimulation();
-    void simulateDesignAndTrials ();
-    void simulateSingleTrial();
-    void simulateStartRecord();
-    void simulateStopRecord();
-    void run();
+    void run() override;
 
     // passing 0 corresponds to wildcard ("*") and picks any available port
     // returns true on success, false on failure
@@ -99,20 +85,10 @@ public:
     void restartConnection();
 
 private:
-    // combines a string and a timestamp
-    class StringTS
+    struct StringTS
     {
-    public:
-        StringTS();
-        StringTS(String S, int64 ts_software = CoreServices::getGlobalTimestamp());
-        StringTS(MidiMessage& event);
-
-        std::vector<String> splitString(char sep) const;
-
         String str;
-        juce::int64 timestamp;
-
-        JUCE_LEAK_DETECTOR(StringTS);
+        int64 timestamp;
     };
 
     class ZMQContext : public ReferenceCountedObject
@@ -170,7 +146,7 @@ private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Responder);
     };
 
-    void postTimestamppedStringToMidiBuffer(StringTS s);
+    void postTimestamppedStringToMidiBuffer(const StringTS& s);
     
     String handleSpecialMessages(const String& s);
 
@@ -200,19 +176,9 @@ private:
 
     uint16 urlport;   // 0 indicates not connected
 
-    float threshold;
-    float bufferZone;
-
-    bool state;
-    bool firstTime;
-
     std::queue<StringTS> networkMessagesQueue;
-    std::queue<StringTS> simulation;
-
     CriticalSection queueLock;
     
-    int64 simulationStartTime;
-
 	const EventChannel* messageChannel{ nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
