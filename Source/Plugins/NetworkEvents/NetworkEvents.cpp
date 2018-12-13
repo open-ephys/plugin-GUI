@@ -44,15 +44,13 @@ NetworkEvents::NetworkEvents()
     , threshold         (200.0)
     , bufferZone        (5.0f)
     , state             (false)
-    , urlport           (0)
-    , firstTime         (true)
     , restart           (false)
     , changeResponder   (false)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
-    portString = getPortString();
-    portString.addListener(this);
+    firstTime = true;
+    urlport = 0;
 
     if (!setNewListeningPort(5556))
     {
@@ -60,20 +58,10 @@ NetworkEvents::NetworkEvents()
         setNewListeningPort(0);
     }
 
+    startThread();
+
     sendSampleCount = false; // disable updating the continuous buffer sample counts,
     // since this processor only sends events
-
-    startThread();
-}
-
-
-NetworkEvents::~NetworkEvents()
-{
-    if (!stopThread(1000))
-    {
-        jassertfalse; // shouldn't block for more than 100 ms, something's wrong
-        std::cerr << "Network thread timeout. Forcing thread termination, system could be left in an unstable state" << std::endl;
-    }
 }
 
 
@@ -89,6 +77,16 @@ bool NetworkEvents::setNewListeningPort(uint16 port)
     nextResponder = newResponder;
     changeResponder = true;
     return true;
+}
+
+
+NetworkEvents::~NetworkEvents()
+{
+    if (!stopThread(1000))
+    {
+        jassertfalse; // shouldn't block for more than 100 ms, something's wrong
+        std::cerr << "Network thread timeout. Forcing thread termination, system could be left in an unstable state" << std::endl;
+    }
 }
 
 
@@ -257,135 +255,154 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     std::vector<String> input = msg.splitString(' ');
     if (input[0] == "StartRecord")
     {
-    getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
+    	 getUIComponent()->getLogWindow()->addLineToLog("Remote triggered start recording");
 
-    if (input.size() > 1)
-    {
-    getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
-    // session name was also given.
-    getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
-    }
-    const MessageManagerLock mmLock;
-    getControlPanel()->recordButton->setToggleState(true,true);
-    return String("OK");
+    	if (input.size() > 1)
+    	{
+    		getUIComponent()->getLogWindow()->addLineToLog("Remote setting session name to "+input[1]);
+    		// session name was also given.
+    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    	}
+        const MessageManagerLock mmLock;
+    	getControlPanel()->recordButton->setToggleState(true,true);
+    	return String("OK");
     //	getControlPanel()->placeMessageInQueue("StartRecord");
     } if (input[0] == "SetSessionName")
     {
-    getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
+    		getProcessorGraph()->getRecordNode()->setDirectoryName(input[1]);
     } else if (input[0] == "StopRecord")
     {
-    const MessageManagerLock mmLock;
-    //getControlPanel()->placeMessageInQueue("StopRecord");
-    getControlPanel()->recordButton->setToggleState(false,true);
-    return String("OK");
+    	const MessageManagerLock mmLock;
+    	//getControlPanel()->placeMessageInQueue("StopRecord");
+    	getControlPanel()->recordButton->setToggleState(false,true);
+    	return String("OK");
     } else if (input[0] == "ProcessorCommunication")
     {
-    ProcessorGraph *g = getProcessorGraph();
-    Array<GenericProcessor*> p = g->getListOfProcessors();
-    for (int k=0;k<p.size();k++)
-    {
-    if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
-    {
-    String Query="";
-    for (int i=2;i<input.size();i++)
-    {
-    if (i == input.size()-1)
-    Query+=input[i];
-    else
-    Query+=input[i]+" ";
-    }
+    	ProcessorGraph *g = getProcessorGraph();
+    	Array<GenericProcessor*> p = g->getListOfProcessors();
+    	for (int k=0;k<p.size();k++)
+    	{
+    		if (p[k]->getName().toLowerCase() == input[1].toLowerCase())
+    		{
+    			String Query="";
+    			for (int i=2;i<input.size();i++)
+    			{
+    				if (i == input.size()-1)
+    					Query+=input[i];
+    				else
+    					Query+=input[i]+" ";
+    			}
 
-    return p[k]->interProcessorCommunication(Query);
-    }
-    }
+    			return p[k]->interProcessorCommunication(Query);
+    		}
+    	}
 
-    return String("OK");
+    	return String("OK");
     }
 
     */
 
     /** Command is first substring */
     String cmd = s.initialSectionNotContaining(" ");
-    String params = s.substring(cmd.length()).trim();
 
     const MessageManagerLock mmLock;
-    if (cmd.equalsIgnoreCase("StartAcquisition"))
+    if (cmd.compareIgnoreCase ("StartAcquisition") == 0)
     {
-        CoreServices::setAcquisitionStatus(true);
-        return "StartedAcquisition";
+        if (! CoreServices::getAcquisitionStatus())
+        {
+            CoreServices::setAcquisitionStatus (true);
+        }
+        return String ("StartedAcquisition");
     }
-    else if (cmd.equalsIgnoreCase("StopAcquisition"))
+    else if (cmd.compareIgnoreCase ("StopAcquisition") == 0)
     {
-        CoreServices::setAcquisitionStatus(false);
-        return "StoppedAcquisition";
+        if (CoreServices::getAcquisitionStatus())
+        {
+            CoreServices::setAcquisitionStatus (false);
+        }
+        return String ("StoppedAcquisition");
     }
-    else if (cmd.equalsIgnoreCase("StartRecord"))
+    else if (String ("StartRecord").compareIgnoreCase (cmd) == 0)
     {
-        if (!CoreServices::getRecordingStatus())
+        if (! CoreServices::getRecordingStatus())
         {
             /** First set optional parameters (name/value pairs)*/
-            StringPairArray dict = parseNetworkMessage(params);
-
-            StringArray keys = dict.getAllKeys();
-            for (int i = 0; i < keys.size(); ++i)
+            if (s.contains ("="))
             {
-                String key = keys[i];
-                String value = dict[key];
+                String params = s.substring (cmd.length()).trim();
+                StringPairArray dict = parseNetworkMessage (params);
 
-                if (key.equalsIgnoreCase("CreateNewDir"))
+                StringArray keys = dict.getAllKeys();
+                for (int i = 0; i < keys.size(); ++i)
                 {
-                    if (value.equalsIgnoreCase("1"))
+                    String key   = keys[i];
+                    String value = dict[key];
+
+                    if (key.compareIgnoreCase ("CreateNewDir") == 0)
                     {
-                        CoreServices::createNewRecordingDir();
+                        if (value.compareIgnoreCase ("1") == 0)
+                        {
+                            CoreServices::createNewRecordingDir();
+                        }
                     }
-                }
-                else if (key.equalsIgnoreCase("RecDir"))
-                {
-                    CoreServices::setRecordingDirectory(value);
-                }
-                else if (key.equalsIgnoreCase("PrependText"))
-                {
-                    CoreServices::setPrependTextToRecordingDir(value);
-                }
-                else if (key.equalsIgnoreCase("AppendText"))
-                {
-                    CoreServices::setAppendTextToRecordingDir(value);
+                    else if (key.compareIgnoreCase ("RecDir") == 0)
+                    {
+                        CoreServices::setRecordingDirectory (value);
+                    }
+                    else if (key.compareIgnoreCase ("PrependText") == 0)
+                    {
+                        CoreServices::setPrependTextToRecordingDir (value);
+                    }
+                    else if (key.compareIgnoreCase ("AppendText") == 0)
+                    {
+                        CoreServices::setAppendTextToRecordingDir (value);
+                    }
                 }
             }
 
             /** Start recording */
-            CoreServices::setRecordingStatus(true);
-            return "StartedRecording";
+            CoreServices::setRecordingStatus (true);
+            return String ("StartedRecording");
         }
     }
-    else if (cmd.equalsIgnoreCase("StopRecord"))
+    else if (String ("StopRecord").compareIgnoreCase (cmd) == 0)
     {
-        CoreServices::setRecordingStatus(false);
-        return "StoppedRecording";
+        if (CoreServices::getRecordingStatus())
+        {
+            CoreServices::setRecordingStatus (false);
+            return String ("StoppedRecording");
+        }
     }
-    else if (cmd.equalsIgnoreCase("IsAcquiring"))
+    else if (cmd.compareIgnoreCase ("IsAcquiring") == 0)
     {
-        return CoreServices::getAcquisitionStatus() ? String("1") : String("0");
+        String status = CoreServices::getAcquisitionStatus() ? String ("1") : String ("0");
+        return status;
     }
-    else if (cmd.equalsIgnoreCase("IsRecording"))
+    else if (cmd.compareIgnoreCase ("IsRecording") == 0)
     {
-        return CoreServices::getRecordingStatus() ? String("1") : String("0");
+        String status = CoreServices::getRecordingStatus() ? String ("1") : String ("0");
+        return status;
     }
-    else if (cmd.equalsIgnoreCase("GetRecordingPath"))
+    else if (cmd.compareIgnoreCase ("GetRecordingPath") == 0)
     {
         File file = CoreServices::RecordNode::getRecordingPath();
-        return file.getFullPathName();
+        String msg (file.getFullPathName());
+        return msg;
     }
-    else if (cmd.equalsIgnoreCase("GetRecordingNumber"))
+    else if (cmd.compareIgnoreCase ("GetRecordingNumber") == 0)
     {
-        return String(CoreServices::RecordNode::getRecordingNumber() + 1);
+        String status;
+        status += (CoreServices::RecordNode::getRecordingNumber() + 1);
+        return status;
     }
-    else if (cmd.equalsIgnoreCase("GetExperimentNumber"))
+    else if (cmd.compareIgnoreCase ("GetExperimentNumber") == 0)
     {
-        return String(CoreServices::RecordNode::getExperimentNumber());
+        String status;
+        status += CoreServices::RecordNode::getExperimentNumber();
+        return status;
     }
 
-    return "NotHandled";
+    return String ("NotHandled");
 }
 
 
@@ -564,23 +581,15 @@ StringPairArray NetworkEvents::parseNetworkMessage(StringRef msg)
 }
 
 
-void NetworkEvents::valueChanged(Value& value)
-{
-    if (value.refersToSameSourceAs(portString))
-    {
-        auto ed = static_cast<NetworkEventsEditor*>(getEditor());
-        if (ed)
-        {
-            ed->setPortText(value.toString());
-        }
-    }
-}
-
-
 void NetworkEvents::updatePort(uint16 port)
 {
     urlport = port;
-    portString = getPortString();
+    auto ed = static_cast<NetworkEventsEditor*>(getEditor());
+    if (ed)
+    {
+        const MessageManagerLock mmLock;
+        ed->setPortText(getPortString());
+    }
 }
 
 

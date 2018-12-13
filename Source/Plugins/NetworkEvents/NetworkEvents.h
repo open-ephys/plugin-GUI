@@ -49,7 +49,6 @@
 */
 class NetworkEvents : public GenericProcessor
                     , public Thread
-                    , public Value::Listener
 {
 public:
     NetworkEvents();
@@ -98,9 +97,6 @@ public:
     String getPortString() const;
 
     void restartConnection();
-
-    // to update the port string from the thread
-    void valueChanged(Value& value) override;
 
 private:
     // combines a string and a timestamp
@@ -181,8 +177,7 @@ private:
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
     StringPairArray parseNetworkMessage(StringRef msg);
 
-    // updates urlport and the portString Value (controlling the port input on the editor)
-    // 0 indicates disconnected. should only be called from the thread!
+    // updates urlport and the port input on the editor (0 indicates not connected)
     void updatePort(uint16 port);
 
     // get an endpoint url for the given port (using 0 to represent *)
@@ -204,8 +199,6 @@ private:
     bool changeResponder;
 
     uint16 urlport;   // 0 indicates not connected
-    // thread can modify this to update editor's port text without acquiring MessageManagerLock
-    Value portString;
 
     float threshold;
     float bufferZone;
