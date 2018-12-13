@@ -112,6 +112,9 @@ public:
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
     void addInputChannel(GenericProcessor* source, int chan);
 
+	/** Updates the audio buffer size*/
+	void updatePlaybackBuffer();
+
     /** A pointer to the AudioNode's editor. */
     ScopedPointer<AudioEditor> audioEditor;
 
