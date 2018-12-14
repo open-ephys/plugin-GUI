@@ -117,6 +117,13 @@ void NetworkEvents::createEventChannels()
 		"OS high resolution timer count when the event was received", "timestamp.software"));
 	eventChannelArray.add(chan);
 	messageChannel = chan;
+
+    EventChannel* TTLchan = new EventChannel(EventChannel::TTL, 8, 1, CoreServices::getGlobalSampleRate(), this);
+    TTLchan->setName("Network Events output");
+    TTLchan->setDescription("Triggers whenever \"TTL\" is received on the port.");
+    TTLchan->setIdentifier("network.ttl.event");
+    eventChannelArray.add(TTLchan);
+    TTLChannel = TTLchan;
 }
 
 
@@ -238,8 +245,74 @@ String NetworkEvents::handleSpecialMessages(const String& s)
         status += CoreServices::RecordNode::getExperimentNumber();
         return status;
     }
+    else if (cmd.compareIgnoreCase("TTL") == 0)
+    {
+        std::cout << "into ttl event case" << std::endl;
+        // Default to chan 0 and off
+        int currEventChannel = 0;
+        bool onOff = false;
+        /** First set optional parameters (name/value pairs)*/
+        if (s.contains("="))
+        {
+            String params = s.substring(cmd.length()).trim();
+            StringPairArray dict = parseNetworkMessage(params);
+
+            StringArray keys = dict.getAllKeys();
+            for (int i = 0; i < keys.size(); ++i)
+            {
+                String key = keys[i];
+                String value = dict[key];
+
+                if (key.compareIgnoreCase("EventChannel") == 0)
+                {
+                    std::cout << value << std::endl;
+                    currEventChannel = value.getIntValue();
+                }
+                else if (key.compareIgnoreCase("onOff") == 0)
+                {
+                    std::cout << value << std::endl;
+                    if (value.compareIgnoreCase("on") == 0)
+                    {
+                        onOff = true;
+                    }
+                    else
+                    {
+                        onOff = false;
+                    }
+                }
+            }
+        }
+
+        if (triggerEvent(getTimestamp(currEventChannel), currEventChannel, onOff))
+        {
+            return "Success";
+        }
+        else
+        {
+            return "Failed";
+        }
+    }
 
     return String ("NotHandled");
+}
+
+bool NetworkEvents::triggerEvent(juce::int64 bufferTs, int eventChannel, bool onOff)
+{
+    if (onOff)
+    {
+        juce::uint8 ttlDataOn = 1 << eventChannel;
+        int currEventChan = eventChannel;
+        TTLEventPtr eventOn = TTLEvent::createTTLEvent(TTLChannel, bufferTs, &ttlDataOn, sizeof(juce::uint8), eventChannel);
+        addEvent(TTLChannel, eventOn, 0);
+    }
+    else
+    {
+        juce::uint8 ttlDataOff = 0;
+        int currEventChan = eventChannel;
+        TTLEventPtr eventOff = TTLEvent::createTTLEvent(TTLChannel, bufferTs, &ttlDataOff, sizeof(juce::uint8), eventChannel);
+        addEvent(TTLChannel, eventOff, 0);
+    }
+    return true;
 }
 
 
