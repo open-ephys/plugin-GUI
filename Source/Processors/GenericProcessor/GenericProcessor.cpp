@@ -405,8 +405,10 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	dataChannelMap.clear();
 	eventChannelMap.clear();
 	spikeChannelMap.clear();
-
-	for (int i = 0; i < dataChannelArray.size(); i++)
+	unsigned int nChans;
+	
+	nChans = dataChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		DataChannel* channel = dataChannelArray[i];
 		if (updateNodeID)
@@ -419,7 +421,8 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		dataChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
-	for (int i = 0; i < eventChannelArray.size(); i++)
+	nChans = eventChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		EventChannel* channel = eventChannelArray[i];
 		if (updateNodeID)
@@ -432,7 +435,8 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		eventChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
-	for (int i = 0; i < spikeChannelArray.size(); i++)
+	nChans = spikeChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		SpikeChannel* channel = spikeChannelArray[i];
 		if (updateNodeID)

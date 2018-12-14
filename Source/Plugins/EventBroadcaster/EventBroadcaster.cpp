@@ -11,17 +11,85 @@
 #include "EventBroadcaster.h"
 #include "EventBroadcasterEditor.h"
 
-std::shared_ptr<void> EventBroadcaster::getZMQContext() {
-    // Note: C++11 guarantees that initialization of static local variables occurs exactly once, even
-    // if multiple threads attempt to initialize the same static local variable concurrently.
+EventBroadcaster::ZMQContext* EventBroadcaster::sharedContext = nullptr;
+CriticalSection EventBroadcaster::sharedContextLock{};
+
+EventBroadcaster::ZMQContext::ZMQContext(const ScopedLock& lock)
 #ifdef ZEROMQ
-    static const std::shared_ptr<void> ctx(zmq_ctx_new(), zmq_ctx_destroy);
-#else
-    static const std::shared_ptr<void> ctx;
+    : context(zmq_ctx_new())
 #endif
-    return ctx;
+{
+    sharedContext = this;
 }
 
+// ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
+// socket pointer, so this only happens when the last instance is destroyed.
+EventBroadcaster::ZMQContext::~ZMQContext()
+{
+    ScopedLock lock(sharedContextLock);
+    sharedContext = nullptr;
+#ifdef ZEROMQ
+    zmq_ctx_destroy(context);
+#endif
+}
+
+void* EventBroadcaster::ZMQContext::createZMQSocket()
+{
+#ifdef ZEROMQ
+    jassert(context != nullptr);
+    return zmq_socket(context, ZMQ_PUB);
+#endif
+}
+
+EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
+    : std::unique_ptr<void, decltype(&closeZMQSocket)>(nullptr, &closeZMQSocket)
+{
+    ScopedLock lock(sharedContextLock);
+    if (sharedContext == nullptr)
+    {
+        // first one, create the context
+        context = new ZMQContext(lock);
+    }
+    else
+    {
+        // use already-created context
+        context = sharedContext;
+    }
+
+#ifdef ZEROMQ
+    reset(context->createZMQSocket());
+#endif
+}
+
+EventBroadcaster::ZMQSocketPtr::~ZMQSocketPtr()
+{
+    // close the socket before the context might get destroyed.
+    reset(nullptr);
+}
+
+int EventBroadcaster::unbindZMQSocket()
+{
+#ifdef ZEROMQ
+    void* socket = zmqSocket.get();
+    if (socket != nullptr && listeningPort != 0)
+    {
+        return zmq_unbind(socket, getEndpoint(listeningPort).toRawUTF8());
+    }
+#endif
+    return 0;
+}
+
+int EventBroadcaster::rebindZMQSocket()
+{
+#ifdef ZEROMQ
+    void* socket = zmqSocket.get();
+    if (socket != nullptr && listeningPort != 0)
+    {
+        return zmq_bind(socket, getEndpoint(listeningPort).toRawUTF8());
+    }
+#endif
+    return 0;
+}
 
 void EventBroadcaster::closeZMQSocket(void* socket)
 {
@@ -30,16 +98,33 @@ void EventBroadcaster::closeZMQSocket(void* socket)
 #endif
 }
 
+String EventBroadcaster::getEndpoint(int port)
+{
+    return String("tcp://*:") + String(port);
+}
+
+void EventBroadcaster::reportActualListeningPort(int port)
+{
+    listeningPort = port;
+    auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
+    if (editor)
+    {
+        editor->setDisplayedPort(port);
+    }
+}
 
 EventBroadcaster::EventBroadcaster()
     : GenericProcessor  ("Event Broadcaster")
-    , zmqContext        (getZMQContext())
-    , zmqSocket         (nullptr, &closeZMQSocket)
     , listeningPort     (0)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
-    setListeningPort(5557);
+    int portToTry = 5557;
+    while (setListeningPort(portToTry) == EADDRINUSE)
+    {
+        // try the next port, looking for one not in use
+        portToTry++;
+    }
 }
 
 
@@ -56,27 +141,53 @@ int EventBroadcaster::getListeningPort() const
 }
 
 
-void EventBroadcaster::setListeningPort(int port, bool forceRestart)
+int EventBroadcaster::setListeningPort(int port, bool forceRestart)
 {
     if ((listeningPort != port) || forceRestart)
     {
 #ifdef ZEROMQ
-        zmqSocket.reset(zmq_socket(zmqContext.get(), ZMQ_PUB));
-        if (!zmqSocket)
+        // unbind current socket (if any) to free up port
+        unbindZMQSocket();
+        ZMQSocketPtr newSocket;
+        auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
+        int status = 0;
+
+        if (!newSocket.get())
         {
-            std::cout << "Failed to create socket: " << zmq_strerror(zmq_errno()) << std::endl;
-            return;
+            status = zmq_errno();
+            std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
+        }
+        else
+        {
+            if (0 != zmq_bind(newSocket.get(), getEndpoint(port).toRawUTF8()))
+            {
+                status = zmq_errno();
+                std::cout << "Failed to open socket: " << zmq_strerror(status) << std::endl;
+            }
+            else
+            {
+                // success
+                zmqSocket.swap(newSocket);
+                reportActualListeningPort(port);
+                return status;
+            }
         }
 
-        String url = String("tcp://*:") + String(port);
-        if (0 != zmq_bind(zmqSocket.get(), url.toRawUTF8()))
+        // failure, try to rebind current socket to previous port
+        if (0 == rebindZMQSocket())
         {
-            std::cout << "Failed to open socket: " << zmq_strerror(zmq_errno()) << std::endl;
-            return;
+            reportActualListeningPort(listeningPort);
         }
+        else
+        {
+            reportActualListeningPort(0);
+        }
+        return status;
+
+#else
+        reportActualListeningPort(port);
+        return 0;
 #endif
-
-        listeningPort = port;
     }
 }
 

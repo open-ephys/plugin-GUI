@@ -24,7 +24,6 @@
 
 #include <memory>
 
-
 class EventBroadcaster : public GenericProcessor
 {
 public:
@@ -33,7 +32,8 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     int getListeningPort() const;
-    void setListeningPort (int port, bool forceRestart = false);
+    // returns 0 on success, else the errno value for the error that occurred.
+    int setListeningPort (int port, bool forceRestart = false);
 
     void process (AudioSampleBuffer& continuousBuffer) override;
     void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
@@ -44,14 +44,42 @@ public:
 
 
 private:
+    class ZMQContext : public ReferenceCountedObject
+    {
+    public:
+        ZMQContext(const ScopedLock& lock);
+        ~ZMQContext() override;
+        void* createZMQSocket();
+    private:
+        void* context;
+    };
+
+    static void closeZMQSocket(void* socket);
+
+    class ZMQSocketPtr : public std::unique_ptr<void, decltype(&closeZMQSocket)>
+    {
+    public:
+        ZMQSocketPtr();
+        ~ZMQSocketPtr();
+    private:
+        ReferenceCountedObjectPtr<ZMQContext> context;
+    };
+    
+    int unbindZMQSocket();
+    int rebindZMQSocket();
+
 	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
-    static std::shared_ptr<void> getZMQContext();
-    static void closeZMQSocket (void* socket);
+    static String getEndpoint(int port);
+    // called from getListeningPort() depending on success/failure of ZMQ operations
+    void reportActualListeningPort(int port);
 
-    const std::shared_ptr<void> zmqContext;
-    std::unique_ptr<void, decltype (&closeZMQSocket)> zmqSocket;
+    // share a "dumb" pointer that doesn't take part in reference counting.
+    // want the context to be terminated by the time the static members are
+    // destroyed (see: https://github.com/zeromq/libzmq/issues/1708)
+    static ZMQContext* sharedContext;
+    static CriticalSection sharedContextLock;
+    ZMQSocketPtr zmqSocket;
     int listeningPort;
-
 };
 
 

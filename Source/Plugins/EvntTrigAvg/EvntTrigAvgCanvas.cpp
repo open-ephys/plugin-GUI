@@ -234,10 +234,10 @@ void EvntTrigAvgDisplay::paint(Graphics &g)
         GraphUnit* graph;
         ScopedLock myScopedLock(*processor->getMutex());
         if(histoData[i][1]==0){ // if sortedId == 0
-                graph = new GraphUnit(processor,canvas,channelColours[(histoData[i][0]+sizeof(channelColours))%(sizeof(channelColours))],labels[histoData[i][0]],&minMaxMean[i][2],&histoData[i][2]); // pass &histoData[i][2] instead of 3 to pass on how many bins are used
+                graph = new GraphUnit(processor,canvas,channelColours[(histoData[i][0])%16],labels[histoData[i][0]],&minMaxMean[i][2],&histoData[i][2]); // pass &histoData[i][2] instead of 3 to pass on how many bins are used
         }
             else{
-                graph = new GraphUnit(processor,canvas,channelColours[(histoData[i][0]+sizeof(channelColours))%(sizeof(channelColours))],"ID "+String(histoData[i][1]),&minMaxMean[i][2],&histoData[i][2]);
+                graph = new GraphUnit(processor,canvas,channelColours[(histoData[i][0])%16],"ID "+String(histoData[i][1]),&minMaxMean[i][2],&histoData[i][2]);
             }
             graphs.push_back(graph);
             graph->setBounds(0, 40*(graphCount), width-20, 40);
