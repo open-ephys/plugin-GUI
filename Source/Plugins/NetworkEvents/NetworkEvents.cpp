@@ -283,20 +283,14 @@ String NetworkEvents::handleSpecialMessages(const String& s)
             }
         }
 
-        if (triggerEvent(getTimestamp(currEventChannel), currEventChannel, onOff))
-        {
-            return "Success";
-        }
-        else
-        {
-            return "Failed";
-        }
+        triggerEvent(getTimestamp(currEventChannel), currEventChannel, onOff);
+        return "TTL Handled";
     }
 
     return String ("NotHandled");
 }
 
-bool NetworkEvents::triggerEvent(juce::int64 bufferTs, int eventChannel, bool onOff)
+void NetworkEvents::triggerEvent(juce::int64 bufferTs, int eventChannel, bool onOff)
 {
     if (onOff)
     {
@@ -312,7 +306,6 @@ bool NetworkEvents::triggerEvent(juce::int64 bufferTs, int eventChannel, bool on
         TTLEventPtr eventOff = TTLEvent::createTTLEvent(TTLChannel, bufferTs, &ttlDataOff, sizeof(juce::uint8), eventChannel);
         addEvent(TTLChannel, eventOff, 0);
     }
-    return true;
 }
 
 

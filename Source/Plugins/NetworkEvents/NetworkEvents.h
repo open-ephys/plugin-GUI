@@ -182,7 +182,7 @@ private:
 	const EventChannel* messageChannel{ nullptr };
     const EventChannel* TTLChannel{ nullptr };
 
-    bool triggerEvent(juce::int64 bufferTs, int eventChannel, bool OnOff);
+    void triggerEvent(juce::int64 bufferTs, int eventChannel, bool OnOff);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };
