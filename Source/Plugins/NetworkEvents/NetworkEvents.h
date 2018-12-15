@@ -91,6 +91,12 @@ private:
         int64 timestamp;
     };
 
+    struct StringTTL
+    {
+        bool onOff;
+        int eventChannel;
+    };
+
     class ZMQContext : public ReferenceCountedObject
     {
     public:
@@ -178,11 +184,14 @@ private:
 
     std::queue<StringTS> networkMessagesQueue;
     CriticalSection queueLock;
+
+    std::queue<StringTTL> TTLQueue;
+    CriticalSection TTLqueueLock;
     
 	const EventChannel* messageChannel{ nullptr };
     const EventChannel* TTLChannel{ nullptr };
 
-    void triggerEvent(juce::int64 bufferTs, int eventChannel, bool OnOff);
+    void triggerEvent(StringTTL TTLmsg);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };

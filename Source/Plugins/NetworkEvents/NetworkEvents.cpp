@@ -247,7 +247,6 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     }
     else if (cmd.compareIgnoreCase("TTL") == 0)
     {
-        std::cout << "into ttl event case" << std::endl;
         // Default to chan 0 and off
         int currEventChannel = 0;
         bool onOff = false;
@@ -265,12 +264,10 @@ String NetworkEvents::handleSpecialMessages(const String& s)
 
                 if (key.compareIgnoreCase("EventChannel") == 0)
                 {
-                    std::cout << value << std::endl;
                     currEventChannel = value.getIntValue();
                 }
                 else if (key.compareIgnoreCase("onOff") == 0)
                 {
-                    std::cout << value << std::endl;
                     if (value.compareIgnoreCase("on") == 0)
                     {
                         onOff = true;
@@ -281,30 +278,36 @@ String NetworkEvents::handleSpecialMessages(const String& s)
                     }
                 }
             }
+            {
+                ScopedLock TTLlock(TTLqueueLock);
+                TTLQueue.push({ onOff, currEventChannel });
+            }
         }
-
-        triggerEvent(getTimestamp(currEventChannel), currEventChannel, onOff);
+        
+        
         return "TTL Handled";
     }
 
     return String ("NotHandled");
 }
 
-void NetworkEvents::triggerEvent(juce::int64 bufferTs, int eventChannel, bool onOff)
+void NetworkEvents::triggerEvent(StringTTL TTLmsg)
 {
-    if (onOff)
+    if (TTLmsg.onOff)
     {
-        juce::uint8 ttlDataOn = 1 << eventChannel;
-        int currEventChan = eventChannel;
-        TTLEventPtr eventOn = TTLEvent::createTTLEvent(TTLChannel, bufferTs, &ttlDataOn, sizeof(juce::uint8), eventChannel);
+        juce::uint8 ttlDataOn = 1 << TTLmsg.eventChannel;
+        int currEventChannel = TTLmsg.eventChannel;
+        TTLEventPtr eventOn = TTLEvent::createTTLEvent(TTLChannel, CoreServices::getGlobalTimestamp(), &ttlDataOn, sizeof(juce::uint8), currEventChannel);
+        std::cout << "adding true event from ne" << std::endl;
         addEvent(TTLChannel, eventOn, 0);
     }
     else
     {
         juce::uint8 ttlDataOff = 0;
-        int currEventChan = eventChannel;
-        TTLEventPtr eventOff = TTLEvent::createTTLEvent(TTLChannel, bufferTs, &ttlDataOff, sizeof(juce::uint8), eventChannel);
-        addEvent(TTLChannel, eventOff, 0);
+        int currEventChannel = TTLmsg.eventChannel;
+        TTLEventPtr eventOff = TTLEvent::createTTLEvent(TTLChannel, CoreServices::getGlobalTimestamp(), &ttlDataOff, sizeof(juce::uint8), currEventChannel);
+        std::cout << "adding false event from ne" << std::endl;
+        addEvent(TTLChannel, eventOff, 0 );
     }
 }
 
@@ -319,6 +322,14 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
         const StringTS& msg = networkMessagesQueue.front();
         postTimestamppedStringToMidiBuffer (msg);
         networkMessagesQueue.pop();
+    }
+
+    ScopedLock TTLlock(TTLqueueLock);
+    while (!TTLQueue.empty())
+    {
+        const StringTTL& TTLmsg = TTLQueue.front();
+        triggerEvent(TTLmsg);
+        TTLQueue.pop();
     }
 }
 
