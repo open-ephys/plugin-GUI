@@ -123,6 +123,7 @@ void NetworkEvents::createEventChannels()
     TTLchan->setName("Network Events output");
     TTLchan->setDescription("Triggers whenever \"TTL\" is received on the port.");
     TTLchan->setIdentifier("external.network.ttl");
+    // Possibly add meta data (reason for ttl event?)
     eventChannelArray.add(TTLchan);
     TTLChannel = TTLchan;
 }
@@ -215,8 +216,8 @@ String NetworkEvents::handleSpecialMessages(const String& s)
         if (CoreServices::getRecordingStatus())
         {
             CoreServices::setRecordingStatus (false);
-            return String ("StoppedRecording");
-        }
+        } 
+        return String("StoppedRecording");
     }
     else if (cmd.compareIgnoreCase ("IsAcquiring") == 0)
     {
@@ -248,10 +249,10 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     }
     else if (cmd.compareIgnoreCase ("TTL") == 0)
     {
-        // Default to chan 0 and off
+        // Default to channel 0 and off (if no info sent)
         int channel = 0;
         bool onOff = false;
-        /** First set optional parameters (name/value pairs)*/
+        /** Set optional parameters (name/value pairs)*/
         String params = s.substring(cmd.length()).trim();
         StringPairArray dict = parseNetworkMessage(params);
 
@@ -263,14 +264,14 @@ String NetworkEvents::handleSpecialMessages(const String& s)
 
             if (key.compareIgnoreCase("Channel") == 0)
             {
-                //Make sure in range
+                // Make sure in range
                 if (value <= 8 && value >= 0)
                 {
                     channel = value;
                 }
                 else
                 {
-                    //Throw some kind of error here
+                    jassertfalse;
                 }
             }
             else if (key.compareIgnoreCase("on") == 0)
@@ -283,10 +284,6 @@ String NetworkEvents::handleSpecialMessages(const String& s)
             if (CoreServices::getAcquisitionStatus()) 
             {
                 TTLQueue.push({ onOff, channel });
-            }
-            else
-            {
-                //Throw some error
             }
         }
         
@@ -302,7 +299,6 @@ void NetworkEvents::triggerEvent(StringTTL TTLmsg, juce::int64 timestamp)
 {
     juce::uint8 ttlData = TTLmsg.onOff << TTLmsg.eventChannel;
     TTLEventPtr event = TTLEvent::createTTLEvent(TTLChannel, timestamp, &ttlData, sizeof(juce::uint8), TTLmsg.eventChannel);
-    std::cout << "adding event from ne" << std::endl;
     addEvent(TTLChannel, event, 0);
 }
 
@@ -312,14 +308,16 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
     setTimestampAndSamples(CoreServices::getGlobalTimestamp(),0);
     juce::int64 timestamp = CoreServices::getGlobalTimestamp();
 
-    ScopedLock lock(queueLock);
-    while (! networkMessagesQueue.empty())
     {
-        const StringTS& msg = networkMessagesQueue.front();
-        postTimestamppedStringToMidiBuffer (msg, timestamp);
-        networkMessagesQueue.pop();
+        ScopedLock lock(queueLock);
+        while (!networkMessagesQueue.empty())
+        {
+            const StringTS& msg = networkMessagesQueue.front();
+            postTimestamppedStringToMidiBuffer(msg, timestamp);
+            networkMessagesQueue.pop();
+        }
     }
-
+        
     {
         ScopedLock TTLlock(TTLqueueLock);
         while (!TTLQueue.empty())
