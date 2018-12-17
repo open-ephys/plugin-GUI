@@ -152,7 +152,7 @@ private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Responder);
     };
 
-    void postTimestamppedStringToMidiBuffer(const StringTS& s);
+    void postTimestamppedStringToMidiBuffer(const StringTS& s, juce::int64 timestamp);
     
     String handleSpecialMessages(const String& s);
 
@@ -191,7 +191,7 @@ private:
 	const EventChannel* messageChannel{ nullptr };
     const EventChannel* TTLChannel{ nullptr };
 
-    void triggerEvent(StringTTL TTLmsg);
+    void triggerEvent(StringTTL TTLmsg, juce::int64 timestamp);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };

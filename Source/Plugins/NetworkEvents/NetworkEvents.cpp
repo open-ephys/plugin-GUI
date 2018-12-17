@@ -109,7 +109,8 @@ void NetworkEvents::restartConnection()
 
 void NetworkEvents::createEventChannels()
 {
-	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MESSAGE_LENGTH, CoreServices::getGlobalSampleRate(), this);
+    juce::int64 timestamp = CoreServices::getGlobalSampleRate();
+    EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MESSAGE_LENGTH, timestamp, this);
 	chan->setName("Network messages");
 	chan->setDescription("Messages received through the network events module");
 	chan->setIdentifier("external.network.rawData");
@@ -118,10 +119,10 @@ void NetworkEvents::createEventChannels()
 	eventChannelArray.add(chan);
 	messageChannel = chan;
 
-    EventChannel* TTLchan = new EventChannel(EventChannel::TTL, 8, 1, CoreServices::getGlobalSampleRate(), this);
+    EventChannel* TTLchan = new EventChannel(EventChannel::TTL, 8, 1, timestamp, this);
     TTLchan->setName("Network Events output");
     TTLchan->setDescription("Triggers whenever \"TTL\" is received on the port.");
-    TTLchan->setIdentifier("network.ttl.event");
+    TTLchan->setIdentifier("external.network.ttl");
     eventChannelArray.add(TTLchan);
     TTLChannel = TTLchan;
 }
@@ -135,11 +136,11 @@ AudioProcessorEditor* NetworkEvents::createEditor ()
 }
 
 
-void NetworkEvents::postTimestamppedStringToMidiBuffer (const StringTS& s)
+void NetworkEvents::postTimestamppedStringToMidiBuffer (const StringTS& s, juce::int64 timestamp)
 {
 	MetaDataValueArray md;
 	md.add(new MetaDataValue(MetaDataDescriptor::INT64, 1, &s.timestamp));
-	TextEventPtr event = TextEvent::createTextEvent(messageChannel, CoreServices::getGlobalTimestamp(), s.str, md);
+	TextEventPtr event = TextEvent::createTextEvent(messageChannel, timestamp, s.str, md);
 	addEvent(messageChannel, event, 0);
 }
 
@@ -245,44 +246,50 @@ String NetworkEvents::handleSpecialMessages(const String& s)
         status += CoreServices::RecordNode::getExperimentNumber();
         return status;
     }
-    else if (cmd.compareIgnoreCase("TTL") == 0)
+    else if (cmd.compareIgnoreCase ("TTL") == 0)
     {
         // Default to chan 0 and off
-        int currEventChannel = 0;
+        int channel = 0;
         bool onOff = false;
         /** First set optional parameters (name/value pairs)*/
-        if (s.contains("="))
+        String params = s.substring(cmd.length()).trim();
+        StringPairArray dict = parseNetworkMessage(params);
+
+        StringArray keys = dict.getAllKeys();
+        for (int i = 0; i < keys.size(); ++i)
         {
-            String params = s.substring(cmd.length()).trim();
-            StringPairArray dict = parseNetworkMessage(params);
+            String key = keys[i];
+            int value = dict[key].getIntValue();
 
-            StringArray keys = dict.getAllKeys();
-            for (int i = 0; i < keys.size(); ++i)
+            if (key.compareIgnoreCase("Channel") == 0)
             {
-                String key = keys[i];
-                String value = dict[key];
-
-                if (key.compareIgnoreCase("EventChannel") == 0)
+                //Make sure in range
+                if (value <= 8 && value >= 0)
                 {
-                    currEventChannel = value.getIntValue();
+                    channel = value;
                 }
-                else if (key.compareIgnoreCase("onOff") == 0)
+                else
                 {
-                    if (value.compareIgnoreCase("on") == 0)
-                    {
-                        onOff = true;
-                    }
-                    else
-                    {
-                        onOff = false;
-                    }
+                    //Throw some kind of error here
                 }
             }
+            else if (key.compareIgnoreCase("on") == 0)
             {
-                ScopedLock TTLlock(TTLqueueLock);
-                TTLQueue.push({ onOff, currEventChannel });
+                onOff = value;
             }
         }
+        {
+            ScopedLock TTLlock(TTLqueueLock);
+            if (CoreServices::getAcquisitionStatus()) 
+            {
+                TTLQueue.push({ onOff, channel });
+            }
+            else
+            {
+                //Throw some error
+            }
+        }
+        
         
         
         return "TTL Handled";
@@ -291,45 +298,36 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     return String ("NotHandled");
 }
 
-void NetworkEvents::triggerEvent(StringTTL TTLmsg)
+void NetworkEvents::triggerEvent(StringTTL TTLmsg, juce::int64 timestamp)
 {
-    if (TTLmsg.onOff)
-    {
-        juce::uint8 ttlDataOn = 1 << TTLmsg.eventChannel;
-        int currEventChannel = TTLmsg.eventChannel;
-        TTLEventPtr eventOn = TTLEvent::createTTLEvent(TTLChannel, CoreServices::getGlobalTimestamp(), &ttlDataOn, sizeof(juce::uint8), currEventChannel);
-        std::cout << "adding true event from ne" << std::endl;
-        addEvent(TTLChannel, eventOn, 0);
-    }
-    else
-    {
-        juce::uint8 ttlDataOff = 0;
-        int currEventChannel = TTLmsg.eventChannel;
-        TTLEventPtr eventOff = TTLEvent::createTTLEvent(TTLChannel, CoreServices::getGlobalTimestamp(), &ttlDataOff, sizeof(juce::uint8), currEventChannel);
-        std::cout << "adding false event from ne" << std::endl;
-        addEvent(TTLChannel, eventOff, 0 );
-    }
+    juce::uint8 ttlData = TTLmsg.onOff << TTLmsg.eventChannel;
+    TTLEventPtr event = TTLEvent::createTTLEvent(TTLChannel, timestamp, &ttlData, sizeof(juce::uint8), TTLmsg.eventChannel);
+    std::cout << "adding event from ne" << std::endl;
+    addEvent(TTLChannel, event, 0);
 }
 
 
 void NetworkEvents::process (AudioSampleBuffer& buffer)
 {
     setTimestampAndSamples(CoreServices::getGlobalTimestamp(),0);
+    juce::int64 timestamp = CoreServices::getGlobalTimestamp();
 
     ScopedLock lock(queueLock);
     while (! networkMessagesQueue.empty())
     {
         const StringTS& msg = networkMessagesQueue.front();
-        postTimestamppedStringToMidiBuffer (msg);
+        postTimestamppedStringToMidiBuffer (msg, timestamp);
         networkMessagesQueue.pop();
     }
 
-    ScopedLock TTLlock(TTLqueueLock);
-    while (!TTLQueue.empty())
     {
-        const StringTTL& TTLmsg = TTLQueue.front();
-        triggerEvent(TTLmsg);
-        TTLQueue.pop();
+        ScopedLock TTLlock(TTLqueueLock);
+        while (!TTLQueue.empty())
+        {
+            const StringTTL& TTLmsg = TTLQueue.front();
+            triggerEvent(TTLmsg, timestamp);
+            TTLQueue.pop();
+        }
     }
 }
 
