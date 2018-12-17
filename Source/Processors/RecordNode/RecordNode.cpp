@@ -42,7 +42,7 @@ RecordNode::RecordNode()
     isRecording = false;
 	setFirstBlock = false;
 
-    settings.numInputs = 2048;
+    settings.numInputs = 8;
     settings.numOutputs = 0;
 
     recordingNumber = -1;
@@ -580,4 +580,6 @@ void RecordNode::updateRecordChannelIndexes()
 void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
 {
 	eventChannelArray.addArray(channels);
+	settings.numInputs = dataChannelArray.size();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
 }

@@ -105,7 +105,7 @@ void EvntTrigAvgCanvas::resized()
 
 void EvntTrigAvgCanvas::paint(Graphics& g)
 {
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(Colour(0,18,43));
     
     int width=getWidth();
     int height=getHeight();
