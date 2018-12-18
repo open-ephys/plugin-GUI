@@ -189,7 +189,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
         return 0;
 #endif
     }
-    return 0; // CJB added
+    return -1;
 }
 
 

@@ -301,14 +301,15 @@ void GenericEditor::setDesiredWidth (int width)
 
 void GenericEditor::startRecording()
 {
-    if (channelSelector != 0)
-        channelSelector->inactivateRecButtons();
+//now are disabled on acquisition
+  //  if (channelSelector != 0)
+  //      channelSelector->inactivateRecButtons();
 }
 
 void GenericEditor::stopRecording()
 {
-    if (channelSelector != 0)
-        channelSelector->activateRecButtons();
+  //  if (channelSelector != 0)
+  //      channelSelector->activateRecButtons();
 }
 
 void GenericEditor::editorStartAcquisition()
@@ -316,8 +317,11 @@ void GenericEditor::editorStartAcquisition()
 	startAcquisition();
     //std::cout << "GenericEditor received message to start acquisition." << std::endl;
 
-    if (channelSelector != 0)
-        channelSelector->startAcquisition();
+	if (channelSelector != 0)
+	{
+		channelSelector->startAcquisition();
+		channelSelector->inactivateRecButtons();
+	}
 
     for (int n = 0; n < parameterEditors.size(); n++)
     {
@@ -335,8 +339,11 @@ void GenericEditor::editorStopAcquisition()
 {
 	stopAcquisition();
 
-    if (channelSelector != 0)
-        channelSelector->stopAcquisition();
+	if (channelSelector != 0)
+	{
+		channelSelector->stopAcquisition();
+		channelSelector->activateRecButtons();
+	}
 
     for (int n = 0; n < parameterEditors.size(); n++)
     {
