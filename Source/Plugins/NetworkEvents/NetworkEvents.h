@@ -39,7 +39,7 @@
 
 #include <list>
 #include <queue>
-
+#include <atomic>
 
 /**
  Sends incoming TCP/IP messages from 0MQ to the events buffer
@@ -76,11 +76,10 @@ public:
     void run() override;
 
     // passing 0 corresponds to wildcard ("*") and picks any available port
-    // returns true on success, false on failure
-    bool setNewListeningPort (uint16 port);
+    void setNewListeningPort (uint16 port);
 
     // gets a string for the editor's port input to reflect current urlport
-    String getPortString() const;
+    String getCurrPortString() const;
 
     void restartConnection();
 
@@ -110,8 +109,9 @@ private:
     class Responder
     {
     public:
-        // tries to create a responder and bind to given port; returns nullptr on failure.
-        static ScopedPointer<Responder> makeResponder(uint16 port);
+        // creates socket from given context and tries to bind to port.
+        // if port is 0, chooses an available ephemeral port.
+        Responder(uint16 port);
         ~Responder();
 
         // returns the latest errno value
@@ -120,7 +120,9 @@ private:
         // output last error on stdout and status bar, including the passed message
         void reportErr(const String& message) const;
 
-        // returns the port if the socket was successfully bound to one.
+        bool isValid() const;
+
+        // returns the port if the socket was successfully bound to one, else 0
         // if not, or if the socket is invalid, returns 0.
         uint16 getBoundPort() const;
 
@@ -132,13 +134,10 @@ private:
         int send(StringRef response);
 
     private:
-        // creates socket from given context and tries to bind to port.
-        // if port is 0, chooses an available ephemeral port.
-        Responder(uint16 port);
-
         ZMQContext::Ptr context;
         void* socket;
-        uint16 boundPort; // 0 indicates not bound
+        bool valid;
+        uint16 boundPort;
         int lastErrno;
 
         static const int RECV_TIMEOUT_MS;
@@ -153,12 +152,14 @@ private:
     //* Split network message into name/value pairs (name1=val1 name2=val2 etc) */
     StringPairArray parseNetworkMessage(StringRef msg);
 
-    // updates urlport and the port input on the editor (0 indicates not connected)
-    void updatePort(uint16 port);
+    // updates urlport and the port input on the editor (< 0 indicates not connected)
+    void updatePortString(uint16 port);
 
     // get an endpoint url for the given port (using 0 to represent *)
     static String getEndpoint(uint16 port);
 
+    // get a representation of the given port for use on the editor
+    static String getPortString(uint16 port);
 
     // share a "dumb" pointer that doesn't take part in reference counting.
     // want the context to be terminated by the time the static members are
@@ -166,15 +167,9 @@ private:
     static ZMQContext* sharedContext;
     static CriticalSection sharedContextLock;
 
-    // To switch ports, a new socket is created and (if successful) assigned to this pointer,
-    // and then the thread will switch to using this socket at the next opportunity.
-    ScopedPointer<Responder> nextResponder;
-    CriticalSection nextResponderLock;
-
-    bool restart;
-    bool changeResponder;
-
-    uint16 urlport;   // 0 indicates not connected
+    std::atomic<bool> makeNewSocket;   // port change or restart needed (depending on requestedPort)
+    std::atomic<uint16> requestedPort; // never set by the thread; 0 means any free port
+    std::atomic<uint16> boundPort;     // only set by the thread; 0 means no connection
 
     std::queue<StringTS> networkMessagesQueue;
     CriticalSection queueLock;

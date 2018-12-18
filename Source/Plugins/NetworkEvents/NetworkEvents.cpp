@@ -41,17 +41,11 @@ CriticalSection NetworkEvents::sharedContextLock{};
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
-    , restart           (false)
-    , changeResponder   (false)
-    , urlport           (0)
+    , makeNewSocket     (true)
+    , requestedPort     (5556)
+    , boundPort         (0)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
-
-    if (!setNewListeningPort(5556))
-    {
-        // resort to choosing a port automatically
-        setNewListeningPort(0);
-    }
 
     startThread();
 
@@ -60,18 +54,10 @@ NetworkEvents::NetworkEvents()
 }
 
 
-bool NetworkEvents::setNewListeningPort(uint16 port)
+void NetworkEvents::setNewListeningPort(uint16 port)
 {
-    ScopedPointer<Responder> newResponder = Responder::makeResponder(port);
-    if (newResponder == nullptr)
-    {
-        return false;
-    }
-
-    ScopedLock nrLock(nextResponderLock);
-    nextResponder = newResponder;
-    changeResponder = true;
-    return true;
+    requestedPort = port;
+    makeNewSocket = true;
 }
 
 
@@ -85,25 +71,15 @@ NetworkEvents::~NetworkEvents()
 }
 
 
-String NetworkEvents::getPortString() const
+String NetworkEvents::getCurrPortString() const
 {
-#ifdef ZEROMQ
-    uint16 port = urlport;
-    if (port == 0)
-    {
-        return "<no cxn>";
-    }
-
-    return String(port);
-#else
-    return "<no zeromq>";
-#endif
+    return getPortString(boundPort);
 }
 
 
 void NetworkEvents::restartConnection()
 {
-    restart = true;
+    makeNewSocket = true;
 }
 
 
@@ -260,51 +236,58 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
 void NetworkEvents::run()
 {
 #ifdef ZEROMQ
-    ScopedPointer<Responder> responder;
-    char buffer[MAX_MESSAGE_LENGTH];
-    bool connected = false;
+    HeapBlock<char> buffer(MAX_MESSAGE_LENGTH);
+
+    // responder should always be valid (bound to a port) if it is non-null
+    ScopedPointer<Responder> responder(new Responder(0)); // use any available port as default
+    if (responder->isValid())
+    {
+        boundPort = responder->getBoundPort();
+    }
+    else
+    { 
+        responder = nullptr;
+        boundPort = 0;
+    }
+
+    // purposely don't call updatePortString - makeNewSocket will be true on startup,
+    // so wait to try the requested port (5556) before updating the editor.
 
     while (!threadShouldExit())
     {
-        // reopen connection if necessary
-        if (restart)
+        // change socket if necessary
+        while (makeNewSocket.exchange(false))
         {
-            restart = false; // the other thread only sets restart to true, so it's not a race condition
-            responder = nullptr; // destroy old one, which frees the port
-            responder = Responder::makeResponder(urlport);
-
-            if (responder != nullptr)
+            uint16 nextPort = requestedPort; // (maybe the newly entered port on the editor text box)
+            if (nextPort > 0 && nextPort == boundPort) // i.e. this is a restart
             {
-                connected = true;
-                updatePort(responder->getBoundPort());
+                responder = nullptr; // destroy old one, which frees the port
+                boundPort = 0;
             }
-        }
 
-        // switch to new responder if necessary
-        if (changeResponder)
-        {
-            const ScopedLock nrLock(nextResponderLock);
-            if (nextResponder != nullptr)
+            if (nextPort == 0)
             {
-                changeResponder = false; // this is also controlled by the nextResponderLock
-                responder = nextResponder;
-                connected = true;
-                updatePort(responder->getBoundPort());
+                CoreServices::sendStatusMessage("NetworkEvents: Selecting port automatically");
+            }
+
+            ScopedPointer<Responder> newResponder(new Responder(nextPort));
+            if (newResponder->isValid())
+            {
+                // replace the current socket with the newly created socket
+                responder = newResponder;
+                boundPort = responder->getBoundPort();
             }
             else
             {
-                jassertfalse; // huh? a new responder should be available
+                newResponder->reportErr("Failed to connect to port " + String(nextPort));
             }
+
+            updatePortString(boundPort);
         }
 
         // if we don't have a vaild (connected) socket, keep looping until we do
         if (responder == nullptr)
         {
-            if (connected)
-            {
-                connected = false;
-                updatePort(0);
-            }
             wait(100);
             continue;
         }
@@ -367,7 +350,9 @@ void NetworkEvents::setEnabledState (bool newState)
 void NetworkEvents::saveCustomParametersToXml (XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement ("NETWORKEVENTS");
-    mainNode->setAttribute ("port", urlport);
+    uint16 currBoundPort = boundPort;
+    // save the actual bound port if any, otherwise the last attempted port.
+    mainNode->setAttribute ("port", currBoundPort ? currBoundPort : requestedPort.load());
 }
 
 
@@ -411,14 +396,13 @@ StringPairArray NetworkEvents::parseNetworkMessage(StringRef msg)
 }
 
 
-void NetworkEvents::updatePort(uint16 port)
+void NetworkEvents::updatePortString(uint16 port)
 {
-    urlport = port;
     auto ed = static_cast<NetworkEventsEditor*>(getEditor());
     if (ed)
     {
         const MessageManagerLock mmLock;
-        ed->setPortText(getPortString());
+        ed->setPortText(getPortString(port));
     }
 }
 
@@ -426,6 +410,21 @@ void NetworkEvents::updatePort(uint16 port)
 String NetworkEvents::getEndpoint(uint16 port)
 {
     return "tcp://*:" + (port == 0 ? "*" : String(port));
+}
+
+
+String NetworkEvents::getPortString(uint16 port)
+{
+#ifdef ZEROMQ
+    if (port == 0)
+    {
+        return "<no cxn>";
+    }
+
+    return String(port);
+#else
+    return "<no zeromq>";
+#endif
 }
 
 
@@ -467,9 +466,10 @@ void* NetworkEvents::ZMQContext::createSocket()
 const int NetworkEvents::Responder::RECV_TIMEOUT_MS = 100;
 
 NetworkEvents::Responder::Responder(uint16 port)
-    : socket(nullptr)
-    , boundPort(0)
-    , lastErrno(0)
+    : socket    (nullptr)
+    , valid     (false)
+    , boundPort (0)
+    , lastErrno (0)
 {
     {
         ScopedLock lock(sharedContextLock);
@@ -510,7 +510,6 @@ NetworkEvents::Responder::Responder(uint16 port)
     // if requested port was 0, find out which port was actually used
     if (port == 0)
     {
-        CoreServices::sendStatusMessage("NetworkEvents: Selecting port automatically");
         const size_t BUF_LEN = 32;
         size_t len = BUF_LEN;
         char endpoint[BUF_LEN];
@@ -521,32 +520,13 @@ NetworkEvents::Responder::Responder(uint16 port)
         }
 
         port = String(endpoint).getTrailingIntValue();
-        jassert(port > 0);
     }
 
+    jassert(port > 0);
+    valid = true;
     boundPort = port;
 #endif
 }
-
-
-ScopedPointer<NetworkEvents::Responder> NetworkEvents::Responder::makeResponder(uint16 port)
-{
-    ScopedPointer<Responder> socketPtr = new Responder(port);
-    uint16 boundPort = socketPtr->getBoundPort();
-    if (boundPort == 0)
-    {
-        socketPtr->reportErr("Failed to connect to port " + String(port));
-        return nullptr;
-    }
-
-    if (port != 0 && boundPort != port)
-    {
-        jassertfalse; // huh?
-        return nullptr;
-    }
-    return socketPtr;
-}
-
 
 
 NetworkEvents::Responder::~Responder()
@@ -582,6 +562,12 @@ void NetworkEvents::Responder::reportErr(const String& message) const
     CoreServices::sendStatusMessage(msg);
 #endif
 };
+
+
+bool NetworkEvents::Responder::isValid() const
+{
+    return valid;
+}
 
 
 uint16 NetworkEvents::Responder::getBoundPort() const
