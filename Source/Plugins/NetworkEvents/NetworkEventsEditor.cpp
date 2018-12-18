@@ -42,72 +42,27 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
     restartConnection->addListener(this);
     addAndMakeVisible(restartConnection);
 
-	
-	/*
-	trialSimulation = new UtilityButton("Trial",Font("Default", 15, Font::plain));
-    trialSimulation->setBounds(20,25,80,18);
-    trialSimulation->addListener(this);
-    addAndMakeVisible(trialSimulation);
-
-	
-	startRecord = new UtilityButton("Start Record",Font("Default", 15, Font::plain));
-    startRecord->setBounds(20,55,100,18);
-    startRecord->addListener(this);
-    addAndMakeVisible(startRecord);
-	*/
-
-	labelPort = new Label("Port", String(p->urlport));
+	labelPort = new Label("Port", p->getCurrPortString());
     labelPort->setBounds(70,85,80,18);
     labelPort->setFont(Font("Default", 15, Font::plain));
     labelPort->setColour(Label::textColourId, Colours::white);
-
-
-
-//		NetworkEvents *processor  = (NetworkEvents*) getProcessor();
-
-	//if (processor->threadRunning)
-		labelPort->setColour(Label::backgroundColourId, Colours::grey);
-//	else
-//		labelPort->setColour(Label::backgroundColourId, Colours::red);
-
-
+    labelPort->setColour(Label::backgroundColourId, Colours::grey);
     labelPort->setEditable(true);
     labelPort->addListener(this);
     addAndMakeVisible(labelPort);
 
     setEnabledState(false);
-
 }
 
 
 
 void NetworkEventsEditor::buttonEvent(Button* button)
 {
-			//NetworkEvents *processor  = (NetworkEvents*) getProcessor();
 	if (button == restartConnection)
 	{
 		NetworkEvents *p= (NetworkEvents *)getProcessor();
-		p->setNewListeningPort(p->urlport);
+		p->restartConnection();
 	}
-			/*
-	if (button == trialSimulation)
-	{
-		processor->simulateSingleTrial();
-
-	} else if (button == startRecord)
-	{
-		if (startRecord->getLabel() == "Start Record") 
-		{
-			processor->simulateStartRecord();
-			startRecord->setLabel("Stop Record");
-		} else if (startRecord->getLabel() == "Stop Record") 
-		{
-			processor->simulateStopRecord();
-			startRecord->setLabel("Start Record");
-		}
-	}
-    */
-
 }
 
 void NetworkEventsEditor::setLabelColor(juce::Colour color)
@@ -116,14 +71,27 @@ void NetworkEventsEditor::setLabelColor(juce::Colour color)
 }
 
 
+void NetworkEventsEditor::setPortText(const String& text)
+{
+    labelPort->setText(text, dontSendNotification);
+}
+
+
 void NetworkEventsEditor::labelTextChanged(juce::Label *label)
 {
-	if (label == labelPort)
-	{
-	   Value val = label->getTextValue();
+    if (label == labelPort)
+    {
+        NetworkEvents *p = (NetworkEvents *)getProcessor();
+        
+        uint16 port;
+        if (!portFromString(label->getText(), &port))
+        {
+            CoreServices::sendStatusMessage("NetworkEvents: Invalid port");
+            setPortText(p->getCurrPortString());
+            return;
+        }
 
-		NetworkEvents *p= (NetworkEvents *)getProcessor();
-		p->setNewListeningPort(val.getValue());
+        p->setNewListeningPort(port);
 	}
 }
 
@@ -134,3 +102,24 @@ NetworkEventsEditor::~NetworkEventsEditor()
 }
 
 
+bool NetworkEventsEditor::portFromString(const String& portString, uint16* port)
+{
+    if (portString.trim() == "*") // wildcard, special case
+    {
+        *port = 0;
+        return true;
+    }
+
+    if (portString.indexOfAnyOf("0123456789") == -1)
+    {
+        return false;
+    }
+
+    int32 portInput = portString.getIntValue();
+    if (portInput <= 0 || portInput > (1 << 16) - 1)
+    {
+        return false;
+    }
+    *port = static_cast<uint16>(portInput);
+    return true;
+}
