@@ -59,19 +59,20 @@ private:
         ~ZMQSocket();
 
         bool isValid() const;
+        int getBoundPort() const;
 
         int send(const void* buf, size_t len, int flags);
         int bind(int port);
-        int unbind(int port);
+        int unbind();
     private:
+        int boundPort;
         void* socket;
         ReferenceCountedObjectPtr<ZMQContext> context;
     };
 
 	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
+
     static String getEndpoint(int port);
-    // called from getListeningPort() depending on success/failure of ZMQ operations
-    void reportActualListeningPort(int port);
 
     // share a "dumb" pointer that doesn't take part in reference counting.
     // want the context to be terminated by the time the static members are
@@ -80,7 +81,6 @@ private:
     static CriticalSection sharedContextLock;
     
     ScopedPointer<ZMQSocket> zmqSocket;
-    int listeningPort;
 };
 
 
