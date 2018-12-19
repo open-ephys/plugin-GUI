@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-const int AudioProcessorGraph::midiChannelIndex = 0x1000;
+const int AudioProcessorGraph::midiChannelIndex = 0x8000;
 
 //==============================================================================
 template <typename FloatType, typename Impl> struct FloatDoubleUtil {};
@@ -767,7 +767,9 @@ private:
             }
             else
             {
-                for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
+				//Open ephys modification
+				unsigned int numInputChannels = node->getProcessor()->getTotalNumInputChannels();
+                for (int i = 0; i < numInputChannels; ++i)
                     if (i != inputChannelOfIndexToIgnore
                          && graph.getConnectionBetween (nodeId, outputChanIndex,
                                                         node->nodeId, i) != nullptr)

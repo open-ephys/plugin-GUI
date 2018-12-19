@@ -375,6 +375,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
         } // end while source != 0
     } // end "tabs" for loop
 	
+	getAudioNode()->updatePlaybackBuffer();
 	//Update RecordNode internal channel mappings
 	Array<EventChannel*> extraChannels;
 	getMessageCenter()->addSpecialProcessorChannels(extraChannels);

@@ -189,6 +189,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
         return 0;
 #endif
     }
+    return -1;
 }
 
 

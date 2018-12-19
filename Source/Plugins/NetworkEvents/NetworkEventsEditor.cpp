@@ -42,7 +42,7 @@ NetworkEventsEditor::NetworkEventsEditor(GenericProcessor* parentNode, bool useD
     restartConnection->addListener(this);
     addAndMakeVisible(restartConnection);
 
-	labelPort = new Label("Port", p->getPortString());
+	labelPort = new Label("Port", p->getCurrPortString());
     labelPort->setBounds(70,85,80,18);
     labelPort->setFont(Font("Default", 15, Font::plain));
     labelPort->setColour(Label::textColourId, Colours::white);
@@ -82,21 +82,16 @@ void NetworkEventsEditor::labelTextChanged(juce::Label *label)
     if (label == labelPort)
     {
         NetworkEvents *p = (NetworkEvents *)getProcessor();
-        bool success = true;
         
         uint16 port;
         if (!portFromString(label->getText(), &port))
         {
             CoreServices::sendStatusMessage("NetworkEvents: Invalid port");
-            success = false;
+            setPortText(p->getCurrPortString());
+            return;
         }
 
-        success = success && p->setNewListeningPort(port);
-        if (!success)
-        {
-            // revert to reflect current port
-            setPortText(p->getPortString());
-        }
+        p->setNewListeningPort(port);
 	}
 }
 
