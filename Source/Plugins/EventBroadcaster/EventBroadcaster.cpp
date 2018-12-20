@@ -41,8 +41,8 @@ void* EventBroadcaster::ZMQContext::createZMQSocket()
 #endif
 }
 
-EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
-    : std::unique_ptr<void, decltype(&closeZMQSocket)>(nullptr, &closeZMQSocket)
+EventBroadcaster::ZMQSocket::ZMQSocket()
+    : socket(nullptr)
 {
     ScopedLock lock(sharedContextLock);
     if (sharedContext == nullptr)
@@ -57,46 +57,52 @@ EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
     }
 
 #ifdef ZEROMQ
-    reset(context->createZMQSocket());
+    socket = context->createZMQSocket();
 #endif
 }
 
-EventBroadcaster::ZMQSocketPtr::~ZMQSocketPtr()
-{
-    // close the socket before the context might get destroyed.
-    reset(nullptr);
-}
-
-int EventBroadcaster::unbindZMQSocket()
-{
-#ifdef ZEROMQ
-    void* socket = zmqSocket.get();
-    if (socket != nullptr && listeningPort != 0)
-    {
-        return zmq_unbind(socket, getEndpoint(listeningPort).toRawUTF8());
-    }
-#endif
-    return 0;
-}
-
-int EventBroadcaster::rebindZMQSocket()
-{
-#ifdef ZEROMQ
-    void* socket = zmqSocket.get();
-    if (socket != nullptr && listeningPort != 0)
-    {
-        return zmq_bind(socket, getEndpoint(listeningPort).toRawUTF8());
-    }
-#endif
-    return 0;
-}
-
-void EventBroadcaster::closeZMQSocket(void* socket)
+EventBroadcaster::ZMQSocket::~ZMQSocket()
 {
 #ifdef ZEROMQ
     zmq_close(socket);
 #endif
 }
+
+bool EventBroadcaster::ZMQSocket::isValid() const
+{
+    return socket != nullptr;
+}
+
+int EventBroadcaster::ZMQSocket::send(const void* buf, size_t len, int flags)
+{
+#ifdef ZEROMQ
+    return zmq_send(socket, buf, len, flags);
+#endif
+    return 0;
+}
+
+int EventBroadcaster::ZMQSocket::bind(int port)
+{
+#ifdef ZEROMQ
+    if (isValid() && port != 0)
+    {
+        return zmq_bind(socket, getEndpoint(port).toRawUTF8());
+    }
+#endif
+    return 0;
+}
+
+int EventBroadcaster::ZMQSocket::unbind(int port)
+{
+#ifdef ZEROMQ
+    if (isValid() && port != 0)
+    {
+        return zmq_unbind(socket, getEndpoint(port).toRawUTF8());
+    }
+#endif
+    return 0;
+}
+
 
 String EventBroadcaster::getEndpoint(int port)
 {
@@ -147,34 +153,38 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
     {
 #ifdef ZEROMQ
         // unbind current socket (if any) to free up port
-        unbindZMQSocket();
-        ZMQSocketPtr newSocket;
+        if (zmqSocket != nullptr)
+        {
+            zmqSocket->unbind(listeningPort);
+        }
+
+        ScopedPointer<ZMQSocket> newSocket = new ZMQSocket();
         auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
         int status = 0;
 
-        if (!newSocket.get())
+        if (!newSocket->isValid())
         {
             status = zmq_errno();
             std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
         }
         else
         {
-            if (0 != zmq_bind(newSocket.get(), getEndpoint(port).toRawUTF8()))
+            if (0 != newSocket->bind(port))
             {
                 status = zmq_errno();
-                std::cout << "Failed to open socket: " << zmq_strerror(status) << std::endl;
+                std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
             }
             else
             {
                 // success
-                zmqSocket.swap(newSocket);
+                zmqSocket = newSocket;
                 reportActualListeningPort(port);
                 return status;
             }
         }
 
         // failure, try to rebind current socket to previous port
-        if (0 == rebindZMQSocket())
+        if (zmqSocket != nullptr && 0 == zmqSocket->bind(listeningPort))
         {
             reportActualListeningPort(listeningPort);
         }
@@ -183,7 +193,6 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
             reportActualListeningPort(0);
         }
         return status;
-
 #else
         reportActualListeningPort(port);
         return 0;
@@ -202,13 +211,17 @@ void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer)
 //IMPORTANT: The structure of the event buffers has changed drastically, so we need to find a better way of doing this
 void EventBroadcaster::sendEvent(const MidiMessage& event, float eventSampleRate) const
 {
+#ifdef ZEROMQ
 	double timestampSeconds = double(Event::getTimestamp(event)) / eventSampleRate;
 	uint16 type = Event::getBaseType(event);
 
-#ifdef ZEROMQ
-	if (-1 == zmq_send(zmqSocket.get(), &type, sizeof(type), ZMQ_SNDMORE) ||
-		-1 == zmq_send(zmqSocket.get(), &timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
-		-1 == zmq_send(zmqSocket.get(), event.getRawData(), event.getRawDataSize(), 0))
+    if (!zmqSocket)
+    {
+        std::cout << "Failed to send message: no socket" << std::endl;
+    }
+	else if (-1 == zmqSocket->send(&type, sizeof(type), ZMQ_SNDMORE) ||
+		     -1 == zmqSocket->send(&timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
+		     -1 == zmqSocket->send(event.getRawData(), event.getRawDataSize(), 0))
 	{
 		std::cout << "Failed to send message: " << zmq_strerror(zmq_errno()) << std::endl;
 	}
