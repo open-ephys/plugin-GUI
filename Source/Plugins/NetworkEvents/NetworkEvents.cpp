@@ -99,7 +99,6 @@ void NetworkEvents::createEventChannels()
     TTLchan->setName("Network Events output");
     TTLchan->setDescription("Triggers whenever \"TTL\" is received on the port.");
     TTLchan->setIdentifier("external.network.ttl");
-    // Possibly add meta data (reason for ttl event?)
     eventChannelArray.add(TTLchan);
     TTLChannel = TTLchan;
 }
@@ -225,9 +224,9 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     }
     else if (cmd.compareIgnoreCase ("TTL") == 0)
     {
-        // Default to channel 0 and off (if no info sent)
-        int channel = 0;
-        bool onOff = false;
+        // Default to channel 0 and off (if no optional info sent)
+        int channel = 1;
+        bool onOff = 0;
         /** Set optional parameters (name/value pairs)*/
         String params = s.substring(cmd.length()).trim();
         StringPairArray dict = parseNetworkMessage(params);
@@ -241,7 +240,7 @@ String NetworkEvents::handleSpecialMessages(const String& s)
             if (key.compareIgnoreCase("Channel") == 0)
             {
                 // Make sure in range
-                if (value <= 8 && value >= 0)
+                if (value <= 8 && value >= 1)
                 {
                     channel = value;
                 }
@@ -265,13 +264,13 @@ String NetworkEvents::handleSpecialMessages(const String& s)
         
         
         
-        return "TTL Handled";
+        return "TTL Handled: Channel=" + String(channel) + " on=" + String(onOff);
     }
 
     return String ("NotHandled");
 }
 
-void NetworkEvents::triggerEvent(StringTTL TTLmsg, juce::int64 timestamp)
+void NetworkEvents::triggerTTLEvent(StringTTL TTLmsg, juce::int64 timestamp)
 {
     juce::uint8 ttlData = TTLmsg.onOff << TTLmsg.eventChannel;
     TTLEventPtr event = TTLEvent::createTTLEvent(TTLChannel, timestamp, &ttlData, sizeof(juce::uint8), TTLmsg.eventChannel);
@@ -299,7 +298,7 @@ void NetworkEvents::process (AudioSampleBuffer& buffer)
         while (!TTLQueue.empty())
         {
             const StringTTL& TTLmsg = TTLQueue.front();
-            triggerEvent(TTLmsg, timestamp);
+            triggerTTLEvent(TTLmsg, timestamp);
             TTLQueue.pop();
         }
     }
