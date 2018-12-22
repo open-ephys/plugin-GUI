@@ -90,15 +90,12 @@ private:
         int64 timestamp;
     };
 
-    class ZMQContext : public ReferenceCountedObject
+    class ZMQContext
     {
     public:
-        ZMQContext(const ScopedLock& lock);
-        ~ZMQContext() override;
+        ZMQContext();
+        ~ZMQContext();
         void* createSocket();
-
-        typedef ReferenceCountedObjectPtr<ZMQContext> Ptr;
-
     private:
         void* context;
 
@@ -134,7 +131,7 @@ private:
         int send(StringRef response);
 
     private:
-        ZMQContext::Ptr context;
+        SharedResourcePointer<ZMQContext> context;
         void* socket;
         bool valid;
         uint16 boundPort;
@@ -160,12 +157,6 @@ private:
 
     // get a representation of the given port for use on the editor
     static String getPortString(uint16 port);
-
-    // share a "dumb" pointer that doesn't take part in reference counting.
-    // want the context to be terminated by the time the static members are
-    // destroyed (see: https://github.com/zeromq/libzmq/issues/1708)
-    static ZMQContext* sharedContext;
-    static CriticalSection sharedContextLock;
 
     std::atomic<bool> makeNewSocket;   // port change or restart needed (depending on requestedPort)
     std::atomic<uint16> requestedPort; // never set by the thread; 0 means any free port
