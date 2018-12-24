@@ -16,6 +16,9 @@
     <Filter Include="Source Files\RecordEngine">
       <UniqueIdentifier>{1b16254b-e802-4d23-bd3f-1796871b55e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\FileSource">
+      <UniqueIdentifier>{9ccccbc4-5f08-4b60-a6fd-0a727df0bbb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\OpenEphysLib.cpp">
@@ -30,6 +33,9 @@
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\SequentialBlockFile.cpp">
       <Filter>Source Files\RecordEngine</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.cpp">
+      <Filter>Source Files\FileSource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\BinaryRecording.h">
@@ -43,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\SequentialBlockFile.h">
       <Filter>Source Files\RecordEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.h">
+      <Filter>Source Files\FileSource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

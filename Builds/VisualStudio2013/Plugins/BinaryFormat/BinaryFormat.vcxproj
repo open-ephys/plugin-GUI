@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\OpenEphysLib.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\BinaryRecording.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\NpyFile.cpp" />
     <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\SequentialBlockFile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\BinaryRecording.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\FileMemoryBlock.h" />
     <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\NpyFile.h" />
