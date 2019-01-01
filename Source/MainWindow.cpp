@@ -39,7 +39,7 @@ static inline File getSavedStateDirectory() {
 #endif
 }
 
-	MainWindow::MainWindow()
+	MainWindow::MainWindow(const File& fileToLoad)
 : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
 		Colour(Colours::black),
 		DocumentWindow::allButtons)
@@ -83,7 +83,11 @@ static inline File getSavedStateDirectory() {
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(500, 500, 10000, 10000);
 
-	if (shouldReloadOnStartup)
+    if (!fileToLoad.getFullPathName().isEmpty())
+    {
+        ui->getEditorViewport()->loadState(fileToLoad);
+    }
+	else if (shouldReloadOnStartup)
 	{
 		File file = getSavedStateDirectory().getChildFile("lastConfig.xml");
 		ui->getEditorViewport()->loadState(file);
