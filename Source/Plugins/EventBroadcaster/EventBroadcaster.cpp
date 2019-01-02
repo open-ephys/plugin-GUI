@@ -164,50 +164,47 @@ int EventBroadcaster::getListeningPort() const
 
 int EventBroadcaster::setListeningPort(int port, bool forceRestart)
 {
-    int currPort = getListeningPort();
-    if (currPort == port && !forceRestart)
-    {
-        return 0;
-    }
-
     int status = 0;
-
+    int currPort = getListeningPort();
+    if ((currPort != port) || forceRestart)
+    {
 #ifdef ZEROMQ
-    // unbind current socket (if any) to free up port
-    if (zmqSocket != nullptr)
-    {
-        zmqSocket->unbind();
-    }
+        // unbind current socket (if any) to free up port
+        if (zmqSocket != nullptr)
+        {
+            zmqSocket->unbind();
+        }
 
-    ScopedPointer<ZMQSocket> newSocket = new ZMQSocket();
+        ScopedPointer<ZMQSocket> newSocket = new ZMQSocket();
 
-    if (!newSocket->isValid())
-    {
-        status = zmq_errno();
-        std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
-    }
-    else
-    {
-        if (0 != newSocket->bind(port))
+        if (!newSocket->isValid())
         {
             status = zmq_errno();
-            std::cout << "Failed to bind to port " << port << ": "
-                << zmq_strerror(status) << std::endl;
+            std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
         }
         else
         {
-            // success
-            zmqSocket = newSocket;
+            if (0 != newSocket->bind(port))
+            {
+                status = zmq_errno();
+                std::cout << "Failed to bind to port " << port << ": "
+                    << zmq_strerror(status) << std::endl;
+            }
+            else
+            {
+                // success
+                zmqSocket = newSocket;
+            }
         }
-    }
 
-    if (status != 0 && zmqSocket)
-    {
-        // try to rebind current socket to previous port
-        zmqSocket->bind(currPort);
-    }
+        if (status != 0 && zmqSocket)
+        {
+            // try to rebind current socket to previous port
+            zmqSocket->bind(currPort);
+        }
 
 #endif
+    }
 
     // update editor
     auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
