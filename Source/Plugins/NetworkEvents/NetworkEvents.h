@@ -48,6 +48,7 @@
 */
 class NetworkEvents : public GenericProcessor
                     , public Thread
+                    , private AsyncUpdater
 {
 public:
     NetworkEvents();
@@ -76,7 +77,7 @@ public:
     void run() override;
 
     // passing 0 corresponds to wildcard ("*") and picks any available port
-    void setNewListeningPort (uint16 port);
+    void setNewListeningPort (uint16 port, bool synchronous = true);
 
     // gets a string for the editor's port input to reflect current urlport
     String getCurrPortString() const;
@@ -144,6 +145,8 @@ private:
         
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Responder);
     };
+
+    void handleAsyncUpdate() override; // to change port asynchronously
 
     void postTimestamppedStringToMidiBuffer(const StringTS& s);
     

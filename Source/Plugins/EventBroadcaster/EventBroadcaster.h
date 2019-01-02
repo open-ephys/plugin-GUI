@@ -31,7 +31,7 @@ public:
 
     int getListeningPort() const;
     // returns 0 on success, else the errno value for the error that occurred.
-    int setListeningPort(int port, bool forceRestart = false);
+    int setListeningPort(int port, bool forceRestart = false, bool searchForPort = false, bool synchronous = true);
 
     void process (AudioSampleBuffer& continuousBuffer) override;
     void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
@@ -81,6 +81,14 @@ private:
     static CriticalSection sharedContextLock;
     
     ScopedPointer<ZMQSocket> zmqSocket;
+
+    struct 
+    {
+        int port;
+        bool forceRestart;
+        bool searchForPort;
+        Atomic<int> called{ 0 };
+    } asyncOptions;
 };
 
 

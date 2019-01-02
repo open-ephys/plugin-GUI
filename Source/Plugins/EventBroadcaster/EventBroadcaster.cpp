@@ -139,12 +139,8 @@ EventBroadcaster::EventBroadcaster()
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
-    int portToTry = 5557;
-    while (setListeningPort(portToTry) == EADDRINUSE)
-    {
-        // try the next port, looking for one not in use
-        portToTry++;
-    }
+    // set port to 5557; search for an available one if necessary; and do it asynchronously.
+    setListeningPort(5557, false, true, false);
 }
 
 
@@ -162,8 +158,26 @@ int EventBroadcaster::getListeningPort() const
 }
 
 
-int EventBroadcaster::setListeningPort(int port, bool forceRestart)
+int EventBroadcaster::setListeningPort(int port, bool forceRestart, bool searchForPort, bool synchronous)
 {
+    if (!synchronous)
+    {
+        asyncOptions.port = port;
+        asyncOptions.forceRestart = forceRestart;
+        asyncOptions.searchForPort = searchForPort;
+        
+        if (asyncOptions.called.exchange(1) == 0)
+        {
+            MessageManager::callAsync([this]
+            {
+                asyncOptions.called = 0;
+                setListeningPort(asyncOptions.port, asyncOptions.forceRestart, asyncOptions.searchForPort, true);
+            });
+        }
+
+        return 0;
+    }
+
     int status = 0;
     int currPort = getListeningPort();
     if ((currPort != port) || forceRestart)
@@ -184,9 +198,24 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
         }
         else
         {
-            if (0 != newSocket->bind(port))
+            if (searchForPort) // look for an unused port
+            {
+                while (0 != newSocket->bind(port) && zmq_errno() == EADDRINUSE)
+                {
+                    ++port;
+                }
+                if (newSocket->getBoundPort() != port)
+                {
+                    status = zmq_errno();
+                }
+            }
+            else if (0 != newSocket->bind(port))
             {
                 status = zmq_errno();
+            }
+
+            if (status != 0)
+            {
                 std::cout << "Failed to bind to port " << port << ": "
                     << zmq_strerror(status) << std::endl;
             }
@@ -267,7 +296,8 @@ void EventBroadcaster::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName("EVENTBROADCASTER"))
             {
-                setListeningPort(mainNode->getIntAttribute("port", getListeningPort()));
+                // overrides an existing async call to setListeningPort, if any.
+                setListeningPort(mainNode->getIntAttribute("port", getListeningPort()), false, false, false);
             }
         }
     }
