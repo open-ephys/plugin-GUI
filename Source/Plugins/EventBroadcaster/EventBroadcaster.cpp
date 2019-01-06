@@ -11,23 +11,16 @@
 #include "EventBroadcaster.h"
 #include "EventBroadcasterEditor.h"
 
-EventBroadcaster::ZMQContext* EventBroadcaster::sharedContext = nullptr;
-CriticalSection EventBroadcaster::sharedContextLock{};
-
-EventBroadcaster::ZMQContext::ZMQContext(const ScopedLock& lock)
+EventBroadcaster::ZMQContext::ZMQContext()
 #ifdef ZEROMQ
     : context(zmq_ctx_new())
 #endif
-{
-    sharedContext = this;
-}
+{}
 
 // ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
 // socket pointer, so this only happens when the last instance is destroyed.
 EventBroadcaster::ZMQContext::~ZMQContext()
 {
-    ScopedLock lock(sharedContextLock);
-    sharedContext = nullptr;
 #ifdef ZEROMQ
     zmq_ctx_destroy(context);
 #endif
@@ -44,18 +37,6 @@ void* EventBroadcaster::ZMQContext::createZMQSocket()
 EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
     : std::unique_ptr<void, decltype(&closeZMQSocket)>(nullptr, &closeZMQSocket)
 {
-    ScopedLock lock(sharedContextLock);
-    if (sharedContext == nullptr)
-    {
-        // first one, create the context
-        context = new ZMQContext(lock);
-    }
-    else
-    {
-        // use already-created context
-        context = sharedContext;
-    }
-
 #ifdef ZEROMQ
     reset(context->createZMQSocket());
 #endif

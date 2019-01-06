@@ -44,11 +44,11 @@ public:
 
 
 private:
-    class ZMQContext : public ReferenceCountedObject
+    class ZMQContext
     {
     public:
-        ZMQContext(const ScopedLock& lock);
-        ~ZMQContext() override;
+        ZMQContext();
+        ~ZMQContext();
         void* createZMQSocket();
     private:
         void* context;
@@ -62,7 +62,7 @@ private:
         ZMQSocketPtr();
         ~ZMQSocketPtr();
     private:
-        ReferenceCountedObjectPtr<ZMQContext> context;
+        SharedResourcePointer<ZMQContext> context;
     };
     
     int unbindZMQSocket();
@@ -73,11 +73,6 @@ private:
     // called from getListeningPort() depending on success/failure of ZMQ operations
     void reportActualListeningPort(int port);
 
-    // share a "dumb" pointer that doesn't take part in reference counting.
-    // want the context to be terminated by the time the static members are
-    // destroyed (see: https://github.com/zeromq/libzmq/issues/1708)
-    static ZMQContext* sharedContext;
-    static CriticalSection sharedContextLock;
     ZMQSocketPtr zmqSocket;
     int listeningPort;
 };
