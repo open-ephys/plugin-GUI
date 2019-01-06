@@ -35,9 +35,6 @@ const int MAX_MESSAGE_LENGTH = 64000;
     #include <unistd.h>
 #endif
 
-NetworkEvents::ZMQContext* NetworkEvents::sharedContext = nullptr;
-CriticalSection NetworkEvents::sharedContextLock{};
-
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
@@ -79,6 +76,7 @@ String NetworkEvents::getCurrPortString() const
 
 void NetworkEvents::restartConnection()
 {
+    requestedPort = boundPort.load();
     makeNewSocket = true;
 }
 
@@ -430,21 +428,15 @@ String NetworkEvents::getPortString(uint16 port)
 
 /*** ZMQContext ***/
 
-NetworkEvents::ZMQContext::ZMQContext(const ScopedLock& lock)
+NetworkEvents::ZMQContext::ZMQContext()
 #ifdef ZEROMQ
     : context(zmq_ctx_new())
 #endif
-{
-    // sharedContextLock should already be held here
-    sharedContext = this;
-}
+{}
 
-// ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
-// socket pointer, so this only happens when the last instance is destroyed.
+// only happens when the last SharedResourcePointer is destroyed.
 NetworkEvents::ZMQContext::~ZMQContext()
 {
-    ScopedLock lock(sharedContextLock);
-    sharedContext = nullptr;
 #ifdef ZEROMQ
     zmq_ctx_destroy(context);
 #endif
@@ -471,20 +463,6 @@ NetworkEvents::Responder::Responder(uint16 port)
     , boundPort (0)
     , lastErrno (0)
 {
-    {
-        ScopedLock lock(sharedContextLock);
-        if (sharedContext == nullptr)
-        {
-            // first one, create the context
-            context = new ZMQContext(lock);
-        }
-        else
-        {
-            // use already-created context
-            context = sharedContext;
-        }
-    }
-
 #ifdef ZEROMQ
     socket = context->createSocket();
     if (!socket)
