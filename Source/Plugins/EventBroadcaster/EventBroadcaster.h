@@ -22,8 +22,6 @@
     #endif
 #endif
 
-#include <memory>
-
 class EventBroadcaster : public GenericProcessor
 {
 public:
@@ -33,7 +31,7 @@ public:
 
     int getListeningPort() const;
     // returns 0 on success, else the errno value for the error that occurred.
-    int setListeningPort (int port, bool forceRestart = false);
+    int setListeningPort(int port, bool forceRestart = false);
 
     void process (AudioSampleBuffer& continuousBuffer) override;
     void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int samplePosition = 0) override;
@@ -54,27 +52,32 @@ private:
         void* context;
     };
 
-    static void closeZMQSocket(void* socket);
-
-    class ZMQSocketPtr : public std::unique_ptr<void, decltype(&closeZMQSocket)>
+    class ZMQSocket
     {
     public:
-        ZMQSocketPtr();
-        ~ZMQSocketPtr();
+        ZMQSocket();
+        ~ZMQSocket();
+
+        bool isValid() const;
+        int getBoundPort() const;
+
+        int send(const void* buf, size_t len, int flags);
+        int bind(int port);
+        int unbind();
     private:
+        int boundPort;
+        void* socket;
+
+        // see here for why the context can't just be static:
+        // https://github.com/zeromq/libzmq/issues/1708
         SharedResourcePointer<ZMQContext> context;
     };
-    
-    int unbindZMQSocket();
-    int rebindZMQSocket();
 
 	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
-    static String getEndpoint(int port);
-    // called from getListeningPort() depending on success/failure of ZMQ operations
-    void reportActualListeningPort(int port);
 
-    ZMQSocketPtr zmqSocket;
-    int listeningPort;
+    static String getEndpoint(int port);
+    
+    ScopedPointer<ZMQSocket> zmqSocket;
 };
 
 
