@@ -61,12 +61,15 @@ public:
 
         StringArray parameters;
         parameters.addTokens(commandLine," ","\"");
+        parameters.removeEmptyStrings();
 
 #ifdef WIN32
         //glWinInit();
 
-        if (parameters.contains("--console",true))
+        int consoleArg = parameters.indexOf("--console", true);
+        if (consoleArg != -1)
         {
+            parameters.remove(consoleArg);
             if (AllocConsole())
             {
                 freopen("CONOUT$","w",stdout);
@@ -81,14 +84,20 @@ public:
 
 #endif
 
-
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
 
-        mainWindow = new MainWindow();
 
-
-
+        // signal chain to load
+        if (!parameters.isEmpty())
+        {
+            File fileToLoad(File::getCurrentWorkingDirectory().getChildFile(parameters[0]));
+            mainWindow = new MainWindow(fileToLoad);
+        }
+        else
+        {
+            mainWindow = new MainWindow();
+        }
     }
 
     void shutdown() { }

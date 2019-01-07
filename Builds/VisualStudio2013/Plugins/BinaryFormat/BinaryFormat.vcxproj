@@ -18,9 +18,24 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\OpenEphysLib.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\BinaryRecording.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\NpyFile.cpp" />
+    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\SequentialBlockFile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\FileSource\BinaryFileSource.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\BinaryRecording.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\FileMemoryBlock.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\NpyFile.h" />
+    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryFormat\RecordEngine\SequentialBlockFile.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9DB31964-F7E8-49B0-92E9-BAB2C35AF4B5}</ProjectGuid>
     <RootNamespace>BinaryWriter</RootNamespace>
+    <ProjectName>BinaryFormat</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -114,18 +129,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\BinaryRecording.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\FileMemoryBlock.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.h" />
-    <ClInclude Include="..\..\..\..\Source\Plugins\BinaryWriter\SequentialBlockFile.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\BinaryRecording.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\NpyFile.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\OpenEphysLib.cpp" />
-    <ClCompile Include="..\..\..\..\Source\Plugins\BinaryWriter\SequentialBlockFile.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

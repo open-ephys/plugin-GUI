@@ -11,23 +11,18 @@
 #include "EventBroadcaster.h"
 #include "EventBroadcasterEditor.h"
 
-EventBroadcaster::ZMQContext* EventBroadcaster::sharedContext = nullptr;
-CriticalSection EventBroadcaster::sharedContextLock{};
-
-EventBroadcaster::ZMQContext::ZMQContext(const ScopedLock& lock)
+EventBroadcaster::ZMQContext::ZMQContext()
 #ifdef ZEROMQ
     : context(zmq_ctx_new())
+#else
+    : context(nullptr)
 #endif
-{
-    sharedContext = this;
-}
+{}
 
 // ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
 // socket pointer, so this only happens when the last instance is destroyed.
 EventBroadcaster::ZMQContext::~ZMQContext()
 {
-    ScopedLock lock(sharedContextLock);
-    sharedContext = nullptr;
 #ifdef ZEROMQ
     zmq_ctx_destroy(context);
 #endif
@@ -38,84 +33,91 @@ void* EventBroadcaster::ZMQContext::createZMQSocket()
 #ifdef ZEROMQ
     jassert(context != nullptr);
     return zmq_socket(context, ZMQ_PUB);
+#else
+    return nullptr;
 #endif
 }
 
-EventBroadcaster::ZMQSocketPtr::ZMQSocketPtr()
-    : std::unique_ptr<void, decltype(&closeZMQSocket)>(nullptr, &closeZMQSocket)
+EventBroadcaster::ZMQSocket::ZMQSocket()
+    : socket    (nullptr)
+    , boundPort (0)
 {
-    ScopedLock lock(sharedContextLock);
-    if (sharedContext == nullptr)
-    {
-        // first one, create the context
-        context = new ZMQContext(lock);
-    }
-    else
-    {
-        // use already-created context
-        context = sharedContext;
-    }
-
 #ifdef ZEROMQ
-    reset(context->createZMQSocket());
+    socket = context->createZMQSocket();
 #endif
 }
 
-EventBroadcaster::ZMQSocketPtr::~ZMQSocketPtr()
-{
-    // close the socket before the context might get destroyed.
-    reset(nullptr);
-}
-
-int EventBroadcaster::unbindZMQSocket()
+EventBroadcaster::ZMQSocket::~ZMQSocket()
 {
 #ifdef ZEROMQ
-    void* socket = zmqSocket.get();
-    if (socket != nullptr && listeningPort != 0)
-    {
-        return zmq_unbind(socket, getEndpoint(listeningPort).toRawUTF8());
-    }
-#endif
-    return 0;
-}
-
-int EventBroadcaster::rebindZMQSocket()
-{
-#ifdef ZEROMQ
-    void* socket = zmqSocket.get();
-    if (socket != nullptr && listeningPort != 0)
-    {
-        return zmq_bind(socket, getEndpoint(listeningPort).toRawUTF8());
-    }
-#endif
-    return 0;
-}
-
-void EventBroadcaster::closeZMQSocket(void* socket)
-{
-#ifdef ZEROMQ
+    unbind(); // do this explicitly to free the port immediately
     zmq_close(socket);
 #endif
 }
+
+bool EventBroadcaster::ZMQSocket::isValid() const
+{
+    return socket != nullptr;
+}
+
+int EventBroadcaster::ZMQSocket::getBoundPort() const
+{
+    return boundPort;
+}
+
+int EventBroadcaster::ZMQSocket::send(const void* buf, size_t len, int flags)
+{
+#ifdef ZEROMQ
+    return zmq_send(socket, buf, len, flags);
+#endif
+    return 0;
+}
+
+int EventBroadcaster::ZMQSocket::bind(int port)
+{
+#ifdef ZEROMQ
+    if (isValid() && port != 0)
+    {
+        int status = unbind();
+        if (status == 0)
+        {
+            status = zmq_bind(socket, getEndpoint(port).toRawUTF8());
+            if (status == 0)
+            {
+                boundPort = port;
+            }
+        }
+        return status;
+    }
+#endif
+    return 0;
+}
+
+int EventBroadcaster::ZMQSocket::unbind()
+{
+#ifdef ZEROMQ
+    if (isValid() && boundPort != 0)
+    {
+        int status = zmq_unbind(socket, getEndpoint(boundPort).toRawUTF8());
+        if (status == 0)
+        {
+            boundPort = 0;
+        }
+        return status;
+    }
+#endif
+    return 0;
+}
+
 
 String EventBroadcaster::getEndpoint(int port)
 {
     return String("tcp://*:") + String(port);
 }
 
-void EventBroadcaster::reportActualListeningPort(int port)
-{
-    listeningPort = port;
-    auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
-    if (editor)
-    {
-        editor->setDisplayedPort(port);
-    }
-}
 
 EventBroadcaster::EventBroadcaster()
     : GenericProcessor  ("Event Broadcaster")
-    , listeningPort     (0)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
@@ -137,59 +139,65 @@ AudioProcessorEditor* EventBroadcaster::createEditor()
 
 int EventBroadcaster::getListeningPort() const
 {
-    return listeningPort;
+    if (zmqSocket == nullptr)
+    {
+        return 0;
+    }
+    return zmqSocket->getBoundPort();
 }
 
 
 int EventBroadcaster::setListeningPort(int port, bool forceRestart)
 {
-    if ((listeningPort != port) || forceRestart)
+    int status = 0;
+    int currPort = getListeningPort();
+    if ((currPort != port) || forceRestart)
     {
 #ifdef ZEROMQ
         // unbind current socket (if any) to free up port
-        unbindZMQSocket();
-        ZMQSocketPtr newSocket;
-        auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
-        int status = 0;
+        if (zmqSocket != nullptr)
+        {
+            zmqSocket->unbind();
+        }
 
-        if (!newSocket.get())
+        ScopedPointer<ZMQSocket> newSocket = new ZMQSocket();
+
+        if (!newSocket->isValid())
         {
             status = zmq_errno();
             std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
         }
         else
         {
-            if (0 != zmq_bind(newSocket.get(), getEndpoint(port).toRawUTF8()))
+            if (0 != newSocket->bind(port))
             {
                 status = zmq_errno();
-                std::cout << "Failed to open socket: " << zmq_strerror(status) << std::endl;
+                std::cout << "Failed to bind to port " << port << ": "
+                    << zmq_strerror(status) << std::endl;
             }
             else
             {
                 // success
-                zmqSocket.swap(newSocket);
-                reportActualListeningPort(port);
-                return status;
+                zmqSocket = newSocket;
             }
         }
 
-        // failure, try to rebind current socket to previous port
-        if (0 == rebindZMQSocket())
+        if (status != 0 && zmqSocket != nullptr)
         {
-            reportActualListeningPort(listeningPort);
+            // try to rebind current socket to previous port
+            zmqSocket->bind(currPort);
         }
-        else
-        {
-            reportActualListeningPort(0);
-        }
-        return status;
 
-#else
-        reportActualListeningPort(port);
-        return 0;
 #endif
     }
-    return -1;
+
+    // update editor
+    auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
+    if (editor != nullptr)
+    {
+        editor->setDisplayedPort(getListeningPort());
+    }
+    return status;
 }
 
 
@@ -202,13 +210,17 @@ void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer)
 //IMPORTANT: The structure of the event buffers has changed drastically, so we need to find a better way of doing this
 void EventBroadcaster::sendEvent(const MidiMessage& event, float eventSampleRate) const
 {
+#ifdef ZEROMQ
 	double timestampSeconds = double(Event::getTimestamp(event)) / eventSampleRate;
 	uint16 type = Event::getBaseType(event);
 
-#ifdef ZEROMQ
-	if (-1 == zmq_send(zmqSocket.get(), &type, sizeof(type), ZMQ_SNDMORE) ||
-		-1 == zmq_send(zmqSocket.get(), &timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
-		-1 == zmq_send(zmqSocket.get(), event.getRawData(), event.getRawDataSize(), 0))
+    if (zmqSocket == nullptr)
+    {
+        std::cout << "Failed to send message: no socket" << std::endl;
+    }
+	else if (-1 == zmqSocket->send(&type, sizeof(type), ZMQ_SNDMORE) ||
+		     -1 == zmqSocket->send(&timestampSeconds, sizeof(timestampSeconds), ZMQ_SNDMORE) ||
+		     -1 == zmqSocket->send(event.getRawData(), event.getRawDataSize(), 0))
 	{
 		std::cout << "Failed to send message: " << zmq_strerror(zmq_errno()) << std::endl;
 	}
@@ -228,7 +240,7 @@ void EventBroadcaster::handleSpike(const SpikeChannel* channelInfo, const MidiMe
 void EventBroadcaster::saveCustomParametersToXml(XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement("EVENTBROADCASTER");
-    mainNode->setAttribute("port", listeningPort);
+    mainNode->setAttribute("port", getListeningPort());
 }
 
 
@@ -240,7 +252,7 @@ void EventBroadcaster::loadCustomParametersFromXml()
         {
             if (mainNode->hasTagName("EVENTBROADCASTER"))
             {
-                setListeningPort(mainNode->getIntAttribute("port"));
+                setListeningPort(mainNode->getIntAttribute("port", getListeningPort()));
             }
         }
     }

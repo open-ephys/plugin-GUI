@@ -35,9 +35,6 @@ const int MAX_MESSAGE_LENGTH = 64000;
     #include <unistd.h>
 #endif
 
-NetworkEvents::ZMQContext* NetworkEvents::sharedContext = nullptr;
-CriticalSection NetworkEvents::sharedContextLock{};
-
 NetworkEvents::NetworkEvents()
     : GenericProcessor  ("Network Events")
     , Thread            ("NetworkThread")
@@ -79,6 +76,7 @@ String NetworkEvents::getCurrPortString() const
 
 void NetworkEvents::restartConnection()
 {
+    requestedPort = boundPort.load();
     makeNewSocket = true;
 }
 
@@ -225,7 +223,7 @@ String NetworkEvents::handleSpecialMessages(const String& s)
     else if (cmd.compareIgnoreCase ("TTL") == 0)
     {
         // Default to channel 0 and off (if no optional info sent)
-        int channel = 1;
+        int channel = 0;
         bool onOff = 0;
         /** Set optional parameters (name/value pairs)*/
         String params = s.substring(cmd.length()).trim();
@@ -242,11 +240,11 @@ String NetworkEvents::handleSpecialMessages(const String& s)
                 // Make sure in range
                 if (value <= 8 && value >= 1)
                 {
-                    channel = value;
+                    channel = value - 1;
                 }
                 else
                 {
-                    jassertfalse;
+                    return "InvalidChannel";
                 }
             }
             else if (key.compareIgnoreCase("on") == 0)
@@ -264,7 +262,7 @@ String NetworkEvents::handleSpecialMessages(const String& s)
         
         
         
-        return "TTL Handled: Channel=" + String(channel) + " on=" + String(onOff);
+        return "TTLHandled: Channel=" + String(channel + 1) + " on=" + String(onOff);
     }
 
     return String ("NotHandled");
@@ -280,8 +278,8 @@ void NetworkEvents::triggerTTLEvent(StringTTL TTLmsg, juce::int64 timestamp)
 
 void NetworkEvents::process (AudioSampleBuffer& buffer)
 {
-    setTimestampAndSamples(CoreServices::getGlobalTimestamp(),0);
     juce::int64 timestamp = CoreServices::getGlobalTimestamp();
+    setTimestampAndSamples(timestamp,0);
 
     {
         ScopedLock lock(queueLock);
@@ -502,21 +500,15 @@ String NetworkEvents::getPortString(uint16 port)
 
 /*** ZMQContext ***/
 
-NetworkEvents::ZMQContext::ZMQContext(const ScopedLock& lock)
+NetworkEvents::ZMQContext::ZMQContext()
 #ifdef ZEROMQ
     : context(zmq_ctx_new())
 #endif
-{
-    // sharedContextLock should already be held here
-    sharedContext = this;
-}
+{}
 
-// ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
-// socket pointer, so this only happens when the last instance is destroyed.
+// only happens when the last SharedResourcePointer is destroyed.
 NetworkEvents::ZMQContext::~ZMQContext()
 {
-    ScopedLock lock(sharedContextLock);
-    sharedContext = nullptr;
 #ifdef ZEROMQ
     zmq_ctx_destroy(context);
 #endif
@@ -543,20 +535,6 @@ NetworkEvents::Responder::Responder(uint16 port)
     , boundPort (0)
     , lastErrno (0)
 {
-    {
-        ScopedLock lock(sharedContextLock);
-        if (sharedContext == nullptr)
-        {
-            // first one, create the context
-            context = new ZMQContext(lock);
-        }
-        else
-        {
-            // use already-created context
-            context = sharedContext;
-        }
-    }
-
 #ifdef ZEROMQ
     socket = context->createSocket();
     if (!socket)

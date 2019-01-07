@@ -22,7 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <PluginInfo.h>
-#include "BinaryRecording.h"
+#include "RecordEngine/BinaryRecording.h"
+#include "FileSource/BinaryFileSource.h"
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
@@ -33,13 +34,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 using namespace Plugin;
-#define NUM_PLUGINS 1
+#define NUM_PLUGINS 2
 
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
     info->apiVersion = PLUGIN_API_VER;
-    info->name = "Binary recording";
-    info->libVersion = 1;
+    info->name = "Binary format";
+    info->libVersion = 2;
     info->numPlugins = NUM_PLUGINS;
 }
 
@@ -52,6 +53,12 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
         info->recordEngine.name = "Binary";
         info->recordEngine.creator = &(Plugin::createRecordEngine<BinaryRecordingEngine::BinaryRecording>);
         break;
+	case 1:
+		info->type = Plugin::PLUGIN_TYPE_FILE_SOURCE;
+		info->fileSource.name = "Binary";
+		info->fileSource.extensions = "oebin";
+		info->fileSource.creator = &(Plugin::createFileSource<BinarySource::BinaryFileSource>);
+		break;
     default:
         return -1;
     }
