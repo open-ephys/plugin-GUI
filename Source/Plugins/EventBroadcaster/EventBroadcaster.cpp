@@ -11,25 +11,18 @@
 #include "EventBroadcaster.h"
 #include "EventBroadcasterEditor.h"
 
-EventBroadcaster::ZMQContext* EventBroadcaster::sharedContext = nullptr;
-CriticalSection EventBroadcaster::sharedContextLock{};
-
-EventBroadcaster::ZMQContext::ZMQContext(const ScopedLock& lock)
+EventBroadcaster::ZMQContext::ZMQContext()
 #ifdef ZEROMQ
     : context(zmq_ctx_new())
 #else
     : context(nullptr)
 #endif
-{
-    sharedContext = this;
-}
+{}
 
 // ZMQContext is a ReferenceCountedObject with a pointer in each instance's 
 // socket pointer, so this only happens when the last instance is destroyed.
 EventBroadcaster::ZMQContext::~ZMQContext()
 {
-    ScopedLock lock(sharedContextLock);
-    sharedContext = nullptr;
 #ifdef ZEROMQ
     zmq_ctx_destroy(context);
 #endif
@@ -49,18 +42,6 @@ EventBroadcaster::ZMQSocket::ZMQSocket()
     : socket    (nullptr)
     , boundPort (0)
 {
-    ScopedLock lock(sharedContextLock);
-    if (sharedContext == nullptr)
-    {
-        // first one, create the context
-        context = new ZMQContext(lock);
-    }
-    else
-    {
-        // use already-created context
-        context = sharedContext;
-    }
-
 #ifdef ZEROMQ
     socket = context->createZMQSocket();
 #endif
@@ -122,6 +103,7 @@ int EventBroadcaster::ZMQSocket::unbind()
         {
             boundPort = 0;
         }
+        return status;
     }
 #endif
     return 0;
@@ -153,7 +135,10 @@ AudioProcessorEditor* EventBroadcaster::createEditor()
 
 int EventBroadcaster::getListeningPort() const
 {
-    if (zmqSocket == nullptr) { return 0; }
+    if (zmqSocket == nullptr)
+    {
+        return 0;
+    }
     return zmqSocket->getBoundPort();
 }
 
@@ -226,7 +211,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart, bool searchF
             }
         }
 
-        if (status != 0 && zmqSocket)
+        if (status != 0 && zmqSocket != nullptr)
         {
             // try to rebind current socket to previous port
             zmqSocket->bind(currPort);
@@ -237,7 +222,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart, bool searchF
 
     // update editor
     auto editor = static_cast<EventBroadcasterEditor*>(getEditor());
-    if (editor)
+    if (editor != nullptr)
     {
         editor->setDisplayedPort(getListeningPort());
     }
@@ -258,7 +243,7 @@ void EventBroadcaster::sendEvent(const MidiMessage& event, float eventSampleRate
 	double timestampSeconds = double(Event::getTimestamp(event)) / eventSampleRate;
 	uint16 type = Event::getBaseType(event);
 
-    if (!zmqSocket)
+    if (zmqSocket == nullptr)
     {
         std::cout << "Failed to send message: no socket" << std::endl;
     }
