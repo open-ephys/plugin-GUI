@@ -23,6 +23,7 @@
 #endif
 
 class EventBroadcaster : public GenericProcessor
+                       , private AsyncUpdater
 {
 public:
     EventBroadcaster();
@@ -73,19 +74,18 @@ private:
         SharedResourcePointer<ZMQContext> context;
     };
 
+    void handleAsyncUpdate() override; // to change port asynchronously
+
 	void sendEvent(const MidiMessage& event, float eventSampleRate) const;
 
     static String getEndpoint(int port);
     
     ScopedPointer<ZMQSocket> zmqSocket;
 
-    struct 
-    {
-        int port;
-        bool forceRestart;
-        bool searchForPort;
-        Atomic<int> called{ 0 };
-    } asyncOptions;
+    // for setting port asynchronously
+    int asyncPort;
+    bool asyncForceRestart;
+    bool asyncSearchForPort;
 };
 
 

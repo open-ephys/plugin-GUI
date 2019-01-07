@@ -147,19 +147,13 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart, bool searchF
 {
     if (!synchronous)
     {
-        asyncOptions.port = port;
-        asyncOptions.forceRestart = forceRestart;
-        asyncOptions.searchForPort = searchForPort;
+        const MessageManagerLock mmLock; // since the callback happens in the message thread
         
-        if (asyncOptions.called.exchange(1) == 0)
-        {
-            MessageManager::callAsync([this]
-            {
-                asyncOptions.called = 0;
-                setListeningPort(asyncOptions.port, asyncOptions.forceRestart, asyncOptions.searchForPort, true);
-            });
-        }
-
+        asyncPort = port;
+        asyncForceRestart = forceRestart;
+        asyncSearchForPort = searchForPort;
+        
+        triggerAsyncUpdate();
         return 0;
     }
 
@@ -286,4 +280,13 @@ void EventBroadcaster::loadCustomParametersFromXml()
             }
         }
     }
+}
+
+
+void EventBroadcaster::handleAsyncUpdate()
+{
+    // should already be in the message thread, but just in case:
+    const MessageManagerLock mmlock;
+
+    setListeningPort(asyncPort, asyncForceRestart, asyncSearchForPort);
 }
