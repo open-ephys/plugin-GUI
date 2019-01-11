@@ -167,7 +167,7 @@ int EventBroadcaster::setListeningPort(int port, bool forceRestart)
         if (!newSocket->isValid())
         {
             status = zmq_errno();
-            std::cout << "Failed to open socket: " << zmq_strerror(status) << std::endl;
+            std::cout << "Failed to create socket: " << zmq_strerror(status) << std::endl;
         }
         else
         {
