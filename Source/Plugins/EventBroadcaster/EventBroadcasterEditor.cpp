@@ -18,24 +18,38 @@ EventBroadcasterEditor::EventBroadcasterEditor(GenericProcessor* parentNode, boo
 {
     desiredWidth = 180;
 
-    urlLabel = new Label("Port", "Port:");
-    urlLabel->setBounds(20,80,140,25);
-    addAndMakeVisible(urlLabel);
     EventBroadcaster* p = (EventBroadcaster*)getProcessor();
 
     restartConnection = new UtilityButton("Restart Connection",Font("Default", 15, Font::plain));
-    restartConnection->setBounds(20,45,150,18);
+    restartConnection->setBounds(10,35,150,18);
     restartConnection->addListener(this);
     addAndMakeVisible(restartConnection);
 
+    urlLabel = new Label("Port", "Port:");
+    urlLabel->setBounds(20, 60, 140, 25);
+    addAndMakeVisible(urlLabel);
+
     portLabel = new Label("Port", String(p->getListeningPort()));
-    portLabel->setBounds(70,85,80,18);
+    portLabel->setBounds(70,65,80,18);
     portLabel->setFont(Font("Default", 15, Font::plain));
     portLabel->setColour(Label::textColourId, Colours::white);
     portLabel->setColour(Label::backgroundColourId, Colours::grey);
     portLabel->setEditable(true);
     portLabel->addListener(this);
     addAndMakeVisible(portLabel);
+
+    formatLabel = new Label("Format", "Format:");
+    formatLabel->setBounds(5, 100, 60, 25);
+    addAndMakeVisible(formatLabel);
+
+    formatBox = new ComboBox("FormatBox");
+    formatBox->setBounds(65, 100, 100, 20);
+    formatBox->addItem("Raw binary", EventBroadcaster::Format::RAW_BINARY);
+    formatBox->addItem("Header only", EventBroadcaster::Format::HEADER_ONLY);
+    formatBox->addItem("Header/JSON", EventBroadcaster::Format::HEADER_AND_JSON);
+    formatBox->setSelectedId(p->getOutputFormat());
+    formatBox->addListener(this);
+    addAndMakeVisible(formatBox);
 
     setEnabledState(false);
 }
@@ -76,7 +90,24 @@ void EventBroadcasterEditor::labelTextChanged(juce::Label* label)
     }
 }
 
+
+void EventBroadcasterEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+    if (comboBoxThatHasChanged == formatBox)
+    {
+        auto p = static_cast<EventBroadcaster*>(getProcessor());
+        p->setOutputFormat(comboBoxThatHasChanged->getSelectedId());
+    }
+}
+
+
 void EventBroadcasterEditor::setDisplayedPort(int port)
 {
     portLabel->setText(String(port), dontSendNotification);
+}
+
+
+void EventBroadcasterEditor::setDisplayedFormat(int format)
+{
+    formatBox->setSelectedId(format, dontSendNotification);
 }
