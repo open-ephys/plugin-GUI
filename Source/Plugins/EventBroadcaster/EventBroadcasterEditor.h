@@ -22,20 +22,27 @@
 
  */
 
-class EventBroadcasterEditor : public GenericEditor, public Label::Listener
+class EventBroadcasterEditor 
+    : public GenericEditor
+    , public Label::Listener
+    , public ComboBox::Listener
 {
 public:
     EventBroadcasterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
 
     void buttonEvent(Button* button) override;
     void labelTextChanged(juce::Label* label) override;
+    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
     void setDisplayedPort(int port);
+    void setDisplayedFormat(int id);
 
 private:
     ScopedPointer<UtilityButton> restartConnection;
     ScopedPointer<Label> urlLabel;
     ScopedPointer<Label> portLabel;
+    ScopedPointer<Label> formatLabel;
+    ScopedPointer<ComboBox> formatBox;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventBroadcasterEditor);
 
