@@ -91,6 +91,12 @@ private:
         int64 timestamp;
     };
 
+    struct StringTTL
+    {
+        bool onOff;
+        int eventChannel;
+    };
+
     class ZMQContext
     {
     public:
@@ -145,7 +151,7 @@ private:
 
     void handleAsyncUpdate() override; // to change port asynchronously
 
-    void postTimestamppedStringToMidiBuffer(const StringTS& s);
+    void postTimestamppedStringToMidiBuffer(const StringTS& s, juce::int64 timestamp);
     
     String handleSpecialMessages(const String& s);
 
@@ -167,8 +173,14 @@ private:
 
     std::queue<StringTS> networkMessagesQueue;
     CriticalSection queueLock;
+
+    std::queue<StringTTL> TTLQueue;
+    CriticalSection TTLqueueLock;
     
 	const EventChannel* messageChannel{ nullptr };
+    const EventChannel* TTLChannel{ nullptr };
+
+    void triggerTTLEvent(StringTTL TTLmsg, juce::int64 timestamp);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NetworkEvents);
 };
