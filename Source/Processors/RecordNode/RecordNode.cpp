@@ -42,7 +42,9 @@ RecordNode::RecordNode()
     isRecording = false;
 	setFirstBlock = false;
 
+    settings.numInputs = 0;
     settings.numOutputs = 0;
+    settings.originalSource = nullptr;
 
     recordingNumber = -1;
 
