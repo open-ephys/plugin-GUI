@@ -42,8 +42,9 @@ RecordNode::RecordNode()
     isRecording = false;
 	setFirstBlock = false;
 
-    settings.numInputs = 8;
+    settings.numInputs = 0;
     settings.numOutputs = 0;
+    settings.originalSource = nullptr;
 
     recordingNumber = -1;
 
@@ -53,8 +54,6 @@ RecordNode::RecordNode()
     hasRecorded = false;
     settingsNeeded = false;
 
-    // 128 inputs, 0 outputs
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 	m_recordThread = new RecordThread(engineArray);
 	m_dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	m_eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
@@ -82,6 +81,7 @@ void RecordNode::resetConnections()
     nextAvailableChannel = 0;
     wasConnected = false;
     spikeElectrodeIndex = 0;
+    settings.numInputs = 0;
 
     dataChannelArray.clear();
     eventChannelArray.clear();
@@ -130,11 +130,10 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
     {
         int channelIndex = getNextChannel(false);
 
-		const DataChannel* orig = sourceNode->getDataChannel(chan);
-		DataChannel* newChannel = new DataChannel(*orig);
-		newChannel->setRecordState(orig->getRecordState());
+        const DataChannel* orig = sourceNode->getDataChannel(chan);
+        DataChannel* newChannel = new DataChannel(*orig);
+        newChannel->setRecordState(orig->getRecordState());
         dataChannelArray.add(newChannel);
-        setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
 
         EVERY_ENGINE->addDataChannel(channelIndex,dataChannelArray[channelIndex]);
@@ -510,6 +509,9 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 
 void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 {
+    settings.numInputs += sourceNode->getNumOutputs();
+    setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+
     EVERY_ENGINE->registerProcessor(sourceNode);
 }
 
