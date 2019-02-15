@@ -123,23 +123,6 @@ AudioComponent::~AudioComponent()
 
 }
 
-void AudioComponent::setBufferSize(int s)
-{
-    AudioDeviceManager::AudioDeviceSetup setup;
-    deviceManager.getAudioDeviceSetup(setup);
-
-    if (s > 16 && s < 6000)
-    {
-        setup.bufferSize = s;
-        deviceManager.setAudioDeviceSetup(setup, false);
-    }
-    else
-    {
-        std::cout << "Buffer size out of range." << std::endl;
-    }
-
-}
-
 int AudioComponent::getBufferSize()
 {
     AudioDeviceManager::AudioDeviceSetup setup;
@@ -280,3 +263,74 @@ void AudioComponent::endCallbacks()
 
 }
 
+void AudioComponent::saveStateToXml(XmlElement* parent)
+{
+    // JUCE's audioState XML format (includes all info)
+    ScopedPointer<XmlElement> audioState = deviceManager.createStateXml();
+
+    if (audioState != nullptr)
+    {
+        parent->addChildElement(audioState.release());
+    }
+
+    // Save type, buffer size, and sample rate as attributes separately
+    // in case part of the audioState is invalid later, like the specific device names.
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    parent->setAttribute("sampleRate", setup.sampleRate);
+    parent->setAttribute("bufferSize", setup.bufferSize);
+    parent->setAttribute("deviceType", deviceManager.getCurrentAudioDeviceType());
+}
+
+void AudioComponent::loadStateFromXml(XmlElement* parent)
+{
+    forEachXmlChildElement(*parent, child)
+    {
+        if (!child->isTextElement())
+        {
+            deviceManager.closeAudioDevice(); // necessary to ensure correct device type gets created
+
+            String error = deviceManager.initialise(
+                0,              // numInputChannelsNeeded
+                2,              // numOutputChannelsNeeded
+                child,          // savedState
+                true,           // selectDefaultDeviceOnFailure
+                String::empty,  // preferred device
+                nullptr);       // preferred device setup options
+
+            if (error.isEmpty())
+            {
+                break;
+            }
+        }
+    }
+
+    // Now the important parameters separately, as a backup (in case the devices have different names or something)
+    String deviceType = parent->getStringAttribute("deviceType", String::empty);
+    if (!deviceType.isEmpty())
+    {
+        deviceManager.setCurrentAudioDeviceType(deviceType, true);
+    }
+
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    double sampleRate = parent->getDoubleAttribute("sampleRate");
+    if (sampleRate > 0)
+    {
+        setup.sampleRate = sampleRate;
+    }
+
+    int bufferSize = parent->getIntAttribute("bufferSize");
+    if (bufferSize > 16 && bufferSize < 6000)
+    {
+        setup.bufferSize = bufferSize;
+    }
+    else
+    {
+        std::cout << "Buffer size out of range." << std::endl;
+    }
+
+    deviceManager.setAudioDeviceSetup(setup, true);
+}
