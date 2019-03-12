@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 46;
 	objects = {
 
 		B885991DB63A31B3C19909AB = {isa = PBXBuildFile; fileRef = 3FCB780144DB07872E4A9E7A; };
