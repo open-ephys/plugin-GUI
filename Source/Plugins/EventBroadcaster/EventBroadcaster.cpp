@@ -215,17 +215,6 @@ void EventBroadcaster::setOutputFormat(int format)
     outputFormat = format;
 }
 
-int EventBroadcaster::getOutputFormat() const
-{
-    return outputFormat;
-}
-
-
-void EventBroadcaster::setOutputFormat(int format)
-{
-    outputFormat = format;
-}
-
 
 void EventBroadcaster::process(AudioSampleBuffer& continuousBuffer)
 {
@@ -423,7 +412,6 @@ void EventBroadcaster::sendEvent(const InfoObjectCommon* channel, const MidiMess
 
     sendMessage(message);
 #endif
-    return 0;
 }
 
 int EventBroadcaster::sendMessage(const Array<MsgPart>& parts) const
