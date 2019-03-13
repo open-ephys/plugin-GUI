@@ -16,6 +16,7 @@ ifeq ($(CONFIG),Debug)
   LIBDIR := $(CURDIR)/build/intermediate/Debug
   OBJDIR := $(CURDIR)/build/intermediate/plugins/Debug
   OUTDIR := $(CURDIR)/build/plugins
+  SHAREDDIR := $(CURDIR)/build/shared
 
   ifeq ($(TARGET_ARCH),)
     TARGET_ARCH := -march=native
@@ -24,7 +25,7 @@ ifeq ($(CONFIG),Debug)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../JuceLibraryCode -I $(CURDIR)/../../JuceLibraryCode/modules -I $(CURDIR)/../../Source/Plugins/Headers
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O3 -std=c++11 -fPIC -rdynamic
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic -Wl,-rpath,'$$$$ORIGIN/..'
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L$(SHAREDDIR) -L/usr/X11R6/lib/ -L/usr/local/include -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic -Wl,-rpath,'$$$$ORIGIN/..'
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers
 
@@ -36,6 +37,7 @@ ifeq ($(CONFIG),Release)
   LIBDIR := $(CURDIR)/build/intermediate/Release
   OBJDIR := $(CURDIR)/build/intermediate/plugins/Release
   OUTDIR := $(CURDIR)/build/plugins
+  SHAREDDIR := $(CURDIR)/build/shared
 
   ifeq ($(TARGET_ARCH),)
     TARGET_ARCH := -march=native
@@ -44,7 +46,7 @@ ifeq ($(CONFIG),Release)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../JuceLibraryCode -I $(CURDIR)/../../JuceLibraryCode/modules -I $(CURDIR)/../../Source/Plugins/Headers
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -std=c++11 -fPIC -rdynamic
   CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic -Wl,-rpath,'$$$$ORIGIN/..'
+  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L$(SHAREDDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic -Wl,-rpath,'$$$$ORIGIN/../shared'
   LDDEPS1 :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers
 
@@ -71,7 +73,7 @@ PLUGINNAME=$(shell echo $@ | rev | cut -d'/' -f-1 | rev)
 
 # if there are a .jucer file in the plugin folder - try to find Makefile in the Source/ folder
 $(SUBDIRS): CXXFLAGS += -D "OEPLUGIN" -I $(CURDIR)/../../Source/Plugins/CommonLibs
-$(COMMONDIRS): OUTDIR := $(BINDIR)
+$(COMMONDIRS): OUTDIR := $(BINDIR)/shared
 $(COMMONDIRS): LIB_PREFIX := lib
 $(SUBDIRS) $(COMMONDIRS):
 	@if [ -f $@/*.jucer ] && ([ -f $@/Source/Makefile ]); then \
