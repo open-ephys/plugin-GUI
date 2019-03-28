@@ -38,9 +38,6 @@
          location = "group:CommonLibs"
          name = "CommonLibs">
          <FileRef
-            location = "group:DspLib/DspLib.xcodeproj">
-         </FileRef>
-         <FileRef
             location = "group:OpenEphysHDF5/OpenEphysHDF5.xcodeproj">
          </FileRef>
       </Group>
