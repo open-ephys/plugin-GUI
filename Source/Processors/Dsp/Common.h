@@ -62,5 +62,7 @@ namespace tr1 = std::tr1;
 namespace tr1 = std;
 #endif
 
+// for PLUGIN_API
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #endif

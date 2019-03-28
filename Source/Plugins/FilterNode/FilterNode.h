@@ -24,7 +24,7 @@
 #define __FILTERNODE_H_CED428E__
 
 #include <ProcessorHeaders.h>
-#include <DspLib/Dsp.h>
+#include <DspLib.h>
 
 
 /**
