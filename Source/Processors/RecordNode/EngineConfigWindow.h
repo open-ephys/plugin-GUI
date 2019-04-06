@@ -26,6 +26,8 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "RecordEngine.h"
+#include "RecordNode.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
 
 class EngineParameterComponent : public Component,
     public Label::Listener, public SettableTooltipClient
@@ -47,17 +49,21 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineParameterComponent);
 };
 
-class EngineConfigComponent : public Component
+class EngineConfigComponent : public Component, public Button::Listener
 {
 public:
     EngineConfigComponent(RecordEngineManager* man, int height);
     ~EngineConfigComponent();
+	void buttonClicked(Button*);
     void paint(Graphics& g) override;
     void saveParameters();
 
 private:
     OwnedArray<EngineParameterComponent> parameters;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EngineConfigComponent);
+	
+	ScopedPointer<ToggleButton> recordThreadToggleButton;
+	ScopedPointer<Label> recordThreadToggleLabel;
 };
 
 class EngineConfigWindow : public DocumentWindow

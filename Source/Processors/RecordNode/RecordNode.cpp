@@ -40,6 +40,7 @@ RecordNode::RecordNode()
 
     isProcessing = false;
     isRecording = false;
+	shouldRecord = true;
 	setFirstBlock = false;
 
     settings.numInputs = 0;
@@ -248,41 +249,42 @@ int RecordNode::getRecordingNumber() const
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
-    //editor->updateParameterButtons(parameterIndex);
+	//editor->updateParameterButtons(parameterIndex);
 
-    // 0 = stop recording
-    // 1 = start recording
-    // 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+	// 0 = stop recording
+	// 1 = start recording
+	// 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+	// 3 = toggle record thread ON/OFF (use carefully!)
 
-    if (parameterIndex == 1)
-    {
+	if (parameterIndex == 1)
+	{
 
-		
+
 		// std::cout << "START RECORDING." << std::endl;
 
-        if (newDirectoryNeeded)
-        {
-            createNewDirectory();
-            recordingNumber = 0;
-            experimentNumber = 1;
-            settingsNeeded = true;
-            EVERY_ENGINE->directoryChanged();
-        }
-        else
-        {
-            recordingNumber++; // increment recording number within this directory
-        }
+		if (newDirectoryNeeded)
+		{
+			createNewDirectory();
+			recordingNumber = 0;
+			experimentNumber = 1;
+			settingsNeeded = true;
+			EVERY_ENGINE->directoryChanged();
+		}
+		else
+		{
+			recordingNumber++; // increment recording number within this directory
+		}
 
-        if (!rootFolder.exists())
-        {
-            rootFolder.createDirectory();
-        }
-        if (settingsNeeded)
-        {
-            String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-            AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
-            settingsNeeded = false;
-        }
+		if (!rootFolder.exists())
+		{
+			rootFolder.createDirectory();
+		}
+		if (settingsNeeded)
+		{
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
+			settingsNeeded = false;
+		}
 
 		m_recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
@@ -311,7 +313,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 					procIndex++;
 					chanProcOrder = 0;
 				}
-				procInfo.getLast()->recordedChannels.add(channelMap.size()-1);
+				procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 				chanProcessorMap.add(procIndex);
 				chanOrderinProc.add(chanProcOrder);
 				chanProcOrder++;
@@ -337,18 +339,18 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		isRecording = true;
 		hasRecorded = true;
 
-    }
-    else if (parameterIndex == 0)
-    {
+	}
+	else if (parameterIndex == 0)
+	{
 
 
-        std::cout << "STOP RECORDING." << std::endl;
+		std::cout << "STOP RECORDING." << std::endl;
 
-        if (isRecording)
-        {
+		if (isRecording)
+		{
 			isRecording = false;
 
-            // close the writing thread.
+			// close the writing thread.
 			m_recordThread->signalThreadShouldExit();
 			m_recordThread->waitForThreadToExit(2000);
 			while (m_recordThread->isThreadRunning())
@@ -368,35 +370,63 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 				}
 			}
 
-        }
-    }
-    else if (parameterIndex == 2)
-    {
+		}
+	}
+	else if (parameterIndex == 2)
+	{
 
-        if (isProcessing)
-        {
+		if (isProcessing)
+		{
 
-            std::cout << "Toggling channel " << currentChannel << std::endl;
+			std::cout << "Toggling channel " << currentChannel << std::endl;
 
-            if (isRecording)
-            {
-                //Toggling channels while recording isn't allowed. Code shouldn't reach here.
-                //In case it does, display an error and exit.
-                CoreServices::sendStatusMessage("Toggling record channels while recording is not allowed");
-                std::cout << "ERROR: Wrong code section reached\n Toggling record channels while recording is not allowed." << std::endl;
-                return;
-            }
+			if (isRecording)
+			{
+				//Toggling channels while recording isn't allowed. Code shouldn't reach here.
+				//In case it does, display an error and exit.
+				CoreServices::sendStatusMessage("Toggling record channels while recording is not allowed");
+				std::cout << "ERROR: Wrong code section reached\n Toggling record channels while recording is not allowed." << std::endl;
+				return;
+			}
 
-            if (newValue == 0.0f)
-            {
-                dataChannelArray[currentChannel]->setRecordState(false);
-            }
-            else
-            {
-                dataChannelArray[currentChannel]->setRecordState(true);
-            }
-        }
-    }
+			if (newValue == 0.0f)
+			{
+				dataChannelArray[currentChannel]->setRecordState(false);
+			}
+			else
+			{
+				dataChannelArray[currentChannel]->setRecordState(true);
+			}
+		}
+	}
+	else if (parameterIndex == 3)
+	{
+
+		if (isRecording)
+		{
+			//Toggling thread status while recording isn't allowed.
+			//In case it does, display an error and exit.
+			CoreServices::sendStatusMessage("Changing record thread status while recording is not allowed");
+			return;
+		}
+
+		if (newValue == 0.0f)
+		{
+			CoreServices::sendStatusMessage("Turning record thread off.");
+			shouldRecord = false;
+			
+		}
+		else
+		{
+			CoreServices::sendStatusMessage("Turning record thread on.");
+			shouldRecord = true;
+		}
+	}
+}
+
+bool RecordNode::getRecordThreadStatus()
+{
+	return shouldRecord;
 }
 
 bool RecordNode::enable()
@@ -463,7 +493,7 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents();
 
-    if (isRecording)
+    if (isRecording && shouldRecord)
     {
         // SECOND: write channel data
 		int recordChans = channelMap.size();
