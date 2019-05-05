@@ -51,7 +51,7 @@ namespace Dsp
  */
 
 // Factored implementation to reduce template instantiations
-class Cascade
+class PLUGIN_API Cascade
 {
 public:
     template <class StateType>

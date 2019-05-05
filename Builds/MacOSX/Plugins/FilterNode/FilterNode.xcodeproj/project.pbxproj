@@ -7,14 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		277C42AE202CC33D00A9FFD6 /* libDspLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */; };
 		E1F558C31C9B20070035F88B /* FilterEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558AC1C9B20070035F88B /* FilterEditor.cpp */; };
 		E1F558C41C9B20070035F88B /* FilterNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558AE1C9B20070035F88B /* FilterNode.cpp */; };
 		E1F558C61C9B20070035F88B /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1F558B11C9B20070035F88B /* OpenEphysLib.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = libDspLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558751C9B1F920035F88B /* FilterNode.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilterNode.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F558781C9B1F920035F88B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1F558801C9B1FDC0035F88B /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Plugin_Debug.xcconfig; sourceTree = "<group>"; };
@@ -31,28 +29,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				277C42AE202CC33D00A9FFD6 /* libDspLib.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		277C42AD202CC33D00A9FFD6 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				277C42AF202CC33D00A9FFD6 /* libDspLib.dylib */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		E1F5586C1C9B1F920035F88B = {
 			isa = PBXGroup;
 			children = (
 				E1F5587E1C9B1FDC0035F88B /* Config */,
 				E1F558771C9B1F920035F88B /* FilterNode */,
 				E1F558761C9B1F920035F88B /* Products */,
-				277C42AD202CC33D00A9FFD6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -189,7 +177,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = FilterNode/Info.plist;
-				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.FilterNode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -199,7 +186,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = FilterNode/Info.plist;
-				LIBRARY_SEARCH_PATHS = "$(CONFIGURATION_BUILD_DIR)/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.open-ephys.gui.plugin.FilterNode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

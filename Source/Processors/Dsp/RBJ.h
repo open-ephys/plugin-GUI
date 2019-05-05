@@ -58,21 +58,21 @@ namespace RBJ
 // Raw filters
 //
 
-struct LowPass : BiquadBase
+struct PLUGIN_API LowPass : BiquadBase
 {
     void setup(double sampleRate,
                double cutoffFrequency,
                double q);
 };
 
-struct HighPass : BiquadBase
+struct PLUGIN_API HighPass : BiquadBase
 {
     void setup(double sampleRate,
                double cutoffFrequency,
                double q);
 };
 
-struct BandPass1 : BiquadBase
+struct PLUGIN_API BandPass1 : BiquadBase
 {
     // (constant skirt gain, peak gain = Q)
     void setup(double sampleRate,
@@ -80,7 +80,7 @@ struct BandPass1 : BiquadBase
                double bandWidth);
 };
 
-struct BandPass2 : BiquadBase
+struct PLUGIN_API BandPass2 : BiquadBase
 {
     // (constant 0 dB peak gain)
     void setup(double sampleRate,
@@ -88,14 +88,14 @@ struct BandPass2 : BiquadBase
                double bandWidth);
 };
 
-struct BandStop : BiquadBase
+struct PLUGIN_API BandStop : BiquadBase
 {
     void setup(double sampleRate,
                double centerFrequency,
                double bandWidth);
 };
 
-struct LowShelf : BiquadBase
+struct PLUGIN_API LowShelf : BiquadBase
 {
     void setup(double sampleRate,
                double cutoffFrequency,
@@ -103,7 +103,7 @@ struct LowShelf : BiquadBase
                double shelfSlope);
 };
 
-struct HighShelf : BiquadBase
+struct PLUGIN_API HighShelf : BiquadBase
 {
     void setup(double sampleRate,
                double cutoffFrequency,
@@ -111,7 +111,7 @@ struct HighShelf : BiquadBase
                double shelfSlope);
 };
 
-struct BandShelf : BiquadBase
+struct PLUGIN_API BandShelf : BiquadBase
 {
     void setup(double sampleRate,
                double centerFrequency,
@@ -119,7 +119,7 @@ struct BandShelf : BiquadBase
                double bandWidth);
 };
 
-struct AllPass : BiquadBase
+struct PLUGIN_API AllPass : BiquadBase
 {
     void setup(double sampleRate,
                double phaseFrequency,
