@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FilterNode", "FilterNode\FilterNode.vcxproj", "{7B23828E-559F-4AD2-B75D-D05786F6329C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkEvents", "NetworkEvents\NetworkEvents.vcxproj", "{D5D58DAC-582B-4F39-9385-E1814D56BCA0}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerialInput", "SerialInput\SerialInput.vcxproj", "{AC9EBFBF-1599-40CF-8159-3F3AA7DCFAE9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicSpikeDisplay", "BasicSpikeDisplay\BasicSpikeDisplay.vcxproj", "{9D050DCC-52DF-429E-ABF0-EF0B64A9DA5A}"
@@ -26,8 +24,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PulsePalOutput", "PulsePalOutput\PulsePalOutput.vcxproj", "{11C301E8-35E7-48AE-978F-4AC651CEFC67}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EcubeSource", "EcubeSource\EcubeSource.vcxproj", "{3A753B88-4374-4456-93D8-D0FDC9DCACF3}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EventBroadcaster", "EventBroadcaster\EventBroadcaster.vcxproj", "{2A290337-FC79-4987-8488-A71F29252DB0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpikeSorter", "SpikeSorter\SpikeSorter.vcxproj", "{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}"
 EndProject
@@ -69,18 +65,6 @@ Global
 		{7B23828E-559F-4AD2-B75D-D05786F6329C}.Release|Win32.Build.0 = Release|Win32
 		{7B23828E-559F-4AD2-B75D-D05786F6329C}.Release|x64.ActiveCfg = Release|x64
 		{7B23828E-559F-4AD2-B75D-D05786F6329C}.Release|x64.Build.0 = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|Mixed Platforms.ActiveCfg = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|Mixed Platforms.Build.0 = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|Win32.Build.0 = Debug|Win32
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|x64.ActiveCfg = Debug|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Debug|x64.Build.0 = Debug|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|Mixed Platforms.Build.0 = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|Win32.ActiveCfg = Release|Win32
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|Win32.Build.0 = Release|Win32
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|x64.ActiveCfg = Release|x64
-		{D5D58DAC-582B-4F39-9385-E1814D56BCA0}.Release|x64.Build.0 = Release|x64
 		{AC9EBFBF-1599-40CF-8159-3F3AA7DCFAE9}.Debug|Mixed Platforms.ActiveCfg = Release|x64
 		{AC9EBFBF-1599-40CF-8159-3F3AA7DCFAE9}.Debug|Mixed Platforms.Build.0 = Release|x64
 		{AC9EBFBF-1599-40CF-8159-3F3AA7DCFAE9}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -195,18 +179,6 @@ Global
 		{3A753B88-4374-4456-93D8-D0FDC9DCACF3}.Release|Mixed Platforms.ActiveCfg = Release|x64
 		{3A753B88-4374-4456-93D8-D0FDC9DCACF3}.Release|Win32.ActiveCfg = Release|Win32
 		{3A753B88-4374-4456-93D8-D0FDC9DCACF3}.Release|x64.ActiveCfg = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|Mixed Platforms.ActiveCfg = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|Mixed Platforms.Build.0 = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|Win32.Build.0 = Debug|Win32
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|x64.ActiveCfg = Debug|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Debug|x64.Build.0 = Debug|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|Mixed Platforms.Build.0 = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|Win32.ActiveCfg = Release|Win32
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|Win32.Build.0 = Release|Win32
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|x64.ActiveCfg = Release|x64
-		{2A290337-FC79-4987-8488-A71F29252DB0}.Release|x64.Build.0 = Release|x64
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Debug|Mixed Platforms.ActiveCfg = Release|x64
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Debug|Mixed Platforms.Build.0 = Release|x64
 		{D0AEE4AA-68A7-4598-89E4-3BF5A5EBCA2A}.Debug|Win32.ActiveCfg = Debug|Win32
