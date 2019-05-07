@@ -35,16 +35,10 @@
          location = "group:ChannelMappingNode/ChannelMappingNode.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:EventBroadcaster/EventBroadcaster.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:FilterNode/FilterNode.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:LfpDisplayNode/LfpDisplayNode.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:NetworkEvents/NetworkEvents.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:PhaseDetector/PhaseDetector.xcodeproj">
