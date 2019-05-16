@@ -400,7 +400,7 @@ uint64 EvntTrigAvg::binDataPoint(uint64 startBin, uint64 endBin, uint64 binSize,
         return binDataPoint(startBin+(binsToSearch),endBin,binSize,dataPoint);
     }
     else{
-        return NULL;
+        return (uint64) NULL;
     }
 }
 
@@ -442,7 +442,7 @@ float EvntTrigAvg::findMin(uint64* data_)
 {
     const ScopedLock myScopedLock(mut);
     //uint64 min = UINT64_MAX;
-    uint64 min = 18446744073709551614;
+    uint64 min = 18446744073709551614U;
     for (int i = 0 ; i < windowSize/binSize ; i++){
         if(data_[i]<min){
             min=data_[i];
