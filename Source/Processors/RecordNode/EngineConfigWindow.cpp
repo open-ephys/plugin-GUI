@@ -206,7 +206,7 @@ void EngineConfigComponent::buttonClicked(Button* b)
 			if (response == 1)
 				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 0.0);
 			else
-				b->setToggleState(true, false);
+				b->setToggleState(true, juce::NotificationType::dontSendNotification);
 
 
 		}

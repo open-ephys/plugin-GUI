@@ -174,7 +174,6 @@ class DrawableButton;
 #include "mouse/juce_DragAndDropContainer.h"
 #include "mouse/juce_FileDragAndDropTarget.h"
 #include "mouse/juce_SelectedItemSet.h"
-#include "mouse/juce_LassoComponent.h"
 #include "mouse/juce_MouseInactivityDetector.h"
 #include "mouse/juce_TextDragAndDropTarget.h"
 #include "mouse/juce_TooltipClient.h"
@@ -280,6 +279,7 @@ class DrawableButton;
 #include "lookandfeel/juce_LookAndFeel_V2.h"
 #include "lookandfeel/juce_LookAndFeel_V1.h"
 #include "lookandfeel/juce_LookAndFeel_V3.h"
+#include "mouse/juce_LassoComponent.h"
 
 }
 
