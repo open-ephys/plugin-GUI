@@ -80,7 +80,7 @@ public:
 private:
     
     HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
-    SortedSet<int> inputSubprocessorIndices;
+    SortedSet<uint32> inputSubprocessors;
     
     LfpDisplayNode* lfpProcessor;
 
@@ -91,11 +91,6 @@ private:
     ScopedPointer<Label> subprocessorSampleRateLabel;
     
     bool hasNoInputs;
-    
-    /** Communicates the drawable subprocessor information to the canvas, if
-     one exists
-     */
-    void setCanvasDrawableSubprocessor(int index);
 
 	int defaultSubprocessor;
 
