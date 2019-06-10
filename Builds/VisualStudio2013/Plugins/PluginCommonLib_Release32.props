@@ -19,7 +19,7 @@
       <AdditionalDependencies>open-ephys.lib;setupapi.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(GUIDir)\"</Command>
+      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(GUIDir)\shared"</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>

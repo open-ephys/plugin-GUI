@@ -57,14 +57,14 @@ namespace Custom
 // Raw filters
 //
 
-struct OnePole : Biquad
+struct PLUGIN_API OnePole : Biquad
 {
     void setup(double scale,
                double pole,
                double zero);
 };
 
-struct TwoPole : Biquad
+struct PLUGIN_API TwoPole : Biquad
 {
     void setup(double scale,
                double poleRho,

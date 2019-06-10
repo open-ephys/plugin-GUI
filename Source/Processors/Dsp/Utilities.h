@@ -305,7 +305,7 @@ void interleave(int channels,
                 const Ts* r = src[1];
 
                 // note that Duff's Device only works when samples>0
-                int n = ((int)samples + 7) / 8;
+                int n = ((int) samples + 7) / 8;
                 switch (samples % 8)
                 {
                     case 0:

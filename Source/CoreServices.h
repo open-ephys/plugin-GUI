@@ -109,6 +109,7 @@ PLUGIN_API int getExperimentNumber();
 PLUGIN_API void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan);
 PLUGIN_API void registerSpikeSource(GenericProcessor* processor);
 PLUGIN_API int addSpikeElectrode(const SpikeChannel* elec);
+
 };
 
 PLUGIN_API const char* getApplicationResource(const char* name, int& size);

@@ -141,6 +141,7 @@ void RecordControlEditor::updateSettings()
 	String name;
 	int oldId = availableChans->getSelectedId();
     availableChans->clear();
+	eventSourceArray.clear();
     GenericProcessor* processor = getProcessor();
 	availableChans->addItem("None", 1);
 	int nextItem = 2;

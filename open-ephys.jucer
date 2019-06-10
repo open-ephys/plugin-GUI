@@ -11,7 +11,7 @@
               companyName="Open Ephys" userNotes="The Open Ephys GUI was designed to provide a fast and flexible interface for acquiring, processing, and visualizing data from extracellular electrodes. See open-ephys.org for more information."
               includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN'"
+    <LINUX_MAKE targetFolder="Builds/Linux" vstFolder="" extraLinkerFlags="-ldl -lXext -lGLU -rdynamic -fPIC -Wl,-rpath,'$$ORIGIN/shared'"
                 extraCompilerFlags="-rdynamic -fvisibility=hidden" extraDefs="JUCE_DISABLE_NATIVE_FILECHOOSERS=1"
                 smallIcon="nFMauU" bigIcon="nFMauU" cppLanguageStandard="-std=c++11">
       <CONFIGURATIONS>
@@ -74,20 +74,20 @@
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Debug\bin"
                        headerPath="JuceLibraryCode/" libraryPath="" wholeProgramOptimisation="1"
-                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
+                       postbuildCommand="if not exist &quot;$(OutDir)\shared&quot; mkdir &quot;$(OutDir)\shared&quot;&#10;copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)\shared&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\Release\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)&quot;"
+                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="if not exist &quot;$(OutDir)\shared&quot; mkdir &quot;$(OutDir)\shared&quot;&#10;copy /Y &quot;..\..\Resources\DLLs\VS2013\*.dll&quot; &quot;$(OutDir)\shared&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
-        <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Debug64\bin"
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="1" optimisation="1" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Debug\bin"
                        headerPath="JuceLibraryCode/" libraryPath="" wholeProgramOptimisation="1"
-                       postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
+                       postbuildCommand="if not exist &quot;$(OutDir)\shared&quot; mkdir &quot;$(OutDir)\shared&quot;&#10;copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)\shared&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
-        <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Release64\bin"
-                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)&quot;"
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       isDebug="0" optimisation="3" targetName="open-ephys" binaryPath="Builds\VisualStudio2013\x64\Release\bin"
+                       headerPath="JuceLibraryCode/" libraryPath="" postbuildCommand="if not exist &quot;$(OutDir)\shared&quot; mkdir &quot;$(OutDir)\shared&quot;&#10;copy /Y &quot;..\..\Resources\DLLs\VS2013-x64\*.dll&quot; &quot;$(OutDir)\shared&quot;"
                        fastMath="1" useRuntimeLibDLL="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
