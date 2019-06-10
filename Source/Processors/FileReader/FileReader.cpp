@@ -233,7 +233,9 @@ bool FileReader::setFile (String fullpath)
 
 
 void FileReader::setActiveRecording (int index)
-{    
+{
+    if (!input) { return; }
+
     input->setActiveRecord (index);
 
     currentNumChannels  = input->getActiveNumChannels();

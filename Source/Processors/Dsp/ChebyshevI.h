@@ -55,7 +55,7 @@ namespace ChebyshevI
 
 // Half-band analog prototypes (s-plane)
 
-class AnalogLowPass : public LayoutBase
+class PLUGIN_API AnalogLowPass : public LayoutBase
 {
 public:
     AnalogLowPass();
@@ -70,7 +70,7 @@ private:
 
 //------------------------------------------------------------------------------
 
-class AnalogLowShelf : public LayoutBase
+class PLUGIN_API AnalogLowShelf : public LayoutBase
 {
 public:
     AnalogLowShelf();
@@ -89,7 +89,7 @@ private:
 
 // Factored implementations to reduce template instantiations
 
-struct LowPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -97,7 +97,7 @@ struct LowPassBase : PoleFilterBase <AnalogLowPass>
                double rippleDb);
 };
 
-struct HighPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -105,7 +105,7 @@ struct HighPassBase : PoleFilterBase <AnalogLowPass>
                double rippleDb);
 };
 
-struct BandPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -114,7 +114,7 @@ struct BandPassBase : PoleFilterBase <AnalogLowPass>
                double rippleDb);
 };
 
-struct BandStopBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -123,7 +123,7 @@ struct BandStopBase : PoleFilterBase <AnalogLowPass>
                double rippleDb);
 };
 
-struct LowShelfBase : PoleFilterBase <AnalogLowShelf>
+struct PLUGIN_API LowShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
@@ -132,7 +132,7 @@ struct LowShelfBase : PoleFilterBase <AnalogLowShelf>
                double rippleDb);
 };
 
-struct HighShelfBase : PoleFilterBase <AnalogLowShelf>
+struct PLUGIN_API HighShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
@@ -141,7 +141,7 @@ struct HighShelfBase : PoleFilterBase <AnalogLowShelf>
                double rippleDb);
 };
 
-struct BandShelfBase : PoleFilterBase <AnalogLowShelf>
+struct PLUGIN_API BandShelfBase : PoleFilterBase <AnalogLowShelf>
 {
     void setup(int order,
                double sampleRate,
@@ -168,12 +168,12 @@ struct HighPass : PoleFilter <HighPassBase, MaxOrder>
 };
 
 template <int MaxOrder>
-struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder*2>
+struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder * 2>
 {
 };
 
 template <int MaxOrder>
-struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder*2>
+struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder * 2>
 {
 };
 
@@ -188,7 +188,7 @@ struct HighShelf : PoleFilter <HighShelfBase, MaxOrder>
 };
 
 template <int MaxOrder>
-struct BandShelf : PoleFilter <BandShelfBase, MaxOrder, MaxOrder*2>
+struct BandShelf : PoleFilter <BandShelfBase, MaxOrder, MaxOrder * 2>
 {
 };
 

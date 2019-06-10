@@ -134,6 +134,7 @@ int BinaryFileSource::readData(int16* buffer, int nSamples)
 	int16* data = static_cast<int16*>(m_dataFile->getData()) + (m_samplePos * nChans);
 
 	memcpy(buffer, data, samplesToRead*nChans*sizeof(int16));
+    m_samplePos += samplesToRead;
 	return samplesToRead;
 }
 

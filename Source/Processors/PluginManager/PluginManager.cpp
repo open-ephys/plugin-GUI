@@ -72,6 +72,10 @@ static void errorMsg(const char *file, int line, const char *msg) {
 
 PluginManager::PluginManager()
 {
+#ifdef WIN32
+	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
+	SetDllDirectory(sharedPath.getFullPathName().toUTF8());
+#endif
 }
 
 PluginManager::~PluginManager()

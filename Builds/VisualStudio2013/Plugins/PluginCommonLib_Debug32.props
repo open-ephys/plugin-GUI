@@ -23,7 +23,7 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(GUIDir)\"</Command>
+      <Command>copy /Y "$(OutDir)$(TargetFileName)" "$(GUIDir)\shared"</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
