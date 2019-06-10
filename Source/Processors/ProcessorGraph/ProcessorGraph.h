@@ -28,8 +28,6 @@
 
 #include "../../AccessClass.h"
 
-#include <vector>
-
 class GenericProcessor;
 class RecordNode;
 class AudioNode;

@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <utility>
+#include <vector>
 #include <map>
 
 #include "ProcessorGraph.h"
