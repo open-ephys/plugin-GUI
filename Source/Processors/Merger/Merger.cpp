@@ -96,6 +96,23 @@ void Merger::switchIO(int sourceNum)
 
 }
 
+int Merger::switchToSourceNode(GenericProcessor* sn)
+{
+    if (sn == sourceNodeA)
+    {
+        switchIO(0);
+        return 0;
+    }
+
+    if (sn == sourceNodeB)
+    {
+        switchIO(1);
+        return 1;
+    }
+
+    return -1;
+}
+
 bool Merger::sendContinuousForSource(GenericProcessor* sourceNode)
 {
     if (sourceNode == sourceNodeA)

@@ -28,6 +28,8 @@
 
 #include "../../AccessClass.h"
 
+#include <vector>
+
 class GenericProcessor;
 class RecordNode;
 class AudioNode;
@@ -112,7 +114,8 @@ private:
 
     void clearConnections();
 
-    void connectProcessors(GenericProcessor* source, GenericProcessor* dest);
+    void connectProcessors(GenericProcessor* source, GenericProcessor* dest,
+        const std::vector<bool>& splitterSettings);
     void connectProcessorToAudioAndRecordNodes(GenericProcessor* source);
 
 	int64 m_startSoftTimestamp{ 0 };

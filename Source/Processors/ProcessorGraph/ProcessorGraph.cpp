@@ -22,6 +22,8 @@
 */
 
 #include <stdio.h>
+#include <utility>
+#include <map>
 
 #include "ProcessorGraph.h"
 #include "../GenericProcessor/GenericProcessor.h"
@@ -266,6 +268,34 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     // splitter between the one being explored and its source.
     GenericProcessor* activeSplitter = nullptr;
 
+    // stores the pointer to a source leading into a particular dest node
+    // along with a boolean vector indicating the position of this source
+    // relative to other sources entering the dest via mergers
+    // and a vector indicating the splitter settings between the source and dest.
+    // (when the mergerOrder vectors of all incoming nodes to a dest are
+    // lexicographically sorted, the sources will be in the correct order)
+    struct ConnectionInfo
+    {
+        // give friendlier names to the pair entries
+        std::vector<bool> mergerOrder;
+        std::vector<bool> splitterSettings;
+        GenericProcessor* source;
+
+        // for SortedSet sorting:
+        bool operator<(const ConnectionInfo& other) const
+        {
+            return mergerOrder < other.mergerOrder;
+        }
+
+        bool operator==(const ConnectionInfo& other) const
+        {
+            return mergerOrder == other.mergerOrder;
+        }
+    };
+
+    // each destination node gets a set of sources, sorted by their order as dictated by mergers
+    std::unordered_map<GenericProcessor*, SortedSet<ConnectionInfo>> sourceMap;
+
     for (int n = 0; n < tabs.size(); n++) // cycle through the tabs
     {
         std::cout << "Signal chain: " << n << std::endl;
@@ -296,21 +326,33 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
 
-                 // find the next dest that's not a merger or splitter
+                // find the next dest that's not a merger or splitter
                 GenericProcessor* prev = source;
+
+                ConnectionInfo conn;
+                conn.source = source;
+
                 while (dest != nullptr && (dest->isMerger() || dest->isSplitter()))
                 {
-                    if (dest->isSplitter() && dest != activeSplitter && !splitters.contains(dest))
+                    if (dest->isSplitter())
                     {
-                        // add to stack of splitters to explore
-                        splitters.add(dest);
-                        dest->switchIO(0); // go down first path
+                        if (dest != activeSplitter && !splitters.contains(dest))
+                        {
+                            // add to stack of splitters to explore
+                            splitters.add(dest);
+                            dest->switchIO(0); // go down first path
+                        }
+                        
+                        int path = static_cast<Splitter*>(dest)->getPath();
+                        conn.splitterSettings.push_back(bool(path));
                     }
-                    else if (dest->isMerger() && dest->getSourceNode() != prev)
+                    else if (dest->isMerger())
                     {
                         // keep the input aligned with the current path
-                        dest->switchIO();
-                        jassert(dest->getSourceNode() == prev);
+                        int path = static_cast<Merger*>(dest)->switchToSourceNode(prev);
+                        jassert(path != -1); // merger not connected to prev?
+                        
+                        conn.mergerOrder.insert(conn.mergerOrder.begin(), bool(path));
                     }
 
                     prev = dest;
@@ -321,7 +363,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                 {
                     if (dest->isEnabledState())
                     {
-                        connectProcessors(source, dest);
+                        sourceMap[dest].add(conn);
                     }
                 }
                 else
@@ -373,6 +415,18 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
         } // end while source != 0
     } // end "tabs" for loop
+
+    // actually connect sources to each dest processor,
+    // in correct order by merger topography
+    for (const auto& destSources : sourceMap)
+    {
+        GenericProcessor* dest = destSources.first;
+
+        for (const ConnectionInfo& conn : destSources.second)
+        {
+            connectProcessors(conn.source, dest, conn.splitterSettings);
+        }
+    }
 	
 	getAudioNode()->updatePlaybackBuffer();
 	//Update RecordNode internal channel mappings
@@ -381,7 +435,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 	getRecordNode()->addSpecialProcessorChannels(extraChannels);
 } // end method
 
-void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)
+void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest,
+    const std::vector<bool>& splitterSettings)
 {
 
     if (source == nullptr || dest == nullptr)
@@ -390,16 +445,23 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     std::cout << "     Connecting " << source->getName() << " " << source->getNodeId(); //" channel ";
     std::cout << " to " << dest->getName() << " " << dest->getNodeId() << std::endl;
 
+    // determine what to connect by looking at each merger
     bool connectContinuous = true;
     bool connectEvents = true;
+    int splitterInd = 0;
 
-    if (source->getDestNode() != nullptr)
+    for (GenericProcessor* curr = source->getDestNode(); curr != dest; curr = curr->getDestNode())
     {
-        if (source->getDestNode()->isMerger())
+        jassert(curr != nullptr); // should be a path from source to dest
+        if (curr->isSplitter())
         {
-            Merger* merger = (Merger*) source->getDestNode();
-            connectContinuous = merger->sendContinuousForSource(source);
-            connectEvents = merger->sendEventsForSource(source);
+            curr->switchIO(int(splitterSettings[splitterInd++]));
+        }
+        else if (curr->isMerger())
+        {
+            Merger* merger = static_cast<Merger*>(curr);
+            connectContinuous &= merger->sendContinuousForSource(source);
+            connectEvents &= merger->sendEventsForSource(source);
         }
     }
 
