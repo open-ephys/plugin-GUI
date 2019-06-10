@@ -271,15 +271,14 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     // stores the pointer to a source leading into a particular dest node
     // along with a boolean vector indicating the position of this source
     // relative to other sources entering the dest via mergers
-    // and a vector indicating the splitter settings between the source and dest.
     // (when the mergerOrder vectors of all incoming nodes to a dest are
     // lexicographically sorted, the sources will be in the correct order)
     struct ConnectionInfo
     {
-        // give friendlier names to the pair entries
-        std::vector<bool> mergerOrder;
-        std::vector<bool> splitterSettings;
         GenericProcessor* source;
+        std::vector<int> mergerOrder;
+        bool connectContinuous;
+        bool connectEvents;
 
         // for SortedSet sorting:
         bool operator<(const ConnectionInfo& other) const
@@ -331,28 +330,28 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
                 ConnectionInfo conn;
                 conn.source = source;
+                conn.connectContinuous = true;
+                conn.connectEvents = true;
 
                 while (dest != nullptr && (dest->isMerger() || dest->isSplitter()))
                 {
-                    if (dest->isSplitter())
+                    if (dest->isSplitter() && dest != activeSplitter && !splitters.contains(dest))
                     {
-                        if (dest != activeSplitter && !splitters.contains(dest))
-                        {
-                            // add to stack of splitters to explore
-                            splitters.add(dest);
-                            dest->switchIO(0); // go down first path
-                        }
-                        
-                        int path = static_cast<Splitter*>(dest)->getPath();
-                        conn.splitterSettings.push_back(bool(path));
+                        // add to stack of splitters to explore
+                        splitters.add(dest);
+                        dest->switchIO(0); // go down first path
                     }
                     else if (dest->isMerger())
                     {
+                        auto merger = static_cast<Merger*>(dest);
+
                         // keep the input aligned with the current path
-                        int path = static_cast<Merger*>(dest)->switchToSourceNode(prev);
+                        int path = merger->switchToSourceNode(prev);
                         jassert(path != -1); // merger not connected to prev?
                         
-                        conn.mergerOrder.insert(conn.mergerOrder.begin(), bool(path));
+                        conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
+                        conn.connectContinuous &= merger->sendContinuousForSource(prev);
+                        conn.connectEvents &= merger->sendEventsForSource(prev);
                     }
 
                     prev = dest;
@@ -424,7 +423,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 
         for (const ConnectionInfo& conn : destSources.second)
         {
-            connectProcessors(conn.source, dest, conn.splitterSettings);
+            connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
         }
     }
 	
@@ -436,7 +435,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 } // end method
 
 void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest,
-    const std::vector<bool>& splitterSettings)
+    bool connectContinuous, bool connectEvents)
 {
 
     if (source == nullptr || dest == nullptr)
@@ -444,26 +443,6 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
     std::cout << "     Connecting " << source->getName() << " " << source->getNodeId(); //" channel ";
     std::cout << " to " << dest->getName() << " " << dest->getNodeId() << std::endl;
-
-    // determine what to connect by looking at each merger
-    bool connectContinuous = true;
-    bool connectEvents = true;
-    int splitterInd = 0;
-
-    for (GenericProcessor* curr = source->getDestNode(); curr != dest; curr = curr->getDestNode())
-    {
-        jassert(curr != nullptr); // should be a path from source to dest
-        if (curr->isSplitter())
-        {
-            curr->switchIO(int(splitterSettings[splitterInd++]));
-        }
-        else if (curr->isMerger())
-        {
-            Merger* merger = static_cast<Merger*>(curr);
-            connectContinuous &= merger->sendContinuousForSource(source);
-            connectEvents &= merger->sendEventsForSource(source);
-        }
-    }
 
     // 1. connect continuous channels
     if (connectContinuous)

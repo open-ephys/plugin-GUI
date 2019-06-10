@@ -115,7 +115,7 @@ private:
     void clearConnections();
 
     void connectProcessors(GenericProcessor* source, GenericProcessor* dest,
-        const std::vector<bool>& splitterSettings);
+        bool connectContinuous, bool connectEvents);
     void connectProcessorToAudioAndRecordNodes(GenericProcessor* source);
 
 	int64 m_startSoftTimestamp{ 0 };

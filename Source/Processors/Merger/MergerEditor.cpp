@@ -191,9 +191,11 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         } else if (result == eventMerge)
         {
             *eventPtr = !(*eventPtr);
+            CoreServices::updateSignalChain(this);
         } else if (result == continuousMerge)
         {
             *continuousPtr = !(*continuousPtr);
+            CoreServices::updateSignalChain(this);
         }
     }
 
