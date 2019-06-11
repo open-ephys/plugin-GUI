@@ -271,8 +271,8 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventTime = samplePosition;
         uint32 eventSourceNodeId = getEventSourceId(eventInfo);
         
-        // treat events with no source as occurring on the subprocessor being drawn.
-        if (eventSourceNodeId == 0)
+        // treat event channels with sample rate of 0 as occurring on the subprocessor being drawn.
+        if (eventInfo->getSampleRate() == 0)
         {
             eventSourceNodeId = subprocessorToDraw;
         }
