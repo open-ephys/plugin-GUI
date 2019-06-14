@@ -29,7 +29,7 @@ ifeq ($(CONFIG),Debug)
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers
 
-  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR) $(addprefix, $(BINDIR)/$(addsuffix .so,$(notdir $(COMMONDIRS))))
+  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR) $(addprefix $(SHAREDDIR)/,$(addsuffix .so,$(notdir $(COMMONDIRS))))
 endif
 
 ifeq ($(CONFIG),Release)
@@ -50,7 +50,7 @@ ifeq ($(CONFIG),Release)
   LDDEPS1 :=
   RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../Source/Plugins/Headers
 
-  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR) $(addprefix, $(BINDIR)/$(addsuffix .so,$(notdir $(COMMONDIRS))))
+  CLEANCMD = rm -rf $(OUTDIR)/* $(OBJDIR) $(addprefix $(SHAREDDIR)/,$(addsuffix .so,$(notdir $(COMMONDIRS))))
 endif
 
 LIB_PREFIX :=
