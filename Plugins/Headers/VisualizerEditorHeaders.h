@@ -26,7 +26,7 @@ This header contains all the headers needed by visualizer processor editors, inc
 Should be included in the source files which declare an editor class intended for a visualizer processor.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 #include "EditorHeaders.h"
-#include "../../Processors/Visualization/DataWindow.h"
-#include "../../Processors/Editors/VisualizerEditor.h"
+#include "../../Source/Processors/Visualization/DataWindow.h"
+#include "../../Source/Processors/Editors/VisualizerEditor.h"

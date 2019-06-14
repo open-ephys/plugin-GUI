@@ -27,5 +27,5 @@ Must be included on Visualizer windows/canvas source files. Note that the specif
 graphic representations must be coded using standard Juce methods.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Visualization/Visualizer.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/Processors/Visualization/Visualizer.h"

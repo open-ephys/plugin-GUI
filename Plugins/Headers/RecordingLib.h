@@ -29,4 +29,4 @@ It can also be included in processor sources to allow them to access to some
 recording methods, like the spike recording subsystem.
 */
 
-#include "../../Processors/RecordNode/RecordEngine.h"
+#include "../../Source/Processors/RecordNode/RecordEngine.h"

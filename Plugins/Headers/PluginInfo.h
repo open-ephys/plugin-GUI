@@ -25,4 +25,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 This header includes the plugin info structures. Needs to be included in the OpenEphysLib source files
 */
 
-#include "../../Processors/PluginManager/OpenEphysPlugin.h"
+#include "../../Source/Processors/PluginManager/OpenEphysPlugin.h"

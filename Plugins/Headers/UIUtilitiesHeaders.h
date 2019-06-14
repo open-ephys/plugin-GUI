@@ -25,4 +25,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     This header contains all needed UI utuility components for plugins.
 */
 
-#include "../../UI/Utils/LinearButtonGroupManager.h"
+#include "../../Source/UI/Utils/LinearButtonGroupManager.h"

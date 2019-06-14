@@ -26,4 +26,4 @@ This file references the CoreServices namespace header, in case a plugin type th
 access this namespace (FileSource, for example) needs, as a particular case, use its functionality
 */
 
-#include "../../CoreServices.h"
+#include "../../Source/CoreServices.h"

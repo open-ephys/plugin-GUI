@@ -27,11 +27,12 @@ Should be included in the source files which declare an editor class, except tho
 which should use VisualizerEditorHeaders.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/Editors/GenericEditor.h"
-#include "../../Processors/Editors/ImageIcon.h"
-#include "../../Processors/Editors/ElectrodeButtons.h"
-#include "../../Processors/Editors/ChannelSelector.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/Processors/Editors/GenericEditor.h"
+#include "../../Source/Processors/Editors/ImageIcon.h"
+#include "../../Source/Processors/Editors/ElectrodeButtons.h"
+#include "../../Source/Processors/Editors/ChannelSelector.h"
+#include "../../Source/Processors/Parameter/ParameterEditor.h"
 
 
 

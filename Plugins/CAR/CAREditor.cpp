@@ -23,8 +23,8 @@
 
 #include "CAREditor.h"
 #include "CAR.h"
-#include "../../UI/LookAndFeel/MaterialButtonLookAndFeel.h"
-#include "../../Processors/Parameter/ParameterEditor.h"
+#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
+#include "../../Source/Processors/Parameter/ParameterEditor.h"
 
 
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));

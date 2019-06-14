@@ -25,4 +25,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 This header provides access to the simple serial library included in the GUI code.
 */
 
-#include "../../Processors/Serial/ofSerial.h"
+#include "../../Source/Processors/Serial/ofSerial.h"

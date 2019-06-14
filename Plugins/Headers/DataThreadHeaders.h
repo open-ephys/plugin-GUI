@@ -26,6 +26,6 @@ This header includes the needed files for implementing a DataThread, usually use
 data from external hardware.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/DataThreads/DataThread.h"
-#include "../../Processors/SourceNode/SourceNode.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/Processors/DataThreads/DataThread.h"
+#include "../../Source/Processors/SourceNode/SourceNode.h"

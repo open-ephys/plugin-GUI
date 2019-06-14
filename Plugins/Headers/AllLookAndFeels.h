@@ -20,8 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
-#include "../../UI/LookAndFeel/MaterialButtonLookAndFeel.h"
-#include "../../UI/LookAndFeel/MaterialSliderLookAndFeel.h"
-#include "../../UI/LookAndFeel/SquareLookAndFeel.h"
-#include "../../UI/LookAndFeel/FlatRoundLookAndFeel.h"
+#include "../../Source/UI/LookAndFeel/CustomLookAndFeel.h"
+#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
+#include "../../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.h"
+#include "../../Source/UI/LookAndFeel/SquareLookAndFeel.h"
+#include "../../Source/UI/LookAndFeel/FlatRoundLookAndFeel.h"

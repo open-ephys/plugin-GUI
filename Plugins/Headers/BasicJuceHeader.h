@@ -26,4 +26,4 @@ needed to include this file in most plugins, as most of the specific headers
 also include this. This header might be useful, though, for developing auxiliar
 classes for a plugin so they can include de Juce headers without any other overhead */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"

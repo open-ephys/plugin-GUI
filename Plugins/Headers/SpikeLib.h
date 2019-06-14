@@ -26,4 +26,4 @@ This header provides access to the methods and structures for
 representing, packing, unpacking and processing spike objects.
 */
 
-#include "../../Processors/Visualization/SpikeObject.h"
+#include "../../Source/Processors/Visualization/SpikeObject.h"

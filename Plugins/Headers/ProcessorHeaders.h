@@ -26,7 +26,7 @@ This header contains all the headers needed by processor nodes.
 Should be included in the source files which declare a processor class.
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/GenericProcessor/GenericProcessor.h"
-#include "../../Processors/Events/Events.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/Processors/GenericProcessor/GenericProcessor.h"
+#include "../../Source/Processors/Events/Events.h"
 

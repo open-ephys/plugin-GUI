@@ -25,5 +25,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 This file includes the base classes for implementing a file format for reading in the File Reader module
 */
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../Processors/FileReader/FileSource.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/Processors/FileReader/FileSource.h"

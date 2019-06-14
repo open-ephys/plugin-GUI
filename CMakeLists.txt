@@ -64,11 +64,20 @@ add_executable(open-ephys
 
 
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
+target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers)
 	
 #output folders and specific options
+if (MSVC OR LINUX)
+set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
+set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/shared)
+add_custom_command(TARGET open-ephys POST_BUILD  
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+		)
+endif()
+
 if(MSVC)
-	set_property(TARGET open-ephys PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
-	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/VisualStudio)
+	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
 	target_compile_options(open-ephys PRIVATE /sdl- /nologo /MP)
 	target_link_libraries(open-ephys setupapi.lib opengl32.lib glu32.lib)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "/NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"msvcrt.lib\" /SUBSYSTEM:WINDOWS")
@@ -78,11 +87,9 @@ if(MSVC)
 		set(DLLDIR "Win32")
 	endif()
 	set(_copysrc "${RESOURCES_DIRECTORY}/DLLs/${DLLDIR}/*.dll" )
-	set(_copydst "$<TARGET_FILE_DIR:open-ephys>/shared")
 	file(GLOB _dllfiles ${_copysrc})
-	add_custom_command(TARGET open-ephys POST_BUILD  
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${_copydst}"
-		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${_copydst}
+	add_custom_command(TARGET open-ephys POST_BUILD 
+		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
 		)
 elseif(LINUX)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/Linux)
@@ -104,3 +111,6 @@ foreach( src_file IN ITEMS ${SRC_FILES})
 	string(REPLACE "/" "\\" group_name "${src_path_rel}")
 	source_group("${group_name}" FILES "${src_file}")
 endforeach()
+
+#Add plugin build files
+add_subdirectory(Plugins)
