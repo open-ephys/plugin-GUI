@@ -30,6 +30,7 @@ endif()
 #copy files after build.
 if (MSVC OR LINUX)
 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
+	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 elseif(APPLE)
 endif()
 

@@ -15,6 +15,9 @@ string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 project(open-ephys-GUI)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(LINUX 1)
+	if(NOT CMAKE_BUILD_TYPE)
+		set(CMAKE_BUILD_TYPE Debug)
+	endif()
 endif()
 include(HelperFunctions.cmake)
 
@@ -92,7 +95,29 @@ if(MSVC)
 		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
 		)
 elseif(LINUX)
-	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/Linux)
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		
+	elseif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	else()
+		message(FATAL_ERROR "Invalid build type")
+	endif()
+	target_include_directories(open-ephys PRIVATE
+		/usr/include
+		/usr/include/freetype2
+	)
+	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt)
+	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
+		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
+	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
+	target_compile_options(open-ephys PRIVATE -O3) #enable optimization for linux debug
+	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
+	
+	set(_copysrc "${RESOURCES_DIRECTORY}/DLLs/Linux/*.so" )
+	file(GLOB _dllfiles ${_copysrc})
+	add_custom_command(TARGET open-ephys POST_BUILD 
+		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
+		)
+	
 elseif(APPLE)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/XCode)
 else()
