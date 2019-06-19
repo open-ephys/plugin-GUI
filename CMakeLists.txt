@@ -85,6 +85,11 @@ add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
 		)
+elseif(APPLE)
+	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+			)
 endif()
 
 if(MSVC)
@@ -127,19 +132,18 @@ elseif(LINUX)
 		)
 
 elseif(APPLE)
-	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/XCode)
 	set_target_properties(open-ephys PROPERTIES
 		MACOSX_BUNDLE_NAME open-ephys
 		MACOSX_BUNDLE_VERSION ${GUI_VERSION}
 		MACOSX_BUNDLE_GUI_IDENTIFIER "org.open-ephys.gui"
-		MACOSX_BUNDLE_ICON_FILE "${RESOURCES_DIRECTORY}/Build-files/Icon.icns"
+		MACOSX_BUNDLE_ICON_FILE "Icon.icns"
 		MACOSX_BUNDLE_INFO_PLIST "${RESOURCES_DIRECTORY}/Build-files/Info.plist.in"
 		MACOSX_BUNDLE TRUE
 		)
 	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override -rdynamic)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "-fPIC -rdynamic")
 	target_link_libraries(open-ephys dl)
-	target_link_libraries(open-ephys 
+	target_link_libraries(open-ephys
 		"-framework Accelerate"
 		"-framework AudioToolbox"
 		"-framework Carbon"
@@ -168,6 +172,17 @@ elseif(APPLE)
 		XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME NO
 		)
 
+		set(MAC_RESOURCE_FILES
+			${RESOURCES_DIRECTORY}/Build-files/Icon.icns
+			${RESOURCES_DIRECTORY}/Build-files/RecentFilesMenuTemplate.nib
+			${RESOURCES_DIRECTORY}/DLLs/Mac/libokFrontPanel.dylib
+			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000.bit
+			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000_usb3.bit
+			${RESOURCES_DIRECTORY}/Fonts/unibody-8.otf
+		)
+		set_source_files_properties(${MAC_RESOURCE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+		target_sources(open-ephys PRIVATE ${MAC_RESOURCE_FILES})
+
 else()
 	message( FATAL_ERROR "Unsupported OS")
 endif()
@@ -186,4 +201,4 @@ foreach( src_file IN ITEMS ${SRC_FILES})
 endforeach()
 
 #Add plugin build files
-#add_subdirectory(Plugins)
+add_subdirectory(Plugins)
