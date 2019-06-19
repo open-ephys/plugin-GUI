@@ -25,6 +25,9 @@ elseif(LINUX)
 	target_compile_options(${PLUGIN_NAME} PRIVATE -fPIC -rdynamic)
 	target_compile_options(${PLUGIN_NAME} PRIVATE -O3) #enable optimization for linux debug
 elseif(APPLE)
+	set_target_properties(${PLUGIN_NAME} PROPERTIES BUNDLE TRUE)
+	set_property(TARGET ${PLUGIN_NAME} APPEND_STRING PROPERTY LINK_FLAGS "-fPIC -rdynamic -undefined dynamic_lookup")
+	target_link_libraries(${PLUGIN_NAME} dl)
 endif()
 
 #copy files after build.
@@ -32,6 +35,7 @@ if (MSVC OR LINUX)
 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 elseif(APPLE)
+	
 endif()
 
 #This function is to be called to organize filters in VisualStudio and XCode in plugins with subfilders
