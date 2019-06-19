@@ -12,6 +12,9 @@ foreach(_v ${VERSION_LIST})
 endforeach()
 string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+set(CMAKE_OSX_SYSROOT "")
+
 project(open-ephys-GUI)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(LINUX 1)
@@ -38,29 +41,34 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 	JUCE_APP_VERSION=${GUI_VERSION}
 	JUCE_APP_VERSION_HEX=${GUI_VERSION_HEX}
 	)
-	
+
+if (APPLE)
+	set(JUCE_FILES_EXTENSION mm)
+else()
+	set(JUCE_FILES_EXTENSION cpp)
+endif()
 
 
 #create executable and add JUCE components
-add_executable(open-ephys 
+add_executable(open-ephys
 	${JUCE_DIRECTORY}/AppConfig.h
 	${JUCE_DIRECTORY}/JuceHeader.h
 	${JUCE_DIRECTORY}/BinaryData.h
 	${JUCE_DIRECTORY}/BinaryData.cpp
-	${JUCE_DIRECTORY}/juce_audio_basics.cpp
-	${JUCE_DIRECTORY}/juce_audio_devices.cpp
-	${JUCE_DIRECTORY}/juce_audio_formats.cpp
-	${JUCE_DIRECTORY}/juce_audio_processors.cpp
-	${JUCE_DIRECTORY}/juce_audio_utils.cpp
-	${JUCE_DIRECTORY}/juce_core.cpp
-	${JUCE_DIRECTORY}/juce_cryptography.cpp
-	${JUCE_DIRECTORY}/juce_data_structures.cpp
-	${JUCE_DIRECTORY}/juce_events.cpp
-	${JUCE_DIRECTORY}/juce_graphics.cpp
-	${JUCE_DIRECTORY}/juce_gui_basics.cpp
-	${JUCE_DIRECTORY}/juce_gui_extra.cpp
-	${JUCE_DIRECTORY}/juce_opengl.cpp
-	${JUCE_DIRECTORY}/juce_video.cpp
+	${JUCE_DIRECTORY}/juce_audio_basics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_audio_devices.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_audio_formats.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_audio_processors.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_audio_utils.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_core.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_cryptography.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_data_structures.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_events.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_graphics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_gui_basics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_gui_extra.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_opengl.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/juce_video.${JUCE_FILES_EXTENSION}
 	${RESOURCES_DIRECTORY}/Build-files/resources.rc
 	)
 
@@ -68,12 +76,12 @@ add_executable(open-ephys
 
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
 target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers)
-	
+
 #output folders and specific options
 if (MSVC OR LINUX)
 set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
 set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/shared)
-add_custom_command(TARGET open-ephys POST_BUILD  
+add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
 		)
@@ -91,12 +99,12 @@ if(MSVC)
 	endif()
 	set(_copysrc "${RESOURCES_DIRECTORY}/DLLs/${DLLDIR}/*.dll" )
 	file(GLOB _dllfiles ${_copysrc})
-	add_custom_command(TARGET open-ephys POST_BUILD 
+	add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
 		)
 elseif(LINUX)
 	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-		
+
 	elseif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	else()
 		message(FATAL_ERROR "Invalid build type")
@@ -111,13 +119,13 @@ elseif(LINUX)
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
 	target_compile_options(open-ephys PRIVATE -O3) #enable optimization for linux debug
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
-	
+
 	set(_copysrc "${RESOURCES_DIRECTORY}/DLLs/Linux/*.so" )
 	file(GLOB _dllfiles ${_copysrc})
-	add_custom_command(TARGET open-ephys POST_BUILD 
+	add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
 		)
-	
+
 elseif(APPLE)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/XCode)
 	set_target_properties(open-ephys PROPERTIES
@@ -131,11 +139,35 @@ elseif(APPLE)
 	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override -rdynamic)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "-fPIC -rdynamic")
 	target_link_libraries(open-ephys dl)
-	
+	target_link_libraries(open-ephys 
+		"-framework Accelerate"
+		"-framework AudioToolbox"
+		"-framework Carbon"
+		"-framework Cocoa"
+		"-framework CoreAudio"
+		"-framework CoreMIDI"
+		"-framework DiscRecording"
+		"-framework IOKit"
+		"-framework OpenGL"
+		"-framework QTKit"
+		"-framework QuartzCore"
+		"-framework WebKit"
+	)
+
 	set_target_properties(open-ephys PROPERTIES
 		XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf
+		XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN YES
+		XCODE_ATTRIBUTE_GCC_WARN_ABOUT_RETURN_TYPE YES
+		XCODE_ATTRIBUTE_GCC_WARN_CHECK_SWITCH_STATEMENTS YES
+		XCODE_ATTRIBUTE_GCC_WARN_MISSING_PARENTHESES YES
+		XCODE_ATTRIBUTE_GCC_WARN_NON_VIRTUAL_DESTRUCTOR YES
+		XCODE_ATTRIBUTE_GCC_WARN_TYPECHECK_CALLS_TO_PRINTF YES
+		XCODE_ATTRIBUTE_GCC_WARN_UNUSED_VARIABLE YES
+		XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x"
+		XCODE_ATTRIBUTE_GCC_C_LANGUAGE_STANDARD c99
+		XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME NO
 		)
-	
+
 else()
 	message( FATAL_ERROR "Unsupported OS")
 endif()
@@ -154,4 +186,4 @@ foreach( src_file IN ITEMS ${SRC_FILES})
 endforeach()
 
 #Add plugin build files
-add_subdirectory(Plugins)
+#add_subdirectory(Plugins)
