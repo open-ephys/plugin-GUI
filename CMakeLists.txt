@@ -34,6 +34,7 @@ configure_file(${RESOURCES_DIRECTORY}/Build-files/resources.rc.in ${RESOURCES_DI
 #global properties
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 	$<$<PLATFORM_ID:Windows>:_CRT_SECURE_NO_WARNINGS>
+	$<$<PLATFORM_ID:Windows>:NOMINMAX>
 	$<$<PLATFORM_ID:Linux>:JUCE_DISABLE_NATIVE_FILECHOOSERS=1>
 	$<$<CONFIG:Debug>:DEBUG=1>
 	$<$<CONFIG:Debug>:_DEBUG=1>
@@ -103,7 +104,8 @@ if(MSVC)
 	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
 	target_compile_options(open-ephys PRIVATE /sdl- /nologo /MP)
 	target_link_libraries(open-ephys setupapi.lib opengl32.lib glu32.lib)
-	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "/NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"msvcrt.lib\" /SUBSYSTEM:WINDOWS")
+	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS_DEBUG " /NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"msvcrt.lib\"")
+	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS " /SUBSYSTEM:WINDOWS")
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(DLLARCH "Win64")
 	else()
