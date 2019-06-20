@@ -22,7 +22,9 @@ add_sources(${PLUGIN_NAME}
 	)
 	
 if (MSVC)
-	target_link_libraries(${PLUGIN_NAME} ${DLLDIR}/okFrontPanel.lib)
+	target_link_libraries(${PLUGIN_NAME} "${DLLDIR}/okFrontPanel.lib")
+elseif(LINUX)
+	target_link_libraries(${PLUGIN_NAME} "${DLLDIR}/libokFrontPanel.so")
 endif()
 	
 #optional: create IDE groups
