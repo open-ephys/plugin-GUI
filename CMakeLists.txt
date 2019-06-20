@@ -69,9 +69,10 @@ add_executable(open-ephys
 	${JUCE_DIRECTORY}/juce_gui_extra.${JUCE_FILES_EXTENSION}
 	${JUCE_DIRECTORY}/juce_opengl.${JUCE_FILES_EXTENSION}
 	${JUCE_DIRECTORY}/juce_video.${JUCE_FILES_EXTENSION}
-	${RESOURCES_DIRECTORY}/Build-files/resources.rc
 	)
-
+ if(MSVC)
+	target_sources(open-ephys PRIVATE ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
+ endif()
 
 
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
@@ -85,6 +86,12 @@ add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
 		)
+		
+file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
+add_custom_command(TARGET open-ephys POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} $<TARGET_FILE_DIR:open-ephys>
+		)
+	
 elseif(APPLE)
 	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
 	add_custom_command(TARGET open-ephys POST_BUILD
