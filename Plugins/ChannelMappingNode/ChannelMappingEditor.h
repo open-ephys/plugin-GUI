@@ -24,8 +24,6 @@
 #ifndef __CHANNELMAPPINGEDITOR_H_73D0AB34__
 #define __CHANNELMAPPINGEDITOR_H_73D0AB34__
 
-
-#include "../../../JuceLibraryCode/JuceHeader.h"
 #include <EditorHeaders.h>
 
 #define NUM_REFERENCES 4

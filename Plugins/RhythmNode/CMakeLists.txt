@@ -1,0 +1,28 @@
+#plugin build file
+cmake_minimum_required(VERSION 3.5.0)
+
+#include common rules
+include(../PluginRules.cmake)
+
+#add sources, not including OpenEphysLib.cpp
+add_sources(${PLUGIN_NAME}
+	rhythm-api/okFrontPanelDLL.h
+	rhythm-api/rhd2000datablock.cpp
+	rhythm-api/rhd2000datablock.h
+	rhythm-api/rhd2000evalboard.cpp
+	rhythm-api/rhd2000evalboard.h
+	rhythm-api/rhd2000registers.cpp
+	rhythm-api/rhd2000registers.h
+	RHD2000Thread.cpp
+	RHD2000Thread.h
+	RHD2000Editor.cpp
+	RHD2000Editor.h
+
+	)
+	
+if (MSVC)
+	target_link_libraries(${PLUGIN_NAME} ${DLLDIR}/okFrontPanel.lib)
+endif()
+	
+#optional: create IDE groups
+plugin_create_filters()
