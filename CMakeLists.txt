@@ -14,6 +14,9 @@ string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 set(CMAKE_OSX_SYSROOT "")
+if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
+message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")
+endif()
 
 project(open-ephys-GUI)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
