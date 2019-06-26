@@ -56,7 +56,7 @@ namespace Legendre
 
 // Numerical computation of Legendre "Optimum-L" polynomials
 
-class PolynomialFinderBase
+class PLUGIN_API PolynomialFinderBase
 {
 public:
     void solve(int n);
@@ -116,7 +116,7 @@ private:
 
 // A Workspace is necessary to construct the polynomial and find its roots
 
-struct WorkspaceBase
+struct PLUGIN_API WorkspaceBase
 {
     WorkspaceBase(PolynomialFinderBase* polyBase,
                   RootFinderBase* rootsBase)
@@ -150,7 +150,7 @@ private:
 
 // Half-band analog prototypes (s-plane)
 
-class AnalogLowPass : public LayoutBase
+class PLUGIN_API AnalogLowPass : public LayoutBase
 {
 public:
     AnalogLowPass();
@@ -165,7 +165,7 @@ private:
 
 // Factored implementations to reduce template instantiations
 
-struct LowPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -173,7 +173,7 @@ struct LowPassBase : PoleFilterBase <AnalogLowPass>
                WorkspaceBase* w);
 };
 
-struct HighPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -181,7 +181,7 @@ struct HighPassBase : PoleFilterBase <AnalogLowPass>
                WorkspaceBase* w);
 };
 
-struct BandPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -190,7 +190,7 @@ struct BandPassBase : PoleFilterBase <AnalogLowPass>
                WorkspaceBase* w);
 };
 
-struct BandStopBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,

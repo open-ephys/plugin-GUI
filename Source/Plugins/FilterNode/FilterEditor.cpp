@@ -94,6 +94,11 @@ void FilterEditor::setDefaults(double lowCut, double highCut)
     lastHighCutString = String(roundFloatToInt(highCut));
     lastLowCutString = String(roundFloatToInt(lowCut));
 
+    resetToSavedText();
+}
+
+void FilterEditor::resetToSavedText()
+{
     highCutValue->setText(lastHighCutString, dontSendNotification);
     lowCutValue->setText(lastLowCutString, dontSendNotification);
 }
@@ -219,8 +224,10 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
     {
         if (xmlNode->hasTagName("VALUES"))
         {
-            highCutValue->setText(xmlNode->getStringAttribute("HighCut"),dontSendNotification);
-            lowCutValue->setText(xmlNode->getStringAttribute("LowCut"),dontSendNotification);
+            lastHighCutString = xmlNode->getStringAttribute("HighCut", lastHighCutString);
+            lastLowCutString = xmlNode->getStringAttribute("LowCut", lastLowCutString);
+            resetToSavedText();
+
             applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false), sendNotification);
         }
     }

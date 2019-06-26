@@ -24,7 +24,7 @@
 #define __FILTERNODE_H_CED428E__
 
 #include <ProcessorHeaders.h>
-#include <DspLib/Dsp.h>
+#include <DspLib.h>
 
 
 /**
@@ -50,8 +50,8 @@ public:
 
     void updateSettings() override;
 
-	void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelTypel) override;
-	void loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)  override;
+    void saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelTypel) override;
+    void loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)  override;
 
     double getLowCutValueForChannel  (int chan) const;
     double getHighCutValueForChannel (int chan) const;

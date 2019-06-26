@@ -112,6 +112,9 @@ public:
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
     void addInputChannel(GenericProcessor* source, int chan);
 
+	/** Updates the audio buffer size*/
+	void updatePlaybackBuffer();
+
     /** A pointer to the AudioNode's editor. */
     ScopedPointer<AudioEditor> audioEditor;
 
@@ -157,6 +160,9 @@ private:
 
     // Temporary buffer for data
     ScopedPointer<AudioSampleBuffer> tempBuffer;
+
+	//private map for datachannels with info relative to multiple processors
+	std::unordered_map<uint16, std::map<uint16, int>> audioDataChannelMap;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

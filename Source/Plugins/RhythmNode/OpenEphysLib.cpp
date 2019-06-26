@@ -49,7 +49,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	case 0:
 		info->type = Plugin::PLUGIN_TYPE_DATA_THREAD;
 		info->dataThread.name = "Rhythm FPGA";
-		info->dataThread.creator = &createDataThread<RHD2000Thread>;
+		info->dataThread.creator = &createDataThread<RhythmNode::RHD2000Thread>;
 		break;
 	default:
 		return -1;

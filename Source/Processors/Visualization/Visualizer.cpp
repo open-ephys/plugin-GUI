@@ -25,14 +25,14 @@
 
 Visualizer::Visualizer()
 {
-	refreshRate = 10;    // 10 Hz default refresh rate
+	refreshRate = 50;    // 50 Hz default refresh rate
 }
 
 Visualizer::~Visualizer() {}
 
 void Visualizer::startCallbacks()
 {
-	startTimer(20);
+	startTimer(1/float(refreshRate)*1000.0f);
 }
 
 void Visualizer::stopCallbacks()

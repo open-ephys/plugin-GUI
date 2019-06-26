@@ -40,10 +40,12 @@ RecordNode::RecordNode()
 
     isProcessing = false;
     isRecording = false;
+	shouldRecord = true;
 	setFirstBlock = false;
 
-    settings.numInputs = 2048;
+    settings.numInputs = 0;
     settings.numOutputs = 0;
+    settings.originalSource = nullptr;
 
     recordingNumber = -1;
 
@@ -53,8 +55,6 @@ RecordNode::RecordNode()
     hasRecorded = false;
     settingsNeeded = false;
 
-    // 128 inputs, 0 outputs
-    setPlayConfigDetails(getNumInputs(),getNumOutputs(),44100.0,128);
 	m_recordThread = new RecordThread(engineArray);
 	m_dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	m_eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
@@ -77,26 +77,12 @@ void RecordNode::setChannel(const DataChannel* ch)
 
 }
 
-bool RecordNode::setChannelStatus(const DataChannel* ch, bool status)
-{
-
-    //std::cout << "Setting channel status!" << std::endl;
-    setChannel(ch);
-
-    if (status)
-        setParameter(2, 1.0f);
-    else
-        setParameter(2, 0.0f);
-    
-    return status == dataChannelArray[currentChannel]->getRecordState();
-}
-
-
 void RecordNode::resetConnections()
 {
     nextAvailableChannel = 0;
     wasConnected = false;
     spikeElectrodeIndex = 0;
+    settings.numInputs = 0;
 
     dataChannelArray.clear();
     eventChannelArray.clear();
@@ -145,11 +131,10 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
     {
         int channelIndex = getNextChannel(false);
 
-		const DataChannel* orig = sourceNode->getDataChannel(chan);
-		DataChannel* newChannel = new DataChannel(*orig);
-		newChannel->setRecordState(orig->getRecordState());
+        const DataChannel* orig = sourceNode->getDataChannel(chan);
+        DataChannel* newChannel = new DataChannel(*orig);
+        newChannel->setRecordState(orig->getRecordState());
         dataChannelArray.add(newChannel);
-        setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
 
         EVERY_ENGINE->addDataChannel(channelIndex,dataChannelArray[channelIndex]);
@@ -264,41 +249,42 @@ int RecordNode::getRecordingNumber() const
 
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
-    //editor->updateParameterButtons(parameterIndex);
+	//editor->updateParameterButtons(parameterIndex);
 
-    // 0 = stop recording
-    // 1 = start recording
-    // 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+	// 0 = stop recording
+	// 1 = start recording
+	// 2 = toggle individual channel (0.0f = OFF, anything else = ON)
+	// 3 = toggle record thread ON/OFF (use carefully!)
 
-    if (parameterIndex == 1)
-    {
+	if (parameterIndex == 1)
+	{
 
-		
+
 		// std::cout << "START RECORDING." << std::endl;
 
-        if (newDirectoryNeeded)
-        {
-            createNewDirectory();
-            recordingNumber = 0;
-            experimentNumber = 1;
-            settingsNeeded = true;
-            EVERY_ENGINE->directoryChanged();
-        }
-        else
-        {
-            recordingNumber++; // increment recording number within this directory
-        }
+		if (newDirectoryNeeded)
+		{
+			createNewDirectory();
+			recordingNumber = 0;
+			experimentNumber = 1;
+			settingsNeeded = true;
+			EVERY_ENGINE->directoryChanged();
+		}
+		else
+		{
+			recordingNumber++; // increment recording number within this directory
+		}
 
-        if (!rootFolder.exists())
-        {
-            rootFolder.createDirectory();
-        }
-        if (settingsNeeded)
-        {
-            String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-            AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
-            settingsNeeded = false;
-        }
+		if (!rootFolder.exists())
+		{
+			rootFolder.createDirectory();
+		}
+		if (settingsNeeded)
+		{
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
+			settingsNeeded = false;
+		}
 
 		m_recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
@@ -327,7 +313,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 					procIndex++;
 					chanProcOrder = 0;
 				}
-				procInfo.getLast()->recordedChannels.add(channelMap.size()-1);
+				procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 				chanProcessorMap.add(procIndex);
 				chanOrderinProc.add(chanProcOrder);
 				chanProcOrder++;
@@ -335,6 +321,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		}
 		std::cout << "Num Recording Processors: " << procInfo.size() << std::endl;
 		int numRecordedChannels = channelMap.size();
+
+		m_validBlocks.clear();
+		m_validBlocks.insertMultiple(0, false, numRecordedChannels);
 
 		//WARNING: If at some point we record at more that one recordEngine at once, we should change this, as using OwnedArrays only works for the first
 		EVERY_ENGINE->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
@@ -350,18 +339,18 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 		isRecording = true;
 		hasRecorded = true;
 
-    }
-    else if (parameterIndex == 0)
-    {
+	}
+	else if (parameterIndex == 0)
+	{
 
 
-        std::cout << "STOP RECORDING." << std::endl;
+		std::cout << "STOP RECORDING." << std::endl;
 
-        if (isRecording)
-        {
+		if (isRecording)
+		{
 			isRecording = false;
 
-            // close the writing thread.
+			// close the writing thread.
 			m_recordThread->signalThreadShouldExit();
 			m_recordThread->waitForThreadToExit(2000);
 			while (m_recordThread->isThreadRunning())
@@ -381,35 +370,63 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 				}
 			}
 
-        }
-    }
-    else if (parameterIndex == 2)
-    {
+		}
+	}
+	else if (parameterIndex == 2)
+	{
 
-        if (isProcessing)
-        {
+		if (isProcessing)
+		{
 
-            std::cout << "Toggling channel " << currentChannel << std::endl;
+			std::cout << "Toggling channel " << currentChannel << std::endl;
 
-            if (isRecording)
-            {
-                //Toggling channels while recording isn't allowed. Code shouldn't reach here.
-                //In case it does, display an error and exit.
-                CoreServices::sendStatusMessage("Toggling record channels while recording is not allowed");
-                std::cout << "ERROR: Wrong code section reached\n Toggling record channels while recording is not allowed." << std::endl;
-                return;
-            }
+			if (isRecording)
+			{
+				//Toggling channels while recording isn't allowed. Code shouldn't reach here.
+				//In case it does, display an error and exit.
+				CoreServices::sendStatusMessage("Toggling record channels while recording is not allowed");
+				std::cout << "ERROR: Wrong code section reached\n Toggling record channels while recording is not allowed." << std::endl;
+				return;
+			}
 
-            if (newValue == 0.0f)
-            {
-                dataChannelArray[currentChannel]->setRecordState(false);
-            }
-            else
-            {
-                dataChannelArray[currentChannel]->setRecordState(true);
-            }
-        }
-    }
+			if (newValue == 0.0f)
+			{
+				dataChannelArray[currentChannel]->setRecordState(false);
+			}
+			else
+			{
+				dataChannelArray[currentChannel]->setRecordState(true);
+			}
+		}
+	}
+	else if (parameterIndex == 3)
+	{
+
+		if (isRecording)
+		{
+			//Toggling thread status while recording isn't allowed.
+			//In case it does, display an error and exit.
+			CoreServices::sendStatusMessage("Changing record thread status while recording is not allowed");
+			return;
+		}
+
+		if (newValue == 0.0f)
+		{
+			CoreServices::sendStatusMessage("Turning record thread off.");
+			shouldRecord = false;
+			
+		}
+		else
+		{
+			CoreServices::sendStatusMessage("Turning record thread on.");
+			shouldRecord = true;
+		}
+	}
+}
+
+bool RecordNode::getRecordThreadStatus()
+{
+	return shouldRecord;
 }
 
 bool RecordNode::enable()
@@ -476,7 +493,7 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 	// FIRST: cycle through events -- extract the TTLs and the timestamps
     checkForEvents();
 
-    if (isRecording)
+    if (isRecording && shouldRecord)
     {
         // SECOND: write channel data
 		int recordChans = channelMap.size();
@@ -485,14 +502,34 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 			int realChan = channelMap[chan];
 			int nSamples = getNumSamples(realChan);
 			int timestamp = getTimestamp(realChan);
-			m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
+			bool shouldWrite = m_validBlocks[chan];
+			if (!shouldWrite && nSamples > 0)
+			{
+				shouldWrite = true;
+				m_validBlocks.set(chan, true);
+			}
+
+			if (shouldWrite)
+				m_dataQueue->writeChannel(buffer, chan, realChan, nSamples, timestamp);
 		}
 
         //  std::cout << nSamples << " " << samplesWritten << " " << blockIndex << std::endl;
 		if (!setFirstBlock)
 		{
-			m_recordThread->setFirstBlockFlag(true);
-			setFirstBlock = true;
+			bool shouldSetFlag = true;
+			for (int chan = 0; chan < recordChans; ++chan)
+			{
+				if (!m_validBlocks[chan])
+				{
+					shouldSetFlag = false;
+					break;
+				}
+			}
+			if (shouldSetFlag)
+			{
+				m_recordThread->setFirstBlockFlag(true);
+				setFirstBlock = true;
+			}
 		}
         
     }
@@ -502,6 +539,9 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 
 void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 {
+    settings.numInputs += sourceNode->getNumOutputs();
+    setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+
     EVERY_ENGINE->registerProcessor(sourceNode);
 }
 
@@ -557,4 +597,6 @@ void RecordNode::updateRecordChannelIndexes()
 void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
 {
 	eventChannelArray.addArray(channels);
+	settings.numInputs = dataChannelArray.size();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
 }

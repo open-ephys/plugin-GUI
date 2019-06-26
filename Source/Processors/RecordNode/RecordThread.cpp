@@ -83,13 +83,14 @@ void RecordThread::run()
 		wait(1);
 	}
 
-	//2-Open Files
+	//2-Open Files 
 	if (!threadShouldExit())
 	{
 		m_cleanExit = false;
 		closeEarly = false;
 		Array<int64> timestamps;
 		m_dataQueue->getTimestampsForBlock(0, timestamps);
+
 		EVERY_ENGINE->updateTimestamps(timestamps);
 		EVERY_ENGINE->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}

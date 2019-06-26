@@ -51,6 +51,7 @@ public:
     void loadCustomParameters(XmlElement* xml);
 
     void setDefaults(double lowCut, double highCut);
+    void resetToSavedText();
 
     void channelChanged (int chan, bool newState);
 

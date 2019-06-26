@@ -27,36 +27,40 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
-    // if this is nonempty, we got an error
-    String error = deviceManager.initialise(0,  // numInputChannelsNeeded
-                                            2,  // numOutputChannelsNeeded
-                                            0,  // *savedState (XmlElement)
-                                            true, // selectDefaultDeviceOnFailure
-                                            String::empty, // preferred device
-                                            0); // preferred device setup options
-    if (error != String::empty)
+    bool initialized = false;
+    while (!initialized)
     {
-        String titleMessage = String("Audio device initialization error");
-        String contentMessage = String("There was a problem initializing the audio device:\n" + error);
-        // this uses a bool since there are only two options
-        // also, omitting parameters works fine, even though the docs don't show defaults
-        bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon,
-                                                               titleMessage,
-                                                               contentMessage,
-                                                               String("Retry"),
-                                                               String("Quit"));
+        // if this is nonempty, we got an error
+        String error = deviceManager.initialise(0,  // numInputChannelsNeeded
+            2,  // numOutputChannelsNeeded
+            0,  // *savedState (XmlElement)
+            true, // selectDefaultDeviceOnFailure
+            String::empty, // preferred device
+            0); // preferred device setup options
 
-        if (retryButtonClicked)
+        if (error == String::empty)
         {
-            // as above
-            error = deviceManager.initialise(0, 2, 0, true, String::empty, 0);
+            initialized = true;
         }
-        else     // quit button clicked
+        else
         {
-            JUCEApplication::quit();
+            String titleMessage = String("Audio device initialization error");
+            String contentMessage = String("There was a problem initializing the audio device:\n" + error);
+            // this uses a bool since there are only two options
+            // also, omitting parameters works fine, even though the docs don't show defaults
+            bool retryButtonClicked = AlertWindow::showOkCancelBox(AlertWindow::QuestionIcon,
+                titleMessage,
+                contentMessage,
+                String("Retry"),
+                String("Quit"));
+
+            if (!retryButtonClicked) // quit button clicked
+            {
+                JUCEApplication::quit();
+                break;
+            }
         }
     }
-
 
     AudioIODevice* aIOd = deviceManager.getCurrentAudioDevice();
 

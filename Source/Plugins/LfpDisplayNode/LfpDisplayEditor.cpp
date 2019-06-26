@@ -71,7 +71,6 @@ void LfpDisplayEditor::stopAcquisition()
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
     canvas = new LfpDisplayCanvas(lfpProcessor);
-    updateSubprocessorSelectorOptions();
     return canvas;
 }
 
@@ -110,6 +109,9 @@ void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
     {
 		std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl; 
         setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
+		String sampleRateLabelText = "Sample Rate: ";
+		sampleRateLabelText += String(inputSampleRates[cb->getSelectedId() - 1]);
+		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
     }
 }
 
@@ -141,7 +143,7 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
 
 		if (defaultSubprocessor >= 0)
 		{
-			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, dontSendNotification);
+			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, sendNotification);
 
 			String sampleRateLabelText = "Sample Rate: ";
 			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);

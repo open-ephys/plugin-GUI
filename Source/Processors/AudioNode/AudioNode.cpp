@@ -75,7 +75,16 @@ void AudioNode::updateBufferSize()
 void AudioNode::setChannel(const DataChannel* ch)
 {
 
-	int channelNum = getDataChannelIndex(ch->getSourceIndex(), ch->getSourceNodeID(), ch->getSubProcessorIdx());
+	int channelNum;
+
+	try 
+	{
+		channelNum = audioDataChannelMap.at(ch->getCurrentNodeID()).at(ch->getCurrentNodeChannelIdx());
+	}
+	catch (...)
+	{
+		channelNum = -1;
+	}
 
     std::cout << "Audio node setting channel to " << channelNum << std::endl;
 
@@ -111,7 +120,7 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
     int channelIndex = getNextChannel(false);
 
-    setPlayConfigDetails(channelIndex+1,0,44100.0,128);
+    //setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
     auto dataChannel = sourceNode->getDataChannel(chan);
     auto dataChannelCopy = new DataChannel(*dataChannel);
@@ -119,6 +128,11 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
     
     dataChannelArray.add(dataChannelCopy);
 
+}
+
+void AudioNode::updatePlaybackBuffer()
+{
+	setPlayConfigDetails(dataChannelArray.size(), 0, 44100.0, 128);
 }
 
 void AudioNode::setParameter(int parameterIndex, float newValue)
@@ -249,7 +263,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
 
             for (int i = 0; i < buffer.getNumChannels()-2; i++) // cycle through them all
             {
-                
+
                 if (dataChannelArray[i]->isMonitored())
                 {
                     tempBuffer->clear();
@@ -476,6 +490,14 @@ void AudioNode::updateRecordChannelIndexes()
 {
 	//Keep the nodeIDs of the original processor from each channel comes from
 	updateChannelIndexes(false);
+	//and update the internal map
+	audioDataChannelMap.clear();
+	unsigned int nChans = dataChannelArray.size();
+	for (int i = 0; i < nChans; i++)
+	{
+		DataChannel* ch = dataChannelArray[i];
+		audioDataChannelMap[ch->getCurrentNodeID()][ch->getCurrentNodeChannelIdx()] = i;
+	}
 }
 
 // ==========================================================

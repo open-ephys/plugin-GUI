@@ -160,8 +160,8 @@ void ChannelTriggerInterface::updateSources()
     EventSources s;
     String name;
     processor->clearEventSources();
-    triggerSelector->clear();
-    gateSelector->clear();
+    triggerSelector->clear(dontSendNotification);
+    gateSelector->clear(dontSendNotification);
     triggerSelector->addItem("Trigger", 1);
     gateSelector->addItem("Gate", 1);
     int nextItemTrig = 2;
@@ -189,17 +189,14 @@ void ChannelTriggerInterface::updateSources()
     if (m_triggerSelected > triggerSelector->getNumItems())
     {
         m_triggerSelected = triggerSelector->getNumItems();
-        triggerSelector->setSelectedId(m_triggerSelected);
     }    
-    else
-        triggerSelector->setSelectedId(m_triggerSelected);
+    triggerSelector->setSelectedId(m_triggerSelected);
+
     if (m_gateSelected > triggerSelector->getNumItems())
     {
         m_gateSelected = gateSelector->getNumItems();
-        gateSelector->setSelectedId(m_gateSelected);
     }
-    else
-        gateSelector->setSelectedId(m_gateSelected);
+    gateSelector->setSelectedId(m_gateSelected);
 }
 
 void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
@@ -208,19 +205,15 @@ void ChannelTriggerInterface::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(1, (float) comboBoxThatHasChanged->getSelectedId() - 2);
-        if (comboBoxThatHasChanged->getSelectedId() - 1 > 0)
-            m_triggerSelected = comboBoxThatHasChanged->getSelectedId() - 1;
-        else
-            m_triggerSelected = 1;
+        m_triggerSelected = jmax(1, comboBoxThatHasChanged->getSelectedId());
+
     }
     else if (comboBoxThatHasChanged == gateSelector)
     {
         processor->setParameter(0, channelNumber);
         processor->setParameter(2, (float) comboBoxThatHasChanged->getSelectedId() - 2);
-        if (comboBoxThatHasChanged->getSelectedId() - 1 > 0)
-            m_gateSelected = comboBoxThatHasChanged->getSelectedId() - 1;
-        else
-            m_gateSelected = 1;    }
+        m_gateSelected = jmax(1, comboBoxThatHasChanged->getSelectedId());
+    }
 }
 
 int ChannelTriggerInterface::getTriggerChannel()

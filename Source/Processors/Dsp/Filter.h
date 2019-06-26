@@ -53,7 +53,7 @@ namespace Dsp
  * parameters.
  *
  */
-class Filter
+class PLUGIN_API Filter
 {
 public:
     virtual ~Filter();

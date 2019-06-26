@@ -60,7 +60,7 @@
       <Filter>Source Files\rhythm-api</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Source\Plugins\IntanRecordingController\USBThread.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

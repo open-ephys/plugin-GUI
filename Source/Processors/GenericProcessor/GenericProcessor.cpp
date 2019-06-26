@@ -1,25 +1,25 @@
 /*
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+	This file is part of the Open Ephys GUI
+	Copyright (C) 2016 Open Ephys
 
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-*/
+	*/
 #include "GenericProcessor.h"
 #include "../../UI/UIComponent.h"
 #include "../../AccessClass.h"
@@ -27,25 +27,25 @@
 #include <exception>
 
 
-const String GenericProcessor::m_unusedNameString ("xxx-UNUSED-OPEN-EPHYS-xxx");
+const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
-GenericProcessor::GenericProcessor (const String& name)
-    : sourceNode                    (0)
-    , destNode                      (0)
-    , isEnabled                     (true)
-    , wasConnected                  (false)
-    , nextAvailableChannel          (0)
-    , saveOrder                     (-1)
-    , loadOrder                     (-1)
-    , currentChannel                (-1)
-    , editor                        (nullptr)
-    , parametersAsXml               (nullptr)
-    , sendSampleCount               (true)
-    , m_processorType                   (PROCESSOR_TYPE_UTILITY)
-    , m_name                            (name)
-    , m_isParamsWereLoaded              (false)
+GenericProcessor::GenericProcessor(const String& name)
+	: sourceNode(0)
+	, destNode(0)
+	, isEnabled(true)
+	, wasConnected(false)
+	, nextAvailableChannel(0)
+	, saveOrder(-1)
+	, loadOrder(-1)
+	, currentChannel(-1)
+	, editor(nullptr)
+	, parametersAsXml(nullptr)
+	, sendSampleCount(true)
+	, m_processorType(PROCESSOR_TYPE_UTILITY)
+	, m_name(name)
+	, m_isParamsWereLoaded(false)
 {
-    settings.numInputs = settings.numOutputs = 0;
+	settings.numInputs = settings.numOutputs = 0;
 	m_lastProcessTime = Time::getHighResolutionTicks();
 }
 
@@ -57,246 +57,246 @@ GenericProcessor::~GenericProcessor()
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
-    editor = new GenericEditor (this, true);
-    return editor;
+	editor = new GenericEditor(this, true);
+	return editor;
 }
 
 
-void GenericProcessor::setNodeId (int id)
+void GenericProcessor::setNodeId(int id)
 {
-    nodeId = id;
+	nodeId = id;
 
-    if (editor != 0)
-    {
-        editor->updateName();
-    }
+	if (editor != 0)
+	{
+		editor->updateName();
+	}
 }
 
 
-Parameter* GenericProcessor::getParameterByName (String name)
+Parameter* GenericProcessor::getParameterByName(String name)
 {
-    const int numParameters = getNumParameters();
-    // doesn't work
-    for (int i = 0; i < numParameters; ++i)
-    {
-        const auto parameter = parameters[i];
-        const String parameterName = parameter->getName();
+	const int numParameters = getNumParameters();
+	// doesn't work
+	for (int i = 0; i < numParameters; ++i)
+	{
+		const auto parameter = parameters[i];
+		const String parameterName = parameter->getName();
 
-        if (parameterName.compare (name) == 0) // fails at this point
-            return parameter;//parameters.getReference(i);
-    }
+		if (parameterName.compare(name) == 0) // fails at this point
+			return parameter;//parameters.getReference(i);
+	}
 
-    Parameter* nullParam = new Parameter ("VOID", false, -1);
+	Parameter* nullParam = new Parameter("VOID", false, -1);
 
-    return nullParam;
+	return nullParam;
 }
 
 
-Parameter* GenericProcessor::getParameterObject (int parameterIndex) const
+Parameter* GenericProcessor::getParameterObject(int parameterIndex) const
 {
-    return parameters[parameterIndex];
+	return parameters[parameterIndex];
 }
 
 
-void GenericProcessor::setParameter (int parameterIndex, float newValue)
+void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
-    editor->updateParameterButtons (parameterIndex);
-    std::cout << "Setting parameter" << std::endl;
+	editor->updateParameterButtons(parameterIndex);
+	std::cout << "Setting parameter" << std::endl;
 
-    if (currentChannel >= 0)
-        parameters[parameterIndex]->setValue (newValue, currentChannel);
+	if (currentChannel >= 0)
+		parameters[parameterIndex]->setValue(newValue, currentChannel);
 }
 
 
-const String GenericProcessor::getParameterName (int parameterIndex)
+const String GenericProcessor::getParameterName(int parameterIndex)
 {
-    return parameters[parameterIndex]->getName();
+	return parameters[parameterIndex]->getName();
 }
 
 
-const String GenericProcessor::getParameterText (int parameterIndex)
+const String GenericProcessor::getParameterText(int parameterIndex)
 {
-    return parameters[parameterIndex]->getDescription();
+	return parameters[parameterIndex]->getDescription();
 }
 
 
-var GenericProcessor::getParameterVar (int parameterIndex, int parameterChannel)
+var GenericProcessor::getParameterVar(int parameterIndex, int parameterChannel)
 {
-    const auto parameter = parameters[parameterIndex];
-    return parameter->operator[] (parameterChannel);
+	const auto parameter = parameters[parameterIndex];
+	return parameter->operator[] (parameterChannel);
 }
 
 
-void GenericProcessor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
+void GenericProcessor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 }
 
 
 void GenericProcessor::releaseResources()
 {
-    // use the disable() function instead
-    // releaseResources() is called by Juce at unpredictable times
-    // disable() is only called by the ProcessorGraph at the end of acquisition
+	// use the disable() function instead
+	// releaseResources() is called by Juce at unpredictable times
+	// disable() is only called by the ProcessorGraph at the end of acquisition
 }
 
 
-int GenericProcessor::getNextChannel (bool increment)
+int GenericProcessor::getNextChannel(bool increment)
 {
-    int chan = nextAvailableChannel;
+	int chan = nextAvailableChannel;
 
-    //std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
+	//std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
 
-    if (increment)
-        nextAvailableChannel++;
+	if (increment)
+		nextAvailableChannel++;
 
-    if (chan < getNumInputs())
-        return chan;
-    else
-        return -1;
+	if (chan < getNumInputs())
+		return chan;
+	else
+		return -1;
 }
 
 
 void GenericProcessor::resetConnections()
 {
-    nextAvailableChannel = 0;
+	nextAvailableChannel = 0;
 
-    wasConnected = false;
+	wasConnected = false;
 }
 
 
-void GenericProcessor::setSourceNode (GenericProcessor* sn)
+void GenericProcessor::setSourceNode(GenericProcessor* sn)
 {
-    //std::cout << "My name is " << getName() << ". Setting source node." << std::endl;
+	//std::cout << "My name is " << getName() << ". Setting source node." << std::endl;
 
-    if (! isSource())
-    {
-        //	std::cout << " I am not a source." << std::endl;
+	if (!isSource())
+	{
+		//	std::cout << " I am not a source." << std::endl;
 
-        if (sn != 0)
-        {
-            //	std::cout << " The source is not blank." << std::endl;
+		if (sn != 0)
+		{
+			//	std::cout << " The source is not blank." << std::endl;
 
-            if (! sn->isSink())
-            {
-                //		std::cout << " The source is not a sink." << std::endl;
-                if (sourceNode != sn)
-                {
-                    //			std::cout << " The source is new and named " << sn->getName() << std::endl;
+			if (!sn->isSink())
+			{
+				//		std::cout << " The source is not a sink." << std::endl;
+				if (sourceNode != sn)
+				{
+					//			std::cout << " The source is new and named " << sn->getName() << std::endl;
 
-                    if (this->isMerger())
-                        setMergerSourceNode (sn);
-                    else
-                        sourceNode = sn;
+					if (this->isMerger())
+						setMergerSourceNode(sn);
+					else
+						sourceNode = sn;
 
-                    sn->setDestNode (this);
-                }
-                else
-                {
-                    //			std::cout << "  The source node is not new." << std::endl;
-                }
-            }
-            else
-            {
-                //		std::cout << " The source is a sink." << std::endl;
-                sourceNode = 0;
-            }
+					sn->setDestNode(this);
+				}
+				else
+				{
+					//			std::cout << "  The source node is not new." << std::endl;
+				}
+			}
+			else
+			{
+				//		std::cout << " The source is a sink." << std::endl;
+				sourceNode = 0;
+			}
 
-        }
-        else
-        {
-            //		std::cout << " The source is blank." << std::endl;
-            sourceNode = 0;
-        }
-    }
-    else
-    {
-        //	std::cout << " I am a source. I can't have a source node." << std::endl;
+		}
+		else
+		{
+			//		std::cout << " The source is blank." << std::endl;
+			sourceNode = 0;
+		}
+	}
+	else
+	{
+		//	std::cout << " I am a source. I can't have a source node." << std::endl;
 
-        if (sn != 0)
-            sn->setDestNode (this);
-    }
+		if (sn != 0)
+			sn->setDestNode(this);
+	}
 }
 
 
-void GenericProcessor::setDestNode (GenericProcessor* dn)
+void GenericProcessor::setDestNode(GenericProcessor* dn)
 {
-    //	std::cout << "My name is " << getName() << ". Setting dest node." << std::endl;
+	//	std::cout << "My name is " << getName() << ". Setting dest node." << std::endl;
 
-    if (! isSink())
-    {
-        //	std::cout << "  I am not a sink." << std::endl;
+	if (!isSink())
+	{
+		//	std::cout << "  I am not a sink." << std::endl;
 
-        if (dn != 0)
-        {
-            //		std::cout << "  The dest node is not blank." << std::endl;
-            if (!dn->isSource())
-            {
-                //		std::cout << "  The dest node is not a source." << std::endl;
+		if (dn != 0)
+		{
+			//		std::cout << "  The dest node is not blank." << std::endl;
+			if (!dn->isSource())
+			{
+				//		std::cout << "  The dest node is not a source." << std::endl;
 
-                if (destNode != dn)
-                {
-                    //		std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
-                    //
-                    if (this->isSplitter())
-                        setSplitterDestNode (dn);
-                    else
-                        destNode = dn;
+				if (destNode != dn)
+				{
+					//		std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
+					//
+					if (this->isSplitter())
+						setSplitterDestNode(dn);
+					else
+						destNode = dn;
 
-                    dn->setSourceNode (this);
-                }
-                else
-                {
-                    //		std::cout << "  The dest node is not new." << std::endl;
-                }
-            }
-            else
-            {
-                //	std::cout << "  The dest node is a source." << std::endl;
+					dn->setSourceNode(this);
+				}
+				else
+				{
+					//		std::cout << "  The dest node is not new." << std::endl;
+				}
+			}
+			else
+			{
+				//	std::cout << "  The dest node is a source." << std::endl;
 
-                destNode = 0;
-            }
-        }
-        else
-        {
-            //	std::cout << "  The dest node is blank." << std::endl;
+				destNode = 0;
+			}
+		}
+		else
+		{
+			//	std::cout << "  The dest node is blank." << std::endl;
 
-            destNode = 0;
-        }
-    }
-    else
-    {
-        //std::cout << "  I am a sink, I can't have a dest node." << std::endl;
-        //if (dn != 0)
-        //	dn->setSourceNode(this);
-    }
+			destNode = 0;
+		}
+	}
+	else
+	{
+		//std::cout << "  I am a sink, I can't have a dest node." << std::endl;
+		//if (dn != 0)
+		//	dn->setSourceNode(this);
+	}
 }
 
 
 void GenericProcessor::clearSettings()
 {
-    //std::cout << "Generic processor clearing settings." << std::endl;
+	//std::cout << "Generic processor clearing settings." << std::endl;
 
-    settings.originalSource = 0;
-    settings.numInputs = 0;
-    settings.numOutputs = 0;
+	settings.originalSource = 0;
+	settings.numInputs = 0;
+	settings.numOutputs = 0;
 
-    // std::cout << "Record status size = " << recordStatus.size() << std::endl;
+	// std::cout << "Record status size = " << recordStatus.size() << std::endl;
 
-    if (m_recordStatus.size() < dataChannelArray.size())
-        m_recordStatus.resize (dataChannelArray.size());
+	if (m_recordStatus.size() < dataChannelArray.size())
+		m_recordStatus.resize(dataChannelArray.size());
 
-    if (m_monitorStatus.size() < dataChannelArray.size())
-        m_monitorStatus.resize (dataChannelArray.size());
+	if (m_monitorStatus.size() < dataChannelArray.size())
+		m_monitorStatus.resize(dataChannelArray.size());
 
-    for (int i = 0; i < dataChannelArray.size(); ++i)
-    {
-        // std::cout << channels[i]->getRecordState() << std::endl;
-        m_recordStatus.set    (i, dataChannelArray[i]->getRecordState());
-        m_monitorStatus.set   (i, dataChannelArray[i]->isMonitored());
-    }
+	for (int i = 0; i < dataChannelArray.size(); ++i)
+	{
+		// std::cout << channels[i]->getRecordState() << std::endl;
+		m_recordStatus.set(i, dataChannelArray[i]->getRecordState());
+		m_monitorStatus.set(i, dataChannelArray[i]->isMonitored());
+	}
 
-    dataChannelArray.clear();
-    eventChannelArray.clear();
+	dataChannelArray.clear();
+	eventChannelArray.clear();
 	spikeChannelArray.clear();
 	configurationObjectArray.clear();
 	clearChannelCreationCounts();
@@ -305,33 +305,33 @@ void GenericProcessor::clearSettings()
 
 void GenericProcessor::update()
 {
-    std::cout << getName() << " updating settings." << std::endl;
+	std::cout << getName() << " updating settings." << std::endl;
 
-    // ---- RESET EVERYTHING ---- ///
-    clearSettings();
+	// ---- RESET EVERYTHING ---- ///
+	clearSettings();
 
-    if (sourceNode != 0) // copy settings from source node
-    {
-        // everything is inherited except numOutputs
-        settings = sourceNode->settings;
-        settings.numInputs = settings.numOutputs;
-        settings.numOutputs = settings.numInputs;
+	if (sourceNode != 0) // copy settings from source node
+	{
+		// everything is inherited except numOutputs
+		settings = sourceNode->settings;
+		settings.numInputs = settings.numOutputs;
+		settings.numOutputs = settings.numInputs;
 
-        for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
-        {
-            DataChannel* sourceChan = sourceNode->dataChannelArray[i];
-            DataChannel* ch = new DataChannel (*sourceChan);
+		for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
+		{
+			DataChannel* sourceChan = sourceNode->dataChannelArray[i];
+			DataChannel* ch = new DataChannel(*sourceChan);
 
 
-            if (i < m_recordStatus.size())
-            {
-                ch->setRecordState (m_recordStatus[i]);
-                ch->setMonitored( m_monitorStatus[i]);
-            }
+			if (i < m_recordStatus.size())
+			{
+				ch->setRecordState(m_recordStatus[i]);
+				ch->setMonitored(m_monitorStatus[i]);
+			}
 
 			ch->addToHistoricString(getName());
-            dataChannelArray.add (ch);
-        }
+			dataChannelArray.add(ch);
+		}
 
 		for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
 		{
@@ -354,9 +354,9 @@ void GenericProcessor::update()
 			ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
 			configurationObjectArray.add(ch);
 		}
-    }
-    else // generate new settings
-    {
+	}
+	else // generate new settings
+	{
 
 		createDataChannels(); //Only sources can create data channels
 		settings.numOutputs = dataChannelArray.size();
@@ -370,33 +370,33 @@ void GenericProcessor::update()
 				if (isSource())
 					dataChannelArray[i]->setRecordState(true);
 		}
-    }
+	}
 
 	//Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
 	createEventChannels();
 	createSpikeChannels();
 	createConfigurationObjects();
 
-    if (this->isSink())
-    {
-        settings.numOutputs = 0;
-    }
+	if (this->isSink())
+	{
+		settings.numOutputs = 0;
+	}
 
-    updateSettings(); // allow processors to change custom settings
+	updateSettings(); // allow processors to change custom settings
 
 	updateChannelIndexes();
 
 	m_needsToSendTimestampMessages.clear();
 	m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumSubProcessors());
 
-    // required for the ProcessorGraph to know the
-    // details of this processor:
-    setPlayConfigDetails (getNumInputs(),  // numIns
-                          getNumOutputs(), // numOuts
-                          44100.0,         // sampleRate
-                          128);            // blockSize
+	// required for the ProcessorGraph to know the
+	// details of this processor:
+	setPlayConfigDetails(getNumInputs(),  // numIns
+		getNumOutputs(), // numOuts
+		44100.0,         // sampleRate
+		128);            // blockSize
 
-    editor->update(); // allow the editor to update its settings
+	editor->update(); // allow the editor to update its settings
 }
 
 void GenericProcessor::updateChannelIndexes(bool updateNodeID)
@@ -405,8 +405,10 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 	dataChannelMap.clear();
 	eventChannelMap.clear();
 	spikeChannelMap.clear();
+	unsigned int nChans;
 
-	for (int i = 0; i < dataChannelArray.size(); i++)
+	nChans = dataChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		DataChannel* channel = dataChannelArray[i];
 		if (updateNodeID)
@@ -419,7 +421,8 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		dataChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
-	for (int i = 0; i < eventChannelArray.size(); i++)
+	nChans = eventChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		EventChannel* channel = eventChannelArray[i];
 		if (updateNodeID)
@@ -432,7 +435,8 @@ void GenericProcessor::updateChannelIndexes(bool updateNodeID)
 		uint32 sourceID = getProcessorFullId(channel->getSourceNodeID(), channel->getSubProcessorIdx());
 		eventChannelMap[sourceID][channel->getSourceIndex()] = i;
 	}
-	for (int i = 0; i < spikeChannelArray.size(); i++)
+	nChans = spikeChannelArray.size();
+	for (int i = 0; i < nChans; i++)
 	{
 		SpikeChannel* channel = spikeChannelArray[i];
 		if (updateNodeID)
@@ -508,126 +512,126 @@ void GenericProcessor::createConfigurationObjects() {};
 
 void GenericProcessor::setAllChannelsToRecord()
 {
-    m_recordStatus.resize (dataChannelArray.size());
+	m_recordStatus.resize(dataChannelArray.size());
 
-    for (int i = 0; i < dataChannelArray.size(); ++i)
-    {
-        m_recordStatus.set (i, true);
-    }
+	for (int i = 0; i < dataChannelArray.size(); ++i)
+	{
+		m_recordStatus.set(i, true);
+	}
 
-    // std::cout << "Setting all channels to record for source." << std::endl;
+	// std::cout << "Setting all channels to record for source." << std::endl;
 }
 
 
-void GenericProcessor::setRecording (bool state)
+void GenericProcessor::setRecording(bool state)
 {
-    GenericEditor* ed = getEditor();
-    if (state)
-    {
-        if (ed != 0)
-            ed->startRecording();
+	GenericEditor* ed = getEditor();
+	if (state)
+	{
+		if (ed != 0)
+			ed->startRecording();
 
-        startRecording();
-        if (isGeneratesTimestamps())
-        {
+		startRecording();
+		if (isGeneratesTimestamps())
+		{
 			m_needsToSendTimestampMessages.clearQuick();
 			m_needsToSendTimestampMessages.insertMultiple(-1, true, getNumSubProcessors());
-        }
-    }
-    else
-    {
-        if (ed != 0)
-            ed->stopRecording();
+		}
+	}
+	else
+	{
+		if (ed != 0)
+			ed->stopRecording();
 
-        stopRecording();
+		stopRecording();
 		m_needsToSendTimestampMessages.clearQuick();
 		m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumSubProcessors());
-    }
+	}
 }
 
 
 void GenericProcessor::enableEditor()
 {
-    GenericEditor* ed = getEditor();
+	GenericEditor* ed = getEditor();
 
-    if (ed != 0)
-        ed->editorStartAcquisition();
+	if (ed != 0)
+		ed->editorStartAcquisition();
 }
 
 
 void GenericProcessor::disableEditor()
 {
-    GenericEditor* ed = getEditor();
+	GenericEditor* ed = getEditor();
 
-    if (ed != nullptr)
-        ed->editorStopAcquisition();
+	if (ed != nullptr)
+		ed->editorStopAcquisition();
 }
 
 
 /** Used to get the number of samples in a given buffer, for a given channel. */
-uint32 GenericProcessor::getNumSamples (int channelNum) const
+uint32 GenericProcessor::getNumSamples(int channelNum) const
 {
-    int sourceNodeId = 0;
+	int sourceNodeId = 0;
 	int subProcessorId = 0;
-    int nSamples     = 0;
+	int nSamples = 0;
 
-    if (channelNum >= 0
-        && channelNum < dataChannelArray.size())
-    {
-        sourceNodeId = dataChannelArray[channelNum]->getSourceNodeID();
+	if (channelNum >= 0
+		&& channelNum < dataChannelArray.size())
+	{
+		sourceNodeId = dataChannelArray[channelNum]->getSourceNodeID();
 		subProcessorId = dataChannelArray[channelNum]->getSubProcessorIdx();
-    }
-    else
-    {
-        return 0;
-    }
+	}
+	else
+	{
+		return 0;
+	}
 
-    // std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
+	// std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
 	uint32 sourceID = getProcessorFullId(sourceNodeId, subProcessorId);
-    try
-    {
-        nSamples = numSamples.at (sourceID);
-    }
-    catch (...)
-    {
-        return 0;
-    }
+	try
+	{
+		nSamples = numSamples.at(sourceID);
+	}
+	catch (...)
+	{
+		return 0;
+	}
 
-    //std::cout << nSamples << " were found." << std::endl;
+	//std::cout << nSamples << " were found." << std::endl;
 
-    return nSamples;
+	return nSamples;
 }
 
 
 /** Used to get the timestamp for a given buffer, for a given source node. */
-juce::uint64 GenericProcessor::getTimestamp (int channelNum) const
+juce::uint64 GenericProcessor::getTimestamp(int channelNum) const
 {
-    int sourceNodeId = 0;
+	int sourceNodeId = 0;
 	int subProcessorIdx = 0;
-    int64 ts         = 0;
+	int64 ts = 0;
 
-    if (channelNum >= 0
-        && channelNum < dataChannelArray.size())
-    {
-        sourceNodeId = dataChannelArray[channelNum]->getSourceNodeID();
+	if (channelNum >= 0
+		&& channelNum < dataChannelArray.size())
+	{
+		sourceNodeId = dataChannelArray[channelNum]->getSourceNodeID();
 		subProcessorIdx = dataChannelArray[channelNum]->getSubProcessorIdx();
-    }
-    else
-    {
-        return 0;
-    }
+	}
+	else
+	{
+		return 0;
+	}
 
 	uint32 sourceID = getProcessorFullId(sourceNodeId, subProcessorIdx);
-    try
-    {
-        ts = timestamps.at (sourceID);
-    }
-    catch (...)
-    {
-        return 0;
-    }
+	try
+	{
+		ts = timestamps.at(sourceID);
+	}
+	catch (...)
+	{
+		return 0;
+	}
 
-    return ts;
+	return ts;
 }
 
 uint32 GenericProcessor::getNumSourceSamples(uint16 processorID, uint16 subProcessorIdx) const
@@ -674,7 +678,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 {
 
 	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-    //std::cout << "Setting timestamp to " << timestamp << std:;endl;
+	//std::cout << "Setting timestamp to " << timestamp << std:;endl;
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, subProcessorIdx, timestamp, nSamples);
@@ -684,19 +688,19 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 
 	uint32 sourceID = getProcessorFullId(nodeId, subProcessorIdx);
 
-    //since the processor generating the timestamp won't get the event, add it to the map
-    timestamps[sourceID] = timestamp;
+	//since the processor generating the timestamp won't get the event, add it to the map
+	timestamps[sourceID] = timestamp;
 	numSamples[sourceID] = nSamples;
 
-    if (m_needsToSendTimestampMessages[subProcessorIdx])
-    {
+	if (m_needsToSendTimestampMessages[subProcessorIdx] && nSamples > 0)
+	{
 		HeapBlock<char> data;
 		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, subProcessorIdx, timestamp, false);
 
 		eventBuffer.addEvent(data, dataSize, 0);
 
 		m_needsToSendTimestampMessages.set(subProcessorIdx, false);
-    }
+	}
 }
 
 
@@ -750,24 +754,24 @@ int GenericProcessor::processEventBuffer()
 
 int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
-    if (m_currentMidiBuffer->getNumEvents() > 0)
-    {
+	if (m_currentMidiBuffer->getNumEvents() > 0)
+	{
 		//Since adding events to the buffer inside this loop could be dangerous, create a temporal event buffer
 		//so any call to addEvent will operate on it;
 		MidiBuffer temporalEventBuffer;
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
 		m_currentMidiBuffer = &temporalEventBuffer;
-        // int m = midiMessages.getNumEvents();
-        //std::cout << m << " events received by node " << getNodeId() << std::endl;
+		// int m = midiMessages.getNumEvents();
+		//std::cout << m << " events received by node " << getNodeId() << std::endl;
 
 		MidiBuffer::Iterator i(*originalEventBuffer);
-        MidiMessage message (0xf4);
+		MidiMessage message(0xf4);
 
-        int samplePosition = 0;
-        i.setNextSamplePosition (samplePosition);
+		int samplePosition = 0;
+		i.setNextSamplePosition(samplePosition);
 
-        while (i.getNextEvent (message, samplePosition))
-        {
+		while (i.getNextEvent(message, samplePosition))
+		{
 			uint16 sourceId = EventBase::getSourceID(message);
 			uint16 subProc = EventBase::getSubProcessorIdx(message);
 			uint16 index = EventBase::getSourceIndex(message);
@@ -787,16 +791,16 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 				if (spikeIndex >= 0)
 					handleSpike(spikeChannelArray[index], message, samplePosition);
 			}
-        }
+		}
 		//Restore the original buffer pointer and, if some new event has been added here, copy it to the original buffer
 		m_currentMidiBuffer = originalEventBuffer;
 		if (temporalEventBuffer.getNumEvents() > 0)
 			m_currentMidiBuffer->addEvents(temporalEventBuffer, 0, -1, 0);
 
 		return 0;
-    }
+	}
 
-    return -1;
+	return -1;
 }
 
 void GenericProcessor::addEvent(int channelIndex, const Event* event, int sampleNum)
@@ -809,7 +813,7 @@ void GenericProcessor::addEvent(const EventChannel* channel, const Event* event,
 	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + EVENT_BASE_SIZE;
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
-	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
 }
 
 void GenericProcessor::addSpike(int channelIndex, const SpikeEvent* event, int sampleNum)
@@ -822,18 +826,18 @@ void GenericProcessor::addSpike(const SpikeChannel* channel, const SpikeEvent* e
 	size_t size = channel->getDataSize() + channel->getTotalEventMetaDataSize() + SPIKE_BASE_SIZE + channel->getNumChannels()*sizeof(float);
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
-	m_currentMidiBuffer->addEvent(buffer, size, sampleNum);
+	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
 }
 
 
-void GenericProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
+void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
 {
 	m_currentMidiBuffer = &eventBuffer;
-    processEventBuffer (); // extract buffer sizes and timestamps,
-    // set flag on all TTL events to zero
+	processEventBuffer(); // extract buffer sizes and timestamps,
+	// set flag on all TTL events to zero
 
 	m_lastProcessTime = Time::getHighResolutionTicks();
-    process (buffer);
+	process(buffer);
 
 }
 
@@ -930,25 +934,25 @@ int GenericProcessor::getSpikeChannelIndex(const SpikeEvent* event) const
 /////// ---- LOADING AND SAVING ---- //////////
 
 
-void GenericProcessor::saveToXml (XmlElement* parentElement)
+void GenericProcessor::saveToXml(XmlElement* parentElement)
 {
-    parentElement->setAttribute ("NodeId", nodeId);
+	parentElement->setAttribute("NodeId", nodeId);
 
-    saveCustomParametersToXml (parentElement);
+	saveCustomParametersToXml(parentElement);
 
-    // loop through the channels
+	// loop through the channels
 
-    for (int i = 0; i < dataChannelArray.size(); ++i)
-    {
-        if (! isSplitter() && ! isMerger())
-            saveChannelParametersToXml (parentElement, i, InfoObjectCommon::DATA_CHANNEL);
-    }
+	for (int i = 0; i < dataChannelArray.size(); ++i)
+	{
+		if (!isSplitter() && !isMerger())
+			saveChannelParametersToXml(parentElement, i, InfoObjectCommon::DATA_CHANNEL);
+	}
 
-    for (int i = 0; i < eventChannelArray.size(); ++i)
-    {
-        if (! isSplitter() && ! isMerger())
-            saveChannelParametersToXml (parentElement, i, InfoObjectCommon::EVENT_CHANNEL);
-    }
+	for (int i = 0; i < eventChannelArray.size(); ++i)
+	{
+		if (!isSplitter() && !isMerger())
+			saveChannelParametersToXml(parentElement, i, InfoObjectCommon::EVENT_CHANNEL);
+	}
 
 	for (int i = 0; i < spikeChannelArray.size(); ++i)
 	{
@@ -956,41 +960,41 @@ void GenericProcessor::saveToXml (XmlElement* parentElement)
 			saveChannelParametersToXml(parentElement, i, InfoObjectCommon::SPIKE_CHANNEL);
 	}
 
-    // Save editor parameters:
-    XmlElement* editorChildNode = parentElement->createNewChildElement ("EDITOR");
-    getEditor()->saveEditorParameters (editorChildNode);
+	// Save editor parameters:
+	XmlElement* editorChildNode = parentElement->createNewChildElement("EDITOR");
+	getEditor()->saveEditorParameters(editorChildNode);
 }
 
 
-void GenericProcessor::saveCustomParametersToXml (XmlElement* parentElement)
+void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 {
 }
 
-void GenericProcessor::saveChannelParametersToXml (XmlElement* parentElement, int channelNumber, InfoObjectCommon::InfoObjectType type)
+void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int channelNumber, InfoObjectCommon::InfoObjectType type)
 {
 	XmlElement* channelInfo;
-    if ( type == InfoObjectCommon::DATA_CHANNEL)
-    {
-        channelInfo = parentElement->createNewChildElement ("CHANNEL");
-        channelInfo->setAttribute ("name", String (channelNumber));
-        channelInfo->setAttribute ("number", channelNumber);
+	if (type == InfoObjectCommon::DATA_CHANNEL)
+	{
+		channelInfo = parentElement->createNewChildElement("CHANNEL");
+		channelInfo->setAttribute("name", String(channelNumber));
+		channelInfo->setAttribute("number", channelNumber);
 
-        bool p, r, a;
+		bool p, r, a;
 
-        getEditor()->getChannelSelectionState (channelNumber, &p, &r, &a);
+		getEditor()->getChannelSelectionState(channelNumber, &p, &r, &a);
 
-        XmlElement* selectionState = channelInfo->createNewChildElement ("SELECTIONSTATE");
-        selectionState->setAttribute ("param", p);
-        selectionState->setAttribute ("record", r);
-        selectionState->setAttribute ("audio", a);
-    }
+		XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
+		selectionState->setAttribute("param", p);
+		selectionState->setAttribute("record", r);
+		selectionState->setAttribute("audio", a);
+	}
 	else if (type == InfoObjectCommon::EVENT_CHANNEL)
-    {
-        channelInfo = parentElement->createNewChildElement ("EVENTCHANNEL");
-        channelInfo->setAttribute ("name", String (channelNumber));
-        channelInfo->setAttribute ("number", channelNumber);
+	{
+		channelInfo = parentElement->createNewChildElement("EVENTCHANNEL");
+		channelInfo->setAttribute("name", String(channelNumber));
+		channelInfo->setAttribute("number", channelNumber);
 
-    }
+	}
 	else if (type == InfoObjectCommon::SPIKE_CHANNEL)
 	{
 		channelInfo = parentElement->createNewChildElement("SPIKECHANNEL");
@@ -999,133 +1003,132 @@ void GenericProcessor::saveChannelParametersToXml (XmlElement* parentElement, in
 	}
 	saveCustomChannelParametersToXml(channelInfo, channelNumber, type);
 
-    // deprecated parameter configuration:
-    //std::cout <<"Creating Parameters" << std::endl;
-    // int maxsize = parameters.size();
-    // String parameterName;
-    // String parameterValue;
-    // XmlElement* parameterChildNode;
+	// deprecated parameter configuration:
+	//std::cout <<"Creating Parameters" << std::endl;
+	// int maxsize = parameters.size();
+	// String parameterName;
+	// String parameterValue;
+	// XmlElement* parameterChildNode;
 
-    // // save any attributes that belong to "Parameter" objects
-    // for (int n = 0; n < maxsize; n++)
-    // {
-    //     parameterName = getParameterName(n);
+	// // save any attributes that belong to "Parameter" objects
+	// for (int n = 0; n < maxsize; n++)
+	// {
+	//     parameterName = getParameterName(n);
 
-    //     parameterChildNode = channelParent->createNewChildElement("PARAMETER");
-    //     parameterChildNode->setAttribute("name", parameterName);
+	//     parameterChildNode = channelParent->createNewChildElement("PARAMETER");
+	//     parameterChildNode->setAttribute("name", parameterName);
 
-    //     var parameterVar = getParameterVar(n, channelNumber-1);
-    //     parameterValue = parameterVar.toString();
-    //     parameterChildNode->addTextElement(parameterValue);
-    // }
+	//     var parameterVar = getParameterVar(n, channelNumber-1);
+	//     parameterValue = parameterVar.toString();
+	//     parameterChildNode->addTextElement(parameterValue);
+	// }
 }
 
-void GenericProcessor::saveCustomChannelParametersToXml (XmlElement* channelInfo, int channelNum, InfoObjectCommon::InfoObjectType type)
+void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNum, InfoObjectCommon::InfoObjectType type)
 {
 }
 
 
 void GenericProcessor::loadFromXml()
 {
-    update(); // make sure settings are updated
+	update(); // make sure settings are updated
+	if (parametersAsXml != nullptr)
+	{
+		if (!m_isParamsWereLoaded)
+		{
+			std::cout << "Loading parameters for " << m_name << std::endl;
 
-    if (! m_isParamsWereLoaded)
-    {
-        std::cout << "Loading parameters for " << m_name << std::endl;
+			// use parametersAsXml to restore state
+			loadCustomParametersFromXml();
 
-        if (parametersAsXml != nullptr)
-        {
-            // use parametersAsXml to restore state
-            loadCustomParametersFromXml();
-
-            // load editor parameters
-            forEachXmlChildElement (*parametersAsXml, xmlNode)
-            {
-                if (xmlNode->hasTagName ("EDITOR"))
-                {
-                    getEditor()->loadEditorParameters (xmlNode);
-                }
-            }
-
-            forEachXmlChildElement (*parametersAsXml, xmlNode)
-            {
-                if (xmlNode->hasTagName ("CHANNEL"))
-                {
-                    loadChannelParametersFromXml (xmlNode, InfoObjectCommon::DATA_CHANNEL);
-                }
-                else if (xmlNode->hasTagName ("EVENTCHANNEL"))
-                {
-                    loadChannelParametersFromXml (xmlNode, InfoObjectCommon::EVENT_CHANNEL);
-                }
-				else if (xmlNode->hasTagName("SPIKECHANNEL"))
+			// load editor parameters
+			forEachXmlChildElement(*parametersAsXml, xmlNode)
+			{
+				if (xmlNode->hasTagName("EDITOR"))
 				{
-					loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
+					getEditor()->loadEditorParameters(xmlNode);
 				}
-            }
-        }
-    }
+			}
+		}
+		forEachXmlChildElement(*parametersAsXml, xmlNode)
+		{
+			if (xmlNode->hasTagName("CHANNEL"))
+			{
+				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::DATA_CHANNEL);
+			}
+			else if (xmlNode->hasTagName("EVENTCHANNEL"))
+			{
+				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::EVENT_CHANNEL);
+			}
+			else if (xmlNode->hasTagName("SPIKECHANNEL"))
+			{
+				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
+			}
+		}
 
-    m_isParamsWereLoaded = true;
+	}
+
+	m_isParamsWereLoaded = true;
 }
 
 
-void GenericProcessor::loadChannelParametersFromXml (XmlElement* channelInfo, InfoObjectCommon::InfoObjectType type)
+void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType type)
 {
-    int channelNum = channelInfo->getIntAttribute ("number");
+	int channelNum = channelInfo->getIntAttribute("number");
 
-    if (type == InfoObjectCommon::DATA_CHANNEL)
-    {
-        forEachXmlChildElement (*channelInfo, subNode)
-        {
-            if (subNode->hasTagName ("SELECTIONSTATE"))
-            {
-                getEditor()->setChannelSelectionState (channelNum,
-                                                       subNode->getBoolAttribute ("param"),
-                                                       subNode->getBoolAttribute ("record"),
-                                                       subNode->getBoolAttribute ("audio"));
-            }
-        }
-    }
+	if (type == InfoObjectCommon::DATA_CHANNEL)
+	{
+		forEachXmlChildElement(*channelInfo, subNode)
+		{
+			if (subNode->hasTagName("SELECTIONSTATE"))
+			{
+				getEditor()->setChannelSelectionState(channelNum,
+					subNode->getBoolAttribute("param"),
+					subNode->getBoolAttribute("record"),
+					subNode->getBoolAttribute("audio"));
+			}
+		}
+	}
 
-    loadCustomChannelParametersFromXml (channelInfo, type);
+	loadCustomChannelParametersFromXml(channelInfo, type);
 }
 
 
 void GenericProcessor::loadCustomParametersFromXml() { }
-void GenericProcessor::loadCustomChannelParametersFromXml (XmlElement* channelInfo, InfoObjectCommon::InfoObjectType type) { }
+void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType type) { }
 
 void GenericProcessor::reset() {}
 
-void GenericProcessor::setCurrentProgramStateInformation (const void* data, int sizeInBytes) {}
-void GenericProcessor::setStateInformation               (const void* data, int sizeInBytes) {}
+void GenericProcessor::setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}
+void GenericProcessor::setStateInformation(const void* data, int sizeInBytes) {}
 
-void GenericProcessor::getCurrentProgramStateInformation (MemoryBlock& destData) {}
-void GenericProcessor::getStateInformation               (MemoryBlock& destData) {}
+void GenericProcessor::getCurrentProgramStateInformation(MemoryBlock& destData) {}
+void GenericProcessor::getStateInformation(MemoryBlock& destData) {}
 
-void GenericProcessor::changeProgramName (int index, const String& newName) {}
-void GenericProcessor::setCurrentProgram (int index) {}
+void GenericProcessor::changeProgramName(int index, const String& newName) {}
+void GenericProcessor::setCurrentProgram(int index) {}
 
-void GenericProcessor::setCurrentChannel (int chan)
+void GenericProcessor::setCurrentChannel(int chan)
 {
-    currentChannel = chan;
+	currentChannel = chan;
 }
 
 
-void GenericProcessor::setProcessorType (PluginProcessorType processorType)
+void GenericProcessor::setProcessorType(PluginProcessorType processorType)
 {
-    m_processorType = processorType;
+	m_processorType = processorType;
 }
 
 
 //<DEPRECATED>
 // ==================================================================
-const String GenericProcessor::getInputChannelName  (int channelIndex) const { return GenericProcessor::m_unusedNameString; }
-const String GenericProcessor::getOutputChannelName (int channelIndex) const { return GenericProcessor::m_unusedNameString; }
+const String GenericProcessor::getInputChannelName(int channelIndex) const { return GenericProcessor::m_unusedNameString; }
+const String GenericProcessor::getOutputChannelName(int channelIndex) const { return GenericProcessor::m_unusedNameString; }
 // ==================================================================
 
-void GenericProcessor::getEventChannelNames (StringArray& Names) { }
+void GenericProcessor::getEventChannelNames(StringArray& Names) { }
 
-const String GenericProcessor::getProgramName (int index)   { return ""; }
+const String GenericProcessor::getProgramName(int index)   { return ""; }
 const String GenericProcessor::getName() const              { return m_name; }
 
 int GenericProcessor::getCurrentChannel() const { return currentChannel; }
@@ -1134,8 +1137,8 @@ PluginProcessorType GenericProcessor::getProcessorType() const { return m_proces
 
 bool GenericProcessor::hasEditor() const { return false; }
 
-bool GenericProcessor::isInputChannelStereoPair  (int index) const { return true; }
-bool GenericProcessor::isOutputChannelStereoPair (int index) const { return true; }
+bool GenericProcessor::isInputChannelStereoPair(int index) const { return true; }
+bool GenericProcessor::isOutputChannelStereoPair(int index) const { return true; }
 
 bool GenericProcessor::acceptsMidi() const  { return true; }
 bool GenericProcessor::producesMidi() const { return true; }
@@ -1144,22 +1147,22 @@ bool GenericProcessor::silenceInProducesSilenceOut() const  { return false; }
 
 bool GenericProcessor::stillHasSource() const { return true; }
 
-bool GenericProcessor::isParameterAutomatable   (int parameterIndex) const { return false; }
-bool GenericProcessor::isMetaParameter          (int parameterIndex) const { return false; }
+bool GenericProcessor::isParameterAutomatable(int parameterIndex) const { return false; }
+bool GenericProcessor::isMetaParameter(int parameterIndex) const { return false; }
 
-bool GenericProcessor::canSendSignalTo (GenericProcessor*) const { return true; }
+bool GenericProcessor::canSendSignalTo(GenericProcessor*) const { return true; }
 
 bool GenericProcessor::isReady()                { return isEnabled; }
 bool GenericProcessor::isEnabledState() const   { return isEnabled; }
 
 bool GenericProcessor::isGeneratesTimestamps() const { return false; }
 
-bool GenericProcessor::isFilter()        const  { return getProcessorType() == PROCESSOR_TYPE_FILTER;        }
-bool GenericProcessor::isSource()        const  { return getProcessorType() == PROCESSOR_TYPE_SOURCE;        }
-bool GenericProcessor::isSink()          const  { return getProcessorType() == PROCESSOR_TYPE_SINK;          }
-bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER;      }
-bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER;        }
-bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY;       }
+bool GenericProcessor::isFilter()        const  { return getProcessorType() == PROCESSOR_TYPE_FILTER; }
+bool GenericProcessor::isSource()        const  { return getProcessorType() == PROCESSOR_TYPE_SOURCE; }
+bool GenericProcessor::isSink()          const  { return getProcessorType() == PROCESSOR_TYPE_SINK; }
+bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER; }
+bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER; }
+bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
 
 int GenericProcessor::getNumParameters()    { return parameters.size(); }
 int GenericProcessor::getNumPrograms()      { return 0; }
@@ -1187,12 +1190,12 @@ int GenericProcessor::getTotalNumberOfChannels() const      { return dataChannel
 
 double GenericProcessor::getTailLengthSeconds() const       { return 1.0f; }
 
-float GenericProcessor::getParameter (int parameterIndex)   { return 1.0; }
+float GenericProcessor::getParameter(int parameterIndex)   { return 1.0; }
 float GenericProcessor::getDefaultSampleRate() const        { return 44100.0; }
 float GenericProcessor::getSampleRate(int) const               { return getDefaultSampleRate(); }
 float GenericProcessor::getDefaultBitVolts() const          { return 1.0; }
 float GenericProcessor::getBitVolts(int) const				{ return getDefaultBitVolts(); }
-float GenericProcessor::getBitVolts (const DataChannel* chan) const   { return 1.0; }
+float GenericProcessor::getBitVolts(const DataChannel* chan) const   { return 1.0; }
 
 GenericProcessor* GenericProcessor::getSourceNode() const { return sourceNode; }
 GenericProcessor* GenericProcessor::getDestNode()   const { return destNode; }
@@ -1204,19 +1207,19 @@ GenericEditor* GenericProcessor::getEditor() const { return editor; }
 AudioSampleBuffer* GenericProcessor::getContinuousBuffer() const { return 0; }
 MidiBuffer* GenericProcessor::getEventBuffer() const             { return 0; }
 
-void GenericProcessor::switchIO (int)   { }
+void GenericProcessor::switchIO(int)   { }
 void GenericProcessor::switchIO()       { }
 
-void GenericProcessor::setPathToProcessor   (GenericProcessor* p)   { }
-void GenericProcessor::setMergerSourceNode  (GenericProcessor* sn)  { }
-void GenericProcessor::setSplitterDestNode  (GenericProcessor* dn)  { }
+void GenericProcessor::setPathToProcessor(GenericProcessor* p)   { }
+void GenericProcessor::setMergerSourceNode(GenericProcessor* sn)  { }
+void GenericProcessor::setSplitterDestNode(GenericProcessor* dn)  { }
 
 void GenericProcessor::startRecording() { }
 void GenericProcessor::stopRecording()  { }
 
 void GenericProcessor::updateSettings() { }
 
-void GenericProcessor::enableCurrentChannel (bool) {}
+void GenericProcessor::enableCurrentChannel(bool) {}
 
 void GenericProcessor::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) {}
 
@@ -1224,9 +1227,9 @@ void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const MidiMess
 
 void GenericProcessor::handleTimestampSyncTexts(const MidiMessage& event) {};
 
-void GenericProcessor::setEnabledState (bool t)
+void GenericProcessor::setEnabledState(bool t)
 {
-    isEnabled = t;
+	isEnabled = t;
 }
 
 bool GenericProcessor::enableProcessor()
@@ -1242,12 +1245,12 @@ bool GenericProcessor::disableProcessor()
 
 bool GenericProcessor::enable()
 {
-    return isEnabled;
+	return isEnabled;
 }
 
 bool GenericProcessor::disable()
 {
-    return true;
+	return true;
 }
 
 GenericProcessor::DefaultEventInfo::DefaultEventInfo(EventChannel::EventChannelTypes t, unsigned int c, unsigned int l, float s)

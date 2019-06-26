@@ -1,10 +1,3 @@
-// Defaults for values that might be overridden in Env.xcconfig
-JULIA_PATH = /Applications/Julia-0.5.app/Contents/Resources/julia
-MAC_PACKAGE_DIR = /opt/local
-
-// Pull in machine-specific settings from git-ignored file, if it exists.
-#include "Env.xcconfig"
-
 #include "Base.xcconfig"
 
 CONFIGURATION_BUILD_DIR = $(PROJECT_DIR)/../../build/$(CONFIGURATION)/open-ephys.app/Contents/PlugIns

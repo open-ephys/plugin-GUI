@@ -25,25 +25,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <BasicJuceHeader.h>
 #include <atomic>
+
 class Rhd2000EvalBoardUsb3;
-
-class USBThread : Thread
+namespace IntanRecordingController
 {
-public:
-	USBThread(Rhd2000EvalBoardUsb3*);
-	~USBThread();
-	void run() override;
-	void startAcquisition(int nBytes);
-	void stopAcquisition();
-	long usbRead(unsigned char*&);
-private:
-	Rhd2000EvalBoardUsb3* const m_board;
-	HeapBlock<unsigned char> m_buffers[2];
-	long m_lastRead[2];
-	unsigned short m_curBuffer{ 0 };
-	unsigned short m_readBuffer{ 0 };
-	bool m_canRead{ false };
-	CriticalSection m_lock;
-};
 
+	class USBThread : Thread
+	{
+	public:
+		USBThread(Rhd2000EvalBoardUsb3*);
+		~USBThread();
+		void run() override;
+		void startAcquisition(int nBytes);
+		void stopAcquisition();
+		long usbRead(unsigned char*&);
+	private:
+		Rhd2000EvalBoardUsb3* const m_board;
+		HeapBlock<unsigned char> m_buffers[2];
+		long m_lastRead[2];
+		unsigned short m_curBuffer{ 0 };
+		unsigned short m_readBuffer{ 0 };
+		bool m_canRead{ false };
+		CriticalSection m_lock;
+	};
+}
 #endif

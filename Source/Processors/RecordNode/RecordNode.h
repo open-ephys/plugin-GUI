@@ -103,15 +103,6 @@ public:
     */
     void setChannel(const DataChannel* ch);
 
-    /** Turns recording on and off for a particular channel.
-
-        Channel numbers are absolute (based on RecordNode channel mapping).
-        
-        Returns a bool indicating whether the status update was successful (true)
-        or blocked (false) because recording is currently in progress.
-    */
-    bool setChannelStatus(const DataChannel* ch, bool status);
-
     /** Used to clear all connections prior to the start of acquisition.
     */
     void resetConnections();
@@ -153,6 +144,7 @@ public:
     bool newDirectoryNeeded;
 
     std::atomic<bool> isRecording;
+	std::atomic<bool> shouldRecord;
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString() const;
@@ -163,6 +155,8 @@ public:
 	//Called by ProcessorGraph
 	void updateRecordChannelIndexes();
 	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
+
+	bool getRecordThreadStatus();
 
 private:
 
@@ -216,6 +210,7 @@ private:
 	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
 	
 	Array<int> m_recordedChannelMap;
+	Array<bool> m_validBlocks;
 
 	String m_lastSettingsText;
 

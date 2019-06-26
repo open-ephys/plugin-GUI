@@ -80,6 +80,11 @@ public:
     void setReferenceChannelState (int channel, bool newState);
     void setAffectedChannelState  (int channel, bool newState);
 
+    /** Saving/loading channel parameters */
+    void saveCustomChannelParametersToXml(XmlElement* channelElement,
+        int channelNumber, InfoObjectCommon::InfoObjectType channelType);
+    void loadCustomChannelParametersFromXml(XmlElement* channelElement,
+        InfoObjectCommon::InfoObjectType channelType);
 
 private:
     LinearSmoothedValueAtomic<float> m_gainLevel;

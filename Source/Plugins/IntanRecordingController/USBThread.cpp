@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "USBThread.h"
 #include "rhythm-api/rhd2000evalboardusb3.h"
 
+using namespace IntanRecordingController;
+
 USBThread::USBThread(Rhd2000EvalBoardUsb3* b)
 	: m_board(b), Thread("USBThread")
 {

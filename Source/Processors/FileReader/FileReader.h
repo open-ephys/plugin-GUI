@@ -31,7 +31,6 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "FileSource.h"
 
-#define BUFFER_SIZE 1024
 #define BUFFER_WINDOW_CACHE_SIZE 10
 
 
@@ -63,6 +62,8 @@ public:
 
     void updateSettings() override;
     void setEnabledState (bool t)  override;
+	bool enable() override;
+	bool disable() override;
 
     String getFile() const;
     bool setFile (String fullpath);
@@ -104,6 +105,9 @@ private:
     
     Atomic<int> m_shouldFillBackBuffer;
     Atomic<int> m_samplesPerBuffer;
+
+	unsigned int m_bufferSize;
+	float m_sysSampleRate;
     
     /** Swaps the backbuffer to the front and flags the background reader
         thread to update the new backbuffer */

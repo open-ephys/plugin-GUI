@@ -25,6 +25,7 @@
 #include <cmath>
 
 #include "RHD2000Thread.h"
+using namespace RhythmNode;
 
 #ifdef WIN32
 #if (_MSC_VER < 1800) //round doesn't exist on MSVC prior to 2013 version
@@ -385,7 +386,7 @@ void FPGAchannelComponent::setImpedanceValues(float mag, float phase)
     if (impedance != nullptr)
     {
         if (mag > 10000)
-            impedance->setText(String(mag/1e6,2)+" mOhm, "+String((int)phase) + " deg",juce::NotificationType::dontSendNotification);
+            impedance->setText(String(mag/1e6,2)+" MOhm, "+String((int)phase) + " deg",juce::NotificationType::dontSendNotification);
         else if (mag > 1000)
             impedance->setText(String(mag/1e3,0)+" kOhm, "+String((int)phase) + " deg" ,juce::NotificationType::dontSendNotification);
         else

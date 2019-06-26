@@ -313,9 +313,11 @@ void LfpDisplayCanvas::update()
             lfpDisplay->channelInfo[i]->updateType();
         }
         
-		if (nChans > 0)
-			std::cout << "Rebuilding drawable channels" << std::endl;
+        if (nChans > 0)
+        {
+            std::cout << "Rebuilding drawable channels" << std::endl;
             lfpDisplay->rebuildDrawableChannelsList();
+        }
     }
     
 	}
@@ -987,7 +989,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     medianOffsetPlottingButton->setCorners(true, true, true, true);
     medianOffsetPlottingButton->addListener(this);
     medianOffsetPlottingButton->setClickingTogglesState(true);
-    medianOffsetPlottingButton->setToggleState(true, sendNotification);
+    medianOffsetPlottingButton->setToggleState(false, sendNotification);
     addAndMakeVisible(medianOffsetPlottingButton);
 
     
@@ -1196,7 +1198,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
-        lfpDisplay->setEventDisplayState(i,false);
+        lfpDisplay->setEventDisplayState(i,true);
 
     }
 
@@ -2447,8 +2449,12 @@ void LfpDisplay::paint(Graphics& g)
 
 void LfpDisplay::refresh()
 {
-	if (true)
-	{ 
+    // Ensure the lfpChannelBitmap has been initialized
+    if (lfpChannelBitmap.isNull())
+    {
+        resized();
+    }
+
     // X-bounds of this update
     int fillfrom = canvas->lastScreenBufferIndex[0];
     int fillto = (canvas->screenBufferIndex[0]);
@@ -2521,8 +2527,6 @@ void LfpDisplay::refresh()
     }
     
     canvas->fullredraw = false;
-	}
-    
 }
 
 
@@ -3031,6 +3035,11 @@ bool LfpDisplay::getSingleChannelState()
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
+    if (drawableChannels.isEmpty())
+    {
+        return;
+    }
+
     //int y = event.getMouseDownY(); //relative to each channel pos
     MouseEvent canvasevent = event.getEventRelativeTo(viewport);
     int y = canvasevent.getMouseDownY() + viewport->getViewPositionY(); // need to account for scrolling

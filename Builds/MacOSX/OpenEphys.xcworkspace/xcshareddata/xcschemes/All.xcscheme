@@ -75,20 +75,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E1D300271DAEBBBD0050E0F8"
-               BuildableName = "BinaryWriter.bundle"
-               BlueprintName = "BinaryWriter"
-               ReferencedContainer = "container:Plugins/BinaryWriter/BinaryWriter.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F558131C9B0FCA0035F88B"
                BuildableName = "CAR.bundle"
                BlueprintName = "CAR"
@@ -159,38 +145,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E1F558CF1C9B23370035F88B"
-               BuildableName = "KWIKFormat.bundle"
-               BlueprintName = "KWIKFormat"
-               ReferencedContainer = "container:Plugins/KWIKFormat/KWIKFormat.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "E1F558F51C9B28060035F88B"
                BuildableName = "LfpDisplayNode.bundle"
                BlueprintName = "LfpDisplayNode"
                ReferencedContainer = "container:Plugins/LfpDisplayNode/LfpDisplayNode.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D3E60EE41CD19893003FDF5C"
-               BuildableName = "LfpDisplayNodeAlpha.bundle"
-               BlueprintName = "LfpDisplayNodeAlpha"
-               ReferencedContainer = "container:Plugins/LfpDisplayNodeAlpha/LfpDisplayNodeAlpha.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -219,20 +177,6 @@
                BuildableName = "NetworkEvents.bundle"
                BlueprintName = "NetworkEvents"
                ReferencedContainer = "container:Plugins/NetworkEvents/NetworkEvents.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E1F91DE31DBE670500FF13EA"
-               BuildableName = "NWBFormat.bundle"
-               BlueprintName = "NWBFormat"
-               ReferencedContainer = "container:Plugins/NWBFormat/NWBFormat.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -347,13 +291,26 @@
                ReferencedContainer = "container:Plugins/IntanRecordingController/IntanRecordingController.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E1D300271DAEBBBD0050E0F8"
+               BuildableName = "BinaryFormat.bundle"
+               BlueprintName = "BinaryFormat"
+               ReferencedContainer = "container:Plugins/BinaryFormat/BinaryFormat.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
@@ -373,7 +330,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
