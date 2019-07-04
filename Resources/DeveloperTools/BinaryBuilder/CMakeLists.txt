@@ -16,7 +16,7 @@ endif()
 add_executable(BinaryBuilder Source/Main.cpp JuceLibraryCode/include_juce_core.${JUCE_FILES_EXTENSION})
 
 
-target_compile_definitions(BinaryBuilder PRIVATE 
+target_compile_definitions(BinaryBuilder PRIVATE
 	$<$<PLATFORM_ID:Windows>:_CRT_SECURE_NO_WARNINGS>
 	$<$<PLATFORM_ID:Windows>:_CONSOLE>
 	$<$<PLATFORM_ID:Linux>:JUCE_DISABLE_NATIVE_FILECHOOSERS=1>
@@ -34,7 +34,7 @@ target_compile_definitions(BinaryBuilder PRIVATE
 	JucePlugin_Build_Standalone=0
 	JucePlugin_Build_Unity=0
 	)
-	
+
 target_include_directories(BinaryBuilder PRIVATE JuceLibraryCode JuceLibraryCode/modules)
 target_compile_features(BinaryBuilder PUBLIC cxx_auto_type cxx_generalized_initializers)
 
@@ -48,8 +48,8 @@ elseif(LINUX)
 	target_link_libraries(BinaryBuilder dl pthread ${CURL_LIBRARIES})
 	target_include_directories(BinaryBuilder PRIVATE ${CURL_INCLIDE_DIR})
 elseif(APPLE)
-	target_link_libraries(dl)
-	target_link_libraries(open-ephys
+	target_link_libraries(BinaryBuilder dl)
+	target_link_libraries(BinaryBuilder
 		"-framework Cocoa"
 		"-framework IOKit"
 	)
