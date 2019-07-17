@@ -1299,7 +1299,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     XmlElement* audioSettings = new XmlElement("AUDIO");
 
-    audioSettings->setAttribute("bufferSize", AccessClass::getAudioComponent()->getBufferSize());
+    AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
     xml->addChildElement(audioSettings);
 
 	XmlElement* recordSettings = new XmlElement("RECORDING");
@@ -1566,9 +1566,8 @@ const String EditorViewport::loadState(File fileToLoad)
         }
         else if (element->hasTagName("AUDIO"))
         {
-            int bufferSize = element->getIntAttribute("bufferSize");
-            AccessClass::getAudioComponent()->setBufferSize(bufferSize);
-		}
+            AccessClass::getAudioComponent()->loadStateFromXml(element);
+        }
 		else if (element->hasTagName("RECORDING"))
 		{
 			bool recordThreadStatus = element->getBoolAttribute("isRecordThreadEnabled");

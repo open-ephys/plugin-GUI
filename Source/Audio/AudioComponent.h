@@ -82,8 +82,11 @@ public:
     /** Returns the buffer size (in ms) currently being used.*/
     int getBufferSizeMs();
 
-    /** Sets the buffer size in samples.*/
-    void setBufferSize(int);
+    /** Saves all audio settings that can be loaded to an XML element */
+    void saveStateToXml(XmlElement* parent);
+
+    /** Loads all possible settings from an XML element */
+    void loadStateFromXml(XmlElement* parent);
 
     AudioDeviceManager deviceManager;
 
