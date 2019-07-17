@@ -144,6 +144,7 @@ public:
     bool newDirectoryNeeded;
 
     std::atomic<bool> isRecording;
+	std::atomic<bool> shouldRecord;
 
     /** Generate a Matlab-compatible datestring */
     String generateDateString() const;
@@ -154,6 +155,8 @@ public:
 	//Called by ProcessorGraph
 	void updateRecordChannelIndexes();
 	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
+
+	bool getRecordThreadStatus();
 
 private:
 

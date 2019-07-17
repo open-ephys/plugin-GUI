@@ -54,7 +54,7 @@ namespace Elliptic
 {
 
 // Solves for Jacobi elliptics
-class Solver
+class PLUGIN_API Solver
 {
 public:
     static double ellipticK(double k);
@@ -62,7 +62,7 @@ public:
 
 // Half-band analog prototype (s-plane)
 
-class AnalogLowPass : public LayoutBase
+class PLUGIN_API AnalogLowPass : public LayoutBase
 {
 public:
     AnalogLowPass();
@@ -128,7 +128,7 @@ private:
 
 // Factored implementations to reduce template instantiations
 
-struct LowPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -137,7 +137,7 @@ struct LowPassBase : PoleFilterBase <AnalogLowPass>
                double rolloff);
 };
 
-struct HighPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -146,7 +146,7 @@ struct HighPassBase : PoleFilterBase <AnalogLowPass>
                double rolloff);
 };
 
-struct BandPassBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
@@ -156,7 +156,7 @@ struct BandPassBase : PoleFilterBase <AnalogLowPass>
                double rolloff);
 };
 
-struct BandStopBase : PoleFilterBase <AnalogLowPass>
+struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
 {
     void setup(int order,
                double sampleRate,
