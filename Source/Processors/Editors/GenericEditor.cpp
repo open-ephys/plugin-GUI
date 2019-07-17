@@ -512,21 +512,24 @@ void GenericEditor::update()
 
     //std::cout << "Editor for ";
 
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
+    GenericProcessor* p = (GenericProcessor*)getProcessor();
 
     // std::cout << p->getName() << " updating settings." << std::endl;
 
-    int numChannels;
+    updateSettings();
 
-	updateSettings();
+    int numChannels;
+    if (!p->isSink())
+    {
+        numChannels = p->getNumOutputs();
+    }
+    else
+    {
+        numChannels = p->getNumInputs();
+    }
 
     if (channelSelector != 0)
     {
-        if (!p->isSink())
-            numChannels = p->getNumOutputs();
-        else
-            numChannels = p->getNumInputs();
-
         channelSelector->setNumChannels(numChannels);
 
         for (int i = 0; i < numChannels; i++)
