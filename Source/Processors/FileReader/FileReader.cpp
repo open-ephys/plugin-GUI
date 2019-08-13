@@ -451,6 +451,16 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
     }
 }
 
+StringArray FileReader::getSupportedExtensions() const
+{
+	StringArray extensions;
+	HashMap<String, int>::Iterator i(supportedExtensions);
+	while (i.next())
+	{
+		extensions.add(i.getKey());
+	}
+	return extensions;
+}
 
 //Built-In
 

@@ -71,6 +71,7 @@ public:
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
     void createEventChannels();
+	StringArray getSupportedExtensions() const;
 
 private:
     Array<const EventChannel*> moduleEventChannels;

@@ -106,9 +106,20 @@ void FileReaderEditor::buttonEvent (Button* button)
     {
         if (button == fileButton)
         {
+			StringArray extensions = fileReader->getSupportedExtensions();
+			String supportedFormats = String::empty;
+
+			int numExtensions = extensions.size();
+			for (int i = 0; i < numExtensions; ++i)
+			{
+				supportedFormats += ("*." + extensions[i]);
+				if (i < numExtensions - 1)
+					supportedFormats += ";";
+			}
+
             FileChooser chooseFileReaderFile ("Please select the file you want to load...",
                                               lastFilePath,
-                                              "*");
+                                              supportedFormats);
 
             if (chooseFileReaderFile.browseForFileToOpen())
             {
