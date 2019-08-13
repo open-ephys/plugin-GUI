@@ -27,6 +27,7 @@
 #include "../../AccessClass.h"
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
+#include "BinaryFileSource\BinaryFileSource.h"
 
 
 FileReader::FileReader()
@@ -466,13 +467,15 @@ StringArray FileReader::getSupportedExtensions() const
 
 int FileReader::getNumBuiltInFileSources() const
 {
-	return 0;
+	return 1;
 }
 
 String FileReader::getBuiltInFileSourceExtensions(int index) const
 {
 	switch (index)
 	{
+	case 0: //Binary
+		return "oebin";
 	default:
 		return "";
 	}
@@ -482,6 +485,8 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 {
 	switch (index)
 	{
+	case 0:
+		return new BinarySource::BinaryFileSource();
 	default:
 		return nullptr;
 	}

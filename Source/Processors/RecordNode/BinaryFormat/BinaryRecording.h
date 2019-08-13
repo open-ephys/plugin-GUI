@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BINARYRECORDING_H
 #define BINARYRECORDING_H
 
-#include <RecordingLib.h>
+#include "../RecordEngine.h"
 #include "SequentialBlockFile.h"
 #include "NpyFile.h"
 

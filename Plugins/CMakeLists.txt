@@ -13,7 +13,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 #add plugin subdirectories
 add_subdirectory(ArduinoOutput)
 add_subdirectory(BasicSpikeDisplay)
-add_subdirectory(BinaryFormat)
 add_subdirectory(CAR)
 add_subdirectory(ChannelMappingNode)
 add_subdirectory(EvntTrigAvg)

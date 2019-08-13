@@ -23,9 +23,9 @@
 #ifndef ORIGINALRECORDING_H_INCLUDED
 #define ORIGINALRECORDING_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
-#include "RecordEngine.h"
+#include "../RecordEngine.h"
 #include <stdio.h>
 #include <map>
 

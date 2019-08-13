@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BINARYFILESOURCE_H_INCLUDED
 #define BINARYFILESOURCE_H_INCLUDED
 
-#include <FileSourceHeaders.h>
+#include "../FileSource.h"
 
 namespace BinarySource
 {

@@ -27,7 +27,8 @@
 #include "../../AccessClass.h"
 
 #include "EngineConfigWindow.h"
-#include "OriginalRecording.h"
+#include "OpenEphysFormat\OriginalRecording.h"
+#include "BinaryFormat\BinaryRecording.h"
 
 RecordEngine::RecordEngine()
     : manager (nullptr)
@@ -245,14 +246,16 @@ void RecordEngineManager::addParameter (EngineParameter* param)
 
 int RecordEngineManager::getNumOfBuiltInEngines()
 {
-    return 1;
+    return 2;
 }
 
 RecordEngineManager* RecordEngineManager::createBuiltInEngineManager (int index)
 {
     switch (index)
     {
-        case 0:
+		case 0:
+			return BinaryRecordingEngine::BinaryRecording::getEngineManager();
+        case 1:
             return OriginalRecording::getEngineManager();
 
         default:
@@ -267,8 +270,10 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 
     //Built-in engines
 
-    if (id == "OPENEPHYS")
-        return new OriginalRecording();
+	if (id == "OPENEPHYS")
+		return new OriginalRecording();
+	else if (id == "RAWBINARY")
+		return new BinaryRecordingEngine::BinaryRecording();
 
     return nullptr;
 }

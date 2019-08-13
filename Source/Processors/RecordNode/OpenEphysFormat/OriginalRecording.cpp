@@ -22,8 +22,8 @@
 */
 
 #include "OriginalRecording.h"
-#include "../../AccessClass.h"
-#include "../../Audio/AudioComponent.h"
+#include "../../../AccessClass.h"
+#include "../../../Audio/AudioComponent.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(false),
     recordingNumber(0), experimentNumber(0),  zeroBuffer(1, 50000),

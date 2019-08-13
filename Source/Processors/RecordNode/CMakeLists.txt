@@ -7,8 +7,6 @@ add_sources(open-ephys
 	EngineConfigWindow.cpp
 	EngineConfigWindow.h
 	EventQueue.h
-	OriginalRecording.cpp
-	OriginalRecording.h
 	RecordEngine.cpp
 	RecordEngine.h
 	RecordNode.cpp
@@ -18,5 +16,6 @@ add_sources(open-ephys
 )
 
 #add nested directories
-
+add_subdirectory(BinaryFormat)
+add_subdirectory(OpenEphysFormat)
 

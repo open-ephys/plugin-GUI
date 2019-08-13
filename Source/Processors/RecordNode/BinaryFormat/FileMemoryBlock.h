@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FILEMEMORYBLOCK_H
 #define FILEMEMORYBLOCK_H
 
-#include <BasicJuceHeader.h>
+#include "../../../../JuceLibraryCode/JuceHeader.h"
 
 namespace BinaryRecordingEngine
 {

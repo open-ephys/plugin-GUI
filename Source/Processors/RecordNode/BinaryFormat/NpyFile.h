@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef NPYFILE_H
 #define NPYFILE_H
 
-#include <RecordingLib.h>
+#include "../RecordEngine.h"
 
 namespace BinaryRecordingEngine
 {
