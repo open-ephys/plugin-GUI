@@ -125,6 +125,13 @@ private:
      */
     void readAndFillBufferCache(HeapBlock<int16> &cacheBuffer);
 
+	//Methods for built-in file sources
+	int getNumBuiltInFileSources() const;
+
+	String getBuiltInFileSourceExtensions(int index) const;
+
+	FileSource* createBuiltInFileSource(int index) const;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
 };
