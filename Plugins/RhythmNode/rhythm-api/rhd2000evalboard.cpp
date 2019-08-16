@@ -88,28 +88,30 @@ int Rhd2000EvalBoard::open(const char* libname)
     }
     cout << endl;
 
-    // Find first device in list of type XEM6010LX45.
-    for (i = 0; i < nDevices; ++i) {
+	for (i = 0; i < nDevices; ++i)
+	{
 		okCFrontPanel::BoardModel model = dev->GetDeviceListModel(i);
-        if (model == OK_PRODUCT_XEM6010LX45) {
-            serialNumber = dev->GetDeviceListSerial(i);
-            break;
-        }
-		else if (model == OK_PRODUCT_XEM6310LX45) {
-			serialNumber = dev->GetDeviceListSerial(i);
-			usb3 = true;
-			break;
+		if (model == OK_PRODUCT_XEM6010LX45 || model == OK_PRODUCT_XEM6310LX45) //the two models we use
+		{
+			serialNumber = serialNumber = dev->GetDeviceListSerial(i);
+			cout << "Trying to open device with serial " << serialNumber.c_str() << endl;
+			if (dev->OpenBySerial(serialNumber) == okCFrontPanel::NoError) 
+			{
+				cout << "Device opened" << endl;
+				if (model == OK_PRODUCT_XEM6310LX45)
+					usb3 = true;
+				break; //end loop if one device was opened
+			}
 		}
-    }
-
-    // Attempt to open device.
-    if (dev->OpenBySerial(serialNumber) != okCFrontPanel::NoError) {
-        delete dev;
+	}
+	if (!dev->IsOpen())
+	{
+		delete dev;
 		dev = 0;
 		usb3 = false;
-        cerr << "Device could not be opened.  Is one connected?" << endl;
-        return -2;
-    }
+		cerr << "No device could be opened.  Is one connected?" << endl;
+		return -2;
+	}
 
     // Configure the on-board PLL appropriately.
     dev->LoadDefaultPLLConfiguration();
