@@ -143,7 +143,12 @@ void PhaseDetector::updateSettings()
 		if (getNumInputs() != lastNumInputs)
 			modules.getReference(i).inputChan = -1;
 		const DataChannel* in = getDataChannel(modules[i].inputChan);
-		EventChannel* ev = new EventChannel(EventChannel::TTL, 8, 1, (in) ? in->getSampleRate() : CoreServices::getGlobalSampleRate(), this);
+		EventChannel *ev;
+		if (in)
+			ev = new EventChannel(EventChannel::TTL, 8, 1, in, this);
+		else
+			ev = new EventChannel(EventChannel::TTL, 8, 1, -1, this);
+
 		ev->setName("Phase detector output " + String(i + 1));
 		ev->setDescription("Triggers when the input signal mets a given phase condition");
 		String identifier = "dataderived.phase.";
