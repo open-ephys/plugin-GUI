@@ -1087,7 +1087,7 @@ public:
 	okCFrontPanelManager_HANDLE h;
 };
 
-typedef std::auto_ptr<OpalKellyLegacy::okCFrontPanel> FrontPanelPtr;
+typedef std::unique_ptr<OpalKellyLegacy::okCFrontPanel> FrontPanelPtr;
 
 /// \brief Allows to easily open devices in any realms.
 class FrontPanelDevices
