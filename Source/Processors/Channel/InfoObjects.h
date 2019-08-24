@@ -299,11 +299,22 @@ public:
 		BINARY_BASE_VALUE = 10
 	};
 
-	/** Default constructor
+	/**
+	Enumerator indicating where the timestamps for the event are originating, so they can be easily synchronized
+	*/
+	enum EventTimestampOrigin 
+	{
+		timestampsFromContinuousSource, /* The timestamps from this event originate in a source processor alongside related continuous signals. 
+										Typical for  */
+		timestampsDerivedFromChannel, /* The timestamps are derived from a channel. Typical for events created by filter nodes */
+		timestampsFromGlobalSource /* The timestamps are derived from the global timed. Typical for sources without continuous channels */
+	};
+
+	/** Default constructor. Use this if the event is unrelated to any continuous data.
 	@param type The type of event this channel represents (TTL, TEXT, BYINARY_MSG)
 	@param numChannels The number of virtual channels
 	@param dataLength The length of the event payload
-	@param sampleRate the sample rate this channel timestamps are referred to
+	@param sampleRate the sample rate this channel timestamps are referred to. If less or equal than zero will automatically get set to the processor sample rate or the global one
 	@param source A pointer to the source processor
 	@param subproc Optional. The source subprocessor index.
 
@@ -316,8 +327,34 @@ public:
 	-For message events, the length of the string in characters
 	-For typed array events, the number of elements
 
+	This constructor will set the timestamp origin flag to timestampFromContinuousSource if the source processor isGeneratesTimestamps() returns true
+	and to timestampsFromGlobalSource otherwise
+
 	*/
 	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc = 0);
+
+	/** Constructor for derived events.
+	Intended for events that are created from a continuous channel data
+	@param type The type of event this channel represents (TTL, TEXT, BYINARY_MSG)
+	@param numChannels The number of virtual channels
+	@param dataLength The length of the event payload
+	@param originChannel The channel this event is derived from
+	@param source A pointer to the source processor
+	@param subproc Optional. The source subprocessor index.
+
+	The virtual channels mean:
+	-For TTL signals, it must be the number of bits in the TTL word.
+	-For other events, this might be used to differentiate between different origins within the same processor
+
+	The event length mean:
+	-For TTL signals, this method will do nothing, as the size is fixed by the number of ttl channels
+	-For message events, the length of the string in characters
+	-For typed array events, the number of elements
+
+	This constructor will set the timestamp origin flag to timestampDerivedFromChannel and set the sample rate to that of the channel
+
+	*/
+	EventChannel(EventChannelTypes type, unsigned int numChannels, unsigned int dataLength, const DataChannel* originChannel, GenericProcessor* source, uint16 subproc = 0);
 
 	virtual ~EventChannel();
 
@@ -358,11 +395,25 @@ public:
 	/** Handy method to get an equivalente metadata value type for the main event data*/
 	BaseType getEquivalentMetaDataType() const;
 
+	/** Returns which kind of origin the timestamps for these events have */
+	EventTimestampOrigin getTimestampOrigin() const;
+
+	/** Returns the processor id which generated the timestamps, in case they are derived from a channel. Otherwise it returns the same as getSourceNodeId()*/
+	uint16 getTimestampOriginProcessor() const;
+
+	/** Returns the subprocessor index which generated the timestamps, in case they are derived from a channel. Otherwise it returns the same as getSubProcessorIdx()*/
+	uint16 getTimestampOriginSubProcessor() const;
+
 	InfoObjectType getInfoObjectType() const override;
 	void setDefaultNameAndDescription() override;
 private:
 	bool checkEqual(const InfoObjectCommon& other, bool similar) const override;
+	void initializeEvent(int nChannels, int dataLength);
 	const EventChannelTypes m_type;
+	const EventTimestampOrigin m_timestampOrigin;
+	const uint16 m_timestampOriginProcessor;
+	const uint16 m_timestampOriginSubProcessor;
+	
 	unsigned int m_numChannels{ 1 };
 	size_t m_dataSize{ 1 };
 	unsigned int m_length{ 1 };

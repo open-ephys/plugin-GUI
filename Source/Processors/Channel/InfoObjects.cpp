@@ -337,8 +337,28 @@ bool DataChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
 
 //EventChannel
 EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, float sampleRate, GenericProcessor* source, uint16 subproc)
-	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, sampleRate, source, subproc),
-		m_type(type)
+	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, 
+	((sampleRate > 0) ? sampleRate : (source->isGeneratesTimestamps() ? source->getSampleRate(subproc) : CoreServices::getGlobalSampleRate())),
+	source, subproc),
+	m_type(type),
+	m_timestampOrigin(source->isGeneratesTimestamps() ? timestampsFromContinuousSource : timestampsFromGlobalSource ),
+	m_timestampOriginProcessor(source->getNodeId()),
+	m_timestampOriginSubProcessor(subproc)
+{
+	initializeEvent(nChannels, dataLength);
+}
+
+EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsigned int dataLength, const DataChannel* originChannel, GenericProcessor* source, uint16 subproc)
+	: InfoObjectCommon(source->eventChannelCount++, source->eventChannelTypeCount[type]++, originChannel->getSampleRate(), source, subproc),
+	m_type(type),
+	m_timestampOrigin(timestampsDerivedFromChannel),
+	m_timestampOriginProcessor(originChannel->getSourceNodeID()),
+	m_timestampOriginSubProcessor(originChannel->getSubProcessorIdx())
+{
+	initializeEvent(nChannels, dataLength);
+}
+
+void EventChannel::initializeEvent(int nChannels, int dataLength)
 {
 	m_numChannels = nChannels;
 	if (m_type == TTL)
