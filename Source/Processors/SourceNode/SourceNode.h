@@ -68,9 +68,9 @@ public:
 
     void requestChainUpdate();
 
-    bool hasEditor() const override { return true; }
+	bool hasEditor() const override;
 
-    bool isGeneratesTimestamps() const override { return true; }
+	bool isGeneratesTimestamps() const override;
 
     bool enable()   override;
     bool disable()  override;
@@ -81,9 +81,9 @@ public:
 
     void acquisitionStopped();
 
-    DataThread* getThread() const { return dataThread; }
+	DataThread* getThread() const;
 
-    int getTTLState() const { return ttlState; }
+	int getTTLState() const;
 
     bool tryEnablingEditor();
 

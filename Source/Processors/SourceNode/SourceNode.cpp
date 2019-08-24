@@ -69,6 +69,26 @@ SourceNode::~SourceNode()
     }
 }
 
+bool SourceNode::hasEditor() const
+{
+	return true;
+}
+
+bool SourceNode::isGeneratesTimestamps() const
+{
+	return true;
+}
+
+DataThread* SourceNode::getThread() const
+{
+	return dataThread;
+}
+
+int SourceNode::getTTLState() const
+{
+	return ttlState;
+}
+
 //This is going to be quite slow, since is reallocating everything, but it's the 
 //safest way to handle a possible varying number of subprocessors
 void SourceNode::resizeBuffers()
