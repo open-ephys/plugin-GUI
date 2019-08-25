@@ -530,6 +530,21 @@ bool EventChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
 	return true;
 }
 
+EventChannel::EventTimestampOrigin EventChannel::getTimestampOrigin() const
+{
+	return m_timestampOrigin;
+}
+
+uint16 EventChannel::getTimestampOriginProcessor() const
+{
+	return m_timestampOriginProcessor;
+}
+
+uint16 EventChannel::getTimestampOriginSubProcessor() const
+{
+	return m_timestampOriginSubProcessor;
+}
+
 //SpikeChannel
 
 SpikeChannel::SpikeChannel(ElectrodeTypes type, GenericProcessor* source, const Array<const DataChannel*>& sourceChannels, uint16 subproc)
