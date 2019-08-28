@@ -1273,6 +1273,16 @@ uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
 	return (uint32(sid) << 16) + subid;
 }
 
+uint16 GenericProcessor::getNodeIdFromFullId(uint32 fid)
+{
+	return (fid && 0xFF00 ) >> 16;
+}
+
+uint16 GenericProcessor::getSubProcessorFromFullId(uint32 fid)
+{
+	return (fid && 0x00FF);
+}
+
 int64 GenericProcessor::getLastProcessedsoftwareTime() const
 {
 	return m_lastProcessTime;

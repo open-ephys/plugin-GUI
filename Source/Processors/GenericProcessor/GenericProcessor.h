@@ -522,6 +522,10 @@ public:
 
 	static uint32 getProcessorFullId(uint16 processorId, uint16 subprocessorIdx);
 
+	static uint16 getNodeIdFromFullId(uint32 fullId);
+
+	static uint16 getSubProcessorFromFullId(uint32 fullid);
+
 	class PLUGIN_API DefaultEventInfo
 	{
 	public:
