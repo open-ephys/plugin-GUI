@@ -778,6 +778,14 @@ float ProcessorGraph::getGlobalSampleRate(bool softwareOnly) const
 	}
 }
 
+uint32 ProcessorGraph::getGlobalTimestampSourceFullId() const
+{
+	if (!m_timestampSource)
+		return 0;
+
+	return GenericProcessor::getProcessorFullId(m_timestampSource->getNodeId(), m_timestampSourceSubIdx);
+}
+
 void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
 {
 	m_timestampWindow = window;

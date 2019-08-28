@@ -97,6 +97,8 @@ public:
 
 	float getGlobalSampleRate(bool softwareOnly) const;
 
+	uint32 getGlobalTimestampSourceFullId() const;
+
 	void setTimestampWindow(TimestampSourceSelectionWindow* window);
 
 private:

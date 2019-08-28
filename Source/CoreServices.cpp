@@ -83,6 +83,11 @@ namespace CoreServices
 		return getProcessorGraph()->getGlobalTimestamp(false);
 	}
 
+	juce::uint32 getGlobalTimestampSourceFullId()
+	{
+		return getProcessorGraph()->getGlobalTimestampSourceFullId();
+	}
+
 	juce::int64 getSoftwareTimestamp()
 	{
 		return getProcessorGraph()->getGlobalTimestamp(true);
