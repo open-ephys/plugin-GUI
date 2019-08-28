@@ -398,10 +398,18 @@ public:
 	/** Returns which kind of origin the timestamps for these events have */
 	EventTimestampOrigin getTimestampOrigin() const;
 
-	/** Returns the processor id which generated the timestamps, in case they are derived from a channel. Otherwise it returns the same as getSourceNodeId()*/
+	/** Returns, for each value of getTimestampOrigin()
+	-For timestampsFromContinuousSource: the same value as getNodeId()
+	-For timestampsFromGlobalSource: the value global source id, zero if it is software-based
+	-For timestampsDerivedFromChannel: the node ID of the processor which generated the channel this event is based on
+	*/
 	uint16 getTimestampOriginProcessor() const;
 
-	/** Returns the subprocessor index which generated the timestamps, in case they are derived from a channel. Otherwise it returns the same as getSubProcessorIdx()*/
+	/** Returns, for each value of getTimestampOrigin()
+	-For timestampsFromContinuousSource: the same value as getSubProcessorIdx()
+	-For timestampsFromGlobalSource: the value global source subprocessor, zero if it is software-based
+	-For timestampsDerivedFromChannel: the subprocessor index of the processor which generated the channel this event is based on
+	*/
 	uint16 getTimestampOriginSubProcessor() const;
 
 	InfoObjectType getInfoObjectType() const override;

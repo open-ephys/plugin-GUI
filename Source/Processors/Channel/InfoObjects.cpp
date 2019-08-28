@@ -342,8 +342,10 @@ EventChannel::EventChannel(EventChannelTypes type, unsigned int nChannels, unsig
 	source, subproc),
 	m_type(type),
 	m_timestampOrigin(source->isGeneratesTimestamps() ? timestampsFromContinuousSource : timestampsFromGlobalSource ),
-	m_timestampOriginProcessor(source->getNodeId()),
-	m_timestampOriginSubProcessor(subproc)
+	m_timestampOriginProcessor(source->isGeneratesTimestamps() ? source->getNodeId() : 
+		GenericProcessor::getNodeIdFromFullId(CoreServices::getGlobalTimestampSourceFullId())),
+		m_timestampOriginSubProcessor(source->isGeneratesTimestamps() ? subproc:
+		GenericProcessor::getSubProcessorFromFullId(CoreServices::getGlobalTimestampSourceFullId()))
 {
 	initializeEvent(nChannels, dataLength);
 }
