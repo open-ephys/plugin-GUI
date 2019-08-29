@@ -105,11 +105,11 @@ void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
 {
     if (cb == subprocessorSelection)
     {
-		std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl;
+        std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl;
         uint32 subproc = inputSubprocessors[cb->getSelectedId() - 1];
 		
         String sampleRateLabelText = "Sample Rate: ";
-		sampleRateLabelText += String(inputSampleRates[subproc]);
+		sampleRateLabelText += String(lfpProcessor->getSubprocessorSampleRate(subproc));
 		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
         std::cout << sampleRateLabelText << std::endl;
 
@@ -125,7 +125,6 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
 {
     // clear out the old data
     inputSubprocessors.clear();
-    inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
 	if (lfpProcessor->getTotalDataChannels() != 0)
@@ -140,12 +139,10 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
 			uint16 subProcessorIdx = ch->getSubProcessorIdx();
             uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
 
-			bool success = inputSubprocessors.add(subProcFullId);
+			bool added = inputSubprocessors.add(subProcFullId);
 
-            if (success)
+            if (added)
             {
-                inputSampleRates.set(subProcFullId, ch->getSampleRate());
-                
                 String sourceName = ch->getSourceName();
                 subprocessorNames.set(subProcFullId,
                     sourceName + " " + String(sourceNodeId) + "/" + String(subProcessorIdx));

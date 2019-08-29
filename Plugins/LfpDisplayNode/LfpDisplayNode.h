@@ -73,7 +73,7 @@ public:
 
 	int getNumSubprocessorChannels();
 
-	float getSubprocessorSampleRate();
+    float getSubprocessorSampleRate(uint32 subprocId);
 
     uint32 getDataSubprocId(int chan) const;
 

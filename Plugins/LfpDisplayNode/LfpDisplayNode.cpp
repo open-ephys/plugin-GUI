@@ -99,7 +99,7 @@ void LfpDisplayNode::updateSettings()
     }
 
     int numChans = getNumSubprocessorChannels();
-    int srate = getSubprocessorSampleRate();
+    int srate = getSubprocessorSampleRate(subprocessorToDraw);
 
 	std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChans << std::endl;
     if (numChans > 0)
@@ -136,15 +136,7 @@ void LfpDisplayNode::updateSettings()
 
 uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
 {
-
-	if (event->getTimestampOrigin() == EventChannel::timestampsDerivedFromChannel)
-	{
-		return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
-	}
-	else
-	{
-		return getChannelSourceId(event);
-	}
+    return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
 }
 
 uint32 LfpDisplayNode::getChannelSourceId(const InfoObjectCommon* chan)
@@ -184,18 +176,19 @@ int LfpDisplayNode::getNumSubprocessorChannels()
     return 0;
 }
 
-float LfpDisplayNode::getSubprocessorSampleRate()
+float LfpDisplayNode::getSubprocessorSampleRate(uint32 subprocId)
 {
-    if (subprocessorToDraw != 0)
+    auto entry = subprocessorSampleRate.find(subprocId);
+    if (entry != subprocessorSampleRate.end())
     {
-        return subprocessorSampleRate[subprocessorToDraw];
+        return entry->second;
     }
     return 0.0f;
 }
 
 bool LfpDisplayNode::resizeBuffer()
 {
-	int nSamples = (int)getSubprocessorSampleRate() * bufferLength;
+	int nSamples = (int)getSubprocessorSampleRate(subprocessorToDraw) * bufferLength;
 	int nInputs = getNumSubprocessorChannels();
 
 	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
@@ -269,12 +262,15 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventId = ttl->getState() ? 1 : 0;
         const int eventChannel = ttl->getChannel();
         const int eventTime = samplePosition;
+
+        // find sample rate of event channel
         uint32 eventSourceNodeId = getEventSourceId(eventInfo);
-        
-        // treat events with no source as occurring on the subprocessor being drawn.
-        if (eventSourceNodeId == 0)
+        float eventSampleRate = getSubprocessorSampleRate(eventSourceNodeId);
+
+        if (eventSampleRate == 0)
         {
-            eventSourceNodeId = subprocessorToDraw;
+            // shouldn't happen for any real event channel at this point
+            return;
         }
         
 		//std::cout << "Received event on channel " << eventChannel << std::endl;

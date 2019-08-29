@@ -79,7 +79,6 @@ public:
 
 private:
     
-    HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
     SortedSet<uint32> inputSubprocessors;
     
     LfpDisplayNode* lfpProcessor;
