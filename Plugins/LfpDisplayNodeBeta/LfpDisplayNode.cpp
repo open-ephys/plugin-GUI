@@ -96,14 +96,7 @@ void LfpDisplayNode::updateSettings()
 
 uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
 {
-	if (event->getTimestampOrigin() == EventChannel::timestampsDerivedFromChannel)
-	{
 		return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
-	}
-	else
-	{
-		return getProcessorFullId(event->getSourceNodeID(), event->getSubProcessorIdx());
-	}
 }
 
 bool LfpDisplayNode::resizeBuffer()
