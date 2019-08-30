@@ -27,6 +27,7 @@
 #include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
 
+#include <map>
 
 class DataViewport;
 
@@ -67,10 +68,14 @@ public:
 
     CriticalSection* getMutex() { return &displayMutex; }
 
-	void setSubprocessor(int sp);
+	void setSubprocessor(uint32 sp);
+    uint32 getSubprocessor() const;
+
 	int getNumSubprocessorChannels();
 
-	float getSubprocessorSampleRate();
+    float getSubprocessorSampleRate(uint32 subprocId);
+
+    uint32 getDataSubprocId(int chan) const;
 
 private:
     void initializeEventChannels();
@@ -80,9 +85,6 @@ private:
 
     Array<int> displayBufferIndex;
     Array<uint32> eventSourceNodes;
-    std::map<uint32, int> channelForEventSource;
-
-    int numEventChannels;
 
     float displayGain; //
     float bufferLength; // s
@@ -96,15 +98,15 @@ private:
 
     bool resizeBuffer();
 
-	int subprocessorToDraw;
-	int numChannelsInSubprocessor;
-	int numSubprocessors;
-	float subprocessorSampleRate;
+    int numSubprocessors;
+	uint32 subprocessorToDraw;
+	std::map<uint32, int> numChannelsInSubprocessor;
+	std::map<uint32, float> subprocessorSampleRate;
 
     CriticalSection displayMutex;
-	bool updateSubprocessorsFlag;
 
-	uint32 getChannelSourceID(const EventChannel* event) const;
+    static uint32 getEventSourceId(const EventChannel* event);
+    static uint32 getChannelSourceId(const InfoObjectCommon* chan);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
 };

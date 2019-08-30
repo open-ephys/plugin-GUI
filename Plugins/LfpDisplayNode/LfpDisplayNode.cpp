@@ -47,8 +47,6 @@ LfpDisplayNode::LfpDisplayNode()
 
 	subprocessorToDraw = 0;
 	numSubprocessors = -1;
-	numChannelsInSubprocessor = 0;
-	updateSubprocessorsFlag = true;
 }
 
 
@@ -70,113 +68,139 @@ void LfpDisplayNode::updateSettings()
 
     std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 
-	numChannelsInSubprocessor = 0;
-	int totalSubprocessors = 0;
-	int currentSubprocessor = -1;
+	numChannelsInSubprocessor.clear();
+    subprocessorSampleRate.clear();
 
 	for (int i = 0; i < getNumInputs(); i++)
 	{
-		int channelSubprocessor = getDataChannel(i)->getSubProcessorIdx();
+        uint32 channelSubprocessor = getDataSubprocId(i);
 
-		if (currentSubprocessor != channelSubprocessor)
-		{
-			totalSubprocessors++;
-			currentSubprocessor = channelSubprocessor;
-		}
+        numChannelsInSubprocessor.insert({ channelSubprocessor, 0 }); // (if not already there)
+        numChannelsInSubprocessor[channelSubprocessor]++;
 
-		if (channelSubprocessor == subprocessorToDraw)
-		{
-			numChannelsInSubprocessor++;
-			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
-		}
+        subprocessorSampleRate.insert({ channelSubprocessor, getDataChannel(i)->getSampleRate() });
 	}
+    
+    numSubprocessors = numChannelsInSubprocessor.size();
 
-	std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChannelsInSubprocessor << std::endl;
-	std::cout << "Sample rate = " << subprocessorSampleRate << std::endl;
+    if (numChannelsInSubprocessor.find(subprocessorToDraw) == numChannelsInSubprocessor.end())
+    {
+        // subprocessor to draw does not exist
+        if (numSubprocessors == 0)
+        {
+            subprocessorToDraw = 0;
+        }
+        else
+        {
+            // there are channels, but none on the current subprocessorToDraw
+            // default to the first subprocessor
+            subprocessorToDraw = getDataSubprocId(0);
+        }
+    }
 
-    channelForEventSource.clear();
+    int numChans = getNumSubprocessorChannels();
+    int srate = getSubprocessorSampleRate(subprocessorToDraw);
+
+	std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChans << std::endl;
+    if (numChans > 0)
+    {
+        std::cout << "Sample rate = " << srate << std::endl;
+    }
+
     eventSourceNodes.clear();
     ttlState.clear();
 
 	for (int i = 0; i < eventChannelArray.size(); ++i)
 	{
-		uint32 sourceID = getChannelSourceID(eventChannelArray[i]);
-		if (!eventSourceNodes.contains(sourceID))
+		uint32 sourceId = getEventSourceId(eventChannelArray[i]);
+ 
+		if (!eventSourceNodes.contains(sourceId))
 		{
-			eventSourceNodes.add(sourceID);
-
+			eventSourceNodes.add(sourceId);
 		}
 	}
 
-    numEventChannels = eventSourceNodes.size();
-
-    std::cout << "Found " << numEventChannels << " event channels." << std::endl;
-
     for (int i = 0; i < eventSourceNodes.size(); ++i)
     {
-		std::cout << "Adding channel " << numChannelsInSubprocessor + i << " for event source node " << eventSourceNodes[i] << std::endl;
+		std::cout << "Adding channel " << numChans + i << " for event source node " << eventSourceNodes[i] << std::endl;
 
-		channelForEventSource[eventSourceNodes[i]] = numChannelsInSubprocessor + i;
         ttlState[eventSourceNodes[i]] = 0;
     }
 
-    displayBufferIndex.clear();
-	displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
+    resizeBuffer();
     
     // update the editor's subprocessor selection display and sample rate
 	LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
 	ed->updateSubprocessorSelectorOptions();
-	numSubprocessors = totalSubprocessors;
 }
 
-uint32 LfpDisplayNode::getChannelSourceID(const EventChannel* event) const
+uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
 {
-
-	if (event->getTimestampOrigin() == EventChannel::timestampsDerivedFromChannel)
-	{
-		return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
-	}
-	else
-	{
-		return getProcessorFullId(event->getSourceNodeID(), event->getSubProcessorIdx());
-	}
+    return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
 }
 
-void LfpDisplayNode::setSubprocessor(int sp)
+uint32 LfpDisplayNode::getChannelSourceId(const InfoObjectCommon* chan)
+{
+    return getProcessorFullId(chan->getSourceNodeID(), chan->getSubProcessorIdx());
+}
+
+uint32 LfpDisplayNode::getDataSubprocId(int chan) const
+{
+    if (chan < 0 || chan >= getTotalDataChannels())
+    {
+        return 0;
+    }
+
+    return getChannelSourceId(getDataChannel(chan));
+}
+
+void LfpDisplayNode::setSubprocessor(uint32 sp)
 {
 
 	subprocessorToDraw = sp;
-	std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;
+    resizeBuffer();
+	std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;	
+}
 
-	updateSubprocessorsFlag = false;
-	
+uint32 LfpDisplayNode::getSubprocessor() const
+{
+    return subprocessorToDraw;
 }
 
 int LfpDisplayNode::getNumSubprocessorChannels()
 {
-	return numChannelsInSubprocessor;
+    if (subprocessorToDraw != 0)
+    {
+        return numChannelsInSubprocessor[subprocessorToDraw];
+    }
+    return 0;
 }
 
-float LfpDisplayNode::getSubprocessorSampleRate()
+float LfpDisplayNode::getSubprocessorSampleRate(uint32 subprocId)
 {
-	return subprocessorSampleRate;
+    auto entry = subprocessorSampleRate.find(subprocId);
+    if (entry != subprocessorSampleRate.end())
+    {
+        return entry->second;
+    }
+    return 0.0f;
 }
 
 bool LfpDisplayNode::resizeBuffer()
 {
-	int nSamples = (int)subprocessorSampleRate * bufferLength;
-	int nInputs = numChannelsInSubprocessor;
+	int nSamples = (int)getSubprocessorSampleRate(subprocessorToDraw) * bufferLength;
+	int nInputs = getNumSubprocessorChannels();
 
-	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << ", event channels: " << numEventChannels << std::endl;
+	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
 	if (nSamples > 0 && nInputs > 0)
 	{
 		abstractFifo.setTotalSize(nSamples);
-		displayBuffer->setSize(nInputs + numEventChannels, nSamples); // add extra channels for TTLs
+		displayBuffer->setSize(nInputs + 1, nSamples); // add extra channel for TTLs
 		displayBuffer->clear();
 
 		displayBufferIndex.clear();
-		displayBufferIndex.insertMultiple(0, 0, numChannelsInSubprocessor + numEventChannels);
+		displayBufferIndex.insertMultiple(0, 0, nInputs + 1);
 
 		return true;
 	}
@@ -238,50 +262,62 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         const int eventId = ttl->getState() ? 1 : 0;
         const int eventChannel = ttl->getChannel();
         const int eventTime = samplePosition;
-        const uint32 eventSourceNodeId = getChannelSourceID(eventInfo);
+
+        // find sample rate of event channel
+        uint32 eventSourceNodeId = getEventSourceId(eventInfo);
+        float eventSampleRate = getSubprocessorSampleRate(eventSourceNodeId);
+
+        if (eventSampleRate == 0)
+        {
+            // shouldn't happen for any real event channel at this point
+            return;
+        }
         
 		//std::cout << "Received event on channel " << eventChannel << std::endl;
 		//std::cout << "Copying to channel " << channelForEventSource[eventSourceNodeId] << std::endl;
         
-        const int chan          = channelForEventSource[eventSourceNodeId];
-        const int index         = (displayBufferIndex[chan] + eventTime) % displayBuffer->getNumSamples();
-        const int samplesLeft   = displayBuffer->getNumSamples() - index;
-        const int nSamples = getNumSourceSamples(eventSourceNodeId) - eventTime;
-        
         if (eventId == 1)
         {
-            ttlState[eventSourceNodeId] |= (1L << eventChannel);
+            ttlState[eventSourceNodeId] |= (1LL << eventChannel);
         }
         else
         {
-            ttlState[eventSourceNodeId] &= ~(1L << eventChannel);
+            ttlState[eventSourceNodeId] &= ~(1LL << eventChannel);
         }
-        
-        if (nSamples < samplesLeft)
+
+        if (eventSourceNodeId == subprocessorToDraw)
         {
-            displayBuffer->copyFrom (channelForEventSource[eventSourceNodeId],  // destChannel
-                                     index,                               // destStartSample
-                                     arrayOfOnes,                               // source
-                                     nSamples,                             // numSamples
-                                     float (ttlState[eventSourceNodeId]));      // gain
+            const int chan          = numChannelsInSubprocessor[eventSourceNodeId];
+            const int index         = (displayBufferIndex[chan] + eventTime) % displayBuffer->getNumSamples();
+            const int samplesLeft   = displayBuffer->getNumSamples() - index;
+            const int nSamples      = getNumSourceSamples(eventSourceNodeId) - eventTime;
+
+            if (nSamples < samplesLeft)
+            {
+                displayBuffer->copyFrom(chan,                                 // destChannel
+                                        index,                                // destStartSample
+                                        arrayOfOnes,                          // source
+                                        nSamples,                             // numSamples
+                                        float(ttlState[eventSourceNodeId]));  // gain
+            }
+            else
+            {
+                int extraSamples = nSamples - samplesLeft;
+
+                displayBuffer->copyFrom(chan,                                 // destChannel
+                                        index,                                // destStartSample
+                                        arrayOfOnes,                          // source
+                                        samplesLeft,                          // numSamples
+                                        float(ttlState[eventSourceNodeId]));  // gain
+
+                displayBuffer->copyFrom(chan,                                 // destChannel
+                                        0,                                    // destStartSample
+                                        arrayOfOnes,                          // source
+                                        extraSamples,                         // numSamples
+                                        float(ttlState[eventSourceNodeId]));  // gain
+            }
         }
-        else
-        {
-            int extraSamples = nSamples - samplesLeft;
-            
-            displayBuffer->copyFrom (channelForEventSource[eventSourceNodeId],  // destChannel
-                                     index,                               // destStartSample
-                                     arrayOfOnes,                               // source
-                                     samplesLeft,                                // numSamples
-                                     float (ttlState[eventSourceNodeId]));      // gain
-            
-            displayBuffer->copyFrom (channelForEventSource[eventSourceNodeId],  // destChannel
-                                     0,                                         // destStartSample
-                                     arrayOfOnes,                               // source
-                                     extraSamples,                                // numSamples
-                                     float (ttlState[eventSourceNodeId]));      // gain
-        }
-        
+
         //         std::cout << "Received event from " << eventSourceNodeId
         //                   << " on channel " << eventChannel
         //                   << " with value " << eventId
@@ -295,65 +331,59 @@ void LfpDisplayNode::initializeEventChannels()
 
 	//std::cout << "Initializing events..." << std::endl;
 
-    for (int i = 0; i < eventSourceNodes.size(); ++i)
-    {
-        const int chan          = channelForEventSource[eventSourceNodes[i]];
-        const int index         = displayBufferIndex[chan];
-        const int samplesLeft   = displayBuffer->getNumSamples() - index;
-		const int nSamples = getNumSourceSamples(eventSourceNodes[i]);
+    const int chan          = numChannelsInSubprocessor[subprocessorToDraw];
+    const int index         = displayBufferIndex[chan];
+    const int samplesLeft   = displayBuffer->getNumSamples() - index;
+	const int nSamples      = getNumSourceSamples(subprocessorToDraw);
 
-		//std::cout << chan << " " << index << " " << samplesLeft << " " << nSamples << std::endl;
+	//std::cout << chan << " " << index << " " << samplesLeft << " " << nSamples << std::endl;
         
-        if (nSamples < samplesLeft)
-        {
+    if (nSamples < samplesLeft)
+    {
 
-            displayBuffer->copyFrom (chan,                                      // destChannel
-                                     index,                                     // destStartSample
-                                     arrayOfOnes,                               // source
-                                     nSamples,                                  // numSamples
-                                     float (ttlState[eventSourceNodes[i]]));    // gain
-        }
-        else
-        {
-            int extraSamples = nSamples - samplesLeft;
+        displayBuffer->copyFrom (chan,                                      // destChannel
+                                 index,                                     // destStartSample
+                                 arrayOfOnes,                               // source
+                                 nSamples,                                  // numSamples
+                                 float (ttlState[subprocessorToDraw]));     // gain
+    }
+    else
+    {
+        int extraSamples = nSamples - samplesLeft;
 
-            displayBuffer->copyFrom (chan,                                      // destChannel
-                                     index,                                     // destStartSample
-                                     arrayOfOnes,                               // source
-                                     samplesLeft,                               // numSamples
-                                     float (ttlState[eventSourceNodes[i]]));    // gain
+        displayBuffer->copyFrom (chan,                                      // destChannel
+                                 index,                                     // destStartSample
+                                 arrayOfOnes,                               // source
+                                 samplesLeft,                               // numSamples
+                                 float (ttlState[subprocessorToDraw]));     // gain
 
-            displayBuffer->copyFrom (chan,                                      // destChannel
-                                     0,                                         // destStartSample
-                                     arrayOfOnes,                               // source
-                                     extraSamples,                              // numSamples
-                                     float (ttlState[eventSourceNodes[i]]));    // gain
-        }
+        displayBuffer->copyFrom (chan,                                      // destChannel
+                                 0,                                         // destStartSample
+                                 arrayOfOnes,                               // source
+                                 extraSamples,                              // numSamples
+                                 float (ttlState[subprocessorToDraw]));     // gain
     }
 }
 
 void LfpDisplayNode::finalizeEventChannels()
 {
-    for (int i = 0; i < eventSourceNodes.size(); ++i)
+    const int chan          = numChannelsInSubprocessor[subprocessorToDraw];
+    const int index         = displayBufferIndex[chan];
+    const int samplesLeft   = displayBuffer->getNumSamples() - index;
+    const int nSamples      = getNumSourceSamples(subprocessorToDraw);
+        
+    int newIdx = 0;
+        
+    if (nSamples < samplesLeft)
     {
-        const int chan          = channelForEventSource[eventSourceNodes[i]];
-        const int index         = displayBufferIndex[chan];
-        const int samplesLeft   = displayBuffer->getNumSamples() - index;
-        const int nSamples = getNumSourceSamples(eventSourceNodes[i]);
-        
-        int newIdx = 0;
-        
-        if (nSamples < samplesLeft)
-        {
-            newIdx = index + nSamples;
-        }
-        else
-        {
-            newIdx = nSamples - samplesLeft;
-        }
-        
-        displayBufferIndex.set(chan, newIdx);
+        newIdx = index + nSamples;
     }
+    else
+    {
+        newIdx = nSamples - samplesLeft;
+    }
+        
+    displayBufferIndex.set(chan, newIdx);
 }
 
 
@@ -379,7 +409,7 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 
 			for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
 			{
-				if (getDataChannel(chan)->getSubProcessorIdx() == subprocessorToDraw)
+				if (getDataSubprocId(chan) == subprocessorToDraw)
 				{
 					channelIndex++;
 					const int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex[channelIndex];

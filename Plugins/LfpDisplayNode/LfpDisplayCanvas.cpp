@@ -212,67 +212,34 @@ void LfpDisplayCanvas::endAnimation()
 
 void LfpDisplayCanvas::update()
 {
-	if (true)
-	{
     nChans = jmax(processor->getNumSubprocessorChannels(), 0);
 
-	std::cout << "Num chans: " << nChans << std::endl;
+    std::cout << "Num chans: " << nChans << std::endl;
 
     resizeSamplesPerPixelBuffer(nChans);
 
-    sampleRate.clear();
-    screenBufferIndex.clear();
-    lastScreenBufferIndex.clear();
-    displayBufferIndex.clear();
+    sampleRate = 30000; // default
+
+    for (auto* arr : { &screenBufferIndex, &lastScreenBufferIndex, &displayBufferIndex })
+    {
+        arr->clearQuick();
+        arr->insertMultiple(0, 0, nChans + 1); // extra channel for events
+    }
     
     options->setEnabled(nChans != 0);
     // must manually ensure that overlapSelection propagates up to canvas
     channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
 	std::cout << "Checking channels: " << nChans << std::endl;
-	for (int i = 0; i < processor->getNumInputs() + 1; i++) // extra channel for events
+
+    for (int i = 0, nInputs = processor->getNumInputs(); i < nInputs; i++)
     {
-		//std::cout << i << std::endl;
-		if (processor->getNumInputs() > 0)
-		{
-			if (i < processor->getNumInputs())
-			{
-				if (processor->getDataChannel(i)->getSubProcessorIdx() == drawableSubprocessor)
-				{
-					sampleRate.add(processor->getDataChannel(i)->getSampleRate());
-					//std::cout << "Adding sample rate " << processor->getDataChannel(i)->getSampleRate() << std::endl;
-				}
-					
-			}
-			else
-			{
-				//Since for now the canvas only supports one event channel, find the first TTL one and use that as sampleRate.
-				//This is a bit hackish and should be fixed for proper multi-ttl-channel support
-
-				for (int c = 0; c < processor->getTotalEventChannels(); c++)
-				{
-					if (processor->getEventChannel(c)->getChannelType() == EventChannel::TTL)
-					{
-						sampleRate.add(processor->getEventChannel(c)->getSampleRate());
-						std::cout << "Sample rate = " << processor->getEventChannel(c)->getSampleRate() << std::endl;
-
-					}
-				}
-			}
-		}
-		else
+        if (processor->getDataSubprocId(i) == drawableSubprocessor)
         {
-			sampleRate.add(30000);
+            sampleRate = processor->getDataChannel(i)->getSampleRate();
+            break;
         }
-        
-       // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
-        displayBufferIndex.add(0);
-        screenBufferIndex.add(0);
-        lastScreenBufferIndex.add(0);
     }
-
-	lfpDisplay->setDisplayedSampleRate(sampleRate[0]); // only one sample rate possible for now
-	std::cout << "Setting display sample rate to " << sampleRate[0] << std::endl;
 
 	std::cout << "Checking channel alignment: " << nChans << std::endl;
     if (nChans != lfpDisplay->getNumChannels())
@@ -319,8 +286,6 @@ void LfpDisplayCanvas::update()
             lfpDisplay->rebuildDrawableChannelsList();
         }
     }
-    
-	}
 }
 
 
@@ -410,7 +375,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 			//     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
 
 
-			float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
+			float ratio = sampleRate * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
 			// this number is crucial: converting from samples to values (in px) for the screen buffer
 			int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
 
@@ -658,24 +623,16 @@ bool LfpDisplayCanvas::getDrawMethodState()
     return options->getDrawMethodState(); //drawMethodButton->getToggleState();
 }
 
-int LfpDisplayCanvas::getChannelSampleRate(int channel)
-{
-    return sampleRate[channel];
-}
-
 void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
 {
 //    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
 	displayedSampleRate = samplerate;
-    lfpDisplay->setDisplayedSampleRate(samplerate);
 }
 
-void LfpDisplayCanvas::setDrawableSubprocessor(int idx)
+void LfpDisplayCanvas::setDrawableSubprocessor(uint32 sp)
 {
-	drawableSubprocessor = idx;
-    lfpDisplay->setDisplayedSubprocessor(idx);
-	std::cout << "Setting LFP canvas subprocessor to " << idx << std::endl;
-	processor->setSubprocessor(idx);
+	drawableSubprocessor = sp;
+	std::cout << "Setting LFP canvas subprocessor to " << sp << std::endl;
 	update();
 }
 
@@ -887,7 +844,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 	voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
     //voltageRanges[DataChannel::AUX_CHANNEL].add("5000");
 	selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
-	rangeGain[DataChannel::AUX_CHANNEL] = 0.001; //mV
+	rangeGain[DataChannel::AUX_CHANNEL] = 0.001f; //mV
 	rangeSteps[DataChannel::AUX_CHANNEL] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
@@ -1493,7 +1450,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
     if ((idx >= 0) && (b->getToggleState()))
     {
-        for (int i = 0; i < processor->getNumInputs(); i++)
+        for (int i = 0; i < lfpDisplay->getNumChannels(); i++)
         {
             if (lfpDisplay->channels[i]->getSelected())
             {
@@ -2172,7 +2129,7 @@ void LfpTimescale::setTimebase(float t)
         if (labelIncrement < 0.2)
             labelIncrement *= 2;
         else
-            labelIncrement += 0.2;
+            labelIncrement += 0.2f;
     }
     
     for (float i = labelIncrement; i < timebase; i += labelIncrement)
@@ -2634,31 +2591,6 @@ void LfpDisplay::cacheNewChannelHeight(int r)
     cachedDisplayChannelHeight = r;
 }
 
-float LfpDisplay::getDisplayedSampleRate()
-{
-    return drawableSampleRate;
-}
-
-// Must manually call rebuildDrawableChannelsList after this is set, typically will happen
-// already as a result of some other procedure
-void LfpDisplay::setDisplayedSampleRate(float samplerate)
-{
-    std::cout << "Setting the displayed samplerate for LfpDisplayCanvas to " << samplerate << std::endl;
-    drawableSampleRate = samplerate;
-}
-
-int LfpDisplay::getDisplayedSubprocessor()
-{
-    return drawableSubprocessorIdx;
-}
-
-void LfpDisplay::setDisplayedSubprocessor(int subProcessorIdx)
-{
-    drawableSubprocessorIdx = subProcessorIdx;
-	refresh();
-
-}
-
 bool LfpDisplay::getChannelsReversed()
 {
     return channelsReversed;
@@ -2673,7 +2605,7 @@ void LfpDisplay::setChannelsReversed(bool state)
     if (getSingleChannelState()) return; // don't reverse if single channel
     
     // reverse channels that are currently in drawableChannels
-    for (size_t i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size()/2;
+    for (int i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size()/2;
          i < len;
          i++, j--)
     {
@@ -2708,7 +2640,7 @@ void LfpDisplay::setChannelsReversed(bool state)
     }
     
     // add the channels and channel info again
-    for (size_t i = 0, len = drawableChannels.size(); i < len; i++)
+    for (int i = 0, len = drawableChannels.size(); i < len; i++)
     {
         
         if (!drawableChannels[i].channel->getHidden())
@@ -2890,8 +2822,8 @@ void LfpDisplay::toggleSingleChannel(int chan)
         }
         
         // update drawableChannels, give only the single channel to focus on
-        Array<LfpChannelTrack> channelsToDraw{lfpChannelTrack};
-        drawableChannels = channelsToDraw;
+        drawableChannels.clearQuick();
+        drawableChannels.add(lfpChannelTrack);
         
         addAndMakeVisible(lfpChannelTrack.channel);
         addAndMakeVisible(lfpChannelTrack.channelInfo);
@@ -2940,7 +2872,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
     
     // iterate over all channels and select drawable ones
-    for (size_t i = 0, drawableChannelNum = 0; i < channels.size(); i++)
+    for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
     {
 //        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
         // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
@@ -3279,7 +3211,7 @@ void LfpChannelDisplay::pxPaint()
             //draw zero line
             int m = getY()+center;
             
-            if(m > 0 & m < display->lfpChannelBitmap.getHeight())
+            if(m > 0 && m < display->lfpChannelBitmap.getHeight())
             {
                 if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
                     bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
@@ -3294,7 +3226,7 @@ void LfpChannelDisplay::pxPaint()
                 
                 for (m = start; m <= start + jump*4; m += jump)
                 {
-                    if (m > 0 & m < display->lfpChannelBitmap.getHeight())
+                    if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                     {
                         if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) // make sure we're not drawing over an existing plot from another channel
                             bdLfpChannelBitmap.setPixelColour(i, m, Colour(80,80,80));
@@ -3431,7 +3363,7 @@ void LfpChannelDisplay::pxPaint()
                     {
                         int clipmarker = jto_wholechannel_clip;
                         
-                        if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                        if(clipmarker>0 && clipmarker<display->lfpChannelBitmap.getHeight()){
                             bdLfpChannelBitmap.setPixelColour(i,clipmarker-j,Colour(255,255,255));
                         }
                     }
@@ -3442,7 +3374,7 @@ void LfpChannelDisplay::pxPaint()
                     {
                         int clipmarker = jfrom_wholechannel_clip;
                         
-                        if(clipmarker>0 & clipmarker<display->lfpChannelBitmap.getHeight()){
+                        if(clipmarker>0 && clipmarker<display->lfpChannelBitmap.getHeight()){
                             bdLfpChannelBitmap.setPixelColour(i,clipmarker+j,Colour(255,255,255));
                         }
                     }
@@ -3455,7 +3387,7 @@ void LfpChannelDisplay::pxPaint()
             if (spikeFlag) // draw spikes
             {
                 for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
-                    if(k>0 & k<display->lfpChannelBitmap.getHeight()){
+                    if(k>0 && k<display->lfpChannelBitmap.getHeight()){
                         bdLfpChannelBitmap.setPixelColour(i,k,lineColour);
                     }
                 };
@@ -3473,7 +3405,7 @@ void LfpChannelDisplay::pxPaint()
                         if (fmod((i+k),50)>25){
                             thiscolour=Colour(255,255,255);
                         }
-                        if(k>0 & k<display->lfpChannelBitmap.getHeight()){
+                        if(k>0 && k<display->lfpChannelBitmap.getHeight()){
                             bdLfpChannelBitmap.setPixelColour(i,k,thiscolour);
                         }
                     };
@@ -4059,7 +3991,7 @@ void SupersampledBitmapPlotter::plot(Image::BitmapData &bdLfpChannelBitmap, LfpB
 //    int sampleCountThisPixel = lfpDisplay->canvas->getSampleCountPerPixel(pInfo.samp);
     int sampleCountThisPixel = pInfo.sampleCountPerPixel;
     
-    if (pInfo.samplerange>0 & sampleCountThisPixel>0)
+    if (pInfo.samplerange>0 && sampleCountThisPixel>0)
     {
         
         //float localHist[samplerange]; // simple histogram
@@ -4113,7 +4045,7 @@ void SupersampledBitmapPlotter::plot(Image::BitmapData &bdLfpChannelBitmap, LfpB
             //Colour gradedColor =  Colour(0,255,0);
             
             int ploty = pInfo.from + s + pInfo.y;
-            if(ploty>0 & ploty < display->lfpChannelBitmap.getHeight()) {
+            if(ploty>0 && ploty < display->lfpChannelBitmap.getHeight()) {
                 bdLfpChannelBitmap.setPixelColour(pInfo.samp, pInfo.from + s + pInfo.y, gradedColor);
             }
         }

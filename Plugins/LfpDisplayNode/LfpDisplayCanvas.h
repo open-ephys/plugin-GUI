@@ -119,9 +119,9 @@ public:
     /** Returns the subprocessor index of the given channel */
     int getChannelSubprocessorIdx(int channel);
     
-    /** Delegates a subprocessor index for drawing to the LfpDisplay referenced by this
+    /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
         this canvas */
-    void setDrawableSubprocessor(int idx);
+    void setDrawableSubprocessor(uint32 sp);
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -168,7 +168,7 @@ public:
 
 private:
     
-    Array<float> sampleRate;
+    float sampleRate;
 
     bool optionsDrawerIsOpen;
     
@@ -176,7 +176,7 @@ private:
     float timeOffset;
     //int spread ; // vertical spacing between channels
 
-	int drawableSubprocessor;
+	uint32 drawableSubprocessor;
 	float displayedSampleRate;
     
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
@@ -502,24 +502,7 @@ public:
     int getChannelHeight();
     
     LfpChannelColourScheme * getColourSchemePtr();
-    
-    /** Returns the sample rate that is currently filtering the drawable channels */
-    float getDisplayedSampleRate();
-    
-    /** Sets the samplerate that displayed channels must be set to. No channels with
-        differing samplerates will be drawn to screen.
-     
-        This function does not automatically repopulate the drawableChannels list, so
-        rebuildDrawableChannelsList must be called before the screen is updated.
-     
-        @see LfpDisplayCanvas::setDrawableSampleRate, LfpDisplayNode::updateSettings
-     */
-    void setDisplayedSampleRate(float samplerate);
-    
-    int getDisplayedSubprocessor();
-    
-    void setDisplayedSubprocessor(int subProcessorIdx);
-    
+        
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
     
@@ -647,7 +630,7 @@ private:
     int displaySkipAmt;
     int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
     float drawableSampleRate;
-    int drawableSubprocessorIdx;
+    uint32 drawableSubprocessor;
 
     int totalHeight;
 

@@ -35,16 +35,14 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
 
     desiredWidth = 180;
     
+    subprocessorSelectionLabel = new Label("Display subprocessor sample rate", "Display Subprocessor:");
+    subprocessorSelectionLabel->setBounds(10, 30, 130, 20);
+    addAndMakeVisible(subprocessorSelectionLabel);
+
     subprocessorSelection = new ComboBox("Subprocessor sample rate");
-//    subprocessorSelection->setBounds(subprocessorSelectionLabel->getX()+5, subprocessorSelectionLabel->getBottom(), 60, 22);
-    subprocessorSelection->setBounds(10, 30, 55, 22);
+    subprocessorSelection->setBounds(10, 55, 130, 22);
     subprocessorSelection->addListener(this);
     addAndMakeVisible(subprocessorSelection);
-    
-    subprocessorSelectionLabel = new Label("Display subprocessor sample rate", "Display Subproc.");
-    //    subprocessorSelectionLabel->setBounds(10, 25, 140, 20);
-    subprocessorSelectionLabel->setBounds(subprocessorSelection->getRight(), subprocessorSelection->getY(), 100, 20);
-    addAndMakeVisible(subprocessorSelectionLabel);
     
     subprocessorSampleRateLabel = new Label("Subprocessor sample rate label", "Sample Rate:");
     subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14, Font::plain));
@@ -107,85 +105,70 @@ void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
 {
     if (cb == subprocessorSelection)
     {
-		std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl; 
-        setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
-		String sampleRateLabelText = "Sample Rate: ";
-		sampleRateLabelText += String(inputSampleRates[cb->getSelectedId() - 1]);
+        std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl;
+        uint32 subproc = inputSubprocessors[cb->getSelectedId() - 1];
+		
+        String sampleRateLabelText = "Sample Rate: ";
+		sampleRateLabelText += String(lfpProcessor->getSubprocessorSampleRate(subproc));
 		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+        std::cout << sampleRateLabelText << std::endl;
+
+        lfpProcessor->setSubprocessor(subproc);
+        if (canvas)
+        {
+            static_cast<LfpDisplayCanvas*>(canvas.get())->setDrawableSubprocessor(subproc);
+        }
     }
 }
 
 void LfpDisplayEditor::updateSubprocessorSelectorOptions()
 {
     // clear out the old data
-    inputSubprocessorIndices.clear();
-    inputSampleRates.clear();
+    inputSubprocessors.clear();
     subprocessorSelection->clear(dontSendNotification);
     
 	if (lfpProcessor->getTotalDataChannels() != 0)
 
 	{
+        HashMap<int, String> subprocessorNames;
 
 		for (int i = 0, len = lfpProcessor->getTotalDataChannels(); i < len; ++i)
 		{
-			int subProcessorIdx = lfpProcessor->getDataChannel(i)->getSubProcessorIdx();
+            const DataChannel* ch = lfpProcessor->getDataChannel(i);
+            uint16 sourceNodeId = ch->getSourceNodeID();
+			uint16 subProcessorIdx = ch->getSubProcessorIdx();
+            uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
 
-			bool success = inputSubprocessorIndices.add(subProcessorIdx);
+			bool added = inputSubprocessors.add(subProcFullId);
 
-			if (success) inputSampleRates.set(subProcessorIdx, lfpProcessor->getDataChannel(i)->getSampleRate());
-
+            if (added)
+            {
+                String sourceName = ch->getSourceName();
+                subprocessorNames.set(subProcFullId,
+                    sourceName + " " + String(sourceNodeId) + "/" + String(subProcessorIdx));
+            }
 		}
 
-		for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
+		for (int i = 0; i < inputSubprocessors.size(); ++i)
 		{
-			subprocessorSelection->addItem(String(*(inputSubprocessorIndices.begin() + i)), i + 1);
+			subprocessorSelection->addItem(subprocessorNames[inputSubprocessors[i]], i + 1);
 		}
 
-		if (defaultSubprocessor >= 0)
-		{
-			subprocessorSelection->setSelectedId(defaultSubprocessor + 1, sendNotification);
+        uint32 selectedSubproc = lfpProcessor->getSubprocessor();
+        int selectedSubprocId = (selectedSubproc ? inputSubprocessors.indexOf(selectedSubproc) : defaultSubprocessor) + 1;
 
-			String sampleRateLabelText = "Sample Rate: ";
-			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + defaultSubprocessor)]);
-
-			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-			//setCanvasDrawableSubprocessor(defaultSubprocessor);
-
-            return;
-		}
+		subprocessorSelection->setSelectedId(selectedSubprocId, sendNotification);
 	}
-
-    subprocessorSelection->addItem("None", 1);
-    subprocessorSelection->setSelectedId(1, dontSendNotification);
-
-    String sampleRateLabelText = "Sample Rate: <not available>";
-    subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-    //setCanvasDrawableSubprocessor(-1);
-}
-
-void LfpDisplayEditor::setCanvasDrawableSubprocessor(int index)
-{
-    if (canvas)
+    else
     {
-		if (index >= 0)
-		{
-			((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
-			float rate = lfpProcessor->getSubprocessorSampleRate();
+        subprocessorSelection->addItem("None", 1);
+        subprocessorSelection->setSelectedId(1, dontSendNotification);
 
-			String sampleRateLabelText = "Sample Rate: ";
-			sampleRateLabelText += String(rate);
-			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-
-			std::cout << sampleRateLabelText << std::endl;
-		}
-		else
-		{
-			((LfpDisplayCanvas *)canvas.get())->setDrawableSubprocessor(-1);
-		}
-            
+        String sampleRateLabelText = "Sample Rate: <not available>";
+        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+        //setCanvasDrawableSubprocessor(-1);
     }
 }
-
 
 void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
 {
