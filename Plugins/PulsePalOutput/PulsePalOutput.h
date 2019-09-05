@@ -121,6 +121,7 @@ public:
     int getLinkTriggerChannel1(int chan) const;
     int getLinkTriggerChannel2(int chan) const;
     int getTriggerMode(int chan) const;
+	int getContinuous(int chan) const;
     void setIsBiphasic(int chan, bool isBiphasic);
     void setNegFirst(int chan, bool negFirst);
     void setPhase1Duration(int chan, float phaseDuration);
@@ -136,7 +137,8 @@ public:
     void setTrainDelay(int chan, float trainDelay);
     void setLinkTriggerChannel1(int chan, int link);
     void setLinkTriggerChannel2(int chan, int link);
-    void setTriggerMode(int chan, int mode);    
+    void setTriggerMode(int chan, int mode);  
+	void setContinuous(int chan, int continued);
     /**
      * @brief setTTLsettings sets channel chan to TTL settings
      * @param chan: channel number (0-1-2-3)
@@ -190,6 +192,7 @@ private:
     vector<int> m_linkTriggerChannel1;
     vector<int> m_linkTriggerChannel2;
     vector<int> m_triggerMode;
+	vector<int> m_continuous;
     // Pulse Pal instance and version
     PulsePal pulsePal;
     uint32_t pulsePalVersion;

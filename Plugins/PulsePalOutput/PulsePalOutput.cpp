@@ -65,6 +65,7 @@ PulsePalOutput::PulsePalOutput()
     m_linkTriggerChannel1 = vector<int>(PULSEPALCHANNELS, 0);
     m_linkTriggerChannel2 = vector<int>(PULSEPALCHANNELS, 0);
     m_triggerMode = vector<int>(PULSEPALCHANNELS, 0);
+	m_continuous = vector<int>(PULSEPALCHANNELS, 0);
 
     for (int i = 0; i < PULSEPALCHANNELS; ++i)
     {
@@ -194,6 +195,7 @@ bool PulsePalOutput::updatePulsePal(int chan)
         pulsePal.setTrigger1Link(actual_chan, m_linkTriggerChannel1[chan]);
         pulsePal.setTrigger2Link(actual_chan, m_linkTriggerChannel2[chan]);
         pulsePal.setTriggerMode(actual_chan, m_triggerMode[chan]);
+		pulsePal.setContinuousLoop(actual_chan, m_continuous[chan]);
         return true;
     }
     else
@@ -276,6 +278,11 @@ int PulsePalOutput::getLinkTriggerChannel2(int chan) const
 int PulsePalOutput::getTriggerMode(int chan) const
 {
     return m_triggerMode[chan];
+}
+
+int PulsePalOutput::getContinuous(int chan) const
+{
+	return m_continuous[chan];
 }
 
 uint32_t PulsePalOutput::getPulsePalVersion() const
@@ -361,6 +368,11 @@ void PulsePalOutput::setTriggerMode(int chan, int mode)
     m_triggerMode[chan] = mode;
 }
 
+void PulsePalOutput::setContinuous(int chan, int continued)
+{
+	m_continuous[chan] = continued;
+}
+
 void PulsePalOutput::setTTLsettings(int chan)
 {
     m_isBiphasic[chan] = 0;
@@ -443,6 +455,7 @@ void PulsePalOutput::saveCustomParametersToXml(XmlElement *parentElement)
         chan->setAttribute("link2trigger1", m_linkTriggerChannel1[i]);
         chan->setAttribute("link2trigger2", m_linkTriggerChannel2[i]);
         chan->setAttribute("triggermode", m_triggerMode[i]);
+		chan->setAttribute("continuous", m_continuous[i]);
         mainNode->addChildElement(chan);
     }
 }
@@ -473,6 +486,7 @@ void PulsePalOutput::loadCustomParametersFromXml ()
                     int link21 = chan->getIntAttribute("link2trigger1");
                     int link22 = chan->getIntAttribute("link2trigger2");
                     int trigger = chan->getIntAttribute("triggermode");
+					int contd = chan->getIntAttribute("continuous");
                     m_isBiphasic[id] = biphasic;
                     m_phase1Duration[id] = phase1;
                     m_phase2Duration[id] = phase2;
@@ -488,6 +502,7 @@ void PulsePalOutput::loadCustomParametersFromXml ()
                     m_linkTriggerChannel1[id] = link21;
                     m_linkTriggerChannel2[id] = link22;
                     m_triggerMode[id] = trigger;
+					m_continuous[id] = contd;
                 }
             }
         }
