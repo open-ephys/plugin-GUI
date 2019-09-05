@@ -30,7 +30,7 @@
 
 #define MAX_NUM_DATA_STREAMS(u3) ( u3 ? MAX_NUM_DATA_STREAMS_USB3 : MAX_NUM_DATA_STREAMS_USB2 )
 
-#define USB3_BLOCK_SIZE	1024
+#define USB3_BLOCK_SIZE 1024
 #define DDR_BLOCK_SIZE 32
 
 #include <queue>
@@ -39,7 +39,7 @@ using namespace std;
 
 namespace OpalKellyLegacy
 {
-	class okCFrontPanel;
+    class okCFrontPanel;
 }
 class Rhd2000DataBlock;
 
@@ -48,7 +48,7 @@ class Rhd2000EvalBoard
 
 public:
     Rhd2000EvalBoard();
-	~Rhd2000EvalBoard();
+    ~Rhd2000EvalBoard();
 
     int open(const char* libname); //patched to allow selecting path to dll
     bool uploadFpgaBitfile(string filename);
@@ -165,17 +165,17 @@ public:
     int getCableDelay(BoardPort port) const;
     void getCableDelay(vector<int> &delays) const;
 
-	//Additions by open-ephys
-	void resetFpga();
-	bool isStreamEnabled(int streamIndex);
-	void enableBoardLeds(bool enable);
-	void setClockDivider(int divide_factor);
-	bool isUSB3();
-	void printFIFOmetrics();
-	bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
+    //Additions by open-ephys
+    void resetFpga();
+    bool isStreamEnabled(int streamIndex);
+    void enableBoardLeds(bool enable);
+    void setClockDivider(int divide_factor);
+    bool isUSB3();
+    void printFIFOmetrics();
+    bool readRawDataBlock(unsigned char** bufferPtr, int nSamples = -1);
 
 private:
-	OpalKellyLegacy::okCFrontPanel *dev;
+    OpalKellyLegacy::okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
     int numDataStreams; // total number of data streams currently enabled
     int dataStreamEnabled[MAX_NUM_DATA_STREAMS_USB3]; // 0 (disabled) or 1 (enabled), set for maximum stream number
@@ -226,7 +226,7 @@ private:
         TrigInDacHpf = 0x44,
         TrigInExtFastSettle = 0x45,
         TrigInExtDigOut = 0x46,
-		TrigInOpenEphys = 0x5a,
+        TrigInOpenEphys = 0x5a,
 
         WireOutNumWordsLsb = 0x20,
         WireOutNumWordsMsb = 0x21,
@@ -246,7 +246,7 @@ private:
     bool isDcmProgDone() const;
     bool isDataClockLocked() const;
 
-	bool usb3; //Open-Ephys addition for USB3 support
+    bool usb3; //Open-Ephys addition for USB3 support
 };
 
 #endif // RHD2000EVALBOARD_H

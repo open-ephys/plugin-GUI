@@ -108,10 +108,11 @@ namespace RhythmNode
 		void setDAChpf(float cutoff, bool enabled);
 
 		void scanPorts();
+		void enableAuxs(bool);
 		void enableAdcs(bool);
 
+		bool isAuxEnabled();
 		bool isReady() override;
-
 		bool isAcquisitionActive() const;
 
 		int modifyChannelGain(int channel, float gain)      override;
@@ -180,8 +181,8 @@ namespace RhythmNode
 		bool isTransmitting;
 
 		bool dacOutputShouldChange;
-		bool acquireAdcChannels;
 		bool acquireAuxChannels;
+		bool acquireAdcChannels;
 
 		bool fastSettleEnabled;
 		bool fastTTLSettleEnabled;

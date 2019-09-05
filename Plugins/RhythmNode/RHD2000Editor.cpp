@@ -120,7 +120,7 @@ void FPGAchannelList::buttonClicked(Button* btn)
 void FPGAchannelList::update()
 {
    // const int columnWidth = 330;
-	const int columnWidth = 250;
+    const int columnWidth = 250;
     // Query processor for number of channels, types, gains, etc... and update the UI
     channelComponents.clear();
     staticLabels.clear();
@@ -130,7 +130,6 @@ void FPGAchannelList::update()
 
     // find out which streams are active.
     bool hsActive[MAX_NUM_HEADSTAGES+1];
-    //bool adcActive = false;
     int numActiveHeadstages = 0;
     int hsColumn[MAX_NUM_HEADSTAGES + 1];
     int numChannelsPerHeadstage[MAX_NUM_HEADSTAGES + 1];
@@ -155,7 +154,7 @@ void FPGAchannelList::update()
 
     if (thread->getNumDataOutputs(DataChannel::ADC_CHANNEL,0) > 0)
     {
-		numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = thread->getNumDataOutputs(DataChannel::ADC_CHANNEL, 0);
+        numChannelsPerHeadstage[MAX_NUM_HEADSTAGES] = thread->getNumDataOutputs(DataChannel::ADC_CHANNEL, 0);
         hsActive[MAX_NUM_HEADSTAGES] = true;
         hsColumn[MAX_NUM_HEADSTAGES] = numActiveHeadstages*columnWidth;
         numActiveHeadstages++;
@@ -194,11 +193,14 @@ void FPGAchannelList::update()
 
     }
 
-    for (int k = 0; k < MAX_NUM_HEADSTAGES + 1; k++)
+    for (int k = 0; k < MAX_NUM_HEADSTAGES + 1; k++) // +1 is for the ADC "headstage"
     {
         if (hsActive[k])
         {
-            for (int ch = 0; ch < numChannelsPerHeadstage[k]+ (k < MAX_NUM_HEADSTAGES ? 3 : 0); ch++)
+            int nchans = numChannelsPerHeadstage[k];
+            if (k < MAX_NUM_HEADSTAGES && thread->isAuxEnabled())
+                nchans += 3;
+            for (int ch = 0; ch < nchans; ch++)
             {
                 int channelGainIndex = 1;
                 int realChan = thread->getChannelFromHeadstage(k, ch);
@@ -216,7 +218,7 @@ void FPGAchannelList::update()
                 else
                     type = DataChannel::ADC_CHANNEL;
 
-                FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains,type);
+                FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains, type);
                 comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
                 comp->setUserDefinedData(k);
                 addAndMakeVisible(comp);
@@ -238,11 +240,11 @@ void FPGAchannelList::update()
         channelComponents.add(comp);
     }
 
-    Label* lbl = new Label("TTL Events","TTL Events");
+    Label* lbl = new Label("TTL Events", "TTL Events");
     lbl->setEditable(false);
-    lbl->setBounds(numActiveHeadstages*columnWidth,40,columnWidth, 25);
+    lbl->setBounds(numActiveHeadstages*columnWidth, 40, columnWidth, 25);
     lbl->setJustificationType(juce::Justification::centred);
-    lbl->setColour(Label::textColourId,juce::Colours::white);
+    lbl->setColour(Label::textColourId, juce::Colours::white);
     staticLabels.add(lbl);
     addAndMakeVisible(lbl);
 
@@ -255,10 +257,10 @@ void FPGAchannelList::disableAll()
     {
         channelComponents[k]->disableEdit();
     }
-	impedanceButton->setEnabled(false);
-	saveImpedanceButton->setEnabled(false);
-	autoMeasureButton->setEnabled(false);
-	numberingScheme->setEnabled(false);
+    impedanceButton->setEnabled(false);
+    saveImpedanceButton->setEnabled(false);
+    autoMeasureButton->setEnabled(false);
+    numberingScheme->setEnabled(false);
 }
 
 void FPGAchannelList::enableAll()
@@ -267,10 +269,10 @@ void FPGAchannelList::enableAll()
     {
         channelComponents[k]->enableEdit();
     }
-	impedanceButton->setEnabled(true);
-	saveImpedanceButton->setEnabled(true);
-	autoMeasureButton->setEnabled(true);
-	numberingScheme->setEnabled(true);
+    impedanceButton->setEnabled(true);
+    saveImpedanceButton->setEnabled(true);
+    autoMeasureButton->setEnabled(true);
+    numberingScheme->setEnabled(true);
 }
 
 void FPGAchannelList::setNewGain(int channel, float gain)
@@ -313,21 +315,21 @@ void FPGAchannelList::comboBoxChanged(ComboBox* b)
 
 void FPGAchannelList::updateImpedance(Array<int> streams, Array<int> channels, Array<float> magnitude, Array<float> phase)
 {
-	int i = 0;
+    int i = 0;
     for (int k = 0; k < streams.size(); k++)
     {
-		if (i >= channelComponents.size())
-			break; //little safety
+        if (i >= channelComponents.size())
+            break; //little safety
 
-		if (channelComponents[i]->type != DataChannel::HEADSTAGE_CHANNEL)
-		{
-			k--;
-		}
-		else
-		{
-			channelComponents[i]->setImpedanceValues(magnitude[k], phase[k]);
-		}
-		i++;
+        if (channelComponents[i]->type != DataChannel::HEADSTAGE_CHANNEL)
+        {
+            k--;
+        }
+        else
+        {
+            channelComponents[i]->setImpedanceValues(magnitude[k], phase[k]);
+        }
+        i++;
     }
 
 }
@@ -351,29 +353,29 @@ type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gai
     editName->addListener(this);
     addAndMakeVisible(editName);
 
-	if (type == DataChannel::HEADSTAGE_CHANNEL)
+    if (type == DataChannel::HEADSTAGE_CHANNEL)
     {
         impedance = new Label("Impedance","? Ohm");
         impedance->setFont(Font("Default", 13, Font::plain));
         impedance->setEditable(false);
         addAndMakeVisible(impedance);
     }
-	else if (type == DataChannel::ADC_CHANNEL)
-	{
-		impedance = nullptr;
-		rangeComboBox = new ComboBox("ADC Ranges");
-		rangeComboBox->addItem("-5V - +5V",1);
-		rangeComboBox->addItem("0V - +5V",2);
-		SourceNode* proc = channelList->proc;
-		RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
-		rangeComboBox->setSelectedId(thread->getAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex()) + 1, dontSendNotification);
-		rangeComboBox->addListener(this);
-		addAndMakeVisible(rangeComboBox);
-	}
+    else if (type == DataChannel::ADC_CHANNEL)
+    {
+        impedance = nullptr;
+        rangeComboBox = new ComboBox("ADC Ranges");
+        rangeComboBox->addItem("-5V - +5V",1);
+        rangeComboBox->addItem("0V - +5V",2);
+        SourceNode* proc = channelList->proc;
+        RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
+        rangeComboBox->setSelectedId(thread->getAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex()) + 1, dontSendNotification);
+        rangeComboBox->addListener(this);
+        addAndMakeVisible(rangeComboBox);
+    }
     else
     {
         impedance = nullptr;
-		rangeComboBox = nullptr;
+        rangeComboBox = nullptr;
     }
 }
 FPGAchannelComponent::~FPGAchannelComponent()
@@ -402,9 +404,9 @@ void FPGAchannelComponent::comboBoxChanged(ComboBox* comboBox)
 {
     if (comboBox == rangeComboBox)
     {
-		SourceNode* proc = channelList->proc;
-		RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
-		thread->setAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex(), comboBox->getSelectedId() - 1);
+        SourceNode* proc = channelList->proc;
+        RHD2000Thread* thread = static_cast<RHD2000Thread*>(proc->getThread());
+        thread->setAdcRange(proc->getDataChannel(channel)->getSourceTypeIndex(), comboBox->getSelectedId() - 1);
     }
 }
 void FPGAchannelComponent::labelTextChanged(Label* lbl)
@@ -447,7 +449,7 @@ void FPGAchannelComponent::resized()
     if (impedance != nullptr)
     {
        // impedance->setBounds(180,0,130,20);
-		impedance->setBounds(100, 0, 130, 20);
+        impedance->setBounds(100, 0, 130, 20);
     }
 
 }
@@ -511,10 +513,10 @@ void FPGAcanvas::update()
 {
     // create channel buttons (name, gain, recording, impedance, ... ?)
     channelList->update();
-	if (static_cast<RHD2000Thread*>(processor->getThread())->isAcquisitionActive())
-	{
-		channelList->disableAll();
-	}
+    if (static_cast<RHD2000Thread*>(processor->getThread())->isAcquisitionActive())
+    {
+        channelList->disableAll();
+    }
 }
 
 void FPGAcanvas::resized()
@@ -552,10 +554,10 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     measureWhenRecording = false;
     saveImpedances = false;
 
-	impedanceData = new ImpedanceData();
-	impedanceData->valid = false;
+    impedanceData = new ImpedanceData();
+    impedanceData->valid = false;
 
-    // add headstage-specific controls (currently just an enable/disable button)
+    // add headstage-specific controls (currently just a toggle button)
     for (int i = 0; i < 4; i++)
     {
         HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
@@ -564,35 +566,52 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         hsOptions->setBounds(3, 28+i*20, 70, 18);
     }
 
+    // add rescan button
+    rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
+    rescanButton->setRadius(3.0f);
+    rescanButton->setBounds(6, 108, 65, 18);
+    rescanButton->addListener(this);
+    rescanButton->setTooltip("Check for connected headstages");
+    addAndMakeVisible(rescanButton);
+
     // add sample rate selection
     sampleRateInterface = new SampleRateInterface(board, this);
     addAndMakeVisible(sampleRateInterface);
-    sampleRateInterface->setBounds(80, 25, 110, 50);
+    sampleRateInterface->setBounds(80, 20, 80, 50);
 
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
     addAndMakeVisible(bandwidthInterface);
-    bandwidthInterface->setBounds(80, 58, 80, 50);
+    bandwidthInterface->setBounds(80, 55, 80, 50);
 
-    // add DSP selection
-  //  dspInterface = new DSPInterface(board, this);
-  //  addAndMakeVisible(dspInterface);
-  //  dspInterface->setBounds(80, 58, 80, 50);
+    auxButton = new UtilityButton("AUX", Font("Small Text", 13, Font::plain));
+    auxButton->setRadius(3.0f);
+    auxButton->setBounds(80, 108, 32, 18);
+    auxButton->addListener(this);
+    auxButton->setClickingTogglesState(true);
+    auxButton->setTooltip("Toggle AUX channels (3 per headstage)");
+    addAndMakeVisible(auxButton);
 
-    // add rescan button
-    rescanButton = new UtilityButton("RESCAN", Font("Small Text", 13, Font::plain));
-    rescanButton->setRadius(3.0f);
-    rescanButton->setBounds(6, 108,65,18);
-    rescanButton->addListener(this);
-    rescanButton->setTooltip("Check for connected headstages");
-    addAndMakeVisible(rescanButton);
+    adcButton = new UtilityButton("ADC", Font("Small Text", 13, Font::plain));
+    adcButton->setRadius(3.0f);
+    adcButton->setBounds(80+32+1, 108, 32, 18);
+    adcButton->addListener(this);
+    adcButton->setClickingTogglesState(true);
+    adcButton->setTooltip("Toggle 8 external HDMI ADC channels");
+    addAndMakeVisible(adcButton);
+
+    audioLabel = new Label("audio label", "Audio out");
+    audioLabel->setBounds(170, 20, 75, 15);
+    audioLabel->setFont(Font("Small Text", 10, Font::plain));
+    audioLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(audioLabel);
 
     for (int i = 0; i < 2; i++)
     {
         ElectrodeButton* button = new ElectrodeButton(-1);
         electrodeButtons.add(button);
 
-        button->setBounds(200+i*25, 40, 25, 15);
+        button->setBounds(174+i*30, 35, 30, 15);
         button->setChannelNum(-1);
         button->setToggleState(false, dontSendNotification);
         button->setRadioGroupId(999);
@@ -610,97 +629,81 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         }
     }
 
-    audioLabel = new Label("audio label", "Audio out");
-    audioLabel->setBounds(190,25,75,15);
-    audioLabel->setFont(Font("Small Text", 10, Font::plain));
-    audioLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(audioLabel);
-
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
-    audioInterface->setBounds(179, 58, 70, 50);
+    audioInterface->setBounds(174, 55, 70, 50);
 
     clockInterface = new ClockDivideInterface(board, this);
     addAndMakeVisible(clockInterface);
-    clockInterface->setBounds(179, 82, 70, 50);
-
-    adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
-    adcButton->setRadius(3.0f);
-    adcButton->setBounds(179,108,70,18);
-    adcButton->addListener(this);
-    adcButton->setClickingTogglesState(true);
-    adcButton->setTooltip("Enable/disable ADC channels");
-    addAndMakeVisible(adcButton);
-
-	ledButton = new UtilityButton("LED", Font("Very Small Text", 13, Font::plain));
-	ledButton->setRadius(3.0f);
-	ledButton->setBounds(140, 108, 30, 18);
-	ledButton->addListener(this);
-	ledButton->setClickingTogglesState(true);
-	ledButton->setTooltip("Enable/disable board LEDs");
-	addAndMakeVisible(ledButton);
-	ledButton->setToggleState(true, dontSendNotification);
+    clockInterface->setBounds(174, 80, 70, 50);
 
     // add DSP Offset Button
-    dspoffsetButton = new UtilityButton("DSP", Font("Very Small Text", 13, Font::plain));
+    dspoffsetButton = new UtilityButton("DSP:", Font("Small Text", 13, Font::plain));
     dspoffsetButton->setRadius(3.0f); // sets the radius of the button's corners
-    dspoffsetButton->setBounds(80, 108,30,18); // sets the x position, y position, width, and height of the button
+    dspoffsetButton->setBounds(174, 108, 32, 18); // sets the x position, y position, width, and height of the button
     dspoffsetButton->addListener(this);
     dspoffsetButton->setClickingTogglesState(true); // makes the button toggle its state when clicked
-    dspoffsetButton->setTooltip("Enable/disable DSP offset removal");
+    dspoffsetButton->setTooltip("Toggle DSP offset removal");
     addAndMakeVisible(dspoffsetButton); // makes the button a child component of the editor and makes it visible
     dspoffsetButton->setToggleState(true, dontSendNotification);
 
     // add DSP Frequency Selection field
     dspInterface = new DSPInterface(board, this);
     addAndMakeVisible(dspInterface);
-    dspInterface->setBounds(110, 108, 30, 50);
-
-    ttlSettleLabel = new Label("TTL Settle","TTL Settle");
-    ttlSettleLabel->setFont(Font("Small Text", 11, Font::plain));
-    ttlSettleLabel->setBounds(255,80,70,20);
-    ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(ttlSettleLabel);
-
-
-    ttlSettleCombo = new ComboBox("FastSettleComboBox");
-    ttlSettleCombo->setBounds(260,100,60,18);
-    ttlSettleCombo->addListener(this);
-    ttlSettleCombo->addItem("-",1);
-    for (int k=0; k<8; k++)
-    {
-        ttlSettleCombo->addItem("TTL"+String(1+k),2+k);
-    }
-    ttlSettleCombo->setSelectedId(1, sendNotification);
-    addAndMakeVisible(ttlSettleCombo);
+    dspInterface->setBounds(174+32, 108, 40, 50);
 
     dacTTLButton = new UtilityButton("DAC TTL", Font("Small Text", 13, Font::plain));
     dacTTLButton->setRadius(3.0f);
-    dacTTLButton->setBounds(260,25,65,18);
+    dacTTLButton->setBounds(260, 25, 60, 18);
     dacTTLButton->addListener(this);
     dacTTLButton->setClickingTogglesState(true);
-    dacTTLButton->setTooltip("Enable/disable DAC Threshold TTL Output");
+    dacTTLButton->setTooltip("Toggle DAC Threshold TTL Output");
     addAndMakeVisible(dacTTLButton);
 
-    dacHPFlabel = new Label("DAC HPF","DAC HPF");
-    dacHPFlabel->setFont(Font("Small Text", 11, Font::plain));
-    dacHPFlabel->setBounds(260,42,65,20);
+    dacHPFlabel = new Label("DAC HPF", "DAC HPF");
+    dacHPFlabel->setFont(Font("Small Text", 10, Font::plain));
+    dacHPFlabel->setBounds(255, 40, 60, 20);
     dacHPFlabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(dacHPFlabel);
 
     dacHPFcombo = new ComboBox("dacHPFCombo");
-    dacHPFcombo->setBounds(260,60,60,18);
+    dacHPFcombo->setBounds(260, 55, 60, 18);
     dacHPFcombo->addListener(this);
-    dacHPFcombo->addItem("OFF",1);
-    int HPFvalues[10] = {50,100,200,300,400,500,600,700,800,900};
+    dacHPFcombo->addItem("OFF", 1);
+    int HPFvalues[10] = {50, 100, 200, 300, 400, 500, 600, 700, 800, 900};
     for (int k=0; k<10; k++)
     {
-        dacHPFcombo->addItem(String(HPFvalues[k])+" Hz",2+k);
+        dacHPFcombo->addItem(String(HPFvalues[k])+" Hz", 2+k);
     }
     dacHPFcombo->setSelectedId(1, sendNotification);
     addAndMakeVisible(dacHPFcombo);
 
+    ttlSettleLabel = new Label("TTL Settle", "TTL Settle");
+    ttlSettleLabel->setFont(Font("Small Text", 10, Font::plain));
+    ttlSettleLabel->setBounds(255, 70, 70, 20);
+    ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(ttlSettleLabel);
+
+    ttlSettleCombo = new ComboBox("FastSettleComboBox");
+    ttlSettleCombo->setBounds(260, 85, 60, 18);
+    ttlSettleCombo->addListener(this);
+    ttlSettleCombo->addItem("-",1);
+    for (int k=0; k<8; k++)
+    {
+        ttlSettleCombo->addItem("TTL"+String(1+k), 2+k);
+    }
+    ttlSettleCombo->setSelectedId(1, sendNotification);
+    addAndMakeVisible(ttlSettleCombo);
+
+    ledButton = new UtilityButton("LED", Font("Small Text", 13, Font::plain));
+    ledButton->setRadius(3.0f);
+    ledButton->setBounds(288, 108, 32, 18);
+    ledButton->addListener(this);
+    ledButton->setClickingTogglesState(true);
+    ledButton->setTooltip("Toggle board LEDs");
+    addAndMakeVisible(ledButton);
+    ledButton->setToggleState(true, dontSendNotification);
 }
 
 RHD2000Editor::~RHD2000Editor()
@@ -715,23 +718,23 @@ void RHD2000Editor::scanPorts()
 
 void RHD2000Editor::measureImpedance()
 {
-	impedanceData->valid = false;
-	board->runImpedanceTest(impedanceData);
+    impedanceData->valid = false;
+    board->runImpedanceTest(impedanceData);
 }
 
 void RHD2000Editor::handleAsyncUpdate()
 {
-	if (!impedanceData->valid)
-		return;
+    if (!impedanceData->valid)
+        return;
     if (canvas == nullptr)
         VisualizerEditor::canvas = createNewCanvas();
     // update components...
-	canvas->updateImpedance(impedanceData->streams, impedanceData->channels, impedanceData->magnitudes, impedanceData->phases);
+    canvas->updateImpedance(impedanceData->streams, impedanceData->channels, impedanceData->magnitudes, impedanceData->phases);
     if (saveImpedances)
     {
-		CoreServices::RecordNode::createNewrecordingDir();
+        CoreServices::RecordNode::createNewrecordingDir();
 
-		String path(CoreServices::RecordNode::getRecordingPath().getFullPathName()
+        String path(CoreServices::RecordNode::getRecordingPath().getFullPathName()
                     + File::separatorString + "impedance_measurement.xml");
         std::cout << "Saving impedance measurements in " << path << "\n";
         File file(path);
@@ -741,14 +744,14 @@ void RHD2000Editor::handleAsyncUpdate()
 
         XmlDocument doc(file);
         ScopedPointer<XmlElement> xml = new XmlElement("CHANNEL_IMPEDANCES");
-		for (int i = 0; i < impedanceData->channels.size(); i++)
+        for (int i = 0; i < impedanceData->channels.size(); i++)
         {
             XmlElement* chan = new XmlElement("CHANNEL");
-            chan->setAttribute("name",board->getChannelName(i));
-			chan->setAttribute("stream", impedanceData->streams[i]);
-			chan->setAttribute("channel_number", impedanceData->channels[i]);
-			chan->setAttribute("magnitude", impedanceData->magnitudes[i]);
-			chan->setAttribute("phase", impedanceData->phases[i]);
+            chan->setAttribute("name", board->getChannelName(i));
+            chan->setAttribute("stream", impedanceData->streams[i]);
+            chan->setAttribute("channel_number", impedanceData->channels[i]);
+            chan->setAttribute("magnitude", impedanceData->magnitudes[i]);
+            chan->setAttribute("phase", impedanceData->phases[i]);
             xml->addChildElement(chan);
         }
         xml->writeToFile(file,String::empty);
@@ -816,8 +819,7 @@ void RHD2000Editor::buttonEvent(Button* button)
         {
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
-        // board->updateChannelNames();
-		CoreServices::updateSignalChain(this);
+        CoreServices::updateSignalChain(this);
     }
     else if (button == electrodeButtons[0])
     {
@@ -827,13 +829,18 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         channelSelector->setRadioStatus(true);
     }
+    else if (button == auxButton && !acquisitionIsActive)
+    {
+        board->enableAuxs(button->getToggleState());
+        std::cout << "AUX Button toggled" << "\n";
+        CoreServices::updateSignalChain(this);
+    }
     else if (button == adcButton && !acquisitionIsActive)
     {
         board->enableAdcs(button->getToggleState());
-        //        board->updateChannelNames();
         std::cout << "ADC Button toggled" << "\n";
-		CoreServices::updateSignalChain(this);
-        std::cout << "Editor visible." << "\n";
+        CoreServices::updateSignalChain(this);
+
     }
     else if (button == dacTTLButton)
     {
@@ -844,15 +851,15 @@ void RHD2000Editor::buttonEvent(Button* button)
         std::cout << "DSP offset " << button->getToggleState() << "\n";
         board->setDSPOffset(button->getToggleState());
     }
-	else if (button == ledButton)
-	{
-		board->enableBoardLeds(button->getToggleState());
-	}
+    else if (button == ledButton)
+    {
+        board->enableBoardLeds(button->getToggleState());
+    }
     /*
-	else
-	{
-		VisualizerEditor::buttonEvent(button);
-	}
+    else
+    {
+        VisualizerEditor::buttonEvent(button);
+    }
     */
 
 }
@@ -879,12 +886,12 @@ void RHD2000Editor::startAcquisition()
     channelSelector->startAcquisition();
 
     rescanButton->setEnabledState(false);
+    auxButton->setEnabledState(false);
     adcButton->setEnabledState(false);
     dspoffsetButton-> setEnabledState(false);
     acquisitionIsActive = true;
-	if (canvas != nullptr)
-		canvas->channelList->disableAll();
-        //canvas->channelList->setEnabled(false);
+    if (canvas != nullptr)
+        canvas->channelList->disableAll();
 }
 
 void RHD2000Editor::stopAcquisition()
@@ -893,25 +900,22 @@ void RHD2000Editor::stopAcquisition()
     channelSelector->stopAcquisition();
 
     rescanButton->setEnabledState(true);
+    auxButton->setEnabledState(true);
     adcButton->setEnabledState(true);
     dspoffsetButton-> setEnabledState(true);
 
     acquisitionIsActive = false;
-	if (canvas != nullptr)
-		canvas->channelList->enableAll();
-    //  canvas->channelList->setEnabled(true);
+    if (canvas != nullptr)
+        canvas->channelList->enableAll();
 }
 
 void RHD2000Editor::saveCustomParameters(XmlElement* xml)
 {
     xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
-	xml->setAttribute("SampleRateString", sampleRateInterface->getText());
+    xml->setAttribute("SampleRateString", sampleRateInterface->getText());
     xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
     xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
-    xml->setAttribute("ADCsOn", adcButton->getToggleState());
-    xml->setAttribute("SampleRate", sampleRateInterface->getSelectedId());
-    xml->setAttribute("LowCut", bandwidthInterface->getLowerBandwidth());
-    xml->setAttribute("HighCut", bandwidthInterface->getUpperBandwidth());
+    xml->setAttribute("AUXsOn", auxButton->getToggleState());
     xml->setAttribute("ADCsOn", adcButton->getToggleState());
     xml->setAttribute("AudioOutputL", electrodeButtons[0]->getChannelNum());
     xml->setAttribute("AudioOutputR", electrodeButtons[1]->getChannelNum());
@@ -923,14 +927,14 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
     xml->setAttribute("DSPCutoffFreq", dspInterface->getDspCutoffFreq());
     xml->setAttribute("save_impedance_measurements",saveImpedances);
     xml->setAttribute("auto_measure_impedances",measureWhenRecording);
-	xml->setAttribute("LEDs", ledButton->getToggleState());
-	xml->setAttribute("ClockDivideRatio", clockInterface->getClockDivideRatio());
-	for (int i = 0; i < 8; i++)
-	{
-		XmlElement* adc = xml->createNewChildElement("ADCRANGE");
-		adc->setAttribute("Channel", i);
-		adc->setAttribute("Range", board->getAdcRange(i));
-	}
+    xml->setAttribute("LEDs", ledButton->getToggleState());
+    xml->setAttribute("ClockDivideRatio", clockInterface->getClockDivideRatio());
+    for (int i = 0; i < 8; i++)
+    {
+        XmlElement* adc = xml->createNewChildElement("ADCRANGE");
+        adc->setAttribute("Channel", i);
+        adc->setAttribute("Range", board->getAdcRange(i));
+    }
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -939,6 +943,7 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     sampleRateInterface->setSelectedId(xml->getIntAttribute("SampleRate"));
     bandwidthInterface->setLowerBandwidth(xml->getDoubleAttribute("LowCut"));
     bandwidthInterface->setUpperBandwidth(xml->getDoubleAttribute("HighCut"));
+    auxButton->setToggleState(xml->getBoolAttribute("AUXsOn"), sendNotification);
     adcButton->setToggleState(xml->getBoolAttribute("ADCsOn"), sendNotification);
     //electrodeButtons[0]->setChannelNum(xml->getIntAttribute("AudioOutputL"));
     //board->assignAudioOut(0, xml->getIntAttribute("AudioOutputL"));
@@ -952,15 +957,15 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     dspInterface->setDspCutoffFreq(xml->getDoubleAttribute("DSPCutoffFreq"));
     saveImpedances = xml->getBoolAttribute("save_impedance_measurements");
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
-	ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
-    clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio")); 
-	forEachXmlChildElementWithTagName(*xml, adc, "ADCRANGE")
-	{
-		int channel = adc->getIntAttribute("Channel", -1);
-		int range = adc->getIntAttribute("Range", -1);
-		if (channel >= 0 && range >= 0)
-			board->setAdcRange(channel, range);
-	}
+    ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
+    clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio"));
+    forEachXmlChildElementWithTagName(*xml, adc, "ADCRANGE")
+    {
+        int channel = adc->getIntAttribute("Channel", -1);
+        int range = adc->getIntAttribute("Range", -1);
+        if (channel >= 0 && range >= 0)
+            board->setAdcRange(channel, range);
+    }
 }
 
 
@@ -979,7 +984,6 @@ BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
                                        RHD2000Editor* editor_) :
     board(board_), editor(editor_)
 {
-
     name = "Bandwidth";
 
     lastHighCutString = "7500";
@@ -988,24 +992,20 @@ BandwidthInterface::BandwidthInterface(RHD2000Thread* board_,
     actualUpperBandwidth = 7500.0f;
     actualLowerBandwidth = 1.0f;
 
-    upperBandwidthSelection = new Label("UpperBandwidth",lastHighCutString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
-    upperBandwidthSelection->setEditable(true,false,false);
+    upperBandwidthSelection = new Label("UpperBandwidth", lastHighCutString); // this is currently set in RHD2000Thread, the cleaner way would be to set it here again
+    upperBandwidthSelection->setEditable(true, false, false);
     upperBandwidthSelection->addListener(this);
-    upperBandwidthSelection->setBounds(30,30,60,20);
+    upperBandwidthSelection->setBounds(30, 25, 60, 20);
     upperBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(upperBandwidthSelection);
 
-
-    lowerBandwidthSelection = new Label("LowerBandwidth",lastLowCutString);
-    lowerBandwidthSelection->setEditable(true,false,false);
+    lowerBandwidthSelection = new Label("LowerBandwidth", lastLowCutString);
+    lowerBandwidthSelection->setEditable(true, false, false);
     lowerBandwidthSelection->addListener(this);
-    lowerBandwidthSelection->setBounds(25,10,60,20);
+    lowerBandwidthSelection->setBounds(30, 10, 60, 20);
     lowerBandwidthSelection->setColour(Label::textColourId, Colours::darkgrey);
 
     addAndMakeVisible(lowerBandwidthSelection);
-
-
-
 }
 
 BandwidthInterface::~BandwidthInterface()
@@ -1049,7 +1049,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
             if (requestedValue < 0.1 || requestedValue > 500.0 || requestedValue > lastHighCutString.getFloatValue())
             {
-				CoreServices::sendStatusMessage("Value out of range.");
+                CoreServices::sendStatusMessage("Value out of range.");
 
                 label->setText(lastLowCutString, dontSendNotification);
 
@@ -1066,7 +1066,7 @@ void BandwidthInterface::labelTextChanged(Label* label)
     }
     else if (editor->acquisitionIsActive)
     {
-		CoreServices::sendStatusMessage("Can't change bandwidth while acquisition is active!");
+        CoreServices::sendStatusMessage("Can't change bandwidth while acquisition is active!");
         if (label == upperBandwidthSelection)
             label->setText(lastHighCutString, dontSendNotification);
         else
@@ -1104,13 +1104,13 @@ void BandwidthInterface::paint(Graphics& g)
 
     g.setColour(Colours::darkgrey);
 
-    g.setFont(Font("Small Text",10,Font::plain));
+    g.setFont(Font("Small Text", 10, Font::plain));
 
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
 
-    g.drawText("Low: ", 0, 10, 200, 20, Justification::left, false);
+    g.drawText("Low:", 0, 11, 200, 20, Justification::left, false);
 
-    g.drawText("High: ", 0, 30, 200, 20, Justification::left, false);
+    g.drawText("High:", 0, 26, 200, 20, Justification::left, false);
 
 }
 
@@ -1146,11 +1146,8 @@ SampleRateInterface::SampleRateInterface(RHD2000Thread* board_,
     rateSelection->addItemList(sampleRateOptions, 1);
     rateSelection->setSelectedId(17, dontSendNotification);
     rateSelection->addListener(this);
-
-    rateSelection->setBounds(0,15,300,20);
+    rateSelection->setBounds(0, 12, 80, 20);
     addAndMakeVisible(rateSelection);
-
-
 }
 
 SampleRateInterface::~SampleRateInterface()
@@ -1168,7 +1165,7 @@ void SampleRateInterface::comboBoxChanged(ComboBox* cb)
 
             std::cout << "Setting sample rate to index " << cb->getSelectedId()-1 << "\n";
 
-			CoreServices::updateSignalChain(editor);
+            CoreServices::updateSignalChain(editor);
         }
     }
 }
@@ -1185,7 +1182,7 @@ void SampleRateInterface::setSelectedId(int id)
 
 String SampleRateInterface::getText()
 {
-	return rateSelection->getText();
+    return rateSelection->getText();
 }
 
 
@@ -1194,9 +1191,9 @@ void SampleRateInterface::paint(Graphics& g)
 
     g.setColour(Colours::darkgrey);
 
-    g.setFont(Font("Small Text",10,Font::plain));
+    g.setFont(Font("Small Text", 10, Font::plain));
 
-    g.drawText(name, 0, 0, 200, 15, Justification::left, false);
+    g.drawText(name, 0, 0, 80, 15, Justification::left, false);
 
 }
 
@@ -1330,7 +1327,7 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             editor->updateSettings();
         }
 
-		CoreServices::updateSignalChain(editor);
+        CoreServices::updateSignalChain(editor);
     }
 
 }
@@ -1347,7 +1344,7 @@ void HeadstageOptionsInterface::paint(Graphics& g)
     else
         g.setColour(Colours::grey);
 
-    g.setFont(Font("Small Text",15,Font::plain));
+    g.setFont(Font("Small Text", 15, Font::plain));
 
     g.drawText(name, 8, 2, 200, 15, Justification::left, false);
 
@@ -1361,16 +1358,16 @@ AudioInterface::AudioInterface(RHD2000Thread* board_,
     board(board_), editor(editor_)
 {
 
-    name = "Noise Slicer";
+    name = "Noise";
 
     lastNoiseSlicerString = "0";
 
     actualNoiseSlicerLevel = 0.0f;
 
-    noiseSlicerLevelSelection = new Label("Noise Slicer",lastNoiseSlicerString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
-    noiseSlicerLevelSelection->setEditable(true,false,false);
+    noiseSlicerLevelSelection = new Label("Noise Slicer", lastNoiseSlicerString); // this is currently set in RHD2000Thread, the cleaner would be to set it here again
+    noiseSlicerLevelSelection->setEditable(true, false, false);
     noiseSlicerLevelSelection->addListener(this);
-    noiseSlicerLevelSelection->setBounds(30,10,30,20);
+    noiseSlicerLevelSelection->setBounds(45, 6, 35, 20);
     noiseSlicerLevelSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(noiseSlicerLevelSelection);
 
@@ -1395,7 +1392,7 @@ void AudioInterface::labelTextChanged(Label* label)
 
             if (requestedValue < 0 || requestedValue > 127)
             {
-				CoreServices::sendStatusMessage("Value out of range.");
+                CoreServices::sendStatusMessage("Value out of range.");
 
                 label->setText(lastNoiseSlicerString, dontSendNotification);
 
@@ -1415,7 +1412,7 @@ void AudioInterface::labelTextChanged(Label* label)
         int requestedValue = int(val.getValue()); // Note that it might be nice to translate to actual uV levels (16*value)
         if (requestedValue < 0 || requestedValue > 127)
         {
-			CoreServices::sendStatusMessage("Value out of range.");
+            CoreServices::sendStatusMessage("Value out of range.");
             label->setText(lastNoiseSlicerString, dontSendNotification);
             return;
         }
@@ -1438,26 +1435,26 @@ void AudioInterface::paint(Graphics& g)
 {
 
     g.setColour(Colours::darkgrey);
-    g.setFont(Font("Small Text",9,Font::plain));
+    g.setFont(Font("Small Text", 10, Font::plain));
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-    g.drawText("Level: ", 0, 10, 200, 20, Justification::left, false);
+    g.drawText("Slicer:", 0, 10, 200, 15, Justification::left, false);
 }
 
 
 // Clock Divider options
 ClockDivideInterface::ClockDivideInterface(RHD2000Thread* board_,
                                            RHD2000Editor* editor_) :
-   name("Clock Divider")
+   name("Clock")
  , lastDivideRatioString("1")
  , board(board_)
  , editor(editor_)
  , actualDivideRatio(1)
- 
+
 {
-    divideRatioSelection = new Label("Clock Divide", lastDivideRatioString); 
-    divideRatioSelection->setEditable(true,false,false);
+    divideRatioSelection = new Label("Clock Divider", lastDivideRatioString);
+    divideRatioSelection->setEditable(true, false, false);
     divideRatioSelection->addListener(this);
-    divideRatioSelection->setBounds(30,10,30,20);
+    divideRatioSelection->setBounds(45, 6, 35, 20);
     divideRatioSelection->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(divideRatioSelection);
 }
@@ -1469,11 +1466,11 @@ void ClockDivideInterface::labelTextChanged(Label* label)
         if (label == divideRatioSelection)
         {
             Value val = label->getTextValue();
-            int requestedValue = int(val.getValue()); 
+            int requestedValue = int(val.getValue());
 
             if (requestedValue < 1 || requestedValue > 65534)
             {
-				CoreServices::sendStatusMessage("Value must be between 1 and 65534.");
+                CoreServices::sendStatusMessage("Value must be between 1 and 65534.");
                 label->setText(lastDivideRatioString, dontSendNotification);
                 return;
             }
@@ -1497,9 +1494,9 @@ void ClockDivideInterface::paint(Graphics& g)
 {
 
     g.setColour(Colours::darkgrey);
-    g.setFont(Font("Small Text",9,Font::plain));
+    g.setFont(Font("Small Text", 10, Font::plain));
     g.drawText(name, 0, 0, 200, 15, Justification::left, false);
-    g.drawText("Ratio: ", 0, 10, 200, 20, Justification::left, false);
+    g.drawText("Divider: ", 0, 10, 200, 15, Justification::left, false);
 }
 
 // DSP Options --------------------------------------------------------------------
@@ -1510,21 +1507,19 @@ DSPInterface::DSPInterface(RHD2000Thread* board_,
 {
     name = "DSP";
 
-    dspOffsetSelection = new Label("DspOffsetSelection",String(round(board->getDspCutoffFreq()*10.f)/10.f));
-    dspOffsetSelection->setEditable(true,false,false);
+    dspOffsetSelection = new Label("DspOffsetSelection",
+                                   String(round(board->getDspCutoffFreq()*10.f)/10.f));
+    dspOffsetSelection->setEditable(true, false, false);
     dspOffsetSelection->addListener(this);
-    dspOffsetSelection->setBounds(0,0,30,20);
+    dspOffsetSelection->setBounds(0, 0, 35, 20);
     dspOffsetSelection->setColour(Label::textColourId, Colours::darkgrey);
-
     addAndMakeVisible(dspOffsetSelection);
-
 }
 
 DSPInterface::~DSPInterface()
 {
 
 }
-
 
 void DSPInterface::labelTextChanged(Label* label)
 {
@@ -1533,7 +1528,6 @@ void DSPInterface::labelTextChanged(Label* label)
     {
         if (label == dspOffsetSelection)
         {
-
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
 
@@ -1542,12 +1536,11 @@ void DSPInterface::labelTextChanged(Label* label)
             std::cout << "Setting DSP Cutoff Freq to " << requestedValue << "\n";
             std::cout << "Actual DSP Cutoff Freq:  " <<  actualDspCutoffFreq  << "\n";
             label->setText(String(round(actualDspCutoffFreq*10.f)/10.f), dontSendNotification);
-
         }
     }
     else if (editor->acquisitionIsActive)
     {
-		CoreServices::sendStatusMessage("Can't change DSP cutoff while acquisition is active!");
+        CoreServices::sendStatusMessage("Can't change DSP cutoff while acquisition is active!");
     }
 
 }
@@ -1558,7 +1551,6 @@ void DSPInterface::setDspCutoffFreq(double value)
     dspOffsetSelection->setText(String(round(actualDspCutoffFreq*10.f)/10.f), dontSendNotification);
 }
 
-
 double DSPInterface::getDspCutoffFreq()
 {
     return actualDspCutoffFreq;
@@ -1566,9 +1558,6 @@ double DSPInterface::getDspCutoffFreq()
 
 void DSPInterface::paint(Graphics& g)
 {
-
     g.setColour(Colours::darkgrey);
-
-    g.setFont(Font("Small Text",10,Font::plain));
-
+    g.setFont(Font("Small Text", 10, Font::plain));
 }
