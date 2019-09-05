@@ -49,9 +49,9 @@ public:
     void print(int stream) const;
     void write(ofstream &saveOut, int numDataStreams) const;
 
-	static bool checkUsbHeader(unsigned char usbBuffer[], int index);
-	static unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
-	static int convertUsbWord(unsigned char usbBuffer[], int index);
+    static bool checkUsbHeader(unsigned char usbBuffer[], int index);
+    static unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
+    static int convertUsbWord(unsigned char usbBuffer[], int index);
 
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
@@ -61,9 +61,9 @@ private:
 
     void writeWordLittleEndian(ofstream &outputStream, int dataWord) const;
 
-    
-	const unsigned int samplesPerBlock;
-	bool usb3;
+
+    const unsigned int samplesPerBlock;
+    bool usb3;
 };
 
 #endif // RHD2000DATABLOCK_H
