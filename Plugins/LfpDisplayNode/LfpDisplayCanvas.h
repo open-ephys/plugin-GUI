@@ -276,6 +276,7 @@ public:
     int getChannelHeight();
     bool getDrawMethodState();
     bool getInputInvertedState();
+	bool getChannelNameState();
     
     /** Return a bool describing whether the spike raster functionality is enabled */
     bool getDisplaySpikeRasterizerState();
@@ -376,6 +377,10 @@ private:
     // label and toggle button for the median offset plotting feature
     ScopedPointer<Label> medianOffsetPlottingLabel;
     ScopedPointer<UtilityButton> medianOffsetPlottingButton;
+
+	// label and toggle button for channel numbering
+	ScopedPointer<Label> showChannelNumberLabel;
+	ScopedPointer<UtilityButton> showChannelNumberButton;
     
     // label and combobox for color scheme options
     ScopedPointer<Label> colourSchemeOptionLabel;

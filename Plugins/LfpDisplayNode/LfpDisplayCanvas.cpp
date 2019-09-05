@@ -32,7 +32,7 @@ using namespace LfpViewer;
 #pragma mark - LfpDisplayCanvas -
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f),
+     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), 
     processor(processor_)
 {
 
@@ -947,7 +947,21 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     medianOffsetPlottingButton->setToggleState(false, sendNotification);
     addAndMakeVisible(medianOffsetPlottingButton);
 
-    
+	//init channel name toggle
+	showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
+	showChannelNumberLabel->setFont(labelFont);
+	showChannelNumberLabel->setColour(Label::textColourId, labelColour);
+	addAndMakeVisible(showChannelNumberLabel);
+
+	showChannelNumberButton = new UtilityButton("0", labelFont);
+	showChannelNumberButton->setRadius(5.0f);
+	showChannelNumberButton->setEnabledState(true);
+	showChannelNumberButton->setCorners(true, true, true, true);
+	showChannelNumberButton->addListener(this);
+	showChannelNumberButton->setClickingTogglesState(true);
+	showChannelNumberButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(showChannelNumberButton);
+
     
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
@@ -1151,7 +1165,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvas, i);
         eventDisplayInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
-        eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
+        eventOptions->setBounds(700+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
         lfpDisplay->setEventDisplayState(i,true);
 
@@ -1221,6 +1235,15 @@ void LfpDisplayOptions::resized()
                                          150,
                                          22);
     
+	//Channel name toggle
+	showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
+		medianOffsetPlottingLabel->getY(),
+		20,
+		20);
+	showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
+		showChannelNumberButton->getY(),
+		200,
+		22);
     
     // Spike raster plotting button
     spikeRasterSelection->setBounds(medianOffsetPlottingButton->getX(),
@@ -1330,6 +1353,11 @@ bool LfpDisplayOptions::getDrawMethodState()
 bool LfpDisplayOptions::getInputInvertedState()
 {
     return invertInputButton->getToggleState();
+}
+
+bool LfpDisplayOptions::getChannelNameState()
+{
+	return showChannelNumberButton->getToggleState();
 }
 
 bool LfpDisplayOptions::getDisplaySpikeRasterizerState()
@@ -1443,6 +1471,16 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     {
         canvas->toggleOptionsDrawer(b->getToggleState());
     }
+
+	if (b == showChannelNumberButton)
+	{
+		int numChannels = lfpDisplay->channelInfo.size();
+		for (int i = 0; i < numChannels; ++i)
+		{
+			lfpDisplay->channelInfo[i]->repaint();
+		}
+		return;
+	}
 
     int idx = typeButtons.indexOf((UtilityButton*)b);
 
@@ -3732,14 +3770,16 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 {
 
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
+	const bool showChannelNumbers = options->getChannelNameState();
 
     // Draw the channel numbers
     g.setColour(Colours::grey);
-    const String channelString = (isChannelNumberHidden() ? ("--") : getName());
+    const String channelString = (isChannelNumberHidden() ? ("--") :
+		showChannelNumbers ? String(getChannelNumber() + 1) : getName());
     bool isCentered = !getEnabledButtonVisibility();
     
     g.drawText(channelString,
-               2,
+               showChannelNumbers ? 6 : 2,
                center-4,
                getWidth()/2,
                10,
