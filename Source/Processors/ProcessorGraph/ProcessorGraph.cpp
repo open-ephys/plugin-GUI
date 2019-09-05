@@ -22,6 +22,9 @@
 */
 
 #include <stdio.h>
+#include <utility>
+#include <vector>
+#include <map>
 
 #include "ProcessorGraph.h"
 #include "../GenericProcessor/GenericProcessor.h"
@@ -36,7 +39,7 @@
 #include "../../UI/TimestampSourceSelection.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
-    
+
 ProcessorGraph::ProcessorGraph() : currentNodeId(100)
 {
 
@@ -261,7 +264,37 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     std::cout << std::endl;
 
     Array<GenericProcessor*> splitters;
-    // GenericProcessor* activeSplitter = nullptr;
+
+    // keep track of which splitter is currently being explored, in case there's another
+    // splitter between the one being explored and its source.
+    GenericProcessor* activeSplitter = nullptr;
+
+    // stores the pointer to a source leading into a particular dest node
+    // along with a boolean vector indicating the position of this source
+    // relative to other sources entering the dest via mergers
+    // (when the mergerOrder vectors of all incoming nodes to a dest are
+    // lexicographically sorted, the sources will be in the correct order)
+    struct ConnectionInfo
+    {
+        GenericProcessor* source;
+        std::vector<int> mergerOrder;
+        bool connectContinuous;
+        bool connectEvents;
+
+        // for SortedSet sorting:
+        bool operator<(const ConnectionInfo& other) const
+        {
+            return mergerOrder < other.mergerOrder;
+        }
+
+        bool operator==(const ConnectionInfo& other) const
+        {
+            return mergerOrder == other.mergerOrder;
+        }
+    };
+
+    // each destination node gets a set of sources, sorted by their order as dictated by mergers
+    std::unordered_map<GenericProcessor*, SortedSet<ConnectionInfo>> sourceMap;
 
     for (int n = 0; n < tabs.size(); n++) // cycle through the tabs
     {
@@ -282,8 +315,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                 if (!(source->isSink()     ||
                       source->isSplitter() ||
                       source->isMerger()   ||
-                      source->isUtility())
-                    && !(source->wasConnected))
+                      source->isUtility()  ||
+                      source->wasConnected))
                 {
                     std::cout << "     Connecting to audio and record nodes." << std::endl;
                     connectProcessorToAudioAndRecordNodes(source);
@@ -293,58 +326,45 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
 
+                // find the next dest that's not a merger or splitter
+                GenericProcessor* prev = source;
+
+                ConnectionInfo conn;
+                conn.source = source;
+                conn.connectContinuous = true;
+                conn.connectEvents = true;
+
+                while (dest != nullptr && (dest->isMerger() || dest->isSplitter()))
+                {
+                    if (dest->isSplitter() && dest != activeSplitter && !splitters.contains(dest))
+                    {
+                        // add to stack of splitters to explore
+                        splitters.add(dest);
+                        dest->switchIO(0); // go down first path
+                    }
+                    else if (dest->isMerger())
+                    {
+                        auto merger = static_cast<Merger*>(dest);
+
+                        // keep the input aligned with the current path
+                        int path = merger->switchToSourceNode(prev);
+                        jassert(path != -1); // merger not connected to prev?
+                        
+                        conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
+                        conn.connectContinuous &= merger->sendContinuousForSource(prev);
+                        conn.connectEvents &= merger->sendEventsForSource(prev);
+                    }
+
+                    prev = dest;
+                    dest = dest->getDestNode();
+                }
+
                 if (dest != nullptr)
                 {
-
-                    while (dest->isMerger()) // find the next dest that's not a merger
+                    if (dest->isEnabledState())
                     {
-                        dest = dest->getDestNode();
-
-                        if (dest == nullptr)
-                            break;
+                        sourceMap[dest].add(conn);
                     }
-
-                    if (dest != nullptr)
-                    {
-                        while (dest->isSplitter())
-                        {
-                            if (!dest->wasConnected)
-                            {
-                                if (!splitters.contains(dest))
-                                {
-                                    splitters.add(dest);
-                                    dest->switchIO(0); // go down first path
-                                }
-                                else
-                                {
-                                    int splitterIndex = splitters.indexOf(dest);
-                                    splitters.remove(splitterIndex);
-                                    dest->switchIO(1); // go down second path
-                                    dest->wasConnected = true; // make sure we don't re-use this splitter
-                                }
-                            }
-
-                            dest = dest->getDestNode();
-
-                            if (dest == nullptr)
-                                break;
-                        }
-
-                        if (dest != nullptr)
-                        {
-
-                            if (dest->isEnabledState())
-                            {
-                                connectProcessors(source, dest);
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        std::cout << "     No dest node." << std::endl;
-                    }
-
                 }
                 else
                 {
@@ -355,25 +375,58 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             std::cout << std::endl;
 
             source->wasConnected = true;
+
+            if (dest != nullptr && dest->wasConnected)
+            {
+                // don't bother retraversing downstream of a dest that has already been connected
+                // (but if it leads to a splitter that is still in the stack, it may still be
+                // used as a source for the unexplored branch.)
+
+                std::cout << dest->getName() << " " << dest->getNodeId() <<
+                    " has already been connected." << std::endl;
+                std::cout << std::endl;
+                dest = nullptr;
+            }
+
             source = dest; // switch source and dest
 
-            if (source == nullptr && splitters.size() > 0)
+            if (source == nullptr)
             {
-
-                source = splitters.getLast();
-                GenericProcessor* newSource;// = source->getSourceNode();
-
-                while (source->isSplitter() || source->isMerger())
+                if (splitters.size() > 0)
                 {
-                    newSource = source->getSourceNode();
-                    newSource->setPathToProcessor(source);
-                    source = newSource;
-                }
+                    activeSplitter = splitters.getLast();
+                    splitters.removeLast();
+                    activeSplitter->switchIO(1);
 
+                    source = activeSplitter;
+                    GenericProcessor* newSource;
+                    while (source->isSplitter() || source->isMerger())
+                    {
+                        newSource = source->getSourceNode();
+                        newSource->setPathToProcessor(source);
+                        source = newSource;
+                    }
+                }
+                else
+                {
+                    activeSplitter = nullptr;
+                }
             }
 
         } // end while source != 0
     } // end "tabs" for loop
+
+    // actually connect sources to each dest processor,
+    // in correct order by merger topography
+    for (const auto& destSources : sourceMap)
+    {
+        GenericProcessor* dest = destSources.first;
+
+        for (const ConnectionInfo& conn : destSources.second)
+        {
+            connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
+        }
+    }
 	
 	getAudioNode()->updatePlaybackBuffer();
 	//Update RecordNode internal channel mappings
@@ -382,7 +435,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 	getRecordNode()->addSpecialProcessorChannels(extraChannels);
 } // end method
 
-void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest)
+void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest,
+    bool connectContinuous, bool connectEvents)
 {
 
     if (source == nullptr || dest == nullptr)
@@ -390,19 +444,6 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
     std::cout << "     Connecting " << source->getName() << " " << source->getNodeId(); //" channel ";
     std::cout << " to " << dest->getName() << " " << dest->getNodeId() << std::endl;
-
-    bool connectContinuous = true;
-    bool connectEvents = true;
-
-    if (source->getDestNode() != nullptr)
-    {
-        if (source->getDestNode()->isMerger())
-        {
-            Merger* merger = (Merger*) source->getDestNode();
-            connectContinuous = merger->sendContinuousForSource(source);
-            connectEvents = merger->sendEventsForSource(source);
-        }
-    }
 
     // 1. connect continuous channels
     if (connectContinuous)
@@ -509,7 +550,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& des
 
 		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)processorType, processorIndex, processorName, libName, libVersion, isSource, isSink);
 	}
-   
+
 	String msg = "New " + processorName + " created";
 	CoreServices::sendStatusMessage(msg);
 
