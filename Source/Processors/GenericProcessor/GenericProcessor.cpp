@@ -1082,7 +1082,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 		{
 			if (subNode->hasTagName("SELECTIONSTATE"))
 			{
-				getEditor()->setChannelSelectionState(channelNum - 1,
+				getEditor()->setChannelSelectionState(channelNum,
 					subNode->getBoolAttribute("param"),
 					subNode->getBoolAttribute("record"),
 					subNode->getBoolAttribute("audio"));

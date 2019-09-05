@@ -550,7 +550,7 @@ void GenericEditor::update()
             drawerButton->setVisible(true);
     }
 
-    
+
 
     updateVisualizer(); // does nothing unless this method
     // has been implemented
@@ -649,9 +649,9 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 {
     if (!isSplitOrMerge)
     {
-        channelSelector->setParamStatus(chan+1, p);
-        channelSelector->setRecordStatus(chan+1, r);
-        channelSelector->setAudioStatus(chan+1, a);
+        channelSelector->setParamStatus(chan, p);
+        channelSelector->setRecordStatus(chan, r);
+        channelSelector->setAudioStatus(chan, a);
     }
 }
 
@@ -1438,4 +1438,3 @@ void ThresholdSlider::setValues(Array<double> v)
 {
 	valueArray = v;
 }
-
