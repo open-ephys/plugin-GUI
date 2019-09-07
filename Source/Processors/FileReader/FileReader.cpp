@@ -27,7 +27,7 @@
 #include "../../AccessClass.h"
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
-#include "BinaryFileSource\BinaryFileSource.h"
+#include "BinaryFileSource/BinaryFileSource.h"
 
 
 FileReader::FileReader()

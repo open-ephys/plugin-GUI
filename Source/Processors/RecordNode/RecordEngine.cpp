@@ -27,8 +27,8 @@
 #include "../../AccessClass.h"
 
 #include "EngineConfigWindow.h"
-#include "OpenEphysFormat\OriginalRecording.h"
-#include "BinaryFormat\BinaryRecording.h"
+#include "OpenEphysFormat/OriginalRecording.h"
+#include "BinaryFormat/BinaryRecording.h"
 
 RecordEngine::RecordEngine()
     : manager (nullptr)
