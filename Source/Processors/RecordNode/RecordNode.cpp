@@ -476,7 +476,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 					eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
 				else
 					eventIndex = -1;
-				if (isRecording)
+				if (isRecording && shouldRecord)
 					m_eventQueue->addEvent(event, timestamp, eventIndex);
             }
     }
@@ -565,7 +565,7 @@ int RecordNode::addSpikeElectrode(const SpikeChannel* elec)
 
 void RecordNode::writeSpike(const SpikeEvent* spike, const SpikeChannel* spikeElectrode)
 {
-	if (isRecording)
+	if (isRecording && shouldRecord)
 	{
 		int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), spikeElectrode->getSourceNodeID(), spikeElectrode->getSubProcessorIdx());
 		if (electrodeIndex >= 0)

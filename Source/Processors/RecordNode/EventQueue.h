@@ -77,14 +77,14 @@ public:
 	void reset()
 	{
 		m_data.clear();
+		m_fifo.reset();
 		m_data.resize(m_fifo.getTotalSize());
 	}
 
 	void resize(int size)
 	{
-		m_data.clear();
 		m_fifo.setTotalSize(size);
-		m_data.resize(size);
+		reset();
 	}
 
 	void addEvent(const EventClass& ev, int64 t, int extra = 0)
