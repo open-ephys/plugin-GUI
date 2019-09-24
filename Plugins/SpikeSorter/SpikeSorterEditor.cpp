@@ -334,15 +334,19 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         {
             case 1:
                 processor->setNumPreSamples(8);
+				CoreServices::updateSignalChain(this);
                 break;
             case 2:
                 processor->setNumPreSamples(16);
+				CoreServices::updateSignalChain(this);
                 break;
             case 3:
                 processor->setNumPostSamples(32);
+				CoreServices::updateSignalChain(this);
                 break;
             case 4:
                 processor->setNumPostSamples(64);
+				CoreServices::updateSignalChain(this);
                 break;
             case 5:
                 processor->seteAutoDacAssignment(!processor->getAutoDacAssignmentStatus());

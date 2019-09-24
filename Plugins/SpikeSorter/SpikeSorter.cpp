@@ -110,7 +110,6 @@ void SpikeSorter::setNumPreSamples(int numSamples)
     {
         electrodes[k]->resizeWaveform(numPreSamples,numPostSamples);
     }
-
 }
 
 void SpikeSorter::setNumPostSamples(int numSamples)
