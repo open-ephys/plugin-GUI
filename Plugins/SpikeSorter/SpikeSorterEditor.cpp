@@ -316,11 +316,12 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         PopupMenu waveSizeMenu;
         PopupMenu waveSizePreMenu;
         PopupMenu waveSizePostMenu;
+		bool allowSampleChange = !CoreServices::getAcquisitionStatus();
 
-        waveSizePreMenu.addItem(1,"8",true,processor->getNumPreSamples() == 8);
-        waveSizePreMenu.addItem(2,"16",true,processor->getNumPreSamples() == 16);
-        waveSizePostMenu.addItem(3,"32",true,processor->getNumPostSamples() == 32);
-        waveSizePostMenu.addItem(4,"64",true,processor->getNumPostSamples() == 64);
+        waveSizePreMenu.addItem(1,"8",allowSampleChange,processor->getNumPreSamples() == 8);
+		waveSizePreMenu.addItem(2, "16", allowSampleChange, processor->getNumPreSamples() == 16);
+		waveSizePostMenu.addItem(3, "32", allowSampleChange, processor->getNumPostSamples() == 32);
+		waveSizePostMenu.addItem(4, "64", allowSampleChange, processor->getNumPostSamples() == 64);
 
         waveSizeMenu.addSubMenu("Pre samples",waveSizePreMenu);
         waveSizeMenu.addSubMenu("Post samples",waveSizePostMenu);
