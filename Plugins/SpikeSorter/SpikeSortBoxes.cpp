@@ -636,7 +636,17 @@ void SpikeSortBoxes::resizeWaveform(int numSamples)
         spikeBuffer.add(nullptr);
     }
     bPCAcomputed = false;
-    spikeBufferIndex = 0;
+    spikeBufferIndex = -1;
+	bPCAJobSubmitted = false;
+	bPCAjobFinished = false;
+	selectedUnit = -1;
+	selectedBox = -1;
+	bRePCA = false;
+	pc1min = -1;
+	pc2min = -1;
+	pc1max = 1;
+	pc2max = 1;
+
     for (int k=0; k<pcaUnits.size(); k++)
     {
         pcaUnits[k].resizeWaveform(waveformLength);
@@ -1710,11 +1720,12 @@ PCAjob::PCAjob(SorterSpikeArray& _spikes, float* _pc1, float* _pc2,
                 std::atomic<float>& pc1Min,  std::atomic<float>& pc2Min,  std::atomic<float>&pc1Max,  std::atomic<float>& pc2Max, std::atomic<bool>& _reportDone) : spikes(_spikes),
 pc1min(pc1Min), pc2min(pc2Min), pc1max(pc1Max), pc2max(pc2Max), reportDone(_reportDone)
 {
+	SorterSpikePtr spike = spikes[0];
     cov = nullptr;
     pc1 = _pc1;
     pc2 = _pc2;
 
-    dim = spikes[0]->getChannel()->getNumChannels()*spikes[0]->getChannel()->getTotalSamples();
+    dim = spike->getChannel()->getNumChannels()*spike->getChannel()->getTotalSamples();
 
 };
 
