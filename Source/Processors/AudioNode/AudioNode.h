@@ -129,6 +129,9 @@ public:
 	//Called by ProcessorGraph
 	void updateRecordChannelIndexes();
 
+    // expand # of inputs for each connected processor
+    void registerProcessor(const GenericProcessor* sourceNode);
+
 private:
 	void recreateBuffers();
 

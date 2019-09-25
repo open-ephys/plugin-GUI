@@ -476,18 +476,13 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
     if (source == nullptr)
         return;
 
+    getAudioNode()->registerProcessor(source);
     getRecordNode()->registerProcessor(source);
 
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
 
         getAudioNode()->addInputChannel(source, chan);
-
-        // THIS IS A HACK TO MAKE SURE AUDIO NODE KNOWS WHAT THE SAMPLE RATE SHOULD BE
-        // IT CAN CAUSE PROBLEMS IF THE SAMPLE RATE VARIES ACROSS PROCESSORS
-
-		//TODO: See if this causes problems with the newer architectures
-        //getAudioNode()->settings.sampleRate = source->getSampleRate();
 
         addConnection(source->getNodeId(),                   // sourceNodeID
                       chan,                                  // sourceNodeChannelIndex
