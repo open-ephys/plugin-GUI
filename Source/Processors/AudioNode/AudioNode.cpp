@@ -31,9 +31,10 @@ AudioNode::AudioNode()
 
     settings.numInputs = 4096;
     settings.numOutputs = 2;
-    nextAvailableChannel = 2;
 
     updatePlaybackBuffer();
+
+    nextAvailableChannel = 2; // keep first two channels empty
 
     tempBuffer = new AudioSampleBuffer(16, 1024);
 
@@ -56,7 +57,8 @@ AudioProcessorEditor* AudioNode::createEditor()
 void AudioNode::resetConnections()
 {
     settings.numInputs = 2; // "dummy" inputs that are actually just outputs
-    nextAvailableChannel = 2;
+    nextAvailableChannel = 2; // start connections at channel 2
+    wasConnected = false;
 
     dataChannelArray.clear();
 
