@@ -29,12 +29,13 @@ AudioNode::AudioNode()
     : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), noiseGateLevel(0.0f)
 {
 
-    settings.numInputs = 4096;
+    // settings.numInputs = 4096;
     settings.numOutputs = 2;
 
-    updatePlaybackBuffer();
+    //updatePlaybackBuffer();
 
-    nextAvailableChannel = 2; // keep first two channels empty
+    //nextAvailableChannel = 2; // keep first two channels empty
+    resetConnections();
 
     tempBuffer = new AudioSampleBuffer(16, 1024);
 
