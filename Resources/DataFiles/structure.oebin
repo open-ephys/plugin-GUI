@@ -1,0 +1,699 @@
+{
+   "GUI version":"0.4.5",
+   "continuous":[
+      {
+         "folder_name":"data_stream_sine_wave/",
+         "sample_rate":40000,
+         "source_processor_name":"Demo source",
+         "source_processor_id":100,
+         "source_processor_sub_idx":0,
+         "recorded_processor":"Demo source",
+         "recorded_processor_id":100,
+         "num_channels":16,
+         "channels":[
+            {
+               "channel_name":"CH0",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":0,
+               "recorded_processor_index":0
+            },
+            {
+               "channel_name":"CH1",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":1,
+               "recorded_processor_index":1
+            },
+            {
+               "channel_name":"CH2",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":2,
+               "recorded_processor_index":2
+            },
+            {
+               "channel_name":"CH3",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":3,
+               "recorded_processor_index":3
+            },
+            {
+               "channel_name":"CH4",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":4,
+               "recorded_processor_index":4
+            },
+            {
+               "channel_name":"CH5",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":5,
+               "recorded_processor_index":5
+            },
+            {
+               "channel_name":"CH6",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":6,
+               "recorded_processor_index":6
+            },
+            {
+               "channel_name":"CH7",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":7,
+               "recorded_processor_index":7
+            },
+            {
+               "channel_name":"CH8",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":8,
+               "recorded_processor_index":8
+            },
+            {
+               "channel_name":"CH9",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":9,
+               "recorded_processor_index":9
+            },
+            {
+               "channel_name":"CH10",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":10,
+               "recorded_processor_index":10
+            },
+            {
+               "channel_name":"CH11",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":11,
+               "recorded_processor_index":11
+            },
+            {
+               "channel_name":"CH12",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":12,
+               "recorded_processor_index":12
+            },
+            {
+               "channel_name":"CH13",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":13,
+               "recorded_processor_index":13
+            },
+            {
+               "channel_name":"CH14",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":14,
+               "recorded_processor_index":14
+            },
+            {
+               "channel_name":"CH15",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":15,
+               "recorded_processor_index":15
+            }
+         ]
+      },
+      {
+         "folder_name":"data_stream_16ch_cortex/",
+         "sample_rate":40000,
+         "source_processor_name":"Demo source",
+         "source_processor_id":100,
+         "source_processor_sub_idx":1,
+         "recorded_processor":"Demo source",
+         "recorded_processor_id":100,
+         "num_channels":16,
+         "channels":[
+            {
+               "channel_name":"CH0",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":0,
+               "recorded_processor_index":0
+            },
+            {
+               "channel_name":"CH1",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":1,
+               "recorded_processor_index":1
+            },
+            {
+               "channel_name":"CH2",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":2,
+               "recorded_processor_index":2
+            },
+            {
+               "channel_name":"CH3",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":3,
+               "recorded_processor_index":3
+            },
+            {
+               "channel_name":"CH4",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":4,
+               "recorded_processor_index":4
+            },
+            {
+               "channel_name":"CH5",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":5,
+               "recorded_processor_index":5
+            },
+            {
+               "channel_name":"CH6",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":6,
+               "recorded_processor_index":6
+            },
+            {
+               "channel_name":"CH7",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":7,
+               "recorded_processor_index":7
+            },
+            {
+               "channel_name":"CH8",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":8,
+               "recorded_processor_index":8
+            },
+            {
+               "channel_name":"CH9",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":9,
+               "recorded_processor_index":9
+            },
+            {
+               "channel_name":"CH10",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":10,
+               "recorded_processor_index":10
+            },
+            {
+               "channel_name":"CH11",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":11,
+               "recorded_processor_index":11
+            },
+            {
+               "channel_name":"CH12",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":12,
+               "recorded_processor_index":12
+            },
+            {
+               "channel_name":"CH13",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":13,
+               "recorded_processor_index":13
+            },
+            {
+               "channel_name":"CH14",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":14,
+               "recorded_processor_index":14
+            },
+            {
+               "channel_name":"CH15",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":15,
+               "recorded_processor_index":15
+            }
+         ]
+      },
+      {
+         "folder_name":"data_stream_16ch_hippocampus/",
+         "sample_rate":40000,
+         "source_processor_name":"Demo source",
+         "source_processor_id":100,
+         "source_processor_sub_idx":2,
+         "recorded_processor":"Demo source",
+         "recorded_processor_id":100,
+         "num_channels":16,
+         "channels":[
+            {
+               "channel_name":"CH0",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":0,
+               "recorded_processor_index":0
+            },
+            {
+               "channel_name":"CH1",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":1,
+               "recorded_processor_index":1
+            },
+            {
+               "channel_name":"CH2",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":2,
+               "recorded_processor_index":2
+            },
+            {
+               "channel_name":"CH3",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":3,
+               "recorded_processor_index":3
+            },
+            {
+               "channel_name":"CH4",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":4,
+               "recorded_processor_index":4
+            },
+            {
+               "channel_name":"CH5",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":5,
+               "recorded_processor_index":5
+            },
+            {
+               "channel_name":"CH6",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":6,
+               "recorded_processor_index":6
+            },
+            {
+               "channel_name":"CH7",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":7,
+               "recorded_processor_index":7
+            },
+            {
+               "channel_name":"CH8",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":8,
+               "recorded_processor_index":8
+            },
+            {
+               "channel_name":"CH9",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":9,
+               "recorded_processor_index":9
+            },
+            {
+               "channel_name":"CH10",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":10,
+               "recorded_processor_index":10
+            },
+            {
+               "channel_name":"CH11",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":11,
+               "recorded_processor_index":11
+            },
+            {
+               "channel_name":"CH12",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":12,
+               "recorded_processor_index":12
+            },
+            {
+               "channel_name":"CH13",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":13,
+               "recorded_processor_index":13
+            },
+            {
+               "channel_name":"CH14",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":14,
+               "recorded_processor_index":14
+            },
+            {
+               "channel_name":"CH15",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":15,
+               "recorded_processor_index":15
+            }
+         ]
+      },
+      {
+         "folder_name":"chirps_16_channels_At40kHz",
+         "sample_rate":40000,
+         "source_processor_name":"Demo source",
+         "source_processor_id":100,
+         "source_processor_sub_idx":3,
+         "recorded_processor":"Demo source",
+         "recorded_processor_id":100,
+         "num_channels":16,
+         "channels":[
+            {
+               "channel_name":"CH0",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":0,
+               "recorded_processor_index":0
+            },
+            {
+               "channel_name":"CH1",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":1,
+               "recorded_processor_index":1
+            },
+            {
+               "channel_name":"CH2",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":2,
+               "recorded_processor_index":2
+            },
+            {
+               "channel_name":"CH3",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":3,
+               "recorded_processor_index":3
+            },
+            {
+               "channel_name":"CH4",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":4,
+               "recorded_processor_index":4
+            },
+            {
+               "channel_name":"CH5",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":5,
+               "recorded_processor_index":5
+            },
+            {
+               "channel_name":"CH6",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":6,
+               "recorded_processor_index":6
+            },
+            {
+               "channel_name":"CH7",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":7,
+               "recorded_processor_index":7
+            },
+            {
+               "channel_name":"CH8",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":8,
+               "recorded_processor_index":8
+            },
+            {
+               "channel_name":"CH9",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":9,
+               "recorded_processor_index":9
+            },
+            {
+               "channel_name":"CH10",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":10,
+               "recorded_processor_index":10
+            },
+            {
+               "channel_name":"CH11",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":11,
+               "recorded_processor_index":11
+            },
+            {
+               "channel_name":"CH12",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":12,
+               "recorded_processor_index":12
+            },
+            {
+               "channel_name":"CH13",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":13,
+               "recorded_processor_index":13
+            },
+            {
+               "channel_name":"CH14",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":14,
+               "recorded_processor_index":14
+            },
+            {
+               "channel_name":"CH15",
+               "description":"Demo data channel",
+               "identifier":"genericdata.continuous",
+               "history":"Demo source",
+               "bit_volts":0.05,
+               "units":"uV",
+               "source_processor_index":15,
+               "recorded_processor_index":15
+            }
+         ]
+      }
+   ],
+   "events":[
+
+   ],
+   "spikes":[
+
+   ]
+}
