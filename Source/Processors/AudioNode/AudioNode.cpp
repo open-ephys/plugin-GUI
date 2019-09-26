@@ -29,13 +29,13 @@ AudioNode::AudioNode()
     : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), noiseGateLevel(0.0f)
 {
 
-    settings.numInputs = 4096;
+    // settings.numInputs = 4096;
     settings.numOutputs = 2;
 
-    // 128 inputs, 2 outputs (left and right channel)
-    setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+    //updatePlaybackBuffer();
 
-    nextAvailableChannel = 2; // keep first two channels empty
+    //nextAvailableChannel = 2; // keep first two channels empty
+    resetConnections();
 
     tempBuffer = new AudioSampleBuffer(16, 1024);
 
@@ -57,12 +57,19 @@ AudioProcessorEditor* AudioNode::createEditor()
 
 void AudioNode::resetConnections()
 {
-
+    settings.numInputs = 2; // "dummy" inputs that are actually just outputs
     nextAvailableChannel = 2; // start connections at channel 2
     wasConnected = false;
 
     dataChannelArray.clear();
 
+    updatePlaybackBuffer();
+}
+
+void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
+{
+    settings.numInputs += sourceNode->getNumOutputs();
+    updatePlaybackBuffer();
 }
 
 void AudioNode::updateBufferSize()
@@ -94,7 +101,7 @@ void AudioNode::setChannel(const DataChannel* ch)
 void AudioNode::setChannelStatus(const DataChannel* chan, bool status)
 {
 
-    setChannel(chan); // add 2 to account for 2 output channels
+    setChannel(chan);
 
     enableCurrentChannel(status);
 
@@ -116,11 +123,7 @@ void AudioNode::enableCurrentChannel(bool state)
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
-
-
     int channelIndex = getNextChannel(false);
-
-    //setPlayConfigDetails(channelIndex+1,0,44100.0,128);
 
     auto dataChannel = sourceNode->getDataChannel(chan);
     auto dataChannelCopy = new DataChannel(*dataChannel);
@@ -132,7 +135,7 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 void AudioNode::updatePlaybackBuffer()
 {
-	setPlayConfigDetails(dataChannelArray.size(), 0, 44100.0, 128);
+	setPlayConfigDetails(getNumInputs(), 2, 44100.0, 128);
 }
 
 void AudioNode::setParameter(int parameterIndex, float newValue)
@@ -256,12 +259,13 @@ void AudioNode::process(AudioSampleBuffer& buffer)
         AudioSampleBuffer* overflowBuffer;
         AudioSampleBuffer* backupBuffer;
 
-        if (dataChannelArray.size() > 0) // we have some channels
+        int nInputs = dataChannelArray.size();
+        if (nInputs > 0) // we have some channels
         {
 
 //            tempBuffer->clear();
 
-            for (int i = 0; i < buffer.getNumChannels()-2; i++) // cycle through them all
+            for (int i = 0; i < nInputs; i++) // cycle through them all
             {
 
                 if (dataChannelArray[i]->isMonitored())
