@@ -125,15 +125,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeButtonPressed()
 {
-	if (audioComponent->callbacksAreActive())
+	if(AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Quit Open-Ephys", "Are you sure you want to quit the GUI?", "Yes", "No"))
 	{
-		audioComponent->endCallbacks();
+		if (audioComponent->callbacksAreActive())
+		{
+			audioComponent->endCallbacks();
+		}
+
+		processorGraph->disableProcessors();
+
+		JUCEApplication::getInstance()->systemRequestedQuit();
 	}
-
-	processorGraph->disableProcessors();
-
-	JUCEApplication::getInstance()->systemRequestedQuit();
-
 }
 
 void MainWindow::saveWindowBounds()
