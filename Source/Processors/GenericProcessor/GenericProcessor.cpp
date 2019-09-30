@@ -364,11 +364,15 @@ void GenericProcessor::update()
 
 		for (int i = 0; i < dataChannelArray.size(); i++)
 		{
-			if (i < m_recordStatus.size())
-				dataChannelArray[i]->setRecordState(m_recordStatus[i]);
-			else
-				if (isSource())
-					dataChannelArray[i]->setRecordState(true);
+            if (i < m_recordStatus.size())
+            {
+                dataChannelArray[i]->setRecordState(m_recordStatus[i]);
+                dataChannelArray[i]->setMonitored(m_monitorStatus[i]);
+            }
+            else if (isSource())
+            {
+                dataChannelArray[i]->setRecordState(true);
+            }
 		}
 	}
 

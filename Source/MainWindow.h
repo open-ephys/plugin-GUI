@@ -62,6 +62,8 @@ public:
     /** Determines whether the last used configuration reloads upon startup. */
     bool shouldReloadOnStartup;
 
+	void shutDownGUI();
+
 private:
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
