@@ -125,15 +125,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeButtonPressed()
 {
+
+	JUCEApplication::getInstance()->systemRequestedQuit();
+
+}
+
+void MainWindow::shutDownGUI()
+{
 	if (audioComponent->callbacksAreActive())
 	{
 		audioComponent->endCallbacks();
 	}
 
 	processorGraph->disableProcessors();
-
-	JUCEApplication::getInstance()->systemRequestedQuit();
-
 }
 
 void MainWindow::saveWindowBounds()

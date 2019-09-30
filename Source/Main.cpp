@@ -105,6 +105,7 @@ public:
     //==============================================================================
     void systemRequestedQuit()
     {
+		mainWindow->shutDownGUI();
         //std::cout << "Quit requested" << std::endl;
         quit();
     }
