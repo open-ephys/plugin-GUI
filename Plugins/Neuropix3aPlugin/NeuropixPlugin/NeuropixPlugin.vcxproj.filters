@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\neuropix-api">
+      <UniqueIdentifier>{4b3d894c-29c6-46f5-9bfd-c43fc4b82e7f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NeuropixEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuropixThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenEphysLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NeuropixEditor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuropixThread.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\AdcPacket.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\BaseConfiguration.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\ConnectionLinkPacket.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\dll_import_export.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\ElectrodePacket.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\hs_fpga_register_def.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\Neuropix_basestation_api.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\ShankConfiguration.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+    <ClInclude Include="neuropix-api\TestConfiguration.h">
+      <Filter>Source Files\neuropix-api</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="resources\libNeuropix_basestation_api_msvc.lib">
+      <Filter>Resource Files</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

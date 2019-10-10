@@ -1,0 +1,12 @@
+[submodule "Plugins/PosTracker"]
+	path = Plugins/PosTracker
+	url = https://github.com/rhayman/PosTracker.git
+[submodule "Plugins/probe-viewer"]
+	path = Plugins/probe-viewer
+	url = https://github.com/rhayman/probe-viewer.git
+[submodule "Plugins/neuropixels-pxi"]
+	path = Plugins/neuropixels-pxi
+	url = https://github.com/rhayman/neuropixels-pxi.git
+[submodule "Plugins/neuropixels-3a"]
+	path = Plugins/neuropixels-3a
+	url = https://github.com/rhayman/neuropixels-3a.git
