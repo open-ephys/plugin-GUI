@@ -14,9 +14,9 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 [![docs](https://img.shields.io/badge/docs-confluence-blue.svg)](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491527/Open+Ephys+GUI)
 [![latest release](https://img.shields.io/github/release/open-ephys/plugin-gui.svg)](https://github.com/open-ephys/plugin-GUI/releases)
-![Linux](https://github.com/medengineer/plugin-GUI/workflows/Linux/badge.svg)
-![OSX](https://github.com/medengineer/plugin-GUI/workflows/macOS/badge.svg)
-![Windows](https://github.com/medengineer/plugin-GUI/workflows/Windows/badge.svg)
+![Linux](https://github.com/open-ephys/plugin-GUI/workflows/Linux/badge.svg)
+![OSX](https://github.com/open-ephys/plugin-GUI/workflows/macOS/badge.svg)
+![Windows](https://github.com/open-ephys/plugin-GUI/workflows/Windows/badge.svg)
 ![language](https://img.shields.io/badge/language-c++-blue.svg)
 [![license](https://img.shields.io/badge/license-GPL3-blue.svg)](https://github.com/open-ephys/plugin-GUI/blob/master/Licenses/Open-Ephys-GPL-3.txt)
 
