@@ -1,0 +1,21 @@
+name: Linux
+
+on: [push]
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: configure
+      run: |
+        cd Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+        cd ../Resources/Scripts
+        sudo ./install_linux_dependencies.sh
+        sudo cp 40-open-ephys.rules /etc/udev/rules.d
+    - name: build
+      run: cmake --build Build
+#    - name: test
+#      run: cd build && ctest
