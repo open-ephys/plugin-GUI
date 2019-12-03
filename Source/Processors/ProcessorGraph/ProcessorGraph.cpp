@@ -712,7 +712,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
     // actually start recording
     if (isRecording)
     {
-        getRecordNode()->setParameter(1,10.0f);
+        //getRecordNode()->setParameter(1,10.0f);
     }
     else
     {
