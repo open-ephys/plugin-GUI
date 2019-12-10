@@ -77,6 +77,8 @@ public:
      */
     void updateSubprocessorSelectorOptions();
 
+	SortedSet<uint32> getInputSubprocessors();
+
 private:
     
     SortedSet<uint32> inputSubprocessors;

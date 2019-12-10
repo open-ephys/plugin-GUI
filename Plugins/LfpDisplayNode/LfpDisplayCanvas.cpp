@@ -212,7 +212,9 @@ void LfpDisplayCanvas::endAnimation()
 
 void LfpDisplayCanvas::update()
 {
-    nChans = jmax(processor->getNumSubprocessorChannels(), 0);
+    displayBufferSize = displayBuffer->getNumSamples();
+
+	nChans = jmax(processor->getNumSubprocessorChannels(), 0);
 
     std::cout << "Num chans: " << nChans << std::endl;
 
@@ -631,6 +633,7 @@ void LfpDisplayCanvas::setDrawableSubprocessor(uint32 sp)
 {
 	drawableSubprocessor = sp;
 	std::cout << "Setting LFP canvas subprocessor to " << sp << std::endl;
+	displayBuffer = processor->getDisplayBufferAddress();
 	update();
 }
 
@@ -816,7 +819,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 	selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 4;
 	rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
 	rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
-    rangeUnits.add("uV");
+    rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
     typeNames.add("DATA");
 
     UtilityButton* tbut;

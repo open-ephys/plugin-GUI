@@ -31,12 +31,12 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
     , displayGain       (1)
-    , bufferLength      (10.0f)
+    , bufferLength      (1.0f)
     , abstractFifo      (100)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
-    displayBuffer = new AudioSampleBuffer (8, 100);
+    displayBuffer.reset(new AudioSampleBuffer (8, 100));
 
     const int heapSize = 5000;
     arrayOfOnes = new float[heapSize];
@@ -82,6 +82,12 @@ void LfpDisplayNode::updateSettings()
 	}
     
     numSubprocessors = numChannelsInSubprocessor.size();
+
+	displayBuffers.resize(numSubprocessors, std::make_shared<AudioSampleBuffer> (8, 100));
+
+	displayBufferIndices.resize(numSubprocessors);
+
+	channelIndices.resize(numSubprocessors);
 
     if (numChannelsInSubprocessor.find(subprocessorToDraw) == numChannelsInSubprocessor.end())
     {
@@ -188,10 +194,13 @@ float LfpDisplayNode::getSubprocessorSampleRate(uint32 subprocId)
 
 bool LfpDisplayNode::resizeBuffer()
 {
-	int nSamples = (int)getSubprocessorSampleRate(subprocessorToDraw) * bufferLength;
+	LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
+	allSubprocessors = ed->getInputSubprocessors();
+
+	/*int nSamples = (int)getSubprocessorSampleRate(subprocessorToDraw) * bufferLength;
 	int nInputs = getNumSubprocessorChannels();
 
-	std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+	//std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
 	if (nSamples > 0 && nInputs > 0)
 	{
@@ -202,13 +211,46 @@ bool LfpDisplayNode::resizeBuffer()
 		displayBufferIndex.clear();
 		displayBufferIndex.insertMultiple(0, 0, nInputs + 1);
 
+		//return true;
+	}*/
+	//else
+	//{
+	//	return false;
+	//}
+	
+	int totalResized = 0;
+
+	for (int cs = 0; cs < numSubprocessors ; cs++)
+	{
+		int nSamples = (int)getSubprocessorSampleRate(allSubprocessors[cs]) * bufferLength;
+		int nInputs = numChannelsInSubprocessor[allSubprocessors[cs]];
+
+		std::cout << "Resizing buffer for Subprocessor " << allSubprocessors[cs] << ". Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+
+		if (nSamples > 0 && nInputs > 0)
+		{
+			//abstractFifo.setTotalSize(nSamples);
+			displayBuffers[cs]->setSize(nInputs + 1, nSamples); // add extra channel for TTLs
+			displayBuffers[cs]->clear();
+
+			displayBufferIndices[cs].clear();
+			displayBufferIndices[cs].insert(displayBufferIndices[cs].end(), nInputs + 1, 0);
+
+			channelIndices.clear();
+
+			totalResized++;
+		}
+	}
+
+	
+	if (totalResized == numSubprocessors)
+	{
 		return true;
 	}
 	else
 	{
 		return false;
 	}
-	
 }
 
 
@@ -396,7 +438,7 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 	{
 		ScopedLock displayLock(displayMutex);
 
-		if (true)
+		if (false)
 		{
 			initializeEventChannels();
 			checkForEvents(); // see if we got any TTL events
@@ -406,10 +448,13 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 		if (true)
 		{
 			int channelIndex = -1;
+			channelIndices.insertMultiple(0, -1, numSubprocessors);
+			uint32 subProcId = 0;
+			int cs = -1;
 
 			for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
 			{
-				if (getDataSubprocId(chan) == subprocessorToDraw)
+				/*if (getDataSubprocId(chan) == subprocessorToDraw)
 				{
 					channelIndex++;
 					const int samplesLeft = displayBuffer->getNumSamples() - displayBufferIndex[channelIndex];
@@ -446,7 +491,48 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 
 						displayBufferIndex.set(channelIndex, extraSamples);
 					}
+				}*/
+
+				subProcId =  getDataSubprocId(chan);
+				cs = allSubprocessors.indexOf(subProcId);
+
+				channelIndices.set(cs, channelIndices[cs] + 1);
+
+				const int samplesLeft = displayBuffers[cs]->getNumSamples() - displayBufferIndices[cs][channelIndices[cs]];
+				const int nSamples = getNumSamples(chan);
+
+				if (nSamples < samplesLeft)
+				{
+					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
+						displayBufferIndices[cs][channelIndices[cs]],  // destStartSample
+						buffer,                    // source
+						chan,                      // source channel
+						0,                         // source start sample
+						nSamples);                 // numSamples
+
+					displayBufferIndices[cs].insert(displayBufferIndices[cs].begin() + channelIndices[cs], displayBufferIndices[cs][channelIndices[cs]] + nSamples);
 				}
+				else
+				{
+					const int extraSamples = nSamples - samplesLeft;
+
+					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
+						displayBufferIndices[cs][channelIndices[cs]],  // destStartSample
+						buffer,                    // source
+						chan,                      // source channel
+						0,                         // source start sample
+						samplesLeft);              // numSamples
+
+					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
+						0,                         // destStartSample
+						buffer,                    // source
+						chan,                      // source channel
+						samplesLeft,               // source start sample
+						extraSamples);             // numSamples
+
+					displayBufferIndices[cs].insert(displayBufferIndices[cs].begin() + channelIndices[cs], extraSamples);
+				}
+
 			}
 		}
 	}
