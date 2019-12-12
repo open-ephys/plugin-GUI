@@ -182,7 +182,7 @@ private:
     //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
 
     LfpDisplayNode* processor;
-    AudioSampleBuffer* displayBuffer; // sample wise data buffer for display
+    std::shared_ptr<AudioSampleBuffer> displayBuffer; // sample wise data buffer for display
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes

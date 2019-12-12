@@ -62,7 +62,7 @@ public:
 
 	void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
-    AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)].get(); }
+    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)]; }
 
     int getDisplayBufferIndex (int chan) const { return displayBufferIndices[allSubprocessors.indexOf(subprocessorToDraw)][chan]; }
 
@@ -81,10 +81,8 @@ private:
     void initializeEventChannels();
     void finalizeEventChannels();
 
-    std::unique_ptr<AudioSampleBuffer> displayBuffer;
 	std::vector<std::shared_ptr<AudioSampleBuffer>> displayBuffers;
 
-    Array<int> displayBufferIndex;
 	std::vector<std::vector<int>> displayBufferIndices;
 	Array<int> channelIndices;
 
