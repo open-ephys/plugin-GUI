@@ -31,7 +31,7 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
     , displayGain       (1)
-    , bufferLength      (1.0f)
+    , bufferLength      (10.0f)
     , abstractFifo      (100)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
@@ -197,28 +197,32 @@ bool LfpDisplayNode::resizeBuffer()
 	
 	int totalResized = 0;
 
-	for (int cs = 0; cs < numSubprocessors ; cs++)
-	{
-		int nSamples = (int)getSubprocessorSampleRate(allSubprocessors[cs]) * bufferLength;
-		int nInputs = numChannelsInSubprocessor[allSubprocessors[cs]];
+    if (true)
+    {
+	    ScopedLock displayLock(displayMutex);
 
-		std::cout << "Resizing buffer for Subprocessor " << allSubprocessors[cs] << ". Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+        for (int currSubproc = 0; currSubproc < numSubprocessors ; currSubproc++)
+	    {
+		    int nSamples = (int)getSubprocessorSampleRate(allSubprocessors[currSubproc]) * bufferLength;
+		    int nInputs = numChannelsInSubprocessor[allSubprocessors[currSubproc]];
 
-		if (nSamples > 0 && nInputs > 0)
-		{
-			abstractFifo.setTotalSize(nSamples);
-			displayBuffers[cs]->setSize(nInputs + 1, nSamples); // add extra channel for TTLs
-			displayBuffers[cs]->clear();
+		    std::cout << "Resizing buffer for Subprocessor " << allSubprocessors[currSubproc] << ". Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
-			displayBufferIndices[cs].clear();
-			displayBufferIndices[cs].insert(displayBufferIndices[cs].end(), nInputs + 1, 0);
+		    if (nSamples > 0 && nInputs > 0)
+		    {
+			    abstractFifo.setTotalSize(nSamples);
+			    displayBuffers[currSubproc]->setSize(nInputs + 1, nSamples); // add extra channel for TTLs
+			    displayBuffers[currSubproc]->clear();
 
-			channelIndices.clear();
+			    displayBufferIndices[currSubproc].clear();
+			    displayBufferIndices[currSubproc].insert(displayBufferIndices[currSubproc].end(), nInputs + 1, 0);
 
-			totalResized++;
-		}
-	}
+			    channelIndices.clear();
 
+			    totalResized++;
+		    }
+	    }
+    }
 	
 	if (totalResized == numSubprocessors)
 	{
@@ -400,7 +404,7 @@ void LfpDisplayNode::finalizeEventChannels()
 			newIdx = nSamples - samplesLeft;
 		}
         
-		displayBufferIndices[i].insert(displayBufferIndices[i].begin() + chan, newIdx);
+		displayBufferIndices[i][chan] = newIdx;
 	}
 }
 
@@ -426,48 +430,48 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 			int channelIndex = -1;
 			channelIndices.insertMultiple(0, -1, numSubprocessors);
 			uint32 subProcId = 0;
-			int cs = -1;
+			int currSubproc = -1;
 
 			for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
 			{
 				subProcId =  getDataSubprocId(chan);
-				cs = allSubprocessors.indexOf(subProcId);
+				currSubproc = allSubprocessors.indexOf(subProcId);
 
-				channelIndices.set(cs, channelIndices[cs] + 1);
+				channelIndices.set(currSubproc, channelIndices[currSubproc] + 1);
 
-				const int samplesLeft = displayBuffers[cs]->getNumSamples() - displayBufferIndices[cs][channelIndices[cs]];
+				const int samplesLeft = displayBuffers[currSubproc]->getNumSamples() - displayBufferIndices[currSubproc][channelIndices[currSubproc]];
 				const int nSamples = getNumSamples(chan);
 
 				if (nSamples < samplesLeft)
 				{
-					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
-						displayBufferIndices[cs][channelIndices[cs]],  // destStartSample
+					displayBuffers[currSubproc]->copyFrom(channelIndices[currSubproc],                      // destChannel
+						displayBufferIndices[currSubproc][channelIndices[currSubproc]],  // destStartSample
 						buffer,                    // source
 						chan,                      // source channel
 						0,                         // source start sample
 						nSamples);                 // numSamples
 
-					displayBufferIndices[cs].insert(displayBufferIndices[cs].begin() + channelIndices[cs], displayBufferIndices[cs][channelIndices[cs]] + nSamples);
+					displayBufferIndices[currSubproc][channelIndices[currSubproc]] = displayBufferIndices[currSubproc][channelIndices[currSubproc]] + nSamples;
 				}
 				else
 				{
 					const int extraSamples = nSamples - samplesLeft;
 
-					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
-						displayBufferIndices[cs][channelIndices[cs]],  // destStartSample
+					displayBuffers[currSubproc]->copyFrom(channelIndices[currSubproc],                      // destChannel
+						displayBufferIndices[currSubproc][channelIndices[currSubproc]],  // destStartSample
 						buffer,                    // source
 						chan,                      // source channel
 						0,                         // source start sample
 						samplesLeft);              // numSamples
 
-					displayBuffers[cs]->copyFrom(channelIndices[cs],                      // destChannel
+					displayBuffers[currSubproc]->copyFrom(channelIndices[currSubproc],                      // destChannel
 						0,                         // destStartSample
 						buffer,                    // source
 						chan,                      // source channel
 						samplesLeft,               // source start sample
 						extraSamples);             // numSamples
 
-					displayBufferIndices[cs].insert(displayBufferIndices[cs].begin() + channelIndices[cs], extraSamples);
+					displayBufferIndices[currSubproc][channelIndices[currSubproc]] = extraSamples;
 				}
 
 			}
