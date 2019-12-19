@@ -58,12 +58,12 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 void LfpDisplayEditor::startAcquisition()
 {
-	subprocessorSelection->setEnabled(false);
+	//subprocessorSelection->setEnabled(false);
 }
 
 void LfpDisplayEditor::stopAcquisition()
 {
-	subprocessorSelection->setEnabled(true);
+	//subprocessorSelection->setEnabled(true);
 }
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
@@ -168,6 +168,11 @@ void LfpDisplayEditor::updateSubprocessorSelectorOptions()
         subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
         //setCanvasDrawableSubprocessor(-1);
     }
+}
+
+SortedSet<uint32> LfpDisplayEditor::getInputSubprocessors()
+{
+	return inputSubprocessors;
 }
 
 void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
