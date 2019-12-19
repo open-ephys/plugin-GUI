@@ -81,7 +81,10 @@ void LfpDisplayNode::updateSettings()
     
     numSubprocessors = numChannelsInSubprocessor.size();
 
-	displayBuffers.resize(numSubprocessors, std::make_shared<AudioSampleBuffer> (8, 100));
+	displayBuffers.clear();
+
+    for (int i = 0; i < numSubprocessors; i++)
+        displayBuffers.push_back(std::make_shared<AudioSampleBuffer> (8, 100));
 
 	displayBufferIndices.resize(numSubprocessors);
 
