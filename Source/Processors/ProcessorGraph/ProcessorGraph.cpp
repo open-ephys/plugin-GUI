@@ -708,7 +708,6 @@ bool ProcessorGraph::disableProcessors()
 
 void ProcessorGraph::setRecordState(bool isRecording)
 {
-
     // actually start recording
     if (isRecording)
     {
@@ -729,7 +728,6 @@ void ProcessorGraph::setRecordState(bool isRecording)
             p->setRecording(isRecording);
         }
     }
-
 
 
 }

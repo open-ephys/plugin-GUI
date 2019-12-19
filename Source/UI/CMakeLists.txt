@@ -16,6 +16,8 @@ add_sources(open-ephys
 	GraphViewer.h
 	InfoLabel.cpp
 	InfoLabel.h
+	PluginInstaller.cpp 
+	PluginInstaller.h
 	ProcessorList.cpp
 	ProcessorList.h
 	SignalChainManager.cpp
