@@ -135,7 +135,7 @@ void CAR::setAffectedChannelState (int channel, bool newState)
     if (! newState)
         m_affectedChannels.removeFirstMatchingValue (channel);
     else
-        m_affectedChannels.add (channel);
+        m_affectedChannels.addIfNotAlreadyThere (channel);
 }
 
 void CAR::saveCustomChannelParametersToXml(XmlElement* channelElement,
