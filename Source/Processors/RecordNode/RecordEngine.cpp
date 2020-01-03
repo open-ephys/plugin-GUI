@@ -55,6 +55,7 @@ void RecordEngine::endChannelBlock (bool lastBlock) {}
 
 const DataChannel* RecordEngine::getDataChannel (int index) const
 {
+    std::cout << "#### CALLED GUI RECORD NODE GET METHOD" << std::endl;
     return AccessClass::getProcessorGraph()->getRecordNode()->getDataChannel (index);
 }
 
