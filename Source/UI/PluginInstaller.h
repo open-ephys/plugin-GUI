@@ -17,7 +17,7 @@ public:
     ~PluginInstaller();
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
-    bool pluginSelected();
+    bool pluginSelected(int index);
 
     /** Called when the user hits the close button of the MainWindow. This destroys
         the MainWindow and closes the application. */

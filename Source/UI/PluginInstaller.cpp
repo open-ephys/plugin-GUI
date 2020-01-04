@@ -84,6 +84,8 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 		plugins.add(jsonReply[i].getProperty("name", var()).toString());
 	}
 
+	pluginSelected(0);
+
 }
 
 PluginInstaller::~PluginInstaller()
@@ -101,17 +103,83 @@ void PluginInstaller::closeButtonPressed()
 	delete this;
 }
 
-bool PluginInstaller::pluginSelected()
+bool PluginInstaller::pluginSelected(int index)
 {
 
 	//Get selected plugin from pull-down menu
+	juce::String plugin = plugins[index];
 
 	//Download from binTray
+	Array<juce::String> packages;
+	juce::String url = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
+	url+=plugin;
+	url+="/packages";
+
+	RestRequest::Response response = request.get(url).execute();
+
+	var jsonReply = JSON::parse(response.bodyAsString);
+
+	for (int i = 0; i < jsonReply.size(); i++)
+	{
+		packages.add(jsonReply[i].getProperty("name", var()).toString());
+		std::cout << packages[packages.size()-1] << std::endl;
+	}
+
+	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
+	String os_name;
+
+	if (os & juce::SystemStats::OperatingSystemType::Windows)
+	{
+		os_name = "windows";
+	}
+	else if (os & juce::SystemStats::OperatingSystemType::MacOSX)
+	{
+		os_name = "mac";
+	}
+	else if (os == juce::SystemStats::OperatingSystemType::Linux)
+	{
+		os_name = "linux";
+	}
+	else
+	{
+		std::cout << "Unsupported OS type..." << std::endl;
+		return false;
+	}
+
+	String package;
+	for (int i = 0; i < packages.size(); i++)
+	{
+		if (packages[i].contains(os_name))
+		{
+			package = packages[i];
+		}
+	}
+
+	std::cout << "Installing package: " << package << std::endl;
+
+	//Get latest version
+	String version_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+	version_url+=plugin;
+	version_url+="/";
+	version_url+=package;
+	version_url+="/versions/_latest";
+
+	std::cout << version_url << std::endl;
+
+	RestRequest::Response version_response = request.get(version_url).execute();
+
+	std::cout << version_response.bodyAsString << std::endl;
+
+	var version_reply = JSON::parse(version_response.bodyAsString);
+
+	String version = version_reply.getProperty("name", "NULL");
+	String created = version_reply.getProperty("created", "NULL");
+	String updated = version_reply.getProperty("updated", "NULL");
+	String released = version_reply.getProperty("released", "NULL");
 
 	//Unzip plugin and install in plugins directory
 
 	//Prompt user to restart to see plugin in ProcessorList
 
 	return true;
-
 }
