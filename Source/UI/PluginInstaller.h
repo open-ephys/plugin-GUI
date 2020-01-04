@@ -1,5 +1,6 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "RestRequest.h"
 
 #define WINDOW_TITLE "Plugin Installer" 
 
@@ -26,10 +27,15 @@ public:
         commands. */
     ApplicationCommandManager commandManager;
 
+    RestRequest request;
+
 private:
 
     /* Pointer to the main window so we can keep in bounds */
     DocumentWindow* parent;
+
+    /* Raw list of plugins available for download */
+    Array<String> plugins;
 
     /*Add UI Elements here */
 

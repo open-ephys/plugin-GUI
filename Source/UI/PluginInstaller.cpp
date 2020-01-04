@@ -72,6 +72,17 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(500, 500, 10000, 10000);
+	
+	/* Get list of plugins uploaded to bintray */
+	RestRequest::Response response = request.get("https://api.bintray.com/repos/open-ephys-gui-plugins")
+										 .execute();
+
+	var jsonReply = JSON::parse(response.bodyAsString);
+
+	for (int i = 0; i < jsonReply.size(); i++)
+	{
+		plugins.add(jsonReply[i].getProperty("name", var()).toString());
+	}
 
 }
 
@@ -89,8 +100,6 @@ void PluginInstaller::closeButtonPressed()
 {
 	delete this;
 }
-
-
 
 bool PluginInstaller::pluginSelected()
 {
