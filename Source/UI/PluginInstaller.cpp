@@ -84,7 +84,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 		plugins.add(jsonReply[i].getProperty("name", var()).toString());
 	}
 
-	pluginSelected(0);
+	pluginSelected(plugins.size()-1);
 
 }
 
@@ -177,9 +177,71 @@ bool PluginInstaller::pluginSelected(int index)
 	String updated = version_reply.getProperty("updated", "NULL");
 	String released = version_reply.getProperty("released", "NULL");
 
-	//Unzip plugin and install in plugins directory
+	std::cout << "Latest version: " << version << " released: " << released << std::endl;
 
-	//Prompt user to restart to see plugin in ProcessorList
+	//TODO: Build download filename...
+	String filename = ""; 
+
+	//Get avaialble filenames:
+	//https: //api.bintray.com/packages/$bintrayUser/$REPO/$PACKAGE/versions/$VERSION/files
+
+	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+	files_url += plugin;
+	files_url += "/";
+	files_url += package;
+	files_url += "/versions/";
+	files_url += version;
+	files_url += "/files";
+
+	RestRequest::Response files_response = request.get(files_url).execute();
+
+	var files_reply = JSON::parse(files_response.bodyAsString);
+
+	if (files_reply.size())
+	{
+		std::cout << files_reply.size() << " files available" << std::endl;
+		for (int i = 0; i < files_reply.size(); i++)
+		{
+			std::cout << i << "th file: " << files_reply[i].getProperty("name", "NULL").toString() << std::endl;
+			filename = files_reply[i].getProperty("name", "NULL").toString();
+		}
+	}
+
+	//Unzip plugin and install in plugins directory
+	//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
+	String fileDownloadURL = "https://dl.bintray.com/open-ephys-gui-plugins/";
+	fileDownloadURL+=plugin;
+	fileDownloadURL+="/";
+	fileDownloadURL+=filename;
+
+	std::cout << "Download URL: " << fileDownloadURL << std::endl;
+
+	URL fileUrl(fileDownloadURL);
+
+	/*
+	ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
+
+	//Get path to plugins directory
+	File pluginsPath = getPluginsLocationDirectory();
+
+	//Construct path for downloaded zip file
+	String pluginFilePath = pluginsPath.getFullPathName();
+	pluginFilePath+='/';
+	pluginFilePath+=filename;
+	pluginFilePath+='.7z';
+
+	std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
+	
+	//Create local file
+	File localFile(pluginFilePath);
+	localFile.deleteFile();
+	MemoryBlock mem(1024);
+	fileStream->readIntoMemoryBlock(mem);
+	FileOutputStream out(localFile);
+	out.write(mem.getData(), mem.getSize());
+	*/
+
+	//TODO: Prompt user to restart to see plugin in ProcessorList
 
 	return true;
 }
