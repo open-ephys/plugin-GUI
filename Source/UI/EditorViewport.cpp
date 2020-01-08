@@ -907,6 +907,9 @@ void EditorViewport::mouseUp(const MouseEvent& e)
 
         signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent,
                                                  insertionPoint, MOVE);
+
+        AccessClass::getGraphViewer()->updateNodeLocations();
+
         refreshEditors();
         repaint();
 
