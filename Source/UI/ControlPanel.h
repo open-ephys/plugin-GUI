@@ -308,6 +308,8 @@ public:
     /** Set recording directory and update FilenameComponent */
     void setRecordingDirectory(String path);
 
+    File getRecordingDirectory();
+
     /** Return current acquisition state.*/
     bool getAcquisitionState();
 

@@ -503,6 +503,11 @@ void ControlPanel::setRecordingDirectory(String path)
     masterClock->resetRecordTime();
 }
 
+File ControlPanel::getRecordingDirectory()
+{
+    return filenameComponent->getCurrentFile();
+}
+
 bool ControlPanel::getAcquisitionState()
 {
 	return playButton->getToggleState();

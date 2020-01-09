@@ -108,6 +108,11 @@ namespace CoreServices
 		getControlPanel()->setRecordingDirectory(dir);
 	}
 
+	File getRecordingDirectory()
+	{
+		return getControlPanel()->getRecordingDirectory();
+	}
+
 	void createNewRecordingDir()
 	{
 		getControlPanel()->labelTextChanged(NULL);
@@ -140,14 +145,14 @@ namespace CoreServices
 			getProcessorGraph()->getRecordNode()->createNewDirectory();
 		}
 
-		File getRecordingPath()
-		{
-			return getProcessorGraph()->getRecordNode()->getDataDirectory();
-		}
-
 		int getRecordingNumber()
 		{
 			return getProcessorGraph()->getRecordNode()->getRecordingNumber();
+		}
+		
+		File getRecordingPath()
+		{
+			return File();
 		}
 
 		int getExperimentNumber()

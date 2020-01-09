@@ -81,6 +81,8 @@ PLUGIN_API float getSoftwareSampleRate();
 /** Set new recording directory */
 PLUGIN_API void setRecordingDirectory(String dir);
 
+PLUGIN_API File getRecordingDirectory();
+
 /** Create new recording directory */
 PLUGIN_API void createNewRecordingDir();
 
@@ -102,6 +104,8 @@ namespace RecordNode
 {
 /** Forces creation of new directory on recording */
 PLUGIN_API void createNewrecordingDir();
+
+PLUGIN_API File getRecordingDirectory();
 
 /** Gets the current recording directories and status information */
 PLUGIN_API File getRecordingPath();
