@@ -1,4 +1,5 @@
 # Files and folders to ignore
+/Build/
 
 # 1. intermediate files
 *.o
