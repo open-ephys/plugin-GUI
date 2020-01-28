@@ -18,7 +18,7 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := -march=native
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_6D53C8B4=1" -D "JUCE_APP_VERSION=4.2.1" -D "JUCE_APP_VERSION_HEX=0x40201" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules -I JuceLibraryCode/
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D"JUCE_DISABLE_NATIVE_FILECHOOSERS=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_6D53C8B4=1" -D "JUCE_APP_VERSION=4.2.1" -D "JUCE_APP_VERSION_HEX=0x40201" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../../JuceLibraryCode/modules -I JuceLibraryCode/
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 -std=c++11
   CXXFLAGS += $(CFLAGS) -std=c++11
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt -lcurl 
