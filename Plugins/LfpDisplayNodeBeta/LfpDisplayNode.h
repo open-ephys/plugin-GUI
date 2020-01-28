@@ -66,7 +66,7 @@ public:
     int getDisplayBufferIndex (int chan) const { return displayBufferIndex[chan]; }
 
     CriticalSection* getMutex() { return &displayMutex; }
-
+  std::list<int> eventStateChannels() const;
 
 private:
     void initializeEventChannels();
