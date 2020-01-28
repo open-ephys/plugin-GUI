@@ -323,7 +323,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
         {
-            nSamples = (displayBufferSize - dbi) + index +1;
+          nSamples += displayBufferSize;
            //  std::cout << "nsamples 0 " ;
         }
 
@@ -333,7 +333,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
         // this number is crucial: converting from samples to values (in px) for the screen buffer
-        int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
+        int valuesNeeded(nSamples / ratio); // N pixels needed for this update
 
         if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width
         {
@@ -341,8 +341,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         }
         float subSampleOffset = 0.0;
 
-        dbi %= displayBufferSize; // make sure we're not overshooting
-        int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
+        //        dbi %= displayBufferSize; // make sure we're not overshooting
 
         // if (channel == 0)
         //     std::cout << "Channel " 
@@ -362,40 +361,39 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 if (!lfpDisplay->isPaused)
                 {
                     float gain = 1.0;
-                    float alpha = (float) subSampleOffset;
-                    float invAlpha = 1.0f - alpha;
 
                     screenBuffer->clear(channel, sbi, 1);
                     screenBufferMin->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
-                     dbi %= displayBufferSize; // just to be sure
-
-                    // interpolate between two samples with invAlpha and alpha
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, dbi), // source
-                                          1, // numSamples
-                                          invAlpha*gain); // gain
-
-
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, nextPos), // source
-                                          1, // numSamples
-                                          alpha*gain); // gain
+                    // dbi %= displayBufferSize; // just to be sure
 
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
                     float sample_max   = -10000000;
                     
-                    int nextpix = (dbi +(int)ratio +1) % (displayBufferSize+1); //  position to next pixels index
-                    
-                    if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
-                    //    std::cout << "np " ;
-                        nextpix=dbi;
+                    int nextpix = dbi + int(ceil(ratio));
+                    if (nextpix > displayBufferSize)
+                      nextpix = displayBufferSize;
+
+                    if (nextpix - dbi > 1) {
+                      // multiple samples, calculate average
+                      float sum = 0;
+                      for (int j = dbi; j < nextpix; j++)
+                        sum += displayBuffer->getSample(channel, j);
+                      screenBuffer->addSample(channel, sbi, sum*gain / (nextpix - dbi));
+                    } else {
+                    // interpolate between two samples with invAlpha and alpha
+                    /* This is only reasonable if there are more pixels
+                       than samples. Otherwise, we should calculate average. */
+                      float alpha = (float) subSampleOffset;
+                      float invAlpha = 1.0f - alpha;
+                      float val0 = displayBuffer->getSample(channel, dbi);
+                      float val1 = displayBuffer->getSample(channel, (dbi+1)%displayBufferSize);
+                      float val = invAlpha * val0  + alpha * val1;
+                      screenBuffer->addSample(channel, sbi, val*gain);
                     }
-                   
+                    
                     for (int j = dbi; j < nextpix; j++)
                     {
                         
@@ -420,7 +418,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             int c = 0;
-                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -442,15 +440,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
             
             subSampleOffset += ratio;
 
-            while (subSampleOffset >= 1.0)
-            {
-                if (++dbi > displayBufferSize)
-                    dbi = 0;
-
-                nextPos = (dbi + 1) % displayBufferSize;
-                subSampleOffset -= 1.0;
-            }
-
+            int steps(floor(subSampleOffset));
+            dbi = (dbi + steps) % displayBufferSize;
+            subSampleOffset -= steps;
         }
 
         // update values after we're done
