@@ -25,7 +25,7 @@
 #include "openEphys_EditorTemplatesFactory.h"
 #include "openEphys_EditorTemplateComponent.h"
 
-#include "../../../Source/Plugins/Headers/AllLookAndFeels.h"
+#include "../../../Plugins/Headers/AllLookAndFeels.h"
 #include "../../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "../../../Source/UI/Utils/TiledButtonGroupManager.h"
 
