@@ -162,6 +162,12 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
         ed->canvas->setParameter (parameterIndex, newValue);
 }
 
+std::list<int> LfpDisplayNode::eventStateChannels() const {
+  std::list<int> cc;
+  for (uint32 id: eventSourceNodes)
+    cc.push_back(channelForEventSource.find(id)->second);
+  return cc;
+}                 
 
 void LfpDisplayNode::handleEvent(const EventChannel* eventInfo,
                                  const MidiMessage& event, int samplePosition) {
@@ -192,7 +198,7 @@ void LfpDisplayNode::copyToEventChannel(uint32 src,
   int chan = channelForEventSource[src];
   int destStart = t0 + displayBufferIndex[chan];
   int n = t1 - t0;
-  while (destStart + n > dispBufSamps) {
+  while (destStart + n >= dispBufSamps) {
     int m = dispBufSamps - destStart;
     displayBuffer->copyFrom(chan, destStart, arrayOfOnes, m, value);
     n -= m;
@@ -207,12 +213,10 @@ void LfpDisplayNode::finalizeEventChannels() {
     uint32 src = eventSourceNodes[i];
     int chan = channelForEventSource[src];
     int index = displayBufferIndex[chan];
-    printf("event index %i [%i]\n", index, displayBufferIndex[0]);
     int nSamples = getNumSourceSamples(src);
     int t0 = 0;
     for (EventValueChange const &evc: eventValueChanges[src]) {
       int t1 = evc.eventTime;
-      //printf("T%i-%i: %Li\n", t0, t1, ttlState[src]);
       copyToEventChannel(src, t0, t1, ttlState[src]);
       if (evc.eventVal>0)
         ttlState[src] |= evc.eventVal;
@@ -220,9 +224,9 @@ void LfpDisplayNode::finalizeEventChannels() {
         ttlState[src] &= ~evc.eventVal;
       t0 = t1;
     }
-    //printf("(T%i-%i): %Li\n", t0, nSamples, ttlState[src]);
     copyToEventChannel(src, t0, nSamples, ttlState[src]);
-    displayBufferIndex.set(chan, (index + nSamples) % displayBuffer->getNumSamples());
+    displayBufferIndex.set(chan, (index + nSamples)
+                           % displayBuffer->getNumSamples());
   }
 }
 
@@ -251,11 +255,9 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
     //std::cout << "Display node sample count: " << nSamples << std::endl; ///buffer.getNumSamples() << std::endl;
 
     initializeEventChannels();
-    checkForEvents (); // see if we got any TTL events
+    checkForEvents(); // see if we got any TTL events 
+    ScopedLock displayLock(displayMutex);
     finalizeEventChannels();
-
-    ScopedLock displayLock (displayMutex);
-
     for (int chan = 0; chan < buffer.getNumChannels(); ++chan) 
       copyDataToDisplay(chan, buffer);
 }
