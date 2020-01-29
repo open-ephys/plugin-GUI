@@ -321,11 +321,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
             if (triggerTime>=0) {
               displayBufferIndex.set(channel, triggerTime); // fast-forward
             } else {
-              printf("waiting %i / %i  -  %i / %i\n",
-                     displayBufferIndex[0],
-                     displayBufferIndex[displayBufferIndex.size()-1],
-                     screenBufferIndex[0],
-                     screenBufferIndex[screenBufferIndex.size()-1]);
               return; // don't display right now
             }
           }
