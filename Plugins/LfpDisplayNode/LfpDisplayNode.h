@@ -62,9 +62,9 @@ public:
 
 	void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
-    AudioSampleBuffer* getDisplayBufferAddress() const { return displayBuffer; }
+    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)]; }
 
-    int getDisplayBufferIndex (int chan) const { return displayBufferIndex[chan]; }
+    int getDisplayBufferIndex (int chan) const { return displayBufferIndices[allSubprocessors.indexOf(subprocessorToDraw)][chan]; }
 
     CriticalSection* getMutex() { return &displayMutex; }
 
@@ -81,9 +81,11 @@ private:
     void initializeEventChannels();
     void finalizeEventChannels();
 
-    ScopedPointer<AudioSampleBuffer> displayBuffer;
+	std::vector<std::shared_ptr<AudioSampleBuffer>> displayBuffers;
 
-    Array<int> displayBufferIndex;
+	std::vector<std::vector<int>> displayBufferIndices;
+	Array<int> channelIndices;
+
     Array<uint32> eventSourceNodes;
 
     float displayGain; //
@@ -100,6 +102,7 @@ private:
 
     int numSubprocessors;
 	uint32 subprocessorToDraw;
+	SortedSet<uint32> allSubprocessors; 
 	std::map<uint32, int> numChannelsInSubprocessor;
 	std::map<uint32, float> subprocessorSampleRate;
 

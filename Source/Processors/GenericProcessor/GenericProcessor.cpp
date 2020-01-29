@@ -1038,38 +1038,38 @@ void GenericProcessor::loadFromXml()
 	update(); // make sure settings are updated
 	if (parametersAsXml != nullptr)
 	{
-		if (!m_isParamsWereLoaded)
-		{
-			std::cout << "Loading parameters for " << m_name << std::endl;
+        if (!m_isParamsWereLoaded)
+        {
+            std::cout << "Loading parameters for " << m_name << std::endl;
 
-			// use parametersAsXml to restore state
-			loadCustomParametersFromXml();
+            // use parametersAsXml to restore state
+            loadCustomParametersFromXml();
 
-			// load editor parameters
-			forEachXmlChildElement(*parametersAsXml, xmlNode)
-			{
-				if (xmlNode->hasTagName("EDITOR"))
-				{
-					getEditor()->loadEditorParameters(xmlNode);
-				}
-			}
-		}
-		forEachXmlChildElement(*parametersAsXml, xmlNode)
-		{
-			if (xmlNode->hasTagName("CHANNEL"))
-			{
-				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::DATA_CHANNEL);
-			}
-			else if (xmlNode->hasTagName("EVENTCHANNEL"))
-			{
-				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::EVENT_CHANNEL);
-			}
-			else if (xmlNode->hasTagName("SPIKECHANNEL"))
-			{
-				loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
-			}
-		}
+            // load editor parameters
+            forEachXmlChildElement(*parametersAsXml, xmlNode)
+            {
+                if (xmlNode->hasTagName("EDITOR"))
+                {
+                    getEditor()->loadEditorParameters(xmlNode);
+                }
+            }
 
+            forEachXmlChildElement(*parametersAsXml, xmlNode)
+            {
+                if (xmlNode->hasTagName("CHANNEL"))
+                {
+                    loadChannelParametersFromXml(xmlNode, InfoObjectCommon::DATA_CHANNEL);
+                }
+                else if (xmlNode->hasTagName("EVENTCHANNEL"))
+                {
+                    loadChannelParametersFromXml(xmlNode, InfoObjectCommon::EVENT_CHANNEL);
+                }
+                else if (xmlNode->hasTagName("SPIKECHANNEL"))
+                {
+                    loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
+                }
+            }
+        }
 	}
 
 	m_isParamsWereLoaded = true;
