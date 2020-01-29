@@ -310,21 +310,23 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
   ScopedLock displayLock(*processor->getMutex());
 
+  int triggerTime = processor->getTriggerSource()>=0 ? processor->getLatestTriggerTime() : -1;
+  processor->acknowledgeTrigger();
   for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
     {
       if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
         {
           if (processor->getTriggerSource()>=0) {
             // we may need to wait for a trigger
-            if (processor->getLatestTriggerTime() < displayBufferIndex[channel]) {
+            if (triggerTime>=0) {
+              displayBufferIndex.set(channel, triggerTime); // fast-forward
+            } else {
               printf("waiting %i / %i  -  %i / %i\n",
                      displayBufferIndex[0],
                      displayBufferIndex[displayBufferIndex.size()-1],
                      screenBufferIndex[0],
                      screenBufferIndex[screenBufferIndex.size()-1]);
               return; // don't display right now
-            } else {
-              displayBufferIndex.set(channel, processor->getLatestTriggerTime()); // fast forward
             }
           }
           screenBufferIndex.set(channel, 0);

@@ -282,3 +282,7 @@ int LfpDisplayNode::getTriggerSource() const {
 int64 LfpDisplayNode::getLatestTriggerTime() const {
   return latestTrigger;
 }
+
+void LfpDisplayNode::acknowledgeTrigger() {
+  latestTrigger = -1;
+}

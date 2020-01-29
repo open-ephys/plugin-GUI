@@ -70,6 +70,7 @@ public:
   void setTriggerSource(int ch);
   int getTriggerSource() const;
   int64 getLatestTriggerTime() const;
+  void acknowledgeTrigger();
 private:
     void initializeEventChannels();
   void finalizeEventChannels();
