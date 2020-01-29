@@ -96,12 +96,15 @@ private:
     ScopedPointer<Label> sliderALabel;
     ScopedPointer<Label> sliderBLabel;
 
+    ScopedPointer<ComboBox> triggerSourceSelection;
+
     ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
 
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
+    StringArray triggerSources; // option for trigger source event channel
     StringArray overlaps; //
     StringArray saturationThresholds; //default values for when different amplifiers saturate
     

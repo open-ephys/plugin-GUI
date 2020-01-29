@@ -156,6 +156,10 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     colorGroupings.add("8");
     colorGroupings.add("16");
 
+    triggerSources.add("none");
+    for (int k=1; k<=8; k++)
+      triggerSources.add(String(k));
+
 
     rangeSelection = new ComboBox("Voltage range");
     rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
@@ -200,6 +204,13 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     colorGroupingSelection->setSelectedId(1,sendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
+
+
+    triggerSourceSelection = new ComboBox("Trigger Source");
+    triggerSourceSelection->addItemList(triggerSources, 1);
+    triggerSourceSelection->setSelectedId(1, sendNotification);
+    triggerSourceSelection->addListener(this);
+    addAndMakeVisible(triggerSourceSelection);
 
     invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
     invertInputButton->setRadius(5.0f);
@@ -317,6 +328,7 @@ void LfpDisplayOptions::resized()
     drawSaturateWarningButton->setBounds(325, getHeight()-89, 20, 20);
     
     colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
+    triggerSourceSelection->setBounds(375,getHeight()-30,60,25);
 
     invertInputButton->setBounds(35,getHeight()-180,100,22);
     drawMethodButton->setBounds(35,getHeight()-150,100,22);
@@ -713,6 +725,10 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         // set color grouping here
         lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
         canvas->redraw();
+    }
+    else if (cb == triggerSourceSelection)
+    {
+        processor->setTriggerSource(cb->getSelectedId() - 2);
     }
 
     timescale->setTimebase(canvas->timebase);

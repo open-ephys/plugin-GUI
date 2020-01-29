@@ -67,7 +67,9 @@ public:
 
     CriticalSection* getMutex() { return &displayMutex; }
   std::list<int> eventStateChannels() const;
-
+  void setTriggerSource(int ch);
+  int getTriggerSource() const;
+  int64 getLatestTriggerTime() const;
 private:
     void initializeEventChannels();
   void finalizeEventChannels();
@@ -96,6 +98,9 @@ void copyToEventChannel(uint32 src, int t0, int t1, float value);
     std::map<uint32, uint64> ttlState;
     float* arrayOfOnes;
     int totalSamples;
+  int triggerSource;
+  int64 latestTrigger; // overall timestamp
+  int latestCurrentTrigger; // within current input buffer
 
     bool resizeBuffer();
 
