@@ -284,7 +284,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvas, i);
         eventDisplayInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
-        eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
+	//        eventOptions->setBounds(500+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
 
         lfpDisplay->setEventDisplayState(i,true);
 
@@ -321,14 +321,14 @@ void LfpDisplayOptions::resized()
     invertInputButton->setBounds(35,getHeight()-180,100,22);
     drawMethodButton->setBounds(35,getHeight()-150,100,22);
 
-    pauseButton->setBounds(450,getHeight()-50,50,44);
+    pauseButton->setBounds(465,getHeight()-50,50,44);
 
     saturationWarningSelection->setBounds(250, getHeight()-90, 60, 25);
     
     
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(300+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(270+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
     
@@ -369,8 +369,10 @@ void LfpDisplayOptions::paint(Graphics& g)
 
     g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
 
-    g.drawText("Event disp.",300,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Event disp.",270,getHeight()-row1,300,20,Justification::left, false);
 
+    g.drawText("Trigger",375,getHeight()-row1,300,20,Justification::left, false);
+    
     if(canvas->drawClipWarning)
     {
         g.setColour(Colours::white);
