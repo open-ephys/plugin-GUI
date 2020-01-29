@@ -168,7 +168,10 @@ bool FileReader::enable()
 	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
-	readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
+        // reset stream to beginning
+        input->seekTo (startSample);
+        currentSample = startSample;
+        readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
 
 	// set the backbuffer so that on the next call to process() we start with bufferA and buffer
 	// cache window id = 0

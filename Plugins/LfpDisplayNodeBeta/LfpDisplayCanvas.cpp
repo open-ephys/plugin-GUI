@@ -184,27 +184,42 @@ void LfpDisplayCanvas::update()
 
     for (int i = 0; i <= nChans; i++) // extra channel for events
     {
-		if (processor->getNumInputs() > 0)
-		{
-			if (i < nChans)
-				sampleRate.add(processor->getDataChannel(i)->getSampleRate());
-			else
-			{
-				//Since for now the canvas only supports one event channel, find the first TTL one and use that as sampleRate.
-				//This is a bit hackish and should be fixed for proper multi-ttl-channel support
-				for (int c = 0; c < processor->getTotalEventChannels(); c++)
-				{
-					if (processor->getEventChannel(c)->getChannelType() == EventChannel::TTL)
-					{
-						sampleRate.add(processor->getEventChannel(c)->getSampleRate());
-					}
-				}
-			}
-		}
-		else
-			sampleRate.add(30000);
+        if (processor->getNumInputs() > 0)
+        {
+            if (i < nChans) {
+                sampleRate.add(processor->getDataChannel(i)->getSampleRate());
+            }
+            else
+            {
+                //Since for now the canvas only supports one event channel, find the first TTL one and use that as sampleRate.
+                //This is a bit hackish and should be fixed for proper multi-ttl-channel support
+                bool got = false;
+                for (int c = 0; c < processor->getTotalEventChannels(); c++)
+                {
+                    if (processor->getEventChannel(c)->getChannelType() == EventChannel::TTL)
+                    {
+                        sampleRate.add(processor->getEventChannel(c)->getSampleRate());
+                        got = true;
+                        break;
+                    }
+                }
+                if (!got) {
+                  if (i>0) {
+                    sampleRate.add(sampleRate[0]);
+                    printf("DID NOT FIND AN EVENT CHANNEL. GUESSING SAMPLE RATE FROM OTHER CHANNEL: %g Hz\n", sampleRate[i] + 0.0);
+                  } else {
+                    sampleRate.add(30000);
+                    printf("DID NOT FIND AN EVENT CHANNEL. WILDLY GUESSING SAMPLE RATE: %g Hz\n", sampleRate[i] + 0.0);
+                  }
+                }
+            }
+        }
+        else
+        {
+            sampleRate.add(30000);
+        }
         
-       // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
+        // std::cout << "Sample rate for ch " << i << " = " << sampleRate[i] << std::endl; 
         displayBufferIndex.add(0);
         screenBufferIndex.add(0);
         lastScreenBufferIndex.add(0);
@@ -221,7 +236,6 @@ void LfpDisplayCanvas::update()
         // update channel names
         for (int i = 0; i < processor->getNumInputs(); i++)
         {
-
             String chName = processor->getDataChannel(i)->getName();
 
             //std::cout << chName << std::endl;
@@ -266,19 +280,15 @@ void LfpDisplayCanvas::setParameter(int param, float val)
 void LfpDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
-
-    for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
+    for (int i = 0; i < displayBufferIndex.size(); i++) 
     {
-
         displayBufferIndex.set(i, processor->getDisplayBufferIndex(i));
         screenBufferIndex.set(i,0);
     }
-
 }
 
 void LfpDisplayCanvas::refreshScreenBuffer()
 {
-
     for (int i = 0; i < screenBufferIndex.size(); i++)
         screenBufferIndex.set(i,0);
 
@@ -290,16 +300,14 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 }
 
 void LfpDisplayCanvas::updateScreenBuffer()
-{
-
+{         
     // copy new samples from the displayBuffer into the screenBuffer
     int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
-	ScopedLock displayLock(*processor->getMutex());
+    ScopedLock displayLock(*processor->getMutex());
 
     for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
     {
-
         if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
             screenBufferIndex.set(channel, 0);
 
@@ -307,7 +315,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         int sbi = screenBufferIndex[channel];
         int dbi = displayBufferIndex[channel];
         
-        lastScreenBufferIndex.set(channel,sbi);
+        lastScreenBufferIndex.set(channel, sbi);
 
         int index = processor->getDisplayBufferIndex(channel);
 
@@ -315,7 +323,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
         {
-            nSamples = (displayBufferSize - dbi) + index +1;
+          nSamples += displayBufferSize;
            //  std::cout << "nsamples 0 " ;
         }
 
@@ -325,7 +333,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
         // this number is crucial: converting from samples to values (in px) for the screen buffer
-        int valuesNeeded = (int) float(nSamples) / ratio; // N pixels needed for this update
+        int valuesNeeded(nSamples / ratio); // N pixels needed for this update
 
         if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width
         {
@@ -333,8 +341,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
         }
         float subSampleOffset = 0.0;
 
-        dbi %= displayBufferSize; // make sure we're not overshooting
-        int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
+        //        dbi %= displayBufferSize; // make sure we're not overshooting
 
         // if (channel == 0)
         //     std::cout << "Channel " 
@@ -354,40 +361,39 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 if (!lfpDisplay->isPaused)
                 {
                     float gain = 1.0;
-                    float alpha = (float) subSampleOffset;
-                    float invAlpha = 1.0f - alpha;
 
                     screenBuffer->clear(channel, sbi, 1);
                     screenBufferMin->clear(channel, sbi, 1);
                     screenBufferMax->clear(channel, sbi, 1);
 
-                     dbi %= displayBufferSize; // just to be sure
-
-                    // interpolate between two samples with invAlpha and alpha
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, dbi), // source
-                                          1, // numSamples
-                                          invAlpha*gain); // gain
-
-
-                    screenBuffer->addFrom(channel, // destChannel
-                                          sbi, // destStartSample
-                                          displayBuffer->getReadPointer(channel, nextPos), // source
-                                          1, // numSamples
-                                          alpha*gain); // gain
+                    // dbi %= displayBufferSize; // just to be sure
 
                     // same thing again, but this time add the min,mean, and max of all samples in current pixel
                     float sample_min   =  10000000;
                     float sample_max   = -10000000;
                     
-                    int nextpix = (dbi +(int)ratio +1) % (displayBufferSize+1); //  position to next pixels index
-                    
-                    if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
-                    //    std::cout << "np " ;
-                        nextpix=dbi;
+                    int nextpix = dbi + int(ceil(ratio));
+                    if (nextpix > displayBufferSize)
+                      nextpix = displayBufferSize;
+
+                    if (nextpix - dbi > 1) {
+                      // multiple samples, calculate average
+                      float sum = 0;
+                      for (int j = dbi; j < nextpix; j++)
+                        sum += displayBuffer->getSample(channel, j);
+                      screenBuffer->addSample(channel, sbi, sum*gain / (nextpix - dbi));
+                    } else {
+                    // interpolate between two samples with invAlpha and alpha
+                    /* This is only reasonable if there are more pixels
+                       than samples. Otherwise, we should calculate average. */
+                      float alpha = (float) subSampleOffset;
+                      float invAlpha = 1.0f - alpha;
+                      float val0 = displayBuffer->getSample(channel, dbi);
+                      float val1 = displayBuffer->getSample(channel, (dbi+1)%displayBufferSize);
+                      float val = invAlpha * val0  + alpha * val1;
+                      screenBuffer->addSample(channel, sbi, val*gain);
                     }
-                   
+                    
                     for (int j = dbi; j < nextpix; j++)
                     {
                         
@@ -412,7 +418,7 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
                         {
                             int c = 0;
-                            for (int j = dbi; j < nextpix & c < MAX_N_SAMP_PER_PIXEL; j++)
+                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
                                 samplesPerPixel[channel][sbi][c]=sample_current;
@@ -434,15 +440,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
             
             subSampleOffset += ratio;
 
-            while (subSampleOffset >= 1.0)
-            {
-                if (++dbi > displayBufferSize)
-                    dbi = 0;
-
-                nextPos = (dbi + 1) % displayBufferSize;
-                subSampleOffset -= 1.0;
-            }
-
+            int steps(floor(subSampleOffset));
+            dbi = (dbi + steps) % displayBufferSize;
+            subSampleOffset -= steps;
         }
 
         // update values after we're done
@@ -672,21 +672,21 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
       selectedChannelType(DataChannel::HEADSTAGE_CHANNEL)
 {
  //Ranges for neural data
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("250");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("400");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("500");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("750");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("1000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("2000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
-	selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 8;
-	rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
-	rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("250");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("400");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("500");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("750");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("1000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("2000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
+    selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 8;
+    rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
+    rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
     rangeUnits.add("uV");
     typeNames.add("DATA");
 
@@ -702,19 +702,19 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     typeButtons.add(tbut);
     
     //Ranges for AUX/accelerometer data
-	voltageRanges[DataChannel::AUX_CHANNEL].add("25");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("50");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("100");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("250");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("400");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("500");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("750");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("25");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("50");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("100");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("250");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("400");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("500");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("750");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
     //voltageRanges[DataChannel::AUX_CHANNEL].add("5000");
-	selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
-	rangeGain[DataChannel::AUX_CHANNEL] = 0.001; //mV
-	rangeSteps[DataChannel::AUX_CHANNEL] = 10;
+    selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
+    rangeGain[DataChannel::AUX_CHANNEL] = 0.001; //mV
+    rangeSteps[DataChannel::AUX_CHANNEL] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
     
@@ -730,16 +730,16 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 
     //Ranges for ADC data
      voltageRanges[DataChannel::ADC_CHANNEL].add("0.01");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
-	 selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
-	 rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
-	 rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
+     selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
+     rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
+     rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
     rangeUnits.add("V");
     typeNames.add("ADC");
 
@@ -753,9 +753,9 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
-	selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
-	selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
-	selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
 
     showHideOptionsButton = new ShowHideOptionsButton(this);
     showHideOptionsButton->addListener(this);
@@ -815,8 +815,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 
 
     rangeSelection = new ComboBox("Voltage range");
-	rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
-	rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
+    rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
+    rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
     rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
@@ -947,12 +947,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 
     }
 
-	lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
-		, DataChannel::HEADSTAGE_CHANNEL);
-	lfpDisplay->setRange(voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::ADC_CHANNEL]
-		, DataChannel::ADC_CHANNEL);
-	lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
-		, DataChannel::AUX_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
+        , DataChannel::HEADSTAGE_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::ADC_CHANNEL]
+        , DataChannel::ADC_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
+        , DataChannel::AUX_CHANNEL);
     
 }
 
@@ -1717,7 +1717,7 @@ void LfpDisplay::setNumChannels(int numChannels)
 
         channelInfo.add(lfpInfo);
 
-		savedChannelState.add(true);
+        savedChannelState.add(true);
 
         totalHeight += lfpChan->getChannelHeight();
 
@@ -1936,7 +1936,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         singleChan = -1;
         for (int n = 0; n < numChans; n++)
         {
-			channelInfo[n]->setEnabledState(savedChannelState[n]);
+            channelInfo[n]->setEnabledState(savedChannelState[n]);
         }
     }
 
@@ -2065,7 +2065,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
         singleChan = chan;
 
         int newHeight = viewport->getHeight();
-		channelInfo[chan]->setEnabledState(true);
+        channelInfo[chan]->setEnabledState(true);
         channelInfo[chan]->setSingleChannelState(true);
         setChannelHeight(newHeight, false);
         setSize(getWidth(), numChans*getChannelHeight());
@@ -2425,10 +2425,10 @@ void LfpChannelDisplay::pxPaint()
                     {
                         
                         //float localHist[samplerange]; // simple histogram
-						Array<float> rangeHist; // [samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
+                        Array<float> rangeHist; // [samplerange]; // paired range histogram, same as plotting at higher res. and subsampling
                         
-						for (int k = 0; k <= samplerange; k++)
-							rangeHist.add(0);
+                        for (int k = 0; k <= samplerange; k++)
+                            rangeHist.add(0);
                         
                         for (int k = 0; k <= sampleCountThisPixel; k++) // add up paired-range histogram per pixel - for each pair fill intermediate with uniform distr.
                         {
@@ -2509,10 +2509,10 @@ void LfpChannelDisplay::pxPaint()
                     for (int j = jfrom; j <= jto; j += 1)
                     {
                         
-                        //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(	(int)(i),(int)(j));
-                        //*(pu8Pixel)		= 200;
-                        //*(pu8Pixel+1)	= 200;
-                        //*(pu8Pixel+2)	= 200;
+                        //uint8* const pu8Pixel = bdSharedLfpDisplay.getPixelPointer(    (int)(i),(int)(j));
+                        //*(pu8Pixel)        = 200;
+                        //*(pu8Pixel+1)    = 200;
+                        //*(pu8Pixel+2)    = 200;
                         
                         bdLfpChannelBitmap.setPixelColour(i,j,lineColour);
                         
