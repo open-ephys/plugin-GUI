@@ -26,7 +26,7 @@
 
 #include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
-
+#include <list>
 
 class DataViewport;
 
@@ -66,16 +66,27 @@ public:
     int getDisplayBufferIndex (int chan) const { return displayBufferIndex[chan]; }
 
     CriticalSection* getMutex() { return &displayMutex; }
-
-
+  std::list<int> eventStateChannels() const;
+  void setTriggerSource(int ch);
+  int getTriggerSource() const;
+  int64 getLatestTriggerTime() const;
+  void acknowledgeTrigger();
 private:
     void initializeEventChannels();
-
+  void finalizeEventChannels();
+void copyToEventChannel(uint32 src, int t0, int t1, float value);
+  void copyDataToDisplay(int chan, AudioSampleBuffer &srcbuf);
     ScopedPointer<AudioSampleBuffer> displayBuffer;
 
     Array<int> displayBufferIndex;
     Array<uint32> eventSourceNodes;
     std::map<uint32, int> channelForEventSource;
+  struct EventValueChange {
+    int eventTime;
+    int eventVal; // positive to set, negative to clear
+    EventValueChange(int t=0, int v=0): eventTime(t), eventVal(v) { }
+  };
+  std::map<uint32, std::list<EventValueChange>> eventValueChanges;
 
     int numEventChannels;
 
@@ -88,6 +99,9 @@ private:
     std::map<uint32, uint64> ttlState;
     float* arrayOfOnes;
     int totalSamples;
+  int triggerSource;
+  int64 latestTrigger; // overall timestamp
+  int latestCurrentTrigger; // within current input buffer
 
     bool resizeBuffer();
 

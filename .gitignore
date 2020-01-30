@@ -33,6 +33,7 @@ PluginGenerator/Builds/VisualStudio2013/*.user
 PluginGenerator/Builds/VisualStudio2013/*.sdf
 PluginGenerator/Builds/VisualStudio2013/*.opensdf
 PluginGenerator/Builds/VisualStudio2013/*.suo
+PluginGenerator/Builds/LinuxMakefile/build
 Projucer/**/build
 
 # 3. extra files
