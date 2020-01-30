@@ -314,12 +314,19 @@ void LfpDisplayCanvas::updateScreenBuffer()
   processor->acknowledgeTrigger();
   for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
     {
+      float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
+      // this number is crucial: converting from samples to values (in px) for the screen buffer
       if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
         {
           if (processor->getTriggerSource()>=0) {
             // we may need to wait for a trigger
             if (triggerTime>=0) {
-              displayBufferIndex.set(channel, triggerTime); // fast-forward
+              const int screenThird = int(maxSamples * ratio / 4);
+              const int dispBufLim = displayBufferSize / 2;
+              int t0 = triggerTime - std::min(screenThird, dispBufLim);
+              if (t0 < 0)
+                t0 += displayBufferSize;
+              displayBufferIndex.set(channel, t0); // fast-forward
             } else {
               return; // don't display right now
             }
@@ -347,9 +354,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
       //if (channel == 15 || channel == 16)
       //     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
 
-
-      float ratio = sampleRate[channel] * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
-      // this number is crucial: converting from samples to values (in px) for the screen buffer
       int valuesNeeded(nSamples / ratio); // N pixels needed for this update
 
       if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width
