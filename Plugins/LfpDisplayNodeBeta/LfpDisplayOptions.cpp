@@ -104,6 +104,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     showHideOptionsButton->addListener(this);
     addAndMakeVisible(showHideOptionsButton);
 
+    timebases.add("0.05");
+    timebases.add("0.1");
     timebases.add("0.25");
     timebases.add("0.5");
     timebases.add("1.0");
