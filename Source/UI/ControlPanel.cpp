@@ -521,15 +521,17 @@ void ControlPanel::setAcquisitionState(bool state)
 
 void ControlPanel::updateChildComponents()
 {
-
+    /*
     filenameComponent->addListener(AccessClass::getProcessorGraph()->getRecordNode());
     AccessClass::getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
 	updateRecordEngineList();
+    */
 
 }
 
 void ControlPanel::updateRecordEngineList()
 {
+    /*
 	int selectedEngine = recordSelector->getSelectedId();
 	recordSelector->clear(dontSendNotification);
 	recordEngines.clear();
@@ -552,6 +554,7 @@ void ControlPanel::updateRecordEngineList()
 		recordSelector->setSelectedId(1, sendNotification);
 	else
 		recordSelector->setSelectedId(selectedEngine, sendNotification);
+       */
 }
 
 String ControlPanel::getSelectedRecordEngineId()
@@ -1020,7 +1023,7 @@ void ControlPanel::refreshMeters()
 
     masterClock->repaint();
 
-    diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
+    //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
     diskMeter->repaint();
 
     if (initialize)

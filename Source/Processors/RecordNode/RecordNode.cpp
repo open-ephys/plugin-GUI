@@ -1,4 +1,5 @@
 #include "RecordNode.h"
+#include "BinaryFormat\BinaryRecording.h"
 
 using namespace std::chrono;
 
@@ -21,6 +22,8 @@ RecordNode::RecordNode()
 	dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
 	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
+	
+	recordEngine = new BinaryRecording();
 
 	recordThread = new RecordThread(this, recordEngine);
 

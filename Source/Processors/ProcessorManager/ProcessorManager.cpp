@@ -31,11 +31,12 @@
 #include "../FileReader/FileReader.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
+#include "../RecordNode/RecordNode.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
 /** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 3
+#define BUILTIN_PROCESSORS 4
 
 namespace ProcessorManager
 {
@@ -61,6 +62,10 @@ namespace ProcessorManager
 			name = "File Reader";
 			type = SourceProcessor;
 			break;
+		case 3:
+			name = "Record Node";
+			type = FilterProcessor;
+			break;
 		default:
 			name = String::empty;
 			type = -1;
@@ -85,6 +90,9 @@ namespace ProcessorManager
 			break;
 		case 2:
 			proc = new FileReader();
+			break;
+		case 3:
+			proc = new RecordNode();
 			break;
 		default:
 			return nullptr;

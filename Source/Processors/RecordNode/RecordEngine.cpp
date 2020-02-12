@@ -297,7 +297,8 @@ String RecordEngineManager::getID() const
 
 bool RecordEngineManager::isWindowOpen() const
 {
-	return window ? true : false;
+	return false;
+	//return window ? true : false;
 }
 
 void RecordEngineManager::toggleConfigWindow()

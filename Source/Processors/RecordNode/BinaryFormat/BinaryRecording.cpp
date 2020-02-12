@@ -521,7 +521,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 
 	int fileIndex = m_fileIndexes[writeChannel];
 
-    std::cout << "(" << getTimestamp(writeChannel) << "," << m_startTS[writeChannel] << "," << m_channelIndexes[writeChannel] << ")"; fflush(stdout);
+    //std::cout << "(" << getTimestamp(writeChannel) << "," << m_startTS[writeChannel] << "," << m_channelIndexes[writeChannel] << ")"; fflush(stdout);
 	m_DataFiles[fileIndex]->writeChannel(
 		getTimestamp(writeChannel) - m_startTS[writeChannel],
 		m_channelIndexes[writeChannel],

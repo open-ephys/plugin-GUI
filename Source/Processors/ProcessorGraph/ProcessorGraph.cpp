@@ -65,8 +65,8 @@ void ProcessorGraph::createDefaultNodes()
         new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
 
     // add record node -- sends output to disk
-    RecordNode* recn = new RecordNode();
-    recn->setNodeId(RECORD_NODE_ID);
+    //RecordNode* recn = new RecordNode();
+    //recn->setNodeId(RECORD_NODE_ID);
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
     AudioNode* an = new AudioNode();
@@ -77,7 +77,7 @@ void ProcessorGraph::createDefaultNodes()
     msgCenter->setNodeId(MESSAGE_CENTER_ID);
 
     addNode(on, OUTPUT_NODE_ID);
-    addNode(recn, RECORD_NODE_ID);
+    //addNode(recn, RECORD_NODE_ID);
     addNode(an, AUDIO_NODE_ID);
     addNode(msgCenter, MESSAGE_CENTER_ID);
 
@@ -85,7 +85,7 @@ void ProcessorGraph::createDefaultNodes()
 
 void ProcessorGraph::updatePointers()
 {
-    //getAudioNode()->updateBufferSize();
+    getAudioNode()->updateBufferSize();
 }
 
 void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
