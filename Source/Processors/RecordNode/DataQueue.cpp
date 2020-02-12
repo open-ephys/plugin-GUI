@@ -1,35 +1,35 @@
 /*
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+This file is part of the Open Ephys GUI
+Copyright (C) 2019 Open Ephys
 
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "../../../JuceLibraryCode/JuceHeader.h"
+
 #include "DataQueue.h"
 
 DataQueue::DataQueue(int blockSize, int nBlocks) :
-m_buffer(0, blockSize*nBlocks),
-m_numChans(0),
-m_blockSize(blockSize),
-m_readInProgress(false),
-m_numBlocks(nBlocks),
-m_maxSize(blockSize*nBlocks)
+	m_buffer(0, blockSize*nBlocks),
+	m_numChans(0),
+	m_blockSize(blockSize),
+	m_readInProgress(false),
+	m_numBlocks(nBlocks),
+	m_maxSize(blockSize*nBlocks)
 {}
 
 DataQueue::~DataQueue()
@@ -61,7 +61,7 @@ void DataQueue::resize(int nBlocks)
 {
 	if (m_readInProgress)
 		return;
-	
+
 	int size = m_blockSize*nBlocks;
 	m_maxSize = size;
 	m_numBlocks = nBlocks;
@@ -109,38 +109,40 @@ void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp
 	}
 }
 
-void DataQueue::writeChannel(const AudioSampleBuffer& buffer, int channel, int sourceChannel, int nSamples, int64 timestamp)
+void DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
 {
 	int index1, size1, index2, size2;
-	m_fifos[channel]->prepareToWrite(nSamples, index1, size1, index2, size2);
+	m_fifos[destChannel]->prepareToWrite(nSamples, index1, size1, index2, size2);
+
 	if ((size1 + size2) < nSamples)
 	{ //TODO: turn this into a proper notification. Probably returning a bool.
-		std::cerr << "Recording Data Queue Overflow" << std::endl;
+		//std::cerr << "Recording Data Queue Overflow" << std::endl;
+		LOGD(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
 	}
-	m_buffer.copyFrom(channel,
+	m_buffer.copyFrom(destChannel,
 		index1,
 		buffer,
-		sourceChannel,
+		srcChannel,
 		0,
 		size1);
-	
-	fillTimestamps(channel, index1, size1, timestamp);
-	
+
+	fillTimestamps(destChannel, index1, size1, timestamp);
+
 	if (size2 > 0)
 	{
-		m_buffer.copyFrom(channel,
+		m_buffer.copyFrom(destChannel,
 			index2,
 			buffer,
-			sourceChannel,
+			srcChannel,
 			size1,
 			size2);
 
-		fillTimestamps(channel, index2, size2, timestamp + size1);
+		fillTimestamps(destChannel, index2, size2, timestamp + size1);
 	}
-	m_fifos[channel]->finishedWrite(size1 + size2);
+	m_fifos[destChannel]->finishedWrite(size1 + size2);
 }
 
-/* 
+/*
 We could copy the internal circular buffer to an external one, as DataBuffer does. This class
 is, however, intended for disk writing, which is one of the most CPU-critical systems. Just
 allowing the record subsytem to access the internal buffer is way faster, altough it has to be
@@ -171,7 +173,7 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& t
 		m_fifos[chan]->prepareToRead(samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
 		indexes.add(idx);
 		m_readSamples.set(chan, idx.size1 + idx.size2);
-		
+
 		int blockMod = idx.index1 % m_blockSize;
 		int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
 
@@ -182,7 +184,7 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& t
 			int64 ts = m_timestamps[chan]->getUnchecked(blockIdx) - blockDiff;
 			timestamps.add(ts);
 			//update to the end of the block
-			m_lastReadTimestamps.set(chan, ts+ idx.size1 + idx.size2);
+			m_lastReadTimestamps.set(chan, ts + idx.size1 + idx.size2);
 		}
 		//If not, copy the last sent again 
 		else

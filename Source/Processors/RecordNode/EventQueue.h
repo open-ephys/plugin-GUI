@@ -24,8 +24,8 @@
 #ifndef EVENTQUEUE_H_INCLUDED
 #define EVENTQUEUE_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Events/Events.h"
+#include <JuceHeader.h>
+//#include <Events.h>
 #include <vector>
 
 template <class MsgContainer>
@@ -77,14 +77,14 @@ public:
 	void reset()
 	{
 		m_data.clear();
-		m_fifo.reset();
 		m_data.resize(m_fifo.getTotalSize());
 	}
 
 	void resize(int size)
 	{
+		m_data.clear();
 		m_fifo.setTotalSize(size);
-		reset();
+		m_data.resize(size);
 	}
 
 	void addEvent(const EventClass& ev, int64 t, int extra = 0)

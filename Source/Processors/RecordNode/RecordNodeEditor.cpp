@@ -48,7 +48,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	masterMonitor->setBounds(18, 43, 15, 62);
 	addAndMakeVisible(masterMonitor);
 
-	masterRecord = new RecordButton("MasterRecord");
+	masterRecord = new RecordToggleButton("MasterRecord");
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
 	addAndMakeVisible(masterRecord);
@@ -72,7 +72,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordButton("EventRecord");
+	eventRecord = new RecordToggleButton("EventRecord");
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
 	addAndMakeVisible(eventRecord);
@@ -82,7 +82,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordButton("SpikeRecord");
+	spikeRecord = new RecordToggleButton("SpikeRecord");
 	spikeRecord->setBounds(120, 90, 15, 15);
 	spikeRecord->addListener(this);
 	addAndMakeVisible(spikeRecord);
@@ -124,7 +124,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 			addAndMakeVisible(subProcMonitors.getLast());
 			subProcMonitors.getLast()->setVisible(false);
 			
-			subProcRecords.add(new RecordButton("RecSP" + String(i)));
+			subProcRecords.add(new RecordToggleButton("RecSP" + String(i)));
 			subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
 			subProcRecords.getLast()->addListener(this);
 			addAndMakeVisible(subProcRecords.getLast());
@@ -154,10 +154,10 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		else
 			showSubprocessorFifos(false);
 	} 
-	else if (subProcRecords.contains((RecordButton*)button))
+	else if (subProcRecords.contains((RecordToggleButton*)button))
 	{
 
-		int subProcIdx = subProcRecords.indexOf((RecordButton *)button);
+		int subProcIdx = subProcRecords.indexOf((RecordToggleButton *)button);
 		FifoMonitor* fifo = subProcMonitors[subProcIdx];
 		bool enabled = button->getToggleState();
 		fifo->channelStates.clear();
@@ -273,13 +273,13 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordButton::RecordButton(const String& name) : Button(name) {
+RecordToggleButton::RecordToggleButton(const String& name) : Button(name) {
 	setClickingTogglesState(true);
 }
 
-RecordButton::~RecordButton() {}
+RecordToggleButton::~RecordToggleButton() {}
 
-void RecordButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
 
 	g.setColour(Colour(0,0,0));

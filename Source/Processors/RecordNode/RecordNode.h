@@ -1,202 +1,155 @@
-/*
-    ------------------------------------------------------------------
+//This prevents include loops. We recommend changing the macro to a name suitable for your plugin
+#ifndef RECORDNODE_H_DEFINED
+#define RECORDNODE_H_DEFINED
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+#include <chrono>
+#include <math.h>
+#include <algorithm>
 
-    ------------------------------------------------------------------
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
-
-#ifndef __RECORDNODE_H_FB9B1CA7__
-#define __RECORDNODE_H_FB9B1CA7__
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include <stdio.h>
-#include <map>
-#include <atomic>
-
-
 #include "../GenericProcessor/GenericProcessor.h"
-#include "EventQueue.h"
+#include "RecordNodeEditor.h"
+#include "RecordThread.h"
+#include "DataQueue.h"
+#include "Utils.h"
 
-#define WRITE_BLOCK_LENGTH 1024
-#define DATA_BUFFER_NBLOCKS 300
-#define EVENT_BUFFER_NEVENTS 512
-#define SPIKE_BUFFER_NSPIKES 512
+#include "BinaryFormat/BinaryRecording.h"
 
-class RecordEngine;
-class RecordThread;
-class DataQueue;
+//#include "taskflow/taskflow.hpp"
 
-/**
+#define WRITE_BLOCK_LENGTH		1024
+#define DATA_BUFFER_NBLOCKS		300
+#define EVENT_BUFFER_NEVENTS	512
+#define SPIKE_BUFFER_NSPIKES	512
 
-  Receives inputs from all processors that want to save their data.
-  Writes data to disk using fwrite.
+#define NIDAQ_BIT_VOLTS			0.001221f
+#define NPX_BIT_VOLTS			0.195f
+#define MAX_BUFFER_SIZE			40960
+#define CHANNELS_PER_THREAD		384
 
-  Receives a signal from the ControlPanel to begin recording.
+#define DEBUG 1
 
-  @see GenericProcessor, ControlPanel
-
-*/
-
-class RecordNode : public GenericProcessor,
-    public FilenameComponentListener
+class RecordNode : public GenericProcessor, public FilenameComponentListener
 {
+
 public:
 
-    RecordNode();
-    ~RecordNode();
+	RecordNode();
+	~RecordNode();
 
-    /** Handle incoming data and decide which files and events to write to disk.
-    */
-    void process(AudioSampleBuffer& buffer) override;
+	AudioProcessorEditor* createEditor() override;
+	bool hasEditor() const override { return true; }
 
+	
+	void updateSubprocessorMap();
 
-    /** Overrides implementation in GenericProcessor; used to change recording parameters
-        on the fly.
+	void updateSettings() override;
+	int getNumSubProcessors() const override;
 
-        parameterIndex = 0: stop recording
-        parameterIndex = 1: start recording
-        parameterIndex = 2:
-              newValue = 0: turn off recording for current channel
-              newValue = 1: turn on recording for current channel
-    */
-    void setParameter(int parameterIndex, float newValue) override;
+	void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
+	void startRecording() override;
 
-	/** returns current experiment number */
+	String generateDirectoryName();
+	void createNewDirectory();
+    void filenameComponentChanged(FilenameComponent *);
+    String generateDateString() const;
 	int getExperimentNumber() const;
-	/** returns current recording number */
 	int getRecordingNumber() const;
 
-    /** Called by the processor graph for each processor that could record data
-    */
-    void registerProcessor(const GenericProcessor* sourceNode);
-    /** Called by the processor graph for each recordable channel
-    */
-    void addInputChannel(const GenericProcessor* sourceNode, int chan);
+	void updateChannelStates(int subProcIdx, std::vector<bool> enabled);
 
-    bool enable();
-    bool disable();
+	bool isFirstChannelInRecordedSubprocessor(int channel);
 
-    /** returns channel names and whether we record them */
-    void getChannelNamesAndRecordingStatus(StringArray& names, Array<bool>& recording);
+	void process(AudioSampleBuffer& buffer) override;
+
+	void stopRecording() override;
+
+	void setParameter(int parameterIndex, float newValue) override;
+
+	void setRecordEvents(bool);
+
+	ScopedPointer<RecordThread> recordThread;
+	ScopedPointer<RecordEngine> recordEngine;
+
+	int64 samplesWritten;
+	String lastSettingsText;
+
+	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
+	const String &getLastSettingsXml() const;
+
+	Array<int> channelMap; //Map from record channel index to source channel index
+	std::vector<std::vector<int>> subProcessorMap;
+	std::vector<std::vector<bool>> channelStates;
+	std::vector<int> startRecChannels;
+
+    //TODO: Need to validate these new methods
+
+    /** Must be called by a spike recording source on the "enable" method
+    */
+    void registerSpikeSource(const GenericProcessor *processor);
+
+    /** Registers an electrode group for spike recording
+    Must be called by a spike recording source on the "enable" method
+    after the call to registerSpikeSource
+    */
+    int addSpikeElectrode(const SpikeChannel *elec);
+
+    /** Called by a spike recording source to write a spike to file
+    */
+    void writeSpike(const SpikeEvent *spike, const SpikeChannel *spikeElectrode);
+
+    bool getRecordThreadStatus() { return shouldRecord; };
+
+    bool newDirectoryNeeded;
 
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
     */
     float getFreeSpace() const;
 
-    /** Selects a channel relative to a particular processor with ID = id
-    */
-    void setChannel(const DataChannel* ch);
-
-    /** Used to clear all connections prior to the start of acquisition.
-    */
-    void resetConnections();
-
-    /** Callback to indicate when user has chosen a new data directory.
-    */
-    void filenameComponentChanged(FilenameComponent*);
-
-    /** Creates a new data directory in the location specified by the fileNameComponent.
-    */
-    void createNewDirectory();
-
-
-	File getDataDirectory() const;
-
     /** Adds a Record Engine to use
     */
-    void registerRecordEngine(RecordEngine* engine);
+    void registerRecordEngine(RecordEngine *engine);
 
     /** Clears the list of active Record Engines
     */
     void clearRecordEngines();
 
-    /** Must be called by a spike recording source on the "enable" method
-    */
-    void registerSpikeSource(const GenericProcessor* processor);
-
-    /** Registers an electrode group for spike recording
-    Must be called by a spike recording source on the "enable" method
-    after the call to registerSpikeSource
-    */
-    int addSpikeElectrode(const SpikeChannel* elec);
-
-    /** Called by a spike recording source to write a spike to file
-    */
-    void writeSpike(const SpikeEvent* spike, const SpikeChannel* spikeElectrode);
-
-    /** Signals when to create a new data directory when recording starts.*/
-    bool newDirectoryNeeded;
-
-    std::atomic<bool> isRecording;
-	std::atomic<bool> shouldRecord;
-
-    /** Generate a Matlab-compatible datestring */
-    String generateDateString() const;
-
-	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
-	const String& getLastSettingsXml() const;
-
-	//Called by ProcessorGraph
-	void updateRecordChannelIndexes();
-	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
-
-	bool getRecordThreadStatus();
-
 private:
 
-    /** Keep the RecordNode informed of acquisition and record states.
-    */
-    bool isProcessing;
+	bool isRecording;
+	bool hasRecorded;
+	bool settingsNeeded;
+    bool shouldRecord;
 
-    /** User-selectable directory for saving data files. Currently
-        defaults to the user's home directory.
-    */
-    File dataDirectory;
+	bool recordEvents;
+	bool recordSpikes;
 
-    /** Automatically generated folder for each recording session.
-    */
-    File rootFolder;
+	File dataDirectory;
+	File rootFolder;
 
+	int experimentNumber;
+	int recordingNumber;
 
-    /** Integer timestamp saved for each buffer.
-    */
-    int64 timestamp;
+	int64 timestamp;
+	int numSamples;
+	int numChannels;
 
-    /** Integer to keep track of number of recording sessions in the same file */
-    int recordingNumber;
-
-    /** Used to generate timestamps if none are given.
-    */
-    Time timer;
-
-	Array<int> channelMap;
+	ScopedPointer<DataQueue> dataQueue;
+	ScopedPointer<EventMsgQueue> eventQueue;
+    ScopedPointer<SpikeMsgQueue> spikeQueue;
 
     int spikeElectrodeIndex;
 
-    int experimentNumber;
-    bool hasRecorded;
-    bool settingsNeeded;
+    Array<bool> validBlocks;
 	std::atomic<bool> setFirstBlock;
-    /** Generates a default directory name, based on the current date and time */
-    String generateDirectoryName();
 
-    /** Cycle through the event buffer, looking for data to save */
+	//Profiling data structures
+	float scaleFactor;
+	HeapBlock<float> scaledBuffer;  
+	HeapBlock<int16> intBuffer;
+
+	/** Cycle through the event buffer, looking for data to save */
 	void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) override;
 
 	virtual void handleTimestampSyncTexts(const MidiMessage& event);
@@ -204,20 +157,8 @@ private:
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
 
-	ScopedPointer<RecordThread> m_recordThread;
-	ScopedPointer<DataQueue> m_dataQueue;
-	ScopedPointer<EventMsgQueue> m_eventQueue;
-	ScopedPointer<SpikeMsgQueue> m_spikeQueue;
-	
-	Array<int> m_recordedChannelMap;
-	Array<bool> m_validBlocks;
-
-	String m_lastSettingsText;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 
 };
 
-
-
-#endif  // __RECORDNODE_H_FB9B1CA7__
+#endif

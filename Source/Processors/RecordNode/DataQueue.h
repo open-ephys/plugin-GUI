@@ -1,30 +1,31 @@
-/*
-    ------------------------------------------------------------------
+/* 
+------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+This file is part of the Open Ephys GUI
+Copyright (C) 2014 Open Ephys
 
-    ------------------------------------------------------------------
+------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 #ifndef DATAQUEUE_H_INCLUDED
 #define DATAQUEUE_H_INCLUDED
 
-#include "../../../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
+#include "Utils.h"
 
 struct CircularBufferIndexes
 {
@@ -45,14 +46,15 @@ public:
 
 	//Only the methods after this comment are considered thread-safe.
 	//Caution must be had to avoid calling more than one of the methods above simulatenously
-	void writeChannel(const AudioSampleBuffer& buffer, int channel, int sourceChannel, int nSamples, int64 timestamp);
+	void writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
 	bool startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& timestamps, int nMax);
 	const AudioSampleBuffer& getAudioBufferReference() const;
 	void stopRead();
-	
 
 private:
 	void fillTimestamps(int channel, int index, int size, int64 timestamp);
+
+	int lastIdx;
 
 	OwnedArray<AbstractFifo> m_fifos;
 	AudioSampleBuffer m_buffer;

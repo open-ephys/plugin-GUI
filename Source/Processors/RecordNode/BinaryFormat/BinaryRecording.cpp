@@ -1,74 +1,50 @@
-/*
-------------------------------------------------------------------
-
-This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
-
-------------------------------------------------------------------
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
-
 #include "BinaryRecording.h"
+
+#define TIC std::chrono::high_resolution_clock::now()
 
 #define MAX_BUFFER_SIZE 40960
 
-using namespace BinaryRecordingEngine;
-
 BinaryRecording::BinaryRecording()
 {
-    m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
-    m_intBuffer.malloc(MAX_BUFFER_SIZE);
-    m_tsBuffer.malloc(MAX_BUFFER_SIZE);
+	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
+	m_intBuffer.malloc(MAX_BUFFER_SIZE);
+	m_tsBuffer.malloc(MAX_BUFFER_SIZE);		
 }
 
-BinaryRecording::~BinaryRecording()
-{
-
-}
+BinaryRecording::~BinaryRecording() {}
 
 String BinaryRecording::getEngineID() const
 {
-    return "RAWBINARY";
+	return "RAWBINARY";
 }
 
 String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
 {
-    String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" +
-                    String(channelInfo->getCurrentNodeID()));
-    if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID())
-    // found the channel source
-    {
-        fName += "." + String(channelInfo->getSubProcessorIdx());
-    }
-    else
-    {
-        fName += "_" + String(channelInfo->getSourceNodeID()) + "." +
-                 String(channelInfo->getSubProcessorIdx());
-    }
-    fName += File::separatorString;
-    return fName;
+	String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" +
+		String(channelInfo->getCurrentNodeID()));
+	if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID())
+		// found the channel source
+	{
+		fName += "." + String(channelInfo->getSubProcessorIdx());
+	}
+	else
+	{
+		fName += "_" + String(channelInfo->getSourceNodeID()) + "." +
+			String(channelInfo->getSubProcessorIdx());
+	}
+	fName += File::separatorString;
+	return fName;
 }
 
 void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
-    String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber)
+
+    const RecordProcessorInfo* pInfo = getProcessorInfo();
+
+	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber)
         + File::separatorString + "recording" + String(recordingNumber + 1) + File::separatorString;
-    String contPath = basepath + "continuous" + File::separatorString;
-    //Open channel files
-    int nProcessors = getNumRecordedProcessors();
+    String nodePath = basepath + pInfo->processorName + File::separatorString;
+    String contPath = nodePath + "continuous" + File::separatorString;
 
     m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
     m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
@@ -79,72 +55,71 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     Array<var> jsonChannels;
     StringArray continuousFileNames;
     int lastId = 0;
-    for (int proc = 0; proc < nProcessors; proc++)
+
+    int recChans = pInfo->recordedChannels.size();
+
+    for (int chan = 0; chan < recChans; chan++)
     {
-        const RecordProcessorInfo& pInfo = getProcessorInfo(proc);
-        int recChans = pInfo.recordedChannels.size();
-
-        for (int chan = 0; chan < recChans; chan++)
+        int recordedChan = pInfo->recordedChannels[chan];
+        int realChan = getRealChannel(recordedChan);
+        const DataChannel* channelInfo = getDataChannel(realChan);
+        int sourceId = channelInfo->getSourceNodeID();
+        int sourceSubIdx = channelInfo->getSubProcessorIdx();
+        int nInfoArrays = indexedDataChannels.size();
+        bool found = false;
+        DynamicObject::Ptr jsonChan = new DynamicObject();
+        jsonChan->setProperty("channel_name", channelInfo->getName());
+        jsonChan->setProperty("description", channelInfo->getDescription());
+        jsonChan->setProperty("identifier", channelInfo->getIdentifier());
+        jsonChan->setProperty("history", channelInfo->getHistoricString());
+        jsonChan->setProperty("bit_volts", channelInfo->getBitVolts());
+        jsonChan->setProperty("units", channelInfo->getDataUnits());
+        jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
+        jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
+        createChannelMetaData(channelInfo, jsonChan);
+        for (int i = lastId; i < nInfoArrays; i++)
         {
-            int recordedChan = pInfo.recordedChannels[chan];
-            int realChan = getRealChannel(recordedChan);
-            const DataChannel* channelInfo = getDataChannel(realChan);
-            int sourceId = channelInfo->getSourceNodeID();
-            int sourceSubIdx = channelInfo->getSubProcessorIdx();
-            int nInfoArrays = indexedDataChannels.size();
-            bool found = false;
-            DynamicObject::Ptr jsonChan = new DynamicObject();
-            jsonChan->setProperty("channel_name", channelInfo->getName());
-            jsonChan->setProperty("description", channelInfo->getDescription());
-            jsonChan->setProperty("identifier", channelInfo->getIdentifier());
-            jsonChan->setProperty("history", channelInfo->getHistoricString());
-            jsonChan->setProperty("bit_volts", channelInfo->getBitVolts());
-            jsonChan->setProperty("units", channelInfo->getDataUnits());
-            jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
-            jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
-            createChannelMetaData(channelInfo, jsonChan);
-            for (int i = lastId; i < nInfoArrays; i++)
+            if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
             {
-                if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
-                {
-                    unsigned int count = indexedChannelCount[i];
-                    m_channelIndexes.set(recordedChan, count);
-                    m_fileIndexes.set(recordedChan, i);
-                    indexedChannelCount.set(i, count + 1);
-                    jsonChannels.getReference(i).append(var(jsonChan));
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                String datPath = getProcessorString(channelInfo);
-                continuousFileNames.add(contPath + datPath + "continuous.dat");
-
-                ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
-                m_dataTimestampFiles.add(tFile.release());
-
-                m_fileIndexes.set(recordedChan, nInfoArrays);
-                m_channelIndexes.set(recordedChan, 0);
-                indexedChannelCount.add(1);
-                indexedDataChannels.add(channelInfo);
-
-                Array<var> jsonChanArray;
-                jsonChanArray.add(var(jsonChan));
-                jsonChannels.add(var(jsonChanArray));
-                DynamicObject::Ptr jsonFile = new DynamicObject();
-                jsonFile->setProperty("folder_name", datPath.replace(File::separatorString, "/")); //to make it more system agnostic, replace separator with only one slash
-                jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
-                jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
-                jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
-                jsonFile->setProperty("source_processor_sub_idx", channelInfo->getSubProcessorIdx());
-                jsonFile->setProperty("recorded_processor", channelInfo->getCurrentNodeName());
-                jsonFile->setProperty("recorded_processor_id", channelInfo->getCurrentNodeID());
-                jsonContinuousfiles.add(var(jsonFile));
+                unsigned int count = indexedChannelCount[i];
+                m_channelIndexes.set(recordedChan, count);
+                m_fileIndexes.set(recordedChan, i);
+                indexedChannelCount.set(i, count + 1);
+                jsonChannels.getReference(i).append(var(jsonChan));
+                found = true;
+                break;
             }
         }
-        lastId = indexedDataChannels.size();
+        if (!found)
+        {
+            String datPath = getProcessorString(channelInfo);
+            continuousFileNames.add(contPath + datPath + "continuous.dat");
+
+            //std::cout << "Creating file: " << contPath << datPath << "timestamps.npy" << std::endl;
+            ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
+            m_dataTimestampFiles.add(tFile.release());
+
+            m_fileIndexes.set(recordedChan, nInfoArrays);
+            m_channelIndexes.set(recordedChan, 0);
+            indexedChannelCount.add(1);
+            indexedDataChannels.add(channelInfo);
+
+            Array<var> jsonChanArray;
+            jsonChanArray.add(var(jsonChan));
+            jsonChannels.add(var(jsonChanArray));
+            DynamicObject::Ptr jsonFile = new DynamicObject();
+            jsonFile->setProperty("folder_name", datPath.replace(File::separatorString, "/")); //to make it more system agnostic, replace separator with only one slash
+            jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
+            jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
+            jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
+            jsonFile->setProperty("source_processor_sub_idx", channelInfo->getSubProcessorIdx());
+            jsonFile->setProperty("recorded_processor", channelInfo->getCurrentNodeName());
+            jsonFile->setProperty("recorded_processor_id", channelInfo->getCurrentNodeID());
+            jsonContinuousfiles.add(var(jsonFile));
+        }
     }
+    lastId = indexedDataChannels.size();
+
     int nFiles = continuousFileNames.size();
     for (int i = 0; i < nFiles; i++)
     {
@@ -154,7 +129,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             m_DataFiles.add(bFile.release());
         else
             m_DataFiles.add(nullptr);
-        DynamicObject::Ptr jsonFile = jsonContinuousfiles.getReference(i).getDynamicObject();
+        DynamicObject::Ptr jsonFile = jsonContinuousfiles.getReference(i).getDynamicObject(); 
         jsonFile->setProperty("num_channels", numChannels);
         jsonFile->setProperty("channels", jsonChannels.getReference(i));
     }
@@ -170,7 +145,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     }
 
     int nEvents = getNumRecordedEvents();
-    String eventPath(basepath + "events" + File::separatorString);
+    String eventPath(nodePath + "events" + File::separatorString);
     Array<var> jsonEventFiles;
 
     for (int ev = 0; ev < nEvents; ev++)
@@ -230,7 +205,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     Array<uint16> indexedChannels;
     m_spikeFileIndexes.insertMultiple(0, 0, nSpikes);
     m_spikeChannelIndexes.insertMultiple(0, 0, nSpikes);
-    String spikePath(basepath + "spikes" + File::separatorString);
+    String spikePath(nodePath + "spikes" + File::separatorString);
     Array<var> jsonSpikeFiles;
     Array<var> jsonSpikeChannels;
     std::map<uint32, int> groupMap;
@@ -319,7 +294,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonFile->setProperty("channels", jsonSpikeChannels.getReference(i));
     }
 
-    File syncFile = File(basepath + "sync_messages.txt");
+    File syncFile = File(nodePath + "sync_messages.txt");
     Result res = syncFile.create();
     if (res.failed())
     {
@@ -337,9 +312,10 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     jsonSettingsFile->setProperty("continuous", jsonContinuousfiles);
     jsonSettingsFile->setProperty("events", jsonEventFiles);
     jsonSettingsFile->setProperty("spikes", jsonSpikeFiles);
-    FileOutputStream settingsFileStream(File(basepath + "structure.oebin"));
+    FileOutputStream settingsFileStream(File(nodePath + "structure.oebin"));
 
     jsonSettingsFile->writeAsJSON(settingsFileStream, 2, false);
+
 }
 
 NpyFile* BinaryRecording::createEventMetadataFile(const MetaDataEventObject* channel, String filename, DynamicObject* jsonFile)
@@ -369,147 +345,138 @@ NpyFile* BinaryRecording::createEventMetadataFile(const MetaDataEventObject* cha
 template <typename TO, typename FROM>
 void dataToVar(var& dataTo, const void* dataFrom, int length)
 {
-    const FROM* buffer = reinterpret_cast<const FROM*>(dataFrom);
-    for (int i = 0; i < length; i++)
-    {
-        dataTo.append(static_cast<TO>(*(buffer + i)));
-    }
+	const FROM* buffer = reinterpret_cast<const FROM*>(dataFrom);
+	for (int i = 0; i < length; i++)
+	{
+		dataTo.append(static_cast<TO>(*(buffer + i)));
+	}
+}
+
+String BinaryRecording::jsonTypeValue(BaseType type)
+{
+	switch (type)
+	{
+	case BaseType::CHAR:
+		return "string";
+	case BaseType::INT8:
+		return "int8";
+	case BaseType::UINT8:
+		return "uint8";
+	case BaseType::INT16:
+		return "int16";
+	case BaseType::UINT16:
+		return "uint16";
+	case BaseType::INT32:
+		return "int32";
+	case BaseType::UINT32:
+		return "uint32";
+	case BaseType::INT64:
+		return "int64";
+	case BaseType::UINT64:
+		return "uint64";
+	case BaseType::FLOAT:
+		return "float";
+	case BaseType::DOUBLE:
+		return "double";
+	default:
+		return String::empty;
+	}
 }
 
 void BinaryRecording::createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonFile)
 {
-    int nMetaData = channel->getMetaDataCount();
-    if (nMetaData < 1) return;
+	int nMetaData = channel->getMetaDataCount();
+	if (nMetaData < 1) return;
 
-    Array<var> jsonMetaData;
-    for (int i = 0; i < nMetaData; i++)
-    {
-        const MetaDataDescriptor* md = channel->getMetaDataDescriptor(i);
-        const MetaDataValue* mv = channel->getMetaDataValue(i);
-        DynamicObject::Ptr jsonValues = new DynamicObject();
-        MetaDataDescriptor::MetaDataTypes type = md->getType();
-        unsigned int length = md->getLength();
-        jsonValues->setProperty("name", md->getName());
-        jsonValues->setProperty("description", md->getDescription());
-        jsonValues->setProperty("identifier", md->getIdentifier());
-        jsonValues->setProperty("type", jsonTypeValue(type));
-        jsonValues->setProperty("length", (int)length);
-        var val;
-        if (type == MetaDataDescriptor::CHAR)
-        {
-            String tmp;
-            mv->getValue(tmp);
-            val = tmp;
-        }
-        else
-        {
-            const void* buf = mv->getRawValuePointer();
-            switch (type)
-            {
-            case MetaDataDescriptor::INT8:
-                dataToVar<int, int8>(val, buf, length);
-                break;
-            case MetaDataDescriptor::UINT8:
-                dataToVar<int, uint8>(val, buf, length);
-                break;
-            case MetaDataDescriptor::INT16:
-                dataToVar<int, int16>(val, buf, length);
-                break;
-            case MetaDataDescriptor::UINT16:
-                dataToVar<int, uint16>(val, buf, length);
-                break;
-            case MetaDataDescriptor::INT32:
-                dataToVar<int, int32>(val, buf, length);
-                break;
-                //A full uint32 doesn't fit in a regular int, so we increase size
-            case MetaDataDescriptor::UINT32:
-                dataToVar<int64, uint8>(val, buf, length);
-                break;
-            case MetaDataDescriptor::INT64:
-                dataToVar<int64, int64>(val, buf, length);
-                break;
-                //This might overrun and end negative if the uint64 is really big, but there is no way to store a full uint64 in a var
-            case MetaDataDescriptor::UINT64:
-                dataToVar<int64, uint64>(val, buf, length);
-                break;
-            case MetaDataDescriptor::FLOAT:
-                dataToVar<float, float>(val, buf, length);
-                break;
-            case MetaDataDescriptor::DOUBLE:
-                dataToVar<double, double>(val, buf, length);
-                break;
-            default:
-                val = "invalid";
-            }
-        }
-        jsonValues->setProperty("value", val);
-        jsonMetaData.add(var(jsonValues));
-    }
-    jsonFile->setProperty("channel_metadata", jsonMetaData);
+	Array<var> jsonMetaData;
+	for (int i = 0; i < nMetaData; i++)
+	{
+		const MetaDataDescriptor* md = channel->getMetaDataDescriptor(i);
+		const MetaDataValue* mv = channel->getMetaDataValue(i);
+		DynamicObject::Ptr jsonValues = new DynamicObject();
+		MetaDataDescriptor::MetaDataTypes type = md->getType();
+		unsigned int length = md->getLength();
+		jsonValues->setProperty("name", md->getName());
+		jsonValues->setProperty("description", md->getDescription());
+		jsonValues->setProperty("identifier", md->getIdentifier());
+		jsonValues->setProperty("type", jsonTypeValue(type));
+		jsonValues->setProperty("length", (int)length);
+		var val;
+		if (type == MetaDataDescriptor::CHAR)
+		{
+			String tmp;
+			mv->getValue(tmp);
+			val = tmp;
+		}
+		else
+		{
+			const void* buf = mv->getRawValuePointer();
+			switch (type)
+			{
+			case MetaDataDescriptor::INT8:
+				dataToVar<int, int8>(val, buf, length);
+				break;
+			case MetaDataDescriptor::UINT8:
+				dataToVar<int, uint8>(val, buf, length);
+				break;
+			case MetaDataDescriptor::INT16:
+				dataToVar<int, int16>(val, buf, length);
+				break;
+			case MetaDataDescriptor::UINT16:
+				dataToVar<int, uint16>(val, buf, length);
+				break;
+			case MetaDataDescriptor::INT32:
+				dataToVar<int, int32>(val, buf, length);
+				break;
+				//A full uint32 doesn't fit in a regular int, so we increase size
+			case MetaDataDescriptor::UINT32:
+				dataToVar<int64, uint8>(val, buf, length);
+				break;
+			case MetaDataDescriptor::INT64:
+				dataToVar<int64, int64>(val, buf, length);
+				break;
+				//This might overrun and end negative if the uint64 is really big, but there is no way to store a full uint64 in a var
+			case MetaDataDescriptor::UINT64:
+				dataToVar<int64, uint64>(val, buf, length);
+				break;
+			case MetaDataDescriptor::FLOAT:
+				dataToVar<float, float>(val, buf, length);
+				break;
+			case MetaDataDescriptor::DOUBLE:
+				dataToVar<double, double>(val, buf, length);
+				break;
+			default:
+				val = "invalid";
+			}
+		}
+		jsonValues->setProperty("value", val);
+		jsonMetaData.add(var(jsonValues));
+	}
+	jsonFile->setProperty("channel_metadata", jsonMetaData);
 }
 
 void BinaryRecording::closeFiles()
 {
-    resetChannels();
+	resetChannels();
 }
 
 void BinaryRecording::resetChannels()
 {
-    m_DataFiles.clear();
-    m_channelIndexes.clear();
-    m_fileIndexes.clear();
-    m_dataTimestampFiles.clear();
-    m_eventFiles.clear();
-    m_spikeChannelIndexes.clear();
-    m_spikeFileIndexes.clear();
-    m_spikeFiles.clear();
-    m_syncTextFile = nullptr;
+	m_DataFiles.clear();
+	m_channelIndexes.clear();
+	m_fileIndexes.clear();
+	m_dataTimestampFiles.clear();
+	m_eventFiles.clear();
+	m_spikeChannelIndexes.clear();
+	m_spikeFileIndexes.clear();
+	m_spikeFiles.clear();
+	m_syncTextFile = nullptr;
 
-    m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
-    m_intBuffer.malloc(MAX_BUFFER_SIZE);
-    m_tsBuffer.malloc(MAX_BUFFER_SIZE);
-    m_bufferSize = MAX_BUFFER_SIZE;
-    m_startTS.clear();
-}
-
-void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer,
-                                int size)
-{
-    if (size > m_bufferSize)
-    // shouldn't happen, and if it does it'll be slow, but better this than crashing
-    {
-        std::cerr << "Write buffer overrun, resizing to" << size << std::endl;
-        m_bufferSize = size;
-        m_scaledBuffer.malloc(size);
-        m_intBuffer.malloc(size);
-        m_tsBuffer.malloc(size);
-    }
-    double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
-    FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor,
-                                            size);
-    AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(),
-                                               size);
-    int fileIndex = m_fileIndexes[writeChannel];
-    m_DataFiles[fileIndex]->writeChannel(getTimestamp(writeChannel) - m_startTS[writeChannel],
-                                         m_channelIndexes[writeChannel],
-                                         m_intBuffer.getData(), size);
-
-    if (m_channelIndexes[writeChannel] == 0)
-    {
-        int64 baseTS = getTimestamp(writeChannel);
-        //Let's hope that the compiler is smart enough to vectorize this.
-        for (int i = 0; i < size; i++)
-        {
-            m_tsBuffer[i] = (baseTS + i);
-        }
-        m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
-        m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
-    }
-}
-
-
-void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
-{
+	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
+	m_intBuffer.malloc(MAX_BUFFER_SIZE);
+	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
+	m_bufferSize = MAX_BUFFER_SIZE;
+	m_startTS.clear();
 }
 
 void BinaryRecording::writeEventMetaData(const MetaDataEvent* event, NpyFile* file)
@@ -523,78 +490,6 @@ void BinaryRecording::writeEventMetaData(const MetaDataEvent* event, NpyFile* fi
     }
 }
 
-void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
-{
-    EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
-    EventRecording* rec = m_eventFiles[eventIndex];
-    if (!rec) return;
-    const EventChannel* info = getEventChannel(eventIndex);
-    int64 ts = ev->getTimestamp();
-    rec->timestampFile->writeData(&ts, sizeof(int64));
-
-    uint16 chan = ev->getChannel() +1;
-    rec->channelFile->writeData(&chan, sizeof(uint16));
-
-    if (ev->getEventType() == EventChannel::TTL)
-    {
-        TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
-        int16 data = (ttl->getChannel()+1) * (ttl->getState() ? 1 : -1);
-        rec->mainFile->writeData(&data, sizeof(int16));
-        if (rec->extraFile)
-            rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
-    }
-    else
-    {
-        rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
-    }
-
-    writeEventMetaData(ev.get(), rec->metaDataFile);
-    increaseEventCounts(rec);
-}
-
-void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx,
-                                             int64 timestamp, float, String text)
-{
-    if (!m_syncTextFile)
-        return;
-    m_syncTextFile->writeText(text + "\n", false, false);
-}
-
-
-
-void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
-{
-    const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
-    EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
-    uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
-
-    int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-
-
-    if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
-    {
-        std::cerr << "(spike) Write buffer overrun, resizing to" << totalSamples << std::endl;
-        m_bufferSize = totalSamples;
-        m_scaledBuffer.malloc(totalSamples);
-        m_intBuffer.malloc(totalSamples);
-    }
-    double multFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(0));
-    FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
-    AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), totalSamples);
-    rec->mainFile->writeData(m_intBuffer.getData(), totalSamples*sizeof(int16));
-
-    int64 ts = spike->getTimestamp();
-    rec->timestampFile->writeData(&ts, sizeof(int64));
-
-    rec->channelFile->writeData(&spikeChannel, sizeof(uint16));
-
-    uint16 sortedID = spike->getSortedID();
-    rec->extraFile->writeData(&sortedID, sizeof(uint16));
-    writeEventMetaData(spike, rec->metaDataFile);
-
-    increaseEventCounts(rec);
-}
-
 void BinaryRecording::increaseEventCounts(EventRecording* rec)
 {
     rec->mainFile->increaseRecordCount();
@@ -604,48 +499,123 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->metaDataFile) rec->metaDataFile->increaseRecordCount();
 }
 
-RecordEngineManager* BinaryRecording::getEngineManager()
+void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
-    RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary",
-                                                       &(engineFactory<BinaryRecording>));
-    EngineParameter* param;
-    param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
-    man->addParameter(param);
-    return man;
+
+    if (!size)
+        return;
+
+	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
+	{
+		std::cerr << "[RN] Write buffer overrun, resizing from: " << m_bufferSize << " to: " << size << std::endl;
+		m_scaledBuffer.malloc(size);
+		m_intBuffer.malloc(size);
+		m_tsBuffer.malloc(size);
+		m_bufferSize = size;
+	}
+
+	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
+	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
+
+	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+
+	int fileIndex = m_fileIndexes[writeChannel];
+
+    std::cout << "(" << getTimestamp(writeChannel) << "," << m_startTS[writeChannel] << "," << m_channelIndexes[writeChannel] << ")"; fflush(stdout);
+	m_DataFiles[fileIndex]->writeChannel(
+		getTimestamp(writeChannel) - m_startTS[writeChannel],
+		m_channelIndexes[writeChannel],
+		m_intBuffer.getData(), size);
+
+	if (m_channelIndexes[writeChannel] == 0)
+	{
+		int64 baseTS = getTimestamp(writeChannel);
+		for (int i = 0; i < size; i++)
+			m_tsBuffer[i] = baseTS + i;
+		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
+		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
+	}
+
+}
+
+void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
+{
+
+	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
+	EventRecording* rec = m_eventFiles[eventIndex];
+	if (!rec) return;
+	const EventChannel* info = getEventChannel(eventIndex);
+	int64 ts = ev->getTimestamp();
+	rec->timestampFile->writeData(&ts, sizeof(int64));
+
+	uint16 chan = ev->getChannel() + 1;
+	rec->channelFile->writeData(&chan, sizeof(uint16));
+
+	if (ev->getEventType() == EventChannel::TTL)
+	{
+		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
+		int16 data = (ttl->getChannel() + 1) * (ttl->getState() ? 1 : -1);
+		rec->mainFile->writeData(&data, sizeof(int16));
+		if (rec->extraFile)
+			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+	}
+	else
+	{
+		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
+	}
+
+	writeEventMetaData(ev.get(), rec->metaDataFile);
+	increaseEventCounts(rec);
+	
+}
+
+void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
+{
+}
+
+void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
+{
+	/*
+	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
+	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
+	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
+
+	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
+
+
+	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
+	{
+		std::cerr << "(spike) Write buffer overrun, resizing to" << totalSamples << std::endl;
+		m_bufferSize = totalSamples;
+		m_scaledBuffer.malloc(totalSamples);
+		m_intBuffer.malloc(totalSamples);
+	}
+	double multFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(0));
+	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
+	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), totalSamples);
+	rec->mainFile->writeData(m_intBuffer.getData(), totalSamples*sizeof(int16));
+
+	int64 ts = spike->getTimestamp();
+	rec->timestampFile->writeData(&ts, sizeof(int64));
+
+	rec->channelFile->writeData(&spikeChannel, sizeof(uint16));
+
+	uint16 sortedID = spike->getSortedID();
+	rec->extraFile->writeData(&sortedID, sizeof(uint16));
+	writeEventMetaData(spike, rec->metaDataFile);
+
+	increaseEventCounts(rec);
+	*/
+}
+
+void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
+{
+	if (!m_syncTextFile)
+		return;
+	m_syncTextFile->writeText(text + "\n", false, false);
 }
 
 void BinaryRecording::setParameter(EngineParameter& parameter)
 {
-    boolParameter(0, m_saveTTLWords);
-}
-
-String BinaryRecording::jsonTypeValue(BaseType type)
-{
-    switch (type)
-    {
-    case BaseType::CHAR:
-        return "string";
-    case BaseType::INT8:
-        return "int8";
-    case BaseType::UINT8:
-        return "uint8";
-    case BaseType::INT16:
-        return "int16";
-    case BaseType::UINT16:
-        return "uint16";
-    case BaseType::INT32:
-        return "int32";
-    case BaseType::UINT32:
-        return "uint32";
-    case BaseType::INT64:
-        return "int64";
-    case BaseType::UINT64:
-        return "uint64";
-    case BaseType::FLOAT:
-        return "float";
-    case BaseType::DOUBLE:
-        return "double";
-    default:
-        return String::empty;
-    }
+	boolParameter(0, m_saveTTLWords);
 }

@@ -31,8 +31,6 @@ https://github.com/numpy/numpy/blob/master/numpy/lib/format.py
 
 #include "NpyFile.h"
 
-using namespace BinaryRecordingEngine;
-
 NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 {
     m_dim1 = 1;
@@ -69,13 +67,20 @@ bool NpyFile::openFile(String path)
 {
     File file(path);
     Result res = file.create();
+    std::cout << "***Creating file: " << path << std::endl;
     if (res.failed())
     {
-        std::cerr << "Error creating file " << path << ":" << res.getErrorMessage()
-                  << std::endl;
-        return false;
+        std::cerr << "Error creating file " << path << ":" << res.getErrorMessage() << std::endl;
+        file.deleteFile();
+        Result res = file.create();
+        std::cout << "Re-creating file: " << path << std::endl;
     }
-    file.deleteFile(); // overwrite, never append a new .npy file to end of an existing one
+    else
+    {
+        std::cout << "Successfully created file: " << path << std::endl;
+    }
+    
+    //file.deleteFile(); // overwrite, never append a new .npy file to end of an existing one
     // output stream buffer size defaults to 32768 bytes, but is irrelevant because
     // each updateHeader() call triggers a m_file->flush() to disk:
     m_file = file.createOutputStream();

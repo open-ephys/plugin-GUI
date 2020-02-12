@@ -65,11 +65,11 @@ private :
 	
 };
 
-class RecordButton : public Button
+class RecordToggleButton : public Button
 {
 public: 
-	RecordButton(const String& name);
-	~RecordButton();
+	RecordToggleButton(const String& name);
+	~RecordToggleButton();
 private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
@@ -97,16 +97,16 @@ private:
 	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 	OwnedArray<Label> subProcLabels;
 	OwnedArray<FifoMonitor> subProcMonitors;
-	OwnedArray<RecordButton> subProcRecords;
+	OwnedArray<RecordToggleButton> subProcRecords;
 	ScopedPointer<Label> masterLabel;
 	ScopedPointer<FifoMonitor> masterMonitor;
-	ScopedPointer<RecordButton> masterRecord;
+	ScopedPointer<RecordToggleButton> masterRecord;
 	ScopedPointer<Label> engineSelectLabel;
 	ScopedPointer<ComboBox> engineSelectCombo;
 	ScopedPointer<Label> recordEventsLabel;
-	ScopedPointer<RecordButton> eventRecord;
+	ScopedPointer<RecordToggleButton> eventRecord;
 	ScopedPointer<Label> recordSpikesLabel;
-	ScopedPointer<RecordButton> spikeRecord;
+	ScopedPointer<RecordToggleButton> spikeRecord;
 
 	bool subprocessorsVisible;
 

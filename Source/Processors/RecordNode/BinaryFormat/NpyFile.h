@@ -26,52 +26,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../RecordEngine.h"
 
-namespace BinaryRecordingEngine
+
+class NpyType
 {
+public:
+    NpyType(String, BaseType, size_t);
+    NpyType(BaseType, size_t);
+    NpyType();
+    String getName() const;
+    String getTypeString() const;
+    int getTypeLength() const;
+    BaseType getType() const;
+private:
+    String name;
+    BaseType type;
+    size_t length;
+};
 
-    class NpyType
-    {
-    public:
-        NpyType(String, BaseType, size_t);
-        NpyType(BaseType, size_t);
-        NpyType();
-        String getName() const;
-        String getTypeString() const;
-        int getTypeLength() const;
-        BaseType getType() const;
-    private:
-        String name;
-        BaseType type;
-        size_t length;
-    };
+class NpyFile
+{
+public:
+    NpyFile(String path, const Array<NpyType>& typeList);
+    NpyFile(String path, NpyType type, unsigned int dim = 1);
+    ~NpyFile();
+    void writeData(const void* data, size_t size);
+    void increaseRecordCount(int count = 1);
+private:
+    bool openFile(String path);
+    String getShapeString();
+    void writeHeader(const Array<NpyType>& typeList);
+    void updateHeader();
+    ScopedPointer<FileOutputStream> m_file;
+    int64 m_headerLen; // total header length
+    bool m_okOpen{ false };
+    int64 m_recordCount{ 0 };
+    size_t m_shapePos;
+    unsigned int m_dim1;
+    unsigned int m_dim2;
 
-    class NpyFile
-    {
-    public:
-        NpyFile(String path, const Array<NpyType>& typeList);
-        NpyFile(String path, NpyType type, unsigned int dim = 1);
-        ~NpyFile();
-        void writeData(const void* data, size_t size);
-        void increaseRecordCount(int count = 1);
-    private:
-        bool openFile(String path);
-        String getShapeString();
-        void writeHeader(const Array<NpyType>& typeList);
-        void updateHeader();
-        ScopedPointer<FileOutputStream> m_file;
-        int64 m_headerLen; // total header length
-        bool m_okOpen{ false };
-        int64 m_recordCount{ 0 };
-        size_t m_shapePos;
-        unsigned int m_dim1;
-        unsigned int m_dim2;
+    // Compile-time constants
 
-        // Compile-time constants
-
-        // flush file buffer to disk and update the .npy header every this many records:
-        const int recordBufferSize{ 1024 };
-
-    };
+    // flush file buffer to disk and update the .npy header every this many records:
+    const int recordBufferSize{ 1024 };
 
 };
+
 #endif

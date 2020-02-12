@@ -1,4 +1,5 @@
-#include <EditorHeaders.h>
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Editors/GenericEditor.h"
 
 class RecordChannelSelector;
 
@@ -74,7 +75,7 @@ private:
 	String rangeString;
 	Array<int> channelStates;
 	bool mouseDragged;
-	Rectangle<int> dragBox;
+	juce::Rectangle<int> dragBox;
 	Array<int> selectedButtons;
 	bool shiftKeyDown;
     
