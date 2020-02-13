@@ -1,5 +1,5 @@
 #include "RecordNode.h"
-#include "BinaryFormat\BinaryRecording.h"
+#include "BinaryFormat/BinaryRecording.h"
 
 using namespace std::chrono;
 
