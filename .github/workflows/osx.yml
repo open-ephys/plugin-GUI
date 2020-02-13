@@ -19,6 +19,46 @@ jobs:
     - name: build
       run: |
         cd Build 
-        xcodebuild -project open-ephys-GUI.xcodeproj -scheme=ALL_BUILD 
+        xcodebuild -project open-ephys-GUI.xcodeproj -scheme=ALL_BUILD -configuration Release 
 #    - name: test
 #      run: cd build && ctest
+    - name: deploy_test
+      if: github.ref == 'refs/heads/testing'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        git clone --branch mac https://github.com/open-ephys-gui-binaries/open-ephys.git
+        cp -r open-ephys/open-ephys.app/Contents/PlugIns/KWIKFormat.bundle Build/Release/open-ephys.app/Contents/PlugIns
+        cp -r open-ephys/open-ephys.app/Contents/PlugIns/NWBFormat.bundle Build/Release/open-ephys.app/Contents/PlugIns
+        cp -r open-ephys/open-ephys.app/Contents/shared Build/Release/open-ephys.app/Contents/
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        zipfile=open-ephys-${gui_ver}-mac-beta.zip
+        cd Build/Release
+        mkdir open-ephys
+        mv open-ephys.app/ open-ephys
+        cp -r ../../open-ephys/DataFiles open-ephys/
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/publish
+    - name: deploy_release
+      if: github.ref == 'refs/heads/master'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        git clone --branch mac https://github.com/open-ephys-gui-binaries/open-ephys.git
+        cp -r open-ephys/open-ephys.app/Contents/PlugIns/KWIKFormat.bundle Build/Release/open-ephys.app/Contents/PlugIns
+        cp -r open-ephys/open-ephys.app/Contents/PlugIns/NWBFormat.bundle Build/Release/open-ephys.app/Contents/PlugIns
+        cp -r open-ephys/open-ephys.app/Contents/shared Build/Release/open-ephys.app/Contents/
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        zipfile=open-ephys-${gui_ver}-mac-beta.zip
+        cd Build/Release
+        mkdir open-ephys
+        mv open-ephys.app/ open-ephys
+        cp -r ../../open-ephys/DataFiles open-ephys/
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/publish

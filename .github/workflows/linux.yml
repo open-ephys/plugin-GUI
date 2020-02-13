@@ -16,6 +16,50 @@ jobs:
         sudo apt update
         sudo ./install_linux_dependencies.sh
     - name: build
-      run: cmake --build Build
+      run: |
+        cd Build
+        make
 #    - name: test
 #      run: cd build && ctest
+    - name: deploy_test
+      if: github.ref == 'refs/heads/testing'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        git clone --branch linux https://github.com/open-ephys-gui-binaries/open-ephys.git
+        ls Build
+        ls Build/Release
+        cp -r open-ephys/shared Build/Release
+        cp -r open-ephys/plugins/KWIKFormat.so Build/Release/plugins
+        cp -r open-ephys/plugins/NWBFormat.so Build/Release/plugins
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        cd Build
+        cp -r Release open-ephys
+        zipfile=open-ephys-${gui_ver}-linux-beta.zip
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/publish
+      shell: bash
+    - name: deploy_release
+      if: github.ref == 'refs/heads/master'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        git clone --branch linux https://github.com/open-ephys-gui-binaries/open-ephys.git
+        ls Build
+        ls Build/Release
+        cp -r open-ephys/shared Build/Release
+        cp -r open-ephys/plugins/KWIKFormat.so Build/Release/plugins
+        cp -r open-ephys/plugins/NWBFormat.so Build/Release/plugins
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        cd Build
+        cp -r Release open-ephys
+        zipfile=open-ephys-${gui_ver}-linux-beta.zip
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/publish
+      shell: bash
