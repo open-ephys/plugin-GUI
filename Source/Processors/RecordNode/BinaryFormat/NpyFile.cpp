@@ -67,17 +67,12 @@ bool NpyFile::openFile(String path)
 {
     File file(path);
     Result res = file.create();
-    std::cout << "***Creating file: " << path << std::endl;
     if (res.failed())
     {
         std::cerr << "Error creating file " << path << ":" << res.getErrorMessage() << std::endl;
         file.deleteFile();
         Result res = file.create();
         std::cout << "Re-creating file: " << path << std::endl;
-    }
-    else
-    {
-        std::cout << "Successfully created file: " << path << std::endl;
     }
     
     //file.deleteFile(); // overwrite, never append a new .npy file to end of an existing one

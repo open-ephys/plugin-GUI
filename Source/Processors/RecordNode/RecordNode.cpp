@@ -217,15 +217,13 @@ void RecordNode::startRecording()
 
 	channelMap.clear();
 	int totChans = dataChannelArray.size();
-	LOGD(__FUNCTION__, " totChans: ", totChans);
+	OwnedArray<RecordProcessorInfo> procInfo;
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
 	int lastProcessor = -1;
 	int lastSubProcessor = -1;
 	int procIndex = -1;
 	int chanProcOrder = 0;
-	RecordProcessorInfo* procInfo = new RecordProcessorInfo();
-	procInfo->processorName = getName().replaceCharacter(' ', '_') + "-" + String(getNodeId());
 
 	for (int ch = 0; ch < totChans; ++ch)
 	{
@@ -239,20 +237,21 @@ void RecordNode::startRecording()
 				lastSubProcessor = chan->getSubProcessorIdx();
 				startRecChannels.push_back(ch);
 			}
-			//This is bassed on the assumption that all channels from the same processor are added contiguously
-			//If this behaviour changes, this check should be most thorough
+
 			if (chan->getCurrentNodeID() != lastProcessor)
 			{
 				lastProcessor = chan->getCurrentNodeID();
-				procInfo->processorId = chan->getCurrentNodeID();
+				RecordProcessorInfo* pi = new RecordProcessorInfo();
+				pi->processorId = chan->getCurrentNodeID();
+				procInfo.add(pi);
 				procIndex++;
 				chanProcOrder = 0;
 			}
-			procInfo->recordedChannels.add(channelMap.size() - 1);
+			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 			chanProcessorMap.add(procIndex);
-
 			chanOrderinProc.add(chanProcOrder);
 			chanProcOrder++;
+			chanProcessorMap.add(procIndex);
 		}
 	}
 

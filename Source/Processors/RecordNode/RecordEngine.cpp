@@ -86,12 +86,12 @@ void RecordEngine::updateTimestamps(const Array<int64>& ts, int channel)
 		timestamps.set(channel, ts[channel]);
 }
 
-void RecordEngine::setChannelMapping(const Array<int>& chans, const Array<int>& chanProc, const Array<int>& chanOrder, RecordProcessorInfo* info)
+void RecordEngine::setChannelMapping(const Array<int>& chans, const Array<int>& chanProc, const Array<int>& chanOrder, OwnedArray<RecordProcessorInfo>& processors)
 {
 	channelMap = chans;
 	chanProcessorMap = chanProc;
 	chanOrderMap = chanOrder;
-	procInfo = info;
+	recordProcessors.swapWith(processors);
 }
 
 int64 RecordEngine::getTimestamp(int channel) const
@@ -109,6 +109,11 @@ int RecordEngine::getNumRecordedChannels() const
 	return channelMap.size();
 }
 
+int RecordEngine::getNumRecordedProcessors() const
+{
+	return recordProcessors.size();
+}
+
 int RecordEngine::getNumRecordedEvents() const
 {
 	return recordNode->getTotalEventChannels();
@@ -122,9 +127,9 @@ int RecordEngine::getNumRecordedSpikes() const
 void RecordEngine::registerSpikeSource(const GenericProcessor* processor) {}
 
 
-const RecordProcessorInfo* RecordEngine::getProcessorInfo() const
+const RecordProcessorInfo& RecordEngine::getProcessorInfo(int processor) const
 {
-	return procInfo;
+	return *recordProcessors[processor];
 }
 
 int RecordEngine::getProcessorFromChannel(int channel) const

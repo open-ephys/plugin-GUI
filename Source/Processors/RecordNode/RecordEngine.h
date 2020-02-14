@@ -138,7 +138,7 @@ public:
 	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
 
 	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
-	void setChannelMapping(const Array<int>& channels, const Array<int>& chanProcessor, const Array<int>& chanOrder, RecordProcessorInfo* info);
+	void setChannelMapping (const Array<int>& channels, const Array<int>& chanProcessor, const Array<int>& chanOrder, OwnedArray<RecordProcessorInfo>& processors);
 
 	void registerRecordNode(RecordNode* node);
 	/** Called after all channels and spike groups have been registered, just before acquisition starts */
@@ -189,11 +189,11 @@ protected:
 
 	/** Gets the number of processors being recorded
 	*/
-	//int getNumRecordedProcessors() const;
+	int getNumRecordedProcessors() const;
 
 	/** Gets the processor info structure for a recorded processor
 	*/
-	const RecordProcessorInfo* getProcessorInfo() const;
+	const RecordProcessorInfo& getProcessorInfo (int processor) const;
 
 	/** Gets the recorded processor index for a recorded channel index
 	*/
@@ -216,7 +216,7 @@ private:
 	Array<int> chanOrderMap;
 
 	RecordEngineManager* manager;
-	RecordProcessorInfo* procInfo;
+	OwnedArray<RecordProcessorInfo> recordProcessors;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
 };

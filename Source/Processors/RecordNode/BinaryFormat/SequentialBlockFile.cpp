@@ -55,7 +55,6 @@ bool SequentialBlockFile::openFile(String filename)
 {
 	File file(filename);
 	Result res = file.create();
-	std::cout << "***Creating file: " << filename << std::endl;
 	if (res.failed())
 	{
 		std::cerr << "Error creating file " << filename << ":" << res.getErrorMessage() << std::endl;
