@@ -5,6 +5,7 @@
 #include <chrono>
 #include <math.h>
 #include <algorithm>
+#include <map>
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
@@ -56,7 +57,7 @@ public:
 	int getExperimentNumber() const;
 	int getRecordingNumber() const;
 
-	void updateChannelStates(int subProcIdx, std::vector<bool> enabled);
+	void updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> enabled);
 
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 
@@ -74,12 +75,16 @@ public:
 	int64 samplesWritten;
 	String lastSettingsText;
 
+	int numSubprocessors;
+
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 
+	std::map<int, std::map<int, std::vector<bool>>> m;
+	std::map<int, int> n;
+
 	Array<int> channelMap; //Map from record channel index to source channel index
 	std::vector<std::vector<int>> subProcessorMap;
-	std::vector<std::vector<bool>> channelStates;
 	std::vector<int> startRecChannels;
 
     //TODO: Need to validate these new methods

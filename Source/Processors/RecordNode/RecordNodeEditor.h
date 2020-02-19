@@ -41,7 +41,7 @@ private:
 class FifoMonitor : public Component, public Timer, public ComponentListener
 {
 public:
-	FifoMonitor(RecordNode*, int);
+	FifoMonitor(RecordNode*, int, int);
 
 	void setFillPercentage(float percentage);
 
@@ -60,7 +60,8 @@ private :
 
 	float fillPercentage;
 	RecordNode *recordNode;
-	int id;
+	int srcID;
+	int subID;
 	Random random;
 	
 };
@@ -68,8 +69,11 @@ private :
 class RecordToggleButton : public Button
 {
 public: 
-	RecordToggleButton(const String& name);
+	RecordToggleButton(const String& name, int srcIndex, int subProcIdx);
 	~RecordToggleButton();
+
+	int srcIndex;
+	int subProcIdx;
 private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };

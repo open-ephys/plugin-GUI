@@ -44,11 +44,11 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
 	addAndMakeVisible(masterLabel);
 
-	masterMonitor = new FifoMonitor(recordNode, -1);
+	masterMonitor = new FifoMonitor(recordNode, -1, -1);
 	masterMonitor->setBounds(18, 43, 15, 62);
 	addAndMakeVisible(masterMonitor);
 
-	masterRecord = new RecordToggleButton("MasterRecord");
+	masterRecord = new RecordToggleButton("MasterRecord",-1,-1);
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
 	addAndMakeVisible(masterRecord);
@@ -72,7 +72,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordToggleButton("EventRecord");
+	eventRecord = new RecordToggleButton("EventRecord",-1,-1);
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
 	addAndMakeVisible(eventRecord);
@@ -82,7 +82,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordToggleButton("SpikeRecord");
+	spikeRecord = new RecordToggleButton("SpikeRecord",-1,-1);
 	spikeRecord->setBounds(120, 90, 15, 15);
 	spikeRecord->addListener(this);
 	addAndMakeVisible(spikeRecord);
@@ -110,26 +110,40 @@ void RecordNodeEditor::updateSubprocessorFifos()
 		subProcMonitors.clear();
 		subProcRecords.clear();
 
-		for (int i = 0; i < recordNode->getNumSubProcessors(); i++)
-		{
+		std::map<int, std::map<int, std::vector<bool>>>::iterator it;
+		std::map<int, std::vector<bool>>::iterator ptr;
 
-			subProcLabels.add(new Label("SP"+String(i), "SP"+String(i)));
-			subProcLabels.getLast()->setBounds(13 + i *20, 24, 40, 20);
-			subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-			addAndMakeVisible(subProcLabels.getLast());
-			subProcLabels.getLast()->setVisible(false);
+		int i = 0;
+		for (it = recordNode->m.begin(); it != recordNode->m.end(); it++) {
 
-			subProcMonitors.add(new FifoMonitor(recordNode, i));
-			subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
-			addAndMakeVisible(subProcMonitors.getLast());
-			subProcMonitors.getLast()->setVisible(false);
-			
-			subProcRecords.add(new RecordToggleButton("RecSP" + String(i)));
-			subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
-			subProcRecords.getLast()->addListener(this);
-			addAndMakeVisible(subProcRecords.getLast());
-			subProcRecords.getLast()->setVisible(false);
+			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
+
+				LOGD("First key is ", it->first, " And second key is ", ptr->first, " And value is ", ptr->second.size());
+
+				String name = "(" + String(it->first) + "," + String(ptr->first) + ")";
+				subProcLabels.add(new Label(name, name));
+				subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
+				subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
+				addAndMakeVisible(subProcLabels.getLast());
+				subProcLabels.getLast()->setVisible(false);
+
+				subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
+				subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
+				addAndMakeVisible(subProcMonitors.getLast());
+				subProcMonitors.getLast()->setVisible(false);
+
+				subProcRecords.add(new RecordToggleButton("RecSP" + String(i), it->first, ptr->first));
+				subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
+				subProcRecords.getLast()->addListener(this);
+				addAndMakeVisible(subProcRecords.getLast());
+				subProcRecords.getLast()->setVisible(false);
+
+				i++;
+
+			}
 		}
+
+
 	} 
 }
 
@@ -161,9 +175,11 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		FifoMonitor* fifo = subProcMonitors[subProcIdx];
 		bool enabled = button->getToggleState();
 		fifo->channelStates.clear();
-		for (int i = 0; i < recordNode->channelStates[subProcIdx].size(); i++)
+		int srcIndex = ((RecordToggleButton*)button)->srcIndex;
+		int subIndex = ((RecordToggleButton*)button)->subProcIdx;
+		for (int i = 0; i < recordNode->m[srcIndex][subIndex].size(); i++)
 			fifo->channelStates.push_back(enabled);
-		recordNode->updateChannelStates(subProcIdx, fifo->channelStates);
+		recordNode->updateChannelStates(((RecordToggleButton*)button)->srcIndex, ((RecordToggleButton*)button)->subProcIdx, fifo->channelStates);
 	}
 	
 }
@@ -273,8 +289,10 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordToggleButton::RecordToggleButton(const String& name) : Button(name) {
+RecordToggleButton::RecordToggleButton(const String& name, int srcID, int subProcID) : Button(name) {
 	setClickingTogglesState(true);
+	srcIndex = srcID;
+	subProcIdx = subProcID;
 }
 
 RecordToggleButton::~RecordToggleButton() {}
@@ -305,7 +323,7 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, int id) : recordNode(node), id(id), fillPercentage(0.0)
+FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(node), srcID(srcID), subID(subID), fillPercentage(0.0)
 {
 
 	startTimer(500);
@@ -314,16 +332,15 @@ FifoMonitor::FifoMonitor(RecordNode* node, int id) : recordNode(node), id(id), f
 void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 {
 
-	if (id < 0) //TODO: Master box was selected; show read-only channel selector
+	if (srcID < 0) //TODO: Master box was selected; show read-only channel selector
 		return;
 
-	channelStates = recordNode->channelStates[id];
+	channelStates = recordNode->m[srcID][subID];
 	
     auto* channelSelector = new RecordChannelSelector(channelStates);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
-
 
 	myBox.addComponentListener(this);
 
@@ -338,7 +355,7 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 	for (auto* btn : channelSelector->channelButtons)
 		channelStates.push_back(btn->getToggleState());
 
-	recordNode->updateChannelStates(id, channelStates);
+	recordNode->updateChannelStates(srcID, subID, channelStates);
 
 	component.removeComponentListener(this);
 }

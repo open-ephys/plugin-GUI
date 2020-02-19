@@ -69,6 +69,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             int nInfoArrays = indexedDataChannels.size();
             bool found = false;
             DynamicObject::Ptr jsonChan = new DynamicObject();
+
+
             jsonChan->setProperty("channel_name", channelInfo->getName());
             jsonChan->setProperty("description", channelInfo->getDescription());
             jsonChan->setProperty("identifier", channelInfo->getIdentifier());

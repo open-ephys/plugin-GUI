@@ -166,48 +166,72 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 }
 
-void RecordNode::updateChannelStates(int subProcIdx, std::vector<bool> channelStates)
+void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
-	this->channelStates[subProcIdx] = channelStates;
+	this->m[srcIndex][subProcIdx] = channelStates;
 }
 
 void RecordNode::updateSubprocessorMap()
 {
-	
-	subProcessorMap.clear();
-	int subProcIdx = 0;
-	std::vector<int> subProcChannels;
+
+	std::vector<int> procIds;
 
 	for (int ch = 0; ch < dataChannelArray.size(); ch++)
 	{
-		DataChannel *chan = dataChannelArray[ch];
-		if (chan->getSubProcessorIdx() > subProcIdx)
+
+		DataChannel* chan = dataChannelArray[ch];
+		int sourceID = chan->getSourceNodeID();
+		int subProcID = chan->getSubProcessorIdx();
+
+		if (!std::count(procIds.begin(), procIds.end(), sourceID))
+			procIds.push_back(sourceID);
+
+		if (!m[sourceID][subProcID].size())
 		{
-			subProcIdx = chan->getSubProcessorIdx();
-			subProcessorMap.push_back(subProcChannels);
-			subProcChannels = {ch};
+			int orderInSubprocessor = 0;
+			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
+			{
+				m[sourceID][subProcID].push_back(false);
+				n[ch] = orderInSubprocessor++;
+				ch++;
+			}
+			ch--;
 		}
-		else
-		{
-			subProcChannels.push_back(ch);
+
+	}
+
+	std::map<int, std::map<int, std::vector<bool>>>::iterator it;
+	std::map<int, std::vector<bool>>::iterator ptr;
+
+	numSubprocessors = 0;
+	for (it = m.begin(); it != m.end(); it++) {
+
+		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
+			LOGD("Source ", it->first, " subprocessor ", ptr->first, " has ", ptr->second.size(), "channels.");
+			if (!std::count(procIds.begin(), procIds.end(), it->first))
+				m.erase(it->first);
+			else
+				numSubprocessors++;
 		}
 	}
-	subProcessorMap.push_back(subProcChannels);
+
+	LOGD("Generated channel map:");
+	std::map<int, int>::iterator itr;
+	for (itr = n.begin(); itr != n.end(); itr++) {
+
+		LOGD("(",itr->first, ",", itr->second,")");
+	}
 
 }
 
 int RecordNode::getNumSubProcessors() const
 {
-	return subProcessorMap.size();
+	return numSubprocessors;
 }
 
 void RecordNode::updateSettings()
 {
 	updateSubprocessorMap();
-
-	while (channelStates.size() < subProcessorMap.size())
-		channelStates.push_back(std::vector<bool>(subProcessorMap[0].size(), false));
-
 }
 
 void RecordNode::startRecording()
@@ -225,14 +249,18 @@ void RecordNode::startRecording()
 	int procIndex = -1;
 	int chanProcOrder = 0;
 
+	int chanSubIdx = 0;
+
 	for (int ch = 0; ch < totChans; ++ch)
 	{
 		DataChannel* chan = dataChannelArray[ch];
+		int srcIndex = chan->getSourceNodeID();
+		int subIndex = chan->getSubProcessorIdx();
 
-		if (channelStates[chan->getSubProcessorIdx()][ch % channelStates[0].size()])
+		if (m[srcIndex][subIndex][n[ch]])
 		{
 			channelMap.add(ch);
-			if (chan->getSubProcessorIdx() > lastSubProcessor)
+			if (chan->getSubProcessorIdx() != lastSubProcessor || chan->getSourceNodeID() != lastProcessor)
 			{
 				lastSubProcessor = chan->getSubProcessorIdx();
 				startRecChannels.push_back(ch);
@@ -251,8 +279,12 @@ void RecordNode::startRecording()
 			chanProcessorMap.add(procIndex);
 			chanOrderinProc.add(chanProcOrder);
 			chanProcOrder++;
-			chanProcessorMap.add(procIndex);
 		}
+	}
+
+	for (int i = 0; i < channelMap.size(); i++)
+	{
+		LOGD("channelMap: ", channelMap[i], " chanProcMap: ", chanProcessorMap[i], " chanOrderInProc: ", chanOrderinProc[i]);
 	}
 
 	int numRecordedChannels = channelMap.size();
