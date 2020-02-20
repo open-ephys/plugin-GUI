@@ -1305,9 +1305,11 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
     xml->addChildElement(audioSettings);
 
+    /*
 	XmlElement* recordSettings = new XmlElement("RECORDING");
 	recordSettings->setAttribute("isRecordThreadEnabled", AccessClass::getProcessorGraph()->getRecordNode()->getRecordThreadStatus());
 	xml->addChildElement(recordSettings);
+    */
 
 	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
 	int tsID, tsSubID;
