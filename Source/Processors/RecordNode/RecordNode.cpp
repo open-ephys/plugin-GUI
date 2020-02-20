@@ -80,6 +80,8 @@ String RecordNode::generateDirectoryName()
 void RecordNode::createNewDirectory()
 {
 
+	//TODO: Check if editor has overriden the default save directory
+
 	dataDirectory = CoreServices::getRecordingDirectory();
 
 	LOGD(__FUNCTION__, dataDirectory.getFullPathName());
@@ -266,11 +268,11 @@ void RecordNode::startRecording()
 				startRecChannels.push_back(ch);
 			}
 
-			if (chan->getCurrentNodeID() != lastProcessor)
+			if (chan->getSourceNodeID() != lastProcessor)
 			{
-				lastProcessor = chan->getCurrentNodeID();
+				lastProcessor = chan->getSourceNodeID();
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
-				pi->processorId = chan->getCurrentNodeID();
+				pi->processorId = chan->getSourceNodeID();
 				procInfo.add(pi);
 				procIndex++;
 				chanProcOrder = 0;
