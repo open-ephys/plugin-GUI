@@ -249,7 +249,6 @@ void RecordNode::startRecording()
 	int lastProcessor = -1;
 	int lastSubProcessor = -1;
 	int procIndex = -1;
-	int chanProcOrder = 0;
 
 	int chanSubIdx = 0;
 
@@ -259,8 +258,11 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
+
 		if (m[srcIndex][subIndex][n[ch]])
 		{
+
+			int chanOrderInProcessor = subIndex * m[srcIndex][subIndex].size() + n[ch];
 			channelMap.add(ch);
 			if (chan->getSubProcessorIdx() != lastSubProcessor || chan->getSourceNodeID() != lastProcessor)
 			{
@@ -268,25 +270,18 @@ void RecordNode::startRecording()
 				startRecChannels.push_back(ch);
 			}
 
-			if (chan->getSourceNodeID() != lastProcessor)
+			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
 			{
 				lastProcessor = chan->getSourceNodeID();
+				lastSubProcessor = chan->getSubProcessorIdx();
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
 				pi->processorId = chan->getSourceNodeID();
 				procInfo.add(pi);
-				procIndex++;
-				chanProcOrder = 0;
 			}
 			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
-			chanProcessorMap.add(procIndex);
-			chanOrderinProc.add(chanProcOrder);
-			chanProcOrder++;
+			chanProcessorMap.add(srcIndex);
+			chanOrderinProc.add(chanOrderInProcessor);
 		}
-	}
-
-	for (int i = 0; i < channelMap.size(); i++)
-	{
-		LOGD("channelMap: ", channelMap[i], " chanProcMap: ", chanProcessorMap[i], " chanOrderInProc: ", chanOrderinProc[i]);
 	}
 
 	int numRecordedChannels = channelMap.size();
