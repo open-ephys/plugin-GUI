@@ -170,6 +170,10 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
+	LOGD("Setting states for proc: ", srcIndex, " sub: ", subProcIdx);
+	for (auto state : channelStates)
+		std::cout << state << ",";
+	std::cout << std::endl;
 	this->m[srcIndex][subProcIdx] = channelStates;
 }
 
@@ -194,6 +198,7 @@ void RecordNode::updateSubprocessorMap()
 			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
 			{
 				m[sourceID][subProcID].push_back(false);
+				LOGD("Setting ch: ", ch, " -> ", orderInSubprocessor);
 				n[ch] = orderInSubprocessor++;
 				ch++;
 			}
@@ -217,12 +222,14 @@ void RecordNode::updateSubprocessorMap()
 		}
 	}
 
+	/*
 	LOGD("Generated channel map:");
 	std::map<int, int>::iterator itr;
 	for (itr = n.begin(); itr != n.end(); itr++) {
 
 		LOGD("(",itr->first, ",", itr->second,")");
 	}
+	*/
 
 }
 
@@ -261,6 +268,8 @@ void RecordNode::startRecording()
 
 		if (m[srcIndex][subIndex][n[ch]])
 		{
+
+			LOGD("Source: ", srcIndex, " Sub: ", subIndex, " Ch: ", ch, " Nch:", n[ch], " ON");
 
 			int chanOrderInProcessor = subIndex * m[srcIndex][subIndex].size() + n[ch];
 			channelMap.add(ch);
@@ -368,6 +377,8 @@ void RecordNode::setRecordEvents(bool recordEvents)
 
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
+
+	LOGD("RecordEvents: ", recordEvents);
 
 	if (recordEvents) 
 	{

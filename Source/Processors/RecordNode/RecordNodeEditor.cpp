@@ -75,6 +75,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton("EventRecord",-1,-1);
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
+	recordNode->setRecordEvents(false); //TODO: This needs to be loaded from save file
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -329,6 +330,7 @@ FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(no
 	startTimer(500);
 }
 
+/* RECORD CHANNEL SELECTOR LISTENER */
 void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 {
 
