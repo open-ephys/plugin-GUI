@@ -27,6 +27,8 @@ RecordNode::RecordNode()
 
 	recordThread = new RecordThread(this, recordEngine);
 
+	synchronizer = new Synchronizer();
+
 }
 
 RecordNode::~RecordNode()
@@ -170,10 +172,6 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
-	LOGD("Setting states for proc: ", srcIndex, " sub: ", subProcIdx);
-	for (auto state : channelStates)
-		std::cout << state << ",";
-	std::cout << std::endl;
 	this->m[srcIndex][subProcIdx] = channelStates;
 }
 
@@ -181,6 +179,9 @@ void RecordNode::updateSubprocessorMap()
 {
 
 	std::vector<int> procIds;
+
+	int masterSubprocessor = -1;
+	int eventIndex = 0;
 
 	for (int ch = 0; ch < dataChannelArray.size(); ch++)
 	{
@@ -194,11 +195,19 @@ void RecordNode::updateSubprocessorMap()
 
 		if (!m[sourceID][subProcID].size())
 		{
+			synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
+			eventIndex++;
+
+			if (masterSubprocessor < 0)
+			{
+				masterSubprocessor = chan->getSourceNodeID();
+				synchronizer->setMasterSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx());
+			}
+
 			int orderInSubprocessor = 0;
 			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
 			{
 				m[sourceID][subProcID].push_back(false);
-				LOGD("Setting ch: ", ch, " -> ", orderInSubprocessor);
 				n[ch] = orderInSubprocessor++;
 				ch++;
 			}
@@ -214,7 +223,6 @@ void RecordNode::updateSubprocessorMap()
 	for (it = m.begin(); it != m.end(); it++) {
 
 		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
-			LOGD("Source ", it->first, " subprocessor ", ptr->first, " has ", ptr->second.size(), "channels.");
 			if (!std::count(procIds.begin(), procIds.end(), it->first))
 				m.erase(it->first);
 			else
@@ -256,7 +264,6 @@ void RecordNode::startRecording()
 	int lastProcessor = -1;
 	int lastSubProcessor = -1;
 	int procIndex = -1;
-
 	int chanSubIdx = 0;
 
 	for (int ch = 0; ch < totChans; ++ch)
@@ -273,14 +280,10 @@ void RecordNode::startRecording()
 
 			int chanOrderInProcessor = subIndex * m[srcIndex][subIndex].size() + n[ch];
 			channelMap.add(ch);
-			if (chan->getSubProcessorIdx() != lastSubProcessor || chan->getSourceNodeID() != lastProcessor)
-			{
-				lastSubProcessor = chan->getSubProcessorIdx();
-				startRecChannels.push_back(ch);
-			}
 
 			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
 			{
+				startRecChannels.push_back(ch);
 				lastProcessor = chan->getSourceNodeID();
 				lastSubProcessor = chan->getSubProcessorIdx();
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
@@ -378,14 +381,21 @@ void RecordNode::setRecordEvents(bool recordEvents)
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
 
-	LOGD("RecordEvents: ", recordEvents);
-
 	if (recordEvents) 
 	{
 		int64 timestamp = Event::getTimestamp(event);
 		int eventIndex;
-		if (eventInfo)
+		if (eventInfo && samplePosition > 0)
+		{
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
+			//LOGD("Event detected Src: ", Event::getSourceID(event), " sub: ", Event::getSubProcessorIdx(event), " idx: ", eventIndex, " @ timestamp: ", timestamp, " sample: ", samplePosition);
+
+			if (synchronizer->subprocessors[Event::getSourceID(event)][Event::getSubProcessorIdx(event)]->syncChannel < 0)
+			{
+				synchronizer->setSyncChannel(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex);
+			}
+			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
+		}
 		else
 			eventIndex = -1;
 		if (isRecording)
@@ -400,12 +410,13 @@ void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 }
 	
 void RecordNode::process(AudioSampleBuffer& buffer)
+
 {
+
+	checkForEvents();
 
 	if (isRecording)
 	{
-
-		checkForEvents();
 
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
@@ -502,4 +513,218 @@ void RecordNode::registerRecordEngine(RecordEngine *engine)
 void RecordNode::clearRecordEngines()
 {
 	engineArray.clear();
+}
+
+
+/************************************/
+/************SYNCHRONIZER************/
+/************************************/
+
+Subprocessor::Subprocessor(float expectedSampleRate_)
+{
+	expectedSampleRate = expectedSampleRate_;
+	actualSampleRate = -1.0f;
+
+	startSample = -1;
+	lastSample = -1;
+
+	startSampleMasterTime = -1.0f;
+	lastSampleMasterTime = -1.0f;
+
+	syncChannel = -1;
+
+	isSynchronized = false;
+	receivedEventInWindow = false;
+	receivedMasterTimeInWindow = false;
+
+	sampleRateTolerance = 0.0001;
+}
+
+void Subprocessor::setMasterTime(float masterTimeSec_)
+{
+	if (!receivedMasterTimeInWindow)
+	{
+		tempMasterTime = masterTimeSec_;
+		receivedMasterTimeInWindow = true;
+	}
+	else { // multiple events, something could be wrong
+		receivedMasterTimeInWindow = false;
+	}
+
+}
+
+void Subprocessor::addEvent(int sampleNumber)
+{
+	if (!receivedEventInWindow)
+	{
+		tempSampleNum = sampleNumber;
+		receivedEventInWindow = true;
+	}
+	else { // multiple events, something could be wrong
+		receivedEventInWindow = false;
+	}
+
+}
+
+void Subprocessor::closeSyncWindow()
+{
+	if (receivedEventInWindow && receivedMasterTimeInWindow)
+	{
+		if (startSample < 0)
+		{
+			startSample = tempSampleNum;
+			startSampleMasterTime = tempMasterTime;
+		}
+		else {
+
+			lastSample = tempSampleNum;
+			lastSampleMasterTime = tempMasterTime;
+
+			float expectedIntervalSec = (lastSample - startSample) / expectedSampleRate;
+			float ratio = (lastSampleMasterTime - startSampleMasterTime) / expectedIntervalSec;
+			float tempSampleRate = expectedSampleRate / ratio;
+
+			if (actualSampleRate < 0.0f)
+			{
+				actualSampleRate = tempSampleRate;
+				isSynchronized = true;
+				std::cout << "New sample rate: " << actualSampleRate << std::endl;
+			}
+			else {
+				// check whether the sample rate has changed
+				if (abs((tempSampleRate - actualSampleRate) / actualSampleRate) < sampleRateTolerance)
+				{
+					actualSampleRate = tempSampleRate;
+					isSynchronized = true;
+					std::cout << "Updated sample rate: " << actualSampleRate << std::endl;
+				}
+				else { // reset the clock
+					startSample = tempSampleNum;
+					startSampleMasterTime = tempMasterTime;
+					isSynchronized = false;
+				}
+			}
+		}
+	}
+
+	//std::cout << "Subprocessor closed sync window." << std::endl;
+
+	receivedEventInWindow = false;
+	receivedMasterTimeInWindow = false;
+}
+
+// =======================================================
+
+Synchronizer::Synchronizer()
+{
+	syncWindowLengthMs = 50;
+	syncWindowIsOpen = false;
+	firstMasterSync = true;
+}
+
+Synchronizer::~Synchronizer()
+{
+
+}
+
+void Synchronizer::addSubprocessor(int sourceID, int subProcIndex, float expectedSampleRate)
+{
+	subprocessorArray.add(new Subprocessor(expectedSampleRate));
+	subprocessors[sourceID][subProcIndex] = subprocessorArray.getLast();
+}
+
+void Synchronizer::setMasterSubprocessor(int sourceID, int subProcIndex)
+{
+	masterProcessor = sourceID;
+	masterSubprocessor = subProcIndex;
+}
+
+void Synchronizer::setSyncChannel(int sourceID, int subProcIdx, int ttlChannel)
+{
+	subprocessors[sourceID][subProcIdx]->syncChannel = ttlChannel;
+}
+
+void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sampleNumber)
+{
+
+	if (subprocessors[sourceID][subProcIdx]->syncChannel == ttlChannel)
+	{
+		
+		if (!syncWindowIsOpen)
+		{
+			openSyncWindow();
+		}
+
+		subprocessors[sourceID][subProcIdx]->addEvent(sampleNumber);
+
+		if (sourceID == masterProcessor && subProcIdx == masterSubprocessor)
+		{
+
+			float masterTimeSec;
+
+			if (!firstMasterSync)
+			{
+				masterTimeSec = (sampleNumber - subprocessors[sourceID][subProcIdx]->startSample) / subprocessors[sourceID][subProcIdx]->expectedSampleRate;
+			}
+			else
+			{
+				masterTimeSec = 0.0f;
+				firstMasterSync = false;
+			}
+
+			std::map<int, std::map<int, Subprocessor*>>::iterator it;
+			std::map<int, Subprocessor*>::iterator ptr;
+
+			for (it = subprocessors.begin(); it != subprocessors.end(); it++) 
+			{
+				for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) 
+				{
+
+					ptr->second->setMasterTime(masterTimeSec);
+				}
+			}
+
+			if (eventCount % 10 == 0)
+				std::cout << "Master time: " << masterTimeSec << std::endl;
+
+			eventCount++;
+		}
+	}
+}
+
+float Synchronizer::convertTimestamp(int sourceID, int subProcID, int sampleNumber)
+{
+
+	if (subprocessors[sourceID][subProcID]->isSynchronized)
+	{
+		return (sampleNumber - subprocessors[sourceID][subProcID]->startSample) /
+			subprocessors[sourceID][subProcID]->actualSampleRate +
+			subprocessors[sourceID][subProcID]->startSampleMasterTime;
+	}
+	else {
+		return -1.0f;
+	}
+}
+
+void Synchronizer::openSyncWindow()
+{
+	startTimer(syncWindowLengthMs);
+
+	syncWindowIsOpen = true;
+}
+
+void Synchronizer::hiResTimerCallback()
+{
+	stopTimer();
+
+	syncWindowIsOpen = false;
+
+	std::map<int, std::map<int, Subprocessor*>>::iterator it;
+	std::map<int, Subprocessor*>::iterator ptr;
+
+	for (it = subprocessors.begin(); it != subprocessors.end(); it++) {
+		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
+			ptr->second->closeSyncWindow();
+		}
+	}
 }
