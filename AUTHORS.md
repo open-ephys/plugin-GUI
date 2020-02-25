@@ -4,7 +4,7 @@ Josh Siegle /
 Aarón Cuevas López / 
 Jakob Voigts / 
 Pavel Kulik / 
-Anjal Doshi / 
+Anjal Doshi
 
 ## Other contributors
 
