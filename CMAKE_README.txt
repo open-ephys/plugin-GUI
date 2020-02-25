@@ -7,6 +7,7 @@ Windows:
 "Visual Studio 12 2013 Win64"
 "Visual Studio 14 2015 Win64"
 "Visual Studio 15 2017 Win64"
+"Visual Studio 16 2019" -A x64
 Mac:
 "Xcode"
 Linux: (see note below)
