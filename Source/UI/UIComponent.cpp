@@ -533,6 +533,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
+			result.addDefaultKeypress('P', ModifierKeys::commandModifier);
 			break;
 
 		case showHelp:

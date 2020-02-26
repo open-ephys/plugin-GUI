@@ -25,6 +25,8 @@
 #include <stdio.h>
 //-----------------------------------------------------------------------
 
+StringArray PluginInstaller::plugins;
+
 static inline File getPluginsLocationDirectory() {
 #if defined(__APPLE__)
     File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
@@ -46,7 +48,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	parent = (DocumentWindow*)mainWindow;
 
 	setResizable(
-        false,  // isResizable
+        true,  // isResizable
 		false); // useBottomCornerRisizer -- doesn't work very well
 
     //TODO: Add command manager for hot-key functionality later...
@@ -59,8 +61,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
     */
 
 	setUsingNativeTitleBar(true);
-	Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-	// button from randomly disappearing
+	setContentOwned(new PluginInstallerComponent(), true);
 	setVisible(true);
 	
 	int x = parent->getX();
@@ -71,21 +72,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	setBounds(x+0.1*w, y+0.25*h, 0.8*w, 0.5*h);
 
 	// Constraining the window's size doesn't seem to work:
-	setResizeLimits(500, 500, 10000, 10000);
-	
-	/* Get list of plugins uploaded to bintray */
-	RestRequest::Response response = request.get("https://api.bintray.com/repos/open-ephys-gui-plugins")
-										 .execute();
-
-	var jsonReply = JSON::parse(response.bodyAsString);
-
-	for (int i = 0; i < jsonReply.size(); i++)
-	{
-		plugins.add(jsonReply[i].getProperty("name", var()).toString());
-	}
-
-	pluginSelected(plugins.size()-1);
-
+	setResizeLimits(640, 480, 8192, 5120);
 }
 
 PluginInstaller::~PluginInstaller()
@@ -103,83 +90,11 @@ void PluginInstaller::closeButtonPressed()
 	delete this;
 }
 
-bool PluginInstaller::pluginSelected(int index)
+bool PluginInstaller::pluginSelected(const String& plugin, const String& package, const String& version)
 {
 
-	//Get selected plugin from pull-down menu
-	juce::String plugin = plugins[index];
+	RestRequest request;
 
-	//Download from binTray
-	Array<juce::String> packages;
-	juce::String url = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
-	url+=plugin;
-	url+="/packages";
-
-	RestRequest::Response response = request.get(url).execute();
-
-	var jsonReply = JSON::parse(response.bodyAsString);
-
-	for (int i = 0; i < jsonReply.size(); i++)
-	{
-		packages.add(jsonReply[i].getProperty("name", var()).toString());
-		std::cout << packages[packages.size()-1] << std::endl;
-	}
-
-	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
-	String os_name;
-
-	if (os & juce::SystemStats::OperatingSystemType::Windows)
-	{
-		os_name = "windows";
-	}
-	else if (os & juce::SystemStats::OperatingSystemType::MacOSX)
-	{
-		os_name = "mac";
-	}
-	else if (os == juce::SystemStats::OperatingSystemType::Linux)
-	{
-		os_name = "linux";
-	}
-	else
-	{
-		std::cout << "Unsupported OS type..." << std::endl;
-		return false;
-	}
-
-	String package;
-	for (int i = 0; i < packages.size(); i++)
-	{
-		if (packages[i].contains(os_name))
-		{
-			package = packages[i];
-		}
-	}
-
-	std::cout << "Installing package: " << package << std::endl;
-
-	//Get latest version
-	String version_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-	version_url+=plugin;
-	version_url+="/";
-	version_url+=package;
-	version_url+="/versions/_latest";
-
-	std::cout << version_url << std::endl;
-
-	RestRequest::Response version_response = request.get(version_url).execute();
-
-	std::cout << version_response.bodyAsString << std::endl;
-
-	var version_reply = JSON::parse(version_response.bodyAsString);
-
-	String version = version_reply.getProperty("name", "NULL");
-	String created = version_reply.getProperty("created", "NULL");
-	String updated = version_reply.getProperty("updated", "NULL");
-	String released = version_reply.getProperty("released", "NULL");
-
-	std::cout << "Latest version: " << version << " released: " << released << std::endl;
-
-	//TODO: Build download filename...
 	String filename = ""; 
 
 	//Get avaialble filenames:
@@ -199,10 +114,8 @@ bool PluginInstaller::pluginSelected(int index)
 
 	if (files_reply.size())
 	{
-		std::cout << files_reply.size() << " files available" << std::endl;
 		for (int i = 0; i < files_reply.size(); i++)
 		{
-			std::cout << i << "th file: " << files_reply[i].getProperty("name", "NULL").toString() << std::endl;
 			filename = files_reply[i].getProperty("name", "NULL").toString();
 		}
 	}
@@ -214,11 +127,8 @@ bool PluginInstaller::pluginSelected(int index)
 	fileDownloadURL+="/";
 	fileDownloadURL+=filename;
 
-	std::cout << "Download URL: " << fileDownloadURL << std::endl;
-
 	URL fileUrl(fileDownloadURL);
 
-	/*
 	ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
 
 	//Get path to plugins directory
@@ -228,7 +138,6 @@ bool PluginInstaller::pluginSelected(int index)
 	String pluginFilePath = pluginsPath.getFullPathName();
 	pluginFilePath+='/';
 	pluginFilePath+=filename;
-	pluginFilePath+='.7z';
 
 	std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
 	
@@ -239,9 +148,288 @@ bool PluginInstaller::pluginSelected(int index)
 	fileStream->readIntoMemoryBlock(mem);
 	FileOutputStream out(localFile);
 	out.write(mem.getData(), mem.getSize());
-	*/
 
 	//TODO: Prompt user to restart to see plugin in ProcessorList
 
 	return true;
+}
+
+
+/* ================================== Plugin Installer Component ================================== */
+
+PluginInstallerComponent::PluginInstallerComponent()
+{
+	font = Font(Font::getDefaultSansSerifFontName(), 16, Font::plain);
+	setSize(getWidth() - 10, getHeight() - 10);
+
+	addAndMakeVisible(pluginListAndInfo);
+
+	addAndMakeVisible(sortingLabel);
+	sortingLabel.setColour(Label::textColourId, Colours::white);
+	sortingLabel.setFont(font);
+	sortingLabel.setText("Sort By:", dontSendNotification);
+
+	addAndMakeVisible(sortByMenu);
+	sortByMenu.setJustificationType(Justification::centred);
+	sortByMenu.addItem("Ascending", 1);
+	sortByMenu.addItem("Descending", 2);
+	sortByMenu.setTextWhenNothingSelected("------");
+	sortByMenu.addListener(this);
+}
+
+void PluginInstallerComponent::paint(Graphics& g)
+{
+	g.fillAll (Colours::darkgrey);
+}
+
+void PluginInstallerComponent::resized()
+{
+	sortingLabel.setBounds(20, 10, 70, 30);
+	sortByMenu.setBounds(90, 10, 110, 30);
+	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
+}
+
+
+/* ================================== Plugin Table Component ================================== */
+
+PluginListBoxComponent::PluginListBoxComponent()
+{
+	listFont = Font(Font::getDefaultSansSerifFontName(), 20, Font::plain);
+	listFont.setHorizontalScale(1.1);
+
+	loadPluginNames();
+
+	addAndMakeVisible(pluginList);
+	pluginList.setModel(this);
+	pluginList.setColour(ListBox::backgroundColourId , Colours::grey);
+	pluginList.setRowHeight(35);
+
+	addAndMakeVisible(pluginInfoPanel);
+}
+
+int PluginListBoxComponent::getNumRows()
+{
+	return numRows;
+}
+
+void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int width, int height, bool rowIsSelected)
+{
+	if (rowIsSelected)
+	{
+		g.fillAll(Colours::azure);
+		g.setColour (Colours::grey);
+	}
+	else
+	{
+		g.fillAll(Colours::grey);
+		g.setColour (Colours::white);
+	}
+
+	g.setFont(listFont);
+
+	String text = PluginInstaller::plugins[rowNumber];
+
+	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
+}
+
+void PluginListBoxComponent::loadPluginNames()
+{
+	/* Get list of plugins uploaded to bintray */
+	RestRequest::Response response = request.get("https://api.bintray.com/repos/open-ephys-gui-plugins")
+										 .execute();
+
+	pluginData = JSON::parse(response.bodyAsString);
+
+	numRows = pluginData.size();
+	
+	// std::cout << "jsonReply" << response.bodyAsString << std::endl;
+
+	String pluginName;
+
+	for (int i = 0; i < numRows; i++)
+	{
+		//Array<String> packages;
+		
+		pluginName = pluginData[i].getProperty("name", var()).toString();
+		PluginInstaller::plugins.add(pluginName);
+	}
+}
+
+bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
+{
+	// Find out all available packages for the plugin
+	String url, version_url;
+	
+	url = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
+	url+=pluginName;
+	url+="/packages";
+
+	RestRequest::Response packageResponse = request.get(url).execute();
+
+	var packageReply = JSON::parse(packageResponse.bodyAsString);
+
+	Array<String> packages;
+
+	for (int i = 0; i < packageReply.size(); i++)
+	{
+	 	packages.add(packageReply[i].getProperty("name", var()).toString());
+	}
+
+
+	// Identify the OS on which the GUI is running
+	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
+	String os_name;
+
+	if ((os & juce::SystemStats::OperatingSystemType::Windows) != 0)
+	 	os_name = "windows";
+	else if ((os & juce::SystemStats::OperatingSystemType::MacOSX) != 0)
+	 	os_name = "mac";
+	else if ((os & juce::SystemStats::OperatingSystemType::Linux) != 0)
+	 	os_name = "linux";
+
+		
+	// Select platform specific package for the plugin
+	String selectedPackage;
+	for (int i = 0; i < packages.size(); i++)
+	{
+	 	if(packages[i].contains(os_name))
+	 	{
+	 		selectedPackage = packages[i];
+	 		break;
+	 	}
+	}
+
+	if(selectedPackage.isEmpty())
+	{
+	 	std::cout << "*********** No platform specific package found for " << pluginName << std::endl;
+		pluginInfoPanel.makeInfoVisible(false);
+		return false;
+	}
+
+	//Get latest version
+	version_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+	version_url+=pluginName;
+	version_url+="/";
+	version_url+=selectedPackage;
+
+	RestRequest::Response version_response = request.get(version_url).execute();
+
+	var version_reply = JSON::parse(version_response.bodyAsString);
+
+	String owner= version_reply.getProperty("owner", "NULL");
+	String latest_version = version_reply.getProperty("latest_version", "NULL");
+	String updated = version_reply.getProperty("updated", "NULL");
+	String description = version_reply.getProperty("desc", "NULL");
+
+	auto allVersions = version_reply.getProperty("versions", "NULL").getArray();
+
+	selectedPluginInfo.versions.clear();
+
+	for (String version : *allVersions)
+		selectedPluginInfo.versions.add(version);
+
+	selectedPluginInfo.docURL = version_reply.getProperty("vcs_url", "NULL").toString();
+	selectedPluginInfo.selectedVersion = String();
+
+	selectedPluginInfo.pluginName = pluginName;
+	selectedPluginInfo.packageName = selectedPackage;
+	selectedPluginInfo.owner = owner;
+	selectedPluginInfo.latestVersion = latest_version;
+	selectedPluginInfo.lastUpdated = updated;
+	selectedPluginInfo.description = description;
+	selectedPluginInfo.dependencies = "Dependencies: ";
+	
+	pluginInfoPanel.setPluginInfo(selectedPluginInfo);
+	pluginInfoPanel.makeInfoVisible(true);
+
+	return true;
+}
+
+void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
+{
+	String pName = PluginInstaller::plugins[row];
+	if ( !pName.equalsIgnoreCase(pluginInfoPanel.getSelectedPlugin()) )
+	{
+		if(loadPluginInfo(pName))
+			pluginInfoPanel.updateStatusMessage("", false);
+		else
+			pluginInfoPanel.updateStatusMessage("No platform specific package found for " + pName, true);
+	}
+}
+
+void PluginListBoxComponent::resized()
+{
+	// position our table with a gap around its edge
+    pluginList.setBounds(10, 10, getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
+	pluginInfoPanel.setBounds(getWidth() - (0.5 * getWidth()), 10, getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
+}
+
+/* ================================== Plugin Information Component ================================== */
+
+PluginInfoComponent::PluginInfoComponent()
+{
+	infoFont = Font(Font::getDefaultSansSerifFontName(), 19, Font::plain);
+	
+	addChildComponent(pluginNameLabel);
+	pluginNameLabel.setFont(infoFont);
+	pluginNameLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(ownerLabel);
+	ownerLabel.setFont(infoFont);
+	ownerLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(versionLabel);
+	versionLabel.setFont(infoFont);
+	versionLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(versionMenu);
+	versionMenu.setJustificationType(Justification::centred);
+	versionMenu.setTextWhenNothingSelected("------");
+	versionMenu.addListener(this);
+
+	addChildComponent(lastUpdatedLabel);
+	lastUpdatedLabel.setFont(infoFont);
+	lastUpdatedLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(descriptionLabel);
+	descriptionLabel.setFont(infoFont);
+	descriptionLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(dependencyLabel);
+	dependencyLabel.setFont(infoFont);
+	dependencyLabel.setColour(Label::textColourId, Colours::white);
+
+	addChildComponent(downloadButton);
+	downloadButton.setButtonText("Download & Install");
+	downloadButton.addListener(this);
+	downloadButton.setEnabled(false);
+
+	addChildComponent(documentationButton);
+	documentationButton.setButtonText("Open Documentation");
+	documentationButton.addListener(this);
+
+	addAndMakeVisible(statusLabel);
+	statusLabel.setFont(infoFont);
+	statusLabel.setColour(Label::textColourId, Colours::white);
+	statusLabel.setText("Please select a plugin from the list on the left...", dontSendNotification);
+}
+
+void PluginInfoComponent::paint(Graphics& g)
+{
+	g.fillAll (Colours::grey);
+	g.setFont(infoFont);
+}
+
+void PluginInfoComponent::resized()
+{
+	pluginNameLabel.setBounds(10, 30, getWidth() - 10, 30);
+	ownerLabel.setBounds(10, 60, getWidth() - 10, 30);
+	versionLabel.setBounds(10, 90, 80, 30);
+	versionMenu.setBounds(90, 90, 100, 30);
+	lastUpdatedLabel.setBounds(10, 120, getWidth() - 10, 30);
+	descriptionLabel.setBounds(10, 150, getWidth() - 10, 30);
+	dependencyLabel.setBounds(10, 180, getWidth() - 10, 30);
+	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
+	documentationButton.setBounds(10, getHeight() - 60, getWidth() * 0.4, 30);
+	statusLabel.setBounds(10, getHeight() / 2, getWidth() - 10, 30);
 }
