@@ -22,7 +22,9 @@ When you submit an issue, make sure to include what version of the GUI you're us
 
 ## Suggesting enhancements
 
-If there's a new feature of the GUI that would help your science, feel free to [create an issue](https://github.com/open-ephys/plugin-GUI/issues) describing what you'd like to see. There's no guarantee that we'll be able to make the changes you request, but it's always helpful to know what people feel are the most important limitations of the current application.
+If there's a missing feature that would help your science, feel free to [create an issue](https://github.com/open-ephys/plugin-GUI/issues) describing what you'd like to see. There's no guarantee that we'll be able to make the changes you request, but it's always helpful to know what people feel are the most important limitations of the current application.
+
+We are keeping track of our current development plans using [GitHub projects](https://github.com/open-ephys/plugin-GUI/projects). Be sure to read through the list of projects before suggesting something new.
 
 ## Updating the documentation
 
