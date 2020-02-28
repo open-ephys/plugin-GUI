@@ -106,9 +106,8 @@ public:
         pInfo = p;
         pluginNameLabel.setText("Name: " + pInfo.pluginName, dontSendNotification);
         ownerLabel.setText("Author: " + pInfo.owner, dontSendNotification);
-        versionLabel.setText("Version: ", dontSendNotification);
         lastUpdatedLabel.setText("Last Updated: " + pInfo.lastUpdated, dontSendNotification);
-        descriptionLabel.setText("Description: " + pInfo.description, dontSendNotification);
+        descriptionText.setText(pInfo.description, dontSendNotification);
         dependencyLabel.setText(pInfo.dependencies, dontSendNotification);
 
         versionMenu.clear(dontSendNotification);
@@ -133,6 +132,7 @@ public:
         versionMenu.setVisible(isEnabled);
         lastUpdatedLabel.setVisible(isEnabled);
         descriptionLabel.setVisible(isEnabled);
+        descriptionText.setVisible(isEnabled);
         dependencyLabel.setVisible(isEnabled);
         downloadButton.setVisible(isEnabled);
         documentationButton.setVisible(isEnabled);
@@ -148,6 +148,7 @@ private:
     Label versionLabel;
     Label lastUpdatedLabel;
     Label descriptionLabel;
+    Label descriptionText;
     Label dependencyLabel;
     Label statusLabel;
 

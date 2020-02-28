@@ -136,7 +136,7 @@ bool PluginInstaller::pluginSelected(const String& plugin, const String& package
 
 	//Construct path for downloaded zip file
 	String pluginFilePath = pluginsPath.getFullPathName();
-	pluginFilePath+='/';
+	pluginFilePath+="\\";
 	pluginFilePath+=filename;
 
 	std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
@@ -350,6 +350,9 @@ void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
 	String pName = PluginInstaller::plugins[row];
 	if ( !pName.equalsIgnoreCase(pluginInfoPanel.getSelectedPlugin()) )
 	{
+		pluginInfoPanel.makeInfoVisible(false);
+		pluginInfoPanel.updateStatusMessage("Loading Plugin Info...", true);
+		
 		if(loadPluginInfo(pName))
 			pluginInfoPanel.updateStatusMessage("", false);
 		else
@@ -381,6 +384,7 @@ PluginInfoComponent::PluginInfoComponent()
 	addChildComponent(versionLabel);
 	versionLabel.setFont(infoFont);
 	versionLabel.setColour(Label::textColourId, Colours::white);
+	versionLabel.setText("Version: ", dontSendNotification);
 
 	addChildComponent(versionMenu);
 	versionMenu.setJustificationType(Justification::centred);
@@ -394,6 +398,12 @@ PluginInfoComponent::PluginInfoComponent()
 	addChildComponent(descriptionLabel);
 	descriptionLabel.setFont(infoFont);
 	descriptionLabel.setColour(Label::textColourId, Colours::white);
+	descriptionLabel.setText("Description: ", dontSendNotification);
+
+	addChildComponent(descriptionText);
+	descriptionText.setFont(infoFont);
+	descriptionText.setColour(Label::textColourId, Colours::white);
+	descriptionText.setJustificationType(Justification::horizontallyJustified | Justification::top);
 
 	addChildComponent(dependencyLabel);
 	dependencyLabel.setFont(infoFont);
@@ -427,8 +437,9 @@ void PluginInfoComponent::resized()
 	versionLabel.setBounds(10, 90, 80, 30);
 	versionMenu.setBounds(90, 90, 100, 30);
 	lastUpdatedLabel.setBounds(10, 120, getWidth() - 10, 30);
-	descriptionLabel.setBounds(10, 150, getWidth() - 10, 30);
-	dependencyLabel.setBounds(10, 180, getWidth() - 10, 30);
+	descriptionLabel.setBounds(10, 150, 110, 30);
+	descriptionText.setBounds(120, 155, getWidth() - 130, 50);
+	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), getWidth() - 10, 30);
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
 	documentationButton.setBounds(10, getHeight() - 60, getWidth() * 0.4, 30);
 	statusLabel.setBounds(10, getHeight() / 2, getWidth() - 10, 30);
