@@ -143,7 +143,7 @@
     If you disable this then https/ssl support will not be available on linux.
 */
 #ifndef JUCE_USE_CURL
- #define JUCE_USE_CURL 0
+ #define JUCE_USE_CURL 1
 #endif
 
 

@@ -2,7 +2,6 @@
 #define PLUGININSTALLER_H_INCLUDED
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "RestRequest.h"
 #include "LookAndFeel/MaterialButtonLookAndFeel.h"
 
 #define WINDOW_TITLE "Plugin Installer" 
@@ -190,7 +189,6 @@ private:
     Font listFont;
     int numRows;
 
-    RestRequest request;
     var pluginData; 
     Array<String> pluginVersion;
 

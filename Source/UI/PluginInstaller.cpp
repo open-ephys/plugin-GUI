@@ -93,8 +93,6 @@ void PluginInstaller::closeButtonPressed()
 bool PluginInstaller::pluginSelected(const String& plugin, const String& package, const String& version)
 {
 
-	RestRequest request;
-
 	String filename = ""; 
 
 	//Get avaialble filenames:
@@ -108,9 +106,9 @@ bool PluginInstaller::pluginSelected(const String& plugin, const String& package
 	files_url += version;
 	files_url += "/files";
 
-	RestRequest::Response files_response = request.get(files_url).execute();
+	String files_response = URL(files_url).readEntireTextStream();;
 
-	var files_reply = JSON::parse(files_response.bodyAsString);
+	var files_reply = JSON::parse(files_response);
 
 	if (files_reply.size())
 	{
@@ -235,10 +233,9 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 void PluginListBoxComponent::loadPluginNames()
 {
 	/* Get list of plugins uploaded to bintray */
-	RestRequest::Response response = request.get("https://api.bintray.com/repos/open-ephys-gui-plugins")
-										 .execute();
+	String response = URL("https://api.bintray.com/repos/open-ephys-gui-plugins").readEntireTextStream();
 
-	pluginData = JSON::parse(response.bodyAsString);
+	pluginData = JSON::parse(response);
 
 	numRows = pluginData.size();
 	
@@ -264,9 +261,9 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	url+=pluginName;
 	url+="/packages";
 
-	RestRequest::Response packageResponse = request.get(url).execute();
+	String packageResponse = URL(url).readEntireTextStream();
 
-	var packageReply = JSON::parse(packageResponse.bodyAsString);
+	var packageReply = JSON::parse(packageResponse);
 
 	Array<String> packages;
 
@@ -312,9 +309,9 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	version_url+="/";
 	version_url+=selectedPackage;
 
-	RestRequest::Response version_response = request.get(version_url).execute();
+	String version_response = URL(version_url).readEntireTextStream();;
 
-	var version_reply = JSON::parse(version_response.bodyAsString);
+	var version_reply = JSON::parse(version_response);
 
 	String owner= version_reply.getProperty("owner", "NULL");
 	String latest_version = version_reply.getProperty("latest_version", "NULL");
