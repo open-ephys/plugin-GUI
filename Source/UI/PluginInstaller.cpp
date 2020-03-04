@@ -25,8 +25,6 @@
 #include <stdio.h>
 //-----------------------------------------------------------------------
 
-StringArray PluginInstaller::plugins;
-
 static inline File getPluginsLocationDirectory() {
 #if defined(__APPLE__)
     File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
@@ -83,73 +81,13 @@ PluginInstaller::~PluginInstaller()
 	MenuBarModel::setMacMainMenu(0);
 #endif
 
+	masterReference.clear();
 }
 
 void PluginInstaller::closeButtonPressed()
 {
+	setVisible(false);
 	delete this;
-}
-
-bool PluginInstaller::pluginSelected(const String& plugin, const String& package, const String& version)
-{
-
-	String filename = ""; 
-
-	//Get avaialble filenames:
-	//https: //api.bintray.com/packages/$bintrayUser/$REPO/$PACKAGE/versions/$VERSION/files
-
-	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-	files_url += plugin;
-	files_url += "/";
-	files_url += package;
-	files_url += "/versions/";
-	files_url += version;
-	files_url += "/files";
-
-	String files_response = URL(files_url).readEntireTextStream();;
-
-	var files_reply = JSON::parse(files_response);
-
-	if (files_reply.size())
-	{
-		for (int i = 0; i < files_reply.size(); i++)
-		{
-			filename = files_reply[i].getProperty("name", "NULL").toString();
-		}
-	}
-
-	//Unzip plugin and install in plugins directory
-	//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
-	String fileDownloadURL = "https://dl.bintray.com/open-ephys-gui-plugins/";
-	fileDownloadURL+=plugin;
-	fileDownloadURL+="/";
-	fileDownloadURL+=filename;
-
-	URL fileUrl(fileDownloadURL);
-
-	ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
-
-	//Get path to plugins directory
-	File pluginsPath = getPluginsLocationDirectory();
-
-	//Construct path for downloaded zip file
-	String pluginFilePath = pluginsPath.getFullPathName();
-	pluginFilePath+="\\";
-	pluginFilePath+=filename;
-
-	std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
-	
-	//Create local file
-	File localFile(pluginFilePath);
-	localFile.deleteFile();
-	MemoryBlock mem(1024);
-	fileStream->readIntoMemoryBlock(mem);
-	FileOutputStream out(localFile);
-	out.write(mem.getData(), mem.getSize());
-
-	//TODO: Prompt user to restart to see plugin in ProcessorList
-
-	return true;
 }
 
 
@@ -185,6 +123,27 @@ void PluginInstallerComponent::resized()
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 110, 30);
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
+}
+
+void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+	if (comboBoxThatHasChanged->getSelectedId() == 1)
+	{
+		pluginListAndInfo.pluginArray.sort(true);
+		pluginListAndInfo.repaint();
+	}
+	else if (comboBoxThatHasChanged->getSelectedId() == 2)
+	{
+		pluginListAndInfo.pluginArray.sort(true);
+		int size = pluginListAndInfo.pluginArray.size();
+		for (int i = 0; i < size / 2; i++)
+		{
+			pluginListAndInfo.pluginArray.getReference(i).swapWith
+			(pluginListAndInfo.pluginArray.getReference(size - i - 1));
+		}
+
+		pluginListAndInfo.repaint();
+	}
 }
 
 
@@ -225,7 +184,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	g.setFont(listFont);
 
-	String text = PluginInstaller::plugins[rowNumber];
+	String text = pluginArray[rowNumber];
 
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
@@ -248,7 +207,7 @@ void PluginListBoxComponent::loadPluginNames()
 		//Array<String> packages;
 		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
-		PluginInstaller::plugins.add(pluginName);
+		pluginArray.add(pluginName);
 	}
 }
 
@@ -344,7 +303,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
 {
-	String pName = PluginInstaller::plugins[row];
+	String pName = pluginArray[row];
 	if ( !pName.equalsIgnoreCase(pluginInfoPanel.getSelectedPlugin()) )
 	{
 		pluginInfoPanel.makeInfoVisible(false);
@@ -440,4 +399,124 @@ void PluginInfoComponent::resized()
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
 	documentationButton.setBounds(10, getHeight() - 60, getWidth() * 0.4, 30);
 	statusLabel.setBounds(10, getHeight() / 2, getWidth() - 10, 30);
+}
+
+void PluginInfoComponent::buttonClicked(Button* button)
+{
+	if (button == &downloadButton)
+	{
+		downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
+	}
+	else if (button == &documentationButton)
+	{
+		URL url = URL(pInfo.docURL);
+		url.launchInDefaultBrowser();
+	}
+}
+
+void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+	if (comboBoxThatHasChanged == &versionMenu)
+	{
+		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
+		downloadButton.setEnabled(true);
+	}
+}
+
+void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
+{
+	pInfo = p;
+	pluginNameLabel.setText("Name: " + pInfo.pluginName, dontSendNotification);
+	ownerLabel.setText("Author: " + pInfo.owner, dontSendNotification);
+	lastUpdatedLabel.setText("Last Updated: " + pInfo.lastUpdated, dontSendNotification);
+	descriptionText.setText(pInfo.description, dontSendNotification);
+	dependencyLabel.setText(pInfo.dependencies, dontSendNotification);
+
+	versionMenu.clear(dontSendNotification);
+
+	for (int i = 0; i < pInfo.versions.size(); i++)
+		versionMenu.addItem(pInfo.versions[i], i + 1);
+
+	downloadButton.setEnabled(false);
+}
+
+void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
+{
+	statusLabel.setText(str, dontSendNotification);
+	statusLabel.setVisible(isVisible);
+}
+
+void PluginInfoComponent::makeInfoVisible(bool isEnabled)
+{
+	pluginNameLabel.setVisible(isEnabled);
+	ownerLabel.setVisible(isEnabled);
+	versionLabel.setVisible(isEnabled);
+	versionMenu.setVisible(isEnabled);
+	lastUpdatedLabel.setVisible(isEnabled);
+	descriptionLabel.setVisible(isEnabled);
+	descriptionText.setVisible(isEnabled);
+	dependencyLabel.setVisible(isEnabled);
+	downloadButton.setVisible(isEnabled);
+	documentationButton.setVisible(isEnabled);
+}
+
+bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
+{
+
+	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+	files_url += plugin;
+	files_url += "/";
+	files_url += package;
+	files_url += "/versions/";
+	files_url += version;
+	files_url += "/files";
+
+	String files_response = URL(files_url).readEntireTextStream();;
+
+	var files_reply = JSON::parse(files_response);
+
+	String filename;
+
+	if (files_reply.size())
+	{
+		for (int i = 0; i < files_reply.size(); i++)
+		{
+			filename = files_reply[i].getProperty("name", "NULL").toString();
+		}
+
+		//Unzip plugin and install in plugins directory
+		//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
+		String fileDownloadURL = "https://dl.bintray.com/open-ephys-gui-plugins/";
+		fileDownloadURL += plugin;
+		fileDownloadURL += "/";
+		fileDownloadURL += filename;
+
+		URL fileUrl(fileDownloadURL);
+
+		ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
+
+		//Get path to plugins directory
+		File pluginsPath = getPluginsLocationDirectory();
+
+		//Construct path for downloaded zip file
+		String pluginFilePath = pluginsPath.getFullPathName();
+		pluginFilePath += File::separatorString;
+		pluginFilePath += filename;
+
+		std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
+
+		//Create local file
+		File localFile(pluginFilePath);
+		localFile.deleteFile();
+		MemoryBlock mem(1024);
+		fileStream->readIntoMemoryBlock(mem);
+		FileOutputStream out(localFile);
+		out.write(mem.getData(), mem.getSize());
+
+		return true;
+
+	}
+	//TODO: Prompt user to restart to see plugin in ProcessorList
+
+	return false;
 }

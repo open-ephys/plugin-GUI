@@ -673,9 +673,13 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case openPluginInstaller:
 			{
-
-			PluginInstaller* pi = new PluginInstaller(this->mainWindow);
-			break;
+				if (pluginInstaller == nullptr)
+				{
+					pluginInstaller = new PluginInstaller(this->mainWindow);
+				}
+				pluginInstaller->setVisible(true);
+				pluginInstaller->toFront(true);
+				break;
 			}
 
 		default:

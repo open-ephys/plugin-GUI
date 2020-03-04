@@ -154,6 +154,8 @@ private:
 
 	WeakReference<TimestampSourceSelectionWindow> timestampWindow;
 
+    WeakReference<PluginInstaller> pluginInstaller;
+
     Viewport processorListViewport;
 
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */

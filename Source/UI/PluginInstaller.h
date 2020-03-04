@@ -19,9 +19,6 @@ public:
     /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~PluginInstaller();
 
-    /** Called when the user hits the 'Download' button for a selected plugin **/
-    static bool pluginSelected(const String& plugin, const String& package, const String& version);
-
     /** Called when the user hits the close button of the MainWindow. This destroys
         the MainWindow and closes the application. */
     void closeButtonPressed();
@@ -30,15 +27,13 @@ public:
         commands. */
     ApplicationCommandManager commandManager;
 
-    /* Raw list of plugins available for download */
-    static StringArray plugins;
-
 private:
 
     /* Pointer to the main window so we can keep in bounds */
     DocumentWindow* parent;
 
-    /*Add UI Elements here */
+    WeakReference<PluginInstaller>::Master masterReference;
+    friend class WeakReference<PluginInstaller>;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginInstaller);
 
@@ -78,64 +73,19 @@ public:
 
     String getSelectedPlugin() { return pInfo.pluginName; }
 
-    void buttonClicked (Button* button) override
-    {
-        if(button == &downloadButton)
-        {
-            PluginInstaller::pluginSelected(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
-        }
-        else if (button == &documentationButton)
-        {
-            URL url = URL(pInfo.docURL);
-            url.launchInDefaultBrowser();
-        }
-    }
+    void buttonClicked(Button* button) override;
 
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override
-    {
-        if (comboBoxThatHasChanged == &versionMenu)
-        {
-            pInfo.selectedVersion = comboBoxThatHasChanged->getText();
-            downloadButton.setEnabled(true);
-        }
-    }
+    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
-    void setPluginInfo(const SelectedPluginInfo& p) 
-    {
-        pInfo = p;
-        pluginNameLabel.setText("Name: " + pInfo.pluginName, dontSendNotification);
-        ownerLabel.setText("Author: " + pInfo.owner, dontSendNotification);
-        lastUpdatedLabel.setText("Last Updated: " + pInfo.lastUpdated, dontSendNotification);
-        descriptionText.setText(pInfo.description, dontSendNotification);
-        dependencyLabel.setText(pInfo.dependencies, dontSendNotification);
+    void setPluginInfo(const SelectedPluginInfo& p);
 
-        versionMenu.clear(dontSendNotification);
+    void updateStatusMessage(const String& str, bool isVisible);
 
-        for (int i = 0; i < pInfo.versions.size(); i++)
-            versionMenu.addItem(pInfo.versions[i], i + 1);
-        
-        downloadButton.setEnabled(false);
-    }
+    void makeInfoVisible(bool isEnabled);
 
-    void updateStatusMessage(const String& str, bool isVisible)
-    {
-        statusLabel.setText(str, dontSendNotification);
-        statusLabel.setVisible(isVisible);
-    }
-
-    void makeInfoVisible(bool isEnabled) 
-    {
-        pluginNameLabel.setVisible(isEnabled);
-        ownerLabel.setVisible(isEnabled);
-        versionLabel.setVisible(isEnabled);
-        versionMenu.setVisible(isEnabled);
-        lastUpdatedLabel.setVisible(isEnabled);
-        descriptionLabel.setVisible(isEnabled);
-        descriptionText.setVisible(isEnabled);
-        dependencyLabel.setVisible(isEnabled);
-        downloadButton.setVisible(isEnabled);
-        documentationButton.setVisible(isEnabled);
-    }
+    /** Called when the user hits the 'Download' button for a selected plugin **/
+    bool downloadPlugin(const String& plugin, const String& package, 
+                        const String& version);
 
 private:
 
@@ -173,6 +123,9 @@ class PluginListBoxComponent : public Component,
 public:
 
     PluginListBoxComponent();
+
+    /* Raw list of plugins available for download */
+    StringArray pluginArray;
 
     int getNumRows() override;
 
@@ -221,26 +174,7 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override
-    {
-        if (comboBoxThatHasChanged->getSelectedId() == 1)
-        {
-            PluginInstaller::plugins.sort(true);
-            pluginListAndInfo.repaint();
-        }
-        else if (comboBoxThatHasChanged->getSelectedId() == 2)
-        {
-            PluginInstaller::plugins.sort(true);
-            int size = PluginInstaller::plugins.size();
-            for (int i = 0; i < size / 2; i++)
-            {
-                PluginInstaller::plugins.getReference(i).swapWith
-                (PluginInstaller::plugins.getReference(size - i - 1));
-            }
-
-            pluginListAndInfo.repaint();
-        }
-    }
+    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
  
 private:
 
