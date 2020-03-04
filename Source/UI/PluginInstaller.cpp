@@ -75,12 +75,6 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 PluginInstaller::~PluginInstaller()
 {
-	setMenuBar(0);
-
-#if JUCE_MAC
-	MenuBarModel::setMacMainMenu(0);
-#endif
-
 	masterReference.clear();
 }
 
