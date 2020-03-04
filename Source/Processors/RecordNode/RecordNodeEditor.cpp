@@ -334,6 +334,10 @@ FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(no
 void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 {
 
+	// Ignore right-clicks...add functionality for right-clicks later...
+	if (event.mods.isRightButtonDown())
+		return;
+
 	if (srcID < 0) //TODO: Master box was selected; show read-only channel selector
 		return;
 

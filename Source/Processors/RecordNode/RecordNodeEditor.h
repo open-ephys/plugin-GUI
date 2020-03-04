@@ -74,6 +74,17 @@ public:
 
 	int srcIndex;
 	int subProcIdx;
+
+	void mouseUp(const MouseEvent &event) override
+	{
+		// Ignore right-clicks...add functionality for right-clicks later...
+		if (event.mods.isRightButtonDown())
+			return;
+
+		setToggleState(!getToggleState(), sendNotification);
+	}
+
+
 private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
