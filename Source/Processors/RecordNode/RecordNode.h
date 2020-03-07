@@ -66,6 +66,12 @@ public:
     void closeSyncWindow();
 };
 
+enum SyncStatus { 
+    OFF,        //Synchronizer is not running
+    SYNCING,    //Synchronizer is attempting to sync
+    SYNCED      //Signal has been synchronized
+};
+
 class Synchronizer : public HighResolutionTimer
 {
 public:
@@ -76,6 +82,8 @@ public:
     void addSubprocessor(int sourceID, int subProcIdx, float expectedSampleRate);
     void setMasterSubprocessor(int sourceID, int subProcIdx);
     void setSyncChannel(int sourceID, int subProcIdx, int ttlChannel);
+    bool isSubprocessorSynced(int sourceID, int subProcIdx);
+    SyncStatus getStatus(int sourceID, int subProcIdx);
 
     void addEvent(int sourceID, int subProcessorID, int ttlChannel, int sampleNumber);
 

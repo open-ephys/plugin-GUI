@@ -48,7 +48,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	masterMonitor->setBounds(18, 43, 15, 62);
 	addAndMakeVisible(masterMonitor);
 
-	masterRecord = new RecordToggleButton("MasterRecord",-1,-1);
+	masterRecord = new RecordToggleButton(recordNode, "MasterRecord",-1,-1);
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
 	addAndMakeVisible(masterRecord);
@@ -72,7 +72,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordToggleButton("EventRecord",-1,-1);
+	eventRecord = new RecordToggleButton(recordNode, "EventRecord",-1,-1);
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
 	recordNode->setRecordEvents(false); //TODO: This needs to be loaded from save file
@@ -83,7 +83,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordToggleButton("SpikeRecord",-1,-1);
+	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord",-1,-1);
 	spikeRecord->setBounds(120, 90, 15, 15);
 	spikeRecord->addListener(this);
 	addAndMakeVisible(spikeRecord);
@@ -100,7 +100,12 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 RecordNodeEditor::~RecordNodeEditor() {}
 
 void RecordNodeEditor::timerCallback()
-{}
+{
+
+	//Can check RecordNode state here and modify editor accordinlgy
+
+
+}
 
 void RecordNodeEditor::updateSubprocessorFifos()
 {
@@ -133,7 +138,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 				addAndMakeVisible(subProcMonitors.getLast());
 				subProcMonitors.getLast()->setVisible(false);
 
-				subProcRecords.add(new RecordToggleButton("RecSP" + String(i), it->first, ptr->first));
+				subProcRecords.add(new RecordToggleButton(recordNode, "RecSP" + String(i), it->first, ptr->first));
 				subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
 				subProcRecords.getLast()->addListener(this);
 				addAndMakeVisible(subProcRecords.getLast());
@@ -290,10 +295,11 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordToggleButton::RecordToggleButton(const String& name, int srcID, int subProcID) : Button(name) {
+RecordToggleButton::RecordToggleButton(RecordNode* node, const String& name, int srcID, int subProcID) : Button(name) {
 	setClickingTogglesState(true);
 	srcIndex = srcID;
 	subProcIdx = subProcID;
+	node = node;
 }
 
 RecordToggleButton::~RecordToggleButton() {}
@@ -301,21 +307,48 @@ RecordToggleButton::~RecordToggleButton() {}
 void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
 
+	switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
+    case SyncStatus::OFF : 
+		if (isMouseOver)
+		{
+			//LIGHT GREY
+			g.setColour(Colour(210, 210, 210));
+		}
+		else
+		{
+			//DARK GREY
+			g.setColour(Colour(110, 110, 110));
+		}
+    	break;       // and exits the switch
+    case SyncStatus::SYNCING : 
+		if (isMouseOver)
+		{
+			//LIGHT ORANGE
+			g.setColour(Colour(210, 210, 210));
+		}
+		else
+		{
+			//DARK ORANGE
+			g.setColour(Colour(110, 110, 110));
+		}
+    	break;
+	case SyncStatus::SYNCED :
+		if (isMouseOver)
+		{
+			//LIGHT GREEN
+			g.setColour(Colour(0, 255, 0));
+		}
+		else
+		{
+			//DARK GREEN
+			g.setColour(Colour(20, 255, 20));
+		}
+    	break;
+	
+	}
+
 	g.setColour(Colour(0,0,0));
 	g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
-
-	if (isMouseOver)
-	{
-		g.setColour(Colour(210, 210, 210));
-		if (getToggleState())
-			g.setColour(Colour(255, 65, 65));
-	}
-	else
-	{
-		g.setColour(Colour(110, 110, 110));
-		if (getToggleState())
-			g.setColour(Colour(255, 0, 0));
-	}
 	g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
 	/*Draw static black circle in center on top */

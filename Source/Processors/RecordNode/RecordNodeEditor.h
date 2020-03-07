@@ -69,7 +69,7 @@ private :
 class RecordToggleButton : public Button
 {
 public: 
-	RecordToggleButton(const String& name, int srcIndex, int subProcIdx);
+	RecordToggleButton(RecordNode* node, const String& name, int srcIndex, int subProcIdx);
 	~RecordToggleButton();
 
 	int srcIndex;
@@ -86,6 +86,7 @@ public:
 
 
 private:
+	RecordNode* node;
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 

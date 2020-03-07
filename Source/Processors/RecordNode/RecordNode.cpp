@@ -713,6 +713,27 @@ void Synchronizer::openSyncWindow()
 	syncWindowIsOpen = true;
 }
 
+bool Synchronizer::isSubprocessorSynced(int id, int idx)
+{
+	return subprocessors[id][idx]->isSynchronized;
+}
+
+SyncStatus Synchronizer::getStatus(int id, int idx)
+{
+
+	//Deal with synchronization of spikes and events later...
+	if (id < 0)
+		return SyncStatus::OFF;
+
+	if (isSubprocessorSynced(id, idx))
+		return SyncStatus::SYNCED;
+	else if (syncWindowIsOpen)
+		return SyncStatus::SYNCING;
+	else
+		return SyncStatus::OFF;
+
+}
+
 void Synchronizer::hiResTimerCallback()
 {
 	stopTimer();
