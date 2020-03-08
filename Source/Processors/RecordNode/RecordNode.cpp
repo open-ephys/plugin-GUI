@@ -727,9 +727,9 @@ SyncStatus Synchronizer::getStatus(int id, int idx)
 
 	//Deal with synchronization of spikes and events later...
 	if (id < 0)
-		return SyncStatus::SYNCING;
+		return SyncStatus::OFF;
 
-	if (false)//isSubprocessorSynced(id, idx))
+	if (isSubprocessorSynced(id, idx))
 		return SyncStatus::SYNCED;
 	else if (true)
 		return SyncStatus::SYNCING;
