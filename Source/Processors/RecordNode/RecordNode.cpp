@@ -253,6 +253,12 @@ void RecordNode::updateSettings()
 	updateSubprocessorMap();
 }
 
+bool RecordNode::enable()
+{
+    synchronizer->reset();
+    return true;
+}
+
 void RecordNode::startRecording()
 {
 
@@ -631,6 +637,21 @@ Synchronizer::~Synchronizer()
 
 }
 
+void Synchronizer::reset()
+{
+    syncWindowIsOpen = false;
+    firstMasterSync = true;
+    
+    std::map<int, std::map<int, Subprocessor*>>::iterator it;
+    std::map<int, Subprocessor*>::iterator ptr;
+    
+    for (it = subprocessors.begin(); it != subprocessors.end(); it++) {
+        for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
+            ptr->second->isSynchronized = false;
+        }
+    }
+}
+
 void Synchronizer::addSubprocessor(int sourceID, int subProcIndex, float expectedSampleRate)
 {
 	subprocessorArray.add(new Subprocessor(expectedSampleRate));
@@ -683,7 +704,6 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 			{
 				for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) 
 				{
-
 					ptr->second->setMasterTime(masterTimeSec);
 				}
 			}

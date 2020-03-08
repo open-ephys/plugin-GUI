@@ -78,6 +78,8 @@ public:
 
     Synchronizer(RecordNode* parent);
     ~Synchronizer();
+    
+    void reset();
 
     void addSubprocessor(int sourceID, int subProcIdx, float expectedSampleRate);
     void setMasterSubprocessor(int sourceID, int subProcIdx);
@@ -127,6 +129,7 @@ public:
 	void updateSubprocessorMap();
 
 	void updateSettings() override;
+    bool enable() override;
 	int getNumSubProcessors() const override;
 
 	void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
