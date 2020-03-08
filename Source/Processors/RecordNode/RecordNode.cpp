@@ -540,7 +540,7 @@ Subprocessor::Subprocessor(float expectedSampleRate_)
 	receivedEventInWindow = false;
 	receivedMasterTimeInWindow = false;
 
-	sampleRateTolerance = 0.0001;
+	sampleRateTolerance = 0.01;
 }
 
 void Subprocessor::setMasterTime(float masterTimeSec_)
