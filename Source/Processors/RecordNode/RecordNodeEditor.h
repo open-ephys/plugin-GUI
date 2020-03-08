@@ -66,7 +66,7 @@ private :
 	
 };
 
-class RecordToggleButton : public Button
+class RecordToggleButton : public Button, public Timer
 {
 public: 
 	RecordToggleButton(RecordNode* node, const String& name, int srcIndex, int subProcIdx);
@@ -87,6 +87,7 @@ public:
 
 private:
 	RecordNode* node;
+    void timerCallback();
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 

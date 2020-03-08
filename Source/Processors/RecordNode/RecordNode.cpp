@@ -27,7 +27,9 @@ RecordNode::RecordNode()
 
 	recordThread = new RecordThread(this, recordEngine);
 
-	synchronizer = new Synchronizer();
+	synchronizer = new Synchronizer(this);
+
+	isSyncReady = true;
 
 }
 
@@ -413,6 +415,7 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 
 {
 
+	isProcessing = true;
 	checkForEvents();
 
 	if (isRecording)
@@ -615,11 +618,12 @@ void Subprocessor::closeSyncWindow()
 
 // =======================================================
 
-Synchronizer::Synchronizer()
+Synchronizer::Synchronizer(RecordNode* parentNode)
 {
 	syncWindowLengthMs = 50;
 	syncWindowIsOpen = false;
 	firstMasterSync = true;
+	node = parentNode;
 }
 
 Synchronizer::~Synchronizer()
@@ -723,11 +727,11 @@ SyncStatus Synchronizer::getStatus(int id, int idx)
 
 	//Deal with synchronization of spikes and events later...
 	if (id < 0)
-		return SyncStatus::OFF;
+		return SyncStatus::SYNCING;
 
-	if (isSubprocessorSynced(id, idx))
+	if (false)//isSubprocessorSynced(id, idx))
 		return SyncStatus::SYNCED;
-	else if (syncWindowIsOpen)
+	else if (true)
 		return SyncStatus::SYNCING;
 	else
 		return SyncStatus::OFF;

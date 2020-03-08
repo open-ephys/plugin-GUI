@@ -76,7 +76,7 @@ class Synchronizer : public HighResolutionTimer
 {
 public:
 
-    Synchronizer();
+    Synchronizer(RecordNode* parent);
     ~Synchronizer();
 
     void addSubprocessor(int sourceID, int subProcIdx, float expectedSampleRate);
@@ -90,6 +90,8 @@ public:
     float convertTimestamp(int sourceID, int subProcID, int sampleNumber);
 
     std::map<int, std::map<int, Subprocessor*>> subprocessors;
+
+    RecordNode* node;
 
 private:
 
@@ -169,6 +171,8 @@ public:
 	std::vector<std::vector<int>> subProcessorMap;
 	std::vector<int> startRecChannels;
 
+    bool isSyncReady;
+
     //TODO: Need to validate these new methods
 
     /** Must be called by a spike recording source on the "enable" method
@@ -204,6 +208,7 @@ public:
 
 private:
 
+    bool isProcessing;
 	bool isRecording;
 	bool hasRecorded;
 	bool settingsNeeded;

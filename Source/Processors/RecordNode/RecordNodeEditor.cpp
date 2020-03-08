@@ -295,61 +295,90 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordToggleButton::RecordToggleButton(RecordNode* node, const String& name, int srcID, int subProcID) : Button(name) {
+RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name, int srcID, int subProcID) : Button(name) {
 	setClickingTogglesState(true);
 	srcIndex = srcID;
 	subProcIdx = subProcID;
-	node = node;
+	node = _node;
+    startTimer(200);
 }
 
 RecordToggleButton::~RecordToggleButton() {}
 
+void RecordToggleButton::timerCallback()
+{
+    repaint();
+}
+
 void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
+    
+    g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
-	switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
-    case SyncStatus::OFF : 
-		if (isMouseOver)
-		{
-			//LIGHT GREY
-			g.setColour(Colour(210, 210, 210));
-		}
-		else
-		{
-			//DARK GREY
-			g.setColour(Colour(110, 110, 110));
-		}
-    	break;       // and exits the switch
-    case SyncStatus::SYNCING : 
-		if (isMouseOver)
-		{
-			//LIGHT ORANGE
-			g.setColour(Colour(210, 210, 210));
-		}
-		else
-		{
-			//DARK ORANGE
-			g.setColour(Colour(110, 110, 110));
-		}
-    	break;
-	case SyncStatus::SYNCED :
-		if (isMouseOver)
-		{
-			//LIGHT GREEN
-			g.setColour(Colour(0, 255, 0));
-		}
-		else
-		{
-			//DARK GREEN
-			g.setColour(Colour(20, 255, 20));
-		}
-    	break;
-	
+	if (srcIndex > 0 && CoreServices::getAcquisitionStatus())
+	{
+        LOGD("SYNCHRONIZER IS ? ", node->synchronizer->getStatus(srcIndex, subProcIdx));
+		switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
+                
+            case SyncStatus::OFF :
+            {
+                LOGD("SYNCHRONIZER IS OFF");
+                if (isMouseOver)
+                {
+                    //LIGHT GREY
+                    g.setColour(Colour(210, 210, 210));
+                }
+                else
+                {
+                    //DARK GREY
+                    g.setColour(Colour(110, 110, 110));
+                }
+                break;
+            }// and exits the switch
+            case SyncStatus::SYNCING :
+            {
+                LOGD("SYNCHRONIZER IS SYNCING");
+                if (isMouseOver)
+                {
+                    //LIGHT ORANGE
+                   g.setColour(Colour(255,216,177));
+                }
+                else
+                {
+                    //DARK ORAN
+                   g.setColour(Colour(255,165,0));
+                }
+                break;
+            }
+            case SyncStatus::SYNCED :
+            {
+                LOGD("SYNCHRONIZER IS SYNCED");
+                if (isMouseOver)
+                {
+                    //LIGHT GREEN
+                    g.setColour(Colour(0, 255, 0));
+                }
+                else
+                {
+                    //DARK GREEN
+                    g.setColour(Colour(20, 255, 20));
+                }
+                break;
+            
+            }
+        }
+
 	}
-
-	g.setColour(Colour(0,0,0));
-	g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
-	g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+    else
+    {
+        if (!getToggleState())
+            g.setColour(Colour(110,110,110));
+        else
+            g.setColour(Colour(255,0,0));
+    }
+    
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
 	/*Draw static black circle in center on top */
 	g.setColour(Colour(0,0,0));
