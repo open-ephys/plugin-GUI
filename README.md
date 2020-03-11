@@ -52,6 +52,6 @@ Since 2019, the support efforts of [Pavel Kulik](https://github.com/medengineer)
 
 We welcome bug reports, feature recommendations, pull requests, and plugins from the community. For more information, see [Contributing to the Open Ephys GUI](CONTRIBUTING.md).
 
-If you have the potential to donate money or developer time to this project, please get in touch with via info@open-ephys.org! There are plenty of opportunities to get involved.
+If you have the potential to donate money or developer time to this project, please get in touch via info@open-ephys.org. There are plenty of opportunities to get involved.
 
 
