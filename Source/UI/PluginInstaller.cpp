@@ -399,7 +399,27 @@ void PluginInfoComponent::buttonClicked(Button* button)
 {
 	if (button == &downloadButton)
 	{
-		downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
+		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
+		
+		bool dlSucess = downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
+
+		if(dlSucess)
+		{	
+			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   pInfo.pluginName + " Installed Successfully");
+
+			std::cout << "Download Successfull!!" << std::endl;
+		}
+		else
+		{
+			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   "Error Installing " + pInfo.pluginName);
+
+			std::cout << "Download Failed!!" << std::endl;;
+		}
+		
 	}
 	else if (button == &documentationButton)
 	{
@@ -497,15 +517,21 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 		pluginFilePath += File::separatorString;
 		pluginFilePath += filename;
 
-		std::cout << "Plugin zip file destination path: " << pluginFilePath << std::endl;
-
 		//Create local file
-		File localFile(pluginFilePath);
-		localFile.deleteFile();
-		MemoryBlock mem(1024);
-		fileStream->readIntoMemoryBlock(mem);
-		FileOutputStream out(localFile);
-		out.write(mem.getData(), mem.getSize());
+		File pluginFile(pluginFilePath);
+		pluginFile.deleteFile();
+
+		juce::FileOutputStream out(pluginFile);
+		out.writeFromInputStream(*fileStream, -1);
+		out.flush();
+
+		juce::ZipFile pluginZip(pluginFile);
+		Result rs = pluginZip.uncompressTo(pluginsPath);
+
+		pluginFile.deleteFile();		
+
+		if (rs.failed())
+			return false;
 
 		return true;
 

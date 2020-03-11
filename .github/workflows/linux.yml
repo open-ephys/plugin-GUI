@@ -11,10 +11,10 @@ jobs:
     - uses: actions/checkout@v1
     - name: configure
       run: |
-        cd Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-        cd ../Resources/Scripts
+        cd Resources/Scripts
         sudo ./install_linux_dependencies.sh
         sudo cp 40-open-ephys.rules /etc/udev/rules.d
+        cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
     - name: build
       run: cmake --build Build
 #    - name: test
