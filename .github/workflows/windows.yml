@@ -1,6 +1,12 @@
 name: Windows
 
-on: [push]
+on:
+  push:
+    paths:
+    - "Source"
+    - "JuceLibraryCode"
+    - "PluginGenerator"
+    - "Plugins"
 
 jobs:
 

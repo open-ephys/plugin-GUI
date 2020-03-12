@@ -1,6 +1,12 @@
 name: macOS
 
-on: [push]
+on:
+  push:
+    paths:
+    - "Source"
+    - "JuceLibraryCode"
+    - "PluginGenerator"
+    - "Plugins"
 
 jobs:
   build-osx:
