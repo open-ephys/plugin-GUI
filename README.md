@@ -6,7 +6,7 @@ The Open Ephys GUI is designed to provide a fast and flexible interface for acqu
 - [Open Ephys Acquisition Board](http://www.open-ephys.org/acq-board/) (supports up to 512 channels)
 - [Intan RHD2000 Evaluation System](http://intantech.com/RHD2000_evaluation_system.html) (supports up to 256 channels)
 - [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
-- [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (supports up to 6144 channels)
+- [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (Windows only, supports up to 6144 channels)
 
 The GUI is based around a *true plugin architecture*, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be created without the need to re-compile the entire application.
 
@@ -31,12 +31,9 @@ Our primary user base is scientists performing electrophysiology experiments wit
 ## Installation
 
 The easiest way to get started is to use the pre-compiled binaries for your platform of choice (links will download a .zip file, which contains a folder with the GUI executable):
-- [macOS](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/mac.zip)
-- [Linux (64-bit)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/linux.zip)
-- [Windows (7 & 10)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/windows.zip)
-
-The Neuropixels version of the GUI is currently only available for Windows:
-- [Open Ephys for Neuropixels](https://github.com/open-ephys-gui-binaries/open-ephys/tree/neuropix)
+- [macOS](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-mac.zip)
+- [Linux](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-linux.zip)
+- [Windows](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-windows.zip) (includes Neuropixels plugins)
 
 To compile the GUI from source, follow the instructions on our wiki for [macOS](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491555/macOS), [Linux](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491546/Linux), or [Windows](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491621/Windows).
 
