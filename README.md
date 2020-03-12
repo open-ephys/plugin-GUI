@@ -20,13 +20,13 @@ Our primary user base is scientists performing electrophysiology experiments wit
 ![language](https://img.shields.io/badge/language-c++-blue.svg)
 [![license](https://img.shields.io/badge/license-GPL3-blue.svg)](LICENSE)
 
-## Important Info
+## Important Information
 
 - The Open Ephys GUI is free, collaboratively developed, open-source software for scientific research. It includes many features designed to make extracellular electrophysiology data easier to acquire; however, it is not guaranteed to work as advertised. Before you use it for your own experiments, you should *test any capabilities you plan to use.* The use of a plugin-based architecture provides the flexibility to customize your signal chain, but it also makes it difficult to test every possible combination of processors in advance. Whenever you download or upgrade the GUI, be sure to test your desired configuration in a "safe" environment before using it to collect real data.
 
 - If you observe any unexpected behavior, *please [report an issue](https://github.com/open-ephys/plugin-GUI/issues) as soon as possible.*  We rely on help from the community to ensure that the GUI is functioning properly.
 
-- Any publications based on data collected with the GUI should cite the following article: [Open Ephys: an open-source, plugin-based platform for multichannel electrophysiology](https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea). Citations remain essential for measuring the impact of scientific software, so be sure to include references for any open-source tools that you use in your research.
+- Any publications based on data collected with the GUI should cite the following article: [Open Ephys: an open-source, plugin-based platform for multichannel electrophysiology](https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea). Citations remain essential for measuring the impact of scientific software, so be sure to include references for any open-source tools that you use in your research!
 
 ## Installation
 
