@@ -31,9 +31,9 @@ Our primary user base is scientists performing electrophysiology experiments wit
 ## Installation
 
 The easiest way to get started is to use the pre-compiled binaries for your platform of choice (links will download a .zip file, which contains a folder with the GUI executable):
-- [macOS](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-mac.zip)
-- [Linux](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-linux.zip)
-- [Windows](https://dl.bintray.com/open-ephys-gui/Release/:open-ephys-v0.4.6-windows.zip) (includes Neuropixels plugins)
+- [macOS](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-mac.zip)
+- [Linux](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-linux.zip)
+- [Windows](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-windows.zip) (includes Neuropixels plugins)
 
 To compile the GUI from source, follow the instructions on our wiki for [macOS](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491555/macOS), [Linux](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491546/Linux), or [Windows](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491621/Windows).
 
