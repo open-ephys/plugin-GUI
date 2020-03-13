@@ -457,50 +457,93 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
                                      int buttonW, int buttonH,
                                      ComboBox& box)
 {
+    auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
+    Rectangle<int> boxBounds (0, 0, width, height);
 
-    g.fillAll(Colours::lightgrey); //box.findColour (ComboBox::backgroundColourId));
+    g.setColour (Colours::lightgrey);
+    g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
 
-    if (box.isEnabled() && box.hasKeyboardFocus(false))
+    if (box.isPopupActive() || box.hasKeyboardFocus(false))
     {
-        g.setColour(Colours::lightgrey); //box.findColour (TextButton::buttonColourId));
-        g.drawRect(0, 0, width, height, 2);
-    }
-    else
-    {
-        g.setColour(box.findColour(ComboBox::outlineColourId));
-        g.drawRect(0, 0, width, height);
+        g.setColour(Colours::darkgrey);
+        g.drawRoundedRectangle(boxBounds.toFloat().reduced(0.5f, 0.5f), cornerSize, 1.5f);
     }
 
     const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
 
-    const Colour baseColour(Colours::orange);/*LookAndFeelHelpers::createBaseColour (box.findColour (ComboBox::buttonColourId),
-                                                                   box.hasKeyboardFocus (true),
-                                                                   false, isButtonDown)
-                                .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));*/
+    Rectangle<int> arrowZone (buttonX + outlineThickness, buttonY + outlineThickness,  
+                              buttonW - outlineThickness, buttonH - outlineThickness);
+                                
+    Path path;
+    path.addTriangle(arrowZone.getCentreX() - 5.0f, arrowZone.getCentreY() - 2.0f,
+                     arrowZone.getCentreX(), arrowZone.getCentreY() + 5.0f,
+                     arrowZone.getCentreX() + 5.0f, arrowZone.getCentreY() - 2.0f);
 
-    juce::LookAndFeel_V1::drawGlassLozenge(g,
-                                           buttonX + outlineThickness, buttonY + outlineThickness,
-                                           buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
-                                           baseColour, outlineThickness, -1.0f,
-                                           true, true, true, true);
+    g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    g.fillPath(path);
+}
 
-    if (box.isEnabled())
+
+// ========= Popup Menu Background: ===========================
+
+void CustomLookAndFeel::drawPopupMenuBackground (Graphics& g, int width, int height)
+{
+    const Colour background (findColour (PopupMenu::backgroundColourId));
+
+    g.fillAll (background);
+    g.setColour (background.overlaidWith (Colour (0x2badd8e6)));
+
+   #if ! JUCE_MAC
+    g.setColour (findColour (PopupMenu::textColourId).withAlpha (0.6f));
+    g.drawRect (0, 0, width, height);
+   #endif
+}
+
+
+//==================================================================
+// BUTTON METHODS :
+//==================================================================
+
+
+void CustomLookAndFeel::drawButtonBackground (Graphics& g,
+                                              Button& button,
+                                              const Colour& backgroundColour,
+                                              bool isMouseOverButton, bool isButtonDown)
+{
+    auto cornerSize = 3.0f;
+    auto bounds = button.getLocalBounds().toFloat();
+
+    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 0.9f)
+                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.35f);
+
+    if (isButtonDown || isMouseOverButton)
+        baseColour = baseColour.contrasting (isButtonDown ? 0.35f : 0.05f);
+
+    g.setColour (baseColour);
+
+    g.fillRoundedRectangle (bounds, cornerSize);
+
+    if (button.hasKeyboardFocus(false))
     {
-        const float arrowX = 0.3f;
-        const float arrowH = 0.2f;
-
-        Path p;
-        p.addTriangle(buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.45f - arrowH),
-                      buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.45f,
-                      buttonX + buttonW * arrowX,          buttonY + buttonH * 0.45f);
-
-        p.addTriangle(buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.55f + arrowH),
-                      buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.55f,
-                      buttonX + buttonW * arrowX,          buttonY + buttonH * 0.55f);
-
-        g.setColour(box.findColour(ComboBox::arrowColourId));
-        g.fillPath(p);
+        g.setColour(Colours::darkgrey);
+        g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
     }
+}
 
 
+void CustomLookAndFeel::drawButtonText (Graphics& g,
+                                        TextButton& button,
+                                        bool isMouseOverButton, bool isButtonDown)
+{
+    auto textColour = button.getToggleState()
+                        ? button.findColour (TextButton::textColourOnId)
+                        : button.findColour (TextButton::textColourOffId);
+
+    const int padding = 4;
+    g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
+    g.drawFittedText (button.getButtonText(),
+                      padding, 0,
+                      button.getWidth() - padding * 2, button.getHeight(),
+                      Justification::centred,
+                      1);
 }

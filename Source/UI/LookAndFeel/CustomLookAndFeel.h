@@ -112,6 +112,22 @@ public:
                       int buttonW, int buttonH,
                       ComboBox& box);
 
+    // ========= custom popup menu methods: ===========================
+
+    void drawPopupMenuBackground (Graphics&, int width, int height);
+
+
+    // ========= custom button methods: ===========================
+
+    void drawButtonBackground (Graphics& g,
+                               Button& button,
+                               const Colour& backgroundColour,
+                               bool isMouseOverButton, bool isButtonDown) override;
+
+    void drawButtonText (Graphics& g,
+                         TextButton& button,
+                         bool isMouseOverButton, bool isButtonDown) override;
+
 private:
 
     // UNCOMMENT AFTER UPDATE

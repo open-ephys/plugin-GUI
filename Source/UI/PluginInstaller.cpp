@@ -361,11 +361,13 @@ PluginInfoComponent::PluginInfoComponent()
 
 	addChildComponent(downloadButton);
 	downloadButton.setButtonText("Download & Install");
+	downloadButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	downloadButton.addListener(this);
 	downloadButton.setEnabled(false);
 
 	addChildComponent(documentationButton);
 	documentationButton.setButtonText("Open Documentation");
+	documentationButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	documentationButton.addListener(this);
 
 	addAndMakeVisible(statusLabel);
@@ -391,7 +393,7 @@ void PluginInfoComponent::resized()
 	descriptionText.setBounds(120, 155, getWidth() - 130, 50);
 	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), getWidth() - 10, 30);
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
-	documentationButton.setBounds(10, getHeight() - 60, getWidth() * 0.4, 30);
+	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.4, 30);
 	statusLabel.setBounds(10, getHeight() / 2, getWidth() - 10, 30);
 }
 
