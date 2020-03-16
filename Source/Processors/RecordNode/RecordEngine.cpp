@@ -260,9 +260,9 @@ RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
 	switch (index)
 	{
 	case 0:
-		return OriginalRecording::getEngineManager();
-	case 1: 
 		return BinaryRecording::getEngineManager();
+	case 1: 
+		return OriginalRecording::getEngineManager();
 
 	default:
 		return nullptr;
@@ -279,16 +279,13 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 	//Built-in engines
 
 	LOGD("Got:", id);
-
-	if (id == "OPENEPHYS")
+	if (id == "RAWBINARY")
 	{
-		LOGD("Instantiating OPENEPHYS");
-		return new OriginalRecording();
-	}
-	else if (id == "RAWBINARY")
-	{
-		LOGD("Instantiating BINARY");
 		return new BinaryRecording();
+	}
+	else if (id == "OPENEPHYS")
+	{
+		return new OriginalRecording();
 	}
 
 	return nullptr;

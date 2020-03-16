@@ -66,11 +66,11 @@ private :
 	
 };
 
-class RecordToggleButton : public Button, public Timer
+class SyncControlButton : public Button, public Timer, public ComponentListener
 {
-public: 
-	RecordToggleButton(RecordNode* node, const String& name, int srcIndex, int subProcIdx);
-	~RecordToggleButton();
+public:
+	SyncControlButton(RecordNode* node, const String& name, int srcIndex, int subProcIdx);
+	~SyncControlButton();
 
 	int srcIndex;
 	int subProcIdx;
@@ -78,12 +78,39 @@ public:
 	void mouseUp(const MouseEvent &event) override
 	{
 		// Ignore right-clicks...add functionality for right-clicks later...
-		if (event.mods.isRightButtonDown())
+		if (event.mods.isLeftButtonDown())
+		{
+
+			std::vector<bool> channelStates;
+			for (int i = 0; i < 8; i++)
+				channelStates.push_back(false);
+
+			auto* channelSelector = new RecordChannelSelector(channelStates);
+ 
+			CallOutBox& myBox
+				= CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
+
+			myBox.addComponentListener(this);
 			return;
 
-		setToggleState(!getToggleState(), sendNotification);
+		}
+
 	}
 
+private:
+	RecordNode* node;
+    void timerCallback();
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+	
+	void componentBeingDeleted(Component &component);
+
+};
+
+class RecordToggleButton : public Button, public Timer
+{
+public: 
+	RecordToggleButton(RecordNode* node, const String& name);
+	~RecordToggleButton();
 
 private:
 	RecordNode* node;
@@ -114,7 +141,7 @@ private:
 	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 	OwnedArray<Label> subProcLabels;
 	OwnedArray<FifoMonitor> subProcMonitors;
-	OwnedArray<RecordToggleButton> subProcRecords;
+	OwnedArray<SyncControlButton> subProcRecords;
 	ScopedPointer<Label> masterLabel;
 	ScopedPointer<FifoMonitor> masterMonitor;
 	ScopedPointer<RecordToggleButton> masterRecord;

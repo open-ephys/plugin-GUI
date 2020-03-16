@@ -48,7 +48,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	masterMonitor->setBounds(18, 43, 15, 62);
 	addAndMakeVisible(masterMonitor);
 
-	masterRecord = new RecordToggleButton(recordNode, "MasterRecord",-1,-1);
+	masterRecord = new RecordToggleButton(recordNode, "MasterRecord");
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
 	addAndMakeVisible(masterRecord);
@@ -72,7 +72,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordToggleButton(recordNode, "EventRecord",-1,-1);
+	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
 	recordNode->setRecordEvents(false); //TODO: This needs to be loaded from save file
@@ -83,7 +83,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord",-1,-1);
+	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 90, 15, 15);
 	spikeRecord->addListener(this);
 	addAndMakeVisible(spikeRecord);
@@ -138,7 +138,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 				addAndMakeVisible(subProcMonitors.getLast());
 				subProcMonitors.getLast()->setVisible(false);
 
-				subProcRecords.add(new RecordToggleButton(recordNode, "RecSP" + String(i), it->first, ptr->first));
+				subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
 				subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
 				subProcRecords.getLast()->addListener(this);
 				addAndMakeVisible(subProcRecords.getLast());
@@ -174,18 +174,20 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		else
 			showSubprocessorFifos(false);
 	} 
-	else if (subProcRecords.contains((RecordToggleButton*)button))
+	else if (subProcRecords.contains((SyncControlButton*)button))
 	{
-
-		int subProcIdx = subProcRecords.indexOf((RecordToggleButton *)button);
+		//Should be handled by SyncControlButton class
+		/*
+		int subProcIdx = subProcRecords.indexOf((SyncControlButton *)button);
 		FifoMonitor* fifo = subProcMonitors[subProcIdx];
 		bool enabled = button->getToggleState();
 		fifo->channelStates.clear();
-		int srcIndex = ((RecordToggleButton*)button)->srcIndex;
-		int subIndex = ((RecordToggleButton*)button)->subProcIdx;
+		int srcIndex = ((SyncControlButton*)button)->srcIndex;
+		int subIndex = ((SyncControlButton*)button)->subProcIdx;
 		for (int i = 0; i < recordNode->m[srcIndex][subIndex].size(); i++)
 			fifo->channelStates.push_back(enabled);
-		recordNode->updateChannelStates(((RecordToggleButton*)button)->srcIndex, ((RecordToggleButton*)button)->subProcIdx, fifo->channelStates);
+		recordNode->updateChannelStates(((SyncControlButton*)button)->srcIndex, ((SyncControlButton*)button)->subProcIdx, fifo->channelStates);
+		*/
 	}
 	
 }
@@ -295,10 +297,101 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name, int srcID, int subProcID) : Button(name) {
+SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int _srcIdx, int _subProcIdx) : Button(name) 
+{
+	srcIndex = _srcIdx;
+	subProcIdx = _subProcIdx;
+	node = _node;
+    startTimer(200);
+}
+
+SyncControlButton::~SyncControlButton() {}
+
+void SyncControlButton::timerCallback()
+{
+    repaint();
+}
+
+void SyncControlButton::componentBeingDeleted(Component &component)
+{
+	/*Capture button channel states and send back to record node. */
+
+	auto* channelSelector = (RecordChannelSelector*)component.getChildComponent(0);
+
+}
+
+void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+	g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
+
+	g.setColour(Colour(110,110,110));
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+
+	if (srcIndex > 0 && CoreServices::getAcquisitionStatus())
+	{
+
+		switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
+                
+            case SyncStatus::OFF :
+            {
+  
+                if (isMouseOver)
+                {
+                    //LIGHT GREY
+                    g.setColour(Colour(210, 210, 210));
+                }
+                else
+                {
+                    //DARK GREY
+                    g.setColour(Colour(110, 110, 110));
+                }
+                break;
+            }
+            case SyncStatus::SYNCING :
+            {
+
+                if (isMouseOver)
+                {
+                    //LIGHT ORANGE
+                   g.setColour(Colour(255,216,177));
+                }
+                else
+                {
+                    //DARK ORAN
+                   g.setColour(Colour(255,165,0));
+                }
+                break;
+            }
+            case SyncStatus::SYNCED :
+            {
+
+                if (isMouseOver)
+                {
+                    //LIGHT GREEN
+                    g.setColour(Colour(0, 255, 0));
+                }
+                else
+                {
+                    //DARK GREEN
+                    g.setColour(Colour(20, 255, 20));
+                }
+                break;
+            
+            }
+        }
+
+	}
+    
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+
+	/*Draw static black circle in center on top */
+	//g.setColour(Colour(0,0,0));
+	//g.fillEllipse(0.35*getWidth(), 0.35*getHeight(), 0.3*getWidth(), 0.3*getHeight());
+}
+
+RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name) : Button(name) {
 	setClickingTogglesState(true);
-	srcIndex = srcID;
-	subProcIdx = subProcID;
 	node = _node;
     startTimer(200);
 }
@@ -316,67 +409,10 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
-	if (srcIndex > 0 && CoreServices::getAcquisitionStatus())
-	{
-        LOGD("SYNCHRONIZER IS ? ", node->synchronizer->getStatus(srcIndex, subProcIdx));
-		switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
-                
-            case SyncStatus::OFF :
-            {
-                LOGD("SYNCHRONIZER IS OFF");
-                if (isMouseOver)
-                {
-                    //LIGHT GREY
-                    g.setColour(Colour(210, 210, 210));
-                }
-                else
-                {
-                    //DARK GREY
-                    g.setColour(Colour(110, 110, 110));
-                }
-                break;
-            }// and exits the switch
-            case SyncStatus::SYNCING :
-            {
-                LOGD("SYNCHRONIZER IS SYNCING");
-                if (isMouseOver)
-                {
-                    //LIGHT ORANGE
-                   g.setColour(Colour(255,216,177));
-                }
-                else
-                {
-                    //DARK ORAN
-                   g.setColour(Colour(255,165,0));
-                }
-                break;
-            }
-            case SyncStatus::SYNCED :
-            {
-                LOGD("SYNCHRONIZER IS SYNCED");
-                if (isMouseOver)
-                {
-                    //LIGHT GREEN
-                    g.setColour(Colour(0, 255, 0));
-                }
-                else
-                {
-                    //DARK GREEN
-                    g.setColour(Colour(20, 255, 20));
-                }
-                break;
-            
-            }
-        }
-
-	}
-    else
-    {
-        if (!getToggleState())
-            g.setColour(Colour(110,110,110));
-        else
-            g.setColour(Colour(255,0,0));
-    }
+	if (!getToggleState())
+		g.setColour(Colour(110,110,110));
+	else
+		g.setColour(Colour(255,0,0));
     
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
