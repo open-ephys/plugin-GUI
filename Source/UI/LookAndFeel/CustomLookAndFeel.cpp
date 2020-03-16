@@ -56,7 +56,15 @@ CustomLookAndFeel::CustomLookAndFeel() :
     cpmonoBold(new CustomTypeface(cpmonoBoldStream)),
     cpmonoBlack(new CustomTypeface(cpmonoBlackStream)),
     misoRegular(new CustomTypeface(misoRegularStream)),
-    silkscreen(new CustomTypeface(silkscreenStream))
+    silkscreen(new CustomTypeface(silkscreenStream)),
+    firasansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf, 
+                                                         BinaryData::FiraSansExtraLight_ttfSize)),
+    firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf, 
+                                                      BinaryData::FiraSansRegular_ttfSize)),
+    firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf, 
+                                                       BinaryData::FiraSansRegular_ttfSize)),
+    firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf, 
+                                                        BinaryData::FiraSansExtraBold_ttfSize))
 
 {
 
@@ -130,6 +138,22 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     else if (typefaceName.equalsIgnoreCase("Small Text"))
     {
         return silkscreen;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Light"))
+    {
+        return firasansExtraLight;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans"))
+    {
+        return firasansRegular;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Bold"))
+    {
+        return firasansSemiBold;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Extra Bold"))
+    {
+        return firasansExtraBold;
     }
     else   // default
     {
@@ -483,6 +507,11 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     g.fillPath(path);
 }
 
+Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
+{
+    return Font(getCommonMenuFont().getTypefaceName(), box.getHeight() * 0.75f, Font::plain);
+}
+
 
 // ========= Popup Menu Background: ===========================
 
@@ -499,6 +528,10 @@ void CustomLookAndFeel::drawPopupMenuBackground (Graphics& g, int width, int hei
    #endif
 }
 
+Font CustomLookAndFeel::getPopupMenuFont()
+{
+    return getCommonMenuFont();
+}
 
 //==================================================================
 // BUTTON METHODS :
@@ -521,7 +554,28 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
 
     g.setColour (baseColour);
 
-    g.fillRoundedRectangle (bounds, cornerSize);
+    auto flatOnLeft   = button.isConnectedOnLeft();
+    auto flatOnRight  = button.isConnectedOnRight();
+    auto flatOnTop    = button.isConnectedOnTop();
+    auto flatOnBottom = button.isConnectedOnBottom();
+
+    if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom)
+    {
+        Path path;
+        path.addRoundedRectangle (bounds.getX(), bounds.getY(),
+                                  bounds.getWidth(), bounds.getHeight(),
+                                  cornerSize, cornerSize,
+                                  ! (flatOnLeft  || flatOnTop),
+                                  ! (flatOnRight || flatOnTop),
+                                  ! (flatOnLeft  || flatOnBottom),
+                                  ! (flatOnRight || flatOnBottom));
+
+        g.fillPath (path);
+    }
+    else
+    {
+        g.fillRoundedRectangle (bounds, cornerSize);
+    }
 
     if (button.hasKeyboardFocus(false))
     {
@@ -539,11 +593,33 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
                         ? button.findColour (TextButton::textColourOnId)
                         : button.findColour (TextButton::textColourOffId);
 
-    const int padding = 4;
     g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
-    g.drawFittedText (button.getButtonText(),
-                      padding, 0,
-                      button.getWidth() - padding * 2, button.getHeight(),
-                      Justification::centred,
-                      1);
+
+    auto font = getTextButtonFont(button, button.getHeight());
+    g.setFont(font);
+
+    const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
+    const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
+
+    const int fontHeight = roundToInt (font.getHeight() * 0.6f);
+    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / 2);
+    const int rightIndent = jmin (fontHeight, 2 + cornerSize / 2);
+    const int textWidth = button.getWidth() - leftIndent - rightIndent;
+
+    if (textWidth > 0)
+        g.drawFittedText (button.getButtonText(),
+                          leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
+                          Justification::centred, 1);
+}
+
+Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
+{
+    return Font(getCommonMenuFont().getTypefaceName(), buttonHeight * 0.65f, Font::plain);
+}
+
+// ============ Common Font for Menus ================
+
+Font CustomLookAndFeel::getCommonMenuFont()
+{
+    return Font ("FiraSans", 20.f, Font::plain);
 }

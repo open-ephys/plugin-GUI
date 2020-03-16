@@ -89,7 +89,7 @@ void PluginInstaller::closeButtonPressed()
 
 PluginInstallerComponent::PluginInstallerComponent()
 {
-	font = Font(Font::getDefaultSansSerifFontName(), 16, Font::plain);
+	font = Font("FiraSans", 18, Font::plain);
 	setSize(getWidth() - 10, getHeight() - 10);
 
 	addAndMakeVisible(pluginListAndInfo);
@@ -101,9 +101,9 @@ PluginInstallerComponent::PluginInstallerComponent()
 
 	addAndMakeVisible(sortByMenu);
 	sortByMenu.setJustificationType(Justification::centred);
-	sortByMenu.addItem("Ascending", 1);
-	sortByMenu.addItem("Descending", 2);
-	sortByMenu.setTextWhenNothingSelected("------");
+	sortByMenu.addItem("A - Z", 1);
+	sortByMenu.addItem("Z - A", 2);
+	sortByMenu.setTextWhenNothingSelected("-----");
 	sortByMenu.addListener(this);
 }
 
@@ -115,7 +115,7 @@ void PluginInstallerComponent::paint(Graphics& g)
 void PluginInstallerComponent::resized()
 {
 	sortingLabel.setBounds(20, 10, 70, 30);
-	sortByMenu.setBounds(90, 10, 110, 30);
+	sortByMenu.setBounds(90, 10, 90, 30);
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
 
@@ -145,8 +145,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 PluginListBoxComponent::PluginListBoxComponent()
 {
-	listFont = Font(Font::getDefaultSansSerifFontName(), 20, Font::plain);
-	listFont.setHorizontalScale(1.1);
+	listFont = Font("FiraSans Bold", 22, Font::plain);
 
 	loadPluginNames();
 
@@ -321,7 +320,7 @@ void PluginListBoxComponent::resized()
 
 PluginInfoComponent::PluginInfoComponent()
 {
-	infoFont = Font(Font::getDefaultSansSerifFontName(), 19, Font::plain);
+	infoFont = Font("FiraSans", 20, Font::plain);
 	
 	addChildComponent(pluginNameLabel);
 	pluginNameLabel.setFont(infoFont);
@@ -353,7 +352,8 @@ PluginInfoComponent::PluginInfoComponent()
 	addChildComponent(descriptionText);
 	descriptionText.setFont(infoFont);
 	descriptionText.setColour(Label::textColourId, Colours::white);
-	descriptionText.setJustificationType(Justification::horizontallyJustified | Justification::top);
+	descriptionText.setJustificationType(Justification::top);
+	descriptionText.setMinimumHorizontalScale(1.0f);
 
 	addChildComponent(dependencyLabel);
 	dependencyLabel.setFont(infoFont);
@@ -390,11 +390,11 @@ void PluginInfoComponent::resized()
 	versionMenu.setBounds(90, 90, 100, 30);
 	lastUpdatedLabel.setBounds(10, 120, getWidth() - 10, 30);
 	descriptionLabel.setBounds(10, 150, 110, 30);
-	descriptionText.setBounds(120, 155, getWidth() - 130, 50);
+	descriptionText.setBounds(120, 155, getWidth() - 130, 75);
 	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), getWidth() - 10, 30);
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
 	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.4, 30);
-	statusLabel.setBounds(10, getHeight() / 2, getWidth() - 10, 30);
+	statusLabel.setBounds(10, (getHeight() / 2) - 15, getWidth() - 10, 30);
 }
 
 void PluginInfoComponent::buttonClicked(Button* button)

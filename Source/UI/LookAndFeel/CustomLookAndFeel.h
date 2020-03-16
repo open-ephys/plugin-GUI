@@ -111,11 +111,14 @@ public:
                       int buttonX, int buttonY,
                       int buttonW, int buttonH,
                       ComboBox& box);
+    
+    Font getComboBoxFont (ComboBox& box) override;
 
     // ========= custom popup menu methods: ===========================
 
     void drawPopupMenuBackground (Graphics&, int width, int height);
-
+        
+    Font getPopupMenuFont() override;
 
     // ========= custom button methods: ===========================
 
@@ -127,6 +130,8 @@ public:
     void drawButtonText (Graphics& g,
                          TextButton& button,
                          bool isMouseOverButton, bool isButtonDown) override;
+
+    Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
 private:
 
@@ -150,8 +155,13 @@ private:
     cpmonoBold,
     cpmonoBlack,
     misoRegular,
-    silkscreen;
+    silkscreen,
+    firasansExtraLight,
+    firasansRegular,
+    firasansSemiBold,
+    firasansExtraBold;
 
+    Font getCommonMenuFont();
 };
 
 
