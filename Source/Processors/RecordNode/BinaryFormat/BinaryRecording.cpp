@@ -619,6 +619,16 @@ void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, 
 	m_syncTextFile->writeText(text + "\n", false, false);
 }
 
+RecordEngineManager* BinaryRecording::getEngineManager()
+{
+    RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary",
+                                                       &(engineFactory<BinaryRecording>));
+    EngineParameter* param;
+    param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
+    man->addParameter(param);
+    return man;
+}
+
 void BinaryRecording::setParameter(EngineParameter& parameter)
 {
 	boolParameter(0, m_saveTTLWords);

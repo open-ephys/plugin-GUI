@@ -25,4 +25,3 @@ add_sources(open-ephys
 add_subdirectory(BinaryFormat)
 add_subdirectory(OpenEphysFormat)
 add_subdirectory(taskflow)
-

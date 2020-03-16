@@ -252,7 +252,7 @@ void RecordEngineManager::addParameter(EngineParameter* param)
 
 int RecordEngineManager::getNumOfBuiltInEngines()
 {
-	return 1;
+	return 2;
 }
 
 RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
@@ -261,6 +261,8 @@ RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
 	{
 	case 0:
 		return OriginalRecording::getEngineManager();
+	case 1: 
+		return BinaryRecording::getEngineManager();
 
 	default:
 		return nullptr;
@@ -270,12 +272,24 @@ RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
 RecordEngine* RecordEngineManager::instantiateEngine()
 {
 	if (creator)
+	{
+		LOGD("Got creator");
 		return creator();
-
+	}
 	//Built-in engines
 
+	LOGD("Got:", id);
+
 	if (id == "OPENEPHYS")
+	{
+		LOGD("Instantiating OPENEPHYS");
 		return new OriginalRecording();
+	}
+	else if (id == "RAWBINARY")
+	{
+		LOGD("Instantiating BINARY");
+		return new BinaryRecording();
+	}
 
 	return nullptr;
 }

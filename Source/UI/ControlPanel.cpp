@@ -489,7 +489,6 @@ void ControlPanel::setRecordState(bool t)
 
 bool ControlPanel::getRecordingState()
 {
-
 	return recordButton->getToggleState();
 
 }
@@ -524,37 +523,43 @@ void ControlPanel::updateChildComponents()
     /*
     filenameComponent->addListener(AccessClass::getProcessorGraph()->getRecordNode());
     AccessClass::getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
-	updateRecordEngineList();
     */
+	updateRecordEngineList();
 
 }
 
 void ControlPanel::updateRecordEngineList()
 {
-    /*
+
+
 	int selectedEngine = recordSelector->getSelectedId();
 	recordSelector->clear(dontSendNotification);
 	recordEngines.clear();
 	int id = 1;
 
+    LOGD("Num built in engines: ", RecordEngineManager::getNumOfBuiltInEngines());
 	for (int i = 0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
 	{
 		RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager(i);
 		recordSelector->addItem(rem->getName(), id++);
+        LOGD("Adding engine: ", rem->getName());
 		recordEngines.add(rem);
 	}
+    LOGD("Num plugin engines: ", AccessClass::getPluginManager()->getNumRecordEngines());
 	for (int i = 0; i < AccessClass::getPluginManager()->getNumRecordEngines(); i++)
 	{
 		Plugin::RecordEngineInfo info;
 		info = AccessClass::getPluginManager()->getRecordEngineInfo(i);
 		recordSelector->addItem(info.name, id++);
+        LOGD("Adding engine: ", info.name);
 		recordEngines.add(info.creator());
 	}
+
 	if (selectedEngine < 1)
 		recordSelector->setSelectedId(1, sendNotification);
 	else
 		recordSelector->setSelectedId(selectedEngine, sendNotification);
-       */
+    
 }
 
 String ControlPanel::getSelectedRecordEngineId()
@@ -931,15 +936,17 @@ void ControlPanel::buttonClicked(Button* button)
 
 void ControlPanel::comboBoxChanged(ComboBox* combo)
 {
+
     if (lastEngineIndex >= 0)
     {
         if (recordEngines[lastEngineIndex]->isWindowOpen())
             recordEngines[lastEngineIndex]->toggleConfigWindow();
     }
     RecordEngine* re;
-    AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
+    //AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
     if (combo->getSelectedId() > 0)
     {
+        std::cout << "Num engines: " << recordEngines.size() << std::endl;
         re = recordEngines[combo->getSelectedId()-1]->instantiateEngine();
     }
     else
@@ -950,9 +957,9 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
     }
     //re->setUIComponent(getUIComponent());
     re->registerManager(recordEngines[combo->getSelectedId()-1]);
-    AccessClass::getProcessorGraph()->getRecordNode()->registerRecordEngine(re);
+    //AccessClass::getProcessorGraph()->getRecordNode()->registerRecordEngine(re);
 
-    graph->getRecordNode()->newDirectoryNeeded = true;
+    //graph->getRecordNode()->newDirectoryNeeded = true;
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
