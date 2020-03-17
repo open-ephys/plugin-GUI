@@ -157,7 +157,7 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     }
     else   // default
     {
-        return LookAndFeel::getTypefaceForFont(font);
+        return firasansSemiBold;
     }
 
     // UNCOMMENT AFTER UPDATE

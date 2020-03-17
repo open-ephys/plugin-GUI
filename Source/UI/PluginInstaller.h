@@ -90,15 +90,14 @@ public:
 private:
 
     int selectedPlugin;
-    Font infoFont;
 
-    Label pluginNameLabel;
-    Label ownerLabel;
+    Label pluginNameLabel, pluginNameText;
+    Label ownerLabel, ownerText;
     Label versionLabel;
-    Label lastUpdatedLabel;
+    Label lastUpdatedLabel, lastUpdatedText;
     Label descriptionLabel;
     Label descriptionText;
-    Label dependencyLabel;
+    Label dependencyLabel, dependencyText;
     Label statusLabel;
 
     TextButton downloadButton;

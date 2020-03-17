@@ -286,7 +286,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.latestVersion = latest_version;
 	selectedPluginInfo.lastUpdated = updated;
 	selectedPluginInfo.description = description;
-	selectedPluginInfo.dependencies = "Dependencies: ";
+	selectedPluginInfo.dependencies = " ";
 	
 	pluginInfoPanel.setPluginInfo(selectedPluginInfo);
 	pluginInfoPanel.makeInfoVisible(true);
@@ -320,18 +320,29 @@ void PluginListBoxComponent::resized()
 
 PluginInfoComponent::PluginInfoComponent()
 {
-	infoFont = Font("FiraSans", 20, Font::plain);
+	auto infoFont = Font("FiraSans", 20, Font::plain);
+	auto infoFontBold = Font("FiraSans Bold", 20, Font::plain);
 	
 	addChildComponent(pluginNameLabel);
-	pluginNameLabel.setFont(infoFont);
+	pluginNameLabel.setFont(infoFontBold);
 	pluginNameLabel.setColour(Label::textColourId, Colours::white);
+	pluginNameLabel.setText("Name: ", dontSendNotification);
+
+	addChildComponent(pluginNameText);
+	pluginNameText.setFont(infoFont);
+	pluginNameText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(ownerLabel);
-	ownerLabel.setFont(infoFont);
+	ownerLabel.setFont(infoFontBold);
 	ownerLabel.setColour(Label::textColourId, Colours::white);
+	ownerLabel.setText("Owner: ", dontSendNotification);
+
+	addChildComponent(ownerText);
+	ownerText.setFont(infoFont);
+	ownerText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(versionLabel);
-	versionLabel.setFont(infoFont);
+	versionLabel.setFont(infoFontBold);
 	versionLabel.setColour(Label::textColourId, Colours::white);
 	versionLabel.setText("Version: ", dontSendNotification);
 
@@ -341,11 +352,16 @@ PluginInfoComponent::PluginInfoComponent()
 	versionMenu.addListener(this);
 
 	addChildComponent(lastUpdatedLabel);
-	lastUpdatedLabel.setFont(infoFont);
+	lastUpdatedLabel.setFont(infoFontBold);
 	lastUpdatedLabel.setColour(Label::textColourId, Colours::white);
+	lastUpdatedLabel.setText("Last Updated: ", dontSendNotification);
+
+	addChildComponent(lastUpdatedText);
+	lastUpdatedText.setFont(infoFont);
+	lastUpdatedText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(descriptionLabel);
-	descriptionLabel.setFont(infoFont);
+	descriptionLabel.setFont(infoFontBold);
 	descriptionLabel.setColour(Label::textColourId, Colours::white);
 	descriptionLabel.setText("Description: ", dontSendNotification);
 
@@ -356,8 +372,13 @@ PluginInfoComponent::PluginInfoComponent()
 	descriptionText.setMinimumHorizontalScale(1.0f);
 
 	addChildComponent(dependencyLabel);
-	dependencyLabel.setFont(infoFont);
+	dependencyLabel.setFont(infoFontBold);
 	dependencyLabel.setColour(Label::textColourId, Colours::white);
+	dependencyLabel.setText("Dependencies: ", dontSendNotification);
+
+	addChildComponent(dependencyText);
+	dependencyText.setFont(infoFont);
+	dependencyText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(downloadButton);
 	downloadButton.setButtonText("Download & Install");
@@ -379,21 +400,31 @@ PluginInfoComponent::PluginInfoComponent()
 void PluginInfoComponent::paint(Graphics& g)
 {
 	g.fillAll (Colours::grey);
-	g.setFont(infoFont);
 }
 
 void PluginInfoComponent::resized()
 {
-	pluginNameLabel.setBounds(10, 30, getWidth() - 10, 30);
-	ownerLabel.setBounds(10, 60, getWidth() - 10, 30);
+	pluginNameLabel.setBounds(10, 30, 60, 30);
+	pluginNameText.setBounds(125, 30, getWidth() - 10, 30);
+
+	ownerLabel.setBounds(10, 60, 60, 30);
+	ownerText.setBounds(125, 60, getWidth() - 10, 30);
+
 	versionLabel.setBounds(10, 90, 80, 30);
-	versionMenu.setBounds(90, 90, 100, 30);
-	lastUpdatedLabel.setBounds(10, 120, getWidth() - 10, 30);
+	versionMenu.setBounds(130, 90, 100, 30);
+
+	lastUpdatedLabel.setBounds(10, 120, 120, 30);
+	lastUpdatedText.setBounds(125, 120, getWidth() - 10, 30);
+
 	descriptionLabel.setBounds(10, 150, 110, 30);
-	descriptionText.setBounds(120, 155, getWidth() - 130, 75);
-	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), getWidth() - 10, 30);
+	descriptionText.setBounds(125, 155, getWidth() - 130, 75);
+
+	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 120, 30);
+	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
+
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
 	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.4, 30);
+	
 	statusLabel.setBounds(10, (getHeight() / 2) - 15, getWidth() - 10, 30);
 }
 
@@ -442,11 +473,11 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 {
 	pInfo = p;
-	pluginNameLabel.setText("Name: " + pInfo.pluginName, dontSendNotification);
-	ownerLabel.setText("Author: " + pInfo.owner, dontSendNotification);
-	lastUpdatedLabel.setText("Last Updated: " + pInfo.lastUpdated, dontSendNotification);
+	pluginNameText.setText(pInfo.pluginName, dontSendNotification);
+	ownerText.setText(pInfo.owner, dontSendNotification);
+	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
 	descriptionText.setText(pInfo.description, dontSendNotification);
-	dependencyLabel.setText(pInfo.dependencies, dontSendNotification);
+	dependencyText.setText(pInfo.dependencies, dontSendNotification);
 
 	versionMenu.clear(dontSendNotification);
 
@@ -465,13 +496,23 @@ void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
 void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 {
 	pluginNameLabel.setVisible(isEnabled);
+	pluginNameText.setVisible(isEnabled);
+
 	ownerLabel.setVisible(isEnabled);
+	ownerText.setVisible(isEnabled);
+
 	versionLabel.setVisible(isEnabled);
 	versionMenu.setVisible(isEnabled);
+
 	lastUpdatedLabel.setVisible(isEnabled);
+	lastUpdatedText.setVisible(isEnabled);
+
 	descriptionLabel.setVisible(isEnabled);
 	descriptionText.setVisible(isEnabled);
+
 	dependencyLabel.setVisible(isEnabled);
+	dependencyText.setVisible(isEnabled);
+
 	downloadButton.setVisible(isEnabled);
 	documentationButton.setVisible(isEnabled);
 }
