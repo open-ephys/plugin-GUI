@@ -13,8 +13,8 @@ jobs:
       run: |
         cd Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         cd ../Resources/Scripts
+        sudo apt update
         sudo ./install_linux_dependencies.sh
-        sudo cp 40-open-ephys.rules /etc/udev/rules.d
     - name: build
       run: cmake --build Build
 #    - name: test

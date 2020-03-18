@@ -6,7 +6,7 @@ The Open Ephys GUI is designed to provide a fast and flexible interface for acqu
 - [Open Ephys Acquisition Board](http://www.open-ephys.org/acq-board/) (supports up to 512 channels)
 - [Intan RHD2000 Evaluation System](http://intantech.com/RHD2000_evaluation_system.html) (supports up to 256 channels)
 - [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
-- [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (supports up to 6144 channels)
+- [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (Windows only, supports up to 6144 channels)
 
 The GUI is based around a *true plugin architecture*, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be created without the need to re-compile the entire application.
 
@@ -18,31 +18,37 @@ Our primary user base is scientists performing electrophysiology experiments wit
 ![OSX](https://github.com/open-ephys/plugin-GUI/workflows/macOS/badge.svg)
 ![Windows](https://github.com/open-ephys/plugin-GUI/workflows/Windows/badge.svg)
 ![language](https://img.shields.io/badge/language-c++-blue.svg)
-[![license](https://img.shields.io/badge/license-GPL3-blue.svg)](https://github.com/open-ephys/plugin-GUI/blob/master/Licenses/Open-Ephys-GPL-3.txt)
+[![license](https://img.shields.io/badge/license-GPL3-blue.svg)](LICENSE)
+
+## Important Information
+
+- The Open Ephys GUI is free, collaboratively developed, open-source software for scientific research. It includes many features designed to make extracellular electrophysiology data easier to acquire; however, it is not guaranteed to work as advertised. Before you use it for your own experiments, you should *test any capabilities you plan to use.* The use of a plugin-based architecture provides the flexibility to customize your signal chain, but it also makes it difficult to test every possible combination of processors in advance. Whenever you download or upgrade the GUI, be sure to test your desired configuration in a "safe" environment before using it to collect real data.
+
+- If you observe any unexpected behavior, *please [report an issue](https://github.com/open-ephys/plugin-GUI/issues) as soon as possible.*  We rely on help from the community to ensure that the GUI is functioning properly.
+
+- Any publications based on data collected with the GUI should cite the following article: [Open Ephys: an open-source, plugin-based platform for multichannel electrophysiology](https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea). Citations remain essential for measuring the impact of scientific software, so be sure to include references for any open-source tools that you use in your research!
 
 ## Installation
 
 The easiest way to get started is to use the pre-compiled binaries for your platform of choice (links will download a .zip file, which contains a folder with the GUI executable):
-- [macOS](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/mac.zip)
-- [Linux (64-bit)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/linux.zip)
-- [Windows (7 & 10)](https://github.com/open-ephys-GUI-binaries/open-ephys/archive/windows.zip)
-
-The Neuropixels version of the GUI is currently only available for Windows:
-- [Open Ephys for Neuropixels](https://github.com/open-ephys-gui-binaries/open-ephys/tree/neuropix)
+- [macOS](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-mac.zip)
+- [Linux](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-linux.zip)
+- [Windows](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.4.6-windows.zip) (includes Neuropixels plugins)
 
 To compile the GUI from source, follow the instructions on our wiki for [macOS](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491555/macOS), [Linux](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491546/Linux), or [Windows](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491621/Windows).
 
+## Funding
+
+The Open Ephys GUI was created by scientists in order to make their experiments more adaptable, affordable, and enjoyable. Therefore, much of the development has been indirectly funded by the universities and research institutes where these scientists work, especially MIT, Brown University, and the Allen Institute for Brain Science.
+
+Since 2014, the support efforts of [Aarón Cuevas López](https://github.com/aacuevas) have been funded by revenue from the [Open Ephys store](https://open-ephys.org/store), via a contract with Universidad Miguel Hernández in Valencia.
+
+Since 2019, the support efforts of [Pavel Kulik](https://github.com/medengineer) and [Anjal Doshi](https://github.com/anjaldoshi) have been funded by a BRAIN Initiative U24 Award to the Allen Institute ([U24NS109043](https://projectreporter.nih.gov/project_info_description.cfm?aid=9645567)).
+
 ## How to contribute
 
-The GUI is written in C++ with the help of the [Juce](https://juce.com/) framework. Juce includes a variety of classes for audio processing, which have been co-opted to process neural data. It might be necessary to create custom data processing classes in the future, but for now, Juce takes care of a lot of the messy bits involved in analyzing many parallel data streams.
+We welcome bug reports, feature recommendations, pull requests, and plugins from the community. For more information, see [Contributing to the Open Ephys GUI](CONTRIBUTING.md).
 
-Before you contribute, you'll need to have some familiarity with C++, as well as makefiles (Linux), Xcode (macOS), or Visual Studio (Windows) for building applications.
-
-The recommended way to add new features to the GUI is by building a new plugin. Instructions on creating plugins can be found [here](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/46596122/Plugin+build+files). New plugin developers can publish links to their work in [this list](https://open-ephys.atlassian.net/wiki/display/OEW/Third-party+plugin+repositories) to make them available to the general public.
-
-If you'd like to make changes to code found in this repository, please submit a pull request to the **development** branch. Adding new files to the core GUI must be done through the "Projucer," using the "open-ephys.jucer" file. The Projucer makefiles are located in the Projucer/Builds folder, or as part of the [Juce source code](https://github.com/WeAreROLI/JUCE/tree/master/extras/Projucer).
-
-
-
+If you have the potential to donate money or developer time to this project, please get in touch via info@open-ephys.org. There are plenty of opportunities to get involved.
 
 
