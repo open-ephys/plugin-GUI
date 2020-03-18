@@ -135,13 +135,15 @@ public:
 
     void resized() override;
 
+    void returnKeyPressed (int lastRowSelected) override;
+    
 private:
 
     ListBox pluginList;
     Font listFont;
     int numRows;
 
-    var pluginData; 
+    String lastPluginSelected; 
     Array<String> pluginVersion;
 
     SelectedPluginInfo selectedPluginInfo;

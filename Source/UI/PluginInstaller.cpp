@@ -153,6 +153,7 @@ PluginListBoxComponent::PluginListBoxComponent()
 	pluginList.setModel(this);
 	pluginList.setColour(ListBox::backgroundColourId , Colours::grey);
 	pluginList.setRowHeight(35);
+	pluginList.setMouseMoveSelectsRows(true);
 
 	addAndMakeVisible(pluginInfoPanel);
 }
@@ -166,13 +167,18 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 {
 	if (rowIsSelected)
 	{
-		g.fillAll(Colours::azure);
-		g.setColour (Colours::grey);
+		g.fillAll(Colour::fromRGBA(238, 238, 238, 100));
+		g.setColour (Colours::darkgrey);
 	}
 	else
 	{
 		g.fillAll(Colours::grey);
 		g.setColour (Colours::white);
+	}
+
+	if ( rowNumber == pluginArray.indexOf(lastPluginSelected, true, 0) )
+	{
+		g.setColour (juce::Colours::yellow);
 	}
 
 	g.setFont(listFont);
@@ -187,7 +193,7 @@ void PluginListBoxComponent::loadPluginNames()
 	/* Get list of plugins uploaded to bintray */
 	String response = URL("https://api.bintray.com/repos/open-ephys-gui-plugins").readEntireTextStream();
 
-	pluginData = JSON::parse(response);
+	var pluginData = JSON::parse(response);
 
 	numRows = pluginData.size();
 	
@@ -296,24 +302,33 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
 {
-	String pName = pluginArray[row];
-	if ( !pName.equalsIgnoreCase(pluginInfoPanel.getSelectedPlugin()) )
-	{
-		pluginInfoPanel.makeInfoVisible(false);
-		pluginInfoPanel.updateStatusMessage("Loading Plugin Info...", true);
-		
-		if(loadPluginInfo(pName))
-			pluginInfoPanel.updateStatusMessage("", false);
-		else
-			pluginInfoPanel.updateStatusMessage("No platform specific package found for " + pName, true);
-	}
+	this->returnKeyPressed(row);
 }
 
 void PluginListBoxComponent::resized()
 {
 	// position our table with a gap around its edge
     pluginList.setBounds(10, 10, getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
-	pluginInfoPanel.setBounds(getWidth() - (0.5 * getWidth()), 10, getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
+	pluginInfoPanel.setBounds(getWidth() - (0.5 * getWidth()), 10, 
+							  getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
+}
+
+void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
+{
+	if (!lastPluginSelected.equalsIgnoreCase(pluginArray[lastRowSelected]))
+	{
+		lastPluginSelected = pluginArray[lastRowSelected];
+
+		pluginInfoPanel.makeInfoVisible(false);
+		pluginInfoPanel.updateStatusMessage("Loading Plugin Info...", true);
+		
+		if(loadPluginInfo(lastPluginSelected))
+			pluginInfoPanel.updateStatusMessage("", false);
+		else
+			pluginInfoPanel.updateStatusMessage("No platform specific package found for " + lastPluginSelected, true);
+		
+		this->repaint();
+	}
 }
 
 /* ================================== Plugin Information Component ================================== */
