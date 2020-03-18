@@ -45,6 +45,8 @@ LfpDisplayNode::LfpDisplayNode()
     {
         arrayOfOnes[n] = 1;
     }
+    triggerSource = -1;
+    latestTrigger = -1;
 }
 
 
@@ -176,10 +178,13 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo,
     const int eventChannel = ttl->getChannel();
     const int eventTime = samplePosition;
     const uint32 eventSourceNodeId = getChannelSourceID(eventInfo);
+    const bool state = ttl->getState();
     int val = 1<<eventChannel;
-    if (!ttl->getState())
+    if (!state)
       val = -val;
     eventValueChanges[eventSourceNodeId].push_back(EventValueChange(eventTime, val));
+    if (state && eventChannel==triggerSource)
+      latestCurrentTrigger = eventTime;
   }
 }
 
@@ -188,6 +193,7 @@ void LfpDisplayNode::initializeEventChannels() {
     uint32 src = eventSourceNodes[i];
     eventValueChanges[src] = std::list<EventValueChange>();
   }
+  latestCurrentTrigger = -1;
 }
 
 void LfpDisplayNode::copyToEventChannel(uint32 src,
@@ -227,6 +233,8 @@ void LfpDisplayNode::finalizeEventChannels() {
     copyToEventChannel(src, t0, nSamples, ttlState[src]);
     displayBufferIndex.set(chan, (index + nSamples)
                            % displayBuffer->getNumSamples());
+    if (latestCurrentTrigger>=0)
+      latestTrigger = latestCurrentTrigger + index;
   }
 }
 
@@ -262,3 +270,19 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
       copyDataToDisplay(chan, buffer);
 }
 
+void LfpDisplayNode::setTriggerSource(int ch) {
+  printf("Trigger source: %i\n", ch);
+  triggerSource = ch;
+}
+
+int LfpDisplayNode::getTriggerSource() const {
+  return triggerSource;
+}
+
+int64 LfpDisplayNode::getLatestTriggerTime() const {
+  return latestTrigger;
+}
+
+void LfpDisplayNode::acknowledgeTrigger() {
+  latestTrigger = -1;
+}

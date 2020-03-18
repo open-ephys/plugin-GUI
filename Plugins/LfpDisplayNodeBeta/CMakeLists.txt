@@ -6,13 +6,24 @@ include(../PluginRules.cmake)
 
 #add sources, not including OpenEphysLib.cpp
 add_sources(${PLUGIN_NAME}
-	LfpDisplayNode.cpp
-	LfpDisplayNode.h
-	LfpDisplayEditor.cpp
-	LfpDisplayEditor.h
-	LfpDisplayCanvas.cpp
-	LfpDisplayCanvas.h
-	)
+        LfpChannelDisplay.cpp
+        LfpChannelDisplay.h
+        LfpDisplayCanvas.cpp
+        LfpDisplayCanvasElements.cpp
+        LfpDisplayCanvasElements.h
+        LfpDisplayCanvas.h
+        LfpDisplay.cpp
+        LfpDisplayEditor.cpp
+        LfpDisplayEditor.h
+        LfpDisplay.h
+        LfpDisplayNode.cpp
+        LfpDisplayNode.h
+        LfpDisplayOptions.cpp
+        LfpDisplayOptions.h
+	EventDisplayInterface.cpp
+	EventDisplayInterface.h
+        OpenEphysLib.cpp
+        )
 	
 #optional: create IDE groups
 #plugin_create_filters()
