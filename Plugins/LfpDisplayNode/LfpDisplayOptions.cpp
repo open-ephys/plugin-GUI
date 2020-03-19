@@ -72,21 +72,21 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
         addAndMakeVisible(lfpDisplay->getColourSchemePtr());
     
  //Ranges for neural data
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("250");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("400");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("500");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("750");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("1000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("2000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
-	voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
-	selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 4;
-	rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
-	rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("250");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("400");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("500");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("750");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("1000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("2000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
+    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
+    selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 4;
+    rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
+    rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
     rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
     typeNames.add("DATA");
 
@@ -102,19 +102,19 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     typeButtons.add(tbut);
     
     //Ranges for AUX/accelerometer data
-	voltageRanges[DataChannel::AUX_CHANNEL].add("25");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("50");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("100");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("250");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("400");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("500");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("750");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
-	voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("25");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("50");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("100");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("250");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("400");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("500");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("750");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
+    voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
     //voltageRanges[DataChannel::AUX_CHANNEL].add("5000");
-	selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
-	rangeGain[DataChannel::AUX_CHANNEL] = 0.001f; //mV
-	rangeSteps[DataChannel::AUX_CHANNEL] = 10;
+    selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
+    rangeGain[DataChannel::AUX_CHANNEL] = 0.001f; //mV
+    rangeSteps[DataChannel::AUX_CHANNEL] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
     
@@ -130,16 +130,16 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 
     //Ranges for ADC data
      voltageRanges[DataChannel::ADC_CHANNEL].add("0.01");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
-	 voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
-	 selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
-	 rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
-	 rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
+     voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
+     selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
+     rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
+     rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
     rangeUnits.add("V");
     typeNames.add("ADC");
 
@@ -153,9 +153,9 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
-	selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
-	selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
-	selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
+    selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
     
     // init channel display skipping options
     channelDisplaySkipOptions.add("All");
@@ -212,20 +212,20 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     medianOffsetPlottingButton->setToggleState(false, sendNotification);
     addAndMakeVisible(medianOffsetPlottingButton);
 
-	//init channel name toggle
-	showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
-	showChannelNumberLabel->setFont(labelFont);
-	showChannelNumberLabel->setColour(Label::textColourId, labelColour);
-	addAndMakeVisible(showChannelNumberLabel);
+    //init channel name toggle
+    showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
+    showChannelNumberLabel->setFont(labelFont);
+    showChannelNumberLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(showChannelNumberLabel);
 
-	showChannelNumberButton = new UtilityButton("0", labelFont);
-	showChannelNumberButton->setRadius(5.0f);
-	showChannelNumberButton->setEnabledState(true);
-	showChannelNumberButton->setCorners(true, true, true, true);
-	showChannelNumberButton->addListener(this);
-	showChannelNumberButton->setClickingTogglesState(true);
-	showChannelNumberButton->setToggleState(false, sendNotification);
-	addAndMakeVisible(showChannelNumberButton);
+    showChannelNumberButton = new UtilityButton("0", labelFont);
+    showChannelNumberButton->setRadius(5.0f);
+    showChannelNumberButton->setEnabledState(true);
+    showChannelNumberButton->setCorners(true, true, true, true);
+    showChannelNumberButton->addListener(this);
+    showChannelNumberButton->setClickingTogglesState(true);
+    showChannelNumberButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(showChannelNumberButton);
 
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
@@ -283,9 +283,15 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     colorGroupings.add("8");
     colorGroupings.add("16");
 
+    triggerSources.add("none");
+    for (int k=1; k<=8; k++)
+    {
+        triggerSources.add(String(k));
+    }
+
     rangeSelection = new ComboBox("Voltage range");
-	rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
-	rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
+    rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
+    rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
     rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
@@ -323,6 +329,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     colorGroupingSelection->setSelectedId(1,sendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection);
+
+    triggerSourceSelection = new ComboBox("Trigger Source");
+    triggerSourceSelection->addItemList(triggerSources, 1);
+    triggerSourceSelection->setSelectedId(1, sendNotification);
+    triggerSourceSelection->addListener(this);
+    addAndMakeVisible(triggerSourceSelection);
 
     invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
     invertInputButton->setRadius(5.0f);
@@ -425,12 +437,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
 
     }
 
-	lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
-		, DataChannel::HEADSTAGE_CHANNEL);
-	lfpDisplay->setRange(voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::ADC_CHANNEL]
-		, DataChannel::ADC_CHANNEL);
-	lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
-		, DataChannel::AUX_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
+        , DataChannel::HEADSTAGE_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::ADC_CHANNEL]
+        , DataChannel::ADC_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
+        , DataChannel::AUX_CHANNEL);
     
 }
 
@@ -452,11 +464,12 @@ void LfpDisplayOptions::resized()
     drawSaturateWarningButton->setBounds(325, getHeight()-89, 20, 20);
     
     colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
+    triggerSourceSelection->setBounds(375,getHeight()-30,60,25);
 
     invertInputButton->setBounds(35,getHeight()-190,100,22);
     drawMethodButton->setBounds(35,getHeight()-160,100,22);
 
-    pauseButton->setBounds(450,getHeight()-50,50,44);
+    pauseButton->setBounds(465,getHeight()-50,50,44);
     
     // Reverse Channels Display
     reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 5,
@@ -488,15 +501,15 @@ void LfpDisplayOptions::resized()
                                          150,
                                          22);
     
-	//Channel name toggle
-	showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
-		medianOffsetPlottingLabel->getY(),
-		20,
-		20);
-	showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
-		showChannelNumberButton->getY(),
-		200,
-		22);
+    //Channel name toggle
+    showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
+        medianOffsetPlottingLabel->getY(),
+        20,
+        20);
+    showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
+        showChannelNumberButton->getY(),
+        200,
+        22);
     
     // Spike raster plotting button
     spikeRasterSelection->setBounds(medianOffsetPlottingButton->getX(),
@@ -513,7 +526,7 @@ void LfpDisplayOptions::resized()
     
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(300+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(270+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
     
@@ -524,7 +537,7 @@ void LfpDisplayOptions::resized()
     brightnessSliderB->setBounds(170,getHeight()-160,100,22);
     sliderBLabel->setBounds(270, getHeight()-160, 180, 22);
     brightnessSliderB->setValue(0.1); //set default value
-	
+    
     showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
     
     int bh = 25/typeButtons.size();
@@ -572,7 +585,8 @@ void LfpDisplayOptions::paint(Graphics& g)
 
     g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
 
-    g.drawText("Event disp.",300,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Event disp.",270,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Trigger",375,getHeight()-row1,300,20,Justification::left, false);
 
     if(canvas->drawClipWarning)
     {
@@ -606,7 +620,7 @@ bool LfpDisplayOptions::getInputInvertedState()
 
 bool LfpDisplayOptions::getChannelNameState()
 {
-	return showChannelNumberButton->getToggleState();
+    return showChannelNumberButton->getToggleState();
 }
 
 bool LfpDisplayOptions::getDisplaySpikeRasterizerState()
@@ -721,15 +735,15 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         canvas->toggleOptionsDrawer(b->getToggleState());
     }
 
-	if (b == showChannelNumberButton)
-	{
-		int numChannels = lfpDisplay->channelInfo.size();
-		for (int i = 0; i < numChannels; ++i)
-		{
-			lfpDisplay->channelInfo[i]->repaint();
-		}
-		return;
-	}
+    if (b == showChannelNumberButton)
+    {
+        int numChannels = lfpDisplay->channelInfo.size();
+        for (int i = 0; i < numChannels; ++i)
+        {
+            lfpDisplay->channelInfo[i]->repaint();
+        }
+        return;
+    }
 
     int idx = typeButtons.indexOf((UtilityButton*)b);
 
@@ -1051,13 +1065,17 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         canvas->redraw();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
-
     else if (cb == colorGroupingSelection)
     {
         // set color grouping here
         lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
         canvas->redraw();
     }
+    else if (cb == triggerSourceSelection)
+    {
+        processor->setTriggerSource(cb->getSelectedId() - 2);
+    }
+
 
     timescale->setTimebase(canvas->timebase);
 }
@@ -1138,6 +1156,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("Timebase",timebaseSelection->getText());
     xmlNode->setAttribute("Spread",spreadSelection->getText());
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
+    xmlNode->setAttribute("triggerSource", triggerSourceSelection->getSelectedId());
     xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
     xmlNode->setAttribute("drawMethod",drawMethodButton->getToggleState());
 
@@ -1208,7 +1227,15 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             {
                 colorGroupingSelection->setSelectedId(1);
             }
-
+            if (xmlNode->hasAttribute("triggerSource"))
+            {
+                triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"));
+            }
+            else
+            {
+                triggerSourceSelection->setSelectedId(1);
+            }
+              
             invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), sendNotification);
 
             drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);

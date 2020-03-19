@@ -60,7 +60,7 @@ public:
     bool enable()   override;
     bool disable()  override;
 
-	void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
+    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
     std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)]; }
 
@@ -68,23 +68,27 @@ public:
 
     CriticalSection* getMutex() { return &displayMutex; }
 
-	void setSubprocessor(uint32 sp);
+    void setSubprocessor(uint32 sp);
     uint32 getSubprocessor() const;
 
-	int getNumSubprocessorChannels();
+    int getNumSubprocessorChannels();
 
     float getSubprocessorSampleRate(uint32 subprocId);
 
     uint32 getDataSubprocId(int chan) const;
 
+    void setTriggerSource(int ch);
+    int getTriggerSource() const;
+    int64 getLatestTriggerTime() const;
+    void acknowledgeTrigger();
 private:
     void initializeEventChannels();
     void finalizeEventChannels();
 
-	std::vector<std::shared_ptr<AudioSampleBuffer>> displayBuffers;
+    std::vector<std::shared_ptr<AudioSampleBuffer>> displayBuffers;
 
-	std::vector<std::vector<int>> displayBufferIndices;
-	Array<int> channelIndices;
+    std::vector<std::vector<int>> displayBufferIndices;
+    Array<int> channelIndices;
 
     Array<uint32> eventSourceNodes;
 
@@ -97,14 +101,18 @@ private:
     std::map<uint32, uint64> ttlState;
     float* arrayOfOnes;
     int totalSamples;
+    int triggerSource;
+    int64 latestTrigger; // overall timestamp
+    int latestCurrentTrigger; // within current input buffer
+ 
 
     bool resizeBuffer();
 
     int numSubprocessors;
-	uint32 subprocessorToDraw;
-	SortedSet<uint32> allSubprocessors; 
-	std::map<uint32, int> numChannelsInSubprocessor;
-	std::map<uint32, float> subprocessorSampleRate;
+    uint32 subprocessorToDraw;
+    SortedSet<uint32> allSubprocessors; 
+    std::map<uint32, int> numChannelsInSubprocessor;
+    std::map<uint32, float> subprocessorSampleRate;
 
     CriticalSection displayMutex;
 
