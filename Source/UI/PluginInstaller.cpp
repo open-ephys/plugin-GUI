@@ -105,17 +105,42 @@ PluginInstallerComponent::PluginInstallerComponent()
 	sortByMenu.addItem("Z - A", 2);
 	sortByMenu.setTextWhenNothingSelected("-----");
 	sortByMenu.addListener(this);
+
+	addAndMakeVisible(filterLabel);
+	filterLabel.setColour(Label::textColourId, Colours::white);
+	filterLabel.setFont(font);
+	filterLabel.setText("View:", dontSendNotification);
+
+	addAndMakeVisible(allPlugins);
+	allPlugins.setButtonText("All");
+	allPlugins.setColour(ToggleButton::textColourId, Colours::white);	
+
+	addAndMakeVisible(installedPlugins);
+	installedPlugins.setButtonText("Installed");
+	installedPlugins.setColour(ToggleButton::textColourId, Colours::white);
+
+	addAndMakeVisible(updatablePlugins);
+	updatablePlugins.setButtonText("Updates");
+	updatablePlugins.setColour(ToggleButton::textColourId, Colours::white);
 }
 
 void PluginInstallerComponent::paint(Graphics& g)
 {
 	g.fillAll (Colours::darkgrey);
+	g.setColour(Colours::lightgrey);
+	g.fillRect(192, 5, 3, 38);
 }
 
 void PluginInstallerComponent::resized()
 {
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 90, 30);
+
+	filterLabel.setBounds(200, 10, 50, 30);
+	allPlugins.setBounds(250, 10, 45, 30);
+	installedPlugins.setBounds(295, 10, 80, 30);
+	updatablePlugins.setBounds(375, 10, 80, 30);
+
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
 
@@ -147,7 +172,7 @@ PluginListBoxComponent::PluginListBoxComponent()
 {
 	listFont = Font("FiraSans Bold", 22, Font::plain);
 
-	loadPluginNames();
+	loadAllPluginNames();
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
@@ -188,7 +213,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
 
-void PluginListBoxComponent::loadPluginNames()
+void PluginListBoxComponent::loadAllPluginNames()
 {
 	/* Get list of plugins uploaded to bintray */
 	String response = URL("https://api.bintray.com/repos/open-ephys-gui-plugins").readEntireTextStream();
@@ -335,8 +360,8 @@ void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
 
 PluginInfoComponent::PluginInfoComponent()
 {
-	auto infoFont = Font("FiraSans", 20, Font::plain);
-	auto infoFontBold = Font("FiraSans Bold", 20, Font::plain);
+	infoFont = Font("FiraSans", 20, Font::plain);
+	infoFontBold = Font("FiraSans Bold", 20, Font::plain);
 	
 	addChildComponent(pluginNameLabel);
 	pluginNameLabel.setFont(infoFontBold);
@@ -363,7 +388,7 @@ PluginInfoComponent::PluginInfoComponent()
 
 	addChildComponent(versionMenu);
 	versionMenu.setJustificationType(Justification::centred);
-	versionMenu.setTextWhenNothingSelected("------");
+	versionMenu.setTextWhenNoChoicesAvailable("- N/A -");
 	versionMenu.addListener(this);
 
 	addChildComponent(lastUpdatedLabel);
@@ -399,7 +424,6 @@ PluginInfoComponent::PluginInfoComponent()
 	downloadButton.setButtonText("Download & Install");
 	downloadButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	downloadButton.addListener(this);
-	downloadButton.setEnabled(false);
 
 	addChildComponent(documentationButton);
 	documentationButton.setButtonText("Open Documentation");
@@ -426,7 +450,7 @@ void PluginInfoComponent::resized()
 	ownerText.setBounds(125, 60, getWidth() - 10, 30);
 
 	versionLabel.setBounds(10, 90, 80, 30);
-	versionMenu.setBounds(130, 90, 100, 30);
+	versionMenu.setBounds(130, 90, 110, 30);
 
 	lastUpdatedLabel.setBounds(10, 120, 120, 30);
 	lastUpdatedText.setBounds(125, 120, getWidth() - 10, 30);
@@ -481,7 +505,6 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	if (comboBoxThatHasChanged == &versionMenu)
 	{
 		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
-		downloadButton.setEnabled(true);
 	}
 }
 
@@ -499,7 +522,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	for (int i = 0; i < pInfo.versions.size(); i++)
 		versionMenu.addItem(pInfo.versions[i], i + 1);
 
-	downloadButton.setEnabled(false);
+	versionMenu.setSelectedId(1, dontSendNotification);
 }
 
 void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)

@@ -90,6 +90,7 @@ public:
 private:
 
     int selectedPlugin;
+    Font infoFont, infoFontBold;
 
     Label pluginNameLabel, pluginNameText;
     Label ownerLabel, ownerText;
@@ -150,7 +151,7 @@ private:
 
     PluginInfoComponent pluginInfoPanel;
 
-    void loadPluginNames();
+    void loadAllPluginNames();
 
     bool loadPluginInfo(const String& pluginName);
 
@@ -183,6 +184,9 @@ private:
 
     Label sortingLabel;
     ComboBox sortByMenu;
+
+    Label filterLabel;
+    ToggleButton allPlugins, installedPlugins, updatablePlugins;
 
     Font font;
     
