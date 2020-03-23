@@ -168,3 +168,7 @@ Resources/Build-files/Info-App.plist
 
 #12. installed commonlibs
 installed_libs
+
+#13. VSCode related
+.vscode/
+build/
