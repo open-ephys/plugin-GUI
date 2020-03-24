@@ -133,6 +133,17 @@ public:
 
     Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
+    // ========= custom toggle button methods: ===========================
+    void drawToggleButton (Graphics&, ToggleButton&,
+                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    
+    void drawTickBox (Graphics&, Component&,
+                      float x, float y, float w, float h,
+                      bool ticked, bool isEnabled,
+                      bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    
+    Path getTickShape (float height) override;
+
 private:
 
     // UNCOMMENT AFTER UPDATE
