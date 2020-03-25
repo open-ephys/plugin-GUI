@@ -18,6 +18,8 @@ add_sources(open-ephys
 	RecordNodeEditor.h
 	RecordThread.cpp
 	RecordThread.h
+	Synchronizer.cpp
+	Synchronizer.h
 	Utils.h
 )
 
