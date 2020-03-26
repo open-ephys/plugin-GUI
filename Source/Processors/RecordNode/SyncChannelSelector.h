@@ -10,8 +10,8 @@ public:
 	~SyncChannelButton();
     int getId() { return id; };
 private:
-	void mouseDown(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
+	//void mouseDown(const MouseEvent &event);
+	//void mouseUp(const MouseEvent &event);
 
 	int id; 
 	SyncChannelSelector* parent;
@@ -47,7 +47,6 @@ public:
 
 private:
 
-    ScopedPointer<SetButton> setSyncChannelButton;
     ScopedPointer<SetButton> setMasterSubprocessorButton;
     
 };

@@ -3,14 +3,16 @@
 #include <vector>
 
 SyncChannelButton::SyncChannelButton(int _id, SyncChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
-    setClickingTogglesState(true);
+    //setClickingTogglesState(true);
 }
 
 
 SyncChannelButton::~SyncChannelButton() {}
 
+/*
 void SyncChannelButton::mouseDown(const MouseEvent &event)
 {
+    this->mouseDown(event);
     parent->mouseDown(event);
 }
 
@@ -18,6 +20,7 @@ void SyncChannelButton::mouseUp(const MouseEvent &event)
 {
     parent->mouseUp(event);
 }
+*/
 
 void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
@@ -28,7 +31,7 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     if (isMouseOver)
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 65, 65));
+			g.setColour(Colour(255, 200, 0));
 		else
 			g.setColour(Colour(210, 210, 210));
 	}
@@ -100,13 +103,12 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx)
                 buttons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
                 buttons.getLast()->setToggleState(selectedIdx == nColumns*i+j, NotificationType::dontSendNotification);
                 buttons.getLast()->addListener(this);
-                addChildAndSetID(buttons.getLast(), String(nColumns*i+j+1));
+                addChildAndSetID(buttons.getLast(), String(nColumns*i+1));
             }
 			
 		}
 	}
-
-    //Add "SELECT ALL" button
+    
 	setMasterSubprocessorButton = new SetButton("Set as Master Subprocessor");
     setMasterSubprocessorButton->setBounds(0, height, 0.5*width, width / nColumns);
     setMasterSubprocessorButton->addListener(this);
@@ -130,6 +132,8 @@ void SyncChannelSelector::mouseMove(const MouseEvent &event)
 void SyncChannelSelector::mouseDown(const MouseEvent &event)
 {
 
+    std::cout << "Got mouse down event in parent" << std::endl;
+
 };
 
 
@@ -148,7 +152,13 @@ void SyncChannelSelector::buttonClicked(Button* button)
     }
     else
     {
-        button->setToggleState(true, true);
+        for (int i = 0; i < buttons.size(); i++)
+        {
+            buttons[i]->setToggleState(false, false);
+            repaint();
+        }
+        button->setToggleState(true, false);
+
     }
     
 }
