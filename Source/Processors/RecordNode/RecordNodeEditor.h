@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __RECORDNODEEDITOR_H__
 
 #include "RecordChannelSelector.h"
+#include "SyncChannelSelector.h"
 
 class RecordThread;
 class RecordNode;
@@ -85,7 +86,7 @@ public:
 			for (int i = 0; i < 8; i++)
 				channelStates.push_back(false);
 
-			auto* channelSelector = new RecordChannelSelector(channelStates);
+			auto* channelSelector = new SyncChannelSelector(8,1);
  
 			CallOutBox& myBox
 				= CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);

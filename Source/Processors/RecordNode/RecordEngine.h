@@ -93,15 +93,13 @@ public:
 	/** Called when recording starts to open all needed files */
 	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
 
-	/** Called when recording stops to close all files
-	and do all the necessary cleanups */
+	/** Called when recording stops to close all files and do all the necessary cleanups */
 	virtual void closeFiles() = 0;
 
 	/** Called by the record thread before it starts writing the channels to disk */
 	virtual void startChannelBlock(bool lastBlock);
 
-	/** Write continuous data for a channel. The raw buffer pointer is passed for speed,
-	care must be taken to only read the specified number of bytes.  */
+	/** Write continuous data for a channel. The raw buffer pointer is passed for speed, care must be taken to only read the specified number of bytes. */
 	virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
 
 	/** Called by the record thread after it has written a channel block */
