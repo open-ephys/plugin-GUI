@@ -246,7 +246,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     timebases.add("5.0");
     timebases.add("10.0");
     timebases.add("20.0");
-    selectedTimebase = 4;
+    selectedTimebase = 8;
     selectedTimebaseValue = timebases[selectedTimebase-1];
 
     spreads.add("10");
