@@ -185,6 +185,8 @@ private:
     ScopedPointer<Label> sliderALabel;
     ScopedPointer<Label> sliderBLabel;
 
+    ScopedPointer<ComboBox> triggerSourceSelection;
+
     ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
 
     // TODO: (kelly) consider moving these into a config singleton (meyers?) to clean up
@@ -193,6 +195,7 @@ private:
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
     StringArray colorGroupings; // option for coloring every N channels the same
+    StringArray triggerSources; // option for trigger source event channel
     StringArray overlaps; //
     StringArray saturationThresholds; //default values for when different amplifiers saturate
     

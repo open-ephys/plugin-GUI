@@ -186,7 +186,7 @@ void LfpTimescale::setTimebase(float t)
     labels.clear();
     
     const int minWidth = 60;
-    labelIncrement = 0.025f;
+    labelIncrement = 0.005f;
     
     while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
            getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
