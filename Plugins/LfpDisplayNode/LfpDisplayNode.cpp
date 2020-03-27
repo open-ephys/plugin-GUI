@@ -415,10 +415,13 @@ void LfpDisplayNode::finalizeEventChannels()
         }
         
         displayBufferIndices[i][chan] = newIdx;
-        if (latestCurrentTrigger >= 0)
-        {
-            latestTrigger = latestCurrentTrigger + index;
-        }
+    }
+​
+    if (latestCurrentTrigger >= 0)
+    {
+        int chan = numChannelsInSubprocessor[subprocessorToDraw];
+        int subProcIndex = allSubprocessors.indexOf(subprocessorToDraw);
+        latestTrigger = latestCurrentTrigger + displayBufferIndices[subProcIndex][chan];
     }
         
 }
