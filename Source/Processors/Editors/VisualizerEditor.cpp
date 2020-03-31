@@ -197,6 +197,7 @@ void VisualizerEditor::editorWasClicked()
 // Use VisualizerEditor::buttonEvent instead
 void VisualizerEditor::buttonClicked (Button* button)
 {
+
     // To handle default buttons, like the Channel Selector Drawer.
     GenericEditor::buttonClicked (button);
 
@@ -204,6 +205,11 @@ void VisualizerEditor::buttonClicked (Button* button)
     if (canvas == nullptr)
     {
         canvas = createNewCanvas();
+        //TODO: Temporary hack to prevent canvas-less interface from crashing GUI on button clicks...
+        if (canvas == nullptr)
+        {
+            return;
+        }
         canvas->update();
 
         if (isPlaying)

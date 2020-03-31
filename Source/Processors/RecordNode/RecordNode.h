@@ -45,6 +45,7 @@ public:
 
 	
 	void updateSubprocessorMap();
+	bool isMasterSubprocessor(int srcIdx, int subProcIdx);
 
 	void updateSettings() override;
     bool enable() override;

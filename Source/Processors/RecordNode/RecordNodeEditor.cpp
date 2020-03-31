@@ -124,9 +124,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 
 			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 
-				LOGD("First key is ", it->first, " And second key is ", ptr->first, " And value is ", ptr->second.size());
-
-				String name = "(" + String(it->first) + "," + String(ptr->first) + ")";
+				String name = "SP" + String(i);
 				subProcLabels.add(new Label(name, name));
 				subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
 				subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
@@ -302,6 +300,7 @@ SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int 
 	srcIndex = _srcIdx;
 	subProcIdx = _subProcIdx;
 	node = _node;
+	isMaster = node->isMasterSubprocessor(srcIndex, subProcIdx);
     startTimer(200);
 }
 
@@ -385,9 +384,13 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	/*Draw static black circle in center on top */
-	//g.setColour(Colour(0,0,0));
-	//g.fillEllipse(0.35*getWidth(), 0.35*getHeight(), 0.3*getWidth(), 0.3*getHeight());
+	if (isMaster)
+	{
+		g.setColour(Colour(255,255,255));
+		g.setFont(Font(10));
+		g.drawText("M", 0, 0, getWidth(), getHeight(), juce::Justification::centred);
+	}
+
 }
 
 RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name) : Button(name) {

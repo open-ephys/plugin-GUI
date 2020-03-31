@@ -75,6 +75,7 @@ public:
 
 	int srcIndex;
 	int subProcIdx;
+	bool isMaster;
 
 	void mouseUp(const MouseEvent &event) override
 	{

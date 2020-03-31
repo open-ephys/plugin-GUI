@@ -73,15 +73,15 @@ public:
 
     RecordNode* node;
 
+    int masterProcessor = -1;
+    int masterSubprocessor = -1;
+
 private:
 
     int eventCount = 0;
 
     float syncWindowLengthMs;
     bool syncWindowIsOpen;
-
-    int masterProcessor = -1;
-    int masterSubprocessor = -1;
 
     void hiResTimerCallback();
 
