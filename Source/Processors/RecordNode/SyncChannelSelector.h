@@ -29,10 +29,12 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
+class SyncControlButton;
+
 class SyncChannelSelector : public Component, public Button::Listener
 {
 public:
-	SyncChannelSelector(int nChans, int selectedChannelIdx);
+	SyncChannelSelector(int nChans, int selectedChannelIdx, bool isMaster);
 	~SyncChannelSelector();
 
 	void mouseDown(const MouseEvent &event);
@@ -42,6 +44,13 @@ public:
 
 	int nChannels;
 	int selectedId;
+	bool isMaster;
+
+	int buttonSize;
+	int nRows;
+
+	int width;
+	int height;
 
 	OwnedArray<SyncChannelButton> buttons;
 

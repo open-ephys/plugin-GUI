@@ -80,18 +80,19 @@ void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
-SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx) 
+SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isMaster_) 
     : Component(), 
     nChannels(nChans),
-    selectedId(selectedIdx)
+    selectedId(selectedIdx),
+    isMaster(isMaster_)
 {
 
-    int width = 368; //can use any multiples of 16 here for dynamic resizing
+    width = 368; //can use any multiples of 16 here for dynamic resizing
 
     int nColumns = 16;
-    int nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
-    int buttonSize = width / 16;
-    int height = buttonSize * nRows;
+    nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
+    buttonSize = width / 16;
+    height = buttonSize * nRows;
 
 	for (int i = 0; i < nRows; i++)
 	{
@@ -109,10 +110,18 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx)
 		}
 	}
     
-	setMasterSubprocessorButton = new SetButton("Set as Master Subprocessor");
-    setMasterSubprocessorButton->setBounds(0, height, 0.5*width, width / nColumns);
-    setMasterSubprocessorButton->addListener(this);
-	addChildAndSetID(setMasterSubprocessorButton,"SETMASTER");
+    if (!isMaster)
+    {
+        setMasterSubprocessorButton = new SetButton("Set as Master Subprocessor");
+        setMasterSubprocessorButton->setBounds(0, height, 0.5*width, width / nColumns);
+        setMasterSubprocessorButton->addListener(this);
+        addChildAndSetID(setMasterSubprocessorButton,"SETMASTER");
+    }
+    else
+    {
+        height = buttonSize * (nRows - 1);
+    }
+    
     
     if (nChannels <= 8)
         width /= 2;
@@ -147,7 +156,9 @@ void SyncChannelSelector::buttonClicked(Button* button)
     //TODO
     if (button->getComponentID() == "SETMASTER")
     {
-        std::cout << "Set as master subprocessor" << std::endl;
+        setSize (width, buttonSize * nRows);
+        height = buttonSize * (nRows);
+        isMaster = true;
         return;
     }
     else

@@ -248,6 +248,11 @@ int RecordNode::getNumSubProcessors() const
 	return numSubprocessors;
 }
 
+void RecordNode::setMasterSubprocessor(int srcIndex, int subProcIdx)
+{
+	synchronizer->setMasterSubprocessor(srcIndex, subProcIdx);
+}
+
 bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
 {
 	return (srcIndex == synchronizer->masterProcessor && subProcIdx == synchronizer->masterSubprocessor);

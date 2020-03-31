@@ -301,7 +301,7 @@ SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int 
 	subProcIdx = _subProcIdx;
 	node = _node;
 	isMaster = node->isMasterSubprocessor(srcIndex, subProcIdx);
-    startTimer(200);
+    startTimer(100);
 }
 
 SyncControlButton::~SyncControlButton() {}
@@ -315,8 +315,35 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 {
 	/*Capture button channel states and send back to record node. */
 
-	auto* channelSelector = (RecordChannelSelector*)component.getChildComponent(0);
+	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
+	if (syncChannelSelector->isMaster)
+	{
+		node->setMasterSubprocessor(srcIndex, subProcIdx);
+		isMaster = true;
+	}
 
+	repaint();
+}
+
+void SyncControlButton::mouseUp(const MouseEvent &event)
+{
+
+	if (event.mods.isLeftButtonDown())
+	{
+
+		std::vector<bool> channelStates;
+		for (int i = 0; i < 8; i++)
+			channelStates.push_back(false);
+
+		auto* channelSelector = new SyncChannelSelector(8,1,node->isMasterSubprocessor(srcIndex, subProcIdx));
+
+		CallOutBox& myBox
+			= CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
+
+		myBox.addComponentListener(this);
+		return;
+
+	}
 }
 
 void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
@@ -384,7 +411,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	if (isMaster)
+	if (node->isMasterSubprocessor(srcIndex, subProcIdx))
 	{
 		g.setColour(Colour(255,255,255));
 		g.setFont(Font(10));

@@ -77,27 +77,7 @@ public:
 	int subProcIdx;
 	bool isMaster;
 
-	void mouseUp(const MouseEvent &event) override
-	{
-		// Ignore right-clicks...add functionality for right-clicks later...
-		if (event.mods.isLeftButtonDown())
-		{
-
-			std::vector<bool> channelStates;
-			for (int i = 0; i < 8; i++)
-				channelStates.push_back(false);
-
-			auto* channelSelector = new SyncChannelSelector(8,1);
- 
-			CallOutBox& myBox
-				= CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
-
-			myBox.addComponentListener(this);
-			return;
-
-		}
-
-	}
+	void mouseUp(const MouseEvent &event) override;
 
 private:
 	RecordNode* node;
