@@ -47,6 +47,8 @@ public:
 	void updateSubprocessorMap();
 	void setMasterSubprocessor(int srcIdx, int subProcIdx);
 	bool isMasterSubprocessor(int srcIdx, int subProcIdx);
+	void setSyncChannel(int srcIdx, int subProcIdx, int channel);
+	int getSyncChannel(int srcIdx, int subProcIdx);
 
 	void updateSettings() override;
     bool enable() override;
@@ -87,8 +89,12 @@ public:
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 
-	std::map<int, std::map<int, std::vector<bool>>> m;
-	std::map<int, int> n;
+	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
+	std::map<int, int> dataChannelOrder;
+
+	std::map<int, std::map<int, int>> eventChannelMap;
+	std::map<int, std::map<int, int>> syncChannelMap;
+	std::map<int, std::map<int, int>> syncOrderMap;
 
 	Array<int> channelMap; //Map from record channel index to source channel index
 	std::vector<std::vector<int>> subProcessorMap;

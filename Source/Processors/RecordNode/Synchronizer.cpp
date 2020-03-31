@@ -1,4 +1,5 @@
 #include "Synchronizer.h"
+#include "Utils.h"
 
 Subprocessor::Subprocessor(float expectedSampleRate_)
 {
@@ -18,6 +19,16 @@ Subprocessor::Subprocessor(float expectedSampleRate_)
 	receivedMasterTimeInWindow = false;
 
 	sampleRateTolerance = 0.01;
+}
+
+void Subprocessor::reset()
+{
+
+	startSampleMasterTime = -1.0f;
+	lastSampleMasterTime = -1.0f;
+
+	isSynchronized = false;
+
 }
 
 void Subprocessor::setMasterTime(float masterTimeSec_)
@@ -113,13 +124,14 @@ void Synchronizer::reset()
 	
     syncWindowIsOpen = false;
     firstMasterSync = true;
+	eventCount = 0;
     
     std::map<int, std::map<int, Subprocessor*>>::iterator it;
     std::map<int, Subprocessor*>::iterator ptr;
     
     for (it = subprocessors.begin(); it != subprocessors.end(); it++) {
         for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
-            ptr->second->isSynchronized = false;
+            ptr->second->reset();
         }
     }
 }
@@ -134,11 +146,20 @@ void Synchronizer::setMasterSubprocessor(int sourceID, int subProcIndex)
 {
 	masterProcessor = sourceID;
 	masterSubprocessor = subProcIndex;
+	reset();
 }
 
 void Synchronizer::setSyncChannel(int sourceID, int subProcIdx, int ttlChannel)
 {
+	LOGD("Set sync channel: {", sourceID, ",", subProcIdx, "}->", ttlChannel);
 	subprocessors[sourceID][subProcIdx]->syncChannel = ttlChannel;
+	reset();
+}
+
+int Synchronizer::getSyncChannel(int sourceID, int subProcIdx)
+{
+	LOGD("Get sync channel: {", sourceID, ",", subProcIdx, "}->", subprocessors[sourceID][subProcIdx]->syncChannel);
+	return subprocessors[sourceID][subProcIdx]->syncChannel;
 }
 
 void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sampleNumber)
@@ -156,6 +177,8 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 
 		if (sourceID == masterProcessor && subProcIdx == masterSubprocessor)
 		{
+
+			LOGD("Got event on master!");
 
 			float masterTimeSec;
 

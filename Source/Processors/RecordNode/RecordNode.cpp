@@ -174,11 +174,13 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
-	this->m[srcIndex][subProcIdx] = channelStates;
+	this->dataChannelStates[srcIndex][subProcIdx] = channelStates;
 }
 
 void RecordNode::updateSubprocessorMap()
 {
+
+	LOGD("***Update subprocessor map");
 
 	std::vector<int> procIds;
 
@@ -195,7 +197,7 @@ void RecordNode::updateSubprocessorMap()
 		if (!std::count(procIds.begin(), procIds.end(), sourceID))
 			procIds.push_back(sourceID);
 
-		if (!m[sourceID][subProcID].size())
+		if (!dataChannelStates[sourceID][subProcID].size())
 		{
 			synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
 			eventIndex++;
@@ -209,8 +211,8 @@ void RecordNode::updateSubprocessorMap()
 			int orderInSubprocessor = 0;
 			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
 			{
-				m[sourceID][subProcID].push_back(false);
-				n[ch] = orderInSubprocessor++;
+				dataChannelStates[sourceID][subProcID].push_back(false);
+				dataChannelOrder[ch] = orderInSubprocessor++;
 				ch++;
 			}
 			ch--;
@@ -222,24 +224,40 @@ void RecordNode::updateSubprocessorMap()
 	std::map<int, std::vector<bool>>::iterator ptr;
 
 	numSubprocessors = 0;
-	for (it = m.begin(); it != m.end(); it++) {
+	for (it = dataChannelStates.begin(); it != dataChannelStates.end(); it++) 
+	{
 
 		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 			if (!std::count(procIds.begin(), procIds.end(), it->first))
-				m.erase(it->first);
+				dataChannelStates.erase(it->first);
 			else
 				numSubprocessors++;
 		}
 	}
 
-	/*
-	LOGD("Generated channel map:");
-	std::map<int, int>::iterator itr;
-	for (itr = n.begin(); itr != n.end(); itr++) {
+	eventChannelMap.clear();
+	syncChannelMap.clear();
+	syncOrderMap.clear();
+	for (int ch = 0; ch < eventChannelArray.size(); ch++)
+	{
 
-		LOGD("(",itr->first, ",", itr->second,")");
+		EventChannel* chan = eventChannelArray[ch];
+		int sourceID = chan->getSourceNodeID();
+		int subProcID = chan->getSubProcessorIdx();
+
+		int chCount = 0;
+
+		if (!syncChannelMap[sourceID][subProcID])
+		{
+			EventChannel* chan = eventChannelArray[ch];
+			eventChannelMap[sourceID][subProcID] = chan->getNumChannels();
+			syncOrderMap[sourceID][subProcID] = ch;
+			syncChannelMap[sourceID][subProcID] = 0;
+			LOGD("Setting {", chan->getSourceNodeID(), ",", chan->getSubProcessorIdx(), "}->", ch);
+			synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
+		}
+
 	}
-	*/
 
 }
 
@@ -251,6 +269,19 @@ int RecordNode::getNumSubProcessors() const
 void RecordNode::setMasterSubprocessor(int srcIndex, int subProcIdx)
 {
 	synchronizer->setMasterSubprocessor(srcIndex, subProcIdx);
+}
+
+void RecordNode::setSyncChannel(int srcIndex, int subProcIdx, int channel)
+{
+	//eventChannelMap[srcIndex][subProcIdx]; 
+	syncChannelMap[srcIndex][subProcIdx] = channel;
+	synchronizer->setSyncChannel(srcIndex, subProcIdx, syncOrderMap[srcIndex][subProcIdx]+channel);
+}
+
+int RecordNode::getSyncChannel(int srcIndex, int subProcIdx)
+{
+	return syncChannelMap[srcIndex][subProcIdx];
+	//return synchronizer->getSyncChannel(srcIndex, subProcIdx);
 }
 
 bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
@@ -291,12 +322,12 @@ void RecordNode::startRecording()
 		int subIndex = chan->getSubProcessorIdx();
 
 
-		if (m[srcIndex][subIndex][n[ch]])
+		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
 
-			LOGD("Source: ", srcIndex, " Sub: ", subIndex, " Ch: ", ch, " Nch:", n[ch], " ON");
+			LOGD("Source: ", srcIndex, " Sub: ", subIndex, " Ch: ", ch, " Nch:", dataChannelOrder[ch], " ON");
 
-			int chanOrderInProcessor = subIndex * m[srcIndex][subIndex].size() + n[ch];
+			int chanOrderInProcessor = subIndex * dataChannelStates[srcIndex][subIndex].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
 			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
@@ -402,19 +433,17 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 	if (recordEvents) 
 	{
 		int64 timestamp = Event::getTimestamp(event);
+		uint64 eventChan = event.getChannel();
 		int eventIndex;
 		if (eventInfo && samplePosition > 0)
 		{
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-
-			if (synchronizer->subprocessors[Event::getSourceID(event)][Event::getSubProcessorIdx(event)]->syncChannel < 0)
-			{
-				synchronizer->setSyncChannel(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex);
-			}
+			LOGD("Synchronizer got event: {", Event::getSourceID(event), ",", Event::getSubProcessorIdx(event), "}->", eventIndex, " ch: ", eventChan, " ts:", timestamp);
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 		}
 		else
 			eventIndex = -1;
+
 		if (isRecording)
 			eventQueue->addEvent(event, timestamp, eventIndex);
 	}

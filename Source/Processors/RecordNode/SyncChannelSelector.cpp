@@ -159,7 +159,7 @@ void SyncChannelSelector::buttonClicked(Button* button)
         setSize (width, buttonSize * nRows);
         height = buttonSize * (nRows);
         isMaster = true;
-        return;
+        findParentComponentOfClass<CallOutBox>()->exitModalState(0);
     }
     else
     {

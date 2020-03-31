@@ -75,7 +75,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
-	recordNode->setRecordEvents(false); //TODO: This needs to be loaded from save file
+	eventRecord->triggerClick(); 
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -120,7 +120,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 		std::map<int, std::vector<bool>>::iterator ptr;
 
 		int i = 0;
-		for (it = recordNode->m.begin(); it != recordNode->m.end(); it++) {
+		for (it = recordNode->dataChannelStates.begin(); it != recordNode->dataChannelStates.end(); it++) {
 
 			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 
@@ -318,8 +318,19 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
 	if (syncChannelSelector->isMaster)
 	{
+		LOGD("Set master: {", srcIndex, ",", subProcIdx, "}");
 		node->setMasterSubprocessor(srcIndex, subProcIdx);
 		isMaster = true;
+	}
+
+	for (int i = 0; i < syncChannelSelector->buttons.size(); i++)
+	{
+		if (syncChannelSelector->buttons[i]->getToggleState())
+		{
+			node->setSyncChannel(srcIndex, subProcIdx, i);
+			break;
+		}
+
 	}
 
 	repaint();
@@ -335,7 +346,10 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		for (int i = 0; i < 8; i++)
 			channelStates.push_back(false);
 
-		auto* channelSelector = new SyncChannelSelector(8,1,node->isMasterSubprocessor(srcIndex, subProcIdx));
+		int nEvents = node->eventChannelMap[srcIndex][subProcIdx];
+		int syncChannel = node->getSyncChannel(srcIndex,subProcIdx);
+		
+		auto* channelSelector = new SyncChannelSelector(nEvents,syncChannel,node->isMasterSubprocessor(srcIndex, subProcIdx));
 
 		CallOutBox& myBox
 			= CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
@@ -469,7 +483,7 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	if (srcID < 0) //TODO: Master box was selected; show read-only channel selector
 		return;
 
-	channelStates = recordNode->m[srcID][subID];
+	channelStates = recordNode->dataChannelStates[srcID][subID];
 	
     auto* channelSelector = new RecordChannelSelector(channelStates);
  

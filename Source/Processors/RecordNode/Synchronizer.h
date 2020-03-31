@@ -12,6 +12,8 @@ class Subprocessor
 public:
     Subprocessor(float expectedSampleRate);
 
+    void reset();
+
     float expectedSampleRate;
     float actualSampleRate;
 
@@ -62,6 +64,7 @@ public:
     void addSubprocessor(int sourceID, int subProcIdx, float expectedSampleRate);
     void setMasterSubprocessor(int sourceID, int subProcIdx);
     void setSyncChannel(int sourceID, int subProcIdx, int ttlChannel);
+    int getSyncChannel(int sourceID, int subProcIdx);
     bool isSubprocessorSynced(int sourceID, int subProcIdx);
     SyncStatus getStatus(int sourceID, int subProcIdx);
 
