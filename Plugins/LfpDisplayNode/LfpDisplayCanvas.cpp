@@ -344,9 +344,10 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
         ScopedLock displayLock(*processor->getMutex());
 
-                int triggerTime = processor->getTriggerSource()>=0
-                  ? processor->getLatestTriggerTime() : -1;
-                processor->acknowledgeTrigger();
+        int triggerTime = processor->getTriggerSource()>=0 
+                          ? processor->getLatestTriggerTime() 
+                          : -1;
+        processor->acknowledgeTrigger();
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
@@ -357,27 +358,27 @@ void LfpDisplayCanvas::updateScreenBuffer()
             //    std::cout << sampleRate[channel] << std::endl;
 
             if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
+            {
+                if (processor->getTriggerSource()>=0)
+                {
+                    // we may need to wait for a trigger
+                    if (triggerTime>=0)
+                    {
+                        const int screenThird = int(maxSamples * ratio / 4);
+                        const int dispBufLim = displayBufferSize / 2;
+                        int t0 = triggerTime - std::min(screenThird, dispBufLim);
+                        if (t0 < 0)
                         {
-                            if (processor->getTriggerSource()>=0)
-                            {
-                                // we may need to wait for a trigger
-                                if (triggerTime>=0)
-                                {
-                                    const int screenThird = int(maxSamples * ratio / 4);
-                                    const int dispBufLim = displayBufferSize / 2;
-                                    int t0 = triggerTime - std::min(screenThird, dispBufLim);
-                                    if (t0 < 0)
-                                    {
-                                        t0 += displayBufferSize;
-                                    }
-                                    displayBufferIndex.set(channel, t0); // fast-forward
-                                } else {
-                                    return; // don't display right now
-                                }
-                            }
-                           
-                            screenBufferIndex.set(channel, 0);
+                            t0 += displayBufferSize;
                         }
+                        displayBufferIndex.set(channel, t0); // fast-forward
+                    } else {
+                        return; // don't display right now
+                    }
+                }
+                
+                screenBufferIndex.set(channel, 0);
+            }
             // hold these values locally for each channel - is this a good idea?
             int sbi = screenBufferIndex[channel];
             int dbi = displayBufferIndex[channel];
@@ -390,9 +391,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
             int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
-            if (nSamples < 0) // buffer has reset to 0 -- xxx 2do bug: this shouldnt happen because it makes the range/histogram display not work properly/look off for one pixel
+            if (nSamples < 0)
             {
-                nSamples = (displayBufferSize - dbi) + index + 1;
+                nSamples += displayBufferSize;
                 //  std::cout << "nsamples 0 " ;
             }
 
@@ -406,9 +407,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
                 valuesNeeded = maxSamples - sbi;
             }
             float subSampleOffset = 0.0;
-
-            dbi %= displayBufferSize; // make sure we're not overshooting
-            int nextPos = (dbi + 1) % displayBufferSize; //  position next to displayBufferIndex in display buffer to copy from
 
             //         if (channel == 0)
             //             std::cout << "Channel " 
@@ -428,31 +426,40 @@ void LfpDisplayCanvas::updateScreenBuffer()
                     if (!lfpDisplay->isPaused)
                     {
                         float gain = 1.0;
-                        float alpha = (float)subSampleOffset;
-                        float invAlpha = 1.0f - alpha;
 
                         screenBuffer->clear(channel, sbi, 1);
                         screenBufferMean->clear(channel, sbi, 1);
                         screenBufferMin->clear(channel, sbi, 1);
                         screenBufferMax->clear(channel, sbi, 1);
 
-                        dbi %= displayBufferSize; // just to be sure
-
                         // update continuous data channels
-                        if (channel != nChans)
+                        int nextpix = dbi + int(ceil(ratio));
+                        if (nextpix > displayBufferSize)
+                            nextpix = displayBufferSize;
+
+                        if (nextpix - dbi > 1) 
+                        {
+                            // multiple samples, calculate average
+                            float sum = 0;
+                            for (int j = dbi; j < nextpix; j++)
+                                sum += displayBuffer->getSample(channel, j);
+
+                            screenBuffer->addSample(channel, sbi, sum*gain / (nextpix - dbi));
+                        } 
+                        else
                         {
                             // interpolate between two samples with invAlpha and alpha
-                            screenBuffer->addFrom(channel, // destChannel
-                                sbi, // destStartSample
-                                displayBuffer->getReadPointer(channel, dbi), // source
-                                1, // numSamples
-                                invAlpha*gain); // gain
+                            /* This is only reasonable if there are more pixels
+                            than samples. Otherwise, we should calculate average. */
+                            float alpha = (float) subSampleOffset;
+                            float invAlpha = 1.0f - alpha;
 
-                            screenBuffer->addFrom(channel, // destChannel
-                                sbi, // destStartSample
-                                displayBuffer->getReadPointer(channel, nextPos), // source
-                                1, // numSamples
-                                alpha*gain); // gain
+                            float val0 = displayBuffer->getSample(channel, dbi);
+                            float val1 = displayBuffer->getSample(channel, (dbi+1)%displayBufferSize);
+
+                            float val = invAlpha * val0  + alpha * val1;
+
+                            screenBuffer->addSample(channel, sbi, val*gain);
                         }
                         
 
@@ -460,13 +467,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
                         float sample_min = 10000000;
                         float sample_max = -10000000;
                         float sample_mean = 0;
-
-                        int nextpix = (dbi + (int)ratio + 1) % (displayBufferSize + 1); //  position to next pixels index
-
-                        if (nextpix <= dbi) { // at the end of the displaybuffer, this can occur and it causes the display to miss one pixel woth of sample - this circumvents that
-                            //    std::cout << "np " ;
-                            nextpix = dbi;
-                        }
 
                         for (int j = dbi; j < nextpix; j++)
                         {
@@ -491,9 +491,6 @@ void LfpDisplayCanvas::updateScreenBuffer()
                         {
                             //std::cout << sample_max << std::endl;
                             screenBuffer->setSample(channel, sbi, sample_max);
-                            //if (screenBuffer->getSample(channel, sbi - 1) != sample_max)
-                            //    std::cout << "Sample changed" << std::endl;
-                            //screenBuffer->setSample(channel, sbi, sample_max);
                         }
 
                         // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
@@ -525,14 +522,9 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
                     subSampleOffset += ratio;
 
-                    while (subSampleOffset >= 1.0)
-                    {
-                        if (++dbi > displayBufferSize)
-                            dbi = 0;
-
-                        nextPos = (dbi + 1) % displayBufferSize;
-                        subSampleOffset -= 1.0;
-                    }
+                    int steps(floor(subSampleOffset));
+                    dbi = (dbi + steps) % displayBufferSize;
+                    subSampleOffset -= steps;
 
                 }
 
