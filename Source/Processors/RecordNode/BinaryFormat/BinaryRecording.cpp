@@ -59,6 +59,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         const RecordProcessorInfo& pInfo = getProcessorInfo(proc);
         int recChans = pInfo.recordedChannels.size();
 
+        LOGD("Recorded proc: ", proc, " has ", recChans, " chans.");
+
         for (int chan = 0; chan < recChans; chan++)
         {
             int recordedChan = pInfo.recordedChannels[chan];
@@ -66,7 +68,10 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             const DataChannel* channelInfo = getDataChannel(realChan);
             int sourceId = channelInfo->getSourceNodeID();
             int sourceSubIdx = channelInfo->getSubProcessorIdx();
+
             int nInfoArrays = indexedDataChannels.size();
+
+            LOGD("Processing real channel:", realChan, " recorded channel:", recordedChan, "{", sourceId, ",", sourceSubIdx, "} nInfoArrays: ", nInfoArrays);
             bool found = false;
             DynamicObject::Ptr jsonChan = new DynamicObject();
 
@@ -101,6 +106,9 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 //std::cout << "Creating file: " << contPath << datPath << "timestamps.npy" << std::endl;
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
+
+                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "fTimestamps.npy", NpyType(BaseType::FLOAT,1));
+                m_dataFloatTimestampFiles.add(ftsFile.release());
 
                 m_fileIndexes.set(recordedChan, nInfoArrays);
                 m_channelIndexes.set(recordedChan, 0);
@@ -142,6 +150,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     //Timestamps
     Array<uint32> procIDs;
     for (int i = 0; i < nChans; i++)
+
     {
         if (i == 0)
             std::cout << "Start timestamp: " << getTimestamp(i) << std::endl;
@@ -154,6 +163,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
     for (int ev = 0; ev < nEvents; ev++)
     {
+
         const EventChannel* chan = getEventChannel(ev);
         String eventName = getProcessorString(chan);
         NpyType type;
@@ -162,22 +172,26 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         switch (chan->getChannelType())
         {
         case EventChannel::TEXT:
+            LOGD("Got TEXT channel");
             eventName += "TEXT_group";
             type = NpyType(BaseType::CHAR, chan->getLength());
             dataFileName = "text";
             break;
         case EventChannel::TTL:
+            LOGD("Got TTL channel");
             eventName += "TTL";
             type = NpyType(BaseType::INT16, 1);
             dataFileName = "channel_states";
             break;
         default:
+            LOGD("Got BINARY group");
             eventName += "BINARY_group";
             type = NpyType(chan->getEquivalentMetaDataType(), chan->getLength());
             dataFileName = "data_array";
             break;
         }
         eventName += "_" + String(chan->getSourceIndex() + 1) + File::separatorString;
+        LOGD("eventName: ", eventName);
         ScopedPointer<EventRecording> rec = new EventRecording();
 
         rec->mainFile = new NpyFile(eventPath + eventName + dataFileName + ".npy", type);
@@ -203,6 +217,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         m_eventFiles.add(rec.release());
         jsonEventFiles.add(var(jsonChannel));
     }
+
+    LOGD("???Got here");
 
     int nSpikes = getNumRecordedSpikes();
     Array<const SpikeChannel*> indexedSpikes;
@@ -470,6 +486,7 @@ void BinaryRecording::resetChannels()
 	m_channelIndexes.clear();
 	m_fileIndexes.clear();
 	m_dataTimestampFiles.clear();
+    m_dataFloatTimestampFiles.clear();
 	m_eventFiles.clear();
 	m_spikeChannelIndexes.clear();
 	m_spikeFileIndexes.clear();
@@ -480,6 +497,7 @@ void BinaryRecording::resetChannels()
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
 	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
 	m_bufferSize = MAX_BUFFER_SIZE;
+    m_ftsBufferSize = MAX_BUFFER_SIZE;
 	m_startTS.clear();
 }
 
@@ -503,12 +521,13 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->metaDataFile) rec->metaDataFile->increaseRecordCount();
 }
 
-void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
+void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size)
 {
 
-    if (!size)
+    if (!size)  
         return;
 
+    /* If our internal buffer is too small to hold the data... */
 	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
 	{
 		std::cerr << "[RN] Write buffer overrun, resizing from: " << m_bufferSize << " to: " << size << std::endl;
@@ -518,26 +537,85 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 		m_bufferSize = size;
 	}
 
+    /* Convert signal from float to int w/ bitVolts scaling */
 	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
-	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-
+	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), dataBuffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
+    /* Get the file index that belongs to the current recording channel */
 	int fileIndex = m_fileIndexes[writeChannel];
 
-    //std::cout << "(" << getTimestamp(writeChannel) << "," << m_startTS[writeChannel] << "," << m_channelIndexes[writeChannel] << ")"; fflush(stdout);
+    /* Write the data to that file */
 	m_DataFiles[fileIndex]->writeChannel(
 		getTimestamp(writeChannel) - m_startTS[writeChannel],
 		m_channelIndexes[writeChannel],
 		m_intBuffer.getData(), size);
 
+    /* If is first channel in subprocessor */
 	if (m_channelIndexes[writeChannel] == 0)
-	{
+    {
+
 		int64 baseTS = getTimestamp(writeChannel);
 		for (int i = 0; i < size; i++)
-			m_tsBuffer[i] = baseTS + i;
+            /* Generate int timestamp */ 
+            m_tsBuffer[i] = baseTS + i;     
+
+        /* Write int timestamps to disc */
 		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
 		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
+
+        LOGD("BinaryRecording::writeSynchronizedData: ", *ftsBuffer);
+
+
+        m_dataFloatTimestampFiles[fileIndex]->writeData(ftsBuffer, size*sizeof(float));
+        m_dataFloatTimestampFiles[fileIndex]->increaseRecordCount(size);
+        
+	}
+}
+
+void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
+{
+
+    if (!size)
+        return;
+
+    /* If our internal buffer is too small to hold the data... */
+	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
+	{
+		std::cerr << "[RN] Write buffer overrun, resizing from: " << m_bufferSize << " to: " << size << std::endl;
+		m_scaledBuffer.malloc(size);
+		m_intBuffer.malloc(size);
+		m_tsBuffer.malloc(size);
+		m_bufferSize = size;
+	}
+
+    /* Convert signal from float to int w/ bitVolts scaling */
+	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
+	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
+	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
+
+    /* Get the file index that belongs to the current recording channel */
+	int fileIndex = m_fileIndexes[writeChannel];
+
+    /* Write the data to that file */
+	m_DataFiles[fileIndex]->writeChannel(
+		getTimestamp(writeChannel) - m_startTS[writeChannel],
+		m_channelIndexes[writeChannel],
+		m_intBuffer.getData(), size);
+
+    /* If is first channel in subprocessor */
+	if (m_channelIndexes[writeChannel] == 0)
+    {
+
+		int64 baseTS = getTimestamp(writeChannel);
+		for (int i = 0; i < size; i++)
+            /* Generate int timestamp */ 
+            m_tsBuffer[i] = baseTS + i;
+
+        /* Write int timestamps to disc */
+		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
+		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
+        
 	}
 
 }

@@ -445,6 +445,8 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 	diskWriteLock.exit();
 }
 
+void OriginalRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) {};
+
 void OriginalRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
 {
 	int samplesWritten = 0;

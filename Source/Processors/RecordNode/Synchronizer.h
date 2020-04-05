@@ -6,6 +6,30 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
+class FloatTimestampBuffer
+{
+public:
+    FloatTimestampBuffer(int size);
+    ~FloatTimestampBuffer();
+
+    void clear();
+
+    int addToBuffer(float* data, int64* timestamps, int numItems, int chunkSize=1);
+    int getNumSamples() const;
+    int readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, int maxSize, int dstStartChannel, int numChannels);
+    void resize(int size);
+
+private: 
+
+
+    int64 lastTimestamp;
+    AbstractFifo abstractFifo;
+    AudioSampleBuffer buffer;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FloatTimestampBuffer);
+
+};
+
 
 class Subprocessor
 {
@@ -79,6 +103,8 @@ public:
     int masterProcessor = -1;
     int masterSubprocessor = -1;
 
+    bool isAvailable() { return masterProcessor > 0; };
+
 private:
 
     int eventCount = 0;
@@ -91,6 +117,7 @@ private:
     bool firstMasterSync;
 
     OwnedArray<Subprocessor> subprocessorArray;
+    OwnedArray<FloatTimestampBuffer> ftsBuffer;
 
     void openSyncWindow();
 };

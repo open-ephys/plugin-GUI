@@ -44,6 +44,7 @@ public:
 	~RecordThread();
 	void setFileComponents(File rootFolder, int experimentNumber, int recordingNumber);
 	void setChannelMap(const Array<int>& channels);
+	void setFTSChannelMap(const Array<int>& channels);
 	void setQueuePointers(DataQueue* data, EventMsgQueue* events, SpikeMsgQueue* spikes);
 
 	void run() override;
@@ -56,10 +57,12 @@ public:
 
 private:
 	void writeData(const AudioSampleBuffer& buffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
+	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const AudioSampleBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
 
 	//const OwnedArray<RecordEngine>& m_engineArray;
 	const ScopedPointer<RecordEngine>& m_engine;
 	Array<int> m_channelArray;
+	Array<int> m_ftsChannelArray;
 
 	DataQueue* m_dataQueue;
 	EventMsgQueue* m_eventQueue;
@@ -72,6 +75,7 @@ private:
 	int m_experimentNumber;
 	int m_recordingNumber;
 	int m_numChannels;
+	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordThread);
 };
 

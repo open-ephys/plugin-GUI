@@ -97,6 +97,7 @@ public:
 	std::map<int, std::map<int, int>> syncOrderMap;
 
 	Array<int> channelMap; //Map from record channel index to source channel index
+	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
 	std::vector<std::vector<int>> subProcessorMap;
 	std::vector<int> startRecChannels;
 

@@ -21,6 +21,7 @@ public:
 	void closeFiles() override;
 	void resetChannels() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
+	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) override;
 	void writeEvent(int eventIndex, const MidiMessage& event) override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
@@ -50,10 +51,13 @@ private:
 
 	HeapBlock<float> m_scaledBuffer;
 	HeapBlock<int16> m_intBuffer;
+	HeapBlock<float> m_ftsBuffer;
 	HeapBlock<int64> m_tsBuffer;
 	int m_bufferSize;
+	int m_ftsBufferSize;
 
 	OwnedArray<SequentialBlockFile> m_DataFiles;
+	OwnedArray<SequentialBlockFile> m_FTSDataFiles;
 	Array<unsigned int> m_channelIndexes;
 	Array<unsigned int> m_fileIndexes;
 	OwnedArray<EventRecording> m_eventFiles;
@@ -63,6 +67,7 @@ private:
 	static String getProcessorString(const InfoObjectCommon* channelInfo);
 	
 	OwnedArray<NpyFile> m_dataTimestampFiles;
+	OwnedArray<NpyFile> m_dataFloatTimestampFiles;
 	ScopedPointer<FileOutputStream> m_syncTextFile;
 
 	Array<unsigned int> m_spikeFileIndexes;

@@ -303,9 +303,10 @@ bool RecordNode::enable()
 void RecordNode::startRecording()
 {
 
-	updateSettings(); 
+	LOGD("Start recording...");
 
 	channelMap.clear();
+	ftsChannelMap.clear();
 	int totChans = dataChannelArray.size();
 	OwnedArray<RecordProcessorInfo> procInfo;
 	Array<int> chanProcessorMap;
@@ -315,26 +316,28 @@ void RecordNode::startRecording()
 	int procIndex = -1;
 	int chanSubIdx = 0;
 
+	int recordedProcessorIdx = -1;
+
 	for (int ch = 0; ch < totChans; ++ch)
 	{
+
 		DataChannel* chan = dataChannelArray[ch];
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
-
-			LOGD("Source: ", srcIndex, " Sub: ", subIndex, " Ch: ", ch, " Nch:", dataChannelOrder[ch], " ON");
 
 			int chanOrderInProcessor = subIndex * dataChannelStates[srcIndex][subIndex].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
 			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
 			{
+				recordedProcessorIdx++;
 				startRecChannels.push_back(ch);
 				lastProcessor = chan->getSourceNodeID();
 				lastSubProcessor = chan->getSubProcessorIdx();
+
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
 				pi->processorId = chan->getSourceNodeID();
 				procInfo.add(pi);
@@ -342,6 +345,7 @@ void RecordNode::startRecording()
 			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 			chanProcessorMap.add(srcIndex);
 			chanOrderinProc.add(chanOrderInProcessor);
+			ftsChannelMap.add(recordedProcessorIdx);
 		}
 	}
 
@@ -356,8 +360,11 @@ void RecordNode::startRecording()
 	recordEngine->resetChannels();
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 	recordThread->setChannelMap(channelMap);
+	recordThread->setFTSChannelMap(ftsChannelMap);
 
 	dataQueue->setChannels(numRecordedChannels);
+	dataQueue->setFTSChannels(recordedProcessorIdx+1);
+	LOGD("FTS ARRAY SIZE: ", recordedProcessorIdx+1);
 	eventQueue->reset();
 	spikeQueue->reset();
 	recordThread->setQueuePointers(dataQueue, eventQueue, spikeQueue);
@@ -438,13 +445,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		if (eventInfo && samplePosition > 0)
 		{
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-			LOGD("Synchronizer got event: {", Event::getSourceID(event), ",", Event::getSubProcessorIdx(event), "}->", eventIndex, " ch: ", eventChan, " ts:", timestamp);
+			//LOGD("Synchronizer got event: {", Event::getSourceID(event), ",", Event::getSubProcessorIdx(event), "}->", eventIndex, " ch: ", eventChan, " ts:", timestamp);
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 		}
 		else
 			eventIndex = -1;
 
-		if (isRecording)
+		if (isRecording && eventIndex >= 0)
 			eventQueue->addEvent(event, timestamp, eventIndex);
 	}
 
@@ -465,13 +472,25 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 	if (isRecording)
 	{
 
+		LOGD("*********************RECORD LOOP************************");
+		DataChannel* chan; 
+		int sourceID;
+		int subProcIdx;
+
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
 
 			if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
 			{
+
+				chan = dataChannelArray[ch];
+
 				numSamples = getNumSamples(channelMap[ch]);
 				timestamp = getTimestamp(channelMap[ch]);
+
+				sourceID = chan->getSourceNodeID();
+				subProcIdx = chan->getSubProcessorIdx();
+
 			}
 
 			bool shouldWrite = validBlocks[ch];
@@ -481,10 +500,19 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 				validBlocks.set(ch, true);
 			}
 			
-			if (shouldWrite)
+			if (shouldWrite && numSamples > 0)
 			{
+
+				if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
+				{
+					float first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
+					float second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
+					dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+				}
+
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
 				samplesWritten+=numSamples;
+
 			}
 
 		}

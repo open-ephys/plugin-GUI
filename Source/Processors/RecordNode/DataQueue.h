@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <JuceHeader.h>
 #include "Utils.h"
 
+class Synchronizer;
+
 struct CircularBufferIndexes
 {
 	int index1;
@@ -41,15 +43,20 @@ public:
 	DataQueue(int blockSize, int nBlocks);
 	~DataQueue();
 	void setChannels(int nChans);
+	void setFTSChannels(int nChans);
 	void resize(int nBlocks);
 	void getTimestampsForBlock(int idx, Array<int64>& timestamps) const;
 
 	//Only the methods after this comment are considered thread-safe.
 	//Caution must be had to avoid calling more than one of the methods above simulatenously
 	void writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
+	void writeSynchronizedTimestampChannel(float start, float step, int destChannel, int64 nSamples);
 	bool startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& timestamps, int nMax);
+	bool startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax);
 	const AudioSampleBuffer& getAudioBufferReference() const;
+	const AudioSampleBuffer& getFTSBufferReference() const;
 	void stopRead();
+	void stopSynchronizedRead();
 
 private:
 	void fillTimestamps(int channel, int index, int size, int64 timestamp);
@@ -57,12 +64,18 @@ private:
 	int lastIdx;
 
 	OwnedArray<AbstractFifo> m_fifos;
+	OwnedArray<AbstractFifo> m_FTSFifos;
+
 	AudioSampleBuffer m_buffer;
+	AudioSampleBuffer m_FTSBuffer;
+
 	Array<int> m_readSamples;
+	Array<int> m_readFTSSamples;
 	OwnedArray<Array<int64>> m_timestamps;
 	Array<int64> m_lastReadTimestamps;
 
 	int m_numChans;
+	int m_numFTSChans;
 	const int m_blockSize;
 	bool m_readInProgress;
 	int m_numBlocks;

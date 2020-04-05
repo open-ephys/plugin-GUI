@@ -102,6 +102,9 @@ public:
 	/** Write continuous data for a channel. The raw buffer pointer is passed for speed, care must be taken to only read the specified number of bytes. */
 	virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
 
+	/** Write continuous data for a channel with synchronized float timestamps */
+	virtual void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) = 0;
+
 	/** Called by the record thread after it has written a channel block */
 	virtual void endChannelBlock(bool lastBlock);
 
@@ -151,6 +154,10 @@ public:
 	//Method needed by the factory methods in the manager
 	//static RecordEngineManager* getEngineManager();
 
+	/** Gets the number of processors being recorded
+	*/
+	int getNumRecordedProcessors() const;
+
 
 protected:
 	/** Functions to access RecordNode arrays and utilities */
@@ -184,10 +191,6 @@ protected:
 	/** Gets the number of recorded spike channels
 	(right now all channels are recorded) */
 	int getNumRecordedSpikes() const;
-
-	/** Gets the number of processors being recorded
-	*/
-	int getNumRecordedProcessors() const;
 
 	/** Gets the processor info structure for a recorded processor
 	*/
