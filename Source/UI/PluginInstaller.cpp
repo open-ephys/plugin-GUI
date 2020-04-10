@@ -59,7 +59,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
     */
 
 	setUsingNativeTitleBar(true);
-	setContentOwned(new PluginInstallerComponent(), true);
+	setContentOwned(new PluginInstallerComponent(), false);
 	setVisible(true);
 	
 	int x = parent->getX();
@@ -71,6 +71,8 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(640, 480, 8192, 5120);
+
+	createXmlFile();
 }
 
 PluginInstaller::~PluginInstaller()
@@ -84,6 +86,27 @@ void PluginInstaller::closeButtonPressed()
 	delete this;
 }
 
+void PluginInstaller::createXmlFile()
+{
+	String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
+	File file = getPluginsLocationDirectory().getChildFile(xmlFile);
+
+	XmlDocument doc(file);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+	{
+		std::unique_ptr<XmlElement> baseTag(new XmlElement("PluginInstaller"));
+		baseTag->setAttribute("gui_version", JUCEApplication::getInstance()->getApplicationVersion());
+
+		std::unique_ptr<XmlElement> plugins(new XmlElement("InstalledPlugins"));
+
+		baseTag->addChildElement(plugins.release());
+
+		if (! baseTag->writeToFile(file, String::empty))
+			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+	}
+}
 
 /* ================================== Plugin Installer Component ================================== */
 
@@ -226,12 +249,18 @@ void PluginListBoxComponent::loadAllPluginNames()
 
 	String pluginName;
 
+	int pluginTextWidth;
+
 	for (int i = 0; i < numRows; i++)
 	{
 		//Array<String> packages;
 		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
 		pluginArray.add(pluginName);
+
+		pluginTextWidth = listFont.getStringWidth(pluginName);
+		if (pluginTextWidth > maxTextWidth)
+			maxTextWidth = pluginTextWidth;
 	}
 }
 
@@ -333,9 +362,9 @@ void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
 void PluginListBoxComponent::resized()
 {
 	// position our table with a gap around its edge
-    pluginList.setBounds(10, 10, getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
-	pluginInfoPanel.setBounds(getWidth() - (0.5 * getWidth()), 10, 
-							  getWidth() - (0.5 * getWidth()) - 20, getHeight() - 30);
+    pluginList.setBounds(10, 10, maxTextWidth + 60, getHeight() - 30);
+	pluginInfoPanel.setBounds(maxTextWidth + 80, 10, 
+							  getWidth() - maxTextWidth - 100, getHeight() - 30);
 }
 
 void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
@@ -522,7 +551,9 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	for (int i = 0; i < pInfo.versions.size(); i++)
 		versionMenu.addItem(pInfo.versions[i], i + 1);
 
+	//set default selected version to the first entry in combo box
 	versionMenu.setSelectedId(1, dontSendNotification);
+	pInfo.selectedVersion = pInfo.versions[0];
 }
 
 void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
@@ -558,6 +589,44 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
 {
 
+	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
+
+	XmlDocument doc(xmlFile);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
+	pluginEntry->setAttribute("version", version);
+
+	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+	{
+		std::cout << "[PluginInstaller] File not found." << std::endl;
+		return false;
+	}
+	else
+	{	
+		auto child = xml->getFirstChildElement();
+
+		forEachXmlChildElement(*child, e)
+		{
+			if (e->hasTagName(pluginEntry->getTagName()) &&
+				e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+			{
+				std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+				return false;
+			}
+		}
+
+		child->addChildElement(pluginEntry.release());
+
+		if (! xml->writeToFile(xmlFile, String::empty))
+		{
+			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+			return false;
+		}
+	}
+
+	
 	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
 	files_url += plugin;
 	files_url += "/";
@@ -612,8 +681,11 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 		pluginFile.deleteFile();		
 
 		if (rs.failed())
+		{
+			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
 			return false;
-
+		}
+		
 		return true;
 
 	}

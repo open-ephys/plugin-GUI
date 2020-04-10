@@ -35,6 +35,8 @@ private:
     WeakReference<PluginInstaller>::Master masterReference;
     friend class WeakReference<PluginInstaller>;
 
+    void createXmlFile();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginInstaller);
 
 };
@@ -143,6 +145,7 @@ private:
     ListBox pluginList;
     Font listFont;
     int numRows;
+    int maxTextWidth = 0;
 
     String lastPluginSelected; 
     Array<String> pluginVersion;
