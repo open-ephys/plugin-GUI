@@ -131,6 +131,8 @@ public:
 
     int getNumRows() override;
 
+    void setNumRows(int num) { numRows = num; pluginList.updateContent(); }
+
     // This is overloaded from TableListBoxModel, and should fill in the background of the whole row
     void paintListBoxItem (int rowNumber, Graphics &g, 
                            int width, int height, 
@@ -170,7 +172,8 @@ private:
 */
 
 class PluginInstallerComponent : public Component,
-                                 public ComboBox::Listener
+                                 public ComboBox::Listener,
+                                 public Button::Listener
 {
 public:
 
@@ -180,16 +183,24 @@ public:
     void resized() override;
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+
+    void loadInstalledPluginNames();
+    
+    void buttonClicked(Button* button) override;
  
 private:
 
     PluginListBoxComponent pluginListAndInfo;
 
+    StringArray allPlugins;
+    StringArray installedPlugins;
+    StringArray updatablePlugins;
+
     Label sortingLabel;
     ComboBox sortByMenu;
 
     Label filterLabel;
-    ToggleButton allPlugins, installedPlugins, updatablePlugins;
+    ToggleButton allLabel, installedLabel, updatesLabel;
 
     Font font;
     

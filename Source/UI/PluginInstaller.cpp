@@ -37,6 +37,8 @@ static inline File getPluginsLocationDirectory() {
 #endif
 }
 
+static String osType;
+
 PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 : DocumentWindow(WINDOW_TITLE,
 		Colour(Colours::black),
@@ -73,6 +75,16 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	setResizeLimits(640, 480, 8192, 5120);
 
 	createXmlFile();
+
+	// Identify the OS on which the GUI is running
+	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
+
+	if ((os & juce::SystemStats::OperatingSystemType::Windows) != 0)
+	 	osType = "windows";
+	else if ((os & juce::SystemStats::OperatingSystemType::MacOSX) != 0)
+	 	osType = "mac";
+	else if ((os & juce::SystemStats::OperatingSystemType::Linux) != 0)
+	 	osType = "linux";
 }
 
 PluginInstaller::~PluginInstaller()
@@ -134,17 +146,24 @@ PluginInstallerComponent::PluginInstallerComponent()
 	filterLabel.setFont(font);
 	filterLabel.setText("View:", dontSendNotification);
 
-	addAndMakeVisible(allPlugins);
-	allPlugins.setButtonText("All");
-	allPlugins.setColour(ToggleButton::textColourId, Colours::white);	
+	addAndMakeVisible(allLabel);
+	allLabel.setButtonText("All");
+	allLabel.setColour(ToggleButton::textColourId, Colours::white);
+	allLabel.setRadioGroupId(101, dontSendNotification);
+	allLabel.addListener(this);	
+	allLabel.setToggleState(true, dontSendNotification);
 
-	addAndMakeVisible(installedPlugins);
-	installedPlugins.setButtonText("Installed");
-	installedPlugins.setColour(ToggleButton::textColourId, Colours::white);
+	addAndMakeVisible(installedLabel);
+	installedLabel.setButtonText("Installed");
+	installedLabel.setColour(ToggleButton::textColourId, Colours::white);
+	installedLabel.setRadioGroupId(101, dontSendNotification);
+	installedLabel.addListener(this);
 
-	addAndMakeVisible(updatablePlugins);
-	updatablePlugins.setButtonText("Updates");
-	updatablePlugins.setColour(ToggleButton::textColourId, Colours::white);
+	addAndMakeVisible(updatesLabel);
+	updatesLabel.setButtonText("Updates");
+	updatesLabel.setColour(ToggleButton::textColourId, Colours::white);
+	updatesLabel.setRadioGroupId(101, dontSendNotification);
+	updatesLabel.addListener(this);
 }
 
 void PluginInstallerComponent::paint(Graphics& g)
@@ -160,9 +179,9 @@ void PluginInstallerComponent::resized()
 	sortByMenu.setBounds(90, 10, 90, 30);
 
 	filterLabel.setBounds(200, 10, 50, 30);
-	allPlugins.setBounds(250, 10, 45, 30);
-	installedPlugins.setBounds(295, 10, 80, 30);
-	updatablePlugins.setBounds(375, 10, 80, 30);
+	allLabel.setBounds(250, 10, 50, 30);
+	installedLabel.setBounds(300, 10, 90, 30);
+	updatesLabel.setBounds(390, 10, 90, 30);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -186,6 +205,81 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 		pluginListAndInfo.repaint();
 	}
+}
+
+void PluginInstallerComponent::loadInstalledPluginNames()
+{
+	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
+
+	XmlDocument doc(xmlFile);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+	{
+		std::cout << "[PluginInstaller] File not found." << std::endl;
+		return;
+	}
+	else
+	{	
+		installedPlugins.clear();
+		updatablePlugins.clear();
+		auto child = xml->getFirstChildElement();
+
+		forEachXmlChildElement(*child, e)
+		{
+			String pName = e->getTagName();
+			installedPlugins.add(pName);
+
+			//Get latest version
+			String versionUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+			versionUrl += pName + "/" + pName + "-" + osType;
+			versionUrl += "/versions/_latest";
+
+			String vResponse = URL(versionUrl).readEntireTextStream();
+			var vReply = JSON::parse(vResponse);
+
+			String latest_ver = vReply.getProperty("name", "NULL").toString();
+
+			if (!latest_ver.equalsIgnoreCase(e->getAttributeValue(0)))
+				updatablePlugins.add(pName);
+		}
+	}
+}
+
+void PluginInstallerComponent::buttonClicked(Button* button)
+{
+	if(allPlugins.isEmpty())
+	{
+		allPlugins.addArray(pluginListAndInfo.pluginArray);
+	}
+
+	if(button == &installedLabel)
+	{
+		if(installedPlugins.isEmpty())
+			loadInstalledPluginNames();
+		
+		pluginListAndInfo.pluginArray.clear();
+		pluginListAndInfo.pluginArray.addArray(installedPlugins);
+		pluginListAndInfo.setNumRows(installedPlugins.size());
+	}
+	else if(button == &allLabel)
+	{	
+		pluginListAndInfo.pluginArray.clear();
+		pluginListAndInfo.pluginArray.addArray(allPlugins);
+		pluginListAndInfo.setNumRows(allPlugins.size());
+	}
+	else if(button == &updatesLabel)
+	{
+		if(installedPlugins.isEmpty())
+			loadInstalledPluginNames();
+		
+		pluginListAndInfo.pluginArray.clear();
+		pluginListAndInfo.pluginArray.addArray(updatablePlugins);
+		pluginListAndInfo.setNumRows(updatablePlugins.size());
+	}
+
+	sortByMenu.setSelectedId(-1, dontSendNotification);
 }
 
 
@@ -283,25 +377,12 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	{
 	 	packages.add(packageReply[i].getProperty("name", var()).toString());
 	}
-
-
-	// Identify the OS on which the GUI is running
-	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
-	String os_name;
-
-	if ((os & juce::SystemStats::OperatingSystemType::Windows) != 0)
-	 	os_name = "windows";
-	else if ((os & juce::SystemStats::OperatingSystemType::MacOSX) != 0)
-	 	os_name = "mac";
-	else if ((os & juce::SystemStats::OperatingSystemType::Linux) != 0)
-	 	os_name = "linux";
-
 		
 	// Select platform specific package for the plugin
 	String selectedPackage;
 	for (int i = 0; i < packages.size(); i++)
 	{
-	 	if(packages[i].contains(os_name))
+	 	if(packages[i].contains(osType))
 	 	{
 	 		selectedPackage = packages[i];
 	 		break;
