@@ -62,7 +62,7 @@ CustomLookAndFeel::CustomLookAndFeel() :
     firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf, 
                                                       BinaryData::FiraSansRegular_ttfSize)),
     firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf, 
-                                                       BinaryData::FiraSansRegular_ttfSize)),
+                                                       BinaryData::FiraSansSemiBold_ttfSize)),
     firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf, 
                                                         BinaryData::FiraSansExtraBold_ttfSize))
 
