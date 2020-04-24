@@ -23,6 +23,8 @@
 
 #include "PluginInstaller.h"
 #include <stdio.h>
+
+#include "../CoreServices.h"
 //-----------------------------------------------------------------------
 
 static inline File getPluginsLocationDirectory() {
@@ -45,6 +47,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 		DocumentWindow::closeButton)
 {
 
+	MouseCursor::showWaitCursor();
 	parent = (DocumentWindow*)mainWindow;
 
 	setResizable(
@@ -60,6 +63,17 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	addKeyListener(commandManager.getKeyMappings());
     */
 
+   // Identify the OS on which the GUI is running
+	SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
+
+	if ((os & SystemStats::OperatingSystemType::Windows) != 0)
+	 	osType = "windows";
+	else if ((os & SystemStats::OperatingSystemType::MacOSX) != 0)
+	 	osType = "mac";
+	else if ((os & SystemStats::OperatingSystemType::Linux) != 0)
+	 	osType = "linux";
+
+	//Initialize Plugin Installer Components
 	setUsingNativeTitleBar(true);
 	setContentOwned(new PluginInstallerComponent(), false);
 	setVisible(true);
@@ -76,15 +90,8 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 	createXmlFile();
 
-	// Identify the OS on which the GUI is running
-	juce::SystemStats::OperatingSystemType os = juce::SystemStats::getOperatingSystemType();
-
-	if ((os & juce::SystemStats::OperatingSystemType::Windows) != 0)
-	 	osType = "windows";
-	else if ((os & juce::SystemStats::OperatingSystemType::MacOSX) != 0)
-	 	osType = "mac";
-	else if ((os & juce::SystemStats::OperatingSystemType::Linux) != 0)
-	 	osType = "linux";
+	MouseCursor::hideWaitCursor();
+	CoreServices::sendStatusMessage("Plugin Installer is ready!");
 }
 
 PluginInstaller::~PluginInstaller()
@@ -226,15 +233,15 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 		updatablePlugins.clear();
 		auto child = xml->getFirstChildElement();
 
+		String baseUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+
 		forEachXmlChildElement(*child, e)
 		{
 			String pName = e->getTagName();
 			installedPlugins.add(pName);
 
 			//Get latest version
-			String versionUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-			versionUrl += pName + "/" + pName + "-" + osType;
-			versionUrl += "/versions/_latest";
+			String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
 
 			String vResponse = URL(versionUrl).readEntireTextStream();
 			var vReply = JSON::parse(vResponse);
@@ -320,7 +327,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	if ( rowNumber == pluginArray.indexOf(lastPluginSelected, true, 0) )
 	{
-		g.setColour (juce::Colours::yellow);
+		g.setColour (Colours::yellow);
 	}
 
 	g.setFont(listFont);
@@ -428,7 +435,32 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.lastUpdated = updated;
 	selectedPluginInfo.description = description;
 	selectedPluginInfo.dependencies = " ";
-	
+
+	// If the plugin is already installed, get installed version number
+	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
+
+	XmlDocument doc(xmlFile);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+	{
+		std::cout << "[PluginInstaller] File not found." << std::endl;
+		return false;
+	}
+	else
+	{	
+		auto child = xml->getFirstChildElement();
+
+		auto pluginEntry = child->getChildByName(pluginName);
+
+		if (pluginEntry != nullptr)
+			selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue(0);
+		else
+			selectedPluginInfo.installedVersion = String();
+		
+	}
+
 	pluginInfoPanel.setPluginInfo(selectedPluginInfo);
 	pluginInfoPanel.makeInfoVisible(true);
 
@@ -531,7 +563,7 @@ PluginInfoComponent::PluginInfoComponent()
 	dependencyText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(downloadButton);
-	downloadButton.setButtonText("Download & Install");
+	downloadButton.setButtonText("Download");
 	downloadButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	downloadButton.addListener(this);
 
@@ -587,7 +619,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 
 		if(dlSucess)
 		{	
-			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon, 
+			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
 												   "Plugin Installer " + pInfo.pluginName, 
 												   pInfo.pluginName + " Installed Successfully");
 
@@ -595,7 +627,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 		}
 		else
 		{
-			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, 
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 												   "Plugin Installer " + pInfo.pluginName, 
 												   "Error Installing " + pInfo.pluginName);
 
@@ -610,11 +642,59 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	}
 }
 
+int PluginInfoComponent::versionCompare(const String& v1, const String& v2)
+{ 
+    //  vnum stores each numeric part of version 
+    int vnum1 = 0, vnum2 = 0; 
+  
+    //  loop untill both string are processed 
+    for (int i=0, j=0; (i<v1.length() || j<v2.length()); ) 
+    { 
+        //  storing numeric part of version 1 in vnum1 
+        while (i < v1.length() && v1[i] != '.') 
+        { 
+            vnum1 = vnum1 * 10 + (v1[i] - '0'); 
+            i++; 
+        } 
+  
+        //  storing numeric part of version 2 in vnum2 
+        while (j < v2.length() && v2[j] != '.') 
+        { 
+            vnum2 = vnum2 * 10 + (v2[j] - '0'); 
+            j++; 
+        } 
+  
+        if (vnum1 > vnum2) 
+            return 1; 
+        if (vnum2 > vnum1) 
+            return -1; 
+  
+        //  if equal, reset variables and go for next numeric 
+        // part 
+        vnum1 = vnum2 = 0; 
+        i++; 
+        j++; 
+    } 
+    return 0; 
+} 
+
 void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
 	if (comboBoxThatHasChanged == &versionMenu)
 	{
 		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
+
+		if (pInfo.installedVersion.isNotEmpty())
+		{
+			int result = versionCompare(pInfo.selectedVersion, pInfo.installedVersion);
+
+			if (result == 0)
+				downloadButton.setEnabled(false);
+			else if (result > 0)
+				downloadButton.setButtonText("Upgrade");
+			else
+				downloadButton.setButtonText("Downgrade");
+		}	
 	}
 }
 
@@ -633,7 +713,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 		versionMenu.addItem(pInfo.versions[i], i + 1);
 
 	//set default selected version to the first entry in combo box
-	versionMenu.setSelectedId(1, dontSendNotification);
+	versionMenu.setSelectedId(1, sendNotification);
 	pInfo.selectedVersion = pInfo.versions[0];
 }
 
@@ -752,11 +832,11 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 		File pluginFile(pluginFilePath);
 		pluginFile.deleteFile();
 
-		juce::FileOutputStream out(pluginFile);
+		FileOutputStream out(pluginFile);
 		out.writeFromInputStream(*fileStream, -1);
 		out.flush();
 
-		juce::ZipFile pluginZip(pluginFile);
+		ZipFile pluginZip(pluginFile);
 		Result rs = pluginZip.uncompressTo(pluginsPath);
 
 		pluginFile.deleteFile();		

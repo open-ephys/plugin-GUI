@@ -9,6 +9,8 @@
 class MainWindow;
 class PluginInstallerComponent;
 
+using namespace juce;
+
 class PluginInstaller : public DocumentWindow
 {
 public:
@@ -52,6 +54,7 @@ struct SelectedPluginInfo
     String packageName;
     String owner;
     String latestVersion;
+    String installedVersion;
     StringArray versions;
     String selectedVersion;
     String lastUpdated;
@@ -76,6 +79,8 @@ public:
     String getSelectedPlugin() { return pInfo.pluginName; }
 
     void buttonClicked(Button* button) override;
+
+    int versionCompare(const String& v1, const String& v2);
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
