@@ -83,7 +83,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	int w = parent->getWidth();
 	int h = parent->getHeight();
 
-	setBounds(x+0.1*w, y+0.25*h, 0.8*w, 0.5*h);
+	setBounds(x + (0.5*w) - 427, y + 0.5*h - 240, 854, 480);
 
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(640, 480, 8192, 5120);
@@ -457,7 +457,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 		if (pluginEntry != nullptr)
 			selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue(0);
 		else
-			selectedPluginInfo.installedVersion = String();
+			selectedPluginInfo.installedVersion = String::empty;
 		
 	}
 
@@ -624,6 +624,9 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   pInfo.pluginName + " Installed Successfully");
 
 			std::cout << "Download Successfull!!" << std::endl;
+
+			downloadButton.setEnabled(false);
+			downloadButton.setButtonText("Installed");
 		}
 		else
 		{
@@ -631,7 +634,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   "Plugin Installer " + pInfo.pluginName, 
 												   "Error Installing " + pInfo.pluginName);
 
-			std::cout << "Download Failed!!" << std::endl;;
+			std::cout << "Download Failed!!" << std::endl;
 		}
 		
 	}
@@ -684,16 +687,30 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	{
 		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
 
-		if (pInfo.installedVersion.isNotEmpty())
+		if (pInfo.installedVersion.isEmpty())
+		{
+			downloadButton.setEnabled(true);
+			downloadButton.setButtonText("Download");
+		}
+		else
 		{
 			int result = versionCompare(pInfo.selectedVersion, pInfo.installedVersion);
 
 			if (result == 0)
+			{
 				downloadButton.setEnabled(false);
+				downloadButton.setButtonText("Installed");
+			}
 			else if (result > 0)
+			{
+				downloadButton.setEnabled(true);
 				downloadButton.setButtonText("Upgrade");
+			}
 			else
+			{
+				downloadButton.setEnabled(true);
 				downloadButton.setButtonText("Downgrade");
+			}
 		}	
 	}
 }
@@ -818,6 +835,7 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 
 		URL fileUrl(fileDownloadURL);
 
+		//Create input stream from the plugin's zip file URL
 		ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
 
 		//Get path to plugins directory
@@ -832,9 +850,11 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 		File pluginFile(pluginFilePath);
 		pluginFile.deleteFile();
 
-		FileOutputStream out(pluginFile);
-		out.writeFromInputStream(*fileStream, -1);
-		out.flush();
+		//Use the Url's input stream and write it to a file using output stream
+		FileOutputStream* out = pluginFile.createOutputStream();
+		out->writeFromInputStream(*fileStream, -1);
+		out->flush();
+		delete out;
 
 		ZipFile pluginZip(pluginFile);
 		Result rs = pluginZip.uncompressTo(pluginsPath);
