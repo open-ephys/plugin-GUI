@@ -2,7 +2,6 @@
 #define PLUGININSTALLER_H_INCLUDED
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "LookAndFeel/MaterialButtonLookAndFeel.h"
 
 #define WINDOW_TITLE "Plugin Installer" 
 
@@ -91,7 +90,7 @@ public:
     void makeInfoVisible(bool isEnabled);
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
-    bool downloadPlugin(const String& plugin, const String& package, 
+    int downloadPlugin(const String& plugin, const String& package, 
                         const String& version);
 
 private:
@@ -115,7 +114,7 @@ private:
 
     SelectedPluginInfo pInfo;
 
-    MaterialButtonLookAndFeel mb;
+    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
 

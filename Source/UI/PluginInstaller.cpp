@@ -263,8 +263,8 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 	if(button == &installedLabel)
 	{
-		if(installedPlugins.isEmpty())
-			loadInstalledPluginNames();
+		//if(installedPlugins.isEmpty())
+		loadInstalledPluginNames();
 		
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(installedPlugins);
@@ -278,8 +278,8 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 	}
 	else if(button == &updatesLabel)
 	{
-		if(installedPlugins.isEmpty())
-			loadInstalledPluginNames();
+		//if(installedPlugins.isEmpty())
+		loadInstalledPluginNames();
 		
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(updatablePlugins);
@@ -615,9 +615,9 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	{
 		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
 		
-		bool dlSucess = downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
+		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
 
-		if(dlSucess)
+		if (dlReturnCode == SUCCESS)
 		{	
 			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
 												   "Plugin Installer " + pInfo.pluginName, 
@@ -625,18 +625,59 @@ void PluginInfoComponent::buttonClicked(Button* button)
 
 			std::cout << "Download Successfull!!" << std::endl;
 
+			pInfo.installedVersion = pInfo.selectedVersion;
 			downloadButton.setEnabled(false);
 			downloadButton.setButtonText("Installed");
+		}
+		else if (dlReturnCode == ZIP_NOTFOUND)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   "Could not find the ZIP file for " + pInfo.pluginName + ". Please contact the developers.");
+
+			std::cout << "Download Failed!!" << std::endl;
+		}
+		else if (dlReturnCode == UNCMP_ERR)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   "Could not uncompress the ZIP file. Please try again.");
+
+			std::cout << "Download Failed!!" << std::endl;
+		}
+		else if (dlReturnCode == XML_MISSING)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   "Unable to locate installedPlugins.xml. Please restart Plugin Installer and try again.");
+
+			std::cout << "Download Failed!!" << std::endl;
+		}
+		else if (dlReturnCode == VER_EXISTS_ERR)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   pInfo.pluginName + " v" + pInfo.selectedVersion + " already exists. Please download another version.");
+
+			std::cout << "Download Failed!!" << std::endl;
+		}
+		else if (dlReturnCode == XML_WRITE_ERR)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.pluginName, 
+												   "Unable to write to installedPlugins.xml \n Please try again.");
+			
+			std::cout << "Download Failed!!" << std::endl;
 		}
 		else
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 												   "Plugin Installer " + pInfo.pluginName, 
-												   "Error Installing " + pInfo.pluginName);
+												   "Unknown Error! Please try again.");
 
 			std::cout << "Download Failed!!" << std::endl;
 		}
-		
+
 	}
 	else if (button == &documentationButton)
 	{
@@ -694,7 +735,9 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			int result = versionCompare(pInfo.selectedVersion, pInfo.installedVersion);
+			String selected = pInfo.selectedVersion.substring(0, pInfo.selectedVersion.indexOf("-"));
+			String installed = pInfo.installedVersion.substring(0, pInfo.installedVersion.indexOf("-"));
+			int result = versionCompare(selected, installed);
 
 			if (result == 0)
 			{
@@ -764,7 +807,7 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 	documentationButton.setVisible(isEnabled);
 }
 
-bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
+int PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
 {
 
 	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
@@ -779,28 +822,37 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
 		std::cout << "[PluginInstaller] File not found." << std::endl;
-		return false;
+		return 3;
 	}
 	else
 	{	
 		auto child = xml->getFirstChildElement();
+		bool hasTag = false; 
 
 		forEachXmlChildElement(*child, e)
 		{
-			if (e->hasTagName(pluginEntry->getTagName()) &&
-				e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+			if (e->hasTagName(pluginEntry->getTagName()))
 			{
-				std::cout << plugin << " v" << version << " already exists!!" << std::endl;
-				return false;
+				if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+				{
+					std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+					return 4;
+				}
+				else 
+				{
+					e->setAttribute("version", version);
+				}
+				hasTag = true;
 			}
 		}
 
-		child->addChildElement(pluginEntry.release());
+		if (!hasTag)
+			child->addChildElement(pluginEntry.release());
 
 		if (! xml->writeToFile(xmlFile, String::empty))
 		{
 			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
-			return false;
+			return 5;
 		}
 	}
 
@@ -864,13 +916,13 @@ bool PluginInfoComponent::downloadPlugin(const String& plugin, const String& pac
 		if (rs.failed())
 		{
 			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
-			return false;
+			return 3;
 		}
 		
-		return true;
+		return 1;
 
 	}
 	//TODO: Prompt user to restart to see plugin in ProcessorList
 
-	return false;
+	return 0;
 }
