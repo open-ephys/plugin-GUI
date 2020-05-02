@@ -25,6 +25,9 @@
 #include <stdio.h>
 
 #include "../CoreServices.h"
+#include "../AccessClass.h"
+#include "../Processors/PluginManager/PluginManager.h"
+#include "ProcessorList.h"
 //-----------------------------------------------------------------------
 
 static inline File getPluginsLocationDirectory() {
@@ -766,11 +769,11 @@ void PluginInfoComponent::buttonClicked(Button* button)
 			
 			std::cout << "Download Failed!!" << std::endl;
 		}
-		else
+		else if (dlReturnCode == LOAD_ERR)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 												   "Plugin Installer " + pInfo.pluginName, 
-												   "Unknown Error! Please try again.");
+												   "Unable to load " + pInfo.pluginName + " in the Processor List.\nLook at console output for more details.");
 
 			std::cout << "Download Failed!!" << std::endl;
 		}
@@ -1015,6 +1018,17 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& pack
 			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
 			return 3;
 		}
+
+		auto entry = pluginZip.getEntry(0);
+		String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
+
+		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
+
+		if (loadPlugin == -1)
+			return 6;
+
+		AccessClass::getProcessorList()->fillItemList();
+		AccessClass::getProcessorList()->repaint();
 		
 		return 1;
 
