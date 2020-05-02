@@ -148,29 +148,52 @@ PluginInstallerComponent::PluginInstallerComponent()
 	sortByMenu.setTextWhenNothingSelected("-----");
 	sortByMenu.addListener(this);
 
-	addAndMakeVisible(filterLabel);
-	filterLabel.setColour(Label::textColourId, Colours::white);
-	filterLabel.setFont(font);
-	filterLabel.setText("View:", dontSendNotification);
+	addAndMakeVisible(viewLabel);
+	viewLabel.setColour(Label::textColourId, Colours::white);
+	viewLabel.setFont(font);
+	viewLabel.setText("View:", dontSendNotification);
 
-	addAndMakeVisible(allLabel);
-	allLabel.setButtonText("All");
-	allLabel.setColour(ToggleButton::textColourId, Colours::white);
-	allLabel.setRadioGroupId(101, dontSendNotification);
-	allLabel.addListener(this);	
-	allLabel.setToggleState(true, dontSendNotification);
+	addAndMakeVisible(allButton);
+	allButton.setButtonText("All");
+	allButton.setColour(ToggleButton::textColourId, Colours::white);
+	allButton.setRadioGroupId(101, dontSendNotification);
+	allButton.addListener(this);	
+	allButton.setToggleState(true, dontSendNotification);
 
-	addAndMakeVisible(installedLabel);
-	installedLabel.setButtonText("Installed");
-	installedLabel.setColour(ToggleButton::textColourId, Colours::white);
-	installedLabel.setRadioGroupId(101, dontSendNotification);
-	installedLabel.addListener(this);
+	addAndMakeVisible(installedButton);
+	installedButton.setButtonText("Installed");
+	installedButton.setColour(ToggleButton::textColourId, Colours::white);
+	installedButton.setRadioGroupId(101, dontSendNotification);
+	installedButton.addListener(this);
 
-	addAndMakeVisible(updatesLabel);
-	updatesLabel.setButtonText("Updates");
-	updatesLabel.setColour(ToggleButton::textColourId, Colours::white);
-	updatesLabel.setRadioGroupId(101, dontSendNotification);
-	updatesLabel.addListener(this);
+	addAndMakeVisible(updatesButton);
+	updatesButton.setButtonText("Updates");
+	updatesButton.setColour(ToggleButton::textColourId, Colours::white);
+	updatesButton.setRadioGroupId(101, dontSendNotification);
+	updatesButton.addListener(this);
+
+	addAndMakeVisible(typeLabel);
+	typeLabel.setColour(Label::textColourId, Colours::white);
+	typeLabel.setFont(font);
+	typeLabel.setText("Type:", dontSendNotification);
+
+	addAndMakeVisible(filterType);
+	filterType.setButtonText("Filter");
+	filterType.setColour(ToggleButton::textColourId, Colours::white);
+	filterType.addListener(this);
+	filterType.setToggleState(true, dontSendNotification);	
+
+	addAndMakeVisible(sourceType);
+	sourceType.setButtonText("Source");
+	sourceType.setColour(ToggleButton::textColourId, Colours::white);
+	sourceType.addListener(this);
+	sourceType.setToggleState(true, dontSendNotification);
+
+	addAndMakeVisible(sinkType);
+	sinkType.setButtonText("Sink");
+	sinkType.setColour(ToggleButton::textColourId, Colours::white);
+	sinkType.addListener(this);
+	sinkType.setToggleState(true, dontSendNotification);
 }
 
 void PluginInstallerComponent::paint(Graphics& g)
@@ -178,6 +201,7 @@ void PluginInstallerComponent::paint(Graphics& g)
 	g.fillAll (Colours::darkgrey);
 	g.setColour(Colours::lightgrey);
 	g.fillRect(192, 5, 3, 38);
+	g.fillRect(490, 5, 3, 38);
 }
 
 void PluginInstallerComponent::resized()
@@ -185,10 +209,15 @@ void PluginInstallerComponent::resized()
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 90, 30);
 
-	filterLabel.setBounds(200, 10, 50, 30);
-	allLabel.setBounds(250, 10, 50, 30);
-	installedLabel.setBounds(300, 10, 90, 30);
-	updatesLabel.setBounds(390, 10, 90, 30);
+	viewLabel.setBounds(200, 10, 50, 30);
+	allButton.setBounds(250, 10, 50, 30);
+	installedButton.setBounds(300, 10, 90, 30);
+	updatesButton.setBounds(390, 10, 90, 30);
+
+	typeLabel.setBounds(500, 10, 50, 30);
+	sourceType.setBounds(550, 10, 80, 30);
+	filterType.setBounds(630, 10, 70, 30);
+	sinkType.setBounds(700, 10, 60, 30);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -240,16 +269,19 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 			String pName = e->getTagName();
 			installedPlugins.add(pName);
 
-			//Get latest version
-			String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
+			if (updatesButton.getToggleState())
+			{
+				//Get latest version
+				String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
 
-			String vResponse = URL(versionUrl).readEntireTextStream();
-			var vReply = JSON::parse(vResponse);
+				String vResponse = URL(versionUrl).readEntireTextStream();
+				var vReply = JSON::parse(vResponse);
 
-			String latest_ver = vReply.getProperty("name", "NULL").toString();
+				String latest_ver = vReply.getProperty("name", "NULL").toString();
 
-			if (!latest_ver.equalsIgnoreCase(e->getAttributeValue(0)))
-				updatablePlugins.add(pName);
+				if (!latest_ver.equalsIgnoreCase(e->getAttributeValue(0)))
+					updatablePlugins.add(pName);
+			}
 		}
 	}
 }
@@ -261,7 +293,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 		allPlugins.addArray(pluginListAndInfo.pluginArray);
 	}
 
-	if(button == &installedLabel)
+	if(button == &installedButton)
 	{
 		//if(installedPlugins.isEmpty())
 		loadInstalledPluginNames();
@@ -270,13 +302,13 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 		pluginListAndInfo.pluginArray.addArray(installedPlugins);
 		pluginListAndInfo.setNumRows(installedPlugins.size());
 	}
-	else if(button == &allLabel)
+	else if(button == &allButton)
 	{	
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(allPlugins);
 		pluginListAndInfo.setNumRows(allPlugins.size());
 	}
-	else if(button == &updatesLabel)
+	else if(button == &updatesButton)
 	{
 		//if(installedPlugins.isEmpty())
 		loadInstalledPluginNames();
@@ -284,6 +316,60 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(updatablePlugins);
 		pluginListAndInfo.setNumRows(updatablePlugins.size());
+	}
+
+	if ( button == &sourceType || button == &filterType || button == &sinkType )
+	{
+		bool sourceState = sourceType.getToggleState();
+		bool filterState = filterType.getToggleState();
+		bool sinkState = sinkType.getToggleState();
+
+		if( sourceState || filterState || sinkState)
+		{
+			String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
+
+			StringArray tempArray;
+
+			pluginListAndInfo.pluginArray.clear();
+
+			if(installedButton.getToggleState())
+				tempArray.addArray(installedPlugins);
+			else if(updatesButton.getToggleState())
+				tempArray.addArray(updatablePlugins);
+			else
+				tempArray.addArray(allPlugins);
+
+			for (int i = 0; i < tempArray.size(); i++)
+			{
+				StringArray labels;
+
+				labels = pluginListAndInfo.pluginLabels[tempArray[i]];
+				
+				int containsType = 0;
+
+				if(sourceState && labels.contains("source", true))
+					containsType++;
+				
+				if(filterState && labels.contains("filter", true))
+					containsType++;
+
+				if(sinkState && labels.contains("sink", true))
+					containsType++;
+				
+				if(containsType > 0)
+				{
+					pluginListAndInfo.pluginArray.add(tempArray[i]);
+				}
+				pluginListAndInfo.setNumRows(pluginListAndInfo.pluginArray.size());
+			}
+			
+		}
+		else
+		{
+			pluginListAndInfo.pluginArray.clear();
+			pluginListAndInfo.setNumRows(0);
+		}
+		
 	}
 
 	sortByMenu.setSelectedId(-1, dontSendNotification);
@@ -340,29 +426,40 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 void PluginListBoxComponent::loadAllPluginNames()
 {
 	/* Get list of plugins uploaded to bintray */
-	String response = URL("https://api.bintray.com/repos/open-ephys-gui-plugins").readEntireTextStream();
+	String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins";
+	String response = URL(baseUrl).readEntireTextStream();
 
 	var pluginData = JSON::parse(response);
 
 	numRows = pluginData.size();
 	
-	// std::cout << "jsonReply" << response.bodyAsString << std::endl;
-
 	String pluginName;
 
 	int pluginTextWidth;
 
 	for (int i = 0; i < numRows; i++)
-	{
-		//Array<String> packages;
-		
+	{		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
-		pluginArray.add(pluginName);
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
 			maxTextWidth = pluginTextWidth;
+		
+		String pluginUrl = baseUrl + "/" + pluginName;
+		response = URL(pluginUrl).readEntireTextStream();
+		var labelData = JSON::parse(response);
+
+		StringArray labels;
+		for(String label : *labelData.getProperty("labels", "NULL").getArray())
+			labels.add(label);
+		
+		if(!labels.contains("Dependency", true))
+		{
+			pluginArray.add(pluginName);
+			pluginLabels.set(pluginName, labels);
+		}
 	}
+	setNumRows(pluginArray.size());
 }
 
 bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)

@@ -132,6 +132,7 @@ public:
 
     /* Raw list of plugins available for download */
     StringArray pluginArray;
+    HashMap<String, StringArray> pluginLabels;
 
     int getNumRows() override;
 
@@ -203,8 +204,11 @@ private:
     Label sortingLabel;
     ComboBox sortByMenu;
 
-    Label filterLabel;
-    ToggleButton allLabel, installedLabel, updatesLabel;
+    Label viewLabel;
+    ToggleButton allButton, installedButton, updatesButton;
+
+    Label typeLabel;
+    ToggleButton filterType, sourceType, sinkType;
 
     Font font;
     
