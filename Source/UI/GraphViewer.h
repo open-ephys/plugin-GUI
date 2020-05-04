@@ -54,7 +54,7 @@ public:
     
     bool hasEditor (GenericEditor* editor) const;
     
-    Point<float> getCenterPoint() const;
+    juce::Point<float> getCenterPoint() const;
     GenericEditor* getDest()    const;
     GenericEditor* getSource()  const;
     Array<GenericEditor*> getConnectedEditors() const;

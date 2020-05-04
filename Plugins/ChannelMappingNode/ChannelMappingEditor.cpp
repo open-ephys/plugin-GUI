@@ -740,7 +740,7 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
             MouseEvent ev = e.getEventRelativeTo(this);
             int mouseDownY = ev.getMouseDownY()-30;
             int mouseDownX = ev.getMouseDownX()-10;
-            Point<int> viewPosition =electrodeButtonViewport->getViewPosition();
+            juce::Point<int> viewPosition =electrodeButtonViewport->getViewPosition();
             
             int distanceY = ev.getDistanceFromDragStartY();
             int distanceX = ev.getDistanceFromDragStartX();

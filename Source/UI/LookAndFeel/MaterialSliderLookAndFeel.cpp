@@ -151,7 +151,7 @@ void MaterialSliderLookAndFeel::drawRoundThumb (Graphics& g,
 
     if (DROP_SHADOW)
     {
-        const DropShadow ds (Colours::black, 3, Point<int> (1, 1));
+        const DropShadow ds (Colours::black, 3, juce::Point<int> (1, 1));
         ds.drawForPath (g, p);
     }
 
