@@ -3,6 +3,7 @@ name: Linux
 on:
   push:
     paths:
+    - "CMakeLists.txt"
     - "Source"
     - "JuceLibraryCode"
     - "PluginGenerator"

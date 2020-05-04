@@ -3,6 +3,7 @@ name: Windows
 on:
   push:
     paths:
+    - "CMakeLists.txt"
     - "Source"
     - "JuceLibraryCode"
     - "PluginGenerator"

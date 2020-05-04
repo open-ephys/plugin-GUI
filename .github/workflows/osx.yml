@@ -3,6 +3,7 @@ name: macOS
 on:
   push:
     paths:
+    - "CMakeLists.txt"
     - "Source"
     - "JuceLibraryCode"
     - "PluginGenerator"
