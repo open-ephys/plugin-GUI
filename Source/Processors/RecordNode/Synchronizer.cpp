@@ -165,7 +165,7 @@ void Subprocessor::closeSyncWindow()
 			{
 				actualSampleRate = tempSampleRate;
 				isSynchronized = true;
-				std::cout << "New sample rate: " << actualSampleRate << std::endl;
+				//LOGD("New sample rate: ", actualSampleRate);
 			}
 			else {
 				// check whether the sample rate has changed
@@ -173,7 +173,7 @@ void Subprocessor::closeSyncWindow()
 				{
 					actualSampleRate = tempSampleRate;
 					isSynchronized = true;
-					std::cout << "Updated sample rate: " << actualSampleRate << std::endl;
+					//LOGD("Updated sample rate: ", actualSampleRate);
 				}
 				else { // reset the clock
 					startSample = tempSampleNum;
@@ -289,9 +289,11 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 				}
 			}
 
+			/*
 			if (eventCount % 10 == 0)
-				std::cout << "Master time: " << masterTimeSec << std::endl;
-
+				LOGD("Master time: ", masterTimeSec);
+			*/
+		
 			eventCount++;
 		}
 	}

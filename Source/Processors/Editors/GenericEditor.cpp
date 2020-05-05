@@ -1412,7 +1412,7 @@ Path ThresholdSlider::makeRotaryPath(double min, double max, double val)
 	Path p;
 
 	double start;
-	double range;
+	double range = 0;
 	if (val > 0)
 	{
 		start = 0;

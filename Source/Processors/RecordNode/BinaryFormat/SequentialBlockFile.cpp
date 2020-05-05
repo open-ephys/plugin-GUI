@@ -44,9 +44,6 @@ SequentialBlockFile::~SequentialBlockFile()
 		m_memBlocks.remove(0);
 	}
 
-	LOGD(__FUNCTION__);
-
-
 	//manually flush the last one to avoid trailing zeroes
 	m_memBlocks[0]->partialFlush(m_lastBlockFill * m_nChannels);
 }
@@ -62,9 +59,7 @@ bool SequentialBlockFile::openFile(String filename)
 		Result res = file.create();
 		std::cout << "Re-creating file: " << filename << std::endl;
 	}
-	else {
-		std::cout << "Succesfully created file: " << filename << std::endl;
-	}
+
 	m_file = file.createOutputStream(streamBufferSize);
 	if (!m_file)
 	{

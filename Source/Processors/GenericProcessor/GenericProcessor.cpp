@@ -758,6 +758,7 @@ int GenericProcessor::processEventBuffer()
 
 int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
+
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
 		//Since adding events to the buffer inside this loop could be dangerous, create a temporal event buffer

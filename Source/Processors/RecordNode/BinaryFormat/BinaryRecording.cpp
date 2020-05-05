@@ -59,8 +59,6 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         const RecordProcessorInfo& pInfo = getProcessorInfo(proc);
         int recChans = pInfo.recordedChannels.size();
 
-        LOGD("Recorded proc: ", proc, " has ", recChans, " chans.");
-
         for (int chan = 0; chan < recChans; chan++)
         {
             int recordedChan = pInfo.recordedChannels[chan];
@@ -71,7 +69,6 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
             int nInfoArrays = indexedDataChannels.size();
 
-            LOGD("Processing real channel:", realChan, " recorded channel:", recordedChan, "{", sourceId, ",", sourceSubIdx, "} nInfoArrays: ", nInfoArrays);
             bool found = false;
             DynamicObject::Ptr jsonChan = new DynamicObject();
 
@@ -152,8 +149,6 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     for (int i = 0; i < nChans; i++)
 
     {
-        if (i == 0)
-            std::cout << "Start timestamp: " << getTimestamp(i) << std::endl;
         m_startTS.add(getTimestamp(i));
     }
 
@@ -172,26 +167,25 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         switch (chan->getChannelType())
         {
         case EventChannel::TEXT:
-            LOGD("Got TEXT channel");
+            //LOGD("Got TEXT channel");
             eventName += "TEXT_group";
             type = NpyType(BaseType::CHAR, chan->getLength());
             dataFileName = "text";
             break;
         case EventChannel::TTL:
-            LOGD("Got TTL channel");
+            //LOGD("Got TTL channel");
             eventName += "TTL";
             type = NpyType(BaseType::INT16, 1);
             dataFileName = "channel_states";
             break;
         default:
-            LOGD("Got BINARY group");
+            //LOGD("Got BINARY group");
             eventName += "BINARY_group";
             type = NpyType(chan->getEquivalentMetaDataType(), chan->getLength());
             dataFileName = "data_array";
             break;
         }
         eventName += "_" + String(chan->getSourceIndex() + 1) + File::separatorString;
-        LOGD("eventName: ", eventName);
         ScopedPointer<EventRecording> rec = new EventRecording();
 
         rec->mainFile = new NpyFile(eventPath + eventName + dataFileName + ".npy", type);
@@ -218,9 +212,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonEventFiles.add(var(jsonChannel));
     }
 
-    LOGD("???Got here");
-
     int nSpikes = getNumRecordedSpikes();
+
     Array<const SpikeChannel*> indexedSpikes;
     Array<uint16> indexedChannels;
     m_spikeFileIndexes.insertMultiple(0, 0, nSpikes);
@@ -497,7 +490,6 @@ void BinaryRecording::resetChannels()
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
 	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
 	m_bufferSize = MAX_BUFFER_SIZE;
-    m_ftsBufferSize = MAX_BUFFER_SIZE;
 	m_startTS.clear();
 }
 
@@ -564,8 +556,7 @@ void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, c
 		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
 		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
 
-        LOGD("BinaryRecording::writeSynchronizedData: ", *ftsBuffer);
-
+        //LOGD("BinaryRecording::writeSynchronizedData: ", *ftsBuffer);
 
         m_dataFloatTimestampFiles[fileIndex]->writeData(ftsBuffer, size*sizeof(float));
         m_dataFloatTimestampFiles[fileIndex]->increaseRecordCount(size);
@@ -657,13 +648,16 @@ void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
 
 void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 {
-	/*
+
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
+    //LOGD("Got spike channel");
 	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
+    //LOGD("Got event recording");
 	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
+    //LOGD("Got real spike channel");
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-
+    //LOGD("Got total number of samples: ", totalSamples);
 
 	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{
@@ -672,6 +666,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 		m_scaledBuffer.malloc(totalSamples);
 		m_intBuffer.malloc(totalSamples);
 	}
+
 	double multFactor = 1 / (float(0x7fff) * channel->getChannelBitVolts(0));
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), spike->getDataPointer(), multFactor, totalSamples);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), totalSamples);
@@ -679,7 +674,6 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	int64 ts = spike->getTimestamp();
 	rec->timestampFile->writeData(&ts, sizeof(int64));
-
 	rec->channelFile->writeData(&spikeChannel, sizeof(uint16));
 
 	uint16 sortedID = spike->getSortedID();
@@ -687,7 +681,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	writeEventMetaData(spike, rec->metaDataFile);
 
 	increaseEventCounts(rec);
-	*/
+	
 }
 
 void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)

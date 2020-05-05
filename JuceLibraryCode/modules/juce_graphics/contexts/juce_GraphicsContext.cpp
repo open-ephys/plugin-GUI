@@ -27,7 +27,7 @@ namespace
     template <typename Type>
     Rectangle<Type> coordsToRectangle (Type x, Type y, Type w, Type h)
     {
-       #if JUCE_DEBUG
+       #if false //JUCE_DEBUG
         const int maxVal = 0x3fffffff;
 
         jassert ((int) x >= -maxVal && (int) x <= maxVal

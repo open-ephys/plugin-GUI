@@ -75,6 +75,7 @@ public:
 	void setParameter(int parameterIndex, float newValue) override;
 
 	void setRecordEvents(bool);
+	void setRecordSpikes(bool);
 
 	ScopedPointer<RecordThread> recordThread;
 	ScopedPointer<RecordEngine> recordEngine;
@@ -173,6 +174,7 @@ private:
 
 	/** Cycle through the event buffer, looking for data to save */
 	void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) override;
+	void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) override;
 
 	virtual void handleTimestampSyncTexts(const MidiMessage& event);
 

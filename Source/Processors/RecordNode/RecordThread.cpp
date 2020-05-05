@@ -52,7 +52,7 @@ void RecordThread::setFileComponents(File rootFolder, int experimentNumber, int 
 	}
 
 	m_rootFolder = rootFolder;
-	LOGD(__FUNCTION__, " Experiment number: ", experimentNumber, " Recording number: ", recordingNumber);
+	//LOGD(__FUNCTION__, " Experiment number: ", experimentNumber, " Recording number: ", recordingNumber);
 	m_experimentNumber = experimentNumber;
 	m_recordingNumber = recordingNumber;
 }
@@ -99,12 +99,9 @@ void RecordThread::run()
 		if (!isWaiting)
 		{
 			isWaiting = true;
-			LOGD(__FUNCTION__, " Waiting for first block...");
 		}
 		wait(1);
 	}
-
-	LOGD("Got first block!");
 
 	//2-Open Files 
 	if (!threadShouldExit())
@@ -117,14 +114,14 @@ void RecordThread::run()
 		//EVERY_ENGINE->updateTimestamps(timestamps);
 		m_engine->updateTimestamps(timestamps);
 		//EVERY_ENGINE->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
-		LOGD(__FUNCTION__, " Opening files w/ experiment number: ", m_experimentNumber);
+		//LOGD(__FUNCTION__, " Opening files w/ experiment number: ", m_experimentNumber);
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
 
 	bool hasSynchronizer = true;
 
 	//3-Normal loop
-	if (hasSynchronizer)
+	if (hasSynchronizer) 
 	{
 		while (!threadShouldExit())
 			writeSynchronizedData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
@@ -135,12 +132,12 @@ void RecordThread::run()
 			writeData(dataBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
 	}
 	
-	LOGD(__FUNCTION__, " Exiting record thread");
+	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
 	if (!closeEarly)
 	{
 		writeData(dataBuffer, -1, -1, -1, true);
-		LOGD(__FUNCTION__, " Closing files");
+		//LOGD(__FUNCTION__, " Closing files");
 		//5-Close files
 		//EVERY_ENGINE->closeFiles();
 		m_engine->closeFiles();
@@ -166,7 +163,6 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 		if (dataBufferIdxs[chan].size1 > 0)
 		{
-			LOGD("1:", m_ftsChannelArray[chan], "| 2: ", ftsBufferIdxs[m_ftsChannelArray[chan]].index1, " | 3: ", dataBufferIdxs[chan].size1);
 			m_engine->writeSynchronizedData(chan, chan, 
 				dataBuffer.getReadPointer(chan, dataBufferIdxs[chan].index1),
 				ftsBuffer.getReadPointer(m_ftsChannelArray[chan], dataBufferIdxs[chan].index1), dataBufferIdxs[chan].size1);
@@ -191,15 +187,13 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
-	if (nEvents > 0)
-	{
-		std::cout << "[RN] nEvents = " << nEvents << std::endl;
-	}
+
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
 		const MidiMessage& event = events[ev]->getData();
 		if (SystemEvent::getBaseType(event) == SYSTEM_EVENT)
 		{
+
 			uint16 sourceID = SystemEvent::getSourceID(event);
 			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
 			int64 timestamp = SystemEvent::getTimestamp(event);
@@ -213,9 +207,14 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 	std::vector<SpikeMessagePtr> spikes;
 	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
+
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		if (spikes[sp] == NULL)
+			std::cout << "Got NULL" << std::endl;
+		else
+			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 }
 
@@ -254,12 +253,11 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	//EVERY_ENGINE->endChannelBlock(lastBlock);
 	m_engine->endChannelBlock(lastBlock);
 
+	//LOGD("RecordThread::writeData:: write events...");
+
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
-	if (nEvents > 0)
-	{
-		std::cout << "[RN] nEvents = " << nEvents << std::endl;
-	}
+
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
 		const MidiMessage& event = events[ev]->getData();
@@ -278,6 +276,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 
 	std::vector<SpikeMessagePtr> spikes;
 	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
+
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
 		m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());

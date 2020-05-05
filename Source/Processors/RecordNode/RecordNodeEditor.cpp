@@ -75,7 +75,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 73, 15, 15);
 	eventRecord->addListener(this);
-	eventRecord->triggerClick(); 
+	eventRecord->triggerClick(); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -85,7 +85,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 90, 15, 15);
-	spikeRecord->addListener(this);
+	spikeRecord->addListener(this); //disable spike recording by default
 	addAndMakeVisible(spikeRecord);
 
 	/*
@@ -94,6 +94,9 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	writeSpeedLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(writeSpeedLabel);
 	*/
+
+	recordNode->setRecordEvents(true);
+	recordNode->setRecordSpikes(false);
 
 }
 
@@ -161,7 +164,10 @@ void RecordNodeEditor::buttonEvent(Button *button)
 	else if (button == eventRecord)
 	{
 		recordNode->setRecordEvents(button->getToggleState());
-
+	}
+	else if (button == spikeRecord)
+	{
+		recordNode->setRecordSpikes(button->getToggleState());
 	}
 	else if (button == fifoDrawerButton)
 	{

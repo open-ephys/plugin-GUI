@@ -88,7 +88,7 @@ void RecordNode::createNewDirectory()
 
 	dataDirectory = CoreServices::getRecordingDirectory();
 
-	LOGD(__FUNCTION__, dataDirectory.getFullPathName());
+	//LOGD(__FUNCTION__, dataDirectory.getFullPathName());
 
 	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
 
@@ -303,8 +303,6 @@ bool RecordNode::enable()
 void RecordNode::startRecording()
 {
 
-	LOGD("Start recording...");
-
 	channelMap.clear();
 	ftsChannelMap.clear();
 	int totChans = dataChannelArray.size();
@@ -364,7 +362,7 @@ void RecordNode::startRecording()
 
 	dataQueue->setChannels(numRecordedChannels);
 	dataQueue->setFTSChannels(recordedProcessorIdx+1);
-	LOGD("FTS ARRAY SIZE: ", recordedProcessorIdx+1);
+
 	eventQueue->reset();
 	spikeQueue->reset();
 	recordThread->setQueuePointers(dataQueue, eventQueue, spikeQueue);
@@ -376,7 +374,7 @@ void RecordNode::startRecording()
 	setFirstBlock = false;
 
 	//Only start recording thread if at least one continous OR event channel is enabled
-	if (channelMap.size() || recordEvents)
+	if (true) //(channelMap.size() || recordEvents)
 	{
 
 		/* Got signal from plugin-GUI to start recording */
@@ -434,6 +432,11 @@ void RecordNode::setRecordEvents(bool recordEvents)
 	this->recordEvents = recordEvents;
 }
 
+void RecordNode::setRecordSpikes(bool recordSpikes)
+{
+	this->recordSpikes = recordSpikes;
+}
+
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
 
@@ -445,7 +448,6 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		if (eventInfo && samplePosition > 0)
 		{
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-			//LOGD("Synchronizer got event: {", Event::getSourceID(event), ",", Event::getSubProcessorIdx(event), "}->", eventIndex, " ch: ", eventChan, " ts:", timestamp);
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 		}
 		else
@@ -454,6 +456,24 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		if (isRecording && eventIndex >= 0)
 			eventQueue->addEvent(event, timestamp, eventIndex);
 	}
+
+}
+
+
+void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition)
+{
+
+
+	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
+	if (!newSpike) 
+	{
+		std::cout << "Unable to deserialize spike event!" << std::endl; 
+		return;
+	}
+
+	if (recordSpikes)
+		writeSpike(newSpike, spikeInfo);
+	
 
 }
 
@@ -467,12 +487,12 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 {
 
 	isProcessing = true;
-	checkForEvents();
+
+	checkForEvents(recordSpikes);
 
 	if (isRecording)
 	{
 
-		LOGD("*********************RECORD LOOP************************");
 		DataChannel* chan; 
 		int sourceID;
 		int subProcIdx;
@@ -560,9 +580,11 @@ int RecordNode::addSpikeElectrode(const SpikeChannel *elec)
 
 void RecordNode::writeSpike(const SpikeEvent *spike, const SpikeChannel *spikeElectrode)
 {
-	if (isRecording && shouldRecord)
+	//if (isRecording && shouldRecord)
+	if (true)
 	{
 		int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), spikeElectrode->getSourceNodeID(), spikeElectrode->getSubProcessorIdx());
+		
 		if (electrodeIndex >= 0)
 			spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
 	}

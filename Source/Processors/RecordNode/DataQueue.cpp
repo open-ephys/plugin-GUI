@@ -141,14 +141,14 @@ void DataQueue::writeSynchronizedTimestampChannel(float start, float step, int d
 
 	m_FTSFifos[destChannel]->prepareToWrite(nSamples, index1, size1, index2, size2);
 
-	LOGD("nFTSChannels=", m_FTSFifos.size(), " destChannel=", destChannel, " index1: ", index1, " size1=", size1, " size2=", size2);
+	//LOGD("nFTSChannels=", m_FTSFifos.size(), " destChannel=", destChannel, " index1: ", index1, " size1=", size1, " size2=", size2);
 
 	if ((size1 + size2) < nSamples)
 	{
 		LOGD(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
 	}
 
-	LOGD("DataQueue::writeSynchronizedTimestampChannel: ", start);
+	//LOGD("DataQueue::writeSynchronizedTimestampChannel: ", start);
 
 	for (int i = 0; i < size1; i++)
 	{

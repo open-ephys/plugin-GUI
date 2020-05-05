@@ -22,7 +22,7 @@ public:
 	inline StorageType* getData() { return m_data.getData(); }
 	void partialFlush(size_t size, bool markFlushed = true)
 	{
-		std::cout << "[RN] flushing last block " << size << std::endl;
+		//std::cout << "[RN] flushing last block " << size << std::endl;
 		m_file->write(m_data, size*sizeof(StorageType));
 		if (markFlushed)
 			m_flushed = true;

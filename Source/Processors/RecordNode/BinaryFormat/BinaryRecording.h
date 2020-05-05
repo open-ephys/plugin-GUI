@@ -51,7 +51,6 @@ private:
 
 	HeapBlock<float> m_scaledBuffer;
 	HeapBlock<int16> m_intBuffer;
-	HeapBlock<float> m_ftsBuffer;
 	HeapBlock<int64> m_tsBuffer;
 	int m_bufferSize;
 	int m_ftsBufferSize;
