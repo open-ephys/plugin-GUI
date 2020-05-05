@@ -523,7 +523,12 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.versions.clear();
 
 	for (String version : *allVersions)
-		selectedPluginInfo.versions.add(version);
+	{
+		String apiVer = version.substring(version.indexOf("I") + 1);
+		
+		if (apiVer.equalsIgnoreCase(String(PLUGIN_API_VER)))
+			selectedPluginInfo.versions.add(version);
+	}
 
 	selectedPluginInfo.docURL = version_reply.getProperty("vcs_url", "NULL").toString();
 	selectedPluginInfo.selectedVersion = String();
