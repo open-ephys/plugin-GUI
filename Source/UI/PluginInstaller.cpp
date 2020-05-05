@@ -1019,7 +1019,12 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& pack
 			return 3;
 		}
 
+#if JUCE_WINDOWS
 		auto entry = pluginZip.getEntry(0);
+#else
+		auto entry = pluginZip.getEntry(1);
+#endif
+		
 		String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
 
 		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
