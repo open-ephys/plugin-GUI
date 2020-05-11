@@ -128,6 +128,33 @@ void PluginInstaller::createXmlFile()
 		if (! baseTag->writeToFile(file, String::empty))
 			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
 	}
+	else
+	{
+		String baseStr = "plugins" + File::separatorString;
+
+		auto child = xml->getFirstChildElement();
+		Array<XmlElement*> elementsToRemove;
+
+		forEachXmlChildElement(*child, e)
+		{
+			File pluginPath = getPluginsLocationDirectory().getChildFile(baseStr + e->getAttributeValue(1));
+			if (!pluginPath.existsAsFile())
+				elementsToRemove.add(e);	
+		}
+
+		for (auto element : elementsToRemove)
+		{
+			child->removeChildElement(element, true);
+		}
+
+		if (! xml->writeToFile(file, String::empty))
+		{
+			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+		}
+
+		elementsToRemove.clear();
+
+	}
 }
 
 /* ================================== Plugin Installer Component ================================== */
@@ -915,53 +942,6 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 int PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
 {
 
-	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
-
-	XmlDocument doc(xmlFile);
-	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-
-	std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
-	pluginEntry->setAttribute("version", version);
-
-	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
-	{
-		std::cout << "[PluginInstaller] File not found." << std::endl;
-		return 3;
-	}
-	else
-	{	
-		auto child = xml->getFirstChildElement();
-		bool hasTag = false; 
-
-		forEachXmlChildElement(*child, e)
-		{
-			if (e->hasTagName(pluginEntry->getTagName()))
-			{
-				if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
-				{
-					std::cout << plugin << " v" << version << " already exists!!" << std::endl;
-					return 4;
-				}
-				else 
-				{
-					e->setAttribute("version", version);
-				}
-				hasTag = true;
-			}
-		}
-
-		if (!hasTag)
-			child->addChildElement(pluginEntry.release());
-
-		if (! xml->writeToFile(xmlFile, String::empty))
-		{
-			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
-			return 5;
-		}
-	}
-
-	
 	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
 	files_url += plugin;
 	files_url += "/";
@@ -1013,6 +993,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& pack
 		out->flush();
 		delete out;
 
+		//Uncompress zip file contents
 		ZipFile pluginZip(pluginFile);
 		Result rs = pluginZip.uncompressTo(pluginsPath);
 
@@ -1024,11 +1005,65 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& pack
 			return 3;
 		}
 
+//Get *.dll/*.so name of plugin
 #if JUCE_WINDOWS
 		auto entry = pluginZip.getEntry(0);
 #else
 		auto entry = pluginZip.getEntry(1);
 #endif
+
+		String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+		File xmlFile = pluginsPath.getChildFile(fileStr);
+
+		// Open installedPlugins.xml file
+		XmlDocument doc(xmlFile);
+		std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+		
+		// Create a new entry in xml for the downloaded plugin
+		std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
+
+		// set version and dllName attributes of the plugins
+		pluginEntry->setAttribute("version", version);
+		String dllName = entry->filename;
+		dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
+		pluginEntry->setAttribute("dllName", dllName);
+
+		if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+		{
+			std::cout << "[PluginInstaller] File not found." << std::endl;
+			return 3;
+		}
+		else
+		{	
+			auto child = xml->getFirstChildElement();
+			bool hasTag = false; 
+
+			forEachXmlChildElement(*child, e)
+			{
+				if (e->hasTagName(pluginEntry->getTagName()))
+				{
+					if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+					{
+						std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+						return 4;
+					}
+					else 
+					{
+						e->setAttribute("version", version);
+					}
+					hasTag = true;
+				}
+			}
+
+			if (!hasTag)
+				child->addChildElement(pluginEntry.release());
+
+			if (! xml->writeToFile(xmlFile, String::empty))
+			{
+				std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+				return 5;
+			}
+		}
 		
 		String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
 
