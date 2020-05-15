@@ -58,7 +58,7 @@ struct SelectedPluginInfo
     String selectedVersion;
     String lastUpdated;
     String description;
-    String dependencies;
+    StringArray dependencies;
     String docURL;
 };
 

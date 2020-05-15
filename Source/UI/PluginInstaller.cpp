@@ -186,6 +186,7 @@ PluginInstallerComponent::PluginInstallerComponent()
 	addAndMakeVisible(allButton);
 	allButton.setButtonText("All");
 	allButton.setColour(ToggleButton::textColourId, Colours::white);
+	allButton.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	allButton.setRadioGroupId(101, dontSendNotification);
 	allButton.addListener(this);	
 	allButton.setToggleState(true, dontSendNotification);
@@ -193,12 +194,14 @@ PluginInstallerComponent::PluginInstallerComponent()
 	addAndMakeVisible(installedButton);
 	installedButton.setButtonText("Installed");
 	installedButton.setColour(ToggleButton::textColourId, Colours::white);
+	installedButton.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	installedButton.setRadioGroupId(101, dontSendNotification);
 	installedButton.addListener(this);
 
 	addAndMakeVisible(updatesButton);
 	updatesButton.setButtonText("Updates");
 	updatesButton.setColour(ToggleButton::textColourId, Colours::white);
+	updatesButton.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	updatesButton.setRadioGroupId(101, dontSendNotification);
 	updatesButton.addListener(this);
 
@@ -210,18 +213,21 @@ PluginInstallerComponent::PluginInstallerComponent()
 	addAndMakeVisible(filterType);
 	filterType.setButtonText("Filter");
 	filterType.setColour(ToggleButton::textColourId, Colours::white);
+	filterType.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	filterType.addListener(this);
 	filterType.setToggleState(true, dontSendNotification);	
 
 	addAndMakeVisible(sourceType);
 	sourceType.setButtonText("Source");
 	sourceType.setColour(ToggleButton::textColourId, Colours::white);
+	sourceType.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	sourceType.addListener(this);
 	sourceType.setToggleState(true, dontSendNotification);
 
 	addAndMakeVisible(sinkType);
 	sinkType.setButtonText("Sink");
 	sinkType.setColour(ToggleButton::textColourId, Colours::white);
+	sinkType.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	sinkType.addListener(this);
 	sinkType.setToggleState(true, dontSendNotification);
 }
@@ -416,7 +422,7 @@ PluginListBoxComponent::PluginListBoxComponent()
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
-	pluginList.setColour(ListBox::backgroundColourId , Colours::grey);
+	pluginList.setColour(ListBox::backgroundColourId , Colour::fromRGB(50, 50, 50));
 	pluginList.setRowHeight(35);
 	pluginList.setMouseMoveSelectsRows(true);
 
@@ -432,13 +438,13 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 {
 	if (rowIsSelected)
 	{
-		g.fillAll(Colour::fromRGBA(238, 238, 238, 100));
-		g.setColour (Colours::darkgrey);
+		g.fillAll(Colour::fromRGB(100, 100, 100));
+		g.setColour(Colour::fromRGB(50, 50, 50));
 	}
 	else
 	{
-		g.fillAll(Colours::grey);
-		g.setColour (Colours::white);
+		g.fillAll(Colour::fromRGB(50, 50, 50));
+		g.setColour(Colours::white);
 	}
 
 	if ( rowNumber == pluginArray.indexOf(lastPluginSelected, true, 0) )
@@ -557,6 +563,11 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 			selectedPluginInfo.versions.add(version);
 	}
 
+	auto dependencies = version_reply.getProperty("attribute_names", "NULL").getArray();
+	selectedPluginInfo.dependencies.clear();
+	for (String dependency : *dependencies)
+		selectedPluginInfo.dependencies.add(dependency);
+
 	selectedPluginInfo.docURL = version_reply.getProperty("vcs_url", "NULL").toString();
 	selectedPluginInfo.selectedVersion = String();
 
@@ -566,7 +577,6 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.latestVersion = latest_version;
 	selectedPluginInfo.lastUpdated = updated;
 	selectedPluginInfo.description = description;
-	selectedPluginInfo.dependencies = " ";
 
 	// If the plugin is already installed, get installed version number
 	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
@@ -712,7 +722,7 @@ PluginInfoComponent::PluginInfoComponent()
 
 void PluginInfoComponent::paint(Graphics& g)
 {
-	g.fillAll (Colours::grey);
+	g.fillAll (Colour::fromRGB(50, 50, 50));
 }
 
 void PluginInfoComponent::resized()
@@ -897,7 +907,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	ownerText.setText(pInfo.owner, dontSendNotification);
 	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
 	descriptionText.setText(pInfo.description, dontSendNotification);
-	dependencyText.setText(pInfo.dependencies, dontSendNotification);
+	dependencyText.setText(pInfo.dependencies.joinIntoString(", "), dontSendNotification);
 
 	versionMenu.clear(dontSendNotification);
 
