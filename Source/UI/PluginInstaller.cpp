@@ -728,7 +728,7 @@ PluginInfoComponent::PluginInfoComponent()
 	downloadButton.addListener(this);
 
 	addChildComponent(documentationButton);
-	documentationButton.setButtonText("Open Documentation");
+	documentationButton.setButtonText("Documentation");
 	documentationButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	documentationButton.addListener(this);
 
@@ -763,8 +763,8 @@ void PluginInfoComponent::resized()
 	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 120, 30);
 	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
 
-	downloadButton.setBounds(getWidth() - (getWidth() * 0.4) - 20, getHeight() - 60, getWidth() * 0.4, 30);
-	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.4, 30);
+	downloadButton.setBounds(getWidth() - (getWidth() * 0.3) - 20, getHeight() - 60, getWidth() * 0.3, 30);
+	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.3, 30);
 	
 	statusLabel.setBounds(10, (getHeight() / 2) - 15, getWidth() - 10, 30);
 }
@@ -938,7 +938,10 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	ownerText.setText(pInfo.owner, dontSendNotification);
 	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
 	descriptionText.setText(pInfo.description, dontSendNotification);
-	dependencyText.setText(pInfo.dependencies.joinIntoString(", "), dontSendNotification);
+	if (pInfo.dependencies.isEmpty())
+		dependencyText.setText("None", dontSendNotification);
+	else
+		dependencyText.setText(pInfo.dependencies.joinIntoString(", "), dontSendNotification);
 
 	versionMenu.clear(dontSendNotification);
 
