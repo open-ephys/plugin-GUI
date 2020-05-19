@@ -90,8 +90,8 @@ public:
     void makeInfoVisible(bool isEnabled);
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
-    int downloadPlugin(const String& plugin, const String& package, 
-                        const String& version);
+    int downloadPlugin(const String& plugin, const String& version,
+                       bool isDependency);
 
 private:
 

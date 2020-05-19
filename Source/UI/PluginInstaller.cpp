@@ -757,7 +757,20 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	{
 		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
 		
-		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.packageName, pInfo.selectedVersion);
+		for (int i = 0; i < pInfo.dependencies.size(); i++)
+		{
+			String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+			depUrl += pInfo.dependencies[i] + "/" + pInfo.dependencies[i] + "-" ;
+			depUrl += osType + "/versions/_latest";
+
+			String depResponse = URL(depUrl).readEntireTextStream();
+			var depReply = JSON::parse(depResponse);
+			String ver = depReply.getProperty("name", "NULL");
+
+			downloadPlugin(pInfo.dependencies[i], ver, true);
+		}
+		
+		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
 
 		if (dlReturnCode == SUCCESS)
 		{	
@@ -949,13 +962,13 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 	documentationButton.setVisible(isEnabled);
 }
 
-int PluginInfoComponent::downloadPlugin(const String& plugin, const String& package, const String& version) 
+int PluginInfoComponent::downloadPlugin(const String& plugin, const String& version, bool isDependency) 
 {
 
 	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
 	files_url += plugin;
 	files_url += "/";
-	files_url += package;
+	files_url += plugin + "-" + osType;
 	files_url += "/versions/";
 	files_url += version;
 	files_url += "/files";
@@ -1015,77 +1028,81 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& pack
 			return 3;
 		}
 
-//Get *.dll/*.so name of plugin
+		if (!isDependency)
+		{
+
+			//Get *.dll/*.so name of plugin
 #if JUCE_WINDOWS
-		auto entry = pluginZip.getEntry(0);
+			auto entry = pluginZip.getEntry(0);
 #else
-		auto entry = pluginZip.getEntry(1);
+			auto entry = pluginZip.getEntry(1);
 #endif
 
-		String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-		File xmlFile = pluginsPath.getChildFile(fileStr);
+			String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+			File xmlFile = pluginsPath.getChildFile(fileStr);
 
-		// Open installedPlugins.xml file
-		XmlDocument doc(xmlFile);
-		std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-		
-		// Create a new entry in xml for the downloaded plugin
-		std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
+			// Open installedPlugins.xml file
+			XmlDocument doc(xmlFile);
+			std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+			
+			// Create a new entry in xml for the downloaded plugin
+			std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
 
-		// set version and dllName attributes of the plugins
-		pluginEntry->setAttribute("version", version);
-		String dllName = entry->filename;
-		dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
-		pluginEntry->setAttribute("dllName", dllName);
+			// set version and dllName attributes of the plugins
+			pluginEntry->setAttribute("version", version);
+			String dllName = entry->filename;
+			dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
+			pluginEntry->setAttribute("dllName", dllName);
 
-		if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
-		{
-			std::cout << "[PluginInstaller] File not found." << std::endl;
-			return 3;
-		}
-		else
-		{	
-			auto child = xml->getFirstChildElement();
-			bool hasTag = false; 
-
-			forEachXmlChildElement(*child, e)
+			if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 			{
-				if (e->hasTagName(pluginEntry->getTagName()))
+				std::cout << "[PluginInstaller] File not found." << std::endl;
+				return 3;
+			}
+			else
+			{	
+				auto child = xml->getFirstChildElement();
+				bool hasTag = false; 
+
+				forEachXmlChildElement(*child, e)
 				{
-					if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+					if (e->hasTagName(pluginEntry->getTagName()))
 					{
-						std::cout << plugin << " v" << version << " already exists!!" << std::endl;
-						return 4;
+						if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+						{
+							std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+							return 4;
+						}
+						else 
+						{
+							e->setAttribute("version", version);
+						}
+						hasTag = true;
 					}
-					else 
-					{
-						e->setAttribute("version", version);
-					}
-					hasTag = true;
+				}
+
+				if (!hasTag)
+					child->addChildElement(pluginEntry.release());
+
+				if (! xml->writeToFile(xmlFile, String::empty))
+				{
+					std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+					return 5;
 				}
 			}
+			
+			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
 
-			if (!hasTag)
-				child->addChildElement(pluginEntry.release());
+			int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
 
-			if (! xml->writeToFile(xmlFile, String::empty))
-			{
-				std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
-				return 5;
-			}
+			if (loadPlugin == -1)
+				return 6;
+
+			AccessClass::getProcessorList()->fillItemList();
+			AccessClass::getProcessorList()->repaint();
+			
+			return 1;
 		}
-		
-		String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
-
-		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
-
-		if (loadPlugin == -1)
-			return 6;
-
-		AccessClass::getProcessorList()->fillItemList();
-		AccessClass::getProcessorList()->repaint();
-		
-		return 1;
 
 	}
 	//TODO: Prompt user to restart to see plugin in ProcessorList
