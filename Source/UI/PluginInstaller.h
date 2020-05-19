@@ -50,7 +50,7 @@ private:
 struct SelectedPluginInfo
 {
     String pluginName;
-    String packageName;
+    String displayName;
     String owner;
     String latestVersion;
     String installedVersion;

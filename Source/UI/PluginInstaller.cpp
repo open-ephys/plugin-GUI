@@ -454,7 +454,8 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	g.setFont(listFont);
 
-	String text = pluginArray[rowNumber];
+	StringArray pLabels = pluginLabels[pluginArray[rowNumber]];
+	String text = pLabels[0];
 
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
@@ -572,7 +573,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.selectedVersion = String();
 
 	selectedPluginInfo.pluginName = pluginName;
-	selectedPluginInfo.packageName = selectedPackage;
+	selectedPluginInfo.displayName = pluginLabels[pluginName][0];
 	selectedPluginInfo.owner = owner;
 	selectedPluginInfo.latestVersion = latest_version;
 	selectedPluginInfo.lastUpdated = updated;
@@ -916,7 +917,7 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 {
 	pInfo = p;
-	pluginNameText.setText(pInfo.pluginName, dontSendNotification);
+	pluginNameText.setText(pInfo.displayName, dontSendNotification);
 	ownerText.setText(pInfo.owner, dontSendNotification);
 	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
 	descriptionText.setText(pInfo.description, dontSendNotification);
