@@ -824,7 +824,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   "Plugin Installer " + pInfo.pluginName, 
 												   "Unable to locate installedPlugins.xml. Please restart Plugin Installer and try again.");
 
-			std::cout << "Download Failed!!" << std::endl;
+			std::cout << "XML File Missing!!" << std::endl;
 		}
 		else if (dlReturnCode == VER_EXISTS_ERR)
 		{
@@ -840,7 +840,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   "Plugin Installer " + pInfo.pluginName, 
 												   "Unable to write to installedPlugins.xml \n Please try again.");
 			
-			std::cout << "Download Failed!!" << std::endl;
+			std::cout << "Writing to XML Failed!!" << std::endl;
 		}
 		else if (dlReturnCode == LOAD_ERR)
 		{
@@ -848,7 +848,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   "Plugin Installer " + pInfo.pluginName, 
 												   "Unable to load " + pInfo.pluginName + " in the Processor List.\nLook at console output for more details.");
 
-			std::cout << "Download Failed!!" << std::endl;
+			std::cout << "Loading Plugin Failed!!" << std::endl;
 		}
 
 	}
