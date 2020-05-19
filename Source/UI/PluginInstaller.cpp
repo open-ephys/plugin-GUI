@@ -230,6 +230,13 @@ PluginInstallerComponent::PluginInstallerComponent()
 	sinkType.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
 	sinkType.addListener(this);
 	sinkType.setToggleState(true, dontSendNotification);
+
+	addAndMakeVisible(otherType);
+	otherType.setButtonText("Other");
+	otherType.setColour(ToggleButton::textColourId, Colours::white);
+	otherType.setColour(ToggleButton::tickDisabledColourId, Colours::lightgrey);
+	otherType.addListener(this);
+	otherType.setToggleState(true, dontSendNotification);
 }
 
 void PluginInstallerComponent::paint(Graphics& g)
@@ -250,10 +257,11 @@ void PluginInstallerComponent::resized()
 	installedButton.setBounds(300, 10, 90, 30);
 	updatesButton.setBounds(390, 10, 90, 30);
 
-	typeLabel.setBounds(500, 10, 50, 30);
-	sourceType.setBounds(550, 10, 80, 30);
-	filterType.setBounds(630, 10, 70, 30);
-	sinkType.setBounds(700, 10, 60, 30);
+	typeLabel.setBounds(500, 10, 45, 30);
+	sourceType.setBounds(545, 10, 80, 30);
+	filterType.setBounds(625, 10, 70, 30);
+	sinkType.setBounds(695, 10, 60, 30);
+	otherType.setBounds(755, 10, 65, 30);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -354,13 +362,14 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 		pluginListAndInfo.setNumRows(updatablePlugins.size());
 	}
 
-	if ( button == &sourceType || button == &filterType || button == &sinkType )
+	if ( button == &sourceType || button == &filterType || button == &sinkType || button == &otherType)
 	{
 		bool sourceState = sourceType.getToggleState();
 		bool filterState = filterType.getToggleState();
 		bool sinkState = sinkType.getToggleState();
+		bool otherState = otherType.getToggleState();
 
-		if( sourceState || filterState || sinkState)
+		if( sourceState || filterState || sinkState || otherState)
 		{
 			String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
 
@@ -383,13 +392,21 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 				
 				int containsType = 0;
 
-				if(sourceState && labels.contains("source", true))
+				bool isSource = labels.contains("source", true);
+				bool isFilter = labels.contains("filter", true);
+				bool isSink = labels.contains("sink", true);
+				bool isOther = isSource ? false : (isFilter ? false : (isSink ? false : true));
+
+				if(sourceState && isSource)
 					containsType++;
 				
-				if(filterState && labels.contains("filter", true))
+				if(filterState && isFilter)
 					containsType++;
 
-				if(sinkState && labels.contains("sink", true))
+				if(sinkState && isSink)
+					containsType++;
+				
+				if(otherState && isOther)
 					containsType++;
 				
 				if(containsType > 0)

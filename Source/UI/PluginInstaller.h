@@ -208,7 +208,7 @@ private:
     ToggleButton allButton, installedButton, updatesButton;
 
     Label typeLabel;
-    ToggleButton filterType, sourceType, sinkType;
+    ToggleButton filterType, sourceType, sinkType, otherType;
 
     Font font;
     
