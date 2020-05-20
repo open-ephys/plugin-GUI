@@ -1046,15 +1046,15 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		//Uncompress zip file contents
 		ZipFile pluginZip(pluginFile);
 
+		//Get *.dll/*.so name of plugin
+#if JUCE_WINDOWS
+		auto entry = pluginZip.getEntry(0);
+#else
+		auto entry = pluginZip.getEntry(1);
+#endif
+
 		if (!isDependency)
 		{
-
-			//Get *.dll/*.so name of plugin
-#if JUCE_WINDOWS
-			auto entry = pluginZip.getEntry(0);
-#else
-			auto entry = pluginZip.getEntry(1);
-#endif
 
 			String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
 			File xmlFile = pluginsPath.getChildFile(fileStr);
@@ -1111,17 +1111,20 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 					return 5;
 				}
 			}
+		}
 
-			Result rs = pluginZip.uncompressTo(pluginsPath);
+		Result rs = pluginZip.uncompressTo(pluginsPath);
 
-			pluginFile.deleteFile();		
+		pluginFile.deleteFile();		
 
-			if (rs.failed())
-			{
-				std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
-				return 3;
-			}
+		if (rs.failed())
+		{
+			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
+			return 3;
+		}
 			
+		if (!isDependency)
+		{
 			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
 
 			int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
