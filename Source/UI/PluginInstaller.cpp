@@ -242,7 +242,7 @@ PluginInstallerComponent::PluginInstallerComponent()
 void PluginInstallerComponent::paint(Graphics& g)
 {
 	g.fillAll (Colours::darkgrey);
-	g.setColour(Colours::lightgrey);
+	g.setColour(Colour::fromRGB(110, 110, 110));
 	g.fillRect(192, 5, 3, 38);
 	g.fillRect(490, 5, 3, 38);
 }
@@ -567,6 +567,8 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	String owner= version_reply.getProperty("owner", "NULL");
 	String latest_version = version_reply.getProperty("latest_version", "NULL");
 	String updated = version_reply.getProperty("updated", "NULL");
+	updated = updated.substring(0, updated.indexOf("T")) + " at " 
+			  + updated.substring(updated.indexOf("T") + 1, updated.indexOf("."));
 	String description = version_reply.getProperty("desc", "NULL");
 
 	auto allVersions = version_reply.getProperty("versions", "NULL").getArray();
@@ -723,7 +725,7 @@ PluginInfoComponent::PluginInfoComponent()
 	dependencyText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(downloadButton);
-	downloadButton.setButtonText("Download");
+	downloadButton.setButtonText("Install");
 	downloadButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
 	downloadButton.addListener(this);
 
@@ -763,8 +765,8 @@ void PluginInfoComponent::resized()
 	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 120, 30);
 	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
 
-	downloadButton.setBounds(getWidth() - (getWidth() * 0.3) - 20, getHeight() - 60, getWidth() * 0.3, 30);
-	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.3, 30);
+	downloadButton.setBounds(getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
+	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.25, 30);
 	
 	statusLabel.setBounds(10, (getHeight() / 2) - 15, getWidth() - 10, 30);
 }
@@ -849,6 +851,10 @@ void PluginInfoComponent::buttonClicked(Button* button)
 												   "Unable to load " + pInfo.pluginName + " in the Processor List.\nLook at console output for more details.");
 
 			std::cout << "Loading Plugin Failed!!" << std::endl;
+
+			pInfo.installedVersion = pInfo.selectedVersion;
+			downloadButton.setEnabled(false);
+			downloadButton.setButtonText("Installed");
 		}
 
 	}
@@ -904,7 +910,7 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 		if (pInfo.installedVersion.isEmpty())
 		{
 			downloadButton.setEnabled(true);
-			downloadButton.setButtonText("Download");
+			downloadButton.setButtonText("Install");
 		}
 		else
 		{
@@ -1039,15 +1045,6 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 		//Uncompress zip file contents
 		ZipFile pluginZip(pluginFile);
-		Result rs = pluginZip.uncompressTo(pluginsPath);
-
-		pluginFile.deleteFile();		
-
-		if (rs.failed())
-		{
-			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
-			return 3;
-		}
 
 		if (!isDependency)
 		{
@@ -1078,6 +1075,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 			{
 				std::cout << "[PluginInstaller] File not found." << std::endl;
+				pluginFile.deleteFile();
 				return 3;
 			}
 			else
@@ -1092,6 +1090,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 						if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
 						{
 							std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+							pluginFile.deleteFile();
 							return 4;
 						}
 						else 
@@ -1108,8 +1107,19 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				if (! xml->writeToFile(xmlFile, String::empty))
 				{
 					std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+					pluginFile.deleteFile();
 					return 5;
 				}
+			}
+
+			Result rs = pluginZip.uncompressTo(pluginsPath);
+
+			pluginFile.deleteFile();		
+
+			if (rs.failed())
+			{
+				std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
+				return 3;
 			}
 			
 			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
