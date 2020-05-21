@@ -370,6 +370,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, saveConfigurationAs);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
+		menu.addSeparator();
+		menu.addCommandItem(commandManager, openPluginInstaller);
 
 #if !JUCE_MAC
 		menu.addSeparator();
@@ -440,7 +442,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleFileInfo,
 		showHelp,
 		resizeWindow,
-		openTimestampSelectionWindow
+		openTimestampSelectionWindow,
+		openPluginInstaller
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -526,6 +529,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case openTimestampSelectionWindow:
 			result.setInfo("Timestamp Source", "Show timestamp source selection window.", "General", 0);
+			break;
+
+		case openPluginInstaller:
+			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
+			result.addDefaultKeypress('P', ModifierKeys::commandModifier);
 			break;
 
 		case showHelp:
@@ -661,6 +669,19 @@ bool UIComponent::perform(const InvocationInfo& info)
 			}
 			timestampWindow->setVisible(true);
 			timestampWindow->toFront(true);
+			break;
+
+		case openPluginInstaller:
+			{
+				if (pluginInstaller == nullptr)
+				{
+					pluginInstaller = new PluginInstaller(this->mainWindow);
+				}
+				pluginInstaller->setVisible(true);
+				pluginInstaller->toFront(true);
+				break;
+			}
+
 		default:
 			break;
 

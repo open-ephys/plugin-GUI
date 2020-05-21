@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "TimestampSourceSelection.h"
+#include "PluginInstaller.h"
 
 
 class MainWindow;
@@ -153,6 +154,8 @@ private:
 
 	WeakReference<TimestampSourceSelectionWindow> timestampWindow;
 
+    WeakReference<PluginInstaller> pluginInstaller;
+
     Viewport processorListViewport;
 
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
@@ -189,7 +192,8 @@ private:
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
         saveConfigurationAs     = 0x2014,
-		openTimestampSelectionWindow = 0x2015
+		openTimestampSelectionWindow = 0x2015,
+        openPluginInstaller     = 0x2016
     };
 
     File currentConfigFile;
