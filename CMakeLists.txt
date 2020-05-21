@@ -126,11 +126,13 @@ elseif(LINUX)
 	else()
 		message(FATAL_ERROR "Invalid build type")
 	endif()
+	find_package(CURL REQUIRED)
 	target_include_directories(open-ephys PRIVATE
 		/usr/include
 		/usr/include/freetype2
+		${CURL_INCLUDE_DIR}
 	)
-	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt)
+	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES})
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)

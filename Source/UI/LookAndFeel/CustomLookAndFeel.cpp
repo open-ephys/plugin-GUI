@@ -56,7 +56,15 @@ CustomLookAndFeel::CustomLookAndFeel() :
     cpmonoBold(new CustomTypeface(cpmonoBoldStream)),
     cpmonoBlack(new CustomTypeface(cpmonoBlackStream)),
     misoRegular(new CustomTypeface(misoRegularStream)),
-    silkscreen(new CustomTypeface(silkscreenStream))
+    silkscreen(new CustomTypeface(silkscreenStream)),
+    firasansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf, 
+                                                         BinaryData::FiraSansExtraLight_ttfSize)),
+    firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf, 
+                                                      BinaryData::FiraSansRegular_ttfSize)),
+    firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf, 
+                                                       BinaryData::FiraSansSemiBold_ttfSize)),
+    firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf, 
+                                                        BinaryData::FiraSansExtraBold_ttfSize))
 
 {
 
@@ -131,9 +139,25 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     {
         return silkscreen;
     }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Light"))
+    {
+        return firasansExtraLight;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans"))
+    {
+        return firasansRegular;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Bold"))
+    {
+        return firasansSemiBold;
+    }
+    else if (typefaceName.equalsIgnoreCase("FiraSans Extra Bold"))
+    {
+        return firasansExtraBold;
+    }
     else   // default
     {
-        return LookAndFeel::getTypefaceForFont(font);
+        return firasansSemiBold;
     }
 
     // UNCOMMENT AFTER UPDATE
@@ -457,50 +481,209 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
                                      int buttonW, int buttonH,
                                      ComboBox& box)
 {
+    auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
+    Rectangle<int> boxBounds (0, 0, width, height);
 
-    g.fillAll(Colours::lightgrey); //box.findColour (ComboBox::backgroundColourId));
+    g.setColour (Colours::lightgrey);
+    g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
 
-    if (box.isEnabled() && box.hasKeyboardFocus(false))
+    if (box.isPopupActive() || box.hasKeyboardFocus(false))
     {
-        g.setColour(Colours::lightgrey); //box.findColour (TextButton::buttonColourId));
-        g.drawRect(0, 0, width, height, 2);
-    }
-    else
-    {
-        g.setColour(box.findColour(ComboBox::outlineColourId));
-        g.drawRect(0, 0, width, height);
+        g.setColour(Colours::darkgrey);
+        g.drawRoundedRectangle(boxBounds.toFloat().reduced(0.5f, 0.5f), cornerSize, 1.5f);
     }
 
     const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
 
-    const Colour baseColour(Colours::orange);/*LookAndFeelHelpers::createBaseColour (box.findColour (ComboBox::buttonColourId),
-                                                                   box.hasKeyboardFocus (true),
-                                                                   false, isButtonDown)
-                                .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));*/
+    Rectangle<int> arrowZone (buttonX + outlineThickness, buttonY + outlineThickness,  
+                              buttonW - outlineThickness, buttonH - outlineThickness);
+                                
+    Path path;
+    path.addTriangle(arrowZone.getCentreX() - 5.0f, arrowZone.getCentreY() - 2.0f,
+                     arrowZone.getCentreX(), arrowZone.getCentreY() + 5.0f,
+                     arrowZone.getCentreX() + 5.0f, arrowZone.getCentreY() - 2.0f);
 
-    juce::LookAndFeel_V1::drawGlassLozenge(g,
-                                           buttonX + outlineThickness, buttonY + outlineThickness,
-                                           buttonW - outlineThickness * 2.0f, buttonH - outlineThickness * 2.0f,
-                                           baseColour, outlineThickness, -1.0f,
-                                           true, true, true, true);
+    g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    g.fillPath(path);
+}
 
-    if (box.isEnabled())
+Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
+{
+    return Font(getCommonMenuFont().getTypefaceName(), box.getHeight() * 0.75f, Font::plain);
+}
+
+
+// ========= Popup Menu Background: ===========================
+
+void CustomLookAndFeel::drawPopupMenuBackground (Graphics& g, int width, int height)
+{
+    const Colour background (findColour (PopupMenu::backgroundColourId));
+
+    g.fillAll (background);
+    g.setColour (background.overlaidWith (Colour (0x2badd8e6)));
+
+   #if ! JUCE_MAC
+    g.setColour (findColour (PopupMenu::textColourId).withAlpha (0.6f));
+    g.drawRect (0, 0, width, height);
+   #endif
+}
+
+Font CustomLookAndFeel::getPopupMenuFont()
+{
+    return getCommonMenuFont();
+}
+
+//==================================================================
+// BUTTON METHODS :
+//==================================================================
+
+
+void CustomLookAndFeel::drawButtonBackground (Graphics& g,
+                                              Button& button,
+                                              const Colour& backgroundColour,
+                                              bool isMouseOverButton, bool isButtonDown)
+{
+    auto cornerSize = 3.0f;
+    auto bounds = button.getLocalBounds().toFloat();
+
+    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 0.9f)
+                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.35f);
+
+    if (isButtonDown || isMouseOverButton)
+        baseColour = baseColour.contrasting (isButtonDown ? 0.35f : 0.05f);
+
+    g.setColour (baseColour);
+
+    auto flatOnLeft   = button.isConnectedOnLeft();
+    auto flatOnRight  = button.isConnectedOnRight();
+    auto flatOnTop    = button.isConnectedOnTop();
+    auto flatOnBottom = button.isConnectedOnBottom();
+
+    if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom)
     {
-        const float arrowX = 0.3f;
-        const float arrowH = 0.2f;
+        Path path;
+        path.addRoundedRectangle (bounds.getX(), bounds.getY(),
+                                  bounds.getWidth(), bounds.getHeight(),
+                                  cornerSize, cornerSize,
+                                  ! (flatOnLeft  || flatOnTop),
+                                  ! (flatOnRight || flatOnTop),
+                                  ! (flatOnLeft  || flatOnBottom),
+                                  ! (flatOnRight || flatOnBottom));
 
-        Path p;
-        p.addTriangle(buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.45f - arrowH),
-                      buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.45f,
-                      buttonX + buttonW * arrowX,          buttonY + buttonH * 0.45f);
-
-        p.addTriangle(buttonX + buttonW * 0.5f,            buttonY + buttonH * (0.55f + arrowH),
-                      buttonX + buttonW * (1.0f - arrowX), buttonY + buttonH * 0.55f,
-                      buttonX + buttonW * arrowX,          buttonY + buttonH * 0.55f);
-
-        g.setColour(box.findColour(ComboBox::arrowColourId));
-        g.fillPath(p);
+        g.fillPath (path);
+    }
+    else
+    {
+        g.fillRoundedRectangle (bounds, cornerSize);
     }
 
+    if (button.hasKeyboardFocus(false))
+    {
+        g.setColour(Colours::darkgrey);
+        g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+    }
+}
 
+
+void CustomLookAndFeel::drawButtonText (Graphics& g,
+                                        TextButton& button,
+                                        bool isMouseOverButton, bool isButtonDown)
+{
+    auto textColour = button.getToggleState()
+                        ? button.findColour (TextButton::textColourOnId)
+                        : button.findColour (TextButton::textColourOffId);
+
+    g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
+
+    auto font = getTextButtonFont(button, button.getHeight());
+    g.setFont(font);
+
+    const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
+    const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
+
+    const int fontHeight = roundToInt (font.getHeight() * 0.6f);
+    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / 2);
+    const int rightIndent = jmin (fontHeight, 2 + cornerSize / 2);
+    const int textWidth = button.getWidth() - leftIndent - rightIndent;
+
+    if (textWidth > 0)
+        g.drawFittedText (button.getButtonText(),
+                          leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
+                          Justification::centred, 1);
+}
+
+Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
+{
+    return Font(getCommonMenuFont().getTypefaceName(), buttonHeight * 0.65f, Font::plain);
+}
+
+// ============ Common Font for Menus ================
+
+Font CustomLookAndFeel::getCommonMenuFont()
+{
+    return Font ("FiraSans", 20.f, Font::plain);
+}
+
+//==================================================================
+// TOGGLE BUTTON METHODS :
+//==================================================================
+
+void CustomLookAndFeel::drawToggleButton (Graphics& g, ToggleButton& button,
+                                          bool shouldDrawButtonAsHighlighted, 
+                                          bool shouldDrawButtonAsDown)
+{
+    auto fontSize = jmin (18.0f, button.getHeight() * 0.75f);
+    auto tickWidth = fontSize;
+
+    drawTickBox (g, button, 4.0f, (button.getHeight() - tickWidth) * 0.5f,
+                 tickWidth, tickWidth,
+                 button.getToggleState(),
+                 button.isEnabled(),
+                 shouldDrawButtonAsHighlighted,
+                 shouldDrawButtonAsDown);
+
+    g.setColour (button.findColour (ToggleButton::textColourId));
+    g.setFont (fontSize);
+
+    if (! button.isEnabled())
+        g.setOpacity (0.5f);
+
+    g.drawFittedText (button.getButtonText(),
+                      button.getLocalBounds().withTrimmedLeft (roundToInt (tickWidth) + 10)
+                                             .withTrimmedRight (2),
+                      Justification::centredLeft, 10);
+}
+
+void CustomLookAndFeel::drawTickBox (Graphics& g, Component& component,
+                                     float x, float y, float w, float h,
+                                     const bool ticked,
+                                     const bool isEnabled,
+                                     const bool shouldDrawButtonAsHighlighted,
+                                     const bool shouldDrawButtonAsDown)
+{
+    ignoreUnused (isEnabled, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
+
+    Rectangle<float> tickBounds (x, y, w, h);
+
+    g.setColour (component.findColour (ToggleButton::tickDisabledColourId));
+    g.fillRoundedRectangle (tickBounds.reduced(0.5f, 0.5f), 3.0f);
+
+    if (ticked)
+    {
+        g.setColour (component.findColour (ToggleButton::tickColourId));
+        auto tick = getTickShape (0.75f);
+        g.fillPath (tick, tick.getTransformToScaleToFit (tickBounds.reduced (4, 5).toFloat(), false));
+    }
+}
+
+Path CustomLookAndFeel::getTickShape (float height)
+{
+    static const unsigned char pathData[] = { 110,109,32,210,202,64,126,183,148,64,108,39,244,247,64,245,76,124,64,108,178,131,27,65,246,76,252,64,108,175,242,4,65,246,76,252,
+        64,108,236,5,68,65,0,0,160,180,108,240,150,90,65,21,136,52,63,108,48,59,16,65,0,0,32,65,108,32,210,202,64,126,183,148,64, 99,101,0,0 };
+
+    Path path;
+    path.loadPathFromData (pathData, sizeof (pathData));
+    path.scaleToFit (0, 0, height * 2.0f, height, true);
+
+    return path;
 }

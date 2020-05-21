@@ -374,6 +374,9 @@ void ZipFile::init()
 Result ZipFile::uncompressTo (const File& targetDirectory,
                               const bool shouldOverwriteFiles)
 {
+    if (entries.size() == 0)
+        return Result::fail ("Failed to open the zip file for reading");
+    
     for (int i = 0; i < entries.size(); ++i)
     {
         Result result (uncompressEntry (i, targetDirectory, shouldOverwriteFiles));
