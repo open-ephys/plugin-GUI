@@ -513,7 +513,7 @@ void PluginListBoxComponent::run()
 			pluginLabels.set(pluginName, labels);
 		}
 
-		setProgress (i / (double) numRows);
+		setProgress ((i + 1) / (double) numRows);
 	}
 	setNumRows(pluginArray.size());
 }
