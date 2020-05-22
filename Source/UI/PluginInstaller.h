@@ -147,8 +147,6 @@ public:
     void resized() override;
 
     void returnKeyPressed (int lastRowSelected) override;
-
-    void run() override;
     
 private:
 
@@ -163,6 +161,8 @@ private:
     SelectedPluginInfo selectedPluginInfo;
 
     PluginInfoComponent pluginInfoPanel;
+
+    void run() override;
 
     bool loadPluginInfo(const String& pluginName);
 

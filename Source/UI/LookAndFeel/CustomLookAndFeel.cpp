@@ -687,3 +687,32 @@ Path CustomLookAndFeel::getTickShape (float height)
 
     return path;
 }
+
+void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar, 
+                                         int width, int height, 
+                                         double progress, const String& textToShow)
+{
+    auto background = Colour(Colours::lightgrey);
+    auto foreground = Colour(Colours::yellow);
+
+    auto barBounds = progressBar.getLocalBounds().toFloat();
+
+    g.setColour (background);
+    g.fillRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
+
+    Path p;
+    p.addRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
+    g.reduceClipRegion (p);
+
+    barBounds.setWidth (barBounds.getWidth() * (float) progress);
+    g.setColour (foreground);
+    g.fillRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
+
+    if (textToShow.isNotEmpty())
+    {
+        g.setColour (Colours::black);
+        g.setFont (height * 0.7f);
+
+        g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
+    }
+}

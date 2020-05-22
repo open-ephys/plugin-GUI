@@ -57,15 +57,6 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
         true,  // isResizable
 		false); // useBottomCornerRisizer -- doesn't work very well
 
-    //TODO: Add command manager for hot-key functionality later...
-
-    /*
-	commandManager.registerAllCommandsForTarget(ui);
-	commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
-	ui->setApplicationCommandManagerToWatch(&commandManager);
-	addKeyListener(commandManager.getKeyMappings());
-    */
-
    // Identify the OS on which the GUI is running
 	SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
 
@@ -436,7 +427,13 @@ PluginListBoxComponent::PluginListBoxComponent() : ThreadWithProgressWindow("Loa
 {
 	listFont = Font("FiraSans Bold", 22, Font::plain);
 
-	this->runThread();
+	// Set progress window text and background colors
+	auto window = this->getAlertWindow();
+	window->setColour(AlertWindow::textColourId, Colours::white);
+	window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
+	setStatusMessage("Fetching plugins ...");
+
+	this->runThread(); //Load all plugin names and labels from bintray
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
@@ -496,7 +493,7 @@ void PluginListBoxComponent::run()
 	{		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
 
-		setStatusMessage("Loading " + pluginName + " ...");
+		setStatusMessage("Fetching " + pluginName + " ...");
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
@@ -956,12 +953,17 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 
 	versionMenu.clear(dontSendNotification);
 
-	for (int i = 0; i < pInfo.versions.size(); i++)
-		versionMenu.addItem(pInfo.versions[i], i + 1);
+	if (pInfo.versions.isEmpty())
+		downloadButton.setEnabled(false);
+	else
+	{
+		for (int i = 0; i < pInfo.versions.size(); i++)
+			versionMenu.addItem(pInfo.versions[i], i + 1);
 
-	//set default selected version to the first entry in combo box
-	versionMenu.setSelectedId(1, sendNotification);
-	pInfo.selectedVersion = pInfo.versions[0];
+		//set default selected version to the first entry in combo box
+		versionMenu.setSelectedId(1, sendNotification);
+		pInfo.selectedVersion = pInfo.versions[0];
+	}
 }
 
 void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
@@ -1144,7 +1146,6 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		}
 
 	}
-	//TODO: Prompt user to restart to see plugin in ProcessorList
 
 	return 0;
 }
