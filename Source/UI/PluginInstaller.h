@@ -124,7 +124,8 @@ private:
  *  Create a Table of all the plugins hosted on bintray
 */
 class PluginListBoxComponent : public Component,
-                               public ListBoxModel
+                               public ListBoxModel,
+                               public ThreadWithProgressWindow
 {
 public:
 
@@ -146,6 +147,8 @@ public:
     void resized() override;
 
     void returnKeyPressed (int lastRowSelected) override;
+
+    void run() override;
     
 private:
 
@@ -160,8 +163,6 @@ private:
     SelectedPluginInfo selectedPluginInfo;
 
     PluginInfoComponent pluginInfoPanel;
-
-    void loadAllPluginNames();
 
     bool loadPluginInfo(const String& pluginName);
 

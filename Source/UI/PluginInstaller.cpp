@@ -77,16 +77,17 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	 	osType = "linux";
 
 	//Initialize Plugin Installer Components
-	setUsingNativeTitleBar(true);
-	setContentOwned(new PluginInstallerComponent(), false);
-	setVisible(true);
-	
+
 	int x = parent->getX();
 	int y = parent->getY();
 	int w = parent->getWidth();
 	int h = parent->getHeight();
 
 	setBounds(x + (0.5*w) - 427, y + 0.5*h - 240, 854, 480);
+
+	setUsingNativeTitleBar(true);
+	setContentOwned(new PluginInstallerComponent(), false);
+	setVisible(true);
 
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(640, 480, 8192, 5120);
@@ -431,11 +432,11 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 /* ================================== Plugin Table Component ================================== */
 
-PluginListBoxComponent::PluginListBoxComponent()
+PluginListBoxComponent::PluginListBoxComponent() : ThreadWithProgressWindow("Loading Plugin Installer", true, false)
 {
 	listFont = Font("FiraSans Bold", 22, Font::plain);
 
-	loadAllPluginNames();
+	this->runThread();
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
@@ -477,7 +478,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
 
-void PluginListBoxComponent::loadAllPluginNames()
+void PluginListBoxComponent::run()
 {
 	/* Get list of plugins uploaded to bintray */
 	String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins";
@@ -494,6 +495,8 @@ void PluginListBoxComponent::loadAllPluginNames()
 	for (int i = 0; i < numRows; i++)
 	{		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
+
+		setStatusMessage("Loading " + pluginName + " ...");
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
@@ -512,6 +515,8 @@ void PluginListBoxComponent::loadAllPluginNames()
 			pluginArray.add(pluginName);
 			pluginLabels.set(pluginName, labels);
 		}
+
+		setProgress (i / (double) numRows);
 	}
 	setNumRows(pluginArray.size());
 }
