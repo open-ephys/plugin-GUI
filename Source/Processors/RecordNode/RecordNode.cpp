@@ -3,6 +3,8 @@
 
 using namespace std::chrono;
 
+#define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
+
 RecordNode::RecordNode() 
 	: GenericProcessor("Record Node"),
 	newDirectoryNeeded(true),
@@ -211,7 +213,7 @@ void RecordNode::updateSubprocessorMap()
 			int orderInSubprocessor = 0;
 			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
 			{
-				dataChannelStates[sourceID][subProcID].push_back(false);
+				dataChannelStates[sourceID][subProcID].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
 				dataChannelOrder[ch] = orderInSubprocessor++;
 				ch++;
 			}
