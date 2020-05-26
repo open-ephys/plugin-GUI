@@ -62,8 +62,9 @@ enum colorIds
 	ProcessorListItem* filters = new ProcessorListItem("Filters");
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
-	ProcessorListItem* record = new ProcessorListItem("Record");
-	ProcessorListItem* audio = new ProcessorListItem("Audio");
+	ProcessorListItem* record = new ProcessorListItem("Recording");
+	//TODO:
+	//ProcessorListItem* audio = new ProcessorListItem("Audio");
 
 
 
@@ -73,7 +74,8 @@ enum colorIds
 	baseItem->addSubItem(sinks);
 	baseItem->addSubItem(utilities);
 	baseItem->addSubItem(record);
-	baseItem->addSubItem(audio);
+	//TODO:
+	//baseItem->addSubItem(audio);
 
 	// set parent names / colors
 	baseItem->setParentName("Processors");
@@ -395,6 +397,10 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				{
 					currentColor = SINK_COLOR;
 				}
+				else if (listItem->getName().equalsIgnoreCase("Record Node"))
+				{
+					currentColor = RECORD_COLOR;
+				}
 				else
 				{
 					return;
@@ -642,7 +648,7 @@ void ProcessorList::fillItemList()
 	baseItem->getSubItem(2)->clearSubItems(); //sinks
 	baseItem->getSubItem(3)->clearSubItems(); //Utilities
 	baseItem->getSubItem(4)->clearSubItems(); //Record
-	baseItem->getSubItem(5)->clearSubItems(); //Audio
+	//baseItem->getSubItem(5)->clearSubItems(); //Audio
 
 	for (int pClass = 0; pClass < 3; pClass++)
 	{
@@ -654,7 +660,15 @@ void ProcessorList::fillItemList()
 			ProcessorManager::getProcessorNameAndType((ProcessorClasses)pClass, i, name, type);
 			if (type > -1 && type < 4)
 			{
-				baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
+				if (name == "Record Node")
+				{
+					baseItem->getSubItem(4)->addSubItem(new ProcessorListItem(name, i, pClass));
+				}
+				else
+				{
+					baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
+				}
+
 			}
 		}
 	}
@@ -760,7 +774,7 @@ void ProcessorListItem::setParentName(const String& name)
 	{
 		colorId = SOURCE_COLOR;
 	}
-	else if (parentName.equalsIgnoreCase("Record"))
+	else if (parentName.equalsIgnoreCase("Recording"))
 	{
 		colorId = RECORD_COLOR;
 	}

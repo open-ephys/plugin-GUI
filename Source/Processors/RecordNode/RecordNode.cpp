@@ -19,7 +19,7 @@ RecordNode::RecordNode()
 	hasRecorded(false),
 	settingsNeeded(false)
 {
-	setProcessorType(PROCESSOR_TYPE_FILTER);
+	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
 	dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);

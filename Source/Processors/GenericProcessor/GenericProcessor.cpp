@@ -1168,6 +1168,7 @@ bool GenericProcessor::isSink()          const  { return getProcessorType() == P
 bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER; }
 bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER; }
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
+bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == PROCESSOR_TYPE_RECORD_NODE; }
 
 int GenericProcessor::getNumParameters()    { return parameters.size(); }
 int GenericProcessor::getNumPrograms()      { return 0; }
