@@ -104,7 +104,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
 
-                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "fTimestamps.npy", NpyType(BaseType::FLOAT,1));
+                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "synchronized_timestamps.npy", NpyType(BaseType::FLOAT,1));
                 m_dataFloatTimestampFiles.add(ftsFile.release());
 
                 m_fileIndexes.set(recordedChan, nInfoArrays);
