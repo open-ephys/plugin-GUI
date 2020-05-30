@@ -324,6 +324,7 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 
 void PluginInstallerComponent::buttonClicked(Button* button)
 {
+	// Filter plugins on the basis of checkbox selected
 	if(allPlugins.isEmpty())
 	{
 		allPlugins.addArray(pluginListAndInfo.pluginArray);
@@ -489,6 +490,7 @@ void PluginListBoxComponent::run()
 
 	int pluginTextWidth;
 
+	// Get each plugin's labels and add them to the list
 	for (int i = 0; i < numRows; i++)
 	{		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
@@ -779,6 +781,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	{
 		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
 		
+		// If a plugin has depencies outside its zip, download them
 		for (int i = 0; i < pInfo.dependencies.size(); i++)
 		{
 			String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
@@ -792,6 +795,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 			downloadPlugin(pInfo.dependencies[i], ver, true);
 		}
 		
+		// download the plugin
 		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
 
 		if (dlReturnCode == SUCCESS)
@@ -909,6 +913,7 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	{
 		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
 
+		// Change install button name depending on the selected version of a plugin
 		if (pInfo.installedVersion.isEmpty())
 		{
 			downloadButton.setEnabled(true);
@@ -1090,6 +1095,9 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				auto child = xml->getFirstChildElement();
 				bool hasTag = false; 
 
+				/** Check for whether the plugin is installed and if it has the same version
+				 * 	as the one being downloaded
+				 **/
 				forEachXmlChildElement(*child, e)
 				{
 					if (e->hasTagName(pluginEntry->getTagName()))
@@ -1108,6 +1116,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 					}
 				}
 
+				// if no such plugin is installed, add its info to the xml file
 				if (!hasTag)
 					child->addChildElement(pluginEntry.release());
 
@@ -1120,16 +1129,18 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			}
 		}
 
+		// Uncompress the downloaded plugin's zip file
 		Result rs = pluginZip.uncompressTo(pluginsPath);
 
-		pluginFile.deleteFile();		
+		pluginFile.deleteFile(); // delete zip after uncompressing		
 
 		if (rs.failed())
 		{
 			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
 			return 3;
 		}
-			
+
+		// if the plugin is not a dependency, load the plugin and show it in processor list	
 		if (!isDependency)
 		{
 			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
