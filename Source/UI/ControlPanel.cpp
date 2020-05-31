@@ -498,7 +498,10 @@ void ControlPanel::setRecordingDirectory(String path)
     File newFile(path);
     filenameComponent->setCurrentFile(newFile, true, sendNotificationSync);
 
-    graph->getRecordNode()->newDirectoryNeeded = true;
+    for (auto* node : graph->getRecordNodes())
+    {
+        node->newDirectoryNeeded = true;
+    }
     masterClock->resetRecordTime();
 }
 
@@ -791,7 +794,10 @@ void ControlPanel::openState(bool os)
 
 void ControlPanel::labelTextChanged(Label* label)
 {
-    graph->getRecordNode()->newDirectoryNeeded = true;
+    for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
+    {   
+        node->newDirectoryNeeded = true;
+    }
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
@@ -833,7 +839,10 @@ void ControlPanel::buttonClicked(Button* button)
 {
     if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
     {
-        graph->getRecordNode()->newDirectoryNeeded = true;
+        for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
+        {   
+            node->newDirectoryNeeded = true;
+        }
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
 

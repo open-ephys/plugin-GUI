@@ -137,6 +137,9 @@ public:
     */
     void clearRecordEngines();
 
+	bool recordEvents;
+	bool recordSpikes;
+
 private:
 
     bool isProcessing;
@@ -144,9 +147,6 @@ private:
 	bool hasRecorded;
 	bool settingsNeeded;
     bool shouldRecord;
-
-	bool recordEvents;
-	bool recordSpikes;
 
 	File dataDirectory;
 	File rootFolder;

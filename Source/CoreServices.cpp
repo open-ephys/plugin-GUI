@@ -140,14 +140,26 @@ namespace CoreServices
 
 	namespace RecordNode
 	{
+
 		void createNewrecordingDir()
 		{
-			getProcessorGraph()->getRecordNode()->createNewDirectory();
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				node->createNewDirectory();
+			}
 		}
 
+		//TODO: This needs to be well-defined...just testing for now P.K.
 		int getRecordingNumber()
 		{
-			return getProcessorGraph()->getRecordNode()->getRecordingNumber();
+			int lastRecordingNum = -1;
+
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				lastRecordingNum = node->getRecordingNumber();
+			}
+
+			return lastRecordingNum;
 		}
 		
 		File getRecordingPath()
@@ -157,9 +169,30 @@ namespace CoreServices
 
 		int getExperimentNumber()
 		{
-			return getProcessorGraph()->getRecordNode()->getExperimentNumber();
+			
+			int experimentNumber = -1;
+
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				experimentNumber = node->getExperimentNumber();
+			}
+
+			return experimentNumber;
 		}
 
+		bool getRecordThreadStatus()
+		{
+			
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getRecordThreadStatus())
+					return true;
+			}
+
+			return false;
+		}
+
+		/*
 		void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan)
 		{
 			getProcessorGraph()->getRecordNode()->writeSpike(spike, chan);
@@ -174,6 +207,7 @@ namespace CoreServices
 		{
 			return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
 		}
+		*/
 
 	};
 

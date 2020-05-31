@@ -66,7 +66,7 @@ public:
     bool enableProcessors();
     bool disableProcessors();
 
-    RecordNode* getRecordNode();
+    Array<RecordNode*> getRecordNodes();
     AudioNode* getAudioNode();
     MessageCenter* getMessageCenter();
 

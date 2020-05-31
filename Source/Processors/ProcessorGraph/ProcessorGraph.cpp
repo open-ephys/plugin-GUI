@@ -749,11 +749,20 @@ AudioNode* ProcessorGraph::getAudioNode()
 
 }
 
-RecordNode* ProcessorGraph::getRecordNode()
+Array<RecordNode*> ProcessorGraph::getRecordNodes()
 {
 
-    Node* node = getNodeForId(RECORD_NODE_ID);
-    return (RecordNode*) node->getProcessor();
+    Array<RecordNode*> recordNodes;
+
+    Array<GenericProcessor*> processors = getListOfProcessors();
+
+    for (int i = 0; i < processors.size(); i++)
+    {
+        if (processors[i]->isRecordNode())
+            recordNodes.add((RecordNode*)processors[i]);
+    }
+
+    return recordNodes;
 
 }
 
