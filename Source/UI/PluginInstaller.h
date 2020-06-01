@@ -75,18 +75,24 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+    /** Returns the plugin that is currently selected in the list **/
     String getSelectedPlugin() { return pInfo.pluginName; }
 
+    /** Called when any of the buttons inside this component is clicked that has a listener **/
     void buttonClicked(Button* button) override;
 
+    /** Compares two different version numbers **/
     int versionCompare(const String& v1, const String& v2);
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
+    /** Sets selected plugin's info obtained from bintray**/
     void setPluginInfo(const SelectedPluginInfo& p);
 
+    /** Sets the status message with custom string and makes is visible/hidden **/
     void updateStatusMessage(const String& str, bool isVisible);
 
+    /** Make the selected plugin's info visible **/
     void makeInfoVisible(bool isEnabled);
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
@@ -124,7 +130,8 @@ private:
  *  Create a Table of all the plugins hosted on bintray
 */
 class PluginListBoxComponent : public Component,
-                               public ListBoxModel
+                               public ListBoxModel,
+                               public ThreadWithProgressWindow
 {
 public:
 
@@ -161,8 +168,9 @@ private:
 
     PluginInfoComponent pluginInfoPanel;
 
-    void loadAllPluginNames();
+    void run() override;
 
+    // Loads selected plugin's info from bintray
     bool loadPluginInfo(const String& pluginName);
 
     void listBoxItemClicked (int row, const MouseEvent &) override;
@@ -189,6 +197,7 @@ public:
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
+    /** Load plugin names that are either installed or has updates **/
     void loadInstalledPluginNames();
     
     void buttonClicked(Button* button) override;

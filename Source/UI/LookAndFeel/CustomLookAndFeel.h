@@ -144,6 +144,11 @@ public:
     
     Path getTickShape (float height) override;
 
+    // ========= custom progress bar methods: ===========================
+    void drawProgressBar (Graphics&, ProgressBar&, int width, int height, 
+                          double progress, const String& textToShow) override;
+
+
 private:
 
     // UNCOMMENT AFTER UPDATE

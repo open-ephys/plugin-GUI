@@ -57,15 +57,6 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
         true,  // isResizable
 		false); // useBottomCornerRisizer -- doesn't work very well
 
-    //TODO: Add command manager for hot-key functionality later...
-
-    /*
-	commandManager.registerAllCommandsForTarget(ui);
-	commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
-	ui->setApplicationCommandManagerToWatch(&commandManager);
-	addKeyListener(commandManager.getKeyMappings());
-    */
-
    // Identify the OS on which the GUI is running
 	SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
 
@@ -77,16 +68,17 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	 	osType = "linux";
 
 	//Initialize Plugin Installer Components
-	setUsingNativeTitleBar(true);
-	setContentOwned(new PluginInstallerComponent(), false);
-	setVisible(true);
-	
+
 	int x = parent->getX();
 	int y = parent->getY();
 	int w = parent->getWidth();
 	int h = parent->getHeight();
 
 	setBounds(x + (0.5*w) - 427, y + 0.5*h - 240, 854, 480);
+
+	setUsingNativeTitleBar(true);
+	setContentOwned(new PluginInstallerComponent(), false);
+	setVisible(true);
 
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(640, 480, 8192, 5120);
@@ -332,6 +324,7 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 
 void PluginInstallerComponent::buttonClicked(Button* button)
 {
+	// Filter plugins on the basis of checkbox selected
 	if(allPlugins.isEmpty())
 	{
 		allPlugins.addArray(pluginListAndInfo.pluginArray);
@@ -431,11 +424,17 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 /* ================================== Plugin Table Component ================================== */
 
-PluginListBoxComponent::PluginListBoxComponent()
+PluginListBoxComponent::PluginListBoxComponent() : ThreadWithProgressWindow("Loading Plugin Installer", true, false)
 {
 	listFont = Font("FiraSans Bold", 22, Font::plain);
 
-	loadAllPluginNames();
+	// Set progress window text and background colors
+	auto window = this->getAlertWindow();
+	window->setColour(AlertWindow::textColourId, Colours::white);
+	window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
+	setStatusMessage("Fetching plugins ...");
+
+	this->runThread(); //Load all plugin names and labels from bintray
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
@@ -477,7 +476,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
 
-void PluginListBoxComponent::loadAllPluginNames()
+void PluginListBoxComponent::run()
 {
 	/* Get list of plugins uploaded to bintray */
 	String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins";
@@ -491,9 +490,12 @@ void PluginListBoxComponent::loadAllPluginNames()
 
 	int pluginTextWidth;
 
+	// Get each plugin's labels and add them to the list
 	for (int i = 0; i < numRows; i++)
 	{		
 		pluginName = pluginData[i].getProperty("name", var()).toString();
+
+		setStatusMessage("Fetching " + pluginName + " ...");
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
@@ -512,6 +514,8 @@ void PluginListBoxComponent::loadAllPluginNames()
 			pluginArray.add(pluginName);
 			pluginLabels.set(pluginName, labels);
 		}
+
+		setProgress ((i + 1) / (double) numRows);
 	}
 	setNumRows(pluginArray.size());
 }
@@ -777,6 +781,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	{
 		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
 		
+		// If a plugin has depencies outside its zip, download them
 		for (int i = 0; i < pInfo.dependencies.size(); i++)
 		{
 			String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
@@ -790,6 +795,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 			downloadPlugin(pInfo.dependencies[i], ver, true);
 		}
 		
+		// download the plugin
 		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
 
 		if (dlReturnCode == SUCCESS)
@@ -907,6 +913,7 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	{
 		pInfo.selectedVersion = comboBoxThatHasChanged->getText();
 
+		// Change install button name depending on the selected version of a plugin
 		if (pInfo.installedVersion.isEmpty())
 		{
 			downloadButton.setEnabled(true);
@@ -951,12 +958,17 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 
 	versionMenu.clear(dontSendNotification);
 
-	for (int i = 0; i < pInfo.versions.size(); i++)
-		versionMenu.addItem(pInfo.versions[i], i + 1);
+	if (pInfo.versions.isEmpty())
+		downloadButton.setEnabled(false);
+	else
+	{
+		for (int i = 0; i < pInfo.versions.size(); i++)
+			versionMenu.addItem(pInfo.versions[i], i + 1);
 
-	//set default selected version to the first entry in combo box
-	versionMenu.setSelectedId(1, sendNotification);
-	pInfo.selectedVersion = pInfo.versions[0];
+		//set default selected version to the first entry in combo box
+		versionMenu.setSelectedId(1, sendNotification);
+		pInfo.selectedVersion = pInfo.versions[0];
+	}
 }
 
 void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
@@ -1083,6 +1095,9 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				auto child = xml->getFirstChildElement();
 				bool hasTag = false; 
 
+				/** Check for whether the plugin is installed and if it has the same version
+				 * 	as the one being downloaded
+				 **/
 				forEachXmlChildElement(*child, e)
 				{
 					if (e->hasTagName(pluginEntry->getTagName()))
@@ -1101,6 +1116,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 					}
 				}
 
+				// if no such plugin is installed, add its info to the xml file
 				if (!hasTag)
 					child->addChildElement(pluginEntry.release());
 
@@ -1113,16 +1129,18 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			}
 		}
 
+		// Uncompress the downloaded plugin's zip file
 		Result rs = pluginZip.uncompressTo(pluginsPath);
 
-		pluginFile.deleteFile();		
+		pluginFile.deleteFile(); // delete zip after uncompressing		
 
 		if (rs.failed())
 		{
 			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
 			return 3;
 		}
-			
+
+		// if the plugin is not a dependency, load the plugin and show it in processor list	
 		if (!isDependency)
 		{
 			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
@@ -1139,7 +1157,6 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		}
 
 	}
-	//TODO: Prompt user to restart to see plugin in ProcessorList
 
 	return 0;
 }
