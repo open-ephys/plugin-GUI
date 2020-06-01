@@ -39,19 +39,19 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	fifoDrawerButton->addListener(this);
 	addAndMakeVisible(fifoDrawerButton);
 
-	masterLabel = new Label("masterLabel", "MASTER");
+	masterLabel = new Label("masterLabel", "Avail:");
 	masterLabel->setBounds(7, 21, 40, 20);
 	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
-	addAndMakeVisible(masterLabel);
+	//addAndMakeVisible(masterLabel);
 
 	masterMonitor = new FifoMonitor(recordNode, -1, -1);
-	masterMonitor->setBounds(18, 43, 15, 62);
+	masterMonitor->setBounds(18, 33, 15, 92);
 	addAndMakeVisible(masterMonitor);
 
 	masterRecord = new RecordToggleButton(recordNode, "MasterRecord");
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
-	addAndMakeVisible(masterRecord);
+	//addAndMakeVisible(masterRecord);
 
 	/*
 	engineSelectLabel = new Label("engineSelect", "ENGINE");
@@ -60,31 +60,44 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(engineSelectLabel);
 	*/
 
+	dataPathLabel = new Label(CoreServices::getRecordingDirectory().getFullPathName());
+	dataPathLabel->setText(CoreServices::getRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
+	dataPathLabel->setBounds(42,35,72,20);
+	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
+	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
+	dataPathLabel->setJustificationType(Justification::centredLeft);
+	addAndMakeVisible(dataPathLabel);
+
+	dataPathButton = new UtilityButton("...", Font(12));
+	dataPathButton->setBounds(117, 35, 18, 20);
+	dataPathButton->addListener(this);
+	addAndMakeVisible(dataPathButton);
+
 	engineSelectCombo = new ComboBox("engineSelectCombo");
-	engineSelectCombo->setBounds(42, 46, 93, 20);
+	engineSelectCombo->setBounds(42, 66, 93, 20);
 	engineSelectCombo->addItem("Binary", 1);
 	engineSelectCombo->addItem("OpenEphys", 2);
 	engineSelectCombo->setSelectedId(1);
 	addAndMakeVisible(engineSelectCombo);
 
 	recordEventsLabel = new Label("recordEvents", "RECORD EVENTS");
-	recordEventsLabel->setBounds(40, 71, 80, 20);
+	recordEventsLabel->setBounds(40, 91, 80, 20);
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
-	eventRecord->setBounds(120, 73, 15, 15);
+	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
 	eventRecord->triggerClick(); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
-	recordSpikesLabel->setBounds(40, 88, 76, 20);
+	recordSpikesLabel->setBounds(40, 108, 76, 20);
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
-	spikeRecord->setBounds(120, 90, 15, 15);
+	spikeRecord->setBounds(120, 110, 15, 15);
 	spikeRecord->addListener(this); //disable spike recording by default
 	addAndMakeVisible(spikeRecord);
 
@@ -193,7 +206,21 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		recordNode->updateChannelStates(((SyncControlButton*)button)->srcIndex, ((SyncControlButton*)button)->subProcIdx, fifo->channelStates);
 		*/
 	}
-	
+	else if (button == dataPathButton)
+	{
+		LOGD("Change data write directory!");
+
+		FileChooser chooseWriteDirectory ("Please select the location to write data to...",
+											File(dataPathLabel->getText()), "");
+
+		if (chooseWriteDirectory.browseForDirectory())
+		{
+			recordNode->setDataDirectory(chooseWriteDirectory.getResult());
+			dataPathLabel->setText(chooseWriteDirectory.getResult().getFullPathName(), juce::NotificationType::dontSendNotification);
+		}
+
+	}
+
 }
 
 void RecordNodeEditor::collapsedStateChanged()
@@ -247,6 +274,14 @@ void RecordNodeEditor::showSubprocessorFifos(bool show)
 	masterRecord->setBounds(
 		masterRecord->getX() + dX, masterRecord->getY(),
 		masterRecord->getWidth(), masterRecord->getHeight());
+
+	dataPathLabel->setBounds(
+		dataPathLabel->getX() + dX, dataPathLabel->getY(),
+		dataPathLabel->getWidth(), dataPathLabel->getHeight());
+
+	dataPathButton->setBounds(
+		dataPathButton->getX() + dX, dataPathButton->getY(),
+		dataPathButton->getWidth(), dataPathButton->getHeight());
 
 	engineSelectCombo->setBounds(
 		engineSelectCombo->getX() + dX, engineSelectCombo->getY(),
@@ -472,7 +507,7 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(node), srcID(srcID), subID(subID), fillPercentage(0.0)
+FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(node), srcID(srcID), subID(subID), fillPercentage(0.5)
 {
 
 	startTimer(500);
@@ -525,6 +560,12 @@ void FifoMonitor::timerCallback()
 	else 
 	{
 		setFillPercentage(0.0f);
+	}
+
+	if (srcID < 0)
+	{
+		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
+		setFillPercentage(1.0f - diskSpace);
 	}
 
 }

@@ -128,6 +128,8 @@ private:
 	ScopedPointer<FifoMonitor> masterMonitor;
 	ScopedPointer<RecordToggleButton> masterRecord;
 	ScopedPointer<Label> engineSelectLabel;
+	ScopedPointer<Label> dataPathLabel;
+	ScopedPointer<Button> dataPathButton;
 	ScopedPointer<ComboBox> engineSelectCombo;
 	ScopedPointer<Label> recordEventsLabel;
 	ScopedPointer<RecordToggleButton> eventRecord;

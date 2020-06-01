@@ -76,6 +76,8 @@ public:
 
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
+	void setDataDirectory(File);
+	File getDataDirectory();
 
 	ScopedPointer<RecordThread> recordThread;
 	ScopedPointer<RecordEngine> recordEngine;

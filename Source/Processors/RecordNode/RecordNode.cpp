@@ -1,5 +1,10 @@
 #include "RecordNode.h"
+
+#include "../../UI/EditorViewport.h"
+#include "../../UI/ControlPanel.h"
 #include "BinaryFormat/BinaryRecording.h"
+
+#include "../../AccessClass.h"
 
 using namespace std::chrono;
 
@@ -33,6 +38,8 @@ RecordNode::RecordNode()
 
 	isSyncReady = true;
 
+	dataDirectory = CoreServices::getRecordingDirectory();
+
 }
 
 RecordNode::~RecordNode()
@@ -52,8 +59,7 @@ String RecordNode::generateDirectoryName()
 	t.add(calendar.getSeconds());
 
 	//Any custom text to prepend;
-	//String filename = AccessClass::getControlPanel()->getTextToPrepend();
-	String filename = "";
+	String filename = AccessClass::getControlPanel()->getTextToPrepend();
 
 	String datestring = "";
 
@@ -70,27 +76,32 @@ String RecordNode::generateDirectoryName()
 			datestring += "-";
 	}
 
-	//AccessClass::getControlPanel()->setDateText(datestring);
+	AccessClass::getControlPanel()->setDateText(datestring);
 
 	if (filename.length() < 24)
 		filename += datestring;
 	else
 		filename = filename.substring(0, filename.length() - 1);
 
-	//filename += AccessClass::getControlPanel()->getTextToAppend();
+	filename += AccessClass::getControlPanel()->getTextToAppend();
 
 	return filename;
 
 }
 
+File RecordNode::getDataDirectory()
+{
+	return dataDirectory;
+}
+
+void RecordNode::setDataDirectory(File directory)
+{
+	dataDirectory = directory;
+	newDirectoryNeeded = true;
+}
+
 void RecordNode::createNewDirectory()
 {
-
-	//TODO: Check if editor has overriden the default save directory
-
-	dataDirectory = CoreServices::getRecordingDirectory();
-
-	//LOGD(__FUNCTION__, dataDirectory.getFullPathName());
 
 	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
 
@@ -181,8 +192,6 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 
 void RecordNode::updateSubprocessorMap()
 {
-
-	LOGD("***Update subprocessor map");
 
 	std::vector<int> procIds;
 
@@ -384,7 +393,7 @@ void RecordNode::startRecording()
 		{
 			createNewDirectory();
 			recordingNumber = 0;
-			experimentNumber = 1;
+			experimentNumber = 0;
 			settingsNeeded = true;
 			recordEngine->directoryChanged();
 		}
