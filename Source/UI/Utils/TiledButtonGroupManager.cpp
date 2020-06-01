@@ -162,7 +162,7 @@ void TiledButtonGroupManager::addButton (Button* newButton, bool useDefaultLookA
 }
 
 
-int TiledButtonGroupManager::getIndexOfButtonAtPosition (Point<int> position) const
+int TiledButtonGroupManager::getIndexOfButtonAtPosition (juce::Point<int> position) const
 {
 
     const int numButtons = m_buttons.size();

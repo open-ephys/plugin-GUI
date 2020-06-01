@@ -1508,7 +1508,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
                     SourceDetails sd = SourceDetails(procDesc,
                                                      0,
-                                                     Point<int>(0,0));
+                                                     juce::Point<int>(0,0));
 
                     itemDropped(sd);
 

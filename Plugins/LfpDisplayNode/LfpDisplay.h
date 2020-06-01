@@ -190,7 +190,7 @@ public:
         float timescaleStartScale;        // a cache for the timescale size during drag events
         float zoomPivotRatioX;          // a cache for calculating the anchor point when adjusting viewport
         float zoomPivotRatioY;
-        Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset
+        juce::Point<int> zoomPivotViewportOffset;                     // similar to above, but pixel-wise offset
         bool unpauseOnScrollEnd;
     };
     
