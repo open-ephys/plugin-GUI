@@ -69,8 +69,8 @@ void ProcessorGraph::createDefaultNodes()
     //recn->setNodeId(RECORD_NODE_ID);
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
-    AudioNode* an = new AudioNode();
-    an->setNodeId(AUDIO_NODE_ID);
+    //AudioNode* an = new AudioNode();
+    //an->setNodeId(AUDIO_NODE_ID);
 
     // add message center
     MessageCenter* msgCenter = new MessageCenter();
@@ -78,14 +78,15 @@ void ProcessorGraph::createDefaultNodes()
 
     addNode(on, OUTPUT_NODE_ID);
     //addNode(recn, RECORD_NODE_ID);
-    addNode(an, AUDIO_NODE_ID);
+    //addNode(an, AUDIO_NODE_ID);
     addNode(msgCenter, MESSAGE_CENTER_ID);
 
 }
 
 void ProcessorGraph::updatePointers()
 {
-    getAudioNode()->updateBufferSize();
+    std::cout << "Skipping getAudioNode()->updateBufferSize()" << std::endl;
+    //getAudioNode()->updateBufferSize();
 }
 
 void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
@@ -313,6 +314,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             if (source->isEnabledState())
             {
                 // add the connections to audio and record nodes if necessary
+                // Skip this because no longer necessary
+                /*
                 if (!(source->isSink()     ||
                       source->isSplitter() ||
                       source->isMerger()   ||
@@ -326,6 +329,7 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                 {
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
+                */
 
                 // find the next dest that's not a merger or splitter
                 GenericProcessor* prev = source;
@@ -474,13 +478,14 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* source)
 {
 
+    /*
     std::cout << "#########SKIPPING CONNECT TO RECORD NODE" << std::endl;
 
     if (source == nullptr)
         return;
 
     getAudioNode()->registerProcessor(source);
-    //getRecordNode()->registerProcessor(source);
+    getRecordNode()->registerProcessor(source);
 
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
@@ -491,24 +496,22 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
                       chan,                                  // sourceNodeChannelIndex
                       AUDIO_NODE_ID,                         // destNodeID
                       getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
+   
 
-        //getRecordNode()->addInputChannel(source, chan);
+        getRecordNode()->addInputChannel(source, chan);
 
-        /*
         addConnection(source->getNodeId(),                    // sourceNodeID
                       chan,                                   // sourceNodeChannelIndex
                       RECORD_NODE_ID,                         // destNodeID
                       getRecordNode()->getNextChannel(true)); // destNodeChannelIndex
-        */
+ 
     }
 
     // connect event channel
-    /*
     addConnection(source->getNodeId(),    // sourceNodeID
                   midiChannelIndex,       // sourceNodeChannelIndex
                   RECORD_NODE_ID,         // destNodeID
                   midiChannelIndex);      // destNodeChannelIndex
-    */
 
     // connect event channel
     addConnection(source->getNodeId(),    // sourceNodeID
@@ -518,6 +521,7 @@ void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* sou
 
 
     //getRecordNode()->addInputChannel(source, midiChannelIndex);
+    */
 
 }
 
@@ -624,7 +628,7 @@ bool ProcessorGraph::enableProcessors()
 
     bool allClear;
 
-    if (getNumNodes() < 5)
+    if (getNumNodes() < 4)
     {
         AccessClass::getUIComponent()->disableCallbacks();
         return false;

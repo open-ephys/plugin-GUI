@@ -243,7 +243,7 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMess
 		// save spike
 		if (false)
 		{
-			CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
+			//CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
 		}
 		// add to buffer
 		if (e->currentSpikeIndex < displayBufferSize)
