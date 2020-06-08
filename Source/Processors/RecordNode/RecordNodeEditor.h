@@ -100,7 +100,7 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class RecordNodeEditor : public GenericEditor
+class RecordNodeEditor : public GenericEditor, ComboBoxListener
 {
 public:
 
@@ -113,6 +113,7 @@ public:
 	void showSubprocessorFifos(bool);
 
 	void timerCallback();
+	void comboBoxChanged(ComboBox*); 
 
 private:
 

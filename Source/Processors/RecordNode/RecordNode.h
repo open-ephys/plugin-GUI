@@ -74,6 +74,9 @@ public:
 
 	void setParameter(int parameterIndex, float newValue) override;
 
+	std::vector<RecordEngineManager*> getAvailableRecordEngines();
+
+	void setEngine(int selectedEngineIndex);
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
 	void setDataDirectory(File);
@@ -81,6 +84,7 @@ public:
 
 	ScopedPointer<RecordThread> recordThread;
 	ScopedPointer<RecordEngine> recordEngine;
+	std::vector<RecordEngineManager*> availableEngines;	
 
     ScopedPointer<Synchronizer> synchronizer;
 

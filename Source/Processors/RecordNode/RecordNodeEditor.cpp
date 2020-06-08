@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RecordNodeEditor.h"
 #include "RecordNode.h"
 
+#include "../../CoreServices.h"
+
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParameterEditors = true)
 	: GenericEditor(parentNode, useDefaultParameterEditors),
 	numSubprocessors(0)
@@ -75,9 +77,14 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	engineSelectCombo = new ComboBox("engineSelectCombo");
 	engineSelectCombo->setBounds(42, 66, 93, 20);
-	engineSelectCombo->addItem("Binary", 1);
-	engineSelectCombo->addItem("OpenEphys", 2);
-	engineSelectCombo->setSelectedId(1);
+
+	std::vector<RecordEngineManager*> engines = recordNode->getAvailableRecordEngines();
+	for (int i = 0; i < engines.size(); i++)
+	{
+		engineSelectCombo->addItem(engines[i]->getName(), i + 1);
+	}
+	engineSelectCombo->setSelectedId(CoreServices::getSelectedRecordEngineIdx());
+	engineSelectCombo->addListener(this);
 	addAndMakeVisible(engineSelectCombo);
 
 	recordEventsLabel = new Label("recordEvents", "RECORD EVENTS");
@@ -120,6 +127,15 @@ void RecordNodeEditor::timerCallback()
 
 	//Can check RecordNode state here and modify editor accordinlgy
 
+
+}
+
+void RecordNodeEditor::comboBoxChanged(ComboBox* box)
+{
+
+	uint8 selectedEngineIndex = box->getSelectedId();
+	recordNode->setEngine(selectedEngineIndex-1);
+	std::cout << "Got combo box changed" << std::endl;
 
 }
 

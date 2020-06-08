@@ -92,6 +92,9 @@ PLUGIN_API void setPrependTextToRecordingDir(String text);
 /** Manually set the text to be appended to the recording directory */
 PLUGIN_API void setAppendTextToRecordingDir(String text);
 
+//** Get array of available record engines
+PLUGIN_API std::vector<RecordEngineManager*> getAvailableRecordEngines();
+
 /** Gets the ID fo the selected Record Engine*/
 PLUGIN_API String getSelectedRecordEngineId();
 
@@ -100,12 +103,12 @@ Return true if there is an engine with the specified ID and it's possible to
 change the current engine or false otherwise. */
 PLUGIN_API bool setSelectedRecordEngineId(String id);
 
+PLUGIN_API int getSelectedRecordEngineIdx();
+
 namespace RecordNode
 {
 /** Forces creation of new directory on recording */
 PLUGIN_API void createNewrecordingDir();
-
-PLUGIN_API File getRecordingDirectory();
 
 /** Gets the current recording directories and status information */
 PLUGIN_API File getRecordingPath();

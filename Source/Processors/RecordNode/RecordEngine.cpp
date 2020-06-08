@@ -325,6 +325,7 @@ void RecordEngineManager::toggleConfigWindow()
 		window->setVisible(false);
 		window = nullptr;
 	}
+
 	else
 	{
 		window = new EngineConfigWindow(this);

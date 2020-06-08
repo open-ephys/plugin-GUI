@@ -565,6 +565,18 @@ void ControlPanel::updateRecordEngineList()
     
 }
 
+std::vector<RecordEngineManager*> ControlPanel::getAvailableRecordEngines()
+{
+    std::vector<RecordEngineManager*> engines;
+
+    for (auto engine : recordEngines)
+    {
+        engines.push_back(engine);
+    }
+
+    return engines;
+}
+
 String ControlPanel::getSelectedRecordEngineId()
 {
 	return recordEngines[recordSelector->getSelectedId() - 1]->getID();

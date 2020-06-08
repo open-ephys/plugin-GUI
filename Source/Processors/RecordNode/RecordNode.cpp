@@ -3,6 +3,7 @@
 #include "../../UI/EditorViewport.h"
 #include "../../UI/ControlPanel.h"
 #include "BinaryFormat/BinaryRecording.h"
+#include "OpenEphysFormat/OriginalRecording.h"
 
 #include "../../AccessClass.h"
 
@@ -29,21 +30,33 @@ RecordNode::RecordNode()
 	dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
 	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
-	
-	recordEngine = new BinaryRecording();
-
-	recordThread = new RecordThread(this, recordEngine);
 
 	synchronizer = new Synchronizer(this);
 
 	isSyncReady = true;
 
+	/* New record nodes default to the record engine currently selected in the Control Panel */
+	setEngine(CoreServices::getSelectedRecordEngineIdx() - 1);
+
 	dataDirectory = CoreServices::getRecordingDirectory();
+
+	recordThread = new RecordThread(this, recordEngine);
 
 }
 
 RecordNode::~RecordNode()
 {
+}
+
+void RecordNode::setEngine(int index)
+{
+	availableEngines = getAvailableRecordEngines();
+	recordEngine = availableEngines[index]->instantiateEngine();
+}
+
+std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
+{
+	return CoreServices::getAvailableRecordEngines();
 }
 
 String RecordNode::generateDirectoryName()
@@ -359,8 +372,6 @@ void RecordNode::startRecording()
 	
 	validBlocks.clear();
 	validBlocks.insertMultiple(0, false, getNumInputs());
-
-	//WARNING: If at some point we record at more that one recordEngine at once, we should change this, as using OwnedArrays only works for the first
 
 	recordEngine->registerRecordNode(this);
 	recordEngine->resetChannels();

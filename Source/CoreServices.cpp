@@ -128,6 +128,11 @@ namespace CoreServices
 		getControlPanel()->setAppendText(text);
 	}
 
+	std::vector<RecordEngineManager*> getAvailableRecordEngines()
+	{
+		return getControlPanel()->getAvailableRecordEngines();
+	}
+
 	String getSelectedRecordEngineId()
 	{
 		return getControlPanel()->getSelectedRecordEngineId();
@@ -136,6 +141,11 @@ namespace CoreServices
 	bool setSelectedRecordEngineId(String id)
 	{
 		return getControlPanel()->setSelectedRecordEngineId(id);
+	}
+
+	int getSelectedRecordEngineIdx()
+	{
+		return getControlPanel()->recordSelector->getSelectedId();
 	}
 
 	namespace RecordNode
