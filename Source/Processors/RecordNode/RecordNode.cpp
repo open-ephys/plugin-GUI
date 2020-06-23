@@ -102,11 +102,8 @@ void RecordNode::setDataDirectory(File directory)
 
 void RecordNode::createNewDirectory()
 {
-
-	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName());
-
+	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName() + File::separator + getName() + " " + String(getNodeId()));
 	newDirectoryNeeded = false;
-
 }
 
 String RecordNode::generateDateString() const
