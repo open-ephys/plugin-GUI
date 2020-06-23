@@ -1175,7 +1175,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         }
     }
 
-    audioEditor->loadStateFromXml(xml);
+    //audioEditor->loadStateFromXml(xml);
 
 }
 
