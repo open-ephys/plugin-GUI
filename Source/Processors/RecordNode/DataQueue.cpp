@@ -160,10 +160,10 @@ void DataQueue::writeSynchronizedTimestampChannel(float start, float step, int d
 
 	if (size2 > 0)
 	{
-		for (int i = size1; i < size1 + size2; i++)
+		for (int i = 0; i < size2; i++)
 		{
 			//m_FTSBuffer.setSample(destChannel, index2+i, start + (float)i*step);
-			m_FTSBuffer.setSample(destChannel, index1+i, float(index1+i));
+			m_FTSBuffer.setSample(destChannel, index2 + i, start+(float)size1*step + float(i*step));
 		}
 	}
 
