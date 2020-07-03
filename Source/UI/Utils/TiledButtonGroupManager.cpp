@@ -26,6 +26,7 @@
 
 #include <algorithm>
 
+using namespace juce;
 
 TiledButtonGroupManager::TiledButtonGroupManager()
     : m_buttonWidth                 (10)

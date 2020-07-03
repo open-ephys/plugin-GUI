@@ -1,6 +1,13 @@
 name: Linux
 
-on: [push]
+on:
+  push:
+    paths:
+    - "CMakeLists.txt"
+    - "Source"
+    - "JuceLibraryCode"
+    - "PluginGenerator"
+    - "Plugins"
 
 jobs:
   build-ubuntu:
@@ -16,6 +23,8 @@ jobs:
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
     - name: build
-      run: cmake --build Build
+      run: |
+        cd Build
+        make
 #    - name: test
 #      run: cd build && ctest
