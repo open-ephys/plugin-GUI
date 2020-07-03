@@ -339,7 +339,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 
 	isDragging = false;
 
-	Point<int> pos = e.getPosition();
+	juce::Point<int> pos = e.getPosition();
 	int xcoord = pos.getX();
 	int ycoord = pos.getY();
 
@@ -488,7 +488,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 						dragImage.multiplyAllAlphas(0.6f);
 
-						Point<int> imageOffset(20,10);
+						juce::Point<int> imageOffset(20,10);
 
 						//See ProcessorGraph::createProcesorFromDescription for description info
 						Array<var> dragData;

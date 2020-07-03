@@ -2408,7 +2408,7 @@ void LfpDisplay::resized()
 
     canvas->fullredraw = true; //issue full redraw
     if (singleChan != -1)
-        viewport->setViewPosition(Point<int>(0,singleChan*getChannelHeight()));
+        viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
 
   
 
@@ -2565,7 +2565,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         //std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
         setSize(getWidth(),drawableChannels.size()*getChannelHeight());
         viewport->setScrollBarsShown(true,false);
-        viewport->setViewPosition(Point<int>(0,singleChan*r));
+        viewport->setViewPosition(juce::Point<int>(0,singleChan*r));
         singleChan = -1;
         for (int n = 0; n < numChans; n++)
         {

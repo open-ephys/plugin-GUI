@@ -1,6 +1,13 @@
 name: Linux
 
-on: [push]
+on:
+  push:
+    paths:
+    - "CMakeLists.txt"
+    - "Source"
+    - "JuceLibraryCode"
+    - "PluginGenerator"
+    - "Plugins"
 
 jobs:
   build-ubuntu:

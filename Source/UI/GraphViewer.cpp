@@ -286,8 +286,8 @@ void GraphViewer::paint (Graphics& g)
 void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 {
     
-    Point<float> start  = availableNodes[node1]->getCenterPoint();
-    Point<float> end    = availableNodes[node2]->getCenterPoint();
+    juce::Point<float> start  = availableNodes[node1]->getCenterPoint();
+    juce::Point<float> end    = availableNodes[node2]->getCenterPoint();
     
     Path linePath;
     float x1 = start.getX();
@@ -424,9 +424,9 @@ const String GraphNode::getName() const
 }
 
 
-Point<float> GraphNode::getCenterPoint() const
+juce::Point<float> GraphNode::getCenterPoint() const
 {
-    Point<float> center = Point<float> (getX() + 10, getY() + 10);
+    juce::Point<float> center = juce::Point<float> (getX() + 10, getY() + 10);
     
     return center;
 }
