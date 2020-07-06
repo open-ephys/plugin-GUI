@@ -55,7 +55,7 @@ public:
 	void modifierKeysChanged(const ModifierKeys& modifiers);
 
 	bool isDragging;
-	Point<int> startDragCoords;
+	juce::Point<int> startDragCoords;
 	bool firstButtonSelectedState;
 
 	int nChannels;

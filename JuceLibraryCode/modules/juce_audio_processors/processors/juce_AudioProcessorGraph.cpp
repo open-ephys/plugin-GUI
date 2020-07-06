@@ -430,7 +430,12 @@ private:
                 }
                 else
                 {
+
+#if defined(__APPLE__)
                     bufIndex = getFreeBuffer (false);
+#else
+                    bufIndex = inputChan + 1;
+#endif
                     renderingOps.add (new ClearChannelOp (bufIndex));
                 }
             }
@@ -474,6 +479,7 @@ private:
                     // can't mess up this channel because it's needed later by another node, so we
                     // need to use a copy of it..
                     const int newFreeBuffer = getFreeBuffer (false);
+                    std::cout << "getFreeBuffer[478]: channel: " << inputChan << " New free buffer index: " << newFreeBuffer << std::endl;
 
                     renderingOps.add (new CopyChannelOp (bufIndex, newFreeBuffer));
 
@@ -544,6 +550,8 @@ private:
                 {
                     // can't re-use any of our input chans, so get a new one and copy everything into it..
                     bufIndex = getFreeBuffer (false);
+                    std::cout << "getFreeBuffer[549]: channel: " << inputChan << " bufIndex: " << bufIndex << std::endl;
+                    
                     jassert (bufIndex != 0);
 
                     const int srcIndex = getBufferContaining (sourceNodes.getUnchecked (0),
@@ -594,6 +602,7 @@ private:
                                 else // buffer is reused elsewhere, can't be delayed
                                 {
                                     const int bufferToDelay = getFreeBuffer (false);
+                                    std::cout << "getFreeBuffer[601]: channel: " << inputChan << " bufferToDelay: " << bufferToDelay << std::endl;
                                     renderingOps.add (new CopyChannelOp (srcIndex, bufferToDelay));
                                     renderingOps.add (new DelayChannelOp (bufferToDelay, maxLatency - nodeDelay));
                                     srcIndex = bufferToDelay;
@@ -615,7 +624,11 @@ private:
 
         for (int outputChan = numIns; outputChan < numOuts; ++outputChan)
         {
+#if defined(__APPLE__)
             const int bufIndex = getFreeBuffer (false);
+#else
+            const int bufIndex = outputChan + 1;
+#endif
             jassert (bufIndex != 0);
             audioChannelsToUse.add (bufIndex);
 
@@ -637,6 +650,7 @@ private:
         {
             // No midi inputs..
             midiBufferToUse = getFreeBuffer (true); // need to pick a buffer even if the processor doesn't use midi
+            
 
             if (processor.acceptsMidi() || processor.producesMidi())
                 renderingOps.add (new ClearMidiBufferOp (midiBufferToUse));
@@ -655,16 +669,12 @@ private:
                                          midiSourceNodes.getUnchecked(0),
                                          AudioProcessorGraph::midiChannelIndex);
 
-                                //If node is in first branch after the splitter, isBufferNeededLater = true 
-                                //Else if node is in second branch after a splitter, isBufferNeededLater = false
-
-                //std::cout << "[createRenderingOpsForNode:633] MIDI Node: " << processor.getName() << " channel: " << midiSourceNodes.getUnchecked(0) << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
-
                 if (isBufferNeededLaterOverride)
                 {
                     // can't mess up this channel because it's needed later by another node, so we
                     // need to use a copy of it..
                     const int newFreeBuffer = getFreeBuffer (true);
+                    std::cout << "getFreeBuffer[670]: outputChan: newFreeBuffer: " << newFreeBuffer << std::endl;
                     renderingOps.add (new CopyMidiBufferOp (midiBufferToUse, newFreeBuffer));
                     midiBufferToUse = newFreeBuffer;
                 }
@@ -673,6 +683,7 @@ private:
             {
                 // probably a feedback loop, so just use an empty one..
                 midiBufferToUse = getFreeBuffer (true); // need to pick a buffer even if the processor doesn't use midi
+                std::cout << "getFreeBuffer[679]: midiBufferToUse: " << midiBufferToUse << std::endl;
             }
         }
         else
