@@ -85,7 +85,6 @@ void ProcessorGraph::createDefaultNodes()
 
 void ProcessorGraph::updatePointers()
 {
-    std::cout << "Skipping getAudioNode()->updateBufferSize()" << std::endl;
     //getAudioNode()->updateBufferSize();
 }
 
@@ -243,6 +242,7 @@ void ProcessorGraph::clearConnections()
     }
 
     // connect audio subnetwork
+    /*
     for (int n = 0; n < 2; n++)
     {
 
@@ -250,9 +250,12 @@ void ProcessorGraph::clearConnections()
                       OUTPUT_NODE_ID, n);
 
     }
+    */
 
+    /*
     addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
                   RECORD_NODE_ID, midiChannelIndex);
+    */
 }
 
 
@@ -630,6 +633,7 @@ bool ProcessorGraph::enableProcessors()
 
     if (getNumNodes() < 4)
     {
+        std::cout << "Not enough processors in signal chain to acquire data" << std::endl;
         AccessClass::getUIComponent()->disableCallbacks();
         return false;
     }
