@@ -105,7 +105,7 @@ endif()
 
 if(MSVC)
 	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
-	target_compile_options(open-ephys PRIVATE /sdl- /nologo /MP)
+	target_compile_options(open-ephys PRIVATE /sdl- /nologo /MP /W0)
 	target_link_libraries(open-ephys setupapi.lib opengl32.lib glu32.lib)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS_DEBUG " /NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"msvcrt.lib\"")
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS " /SUBSYSTEM:WINDOWS")

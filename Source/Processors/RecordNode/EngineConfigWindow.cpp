@@ -166,7 +166,7 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
 
 	recordThreadToggleButton = new ToggleButton();
 
-	recordThreadToggleButton->setToggleState(AccessClass::getProcessorGraph()->getRecordNode()->getRecordThreadStatus(), dontSendNotification);
+	recordThreadToggleButton->setToggleState(CoreServices::RecordNode::getRecordThreadStatus(), dontSendNotification);
 	recordThreadToggleButton->setBounds(10, 10 + 40 * (i + 1), 100, 20);
 	recordThreadToggleButton->addListener(this);
 	addAndMakeVisible(recordThreadToggleButton);
@@ -204,14 +204,23 @@ void EngineConfigComponent::buttonClicked(Button* b)
 				"Yes", "No");
 
 			if (response == 1)
-				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 0.0);
+            {
+                for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
+                {   
+                    node->setParameter(3,0.0);
+                }
+            }
 			else
 				b->setToggleState(true, juce::NotificationType::dontSendNotification);
 
 
 		}
-		else {
-			AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 1.0);
+		else 
+        {
+			for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
+            {   
+                node->setParameter(3,0.0);
+            }
 		}
 		
 	}

@@ -81,6 +81,8 @@ PLUGIN_API float getSoftwareSampleRate();
 /** Set new recording directory */
 PLUGIN_API void setRecordingDirectory(String dir);
 
+PLUGIN_API File getRecordingDirectory();
+
 /** Create new recording directory */
 PLUGIN_API void createNewRecordingDir();
 
@@ -90,6 +92,9 @@ PLUGIN_API void setPrependTextToRecordingDir(String text);
 /** Manually set the text to be appended to the recording directory */
 PLUGIN_API void setAppendTextToRecordingDir(String text);
 
+//** Get array of available record engines
+PLUGIN_API std::vector<RecordEngineManager*> getAvailableRecordEngines();
+
 /** Gets the ID fo the selected Record Engine*/
 PLUGIN_API String getSelectedRecordEngineId();
 
@@ -97,6 +102,8 @@ PLUGIN_API String getSelectedRecordEngineId();
 Return true if there is an engine with the specified ID and it's possible to
 change the current engine or false otherwise. */
 PLUGIN_API bool setSelectedRecordEngineId(String id);
+
+PLUGIN_API int getSelectedRecordEngineIdx();
 
 namespace RecordNode
 {
@@ -107,6 +114,7 @@ PLUGIN_API void createNewrecordingDir();
 PLUGIN_API File getRecordingPath();
 PLUGIN_API int getRecordingNumber();
 PLUGIN_API int getExperimentNumber();
+PLUGIN_API bool getRecordThreadStatus();
 
 /* Spike related methods. See record engine documentation */
 

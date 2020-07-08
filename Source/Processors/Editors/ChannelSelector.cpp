@@ -48,18 +48,21 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     , paramsToggled(true), paramsActive(true), recActive(true), radioStatus(false), isNotSink(createButtons)
     , moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
-    // initialize buttons
+    /*
     audioButton = new EditorButton("AUDIO", titleFont);
     audioButton->addListener(this);
     addAndMakeVisible(audioButton);
     if (!createButtons)
         audioButton->setState(false);
+    */
 
+    /*
     recordButton = new EditorButton("REC", titleFont);
     recordButton->addListener(this);
     addAndMakeVisible(recordButton);
     if (!createButtons)
         recordButton->setState(false);
+    */
 
     paramsButton = new EditorButton("PARAM", titleFont);
     paramsButton->addListener(this);
@@ -82,8 +85,8 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 
     // Buttons managers
     // ====================================================================
-    addAndMakeVisible (audioButtonsManager);
-    addAndMakeVisible (recordButtonsManager);
+    //addAndMakeVisible (audioButtonsManager);
+    //addAndMakeVisible (recordButtonsManager);
     addAndMakeVisible (parameterButtonsManager);
 
     // Enable fast mode selection for buttons
@@ -280,10 +283,13 @@ void ChannelSelector::refreshButtonBoundaries()
     /*
       audio,record and param tabs
     */
-    const int tabButtonWidth = getWidth() / 3;
+    //const int tabButtonWidth = getWidth() / 3;
+    const int tabButtonWidth = getWidth();
+    /*
     audioButton->setBounds  (0, 0, tabButtonWidth, tabButtonHeight);
     recordButton->setBounds (tabButtonWidth, 0, tabButtonWidth, tabButtonHeight);
-    paramsButton->setBounds (tabButtonWidth * 2, 0, tabButtonWidth, tabButtonHeight);
+    */
+    paramsButton->setBounds (0, 0, tabButtonWidth, tabButtonHeight);
 
     /*
       All and None buttons

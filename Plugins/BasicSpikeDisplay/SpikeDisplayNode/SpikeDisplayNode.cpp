@@ -81,11 +81,11 @@ bool SpikeDisplayNode::enable()
     std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
 
-	CoreServices::RecordNode::registerSpikeSource(this);
+	//CoreServices::RecordNode::registerSpikeSource(this);
 	for (int i = 0; i < spikeChannelArray.size(); i ++)
 	{
 		Electrode* elec = electrodes[i];
-		elec->recordIndex = CoreServices::RecordNode::addSpikeElectrode(spikeChannelArray[i]);
+		//elec->recordIndex = CoreServices::RecordNode::addSpikeElectrode(spikeChannelArray[i]);
 	}
 
     editor->enable();
@@ -241,9 +241,9 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMess
 	if (aboveThreshold)
 	{
 		// save spike
-		if (isRecording)
+		if (false)
 		{
-			CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
+			//CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
 		}
 		// add to buffer
 		if (e->currentSpikeIndex < displayBufferSize)

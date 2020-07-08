@@ -758,6 +758,7 @@ int GenericProcessor::processEventBuffer()
 
 int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
+
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
 		//Since adding events to the buffer inside this loop could be dangerous, create a temporal event buffer
@@ -1167,6 +1168,7 @@ bool GenericProcessor::isSink()          const  { return getProcessorType() == P
 bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER; }
 bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER; }
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
+bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == PROCESSOR_TYPE_RECORD_NODE; }
 
 int GenericProcessor::getNumParameters()    { return parameters.size(); }
 int GenericProcessor::getNumPrograms()      { return 0; }

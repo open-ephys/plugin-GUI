@@ -373,6 +373,8 @@ public:
     void getStateInformation (juce::MemoryBlock&) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    bool isPlaying;
+
 private:
     //==============================================================================
     template <typename floatType>

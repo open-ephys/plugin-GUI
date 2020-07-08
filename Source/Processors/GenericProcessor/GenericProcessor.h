@@ -328,6 +328,9 @@ public:
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
     virtual bool isUtility() const;
 
+    /** Returns true if a processor is a record node, false otherwise. */
+    virtual bool isRecordNode() const;
+
     /** Returns true if a processor is able to send its output to a given processor.
 
         Ideally, this should always return true, but there may be special cases

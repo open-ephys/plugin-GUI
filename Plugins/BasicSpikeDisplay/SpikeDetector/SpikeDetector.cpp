@@ -118,7 +118,6 @@ void SpikeDetector::updateSettings()
 
 bool SpikeDetector::addElectrode (int nChans, int electrodeID)
 {
-    std::cout << "Adding electrode with " << nChans << " channels." << std::endl;
 
     int firstChan;
 
@@ -402,6 +401,7 @@ void SpikeDetector::addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
 
 void SpikeDetector::process (AudioSampleBuffer& buffer)
 {
+
     // cycle through electrodes
     SimpleElectrode* electrode;
     dataBuffer = &buffer;
@@ -435,7 +435,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
                     if (-getNextSample (currentChannel) > *(electrode->thresholds + chan)) // trigger spike
                     {
-                        //std::cout << "Spike detected on electrode " << i << std::endl;
+
                         // find the peak
                         int peakIndex = sampleIndex;
 
@@ -446,7 +446,23 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                         }
 
                         peakIndex = sampleIndex;
+
+                        /* DEBUG SPIPKE DATA */
+                        /*
+
+                        std::cout << "Peak detected @ " << sampleIndex << std::endl;
+
                         sampleIndex -= (electrode->prePeakSamples + 1);
+                        for (int j = 0; j < electrode->prePeakSamples + electrode->postPeakSamples + 1; j++)
+                        {
+                            std::cout << getCurrentSample(currentChannel);
+                            if (sampleIndex == peakIndex)
+                                std::cout << "**PEAK**";
+                            std::cout << std::endl;
+                            sampleIndex++;
+                        }
+                        sampleIndex = peakIndex - (electrode->prePeakSamples + 1);
+                        */
 
 						const SpikeChannel* spikeChan = getSpikeChannel(i);
 						SpikeEvent::SpikeBuffer spikeData(spikeChan);

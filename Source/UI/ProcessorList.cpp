@@ -38,6 +38,8 @@ enum colorIds
 	SINK_COLOR = 803,
 	SOURCE_COLOR = 804,
 	UTILITY_COLOR = 805,
+	RECORD_COLOR = 806,
+	AUDIO_COLOR = 807
 };
 
 	ProcessorList::ProcessorList()
@@ -53,10 +55,17 @@ enum colorIds
 	setColour(SINK_COLOR, Colour(0, 166, 81));
 	setColour(SOURCE_COLOR, Colour(241, 90, 41));
 	setColour(UTILITY_COLOR, Colour(147, 149, 152));
+	setColour(RECORD_COLOR, Colour(255, 0, 0));
+	setColour(AUDIO_COLOR, Colour(0,0,0));
+
 	ProcessorListItem* sources = new ProcessorListItem("Sources");
 	ProcessorListItem* filters = new ProcessorListItem("Filters");
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
+	ProcessorListItem* record = new ProcessorListItem("Recording");
+	//TODO:
+	//ProcessorListItem* audio = new ProcessorListItem("Audio");
+
 
 
 	baseItem = new ProcessorListItem("Processors");
@@ -64,6 +73,9 @@ enum colorIds
 	baseItem->addSubItem(filters);
 	baseItem->addSubItem(sinks);
 	baseItem->addSubItem(utilities);
+	baseItem->addSubItem(record);
+	//TODO:
+	//baseItem->addSubItem(audio);
 
 	// set parent names / colors
 	baseItem->setParentName("Processors");
@@ -385,6 +397,10 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				{
 					currentColor = SINK_COLOR;
 				}
+				else if (listItem->getName().equalsIgnoreCase("Record Node"))
+				{
+					currentColor = RECORD_COLOR;
+				}
 				else
 				{
 					return;
@@ -512,7 +528,7 @@ void ProcessorList::saveStateToXml(XmlElement* xml)
 {
 	XmlElement* processorListState = xml->createNewChildElement("PROCESSORLIST");
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		XmlElement* colorState = processorListState->createNewChildElement("COLOR");
 
@@ -534,6 +550,12 @@ void ProcessorList::saveStateToXml(XmlElement* xml)
 				break;
 			case 4:
 				id = UTILITY_COLOR;
+				break;
+			case 5: 
+				id = RECORD_COLOR;
+				break;
+			case 6:
+				id = AUDIO_COLOR;
 				break;
 			default:
 				// do nothing
@@ -581,6 +603,8 @@ Array<Colour> ProcessorList::getColours()
 	c.add(findColour(FILTER_COLOR));
 	c.add(findColour(SINK_COLOR));
 	c.add(findColour(UTILITY_COLOR));
+	c.add(findColour(RECORD_COLOR));
+	c.add(findColour(AUDIO_COLOR));
 	return c;
 }
 
@@ -605,6 +629,11 @@ void ProcessorList::setColours(Array<Colour> c)
 			case 4:
 				setColour(UTILITY_COLOR, c[i]);
 				break;
+			case 5: 
+				setColour(RECORD_COLOR, c[i]);
+				break;
+			case 6: 
+				setColour(AUDIO_COLOR, c[i]);
 			default:
 				;// do nothing
 		}
@@ -618,6 +647,8 @@ void ProcessorList::fillItemList()
 	baseItem->getSubItem(1)->clearSubItems(); //Filters
 	baseItem->getSubItem(2)->clearSubItems(); //sinks
 	baseItem->getSubItem(3)->clearSubItems(); //Utilities
+	baseItem->getSubItem(4)->clearSubItems(); //Record
+	//baseItem->getSubItem(5)->clearSubItems(); //Audio
 
 	for (int pClass = 0; pClass < 3; pClass++)
 	{
@@ -629,7 +660,15 @@ void ProcessorList::fillItemList()
 			ProcessorManager::getProcessorNameAndType((ProcessorClasses)pClass, i, name, type);
 			if (type > -1 && type < 4)
 			{
-				baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
+				if (name == "Record Node")
+				{
+					baseItem->getSubItem(4)->addSubItem(new ProcessorListItem(name, i, pClass));
+				}
+				else
+				{
+					baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
+				}
+
 			}
 		}
 	}
@@ -734,6 +773,14 @@ void ProcessorListItem::setParentName(const String& name)
 	else if (parentName.equalsIgnoreCase("Sources"))
 	{
 		colorId = SOURCE_COLOR;
+	}
+	else if (parentName.equalsIgnoreCase("Recording"))
+	{
+		colorId = RECORD_COLOR;
+	}
+	else if (parentName.equalsIgnoreCase("Audio"))
+	{
+		colorId = AUDIO_COLOR;
 	}
 	else
 	{

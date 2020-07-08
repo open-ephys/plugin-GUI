@@ -385,7 +385,10 @@ private:
                                     Array<void*>& renderingOps,
                                     const int ourRenderingIndex)
     {
+
+    
         AudioProcessor& processor = *node.getProcessor();
+
         const int numIns  = processor.getTotalNumInputChannels();
         const int numOuts = processor.getTotalNumOutputChannels();
         const int totalChans = jmax (numIns, numOuts);
@@ -394,6 +397,8 @@ private:
         int midiBufferToUse = -1;
 
         int maxLatency = getInputLatencyForNode (node.nodeId);
+
+        bool isBufferNeededLaterOverride = false;
 
         for (int inputChan = 0; inputChan < numIns; ++inputChan)
         {
@@ -425,7 +430,12 @@ private:
                 }
                 else
                 {
+
+#if defined(__APPLE__)
                     bufIndex = getFreeBuffer (false);
+#else
+                    bufIndex = inputChan + 1;
+#endif
                     renderingOps.add (new ClearChannelOp (bufIndex));
                 }
             }
@@ -444,14 +454,32 @@ private:
                     jassert (bufIndex >= 0);
                 }
 
+                if (inputChan == 0)
+                {
+
+                    isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex,
+                            inputChan,
+                            srcNode, srcChan);
+
+                    /*
+                    //If node is in first branch after the splitter, isBufferNeededLater = true 
+                    //Else if node is in second branch after a splitter, isBufferNeededLater = false
+                    String processorName = "???"; 
+
+                    if (node.nodeId > 100 && node.nodeId < 200)
+                        processorName = processor.getName();
+
+                    std::cout << "[createRenderingOpsForNode:457] Node: " << processorName << " channel: " << inputChan << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+                    */
+                }
+
                 if (inputChan < numOuts
-                     && isBufferNeededLater (ourRenderingIndex,
-                                             inputChan,
-                                             srcNode, srcChan))
+                     && isBufferNeededLaterOverride)
                 {
                     // can't mess up this channel because it's needed later by another node, so we
                     // need to use a copy of it..
                     const int newFreeBuffer = getFreeBuffer (false);
+                    std::cout << "getFreeBuffer[478]: channel: " << inputChan << " New free buffer index: " << newFreeBuffer << std::endl;
 
                     renderingOps.add (new CopyChannelOp (bufIndex, newFreeBuffer));
 
@@ -472,14 +500,39 @@ private:
 
                 for (int i = 0; i < sourceNodes.size(); ++i)
                 {
+
                     const int sourceBufIndex = getBufferContaining (sourceNodes.getUnchecked(i),
                                                                     sourceOutputChans.getUnchecked(i));
 
-                    if (sourceBufIndex >= 0
-                        && ! isBufferNeededLater (ourRenderingIndex,
+                    if (inputChan == 0)
+                    {
+
+                        isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex,
+                                                    inputChan,
+                                                    sourceNodes.getUnchecked(i),
+                                                    sourceOutputChans.getUnchecked(i));
+
+                    }
+
+                    /*
+                    String processorName = "???"; 
+
+                    if (node.nodeId > 100 && node.nodeId < 200)
+                        processorName = processor.getName();
+
+                    bool isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex,
                                                   inputChan,
                                                   sourceNodes.getUnchecked(i),
-                                                  sourceOutputChans.getUnchecked(i)))
+                                                  sourceOutputChans.getUnchecked(i));
+
+                    //If node is in first branch after the splitter, isBufferNeededLater = true 
+                    //Else if node is in second branch after a splitter, isBufferNeededLater = false
+
+                    std::cout << "[createRenderingOpsForNode:498] Node: " << processorName << " channel: " << inputChan << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+                    */
+
+                    if (sourceBufIndex >= 0
+                        && ! isBufferNeededLaterOverride)
                     {
                         // we've found one of our input chans that can be re-used..
                         reusableInputIndex = i;
@@ -497,6 +550,8 @@ private:
                 {
                     // can't re-use any of our input chans, so get a new one and copy everything into it..
                     bufIndex = getFreeBuffer (false);
+                    std::cout << "getFreeBuffer[549]: channel: " << inputChan << " bufIndex: " << bufIndex << std::endl;
+                    
                     jassert (bufIndex != 0);
 
                     const int srcIndex = getBufferContaining (sourceNodes.getUnchecked (0),
@@ -530,15 +585,24 @@ private:
 
                             if (nodeDelay < maxLatency)
                             {
-                                if (! isBufferNeededLater (ourRenderingIndex, inputChan,
+
+                                bool isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex, inputChan,
                                                            sourceNodes.getUnchecked(j),
-                                                           sourceOutputChans.getUnchecked(j)))
+                                                           sourceOutputChans.getUnchecked(j));
+
+                                //If node is in first branch after the splitter, isBufferNeededLater = true 
+                                //Else if node is in second branch after a splitter, isBufferNeededLater = false
+
+                                std::cout << "[createRenderingOpsForNode:560] Node: " << processor.getName() << " channel: " << inputChan << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+
+                                if (! isBufferNeededLaterOverride)
                                 {
                                     renderingOps.add (new DelayChannelOp (srcIndex, maxLatency - nodeDelay));
                                 }
                                 else // buffer is reused elsewhere, can't be delayed
                                 {
                                     const int bufferToDelay = getFreeBuffer (false);
+                                    std::cout << "getFreeBuffer[601]: channel: " << inputChan << " bufferToDelay: " << bufferToDelay << std::endl;
                                     renderingOps.add (new CopyChannelOp (srcIndex, bufferToDelay));
                                     renderingOps.add (new DelayChannelOp (bufferToDelay, maxLatency - nodeDelay));
                                     srcIndex = bufferToDelay;
@@ -560,7 +624,11 @@ private:
 
         for (int outputChan = numIns; outputChan < numOuts; ++outputChan)
         {
+#if defined(__APPLE__)
             const int bufIndex = getFreeBuffer (false);
+#else
+            const int bufIndex = outputChan + 1;
+#endif
             jassert (bufIndex != 0);
             audioChannelsToUse.add (bufIndex);
 
@@ -582,6 +650,7 @@ private:
         {
             // No midi inputs..
             midiBufferToUse = getFreeBuffer (true); // need to pick a buffer even if the processor doesn't use midi
+            
 
             if (processor.acceptsMidi() || processor.producesMidi())
                 renderingOps.add (new ClearMidiBufferOp (midiBufferToUse));
@@ -594,14 +663,18 @@ private:
 
             if (midiBufferToUse >= 0)
             {
-                if (isBufferNeededLater (ourRenderingIndex,
+
+                bool isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex,
                                          AudioProcessorGraph::midiChannelIndex,
                                          midiSourceNodes.getUnchecked(0),
-                                         AudioProcessorGraph::midiChannelIndex))
+                                         AudioProcessorGraph::midiChannelIndex);
+
+                if (isBufferNeededLaterOverride)
                 {
                     // can't mess up this channel because it's needed later by another node, so we
                     // need to use a copy of it..
                     const int newFreeBuffer = getFreeBuffer (true);
+                    std::cout << "getFreeBuffer[670]: outputChan: newFreeBuffer: " << newFreeBuffer << std::endl;
                     renderingOps.add (new CopyMidiBufferOp (midiBufferToUse, newFreeBuffer));
                     midiBufferToUse = newFreeBuffer;
                 }
@@ -610,6 +683,7 @@ private:
             {
                 // probably a feedback loop, so just use an empty one..
                 midiBufferToUse = getFreeBuffer (true); // need to pick a buffer even if the processor doesn't use midi
+                std::cout << "getFreeBuffer[679]: midiBufferToUse: " << midiBufferToUse << std::endl;
             }
         }
         else
@@ -622,11 +696,18 @@ private:
                 const int sourceBufIndex = getBufferContaining (midiSourceNodes.getUnchecked(i),
                                                                 AudioProcessorGraph::midiChannelIndex);
 
-                if (sourceBufIndex >= 0
-                     && ! isBufferNeededLater (ourRenderingIndex,
+                bool isBufferNeededLaterOverride = isBufferNeededLater (ourRenderingIndex,
                                                AudioProcessorGraph::midiChannelIndex,
                                                midiSourceNodes.getUnchecked(i),
-                                               AudioProcessorGraph::midiChannelIndex))
+                                               AudioProcessorGraph::midiChannelIndex);
+
+                                //If node is in first branch after the splitter, isBufferNeededLater = true 
+                                //Else if node is in second branch after a splitter, isBufferNeededLater = false
+
+                //std::cout << "[createRenderingOpsForNode:668] MIDI Node: " << processor.getName() << " channel: " << midiSourceNodes.getUnchecked(i) << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+
+                if (sourceBufIndex >= 0
+                     && ! isBufferNeededLaterOverride)
                 {
                     // we've found one of our input buffers that can be re-used..
                     reusableInputIndex = i;
@@ -726,12 +807,37 @@ private:
 
     void markAnyUnusedBuffersAsFree (const int stepIndex)
     {
+
+        //enum { freeNodeID = 0xffffffff, zeroNodeID = 0xfffffffe };
+
+        bool isBufferNeededLaterOverride = false;
+
         for (int i = 0; i < nodeIds.size(); ++i)
         {
-            if (isNodeBusy (nodeIds.getUnchecked(i))
-                 && ! isBufferNeededLater (stepIndex, -1,
+
+            if (channels.getUnchecked(i) == 0)
+            {
+                isBufferNeededLaterOverride = isBufferNeededLater (stepIndex, -1,
                                            nodeIds.getUnchecked(i),
-                                           channels.getUnchecked(i)))
+                                           channels.getUnchecked(i));
+
+                /*
+                //If node is in first branch after the splitter, isBufferNeededLater = true 
+                //Else if node is in second branch after a splitter, isBufferNeededLater = false
+                String name = "???";
+                if (nodeIds.getUnchecked(i) >= 100 && nodeIds.getUnchecked(i) < 200)
+                    name = graph.getNodeForId(nodeIds.getUnchecked(i))->getProcessor()->getName();
+                else if (nodeIds.getUnchecked(i) == (uint32)freeNodeID)
+                    name = "Free Node";
+                else if (nodeIds.getUnchecked(i) == (uint32)zeroNodeID)
+                    name = "Zero Node";
+                
+                std::cout << "[markAnyUnusedBuffersAsFree:781] Node: " << name << " channel: " << channels.getUnchecked(i) << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+                */
+            }
+
+            if (isNodeBusy (nodeIds.getUnchecked(i))
+                 && ! isBufferNeededLaterOverride)
             {
                 nodeIds.set (i, (uint32) freeNodeID);
             }
@@ -739,10 +845,25 @@ private:
 
         for (int i = 0; i < midiNodeIds.size(); ++i)
         {
-            if (isNodeBusy (midiNodeIds.getUnchecked(i))
-                 && ! isBufferNeededLater (stepIndex, -1,
+
+            bool isBufferNeededLaterOverride = isBufferNeededLater (stepIndex, -1,
                                            midiNodeIds.getUnchecked(i),
-                                           AudioProcessorGraph::midiChannelIndex))
+                                           AudioProcessorGraph::midiChannelIndex);
+
+            /*
+            String name = "???";
+            if (midiNodeIds.getUnchecked(i) >= 100 && midiNodeIds.getUnchecked(i) < 200)
+                name = graph.getNodeForId(midiNodeIds.getUnchecked(i))->getProcessor()->getName();
+            else if (midiNodeIds.getUnchecked(i) == (uint32)freeNodeID)
+                name = "Free Node";
+            else if (midiNodeIds.getUnchecked(i) == (uint32)zeroNodeID)
+                name = "Zero Node";
+
+            std::cout << "[markAnyUnusedBuffersAsFree:800] MIDI Node: " << name << " channel: " << midiNodeIds.getUnchecked(i) << " isBufferNeededLater: " << isBufferNeededLaterOverride << std::endl;
+            */
+
+            if (isNodeBusy (midiNodeIds.getUnchecked(i))
+                 && ! isBufferNeededLaterOverride)
             {
                 midiNodeIds.set (i, (uint32) freeNodeID);
             }
@@ -1037,7 +1158,7 @@ struct AudioProcessorGraph::AudioProcessorGraphBufferHelpers
 //==============================================================================
 AudioProcessorGraph::AudioProcessorGraph()
     : lastNodeId (0), audioBuffers (new AudioProcessorGraphBufferHelpers),
-      currentMidiInputBuffer (nullptr)
+      currentMidiInputBuffer (nullptr), isPlaying(false)
 {
 }
 
@@ -1387,6 +1508,7 @@ void AudioProcessorGraph::handleAsyncUpdate()
 //==============================================================================
 void AudioProcessorGraph::prepareToPlay (double /*sampleRate*/, int estimatedSamplesPerBlock)
 {
+
     audioBuffers->prepareInOutBuffers (jmax (1, getTotalNumOutputChannels()), estimatedSamplesPerBlock);
 
     currentMidiInputBuffer = nullptr;
@@ -1394,6 +1516,8 @@ void AudioProcessorGraph::prepareToPlay (double /*sampleRate*/, int estimatedSam
 
     clearRenderingSequence();
     buildRenderingSequence();
+
+    
 }
 
 bool AudioProcessorGraph::supportsDoublePrecisionProcessing() const

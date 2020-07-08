@@ -308,6 +308,8 @@ public:
     /** Set recording directory and update FilenameComponent */
     void setRecordingDirectory(String path);
 
+    File getRecordingDirectory();
+
     /** Return current acquisition state.*/
     bool getAcquisitionState();
 
@@ -365,11 +367,15 @@ public:
 
     void updateRecordEngineList();
 
+    std::vector<RecordEngineManager*> getAvailableRecordEngines();
+
 	String getSelectedRecordEngineId();
 
 	bool setSelectedRecordEngineId(String id);
 
     ScopedPointer<RecordButton> recordButton;
+    ScopedPointer<ComboBox> recordSelector;
+
 private:
     ScopedPointer<PlayButton> playButton;
 
@@ -379,8 +385,6 @@ private:
     ScopedPointer<FilenameComponent> filenameComponent;
     ScopedPointer<UtilityButton> newDirectoryButton;
     ScopedPointer<ControlPanelButton> cpb;
-
-    ScopedPointer<ComboBox> recordSelector;
 
     ScopedPointer<Label> prependText;
     ScopedPointer<Label> dateText;

@@ -1005,6 +1005,7 @@ SpikeEventPtr SpikeEvent::deserializeFromMessage(const MidiMessage& msg, const S
 		return event.release();
 	else
 	{
+
 		jassertfalse;
 		return nullptr;
 	}
