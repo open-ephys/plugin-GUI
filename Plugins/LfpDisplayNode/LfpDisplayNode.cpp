@@ -165,9 +165,7 @@ uint32 LfpDisplayNode::getDataSubprocId(int chan) const
 
 void LfpDisplayNode::setSubprocessor(uint32 sp)
 {
-
     subprocessorToDraw = sp;
-    resizeBuffer();
     std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;    
 }
 
