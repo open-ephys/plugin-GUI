@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RecordChannelSelector.h"
 #include "SyncChannelSelector.h"
+#include "Utils.h"
 
 class RecordThread;
 class RecordNode;
@@ -114,6 +115,9 @@ public:
 
 	void timerCallback();
 	void comboBoxChanged(ComboBox*); 
+
+	void saveCustomParameters(XmlElement* xml);
+	void loadCustomParameters(XmlElement* xml);
 
 private:
 

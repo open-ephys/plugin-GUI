@@ -122,6 +122,50 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 RecordNodeEditor::~RecordNodeEditor() {}
 
+void RecordNodeEditor::saveCustomParameters(XmlElement* xml) 
+{  
+	
+	xml->setAttribute ("Type", "RecordNode");
+
+    XmlElement* xmlNode = xml->createNewChildElement ("SETTINGS");
+    xmlNode->setAttribute ("path", dataPathLabel->getText());
+	//TODO: This should be the actual engine name instead of index in case engines added/removed between launches
+    xmlNode->setAttribute ("engine", engineSelectCombo->getSelectedId());
+	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
+	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
+
+	//Save channel states:
+	for (auto srcID : extract_keys(recordNode->dataChannelStates))
+	{
+
+		for (auto subIdx : extract_keys(recordNode->dataChannelStates[srcID]))
+		{
+
+			XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
+
+			subProcNode->setAttribute("src_id", srcID);
+			subProcNode->setAttribute("sub_idx", subIdx);
+			subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
+			subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
+
+			XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
+
+			for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+			{
+				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+			}
+
+		}
+
+	}
+	
+}
+
+void RecordNodeEditor::loadCustomParameters(XmlElement* xml) 
+{ 
+
+}
+
 void RecordNodeEditor::timerCallback()
 {
 
