@@ -16,8 +16,6 @@
 #include "Synchronizer.h"
 #include "Utils.h"
 
-#include "BinaryFormat/BinaryRecording.h"
-
 //#include "taskflow/taskflow.hpp"
 
 #define WRITE_BLOCK_LENGTH		1024
@@ -147,6 +145,8 @@ public:
 	bool recordSpikes;
 
 private:
+
+	int lastDataChannelArraySize;
 
     bool isProcessing;
 	bool isRecording;

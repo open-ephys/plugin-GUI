@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "EngineConfigWindow.h"
 #include "OpenEphysFormat/OriginalRecording.h"
+#include "BinaryFormat/BinaryRecording.h"
 
 RecordEngine::RecordEngine()
 	: manager(nullptr), recordNode(nullptr)

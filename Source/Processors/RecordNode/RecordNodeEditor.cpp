@@ -95,7 +95,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
-	eventRecord->triggerClick(); //enable event recortding by default
+	//eventRecord->triggerClick(); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -115,8 +115,10 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(writeSpeedLabel);
 	*/
 
+	/*
 	recordNode->setRecordEvents(true);
 	recordNode->setRecordSpikes(false);
+	*/
 
 }
 
@@ -162,7 +164,45 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 }
 
 void RecordNodeEditor::loadCustomParameters(XmlElement* xml) 
-{ 
+{
+
+	forEachXmlChildElement(*xml, xmlNode)
+	{
+		if (xmlNode->hasTagName("SETTINGS"))
+		{
+			
+			//Get saved record path
+		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::dontSendNotification);
+			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
+			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::dontSendNotification);
+			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::dontSendNotification);
+
+			forEachXmlChildElement(*xmlNode, subNode)
+			{
+				if (subNode->hasTagName("SUBPROCESSOR"))
+				{
+
+					int srcID = subNode->getIntAttribute("src_id");
+					int subIdx = subNode->getIntAttribute("sub_idx");
+
+					if (subNode->getBoolAttribute("isMaster"))
+					{
+						recordNode->setMasterSubprocessor(srcID, subIdx);
+					}
+					recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
+
+					XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+
+					for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+					{
+						recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH"+String(ch));
+					}
+
+				}
+			}
+
+		}
+	} 
 
 }
 

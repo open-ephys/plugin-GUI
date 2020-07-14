@@ -42,6 +42,8 @@ RecordNode::RecordNode()
 
 	recordThread = new RecordThread(this, recordEngine);
 
+	lastDataChannelArraySize = 0;
+
 }
 
 RecordNode::~RecordNode()
@@ -274,7 +276,6 @@ void RecordNode::updateSubprocessorMap()
 			eventChannelMap[sourceID][subProcID] = chan->getNumChannels();
 			syncOrderMap[sourceID][subProcID] = ch;
 			syncChannelMap[sourceID][subProcID] = 0;
-			//LOGD("Setting {", chan->getSourceNodeID(), ",", chan->getSubProcessorIdx(), "}->", ch);
 			synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
 		}
 
@@ -312,7 +313,13 @@ bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
 
 void RecordNode::updateSettings()
 {
-	updateSubprocessorMap();
+
+	if (dataChannelArray.size() != lastDataChannelArraySize)
+	{
+		lastDataChannelArraySize = dataChannelArray.size();
+		updateSubprocessorMap();
+	}
+
 }
 
 bool RecordNode::enable()
