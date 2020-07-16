@@ -11,6 +11,20 @@ using namespace std::chrono;
 
 #define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
 
+EventMonitor::EventMonitor()
+	: receivedEvents(0) {}
+
+EventMonitor::~EventMonitor() {}
+
+void EventMonitor::displayStatus()
+{
+
+	LOGD("-----------Event Monitor---------");
+	LOGD("Received events: ", receivedEvents);
+	LOGD("---------------------------------");
+
+}
+
 RecordNode::RecordNode() 
 	: GenericProcessor("Record Node"),
 	newDirectoryNeeded(true),
@@ -43,6 +57,8 @@ RecordNode::RecordNode()
 	recordThread = new RecordThread(this, recordEngine);
 
 	lastDataChannelArraySize = 0;
+
+	eventMonitor = new EventMonitor();
 
 }
 
@@ -451,6 +467,8 @@ void RecordNode::stopRecording()
 		recordThread->waitForThreadToExit(200); //2000
 	}
 
+	eventMonitor->displayStatus();
+
 }
 
 void RecordNode::setRecordEvents(bool recordEvents)
@@ -465,6 +483,8 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
+
+	eventMonitor->receivedEvents++;
 
 	if (recordEvents) 
 	{
@@ -481,6 +501,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
 		if (isRecording && eventIndex >= 0)
 			eventQueue->addEvent(event, timestamp, eventIndex);
+
 	}
 
 }

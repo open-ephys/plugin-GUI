@@ -28,6 +28,19 @@
 #define MAX_BUFFER_SIZE			40960
 #define CHANNELS_PER_THREAD		384
 
+class EventMonitor
+{
+public:
+
+	EventMonitor();
+	~EventMonitor();
+
+	int receivedEvents;
+
+	void displayStatus();
+
+};
+
 class RecordNode : public GenericProcessor, public FilenameComponentListener
 {
 
@@ -141,6 +154,8 @@ public:
 
 	bool recordEvents;
 	bool recordSpikes;
+
+	ScopedPointer<EventMonitor> eventMonitor;
 
 private:
 
