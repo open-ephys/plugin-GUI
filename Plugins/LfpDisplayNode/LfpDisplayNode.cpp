@@ -135,12 +135,12 @@ void LfpDisplayNode::updateSettings()
 
         ttlState[eventSourceNodes[i]] = 0;
     }
-
-    resizeBuffer();
     
     // update the editor's subprocessor selection display and sample rate
     LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
     ed->updateSubprocessorSelectorOptions();
+
+    resizeBuffer();
 }
 
 uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
