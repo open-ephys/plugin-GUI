@@ -9,7 +9,7 @@
 #include <map>
 
 #define CHANNEL_HOP 96
-#define DEBUG 1
+//#define DEBUG 1
 #define LOGD OELogger::instance().LOGDebug
 
 /* Function Timer */
@@ -45,11 +45,9 @@ public:
 	template<typename ...Args>
 	void LOGDebug(Args && ...args)
 	{
-	#ifdef DEBUG
 		std::lock_guard<std::mutex> lock(mt);
 		(std::cout << ... << args);
 		std::cout << std::endl;
-	#endif
 	}
 	
 private:

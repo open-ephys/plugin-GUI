@@ -28,8 +28,6 @@
 #define MAX_BUFFER_SIZE			40960
 #define CHANNELS_PER_THREAD		384
 
-#define DEBUG 1
-
 class RecordNode : public GenericProcessor, public FilenameComponentListener
 {
 
