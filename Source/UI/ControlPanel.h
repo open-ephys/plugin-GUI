@@ -288,10 +288,12 @@ public:
     void disableCallbacks();
 
     /** Returns a pointer to the AudioEditor.*/
-    /*  AccessClass* getAudioEditor()
-      {
-          return (AccessClass*) audioEditor;
-      }*/
+    /*
+    AccessClass* getAudioEditor()
+    {
+        return (AccessClass*) audioEditor;
+    }
+    */
 
     /** Sets whether or not the FilenameComponent is visible.*/
     void openState(bool isOpen);

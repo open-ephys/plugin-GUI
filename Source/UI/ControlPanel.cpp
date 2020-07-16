@@ -385,8 +385,8 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
         // font.setHeight(15);
     }
 
-    //audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
-    //addAndMakeVisible(audioEditor);
+    audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
+    addAndMakeVisible(audioEditor);
 
     playButton = new PlayButton();
     playButton->addListener(this);
@@ -718,7 +718,7 @@ void ControlPanel::resized()
     // ====================================================================
 
 
-    if (false) //if (audioEditor)
+    if (audioEditor) //if (audioEditor)
     {
         const bool isThereElementOnLeft = diskMeter->getBounds().getY() <= h;
         const bool isSecondRowAvailable = diskMeter->getBounds().getY() >= 2 * h;
@@ -744,7 +744,7 @@ void ControlPanel::resized()
                                         : (maxAvailableWidthForEditor - editorWidth) / 2;
         const int editorY     = (rowIndex == 0 ) ? 0 : offset1;
 
-        //audioEditor->setBounds (editorX, editorY, editorWidth, h);
+        audioEditor->setBounds (editorX, editorY, editorWidth, h);
     }
 
 
@@ -898,7 +898,7 @@ void ControlPanel::buttonClicked(Button* button)
             masterClock->stop();
             stopTimer();
             startTimer(60000); // back to refresh every minute
-            //audioEditor->enable();
+            audioEditor->enable();
             recordSelector->setEnabled(true);
             recordOptionsButton->setEnabled(true);
 
@@ -1132,7 +1132,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     controlPanelState->setAttribute("appendText",appendText->getText());
     //controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
 
-    //audioEditor->saveStateToXml(xml);
+    audioEditor->saveStateToXml(xml);
 
     /*
     XmlElement* recordEnginesState = xml->createNewChildElement("RECORDENGINES");
@@ -1187,7 +1187,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         }
     }
 
-    //audioEditor->loadStateFromXml(xml);
+    audioEditor->loadStateFromXml(xml);
 
 }
 
