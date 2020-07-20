@@ -331,7 +331,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             if (source->isEnabledState())
             {
                 // add the connections to audio and record nodes if necessary
-                // Skip this because no longer necessary
                 /*
                 if (!(source->isSink()     ||
                       source->isSplitter() ||
@@ -347,6 +346,9 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                     std::cout << "     NOT connecting to audio and record nodes." << std::endl;
                 }
                 */
+
+                //TODO: This is will be removed when probe based audio node added. 
+                connectProcessorToAudioNode(source);
 
                 // find the next dest that's not a merger or splitter
                 GenericProcessor* prev = source;
@@ -492,7 +494,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
 }
 
-void ProcessorGraph::connectProcessorToAudioAndRecordNodes(GenericProcessor* source)
+void ProcessorGraph::connectProcessorToAudioNode(GenericProcessor* source)
 {
 
     /*
@@ -695,7 +697,7 @@ bool ProcessorGraph::enableProcessors()
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented
 	//getRecordNode()->updateRecordChannelIndexes();
-	//getAudioNode()->updateRecordChannelIndexes();
+	getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
 	m_startSoftTimestamp = Time::getHighResolutionTicks();
