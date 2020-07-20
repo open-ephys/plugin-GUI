@@ -911,6 +911,14 @@ void ControlPanel::buttonClicked(Button* button)
     {
         if (recordButton->getToggleState())
         {
+            
+            if (!graph->hasRecordNode())
+            {
+                CoreServices::sendStatusMessage("Please insert at least one Record Node to start recording!");
+                recordButton->setToggleState(false, dontSendNotification);
+                return;
+            }
+            
             if (playButton->getToggleState())
             {
                 startRecording();

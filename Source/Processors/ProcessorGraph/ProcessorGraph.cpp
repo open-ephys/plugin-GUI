@@ -194,6 +194,22 @@ void ProcessorGraph::restoreParameters()
 
 }
 
+bool ProcessorGraph::hasRecordNode()
+{
+    
+    Array<GenericProcessor*> processors = getListOfProcessors();
+    
+    for (auto p : processors)
+    {
+        if (p->isRecordNode())
+        {
+            return true;
+        }
+    }
+    return false;
+    
+}
+
 Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 {
 
@@ -633,7 +649,7 @@ bool ProcessorGraph::enableProcessors()
 
     bool allClear;
 
-    if (getNumNodes() < 5)
+    if (getNumNodes() < 4)
     {
         std::cout << "Not enough processors in signal chain to acquire data" << std::endl;
         AccessClass::getUIComponent()->disableCallbacks();

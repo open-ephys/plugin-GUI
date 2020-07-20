@@ -69,6 +69,8 @@ public:
     Array<RecordNode*> getRecordNodes();
     AudioNode* getAudioNode();
     MessageCenter* getMessageCenter();
+    
+    bool hasRecordNode();
 
     void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
 
