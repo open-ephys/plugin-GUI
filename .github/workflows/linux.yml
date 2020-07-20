@@ -25,6 +25,38 @@ jobs:
     - name: build
       run: |
         cd Build
-        make
+        make all
 #    - name: test
 #      run: cd build && ctest
+    - name: deploy_test
+      if: github.ref == 'refs/heads/testing'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        cd Build
+        cp -r Release open-ephys
+        cp -r ../Resources/DataFiles open-ephys
+        zipfile=open-ephys-${gui_ver}-linux-beta.zip
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/publish
+      shell: bash
+    - name: deploy_release
+      if: github.ref == 'refs/heads/master'
+      env:
+        bintrayUser: ${{ secrets.bintrayUsername }}
+        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+      run: |
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        cd Build
+        cp -r Release open-ephys
+        cp -r ../Resources/DataFiles open-ephys
+        zipfile=open-ephys-${gui_ver}-linux.zip
+        zip -r $zipfile open-ephys
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-linux/$gui_ver/$zipfile
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-linux/$gui_ver/publish
+      shell: bash
