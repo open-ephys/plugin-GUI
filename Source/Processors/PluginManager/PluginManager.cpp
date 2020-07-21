@@ -89,7 +89,7 @@ void PluginManager::loadAllPlugins()
     
 #ifdef __APPLE__
     paths.add(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/PlugIns"));
-    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/PlugIns"));
+    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/plugins"));
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
 #endif

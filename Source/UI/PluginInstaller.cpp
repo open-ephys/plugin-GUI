@@ -102,7 +102,11 @@ void PluginInstaller::closeButtonPressed()
 
 void PluginInstaller::createXmlFile()
 {
-	String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
+	File pluginsDir = getPluginsLocationDirectory().getChildFile("plugins");
+    if (!pluginsDir.isDirectory())
+        pluginsDir.createDirectory();
+    
+    String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
 	File file = getPluginsLocationDirectory().getChildFile(xmlFile);
 
 	XmlDocument doc(file);
@@ -130,7 +134,7 @@ void PluginInstaller::createXmlFile()
 		forEachXmlChildElement(*child, e)
 		{
 			File pluginPath = getPluginsLocationDirectory().getChildFile(baseStr + e->getAttributeValue(1));
-			if (!pluginPath.existsAsFile())
+			if (!pluginPath.exists())
 				elementsToRemove.add(e);	
 		}
 
