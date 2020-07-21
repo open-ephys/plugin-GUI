@@ -50,12 +50,12 @@ struct RecordProcessorInfo
 };
 
 struct EngineParameter;
-class RecordEngineManager;
 
 class RecordNode;
+class RecordEngineManager;
 
 
-class RecordEngine
+class PLUGIN_API RecordEngine
 {
 public:
 	RecordEngine();
@@ -224,7 +224,7 @@ private:
 
 typedef RecordEngine* (*EngineCreator)();
 
-struct EngineParameter
+struct PLUGIN_API EngineParameter
 {
 public:
 	enum EngineParameterType { STR, INT, FLOAT, BOOL, MULTI };
