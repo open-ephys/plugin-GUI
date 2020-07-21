@@ -114,6 +114,7 @@ AudioEditor::AudioEditor (AudioNode* owner)
     volumeSlider->setColour (Slider::thumbColourId,      COLOUR_SLIDER_TRACK_FILL);
     volumeSlider->setLookAndFeel (materialSliderLookAndFeel);
     volumeSlider->addListener (this);
+    volumeSlider->setValue(50);
     addAndMakeVisible (volumeSlider);
 
     noiseGateSlider = new Slider ("Noise Gate Slider");
