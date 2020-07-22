@@ -2,13 +2,6 @@ name: macOS
 
 on:
   push:
-    paths:
-    - ".github"
-    - "CMakeLists.txt"
-    - "Source"
-    - "JuceLibraryCode"
-    - "PluginGenerator"
-    - "Plugins"
 
 jobs:
   build-osx:
