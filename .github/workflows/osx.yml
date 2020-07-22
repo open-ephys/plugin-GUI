@@ -3,6 +3,7 @@ name: macOS
 on:
   push:
     paths:
+    - ".github"
     - "CMakeLists.txt"
     - "Source"
     - "JuceLibraryCode"
@@ -41,6 +42,7 @@ jobs:
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         cp -r ../../Resources/DataFiles open-ephys/
+        cp -r ../../Licenses open-ephys/
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/$zipfile
@@ -57,6 +59,7 @@ jobs:
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         cp -r ../../Resources/DataFiles open-ephys/
+        cp -r ../../Licenses open-ephys/
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-mac/$gui_ver/$zipfile
