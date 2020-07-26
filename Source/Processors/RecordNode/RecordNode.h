@@ -144,6 +144,8 @@ public:
     */
     float getFreeSpace() const;
 
+	void registerProcessor(const GenericProcessor* sourceNode);
+
     /** Adds a Record Engine to use
     */
     void registerRecordEngine(RecordEngine *engine);

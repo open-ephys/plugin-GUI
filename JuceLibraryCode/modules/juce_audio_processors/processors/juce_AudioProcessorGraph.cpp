@@ -914,7 +914,7 @@ private:
         }
         else
         {
-            jassert (bufferNum >= 0 && bufferNum < nodeIds.size());
+            //jassert (bufferNum >= 0 && bufferNum < nodeIds.size());
 
             nodeIds.set (bufferNum, nodeId);
             channels.set (bufferNum, outputIndex);

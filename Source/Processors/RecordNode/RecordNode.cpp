@@ -340,8 +340,21 @@ void RecordNode::updateSettings()
 
 bool RecordNode::enable()
 {
+
+	if (hasRecorded)
+	{
+		hasRecorded = false;
+		experimentNumber++;
+		settingsNeeded = true;
+	}
+
+	recordingNumber = -1;
+	recordEngine->configureEngine();
+	recordEngine->startAcquisition();
+
     synchronizer->reset();
     return true;
+
 }
 
 void RecordNode::startRecording()
@@ -358,7 +371,9 @@ void RecordNode::startRecording()
 	int procIndex = -1;
 	int chanSubIdx = 0;
 
-	int recordedProcessorIdx = -1;
+	int recordedProcessorIdx = -1;	
+
+	LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans);
 
 	for (int ch = 0; ch < totChans; ++ch)
 	{
@@ -397,7 +412,7 @@ void RecordNode::startRecording()
 	validBlocks.insertMultiple(0, false, getNumInputs());
 
 	recordEngine->registerRecordNode(this);
-	recordEngine->resetChannels();
+	//recordEngine->resetChannels();
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 	recordThread->setChannelMap(channelMap);
 	recordThread->setFTSChannelMap(ftsChannelMap);
@@ -612,6 +627,14 @@ bool RecordNode::isFirstChannelInRecordedSubprocessor(int ch)
 }
 
 //TODO: Need to validate these methods
+
+void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
+{
+	settings.numInputs += sourceNode->getNumOutputs();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
+
+	recordEngine->registerProcessor(sourceNode);
+}
 
 void RecordNode::registerSpikeSource(const GenericProcessor *processor)
 {

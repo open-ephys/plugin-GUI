@@ -971,7 +971,7 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
         if (recordEngines[lastEngineIndex]->isWindowOpen())
             recordEngines[lastEngineIndex]->toggleConfigWindow();
     }
-    RecordEngine* re;
+    ScopedPointer<RecordEngine> re;
     //AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
     if (combo->getSelectedId() > 0)
     {
