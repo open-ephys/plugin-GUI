@@ -28,6 +28,7 @@
 #include "../AccessClass.h"
 #include "../Processors/PluginManager/PluginManager.h"
 #include "ProcessorList.h"
+#include "ControlPanel.h"
 //-----------------------------------------------------------------------
 
 static inline File getPluginsLocationDirectory() {
@@ -1134,14 +1135,14 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		}
 
 		// Uncompress the downloaded plugin's zip file
-		Result rs = pluginZip.uncompressTo(pluginsPath);
+		Result rs = pluginZip.uncompressTo(pluginsPath, true);
 
 		pluginFile.deleteFile(); // delete zip after uncompressing		
 
 		if (rs.failed())
 		{
 			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
-			return 3;
+			return 2;
 		}
 
 		// if the plugin is not a dependency, load the plugin and show it in processor list	
@@ -1156,6 +1157,8 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 			AccessClass::getProcessorList()->fillItemList();
 			AccessClass::getProcessorList()->repaint();
+
+			AccessClass::getControlPanel()->updateRecordEngineList();
 			
 			return 1;
 		}
