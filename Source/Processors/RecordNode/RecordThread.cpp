@@ -118,10 +118,10 @@ void RecordThread::run()
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
 
-	bool hasSynchronizer = true;
+	bool useSynchronizer = m_engine->getEngineID() == "RAWBINARY";
 
 	//3-Normal loop
-	if (hasSynchronizer) 
+	if (useSynchronizer)
 	{
 		while (!threadShouldExit())
 			writeSynchronizedData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
