@@ -735,7 +735,7 @@ PluginInfoComponent::PluginInfoComponent()
 
 	addChildComponent(downloadButton);
 	downloadButton.setButtonText("Install");
-	downloadButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
+	downloadButton.setColour(TextButton::buttonColourId, Colours::skyblue);
 	downloadButton.addListener(this);
 
 	addChildComponent(documentationButton);
