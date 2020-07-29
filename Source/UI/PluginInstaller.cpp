@@ -602,6 +602,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 	selectedPluginInfo.pluginName = pluginName;
 	selectedPluginInfo.displayName = pluginLabels[pluginName][0];
+	selectedPluginInfo.type = pluginLabels[pluginName][1];
 	selectedPluginInfo.owner = owner;
 	selectedPluginInfo.latestVersion = latest_version;
 	selectedPluginInfo.lastUpdated = updated;
@@ -797,7 +798,18 @@ void PluginInfoComponent::buttonClicked(Button* button)
 			var depReply = JSON::parse(depResponse);
 			String ver = depReply.getProperty("name", "NULL");
 
-			downloadPlugin(pInfo.dependencies[i], ver, true);
+			int retCode = downloadPlugin(pInfo.dependencies[i], ver, true);
+
+			if (retCode == 2)
+			{
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+												   "Plugin Installer " + pInfo.dependencies[i], 
+												   "Could not install dependency: " + pInfo.dependencies[i] 
+												   + ". Please contact the developers.");
+				
+				std::cout << "Download Failed!!" << std::endl;
+				return;
+			}
 		}
 		
 		// download the plugin
@@ -1039,8 +1051,23 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 		URL fileUrl(fileDownloadURL);
 
+		int statusC;
+		StringPairArray responseHeaders;
+
 		//Create input stream from the plugin's zip file URL
-		ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false);
+		ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, String(), 1000, &responseHeaders, &statusC, 5, String());		
+		String newLocation = responseHeaders.getValue("Location", "NULL");
+
+		// ZIP URL Location changed, use the new location
+		if(newLocation != "NULL")
+		{
+			fileUrl = newLocation;
+			fileStream = fileUrl.createInputStream(false);
+		}
+
+		// ZIP file empty, return.
+		if(fileStream->getTotalLength() == 0)
+			return 0;
 
 		//Get path to plugins directory
 		File pluginsPath = getPluginsLocationDirectory();
@@ -1141,7 +1168,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 		if (rs.failed())
 		{
-			std::cout << "Uncompressing plugin zip file failed!!" << std::endl;
+			std::cout << rs.getErrorMessage() << std::endl;
 			return 2;
 		}
 
@@ -1158,7 +1185,8 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			AccessClass::getProcessorList()->fillItemList();
 			AccessClass::getProcessorList()->repaint();
 
-			AccessClass::getControlPanel()->updateRecordEngineList();
+			if(pInfo.type == "Record Engine")
+				AccessClass::getControlPanel()->updateRecordEngineList();
 			
 			return 1;
 		}

@@ -51,6 +51,7 @@ struct SelectedPluginInfo
 {
     String pluginName;
     String displayName;
+    String type;
     String owner;
     String latestVersion;
     String installedVersion;
