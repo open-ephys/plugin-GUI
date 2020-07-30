@@ -1168,8 +1168,17 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 		if (rs.failed())
 		{
-			std::cout << rs.getErrorMessage() << std::endl;
-			return 2;
+			String errorMsg = rs.getErrorMessage();
+
+			if(errorMsg.containsIgnoreCase("Failed to write to target file") && isDependency)
+			{
+				std::cout << "Dependency already installed..." << std::endl;
+			}
+			else
+			{
+				std::cout << rs.getErrorMessage() << std::endl;
+				return 2;
+			}
 		}
 
 		// if the plugin is not a dependency, load the plugin and show it in processor list	
