@@ -250,7 +250,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.name = pInfo.processor.name;
 			info.type = pInfo.processor.type;
 			info.libIndex = libArray.size()-1;
-			processorPlugins.add(info);
+			Plugin::ProcessorInfo pi = getProcessorInfo(String::fromUTF8(info.name));
+			if(pi.name == nullptr)
+				processorPlugins.add(info);
 			break;
 		}
 		case Plugin::PLUGIN_TYPE_RECORD_ENGINE:
@@ -259,7 +261,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.recordEngine.creator;
 			info.name = pInfo.recordEngine.name;
 			info.libIndex = libArray.size() - 1;
-			recordEnginePlugins.add(info);
+			Plugin::RecordEngineInfo rei = getRecordEngineInfo(String::fromUTF8(info.name));
+			if(rei.name == nullptr)
+				recordEnginePlugins.add(info);
 			break;
 		}
 		case Plugin::PLUGIN_TYPE_DATA_THREAD:
@@ -268,7 +272,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.dataThread.creator;
 			info.name = pInfo.dataThread.name;
 			info.libIndex = libArray.size() - 1;
-			dataThreadPlugins.add(info);
+			Plugin::DataThreadInfo dti = getDataThreadInfo(String::fromUTF8(info.name));
+			if(dti.name == nullptr)
+				dataThreadPlugins.add(info);
 			break;
 		}
 		case Plugin::PLUGIN_TYPE_FILE_SOURCE:
@@ -278,7 +284,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.name = pInfo.fileSource.name;
 			info.extensions = pInfo.fileSource.extensions;
 			info.libIndex = libArray.size();
-			fileSourcePlugins.add(info);
+			Plugin::FileSourceInfo fsi = getFileSourceInfo(String::fromUTF8(info.name));
+			if(fsi.name == nullptr)
+				fileSourcePlugins.add(info);
 			break;
 		}
 		default:

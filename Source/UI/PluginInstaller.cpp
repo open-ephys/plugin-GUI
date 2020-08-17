@@ -27,8 +27,14 @@
 #include "../CoreServices.h"
 #include "../AccessClass.h"
 #include "../Processors/PluginManager/PluginManager.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "ProcessorList.h"
 #include "ControlPanel.h"
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
+
 //-----------------------------------------------------------------------
 
 static inline File getPluginsLocationDirectory() {
@@ -785,7 +791,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 {
 	if (button == &downloadButton)
 	{
-		std::cout << "Downloading Plugin: " << pInfo.pluginName << "...  ";
+		std::cout << "\nDownloading Plugin: " << pInfo.pluginName << "...  " << std::endl;
 		
 		// If a plugin has depencies outside its zip, download them
 		for (int i = 0; i < pInfo.dependencies.size(); i++)
@@ -803,9 +809,9 @@ void PluginInfoComponent::buttonClicked(Button* button)
 			if (retCode == 2)
 			{
 				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.dependencies[i], 
-												   "Could not install dependency: " + pInfo.dependencies[i] 
-												   + ". Please contact the developers.");
+												"[Plugin Installer] " + pInfo.dependencies[i], 
+												"Could not install dependency: " + pInfo.dependencies[i] 
+												+ ". Please contact the developers.");
 				
 				std::cout << "Download Failed!!" << std::endl;
 				return;
@@ -818,8 +824,8 @@ void PluginInfoComponent::buttonClicked(Button* button)
 		if (dlReturnCode == SUCCESS)
 		{	
 			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   pInfo.pluginName + " Installed Successfully");
+											"[Plugin Installer] " + pInfo.displayName, 
+											pInfo.displayName + " Installed Successfully");
 
 			std::cout << "Download Successfull!!" << std::endl;
 
@@ -830,54 +836,65 @@ void PluginInfoComponent::buttonClicked(Button* button)
 		else if (dlReturnCode == ZIP_NOTFOUND)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   "Could not find the ZIP file for " + pInfo.pluginName + ". Please contact the developers.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Could not find the ZIP file for " + pInfo.displayName 
+											+ ". Please contact the developers.");
 
 			std::cout << "Download Failed!!" << std::endl;
 		}
 		else if (dlReturnCode == UNCMP_ERR)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   "Could not uncompress the ZIP file. Please try again.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Could not uncompress the ZIP file. Please try again.");
 
 			std::cout << "Download Failed!!" << std::endl;
 		}
 		else if (dlReturnCode == XML_MISSING)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   "Unable to locate installedPlugins.xml. Please restart Plugin Installer and try again.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
 
 			std::cout << "XML File Missing!!" << std::endl;
 		}
 		else if (dlReturnCode == VER_EXISTS_ERR)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   pInfo.pluginName + " v" + pInfo.selectedVersion + " already exists. Please download another version.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											pInfo.displayName + " v" + pInfo.selectedVersion 
+											+ " already exists. Please download another version.");
 
 			std::cout << "Download Failed!!" << std::endl;
 		}
 		else if (dlReturnCode == XML_WRITE_ERR)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   "Unable to write to installedPlugins.xml \n Please try again.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Unable to write to installedPlugins.xml \n Please try again.");
 			
 			std::cout << "Writing to XML Failed!!" << std::endl;
 		}
 		else if (dlReturnCode == LOAD_ERR)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												   "Plugin Installer " + pInfo.pluginName, 
-												   "Unable to load " + pInfo.pluginName + " in the Processor List.\nLook at console output for more details.");
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Unable to load " + pInfo.displayName 
+											+ " in the Processor List.\nLook at console output for more details.");
 
 			std::cout << "Loading Plugin Failed!!" << std::endl;
 
 			pInfo.installedVersion = pInfo.selectedVersion;
 			downloadButton.setEnabled(false);
 			downloadButton.setButtonText("Installed");
+		}
+		else if (dlReturnCode == PROC_IN_USE)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.displayName, 
+											"Plugin already in use. Please remove it from the signal chain and try again.");
+
+			std::cout << "Error.. Plugin already in use. Please remove it from the signal chain and try again." << std::endl;
 		}
 
 	}
@@ -1097,16 +1114,15 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		auto entry = pluginZip.getEntry(1);
 #endif
 
+		// Open installedPluings.xml file
+		String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+		File xmlFile = pluginsPath.getChildFile(fileStr);
+
+		XmlDocument doc(xmlFile);
+		std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
 		if (!isDependency)
-		{
-
-			String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-			File xmlFile = pluginsPath.getChildFile(fileStr);
-
-			// Open installedPlugins.xml file
-			XmlDocument doc(xmlFile);
-			std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-			
+		{	
 			// Create a new entry in xml for the downloaded plugin
 			std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
 
@@ -1152,38 +1168,77 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				if (!hasTag)
 					child->addChildElement(pluginEntry.release());
 
-				if (! xml->writeToFile(xmlFile, String::empty))
-				{
-					std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
-					pluginFile.deleteFile();
-					return 5;
-				}
+			}
+
+			// Check if plugin already present in signal chain
+			bool procInSignalChain;
+			if(pInfo.type == "Record Engine")
+				procInSignalChain = AccessClass::getProcessorGraph()->hasRecordNode();
+			else
+				procInSignalChain = AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName);
+				
+			if(procInSignalChain)
+			{
+				pluginFile.deleteFile();
+				return 7;
 			}
 		}
 
 		// Uncompress the downloaded plugin's zip file
 		Result rs = pluginZip.uncompressTo(pluginsPath, true);
 
-		pluginFile.deleteFile(); // delete zip after uncompressing		
-
 		if (rs.failed())
 		{
 			String errorMsg = rs.getErrorMessage();
 
-			if(errorMsg.containsIgnoreCase("Failed to write to target file") && isDependency)
+			if(errorMsg.containsIgnoreCase("Failed to write to target file"))
 			{
-				std::cout << "Dependency already installed..." << std::endl;
+				if(!isDependency)
+				{
+#ifdef WIN32
+					String dllToUnload = errorMsg.substring(errorMsg.lastIndexOf("\\") + 1);
+					const char* processorLocCString = static_cast<const char*>(dllToUnload.toUTF8());
+					HMODULE md = GetModuleHandleA(processorLocCString);
+
+					if(FreeLibrary(md))
+						std::cout << "Unloaded old " << dllToUnload << std::endl;
+#endif
+					rs = pluginZip.uncompressTo(pluginsPath, true);
+
+					if(rs.failed())
+					{
+						std::cout <<  rs.getErrorMessage() << std::endl;
+						pluginFile.deleteFile();
+						return 2;
+					}
+				}
+				else
+				{
+					std::cout << "Dependency already exists" << std::endl;
+				}
+				
+
 			}
 			else
 			{
 				std::cout << rs.getErrorMessage() << std::endl;
+				pluginFile.deleteFile(); // delete zip after uncompressing
 				return 2;
 			}
 		}
 
+		pluginFile.deleteFile(); // delete zip after uncompressing
+
 		// if the plugin is not a dependency, load the plugin and show it in processor list	
 		if (!isDependency)
 		{
+			// Write installed plugin's info to XML file
+			if (! xml->writeToFile(xmlFile, String::empty))
+			{
+				std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+				return 5;
+			}
+			
 			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
 
 			int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
