@@ -517,7 +517,9 @@ void PluginListBoxComponent::run()
 		var labelData = JSON::parse(response);
 
 		StringArray labels;
-		for(String label : *labelData.getProperty("labels", "NULL").getArray())
+		auto allLabels = labelData.getProperty("labels", "NULL").getArray();
+
+		for(String label : *allLabels)
 			labels.add(label);
 		
 		if(!labels.contains("Dependency", true))

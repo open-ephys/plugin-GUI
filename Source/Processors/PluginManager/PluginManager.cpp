@@ -450,7 +450,8 @@ bool PluginManager::findPlugin(String name, String libName, const Array<LoadedPl
 {
 	for (int i = 0; i < pluginArray.size(); i++)
 	{
-		if (String(pluginArray[i].name) == name)
+		String pName = String(pluginArray[i].name);
+		if (pName == name)
 		{
 			if ((libName.isEmpty()) || (libName == String(libArray[pluginArray[i].libIndex].name)))
 			{
