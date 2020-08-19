@@ -103,7 +103,7 @@ public:
 	virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
 
 	/** Write continuous data for a channel with synchronized float timestamps */
-	virtual void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) = 0;
+	virtual void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) = 0;
 
 	/** Called by the record thread after it has written a channel block */
 	virtual void endChannelBlock(bool lastBlock);

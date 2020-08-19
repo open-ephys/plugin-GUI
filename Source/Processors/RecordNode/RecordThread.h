@@ -57,7 +57,7 @@ public:
 
 private:
 	void writeData(const AudioSampleBuffer& buffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
-	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const AudioSampleBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
+	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const SynchronizedTimestampBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
 
 	//const OwnedArray<RecordEngine>& m_engineArray;
 	const ScopedPointer<RecordEngine>& m_engine;

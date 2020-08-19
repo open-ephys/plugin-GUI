@@ -134,7 +134,7 @@ void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp
 	}
 }
 
-void DataQueue::writeSynchronizedTimestampChannel(float start, float step, int destChannel, int64 nSamples)
+void DataQueue::writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples)
 {
 
 	int index1, size1, index2, size2;
@@ -153,7 +153,7 @@ void DataQueue::writeSynchronizedTimestampChannel(float start, float step, int d
 	for (int i = 0; i < size1; i++)
 	{
 		//LOGD("setSample: ", start + (float)i*step);
-		m_FTSBuffer.setSample(destChannel, index1+i, start+(float)i*step);
+		m_FTSBuffer.setSample(destChannel, index1+i, start+(double)i*step);
 		//LOGD("Set sample ", index1+i, " to ", start);
 		//m_FTSBuffer.setSample(destChannel, index1+i, start + (float)i*step);
 	}
@@ -163,7 +163,7 @@ void DataQueue::writeSynchronizedTimestampChannel(float start, float step, int d
 		for (int i = 0; i < size2; i++)
 		{
 			//m_FTSBuffer.setSample(destChannel, index2+i, start + (float)i*step);
-			m_FTSBuffer.setSample(destChannel, index2 + i, start+(float)size1*step + float(i*step));
+			m_FTSBuffer.setSample(destChannel, index2 + i, start+(double)size1*step + double(i*step));
 		}
 	}
 
@@ -217,7 +217,7 @@ const AudioSampleBuffer& DataQueue::getAudioBufferReference() const
 	return m_buffer;
 }
 
-const AudioSampleBuffer& DataQueue::getFTSBufferReference() const
+const SynchronizedTimestampBuffer& DataQueue::getFTSBufferReference() const
 {
 	return m_FTSBuffer;
 }

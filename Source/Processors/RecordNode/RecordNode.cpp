@@ -587,8 +587,8 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 
 				if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
 				{
-					float first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
-					float second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
+					double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
+					double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
 					dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 				}
 

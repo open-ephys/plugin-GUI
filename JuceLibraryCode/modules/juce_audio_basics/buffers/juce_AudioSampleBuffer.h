@@ -1069,5 +1069,8 @@ private:
 */
 typedef AudioBuffer<float> AudioSampleBuffer;
 
+// Add AudioBuffer of doubles to hold synchronized timestamps
+typedef AudioBuffer<double> SynchronizedTimestampBuffer;
+
 
 #endif   // JUCE_AUDIOSAMPLEBUFFER_H_INCLUDED

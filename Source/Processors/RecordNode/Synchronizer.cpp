@@ -113,6 +113,12 @@ void Subprocessor::reset()
 	startSampleMasterTime = -1.0f;
 	lastSampleMasterTime = -1.0f;
 
+	actualSampleRate = -1.0f;
+	startSample = -1;
+	lastSample = -1;
+
+	receivedEventInWindow = false;
+	receivedMasterTimeInWindow = false;
 	isSynchronized = false;
 
 }
@@ -157,9 +163,7 @@ void Subprocessor::closeSyncWindow()
 			lastSample = tempSampleNum;
 			lastSampleMasterTime = tempMasterTime;
 
-			float expectedIntervalSec = (lastSample - startSample) / expectedSampleRate;
-			float ratio = (lastSampleMasterTime - startSampleMasterTime) / expectedIntervalSec;
-			float tempSampleRate = expectedSampleRate / ratio;
+			double tempSampleRate = (lastSample - startSample) / (lastSampleMasterTime - startSampleMasterTime);
 
 			if (actualSampleRate < 0.0f)
 			{
@@ -299,17 +303,17 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 	}
 }
 
-float Synchronizer::convertTimestamp(int sourceID, int subProcID, int sampleNumber)
+double Synchronizer::convertTimestamp(int sourceID, int subProcID, int sampleNumber)
 {
 
 	if (subprocessors[sourceID][subProcID]->isSynchronized)
 	{
-		return (sampleNumber - subprocessors[sourceID][subProcID]->startSample) /
+		return (double)(sampleNumber - subprocessors[sourceID][subProcID]->startSample) /
 			subprocessors[sourceID][subProcID]->actualSampleRate +
 			subprocessors[sourceID][subProcID]->startSampleMasterTime;
 	}
 	else {
-		return -1.0f;
+		return (double)-1.0;
 	}
 }
 

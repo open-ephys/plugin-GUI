@@ -21,7 +21,7 @@ public:
 	void closeFiles() override;
 	void resetChannels() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) override;
+	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
 	void writeEvent(int eventIndex, const MidiMessage& event) override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;

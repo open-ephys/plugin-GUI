@@ -47,7 +47,7 @@ public:
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size) override;
+	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
 	void writeEvent(int eventIndex, const MidiMessage& event) override;
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;

@@ -94,7 +94,7 @@ public:
 
     void addEvent(int sourceID, int subProcessorID, int ttlChannel, int sampleNumber);
 
-    float convertTimestamp(int sourceID, int subProcID, int sampleNumber);
+    double convertTimestamp(int sourceID, int subProcID, int sampleNumber);
 
     std::map<int, std::map<int, Subprocessor*>> subprocessors;
 

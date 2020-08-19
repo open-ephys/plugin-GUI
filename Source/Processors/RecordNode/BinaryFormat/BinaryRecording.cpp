@@ -104,7 +104,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
 
-                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "synchronized_timestamps.npy", NpyType(BaseType::FLOAT,1));
+                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "synchronized_timestamps.npy", NpyType(BaseType::DOUBLE,1));
                 m_dataFloatTimestampFiles.add(ftsFile.release());
 
                 m_fileIndexes.set(recordedChan, nInfoArrays);
@@ -513,7 +513,7 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->metaDataFile) rec->metaDataFile->increaseRecordCount();
 }
 
-void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const float* ftsBuffer, int size)
+void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size)
 {
 
     if (!size)  
@@ -558,7 +558,7 @@ void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, c
 
         //LOGD("BinaryRecording::writeSynchronizedData: ", *ftsBuffer);
 
-        m_dataFloatTimestampFiles[fileIndex]->writeData(ftsBuffer, size*sizeof(float));
+        m_dataFloatTimestampFiles[fileIndex]->writeData(ftsBuffer, size*sizeof(double));
         m_dataFloatTimestampFiles[fileIndex]->increaseRecordCount(size);
         
 	}

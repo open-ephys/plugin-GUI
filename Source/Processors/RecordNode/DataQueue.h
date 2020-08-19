@@ -50,11 +50,11 @@ public:
 	//Only the methods after this comment are considered thread-safe.
 	//Caution must be had to avoid calling more than one of the methods above simulatenously
 	void writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
-	void writeSynchronizedTimestampChannel(float start, float step, int destChannel, int64 nSamples);
+	void writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples);
 	bool startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& timestamps, int nMax);
 	bool startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax);
 	const AudioSampleBuffer& getAudioBufferReference() const;
-	const AudioSampleBuffer& getFTSBufferReference() const;
+	const SynchronizedTimestampBuffer& getFTSBufferReference() const;
 	void stopRead();
 	void stopSynchronizedRead();
 
@@ -67,7 +67,7 @@ private:
 	OwnedArray<AbstractFifo> m_FTSFifos;
 
 	AudioSampleBuffer m_buffer;
-	AudioSampleBuffer m_FTSBuffer;
+	SynchronizedTimestampBuffer m_FTSBuffer;
 
 	Array<int> m_readSamples;
 	Array<int> m_readFTSSamples;

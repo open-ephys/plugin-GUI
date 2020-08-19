@@ -89,7 +89,7 @@ void RecordThread::setFirstBlockFlag(bool state)
 void RecordThread::run()
 {
 	const AudioSampleBuffer& dataBuffer = m_dataQueue->getAudioBufferReference();
-	const AudioSampleBuffer& ftsBuffer = m_dataQueue->getFTSBufferReference();
+	const SynchronizedTimestampBuffer& ftsBuffer = m_dataQueue->getFTSBufferReference();
 
 	bool closeEarly = true;
 	//1-Wait until the first block has arrived, so we can align the timestamps
@@ -147,7 +147,7 @@ void RecordThread::run()
 
 }
 
-void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const AudioSampleBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
+void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const SynchronizedTimestampBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
 {
 
 	Array<int64> timestamps;
