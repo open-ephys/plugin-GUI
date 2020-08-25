@@ -66,6 +66,45 @@ RecordNode::~RecordNode()
 {
 }
 
+void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
+{
+
+	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
+	{
+		int channelIndex = getNextChannel(false);
+
+		const DataChannel* orig = sourceNode->getDataChannel(chan);
+		DataChannel* newChannel = new DataChannel(*orig);
+		newChannel->setRecordState(orig->getRecordState());
+		dataChannelArray.add(newChannel);
+		recordEngine->addDataChannel(channelIndex, dataChannelArray[channelIndex]);
+
+	}
+	else
+	{
+
+		for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
+		{
+			const EventChannel* orig = sourceNode->getEventChannel(n);
+			//only add to the record node the events originating from this processor, to avoid duplicates
+			if (orig->getSourceNodeID() == sourceNode->getNodeId())
+				eventChannelArray.add(new EventChannel(*orig));
+
+		}
+
+	}
+
+}
+
+void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
+{
+
+	eventChannelArray.addArray(channels);
+	settings.numInputs = dataChannelArray.size();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
+
+}
+
 void RecordNode::setEngine(int index)
 {
 	availableEngines = getAvailableRecordEngines();
@@ -373,7 +412,7 @@ void RecordNode::startRecording()
 
 	int recordedProcessorIdx = -1;	
 
-	LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans);
+	//LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans, " Total event channels: ", getTotalEventChannels());
 
 	for (int ch = 0; ch < totChans; ++ch)
 	{
@@ -506,15 +545,15 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		int64 timestamp = Event::getTimestamp(event);
 		uint64 eventChan = event.getChannel();
 		int eventIndex;
-		if (eventInfo && samplePosition > 0)
-		{
+		if (eventInfo)
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
-		}
 		else
 			eventIndex = -1;
 
-		if (isRecording && eventIndex >= 0)
+		if (samplePosition)
+			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
+
+		if (isRecording)
 			eventQueue->addEvent(event, timestamp, eventIndex);
 
 	}
@@ -626,13 +665,10 @@ bool RecordNode::isFirstChannelInRecordedSubprocessor(int ch)
 	return std::find(startRecChannels.begin(), startRecChannels.end(), ch) != startRecChannels.end();
 }
 
-//TODO: Need to validate these methods
-
 void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 {
 	settings.numInputs += sourceNode->getNumOutputs();
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-
 	recordEngine->registerProcessor(sourceNode);
 }
 

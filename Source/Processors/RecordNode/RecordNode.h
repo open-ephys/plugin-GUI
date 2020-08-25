@@ -52,7 +52,8 @@ public:
 	AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override { return true; }
 
-	
+	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
+
 	void updateSubprocessorMap();
 	void setMasterSubprocessor(int srcIdx, int subProcIdx);
 	bool isMasterSubprocessor(int srcIdx, int subProcIdx);
@@ -120,6 +121,7 @@ public:
     bool isSyncReady;
 
     //TODO: Need to validate these new methods
+	void addInputChannel(const GenericProcessor* sourceNode, int chan);
 
     /** Must be called by a spike recording source on the "enable" method
     */
