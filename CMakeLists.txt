@@ -30,6 +30,7 @@ include(HelperFunctions.cmake)
 set(BASE_BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Build)
 set(JUCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 set(RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
+set(HTML_ASSETS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Source/UI/html)
 
 configure_file(${JUCE_DIRECTORY}/JuceHeader.h.in ${JUCE_DIRECTORY}/JuceHeader.h)
 configure_file(${RESOURCES_DIRECTORY}/Build-files/resources.rc.in ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
@@ -86,9 +87,11 @@ target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initiali
 if (MSVC OR LINUX)
 set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
 set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/shared)
+set(BIN_HTML_ASSETS_DIR $<TARGET_FILE_DIR:open-ephys>/assets)
 add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_HTML_ASSETS_DIR}"
 		)
 
 file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
@@ -96,11 +99,23 @@ add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} $<TARGET_FILE_DIR:open-ephys>
 		)
 
+add_custom_command(TARGET open-ephys POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HTML_ASSETS_DIRECTORY}" "${BIN_HTML_ASSETS_DIR}"
+	) 
+
 elseif(APPLE)
-	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
+	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../Plugins)
+	set(BIN_HTML_ASSETS_DIR $<TARGET_FILE_DIR:open-ephys>/../Resources/Assets)
+
 	add_custom_command(TARGET open-ephys POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_HTML_ASSETS_DIR}"
 			)
+	
+	add_custom_command(TARGET open-ephys POST_BUILD
+    	COMMAND ${CMAKE_COMMAND} -E copy_directory "${HTML_ASSETS_DIRECTORY}" "${BIN_HTML_ASSETS_DIR}"
+		) 
+
 endif()
 
 if(MSVC)

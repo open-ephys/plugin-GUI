@@ -25,9 +25,15 @@
 
 InfoLabel::InfoLabel()
 {
-    
+
+#if defined(__APPLE__)
     File appBundle = File::getSpecialLocation(File::currentApplicationFile);
-    const String indexHTML = appBundle.getChildFile("Contents/Resources/html/index.html").getFullPathName();
+    const String indexHTML = appBundle.getChildFile("Contents/Resources/Assets/InfoLabel/index.html").getFullPathName();
+#else
+    File appDirectory = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
+    const String indexHTML = appDirectory.getChildFile("assets").getChildFile("InfoLabel").getChildFile("index.html").getFullPathName();
+#endif
+    
     goToURL(indexHTML);
 }
 
@@ -38,18 +44,14 @@ InfoLabel::~InfoLabel()
 
 bool InfoLabel::pageAboutToLoad(const String & newURL)
 {
-    std::cout << newURL << std::endl;
+    if (newURL.compare("about:blank") == 0)
+    {
+        return false;
+    } else if (newURL.startsWith("http"))
+    {
+        URL url = URL(newURL);
+        url.launchInDefaultBrowser();
+        return false;
+    }
     return true;
 }
-
-/*void InfoLabel::paint(Graphics& g)
-{
-    g.fillAll(Colours::grey);
-
-    g.setFont(labelFont);
-
-    g.setColour(Colours::black);
-
-    g.drawFittedText(infoString, 10, 10, getWidth()-10, getHeight()-10, Justification::left, 100);
-
-}*/

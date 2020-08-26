@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+
+  <body>
+    <div class="tabset">
+      <!-- Tab 1 -->
+      <input
+        type="radio"
+        name="tabset"
+        id="tab1"
+        aria-controls="about"
+        checked
+      />
+      <label for="tab1">About</label>
+      <!-- Tab 2 -->
+      <input type="radio" name="tabset" id="tab2" aria-controls="authors" />
+      <label for="tab2">Authors</label>
+      <!-- Tab 3 -->
+      <input type="radio" name="tabset" id="tab3" aria-controls="license" />
+      <label for="tab3">License</label>
+
+      <div class="tab-panels">
+        <section id="about" class="tab-panel">
+          <script src="about.js"></script>
+        </section>
+        <section id="authors" class="tab-panel">
+          <script src="authors.js"></script>
+        </section>
+        <section id="license" class="tab-panel">
+          <script src="license.js"></script>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
