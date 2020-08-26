@@ -10,7 +10,7 @@ document.write(`
 <br>
 <h2>Documentation</h2>
 <p>
-  The Open Ephys GUI User Manual can be found at <a href="https://gui.open-ephys.org/User%20Manual/index.html">gui.open-ephys.org</a>.
+  The Open Ephys GUI User Manual can be found at <a href="https://open-ephys.github.io/gui-docs/User%20Manual/index.html">open-ephys.github.io/gui-docs</a>.
 </p>
 <br>
 <h2>Source Code</h2>
