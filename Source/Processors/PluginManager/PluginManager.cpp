@@ -85,6 +85,11 @@ PluginManager::PluginManager()
 
 	AddDllDirectory(installSharedPath.getFullPathName().toWideCharPointer());
 	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+#elif __linux__
+	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/shared");
+	if (!installSharedPath.isDirectory()) {
+        installSharedPath.createDirectory();
+    }
 #endif
 }
 
@@ -100,9 +105,12 @@ void PluginManager::loadAllPlugins()
 #ifdef __APPLE__
     paths.add(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/PlugIns"));
     paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/plugins"));
+#elif _WIN32
+	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
+	paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/plugins"));
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
-	paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/plugins"));	
+	paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/plugins"));	
 #endif
 
     for (auto &pluginPath : paths) {
