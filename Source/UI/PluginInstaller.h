@@ -68,7 +68,8 @@ struct SelectedPluginInfo
 */
 class PluginInfoComponent : public Component,
                             public Button::Listener,
-                            public ComboBox::Listener
+                            public ComboBox::Listener,
+                            public ThreadWithProgressWindow
 {
 public:
     PluginInfoComponent();
@@ -122,6 +123,8 @@ private:
     SelectedPluginInfo pInfo;
 
     enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PROC_IN_USE};
+
+    void run() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
 
