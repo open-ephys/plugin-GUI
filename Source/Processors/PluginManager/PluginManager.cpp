@@ -73,8 +73,18 @@ static void errorMsg(const char *file, int line, const char *msg) {
 PluginManager::PluginManager()
 {
 #ifdef WIN32
+	//Shared directory at the same level as executable
 	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
 	SetDllDirectory(sharedPath.getFullPathName().toUTF8());
+
+	//Shared directory managed by Plugin Installer at C:/ProgramData
+	File installSharedPath = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/shared");
+	if (!installSharedPath.isDirectory()) {
+        installSharedPath.createDirectory();
+    }
+
+	AddDllDirectory(installSharedPath.getFullPathName().toWideCharPointer());
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 #endif
 }
 
@@ -92,11 +102,14 @@ void PluginManager::loadAllPlugins()
     paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/plugins"));
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
+	paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/plugins"));	
 #endif
 
     for (auto &pluginPath : paths) {
         if (!pluginPath.isDirectory()) {
-            std::cout << "Plugin path not found: " << pluginPath.getFullPathName() << std::endl;
+            std::cout << "Plugin path not found: " << pluginPath.getFullPathName() 
+					  << "\nCreating new plugins directory..." << std::endl;
+			pluginPath.createDirectory();
         } else {
             loadPlugins(pluginPath);
         }

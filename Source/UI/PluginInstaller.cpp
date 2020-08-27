@@ -40,13 +40,10 @@
 static inline File getPluginsLocationDirectory() {
 #if defined(__APPLE__)
     File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
-    if (!dir.isDirectory()) {
-        dir.createDirectory();
-    }
-    return std::move(dir);
 #else
-    return File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
+    File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
 #endif
+    return std::move(dir);
 }
 
 static String osType;

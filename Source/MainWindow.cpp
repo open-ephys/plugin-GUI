@@ -30,13 +30,13 @@
 static inline File getSavedStateDirectory() {
 #if defined(__APPLE__)
     File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
-    if (!dir.isDirectory()) {
+#else
+    File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
+#endif
+	if (!dir.isDirectory()) {
         dir.createDirectory();
     }
     return std::move(dir);
-#else
-    return File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
-#endif
 }
 
 	MainWindow::MainWindow(const File& fileToLoad)
