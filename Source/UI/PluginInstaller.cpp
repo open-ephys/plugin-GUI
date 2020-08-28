@@ -43,7 +43,7 @@ static inline File getPluginsLocationDirectory() {
 #elif _WIN32
     File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
 #else
-	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");;
+	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");
 #endif
     return std::move(dir);
 }

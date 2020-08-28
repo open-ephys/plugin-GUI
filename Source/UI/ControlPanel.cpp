@@ -426,11 +426,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addChildComponent(newDirectoryButton);
 
 
-#if defined(__APPLE__)
     const File dataDirectory = CoreServices::getDefaultUserSaveDirectory();
-#else
-    const File dataDirectory = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
-#endif
 
     filenameComponent = new FilenameComponent("folder selector",
                                               dataDirectory.getFullPathName(),

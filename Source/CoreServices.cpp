@@ -229,14 +229,16 @@ namespace CoreServices
 	File getDefaultUserSaveDirectory()
 	{
 #if defined(__APPLE__)
-		File dir = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("open-ephys");
+    	const File dir = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("Open Ephys");
+#elif _WIN32
+    	const File dir = File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("Open Ephys");
+#else
+    	const File dir = File::getSpecialLocation(File::userHomeDirectory).getChildFile("open-ephys");
+#endif
 		if (!dir.isDirectory()) {
 			dir.createDirectory();
 		}
 		return std::move(dir);
-#else
-		return File::getCurrentWorkingDirectory();
-#endif
 	}
 
 	String getGUIVersion()
