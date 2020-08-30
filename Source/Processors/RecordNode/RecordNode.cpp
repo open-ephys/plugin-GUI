@@ -10,6 +10,7 @@
 using namespace std::chrono;
 
 #define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
+#define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
 EventMonitor::EventMonitor()
 	: receivedEvents(0) {}
@@ -37,7 +38,8 @@ RecordNode::RecordNode()
 	recordingNumber(0),
 	isRecording(false),
 	hasRecorded(false),
-	settingsNeeded(false)
+	settingsNeeded(false),
+	receivedSoftwareTime(false)
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
@@ -580,7 +582,20 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 
 void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 {
-	handleEvent(nullptr, event, 0);
+
+	if (event.getVelocity() == 136)
+	{
+		if (!receivedSoftwareTime)
+		{
+			handleEvent(nullptr, event, 0);
+			receivedSoftwareTime = true;
+		}
+	}
+	else
+	{
+		handleEvent(nullptr, event, 0);
+	}
+
 }
 	
 void RecordNode::process(AudioSampleBuffer& buffer)

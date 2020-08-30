@@ -163,6 +163,8 @@ public:
 
 private:
 
+	bool receivedSoftwareTime;
+
 	int lastDataChannelArraySize;
 
     bool isProcessing;
