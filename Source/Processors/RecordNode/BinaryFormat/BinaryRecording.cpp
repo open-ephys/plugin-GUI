@@ -20,18 +20,9 @@ String BinaryRecording::getEngineID() const
 
 String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
 {
-	String fName = (channelInfo->getCurrentNodeName().replaceCharacter(' ', '_') + "-" +
-		String(channelInfo->getCurrentNodeID()));
-	if (channelInfo->getCurrentNodeID() == channelInfo->getSourceNodeID())
-		// found the channel source
-	{
-		fName += "." + String(channelInfo->getSubProcessorIdx());
-	}
-	else
-	{
-		fName += "_" + String(channelInfo->getSourceNodeID()) + "." +
-			String(channelInfo->getSubProcessorIdx());
-	}
+	String fName = (channelInfo->getSourceName().replaceCharacter(' ', '_') + "-" +
+		String(channelInfo->getSourceNodeID()));
+    fName += "." + String(channelInfo->getSubProcessorIdx());
 	fName += File::separatorString;
 	return fName;
 }
