@@ -24,6 +24,7 @@
 #include "AudioEditor.h"
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
+#include "../../UI/EditorViewport.h"
 #include "../../UI/LookAndFeel/MaterialSliderLookAndFeel.h"
 
 
@@ -325,6 +326,9 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 
 void AudioConfigurationWindow::closeButtonPressed()
 {
+    File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+    AccessClass::getEditorViewport()->saveState(recoveryFile);
+
     controlButton->setToggleState (false, dontSendNotification);
     setVisible (false);
 }

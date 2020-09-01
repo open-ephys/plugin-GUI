@@ -25,6 +25,8 @@
 
 #include "EditorViewport.h"
 
+#include "../AccessClass.h"
+
 #include <iostream>
 
 SignalChainManager::SignalChainManager
@@ -557,4 +559,7 @@ void SignalChainManager::updateProcessorSettings()
 			}
 		}
 	}
+
+    File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+    AccessClass::getEditorViewport()->saveState(recoveryFile);
 }

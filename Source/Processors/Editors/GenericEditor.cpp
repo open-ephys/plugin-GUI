@@ -552,10 +552,11 @@ void GenericEditor::update()
             drawerButton->setVisible(true);
     }
 
-
-
     updateVisualizer(); // does nothing unless this method
     // has been implemented
+
+    File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+    AccessClass::getEditorViewport()->saveState(recoveryFile);
 
 }
 

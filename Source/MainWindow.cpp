@@ -27,19 +27,6 @@
 #include <stdio.h>
 //-----------------------------------------------------------------------
 
-static inline File getSavedStateDirectory() {
-#if defined(__APPLE__)
-    File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
-#elif _WIN32
-    File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
-#else
-	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");;
-#endif
-	if (!dir.isDirectory()) {
-        dir.createDirectory();
-    }
-    return std::move(dir);
-}
 
 	MainWindow::MainWindow(const File& fileToLoad)
 : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
@@ -91,11 +78,31 @@ static inline File getSavedStateDirectory() {
     }
 	else if (shouldReloadOnStartup)
 	{
-		File file = getSavedStateDirectory().getChildFile("lastConfig.xml");
-		ui->getEditorViewport()->loadState(file);
+		File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
+		File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+
+		if(lastConfig.existsAsFile())
+		{
+			if(compareConfigFiles(lastConfig, recoveryConfig))
+			{
+				std::cout << "Loading last config.\n" << std::endl;
+				ui->getEditorViewport()->loadState(lastConfig);
+			}
+			else
+			{
+				bool loadRecovery = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+																"It looks like the GUI crashed during your last run, " 
+																"causing the configured settings to not save properly. "
+																"Do you want to load the recovery config instead?",
+																"Yes", "No");
+				
+				if(loadRecovery)
+					ui->getEditorViewport()->loadState(recoveryConfig);
+				else
+					ui->getEditorViewport()->loadState(lastConfig);
+			}
+		}
 	}
-
-
 
 }
 
@@ -114,8 +121,10 @@ MainWindow::~MainWindow()
 	UIComponent* ui = (UIComponent*) getContentComponent();
 	ui->disableDataViewport();
 
-	File file = getSavedStateDirectory().getChildFile("lastConfig.xml");
-	ui->getEditorViewport()->saveState(file);
+	File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
+	File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+	ui->getEditorViewport()->saveState(lastConfig);
+	ui->getEditorViewport()->saveState(recoveryConfig);
 
 	setMenuBar(0);
 
@@ -148,7 +157,7 @@ void MainWindow::saveWindowBounds()
 	std::cout << "Saving window bounds." << std::endl;
 	std::cout << std::endl;
 
-	File file = getSavedStateDirectory().getChildFile("windowState.xml");
+	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
 
 	XmlElement* xml = new XmlElement("MAINWINDOW");
 
@@ -194,7 +203,7 @@ void MainWindow::loadWindowBounds()
 	std::cout << "Loading window bounds." << std::endl;
 	std::cout << std::endl;
 
-	File file = getSavedStateDirectory().getChildFile("windowState.xml");
+	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
 
 	XmlDocument doc(file);
 	XmlElement* xml = doc.getDocumentElement();
@@ -260,4 +269,44 @@ void MainWindow::loadWindowBounds()
 		delete xml;
 	}
 	// return "Everything went ok.";
+}
+
+
+bool MainWindow::compareConfigFiles(File file1, File file2)
+{
+	XmlDocument lcDoc(file1);
+	XmlDocument rcDoc(file2);
+	
+	std::unique_ptr<XmlElement> lcXml (lcDoc.getDocumentElement());
+	std::unique_ptr<XmlElement> rcXml (rcDoc.getDocumentElement());
+
+	if(rcXml == 0 || ! rcXml->hasTagName("SETTINGS"))
+	{
+		std::cout << "Recovery config is inavlid. Loading lastConfig.xml" << std::endl;
+	}
+
+	auto lcSig = lcXml->getChildByName("SIGNALCHAIN");
+	auto rcSig = rcXml->getChildByName("SIGNALCHAIN");
+
+	if(lcSig == nullptr)
+	{
+		if(rcSig != nullptr)
+			return false;
+	}
+	else
+	{
+		if(rcSig != nullptr)
+		{
+			if(!lcSig->isEquivalentTo(rcSig, false))
+				return false;
+		}
+	}
+
+	auto lcAudio = lcXml->getChildByName("Audio");
+	auto rcAudio = rcXml->getChildByName("Audio");
+
+	if(!lcAudio->isEquivalentTo(rcAudio, false))
+		return false;
+
+	return true;
 }
