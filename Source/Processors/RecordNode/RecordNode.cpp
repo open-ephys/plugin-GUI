@@ -325,9 +325,7 @@ void RecordNode::updateSubprocessorMap()
 		int sourceID = chan->getSourceNodeID();
 		int subProcID = chan->getSubProcessorIdx();
 
-		int chCount = 0;
-
-		if (!syncChannelMap[sourceID][subProcID])
+		if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
 		{
 			EventChannel* chan = eventChannelArray[ch];
 			eventChannelMap[sourceID][subProcID] = chan->getNumChannels();
@@ -552,7 +550,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		else
 			eventIndex = -1;
 
-		if (samplePosition)
+		if (samplePosition > 0 && dataChannelStates[Event::getSourceID(event)][Event::getSubProcessorIdx(event)].size())
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 
 		if (isRecording)

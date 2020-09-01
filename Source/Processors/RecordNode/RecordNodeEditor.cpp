@@ -143,18 +143,22 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 		for (auto subIdx : extract_keys(recordNode->dataChannelStates[srcID]))
 		{
 
-			XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
-
-			subProcNode->setAttribute("src_id", srcID);
-			subProcNode->setAttribute("sub_idx", subIdx);
-			subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
-			subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
-
-			XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
-
-			for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+			if (recordNode->dataChannelStates[srcID][subIdx].size() > 0)
 			{
-				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+				XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
+
+				subProcNode->setAttribute("src_id", srcID);
+				subProcNode->setAttribute("sub_idx", subIdx);
+				subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
+				subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
+
+				XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
+
+				for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+				{
+					recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+				}
+
 			}
 
 		}
@@ -177,6 +181,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::dontSendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::dontSendNotification);
 
+
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
 				if (subNode->hasTagName("SUBPROCESSOR"))
@@ -185,17 +190,22 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 					int srcID = subNode->getIntAttribute("src_id");
 					int subIdx = subNode->getIntAttribute("sub_idx");
 
-					if (subNode->getBoolAttribute("isMaster"))
+					if (recordNode->dataChannelStates[srcID][subIdx].size())
 					{
-						recordNode->setMasterSubprocessor(srcID, subIdx);
-					}
-					recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
 
-					XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+						if (subNode->getBoolAttribute("isMaster"))
+						{
+							recordNode->setMasterSubprocessor(srcID, subIdx);
+						}
+						recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
 
-					for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
-					{
-						recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH"+String(ch));
+						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+
+						for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+						{
+							recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH" + String(ch));
+						}
+
 					}
 
 				}
@@ -240,25 +250,30 @@ void RecordNodeEditor::updateSubprocessorFifos()
 
 			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 
-				String name = "SP" + String(i);
-				subProcLabels.add(new Label(name, name));
-				subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
-				subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-				addAndMakeVisible(subProcLabels.getLast());
-				subProcLabels.getLast()->setVisible(false);
+				if (recordNode->dataChannelStates[it->first][ptr->first].size())
+				{
 
-				subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
-				subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
-				addAndMakeVisible(subProcMonitors.getLast());
-				subProcMonitors.getLast()->setVisible(false);
+					String name = "SP" + String(i);
+					subProcLabels.add(new Label(name, name));
+					subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
+					subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
+					addAndMakeVisible(subProcLabels.getLast());
+					subProcLabels.getLast()->setVisible(false);
 
-				subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
-				subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
-				subProcRecords.getLast()->addListener(this);
-				addAndMakeVisible(subProcRecords.getLast());
-				subProcRecords.getLast()->setVisible(false);
+					subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
+					subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
+					addAndMakeVisible(subProcMonitors.getLast());
+					subProcMonitors.getLast()->setVisible(false);
 
-				i++;
+					subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
+					subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
+					subProcRecords.getLast()->addListener(this);
+					addAndMakeVisible(subProcRecords.getLast());
+					subProcRecords.getLast()->setVisible(false);
+
+					i++;
+
+				}
 
 			}
 		}
