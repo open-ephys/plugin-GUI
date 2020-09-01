@@ -42,6 +42,12 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-windows/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-windows/$gui_ver/publish
+        cd ../Resources/Installers/Windows
+        iscc "windows_installer_script.iss"
+        installer=Open-Ephys_Installer_${gui_ver}-beta.exe
+        mv Open-Ephys_Installer.exe $installer
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/publish
       shell: bash
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
@@ -60,4 +66,10 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-windows/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-windows/$gui_ver/publish
+        cd ../Resources/Installers/Windows
+        iscc "windows_installer_script.iss"
+        installer=Open-Ephys_Installer_${gui_ver}.exe
+        mv Open-Ephys_Installer.exe $installer
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/publish
       shell: bash
