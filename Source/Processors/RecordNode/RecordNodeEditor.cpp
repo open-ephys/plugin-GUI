@@ -176,10 +176,10 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 		{
 			
 			//Get saved record path
-		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::dontSendNotification);
+		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::sendNotification);
 			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
-			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::dontSendNotification);
-			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::dontSendNotification);
+			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
+			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
 
 
 			forEachXmlChildElement(*xmlNode, subNode)
