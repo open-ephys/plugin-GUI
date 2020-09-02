@@ -138,7 +138,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         for (i = 0; i < availableProcessors.size(); i++)
         {
-            if (!availableProcessors[i]->isSink() &&
+            if (//!availableProcessors[i]->isSink() &&
                 !availableProcessors[i]->isMerger() &&
                 !availableProcessors[i]->isSplitter() &&
                 availableProcessors[i]->getDestNode() != getProcessor())

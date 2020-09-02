@@ -845,7 +845,9 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
     if (editorArray.contains((GenericEditor*) e.originalComponent)
         && e.y < 15
         && canEdit
-        && editorArray.size() > 1)
+        && editorArray.size() > 1
+        && e.getDistanceFromDragStart() > 10
+        )
     {
 
         componentWantsToMove = true;
