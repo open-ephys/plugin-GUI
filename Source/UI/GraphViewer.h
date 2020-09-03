@@ -154,6 +154,7 @@ public:
 private:
     void connectNodes (int, int, Graphics&);
     void adjustBranchLayout(GraphNode*, int);
+    bool isEmptySpace(int level, int horzShift);
 
     int getLevel(GraphNode*);
     int getIndexOfEditor (GenericEditor* editor) const;

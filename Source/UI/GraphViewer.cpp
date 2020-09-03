@@ -158,7 +158,38 @@ void GraphViewer::updateNodeLocations()
         }
     }
     
+    // remove extra horizontal shift
+    //for (auto& node : availableNodes)
+    //{
+    //    if (node->getHorzShift() > 0)
+    //    {
+    //        for (int i = 0; i < 3; i++)
+     //       {
+     //           if (isEmptySpace(node->getLevel(), node->getHorzShift()-1))
+     //           {
+     //               node->setHorzShift(node->getHorzShift()-1);
+     //           }
+     //       }
+     //   }
+    //}
+    
     repaint();
+}
+
+bool GraphViewer::isEmptySpace(int level, int horzShift)
+{
+    if (horzShift < 0)
+        return false;
+    
+    for (auto& node : availableNodes)
+    {
+        if (node->getHorzShift() == horzShift && node->getLevel() == level)
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 
