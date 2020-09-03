@@ -38,6 +38,16 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/publish
+        cd ../Resources/Installers/Linux/Open-Ephys_Installer
+        mkdir -p usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release usr/local/bin/open-ephys-gui
+        cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
+        cd ..
+        dpkg-deb --build Open-Ephys_Installer
+        installer=Open-Ephys_Installer_${gui_ver}-beta.deb
+        mv -v Open-Ephys_Installer.deb $installer
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/publish
       shell: bash
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
@@ -55,4 +65,14 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-linux/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-linux/$gui_ver/publish
+        cd ../Resources/Installers/Linux/Open-Ephys_Installer
+        mkdir -p usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release usr/local/bin/open-ephys-gui
+        cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
+        cd ..
+        dpkg-deb --build Open-Ephys_Installer
+        installer=Open-Ephys_Installer_${gui_ver}-beta.deb
+        mv Open-Ephys_Installer.deb $installer
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/publish
       shell: bash
