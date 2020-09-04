@@ -78,9 +78,9 @@ int GraphViewer::getLevel(GraphNode* node) {
 
 void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
 {
-    if (rootNode->getLevel() != -1)
+    if (rootNode->getLevel() != -1 && rootNode->isSplitter())
     {
-        return; // we've already adjusted this node
+        return; // we've already adjusted this splitter node
     }
     
     int level = startLevel + 1;
@@ -95,11 +95,13 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
         if (upstreamEditors[0] != nullptr)
         {
             level1 = getNodeForEditor(upstreamEditors[0])->getLevel() + 1;
+            std::cout << "Merger input 1 at " << level1 << std::endl;
         }
         
         if (upstreamEditors[1] != nullptr)
         {
             level2 = getNodeForEditor(upstreamEditors[1])->getLevel() + 1;
+            std::cout << "Merger input 2 at " << level1 << std::endl;
         }
         
         level = (level1 > level2) ? level1 : level2;

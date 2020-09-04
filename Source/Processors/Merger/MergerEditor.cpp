@@ -129,34 +129,38 @@ void MergerEditor::mouseDown(const MouseEvent& e)
     if (e.mods.isRightButtonDown())
     {
 
-        PopupMenu m;
-        m.addItem(1, "Choose input 2:",false);
+        PopupMenu menu;
+        int menuItemIndex = 1;
+        
+        menu.addItem(menuItemIndex, // index
+                     "Choose input 2:", // message
+                     false); // isSelectable
 
 		Array<GenericProcessor*> availableProcessors = AccessClass::getProcessorGraph()->getListOfProcessors();
+        
+        Array<GenericProcessor*> selectableProcessors;
 
-        int i;
-
-        for (i = 0; i < availableProcessors.size(); i++)
+        for (auto& processor : availableProcessors)
         {
-            if (//!availableProcessors[i]->isSink() &&
-                !availableProcessors[i]->isMerger() &&
-                !availableProcessors[i]->isSplitter() &&
-                availableProcessors[i]->getDestNode() != getProcessor())
+            if (!processor->isMerger() &&
+                !processor->isSplitter() &&
+                processor->getDestNode() == 0)
             {
 
-                String name = String(availableProcessors[i]->getNodeId());
+                String name = String(processor->getNodeId());
                 name += " - ";
-                name += availableProcessors[i]->getName();
+                name += processor->getName();
 
-                m.addItem(i+2, name);
-                //processorsInList.add(availableProcessors[i]);
+                menu.addItem(++menuItemIndex, // index
+                             name, // message
+                             true); // isSelectable
+                
+                selectableProcessors.add(processor);
             }
         }
 
-        //m.addItem(++i, "Merging:", false);
-
-        int eventMerge = ++i;
-        int continuousMerge = ++i;
+        int eventMerge = ++menuItemIndex;
+        int continuousMerge = ++menuItemIndex;
 
         bool* eventPtr;
         bool* continuousPtr;
@@ -170,20 +174,22 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             continuousPtr = &merger->mergeContinuousB;  
         }
         
-        m.addItem(eventMerge, "Events", !acquisitionIsActive, *eventPtr);
-        m.addItem(continuousMerge, "Continuous", !acquisitionIsActive, *continuousPtr);
+        menu.addItem(eventMerge, "Events", !acquisitionIsActive, *eventPtr);
+        menu.addItem(continuousMerge, "Continuous", !acquisitionIsActive, *continuousPtr);
 
-        const int result = m.show();
+        const int result = menu.show(); // returns 0 if nothing is selected
+        
+        std::cout << "Selection: " << result << std::endl;
 
         if (result > 1 && result < eventMerge)
         {
-            std::cout << "Selected " << availableProcessors[result-2]->getName() << std::endl;
+            std::cout << "Selected " << selectableProcessors[result-2]->getName() << std::endl;
 
             switchSource(1);
 
             Merger* processor = (Merger*) getProcessor();
-            processor->setMergerSourceNode(availableProcessors[result-2]);
-            availableProcessors[result-2]->setDestNode(getProcessor());
+            processor->setMergerSourceNode(selectableProcessors[result-2]);
+            selectableProcessors[result-2]->setDestNode(getProcessor());
 
 			AccessClass::getGraphViewer()->updateNodeLocations();
 
@@ -198,30 +204,8 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             CoreServices::updateSignalChain(this);
         }
     }
-
-
-
 }
 
-void MergerEditor::switchSource(int source)
-{
-    if (source == 0)
-    {
-        pipelineSelectorA->setToggleState(true, dontSendNotification);
-        pipelineSelectorB->setToggleState(false, dontSendNotification);
-        Merger* processor = (Merger*) getProcessor();
-        processor->switchIO(0);
-
-    }
-    else if (source == 1)
-    {
-        pipelineSelectorB->setToggleState(true, dontSendNotification);
-        pipelineSelectorA->setToggleState(false, dontSendNotification);
-        Merger* processor = (Merger*) getProcessor();
-        processor->switchIO(1);
-
-    }
-}
 
 Array<GenericEditor*> MergerEditor::getConnectedEditors()
 {
@@ -283,4 +267,24 @@ void MergerEditor::switchSource()
     Merger* processor = (Merger*) getProcessor();
     processor->switchIO();
 
+}
+
+void MergerEditor::switchSource(int source)
+{
+    if (source == 0)
+    {
+        pipelineSelectorA->setToggleState(true, dontSendNotification);
+        pipelineSelectorB->setToggleState(false, dontSendNotification);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(0);
+
+    }
+    else if (source == 1)
+    {
+        pipelineSelectorB->setToggleState(true, dontSendNotification);
+        pipelineSelectorA->setToggleState(false, dontSendNotification);
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(1);
+
+    }
 }
