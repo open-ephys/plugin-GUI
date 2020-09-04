@@ -95,7 +95,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
-	//eventRecord->triggerClick(); //enable event recortding by default
+	eventRecord->triggerClick(); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -105,7 +105,8 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 110, 15, 15);
-	spikeRecord->addListener(this); //disable spike recording by default
+	spikeRecord->addListener(this);
+	spikeRecord->triggerClick(); //enable spike recording by default
 	addAndMakeVisible(spikeRecord);
 
 	/*
