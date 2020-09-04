@@ -140,22 +140,40 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         
         Array<GenericProcessor*> selectableProcessors;
 
-        for (auto& processor : availableProcessors)
+        for (auto& processorToCheck : availableProcessors)
         {
-            if (!processor->isMerger() &&
-                !processor->isSplitter() &&
-                processor->getDestNode() == 0)
+            if (!processorToCheck->isMerger() &&
+                !processorToCheck->isSplitter() &&
+                processorToCheck->getDestNode() == 0)
             {
-
-                String name = String(processor->getNodeId());
-                name += " - ";
-                name += processor->getName();
-
-                menu.addItem(++menuItemIndex, // index
-                             name, // message
-                             true); // isSelectable
                 
-                selectableProcessors.add(processor);
+                bool isDownstream = false;
+                GenericProcessor* sourceNode = processorToCheck->getSourceNode();
+                    
+                while (sourceNode != 0)
+                {
+                    if (sourceNode == getProcessor())
+                    {
+                        isDownstream = true;
+                        break;
+                    }
+                    
+                    sourceNode = sourceNode->getSourceNode();
+                }
+                       
+                if (!isDownstream)
+                {
+                    String name = String(processorToCheck->getNodeId());
+                    name += " - ";
+                    name += processorToCheck->getName();
+
+                    menu.addItem(++menuItemIndex, // index
+                                 name, // message
+                                 true); // isSelectable
+                    
+                    selectableProcessors.add(processorToCheck);
+                }
+                
             }
         }
 
