@@ -64,8 +64,8 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
     }
     else
     {
-        sourceNodeB = sn;
         std::cout << "Setting source node B." << std::endl;
+        sourceNodeB = sn;
     }
 
     if (sn != nullptr)
@@ -225,30 +225,23 @@ void Merger::updateSettings()
     {
         std::cout << "   Merger source A found." << std::endl;
         addSettingsFromSourceNode(sourceNodeA);
+    } else {
+        mergeEventsA = true;
+        mergeContinuousA = true;
     }
 
     if (sourceNodeB != 0)
     {
         std::cout << "   Merger source B found." << std::endl;
         addSettingsFromSourceNode(sourceNodeB);
+    } else {
+        mergeEventsB = true;
+        mergeContinuousB = true;
     }
 
     if (sourceNodeA == 0 && sourceNodeB == 0)
     {
-
-
 		settings.numOutputs = getNumOutputs();
-
-    /*    for (int i = 0; i < getNumOutputs(); i++)
-        {
-            Channel* ch = new Channel(this, i, HEADSTAGE_CHANNEL);
-            ch->sampleRate = getDefaultSampleRate();
-            ch->bitVolts = getDefaultBitVolts();
-
-            channels.add(ch);
-        }*/
-
-        //generateDefaultChannelNames(settings.outputChannelNames);
     }
 
     std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;

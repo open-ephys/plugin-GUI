@@ -70,6 +70,9 @@ public:
 
 private:
     
+    String getNameString(GenericProcessor*);
+    Array<GenericProcessor*> getSelectableProcessors();
+    
     ImageButton* pipelineSelectorA;
     ImageButton* pipelineSelectorB;
 

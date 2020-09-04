@@ -121,25 +121,15 @@ void MergerEditor::buttonEvent(Button* button)
     AccessClass::getEditorViewport()->makeEditorVisible(this, false);
 }
 
-void MergerEditor::mouseDown(const MouseEvent& e)
+Array<GenericProcessor*> MergerEditor::getSelectableProcessors()
 {
-
-    Merger* merger = (Merger*) getProcessor();
-
-    if (e.mods.isRightButtonDown())
+    Array<GenericProcessor*> selectableProcessors;
+    
+    Array<GenericProcessor*> availableProcessors =
+        AccessClass::getProcessorGraph()->getListOfProcessors();
+    
+    if (availableProcessors.size() > 0)
     {
-
-        PopupMenu menu;
-        int menuItemIndex = 1;
-        
-        menu.addItem(menuItemIndex, // index
-                     "Choose input 2:", // message
-                     false); // isSelectable
-
-		Array<GenericProcessor*> availableProcessors = AccessClass::getProcessorGraph()->getListOfProcessors();
-        
-        Array<GenericProcessor*> selectableProcessors;
-
         for (auto& processorToCheck : availableProcessors)
         {
             if (!processorToCheck->isMerger() &&
@@ -163,63 +153,179 @@ void MergerEditor::mouseDown(const MouseEvent& e)
                        
                 if (!isDownstream)
                 {
-                    String name = String(processorToCheck->getNodeId());
-                    name += " - ";
-                    name += processorToCheck->getName();
-
-                    menu.addItem(++menuItemIndex, // index
-                                 name, // message
-                                 true); // isSelectable
-                    
                     selectableProcessors.add(processorToCheck);
                 }
                 
             }
         }
+    }
+    
+    return selectableProcessors;
+    
+}
 
-        int eventMerge = ++menuItemIndex;
-        int continuousMerge = ++menuItemIndex;
+String MergerEditor::getNameString(GenericProcessor* p)
+{
+    return p->getName() + " (" + String(p->getNodeId()) + ")";
+}
 
-        bool* eventPtr;
-        bool* continuousPtr;
+void MergerEditor::mouseDown(const MouseEvent& e)
+{
 
-        if (pipelineSelectorA->getToggleState())
+    Merger* merger = (Merger*) getProcessor();
+
+    if (e.mods.isRightButtonDown())
+    {
+
+        PopupMenu menu;
+        int menuItemIndex = 1;
+        int eventMergeIndexA, eventMergeIndexB, continuousMergeIndexA, continuousMergeIndexB = -1;
+        int inputSelectionIndexA, inputSelectionIndexB = -1;
+        
+        Array<GenericProcessor*> selectableProcessors = getSelectableProcessors();
+        
+        if (merger->sourceNodeA != 0)
         {
-            eventPtr = &merger->mergeEventsA;
-            continuousPtr = &merger->mergeContinuousA;   
+            menu.addItem(menuItemIndex, // index
+            "Input A: " + getNameString(merger->sourceNodeA), // message
+            false); // isSelectable
+            
+            eventMergeIndexA = ++menuItemIndex;
+            continuousMergeIndexA = ++menuItemIndex;
+            
+            menu.addItem(eventMergeIndexA,
+                         "Merge event data",
+                         !acquisitionIsActive,
+                         merger->mergeEventsA);
+            
+            menu.addItem(continuousMergeIndexA,
+                         "Merge continuous data",
+                         !acquisitionIsActive,
+                         merger->mergeContinuousA);
+
         } else {
-            eventPtr = &merger->mergeEventsB;
-            continuousPtr = &merger->mergeContinuousB;  
+            menu.addItem(++menuItemIndex, // index
+            "Choose input A:", // message
+            false); // isSelectable
+            
+            if (selectableProcessors.size() > 0)
+            {
+                inputSelectionIndexA = menuItemIndex + 1;
+                
+                for (auto& selectableProcessor : selectableProcessors)
+                {
+                    menu.addItem(++menuItemIndex, // index
+                                 getNameString(selectableProcessor), // message
+                                 true); // isSelectable
+                }
+            } else {
+                menu.addItem(++menuItemIndex, // index
+                             " NONE AVAILABLE", // message
+                             false); // isSelectable
+            }
+            
         }
         
-        menu.addItem(eventMerge, "Events", !acquisitionIsActive, *eventPtr);
-        menu.addItem(continuousMerge, "Continuous", !acquisitionIsActive, *continuousPtr);
+        menu.addItem(++menuItemIndex,
+                     " ",
+                     false);
+        
+        if (merger->sourceNodeB != 0)
+        {
+            menu.addItem(menuItemIndex, // index
+            "Input B: " + getNameString(merger->sourceNodeB), // message
+            false); // isSelectable
+            
+            eventMergeIndexB = ++menuItemIndex;
+            continuousMergeIndexB = ++menuItemIndex;
+            
+            menu.addItem(eventMergeIndexB,
+                         "Merge event data",
+                         !acquisitionIsActive,
+                         merger->mergeEventsB);
+            
+            menu.addItem(continuousMergeIndexB,
+                         "Merge continuous data",
+                         !acquisitionIsActive,
+                         merger->mergeContinuousB);
+
+        } else {
+            menu.addItem(++menuItemIndex, // index
+            "Choose input B:", // message
+            false); // isSelectable
+            
+            if (selectableProcessors.size() > 0)
+            {
+                inputSelectionIndexB = menuItemIndex + 1;
+                
+                for (auto& selectableProcessor : selectableProcessors)
+                {
+                    menu.addItem(++menuItemIndex, // index
+                                 getNameString(selectableProcessor), // message
+                                 true); // isSelectable
+                }
+            } else {
+                menu.addItem(++menuItemIndex, // index
+                " NONE AVAILABLE", // message
+                false); // isSelectable
+            }
+        }
 
         const int result = menu.show(); // returns 0 if nothing is selected
         
         std::cout << "Selection: " << result << std::endl;
 
-        if (result > 1 && result < eventMerge)
+        
+        if (result == eventMergeIndexA)
         {
-            std::cout << "Selected " << selectableProcessors[result-2]->getName() << std::endl;
-
-            switchSource(1);
-
-            Merger* processor = (Merger*) getProcessor();
-            processor->setMergerSourceNode(selectableProcessors[result-2]);
-            selectableProcessors[result-2]->setDestNode(getProcessor());
-
-			AccessClass::getGraphViewer()->updateNodeLocations();
-
-			AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
-        } else if (result == eventMerge)
-        {
-            *eventPtr = !(*eventPtr);
+            merger->mergeEventsA = !(merger->mergeEventsA);
             CoreServices::updateSignalChain(this);
-        } else if (result == continuousMerge)
+            return;
+        } else if (result == continuousMergeIndexA)
         {
-            *continuousPtr = !(*continuousPtr);
+            merger->mergeContinuousA = !merger->mergeContinuousA;
             CoreServices::updateSignalChain(this);
+            return;
+        } else if (result == eventMergeIndexB)
+        {
+            merger->mergeEventsB = !merger->mergeEventsB;
+            CoreServices::updateSignalChain(this);
+            return;
+        } else if (result == continuousMergeIndexB)
+        {
+            merger->mergeContinuousB = !merger->mergeContinuousB;
+            CoreServices::updateSignalChain(this);
+            return;
+        }
+        
+        if (inputSelectionIndexA > 0)
+        {
+            if (result >= inputSelectionIndexA
+                    && result < inputSelectionIndexA + selectableProcessors.size())
+            {
+                switchSource(0);
+                merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexA]);
+                selectableProcessors[result-inputSelectionIndexA]->setDestNode(merger);
+
+                AccessClass::getGraphViewer()->updateNodeLocations();
+                AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
+                return;
+            }
+        }
+        
+        if (inputSelectionIndexB > 0)
+        {
+            if (result >= inputSelectionIndexB
+                    && result < inputSelectionIndexB + selectableProcessors.size())
+            {
+                switchSource(1);
+                merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexB]);
+                selectableProcessors[result-inputSelectionIndexB]->setDestNode(merger);
+
+                AccessClass::getGraphViewer()->updateNodeLocations();
+                AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
+                return;
+            }
         }
     }
 }
