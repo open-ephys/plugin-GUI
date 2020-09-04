@@ -302,6 +302,8 @@ void RecordNode::updateSubprocessorMap()
 				ch++;
 			}
 			ch--;
+
+			fifoUsage[sourceID][subProcID] = 0.0f;
 		}
 
 	}
@@ -642,7 +644,7 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 				{
 					double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
 					double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
-					dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+					fifoUsage[sourceID][subProcIdx] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);

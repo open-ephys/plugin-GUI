@@ -115,6 +115,8 @@ public:
 	std::map<int, std::map<int, int>> syncChannelMap;
 	std::map<int, std::map<int, int>> syncOrderMap;
 
+	std::map<int, std::map<int, float>> fifoUsage;
+
 	Array<int> channelMap; //Map from record channel index to source channel index
 	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
 	std::vector<std::vector<int>> subProcessorMap;

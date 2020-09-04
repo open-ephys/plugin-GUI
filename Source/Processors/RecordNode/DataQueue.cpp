@@ -134,7 +134,7 @@ void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp
 	}
 }
 
-void DataQueue::writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples)
+float DataQueue::writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples)
 {
 
 	int index1, size1, index2, size2;
@@ -168,6 +168,8 @@ void DataQueue::writeSynchronizedTimestampChannel(double start, double step, int
 	}
 
 	m_FTSFifos[destChannel]->finishedWrite(size1 + size2);
+
+	return 1.0f - (float)m_FTSFifos[destChannel]->getFreeSpace() / (float)m_FTSFifos[destChannel]->getTotalSize();
 
 }
 

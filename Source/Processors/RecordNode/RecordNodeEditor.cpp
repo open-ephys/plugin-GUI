@@ -667,21 +667,15 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 
 void FifoMonitor::timerCallback()
 {
-	
-	if (recordNode->recordThread->isThreadRunning())
-	{
-		//TODO: Get metric from recordThread
-		setFillPercentage(0.0f);
-	}
-	else 
-	{
-		setFillPercentage(0.0f);
-	}
 
-	if (srcID < 0)
+	if (srcID < 0) /* Disk space monitor */
 	{
 		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
 		setFillPercentage(1.0f - diskSpace);
+	}
+	else /* Subprocessor monitor */
+	{
+		setFillPercentage(recordNode->fifoUsage[srcID][subID]);
 	}
 
 }
