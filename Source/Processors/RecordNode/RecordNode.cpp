@@ -254,6 +254,12 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 }
 
+void RecordNode::updateRecordChannelIndexes()
+{
+	//Keep the nodeIDs of the original processor from each channel comes from
+	updateChannelIndexes(false);
+}
+
 void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
 	this->dataChannelStates[srcIndex][subProcIdx] = channelStates;
@@ -368,11 +374,7 @@ bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
 void RecordNode::updateSettings()
 {
 
-	if (dataChannelArray.size() != lastDataChannelArraySize)
-	{
-		lastDataChannelArraySize = dataChannelArray.size();
-		updateSubprocessorMap();
-	}
+	updateSubprocessorMap();
 
 }
 

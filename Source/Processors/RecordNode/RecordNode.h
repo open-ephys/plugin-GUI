@@ -49,6 +49,8 @@ public:
 	RecordNode();
 	~RecordNode();
 
+	void updateRecordChannelIndexes();
+
 	AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override { return true; }
 

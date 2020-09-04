@@ -695,7 +695,10 @@ bool ProcessorGraph::enableProcessors()
 
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented
-	//getRecordNode()->updateRecordChannelIndexes();
+    for (auto& node : getRecordNodes())
+    {
+        node->updateRecordChannelIndexes();
+    }
 	getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
