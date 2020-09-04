@@ -37,7 +37,7 @@
 	setResizable(true,      // isResizable
 			false);   // useBottomCornerRisizer -- doesn't work very well
 
-	shouldReloadOnStartup = false;
+	shouldReloadOnStartup = true;
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -85,7 +85,6 @@
 		{
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
-				std::cout << "Loading last config.\n" << std::endl;
 				ui->getEditorViewport()->loadState(lastConfig);
 			}
 			else
