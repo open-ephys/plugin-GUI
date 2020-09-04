@@ -502,7 +502,7 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		for (int i = 0; i < 8; i++)
 			channelStates.push_back(false);
 
-		int nEvents = node->eventChannelMap[srcIndex][subProcIdx];
+		int nEvents = node->eventMap[srcIndex][subProcIdx];
 		int syncChannel = node->getSyncChannel(srcIndex,subProcIdx);
 		
 		auto* channelSelector = new SyncChannelSelector(nEvents,syncChannel,node->isMasterSubprocessor(srcIndex, subProcIdx));

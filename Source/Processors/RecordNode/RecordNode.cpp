@@ -315,7 +315,7 @@ void RecordNode::updateSubprocessorMap()
 		}
 	}
 
-	eventChannelMap.clear();
+	eventMap.clear();
 	syncChannelMap.clear();
 	syncOrderMap.clear();
 	for (int ch = 0; ch < eventChannelArray.size(); ch++)
@@ -325,10 +325,10 @@ void RecordNode::updateSubprocessorMap()
 		int sourceID = chan->getSourceNodeID();
 		int subProcID = chan->getSubProcessorIdx();
 
+		eventMap[sourceID][subProcID] = chan->getNumChannels();
+
 		if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
 		{
-			EventChannel* chan = eventChannelArray[ch];
-			eventChannelMap[sourceID][subProcID] = chan->getNumChannels();
 			syncOrderMap[sourceID][subProcID] = ch;
 			syncChannelMap[sourceID][subProcID] = 0;
 			synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
@@ -350,7 +350,6 @@ void RecordNode::setMasterSubprocessor(int srcIndex, int subProcIdx)
 
 void RecordNode::setSyncChannel(int srcIndex, int subProcIdx, int channel)
 {
-	//eventChannelMap[srcIndex][subProcIdx]; 
 	syncChannelMap[srcIndex][subProcIdx] = channel;
 	synchronizer->setSyncChannel(srcIndex, subProcIdx, syncOrderMap[srcIndex][subProcIdx]+channel);
 }

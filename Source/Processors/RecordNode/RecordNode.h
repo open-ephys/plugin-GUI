@@ -109,7 +109,7 @@ public:
 	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
 	std::map<int, int> dataChannelOrder;
 
-	std::map<int, std::map<int, int>> eventChannelMap;
+	std::map<int, std::map<int, int>> eventMap;
 	std::map<int, std::map<int, int>> syncChannelMap;
 	std::map<int, std::map<int, int>> syncOrderMap;
 
