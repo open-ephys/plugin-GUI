@@ -179,7 +179,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         PopupMenu menu;
         int menuItemIndex = 1;
-        int eventMergeIndexA, eventMergeIndexB, continuousMergeIndexA, continuousMergeIndexB = -1;
+        int continuousMergeIndexA, continuousMergeIndexB = -1;
         int inputSelectionIndexA, inputSelectionIndexB = -1;
         
         Array<GenericProcessor*> selectableProcessors = getSelectableProcessors();
@@ -190,13 +190,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             "Input A: " + getNameString(merger->sourceNodeA), // message
             false); // isSelectable
             
-            eventMergeIndexA = ++menuItemIndex;
             continuousMergeIndexA = ++menuItemIndex;
-            
-            menu.addItem(eventMergeIndexA,
-                         "Merge event data",
-                         !acquisitionIsActive,
-                         merger->mergeEventsA);
             
             menu.addItem(continuousMergeIndexA,
                          "Merge continuous data",
@@ -236,13 +230,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             "Input B: " + getNameString(merger->sourceNodeB), // message
             false); // isSelectable
             
-            eventMergeIndexB = ++menuItemIndex;
             continuousMergeIndexB = ++menuItemIndex;
-            
-            menu.addItem(eventMergeIndexB,
-                         "Merge event data",
-                         !acquisitionIsActive,
-                         merger->mergeEventsB);
             
             menu.addItem(continuousMergeIndexB,
                          "Merge continuous data",
@@ -276,19 +264,9 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         std::cout << "Selection: " << result << std::endl;
 
         
-        if (result == eventMergeIndexA)
-        {
-            merger->mergeEventsA = !(merger->mergeEventsA);
-            CoreServices::updateSignalChain(this);
-            return;
-        } else if (result == continuousMergeIndexA)
+        if (result == continuousMergeIndexA)
         {
             merger->mergeContinuousA = !merger->mergeContinuousA;
-            CoreServices::updateSignalChain(this);
-            return;
-        } else if (result == eventMergeIndexB)
-        {
-            merger->mergeEventsB = !merger->mergeEventsB;
             CoreServices::updateSignalChain(this);
             return;
         } else if (result == continuousMergeIndexB)
