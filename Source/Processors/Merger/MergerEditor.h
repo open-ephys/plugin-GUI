@@ -40,24 +40,39 @@ class MergerEditor : public GenericEditor
 
 {
 public:
+    
+    /** Constructor*/
     MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    
+    /** Destructor*/
     virtual ~MergerEditor();
 
+    /** Called whenever the pathway selector button is pressed.*/
     virtual void buttonEvent(Button* button);
 
+    /** Changes the active pathway to 0 or 1 */
     void switchSource(int);
+    
+    /** Swaps the active pathway*/
     void switchSource();
 
+    /** Changes the active pathway to 0 or 1, and selects the editor */
     void switchIO(int);
-
+    
+    /** Called for mouse events in the editor's title bar */
     void mouseDown(const MouseEvent& event);
 
+    /** Returns the pathway (0 or 1) for a particular editor*/
     int getPathForEditor(GenericEditor* editor);
 
+    /** Returns an array of the editors that feed into the merger*/
     Array<GenericEditor*> getConnectedEditors();
 
 private:
-
+    
+    String getNameString(GenericProcessor*);
+    Array<GenericProcessor*> getSelectableProcessors();
+    
     ImageButton* pipelineSelectorA;
     ImageButton* pipelineSelectorB;
 

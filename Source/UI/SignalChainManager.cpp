@@ -168,13 +168,13 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     // Step 1: update the editor array
     if (action == ADD)
     {
-        //std::cout << "    Adding editor." << std::endl;
+        std::cout << "    Adding editor." << std::endl;
         editorArray.insert(insertionPoint, activeEditor);
 
     }
     else if (action == MOVE)
     {
-        // std::cout << "    Moving editors." << std::endl;
+        std::cout << "    Moving editors." << std::endl;
         if (insertionPoint < index)
             editorArray.move(index, insertionPoint);
         else if (insertionPoint > index)
@@ -184,11 +184,10 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     else if (action == REMOVE)
     {
 
-        // std::cout << "    Removing editor." << std::endl;
+        std::cout << "    Removing editor." << std::endl;
 
         GenericProcessor* p = (GenericProcessor*) editorArray[index]->getProcessor();
 
-        // GenericProcessor* source = p->getSourceNode();
         if (p->getSourceNode() != nullptr)
             if (p->getSourceNode()->isSplitter())
                 p->getSourceNode()->setSplitterDestNode(nullptr);
@@ -298,23 +297,40 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     if (action != ACTIVATE && action != UPDATE && editorArray.size() > 0)
     {
 
-        // std::cout << "Updating connections." << std::endl;
+        //std::cout << "Updating connections." << std::endl;
 
         GenericProcessor* source = 0;
         GenericProcessor* dest = (GenericProcessor*) editorArray[0]->getProcessor();
 
-        dest->setSourceNode(source);
-
+        if (!dest->isMerger())
+        {
+            dest->setSourceNode(source);
+        } else {
+            dest->setMergerSourceNode(source);
+        }
+        
         for (int n = 1; n < editorArray.size(); n++)
         {
 
             dest = (GenericProcessor*) editorArray[n]->getProcessor();
             source = (GenericProcessor*) editorArray[n-1]->getProcessor();
 
-            dest->setSourceNode(source);
+            if (!dest->isMerger())
+            {
+                dest->setSourceNode(source);
+            } else {
+                dest->setMergerSourceNode(source);
+            }
+            
         }
 
-        dest->setDestNode(0);
+        if (!dest->isSplitter())
+        {
+            dest->setDestNode(0);
+        } else {
+            dest->setSplitterDestNode(0);
+        }
+        
 
     }
 
@@ -322,7 +338,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     if (action != ACTIVATE && action != UPDATE)
     {
 
-        //  std::cout << "Checking for new tabs." << std::endl;
+        //std::cout << "Checking for new tabs." << std::endl;
 
         for (int n = 0; n < editorArray.size(); n++)
         {
@@ -367,7 +383,7 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     }
 
     editorArray.clear();
-    // std::cout << "Cleared editor array." << std::endl;
+    //std::cout << "Cleared editor array." << std::endl;
 
     GenericEditor* editorToAdd = activeEditor;
 

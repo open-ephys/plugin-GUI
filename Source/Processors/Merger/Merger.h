@@ -77,10 +77,10 @@ public:
 
     bool mergeEventsA, mergeContinuousA, mergeEventsB, mergeContinuousB;
 
-private:
-
     GenericProcessor* sourceNodeA;
     GenericProcessor* sourceNodeB;
+
+private:
 
     int activePath;
 
