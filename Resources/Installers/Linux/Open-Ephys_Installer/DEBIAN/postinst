@@ -1,0 +1,17 @@
+#!/bin/sh
+# postinst script for Open Ephys
+
+if [ "$1" = configure ]; then
+
+    echo "Copying open-ephys udev rules and restaring udev service..."
+    cd /usr/local/bin
+    mv open-ephys-gui/40-open-ephys.rules /etc/udev/rules.d
+    service udev restart
+
+    echo "Creating open-ephys symlink to /usr/local/bin..."
+    ln -sf open-ephys-gui/open-ephys open-ephys
+
+    echo "Installation finished!"
+
+fi
+

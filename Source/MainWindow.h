@@ -74,6 +74,10 @@ private:
         from which the GUI is run. */
     void loadWindowBounds();
 
+    /** Checks whether the signal chains of both the config files (lastConfig.xml & recoveryConfig.xml) 
+     *  match or not. */
+    bool compareConfigFiles(File file1, File file2);
+
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     ScopedPointer<AudioComponent> audioComponent;
 

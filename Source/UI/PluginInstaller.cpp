@@ -40,13 +40,12 @@
 static inline File getPluginsLocationDirectory() {
 #if defined(__APPLE__)
     File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
-    if (!dir.isDirectory()) {
-        dir.createDirectory();
-    }
-    return std::move(dir);
+#elif _WIN32
+    File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
 #else
-    return File::getSpecialLocation(File::currentExecutableFile).getParentDirectory();
+	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");
 #endif
+    return std::move(dir);
 }
 
 static String osType;
@@ -680,7 +679,7 @@ void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
 
 /* ================================== Plugin Information Component ================================== */
 
-PluginInfoComponent::PluginInfoComponent()
+PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin Installer", false, false)
 {
 	infoFont = Font("FiraSans", 20, Font::plain);
 	infoFontBold = Font("FiraSans Bold", 20, Font::plain);
@@ -793,118 +792,127 @@ void PluginInfoComponent::buttonClicked(Button* button)
 {
 	if (button == &downloadButton)
 	{
-		std::cout << "\nDownloading Plugin: " << pInfo.pluginName << "...  " << std::endl;
-		
-		// If a plugin has depencies outside its zip, download them
-		for (int i = 0; i < pInfo.dependencies.size(); i++)
-		{
-			String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-			depUrl += pInfo.dependencies[i] + "/" + pInfo.dependencies[i] + "-" ;
-			depUrl += osType + "/versions/_latest";
-
-			String depResponse = URL(depUrl).readEntireTextStream();
-			var depReply = JSON::parse(depResponse);
-			String ver = depReply.getProperty("name", "NULL");
-
-			int retCode = downloadPlugin(pInfo.dependencies[i], ver, true);
-
-			if (retCode == 2)
-			{
-				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-												"[Plugin Installer] " + pInfo.dependencies[i], 
-												"Could not install dependency: " + pInfo.dependencies[i] 
-												+ ". Please contact the developers.");
-				
-				std::cout << "Download Failed!!" << std::endl;
-				return;
-			}
-		}
-		
-		// download the plugin
-		int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
-
-		if (dlReturnCode == SUCCESS)
-		{	
-			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											pInfo.displayName + " Installed Successfully");
-
-			std::cout << "Download Successfull!!" << std::endl;
-
-			pInfo.installedVersion = pInfo.selectedVersion;
-			downloadButton.setEnabled(false);
-			downloadButton.setButtonText("Installed");
-		}
-		else if (dlReturnCode == ZIP_NOTFOUND)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Could not find the ZIP file for " + pInfo.displayName 
-											+ ". Please contact the developers.");
-
-			std::cout << "Download Failed!!" << std::endl;
-		}
-		else if (dlReturnCode == UNCMP_ERR)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Could not uncompress the ZIP file. Please try again.");
-
-			std::cout << "Download Failed!!" << std::endl;
-		}
-		else if (dlReturnCode == XML_MISSING)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
-
-			std::cout << "XML File Missing!!" << std::endl;
-		}
-		else if (dlReturnCode == VER_EXISTS_ERR)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											pInfo.displayName + " v" + pInfo.selectedVersion 
-											+ " already exists. Please download another version.");
-
-			std::cout << "Download Failed!!" << std::endl;
-		}
-		else if (dlReturnCode == XML_WRITE_ERR)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Unable to write to installedPlugins.xml \n Please try again.");
-			
-			std::cout << "Writing to XML Failed!!" << std::endl;
-		}
-		else if (dlReturnCode == LOAD_ERR)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Unable to load " + pInfo.displayName 
-											+ " in the Processor List.\nLook at console output for more details.");
-
-			std::cout << "Loading Plugin Failed!!" << std::endl;
-
-			pInfo.installedVersion = pInfo.selectedVersion;
-			downloadButton.setEnabled(false);
-			downloadButton.setButtonText("Installed");
-		}
-		else if (dlReturnCode == PROC_IN_USE)
-		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-											"[Plugin Installer] " + pInfo.displayName, 
-											"Plugin already in use. Please remove it from the signal chain and try again.");
-
-			std::cout << "Error.. Plugin already in use. Please remove it from the signal chain and try again." << std::endl;
-		}
-
+		this->runThread();
 	}
 	else if (button == &documentationButton)
 	{
 		URL url = URL(pInfo.docURL);
 		url.launchInDefaultBrowser();
 	}
+}
+
+void PluginInfoComponent::run()
+{
+	std::cout << "\nDownloading Plugin: " << pInfo.pluginName << "...  " << std::endl;
+		
+	// If a plugin has depencies outside its zip, download them
+	for (int i = 0; i < pInfo.dependencies.size(); i++)
+	{
+		String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+		depUrl += pInfo.dependencies[i] + "/" + pInfo.dependencies[i] + "-" ;
+		depUrl += osType + "/versions/_latest";
+
+		setStatusMessage("Downloading dependency: " + pInfo.dependencies[i]);
+
+		String depResponse = URL(depUrl).readEntireTextStream();
+		var depReply = JSON::parse(depResponse);
+		String ver = depReply.getProperty("name", "NULL");
+
+		int retCode = downloadPlugin(pInfo.dependencies[i], ver, true);
+
+		if (retCode == 2)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.dependencies[i], 
+											"Could not install dependency: " + pInfo.dependencies[i] 
+											+ ". Please contact the developers.");
+			
+			std::cout << "Download Failed!!" << std::endl;
+			return;
+		}
+	}
+	
+	setStatusMessage("Downloading " + pInfo.displayName + " ...");
+
+	// download the plugin
+	int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
+
+	if (dlReturnCode == SUCCESS)
+	{	
+		AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										pInfo.displayName + " Installed Successfully");
+
+		std::cout << "Download Successfull!!" << std::endl;
+
+		pInfo.installedVersion = pInfo.selectedVersion;
+		downloadButton.setEnabled(false);
+		downloadButton.setButtonText("Installed");
+	}
+	else if (dlReturnCode == ZIP_NOTFOUND)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Could not find the ZIP file for " + pInfo.displayName 
+										+ ". Please contact the developers.");
+
+		std::cout << "Download Failed!!" << std::endl;
+	}
+	else if (dlReturnCode == UNCMP_ERR)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Could not uncompress the ZIP file. Please try again.");
+
+		std::cout << "Download Failed!!" << std::endl;
+	}
+	else if (dlReturnCode == XML_MISSING)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
+
+		std::cout << "XML File Missing!!" << std::endl;
+	}
+	else if (dlReturnCode == VER_EXISTS_ERR)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										pInfo.displayName + " v" + pInfo.selectedVersion 
+										+ " already exists. Please download another version.");
+
+		std::cout << "Download Failed!!" << std::endl;
+	}
+	else if (dlReturnCode == XML_WRITE_ERR)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Unable to write to installedPlugins.xml \n Please try again.");
+		
+		std::cout << "Writing to XML Failed!!" << std::endl;
+	}
+	else if (dlReturnCode == LOAD_ERR)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Unable to load " + pInfo.displayName 
+										+ " in the Processor List.\nLook at console output for more details.");
+
+		std::cout << "Loading Plugin Failed!!" << std::endl;
+
+		pInfo.installedVersion = pInfo.selectedVersion;
+		downloadButton.setEnabled(false);
+		downloadButton.setButtonText("Installed");
+	}
+	else if (dlReturnCode == PROC_IN_USE)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Plugin already in use. Please remove it from the signal chain and try again.");
+
+		std::cout << "Error.. Plugin already in use. Please remove it from the signal chain and try again." << std::endl;
+	}
+
 }
 
 int PluginInfoComponent::versionCompare(const String& v1, const String& v2)

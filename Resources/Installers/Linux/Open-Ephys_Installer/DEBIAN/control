@@ -1,0 +1,9 @@
+Package: open-ephys
+Version: 0.5.0
+Architecture: amd64
+Installed-Size: 18644
+Section: science
+Priority: optional
+Maintainer: Open Ephys <info@open-ephys.com>
+Homepage: https://open-ephys.org/gui
+Description: Software for processing, recording, and visualizing multichannel electrophysiology data.
