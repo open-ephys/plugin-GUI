@@ -49,10 +49,13 @@ public:
 	RecordNode();
 	~RecordNode();
 
+	void updateRecordChannelIndexes();
+
 	AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override { return true; }
 
-	
+	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
+
 	void updateSubprocessorMap();
 	void setMasterSubprocessor(int srcIdx, int subProcIdx);
 	bool isMasterSubprocessor(int srcIdx, int subProcIdx);
@@ -108,9 +111,11 @@ public:
 	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
 	std::map<int, int> dataChannelOrder;
 
-	std::map<int, std::map<int, int>> eventChannelMap;
+	std::map<int, std::map<int, int>> eventMap;
 	std::map<int, std::map<int, int>> syncChannelMap;
 	std::map<int, std::map<int, int>> syncOrderMap;
+
+	std::map<int, std::map<int, float>> fifoUsage;
 
 	Array<int> channelMap; //Map from record channel index to source channel index
 	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
@@ -120,6 +125,7 @@ public:
     bool isSyncReady;
 
     //TODO: Need to validate these new methods
+	void addInputChannel(const GenericProcessor* sourceNode, int chan);
 
     /** Must be called by a spike recording source on the "enable" method
     */
@@ -160,6 +166,8 @@ public:
 	ScopedPointer<EventMonitor> eventMonitor;
 
 private:
+
+	bool receivedSoftwareTime;
 
 	int lastDataChannelArraySize;
 

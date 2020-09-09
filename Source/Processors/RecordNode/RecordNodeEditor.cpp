@@ -95,7 +95,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
-	//eventRecord->triggerClick(); //enable event recortding by default
+	eventRecord->triggerClick(); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -105,7 +105,8 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 110, 15, 15);
-	spikeRecord->addListener(this); //disable spike recording by default
+	spikeRecord->addListener(this);
+	spikeRecord->triggerClick(); //enable spike recording by default
 	addAndMakeVisible(spikeRecord);
 
 	/*
@@ -143,18 +144,22 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 		for (auto subIdx : extract_keys(recordNode->dataChannelStates[srcID]))
 		{
 
-			XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
-
-			subProcNode->setAttribute("src_id", srcID);
-			subProcNode->setAttribute("sub_idx", subIdx);
-			subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
-			subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
-
-			XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
-
-			for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+			if (recordNode->dataChannelStates[srcID][subIdx].size() > 0)
 			{
-				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+				XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
+
+				subProcNode->setAttribute("src_id", srcID);
+				subProcNode->setAttribute("sub_idx", subIdx);
+				subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
+				subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
+
+				XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
+
+				for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+				{
+					recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+				}
+
 			}
 
 		}
@@ -172,10 +177,11 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 		{
 			
 			//Get saved record path
-		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::dontSendNotification);
+		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::sendNotification);
 			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
-			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::dontSendNotification);
-			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::dontSendNotification);
+			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
+			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
+
 
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
@@ -185,17 +191,22 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 					int srcID = subNode->getIntAttribute("src_id");
 					int subIdx = subNode->getIntAttribute("sub_idx");
 
-					if (subNode->getBoolAttribute("isMaster"))
+					if (recordNode->dataChannelStates[srcID][subIdx].size())
 					{
-						recordNode->setMasterSubprocessor(srcID, subIdx);
-					}
-					recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
 
-					XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+						if (subNode->getBoolAttribute("isMaster"))
+						{
+							recordNode->setMasterSubprocessor(srcID, subIdx);
+						}
+						recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
 
-					for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
-					{
-						recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH"+String(ch));
+						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+
+						for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+						{
+							recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH" + String(ch));
+						}
+
 					}
 
 				}
@@ -240,25 +251,30 @@ void RecordNodeEditor::updateSubprocessorFifos()
 
 			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 
-				String name = "SP" + String(i);
-				subProcLabels.add(new Label(name, name));
-				subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
-				subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-				addAndMakeVisible(subProcLabels.getLast());
-				subProcLabels.getLast()->setVisible(false);
+				if (recordNode->dataChannelStates[it->first][ptr->first].size())
+				{
 
-				subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
-				subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
-				addAndMakeVisible(subProcMonitors.getLast());
-				subProcMonitors.getLast()->setVisible(false);
+					String name = "SP" + String(i);
+					subProcLabels.add(new Label(name, name));
+					subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
+					subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
+					addAndMakeVisible(subProcLabels.getLast());
+					subProcLabels.getLast()->setVisible(false);
 
-				subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
-				subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
-				subProcRecords.getLast()->addListener(this);
-				addAndMakeVisible(subProcRecords.getLast());
-				subProcRecords.getLast()->setVisible(false);
+					subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
+					subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
+					addAndMakeVisible(subProcMonitors.getLast());
+					subProcMonitors.getLast()->setVisible(false);
 
-				i++;
+					subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
+					subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
+					subProcRecords.getLast()->addListener(this);
+					addAndMakeVisible(subProcRecords.getLast());
+					subProcRecords.getLast()->setVisible(false);
+
+					i++;
+
+				}
 
 			}
 		}
@@ -487,7 +503,7 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		for (int i = 0; i < 8; i++)
 			channelStates.push_back(false);
 
-		int nEvents = node->eventChannelMap[srcIndex][subProcIdx];
+		int nEvents = node->eventMap[srcIndex][subProcIdx];
 		int syncChannel = node->getSyncChannel(srcIndex,subProcIdx);
 		
 		auto* channelSelector = new SyncChannelSelector(nEvents,syncChannel,node->isMasterSubprocessor(srcIndex, subProcIdx));
@@ -651,21 +667,15 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 
 void FifoMonitor::timerCallback()
 {
-	
-	if (recordNode->recordThread->isThreadRunning())
-	{
-		//TODO: Get metric from recordThread
-		setFillPercentage(0.0f);
-	}
-	else 
-	{
-		setFillPercentage(0.0f);
-	}
 
-	if (srcID < 0)
+	if (srcID < 0) /* Disk space monitor */
 	{
 		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
 		setFillPercentage(1.0f - diskSpace);
+	}
+	else /* Subprocessor monitor */
+	{
+		setFillPercentage(recordNode->fifoUsage[srcID][subID]);
 	}
 
 }

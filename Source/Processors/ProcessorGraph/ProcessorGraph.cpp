@@ -266,10 +266,10 @@ void ProcessorGraph::clearConnections()
 
     }
 
-    /*
-    addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
-                  RECORD_NODE_ID, midiChannelIndex);
-    */
+    for (auto& recordNode : getRecordNodes())
+        addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
+                  recordNode->getNodeId(), midiChannelIndex);
+
 }
 
 
@@ -277,10 +277,6 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
 {
 
     clearConnections(); // clear processor graph
-
-    std::cout << "Updating connections:" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
 
     Array<GenericProcessor*> splitters;
 
@@ -453,10 +449,13 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     }
 	
 	getAudioNode()->updatePlaybackBuffer();
-	//Update RecordNode internal channel mappings
+
 	Array<EventChannel*> extraChannels;
 	getMessageCenter()->addSpecialProcessorChannels(extraChannels);
-	//getRecordNode()->addSpecialProcessorChannels(extraChannels);
+
+    for (auto& recordNode : getRecordNodes())
+        recordNode->addSpecialProcessorChannels(extraChannels);
+
 } // end method
 
 void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcessor* dest,
@@ -490,12 +489,6 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
                       midiChannelIndex,       // sourceNodeChannelIndex
                       dest->getNodeId(),      // destNodeID
                       midiChannelIndex);      // destNodeChannelIndex
-    }
-
-    // 3. connect record nodes
-    if (dest->isRecordNode())
-    {
-        ((RecordNode*)dest)->registerProcessor(source);
     }
 
 }
@@ -702,7 +695,10 @@ bool ProcessorGraph::enableProcessors()
 
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented
-	//getRecordNode()->updateRecordChannelIndexes();
+    for (auto& node : getRecordNodes())
+    {
+        node->updateRecordChannelIndexes();
+    }
 	getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
@@ -748,15 +744,6 @@ bool ProcessorGraph::disableProcessors()
 
 void ProcessorGraph::setRecordState(bool isRecording)
 {
-    // actually start recording
-    if (isRecording)
-    {
-        //getRecordNode()->setParameter(1,10.0f);
-    }
-    else
-    {
-        //getRecordNode()->setParameter(0,10.0f);
-    }
 
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -768,7 +755,6 @@ void ProcessorGraph::setRecordState(bool isRecording)
             p->setRecording(isRecording);
         }
     }
-
 
 }
 

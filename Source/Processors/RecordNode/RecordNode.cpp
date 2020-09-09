@@ -10,6 +10,7 @@
 using namespace std::chrono;
 
 #define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
+#define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
 EventMonitor::EventMonitor()
 	: receivedEvents(0) {}
@@ -37,7 +38,8 @@ RecordNode::RecordNode()
 	recordingNumber(0),
 	isRecording(false),
 	hasRecorded(false),
-	settingsNeeded(false)
+	settingsNeeded(false),
+	receivedSoftwareTime(false)
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
@@ -64,6 +66,45 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
+}
+
+void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
+{
+
+	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
+	{
+		int channelIndex = getNextChannel(false);
+
+		const DataChannel* orig = sourceNode->getDataChannel(chan);
+		DataChannel* newChannel = new DataChannel(*orig);
+		newChannel->setRecordState(orig->getRecordState());
+		dataChannelArray.add(newChannel);
+		recordEngine->addDataChannel(channelIndex, dataChannelArray[channelIndex]);
+
+	}
+	else
+	{
+
+		for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
+		{
+			const EventChannel* orig = sourceNode->getEventChannel(n);
+			//only add to the record node the events originating from this processor, to avoid duplicates
+			if (orig->getSourceNodeID() == sourceNode->getNodeId())
+				eventChannelArray.add(new EventChannel(*orig));
+
+		}
+
+	}
+
+}
+
+void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
+{
+
+	eventChannelArray.addArray(channels);
+	settings.numInputs = dataChannelArray.size();
+	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
+
 }
 
 void RecordNode::setEngine(int index)
@@ -213,6 +254,12 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 
 }
 
+void RecordNode::updateRecordChannelIndexes()
+{
+	//Keep the nodeIDs of the original processor from each channel comes from
+	updateChannelIndexes(false);
+}
+
 void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
 {
 	this->dataChannelStates[srcIndex][subProcIdx] = channelStates;
@@ -255,6 +302,8 @@ void RecordNode::updateSubprocessorMap()
 				ch++;
 			}
 			ch--;
+
+			fifoUsage[sourceID][subProcID] = 0.0f;
 		}
 
 	}
@@ -274,7 +323,7 @@ void RecordNode::updateSubprocessorMap()
 		}
 	}
 
-	eventChannelMap.clear();
+	eventMap.clear();
 	syncChannelMap.clear();
 	syncOrderMap.clear();
 	for (int ch = 0; ch < eventChannelArray.size(); ch++)
@@ -284,12 +333,10 @@ void RecordNode::updateSubprocessorMap()
 		int sourceID = chan->getSourceNodeID();
 		int subProcID = chan->getSubProcessorIdx();
 
-		int chCount = 0;
+		eventMap[sourceID][subProcID] = chan->getNumChannels();
 
-		if (!syncChannelMap[sourceID][subProcID])
+		if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
 		{
-			EventChannel* chan = eventChannelArray[ch];
-			eventChannelMap[sourceID][subProcID] = chan->getNumChannels();
 			syncOrderMap[sourceID][subProcID] = ch;
 			syncChannelMap[sourceID][subProcID] = 0;
 			synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
@@ -311,7 +358,6 @@ void RecordNode::setMasterSubprocessor(int srcIndex, int subProcIdx)
 
 void RecordNode::setSyncChannel(int srcIndex, int subProcIdx, int channel)
 {
-	//eventChannelMap[srcIndex][subProcIdx]; 
 	syncChannelMap[srcIndex][subProcIdx] = channel;
 	synchronizer->setSyncChannel(srcIndex, subProcIdx, syncOrderMap[srcIndex][subProcIdx]+channel);
 }
@@ -330,11 +376,7 @@ bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
 void RecordNode::updateSettings()
 {
 
-	if (dataChannelArray.size() != lastDataChannelArraySize)
-	{
-		lastDataChannelArraySize = dataChannelArray.size();
-		updateSubprocessorMap();
-	}
+	updateSubprocessorMap();
 
 }
 
@@ -373,7 +415,7 @@ void RecordNode::startRecording()
 
 	int recordedProcessorIdx = -1;	
 
-	LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans);
+	//LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans, " Total event channels: ", getTotalEventChannels());
 
 	for (int ch = 0; ch < totChans; ++ch)
 	{
@@ -506,15 +548,15 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		int64 timestamp = Event::getTimestamp(event);
 		uint64 eventChan = event.getChannel();
 		int eventIndex;
-		if (eventInfo && samplePosition > 0)
-		{
+		if (eventInfo)
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
-		}
 		else
 			eventIndex = -1;
 
-		if (isRecording && eventIndex >= 0)
+		if (samplePosition > 0 && dataChannelStates[Event::getSourceID(event)][Event::getSubProcessorIdx(event)].size())
+			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
+
+		if (isRecording)
 			eventQueue->addEvent(event, timestamp, eventIndex);
 
 	}
@@ -541,7 +583,20 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 
 void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 {
-	handleEvent(nullptr, event, 0);
+
+	if (event.getVelocity() == 136)
+	{
+		if (!receivedSoftwareTime)
+		{
+			handleEvent(nullptr, event, 0);
+			receivedSoftwareTime = true;
+		}
+	}
+	else
+	{
+		handleEvent(nullptr, event, 0);
+	}
+
 }
 	
 void RecordNode::process(AudioSampleBuffer& buffer)
@@ -589,7 +644,7 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 				{
 					double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
 					double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
-					dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+					fifoUsage[sourceID][subProcIdx] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
@@ -626,13 +681,10 @@ bool RecordNode::isFirstChannelInRecordedSubprocessor(int ch)
 	return std::find(startRecChannels.begin(), startRecChannels.end(), ch) != startRecChannels.end();
 }
 
-//TODO: Need to validate these methods
-
 void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 {
 	settings.numInputs += sourceNode->getNumOutputs();
 	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-
 	recordEngine->registerProcessor(sourceNode);
 }
 
