@@ -87,7 +87,7 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 	setVisible(true);
 
 	// Constraining the window's size doesn't seem to work:
-	setResizeLimits(640, 480, 8192, 5120);
+	setResizeLimits(854, 480, 8192, 5120);
 
 	createXmlFile();
 
@@ -159,9 +159,58 @@ void PluginInstaller::createXmlFile()
 	}
 }
 
+int versionCompare(const String& v1, const String& v2)
+{ 
+    String nv1 = v1.substring(0, v1.indexOf("-"));
+	String nv2 = v2.substring(0, v2.indexOf("-"));
+
+	//  vnum stores each numeric part of version 
+    int vnum1 = 0, vnum2 = 0; 
+  
+    //  loop untill both numeric versions are processed 
+    for (int i=0, j=0; (i<nv1.length() || j<nv2.length()); ) 
+    { 
+        //  storing numeric part of version 1 in vnum1 
+        while (i < nv1.length() && nv1[i] != '.') 
+        { 
+            vnum1 = vnum1 * 10 + (nv1[i] - '0'); 
+            i++; 
+        } 
+  
+        //  storing numeric part of version 2 in vnum2 
+        while (j < nv2.length() && nv2[j] != '.') 
+        { 
+            vnum2 = vnum2 * 10 + (nv2[j] - '0'); 
+            j++; 
+        } 
+  
+        if (vnum1 > vnum2) 
+            return 1; 
+        if (vnum2 > vnum1) 
+            return -1; 
+  
+        //  if equal, reset variables and go for next numeric part 
+        vnum1 = vnum2 = 0; 
+        i++; 
+        j++; 
+    } 
+
+	// Numeric versions match, check API versions
+	int av1 = v1.substring(v1.indexOf("I") + 1).getIntValue();
+	int av2 = v2.substring(v2.indexOf("I") + 1).getIntValue();
+
+	if (av1 > av2)
+		return 1;
+	if (av1 < av2)
+		return -1;
+
+    return 0; 
+}
+
+
 /* ================================== Plugin Installer Component ================================== */
 
-PluginInstallerComponent::PluginInstallerComponent()
+PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow("Plugin Installer", false, false)
 {
 	font = Font("FiraSans", 18, Font::plain);
 	setSize(getWidth() - 10, getHeight() - 10);
@@ -289,7 +338,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	}
 }
 
-void PluginInstallerComponent::loadInstalledPluginNames()
+void PluginInstallerComponent::run()
 {
 	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
 	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
@@ -317,6 +366,7 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 
 			if (updatesButton.getToggleState())
 			{
+				setStatusMessage("Fetching plugin updates...");
 				//Get latest version
 				String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
 
@@ -325,7 +375,7 @@ void PluginInstallerComponent::loadInstalledPluginNames()
 
 				String latest_ver = vReply.getProperty("name", "NULL").toString();
 
-				if (!latest_ver.equalsIgnoreCase(e->getAttributeValue(0)))
+				if (versionCompare(latest_ver, e->getAttributeValue(0)) > 0)
 					updatablePlugins.add(pName);
 			}
 		}
@@ -342,8 +392,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 	if(button == &installedButton)
 	{
-		//if(installedPlugins.isEmpty())
-		loadInstalledPluginNames();
+		this->run();
 		
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(installedPlugins);
@@ -357,8 +406,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 	}
 	else if(button == &updatesButton)
 	{
-		//if(installedPlugins.isEmpty())
-		loadInstalledPluginNames();
+		this->runThread();
 		
 		pluginListAndInfo.pluginArray.clear();
 		pluginListAndInfo.pluginArray.addArray(updatablePlugins);
@@ -914,42 +962,7 @@ void PluginInfoComponent::run()
 	}
 
 }
-
-int PluginInfoComponent::versionCompare(const String& v1, const String& v2)
-{ 
-    //  vnum stores each numeric part of version 
-    int vnum1 = 0, vnum2 = 0; 
-  
-    //  loop untill both string are processed 
-    for (int i=0, j=0; (i<v1.length() || j<v2.length()); ) 
-    { 
-        //  storing numeric part of version 1 in vnum1 
-        while (i < v1.length() && v1[i] != '.') 
-        { 
-            vnum1 = vnum1 * 10 + (v1[i] - '0'); 
-            i++; 
-        } 
-  
-        //  storing numeric part of version 2 in vnum2 
-        while (j < v2.length() && v2[j] != '.') 
-        { 
-            vnum2 = vnum2 * 10 + (v2[j] - '0'); 
-            j++; 
-        } 
-  
-        if (vnum1 > vnum2) 
-            return 1; 
-        if (vnum2 > vnum1) 
-            return -1; 
-  
-        //  if equal, reset variables and go for next numeric 
-        // part 
-        vnum1 = vnum2 = 0; 
-        i++; 
-        j++; 
-    } 
-    return 0; 
-} 
+ 
 
 void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
@@ -965,9 +978,7 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 		}
 		else
 		{
-			String selected = pInfo.selectedVersion.substring(0, pInfo.selectedVersion.indexOf("-"));
-			String installed = pInfo.installedVersion.substring(0, pInfo.installedVersion.indexOf("-"));
-			int result = versionCompare(selected, installed);
+			int result = versionCompare(pInfo.selectedVersion, pInfo.installedVersion);
 
 			if (result == 0)
 			{
@@ -1003,7 +1014,10 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	versionMenu.clear(dontSendNotification);
 
 	if (pInfo.versions.isEmpty())
+	{
 		downloadButton.setEnabled(false);
+		downloadButton.setButtonText("Unavailable");
+	}
 	else
 	{
 		for (int i = 0; i < pInfo.versions.size(); i++)

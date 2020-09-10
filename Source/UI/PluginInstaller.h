@@ -63,6 +63,9 @@ struct SelectedPluginInfo
     String docURL;
 };
 
+/** Compares two different version numbers **/
+int versionCompare(const String& v1, const String& v2);
+
 /**
  *  Create Info Panel for the selected plugin from the table
 */
@@ -82,9 +85,6 @@ public:
 
     /** Called when any of the buttons inside this component is clicked that has a listener **/
     void buttonClicked(Button* button) override;
-
-    /** Compares two different version numbers **/
-    int versionCompare(const String& v1, const String& v2);
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
@@ -190,7 +190,8 @@ private:
 
 class PluginInstallerComponent : public Component,
                                  public ComboBox::Listener,
-                                 public Button::Listener
+                                 public Button::Listener,
+                                 public ThreadWithProgressWindow
 {
 public:
 
@@ -224,6 +225,8 @@ private:
     ToggleButton filterType, sourceType, sinkType, otherType;
 
     Font font;
+
+    void run() override;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstallerComponent);
 
