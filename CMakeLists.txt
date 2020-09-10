@@ -184,6 +184,7 @@ elseif(APPLE)
 
 		set(MAC_RESOURCE_FILES
 			${RESOURCES_DIRECTORY}/Build-files/Icon.icns
+			${RESOURCES_DIRECTORY}/Build-files/dmg_background.png
 			${RESOURCES_DIRECTORY}/Build-files/RecentFilesMenuTemplate.nib
 			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000.bit
 			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000_usb3.bit
