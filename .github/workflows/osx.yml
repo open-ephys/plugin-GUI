@@ -40,6 +40,21 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/publish
+        brew install create-dmg && create-dmg \
+          --volname "Open-Ephys Installer" \
+          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
+          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
+          --window-pos 300 0 \
+          --window-size 688 416 \
+          --icon-size 128 \
+          --icon "open-ephys.app" 200 190 \
+          --hide-extension "Open-Ephys.app" \
+          --app-drop-link 500 188 \
+          "Open-Ephys-Installer.dmg" \
+          "open-ephys/"
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T Open-Ephys-Installer.dmg --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-Mac/$gui_ver/Open-Ephys-Installer.dmg
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-Mac/$gui_ver/publish
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
       env:
@@ -57,3 +72,18 @@ jobs:
         user_info="$bintrayUser:$bintrayApiKey"
         curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-mac/$gui_ver/$zipfile
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-mac/$gui_ver/publish
+        brew install create-dmg && create-dmg \
+          --volname "Open-Ephys Installer" \
+          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
+          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
+          --window-pos 300 0 \
+          --window-size 688 416 \
+          --icon-size 128 \
+          --icon "open-ephys.app" 200 190 \
+          --hide-extension "Open-Ephys.app" \
+          --app-drop-link 500 188 \
+          "Open-Ephys-Installer.dmg" \
+          "open-ephys/"
+        user_info="$bintrayUser:$bintrayApiKey"
+        curl -T Open-Ephys-Installer.dmg --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-Mac/$gui_ver/Open-Ephys-Installer.dmg
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-Mac/$gui_ver/publish
