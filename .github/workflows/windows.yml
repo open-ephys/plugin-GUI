@@ -32,7 +32,7 @@ jobs:
         bintrayApiKey: ${{ secrets.bintrayApiKey }}
       run: |
         cd Build
-        mv Release open-ephys
+        cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DataFiles open-ephys
         cp -r ../Licenses open-ephys
@@ -56,7 +56,7 @@ jobs:
         bintrayApiKey: ${{ secrets.bintrayApiKey }}
       run: |
         cd Build
-        mv Release open-ephys
+        cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DataFiles open-ephys
         cp -r ../Licenses open-ephys

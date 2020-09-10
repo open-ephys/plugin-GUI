@@ -46,8 +46,8 @@ jobs:
         dpkg-deb --build Open-Ephys_Installer
         installer=Open-Ephys_Installer_${gui_ver}-beta.deb
         mv -v Open-Ephys_Installer.deb $installer
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/publish
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-linux/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-linux/$gui_ver/publish
       shell: bash
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
@@ -73,6 +73,6 @@ jobs:
         dpkg-deb --build Open-Ephys_Installer
         installer=Open-Ephys_Installer_${gui_ver}-beta.deb
         mv Open-Ephys_Installer.deb $installer
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/publish
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/publish
       shell: bash
