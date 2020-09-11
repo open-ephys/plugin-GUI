@@ -40,7 +40,7 @@ jobs:
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-linux/$gui_ver/publish
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
-        cp -r ../../../../Build/Release usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
         cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
@@ -59,7 +59,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licesnes open-ephys
+        cp -r ../Licenses open-ephys
         zipfile=open-ephys-${gui_ver}-linux.zip
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"
@@ -67,11 +67,11 @@ jobs:
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-linux/$gui_ver/publish
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
-        cp -r ../../../../Build/Release usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
         cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
-        installer=Open-Ephys_Installer_${gui_ver}-beta.deb
+        installer=Open-Ephys_Installer_${gui_ver}.deb
         mv Open-Ephys_Installer.deb $installer
         curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/$installer
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/publish

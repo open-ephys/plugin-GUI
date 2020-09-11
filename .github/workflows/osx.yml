@@ -52,9 +52,11 @@ jobs:
           --app-drop-link 500 188 \
           "Open-Ephys-Installer.dmg" \
           "open-ephys/"
+        installer=Open-Ephys_Installer_${gui_ver}-beta.dmg
+        mv -v Open-Ephys-Installer.dmg $installer
         user_info="$bintrayUser:$bintrayApiKey"
-        curl -T Open-Ephys-Installer.dmg --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-Mac/$gui_ver/Open-Ephys-Installer.dmg
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-Mac/$gui_ver/publish
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-mac/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-mac/$gui_ver/publish
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
       env:
@@ -84,6 +86,8 @@ jobs:
           --app-drop-link 500 188 \
           "Open-Ephys-Installer.dmg" \
           "open-ephys/"
+        installer=Open-Ephys_Installer_${gui_ver}.dmg
+        mv -v Open-Ephys-Installer.dmg $installer
         user_info="$bintrayUser:$bintrayApiKey"
-        curl -T Open-Ephys-Installer.dmg --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-Mac/$gui_ver/Open-Ephys-Installer.dmg
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-Mac/$gui_ver/publish
+        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-mac/$gui_ver/$installer
+        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-mac/$gui_ver/publish
