@@ -491,6 +491,12 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
                       midiChannelIndex);      // destNodeChannelIndex
     }
 
+    //3. If dest is a record node, register the processor
+    if (dest->isRecordNode())
+    {
+        ((RecordNode*)dest)->registerProcessor(source);
+    }
+
 }
 
 void ProcessorGraph::connectProcessorToAudioNode(GenericProcessor* source)
