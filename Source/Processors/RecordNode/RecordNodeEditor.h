@@ -112,12 +112,17 @@ public:
 
 	void updateSubprocessorFifos();
 	void showSubprocessorFifos(bool);
+    
+    bool subprocessorsVisible;
 
 	void timerCallback();
 	void comboBoxChanged(ComboBox*); 
 
 	void saveCustomParameters(XmlElement* xml);
 	void loadCustomParameters(XmlElement* xml);
+    
+    void buttonEvent(Button* button);
+    ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
 private:
 
@@ -125,7 +130,6 @@ private:
 
 	int numSubprocessors;
 
-	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 	OwnedArray<Label> subProcLabels;
 	OwnedArray<FifoMonitor> subProcMonitors;
 	OwnedArray<SyncControlButton> subProcRecords;
@@ -140,10 +144,6 @@ private:
 	ScopedPointer<RecordToggleButton> eventRecord;
 	ScopedPointer<Label> recordSpikesLabel;
 	ScopedPointer<RecordToggleButton> spikeRecord;
-
-	bool subprocessorsVisible;
-
-	void buttonEvent(Button* button);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNodeEditor);
 

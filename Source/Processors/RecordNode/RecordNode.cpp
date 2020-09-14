@@ -39,7 +39,8 @@ RecordNode::RecordNode()
 	isRecording(false),
 	hasRecorded(false),
 	settingsNeeded(false),
-	receivedSoftwareTime(false)
+	receivedSoftwareTime(false),
+    numSubprocessors(0)
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
@@ -267,82 +268,96 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 
 void RecordNode::updateSubprocessorMap()
 {
+    
+    std::map<int, std::vector<int>> inputs;
 
-	std::vector<int> procIds;
+    int updatedNumSubprocessors = 0;
+    int ch = 0;
+    
+    while (ch < dataChannelArray.size())
+    {
+        
+        DataChannel* chan = dataChannelArray[ch];
+        int sourceID = chan->getSourceNodeID();
+        int subProcIdx = chan->getSubProcessorIdx();
+        
+        if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != subProcIdx)
+        {
+            //Found a new subprocessor
+            inputs[sourceID].push_back(subProcIdx);
+            fifoUsage[sourceID][subProcIdx] = 0.0f;
+            updatedNumSubprocessors++;
+        }
+        
+        //Add any new sources
+        if (!dataChannelStates.count(sourceID) || !dataChannelStates[sourceID].count(subProcIdx))
+        {
+            int orderInSubprocessor = 0;
+            synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
+            if (synchronizer->masterProcessor < 0)
+            {
+                synchronizer->setMasterSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx());
+            }
+            while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcIdx)
+            {
+                dataChannelStates[sourceID][dataChannelArray[ch]->getSubProcessorIdx()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+                dataChannelOrder[ch] = orderInSubprocessor++;
+                ch++;
+            }
+        }
+        else
+        {
+            ch++;
+            //Don't do anything
+        }
+        
+    }
+    
+    //Remove any stale processors
+    std::vector<int> sources;
+    for(auto const& sourceID : inputs)
+        sources.push_back(sourceID.first);
+    std::vector<int> toErase;
+    
+    std::map<int, std::map<int, std::vector<bool>>>::iterator it;
+    for (it = dataChannelStates.begin(); it != dataChannelStates.end(); it++)
+    {
+        if (std::find(sources.begin(), sources.end(), it->first) == sources.end())
+            toErase.push_back(it->first);
+    }
+    
+    for (int i = 0; i < toErase.size(); i++)
+        dataChannelStates.erase(toErase[i]);
+    
+    if (numSubprocessors != updatedNumSubprocessors && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
+    {
+        numSubprocessors = updatedNumSubprocessors;
+        static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
+        static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
+    }
+    
+    numSubprocessors = updatedNumSubprocessors;
+    
+    eventMap.clear();
+    syncChannelMap.clear();
+    syncOrderMap.clear();
+    for (int ch = 0; ch < eventChannelArray.size(); ch++)
+    {
 
-	int masterSubprocessor = -1;
-	int eventIndex = 0;
+        EventChannel* chan = eventChannelArray[ch];
+        int sourceID = chan->getSourceNodeID();
+        int subProcID = chan->getSubProcessorIdx();
 
-	for (int ch = 0; ch < dataChannelArray.size(); ch++)
-	{
+        eventMap[sourceID][subProcID] = chan->getNumChannels();
 
-		DataChannel* chan = dataChannelArray[ch];
-		int sourceID = chan->getSourceNodeID();
-		int subProcID = chan->getSubProcessorIdx();
+        if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
+        {
+            syncOrderMap[sourceID][subProcID] = ch;
+            syncChannelMap[sourceID][subProcID] = 0;
+            synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
+        }
 
-		if (!std::count(procIds.begin(), procIds.end(), sourceID))
-			procIds.push_back(sourceID);
-
-		if (!dataChannelStates[sourceID][subProcID].size())
-		{
-			synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
-			eventIndex++;
-
-			if (masterSubprocessor < 0)
-			{
-				masterSubprocessor = chan->getSourceNodeID();
-				synchronizer->setMasterSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx());
-			}
-
-			int orderInSubprocessor = 0;
-			while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcID && dataChannelArray[ch]->getSourceNodeID() == sourceID)
-			{
-				dataChannelStates[sourceID][subProcID].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-				dataChannelOrder[ch] = orderInSubprocessor++;
-				ch++;
-			}
-			ch--;
-
-			fifoUsage[sourceID][subProcID] = 0.0f;
-		}
-
-	}
-
-	std::map<int, std::map<int, std::vector<bool>>>::iterator it;
-	std::map<int, std::vector<bool>>::iterator ptr;
-
-	numSubprocessors = 0;
-	for (it = dataChannelStates.begin(); it != dataChannelStates.end(); it++) 
-	{
-
-		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
-			if (!std::count(procIds.begin(), procIds.end(), it->first))
-				dataChannelStates.erase(it->first);
-			else
-				numSubprocessors++;
-		}
-	}
-
-	eventMap.clear();
-	syncChannelMap.clear();
-	syncOrderMap.clear();
-	for (int ch = 0; ch < eventChannelArray.size(); ch++)
-	{
-
-		EventChannel* chan = eventChannelArray[ch];
-		int sourceID = chan->getSourceNodeID();
-		int subProcID = chan->getSubProcessorIdx();
-
-		eventMap[sourceID][subProcID] = chan->getNumChannels();
-
-		if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
-		{
-			syncOrderMap[sourceID][subProcID] = ch;
-			syncChannelMap[sourceID][subProcID] = 0;
-			synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
-		}
-
-	}
+    }
 
 }
 

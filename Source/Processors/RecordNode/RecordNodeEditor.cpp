@@ -300,7 +300,6 @@ void RecordNodeEditor::buttonEvent(Button *button)
 	}
 	else if (button == fifoDrawerButton)
 	{
-
 		updateSubprocessorFifos();
 		if (button->getToggleState())
 			showSubprocessorFifos(true);
