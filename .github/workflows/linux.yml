@@ -44,7 +44,7 @@ jobs:
         cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
-        installer=Open-Ephys_Installer_${gui_ver}-beta.deb
+        installer=open-ephys-gui-${gui_ver}-beta.deb
         mv -v Open-Ephys_Installer.deb $installer
         curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-linux/$gui_ver/$installer
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-linux/$gui_ver/publish
@@ -71,7 +71,7 @@ jobs:
         cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
-        installer=Open-Ephys_Installer_${gui_ver}.deb
+        installer=open-ephys-gui-${gui_ver}.deb
         mv Open-Ephys_Installer.deb $installer
         curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/$installer
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-linux/$gui_ver/publish

@@ -44,7 +44,7 @@ jobs:
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-windows/$gui_ver/publish
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
-        installer=Open-Ephys_Installer_${gui_ver}-beta.exe
+        installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
         mv Open-Ephys_Installer.exe $installer
         curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/$installer
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/publish
@@ -68,7 +68,7 @@ jobs:
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-windows/$gui_ver/publish
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
-        installer=Open-Ephys_Installer_${gui_ver}.exe
+        installer=Install-Open-Ephys-GUI-${gui_ver}.exe
         mv Open-Ephys_Installer.exe $installer
         curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/$installer
         curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/publish

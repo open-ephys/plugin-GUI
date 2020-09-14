@@ -652,7 +652,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	for (String dependency : *dependencies)
 		selectedPluginInfo.dependencies.add(dependency);
 
-	selectedPluginInfo.docURL = version_reply.getProperty("vcs_url", "NULL").toString();
+	selectedPluginInfo.docURL = version_reply.getProperty("website_url", "NULL").toString();
 	selectedPluginInfo.selectedVersion = String();
 
 	selectedPluginInfo.pluginName = pluginName;
