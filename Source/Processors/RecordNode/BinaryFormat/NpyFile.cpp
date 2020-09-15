@@ -174,8 +174,9 @@ void NpyFile::updateHeader()
     else
     {
         std::cerr << "Error. Unable to seek to update file header"
-                  << m_file->getFile().getFullPathName() << std::endl;
+            << m_file->getFile().getFullPathName() << std::endl;
     }
+    
 }
 
 NpyFile::~NpyFile()

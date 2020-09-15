@@ -100,7 +100,7 @@ private:
     void timerCallback();
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-
+\
 class RecordNodeEditor : public GenericEditor, ComboBoxListener
 {
 public:
@@ -115,7 +115,7 @@ public:
     
     bool subprocessorsVisible;
 
-	void timerCallback();
+	void timerCallback() override;
 	void comboBoxChanged(ComboBox*); 
 
 	void saveCustomParameters(XmlElement* xml);

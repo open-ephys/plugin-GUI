@@ -44,7 +44,7 @@ private:
 class RecordChannelSelector : public Component, public Button::Listener, public TextEditor::Listener
 {
 public:
-	RecordChannelSelector(std::vector<bool> channelStates);
+	RecordChannelSelector(std::vector<bool> channelStates, bool editable);
 	~RecordChannelSelector();
 
 	void mouseMove(const MouseEvent &event);
@@ -54,6 +54,7 @@ public:
 	void buttonClicked(Button *);
 	void modifierKeysChanged(const ModifierKeys& modifiers);
 
+	bool editable;
 	bool isDragging;
 	juce::Point<int> startDragCoords;
 	bool firstButtonSelectedState;

@@ -93,7 +93,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
-	eventRecord->setToggleState(1, dontSendNotification); //enable event recortding by default
+	eventRecord->setToggleState(1, sendNotification); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -104,9 +104,9 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 110, 15, 15);
 	spikeRecord->addListener(this);
-	spikeRecord->setToggleState(1, dontSendNotification); //enable spike recording by default
+	spikeRecord->setToggleState(1, sendNotification); //enable spike recording by default
 	addAndMakeVisible(spikeRecord);
-
+	
 	/*
 	writeSpeedLabel = new Label("writeSpeedLabel", "WRITE SPEED");
 	writeSpeedLabel->setBounds(40, 102, 76, 20);
@@ -115,6 +115,8 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	*/
 
 	desiredWidth = 150;
+
+	startTimer(500);
 
 }
 
@@ -215,17 +217,32 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 void RecordNodeEditor::timerCallback()
 {
 
-	//Can check RecordNode state here and modify editor accordinlgy
-
+	/* Disable buttons while recording */
+	if (dataPathButton->isEnabled() && recordNode->recordThread->isThreadRunning())
+	{
+		dataPathButton->setEnabled(false);
+		engineSelectCombo->setEnabled(false);
+		eventRecord->setEnabled(false);
+		spikeRecord->setEnabled(false);
+	}
+	else if (!dataPathButton->isEnabled() && !recordNode->recordThread->isThreadRunning())
+	{
+		dataPathButton->setEnabled(true);
+		engineSelectCombo->setEnabled(true);
+		eventRecord->setEnabled(true);
+		spikeRecord->setEnabled(true);
+	}
 
 }
 
 void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 {
 
-	uint8 selectedEngineIndex = box->getSelectedId();
-	recordNode->setEngine(selectedEngineIndex-1);
-	std::cout << "Got combo box changed" << std::endl;
+	if (!recordNode->recordThread->isThreadRunning())
+	{
+		uint8 selectedEngineIndex = box->getSelectedId();
+		recordNode->setEngine(selectedEngineIndex-1);
+	}
 
 }
 
@@ -283,13 +300,13 @@ void RecordNodeEditor::buttonEvent(Button *button)
 
 	if (button == masterRecord) 
 	{
-
+		//TODO: Clicking on the master record monitor should do something useful in the future...
 	}
-	else if (button == eventRecord)
+	else if (button == eventRecord && !recordNode->recordThread->isThreadRunning())
 	{
 		recordNode->setRecordEvents(button->getToggleState());
 	}
-	else if (button == spikeRecord)
+	else if (button == spikeRecord && !recordNode->recordThread->isThreadRunning())
 	{
 		recordNode->setRecordSpikes(button->getToggleState());
 	}
@@ -490,7 +507,7 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 void SyncControlButton::mouseUp(const MouseEvent &event)
 {
 
-	if (event.mods.isLeftButtonDown())
+	if (!node->recordThread->isThreadRunning() && event.mods.isLeftButtonDown())
 	{
 
 		std::vector<bool> channelStates;
@@ -636,7 +653,8 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 
 	channelStates = recordNode->dataChannelStates[srcID][subID];
 	
-    auto* channelSelector = new RecordChannelSelector(channelStates);
+	bool editable = !recordNode->recordThread->isThreadRunning();
+    auto* channelSelector = new RecordChannelSelector(channelStates, editable);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
