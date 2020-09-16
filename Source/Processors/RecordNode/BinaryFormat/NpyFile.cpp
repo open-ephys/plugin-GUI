@@ -156,27 +156,30 @@ void NpyFile::writeHeader(const Array<NpyType>& typeList)
 
 void NpyFile::updateHeader()
 {
-    // overwrite the shape part of the header - even without explicitly calling
-    // m_file->flush(), overwriting seems to trigger a flush to disk,
-    // while appending to end of file does not
-    int64 currentPos = m_file->getPosition(); // returns int64, necessary for big files
-    if (m_file->setPosition(m_shapePos))
+    if (m_file != NULL)
     {
-        String newShape = getShapeString();
-        if (m_shapePos + newShape.getNumBytesAsUTF8() + 1 > m_headerLen) // +1 for newline
+        // overwrite the shape part of the header - even without explicitly calling
+        // m_file->flush(), overwriting seems to trigger a flush to disk,
+        // while appending to end of file does not
+        int64 currentPos = m_file->getPosition(); // returns int64, necessary for big files
+        if (m_file->setPosition(m_shapePos))
         {
-            std::cerr << "Error. Header has grown too big to update in-place " << std::endl;
+            String newShape = getShapeString();
+            if (m_shapePos + newShape.getNumBytesAsUTF8() + 1 > m_headerLen) // +1 for newline
+            {
+                std::cerr << "Error. Header has grown too big to update in-place " << std::endl;
+            }
+            m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
+            m_file->flush(); // not necessary, already flushed due to overwrite? do it anyway
+            m_file->setPosition(currentPos); // restore position to end of file
         }
-        m_file->write(newShape.toUTF8(), newShape.getNumBytesAsUTF8());
-        m_file->flush(); // not necessary, already flushed due to overwrite? do it anyway
-        m_file->setPosition(currentPos); // restore position to end of file
+        else
+        {
+            std::cerr << "Error. Unable to seek to update file header"
+                << m_file->getFile().getFullPathName() << std::endl;
+        }
     }
-    else
-    {
-        std::cerr << "Error. Unable to seek to update file header"
-            << m_file->getFile().getFullPathName() << std::endl;
-    }
-    
+
 }
 
 NpyFile::~NpyFile()
