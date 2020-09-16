@@ -496,7 +496,7 @@ void RecordNode::startRecording()
 		{
 			createNewDirectory();
 			recordingNumber = 0;
-			experimentNumber = 0;
+			experimentNumber = 1;
 			settingsNeeded = true;
 			recordEngine->directoryChanged();
 		}
