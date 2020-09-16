@@ -112,6 +112,8 @@ public:
 
 	void updateSubprocessorFifos();
 	void showSubprocessorFifos(bool);
+
+	int getSelectedEngineIdx();
     
     bool subprocessorsVisible;
 

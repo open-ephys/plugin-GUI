@@ -214,6 +214,11 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 
 }
 
+int RecordNodeEditor::getSelectedEngineIdx()
+{
+	return engineSelectCombo->getSelectedId()-1;
+}
+
 void RecordNodeEditor::timerCallback()
 {
 

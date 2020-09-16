@@ -174,7 +174,7 @@ float DataQueue::writeSynchronizedTimestampChannel(double start, double step, in
 }
 
 
-void DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
+float DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
 {
 	int index1, size1, index2, size2;
 	m_fifos[destChannel]->prepareToWrite(nSamples, index1, size1, index2, size2);
@@ -205,6 +205,8 @@ void DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, in
 		fillTimestamps(destChannel, index2, size2, timestamp + size1);
 	}
 	m_fifos[destChannel]->finishedWrite(size1 + size2);
+
+	return 1.0f - (float)m_fifos[destChannel]->getFreeSpace() / (float)m_fifos[destChannel]->getTotalSize();
 }
 
 /*

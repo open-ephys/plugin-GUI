@@ -520,6 +520,8 @@ void RecordNode::startRecording()
 		}
 		*/
 
+		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
+
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 		recordThread->startThread();
 		isRecording = true;
@@ -657,9 +659,21 @@ void RecordNode::process(AudioSampleBuffer& buffer)
 
 				if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
 				{
-					double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
-					double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
-					fifoUsage[sourceID][subProcIdx] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+					
+					if (useSynchronizer)
+					{
+						double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
+						double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
+						fifoUsage[sourceID][subProcIdx] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+					}
+					else
+					{
+						fifoUsage[sourceID][subProcIdx] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
+						samplesWritten+=numSamples;
+						continue;
+					}
+					
+
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);

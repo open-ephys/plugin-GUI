@@ -167,6 +167,8 @@ public:
 
 private:
 
+	bool useSynchronizer; 
+
 	bool receivedSoftwareTime;
 
 	int lastDataChannelArraySize;
