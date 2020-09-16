@@ -301,8 +301,8 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 		}
 	}
 
-	auto lcAudio = lcXml->getChildByName("Audio");
-	auto rcAudio = rcXml->getChildByName("Audio");
+	auto lcAudio = lcXml->getChildByName("AUDIO");
+	auto rcAudio = rcXml->getChildByName("AUDIO");
 
 	if(!lcAudio->isEquivalentTo(rcAudio, false))
 		return false;

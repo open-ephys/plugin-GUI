@@ -29,12 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParameterEditors = true)
 	: GenericEditor(parentNode, useDefaultParameterEditors),
-	numSubprocessors(0)
+	numSubprocessors(0), subprocessorsVisible(false)
 {
 
 	recordNode = parentNode;
-
-	desiredWidth = 150;
 
 	fifoDrawerButton = new FifoDrawerButton("FifoDrawer");
 	fifoDrawerButton->setBounds(4, 40, 10, 78);
@@ -95,7 +93,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
-	eventRecord->triggerClick(); //enable event recortding by default
+	eventRecord->setToggleState(1, dontSendNotification); //enable event recortding by default
 	addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
@@ -106,7 +104,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
 	spikeRecord->setBounds(120, 110, 15, 15);
 	spikeRecord->addListener(this);
-	spikeRecord->triggerClick(); //enable spike recording by default
+	spikeRecord->setToggleState(1, dontSendNotification); //enable spike recording by default
 	addAndMakeVisible(spikeRecord);
 
 	/*
@@ -116,10 +114,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(writeSpeedLabel);
 	*/
 
-	/*
-	recordNode->setRecordEvents(true);
-	recordNode->setRecordSpikes(false);
-	*/
+	desiredWidth = 150;
 
 }
 
