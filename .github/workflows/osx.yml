@@ -2,6 +2,15 @@ name: macOS
 
 on:
   push:
+    paths:
+    - '.github/workflows/**'
+    - 'JuceLibraryCode/**'
+    - 'PluginGenerator/**'
+    - 'Plugins/**'
+    - 'Resources/**'
+    - 'Source/**'
+    - 'CMakeLists.txt'
+    - 'HelperFunctions.cmake'
 
 jobs:
   build-osx:
