@@ -245,9 +245,19 @@ namespace CoreServices
 #if defined(__APPLE__)
     	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
 #elif _WIN32
-    	File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
+    	String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+		File dir;
+		if(appDir.contains("plugin-GUI\\Build\\"))
+			dir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+		else
+			dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
 #else
-		File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");;
+		String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+		File dir;
+		if(appDir.contains("plugin-GUI/Build/"))
+			dir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+		else
+			dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");;
 #endif
 		if (!dir.isDirectory()) {
 			dir.createDirectory();
