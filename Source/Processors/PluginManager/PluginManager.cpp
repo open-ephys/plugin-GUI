@@ -72,19 +72,29 @@ static void errorMsg(const char *file, int line, const char *msg) {
 
 PluginManager::PluginManager()
 {
-#ifdef WIN32
+#ifdef _WIN32
+
+	String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+
 	//Shared directory at the same level as executable
 	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
-	SetDllDirectory(sharedPath.getFullPathName().toUTF8());
-
 	//Shared directory managed by Plugin Installer at C:/ProgramData
 	File installSharedPath = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/shared");
-	if (!installSharedPath.isDirectory()) {
-        installSharedPath.createDirectory();
+
+	if(appDir.contains("plugin-GUI\\Build\\"))
+	{
+		SetDllDirectory(sharedPath.getFullPathName().toUTF8());
+	}
+	else
+    {
+		if (!installSharedPath.isDirectory())
+        {
+            std::cout << "Copying shared dependencies to " << installSharedPath.getFullPathName() << std::endl;
+            sharedPath.copyDirectoryTo(installSharedPath);
+        }
+        SetDllDirectory(installSharedPath.getFullPathName().toUTF8());
     }
 
-	AddDllDirectory(installSharedPath.getFullPathName().toWideCharPointer());
-	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 #elif __linux__
 	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/shared");
 	if (!installSharedPath.isDirectory()) {
@@ -107,10 +117,16 @@ void PluginManager::loadAllPlugins()
     paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys/plugins"));
 #elif _WIN32
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
-	paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/plugins"));
+
+    String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+    if(!appDir.contains("plugin-GUI\\Build\\"))
+	    paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys/plugins"));
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
-	paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/plugins"));	
+
+    String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+    if(!appDir.contains("plugin-GUI/Build/"))
+	    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/plugins"));	
 #endif
 
     for (auto &pluginPath : paths) {

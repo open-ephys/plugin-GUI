@@ -37,17 +37,6 @@
 
 //-----------------------------------------------------------------------
 
-static inline File getPluginsLocationDirectory() {
-#if defined(__APPLE__)
-    File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Application Support/open-ephys");
-#elif _WIN32
-    File dir = File::getSpecialLocation(File::commonApplicationDataDirectory).getChildFile("Open Ephys");
-#else
-	File dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");
-#endif
-    return std::move(dir);
-}
-
 static String osType;
 
 PluginInstaller::PluginInstaller(MainWindow* mainWindow)
@@ -108,12 +97,12 @@ void PluginInstaller::closeButtonPressed()
 
 void PluginInstaller::createXmlFile()
 {
-	File pluginsDir = getPluginsLocationDirectory().getChildFile("plugins");
+	File pluginsDir = CoreServices::getSavedStateDirectory().getChildFile("plugins");
     if (!pluginsDir.isDirectory())
         pluginsDir.createDirectory();
     
     String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
-	File file = getPluginsLocationDirectory().getChildFile(xmlFile);
+	File file = CoreServices::getSavedStateDirectory().getChildFile(xmlFile);
 
 	XmlDocument doc(file);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -139,7 +128,7 @@ void PluginInstaller::createXmlFile()
 
 		forEachXmlChildElement(*child, e)
 		{
-			File pluginPath = getPluginsLocationDirectory().getChildFile(baseStr + e->getAttributeValue(1));
+			File pluginPath = CoreServices::getSavedStateDirectory().getChildFile(baseStr + e->getAttributeValue(1));
 			if (!pluginPath.exists())
 				elementsToRemove.add(e);	
 		}
@@ -341,7 +330,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 void PluginInstallerComponent::run()
 {
 	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
+	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -665,7 +654,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 	// If the plugin is already installed, get installed version number
 	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-	File xmlFile = getPluginsLocationDirectory().getChildFile(fileStr);
+	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -1111,7 +1100,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			return 0;
 
 		//Get path to plugins directory
-		File pluginsPath = getPluginsLocationDirectory();
+		File pluginsPath = CoreServices::getSavedStateDirectory();
 
 		//Construct path for downloaded zip file
 		String pluginFilePath = pluginsPath.getFullPathName();
