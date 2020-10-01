@@ -42,8 +42,15 @@ void GraphViewer::addNode (GenericEditor* editor)
     GraphNode* gn = new GraphNode (editor, this);
     addAndMakeVisible (gn);
     availableNodes.add (gn);
+
+    int nodeWidth = 150;
+
+    if (gn->getName().length() > 15)
+    {
+        nodeWidth += (gn->getName().length() - 15) * 10;
+    }
     
-    gn->setBounds (20, 20, 150, 50);
+    gn->setBounds (20, 20, nodeWidth, 50);
     updateNodeLocations();
 }
 
