@@ -86,6 +86,7 @@ void MessageCenterEditor::timerCallback()
     bool shouldRepaint = false;
 
     float incomingAlpha = incomingBackground.getFloatAlpha();
+    float outgoingAlpha = outgoingBackground.getFloatAlpha();
 
     if (incomingAlpha > 0)
     {
@@ -95,6 +96,18 @@ void MessageCenterEditor::timerCallback()
             incomingAlpha = 0;
 
         incomingBackground = incomingBackground.withAlpha(incomingAlpha);
+
+        shouldRepaint = true;
+    }
+    
+    if (outgoingAlpha > 0)
+    {
+        outgoingAlpha -= 0.05;
+
+        if (outgoingAlpha < 0)
+            outgoingAlpha = 0;
+
+        outgoingBackground = outgoingBackground.withAlpha(outgoingAlpha);
 
         shouldRepaint = true;
     }
@@ -111,7 +124,7 @@ bool MessageCenterEditor::keyPressed(const KeyPress& key)
     return false;
 }
 
-String MessageCenterEditor::getLabelString()
+String MessageCenterEditor::getOutgoingMessage()
 {
     return editableMessageDisplayArea->getText();
 }
@@ -152,11 +165,11 @@ void MessageCenterEditor::collapse()
 }
 
 
-void MessageCenterEditor::messageReceived(bool state)
+void MessageCenterEditor::messageReceived(bool isRecording)
 {
-    if (!state)
+    if (false) //!isRecording)
     {
-        String msg ="Cannot save messages when recording is not active.";
+        String msg = "Cannot save messages when recording is not active.";
         
         if (firstMessageReceived)
             incomingMessageLog->addMessage(new MessageLabel("message", incomingMessageDisplayArea->getText()));
@@ -173,8 +186,14 @@ void MessageCenterEditor::messageReceived(bool state)
     }
     else
     {
-        incomingMessageDisplayArea->setText("Message sent.", sendNotification);
-        incomingBackground = Colours::green;
+        String timestampedMessage = Time::getCurrentTime().toString(false, true, true, true);
+        timestampedMessage += " - ";
+        timestampedMessage += editableMessageDisplayArea->getText();
+        
+        outgoingMessageLog->addMessage(new MessageLabel("message", timestampedMessage));
+        outgoingBackground = Colours::green;
+        
+        resized();
     }
 
     startTimer(75);

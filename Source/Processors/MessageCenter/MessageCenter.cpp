@@ -107,7 +107,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
     {
         //int numBytes = 0;
 
-        String eventString = messageCenterEditor->getLabelString();
+        String eventString = messageCenterEditor->getOutgoingMessage();
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 

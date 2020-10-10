@@ -66,7 +66,7 @@ public:
 
     void messageReceived(bool state);
 
-    String getLabelString();
+    String getOutgoingMessage();
 
 private:
 
