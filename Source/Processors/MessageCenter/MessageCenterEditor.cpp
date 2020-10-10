@@ -27,22 +27,23 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
     acquisitionIsActive(false),
     messageCenter(owner),
-    incomingBackground(100, 100, 100),
-    outgoingBackground(100, 100, 100)
+    incomingBackground(250, 200, 200), // (100,100,100)
+    outgoingBackground(260, 99, 240)    // (100,100,100)
 {
 
     incomingMessageDisplayArea = new MessageLabel("Message Display Area","No new messages.");
-    outgoingMessageDisplayArea = new MessageLabel("Message Display Area","Type a new message here.");
-    outgoingMessageDisplayArea->setEditable(true);
+    outgoingMessageDisplayArea = new MessageLabel("Message Display Area","TEST");
+    editableMessageDisplayArea = new MessageLabel("Message Display Area","Type a new message here.");
+    editableMessageDisplayArea->setEditable(true);
 
     addAndMakeVisible(incomingMessageDisplayArea);
     addAndMakeVisible(outgoingMessageDisplayArea);
+    addAndMakeVisible(editableMessageDisplayArea);
 
     sendMessageButton = new UtilityButton("Save", Font("Small Text", 0, Font::plain));
     sendMessageButton->addListener(this);
     sendMessageButton->setTooltip("Send a message to be saved by the record node");
     addAndMakeVisible(sendMessageButton);
-
 }
 
 MessageCenterEditor::~MessageCenterEditor()
@@ -118,6 +119,20 @@ void MessageCenterEditor::disable()
     //sendMessageButton->setVisible(false);
 }
 
+void MessageCenterEditor::expand()
+{
+    isExpanded = true;
+    resized();
+}
+
+
+void MessageCenterEditor::collapse()
+{
+    isExpanded = false;
+    resized();
+}
+
+
 void MessageCenterEditor::messageReceived(bool state)
 {
     if (!state)
@@ -137,20 +152,23 @@ void MessageCenterEditor::messageReceived(bool state)
 void MessageCenterEditor::paint(Graphics& g)
 {
 
-    g.setColour(Colour(58,58,58));
+    if (isExpanded)
+    {
+        g.setColour(Colours::black.withAlpha(0.5f)); // edge color (58,58,58)
+    } else {
+        g.setColour(Colours::black); // edge color (58,58,58)
+    }
+    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 6.0f);
 
-    g.fillRect(0, 0, getWidth(), getHeight());
+    g.setColour(Colour(200,220,230)); // background color (100,100,100)
 
-    g.setColour(Colour(100,100,100));
+    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 4.0f);
 
-    g.fillRect(5, 5, getWidth()/2-5, getHeight()-10);
-    g.fillRect(getWidth()/2+5, 5, getWidth()/2-60, getHeight()-10);
+    g.setColour(incomingBackground); // incoming background
 
-    g.setColour(incomingBackground);
+    g.fillRect(36, 5, getWidth()/2-5, getHeight()-10);
 
-    g.fillRect(5, 5, getWidth()/2-5, getHeight()-10);
-
-    g.setColour(outgoingBackground);
+    g.setColour(outgoingBackground); // outgoing background
 
     g.fillRect(getWidth()/2+5, 5, getWidth()/2-60, getHeight()-10);
 
@@ -159,13 +177,16 @@ void MessageCenterEditor::paint(Graphics& g)
 void MessageCenterEditor::resized()
 {
     if (incomingMessageDisplayArea != 0)
-        incomingMessageDisplayArea->setBounds(5,0,getWidth()/2-5,getHeight());
+        incomingMessageDisplayArea->setBounds(36,5,getWidth()/2-5,getHeight()-12);
 
-    if (outgoingMessageDisplayArea != 0)
-        outgoingMessageDisplayArea->setBounds(getWidth()/2+5,0,getWidth()/2-60, getHeight());
+    if (outgoingMessageDisplayArea != 0 && isExpanded)
+        outgoingMessageDisplayArea->setBounds(getWidth()/2+5,5,getWidth()/2-60, getHeight()-30);
+    
+    if (editableMessageDisplayArea != 0)
+        editableMessageDisplayArea->setBounds(getWidth()/2+5,getHeight()-24,getWidth()/2-60, 18);
 
     if (sendMessageButton != 0)
-        sendMessageButton->setBounds(getWidth()-50, 5, 45, getHeight()-10);
+        sendMessageButton->setBounds(getWidth()-50, getHeight()-25, 45, 20);
 }
 
 void MessageCenterEditor::actionListenerCallback(const String& message)
@@ -182,6 +203,7 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
 MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     : Label(componentName,labelText)
 {
+    setJustificationType(Justification::bottomLeft);
 }
 
 

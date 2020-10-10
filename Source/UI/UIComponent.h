@@ -27,7 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "TimestampSourceSelection.h"
 #include "PluginInstaller.h"
-
+#include "MessageCenterButton.h"
 
 class MainWindow;
 class ProcessorList;
@@ -59,6 +59,7 @@ class UIComponent : public Component,
     public ActionBroadcaster,
     public MenuBarModel,
     public ApplicationCommandTarget,
+    public ButtonListener,
     public DragAndDropContainer // required for
 // drag-and-drop
 // internal components
@@ -97,6 +98,9 @@ public:
 	AudioComponent* getAudioComponent();
 
 	PluginManager* getPluginManager();
+    
+    /** Called by the MessageCenterButton */
+    void buttonClicked(Button* button);
 
     /** Stops the callbacks to the ProcessorGraph which drive data acquisition. */
     void disableCallbacks();
@@ -145,6 +149,7 @@ private:
     ScopedPointer<DataViewport> dataViewport;
     ScopedPointer<EditorViewport> editorViewport;
     ScopedPointer<EditorViewportButton> editorViewportButton;
+    MessageCenterButton messageCenterButton;
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<ControlPanel> controlPanel;
     MessageCenterEditor* messageCenterEditor; // owned by ProcessorGraph
@@ -197,6 +202,8 @@ private:
     };
 
     File currentConfigFile;
+    
+    bool messageCenterIsCollapsed;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 

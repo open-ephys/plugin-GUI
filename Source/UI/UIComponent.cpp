@@ -29,6 +29,7 @@
 #include "ControlPanel.h"
 #include "ProcessorList.h"
 #include "EditorViewport.h"
+#include "MessageCenterButton.h"
 #include "DataViewport.h"
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "GraphViewer.h"
@@ -37,7 +38,7 @@
 #include "../MainWindow.h"
 
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
-: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
+: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
 
 {
 
@@ -45,7 +46,7 @@
 
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	addActionListener(messageCenterEditor);
-	addAndMakeVisible(messageCenterEditor);
+	
 	std::cout << "Created message center." << std::endl;
 
 	infoLabel = new InfoLabel();
@@ -72,13 +73,18 @@
 
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
-
+    
 	std::cout << "Created control panel." << std::endl;
 
 	processorList = new ProcessorList();
 	processorListViewport.setViewedComponent(processorList,false);
 	processorListViewport.setScrollBarsShown(true,false);
 	addAndMakeVisible(&processorListViewport);
+    
+    messageCenterButton.addListener(this);
+    addAndMakeVisible(messageCenterEditor);
+    addAndMakeVisible(&messageCenterButton);
+    
 	processorList->setVisible(true);
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
 	std::cout << "Created filter list." << std::endl;
@@ -172,6 +178,18 @@ AudioComponent* UIComponent::getAudioComponent()
 PluginManager* UIComponent::getPluginManager()
 {
 	return pluginManager;
+}
+
+void UIComponent::buttonClicked(Button* button)
+{
+    if (button == &messageCenterButton)
+    {
+        messageCenterButton.switchState();
+        
+        messageCenterIsCollapsed = !messageCenterIsCollapsed;
+        
+        resized();
+    }
 }
 
 void UIComponent::resized()
@@ -301,16 +319,26 @@ void UIComponent::resized()
 
 	}
 
-
-
 	if (messageCenterEditor != 0)
 	{
-		messageCenterEditor->setBounds(6,h-35,w-241,30);
-		if (h < 200)
-			messageCenterEditor->setBounds(6,h-35+200-h,w-241,30);
-		//  else
-		//      messageCenter->setVisible(true);
+        if (messageCenterIsCollapsed)
+        {
+            messageCenterEditor->collapse();
+            messageCenterEditor->setBounds(6,h-35,w-241,30);
+            
+        } else {
+            messageCenterEditor->expand();
+            messageCenterEditor->setBounds(6,h-305,w-241,300);
+        }
 	}
+    
+
+    if (messageCenterIsCollapsed)
+    {
+        messageCenterButton.setBounds(10,h-35,30,30);
+    } else {
+        messageCenterButton.setBounds(10,h-305,30,30);
+    }
 
 	// for debugging purposes:
 	if (false)

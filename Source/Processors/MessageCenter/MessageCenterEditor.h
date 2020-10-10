@@ -56,6 +56,9 @@ public:
 
     void enable();
     void disable();
+    
+    void expand();
+    void collapse();
 
     void startAcquisition();
     void stopAcquisition();
@@ -72,6 +75,7 @@ private:
     bool acquisitionIsActive;
 
     bool isEnabled;
+    bool isExpanded;
 
     /** Called when a new message is received. */
     void actionListenerCallback(const String& message);
@@ -79,6 +83,9 @@ private:
     /** A JUCE label used to display message text. */
     ScopedPointer<MessageLabel> incomingMessageDisplayArea;
 
+    /** A JUCE label used to display message text. */
+    ScopedPointer<MessageLabel> editableMessageDisplayArea;
+    
     /** A JUCE label used to display message text. */
     ScopedPointer<MessageLabel> outgoingMessageDisplayArea;
 
