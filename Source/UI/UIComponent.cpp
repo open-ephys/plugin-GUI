@@ -333,12 +333,12 @@ void UIComponent::resized()
 	}
     
 
-    if (messageCenterIsCollapsed)
-    {
-        messageCenterButton.setBounds(10,h-35,30,30);
-    } else {
-        messageCenterButton.setBounds(10,h-305,30,30);
-    }
+    //if (messageCenterIsCollapsed)
+   // {
+    messageCenterButton.setBounds((w-241)/2,h-35,30,30);
+   // } else {
+   //     messageCenterButton.setBounds((w-241)/2,h-305,30,30);
+   // }
 
 	// for debugging purposes:
 	if (false)

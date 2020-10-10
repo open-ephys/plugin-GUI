@@ -53,23 +53,23 @@ public:
 
         expanded.setPath(upArrow);
         expanded.setFill(Colours::white.withAlpha(0.0f));
-        expanded.setStrokeFill(Colours::white);
-        expanded.setStrokeThickness(2.0f);
+        expanded.setStrokeFill(Colours::grey);
+        expanded.setStrokeThickness(1.0f);
         
         expandedOver.setPath(upArrow);
         expandedOver.setFill(Colours::white.withAlpha(0.0f));
-        expandedOver.setStrokeFill(Colours::white);
-        expandedOver.setStrokeThickness(3.0f);
+        expandedOver.setStrokeFill(Colours::grey);
+        expandedOver.setStrokeThickness(2.0f);
     
         collapsed.setPath(downArrow);
         collapsed.setFill(Colours::white.withAlpha(0.0f));
         collapsed.setStrokeFill(Colours::grey);
-        collapsed.setStrokeThickness(2.0f);
+        collapsed.setStrokeThickness(1.0f);
         
         collapsedOver.setPath(downArrow);
         collapsedOver.setFill(Colours::white.withAlpha(0.0f));
         collapsedOver.setStrokeFill(Colours::grey);
-        collapsedOver.setStrokeThickness(3.0f);
+        collapsedOver.setStrokeThickness(2.0f);
     
         setImages(&collapsed, &collapsedOver, &collapsedOver);
 
