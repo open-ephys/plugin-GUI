@@ -190,9 +190,13 @@ void MessageCenterEditor::paint(Graphics& g)
     g.setColour(Colours::black.withAlpha(0.5f)); // background color (100,100,100)
 
     g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 4.0f);
+    
+    g.setColour(Colours::white.withAlpha(0.2f)); // background color (100,100,100)
+    
+    g.drawLine(getWidth()/2, 10, getWidth()/2, getHeight() - 50);
 
     g.setColour(incomingBackground); // incoming background
-
+    
     g.fillRoundedRectangle(4,
                            getHeight()-25,
                            getWidth()/2-12,
