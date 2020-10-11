@@ -126,10 +126,14 @@ public:
     
     void resized();
     
+    void copyText();
+    
 private:
     OwnedArray<MessageLabel> messages;
     Viewport* viewport;
     int messageHeight;
+    
+    String getMessageNumberAsString();
 };
 
 
@@ -137,6 +141,13 @@ class MessageLabel : public Label
 {
 public:
     MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
+    
+    String getTooltip();
+    
+    void prependText(String text);
+    
+private:
+    String timestring;
 
 };
 

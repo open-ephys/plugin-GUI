@@ -27,8 +27,8 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
     acquisitionIsActive(false),
     messageCenter(owner),
-    incomingBackground(250, 200, 200), // (100,100,100)
-    outgoingBackground(260, 99, 240)    // (100,100,100)
+    incomingBackground(Colours::black.withAlpha(0.0f)), // (100,100,100)
+    outgoingBackground(Colours::black.withAlpha(0.0f))    // (100,100,100)
 {
     
     firstMessageReceived = false;
@@ -175,23 +175,18 @@ void MessageCenterEditor::messageReceived(bool isRecording)
             incomingMessageLog->addMessage(new MessageLabel("message", incomingMessageDisplayArea->getText()));
         else
             firstMessageReceived = true;
+
+        incomingMessageDisplayArea->setText(msg, sendNotification);
         
-        String timestring = Time::getCurrentTime().toString(false, true, true, true);
-        incomingMessageDisplayArea->setText(timestring + " - " + msg, sendNotification);
-        
-        incomingBackground = Colours::red;
+        incomingBackground = Colour(218, 112, 74);
         
         resized();
         
     }
     else
     {
-        String timestampedMessage = Time::getCurrentTime().toString(false, true, true, true);
-        timestampedMessage += " - ";
-        timestampedMessage += editableMessageDisplayArea->getText();
-        
-        outgoingMessageLog->addMessage(new MessageLabel("message", timestampedMessage));
-        outgoingBackground = Colours::green;
+        outgoingMessageLog->addMessage(new MessageLabel("message", editableMessageDisplayArea->getText()));
+        outgoingBackground = Colour(244, 208, 80);
         
         resized();
     }
@@ -202,17 +197,21 @@ void MessageCenterEditor::messageReceived(bool isRecording)
 void MessageCenterEditor::paint(Graphics& g)
 {
 
-    g.setColour(Colours::black.withAlpha(0.5f)); // edge color (58,58,58)
+    g.setColour(Colours::lightgrey.withAlpha(0.5f)); // edge color (58,58,58)
 
-    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 6.0f);
+    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 8.0f);
 
-    g.setColour(Colours::black.withAlpha(0.5f)); // background color (100,100,100)
-
-    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 4.0f);
+    if (isExpanded)
+        g.setColour(Colours::lightgrey.withAlpha(0.8f));
+    else
+        g.setColour(Colour(100,100,100));
+    
+    g.fillRoundedRectangle(3, 3, getWidth()-6, getHeight()-6, 6.0f);
     
     g.setColour(Colours::white.withAlpha(0.2f)); // background color (100,100,100)
     
-    g.drawLine(getWidth()/2, 10, getWidth()/2, getHeight() - 50);
+    if (isExpanded)
+        g.drawLine(getWidth()/2+9, 10, getWidth()/2+9, getHeight() - 30);
 
     g.setColour(incomingBackground); // incoming background
     
@@ -229,18 +228,30 @@ void MessageCenterEditor::paint(Graphics& g)
                            getWidth()/2-82,
                            20,
                            5.0f);
+    
+    if (isExpanded)
+    {
+        g.setFont (Font("Default Bold", 80, Font::plain));
+        g.setColour(Colours::white.withAlpha(0.2f));
+        g.drawText("INCOMING", 4,
+        25,
+        getWidth()/2-11,
+        getHeight()-60, Justification::centred);
+        g.drawText("OUTGOING", getWidth()/2+26,
+        25,
+        getWidth()/2-34,
+        getHeight()-60, Justification::centred);
+    }
 
 }
 
 void MessageCenterEditor::resized()
 {
     if (incomingMessageDisplayArea != 0)
-        incomingMessageDisplayArea->setBounds(4,getHeight()-25,getWidth()/2-5,20);
+        incomingMessageDisplayArea->setBounds(4,getHeight()-25,getWidth()/2-11,20);
 
     if (editableMessageDisplayArea != 0)
         editableMessageDisplayArea->setBounds(getWidth()/2+26,getHeight()-25,getWidth()/2-80, 20);
-    
-
     
     if (incomingMessageLog != 0)
     {
@@ -250,18 +261,18 @@ void MessageCenterEditor::resized()
         {
             incomingMessageViewport->setBounds(4,
                                             getHeight() - h - 35,
-                                            getWidth()/2-10,
+                                            getWidth()/2-11,
                                             h);
             
         } else {
             incomingMessageViewport->setBounds(4,
             25,
-            getWidth()/2-10,
+            getWidth()/2-11,
             getHeight()-60);
         }
         
         incomingMessageLog->setBounds(0,
-          0, getWidth()/2-10,
+          0, getWidth()/2-11,
         h);
 
     }
@@ -272,15 +283,15 @@ void MessageCenterEditor::resized()
         
         if (h < 265)
         {
-            outgoingMessageViewport->setBounds(getWidth()/2+2,
+            outgoingMessageViewport->setBounds(getWidth()/2+26,
                                             getHeight() - h - 35,
-                                            getWidth()/2-10,
+                                            getWidth()/2-34,
                                             h);
             
         } else {
-            outgoingMessageViewport->setBounds(getWidth()/2+2,
+            outgoingMessageViewport->setBounds(getWidth()/2+26,
             25,
-            getWidth()/2-10,
+            getWidth()/2-34,
             getHeight()-60);
         }
         
@@ -306,11 +317,9 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
     else
         firstMessageReceived = true;
 
-    String timestring = Time::getCurrentTime().toString(false, true, true, true);
-    
-    incomingMessageDisplayArea->setText(timestring + " - " + message, sendNotification);
+    incomingMessageDisplayArea->setText(message, sendNotification);
 
-    incomingBackground = Colours::orange;
+    incomingBackground = Colour(206, 172, 202);
     startTimer(75);
     resized();
 
@@ -323,7 +332,24 @@ MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     : Label(componentName,labelText)
 {
     setJustificationType(Justification::bottomLeft);
-    setColour(Label::textColourId, Colours::orange);
+    setColour(Label::textColourId, Colours::black);
+    setColour(Label::textWhenEditingColourId, Colours::black);
+    setColour(Label::outlineWhenEditingColourId, Colours::grey);
+    setFont(Font("Default", 15, Font::plain));
+    setBorderSize(BorderSize<int>(0, 7, 2, 0));
+    setMinimumHorizontalScale (1.0f);
+    
+    timestring = Time::getCurrentTime().toString(false, true, true, true);
+}
+
+String MessageLabel::getTooltip()
+{
+    return "Time of message: " + timestring;
+}
+
+void MessageLabel::prependText(String text)
+{
+    setText(text + getText(), dontSendNotification);
 }
 
 
@@ -335,8 +361,26 @@ MessageLog::MessageLog(Viewport* vp) : viewport(vp), messageHeight(20)
  void MessageLog::addMessage(MessageLabel* message)
 {
     messages.add(message);
+    message->prependText(getMessageNumberAsString() + ": ");
     addAndMakeVisible(message);
     
+}
+
+String MessageLog::getMessageNumberAsString()
+{
+    int num_messages = messages.size();
+    
+    if (num_messages < 10)
+    {
+        return "000" + String(num_messages);
+    } else if (num_messages >= 10 && num_messages < 100)
+    {
+        return "00" + String(num_messages);
+    } else if (num_messages >= 100 && num_messages < 1000) {
+        return "0" + String(num_messages);
+    } else {
+        return String(num_messages);
+    }
 }
 
 int MessageLog::getDesiredHeight()
@@ -361,3 +405,14 @@ void MessageLog::paint(Graphics& g)
     //g.fillAll();
 }
 
+void MessageLog::copyText()
+{
+    String text = "";
+    
+    for (auto & message: messages)
+    {
+        text += message->getText() + "\n";
+    }
+    
+    SystemClipboard::copyTextToClipboard(text);
+}
