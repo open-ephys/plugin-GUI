@@ -157,7 +157,7 @@ public:
     const String loadState(File filename);
 
     /** Converts information about a given editor to XML. */
-    XmlElement* createNodeXml(GenericProcessor*);
+    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
 
     /** Converts information about a splitter or merge to XML. */
     XmlElement* switchNodeXml(GenericProcessor*);

@@ -1141,7 +1141,7 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
 
 // how about some loading and saving?
 
-XmlElement* EditorViewport::createNodeXml(GenericProcessor* source)
+XmlElement* EditorViewport::createNodeXml(GenericProcessor* source, bool isStartOfSignalChain)
 {
 
     XmlElement* e = new XmlElement("PROCESSOR");
@@ -1162,7 +1162,10 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* source)
     //std::cout << name << std::endl;
 
     e->setAttribute("name", name);
-    e->setAttribute("insertionPoint", 1);
+    if (isStartOfSignalChain)
+        e->setAttribute("insertionPoint", 0);
+    else
+        e->setAttribute("insertionPoint", 1);
 	e->setAttribute("pluginName", source->getPluginName());
 	e->setAttribute("pluginType", (int)(source->getPluginType()));
 	e->setAttribute("pluginIndex", source->getIndex());
@@ -1248,11 +1251,13 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     XmlElement* machineName = info->createNewChildElement("MACHINE");
     machineName->addTextElement(SystemStats::getComputerName());
-
+    
     for (int n = 0; n < signalChainArray.size(); n++)
     {
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
-
+        
+        bool isStartOfSignalChain = true;
+        
         GenericProcessor* processor = signalChainArray[n]->getEditor()->getProcessor();
 
         while (processor != nullptr)
@@ -1273,7 +1278,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 }
 
                 // create a new XML element
-                signalChain->addChildElement(createNodeXml(processor));
+                signalChain->addChildElement(createNodeXml(processor,  isStartOfSignalChain));
                 processor->saveOrder = saveOrder;
                 allProcessors.addIfNotAlreadyThere(processor);
                 saveOrder++;
@@ -1283,6 +1288,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
             // continue until the end of the chain
             //std::cout << "  Moving forward along signal chain." << std::endl;
             processor = processor->getDestNode();
+            isStartOfSignalChain = false;
 
             if (processor == nullptr)
             {
@@ -1301,6 +1307,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                     //std::cout << "  End of chain." << std::endl;
                 }
             }
+            
         }
 
         xml->addChildElement(signalChain);
