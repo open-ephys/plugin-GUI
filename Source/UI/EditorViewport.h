@@ -28,6 +28,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
 #include "../Processors/Splitter/SplitterEditor.h"
+#include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Merger/MergerEditor.h"
 
 #include "ControlPanel.h"
@@ -156,7 +157,7 @@ public:
     const String loadState(File filename);
 
     /** Converts information about a given editor to XML. */
-    XmlElement* createNodeXml(GenericProcessor*);
+    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
 
     /** Converts information about a splitter or merge to XML. */
     XmlElement* switchNodeXml(GenericProcessor*);
@@ -174,6 +175,9 @@ public:
     int leftmostEditor;
 
     File currentFile;
+    
+    // Flag to check whether config is being loaded currently
+    bool loadingConfig;
 
 private:
 

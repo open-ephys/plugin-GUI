@@ -83,6 +83,7 @@
 
 		if(lastConfig.existsAsFile())
 		{
+			std::cout << "Comparing configs" << std::endl;
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
 				ui->getEditorViewport()->loadState(lastConfig);
@@ -282,6 +283,7 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 	if(rcXml == 0 || ! rcXml->hasTagName("SETTINGS"))
 	{
 		std::cout << "Recovery config is inavlid. Loading lastConfig.xml" << std::endl;
+		return true;
 	}
 
 	auto lcSig = lcXml->getChildByName("SIGNALCHAIN");
