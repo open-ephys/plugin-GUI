@@ -37,7 +37,7 @@ EditorViewport::EditorViewport()
       somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
       lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
       tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
-      indexOfMovingComponent(-1), currentTab(-1)
+      indexOfMovingComponent(-1), currentTab(-1), loadingConfig(false)
 {
 
     addMouseListener(this, true);
@@ -1159,7 +1159,7 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* source)
 
     name += source->getEditor()->getName();
 
-    std::cout << name << std::endl;
+    //std::cout << name << std::endl;
 
     e->setAttribute("name", name);
     e->setAttribute("insertionPoint", 1);
@@ -1172,7 +1172,7 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* source)
 	e->setAttribute("isSink", source->isSink());
 
     /**Saves individual processor parameters to XML */
-    std::cout << "Create subnodes with parameters" << std::endl;
+    //std::cout << "Create subnodes with parameters" << std::endl;
     source->saveToXml(e);
 
     return e;
@@ -1221,6 +1221,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     // }
 
     Array<GenericProcessor*> splitPoints;
+    Array<GenericProcessor*> allSplitters;
     /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
     Array<GenericProcessor*> allProcessors;
 
@@ -1261,6 +1262,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 {
                     // add to list of splitters to come back to
                     splitPoints.add(processor);
+                    allSplitters.add(processor);
                     processor->switchIO(0);
                 }
 
@@ -1271,20 +1273,16 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 saveOrder++;
 
             }
-            else
-            {
-                std::cout << "   Processor already saved as number " << processor->saveOrder << std::endl;
-            }
 
             // continue until the end of the chain
-            std::cout << "  Moving forward along signal chain." << std::endl;
+            //std::cout << "  Moving forward along signal chain." << std::endl;
             processor = processor->getDestNode();
 
             if (processor == nullptr)
             {
                 if (splitPoints.size() > 0)
                 {
-                    std::cout << "  Going back to first unswitched splitter." << std::endl;
+                    //std::cout << "  Going back to first unswitched splitter." << std::endl;
 
                     processor = splitPoints.getFirst();
                     splitPoints.remove(0);
@@ -1294,9 +1292,13 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 }
                 else
                 {
-                    std::cout << "  End of chain." << std::endl;
+                    //std::cout << "  End of chain." << std::endl;
                 }
             }
+        }
+        
+        for (GenericProcessor* sp : allSplitters) {
+            sp->switchIO(0);
         }
 
         xml->addChildElement(signalChain);
@@ -1452,7 +1454,8 @@ const String EditorViewport::loadState(File fileToLoad)
 		return "Failed To Open " + fileToLoad.getFileName();
 	}
     clearSignalChain();
-
+    
+    loadingConfig = true; //Indicate config is being loaded into the GUI
     String description;// = " ";
     int loadOrder = 0;
 
@@ -1620,7 +1623,9 @@ const String EditorViewport::loadState(File fileToLoad)
     delete xml;
 
     currentId=maxID+1; // make sure future processors don't have overlapping id numbers
-
+    
+    loadingConfig = false;
+    
     return error;
 }
 /* Set parameters based on XML.*/

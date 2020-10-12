@@ -554,9 +554,13 @@ void GenericEditor::update()
 
     updateVisualizer(); // does nothing unless this method
     // has been implemented
-
-    File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
-    AccessClass::getEditorViewport()->saveState(recoveryFile);
+    
+    EditorViewport* ev = AccessClass::getEditorViewport();
+    if(!ev->loadingConfig)
+    {
+        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+        ev->saveState(recoveryFile);
+    }
 
 }
 

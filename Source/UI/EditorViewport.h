@@ -174,6 +174,9 @@ public:
     int leftmostEditor;
 
     File currentFile;
+    
+    // Flag to check whether config is being loaded currently
+    bool loadingConfig;
 
 private:
 
