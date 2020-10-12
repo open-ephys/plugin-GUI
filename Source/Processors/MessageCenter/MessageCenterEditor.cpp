@@ -167,7 +167,7 @@ void MessageCenterEditor::collapse()
 
 void MessageCenterEditor::messageReceived(bool isRecording)
 {
-    if (false) //!isRecording)
+    if (!isRecording)
     {
         String msg = "Cannot save messages when recording is not active.";
         
@@ -232,7 +232,7 @@ void MessageCenterEditor::paint(Graphics& g)
     if (isExpanded)
     {
         g.setFont (Font("Default Bold", 80, Font::plain));
-        g.setColour(Colours::white.withAlpha(0.2f));
+        g.setColour(Colours::white.withAlpha(0.1f));
         g.drawText("INCOMING", 4,
         25,
         getWidth()/2-11,
