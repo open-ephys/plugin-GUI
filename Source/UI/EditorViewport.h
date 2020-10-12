@@ -28,6 +28,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
 #include "../Processors/Splitter/SplitterEditor.h"
+#include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Merger/MergerEditor.h"
 
 #include "ControlPanel.h"

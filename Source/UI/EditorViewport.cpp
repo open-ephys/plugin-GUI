@@ -1222,6 +1222,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     Array<GenericProcessor*> splitPoints;
     Array<GenericProcessor*> allSplitters;
+    Array<int> splitterStates;
     /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
     Array<GenericProcessor*> allProcessors;
 
@@ -1262,7 +1263,12 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 {
                     // add to list of splitters to come back to
                     splitPoints.add(processor);
-                    allSplitters.add(processor);
+
+                    //keep track of all splitters and their inital states
+                    allSplitters.add(processor); 
+                    Splitter* sp = (Splitter*)processor;
+                    splitterStates.add(sp->getPath());
+                    
                     processor->switchIO(0);
                 }
 
@@ -1296,12 +1302,13 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
                 }
             }
         }
-        
-        for (GenericProcessor* sp : allSplitters) {
-            sp->switchIO(0);
-        }
 
         xml->addChildElement(signalChain);
+    }
+
+    // Loop through all splitters and reset their states to original values
+    for (int i = 0; i < allSplitters.size(); i++) {
+        allSplitters[i]->switchIO(splitterStates[i]);
     }
 
     XmlElement* audioSettings = new XmlElement("AUDIO");
