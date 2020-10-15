@@ -91,7 +91,7 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 			const EventChannel* orig = sourceNode->getEventChannel(n);
 			//only add to the record node the events originating from this processor, to avoid duplicates
 			if (orig->getSourceNodeID() == sourceNode->getNodeId())
-				nonOwnedEventChannelArray.add(new EventChannel(*orig));
+				eventChannelArray.add(new EventChannel(*orig));
 
 		}
 
@@ -359,10 +359,10 @@ void RecordNode::updateSubprocessorMap()
 
     } 
 
-    for (int ch = 0; ch < nonOwnedEventChannelArray.size(); ch++)
+    for (int ch = 0; ch < eventChannelArray.size(); ch++)
     {
 
-        EventChannel* chan = nonOwnedEventChannelArray[ch];
+        EventChannel* chan = eventChannelArray[ch];
         int sourceID = chan->getSourceNodeID();
         int subProcID = chan->getSubProcessorIdx();
 

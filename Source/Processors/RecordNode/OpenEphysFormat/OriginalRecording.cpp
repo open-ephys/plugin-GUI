@@ -372,7 +372,7 @@ String OriginalRecording::generateSpikeHeader(const SpikeChannel* elec)
 	header += "';\n";
 
 	header += "header.num_channels = ";
-	header += String(c);
+	header += String(elec->getNumChannels());
 	header += ";\n";
 
 	header += "header.sampleRate = ";

@@ -122,8 +122,6 @@ public:
 	std::vector<std::vector<int>> subProcessorMap;
 	std::vector<int> startRecChannels;
 
-    Array<EventChannel*> nonOwnedEventChannelArray;
-
     bool isSyncReady;
 
     //TODO: Need to validate these new methods
