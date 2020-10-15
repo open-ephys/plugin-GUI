@@ -208,14 +208,24 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	std::vector<SpikeMessagePtr> spikes;
 	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
 
+	int total_null = 0;
+	int total_real = 0;
+
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
 		if (spikes[sp] == NULL)
-			std::cout << "Got NULL" << std::endl;
-		else
+		{
+			total_null++;
+		}
+		else{
+
 			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+			total_real++;
+		}
 		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
+	if (total_null > 0)
+		std::cout << "Total null: " << total_null << ", total real: " << total_real << std::endl;
 }
 
 void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
@@ -277,10 +287,19 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	std::vector<SpikeMessagePtr> spikes;
 	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
 
+	//int total_null = 0;
+	//int total_real = 0;
+
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		if (spikes[sp] != NULL)
+		{
+			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		}
 	}
+
+	//if (total_null > 0)
+	//	std::cout << "Total null: " << total_null << ", total real: " << total_real << std::endl;
 	
 }
 

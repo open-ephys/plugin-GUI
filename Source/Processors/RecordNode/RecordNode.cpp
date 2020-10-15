@@ -71,6 +71,7 @@ RecordNode::~RecordNode()
 
 void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 {
+	// not getting called
 
 	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
 	{
@@ -85,13 +86,12 @@ void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
 	}
 	else
 	{
-
 		for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
 		{
 			const EventChannel* orig = sourceNode->getEventChannel(n);
 			//only add to the record node the events originating from this processor, to avoid duplicates
 			if (orig->getSourceNodeID() == sourceNode->getNodeId())
-				eventChannelArray.add(new EventChannel(*orig));
+				nonOwnedEventChannelArray.add(new EventChannel(*orig));
 
 		}
 
@@ -345,6 +345,24 @@ void RecordNode::updateSubprocessorMap()
     {
 
         EventChannel* chan = eventChannelArray[ch];
+        int sourceID = chan->getSourceNodeID();
+        int subProcID = chan->getSubProcessorIdx();
+
+        eventMap[sourceID][subProcID] = chan->getNumChannels();
+
+        if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
+        {
+            syncOrderMap[sourceID][subProcID] = ch;
+            syncChannelMap[sourceID][subProcID] = 0;
+            synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
+        }
+
+    } 
+
+    for (int ch = 0; ch < nonOwnedEventChannelArray.size(); ch++)
+    {
+
+        EventChannel* chan = nonOwnedEventChannelArray[ch];
         int sourceID = chan->getSourceNodeID();
         int subProcID = chan->getSubProcessorIdx();
 
