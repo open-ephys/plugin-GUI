@@ -526,15 +526,12 @@ void RecordNode::startRecording()
 			rootFolder.createDirectory();
 		}
 		
-		//TODO:
-		/*
 		if (settingsNeeded)
 		{
 			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-			AccessClass::getEditorViewport()->saveState(File(settingsFileName), m_lastSettingsText);
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
 			settingsNeeded = false;
 		}
-		*/
 
 		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
 
