@@ -65,7 +65,7 @@ public:
 
 #ifdef WIN32
         //glWinInit();
-        if (AllocConsole())
+        if (false)//(AllocConsole())
         {
             freopen("CONOUT$","w",stdout);
             freopen("CONOUT$","w",stderr);
