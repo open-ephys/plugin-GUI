@@ -79,6 +79,19 @@ bool NpyFile::openFile(String path)
     // output stream buffer size defaults to 32768 bytes, but is irrelevant because
     // each updateHeader() call triggers a m_file->flush() to disk:
     m_file = file.createOutputStream();
+
+    if (m_file == nullptr)
+    {
+        LOGD("FAILED to open file @", path);
+    }
+    else
+    {
+        String pad = "";
+        for (int i = 0; i < 162 - path.length(); i++)
+            pad += " ";
+        LOGD("Successfully opened file @", path, pad, m_file);
+    }
+    
     if (!m_file)
         return false;
 
@@ -156,6 +169,7 @@ void NpyFile::writeHeader(const Array<NpyType>& typeList)
 
 void NpyFile::updateHeader()
 {
+
     if (true)
     {
         // overwrite the shape part of the header - even without explicitly calling
