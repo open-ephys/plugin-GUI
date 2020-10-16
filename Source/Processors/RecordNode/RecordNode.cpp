@@ -551,7 +551,7 @@ void RecordNode::stopRecording()
 	if (recordThread->isThreadRunning())
 	{
 		recordThread->signalThreadShouldExit();
-		recordThread->waitForThreadToExit(200); //2000
+		recordThread->waitForThreadToExit(2000); //2000
 	}
 
 	eventMonitor->displayStatus();
