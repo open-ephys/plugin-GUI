@@ -63,6 +63,11 @@ AudioProcessorEditor* MessageCenter::createEditor()
 
 }
 
+const EventChannel* MessageCenter::getMessageChannel()
+{
+    return getEventChannel(0);
+}
+
 void MessageCenter::setParameter(int parameterIndex, float newValue)
 {
     if (isRecording)

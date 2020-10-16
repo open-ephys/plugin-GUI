@@ -64,6 +64,8 @@ public:
 
     String getLabelString();
 
+    MessageCenter* messageCenter;
+
 private:
 
     void buttonClicked(Button* button);
@@ -84,8 +86,6 @@ private:
 
     /** A JUCE button used to send messages. */
     ScopedPointer<Button> sendMessageButton;
-
-    MessageCenter* messageCenter;
 
     Colour incomingBackground;
     Colour outgoingBackground;

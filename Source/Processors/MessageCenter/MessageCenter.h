@@ -61,6 +61,8 @@ public:
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
+    const EventChannel* getMessageChannel();
+
     bool enable() override;
     bool disable() override;
 

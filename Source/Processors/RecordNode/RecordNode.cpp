@@ -2,6 +2,7 @@
 
 #include "../../UI/EditorViewport.h"
 #include "../../UI/ControlPanel.h"
+#include "../../Processors/MessageCenter/MessageCenterEditor.h"
 #include "BinaryFormat/BinaryRecording.h"
 #include "OpenEphysFormat/OriginalRecording.h"
 
@@ -40,7 +41,8 @@ RecordNode::RecordNode()
 	hasRecorded(false),
 	settingsNeeded(false),
 	receivedSoftwareTime(false),
-    numSubprocessors(0)
+    numSubprocessors(0),
+	isConnectedToMessageCenter(false)
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
@@ -67,6 +69,16 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
+}
+
+void RecordNode::connectToMessageCenter()
+{
+
+	const EventChannel* orig = AccessClass::getMessageCenter()->messageCenter->getEventChannel(0);
+	eventChannelArray.add(new EventChannel(*orig));
+	
+	isConnectedToMessageCenter = true;
+
 }
 
 void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
@@ -341,6 +353,8 @@ void RecordNode::updateSubprocessorMap()
     eventMap.clear();
     syncChannelMap.clear();
     syncOrderMap.clear();
+
+	LOGD("Record Node: ", getNodeId(), " has ", eventChannelArray.size(), " channels");
     for (int ch = 0; ch < eventChannelArray.size(); ch++)
     {
 
@@ -483,6 +497,9 @@ void RecordNode::startRecording()
 
 	hasRecorded = true;
 
+	if (!isConnectedToMessageCenter)
+		connectToMessageCenter();
+
 	/* Set write properties */
 	setFirstBlock = false;
 
@@ -556,6 +573,15 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 
 void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
 {
+
+	//Ignore any duplicate messages from MessageCenter
+	if (Event::getSourceID(event) > 900)
+	{
+		if (!msgCenterMessages.contains(Event::getTimestamp(event)))
+			msgCenterMessages.add(Event::getTimestamp(event));
+		else
+			return;
+	}
 
 	eventMonitor->receivedEvents++;
 

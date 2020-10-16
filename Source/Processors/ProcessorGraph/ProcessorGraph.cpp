@@ -447,14 +447,16 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
             connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
         }
     }
+
+    Array<EventChannel*> extraChannels;
+    getMessageCenter()->addSpecialProcessorChannels(extraChannels);
 	
 	getAudioNode()->updatePlaybackBuffer();
 
-	Array<EventChannel*> extraChannels;
-	getMessageCenter()->addSpecialProcessorChannels(extraChannels);
-
+    /*
     for (auto& recordNode : getRecordNodes())
         recordNode->addSpecialProcessorChannels(extraChannels);
+    */
 
 } // end method
 

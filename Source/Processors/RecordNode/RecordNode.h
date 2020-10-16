@@ -49,6 +49,8 @@ public:
 	RecordNode();
 	~RecordNode();
 
+	void connectToMessageCenter();
+
 	void updateRecordChannelIndexes();
 
 	AudioProcessorEditor* createEditor() override;
@@ -166,6 +168,9 @@ public:
 	ScopedPointer<EventMonitor> eventMonitor;
 
 private:
+
+	bool isConnectedToMessageCenter;
+	Array<int64> msgCenterMessages;
 
 	bool useSynchronizer; 
 
