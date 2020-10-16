@@ -156,7 +156,7 @@ void NpyFile::writeHeader(const Array<NpyType>& typeList)
 
 void NpyFile::updateHeader()
 {
-    if (m_file != NULL)
+    if (true)
     {
         // overwrite the shape part of the header - even without explicitly calling
         // m_file->flush(), overwriting seems to trigger a flush to disk,
