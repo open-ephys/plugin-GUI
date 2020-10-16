@@ -74,10 +74,12 @@ RecordNode::~RecordNode()
 void RecordNode::connectToMessageCenter()
 {
 
-	const EventChannel* orig = AccessClass::getMessageCenter()->messageCenter->getEventChannel(0);
+	const EventChannel* orig = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 	eventChannelArray.add(new EventChannel(*orig));
 	
 	isConnectedToMessageCenter = true;
+
+	std::cout << "Record node " << getNodeId() << " connected to Message Center" << std::endl;
 
 }
 
@@ -280,6 +282,7 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 
 void RecordNode::updateSubprocessorMap()
 {
+
     
     std::map<int, std::vector<int>> inputs;
 
@@ -411,6 +414,8 @@ void RecordNode::updateSettings()
 bool RecordNode::enable()
 {
 
+	connectToMessageCenter();
+
 	if (hasRecorded)
 	{
 		hasRecorded = false;
@@ -497,8 +502,7 @@ void RecordNode::startRecording()
 
 	hasRecorded = true;
 
-	if (!isConnectedToMessageCenter)
-		connectToMessageCenter();
+	
 
 	/* Set write properties */
 	setFirstBlock = false;
@@ -575,7 +579,10 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 	if (Event::getSourceID(event) > 900)
 	{
 		if (!msgCenterMessages.contains(Event::getTimestamp(event)))
+		{
 			msgCenterMessages.add(Event::getTimestamp(event));
+			std::cout << "Received event." << std::endl;
+		}
 		else
 			return;
 	}
@@ -584,6 +591,8 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
 	if (recordEvents) 
 	{
+		
+
 		int64 timestamp = Event::getTimestamp(event);
 		uint64 eventChan = event.getChannel();
 		int eventIndex;

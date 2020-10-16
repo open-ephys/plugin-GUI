@@ -119,6 +119,7 @@ private:
     void connectProcessors(GenericProcessor* source, GenericProcessor* dest,
         bool connectContinuous, bool connectEvents);
     void connectProcessorToAudioNode(GenericProcessor* source);
+    void connectProcessorToMessageCenter(GenericProcessor* source);
 
 	int64 m_startSoftTimestamp{ 0 };
 	const GenericProcessor* m_timestampSource{ nullptr };

@@ -346,6 +346,9 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
                 //TODO: This is will be removed when probe based audio node added. 
                 connectProcessorToAudioNode(source);
 
+                //if (source->isRecordNode())
+                 //   connectProcessorToMessageCenter(source);
+
                 // find the next dest that's not a merger or splitter
                 GenericProcessor* prev = source;
 
@@ -448,8 +451,8 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
         }
     }
 
-    Array<EventChannel*> extraChannels;
-    getMessageCenter()->addSpecialProcessorChannels(extraChannels);
+    //OwnedArray<EventChannel> extraChannels;
+    getMessageCenter()->addSpecialProcessorChannels();
 	
 	getAudioNode()->updatePlaybackBuffer();
 
@@ -554,6 +557,19 @@ void ProcessorGraph::connectProcessorToAudioNode(GenericProcessor* source)
     //getRecordNode()->addInputChannel(source, midiChannelIndex);
 
 }
+
+
+void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
+{
+
+    // connect event channel
+    addConnection(getMessageCenter()->getNodeId(),    // sourceNodeID
+                  midiChannelIndex,       // sourceNodeChannelIndex
+                  source->getNodeId(),          // destNodeID
+                  midiChannelIndex);      // destNodeChannelIndex
+
+}
+
 
 GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& description)
 {

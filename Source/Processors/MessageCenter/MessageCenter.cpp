@@ -36,6 +36,9 @@ GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
                          0, // number of outputs
                          44100.0, // sampleRate
                          128);    // blockSize
+
+    eventChannel = nullptr;
+
 }
 
 MessageCenter::~MessageCenter()
@@ -43,15 +46,25 @@ MessageCenter::~MessageCenter()
 
 }
 
-void MessageCenter::addSpecialProcessorChannels(Array<EventChannel*>& channels) 
+void MessageCenter::addSpecialProcessorChannels() 
 {
-	clearSettings();
-	EventChannel* chan = new EventChannel(EventChannel::TEXT, 1, MAX_MSG_LENGTH, CoreServices::getGlobalSampleRate(), this, 0);
-	chan->setName("GUI Messages");
-	chan->setDescription("Messages from the GUI Message Center");
-	channels.add(chan);
-	eventChannelArray.add(new EventChannel(*chan));
-	updateChannelIndexes();
+
+    if (eventChannel == nullptr)
+    {
+        clearSettings();
+
+        eventChannel = new EventChannel(EventChannel::TEXT, 
+                                            1, 
+                                            MAX_MSG_LENGTH, 
+                                            CoreServices::getGlobalSampleRate(), 
+                                            this, 0);
+
+        eventChannel->setName("GUI Messages");
+        eventChannel->setDescription("Messages from the GUI Message Center");
+        eventChannelArray.add(new EventChannel(*eventChannel));
+
+        updateChannelIndexes();
+    }
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()
@@ -118,6 +131,8 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
+
+        std::cout << "Message Center added event." << std::endl;
 
         newEventAvailable = false;
     }

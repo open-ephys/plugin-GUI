@@ -77,12 +77,14 @@ public:
         needsToSendTimestampMessage = false;
     }
 
-	void addSpecialProcessorChannels(Array<EventChannel*>& channel);
+	void addSpecialProcessorChannels();
 private:
 
     bool newEventAvailable;
     bool isRecording;
     bool needsToSendTimestampMessage;
+
+    ScopedPointer<EventChannel> eventChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
 
