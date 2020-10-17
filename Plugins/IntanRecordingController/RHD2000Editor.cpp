@@ -737,6 +737,7 @@ void RHD2000Editor::handleAsyncUpdate()
 	canvas->updateImpedance(impedanceData->streams, impedanceData->channels, impedanceData->magnitudes, impedanceData->phases);
     if (saveImpedances)
     {
+        // this may not work with new Record Node architecture
 		CoreServices::RecordNode::createNewrecordingDir();
 
 		String path(CoreServices::RecordNode::getRecordingPath().getFullPathName()
