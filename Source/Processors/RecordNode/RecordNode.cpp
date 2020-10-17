@@ -75,6 +75,13 @@ void RecordNode::connectToMessageCenter()
 {
 
 	const EventChannel* orig = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+
+	for (auto eventChannel : eventChannelArray)
+	{
+		if (eventChannel == orig)
+			return;
+	}
+
 	eventChannelArray.add(new EventChannel(*orig));
 	
 	isConnectedToMessageCenter = true;
@@ -415,7 +422,7 @@ bool RecordNode::enable()
 {
 
 	connectToMessageCenter();
-
+	
 	if (hasRecorded)
 	{
 		hasRecorded = false;
@@ -456,6 +463,8 @@ void RecordNode::startRecording()
 		DataChannel* chan = dataChannelArray[ch];
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
+
+		//std::cout << "Channel: " << ch << " Source Node: " << srcIndex << " Sub Index: " << subIndex << std::endl;
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
@@ -540,6 +549,8 @@ void RecordNode::startRecording()
 		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
+
+		std::cout << "Num event channels: " << eventChannelArray.size() << std::endl;
 		recordThread->startThread();
 		isRecording = true;
 	}
