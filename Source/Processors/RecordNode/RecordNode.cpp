@@ -443,7 +443,7 @@ void RecordNode::updateSettings()
 bool RecordNode::enable()
 {
 
-	connectToMessageCenter();
+	//connectToMessageCenter();
 	
 	if (hasRecorded)
 	{

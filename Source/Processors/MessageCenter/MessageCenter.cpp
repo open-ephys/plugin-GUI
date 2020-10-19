@@ -51,6 +51,7 @@ void MessageCenter::addSpecialProcessorChannels()
 
     if (eventChannel == nullptr)
     {
+        
         clearSettings();
 
         eventChannel = new EventChannel(EventChannel::TEXT, 
