@@ -69,7 +69,7 @@ String OriginalRecording::getEngineID() const
 
 void OriginalRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
 {
-	spikeFileArray.add(nullptr);
+	//spikeFileArray.add(nullptr); // deprecated
 }
 
 void OriginalRecording::resetChannels()
@@ -91,7 +91,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 	processorArray.clear();
 	lastProcId = 0;
 
-	//openFile(rootFolder, getEventChannel(0), 0);
+	openFile(rootFolder, getEventChannel(0), 0);
 	openMessageFile(rootFolder);
 
 	int nChannels = getNumRecordedChannels();
@@ -103,10 +103,15 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 		blockIndex.add(0);
 		samplesSinceLastTimestamp.add(0);
 	}
-	for (int i = 0; i < spikeFileArray.size(); i++)
+
+	int nSpikes = getNumRecordedSpikes();
+
+	for (int i = 0; i < nSpikes; i++)
 	{
+		spikeFileArray.add(nullptr);
 		openSpikeFile(rootFolder, getSpikeChannel(i), i);
 	}
+
 }
 
 void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, int channelIndex)
@@ -214,11 +219,14 @@ void OriginalRecording::openSpikeFile(File rootFolder, const SpikeChannel* elec,
 
 	if (!fileExists)
 	{
+
 		String header = generateSpikeHeader(elec);
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), spFile);
+		std::cout << "Wrote header." << std::endl;
 	}
 	diskWriteLock.exit();
 	spikeFileArray.set(channelIndex, spFile);
+	std::cout << "Added file." << std::endl;
 
 }
 
@@ -257,8 +265,8 @@ String OriginalRecording::getFileName(int channelIndex)
 {
 	String filename;
 	const DataChannel* ch = getDataChannel(channelIndex);
-
-	filename += String(static_cast<int>(ch->getCurrentNodeID()));
+    
+	filename += String(static_cast<int>(ch->getSourceNodeID()));
 	filename += "_";
 	if (renameFiles)
 		filename += renamedPrefix + String(getDataChannel(channelIndex)->getCurrentNodeChannelIdx() + 1);
@@ -592,6 +600,7 @@ void OriginalRecording::closeFiles()
 		}
 	}
 	fileArray.clear();
+
 	blockIndex.clear();
 	samplesSinceLastTimestamp.clear();
 	for (int i = 0; i < spikeFileArray.size(); i++)
@@ -630,11 +639,17 @@ void OriginalRecording::closeFiles()
 
 void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 {
+	//std::cout << "Electrode index: " << electrodeIndex << std::endl;
+
 	if (spikeFileArray[electrodeIndex] == nullptr)
 		return;
 
+	//std::cout << "Got spike" << std::endl;
+
 	HeapBlock<char> spikeBuffer;
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
+
+	//std::cout << "Got spike channel" << std::endl;
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
 	int numChannels = channel->getNumChannels();
@@ -657,6 +672,8 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
 	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
+
+	//std::cout << "Allocated memory" << std::endl;
 
 	int ptrIdx = 0;
 	uint16* dataIntPtr = reinterpret_cast<uint16*>(spikeBuffer.getData() + 42);
@@ -683,6 +700,8 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 		ptrIdx += sizeof(int16);
 	}
 
+	//std::cout << "Starting disk write" << std::endl;
+
 	diskWriteLock.enter();
 
 	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
@@ -693,6 +712,8 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 		spikeFileArray[electrodeIndex]); // ptr to FILE object
 
 	diskWriteLock.exit();
+
+	//std::cout << "Wrote to file" << std::endl;
 }
 
 void OriginalRecording::writeXml()

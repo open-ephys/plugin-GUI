@@ -210,10 +210,10 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		if (spikes[sp] == NULL)
-			std::cout << "Got NULL" << std::endl;
-		else
+		if (spikes[sp] != NULL)
+		{
 			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		}
 		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 }
@@ -279,9 +279,12 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		if (spikes[sp] != NULL)
+		{
+			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+		}
 	}
-	
+
 }
 
 void RecordThread::forceCloseFiles()

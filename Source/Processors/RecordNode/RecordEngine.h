@@ -65,7 +65,7 @@ public:
 	/** All the public methods (except registerManager) are called by RecordNode or RecordingThread:
 	When acquisition starts (in the specified order):
 	1-resetChannels
-	2-registerProcessor, addChannel, registerSpikeSource, addspikeelectrode
+	2-registerProcessor, addChannel, registerSpikeSource, addSpikeElectrode
 	3-configureEngine (which calls setParameter)
 	3-startAcquisition
 	When recording starts (in the specified order):
