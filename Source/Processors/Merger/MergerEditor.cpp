@@ -101,6 +101,7 @@ MergerEditor::~MergerEditor()
 
 void MergerEditor::buttonEvent(Button* button)
 {
+    
     if (button == pipelineSelectorA)
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
@@ -118,7 +119,7 @@ void MergerEditor::buttonEvent(Button* button)
 
     }
 
-    AccessClass::getEditorViewport()->makeEditorVisible(this, false);
+    AccessClass::getProcessorGraph()->updateViews(getProcessor());
 }
 
 Array<GenericProcessor*> MergerEditor::getSelectableProcessors()
@@ -318,10 +319,8 @@ Array<GenericEditor*> MergerEditor::getConnectedEditors()
 
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
-        processor->switchIO();
-
-        if (processor->getSourceNode() != nullptr)
-            editors.add(processor->getSourceNode()->getEditor());
+        if (processor->getSourceNode(pathNum) != nullptr)
+            editors.add(processor->getSourceNode(pathNum)->getEditor());
         else
             editors.add(nullptr);
     }
@@ -336,9 +335,7 @@ int MergerEditor::getPathForEditor(GenericEditor* editor)
 
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
-        switchSource(pathNum);
-
-        if (processor->getSourceNode() != nullptr)
+        if (processor->getSourceNode(pathNum) != nullptr)
         {
             if (processor->getEditor() == editor)
                 return pathNum;

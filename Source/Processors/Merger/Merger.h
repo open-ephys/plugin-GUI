@@ -63,6 +63,7 @@ public:
     void switchIO() override;
     int switchToSourceNode(GenericProcessor* sn);
     void setMergerSourceNode(GenericProcessor* sn) override;
+    GenericProcessor* getSourceNode(int);
 
     void updateSettings() override;
     void addSettingsFromSourceNode(GenericProcessor* sn);

@@ -23,7 +23,7 @@
 
 #include "EditorViewport.h"
 
-#include "SignalChainManager.h"
+//#include "SignalChainManager.h"
 #include "GraphViewer.h"
 #include "EditorViewportButtons.h"
 #include "../AccessClass.h"
@@ -31,49 +31,38 @@
 #include "ProcessorList.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
-EditorViewport::EditorViewport()
-    : leftmostEditor(0),
-      message("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false), shiftDown(false), canEdit(true),
-      lastEditorClicked(0), selectionIndex(0), borderSize(6), tabSize(30),
-      tabButtonSize(15), insertionPoint(0), componentWantsToMove(false),
-      indexOfMovingComponent(-1), currentTab(-1), loadingConfig(false)
+const int BORDER_SIZE = 6;
+const int TAB_SIZE = 30;
+
+EditorViewport::EditorViewport(SignalChainTabComponent* s_)
+    : message("Drag-and-drop some rows from the top-left box onto this component!"),
+      somethingIsBeingDraggedOver(false),
+      shiftDown(false),
+      lastEditorClicked(0),
+      selectionIndex(0),
+      insertionPoint(0),
+      componentWantsToMove(false),
+      indexOfMovingComponent(-1),
+      loadingConfig(false),
+      signalChainTabComponent(s_)
 {
 
     addMouseListener(this, true);
 
     //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
     //Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font("Small Text", 10, Font::plain);
-    font.setHeight(10);
+    
+    //font = Font("Small Text", 10, Font::plain);
+    //font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory(BinaryData::SourceDrop_png,
                                                 BinaryData::SourceDrop_pngSize);
 
     sourceDropImage = sourceDropImage.rescaled(25, 135,
                                                Graphics::highResamplingQuality);
-
-    signalChainManager = new SignalChainManager(this, editorArray,
-                                                signalChainArray);
-
-    upButton = new SignalChainScrollButton(UP);
-    downButton = new SignalChainScrollButton(DOWN);
-    leftButton = new EditorScrollButton(LEFT);
-    rightButton = new EditorScrollButton(RIGHT);
-
-    upButton->addListener(this);
-    downButton->addListener(this);
-    leftButton->addListener(this);
-    rightButton->addListener(this);
-
-    addAndMakeVisible(upButton);
-    addAndMakeVisible(downButton);
-    addAndMakeVisible(rightButton);
-    addAndMakeVisible(leftButton);
-
-    currentId = 100;
-    maxId = 100;
-
+    
+    signalChainTabComponent->setEditorViewport(this);
+    
     editorNamingLabel.setEditable(true);
     editorNamingLabel.setBounds(0,0,100,20);
     editorNamingLabel.setColour(Label::textColourId, Colours::white);
@@ -83,19 +72,12 @@ EditorViewport::EditorViewport()
 
 EditorViewport::~EditorViewport()
 {
-	signalChainManager = nullptr;
-    deleteAllChildren();
+
 }
 
-void EditorViewport::signalChainCanBeEdited(bool t)
+void EditorViewport::resized()
 {
-    canEdit = t;
-
-    if (!canEdit)
-        std::cout << "Filter Viewport disabled." << std::endl;
-    else
-        std::cout << "Filter Viewport enabled." << std::endl;
-
+  //  refreshEditors();
 }
 
 void EditorViewport::paint(Graphics& g)
@@ -104,63 +86,46 @@ void EditorViewport::paint(Graphics& g)
     if (somethingIsBeingDraggedOver)
     {
         g.setColour(Colours::yellow);
-
     }
     else
     {
         g.setColour(Colour(48,48,48));
     }
 
-    g.drawRect(0, 0, getWidth(), getHeight(), 2.0);
-    g.drawVerticalLine(tabSize, 0, getHeight());
-    g.drawVerticalLine(getWidth()-tabSize, 0, getHeight());
-    // g.drawHorizontalLine(getHeight()/2, getWidth()-tabSize, tabSize);
-
-    for (int n = 0; n < 4; n++)
-    {
-        g.drawEllipse(7,(tabSize-2)*n+24,tabSize-12,tabSize-12,1.0);
-    }
-
+    g.drawRect(0, 0, getWidth(), getHeight()-15);
+    
     if (somethingIsBeingDraggedOver)
     {
-        float insertionX = (float)(borderSize) * 2.5 + (float) tabSize;
+        float insertionX = (float)(BORDER_SIZE) * 2.5;
 
         int n;
-        for (n = leftmostEditor; n < insertionPoint; n++)
+        for (n = 0; n < insertionPoint; n++)
         {
             insertionX += editorArray[n]->getWidth();
-
         }
 
-        if (n - leftmostEditor > 1)
-            insertionX += borderSize*(n-leftmostEditor-1);
+        if (n > 1)
+            insertionX += BORDER_SIZE*(n-1);
 
         g.setColour(Colours::yellow);
-        g.drawLine(insertionX, (float) borderSize,
-                   insertionX, (float) getHeight()-(float) borderSize, 3.0f);
+        g.drawLine(insertionX, (float) BORDER_SIZE,
+                   insertionX, (float) getHeight()-(float) BORDER_SIZE, 3.0f);
 
     }
-
-    int insertionX = tabSize + borderSize;
+    
+    int insertionX = BORDER_SIZE;
     g.setColour(Colours::darkgrey);
 
     int x = insertionX + 15;
-    int y = borderSize + 2;
-    //int w = 30;
-    //int h = getHeight() - 2*(borderSize+2);get
+    int y = BORDER_SIZE + 2;
 
-    //if (editorArray.size() > 0)
-    //{
-    //if (!editorArray[0]->getProcessor()->isSource())
-    //    g.drawImageAt(sourceDropImage, x, y);
-    //} else {
     g.drawImageAt(sourceDropImage, x, y);
-    //}
+    
 }
 
 bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
 {
-    if (canEdit && dragSourceDetails.description.toString().startsWith("Processors"))
+    if (!CoreServices::getAcquisitionStatus() && dragSourceDetails.description.toString().startsWith("Processors"))
     {
         return false;
     }
@@ -177,7 +142,7 @@ bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDet
 
 void EditorViewport::itemDragEnter(const SourceDetails& dragSourceDetails)
 {
-    if (canEdit)
+    if (!CoreServices::getAcquisitionStatus())
     {
         somethingIsBeingDraggedOver = true;
         repaint();
@@ -188,9 +153,8 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 {
 
     int x = dragSourceDetails.localPosition.getX();
-    // int y = dragSourceDetails.localPosition.getY();
 
-    if (canEdit)
+    if (!CoreServices::getAcquisitionStatus())
     {
         bool foundInsertionPoint = false;
 
@@ -198,7 +162,7 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
         int leftEdge;
         int centerPoint;
 
-        for (int n = leftmostEditor; n < editorArray.size(); n++)
+        for (int n = 0; n < editorArray.size(); n++)
         {
             leftEdge = editorArray[n]->getX();
             centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
@@ -216,11 +180,11 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
         {
             insertionPoint = editorArray.size();
         }
-
+        
         repaint();
+        
         refreshEditors();
     }
-
 }
 
 void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
@@ -236,87 +200,55 @@ void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 {
 
-	var descr = dragSourceDetails.description;
-	Array<var>* description = descr.getArray();
-
-    if (canEdit)
+    if (!CoreServices::getAcquisitionStatus())
     {
+        Array<var>* descr = dragSourceDetails.description.getArray();
+        ProcessorDescription description;
+        
+        description.fromProcessorList = descr->getUnchecked(0);
+        description.processorName = descr->getUnchecked(1);
+        description.processorType = descr->getUnchecked(2);
+        description.processorIndex = descr->getUnchecked(3);
+        description.libName = descr->getUnchecked(4);
 
-        message = "last filter dropped: " + (*description)[1].toString();
+        message = "last filter dropped: " + description.processorName;
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
 
-        /// needed to remove const cast --> should be a better way to do this
-        //String description = sourceDescription.substring(0);
+        GenericProcessor* sourceProcessor;
 
-        GenericEditor* activeEditor = (GenericEditor*)AccessClass::getProcessorGraph()->createNewProcessor(*description, currentId);//, source, dest);
-
-        //std::cout << "Active editor: " << activeEditor << std::endl;
-
-        if (activeEditor != 0)
+        if (insertionPoint > 0)
         {
-            //activeEditor->setUIComponent(getUIComponent());
-            activeEditor->refreshColors();
-            addChildComponent(activeEditor);
-
-            lastEditor = activeEditor;
-
-            signalChainManager->updateVisibleEditors(activeEditor, indexOfMovingComponent, insertionPoint, ADD);
-
-            for (int i = 0; i < editorArray.size(); i++)
-            {
-                if (editorArray[i] == activeEditor)
-                    editorArray[i]->select();
-                else
-                    editorArray[i]->deselect();
-            }
-
-            // Instructions below were enclosed into the if block by Michael Borisov
-            // To allow for errors during creation of editors, in which case activeEditor will be ==0
-
-            insertionPoint = -1; // make sure all editors are left-justified
-            indexOfMovingComponent = -1;
-            refreshEditors();
-
-            somethingIsBeingDraggedOver = false;
-
-            AccessClass::getGraphViewer()->addNode(activeEditor);
-
-            repaint();
-
-            currentId++;
+            sourceProcessor = editorArray[insertionPoint-1]->getProcessor();
+        } else {
+            sourceProcessor = nullptr;
         }
-
+        
+        insertionPoint = -1; // make sure all editors are left-justified
+        indexOfMovingComponent = -1;
+        somethingIsBeingDraggedOver = false;
+        
+        AccessClass::getProcessorGraph()->createProcessor(description, sourceProcessor);
     }
 }
 
 void EditorViewport::clearSignalChain()
 {
 
-    if (canEdit)
+    if (!CoreServices::getAcquisitionStatus())
     {
-        editorArray.clear();
-        //const MessageManagerLock mmLock; // prevent redraw while deleting
-        std::cout << "Clearing signal chain." << std::endl;
-        signalChainManager->clearSignalChain();
         AccessClass::getProcessorGraph()->clearSignalChain();
-        AccessClass::getGraphViewer()->removeAllNodes();
-
     }
     else
     {
-
         CoreServices::sendStatusMessage("Cannot clear signal chain while acquisition is active.");
-
     }
-
-    repaint();
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
 
-	if (editor == 0)
+	/*if (editor == 0)
 	{
 		if (updateSettings)
 			signalChainManager->updateProcessorSettings();
@@ -348,74 +280,71 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
         refreshEditors();
     }
 
-    repaint();
+    repaint();*/
 
 }
 
-void EditorViewport::deleteNode(GenericEditor* editor)
+void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
+                                          int numberOfTabs,
+                                          int selectedTab)
 {
-
-    if (canEdit)
-    {
-        indexOfMovingComponent = editorArray.indexOf(editor);
+    for (auto editor : editorArray)
         editor->setVisible(false);
-
-        signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent, insertionPoint, REMOVE);
-
-        AccessClass::getGraphViewer()->removeNode(editor);
-
-        refreshEditors();
-
-        AccessClass::getProcessorGraph()->removeProcessor((GenericProcessor*)editor->getProcessor());
-
-        insertionPoint = -1; // make sure all editors are left-justified
-        indexOfMovingComponent = -1;
-
-        somethingIsBeingDraggedOver = false;
-
-        repaint();
-
+    
+    editorArray.clear();
+    
+    for (auto editor : visibleEditors)
+    {
+        editorArray.add(editor);
+        addChildComponent(editor);
+        editor->setVisible(true);
     }
+        
+    refreshEditors();
+    signalChainTabComponent->refreshTabs(numberOfTabs, selectedTab);
+    repaint();
 }
 
+int EditorViewport::getDesiredWidth()
+{
+    
+    int desiredWidth = 0;
+    
+    for (auto editor : editorArray)
+    {
+        desiredWidth += editor->desiredWidth + BORDER_SIZE;
+    }
+    
+    return desiredWidth;
+}
 
 void EditorViewport::refreshEditors()
 {
 
-    int lastBound = borderSize+tabSize;
+    int lastBound = BORDER_SIZE;
 
     //std::cout << insertionPoint << std::endl;
 
     bool pastRightEdge = false;
 
-    for (int n = 0; n < signalChainArray.size(); n++)
-    {
-        if (signalChainArray[n]->getToggleState())
-        {
-            signalChainArray[n]->offset = leftmostEditor;
-        }
-    }
-
-    int rightEdge = getWidth() - tabSize;
+    int rightEdge = getWidth();
     int numEditors = editorArray.size();
 
-    for (int n = 0; n < numEditors; n++)
+    for (int n = 0; n < editorArray.size(); n++)
     {
-
-        //   std::cout << "Refreshing editor number" << n << std::endl;
 
         GenericEditor* editor = editorArray[n];
         int componentWidth = editor->desiredWidth;
 
-        pastRightEdge = pastRightEdge || lastBound + componentWidth >= rightEdge;
+        pastRightEdge = false; //pastRightEdge || lastBound + componentWidth >= rightEdge;
 
-        if (!pastRightEdge && n >= leftmostEditor)
+        if (!pastRightEdge)
         {
 
             if (n == 0 && !editor->getProcessor()->isSource())
             {
                 // leave room to drop a source node
-                lastBound += borderSize * 10;
+                lastBound += BORDER_SIZE * 10;
             }
 
             if (somethingIsBeingDraggedOver && n == insertionPoint)
@@ -424,28 +353,25 @@ void EditorViewport::refreshEditors()
                     || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
                 {
                     if (n == 0)
-                        lastBound += borderSize*3;
+                        lastBound += BORDER_SIZE*3;
                     else
-                        lastBound += borderSize*2;
+                        lastBound += BORDER_SIZE*2;
                 }
             }
 
             editor->setVisible(true);
             //   std::cout << "setting visible." << std::endl;
-            editor->setBounds(lastBound, borderSize, componentWidth, getHeight()-borderSize*2);
-            lastBound += (componentWidth + borderSize);
+            editor->setBounds(lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE*4);
+            lastBound += (componentWidth + BORDER_SIZE);
         }
         else
         {
-            editor->setVisible(false);
+            //editor->setVisible(false);
             // std::cout << "setting invisible." << std::endl;
         }
     }
-
-    rightButton->setActive(pastRightEdge);
-    leftButton->setActive(leftmostEditor != 0 && editorArray.size() != 0);
-
-    // std::cout << totalWidth << " " << getWidth() - tabSize << std::endl;
+    
+    signalChainTabComponent->resized();
 }
 
 void EditorViewport::moveSelection(const KeyPress& key)
@@ -500,13 +426,8 @@ void EditorViewport::moveSelection(const KeyPress& key)
                 if (editorArray[i]->getSelectionState())
                 {
 
-                    //  if (!stopSelection)
-                    // {
                     lastEditorClicked = editorArray[i+1];
                     editorArray[i+1]->select();
-                    // stopSelection = true;
-                    //  }
-
                     editorArray[i]->deselect();
                     i += 2;
                 }
@@ -526,24 +447,24 @@ void EditorViewport::moveSelection(const KeyPress& key)
 
         // std::cout << "Selection index: " << selectionIndex << std::endl;
 
-        // int startIndex = editorArray.indexOf(lastEditorClicked);
+        int startIndex = editorArray.indexOf(lastEditorClicked);
 
-        // if (selectionIndex < 0)
-        // {
+        if (selectionIndex < 0)
+        {
 
-        //     for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
-        //     {
-        //         editorArray[i]->select();
-        //     }
+             for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
+             {
+                 editorArray[i]->select();
+             }
 
-        // } else if (selectionIndex > 0)
-        // {
-        //     for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
-        //     {
-        //         editorArray[i]->select();
-        //     }
+        } else if (selectionIndex > 0)
+        {
+            for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
+             {
+                 editorArray[i]->select();
+             }
 
-        // }
+         }
 
     }
 
@@ -561,7 +482,7 @@ bool EditorViewport::keyPressed(const KeyPress& key)
 
     //std::cout << "Editor viewport received " << key.getKeyCode() << std::endl;
 
-    if (canEdit && editorArray.size() > 0)
+    if (!CoreServices::getAcquisitionStatus() && editorArray.size() > 0)
     {
 
         ModifierKeys mk = key.getModifiers();
@@ -572,16 +493,15 @@ bool EditorViewport::keyPressed(const KeyPress& key)
             if (!mk.isAnyModifierKeyDown())
             {
 
-                Array<GenericEditor*> editorsToRemove;
+                Array<GenericProcessor*> processorsToRemove;
 
-                for (int i = 0; i < editorArray.size(); i++)
+                for (auto editor : editorArray)
                 {
-                    if (editorArray[i]->getSelectionState())
-                        editorsToRemove.add(editorArray[i]);
+                    if (editor->getSelectionState())
+                        processorsToRemove.add(editor->getProcessor());
                 }
 
-                for (int i = 0; i < editorsToRemove.size(); i++)
-                    deleteNode(editorsToRemove[i]);
+                AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
 
                 return true;
             }
@@ -656,9 +576,6 @@ void EditorViewport::labelTextChanged(Label* label)
 void EditorViewport::mouseDown(const MouseEvent& e)
 {
 
-
-    // std::cout << "Mouse click at " << e.x << " " << e.y << std::endl;
-
     bool clickInEditor = false;
 
     for (int i = 0; i < editorArray.size(); i++)
@@ -703,7 +620,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 else
                     m.addItem(3, "Collapse", true);
 
-                if (canEdit)
+                if (!CoreServices::getAcquisitionStatus())
                     m.addItem(2, "Delete", true);
                 else
                     m.addItem(2, "Delete", false);
@@ -729,7 +646,12 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 }
                 else if (result == 2)
                 {
-                    deleteNode(editorArray[i]);
+                    
+                    Array<GenericProcessor*> processorsToRemove;
+
+                    processorsToRemove.add(editorArray[i]->getProcessor());
+
+                    AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
                     return;
                 }
                 else if (result == 3)
@@ -844,7 +766,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
 
     if (editorArray.contains((GenericEditor*) e.originalComponent)
         && e.y < 15
-        && canEdit
+        && !CoreServices::getAcquisitionStatus()
         && editorArray.size() > 1
         && e.getDistanceFromDragStart() > 10
         )
@@ -887,8 +809,6 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             insertionPoint = editorArray.size();
         }
 
-
-
         refreshEditors();
         repaint();
     }
@@ -905,18 +825,20 @@ void EditorViewport::mouseUp(const MouseEvent& e)
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
 
-        GenericEditor* editor = editorArray[indexOfMovingComponent];
-
-        signalChainManager->updateVisibleEditors(editor, indexOfMovingComponent,
-                                                 insertionPoint, MOVE);
-
-        AccessClass::getGraphViewer()->updateNodeLocations();
-
-        refreshEditors();
-        repaint();
-
+        if (indexOfMovingComponent != insertionPoint)
+        {
+            if (insertionPoint == editorArray.size())
+            {
+                AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
+                                                                editorArray[insertionPoint-1]->getProcessor(),
+                                                                nullptr);
+            } else {
+                AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
+                                                                nullptr,
+                                                                editorArray[insertionPoint]->getProcessor());
+            }
+        }
     }
-
 
 }
 
@@ -930,35 +852,13 @@ void EditorViewport::mouseExit(const MouseEvent& e)
         componentWantsToMove = false;
 
         repaint();
-        refreshEditors();
+        //refreshEditors();
 
     }
 
 
 }
 
-void EditorViewport::checkScrollButtons(int topTab)
-{
-
-    if (signalChainArray.size() - topTab > 4)
-    {
-        downButton->setActive(true);
-    }
-    else
-    {
-        downButton->setActive(false);
-    }
-
-    if (topTab > 0)
-    {
-        upButton->setActive(true);
-    }
-    else
-    {
-        upButton->setActive(false);
-    }
-
-}
 
 bool EditorViewport::isSignalChainEmpty()
 {
@@ -970,66 +870,16 @@ bool EditorViewport::isSignalChainEmpty()
 
 }
 
-void EditorViewport::resized()
-{
-
-    int b = 2; // border
-
-    downButton->setBounds(b, getHeight()-15-b, tabSize-b, 15);
-    upButton->setBounds(b, b, tabSize-b, 15);
-    leftButton->setBounds(getWidth()-25, getHeight()/2+b, 20, getHeight()/2-2*b);
-    rightButton->setBounds(getWidth()-25, b, 20, getHeight()/2-b*2);
-
-    refreshEditors();
-}
-
-void EditorViewport::buttonClicked(Button* button)
-{
-    if (button == upButton)
-    {
-        std::cout << "Up button pressed." << std::endl;
-
-        if (upButton->isActive)
-            signalChainManager->scrollUp();
-
-    }
-    else if (button == downButton)
-    {
-        if (downButton->isActive)
-            signalChainManager->scrollDown();
-
-    }
-    else if (button == leftButton)
-    {
-        if (leftButton->isActive)
-        {
-            leftmostEditor -= 1;
-            refreshEditors();
-        }
-
-    }
-    else if (button == rightButton)
-    {
-        if (rightButton->isActive)
-        {
-            leftmostEditor += 1;
-            refreshEditors();
-        }
-    }
-}
 
 ///////////////////////////////////////////////////////////////////
 ////////////////SIGNAL CHAIN TAB BUTTON////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-SignalChainTabButton::SignalChainTabButton() : Button("Name"),
-    configurationChanged(true)
+SignalChainTabButton::SignalChainTabButton(int index) : Button("Name"), num(index)
 {
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    //Typeface::Ptr typeface = new CustomTypeface(mis);
     buttonFont = Font("Small Text", 10, Font::plain);
     buttonFont.setHeight(14);
 
@@ -1041,12 +891,9 @@ void SignalChainTabButton::clicked()
 {
     if (getToggleState())
     {
-        //std::cout << "Button clicked: " << firstEditor->getName() << std::endl;
-        EditorViewport* ev = (EditorViewport*) getParentComponent();
-
-        scm->updateVisibleEditors(firstEditor, 0, 0, ACTIVATE);
-        ev->leftmostEditor = offset;
-        ev->refreshEditors();
+        std::cout << "Tab button clicked: " << num << std::endl;
+        
+        AccessClass::getProcessorGraph()->viewSignalChain(num);
     }
 }
 
@@ -1082,24 +929,6 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
 
         grad1.multiplyOpacity(0.7f);
         grad2.multiplyOpacity(0.7f);
-        //  grad1 = ColourGradient(Colour(255, 255, 255), 0.0f, 20.0f,
-        //                         Colour(180, 180, 180), 0.0f, 0.0f,
-        //                        false);
-
-        // grad2 = ColourGradient(Colour(255, 255, 255), 0.0f, 0.0f,
-        //                         Colour(180, 180, 180), 0.0f, 20.0f,
-        //                        false);
-    }
-
-    if (isButtonDown)
-    {
-
-        // ColourGradient grad3 = grad1;
-        // grad1 = grad2;
-        // grad2 = grad3;
-        // grad1.multiplyOpacity(0.7f);
-        // grad2.multiplyOpacity(0.7f);
-
     }
 
     g.setGradientFill(grad2);
@@ -1137,7 +966,138 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
     g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
 }
 
+// SignalChainTabComponent
 
+SignalChainTabComponent::SignalChainTabComponent()
+{
+    topTab = 0;
+    
+    upButton = new SignalChainScrollButton(UP);
+    downButton = new SignalChainScrollButton(DOWN);
+
+    upButton->addListener(this);
+    downButton->addListener(this);
+    
+    addAndMakeVisible(upButton);
+    addAndMakeVisible(downButton);
+
+    viewport = new Viewport();
+    viewport->setScrollBarsShown(false, true);
+    viewport->setScrollBarThickness(12);
+    addAndMakeVisible(viewport);
+
+    //for (int i = 0; i < 8; i++)
+    //{
+    //    SignalChainTabButton* button = new SignalChainTabButton(i);
+     //   signalChainTabButtonArray.add(button);
+     //   addChildComponent(button);
+    //}
+}
+
+SignalChainTabComponent::~SignalChainTabComponent()
+{
+    deleteAllChildren();
+}
+
+void SignalChainTabComponent::setEditorViewport(EditorViewport* ev)
+{
+    editorViewport = ev;
+    viewport->setViewedComponent(ev, true);
+}
+
+void SignalChainTabComponent::paint(Graphics& g)
+{
+    g.setColour(Colours::darkgrey);
+    
+    for (int n = 0; n < 4; n++)
+    {
+        g.drawEllipse(7,
+                      (TAB_SIZE-2)*n+24,
+                      TAB_SIZE-12,
+                      TAB_SIZE-12,
+                      1.0);
+    }
+
+    //g.drawVerticalLine(TAB_SIZE, 0, getHeight());
+    //g.drawVerticalLine(getWidth()-TAB_SIZE, 0, getHeight());
+}
+
+
+void SignalChainTabComponent::resized()
+{
+
+    int b = 2; // border
+
+    downButton->setBounds(b, getHeight()-15-b, TAB_SIZE-b, 15);
+    upButton->setBounds(b, b, TAB_SIZE-b, 15);
+
+    viewport->setBounds(TAB_SIZE, 0, getWidth()-TAB_SIZE, getHeight());
+    int width = editorViewport->getDesiredWidth() < getWidth() ? getWidth() : editorViewport->getDesiredWidth();
+    editorViewport->setBounds(0, 0, width, getHeight());
+}
+
+
+void SignalChainTabComponent::refreshTabs(int numberOfTabs, int selectedTab)
+{
+    
+    for (int i = 0; i < signalChainTabButtonArray.size(); i++)
+    {
+        signalChainTabButtonArray[i]->setBounds(6,
+                                                (TAB_SIZE-2) * (i-topTab) + 23,
+                                                TAB_SIZE-10,
+                                                TAB_SIZE-10);
+        
+        if (i < numberOfTabs)
+        {
+            signalChainTabButtonArray[i]->setVisible(true);
+        } else {
+            signalChainTabButtonArray[i]->setVisible(false);
+        }
+        
+        if (i == selectedTab)
+        {
+            signalChainTabButtonArray[i]->setToggleState(true, NotificationType::dontSendNotification);
+        } else {
+            signalChainTabButtonArray[i]->setToggleState(false, NotificationType::dontSendNotification);
+        }
+    }
+}
+
+
+void SignalChainTabComponent::buttonClicked(Button* button)
+{
+    if (button == upButton)
+    {
+        std::cout << "Up button pressed." << std::endl;
+
+        if (upButton->isActive)
+            topTab -= 1;
+
+    }
+    else if (button == downButton)
+    {
+        if (downButton->isActive)
+            topTab += 1;
+
+    }
+    /*else if (button == leftButton)
+    {
+        if (leftButton->isActive)
+        {
+            leftmostEditor -= 1;
+            refreshEditors();
+        }
+
+    }
+    else if (button == rightButton)
+    {
+        if (rightButton->isActive)
+        {
+            leftmostEditor += 1;
+            refreshEditors();
+        }
+    }*/
+}
 
 // how about some loading and saving?
 
@@ -1252,7 +1212,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     XmlElement* machineName = info->createNewChildElement("MACHINE");
     machineName->addTextElement(SystemStats::getComputerName());
     
-    for (int n = 0; n < signalChainArray.size(); n++)
+    /*for (int n = 0; n < signalChainArray.size(); n++)
     {
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
         
@@ -1311,7 +1271,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
         }
 
         xml->addChildElement(signalChain);
-    }
+    }*/
 
     // Loop through all splitters and reset their states to original values
     for (int i = 0; i < allSplitters.size(); i++) {
@@ -1369,20 +1329,6 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 const String EditorViewport::loadState(File fileToLoad)
 {
 
-    // FileChooser fc("Choose a file to load...",
-    //                CoreServices::getDefaultUserSaveDirectory(),
-    //                "*.xml",
-    //                true);
-
-    // if (fc.browseForFileToOpen())
-    // {
-    //     currentFile = fc.getResult();
-    // }
-    // else
-    // {
-    //     return "No configuration selected.";
-    // }
-    int maxID = 100;
     currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
@@ -1456,7 +1402,11 @@ const String EditorViewport::loadState(File fileToLoad)
                                                      "Version mismatch", responseString,
                                                      "Yes", "No", 0, 0);
         if (!response)
+        {
+            delete xml;
             return "Failed To Open " + fileToLoad.getFileName();
+        }
+            
 
     }
 	if (!pluginAPI)
@@ -1488,10 +1438,7 @@ const String EditorViewport::loadState(File fileToLoad)
                 {
 
                     int insertionPt = processor->getIntAttribute("insertionPoint");
-                    currentId = processor->getIntAttribute("NodeId");
-
-                    maxID= (maxID > currentId) ? maxID  : currentId ;
-
+                    
                     if (insertionPt == 1)
                     {
                         insertionPoint = editorArray.size();
@@ -1534,19 +1481,19 @@ const String EditorViewport::loadState(File fileToLoad)
                     itemDropped(sd);
 
                     p = (GenericProcessor*) lastEditor->getProcessor();
-                    p->loadOrder = loadOrder;
+                    //p->loadOrder = loadOrder;
                     p->parametersAsXml = processor;
 
                     //Sets parameters based on XML files
-                    setParametersByXML(p, processor);
-                    loadOrder++;
+                    //setParametersByXML(p, processor);
+                    //loadOrder++;
 
                     if (p->isSplitter() || p->isMerger())
                     {
                         splitPoints.add(p);
                     }
 
-                    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+                    //signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
 
                 }
                 else if (processor->hasTagName("SWITCH"))
@@ -1581,7 +1528,7 @@ const String EditorViewport::loadState(File fileToLoad)
                         }
                     }
 
-                    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+                    //signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
 
                 }
 
@@ -1612,82 +1559,33 @@ const String EditorViewport::loadState(File fileToLoad)
 
     }
 
+    // probably not necessary
     for (int i = 0; i < editorArray.size(); i++)
     {
         // deselect everything initially
         editorArray[i]->deselect();
     }
 
-    AccessClass::getProcessorGraph()->restoreParameters();
+    //AccessClass::getProcessorGraph()->restoreParameters();
 
     AccessClass::getControlPanel()->loadStateFromXml(xml); // load the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
     AccessClass::getUIComponent()->loadStateFromXml(xml);  // load the UI settings
 
-    if (editorArray.size() > 0)
-        signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
+    //if (editorArray.size() > 0)
+    //    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
 
-    refreshEditors();
+    //refreshEditors();
 
-    AccessClass::getProcessorGraph()->restoreParameters();
+    //AccessClass::getProcessorGraph()->restoreParameters();
 
     String error = "Opened ";
     error += currentFile.getFileName();
 
     delete xml;
 
-    currentId=maxID+1; // make sure future processors don't have overlapping id numbers
-    
     loadingConfig = false;
     
     return error;
 }
-/* Set parameters based on XML.*/
-void EditorViewport::setParametersByXML(GenericProcessor* targetProcessor, XmlElement* processorXML)
-{
-    // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
-    int numberParameters = targetProcessor->getNumParameters();
-    // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
-    //int numChannels=(targetProcessor->channels).size();
-    //int numEventChannels=(targetProcessor->eventChannels).size();
 
-    // Sets channel in for loop
-    int currentChannel;
-
-    // What the parameter name to change is.
-    String parameterNameForXML;
-    String parameterValue;
-    float parameterFloat;
-    //float testGrab;
-
-
-    forEachXmlChildElementWithTagName(*processorXML, channelXML, "CHANNEL")
-    {
-        currentChannel=channelXML->getIntAttribute("name");
-
-        // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
-        // Sets channel to change parameter on
-        targetProcessor->setCurrentChannel(currentChannel-1);
-
-        forEachXmlChildElement(*channelXML, parameterXML)
-        {
-
-            for (int j = 0; j < numberParameters; ++j)
-            {
-                parameterNameForXML = targetProcessor->getParameterName(j);
-
-                if (parameterXML->getStringAttribute("name")==parameterNameForXML)
-                {
-                    parameterValue=parameterXML->getAllSubText();
-                    parameterFloat=parameterValue.getFloatValue();
-                    targetProcessor->setParameter(j, parameterFloat);
-                    // testGrab=targetProcessor->getParameterVar(j, currentChannel);
-                    std::cout <<"Channel:" <<currentChannel<<"Parameter:" << parameterNameForXML << "Intended Value:" << parameterFloat << std::endl;
-                }
-
-            }
-
-
-        }
-    }
-}

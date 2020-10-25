@@ -125,3 +125,13 @@ int Splitter::getPath()
 {
     return activePath;
 }
+
+GenericProcessor* Splitter::getDestNode(int path)
+{
+    if (path == 0)
+    {
+        return destNodeA;
+    } else {
+        return destNodeB;
+    }
+}

@@ -29,11 +29,23 @@
 #include "../../AccessClass.h"
 
 class GenericProcessor;
+class GenericEditor;
 class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
 class TimestampSourceSelectionWindow;
+
+struct ProcessorDescription {
+    bool fromProcessorList;
+    String processorName;
+    int processorType;
+    int processorIndex;
+    String libName;
+    int libVersion;
+    bool isSource;
+    bool isSink;
+};
 
 /**
   Owns all processors and constructs the signal chain.
@@ -56,12 +68,20 @@ public:
     ProcessorGraph();
     ~ProcessorGraph();
 
-    void* createNewProcessor(Array<var>& description, int id);
-    GenericProcessor* createProcessorFromDescription(Array<var>& description);
+    void createProcessor(ProcessorDescription& description, GenericProcessor* sourceNode, bool signalChainIsLoading=false);
+    GenericProcessor* createProcessorFromDescription(ProcessorDescription& description);
+    
+    void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr);
 
     void removeProcessor(GenericProcessor* processor);
     Array<GenericProcessor*> getListOfProcessors();
+    
+    Array<GenericEditor*> getVisibleEditors(GenericProcessor* processor);
+    
+    void updateSettings(GenericProcessor* processor);
+    void updateViews(GenericProcessor* processor);
     void clearSignalChain();
+    void deleteNodes(Array<GenericProcessor*> nodesToDelete);
 
     bool enableProcessors();
     bool disableProcessors();
@@ -72,7 +92,7 @@ public:
     
     bool hasRecordNode();
 
-    void updateConnections(Array<SignalChainTabButton*, CriticalSection>);
+    void updateConnections();
 
     bool processorWithSameNameExists(const String& name);
 
@@ -80,6 +100,8 @@ public:
 
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
+    
+    void loadParametersFromXml(GenericProcessor*);
 
     void updatePointers();
 
@@ -102,6 +124,8 @@ public:
 	uint32 getGlobalTimestampSourceFullId() const;
 
 	void setTimestampWindow(TimestampSourceSelectionWindow* window);
+    
+    void viewSignalChain(int index);
 
 private:
     int currentNodeId;
@@ -126,6 +150,9 @@ private:
 	int m_timestampSourceSubIdx;
 	Array<const GenericProcessor*> m_validTimestampSources;
 	WeakReference<TimestampSourceSelectionWindow> m_timestampWindow;
+    
+    Array<GenericProcessor*> rootNodes;
+
 };
 
 

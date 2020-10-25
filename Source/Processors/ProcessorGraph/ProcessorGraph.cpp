@@ -37,6 +37,7 @@
 #include "../../UI/UIComponent.h"
 #include "../../UI/EditorViewport.h"
 #include "../../UI/TimestampSourceSelection.h"
+#include "../../UI/GraphViewer.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
 
@@ -88,32 +89,69 @@ void ProcessorGraph::updatePointers()
     getAudioNode()->updateBufferSize();
 }
 
-void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
+void ProcessorGraph::moveProcessor(GenericProcessor* processor,
+                                    GenericProcessor* newSource,
+                                   GenericProcessor* newDest)
 {
-	GenericProcessor* processor = 0;
-	try {// Try/catch block added by Michael Borisov
+    GenericProcessor* originalSource = processor->getSourceNode();
+    GenericProcessor* originalDest = processor->getDestNode();
+    
+    if (newSource != nullptr)
+    {
+        processor->setSourceNode(newSource);
+        processor->setDestNode(newSource->getDestNode());
+        newSource->setDestNode(processor);
+        
+    } else if (newDest != nullptr)
+    {
+        processor->setDestNode(newDest);
+        processor->setSourceNode(newDest->getSourceNode());
+        newDest->setSourceNode(processor);
+    }
+    
+    if (originalSource != nullptr)
+        originalSource->setDestNode(originalDest);
+    
+    if (originalDest != nullptr)
+        originalDest->setSourceNode(originalSource);
+    
+    updateViews(processor);
+}
+
+void ProcessorGraph::createProcessor(ProcessorDescription& description,
+                                      GenericProcessor* sourceNode,
+                                      bool signalChainIsLoading)
+{
+	GenericProcessor* processor = nullptr;
+    
+	try {
 		processor = createProcessorFromDescription(description);
 	}
 	catch (std::exception& e) {
 		NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", e.what());
 	}
 
-	// int id = currentNodeId++;
-
-	if (processor != 0)
+	if (processor != nullptr)
 	{
+        int id = currentNodeId++;
 		processor->setNodeId(id); // identifier within processor graph
-		std::cout << "  Adding node to graph with ID number " << id << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		addNode(processor,id); // have to add it so it can be deleted by the graph
-
+		addNode(processor, id); // have to add it so it can be deleted by the graph
+        GenericEditor* editor = (GenericEditor*) processor->createEditor();
+        editor->enable();
+        editor->refreshColors();
+        
 		if (processor->isSource())
 		{
-			// by default, all source nodes record automatically
-			processor->setAllChannelsToRecord();
+            rootNodes.add(processor);
+            
+            if (sourceNode != nullptr)
+            {
+                processor->setDestNode(sourceNode->getDestNode());
+                sourceNode->setDestNode(nullptr);
+            }
+            
 			if (processor->isGeneratesTimestamps())
-			{ //If there are no source processors and we add one, set it as default for global timestamps and samplerates
+			{ //If there are no source processors and we add one, set it as default for global timestamps and sample rates
 				m_validTimestampSources.add(processor);
 				if (m_timestampSource == nullptr)
 				{
@@ -123,14 +161,137 @@ void* ProcessorGraph::createNewProcessor(Array<var>& description, int id)//,
 				if (m_timestampWindow)
 					m_timestampWindow->updateProcessorList();
 			}
-		}
-		return processor->createEditor();
+        } else {
+            if (sourceNode != nullptr)
+            {
+                if (processor->isMerger())
+                    processor->setMergerSourceNode(sourceNode);
+                else
+                    processor->setSourceNode(sourceNode);
+                
+                processor->setDestNode(sourceNode->getDestNode());
+                sourceNode->setDestNode(processor);
+            }
+        }
+        
+        
 	}
 	else
 	{
-		CoreServices::sendStatusMessage("Not a valid processor type.");
-		return 0;
+		CoreServices::sendStatusMessage("Not a valid processor.");
 	}
+    
+    if (!signalChainIsLoading)
+    {
+        updateSettings(processor);
+        AccessClass::getGraphViewer()->addNode(processor->getEditor());
+        updateViews(processor);
+    }
+}
+
+void ProcessorGraph::updateSettings(GenericProcessor* processor)
+{
+    Array<Splitter*> splitters;
+    
+    while ((processor != nullptr) || (splitters.size() > 0))
+    {
+        if (processor != nullptr)
+        {
+            processor->update();
+            
+            if (processor->isSplitter())
+            {
+                splitters.add((Splitter*) processor);
+                processor = splitters.getLast()->getDestNode(0); // travel down chain 0 first
+            } else {
+                processor = processor->getDestNode();
+            }
+        }
+        else {
+            Splitter* splitter = splitters.getFirst();
+            processor = splitter->getDestNode(1); // then come back to chain 1
+            splitters.remove(0);
+        }
+    }
+}
+
+void ProcessorGraph::updateViews(GenericProcessor* processor)
+{
+    int tabIndex;
+    
+    if (processor == nullptr && rootNodes.size() > 0)
+    {
+        processor = rootNodes.getFirst();
+    }
+    
+    Array<GenericEditor*> editorArray;
+    GenericProcessor* rootProcessor = processor;
+    
+    while (processor != nullptr)
+    {
+        rootProcessor = processor;
+        processor = processor->getSourceNode();
+    }
+    
+    processor = rootProcessor;
+
+    while (processor != nullptr)
+    {
+        editorArray.add(processor->getEditor());
+        processor = processor->getDestNode();
+    }
+    
+    AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,
+                                                           rootNodes.size(),
+                                                           rootNodes.indexOf(rootProcessor));
+    
+}
+
+void ProcessorGraph::viewSignalChain(int index)
+{
+    updateViews(rootNodes[index]);
+}
+
+void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
+{
+    GenericProcessor* sourceNode = nullptr;
+    GenericProcessor* destNode = nullptr;
+    
+    for (auto processor : processorsToDelete)
+    {
+        
+        sourceNode = processor->getSourceNode();
+        destNode = processor->getDestNode();
+        
+        if (sourceNode != nullptr)
+        {
+            sourceNode->setDestNode(destNode);
+        }
+        
+        if (destNode != nullptr)
+        {
+            destNode->setSourceNode(sourceNode);
+        }
+        
+        if (rootNodes.indexOf(processor) > -1)
+        {
+            if (destNode != nullptr)
+                rootNodes.set(rootNodes.indexOf(processor), destNode);
+            else
+                rootNodes.remove(rootNodes.indexOf(processor));
+        }
+        
+        AccessClass::getGraphViewer()->removeNode(processor->getEditor());
+        removeProcessor(processor);
+    }
+    
+    if (destNode != nullptr)
+    {
+        updateViews(destNode);
+    } else {
+        updateViews(sourceNode);
+    }
+        
 }
 
 void ProcessorGraph::clearSignalChain()
@@ -142,7 +303,13 @@ void ProcessorGraph::clearSignalChain()
     {
         removeProcessor(processors[i]);
     }
+    
+    rootNodes.clear();
+    currentNodeId = 100;
+    
+    AccessClass::getGraphViewer()->removeAllNodes();
 
+    updateViews(nullptr);
 }
 
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
@@ -171,10 +338,62 @@ void ProcessorGraph::refreshColors()
     }
 }
 
+/* Set parameters based on XML.*/
+void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
+{
+    // is this deprecated?
+    // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
+    int numberParameters = processor->getNumParameters();
+    // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
+    //int numChannels=(targetProcessor->channels).size();
+    //int numEventChannels=(targetProcessor->eventChannels).size();
+
+    // Sets channel in for loop
+    int currentChannel;
+
+    // What the parameter name to change is.
+    String parameterNameForXML;
+    String parameterValue;
+    float parameterFloat;
+
+    forEachXmlChildElementWithTagName(*processor->parametersAsXml,
+                                      channelXML,
+                                      "CHANNEL")
+    {
+        currentChannel=channelXML->getIntAttribute("name");
+
+        // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
+        // Sets channel to change parameter on
+        processor->setCurrentChannel(currentChannel-1);
+
+        forEachXmlChildElement(*channelXML, parameterXML)
+        {
+
+            for (int j = 0; j < numberParameters; ++j)
+            {
+                parameterNameForXML = processor->getParameterName(j);
+
+                if (parameterXML->getStringAttribute("name")==parameterNameForXML)
+                {
+                    parameterValue=parameterXML->getAllSubText();
+                    parameterFloat=parameterValue.getFloatValue();
+                    processor->setParameter(j, parameterFloat);
+                    // testGrab=targetProcessor->getParameterVar(j, currentChannel);
+                    std::cout <<"Channel:" <<currentChannel<<"Parameter:" << parameterNameForXML << "Intended Value:" << parameterFloat << std::endl;
+                }
+
+            }
+        }
+    }
+}
+
+
 void ProcessorGraph::restoreParameters()
 {
 
     std::cout << "Restoring parameters for each processor..." << std::endl;
+    
+    Array<GenericProcessor*> sourceProcessors;
 
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -189,9 +408,28 @@ void ProcessorGraph::restoreParameters()
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             p->loadFromXml();
+            
+            if (!p->isMerger())
+            {
+                if (p->getSourceNode() == nullptr)
+                {
+                    sourceProcessors.add(p);
+                }
+            } else {
+                Merger* m = (Merger*) p;
+                
+                if (m->getSourceNode(0) == nullptr && m->getSourceNode(1) == nullptr)
+                {
+                    sourceProcessors.add(p);
+                }
+            }
         }
     }
 
+    for (auto p : sourceProcessors)
+    {
+        updateSettings(p);
+    }
 }
 
 bool ProcessorGraph::hasRecordNode()
@@ -213,7 +451,7 @@ bool ProcessorGraph::hasRecordNode()
 Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 {
 
-    Array<GenericProcessor*> a;
+    Array<GenericProcessor*> allProcessors;
 
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -227,11 +465,11 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
             nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-            a.add(p);
+            allProcessors.add(p);
         }
     }
 
-    return a;
+    return allProcessors;
 
 }
 
@@ -273,7 +511,7 @@ void ProcessorGraph::clearConnections()
 }
 
 
-void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSection> tabs)
+void ProcessorGraph::updateConnections()
 {
 
     clearConnections(); // clear processor graph
@@ -311,13 +549,13 @@ void ProcessorGraph::updateConnections(Array<SignalChainTabButton*, CriticalSect
     // each destination node gets a set of sources, sorted by their order as dictated by mergers
     std::unordered_map<GenericProcessor*, SortedSet<ConnectionInfo>> sourceMap;
 
-    for (int n = 0; n < tabs.size(); n++) // cycle through the tabs
+    for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
         std::cout << "Signal chain: " << n << std::endl;
         std::cout << std::endl;
 
-        GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
-        GenericProcessor* source = (GenericProcessor*) sourceEditor->getProcessor();
+        //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
+        GenericProcessor* source = rootNodes[0];
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
@@ -571,38 +809,36 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 }
 
 
-GenericProcessor* ProcessorGraph::createProcessorFromDescription(Array<var>& description)
+GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescription& description)
 {
 	GenericProcessor* processor = nullptr;
 
-	bool fromProcessorList = description[0];
-	String processorName = description[1];
-	int processorType = description[2];
-	int processorIndex = description[3];
-
-	if (fromProcessorList)
+	if (description.fromProcessorList)
 	{
-		String processorCategory = description[4];
 
 		std::cout << "Creating from description..." << std::endl;
-		std::cout << processorCategory << "::" << processorName << " (" << processorType << "-" << processorIndex << ")" << std::endl;
+		std::cout << description.libName << "::" << description.processorName <<
+        " (" << description.processorType << "-" << description.processorIndex << ")" << std::endl;
 
-		processor = ProcessorManager::createProcessor((ProcessorClasses)processorType, processorIndex);
+		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
+                                                      description.processorIndex);
 	}
 	else
 	{
-		String libName = description[4];
-		int libVersion = description[5];
-		bool isSource = description[6];
-		bool isSink = description[7];
-
 		std::cout << "Creating from plugin info..." << std::endl;
-		std::cout << libName << "(" << libVersion << ")::" << processorName << std::endl;
+		std::cout << description.libName << "(" << description.libVersion << ")::" << description.processorName << std::endl;
 
-		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)processorType, processorIndex, processorName, libName, libVersion, isSource, isSink);
+		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
+                                                                    description.processorType,
+                                                                    description.processorIndex,
+                                                                    description.processorName,
+                                                                    description.libName,
+                                                                    description.libVersion,
+                                                                    description.isSource,
+                                                                    description.isSink);
 	}
 
-	String msg = "New " + processorName + " created";
+	String msg = "New " + description.processorName + " created";
 	CoreServices::sendStatusMessage(msg);
 
     return processor;
@@ -668,7 +904,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 bool ProcessorGraph::enableProcessors()
 {
 
-    updateConnections(AccessClass::getEditorViewport()->requestSignalChain());
+//    updateConnections(AccessClass::getEditorViewport()->requestSignalChain());
 
     std::cout << "Enabling processors..." << std::endl;
 
@@ -715,7 +951,7 @@ bool ProcessorGraph::enableProcessors()
         }
     }
 
-    AccessClass::getEditorViewport()->signalChainCanBeEdited(false);
+    //AccessClass::getEditorViewport()->signalChainCanBeEdited(false);
 
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented
@@ -758,7 +994,7 @@ bool ProcessorGraph::disableProcessors()
         }
     }
 
-    AccessClass::getEditorViewport()->signalChainCanBeEdited(true);
+    //AccessClass::getEditorViewport()->signalChainCanBeEdited(true);
 	if (m_timestampWindow)
 		m_timestampWindow->setAcquisitionState(false);
     //	sendActionMessage("Acquisition ended.");

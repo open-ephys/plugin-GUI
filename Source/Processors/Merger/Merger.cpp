@@ -68,10 +68,10 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
         sourceNodeB = sn;
     }
 
-    if (sn != nullptr)
-    {
-        sn->setDestNode(this);
-    }
+    //if (sn != nullptr)
+    //{
+    //    sn->setDestNode(this);
+    //}
 }
 
 void Merger::switchIO(int sourceNum)
@@ -168,6 +168,16 @@ void Merger::switchIO()
         sourceNode = sourceNodeA;
     }
 
+}
+
+GenericProcessor* Merger::getSourceNode(int path)
+{
+    if (path == 0)
+    {
+        return sourceNodeA;
+    } else {
+        return sourceNodeB;
+    }
 }
 
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
@@ -312,30 +322,3 @@ void Merger::loadCustomParametersFromXml()
     }
 }
 
-// void Merger::setNumOutputs(int /*outputs*/)
-// {
-// 	numOutputs = 0;
-
-// 	if (sourceNodeA != 0)
-// 	{
-// 		std::cout << "   Merger source A found." << std::endl;
-// 		numOutputs += sourceNodeA->getNumOutputs();
-// 	}
-// 	if (sourceNodeB != 0)
-// 	{
-// 		std::cout << "   Merger source B found." << std::endl;
-// 		numOutputs += sourceNodeB->getNumOutputs();
-// 	}
-
-// 	std::cout << "Number of merger outputs: " << getNumOutputs() << std::endl;
-
-// }
-
-// void Merger::tabNumber(int t)
-// {
-// 	if (tabA == -1)
-// 		tabA = t;
-// 	else
-// 		tabB = t;
-
-// }

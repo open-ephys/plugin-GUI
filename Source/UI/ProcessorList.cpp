@@ -506,13 +506,12 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 						juce::Point<int> imageOffset(20,10);
 
-						//See ProcessorGraph::createProcesorFromDescription for description info
 						Array<var> dragData;
-						dragData.add(true);
-						dragData.add(dragDescription);
-						dragData.add(listItem->processorType);
-						dragData.add(listItem->processorId);
-						dragData.add(listItem->getParentName());
+						dragData.add(true); // fromProcessorList
+						dragData.add(dragDescription); // processorName
+						dragData.add(listItem->processorType); // processorType
+						dragData.add(listItem->processorId);  // processorIndex
+						dragData.add(listItem->getParentName()); // libName
 
 						dragContainer->startDragging(dragData, this,
 								dragImage, true, &imageOffset);

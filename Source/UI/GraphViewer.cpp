@@ -57,7 +57,8 @@ void GraphViewer::addNode (GenericEditor* editor)
 
 void GraphViewer::removeNode (GenericEditor* editor)
 {
-    availableNodes.remove (getIndexOfEditor (editor));
+    int index = getIndexOfEditor (editor);
+    availableNodes.remove (index);
     
     updateNodeLocations();
 }
@@ -121,7 +122,6 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
     {
         if (!rootNode->isSplitter())
         {
-            
             adjustBranchLayout(getNodeForEditor(rootNode->getDest()), level);
             
         } else {
@@ -207,6 +207,7 @@ int GraphViewer::getIndexOfEditor (GenericEditor* editor) const
     int index = -1;
     
     const int numAvailableNodes = availableNodes.size();
+    
     for (int i = 0; i < numAvailableNodes; ++i)
     {
         if (availableNodes[i]->hasEditor (editor))

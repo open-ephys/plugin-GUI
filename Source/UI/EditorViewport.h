@@ -37,8 +37,8 @@
 
 class GenericEditor;
 class SignalChainTabButton;
-class SignalChainManager;
-class EditorScrollButton;
+class SignalChainTabComponent;
+//class EditorScrollButton;
 class SignalChainScrollButton;
 class ControlPanel;
 class UIComponent;
@@ -63,24 +63,17 @@ class UIComponent;
 
 class EditorViewport  : public Component,
     public DragAndDropTarget,
-    public Button::Listener,
     public Label::Listener
 {
 public:
 
     /** Constructor. Adds the buttons for browsing through the signal chains.*/
-    EditorViewport();
+    EditorViewport(SignalChainTabComponent*);
 
     /** Destructor. */
     ~EditorViewport();
 
-    /** Draws the background of the EditorViewport. */
-    void paint(Graphics& g);
-
-    /** Removes the processor associated with a given editor. */
-    void deleteNode(GenericEditor* editor);
-
-    /** Removes the processor associated with a given editor. */
+    /** Selects the processor associated with a given editor. */
     void selectEditor(GenericEditor* editor);
 
     /** Ensures that the user can see the requested editor. */
@@ -88,13 +81,9 @@ public:
 
     /** Updates the boundaries and visibility of all the editors in the signal chain. */
     void refreshEditors();
-
+    
     /** Removes all processors from the signal chain(s).*/
     void clearSignalChain();
-
-    /** Used to enable and disable drag-and-drop signal chain editing. Called by the
-    ProcessorGraph when data acquisition begins and ends. */
-    void signalChainCanBeEdited(bool canEdit);
 
     /** Determines whether or not the EditorViewport should respond to
     the component that is currently being dragged. */
@@ -135,17 +124,8 @@ public:
     /** Changes which editor is selected, depending on the keypress (and modifier keys).*/
     void moveSelection(const KeyPress& key);
 
-    /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
-    void buttonClicked(Button* button);
-
     /** Called when a label is changed.*/
     void labelTextChanged(Label* label);
-
-    /** Returns an array of pointers to SignalChainTabButtons (which themselves hold pointers to the sources of each signal chain). */
-    Array<SignalChainTabButton*, CriticalSection> requestSignalChain()
-    {
-        return signalChainArray;
-    }
 
     /** Save the current configuration as an XML file. */
     const String saveState(File filename, String* xmlText = nullptr);
@@ -166,65 +146,90 @@ public:
     void setParametersByXML(GenericProcessor*, XmlElement*);
 
     /** Checks whether or not the signal chain scroll buttons need to be activated. */
-    void checkScrollButtons(int topTab);
+    //void checkScrollButtons(int topTab);
 
     /** Returns a boolean indicating whether or not the signal chain is empty. */
     bool isSignalChainEmpty();
 
     /** The index of the left-most editor (used for scrolling purposes). */
-    int leftmostEditor;
+    //int leftmostEditor;
+    
+    /** Updates visible editors (called after Processor Graph modifications)*/
+    void updateVisibleEditors(Array<GenericEditor*> visibleEditors,
+                              int numberOfTabs = 1,
+                              int selectedTab = 0);
 
     File currentFile;
     
     // Flag to check whether config is being loaded currently
     bool loadingConfig;
+    
+    void paint(Graphics& g);
+    
+    int getDesiredWidth();
 
 private:
 
     String message;
     bool somethingIsBeingDraggedOver;
-    bool shiftDown;
+    //bool shiftDown;
 
-    bool canEdit;
     GenericEditor* lastEditor;
     GenericEditor* lastEditorClicked;
     GenericEditor* editorToUpdate;
 
     int selectionIndex;
 
-    Array<GenericEditor*, CriticalSection> editorArray;
-    Array<SignalChainTabButton*, CriticalSection> signalChainArray;
-
-    ScopedPointer<SignalChainManager> signalChainManager;
+    Array<GenericEditor*> editorArray;
 
     Font font;
     Image sourceDropImage;
-
-    int borderSize, tabSize, tabButtonSize;
-
+    
     int insertionPoint;
     bool componentWantsToMove;
     int indexOfMovingComponent;
 
-    int currentTab;
-
     enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
-    enum directions1 {LEFT, RIGHT};
-    enum directions2 {UP, DOWN};
 
-    EditorScrollButton* leftButton;
-    EditorScrollButton* rightButton;
-    SignalChainScrollButton* upButton;
-    SignalChainScrollButton* downButton;
+    SignalChainTabComponent* signalChainTabComponent;
 
     void resized();
-
-    int currentId;
-    int maxId;
-
+    
+    bool shiftDown;
+    
     Label editorNamingLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
+
+};
+
+/**
+
+  Clicking the tab button makes the editors for its signal chain visible.
+
+  @see EditorViewport
+
+*/
+
+class SignalChainTabButton : public Button
+{
+public:
+    SignalChainTabButton(int index);
+    ~SignalChainTabButton() {}
+
+    int offset;
+
+private:
+
+    /** Draws the SignalChainTabButton.*/
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+
+    /** Called when a mouse click occurs inside a SignalChainTabButton.*/
+    void clicked();
+
+    int num;
+
+    Font buttonFont;
 
 };
 
@@ -240,55 +245,31 @@ private:
 
 */
 
-class SignalChainTabButton : public Button
+class SignalChainTabComponent : public Component,
+    public Button::Listener
 {
 public:
-    SignalChainTabButton();
-    ~SignalChainTabButton() {}
-
-    /** Determines the first editor in the signal chain associated with a SignalChainTabButton.*/
-    void setEditor(GenericEditor* p)
-    {
-        firstEditor = p;
-    }
-
-    /** Sets the SignalChainManager for this SignalChainTabButton.*/
-    void setManager(SignalChainManager* scm_)
-    {
-        scm = scm_;
-    }
-
-    /** Returns the editor associated with this SignalChainTabButton.*/
-    GenericEditor* getEditor()
-    {
-        return firstEditor;
-    }
-
-    /** Sets the number of this SignalChainTabButton.*/
-    void setNumber(int n)
-    {
-        num = n;
-    }
-
-    /** Returns the state of the configurationChanged variable.*/
-    bool hasNewConnections()
-    {
-        return configurationChanged;
-    }
-
-    /** Sets the state of the configurationChanged variable.*/
-    void hasNewConnections(bool t)
-    {
-        configurationChanged = t;
-    }
+    SignalChainTabComponent();
+    ~SignalChainTabComponent();
+    
+    /** Updates the boundaries and visibility of all the tabs in the signal chain. */
+    void refreshTabs(int, int);
+    
+    void resized();
+    
+    /** Draws the background of the EditorViewport. */
+    void paint(Graphics& g);
+    
+    /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
+    void buttonClicked(Button* button);
 
     int offset;
+    
+    void setEditorViewport(EditorViewport*);
+    
+    enum directions {UP, DOWN};
 
 private:
-
-    GenericEditor* firstEditor;
-
-    SignalChainManager* scm;
 
     /** Draws the SignalChainTabButton.*/
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
@@ -296,12 +277,21 @@ private:
     /** Called when a mouse click occurs inside a SignalChainTabButton.*/
     void clicked();
 
-    enum actions {ADD, MOVE, REMOVE, ACTIVATE};
-
     int num;
-    bool configurationChanged;
 
     Font buttonFont;
+    
+    OwnedArray<SignalChainTabButton> signalChainTabButtonArray;
+    
+    SignalChainScrollButton* upButton;
+    SignalChainScrollButton* downButton;
+    
+    Viewport* viewport;
+    EditorViewport* editorViewport;
+    
+    int topTab;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalChainTabComponent);
 
 };
 

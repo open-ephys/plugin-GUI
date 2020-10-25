@@ -41,6 +41,7 @@ class MessageCenterEditor;
 class InfoLabel;
 class DataViewport;
 class EditorViewport;
+class SignalChainTabComponent;
 class TimestampSourceSelectionWindow;
 
 /**
@@ -143,7 +144,8 @@ public:
 private:
 
     ScopedPointer<DataViewport> dataViewport;
-    ScopedPointer<EditorViewport> editorViewport;
+    EditorViewport* editorViewport;
+    ScopedPointer<SignalChainTabComponent> signalChainTabComponent;
     ScopedPointer<EditorViewportButton> editorViewportButton;
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<ControlPanel> controlPanel;

@@ -61,11 +61,13 @@
 
 	std::cout << "Created data viewport." << std::endl;
 
-	editorViewport = new EditorViewport();
-
-	addAndMakeVisible(editorViewport);
-
-	std::cout << "Created filter viewport." << std::endl;
+    signalChainTabComponent = new SignalChainTabComponent();
+    addAndMakeVisible(signalChainTabComponent);
+    
+	editorViewport = new EditorViewport(signalChainTabComponent);
+	//addAndMakeVisible(editorViewport);
+    
+	std::cout << "Created editor viewport." << std::endl;
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
@@ -180,7 +182,7 @@ void UIComponent::resized()
 	int w = getWidth();
 	int h = getHeight();
 
-	if (editorViewportButton != 0)
+	if (editorViewportButton != nullptr)
 	{
 		editorViewportButton->setBounds(w-230, h-40, 225, 35);
 
@@ -193,24 +195,22 @@ void UIComponent::resized()
 		//    editorViewportButton->setVisible(true);
 	}
 
-	if (editorViewport != 0)
+	if (signalChainTabComponent != nullptr)
 	{
-		//if (h < 400)
-		//    editorViewport->setVisible(false);
-		//else
-		//    editorViewport->setVisible(true);
-
-		if (editorViewportButton->isOpen() && !editorViewport->isVisible())
-			editorViewport->setVisible(true);
-		else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
-			editorViewport->setVisible(false);
-
-		editorViewport->setBounds(6,h-190,w-11,150);
-
-
+		if (editorViewportButton->isOpen() && !signalChainTabComponent->isVisible())
+        {
+            signalChainTabComponent->setVisible(true);
+        }
+			
+		else if (!editorViewportButton->isOpen() && signalChainTabComponent->isVisible())
+        {
+            signalChainTabComponent->setVisible(false);
+        }
+			
+		signalChainTabComponent->setBounds(6,h-200,w-11,160);
 	}
 
-	if (controlPanel != 0)
+	if (controlPanel != nullptr)
 	{
 
 		int controlPanelWidth = w-210;
@@ -249,12 +249,12 @@ void UIComponent::resized()
 			controlPanel->setBounds(leftBound,6,controlPanelWidth,32+addHeight);
 	}
 
-	if (processorList != 0)
+	if (processorList != nullptr)
 	{
 		if (processorList->isOpen())
 		{
 			if (editorViewportButton->isOpen())
-				processorListViewport.setBounds(5,5,195,h-200);
+				processorListViewport.setBounds(5,5,195,h-210);
 			else
 				processorListViewport.setBounds(5,5,195,h-50);
 
@@ -272,7 +272,7 @@ void UIComponent::resized()
 			processorListViewport.setBounds(5-460+getWidth(),5,195,processorList->getHeight());
 	}
 
-	if (dataViewport != 0)
+	if (dataViewport != nullptr)
 	{
 		int left, top, width, height;
 		left = 6;
@@ -286,7 +286,7 @@ void UIComponent::resized()
 		top = controlPanel->getHeight()+8;
 
 		if (editorViewportButton->isOpen())
-			height = h - top - 195;
+			height = h - top - 205;
 		else
 			height = h - top - 45;
 
@@ -301,9 +301,7 @@ void UIComponent::resized()
 
 	}
 
-
-
-	if (messageCenterEditor != 0)
+	if (messageCenterEditor != nullptr)
 	{
 		messageCenterEditor->setBounds(6,h-35,w-241,30);
 		if (h < 200)
