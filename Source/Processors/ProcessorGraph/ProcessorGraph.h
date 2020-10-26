@@ -74,6 +74,8 @@ public:
                          bool signalChainIsLoading=false);
     GenericProcessor* createProcessorFromDescription(ProcessorDescription& description);
     
+    bool checkForNewRootNodes(GenericProcessor* processor, bool processorBeingAdded = true);
+    
     void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
                        bool moveDownstream = true);
 

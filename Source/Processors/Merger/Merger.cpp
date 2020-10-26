@@ -230,11 +230,14 @@ void Merger::updateSettings()
     // default is to get everything from sourceNodeA,
     // but this might not be ideal
     clearSettings();
+    
+    isEnabled = true;
 
     if (sourceNodeA != nullptr)
     {
         std::cout << "   Merger source A found." << std::endl;
         addSettingsFromSourceNode(sourceNodeA);
+        isEnabled &= sourceNodeA->isEnabled;
     } else {
         mergeEventsA = true;
         mergeContinuousA = true;
@@ -244,6 +247,7 @@ void Merger::updateSettings()
     {
         std::cout << "   Merger source B found." << std::endl;
         addSettingsFromSourceNode(sourceNodeB);
+        isEnabled &= sourceNodeB->isEnabled;
     } else {
         mergeEventsB = true;
         mergeContinuousB = true;
@@ -253,6 +257,7 @@ void Merger::updateSettings()
     {
 		settings.numOutputs = getNumOutputs();
     }
+
 
     std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;
 

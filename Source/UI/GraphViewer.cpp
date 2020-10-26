@@ -145,7 +145,7 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
             GraphNode* node = getNodeForEditor(upstreamEditors[0]);
             if (node != nullptr)
                 level1 = node->getLevel() + 1;
-            std::cout << "Merger input 1 at " << level1 << std::endl;
+            //std::cout << "Merger input 1 at " << level1 << std::endl;
         }
         
         if (upstreamEditors[1] != nullptr)
@@ -153,7 +153,7 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
             GraphNode* node = getNodeForEditor(upstreamEditors[1]);
             if (node != nullptr)
                 level1 = node->getLevel() + 1;
-            std::cout << "Merger input 2 at " << level1 << std::endl;
+           // std::cout << "Merger input 2 at " << level1 << std::endl;
         }
         
         level = (level1 > level2) ? level1 : level2;

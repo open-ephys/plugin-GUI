@@ -1191,7 +1191,7 @@ void GenericEditor::editorWasClicked() {}
 
 Colour GenericEditor::getBackgroundColor()
 {
-    if (getProcessor()->isReady())
+    if (getProcessor()->isEnabledState())
         return backgroundColor;
     else
         return Colours::grey;

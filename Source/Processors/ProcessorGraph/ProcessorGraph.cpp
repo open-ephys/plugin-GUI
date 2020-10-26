@@ -170,49 +170,35 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 	{
         //NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", "HALP");
         
-        int id = currentNodeId++;
-		processor->setNodeId(id); // identifier within processor graph
-		addNode(processor, id); // have to add it so it can be deleted by the graph
-        GenericEditor* editor = (GenericEditor*) processor->createEditor();
-
-        editor->refreshColors();
-        
-		if (processor->isSource())
+		if (processor->isSource()) // if we are adding a source processor
         {
-            if (sourceNode == nullptr && destNode == nullptr)
-            {
-                rootNodes.add(processor);
-            }
-                
+            
             if (sourceNode != nullptr)
             {
-                rootNodes.add(processor);
+                // if there's a source feeding into source, form a new signal chain
                 processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(nullptr);
-                
             }
             
-            if (destNode != nullptr)
+            if (sourceNode == nullptr && destNode != nullptr)
             {
-                
+                // if we're adding it upstream of another processor
                 if (!destNode->isSource())
                 {
-                    destNode->setSourceNode(processor);
+                    // if it's not a source, connect them
                     processor->setDestNode(destNode);
-                    
-                    if (rootNodes.indexOf(destNode) > -1)
-                        rootNodes.set(rootNodes.indexOf(destNode), processor);
-                    else
-                        rootNodes.add(processor);
+                    destNode->setSourceNode(processor);
                 }
                 else
                 {
+                    // if it's in front of a source, start a new signal chain
                     processor->setDestNode(nullptr);
                 }
             }
             
 			if (processor->isGeneratesTimestamps())
-			{ //If there are no source processors and we add one, set it as default for global timestamps and sample rates
+			{ // If there are no source processors and we add one,
+              //  set it as default for global timestamps and sample rates
 				m_validTimestampSources.add(processor);
 				if (m_timestampSource == nullptr)
 				{
@@ -222,37 +208,44 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 				if (m_timestampWindow)
 					m_timestampWindow->updateProcessorList();
 			}
+            
         } else {
+            // a source node was not dropped
             if (sourceNode != nullptr)
             {
+                // if there's a source available, connect them
                 processor->setSourceNode(sourceNode);
-                processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(processor);
-            } else {
-                processor->setSourceNode(nullptr);
-                
-                if (rootNodes.indexOf(destNode) > -1)
-                    rootNodes.set(rootNodes.indexOf(destNode), processor);
-                else
-                    rootNodes.add(processor);
-                    
             }
                 
             if (destNode != nullptr)
             {
                 if (!destNode->isSource())
                 {
-                    processor->setSourceNode(destNode->getSourceNode());
+                    // if it's not behind a source node, connect them
                     processor->setDestNode(destNode);
-                    
                     destNode->setSourceNode(processor);
                 } else {
-
+                    // if there's a source downstream, start a new signalchain
                     processor->setDestNode(nullptr);
-                    rootNodes.add(processor);
                 }
             }
         }
+        
+        
+        // assuming we get here
+        int id = currentNodeId++;
+        processor->setNodeId(id); // identifier within processor graph
+        addNode(processor, id); // have to add it so it can be deleted by the graph
+        GenericEditor* editor = (GenericEditor*) processor->createEditor();
+
+        editor->refreshColors();
+        
+        if (!checkForNewRootNodes(processor))
+        {
+            removeProcessor(processor);
+        }
+        
 	}
 	else
 	{
@@ -265,6 +258,58 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
     } else {
         updateViews(processor);
     }
+}
+
+bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor, bool processorBeingAdded)
+{
+    if (processorBeingAdded)
+    {
+        if (processor->getSourceNode() == nullptr)
+        {
+            if (processor->getDestNode() != nullptr)
+            {
+                
+                if (rootNodes.indexOf(processor->getDestNode()) > -1)
+                {
+                    rootNodes.set(rootNodes.indexOf(processor->getDestNode()), processor);
+                    return true;
+                }
+                
+                if (processor->getDestNode()->isMerger())
+                {
+                    if (rootNodes.size() == 8)
+                    {
+                        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                                                              "Maximum of 8 signal chains.");
+                        return false;
+                    } else {
+                        rootNodes.add(processor);
+                        return true;
+                    }
+                    
+                }
+            } else {
+                if (rootNodes.size() == 8)
+                {
+                    NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                                                          "Maximum of 8 signal chains.");
+                    return false;
+                    
+                } else {
+                    rootNodes.add(processor);
+                    return true;
+                }
+            }
+        }
+    } else {
+        
+        if (rootNodes.indexOf(processor))
+        {
+            rootNodes.remove(rootNodes.indexOf(processor));
+        }
+    }
+    
+    return true;
 }
 
 void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChainIsLoading)
@@ -293,12 +338,23 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
             }
             
             if (processor->getSourceNode() != nullptr)
-                processor->setEnabledState(processor->getSourceNode()->isReady());
+            {
+                if (processor->isMerger())
+                {
+                    processor->setEnabledState(processor->isEnabled);
+                } else {
+                    processor->setEnabledState(processor->getSourceNode()->isEnabledState());
+                }
+            }
+                
             else
+            {
                 if (processor->isSource())
-                    processor->setEnabledState(processor->isReady());
+                    processor->setEnabledState(processor->isEnabledState());
                 else
                     processor->setEnabledState(false);
+            }
+                
                 
             if (processor->isSplitter())
             {
@@ -344,6 +400,20 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     while (processor != nullptr)
     {
         editorArray.add(processor->getEditor());
+        
+        if (processor->getDestNode() != nullptr)
+        {
+            if (processor->getDestNode()->isMerger())
+            {
+                if (processor->getDestNode()->getSourceNode() != processor)
+                {
+                    MergerEditor* editor = (MergerEditor*) processor->getDestNode()->getEditor();
+                    editor->switchSource();
+                }
+                    
+            }
+        }
+        
         processor = processor->getDestNode();
     }
     
@@ -947,6 +1017,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 			m_timestampWindow->updateProcessorList();
 	}
 
+    checkForNewRootNodes(processor, false);
 }
 
 bool ProcessorGraph::enableProcessors()
