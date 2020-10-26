@@ -109,7 +109,7 @@ public:
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
     
-    void loadParametersFromXml(GenericProcessor*);
+    //void loadParametersFromXml(GenericProcessor*);
 
     void updatePointers();
 

@@ -272,14 +272,14 @@ void GenericEditor::enable()
 {
     isEnabled = true;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->setEnabledState (true);
+    //p->setEnabledState (true);
 }
 
 void GenericEditor::disable()
 {
     isEnabled = false;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->setEnabledState (false);
+    //p->setEnabledState (false);
 }
 
 bool GenericEditor::getEnabledState()

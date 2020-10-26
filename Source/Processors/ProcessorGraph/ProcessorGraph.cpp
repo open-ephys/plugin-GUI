@@ -174,7 +174,7 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 		processor->setNodeId(id); // identifier within processor graph
 		addNode(processor, id); // have to add it so it can be deleted by the graph
         GenericEditor* editor = (GenericEditor*) processor->createEditor();
-        editor->enable();
+
         editor->refreshColors();
         
 		if (processor->isSource())
@@ -249,6 +249,7 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 
 void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChainIsLoading)
 {
+    // prevents calls from within processors from triggering full update during loading
     if (signalChainIsLoading != isLoadingSignalChain)
         return;
     
@@ -267,6 +268,11 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
                 processor->loadFromXml();
                 processor->update();
             }
+            
+            if (processor->getSourceNode() != nullptr)
+                processor->setEnabledState(processor->getSourceNode()->isReady());
+            else
+                processor->setEnabledState(processor->isReady());
                 
             if (processor->isSplitter())
             {
@@ -388,33 +394,21 @@ void ProcessorGraph::clearSignalChain()
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
     refreshColors();
-
 }
 
 void ProcessorGraph::refreshColors()
 {
-    for (int i = 0; i < getNumNodes(); i++)
+    for (auto p : getListOfProcessors())
     {
-        Node* node = getNode(i);
-
-        int nodeId = node->nodeId;
-
-        if (nodeId != OUTPUT_NODE_ID &&
-            nodeId != AUDIO_NODE_ID &&
-            nodeId != RECORD_NODE_ID &&
-            nodeId != MESSAGE_CENTER_ID)
-        {
-            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-            GenericEditor* e = (GenericEditor*) p->getEditor();
-            e->refreshColors();
-        }
+        GenericEditor* e = (GenericEditor*) p->getEditor();
+        e->refreshColors();
     }
 }
 
-/* Set parameters based on XML.*/
+/* Set parameters based on XML.
 void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
 {
-    // is this deprecated?
+    // DEPRECATED
     // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
     int numberParameters = processor->getNumParameters();
     // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
@@ -458,7 +452,7 @@ void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
             }
         }
     }
-}
+}*/
 
 
 void ProcessorGraph::restoreParameters()
@@ -474,27 +468,6 @@ void ProcessorGraph::restoreParameters()
     }
     
     isLoadingSignalChain = false;
-
-    /*for (int i = 0; i < getNumNodes(); i++)
-    {
-        Node* node = getNode(i);
-
-        int nodeId = node->nodeId;
-
-        if (nodeId != OUTPUT_NODE_ID &&
-            nodeId != AUDIO_NODE_ID &&
-            nodeId != RECORD_NODE_ID &&
-            nodeId != MESSAGE_CENTER_ID)
-        {
-            GenericProcessor* p =(GenericProcessor*) node->getProcessor();
-            p->loadFromXml();
-        }
-    }
-
-    for (auto p : rootNodes)
-    {
-        updateSettings(p);
-    }*/
     
 }
 
@@ -628,25 +601,8 @@ void ProcessorGraph::updateConnections()
             std::cout << "Source node: " << source->getName() << "." << std::endl;
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
-            if (source->isEnabledState())
+            if (source->isReady())
             {
-                // add the connections to audio and record nodes if necessary
-                /*
-                if (!(source->isSink()     ||
-                      source->isSplitter() ||
-                      source->isMerger()   ||
-                      source->isUtility()  ||
-                      source->wasConnected))
-                {
-                    std::cout << "     Connecting to audio and record nodes." << std::endl;
-                    connectProcessorToAudioAndRecordNodes(source);
-                }
-                else
-                {
-                    std::cout << "     NOT connecting to audio and record nodes." << std::endl;
-                }
-                */
-
                 //TODO: This is will be removed when probe based audio node added. 
                 connectProcessorToAudioNode(source);
 
@@ -688,7 +644,7 @@ void ProcessorGraph::updateConnections()
 
                 if (dest != nullptr)
                 {
-                    if (dest->isEnabledState())
+                    if (dest->isReady())
                     {
                         sourceMap[dest].add(conn);
                     }
@@ -1016,8 +972,6 @@ bool ProcessorGraph::enableProcessors()
             p->enableProcessor();
         }
     }
-
-    //AccessClass::getEditorViewport()->signalChainCanBeEdited(false);
 
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented

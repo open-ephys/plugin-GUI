@@ -869,15 +869,15 @@ void ControlPanel::buttonClicked(Button* button)
                 if (recordEngines[recordSelector->getSelectedId()-1]->isWindowOpen())
                     recordEngines[recordSelector->getSelectedId()-1]->toggleConfigWindow();
 
-                audio->beginCallbacks();
-                masterClock->start();
+                audio->beginCallbacks(); // launches acquisition
+                masterClock->start(); // starts the clock
                 //audioEditor->disable();
 
                 stopTimer();
                 startTimer(250); // refresh every 250 ms
 
             }
-            recordSelector->setEnabled(false);
+            recordSelector->setEnabled(false); // why is this outside the "if" statement?
             recordOptionsButton->setEnabled(false);
         }
         else

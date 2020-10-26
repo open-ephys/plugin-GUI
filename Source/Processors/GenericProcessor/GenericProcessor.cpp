@@ -1150,6 +1150,11 @@ void GenericProcessor::handleTimestampSyncTexts(const MidiMessage& event) {};
 void GenericProcessor::setEnabledState(bool t)
 {
 	isEnabled = t;
+    
+    if (isEnabled)
+        getEditor()->enable();
+    else
+        getEditor()->disable();
 }
 
 bool GenericProcessor::enableProcessor()
