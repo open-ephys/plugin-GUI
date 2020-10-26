@@ -142,13 +142,17 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
         
         if (upstreamEditors[0] != nullptr)
         {
-            level1 = getNodeForEditor(upstreamEditors[0])->getLevel() + 1;
+            GraphNode* node = getNodeForEditor(upstreamEditors[0]);
+            if (node != nullptr)
+                level1 = node->getLevel() + 1;
             std::cout << "Merger input 1 at " << level1 << std::endl;
         }
         
         if (upstreamEditors[1] != nullptr)
         {
-            level2 = getNodeForEditor(upstreamEditors[1])->getLevel() + 1;
+            GraphNode* node = getNodeForEditor(upstreamEditors[1]);
+            if (node != nullptr)
+                level1 = node->getLevel() + 1;
             std::cout << "Merger input 2 at " << level1 << std::endl;
         }
         
@@ -158,7 +162,7 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
     rootNode->setLevel(level);
     rootNode->setHorzShift(rootNum);
     
-    if (rootNode->getDest() != nullptr)
+    if (rootNode->getDest() != nullptr || rootNode->isSplitter())
     {
         if (!rootNode->isSplitter())
         {
@@ -197,13 +201,21 @@ void GraphViewer::updateNodeLocations()
         node->setLevel(-1);
     }
     
+    Array<Splitter*> splitters;
+    
     // update the location of each branch
     for (auto& node : availableNodes)
     {
         if (node->getSource() == nullptr)
         {
+            //if (node->isMerger())
+           //{
+           //     rootNum -= 1;
+           // }
+            
             adjustBranchLayout(node, -1);
             rootNum += 1;
+            
         }
     }
     
@@ -452,7 +464,12 @@ GenericEditor* GraphNode::getDest() const
 
 GenericEditor* GraphNode::getSource() const
 {
-    return editor->getSourceEditor();
+    GenericProcessor* sourceNode = editor->getProcessor()->getSourceNode();
+    
+    if (sourceNode != nullptr)
+        return sourceNode->getEditor();
+    else
+        return nullptr;
 }
 
 

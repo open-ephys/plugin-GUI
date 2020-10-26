@@ -32,7 +32,7 @@ Merger::Merger()
     : GenericProcessor("Merger"),
       mergeEventsA(true), mergeContinuousA(true),
       mergeEventsB(true), mergeContinuousB(true),
-      sourceNodeA(0), sourceNodeB(0), activePath(0)
+      sourceNodeA(nullptr), sourceNodeB(nullptr), activePath(0)
 {
     setProcessorType(PROCESSOR_TYPE_MERGER);
     sendSampleCount = false;

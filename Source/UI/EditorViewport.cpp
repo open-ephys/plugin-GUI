@@ -1459,9 +1459,6 @@ const String EditorViewport::loadState(File fileToLoad)
                     p->loadOrder = loadOrder++;
                     p->parametersAsXml = processor;
 
-                    //Sets parameters based on XML files
-                    //setParametersByXML(p, processor);
-
                     if (p->isSplitter() || p->isMerger())
                     {
                         splitPoints.add(p);
@@ -1487,12 +1484,14 @@ const String EditorViewport::loadState(File fileToLoad)
                                 std::cout << "Switching merger source." << std::endl;
                                 MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
                                 editor->switchSource(1);
+                                AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
                             }
                             else
                             {
                                 std::cout << "Switching splitter destination." << std::endl;
                                 SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                                 editor->switchDest(1);
+                                AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
                             }
 
                             splitPoints.remove(n);

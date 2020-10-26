@@ -178,22 +178,32 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
         editor->refreshColors();
         
 		if (processor->isSource())
-		{
-            rootNodes.add(processor);
-            
+        {
+            if (sourceNode == nullptr && destNode == nullptr)
+            {
+                rootNodes.add(processor);
+            }
+                
             if (sourceNode != nullptr)
             {
-                
+                rootNodes.add(processor);
                 processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(nullptr);
                 
-            } else if (destNode != nullptr)
+            }
+            
+            if (destNode != nullptr)
             {
                 
                 if (!destNode->isSource())
                 {
                     destNode->setSourceNode(processor);
                     processor->setDestNode(destNode);
+                    
+                    if (rootNodes.indexOf(destNode) > -1)
+                        rootNodes.set(rootNodes.indexOf(destNode), processor);
+                    else
+                        rootNodes.add(processor);
                 }
                 else
                 {
@@ -218,7 +228,17 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
                 processor->setSourceNode(sourceNode);
                 processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(processor);
-            } else if (destNode != nullptr)
+            } else {
+                processor->setSourceNode(nullptr);
+                
+                if (rootNodes.indexOf(destNode) > -1)
+                    rootNodes.set(rootNodes.indexOf(destNode), processor);
+                else
+                    rootNodes.add(processor);
+                    
+            }
+                
+            if (destNode != nullptr)
             {
                 if (!destNode->isSource())
                 {
@@ -251,8 +271,11 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 {
     // prevents calls from within processors from triggering full update during loading
     if (signalChainIsLoading != isLoadingSignalChain)
+    {
+        //updateViews(processor);
         return;
-    
+    }
+        
     GenericProcessor* processorToUpdate = processor;
     
     Array<Splitter*> splitters;
@@ -272,7 +295,10 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
             if (processor->getSourceNode() != nullptr)
                 processor->setEnabledState(processor->getSourceNode()->isReady());
             else
-                processor->setEnabledState(processor->isReady());
+                if (processor->isSource())
+                    processor->setEnabledState(processor->isReady());
+                else
+                    processor->setEnabledState(false);
                 
             if (processor->isSplitter())
             {

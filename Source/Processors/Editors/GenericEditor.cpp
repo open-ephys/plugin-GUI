@@ -1191,7 +1191,10 @@ void GenericEditor::editorWasClicked() {}
 
 Colour GenericEditor::getBackgroundColor()
 {
-    return backgroundColor;
+    if (getProcessor()->isReady())
+        return backgroundColor;
+    else
+        return Colours::grey;
 }
 
 ColourGradient GenericEditor::getBackgroundGradient()

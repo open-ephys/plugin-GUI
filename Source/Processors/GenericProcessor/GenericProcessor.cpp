@@ -30,8 +30,8 @@
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 GenericProcessor::GenericProcessor(const String& name)
-	: sourceNode(0)
-	, destNode(0)
+	: sourceNode(nullptr)
+	, destNode(nullptr)
 	, isEnabled(true)
 	, wasConnected(false)
 	, nextAvailableChannel(0)
