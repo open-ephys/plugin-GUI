@@ -8,24 +8,22 @@ public:
 		m_data(blockSize, true),
 		m_file(file),
 		m_blockSize(blockSize),
-		m_offset(offset)
+		m_offset(offset),
+        m_finalFlushSamples(blockSize)
 	{};
 
 	~FileMemoryBlock() {
 		if (~m_flushed)
 		{
-			m_file->write(m_data, m_blockSize*sizeof(StorageType));
+			m_file->write(m_data, m_finalFlushSamples*sizeof(StorageType));
 		}
 	};
 
 	inline uint64 getOffset() { return m_offset; }
 	inline StorageType* getData() { return m_data.getData(); }
-	void partialFlush(size_t size, bool markFlushed = true)
+	void partialFlush(size_t size)
 	{
-		//std::cout << "[RN] flushing last block " << size << std::endl;
-		m_file->write(m_data, size*sizeof(StorageType));
-		if (markFlushed)
-			m_flushed = true;
+        m_finalFlushSamples = size;
 	}
 
 private:
@@ -33,6 +31,7 @@ private:
 	FileOutputStream* const m_file;
 	const int m_blockSize;
 	const uint64 m_offset;
+    size_t m_finalFlushSamples;
 	bool m_flushed{ false };
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileMemoryBlock);
 };
