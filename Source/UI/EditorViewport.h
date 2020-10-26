@@ -167,6 +167,8 @@ public:
     void paint(Graphics& g);
     
     int getDesiredWidth();
+    
+    void addProcessor(ProcessorDescription desc, int insertionPt);
 
 private:
 
@@ -253,7 +255,7 @@ public:
     ~SignalChainTabComponent();
     
     /** Updates the boundaries and visibility of all the tabs in the signal chain. */
-    void refreshTabs(int, int);
+    void refreshTabs(int, int, bool internal = false);
     
     void resized();
     
@@ -277,19 +279,19 @@ private:
     /** Called when a mouse click occurs inside a SignalChainTabButton.*/
     void clicked();
 
-    int num;
+    int numberOfTabs;
+    int selectedTab;
+    int topTab;
 
     Font buttonFont;
     
-    OwnedArray<SignalChainTabButton> signalChainTabButtonArray;
+    Array<SignalChainTabButton*> signalChainTabButtonArray;
     
     SignalChainScrollButton* upButton;
     SignalChainScrollButton* downButton;
     
     Viewport* viewport;
     EditorViewport* editorViewport;
-    
-    int topTab;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalChainTabComponent);
 

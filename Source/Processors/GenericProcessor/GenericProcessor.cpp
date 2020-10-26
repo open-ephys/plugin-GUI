@@ -188,7 +188,7 @@ void GenericProcessor::clearSettings()
 {
 	//std::cout << "Generic processor clearing settings." << std::endl;
 
-	settings.originalSource = 0;
+	settings.originalSource = nullptr;
 	settings.numInputs = 0;
 	settings.numOutputs = 0;
 
@@ -207,10 +207,12 @@ void GenericProcessor::clearSettings()
 		m_monitorStatus.set(i, dataChannelArray[i]->isMonitored());
 	}
 
+    // clear channel arrays
 	dataChannelArray.clear();
 	eventChannelArray.clear();
 	spikeChannelArray.clear();
 	configurationObjectArray.clear();
+    
 	clearChannelCreationCounts();
 }
 
@@ -222,7 +224,7 @@ void GenericProcessor::update()
 	// ---- RESET EVERYTHING ---- ///
 	clearSettings();
 
-	if (sourceNode != 0) // copy settings from source node
+	if (sourceNode != nullptr) // copy settings from source node
 	{
 		// everything is inherited except numOutputs
 		settings = sourceNode->settings;
@@ -309,7 +311,7 @@ void GenericProcessor::update()
 	// details of this processor:
 	setPlayConfigDetails(getNumInputs(),  // numIns
 		getNumOutputs(), // numOuts
-		44100.0,         // sampleRate
+		44100.0,         // sampleRate (always 44100 Hz, default audio card rate)
 		128);            // blockSize
 
 	editor->update(); // allow the editor to update its settings
@@ -948,7 +950,7 @@ void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo,
 
 void GenericProcessor::loadFromXml()
 {
-	update(); // make sure settings are updated
+	//update(); // make sure settings are updated
 	if (parametersAsXml != nullptr)
 	{
         if (!m_isParamsWereLoaded)

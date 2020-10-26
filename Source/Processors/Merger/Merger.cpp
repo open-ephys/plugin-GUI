@@ -231,7 +231,7 @@ void Merger::updateSettings()
     // but this might not be ideal
     clearSettings();
 
-    if (sourceNodeA != 0)
+    if (sourceNodeA != nullptr)
     {
         std::cout << "   Merger source A found." << std::endl;
         addSettingsFromSourceNode(sourceNodeA);
@@ -240,7 +240,7 @@ void Merger::updateSettings()
         mergeContinuousA = true;
     }
 
-    if (sourceNodeB != 0)
+    if (sourceNodeB != nullptr)
     {
         std::cout << "   Merger source B found." << std::endl;
         addSettingsFromSourceNode(sourceNodeB);

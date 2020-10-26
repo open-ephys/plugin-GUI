@@ -491,7 +491,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
             drawerOpen = false;
         }
 
-        AccessClass::getEditorViewport()->makeEditorVisible(this);
+        AccessClass::getEditorViewport()->refreshEditors();
 
         deselect();
 

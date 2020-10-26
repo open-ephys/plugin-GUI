@@ -109,7 +109,7 @@ void EditorViewport::paint(Graphics& g)
 
         g.setColour(Colours::yellow);
         g.drawLine(insertionX, (float) BORDER_SIZE,
-                   insertionX, (float) getHeight()-(float) BORDER_SIZE, 3.0f);
+                   insertionX, (float) getHeight()-(float) BORDER_SIZE*3, 3.0f);
 
     }
     
@@ -117,7 +117,7 @@ void EditorViewport::paint(Graphics& g)
     g.setColour(Colours::darkgrey);
 
     int x = insertionX + 15;
-    int y = BORDER_SIZE + 2;
+    int y = BORDER_SIZE;
 
     g.drawImageAt(sourceDropImage, x, y);
     
@@ -214,22 +214,39 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         message = "last filter dropped: " + description.processorName;
 
         std::cout << "Item dropped at insertion point " << insertionPoint << std::endl;
-
-        GenericProcessor* sourceProcessor;
-
-        if (insertionPoint > 0)
-        {
-            sourceProcessor = editorArray[insertionPoint-1]->getProcessor();
-        } else {
-            sourceProcessor = nullptr;
-        }
+        
+        addProcessor(description, insertionPoint);
         
         insertionPoint = -1; // make sure all editors are left-justified
         indexOfMovingComponent = -1;
         somethingIsBeingDraggedOver = false;
         
-        AccessClass::getProcessorGraph()->createProcessor(description, sourceProcessor);
+        refreshEditors();
+
     }
+}
+
+void EditorViewport::addProcessor(ProcessorDescription description, int insertionPt)
+{
+    GenericProcessor* sourceProcessor = nullptr;
+    GenericProcessor* destProcessor = nullptr;
+
+    if (insertionPoint > 0)
+    {
+        sourceProcessor = editorArray[insertionPt-1]->getProcessor();
+    } else {
+        sourceProcessor = nullptr;
+        
+        if (editorArray.size() > 0)
+        {
+            destProcessor = editorArray[0]->getProcessor();
+        }
+    }
+    
+    AccessClass::getProcessorGraph()->createProcessor(description,
+                                                      sourceProcessor,
+                                                      destProcessor,
+                                                      loadingConfig);
 }
 
 void EditorViewport::clearSignalChain()
@@ -248,40 +265,25 @@ void EditorViewport::clearSignalChain()
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
 {
 
-	/*if (editor == 0)
-	{
-		if (updateSettings)
-			signalChainManager->updateProcessorSettings();
-		return;
-	}
-
-    if (!updateSettings)
-        signalChainManager->updateVisibleEditors(editor, 0, 0, ACTIVATE);
+	if (updateSettings)
+        AccessClass::getProcessorGraph()->updateSettings(editor->getProcessor());
     else
-        signalChainManager->updateVisibleEditors(editor, 0, 0, UPDATE);
-
-    refreshEditors();
-
-    for (int i = 0; i < editorArray.size(); i++)
-    {
-        editorArray[i]->deselect();
-    }
-
+        AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
+    
     if (highlight)
-        editor->highlight();
-
-    while (!editor->isVisible())
     {
-        if (leftmostEditor < editorArray.indexOf(editor))
-            leftmostEditor++;
-        else
-            leftmostEditor--;
-
-        refreshEditors();
+        for (auto ed : editorArray)
+        {
+            if (ed == editor )
+            {
+                ed->select();
+            } else {
+                ed->deselect();
+            }
+        }
     }
-
-    repaint();*/
-
+        
+    
 }
 
 void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
@@ -332,45 +334,31 @@ void EditorViewport::refreshEditors()
 
     for (int n = 0; n < editorArray.size(); n++)
     {
-
         GenericEditor* editor = editorArray[n];
         int componentWidth = editor->desiredWidth;
 
-        pastRightEdge = false; //pastRightEdge || lastBound + componentWidth >= rightEdge;
-
-        if (!pastRightEdge)
+        if (n == 0 && !editor->getProcessor()->isSource())
         {
-
-            if (n == 0 && !editor->getProcessor()->isSource())
-            {
-                // leave room to drop a source node
-                lastBound += BORDER_SIZE * 10;
-            }
-
-            if (somethingIsBeingDraggedOver && n == insertionPoint)
-            {
-                if (indexOfMovingComponent == -1 // adding new processor
-                    || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
-                {
-                    if (n == 0)
-                        lastBound += BORDER_SIZE*3;
-                    else
-                        lastBound += BORDER_SIZE*2;
-                }
-            }
-
-            editor->setVisible(true);
-            //   std::cout << "setting visible." << std::endl;
-            editor->setBounds(lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE*4);
-            lastBound += (componentWidth + BORDER_SIZE);
+            // leave room to drop a source node
+            lastBound += BORDER_SIZE * 10;
         }
-        else
+
+        if (somethingIsBeingDraggedOver && n == insertionPoint)
         {
-            //editor->setVisible(false);
-            // std::cout << "setting invisible." << std::endl;
+            if (indexOfMovingComponent == -1 // adding new processor
+                || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
+            {
+                if (n == 0)
+                    lastBound += BORDER_SIZE*3;
+                else
+                    lastBound += BORDER_SIZE*2;
+            }
         }
+
+        editor->setVisible(true);
+        editor->setBounds(lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE*4);
+        lastBound += (componentWidth + BORDER_SIZE);
     }
-    
     signalChainTabComponent->resized();
 }
 
@@ -388,7 +376,6 @@ void EditorViewport::moveSelection(const KeyPress& key)
         }
         else
         {
-
             selectionIndex = 0;
 
             for (int i = 0; i < editorArray.size(); i++)
@@ -817,8 +804,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
 
 void EditorViewport::mouseUp(const MouseEvent& e)
 {
-
-
+    
     if (componentWantsToMove)
     {
 
@@ -827,16 +813,26 @@ void EditorViewport::mouseUp(const MouseEvent& e)
 
         if (indexOfMovingComponent != insertionPoint)
         {
+            
+            GenericProcessor* newSource;
+            GenericProcessor* newDest;
+            
             if (insertionPoint == editorArray.size())
             {
-                AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
-                                                                editorArray[insertionPoint-1]->getProcessor(),
-                                                                nullptr);
+                newDest = nullptr;
+                newSource = editorArray.getLast()->getProcessor();
+            } else if (insertionPoint == 0)
+            {
+                newDest = editorArray.getFirst()->getProcessor();
+                newSource = nullptr;
             } else {
-                AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
-                                                                nullptr,
-                                                                editorArray[insertionPoint]->getProcessor());
+                newSource = editorArray[insertionPoint-1]->getProcessor();
+                newDest = editorArray[insertionPoint]->getProcessor();
             }
+            
+            AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
+                                                            newSource, newDest,
+                                                            insertionPoint > indexOfMovingComponent);
         }
     }
 
@@ -986,12 +982,12 @@ SignalChainTabComponent::SignalChainTabComponent()
     viewport->setScrollBarThickness(12);
     addAndMakeVisible(viewport);
 
-    //for (int i = 0; i < 8; i++)
-    //{
-    //    SignalChainTabButton* button = new SignalChainTabButton(i);
-     //   signalChainTabButtonArray.add(button);
-     //   addChildComponent(button);
-    //}
+    for (int i = 0; i < 8; i++)
+    {
+        SignalChainTabButton* button = new SignalChainTabButton(i);
+        signalChainTabButtonArray.add(button);
+        addChildComponent(button);
+    }
 }
 
 SignalChainTabComponent::~SignalChainTabComponent()
@@ -1017,9 +1013,6 @@ void SignalChainTabComponent::paint(Graphics& g)
                       TAB_SIZE-12,
                       1.0);
     }
-
-    //g.drawVerticalLine(TAB_SIZE, 0, getHeight());
-    //g.drawVerticalLine(getWidth()-TAB_SIZE, 0, getHeight());
 }
 
 
@@ -1028,17 +1021,29 @@ void SignalChainTabComponent::resized()
 
     int b = 2; // border
 
-    downButton->setBounds(b, getHeight()-15-b, TAB_SIZE-b, 15);
+    downButton->setBounds(b, getHeight()-25-b, TAB_SIZE-b, 15);
     upButton->setBounds(b, b, TAB_SIZE-b, 15);
 
     viewport->setBounds(TAB_SIZE, 0, getWidth()-TAB_SIZE, getHeight());
+    
     int width = editorViewport->getDesiredWidth() < getWidth() ? getWidth() : editorViewport->getDesiredWidth();
     editorViewport->setBounds(0, 0, width, getHeight());
 }
 
 
-void SignalChainTabComponent::refreshTabs(int numberOfTabs, int selectedTab)
+void SignalChainTabComponent::refreshTabs(int numberOfTabs_, int selectedTab_, bool internal)
 {
+    numberOfTabs = numberOfTabs_;
+    selectedTab = selectedTab_;
+    
+    if (!internal)
+    {
+        if (topTab < (selectedTab - 3))
+            topTab = selectedTab - 3;
+        else if (topTab > selectedTab && selectedTab != -1)
+            topTab = selectedTab;
+        
+    }
     
     for (int i = 0; i < signalChainTabButtonArray.size(); i++)
     {
@@ -1047,7 +1052,7 @@ void SignalChainTabComponent::refreshTabs(int numberOfTabs, int selectedTab)
                                                 TAB_SIZE-10,
                                                 TAB_SIZE-10);
         
-        if (i < numberOfTabs)
+        if (i < numberOfTabs && i >= topTab && i < topTab + 4)
         {
             signalChainTabButtonArray[i]->setVisible(true);
         } else {
@@ -1061,6 +1066,7 @@ void SignalChainTabComponent::refreshTabs(int numberOfTabs, int selectedTab)
             signalChainTabButtonArray[i]->setToggleState(false, NotificationType::dontSendNotification);
         }
     }
+
 }
 
 
@@ -1070,36 +1076,24 @@ void SignalChainTabComponent::buttonClicked(Button* button)
     {
         std::cout << "Up button pressed." << std::endl;
 
-        if (upButton->isActive)
+        if (topTab > 0)
             topTab -= 1;
-
     }
     else if (button == downButton)
     {
-        if (downButton->isActive)
-            topTab += 1;
-
-    }
-    /*else if (button == leftButton)
-    {
-        if (leftButton->isActive)
+        std::cout << "Down button pressed." << std::endl;
+        
+        if (numberOfTabs > 4)
         {
-            leftmostEditor -= 1;
-            refreshEditors();
+            if (topTab < (numberOfTabs-4))
+                topTab += 1;
         }
-
     }
-    else if (button == rightButton)
-    {
-        if (rightButton->isActive)
-        {
-            leftmostEditor += 1;
-            refreshEditors();
-        }
-    }*/
+
+    refreshTabs(numberOfTabs, selectedTab, true);
 }
 
-// how about some loading and saving?
+// LOADING AND SAVING
 
 XmlElement* EditorViewport::createNodeXml(GenericProcessor* source, bool isStartOfSignalChain)
 {
@@ -1166,23 +1160,6 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     currentFile = fileToUse;
 
-    // FileChooser fc("Choose the file to save...",
-    //                CoreServices::getDefaultUserSaveDirectory(),
-    //                "*",
-    //                true);
-
-    // if (fc.browseForFileToSave(true))
-    // {
-    //     currentFile = fc.getResult();
-    //     std::cout << currentFile.getFileName() << std::endl;
-    // }
-    // else
-    // {
-    //     error = "No file chosen.";
-    //     std::cout << "no file chosen." << std::endl;
-    //     return error;
-    // }
-
     Array<GenericProcessor*> splitPoints;
     Array<GenericProcessor*> allSplitters;
     Array<int> splitterStates;
@@ -1212,13 +1189,15 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     XmlElement* machineName = info->createNewChildElement("MACHINE");
     machineName->addTextElement(SystemStats::getComputerName());
     
-    /*for (int n = 0; n < signalChainArray.size(); n++)
+    Array<GenericProcessor*> rootNodes = AccessClass::getProcessorGraph()->getRootNodes();
+    
+    for (auto p : rootNodes)
     {
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
         
         bool isStartOfSignalChain = true;
         
-        GenericProcessor* processor = signalChainArray[n]->getEditor()->getProcessor();
+        GenericProcessor* processor = p;
 
         while (processor != nullptr)
         {
@@ -1271,7 +1250,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
         }
 
         xml->addChildElement(signalChain);
-    }*/
+    }
 
     // Loop through all splitters and reset their states to original values
     for (int i = 0; i < allSplitters.size(); i++) {
@@ -1328,7 +1307,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
 const String EditorViewport::loadState(File fileToLoad)
 {
-
+    
     currentFile = fileToLoad;
 
     std::cout << "Loading processor graph." << std::endl;
@@ -1448,53 +1427,45 @@ const String EditorViewport::loadState(File fileToLoad)
                         insertionPoint = 0;
                     }
 
-                    //See ProcessorGraph::createProcessorFromDescription for description info
-					Array<var> procDesc;
-					procDesc.add(false);
-					procDesc.add(processor->getStringAttribute("pluginName"));
-					procDesc.add(processor->getIntAttribute("pluginType"));
-					procDesc.add(processor->getIntAttribute("pluginIndex"));
-					procDesc.add(processor->getStringAttribute("libraryName"));
-					procDesc.add(processor->getIntAttribute("libraryVersion"));
-					procDesc.add(processor->getBoolAttribute("isSource"));
-					procDesc.add(processor->getBoolAttribute("isSink"));
+					ProcessorDescription description;
+                    
+                    description.fromProcessorList = false;
+                    description.processorName = processor->getStringAttribute("pluginName");
+					description.processorType = processor->getIntAttribute("pluginType");
+					description.processorIndex = processor->getIntAttribute("pluginIndex");
+					description.libName = processor->getStringAttribute("libraryName");
+					description.libVersion = processor->getIntAttribute("libraryVersion");
+					description.isSource = processor->getBoolAttribute("isSource");
+					description.isSink = processor->getBoolAttribute("isSink");
 
 					if (rhythmNodePatch) //old version, when rhythm was a plugin
 					{
-						if (int(procDesc[2]) == -1) //if builtin
+						if (description.processorType == -1) //if builtin
 						{
-							if (int(procDesc[3]) == 0) //Rhythm node
+							if (description.processorIndex == 0) //Rhythm node
 							{
-								procDesc.set(2, 4); //DataThread
-								procDesc.set(3, 1); //index
-								procDesc.set(4, "Rhythm FPGA"); //libraryName
+								description.processorType = 4; //DataThread
+								description.processorIndex = 1;
+								description.libName = "Rhythm FPGA";
 							}
 							else
-								procDesc.set(3, int(procDesc[3]) - 1); //arrange old nodes to its current index
+								description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
 						}
 					}
 
-                    SourceDetails sd = SourceDetails(procDesc,
-                                                     0,
-                                                     juce::Point<int>(0,0));
-
-                    itemDropped(sd);
-
-                    p = (GenericProcessor*) lastEditor->getProcessor();
-                    //p->loadOrder = loadOrder;
+                    addProcessor(description, insertionPoint);
+                        
+                    p = (GenericProcessor*) editorArray.getLast()->getProcessor();
+                    p->loadOrder = loadOrder++;
                     p->parametersAsXml = processor;
 
                     //Sets parameters based on XML files
                     //setParametersByXML(p, processor);
-                    //loadOrder++;
 
                     if (p->isSplitter() || p->isMerger())
                     {
                         splitPoints.add(p);
                     }
-
-                    //signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
-
                 }
                 else if (processor->hasTagName("SWITCH"))
                 {
@@ -1527,13 +1498,8 @@ const String EditorViewport::loadState(File fileToLoad)
                             splitPoints.remove(n);
                         }
                     }
-
-                    //signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
-
                 }
-
             }
-
         }
         else if (element->hasTagName("AUDIO"))
         {
@@ -1559,25 +1525,11 @@ const String EditorViewport::loadState(File fileToLoad)
 
     }
 
-    // probably not necessary
-    for (int i = 0; i < editorArray.size(); i++)
-    {
-        // deselect everything initially
-        editorArray[i]->deselect();
-    }
-
-    //AccessClass::getProcessorGraph()->restoreParameters();
+    AccessClass::getProcessorGraph()->restoreParameters();
 
     AccessClass::getControlPanel()->loadStateFromXml(xml); // load the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
     AccessClass::getUIComponent()->loadStateFromXml(xml);  // load the UI settings
-
-    //if (editorArray.size() > 0)
-    //    signalChainManager->updateVisibleEditors(editorArray[0], 0, 0, UPDATE);
-
-    //refreshEditors();
-
-    //AccessClass::getProcessorGraph()->restoreParameters();
 
     String error = "Opened ";
     error += currentFile.getFileName();

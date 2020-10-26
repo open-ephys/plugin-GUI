@@ -41,7 +41,7 @@
 
 #include "../ProcessorManager/ProcessorManager.h"
 
-ProcessorGraph::ProcessorGraph() : currentNodeId(100)
+ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(false)
 {
 
     // The ProcessorGraph will always have 0 inputs (all content is generated within graph)
@@ -91,23 +91,11 @@ void ProcessorGraph::updatePointers()
 
 void ProcessorGraph::moveProcessor(GenericProcessor* processor,
                                     GenericProcessor* newSource,
-                                   GenericProcessor* newDest)
+                                   GenericProcessor* newDest,
+                                   bool moveDownstream)
 {
     GenericProcessor* originalSource = processor->getSourceNode();
     GenericProcessor* originalDest = processor->getDestNode();
-    
-    if (newSource != nullptr)
-    {
-        processor->setSourceNode(newSource);
-        processor->setDestNode(newSource->getDestNode());
-        newSource->setDestNode(processor);
-        
-    } else if (newDest != nullptr)
-    {
-        processor->setDestNode(newDest);
-        processor->setSourceNode(newDest->getSourceNode());
-        newDest->setSourceNode(processor);
-    }
     
     if (originalSource != nullptr)
         originalSource->setDestNode(originalDest);
@@ -115,11 +103,58 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     if (originalDest != nullptr)
         originalDest->setSourceNode(originalSource);
     
-    updateViews(processor);
+    std::cout << "Processor to move: " << processor->getName() << std::endl;
+    if (originalSource != nullptr)
+        std::cout << "Original source: " << originalSource->getName() << std::endl;
+    if (originalDest != nullptr)
+        std::cout << "Original dest: " << originalDest->getName() << std::endl;
+    if (newSource != nullptr)
+        std::cout << "New source: " << newSource->getName() << std::endl;
+    if (newDest != nullptr)
+        std::cout << "New dest: " << newDest->getName() << std::endl;
+    
+    processor->setSourceNode(nullptr);
+    processor->setDestNode(nullptr);
+    
+    if (newSource != nullptr)
+    {
+        if (!processor->isSource())
+        {
+            processor->setSourceNode(newSource);
+            newSource->setDestNode(processor);
+        } else {
+            processor->setSourceNode(nullptr);
+            newSource->setDestNode(nullptr);
+            rootNodes.add(newSource);
+        }
+        
+    }
+    
+    if (newDest != nullptr)
+    {
+        if (!newDest->isSource())
+        {
+            processor->setDestNode(newDest);
+            newDest->setSourceNode(processor);
+            if (rootNodes.contains(newDest))
+            {
+                rootNodes.set(rootNodes.indexOf(newDest), processor);
+            }
+        } else {
+            processor->setDestNode(nullptr);
+            rootNodes.add(processor);
+        }
+    }
+    
+    if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
+        updateSettings(originalDest);
+    else // processor is upstream of its original dest, so we can just update that
+        updateSettings(processor);
 }
 
 void ProcessorGraph::createProcessor(ProcessorDescription& description,
                                       GenericProcessor* sourceNode,
+                                      GenericProcessor* destNode,
                                       bool signalChainIsLoading)
 {
 	GenericProcessor* processor = nullptr;
@@ -133,6 +168,8 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 
 	if (processor != nullptr)
 	{
+        //NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", "HALP");
+        
         int id = currentNodeId++;
 		processor->setNodeId(id); // identifier within processor graph
 		addNode(processor, id); // have to add it so it can be deleted by the graph
@@ -146,8 +183,22 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
             
             if (sourceNode != nullptr)
             {
+                
                 processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(nullptr);
+                
+            } else if (destNode != nullptr)
+            {
+                
+                if (!destNode->isSource())
+                {
+                    destNode->setSourceNode(processor);
+                    processor->setDestNode(destNode);
+                }
+                else
+                {
+                    processor->setDestNode(nullptr);
+                }
             }
             
 			if (processor->isGeneratesTimestamps())
@@ -164,17 +215,24 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
         } else {
             if (sourceNode != nullptr)
             {
-                if (processor->isMerger())
-                    processor->setMergerSourceNode(sourceNode);
-                else
-                    processor->setSourceNode(sourceNode);
-                
+                processor->setSourceNode(sourceNode);
                 processor->setDestNode(sourceNode->getDestNode());
                 sourceNode->setDestNode(processor);
+            } else if (destNode != nullptr)
+            {
+                if (!destNode->isSource())
+                {
+                    processor->setSourceNode(destNode->getSourceNode());
+                    processor->setDestNode(destNode);
+                    
+                    destNode->setSourceNode(processor);
+                } else {
+
+                    processor->setDestNode(nullptr);
+                    rootNodes.add(processor);
+                }
             }
         }
-        
-        
 	}
 	else
 	{
@@ -184,13 +242,18 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
     if (!signalChainIsLoading)
     {
         updateSettings(processor);
-        AccessClass::getGraphViewer()->addNode(processor->getEditor());
+    } else {
         updateViews(processor);
     }
 }
 
-void ProcessorGraph::updateSettings(GenericProcessor* processor)
+void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChainIsLoading)
 {
+    if (signalChainIsLoading != isLoadingSignalChain)
+        return;
+    
+    GenericProcessor* processorToUpdate = processor;
+    
     Array<Splitter*> splitters;
     
     while ((processor != nullptr) || (splitters.size() > 0))
@@ -199,6 +262,12 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor)
         {
             processor->update();
             
+            if (signalChainIsLoading)
+            {
+                processor->loadFromXml();
+                processor->update();
+            }
+                
             if (processor->isSplitter())
             {
                 splitters.add((Splitter*) processor);
@@ -213,10 +282,15 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor)
             splitters.remove(0);
         }
     }
+    
+    updateViews(processorToUpdate);
+    
 }
 
 void ProcessorGraph::updateViews(GenericProcessor* processor)
 {
+    AccessClass::getGraphViewer()->updateNodes(rootNodes);
+    
     int tabIndex;
     
     if (processor == nullptr && rootNodes.size() > 0)
@@ -281,7 +355,6 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
                 rootNodes.remove(rootNodes.indexOf(processor));
         }
         
-        AccessClass::getGraphViewer()->removeNode(processor->getEditor());
         removeProcessor(processor);
     }
     
@@ -390,12 +463,19 @@ void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
 
 void ProcessorGraph::restoreParameters()
 {
+    
+    isLoadingSignalChain = true;
 
     std::cout << "Restoring parameters for each processor..." << std::endl;
     
-    Array<GenericProcessor*> sourceProcessors;
+    for (auto p : rootNodes)
+    {
+        updateSettings(p, true);
+    }
+    
+    isLoadingSignalChain = false;
 
-    for (int i = 0; i < getNumNodes(); i++)
+    /*for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
 
@@ -408,28 +488,14 @@ void ProcessorGraph::restoreParameters()
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
             p->loadFromXml();
-            
-            if (!p->isMerger())
-            {
-                if (p->getSourceNode() == nullptr)
-                {
-                    sourceProcessors.add(p);
-                }
-            } else {
-                Merger* m = (Merger*) p;
-                
-                if (m->getSourceNode(0) == nullptr && m->getSourceNode(1) == nullptr)
-                {
-                    sourceProcessors.add(p);
-                }
-            }
         }
     }
 
-    for (auto p : sourceProcessors)
+    for (auto p : rootNodes)
     {
         updateSettings(p);
-    }
+    }*/
+    
 }
 
 bool ProcessorGraph::hasRecordNode()
@@ -555,7 +621,7 @@ void ProcessorGraph::updateConnections()
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
-        GenericProcessor* source = rootNodes[0];
+        GenericProcessor* source = rootNodes[n];
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
@@ -904,7 +970,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 bool ProcessorGraph::enableProcessors()
 {
 
-//    updateConnections(AccessClass::getEditorViewport()->requestSignalChain());
+    updateConnections();
 
     std::cout << "Enabling processors..." << std::endl;
 

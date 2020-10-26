@@ -119,7 +119,7 @@ void MergerEditor::buttonEvent(Button* button)
 
     }
 
-    AccessClass::getProcessorGraph()->updateViews(getProcessor());
+    AccessClass::getProcessorGraph()->updateSettings(getProcessor());
 }
 
 Array<GenericProcessor*> MergerEditor::getSelectableProcessors()
@@ -286,8 +286,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
                 merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexA]);
                 selectableProcessors[result-inputSelectionIndexA]->setDestNode(merger);
 
-                AccessClass::getGraphViewer()->updateNodeLocations();
-                AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
+                AccessClass::getProcessorGraph()->updateSettings(getProcessor());
                 return;
             }
         }
@@ -301,8 +300,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
                 merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexB]);
                 selectableProcessors[result-inputSelectionIndexB]->setDestNode(merger);
 
-                AccessClass::getGraphViewer()->updateNodeLocations();
-                AccessClass::getEditorViewport()->makeEditorVisible(this, false, true);
+                AccessClass::getProcessorGraph()->updateSettings(getProcessor());
                 return;
             }
         }

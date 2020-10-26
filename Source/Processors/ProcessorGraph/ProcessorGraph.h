@@ -68,17 +68,25 @@ public:
     ProcessorGraph();
     ~ProcessorGraph();
 
-    void createProcessor(ProcessorDescription& description, GenericProcessor* sourceNode, bool signalChainIsLoading=false);
+    void createProcessor(ProcessorDescription& description,
+                         GenericProcessor* sourceNode = nullptr,
+                         GenericProcessor* destNode = nullptr,
+                         bool signalChainIsLoading=false);
     GenericProcessor* createProcessorFromDescription(ProcessorDescription& description);
     
-    void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr);
+    void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
+                       bool moveDownstream = true);
 
     void removeProcessor(GenericProcessor* processor);
     Array<GenericProcessor*> getListOfProcessors();
     
-    Array<GenericEditor*> getVisibleEditors(GenericProcessor* processor);
     
-    void updateSettings(GenericProcessor* processor);
+    Array<GenericProcessor*> getRootNodes() {return rootNodes;}
+    
+    Array<GenericEditor*> getVisibleEditors(GenericProcessor* processor);
+
+    
+    void updateSettings(GenericProcessor* processor, bool signalChainIsLoading = false);
     void updateViews(GenericProcessor* processor);
     void clearSignalChain();
     void deleteNodes(Array<GenericProcessor*> nodesToDelete);
@@ -129,6 +137,8 @@ public:
 
 private:
     int currentNodeId;
+    
+    bool isLoadingSignalChain;
 
     enum nodeIds
     {
