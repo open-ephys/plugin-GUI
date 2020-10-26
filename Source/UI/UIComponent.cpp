@@ -319,11 +319,7 @@ void UIComponent::resized()
 
 	}
 
-<<<<<<< HEAD
 	if (messageCenterEditor != nullptr)
-=======
-	if (messageCenterEditor != 0)
->>>>>>> message-center
 	{
         if (messageCenterIsCollapsed)
         {

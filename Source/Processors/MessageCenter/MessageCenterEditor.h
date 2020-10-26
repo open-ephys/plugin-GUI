@@ -104,8 +104,6 @@ private:
     /** A viewport to hold the log of all outgoing messages. */
     ScopedPointer<Viewport> outgoingMessageViewport;
     
-    MessageCenter* messageCenter;
-    
     Colour incomingBackground;
     Colour outgoingBackground;
 
