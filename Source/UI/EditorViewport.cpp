@@ -1026,7 +1026,7 @@ void SignalChainTabComponent::resized()
 
     viewport->setBounds(TAB_SIZE, 0, getWidth()-TAB_SIZE, getHeight());
     
-    int width = editorViewport->getDesiredWidth() < getWidth() ? getWidth() : editorViewport->getDesiredWidth();
+    int width = editorViewport->getDesiredWidth() < getWidth()-TAB_SIZE ? getWidth() -TAB_SIZE : editorViewport->getDesiredWidth();
     editorViewport->setBounds(0, 0, width, getHeight());
 }
 
