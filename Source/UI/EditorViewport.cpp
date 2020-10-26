@@ -23,7 +23,6 @@
 
 #include "EditorViewport.h"
 
-//#include "SignalChainManager.h"
 #include "GraphViewer.h"
 #include "EditorViewportButtons.h"
 #include "../AccessClass.h"

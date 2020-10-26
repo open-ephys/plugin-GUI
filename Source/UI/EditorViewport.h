@@ -57,7 +57,7 @@ class UIComponent;
   (by clicking the buttons on the far left), or to navigate around branching
   signal chains.
 
-  @see UIComponent, ProcessorGraph, SignalChainManager
+  @see UIComponent, ProcessorGraph
 
 */
 
