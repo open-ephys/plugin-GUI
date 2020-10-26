@@ -233,13 +233,11 @@ void EditorViewport::addProcessor(ProcessorDescription description, int insertio
     if (insertionPoint > 0)
     {
         sourceProcessor = editorArray[insertionPt-1]->getProcessor();
-    } else {
-        sourceProcessor = nullptr;
-        
-        if (editorArray.size() > 0)
-        {
-            destProcessor = editorArray[0]->getProcessor();
-        }
+    }
+    
+    if (editorArray.size() > insertionPoint)
+    {
+        destProcessor = editorArray[insertionPoint]->getProcessor();
     }
     
     AccessClass::getProcessorGraph()->createProcessor(description,
@@ -1458,7 +1456,7 @@ const String EditorViewport::loadState(File fileToLoad)
                     p->loadOrder = loadOrder++;
                     p->parametersAsXml = processor;
 
-                    if (p->isSplitter())
+                    if (p->isSplitter()) //|| p->isMerger())
                     {
                         splitPoints.add(p);
                     }
@@ -1466,7 +1464,7 @@ const String EditorViewport::loadState(File fileToLoad)
                     if (p->isMerger())
                     {
                         MergerEditor* editor = (MergerEditor*) p->getEditor();
-                        editor->switchSource();
+                        editor->switchSource(1);
                     }
                 }
                 else if (processor->hasTagName("SWITCH"))
