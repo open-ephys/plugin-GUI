@@ -80,6 +80,7 @@ bool NpyFile::openFile(String path)
     // each updateHeader() call triggers a m_file->flush() to disk:
     m_file = file.createOutputStream();
 
+    /*
     if (m_file == nullptr)
     {
         LOGD("FAILED to open file @", path);
@@ -91,6 +92,7 @@ bool NpyFile::openFile(String path)
             pad += " ";
         LOGD("Successfully opened file @", path, pad, m_file);
     }
+    */
     
     if (!m_file)
         return false;
