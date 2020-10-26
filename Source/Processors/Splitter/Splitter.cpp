@@ -60,8 +60,6 @@ void Splitter::setPathToProcessor(GenericProcessor* p)
     {
         switchIO(1);
     }
-
-
 }
 
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
