@@ -170,6 +170,13 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
 	{
         //NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", "HALP");
         
+        int id = currentNodeId++;
+        processor->setNodeId(id); // identifier within processor graph
+        addNode(processor, id); // have to add it so it can be deleted by the graph
+        GenericEditor* editor = (GenericEditor*) processor->createEditor();
+
+        editor->refreshColors();
+        
 		if (processor->isSource()) // if we are adding a source processor
         {
             
@@ -233,13 +240,6 @@ void ProcessorGraph::createProcessor(ProcessorDescription& description,
         }
         
         
-        // assuming we get here
-        int id = currentNodeId++;
-        processor->setNodeId(id); // identifier within processor graph
-        addNode(processor, id); // have to add it so it can be deleted by the graph
-        GenericEditor* editor = (GenericEditor*) processor->createEditor();
-
-        editor->refreshColors();
         
         if (!checkForNewRootNodes(processor))
         {
@@ -981,6 +981,37 @@ bool ProcessorGraph::processorWithSameNameExists(const String& name)
 
 void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 {
+    GenericProcessor* originalSource = processor->getSourceNode();
+    GenericProcessor* originalDest = processor->getDestNode();
+    
+    if (originalSource != nullptr)
+    {
+        originalSource->setDestNode(originalDest);
+    }
+    
+    if (originalDest != nullptr)
+    {
+        originalDest->setSourceNode(originalSource);
+    }
+    
+    if (processor->isSplitter())
+    {
+        processor->switchIO();
+        GenericProcessor* alternateDest = processor->getDestNode();
+        if (alternateDest != nullptr)
+        {
+            alternateDest->setSourceNode(nullptr);
+            checkForNewRootNodes(alternateDest);
+        }
+    }
+    
+    if (processor->isMerger())
+    {
+        processor->switchIO();
+        GenericProcessor* alternateSource = processor->getSourceNode();
+        if (alternateSource != nullptr)
+            alternateSource->setDestNode(nullptr);
+    }
 
     std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
 

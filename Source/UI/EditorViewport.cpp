@@ -1458,9 +1458,15 @@ const String EditorViewport::loadState(File fileToLoad)
                     p->loadOrder = loadOrder++;
                     p->parametersAsXml = processor;
 
-                    if (p->isSplitter() || p->isMerger())
+                    if (p->isSplitter())
                     {
                         splitPoints.add(p);
+                    }
+                    
+                    if (p->isMerger())
+                    {
+                        MergerEditor* editor = (MergerEditor*) p->getEditor();
+                        editor->switchSource();
                     }
                 }
                 else if (processor->hasTagName("SWITCH"))

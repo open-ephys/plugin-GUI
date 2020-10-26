@@ -223,77 +223,82 @@ void GenericProcessor::update()
 
 	// ---- RESET EVERYTHING ---- ///
 	clearSettings();
+    
+    if (!isMerger())
+    {
 
-	if (sourceNode != nullptr) // copy settings from source node
-	{
-		// everything is inherited except numOutputs
-		settings = sourceNode->settings;
-		settings.numInputs = settings.numOutputs;
-		settings.numOutputs = settings.numInputs;
+        if (sourceNode != nullptr) // copy settings from source node
+        {
+            // everything is inherited except numOutputs
+            settings = sourceNode->settings;
+            settings.numInputs = settings.numOutputs;
+            settings.numOutputs = settings.numInputs;
 
-		for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
-		{
-			DataChannel* sourceChan = sourceNode->dataChannelArray[i];
-			DataChannel* ch = new DataChannel(*sourceChan);
-
-
-			if (i < m_recordStatus.size())
-			{
-				ch->setRecordState(m_recordStatus[i]);
-				ch->setMonitored(m_monitorStatus[i]);
-			}
-
-			ch->addToHistoricString(getName());
-			dataChannelArray.add(ch);
-		}
-
-		for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
-		{
-			EventChannel* sourceChan = sourceNode->eventChannelArray[i];
-			EventChannel* ch = new EventChannel(*sourceChan);
-			ch->eventMetaDataLock = true;
-			eventChannelArray.add(ch);
-		}
-		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
-		{
-			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
-			SpikeChannel* ch = new SpikeChannel(*sourceChan);
-			ch->eventMetaDataLock = true;
-			spikeChannelArray.add(ch);
-
-		}
-		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
-		{
-			ConfigurationObject* sourceChan = sourceNode->configurationObjectArray[i];
-			ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
-			configurationObjectArray.add(ch);
-		}
-	}
-	else // generate new settings
-	{
-
-		createDataChannels(); //Only sources can create data channels
-		settings.numOutputs = dataChannelArray.size();
-		std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
-
-		for (int i = 0; i < dataChannelArray.size(); i++)
-		{
-            if (i < m_recordStatus.size())
+            for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
             {
-                dataChannelArray[i]->setRecordState(m_recordStatus[i]);
-                dataChannelArray[i]->setMonitored(m_monitorStatus[i]);
-            }
-            else if (isSource())
-            {
-                dataChannelArray[i]->setRecordState(true);
-            }
-		}
-	}
+                DataChannel* sourceChan = sourceNode->dataChannelArray[i];
+                DataChannel* ch = new DataChannel(*sourceChan);
 
-	//Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
-	createEventChannels();
-	createSpikeChannels();
-	createConfigurationObjects();
+
+                if (i < m_recordStatus.size())
+                {
+                    ch->setRecordState(m_recordStatus[i]);
+                    ch->setMonitored(m_monitorStatus[i]);
+                }
+
+                ch->addToHistoricString(getName());
+                dataChannelArray.add(ch);
+            }
+
+            for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
+            {
+                EventChannel* sourceChan = sourceNode->eventChannelArray[i];
+                EventChannel* ch = new EventChannel(*sourceChan);
+                ch->eventMetaDataLock = true;
+                eventChannelArray.add(ch);
+            }
+            for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
+            {
+                SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
+                SpikeChannel* ch = new SpikeChannel(*sourceChan);
+                ch->eventMetaDataLock = true;
+                spikeChannelArray.add(ch);
+
+            }
+            for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
+            {
+                ConfigurationObject* sourceChan = sourceNode->configurationObjectArray[i];
+                ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
+                configurationObjectArray.add(ch);
+            }
+        }
+        else // generate new settings
+        {
+
+            createDataChannels(); //Only sources can create data channels
+            settings.numOutputs = dataChannelArray.size();
+            std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
+
+            for (int i = 0; i < dataChannelArray.size(); i++)
+            {
+                if (i < m_recordStatus.size())
+                {
+                    dataChannelArray[i]->setRecordState(m_recordStatus[i]);
+                    dataChannelArray[i]->setMonitored(m_monitorStatus[i]);
+                }
+                else if (isSource())
+                {
+                    dataChannelArray[i]->setRecordState(true);
+                }
+            }
+        }
+
+        //Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
+        createEventChannels();
+        createSpikeChannels();
+        createConfigurationObjects();
+        
+    }
 
 	//if (this->isSink())
 	//{
