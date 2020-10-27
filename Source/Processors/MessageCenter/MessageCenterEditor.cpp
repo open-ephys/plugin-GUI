@@ -27,9 +27,12 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
     acquisitionIsActive(false),
     messageCenter(owner),
-    incomingBackground(Colours::black.withAlpha(0.0f)), // (100,100,100)
-    outgoingBackground(Colours::black.withAlpha(0.0f))    // (100,100,100)
+    incomingBackground(Colours::black.withAlpha(0.0f)),
+    outgoingBackground(Colours::black.withAlpha(0.0f)),
+    backgroundColor(Colours::grey.withAlpha(0.0f))
 {
+    
+    isExpanded = false;
     
     firstMessageReceived = false;
 
@@ -87,6 +90,7 @@ void MessageCenterEditor::timerCallback()
 
     float incomingAlpha = incomingBackground.getFloatAlpha();
     float outgoingAlpha = outgoingBackground.getFloatAlpha();
+    float backgroundAlpha = backgroundColor.getFloatAlpha();
 
     if (incomingAlpha > 0)
     {
@@ -108,6 +112,18 @@ void MessageCenterEditor::timerCallback()
             outgoingAlpha = 0;
 
         outgoingBackground = outgoingBackground.withAlpha(outgoingAlpha);
+
+        shouldRepaint = true;
+    }
+    
+    if (backgroundAlpha > 0)
+    {
+        backgroundAlpha -= 0.05;
+
+        if (backgroundAlpha < 0)
+            backgroundAlpha = 0;
+
+        backgroundColor = backgroundColor.withAlpha(backgroundAlpha);
 
         shouldRepaint = true;
     }
@@ -151,17 +167,34 @@ void MessageCenterEditor::disable()
 
 void MessageCenterEditor::expand()
 {
-    isExpanded = true;
-    
-    resized();
-    
+    if (!isExpanded)
+        
+    {
+        isExpanded = true;
+        
+        backgroundColor = Colour(100,100,100);
+        
+        resized();
+        
+        startTimer(15);
+    }
+
 }
 
 
 void MessageCenterEditor::collapse()
 {
-    isExpanded = false;
-    resized();
+    if (isExpanded)
+    {
+        isExpanded = false;
+        
+        backgroundColor = Colours::lightgrey.withAlpha(0.8f);
+                        
+        resized();
+        
+        startTimer(60);
+    }
+    
 }
 
 
@@ -206,6 +239,9 @@ void MessageCenterEditor::paint(Graphics& g)
     else
         g.setColour(Colour(100,100,100));
     
+    g.fillRoundedRectangle(3, 3, getWidth()-6, getHeight()-6, 6.0f);
+    
+    g.setColour(backgroundColor);
     g.fillRoundedRectangle(3, 3, getWidth()-6, getHeight()-6, 6.0f);
     
     g.setColour(Colours::white.withAlpha(0.2f)); // background color (100,100,100)

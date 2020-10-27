@@ -106,6 +106,7 @@ private:
     
     Colour incomingBackground;
     Colour outgoingBackground;
+    Colour backgroundColor;
 
     bool firstMessageReceived;
 
