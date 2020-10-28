@@ -188,11 +188,11 @@ void MessageCenterEditor::collapse()
     {
         isExpanded = false;
         
-        backgroundColor = Colours::lightgrey.withAlpha(0.8f);
+        backgroundColor = Colours::lightgrey.withAlpha(0.30f);
                         
         resized();
         
-        startTimer(60);
+        startTimer(40);
     }
     
 }
