@@ -103,15 +103,15 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     if (originalDest != nullptr)
         originalDest->setSourceNode(originalSource);
     
-    std::cout << "Processor to move: " << processor->getName() << std::endl;
+LOGD("Processor to move: ", processor->getName());
     if (originalSource != nullptr)
-        std::cout << "Original source: " << originalSource->getName() << std::endl;
+LOGD("Original source: ", originalSource->getName());
     if (originalDest != nullptr)
-        std::cout << "Original dest: " << originalDest->getName() << std::endl;
+LOGD("Original dest: ", originalDest->getName());
     if (newSource != nullptr)
-        std::cout << "New source: " << newSource->getName() << std::endl;
+LOGD("New source: ", newSource->getName());
     if (newDest != nullptr)
-        std::cout << "New dest: " << newDest->getName() << std::endl;
+LOGD("New dest: ", newDest->getName());
     
     processor->setSourceNode(nullptr);
     processor->setDestNode(nullptr);
@@ -525,7 +525,7 @@ void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
     {
         currentChannel=channelXML->getIntAttribute("name");
 
-        // std::cout <<"currentChannel:"<< currentChannel  << std::endl;
+LOGDD("currentChannel:", currentChannel);
         // Sets channel to change parameter on
         processor->setCurrentChannel(currentChannel-1);
 
@@ -542,7 +542,7 @@ void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
                     parameterFloat=parameterValue.getFloatValue();
                     processor->setParameter(j, parameterFloat);
                     // testGrab=targetProcessor->getParameterVar(j, currentChannel);
-                    std::cout <<"Channel:" <<currentChannel<<"Parameter:" << parameterNameForXML << "Intended Value:" << parameterFloat << std::endl;
+LOGD("Channel:", currentChannel, "Parameter:", parameterNameForXML, "Intended Value:", parameterFloat);
                 }
 
             }
@@ -556,7 +556,7 @@ void ProcessorGraph::restoreParameters()
     
     isLoadingSignalChain = true;
 
-    std::cout << "Restoring parameters for each processor..." << std::endl;
+LOGD("Restoring parameters for each processor...");
     
     for (auto p : rootNodes)
     {
@@ -686,7 +686,7 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-        std::cout << "Signal chain: " << n << std::endl;
+LOGD("Signal chain: ", n);
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
@@ -694,7 +694,7 @@ void ProcessorGraph::updateConnections()
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
-            std::cout << "Source node: " << source->getName() << "." << std::endl;
+LOGD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if (source->isReady())
@@ -747,7 +747,7 @@ void ProcessorGraph::updateConnections()
                 }
                 else
                 {
-                    std::cout << "     No dest node." << std::endl;
+LOGD("     No dest node.");
                 }
             }
 
@@ -761,9 +761,7 @@ void ProcessorGraph::updateConnections()
                 // (but if it leads to a splitter that is still in the stack, it may still be
                 // used as a source for the unexplored branch.)
 
-                std::cout << dest->getName() << " " << dest->getNodeId() <<
-                    " has already been connected." << std::endl;
-                std::cout << std::endl;
+LOGD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
                 dest = nullptr;
             }
 
@@ -826,15 +824,15 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     if (source == nullptr || dest == nullptr)
         return;
 
-    std::cout << "     Connecting " << source->getName() << " " << source->getNodeId(); //" channel ";
-    std::cout << " to " << dest->getName() << " " << dest->getNodeId() << std::endl;
+LOGD("     Connecting ", source->getName(), " ", source->getNodeId()); //" channel ";);
+LOGD("              to ", dest->getName(), " ", dest->getNodeId());
 
     // 1. connect continuous channels
     if (connectContinuous)
     {
         for (int chan = 0; chan < source->getNumOutputs(); chan++)
         {
-            //std::cout << chan << " ";
+LOGDD(chan, " ");
 
             addConnection(source->getNodeId(),         // sourceNodeID
                           chan,                        // sourceNodeChannelIndex
@@ -864,7 +862,7 @@ void ProcessorGraph::connectProcessorToAudioNode(GenericProcessor* source)
 {
 
     /*
-    std::cout << "#########SKIPPING CONNECT TO RECORD NODE" << std::endl;
+LOGD("#########SKIPPING CONNECT TO RECORD NODE");
 
     if (source == nullptr)
         return;
@@ -934,17 +932,17 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescri
 	if (description.fromProcessorList)
 	{
 
-		std::cout << "Creating from description..." << std::endl;
-		std::cout << description.libName << "::" << description.processorName <<
-        " (" << description.processorType << "-" << description.processorIndex << ")" << std::endl;
+LOGD("Creating from description...");
+LOGD(description.libName, "::", description.processorName, \
+    description.processorType, "-", description.processorIndex,")");
 
 		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
                                                       description.processorIndex);
 	}
 	else
 	{
-		std::cout << "Creating from plugin info..." << std::endl;
-		std::cout << description.libName << "(" << description.libVersion << ")::" << description.processorName << std::endl;
+LOGD("Creating from plugin info...");
+LOGD(description.libName, "(", description.libVersion, ")::", description.processorName);
 
 		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
                                                                     description.processorType,
@@ -1013,7 +1011,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
             alternateSource->setDestNode(nullptr);
     }
 
-    std::cout << "Removing processor with ID " << processor->getNodeId() << std::endl;
+LOGD("Removing processor with ID ", processor->getNodeId());
 
     int nodeId = processor->getNodeId();
 
@@ -1056,13 +1054,13 @@ bool ProcessorGraph::enableProcessors()
 
     updateConnections();
 
-    std::cout << "Enabling processors..." << std::endl;
+LOGD("Enabling processors...");
 
     bool allClear;
 
     if (getNumNodes() < 4)
     {
-        std::cout << "Not enough processors in signal chain to acquire data" << std::endl;
+LOGD("Not enough processors in signal chain to acquire data");
         AccessClass::getUIComponent()->disableCallbacks();
         return false;
     }
@@ -1079,7 +1077,7 @@ bool ProcessorGraph::enableProcessors()
 
             if (!allClear)
             {
-                std::cout << p->getName() << " said it's not OK." << std::endl;
+LOGD(p->getName(), " said it's not OK.");
                 //	sendActionMessage("Could not initialize acquisition.");
                 AccessClass::getUIComponent()->disableCallbacks();
                 return false;
@@ -1119,7 +1117,7 @@ bool ProcessorGraph::enableProcessors()
 bool ProcessorGraph::disableProcessors()
 {
 
-    std::cout << "Disabling processors..." << std::endl;
+LOGD("Disabling processors...");
 
     bool allClear;
 
@@ -1129,7 +1127,7 @@ bool ProcessorGraph::disableProcessors()
         if (node->nodeId != OUTPUT_NODE_ID )
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-            std::cout << "Disabling " << p->getName() << std::endl;
+LOGD("Disabling ", p->getName());
 			if (node->nodeId != MESSAGE_CENTER_ID)
 				p->disableEditor();
             allClear = p->disableProcessor();

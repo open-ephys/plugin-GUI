@@ -23,6 +23,7 @@
 #include "GenericProcessor.h"
 #include "../../UI/UIComponent.h"
 #include "../../AccessClass.h"
+#include "../../Utils/Utils.h"
 
 #include <exception>
 
@@ -101,7 +102,7 @@ Parameter* GenericProcessor::getParameterObject(int parameterIndex) const
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
 	editor->updateParameterButtons(parameterIndex);
-	std::cout << "Setting parameter" << std::endl;
+LOGD("Setting parameter");
 
 	if (currentChannel >= 0)
 		parameters[parameterIndex]->setValue(newValue, currentChannel);
@@ -144,7 +145,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	//std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
+LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
 
 	if (increment)
 		nextAvailableChannel++;
@@ -186,13 +187,13 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-	//std::cout << "Generic processor clearing settings." << std::endl;
+LOGDD("Generic processor clearing settings.");
 
 	settings.originalSource = nullptr;
 	settings.numInputs = 0;
 	settings.numOutputs = 0;
 
-	// std::cout << "Record status size = " << recordStatus.size() << std::endl;
+//LOGDD("Record status size = ", recordStatus.size());
 
 	if (m_recordStatus.size() < dataChannelArray.size())
 		m_recordStatus.resize(dataChannelArray.size());
@@ -202,7 +203,7 @@ void GenericProcessor::clearSettings()
 
 	for (int i = 0; i < dataChannelArray.size(); ++i)
 	{
-		// std::cout << channels[i]->getRecordState() << std::endl;
+//LOGDD(channels[i]->getRecordState());
 		m_recordStatus.set(i, dataChannelArray[i]->getRecordState());
 		m_monitorStatus.set(i, dataChannelArray[i]->isMonitored());
 	}
@@ -219,7 +220,7 @@ void GenericProcessor::clearSettings()
 
 void GenericProcessor::update()
 {
-	std::cout << getName() << " updating settings." << std::endl;
+LOGD(getName(), " updating settings.");
 
 	// ---- RESET EVERYTHING ---- ///
 	clearSettings();
@@ -277,7 +278,7 @@ void GenericProcessor::update()
 
             createDataChannels(); //Only sources can create data channels
             settings.numOutputs = dataChannelArray.size();
-            std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
+LOGD(getName(), " setting num outputs to ", settings.numOutputs);
 
             for (int i = 0; i < dataChannelArray.size(); i++)
             {
@@ -442,7 +443,7 @@ void GenericProcessor::setAllChannelsToRecord()
 		m_recordStatus.set(i, true);
 	}
 
-	// std::cout << "Setting all channels to record for source." << std::endl;
+LOGDD("Setting all channels to record for source.");
 }
 
 
@@ -509,7 +510,7 @@ uint32 GenericProcessor::getNumSamples(int channelNum) const
 		return 0;
 	}
 
-	// std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
+LOGDD("Requesting samples for channel ", channelNum, " with source node ", sourceNodeId);
 	uint32 sourceID = getProcessorFullId(sourceNodeId, subProcessorId);
 	try
 	{
@@ -520,7 +521,7 @@ uint32 GenericProcessor::getNumSamples(int channelNum) const
 		return 0;
 	}
 
-	//std::cout << nSamples << " were found." << std::endl;
+LOGDD(nSamples, " were found.");
 
 	return nSamples;
 }
@@ -601,7 +602,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 {
 
 	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-	//std::cout << "Setting timestamp to " << timestamp << std:;endl;
+LOGDD("Setting timestamp to ", timestamp);
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, subProcessorIdx, timestamp, nSamples);
@@ -685,8 +686,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 		MidiBuffer temporalEventBuffer;
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
 		m_currentMidiBuffer = &temporalEventBuffer;
-		// int m = midiMessages.getNumEvents();
-		//std::cout << m << " events received by node " << getNodeId() << std::endl;
+		//int m = midiMessages.getNumEvents();
+		//LOGDD(m, " events received by node ", getNodeId());
 
 		MidiBuffer::Iterator i(*originalEventBuffer);
 		MidiMessage message(0xf4);
@@ -928,7 +929,7 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
 	saveCustomChannelParametersToXml(channelInfo, channelNumber, type);
 
 	// deprecated parameter configuration:
-	//std::cout <<"Creating Parameters" << std::endl;
+LOGDD("Creating Parameters");
 	// int maxsize = parameters.size();
 	// String parameterName;
 	// String parameterValue;
@@ -960,7 +961,7 @@ void GenericProcessor::loadFromXml()
 	{
         if (!m_isParamsWereLoaded)
         {
-            std::cout << "Loading parameters for " << m_name << std::endl;
+LOGD("Loading parameters for ", m_name);
 
             // use parametersAsXml to restore state
             loadCustomParametersFromXml();

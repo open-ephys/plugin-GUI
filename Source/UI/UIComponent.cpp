@@ -47,20 +47,20 @@
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	addActionListener(messageCenterEditor);
 	
-	std::cout << "Created message center." << std::endl;
+LOGD("Created message center.");
 
 	infoLabel = new InfoLabel();
-	std::cout << "Created info label." << std::endl;
+LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
-	std::cout << "Created graph viewer." << std::endl;
+LOGD("Created graph viewer.");
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
 	dataViewport->addTabToDataViewport("Info", infoLabel,0);
 	dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
-	std::cout << "Created data viewport." << std::endl;
+LOGD("Created data viewport.");
 
     signalChainTabComponent = new SignalChainTabComponent();
     addAndMakeVisible(signalChainTabComponent);
@@ -68,7 +68,7 @@
 	editorViewport = new EditorViewport(signalChainTabComponent);
 	//addAndMakeVisible(editorViewport);
     
-	std::cout << "Created editor viewport." << std::endl;
+LOGD("Created editor viewport.");
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
@@ -76,7 +76,7 @@
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
     
-	std::cout << "Created control panel." << std::endl;
+LOGD("Created control panel.");
 
 	processorList = new ProcessorList();
 	processorListViewport.setViewedComponent(processorList,false);
@@ -89,10 +89,10 @@
     
 	processorList->setVisible(true);
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
-	std::cout << "Created filter list." << std::endl;
+LOGD("Created filter list.");
 
 	pluginManager = new PluginManager();
-	std::cout << "Created plugin manager" << std::endl;
+LOGD("Created plugin manager");
 
 	setBounds(0,0,500,400);
 
@@ -620,7 +620,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 					if (fc.browseForFileToSave(true))
 					{
 						currentConfigFile = fc.getResult();
-						std::cout << currentConfigFile.getFileName() << std::endl;
+LOGD(currentConfigFile.getFileName());
 						sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 					}
 					else
@@ -643,7 +643,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				if (fc.browseForFileToSave(true))
 				{
 					currentConfigFile = fc.getResult();
-					std::cout << currentConfigFile.getFileName() << std::endl;
+LOGD(currentConfigFile.getFileName());
 					sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 				}
 				else

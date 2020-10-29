@@ -26,6 +26,7 @@
 
 #include "../../UI/EditorViewport.h"
 #include "../../AccessClass.h"
+#include "../../Utils/Utils.h"
 
 
 Merger::Merger()
@@ -48,7 +49,7 @@ AudioProcessorEditor* Merger::createEditor()
     editor = new MergerEditor(this, true);
     //tEditor(editor);
 
-    //std::cout << "Creating editor." << std::endl;
+LOGDD("Creating editor.");
     return editor;
 }
 
@@ -59,12 +60,12 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     if (activePath == 0)
     {
-        std::cout << "Setting source node A." << std::endl;
+LOGD("Setting source node A.");
         sourceNodeA = sn;
     }
     else
     {
-        std::cout << "Setting source node B." << std::endl;
+LOGD("Setting source node B.");
         sourceNodeB = sn;
     }
 
@@ -77,19 +78,19 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 void Merger::switchIO(int sourceNum)
 {
 
-    //std::cout << "Switching to source number " << sourceNum << std::endl;
+//LOGDD("Switching to source number ", sourceNum);
 
     activePath = sourceNum;
 
     if (sourceNum == 0)
     {
         sourceNode = sourceNodeA;
-        //std::cout << "Source node: " << getSourceNode() << std::endl;
+//LOGDD("Source node: ", getSourceNode());
     }
     else
     {
         sourceNode = sourceNodeB;
-        //std::cout << "Source node: " << getSourceNode() << std::endl;
+//LOGDD("Source node: ", getSourceNode());
     }
 
     // getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
@@ -155,7 +156,7 @@ bool Merger::stillHasSource() const
 void Merger::switchIO()
 {
 
-    //std::cout << "Merger switching source." << std::endl;
+LOGDD("Merger switching source.");
 
     if (activePath == 0)
     {
@@ -235,7 +236,7 @@ void Merger::updateSettings()
 
     if (sourceNodeA != nullptr)
     {
-        std::cout << "   Merger source A found." << std::endl;
+LOGD("   Merger source A found.");
         addSettingsFromSourceNode(sourceNodeA);
         isEnabled &= sourceNodeA->isEnabled;
     } else {
@@ -245,7 +246,7 @@ void Merger::updateSettings()
 
     if (sourceNodeB != nullptr)
     {
-        std::cout << "   Merger source B found." << std::endl;
+LOGD("   Merger source B found.");
         addSettingsFromSourceNode(sourceNodeB);
         isEnabled &= sourceNodeB->isEnabled;
     } else {
@@ -259,7 +260,7 @@ void Merger::updateSettings()
     }
 
 
-    std::cout << "Number of merger outputs: " << getNumInputs() << std::endl;
+LOGD("Number of merger outputs: ", getNumInputs());
 
 }
 
@@ -303,13 +304,13 @@ void Merger::loadCustomParametersFromXml()
                     {
                         if (p[k]->getNodeId() == NodeAid)
                         {
-                            std::cout << "Setting Merger source A to " << NodeAid << std::endl;
+LOGD("Setting Merger source A to ", NodeAid);
                             switchIO(0);
                             setMergerSourceNode(p[k]);
                         }
                         if (p[k]->getNodeId() == NodeBid)
                         {
-                            std::cout << "Setting Merger source B to " << NodeBid << std::endl;
+LOGD("Setting Merger source B to ", NodeBid);
                             switchIO(1);
                             setMergerSourceNode(p[k]);
                         }
@@ -326,4 +327,3 @@ void Merger::loadCustomParametersFromXml()
         }
     }
 }
-

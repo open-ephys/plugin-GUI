@@ -57,7 +57,7 @@ bool SequentialBlockFile::openFile(String filename)
 		std::cerr << "Error creating file " << filename << ":" << res.getErrorMessage() << std::endl;
 		file.deleteFile();
 		Result res = file.create();
-		std::cout << "Re-creating file: " << filename << std::endl;
+LOGD("Re-creating file: ", filename);
 	}
 
 	m_file = file.createOutputStream(streamBufferSize);
@@ -95,7 +95,6 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		printf("\r[RN]SequentialBlockFile: Memory block unloaded ahead of time for chan %d start %d ns %d first %d", channel, startPos, nSamples, m_memBlocks[0]->getOffset()); fflush(stdout);
 		for (int i = 0; i < m_nChannels; i++)
 			printf("\r CH: %d last block %d", i, m_currentBlock[i]); fflush(stdout);
-			//std::cout << "channel " << i << " last block " << m_currentBlock[i] << std::endl;
 		return false;
 	}
 	int writtenSamples = 0;
@@ -112,7 +111,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		{
 			//if (writtenSamples == 0 && *(data + dataIdx) == 0)
 			//{
-			//  std::cout << "Found a zero." << std::endl;
+LOGDD("Found a zero.");
 			//  break;
 			//}
 
@@ -177,4 +176,3 @@ void SequentialBlockFile::allocateBlocks(uint64 startIndex, int numSamples)
 	if (newBlocks > 0)
 		m_lastBlockFill = 0; //we've added some new blocks, so the last one will be empty
 }
-

@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../RecordEngine.h"
 #include <stdio.h>
 #include <map>
+#include "../../../Utils/Utils.h"
 
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024

@@ -23,6 +23,7 @@
 
 #include "GraphViewer.h"
 #include "../Processors/Splitter/Splitter.h"
+#include "../Utils/Utils.h"
 
 const int NODE_WIDTH = 150;
 const int NODE_HEIGHT = 100;
@@ -145,7 +146,7 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
             GraphNode* node = getNodeForEditor(upstreamEditors[0]);
             if (node != nullptr)
                 level1 = node->getLevel() + 1;
-            //std::cout << "Merger input 1 at " << level1 << std::endl;
+LOGDD("Merger input 1 at ", level1);
         }
         
         if (upstreamEditors[1] != nullptr)
@@ -153,7 +154,7 @@ void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
             GraphNode* node = getNodeForEditor(upstreamEditors[1]);
             if (node != nullptr)
                 level1 = node->getLevel() + 1;
-           // std::cout << "Merger input 2 at " << level1 << std::endl;
+LOGDD("Merger input 2 at ", level1);
         }
         
         level = (level1 > level2) ? level1 : level2;

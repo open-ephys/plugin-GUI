@@ -86,7 +86,7 @@ void RecordNode::connectToMessageCenter()
 	
 	isConnectedToMessageCenter = true;
 
-	std::cout << "Record node " << getNodeId() << " connected to Message Center" << std::endl;
+LOGD("Record node ", getNodeId(), " connected to Message Center");
 
 }
 
@@ -487,7 +487,7 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		//std::cout << "Channel: " << ch << " Source Node: " << srcIndex << " Sub Index: " << subIndex << std::endl;
+LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
@@ -573,7 +573,7 @@ void RecordNode::startRecording()
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
-		std::cout << "Num event channels: " << eventChannelArray.size() << std::endl;
+LOGD("Num event channels: ", eventChannelArray.size());
 		recordThread->startThread();
 		isRecording = true;
 	}
@@ -616,7 +616,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		if (!msgCenterMessages.contains(Event::getTimestamp(event)))
 		{
 			msgCenterMessages.add(Event::getTimestamp(event));
-			std::cout << "Received message." << std::endl;
+LOGD("Received message.");
 		}
 		else
 			return;
@@ -653,7 +653,7 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
 	if (!newSpike) 
 	{
-		std::cout << "Unable to deserialize spike event!" << std::endl; 
+LOGD("Unable to deserialize spike event!");
 		return;
 	}
 
