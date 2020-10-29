@@ -63,18 +63,18 @@ bool SequentialBlockFile::openFile(String filename)
 	m_file = file.createOutputStream(streamBufferSize);
 	if (!m_file)
 	{
-		printf("[RN]SequentialBlockFile::openFile returned false\n");
+		LOGD("Unable to create output stream!");
 		return false;
 	}
 
-	//printf("[RN]SequentialBlockFile::added new FileBlock\n");
+	LOGDD("Added new FileBlock");
 	m_memBlocks.add(new FileBlock(m_file, m_blockSize, 0));
 	return true;
 }
 
 bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data, int nSamples)
 {
-	//printf("[RN]Enter SequentialBlockFile::writeChannel\n");
+
 	if (!m_file)
 	{
 		printf("[RN]SequentialBlockFile::writeChannel returned false: (!m_file)\n");
@@ -92,9 +92,9 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	}
 	if (bIndex < 0)
 	{
-		printf("\r[RN]SequentialBlockFile: Memory block unloaded ahead of time for chan %d start %d ns %d first %d", channel, startPos, nSamples, m_memBlocks[0]->getOffset()); fflush(stdout);
+		LOGD("Memory block unloaded ahead of time for chan", channel, " start ", startPos, " ns ", nSamples);
 		for (int i = 0; i < m_nChannels; i++)
-			printf("\r CH: %d last block %d", i, m_currentBlock[i]); fflush(stdout);
+			LOGD("CH: ", i, " last block ", m_currentBlock[i]); 
 		return false;
 	}
 	int writtenSamples = 0;
@@ -102,7 +102,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	int startMemPos = startIdx*m_nChannels;
 	int dataIdx = 0;
 	int lastBlockIdx = m_memBlocks.size() - 1;
-	//printf("SequentialBlockFile::Entering write loop...\n");
+
 	while (writtenSamples < nSamples)
 	{
 		int16* blockPtr = m_memBlocks[bIndex]->getData();
@@ -119,8 +119,6 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 			dataIdx++;
 		}
 		writtenSamples += samplesToWrite;
-
-		//printf("nSamples: %d, writtenSamples: %d, samplesToWrite: %d\n", nSamples, writtenSamples, samplesToWrite);
 
 		//Update the last block fill index
 		size_t samplePos = startIdx + samplesToWrite;
@@ -155,12 +153,6 @@ void SequentialBlockFile::allocateBlocks(uint64 startIndex, int numSamples)
 	}
 
 	m_memBlocks.removeRange(0, minBlock);
-
-	//for (int i = 0; i < minBlock; i++)
-	//{
-	//Not the most efficient way, as it has to move back all the elements, but it's a simple array of pointers, so it's quick enough
-	//  m_memBlocks.remove(0);
-	//}
 
 	//Look for the last available position and calculate needed space
 	uint64 lastOffset = m_memBlocks.getLast()->getOffset();
