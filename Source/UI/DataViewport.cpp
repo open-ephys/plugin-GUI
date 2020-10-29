@@ -74,7 +74,7 @@ int DataViewport::addTabToDataViewport(String name, Component* component, Generi
 
     editorArray.add(editor);
 
-LOGD("Adding tab with index ", tabIndex);
+    LOGD("Adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -110,14 +110,14 @@ void DataViewport::destroyTab(int index)
 
 void DataViewport::disableConnectionToEditorViewport()
 {
-LOGD("DISABLING DATAVIEWPORT CONNECTION");
+    LOGD("DISABLING DATAVIEWPORT CONNECTION");
     shutdown = true;
 }
 
 void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 {
-LOGDD("CURRENT TAB CHANGED");
-LOGDD("number of editors remaining: ", editorArray.size());
+    LOGDD("CURRENT TAB CHANGED");
+    LOGDD("number of editors remaining: ", editorArray.size());
 
     if (!shutdown)
     {

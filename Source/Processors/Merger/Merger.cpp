@@ -49,7 +49,7 @@ AudioProcessorEditor* Merger::createEditor()
     editor = new MergerEditor(this, true);
     //tEditor(editor);
 
-LOGDD("Creating editor.");
+    LOGDD("Creating editor.");
     return editor;
 }
 
@@ -60,12 +60,12 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     if (activePath == 0)
     {
-LOGD("Setting source node A.");
+    LOGD("Setting source node A.");
         sourceNodeA = sn;
     }
     else
     {
-LOGD("Setting source node B.");
+    LOGD("Setting source node B.");
         sourceNodeB = sn;
     }
 
@@ -156,7 +156,7 @@ bool Merger::stillHasSource() const
 void Merger::switchIO()
 {
 
-LOGDD("Merger switching source.");
+    LOGDD("Merger switching source.");
 
     if (activePath == 0)
     {
@@ -236,7 +236,7 @@ void Merger::updateSettings()
 
     if (sourceNodeA != nullptr)
     {
-LOGD("   Merger source A found.");
+        LOGD("   Merger source A found.");
         addSettingsFromSourceNode(sourceNodeA);
         isEnabled &= sourceNodeA->isEnabled;
     } else {
@@ -246,7 +246,7 @@ LOGD("   Merger source A found.");
 
     if (sourceNodeB != nullptr)
     {
-LOGD("   Merger source B found.");
+        LOGD("   Merger source B found.");
         addSettingsFromSourceNode(sourceNodeB);
         isEnabled &= sourceNodeB->isEnabled;
     } else {
@@ -260,7 +260,7 @@ LOGD("   Merger source B found.");
     }
 
 
-LOGD("Number of merger outputs: ", getNumInputs());
+    LOGD("Number of merger outputs: ", getNumInputs());
 
 }
 
@@ -304,13 +304,13 @@ void Merger::loadCustomParametersFromXml()
                     {
                         if (p[k]->getNodeId() == NodeAid)
                         {
-LOGD("Setting Merger source A to ", NodeAid);
+                            LOGD("Setting Merger source A to ", NodeAid);
                             switchIO(0);
                             setMergerSourceNode(p[k]);
                         }
                         if (p[k]->getNodeId() == NodeBid)
                         {
-LOGD("Setting Merger source B to ", NodeBid);
+                            LOGD("Setting Merger source B to ", NodeBid);
                             switchIO(1);
                             setMergerSourceNode(p[k]);
                         }

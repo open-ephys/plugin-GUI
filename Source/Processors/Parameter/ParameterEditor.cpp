@@ -46,7 +46,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
 
     if (parameter->isBoolean())
     {
-LOGD("Boolean parameter-> Creating checkbox.");
+        LOGD("Boolean parameter-> Creating checkbox.");
 
         // create checkbox
         ParameterCheckbox* pc = new ParameterCheckbox ((bool) parameter->getDefaultValue());
@@ -73,7 +73,7 @@ LOGD("Boolean parameter-> Creating checkbox.");
     }
     else if (parameter->isContinuous())
     {
-LOGD("Continuous parameter-> Creating slider.");
+        LOGD("Continuous parameter-> Creating slider.");
 
         // create slider
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -108,7 +108,7 @@ LOGD("Continuous parameter-> Creating slider.");
     }
     else if (parameter->isDiscrete())
     {
-LOGD("Discrete parameter-> Creating buttons.");
+        LOGD("Discrete parameter-> Creating buttons.");
 
 
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -117,12 +117,12 @@ LOGD("Discrete parameter-> Creating buttons.");
         const int buttonWidth = isParameterHasCustomBounds ? (m_parameter->getEditorDesiredBounds().getWidth() / numButtons)
                                                            : 35;
 
-LOGD("Button width: ", buttonWidth);
-LOGD("Default value: ", (int) parameter->getDefaultValue());
+        LOGD("Button width: ", buttonWidth);
+        LOGD("Default value: ", (int) parameter->getDefaultValue());
 
         for (int i = 0; i < numButtons; ++i)
         {
-LOGD("Creating button ", i);
+            LOGD("Creating button ", i);
 
             int buttonType = MIDDLE;
             if (i == 0)
@@ -166,7 +166,7 @@ LOGD("Creating button ", i);
     }
     else if (parameter->isNumerical())
     {
-LOGD("Numerical parameter-> Creating slider.");
+        LOGD("Numerical parameter-> Creating slider.");
 
         // create slider
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -215,7 +215,7 @@ void ParameterEditor::setChannelSelector (ChannelSelector* channelSelector)
 
 void ParameterEditor::setEnabled (bool isEnabled)
 {
-LOGD("Changing editor state!");
+    LOGD("Changing editor state!");
 
     if (shouldDeactivateDuringAcquisition)
     {
@@ -252,9 +252,9 @@ LOGD("Changing editor state!");
 
 void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
 {
-LOGD("Button ID: ", buttonThatWasClicked->getComponentID());
-LOGD("Button name: ", buttonThatWasClicked->getName());
-LOGD("Button value: ", buttonThatWasClicked->getButtonText());
+    LOGD("Button ID: ", buttonThatWasClicked->getComponentID());
+    LOGD("Button name: ", buttonThatWasClicked->getName());
+    LOGD("Button value: ", buttonThatWasClicked->getButtonText());
 
     ParameterButton* b = (ParameterButton*) buttonThatWasClicked;
 
@@ -649,7 +649,7 @@ void ParameterEditor::updateChannelSelectionUI()
     }
     else if (m_parameter->isDiscrete())
     {
-LOGD("Calculating colors for discrete buttons");
+        LOGD("Calculating colors for discrete buttons");
         Array<var> possibleValues = m_parameter->getPossibleValues();
 
         for (int i = 0; i < m_buttonArray.size(); ++i)

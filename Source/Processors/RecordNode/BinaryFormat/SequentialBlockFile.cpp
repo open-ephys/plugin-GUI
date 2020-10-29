@@ -57,7 +57,7 @@ bool SequentialBlockFile::openFile(String filename)
 		std::cerr << "Error creating file " << filename << ":" << res.getErrorMessage() << std::endl;
 		file.deleteFile();
 		Result res = file.create();
-LOGD("Re-creating file: ", filename);
+		LOGD("Re-creating file: ", filename);
 	}
 
 	m_file = file.createOutputStream(streamBufferSize);
@@ -111,7 +111,7 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 		{
 			//if (writtenSamples == 0 && *(data + dataIdx) == 0)
 			//{
-LOGDD("Found a zero.");
+			// LOGDD("Found a zero.");
 			//  break;
 			//}
 

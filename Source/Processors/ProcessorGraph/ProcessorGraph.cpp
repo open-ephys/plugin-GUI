@@ -103,15 +103,15 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     if (originalDest != nullptr)
         originalDest->setSourceNode(originalSource);
     
-LOGD("Processor to move: ", processor->getName());
+    LOGD("Processor to move: ", processor->getName());
     if (originalSource != nullptr)
-LOGD("Original source: ", originalSource->getName());
+    LOGD("Original source: ", originalSource->getName());
     if (originalDest != nullptr)
-LOGD("Original dest: ", originalDest->getName());
+    LOGD("Original dest: ", originalDest->getName());
     if (newSource != nullptr)
-LOGD("New source: ", newSource->getName());
+    LOGD("New source: ", newSource->getName());
     if (newDest != nullptr)
-LOGD("New dest: ", newDest->getName());
+    LOGD("New dest: ", newDest->getName());
     
     processor->setSourceNode(nullptr);
     processor->setDestNode(nullptr);
@@ -556,7 +556,7 @@ void ProcessorGraph::restoreParameters()
     
     isLoadingSignalChain = true;
 
-LOGD("Restoring parameters for each processor...");
+    LOGD("Restoring parameters for each processor...");
     
     for (auto p : rootNodes)
     {
@@ -686,7 +686,7 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-LOGD("Signal chain: ", n);
+        LOGD("Signal chain: ", n);
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
@@ -694,7 +694,7 @@ LOGD("Signal chain: ", n);
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
-LOGD("Source node: ", source->getName(), ".");
+            LOGD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if (source->isReady())
@@ -747,7 +747,7 @@ LOGD("Source node: ", source->getName(), ".");
                 }
                 else
                 {
-LOGD("     No dest node.");
+                    LOGD("     No dest node.");
                 }
             }
 
@@ -761,7 +761,7 @@ LOGD("     No dest node.");
                 // (but if it leads to a splitter that is still in the stack, it may still be
                 // used as a source for the unexplored branch.)
 
-LOGD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
+                LOGD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
                 dest = nullptr;
             }
 
@@ -824,15 +824,15 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     if (source == nullptr || dest == nullptr)
         return;
 
-LOGD("     Connecting ", source->getName(), " ", source->getNodeId()); //" channel ";);
-LOGD("              to ", dest->getName(), " ", dest->getNodeId());
+    LOGD("     Connecting ", source->getName(), " ", source->getNodeId()); //" channel ";);
+    LOGD("              to ", dest->getName(), " ", dest->getNodeId());
 
     // 1. connect continuous channels
     if (connectContinuous)
     {
         for (int chan = 0; chan < source->getNumOutputs(); chan++)
         {
-LOGDD(chan, " ");
+            LOGDD(chan, " ");
 
             addConnection(source->getNodeId(),         // sourceNodeID
                           chan,                        // sourceNodeChannelIndex
@@ -932,17 +932,17 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescri
 	if (description.fromProcessorList)
 	{
 
-LOGD("Creating from description...");
-LOGD(description.libName, "::", description.processorName, \
-    description.processorType, "-", description.processorIndex,")");
+        LOGD("Creating from description...");
+        LOGD(description.libName, "::", description.processorName, \
+            description.processorType, "-", description.processorIndex,")");
 
 		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
                                                       description.processorIndex);
 	}
 	else
 	{
-LOGD("Creating from plugin info...");
-LOGD(description.libName, "(", description.libVersion, ")::", description.processorName);
+        LOGD("Creating from plugin info...");
+        LOGD(description.libName, "(", description.libVersion, ")::", description.processorName);
 
 		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
                                                                     description.processorType,
@@ -1011,7 +1011,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
             alternateSource->setDestNode(nullptr);
     }
 
-LOGD("Removing processor with ID ", processor->getNodeId());
+    LOGD("Removing processor with ID ", processor->getNodeId());
 
     int nodeId = processor->getNodeId();
 
@@ -1054,13 +1054,13 @@ bool ProcessorGraph::enableProcessors()
 
     updateConnections();
 
-LOGD("Enabling processors...");
+    LOGD("Enabling processors...");
 
     bool allClear;
 
     if (getNumNodes() < 4)
     {
-LOGD("Not enough processors in signal chain to acquire data");
+    LOGD("Not enough processors in signal chain to acquire data");
         AccessClass::getUIComponent()->disableCallbacks();
         return false;
     }
@@ -1077,7 +1077,7 @@ LOGD("Not enough processors in signal chain to acquire data");
 
             if (!allClear)
             {
-LOGD(p->getName(), " said it's not OK.");
+                LOGD(p->getName(), " said it's not OK.");
                 //	sendActionMessage("Could not initialize acquisition.");
                 AccessClass::getUIComponent()->disableCallbacks();
                 return false;
@@ -1117,7 +1117,7 @@ LOGD(p->getName(), " said it's not OK.");
 bool ProcessorGraph::disableProcessors()
 {
 
-LOGD("Disabling processors...");
+    LOGD("Disabling processors...");
 
     bool allClear;
 
@@ -1127,7 +1127,7 @@ LOGD("Disabling processors...");
         if (node->nodeId != OUTPUT_NODE_ID )
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-LOGD("Disabling ", p->getName());
+            LOGD("Disabling ", p->getName());
 			if (node->nodeId != MESSAGE_CENTER_ID)
 				p->disableEditor();
             allClear = p->disableProcessor();

@@ -137,7 +137,7 @@ void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, in
 	}
 
 	fullPath += fileName;
-LOGD("OPENING FILE: ", fullPath);
+	LOGD("OPENING FILE: ", fullPath);
 
 	File f = File(fullPath);
 
@@ -150,22 +150,22 @@ LOGD("OPENING FILE: ", fullPath);
 	if (!fileExists)
 	{
 		// create and write header
-LOGD("Writing header.");
+		LOGD("Writing header.");
 		String header = generateHeader(ch);
-LOGDD(header);
-LOGD("File ID: ", chFile, ", number of bytes: ", header.getNumBytesAsUTF8());
+		LOGDD(header);
+		LOGD("File ID: ", chFile, ", number of bytes: ", header.getNumBytesAsUTF8());
 
 
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
 
-LOGD("Wrote header.");
+		LOGD("Wrote header.");
 
-//LOGDD("Block index: ", blockIndex);
+		LOGDD("Block index: ", blockIndex);
 
 	}
 	else
 	{
-LOGD("File already exists, just opening.");
+		LOGD("File already exists, just opening.");
 		fseek(chFile, 0, SEEK_END);
 	}
 
@@ -207,7 +207,7 @@ void OriginalRecording::openSpikeFile(File rootFolder, const SpikeChannel* elec,
 
 	fullPath += ".spikes";
 
-LOGD("OPENING FILE: ", fullPath);
+	LOGD("OPENING FILE: ", fullPath);
 
 	File f = File(fullPath);
 
@@ -222,11 +222,11 @@ LOGD("OPENING FILE: ", fullPath);
 
 		String header = generateSpikeHeader(elec);
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), spFile);
-LOGD("Wrote header.");
+		LOGD("Wrote header.");
 	}
 	diskWriteLock.exit();
 	spikeFileArray.set(channelIndex, spFile);
-LOGD("Added file.");
+	LOGD("Added file.");
 
 }
 
@@ -244,7 +244,7 @@ void OriginalRecording::openMessageFile(File rootFolder)
 
 	fullPath += ".events";
 
-LOGD("OPENING FILE: ", fullPath);
+	LOGD("OPENING FILE: ", fullPath);
 
 	File f = File(fullPath);
 
@@ -423,7 +423,7 @@ void OriginalRecording::writeMessage(String message, uint16 processorID, uint16 
 void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 {
 	// find file and write samples to disk
-LOGDD("Received event!");
+	LOGDD("Received event!");
 
 	if (eventFile == nullptr)
 		return;
@@ -639,17 +639,17 @@ void OriginalRecording::closeFiles()
 
 void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 {
-LOGDD("Electrode index: ", electrodeIndex);
+	LOGDD("Electrode index: ", electrodeIndex);
 
 	if (spikeFileArray[electrodeIndex] == nullptr)
 		return;
 
-LOGDD("Got spike");
+	LOGDD("Got spike");
 
 	HeapBlock<char> spikeBuffer;
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
 
-LOGDD("Got spike channel");
+	LOGDD("Got spike channel");
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
 	int numChannels = channel->getNumChannels();
@@ -673,7 +673,7 @@ LOGDD("Got spike channel");
 	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
 
-LOGDD("Allocated memory");
+	LOGDD("Allocated memory");
 
 	int ptrIdx = 0;
 	uint16* dataIntPtr = reinterpret_cast<uint16*>(spikeBuffer.getData() + 42);
@@ -700,7 +700,7 @@ LOGDD("Allocated memory");
 		ptrIdx += sizeof(int16);
 	}
 
-LOGDD("Starting disk write");
+	LOGDD("Starting disk write");
 
 	diskWriteLock.enter();
 
@@ -713,7 +713,7 @@ LOGDD("Starting disk write");
 
 	diskWriteLock.exit();
 
-LOGDD("Wrote to file");
+	LOGDD("Wrote to file");
 }
 
 void OriginalRecording::writeXml()

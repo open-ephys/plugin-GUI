@@ -262,7 +262,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         const int result = menu.show(); // returns 0 if nothing is selected
         
-LOGD("Selection: ", result);
+        LOGD("Selection: ", result);
 
         
         if (result == continuousMergeIndexA)

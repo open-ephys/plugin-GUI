@@ -135,13 +135,13 @@ void SignalChainManager::updateVisibleEditors(GenericEditor* activeEditor,
     // Step 1: update the editor array
     if (action == ADD)
     {
-LOGD("    Adding editor.");
+        LOGD("    Adding editor.");
         editorArray.insert(insertionPoint, activeEditor);
 
     }
     else if (action == MOVE)
     {
-LOGD("    Moving editors.");
+        LOGD("    Moving editors.");
         if (insertionPoint < index)
             editorArray.move(index, insertionPoint);
         else if (insertionPoint > index)
@@ -151,7 +151,7 @@ LOGD("    Moving editors.");
     else if (action == REMOVE)
     {
 
-LOGD("    Removing editor.");
+        LOGD("    Removing editor.");
 
         GenericProcessor* p = (GenericProcessor*) editorArray[index]->getProcessor();
 
@@ -175,7 +175,7 @@ LOGD("    Removing editor.");
             p->switchIO(0);
             if (p->getDestNode() != nullptr)
             {
-LOGDD("Found an orphaned signal chain");
+                LOGDD("Found an orphaned signal chain");
                 p->getDestNode()->setSourceNode(nullptr);
                 createNewTab(p->getDestNode()->getEditor());
             }
@@ -183,7 +183,7 @@ LOGDD("Found an orphaned signal chain");
             p->switchIO(1);
             if (p->getDestNode() != nullptr)
             {
-LOGDD("Found an orphaned signal chain");
+                LOGDD("Found an orphaned signal chain");
                 p->getDestNode()->setSourceNode(nullptr);
                 createNewTab(p->getDestNode()->getEditor());
             }
@@ -193,7 +193,7 @@ LOGDD("Found an orphaned signal chain");
 
         int t = activeEditor->tabNumber();
 
-LOGDD(editorArray.size(), " ", t);
+        LOGDD(editorArray.size(), " ", t);
 
 		bool merger = false;
 
@@ -204,7 +204,7 @@ LOGDD(editorArray.size(), " ", t);
             merger = (p2->isMerger() && p2->stillHasSource());
             if (p2->isMerger())
             {
-LOGDD("We've got a merger!");
+                LOGDD("We've got a merger!");
                 //p2->switchIO(0);
                 p2->setMergerSourceNode(p->getSourceNode());
 				if (p2->stillHasSource())
@@ -220,7 +220,7 @@ LOGDD("We've got a merger!");
         {
             if (t > -1)  // pass on tab
             {
-LOGDD("passing on the tab.");
+                LOGDD("passing on the tab.");
                 int nextEditor = jmax(0,0);//index-1);
                 editorArray[nextEditor]->tabNumber(t);
                // signalChainArray[t]->setEditor(editorArray[nextEditor]);
@@ -235,7 +235,7 @@ LOGDD("passing on the tab.");
         else
         {
 
-LOGDD("Tab number ", t);
+            LOGDD("Tab number ", t);
 
             removeTab(t);
 
@@ -257,14 +257,14 @@ LOGDD("Tab number ", t);
     else     //no change
     {
 
-LOGDD("Activating editor");
+        LOGDD("Activating editor");
     }
 
     // Step 2: update connections
     if (action != ACTIVATE && action != UPDATE && editorArray.size() > 0)
     {
 
-LOGDD("Updating connections.");
+        LOGDD("Updating connections.");
 
         GenericProcessor* source = 0;
         GenericProcessor* dest = (GenericProcessor*) editorArray[0]->getProcessor();
@@ -305,7 +305,7 @@ LOGDD("Updating connections.");
     if (action != ACTIVATE && action != UPDATE)
     {
 
-LOGDD("Checking for new tabs.");
+        LOGDD("Checking for new tabs.");
 
         for (int n = 0; n < editorArray.size(); n++)
         {
@@ -319,7 +319,7 @@ LOGDD("Checking for new tabs.");
                 {
                     if (!p->isMerger())
                     {
-LOGDD(p->getName(), " has no source node. Creating a new tab.");
+                        LOGDD(p->getName(), " has no source node. Creating a new tab.");
                         createNewTab(editorArray[n]);
                     }
                 }
@@ -337,7 +337,7 @@ LOGDD(p->getName(), " has no source node. Creating a new tab.");
 
             if (p->isMerger())
             {
-LOGDD("It's a merger!");
+                LOGDD("It's a merger!");
                 //createNewTab(editorArray[n]);
             }
         }
@@ -350,13 +350,13 @@ LOGDD("It's a merger!");
     }
 
     editorArray.clear();
-LOGDD("Cleared editor array.");
+    LOGDD("Cleared editor array.");
 
     GenericEditor* editorToAdd = activeEditor;
 
     while (editorToAdd != 0)
     {
-LOGDD("Inserting ", editorToAdd->getName(), " at point 0.");
+        LOGDD("Inserting ", editorToAdd->getName(), " at point 0.");
 
         editorArray.insert(0,editorToAdd);
         GenericProcessor* currentProcessor = (GenericProcessor*) editorToAdd->getProcessor();
@@ -364,7 +364,7 @@ LOGDD("Inserting ", editorToAdd->getName(), " at point 0.");
 
         if (source != nullptr)
         {
-LOGDD("Source: ", source->getName());
+            LOGDD("Source: ", source->getName());
 
             // need to switch the splitter somehow
             if (action == ACTIVATE || action == UPDATE)
@@ -384,7 +384,7 @@ LOGDD("Source: ", source->getName());
             if (editorToAdd->tabNumber() >= 0 && editorToAdd->tabNumber() < signalChainArray.size())
                 signalChainArray[editorToAdd->tabNumber()]->setToggleState(true, dontSendNotification);
 
-LOGDD("No source found.");
+                LOGDD("No source found.");
             editorToAdd = 0;
 
         }
@@ -401,14 +401,14 @@ LOGDD("No source found.");
         if (dest != 0)
         {
 
-LOGDD("Destination: ", dest->getName());
+            LOGDD("Destination: ", dest->getName());
             editorToAdd = (GenericEditor*) dest->getEditor();
             editorArray.add(editorToAdd);
-LOGDD("Inserting ", editorToAdd->getName(), " at the end.");
+            LOGDD("Inserting ", editorToAdd->getName(), " at the end.");
 
             if (dest->isMerger())
             {
-LOGDD("It's a merger!");
+                LOGDD("It's a merger!");
 
                 editorToAdd->switchIO(0);
 
@@ -420,7 +420,7 @@ LOGDD("It's a merger!");
         }
         else
         {
-LOGDD("No dest found.");
+            LOGDD("No dest found.");
             editorToAdd = 0;
         }
 
@@ -470,10 +470,14 @@ LOGDD("No dest found.");
                     }
                 }
 
-                //   if (enable)
-LOGDD("Enabling node.");
-                //   else
-LOGDD("Not enabling node.");
+                if (enable)
+                {
+                    LOGDD("Enabling node.");
+                }
+                else
+                {
+                    LOGDD("Not enabling node.");
+                }
 
                 editorArray[n+1]->setEnabledState(enable);
 
@@ -498,7 +502,7 @@ LOGDD("Not enabling node.");
     }
 
 
-LOGDD("Finished adding new editor.");
+    LOGDD("Finished adding new editor.");
 
 }
 

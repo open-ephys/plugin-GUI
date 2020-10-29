@@ -43,12 +43,12 @@
 	// Callbacks will be set by the play button in the control panel
 
 	processorGraph = new ProcessorGraph();
-	std::cout << std::endl;
-LOGD("Created processor graph.");
-	std::cout << std::endl;
+	LOGD("");
+	LOGD("Created processor graph.");
+	LOGD("");
 
 	audioComponent = new AudioComponent();
-LOGD("Created audio component.");
+	LOGD("Created audio component.");
 
 	audioComponent->connectToProcessorGraph(processorGraph);
 
@@ -83,7 +83,7 @@ LOGD("Created audio component.");
 
 		if(lastConfig.existsAsFile())
 		{
-LOGD("Comparing configs");
+			LOGD("Comparing configs");
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
 				ui->getEditorViewport()->loadState(lastConfig);
@@ -153,9 +153,9 @@ void MainWindow::shutDownGUI()
 
 void MainWindow::saveWindowBounds()
 {
-	std::cout << std::endl;
-LOGD("Saving window bounds.");
-	std::cout << std::endl;
+	LOGD("");
+	LOGD("Saving window bounds.");
+	LOGD("");
 
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
 
@@ -200,7 +200,7 @@ void MainWindow::loadWindowBounds()
 {
 
 	std::cout << std::endl;
-LOGD("Loading window bounds.");
+	LOGD("Loading window bounds.");
 	std::cout << std::endl;
 
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
@@ -211,7 +211,7 @@ LOGD("Loading window bounds.");
 	if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
 	{
 
-LOGD("File not found.");
+		LOGD("File not found.");
 		delete xml;
 		centreWithSize(800, 600);
 
@@ -282,7 +282,7 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 
 	if(rcXml == 0 || ! rcXml->hasTagName("SETTINGS"))
 	{
-LOGD("Recovery config is inavlid. Loading lastConfig.xml");
+		LOGD("Recovery config is inavlid. Loading lastConfig.xml");
 		return true;
 	}
 

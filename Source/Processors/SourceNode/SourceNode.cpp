@@ -66,7 +66,7 @@ SourceNode::~SourceNode()
 {
     if (dataThread->isThreadRunning())
     {
-LOGD("Forcing thread to stop.");
+        LOGD("Forcing thread to stop.");
         dataThread->stopThread (500);
     }
 }
@@ -144,17 +144,17 @@ void SourceNode::updateSettings()
 
 void SourceNode::actionListenerCallback (const String& msg)
 {
-LOGDD(msg);
+    LOGDD(msg);
 
     if (msg.equalsIgnoreCase ("HI"))
     {
-LOGDD("HI.");
+        LOGDD("HI.");
         // dataThread->setOutputHigh();
         ttlState = 1;
     }
     else if (msg.equalsIgnoreCase ("LO"))
     {
-LOGDD("LO.");
+        LOGDD("LO.");
         // dataThread->setOutputLow();
         ttlState = 0;
     }
@@ -245,7 +245,7 @@ void SourceNode::setEnabledState (bool newState)
 void SourceNode::setParameter (int parameterIndex, float newValue)
 {
     editor->updateParameterButtons (parameterIndex);
-LOGDD("Got parameter change notification");
+    LOGDD("Got parameter change notification");
 }
 
 
@@ -273,7 +273,7 @@ bool SourceNode::tryEnablingEditor()
 {
     if (! isSourcePresent())
     {
-LOGDD("No input source found.");
+        LOGDD("No input source found.");
         return false;
     }
     else if (isEnabled)
@@ -284,7 +284,7 @@ LOGDD("No input source found.");
         return true;
     }
 
-LOGD("Input source found.");
+    LOGD("Input source found.");
     setEnabledState (true);
 
     GenericEditor* ed = getEditor();
@@ -297,7 +297,7 @@ void SourceNode::timerCallback()
 {
     if (! tryEnablingEditor() && isEnabled)
     {
-LOGD("Input source lost.");
+        LOGD("Input source lost.");
         setEnabledState (false);
         GenericEditor* ed = getEditor();
         CoreServices::highlightEditor (ed);
@@ -319,7 +319,7 @@ bool SourceNode::isSourcePresent() const
 
 bool SourceNode::enable()
 {
-LOGD("Source node received enable signal");
+    LOGD("Source node received enable signal");
 
     wasDisabled = false;
 
@@ -339,7 +339,7 @@ LOGD("Source node received enable signal");
 
 bool SourceNode::disable()
 {
-LOGD("Source node received disable signal");
+    LOGD("Source node received disable signal");
 
     if (dataThread != nullptr)
         dataThread->stopAcquisition();
@@ -348,7 +348,7 @@ LOGD("Source node received disable signal");
 
     wasDisabled = true;
 
-LOGD("SourceNode returning true.");
+    LOGD("SourceNode returning true.");
 
     return true;
 }
@@ -358,7 +358,7 @@ void SourceNode::acquisitionStopped()
 {
     if (! wasDisabled)
     {
-LOGD("Source node sending signal to UI.");
+        LOGD("Source node sending signal to UI.");
 
         AccessClass::getUIComponent()->disableCallbacks();
         setEnabledState (false);

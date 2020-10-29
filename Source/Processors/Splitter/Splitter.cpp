@@ -44,7 +44,7 @@ AudioProcessorEditor* Splitter::createEditor()
     editor = new SplitterEditor(this, true);
     //tEditor(editor);
 
-LOGDD("Creating editor.");
+    LOGDD("Creating editor.");
     return editor;
 }
 
@@ -68,13 +68,13 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 
     if (activePath == 0)
     {
-LOGD("Setting destination node A.");
+        LOGD("Setting destination node A.");
         destNodeA = dn;
     }
     else
     {
         destNodeB = dn;
-LOGD("Setting destination node B.");
+        LOGD("Setting destination node B.");
 
     }
 }
@@ -82,7 +82,7 @@ LOGD("Setting destination node B.");
 void Splitter::switchIO(int destNum)
 {
 
-LOGDD("Switching to dest number ", destNum);
+    LOGDD("Switching to dest number ", destNum);
 
     activePath = destNum;
 
@@ -104,7 +104,7 @@ LOGDD("Switching to dest number ", destNum);
 void Splitter::switchIO()
 {
 
-LOGDD("Splitter switching source.");
+    LOGDD("Splitter switching source.");
 
     if (activePath == 0)
     {

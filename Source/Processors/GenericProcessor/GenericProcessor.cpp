@@ -102,7 +102,7 @@ Parameter* GenericProcessor::getParameterObject(int parameterIndex) const
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
 	editor->updateParameterButtons(parameterIndex);
-LOGD("Setting parameter");
+	LOGD("Setting parameter");
 
 	if (currentChannel >= 0)
 		parameters[parameterIndex]->setValue(newValue, currentChannel);
@@ -145,7 +145,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
+	LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
 
 	if (increment)
 		nextAvailableChannel++;
@@ -187,7 +187,7 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-LOGDD("Generic processor clearing settings.");
+	LOGDD("Generic processor clearing settings.");
 
 	settings.originalSource = nullptr;
 	settings.numInputs = 0;
@@ -220,7 +220,7 @@ LOGDD("Generic processor clearing settings.");
 
 void GenericProcessor::update()
 {
-LOGD(getName(), " updating settings.");
+	LOGD(getName(), " updating settings.");
 
 	// ---- RESET EVERYTHING ---- ///
 	clearSettings();
@@ -278,7 +278,7 @@ LOGD(getName(), " updating settings.");
 
             createDataChannels(); //Only sources can create data channels
             settings.numOutputs = dataChannelArray.size();
-LOGD(getName(), " setting num outputs to ", settings.numOutputs);
+			LOGD(getName(), " setting num outputs to ", settings.numOutputs);
 
             for (int i = 0; i < dataChannelArray.size(); i++)
             {
@@ -443,7 +443,7 @@ void GenericProcessor::setAllChannelsToRecord()
 		m_recordStatus.set(i, true);
 	}
 
-LOGDD("Setting all channels to record for source.");
+	LOGDD("Setting all channels to record for source.");
 }
 
 
@@ -510,7 +510,7 @@ uint32 GenericProcessor::getNumSamples(int channelNum) const
 		return 0;
 	}
 
-LOGDD("Requesting samples for channel ", channelNum, " with source node ", sourceNodeId);
+	LOGDD("Requesting samples for channel ", channelNum, " with source node ", sourceNodeId);
 	uint32 sourceID = getProcessorFullId(sourceNodeId, subProcessorId);
 	try
 	{
@@ -521,7 +521,7 @@ LOGDD("Requesting samples for channel ", channelNum, " with source node ", sourc
 		return 0;
 	}
 
-LOGDD(nSamples, " were found.");
+	LOGDD(nSamples, " were found.");
 
 	return nSamples;
 }
@@ -602,7 +602,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 {
 
 	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-LOGDD("Setting timestamp to ", timestamp);
+	LOGDD("Setting timestamp to ", timestamp);
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, subProcessorIdx, timestamp, nSamples);
@@ -929,7 +929,7 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
 	saveCustomChannelParametersToXml(channelInfo, channelNumber, type);
 
 	// deprecated parameter configuration:
-LOGDD("Creating Parameters");
+	LOGDD("Creating Parameters");
 	// int maxsize = parameters.size();
 	// String parameterName;
 	// String parameterValue;
@@ -961,7 +961,7 @@ void GenericProcessor::loadFromXml()
 	{
         if (!m_isParamsWereLoaded)
         {
-LOGD("Loading parameters for ", m_name);
+			LOGD("Loading parameters for ", m_name);
 
             // use parametersAsXml to restore state
             loadCustomParametersFromXml();

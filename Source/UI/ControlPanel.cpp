@@ -971,12 +971,12 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
     //AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
     if (combo->getSelectedId() > 0)
     {
-LOGD("Num engines: ", recordEngines.size());
+        LOGD("Num engines: ", recordEngines.size());
         re = recordEngines[combo->getSelectedId()-1]->instantiateEngine();
     }
     else
     {
-LOGD("Engine ComboBox: Bad ID");
+        LOGD("Engine ComboBox: Bad ID");
         combo->setSelectedId(1,dontSendNotification);
         re = recordEngines[0]->instantiateEngine();
     }
@@ -995,15 +995,15 @@ LOGD("Engine ComboBox: Bad ID");
 void ControlPanel::disableCallbacks()
 {
 
-LOGD("Control panel received signal to disable callbacks.");
+    LOGD("Control panel received signal to disable callbacks.");
 
     if (audio->callbacksAreActive())
     {
-LOGD("Stopping audio.");
+        LOGD("Stopping audio.");
         audio->endCallbacks();
-LOGD("Disabling processors.");
+        LOGD("Disabling processors.");
         graph->disableProcessors();
-LOGD("Updating control panel.");
+        LOGD("Updating control panel.");
         refreshMeters();
         stopTimer();
         startTimer(60000); // back to refresh every 10 seconds
@@ -1035,7 +1035,7 @@ LOGD("Updating control panel.");
 
 void ControlPanel::timerCallback()
 {
-LOGDD("Message Received.");
+    LOGDD("Message Received.");
     refreshMeters();
 
 }
@@ -1068,7 +1068,7 @@ void ControlPanel::refreshMeters()
 
 bool ControlPanel::keyPressed(const KeyPress& key)
 {
-LOGD("Control panel received", key.getKeyCode());
+    LOGD("Control panel received", key.getKeyCode());
 
     return false;
 

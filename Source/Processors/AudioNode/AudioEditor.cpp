@@ -205,12 +205,12 @@ void AudioEditor::buttonClicked (Button* button)
         {
             lastValue = volumeSlider->getValue();
             getAudioProcessor()->setParameter (1,0.0f);
-LOGD("Mute on.");
+            LOGD("Mute on.");
         }
         else
         {
             getAudioProcessor()->setParameter (1,lastValue);
-LOGD("Mute off.");
+            LOGD("Mute off.");
         }
     }
     else if (button == audioWindowButton && isEnabled)
@@ -299,7 +299,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
     setUsingNativeTitleBar (true);
     setResizable (false,false);
 
-LOGDD("Audio CPU usage:", adm.getCpuUsage());
+    LOGDD("Audio CPU usage:", adm.getCpuUsage());
 
     AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent
         (adm,

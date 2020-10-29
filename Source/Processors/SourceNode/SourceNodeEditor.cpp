@@ -36,7 +36,7 @@ SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode, bool useDefault
 
     Image im;
 
-LOGD("I think my name is: ", getName());
+    LOGD("I think my name is: ", getName());
 
     if (getName().equalsIgnoreCase("Intan Demo Board"))
     {

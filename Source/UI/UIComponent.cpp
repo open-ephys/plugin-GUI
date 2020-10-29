@@ -620,7 +620,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 					if (fc.browseForFileToSave(true))
 					{
 						currentConfigFile = fc.getResult();
-LOGD(currentConfigFile.getFileName());
+						LOGD(currentConfigFile.getFileName());
 						sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 					}
 					else
@@ -643,7 +643,7 @@ LOGD(currentConfigFile.getFileName());
 				if (fc.browseForFileToSave(true))
 				{
 					currentConfigFile = fc.getResult();
-LOGD(currentConfigFile.getFileName());
+					LOGD(currentConfigFile.getFileName());
 					sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 				}
 				else

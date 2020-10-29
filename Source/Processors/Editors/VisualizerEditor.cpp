@@ -156,7 +156,7 @@ void VisualizerEditor::buttonEvent (Button* button) {}
 
 void VisualizerEditor::enable()
 {
-LOGD("   Enabling VisualizerEditor");
+    LOGD("   Enabling VisualizerEditor");
     if (canvas != 0)
         canvas->beginAnimation();
 
@@ -189,7 +189,7 @@ void VisualizerEditor::editorWasClicked()
 {
     if (tabIndex > -1)
     {
-LOGD("Setting tab index to ", tabIndex);
+        LOGD("Setting tab index to ", tabIndex);
         AccessClass::getDataViewport()->selectTab (tabIndex);
     }
 }

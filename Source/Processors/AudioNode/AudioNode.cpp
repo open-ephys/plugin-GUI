@@ -93,7 +93,7 @@ void AudioNode::setChannel(const DataChannel* ch)
 		channelNum = -1;
 	}
 
-LOGD("Audio node setting channel to ", channelNum);
+    LOGD("Audio node setting channel to ", channelNum);
 
     setCurrentChannel(channelNum);
 }
@@ -172,9 +172,9 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
 
-LOGDD("Processor sample rate: ", getSampleRate());
-LOGDD("Audio card sample rate: ", sampleRate_);
-LOGDD("Samples per block: ", estimatedSamplesPerBlock);
+    LOGDD("Processor sample rate: ", getSampleRate());
+    LOGDD("Audio card sample rate: ", sampleRate_);
+    LOGDD("Samples per block: ", estimatedSamplesPerBlock);
 	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
 	{
 		destBufferSampleRate = sampleRate_;
@@ -247,7 +247,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
-LOGDD("Buffer size: ", buffer.getNumChannels());
+    LOGDD("Buffer size: ", buffer.getNumChannels());
 
     // clear the left and right channels
     buffer.clear(0,0,buffer.getNumSamples());
@@ -271,7 +271,7 @@ LOGDD("Buffer size: ", buffer.getNumChannels());
                 if (dataChannelArray[i]->isMonitored())
                 {
                     tempBuffer->clear();
-LOGDD("Processing channel ", i);
+                    LOGDD("Processing channel ", i);
 
                     if (!bufferSwap[i])
                     {
@@ -302,7 +302,7 @@ LOGDD("Processing channel ", i);
                          samplesInOverflowBuffer[i] :
                          numSamplesExpected[i]);
 
-LOGDD("Copying ", samplesToCopyFromOverflowBuffer, " samples from overflow buffer of ", samplesInOverflowBuffer[i], " samples.");
+                    LOGDD("Copying ", samplesToCopyFromOverflowBuffer, " samples from overflow buffer of ", samplesInOverflowBuffer[i], " samples.");
 
                     if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
                     {
@@ -318,7 +318,7 @@ LOGDD("Copying ", samplesToCopyFromOverflowBuffer, " samples from overflow buffe
 
                         int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
 
-LOGDD("Samples remaining in overflow buffer: ", leftoverSamples);
+                        LOGDD("Samples remaining in overflow buffer: ", leftoverSamples);
 
                         if (leftoverSamples > 0) // move remaining samples to the backup buffer
                         {
@@ -348,7 +348,7 @@ LOGDD("Samples remaining in overflow buffer: ", leftoverSamples);
                                                            remainingSamples :
                                                            samplesAvailable);
 
-LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
+                    LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
 
 
                     if (samplesToCopyFromIncomingBuffer > 0)
@@ -365,13 +365,13 @@ LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffe
                                            );
 
                         //if (destBufferPos == 0)
-LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
+                        LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
 
                     }
 
                     orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
 
-LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
+                    LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
 
                     if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
                     {
@@ -392,8 +392,8 @@ LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
                     // now that our tempBuffer is ready, we can filter it and copy it into the
                     // original buffer
 
-LOGDD("Ratio = ", ratio[i], ", gain = ", gain);
-LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
+                    LOGDD("Ratio = ", ratio[i], ", gain = ", gain);
+                    LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
 
                     if (ratio[i] > 1.00001)
                     {
@@ -418,7 +418,7 @@ LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
                         float alpha = (float) subSampleOffset;
                         float invAlpha = 1.0f - alpha;
 
-LOGDD("Copying sample ", sourceBufferPos);
+                        LOGDD("Copying sample ", sourceBufferPos);
 
                         buffer.addFrom(0,    // destChannel
                                        destBufferPos,  // destSampleOffset
@@ -439,7 +439,7 @@ LOGDD("Copying sample ", sourceBufferPos);
                                        alpha*gain);       // gain to apply to source
 
                         // if (destBufferPos == 0)
-LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i+2,destBufferPos));
+                        LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i+2,destBufferPos));
 
                         subSampleOffset += ratio[i];
 
@@ -524,8 +524,8 @@ void Expander::setThreshold(float value)
     threshold = value;
     transfer_B = output * pow(threshold, -transfer_A);
 
-LOGD("Threshold set to ", threshold);
-LOGD("transfer_B set to ", transfer_B);
+    LOGD("Threshold set to ", threshold);
+    LOGD("transfer_B set to ", transfer_B);
 }
 
 

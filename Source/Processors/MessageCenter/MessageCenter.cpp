@@ -135,7 +135,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
 
-LOGD("Message Center added event.");
+        LOGD("Message Center added event.");
 
         newEventAvailable = false;
     }

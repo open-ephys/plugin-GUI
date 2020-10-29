@@ -80,11 +80,11 @@ AudioComponent::AudioComponent() : isPlaying(false)
     }
 
 
-LOGD("Got audio device.");
+    LOGD("Got audio device.");
 
     String devName = aIOd->getName();
 
-LOGD("Audio device name: ", devName);
+    LOGD("Audio device name: ", devName);
 
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
@@ -99,16 +99,16 @@ LOGD("Audio device name: ", devName);
     String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
     String devType = deviceManager.getCurrentAudioDeviceType();
-LOGD("Audio device type: ", devType);
+    LOGD("Audio device type: ", devType);
 
     float sr = setup.sampleRate;
     int buffSize = setup.bufferSize;
     String oDN = setup.outputDeviceName;
     BigInteger oC = setup.outputChannels;
 
-LOGD("Audio output channels: ", oC.toInteger());
-LOGD("Audio device sample rate: ", sr);
-LOGD("Audio device buffer size: ", buffSize);
+    LOGD("Audio output channels: ", oC.toInteger());
+    LOGD("Audio device sample rate: ", sr);
+    LOGD("Audio device buffer size: ", buffSize);
 
     graphPlayer = new AudioProcessorPlayer();
 
@@ -184,18 +184,18 @@ void AudioComponent::beginCallbacks()
 
         // if (mml.lockWasGained())
         // {
-LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
+        //LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
         // } else {
-LOGDD("AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING.");
+        //LOGDD("AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING.");
         //     return;
         // }
 
         //     MessageManager* mm = MessageManager::getInstance();
 
         //     if (mm->isThisTheMessageThread())
-LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
+        //LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
         //     else
-LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
+        //LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
 
 
 
@@ -210,13 +210,13 @@ LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
         }
 
 
-LOGD("Adding audio callback.");
+        LOGD("Adding audio callback.");
         deviceManager.addAudioCallback(graphPlayer);
         isPlaying = true;
     }
     else
     {
-LOGD("beginCallbacks was called while acquisition was active.");
+        LOGD("beginCallbacks was called while acquisition was active.");
     }
 
     //int64 ms = Time::getCurrentTime().toMilliseconds();
@@ -232,24 +232,28 @@ LOGD("beginCallbacks was called while acquisition was active.");
 void AudioComponent::endCallbacks()
 {
 
-    // const MessageManagerLock mmLock; // add a lock to prevent crashes
+    const MessageManagerLock mmLock; // add a lock to prevent crashes
 
-    // MessageManagerLock mml (Thread::getCurrentThread());
+    MessageManagerLock mml (Thread::getCurrentThread());
 
-    // if (mml.lockWasGained())
-    // {
-LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
-    // }
+    if (mml.lockWasGained())
+    {
+        LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
+    }
 
-    // MessageManager* mm = MessageManager::getInstance();
+    MessageManager* mm = MessageManager::getInstance();
 
-    // if (mm->isThisTheMessageThread())
-LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
-    // else
-LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
+    if (mm->isThisTheMessageThread())
+    {
+        LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
+    }
+    else
+    {
+        LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
+    }
 
 
-LOGD("Removing audio callback.");
+    LOGD("Removing audio callback.");
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
@@ -332,7 +336,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
     }
     else
     {
-LOGD("Buffer size out of range.");
+    LOGD("Buffer size out of range.");
     }
 
     deviceManager.setAudioDeviceSetup(setup, true);

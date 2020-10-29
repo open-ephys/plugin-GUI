@@ -91,7 +91,7 @@ PluginManager::PluginManager()
     {
 		if (!installSharedPath.isDirectory())
         {
-LOGD("Copying shared dependencies to ", installSharedPath.getFullPathName());
+			LOGD("Copying shared dependencies to ", installSharedPath.getFullPathName());
             sharedPath.copyDirectoryTo(installSharedPath);
         }
         SetDllDirectory(installSharedPath.getFullPathName().toUTF8());
@@ -133,7 +133,7 @@ void PluginManager::loadAllPlugins()
 
     for (auto &pluginPath : paths) {
         if (!pluginPath.isDirectory()) {
-LOGD("Plugin path not found: ", pluginPath.getFullPathName(), "\nCreating new plugins directory...");
+			LOGD("Plugin path not found: ", pluginPath.getFullPathName(), "\nCreating new plugins directory...");
 			pluginPath.createDirectory();
         } else {
             loadPlugins(pluginPath);
@@ -160,15 +160,15 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
-LOGD("Loading Plugin: ", foundDLLs[i].getFileNameWithoutExtension(), "... ");
+		LOGD("Loading Plugin: ", foundDLLs[i].getFileNameWithoutExtension(), "... ");
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
 		if (res < 0)
 		{
-LOGD(" DLL Load FAILED");
+			LOGD(" DLL Load FAILED");
 		}
 		else
 		{
-LOGDD("Loaded with ", res, " plugins");
+			LOGDD("Loaded with ", res, " plugins");
 		}
 	}
 }
@@ -533,24 +533,24 @@ void PluginManager::Manager::unloadPlugin(PluginManager::Plugin *processor) {
 }
 
 void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) {
-LOGD("Size of list before is: ", pluginList.size());
+	LOGD("Size of list before is: ", pluginList.size());
 	if(!processor) {
 		ERROR_MSG("PluginManager::insertListPlugin: Invalid processor.");
 		return;
 	}
 	pluginList.push_back(processor);
 	AccessClass::getProcessorList()->addPluginItem(String("test"), size_t(0x1));
-LOGD("Size of list after is: ", pluginList.size());
+	LOGD("Size of list after is: ", pluginList.size());
 }
 
-void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) {
-LOGD("Size of list before is: ", pluginList.size());
+void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) {	
+	LOGD("Size of list before is: ", pluginList.size());
 	if(!processor) {
 		ERROR_MSG("PluginManager::removeListPlugin: Invalid processor.");
 		return;
 	}
 	pluginList.remove(processor);
-LOGD("Size of list after is: ", pluginList.size());
+	LOGD("Size of list after is: ", pluginList.size());
 }
 
 void PluginManager::Manager::removeAllPlugins() {
@@ -562,12 +562,12 @@ void PluginManager::Manager::removeAllPlugins() {
 	void *handle;
 #endif
 	for(std::list<PluginManager::Plugin *>::iterator i = pluginList.begin(); i != pluginList.end(); i = pluginList.begin()) {
-LOGD("Size of list before all is: ", pluginList.size());
+		LOGD("Size of list before all is: ", pluginList.size());
 		handle = (*i)->processorHandle;
 		removeListPlugin(*i);
 		delete *i;
 		closeHandle(handle);
-LOGD("Size of list after all is: ", pluginList.size());
+		LOGD("Size of list after all is: ", pluginList.size());
 	}
 }
 

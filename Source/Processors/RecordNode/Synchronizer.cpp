@@ -187,7 +187,7 @@ void Subprocessor::closeSyncWindow()
 		}
 	}
 
-LOGDD("Subprocessor closed sync window.");
+	LOGDD("Subprocessor closed sync window.");
 
 	receivedEventInWindow = false;
 	receivedMasterTimeInWindow = false;

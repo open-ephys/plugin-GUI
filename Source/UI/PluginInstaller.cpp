@@ -117,7 +117,7 @@ void PluginInstaller::createXmlFile()
 		baseTag->addChildElement(plugins.release());
 
 		if (! baseTag->writeToFile(file, String::empty))
-LOGD("Error! Couldn't write to installedPlugins.xml");
+			LOGD("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
 	{
@@ -140,7 +140,7 @@ LOGD("Error! Couldn't write to installedPlugins.xml");
 
 		if (! xml->writeToFile(file, String::empty))
 		{
-LOGD("Error! Couldn't write to installedPlugins.xml");
+			LOGD("Error! Couldn't write to installedPlugins.xml");
 		}
 
 		elementsToRemove.clear();
@@ -337,7 +337,7 @@ void PluginInstallerComponent::run()
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
-LOGD("[PluginInstaller] File not found.");
+		LOGD("[PluginInstaller] File not found.");
 		return;
 	}
 	else
@@ -602,7 +602,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 	if(selectedPackage.isEmpty())
 	{
-LOGD("*********** No platform specific package found for ", pluginName);
+		LOGD("*********** No platform specific package found for ", pluginName);
 		pluginInfoPanel.makeInfoVisible(false);
 		return false;
 	}
@@ -661,7 +661,7 @@ LOGD("*********** No platform specific package found for ", pluginName);
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
-LOGD("[PluginInstaller] File not found.");
+		LOGD("File not found.");
 		return false;
 	}
 	else
@@ -840,7 +840,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 
 void PluginInfoComponent::run()
 {
-LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
+	LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
 		
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
@@ -864,7 +864,7 @@ LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
 											"Could not install dependency: " + pInfo.dependencies[i] 
 											+ ". Please contact the developers.");
 			
-LOGD("Download Failed!!");
+			LOGD("Download Failed!!");
 			return;
 		}
 	}
@@ -880,7 +880,7 @@ LOGD("Download Failed!!");
 										"[Plugin Installer] " + pInfo.displayName, 
 										pInfo.displayName + " Installed Successfully");
 
-LOGD("Download Successfull!!");
+		LOGD("Download Successfull!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		downloadButton.setEnabled(false);
@@ -893,7 +893,7 @@ LOGD("Download Successfull!!");
 										"Could not find the ZIP file for " + pInfo.displayName 
 										+ ". Please contact the developers.");
 
-LOGD("Download Failed!!");
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == UNCMP_ERR)
 	{
@@ -901,7 +901,7 @@ LOGD("Download Failed!!");
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Could not uncompress the ZIP file. Please try again.");
 
-LOGD("Download Failed!!");
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == XML_MISSING)
 	{
@@ -909,7 +909,7 @@ LOGD("Download Failed!!");
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
 
-LOGD("XML File Missing!!");
+		LOGD("XML File Missing!!");
 	}
 	else if (dlReturnCode == VER_EXISTS_ERR)
 	{
@@ -918,7 +918,7 @@ LOGD("XML File Missing!!");
 										pInfo.displayName + " v" + pInfo.selectedVersion 
 										+ " already exists. Please download another version.");
 
-LOGD("Download Failed!!");
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == XML_WRITE_ERR)
 	{
@@ -926,7 +926,7 @@ LOGD("Download Failed!!");
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Unable to write to installedPlugins.xml \n Please try again.");
 		
-LOGD("Writing to XML Failed!!");
+		LOGD("Writing to XML Failed!!");
 	}
 	else if (dlReturnCode == LOAD_ERR)
 	{
@@ -935,7 +935,7 @@ LOGD("Writing to XML Failed!!");
 										"Unable to load " + pInfo.displayName 
 										+ " in the Processor List.\nLook at console output for more details.");
 
-LOGD("Loading Plugin Failed!!");
+		LOGD("Loading Plugin Failed!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		downloadButton.setEnabled(false);
@@ -947,7 +947,7 @@ LOGD("Loading Plugin Failed!!");
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Plugin already in use. Please remove it from the signal chain and try again.");
 
-LOGD("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
+		LOGD("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
 	}
 
 }
@@ -1147,7 +1147,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 			if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 			{
-LOGD("[PluginInstaller] File not found.");
+				LOGD("[PluginInstaller] File not found.");
 				pluginFile.deleteFile();
 				return 3;
 			}
@@ -1165,7 +1165,7 @@ LOGD("[PluginInstaller] File not found.");
 					{
 						if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
 						{
-LOGD(plugin, " v", version, " already exists!!");
+							LOGD(plugin, " v", version, " already exists!!");
 							pluginFile.deleteFile();
 							return 4;
 						}
@@ -1214,27 +1214,27 @@ LOGD(plugin, " v", version, " already exists!!");
 					HMODULE md = GetModuleHandleA(processorLocCString);
 
 					if(FreeLibrary(md))
-LOGD("Unloaded old ", dllToUnload);
+						LOGD("Unloaded old ", dllToUnload);
 #endif
 					rs = pluginZip.uncompressTo(pluginsPath, true);
 
 					if(rs.failed())
 					{
-LOGD(rs.getErrorMessage());
+						LOGD(rs.getErrorMessage());
 						pluginFile.deleteFile();
 						return 2;
 					}
 				}
 				else
 				{
-LOGD("Dependency already exists");
+					LOGD("Dependency already exists");
 				}
 				
 
 			}
 			else
 			{
-LOGD(rs.getErrorMessage());
+				LOGD(rs.getErrorMessage());
 				pluginFile.deleteFile(); // delete zip after uncompressing
 				return 2;
 			}
@@ -1248,7 +1248,7 @@ LOGD(rs.getErrorMessage());
 			// Write installed plugin's info to XML file
 			if (! xml->writeToFile(xmlFile, String::empty))
 			{
-LOGD("Error! Couldn't write to installedPlugins.xml");
+				LOGD("Error! Couldn't write to installedPlugins.xml");
 				return 5;
 			}
 			

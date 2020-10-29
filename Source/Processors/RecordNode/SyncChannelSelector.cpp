@@ -141,7 +141,7 @@ void SyncChannelSelector::mouseMove(const MouseEvent &event)
 void SyncChannelSelector::mouseDown(const MouseEvent &event)
 {
 
-LOGD("Got mouse down event in parent");
+    LOGD("Got mouse down event in parent");
 
 };
 
