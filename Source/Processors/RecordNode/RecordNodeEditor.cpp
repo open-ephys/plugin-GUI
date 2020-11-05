@@ -66,6 +66,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
 	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
 	dataPathLabel->setJustificationType(Justification::centredLeft);
+	dataPathLabel->addListener(this);
 	addAndMakeVisible(dataPathLabel);
 
 	dataPathButton = new UtilityButton("...", Font(12));
@@ -353,6 +354,11 @@ void RecordNodeEditor::buttonEvent(Button *button)
 
 	}
 
+}
+
+void RecordNodeEditor::labelTextChanged(Label* label)
+{
+	recordNode->setDataDirectory(label->getText());
 }
 
 void RecordNodeEditor::collapsedStateChanged()
