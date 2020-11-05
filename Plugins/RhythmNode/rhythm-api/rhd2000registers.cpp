@@ -732,6 +732,34 @@ int Rhd2000Registers::createRhd2000Command(Rhd2000CommandType commandType, int a
     }
 }
 
+//open-ephys modifications
+//enable or disable external resistor for the filters
+void Rhd2000Registers::setOffChipRH(bool enabled)
+{
+    if (enabled)
+    {
+        offChipRH1 = 1;
+        offChipRH2 = 1;
+    }
+    else
+    {
+        offChipRH1 = 0;
+        offChipRH2 = 0;
+    }
+}
+
+void Rhd2000Registers::setOffChipRL(bool enabled)
+{
+    if (enabled)
+    {
+        offChipRL = 1;
+    }
+    else
+    {
+        offChipRL = 0;
+    }
+}
+
 
 // Create a list of 60 commands to program most RAM registers on a RHD2000 chip, read those values
 // back to confirm programming, read ROM registers, and (if calibrate == true) run ADC calibration.
