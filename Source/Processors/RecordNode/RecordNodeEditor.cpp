@@ -62,6 +62,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	dataPathLabel = new Label(CoreServices::getRecordingDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
+	dataPathLabel->setTooltip(dataPathLabel->getText());
 	dataPathLabel->setBounds(42,35,72,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
 	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
@@ -350,6 +351,7 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		{
 			recordNode->setDataDirectory(chooseWriteDirectory.getResult());
 			dataPathLabel->setText(chooseWriteDirectory.getResult().getFullPathName(), juce::NotificationType::dontSendNotification);
+			dataPathLabel->setTooltip(dataPathLabel->getText());
 		}
 
 	}
@@ -358,7 +360,11 @@ void RecordNodeEditor::buttonEvent(Button *button)
 
 void RecordNodeEditor::labelTextChanged(Label* label)
 {
-	recordNode->setDataDirectory(label->getText());
+	if(label == dataPathLabel)
+	{
+		recordNode->setDataDirectory(label->getText());
+		label->setTooltip(label->getText());
+	}
 }
 
 void RecordNodeEditor::collapsedStateChanged()
