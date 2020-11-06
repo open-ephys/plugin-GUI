@@ -1134,7 +1134,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
 	controlPanelState->setAttribute("recordPath", filenameComponent->getCurrentFile().getFullPathName());
     controlPanelState->setAttribute("prependText",prependText->getText());
     controlPanelState->setAttribute("appendText",appendText->getText());
-    //controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
+    controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
 
     audioEditor->saveStateToXml(xml);
 
