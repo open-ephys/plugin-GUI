@@ -45,6 +45,7 @@ struct ProcessorDescription {
     int libVersion;
     bool isSource;
     bool isSink;
+    int nodeId;
 };
 
 /**
@@ -68,13 +69,15 @@ public:
     ProcessorGraph();
     ~ProcessorGraph();
 
-    void createProcessor(ProcessorDescription& description,
+    GenericProcessor* createProcessor(ProcessorDescription& description,
                          GenericProcessor* sourceNode = nullptr,
                          GenericProcessor* destNode = nullptr,
                          bool signalChainIsLoading=false);
     GenericProcessor* createProcessorFromDescription(ProcessorDescription& description);
     
-    bool checkForNewRootNodes(GenericProcessor* processor, bool processorBeingAdded = true);
+    bool checkForNewRootNodes(GenericProcessor* processor,
+                              bool processorBeingAdded = true,
+                              bool processorBeingMoved = false);
     
     void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
                        bool moveDownstream = true);

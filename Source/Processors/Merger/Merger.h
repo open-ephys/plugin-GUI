@@ -66,6 +66,8 @@ public:
     GenericProcessor* getSourceNode(int);
 
     void updateSettings() override;
+    void restoreConnections();
+
     void addSettingsFromSourceNode(GenericProcessor* sn);
 
     bool stillHasSource() const override;

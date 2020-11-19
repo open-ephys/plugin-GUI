@@ -168,7 +168,7 @@ public:
     
     int getDesiredWidth();
     
-    void addProcessor(ProcessorDescription desc, int insertionPt);
+    GenericProcessor* addProcessor(ProcessorDescription desc, int insertionPt);
 
 private:
 

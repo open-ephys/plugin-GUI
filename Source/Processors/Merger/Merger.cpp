@@ -283,46 +283,50 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
     mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
-
 void Merger::loadCustomParametersFromXml()
 {
-    if (1)
+    
+}
+
+void Merger::restoreConnections()
+{
+    
+    if (parametersAsXml != nullptr)
     {
-        if (parametersAsXml != nullptr)
+        forEachXmlChildElement(*parametersAsXml, mainNode)
         {
-            forEachXmlChildElement(*parametersAsXml, mainNode)
+            if (mainNode->hasTagName("MERGER"))
             {
-                if (mainNode->hasTagName("MERGER"))
-                {
-                    int NodeAid = mainNode->getIntAttribute("NodeA");
-                    int NodeBid = mainNode->getIntAttribute("NodeB");
+               int nodeIdA = mainNode->getIntAttribute("NodeA");
+               int nodeIdB = mainNode->getIntAttribute("NodeB");
 
-					ProcessorGraph* gr = AccessClass::getProcessorGraph();
-                    Array<GenericProcessor*> p = gr->getListOfProcessors();
+               ProcessorGraph* gr = AccessClass::getProcessorGraph();
+               Array<GenericProcessor*> p = gr->getListOfProcessors();
 
-                    for (int k = 0; k < p.size(); k++)
+               for (int k = 0; k < p.size(); k++)
+               {
+                   if (p[k]->getNodeId() == nodeIdA)
+                   {
+                      LOGD("Setting Merger source A to ", nodeIdA);
+                      switchIO(0);
+                      setMergerSourceNode(p[k]);
+                      p[k]->setDestNode(this);
+                      editor->switchSource(0);
+                   }
+                   else if (p[k]->getNodeId() == nodeIdB)
                     {
-                        if (p[k]->getNodeId() == NodeAid)
-                        {
-                            LOGD("Setting Merger source A to ", NodeAid);
-                            switchIO(0);
-                            setMergerSourceNode(p[k]);
-                        }
-                        if (p[k]->getNodeId() == NodeBid)
-                        {
-                            LOGD("Setting Merger source B to ", NodeBid);
-                            switchIO(1);
-                            setMergerSourceNode(p[k]);
-                        }
+                        LOGD("Setting Merger source B to ", nodeIdB);
+                        switchIO(1);
+                        setMergerSourceNode(p[k]);
+                        p[k]->setDestNode(this);
+                        editor->switchSource(1);
                     }
-
-                    mergeEventsA = mainNode->getBoolAttribute("MergeEventsA");
-                    mergeEventsB = mainNode->getBoolAttribute("MergeEventsB");
-                    mergeContinuousA = mainNode->getBoolAttribute("MergeContinuousA");
-                    mergeContinuousB = mainNode->getBoolAttribute("MergeContinuousB");
-
-                    updateSettings();
                 }
+
+                mergeEventsA = mainNode->getBoolAttribute("MergeEventsA");
+                mergeEventsB = mainNode->getBoolAttribute("MergeEventsB");
+                mergeContinuousA = mainNode->getBoolAttribute("MergeContinuousA");
+                mergeContinuousB = mainNode->getBoolAttribute("MergeContinuousB");
             }
         }
     }

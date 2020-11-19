@@ -119,7 +119,7 @@ void MergerEditor::buttonEvent(Button* button)
 
     }
 
-    AccessClass::getProcessorGraph()->updateSettings(getProcessor());
+    AccessClass::getProcessorGraph()->updateViews(getProcessor());
 }
 
 Array<GenericProcessor*> MergerEditor::getSelectableProcessors()

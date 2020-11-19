@@ -209,6 +209,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         description.processorType = descr->getUnchecked(2);
         description.processorIndex = descr->getUnchecked(3);
         description.libName = descr->getUnchecked(4);
+        description.nodeId = 0;
 
         message = "last filter dropped: " + description.processorName;
 
@@ -225,7 +226,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
     }
 }
 
-void EditorViewport::addProcessor(ProcessorDescription description, int insertionPt)
+GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description, int insertionPt)
 {
     GenericProcessor* sourceProcessor = nullptr;
     GenericProcessor* destProcessor = nullptr;
@@ -240,7 +241,7 @@ void EditorViewport::addProcessor(ProcessorDescription description, int insertio
         destProcessor = editorArray[insertionPoint]->getProcessor();
     }
     
-    AccessClass::getProcessorGraph()->createProcessor(description,
+    return AccessClass::getProcessorGraph()->createProcessor(description,
                                                       sourceProcessor,
                                                       destProcessor,
                                                       loadingConfig);
@@ -504,12 +505,14 @@ bool EditorViewport::keyPressed(const KeyPress& key)
         {
 
             lastEditorClicked->switchIO(0);
+            AccessClass::getProcessorGraph()->updateSettings(lastEditorClicked->getProcessor());
 
             return true;
         }
         else if (key.getKeyCode() == key.downKey)
         {
             lastEditorClicked->switchIO(1);
+            AccessClass::getProcessorGraph()->updateSettings(lastEditorClicked->getProcessor());
             return true;
         }
     }
@@ -1434,6 +1437,7 @@ const String EditorViewport::loadState(File fileToLoad)
 					description.libVersion = processor->getIntAttribute("libraryVersion");
 					description.isSource = processor->getBoolAttribute("isSource");
 					description.isSink = processor->getBoolAttribute("isSink");
+                    description.nodeId = processor->getIntAttribute("NodeId");
 
 					if (rhythmNodePatch) //old version, when rhythm was a plugin
 					{
@@ -1449,10 +1453,10 @@ const String EditorViewport::loadState(File fileToLoad)
 								description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
 						}
 					}
+                    
+                    
 
-                    addProcessor(description, insertionPoint);
-                        
-                    p = (GenericProcessor*) editorArray.getLast()->getProcessor();
+                    p = addProcessor(description, insertionPoint);
                     p->loadOrder = loadOrder++;
                     p->parametersAsXml = processor;
 
@@ -1461,11 +1465,12 @@ const String EditorViewport::loadState(File fileToLoad)
                         splitPoints.add(p);
                     }
                     
-                    if (p->isMerger())
-                    {
-                        MergerEditor* editor = (MergerEditor*) p->getEditor();
-                        editor->switchSource(1);
-                    }
+                    //if (p->isMerger())
+                    //{
+                   //     MergerEditor* editor = (MergerEditor*) p->getEditor();
+                    //    editor->switchSource(1);
+                    //    AccessClass::getProcessorGraph()->updateViews(p);
+                   // }
                 }
                 else if (processor->hasTagName("SWITCH"))
                 {
@@ -1481,20 +1486,20 @@ const String EditorViewport::loadState(File fileToLoad)
                         if (splitPoints[n]->loadOrder == processorNum)
                         {
 
-                            if (splitPoints[n]->isMerger())
-                            {
-                                LOGD("Switching merger source.");
-                                MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
-                                editor->switchSource(1);
-                                AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-                            }
-                            else
-                            {
+                            //if (splitPoints[n]->isMerger())
+                            //{
+                            //    LOGD("Switching merger source.");
+                             //   MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
+                            //    editor->switchSource(1);
+                            //    AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
+                            //}
+                            //else
+                            //{
                                 LOGD("Switching splitter destination.");
                                 SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                                 editor->switchDest(1);
                                 AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-                            }
+                           // }
 
                             splitPoints.remove(n);
                         }

@@ -378,6 +378,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
 , gv            (g)
 , isMouseOver   (false)
 {
+    nodeId = ed->getProcessor()->getNodeId();
 }
 
 
@@ -560,7 +561,7 @@ void GraphNode::paint (Graphics& g)
     g.fillEllipse (5.5, 5.5, 11, 11);
     
     g.setColour (Colours::white); // : editor->getBackgroundColor());
-    g.drawText (getName(), 23, 1, getWidth() - 25, 20, Justification::left, true);
+    g.drawText (String(nodeId) + " " + getName(), 23, 1, getWidth() - 25, 20, Justification::left, true);
     
     g.setColour (Colours::black); // : editor->getBackgroundColor());
     g.drawFittedText (getInfoString(), 10, 25, getWidth() - 5, 70, Justification::left, true);

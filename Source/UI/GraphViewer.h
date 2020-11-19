@@ -108,6 +108,8 @@ private:
     bool isMouseOver;
     int horzShift;
     int vertShift;
+    
+    int nodeId;
 };
 
 /**
@@ -165,6 +167,7 @@ private:
     int getIndexOfEditor (GenericEditor* editor) const;
     
     int rootNum;
+
     
     String currentVersionText;
     
