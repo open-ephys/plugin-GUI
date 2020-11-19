@@ -796,8 +796,8 @@ void ProcessorGraph::updateConnections()
                 //TODO: This is will be removed when probe based audio node added. 
                 connectProcessorToAudioNode(source);
 
-                //if (source->isRecordNode())
-                 //   connectProcessorToMessageCenter(source);
+                if (source->isRecordNode())
+                    connectProcessorToMessageCenter(source);
 
                 // find the next dest that's not a merger or splitter
                 GenericProcessor* prev = source;
