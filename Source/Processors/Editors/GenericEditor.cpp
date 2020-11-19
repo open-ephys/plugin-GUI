@@ -123,7 +123,7 @@ void GenericEditor::updateName()
 void GenericEditor::setDisplayName(const String& string)
 {
     displayName = string;
-    AccessClass::getGraphViewer()->updateNodeLocations();
+    AccessClass::getGraphViewer()->repaint();
     repaint();
 }
 

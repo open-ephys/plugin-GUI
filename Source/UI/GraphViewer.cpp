@@ -45,19 +45,26 @@ GraphViewer::~GraphViewer()
 
 void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
 {
-    removeAllNodes();
+    removeAllNodes(); // clear the current nodes
             
     Array<Splitter*> splitters;
 
+    int rootNum = -1;
+    
     for (auto processor : rootProcessors)
     {
+        rootNum++;
+        int level = -1;
+        
         while ((processor != nullptr) || (splitters.size() > 0))
         {
             if (processor != nullptr)
             {
+                level++;
+                
                 if (!nodeExists(processor))
                 {
-                    addNode(processor->getEditor());
+                    addNode(processor->getEditor(), level, rootNum);
                 }
                 
                 if (processor->isSplitter())
@@ -71,12 +78,15 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
             else {
                 Splitter* splitter = splitters.getFirst();
                 processor = splitter->getDestNode(1); // then come back to chain 1
+                GraphNode* gn = getNodeForEditor(splitter->getEditor());
+                level = gn->getLevel();
+                rootNum = gn->getHorzShift() + 1;
                 splitters.remove(0);
             }
         }
     }
     
-    updateNodeLocations();
+    //updateNodeLocations();
 }
 
 bool GraphViewer::nodeExists(GenericProcessor* p)
@@ -88,12 +98,12 @@ bool GraphViewer::nodeExists(GenericProcessor* p)
     return false;
 }
 
-void GraphViewer::addNode (GenericEditor* editor)
+void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
 {
     GraphNode* gn = new GraphNode (editor, this);
     addAndMakeVisible (gn);
     availableNodes.add (gn);
-
+    
     int thisNodeWidth = NODE_WIDTH;
 
     if (gn->getName().length() > 15)
@@ -101,157 +111,18 @@ void GraphViewer::addNode (GenericEditor* editor)
         thisNodeWidth += (gn->getName().length() - 15) * 10;
     }
     
-    gn->setBounds (BORDER_SIZE, BORDER_SIZE, thisNodeWidth, NODE_HEIGHT);
-
+    gn->setLevel(level);
+    gn->setHorzShift(offset);
+    gn->setWidth(thisNodeWidth);
+    gn->updateBoundaries();
+    
 }
 
 void GraphViewer::removeAllNodes()
 {
     availableNodes.clear();
     
-    updateNodeLocations();
-}
-
-int GraphViewer::getLevel(GraphNode* node) {
-    
-    int level = 0;
-    
-    while (node->getSource() != nullptr)
-    {
-        node = getNodeForEditor(node->getSource());
-        level += 1;
-    }
-    
-    return level;
-}
-
-void GraphViewer::adjustBranchLayout(GraphNode* rootNode, int startLevel)
-{
-    if (rootNode->getLevel() != -1 && rootNode->isSplitter())
-    {
-        return; // we've already adjusted this splitter node
-    }
-    
-    int level = startLevel + 1;
-    
-    if (rootNode->isMerger())
-    {
-        Array<GenericEditor*> upstreamEditors = rootNode->getConnectedEditors();
-        
-        int level1 = level;
-        int level2 = level;
-        
-        if (upstreamEditors[0] != nullptr)
-        {
-            GraphNode* node = getNodeForEditor(upstreamEditors[0]);
-            if (node != nullptr)
-                level1 = node->getLevel() + 1;
-LOGDD("Merger input 1 at ", level1);
-        }
-        
-        if (upstreamEditors[1] != nullptr)
-        {
-            GraphNode* node = getNodeForEditor(upstreamEditors[1]);
-            if (node != nullptr)
-                level1 = node->getLevel() + 1;
-LOGDD("Merger input 2 at ", level1);
-        }
-        
-        level = (level1 > level2) ? level1 : level2;
-    }
-    
-    rootNode->setLevel(level);
-    rootNode->setHorzShift(rootNum);
-    
-    if (rootNode->getDest() != nullptr || rootNode->isSplitter())
-    {
-        if (!rootNode->isSplitter())
-        {
-            adjustBranchLayout(getNodeForEditor(rootNode->getDest()), level);
-            
-        } else {
-            
-          Array<GenericEditor*> downstreamEditors = rootNode->getConnectedEditors();
-            
-            if (downstreamEditors[0] != nullptr && downstreamEditors[1] != nullptr)
-            {
-                adjustBranchLayout(getNodeForEditor(downstreamEditors[0]), level);
-                rootNum += 1;
-                adjustBranchLayout(getNodeForEditor(downstreamEditors[1]), level);
-            } else {
-                if (downstreamEditors[0] != nullptr)
-                {
-                    adjustBranchLayout(getNodeForEditor(downstreamEditors[0]), level);
-                } else if (downstreamEditors[1] != nullptr ){
-                    adjustBranchLayout(getNodeForEditor(downstreamEditors[1]), level);
-                }
-            }
-        }
-    }
-}
-
-void GraphViewer::updateNodeLocations()
-{
-    const int numAvailableNodes = availableNodes.size();
-    
-    rootNum = 0;
-    
-    // reset the positions
-    for (auto& node : availableNodes)
-    {
-        node->setLevel(-1);
-    }
-    
-    Array<Splitter*> splitters;
-    
-    // update the location of each branch
-    for (auto& node : availableNodes)
-    {
-        if (node->getSource() == nullptr)
-        {
-            //if (node->isMerger())
-           //{
-           //     rootNum -= 1;
-           // }
-            
-            adjustBranchLayout(node, -1);
-            rootNum += 1;
-            
-        }
-    }
-    
-    // remove extra horizontal shift
-    //for (auto& node : availableNodes)
-    //{
-    //    if (node->getHorzShift() > 0)
-    //    {
-    //        for (int i = 0; i < 3; i++)
-     //       {
-     //           if (isEmptySpace(node->getLevel(), node->getHorzShift()-1))
-     //           {
-     //               node->setHorzShift(node->getHorzShift()-1);
-     //           }
-     //       }
-     //   }
-    //}
-    
     repaint();
-}
-
-bool GraphViewer::isEmptySpace(int level, int horzShift)
-{
-    if (horzShift < 0)
-        return false;
-    
-    for (auto& node : availableNodes)
-    {
-        if (node->getHorzShift() == horzShift && node->getLevel() == level)
-        {
-            return false;
-        }
-    }
-    
-    return true;
 }
 
 
@@ -283,22 +154,6 @@ GraphNode* GraphViewer::getNodeForEditor (GenericEditor* editor) const
         return nullptr;
 }
 
-
-int GraphViewer::getHorizontalShift (GraphNode* gn) const
-{
-    int shift = 0;
-    
-    for (auto& node : availableNodes)
-    {
-        if (node == gn)
-            break;
-        else
-            if (node->getLevel() == gn->getLevel())
-                ++shift;
-    }
-    
-    return shift;
-}
 
 
 void GraphViewer::paint (Graphics& g)
@@ -379,6 +234,8 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
 , isMouseOver   (false)
 {
     nodeId = ed->getProcessor()->getNodeId();
+    horzShift = 0;
+    vertShift = 0;
 }
 
 
@@ -395,9 +252,8 @@ int GraphNode::getLevel() const
 
 void GraphNode::setLevel (int level)
 {
-    setBounds (getX(), BORDER_SIZE + level * NODE_HEIGHT, getWidth(), getHeight());
-    
     vertShift = level;
+    
 }
 
 
@@ -409,11 +265,14 @@ int GraphNode::getHorzShift() const
 
 void GraphNode::setHorzShift (int shift)
 {
-    setBounds (BORDER_SIZE + shift * NODE_WIDTH, getY(), getWidth(), getHeight());
-    
     horzShift = shift;
+    
 }
 
+void GraphNode::setWidth(int width)
+{
+    nodeWidth = width;
+}
 
 void GraphNode::mouseEnter (const MouseEvent& m)
 {
@@ -497,11 +356,10 @@ juce::Point<float> GraphNode::getCenterPoint() const
 
 void GraphNode::updateBoundaries()
 {
-    int horzShift = gv->getHorizontalShift (this);
-    
-    setBounds (BORDER_SIZE + horzShift * NODE_WIDTH,
+
+    setBounds (BORDER_SIZE + getHorzShift() * NODE_WIDTH,
                BORDER_SIZE + getLevel() * NODE_HEIGHT,
-               NODE_WIDTH,
+               nodeWidth,
                NODE_HEIGHT);
 }
 
