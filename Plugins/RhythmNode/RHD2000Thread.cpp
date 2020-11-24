@@ -1353,8 +1353,27 @@ void RHD2000Thread::updateRegisters()
     // bandwidth paramters.
     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
     //std::cout << "DSP Cutoff Frequency " << actualDspCutoffFreq << std::endl;
-    actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
-    actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+    if (desiredLowerBandwidth < 0)
+    {
+        actualLowerBandwidth = -1;
+        chipRegisters.setOffChipRL(true);
+    }
+    else
+    {
+        actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
+        chipRegisters.setOffChipRL(false);
+    }
+
+    if (desiredUpperBandwidth < 0)
+    {
+        actualUpperBandwidth = -1;
+        chipRegisters.setOffChipRH(true);
+    }
+    else
+    {
+        actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+        chipRegisters.setOffChipRH(false);
+    }
     chipRegisters.enableDsp(dspEnabled);
     //std::cout << "DSP Offset Status " << dspEnabled << std::endl;
 
@@ -1920,6 +1939,14 @@ float RHDImpedanceMeasure::updateImpedanceFrequency(float desiredImpedanceFreq, 
     int impedancePeriod;
     double lowerBandwidthLimit, upperBandwidthLimit;
     float actualImpedanceFreq;
+
+    if (board->actualLowerBandwidth < 0 || board->actualUpperBandwidth < 0)
+    {
+        CoreServices::sendStatusMessage("Cannot run impedance check with external resistors");
+        std::cout << "Cannot run impedance check with external resistors" << std::endl;
+        impedanceFreqValid = false;
+        return 0.0;
+    }
 
     upperBandwidthLimit = board->actualUpperBandwidth / 1.5;
     lowerBandwidthLimit = board->actualLowerBandwidth * 1.5;
