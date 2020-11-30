@@ -465,7 +465,18 @@ bool RecordNode::enable()
 {
 
 	connectToMessageCenter();
-	
+
+	bool openEphysFormatSelected = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 1;
+
+	if (openEphysFormatSelected && getNumInputs() > 200)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+			"WARNING!", "Open Ephys format does not support > 200 channels. Resetting to Binary format");
+		static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(0);
+		setEngine(0);
+		return false;
+	}
+
 	if (hasRecorded)
 	{
 		hasRecorded = false;
