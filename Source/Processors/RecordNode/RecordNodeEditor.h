@@ -127,6 +127,8 @@ public:
     void buttonEvent(Button* button);
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
+	ScopedPointer<ComboBox> engineSelectCombo;
+
 private:
 
 	RecordNode* recordNode;
@@ -142,7 +144,6 @@ private:
 	ScopedPointer<Label> engineSelectLabel;
 	ScopedPointer<Label> dataPathLabel;
 	ScopedPointer<Button> dataPathButton;
-	ScopedPointer<ComboBox> engineSelectCombo;
 	ScopedPointer<Label> recordEventsLabel;
 	ScopedPointer<RecordToggleButton> eventRecord;
 	ScopedPointer<Label> recordSpikesLabel;
