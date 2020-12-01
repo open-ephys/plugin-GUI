@@ -92,6 +92,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 	lastProcId = 0;
 
 	openFile(rootFolder, getEventChannel(0), 0);
+
 	openMessageFile(rootFolder);
 
 	int nChannels = getNumRecordedChannels();
