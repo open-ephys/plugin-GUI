@@ -1123,6 +1123,22 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
             MergerEditor* editor = (MergerEditor*) originalDest->getEditor();
             editor->switchSource();
         }
+    } else {
+        
+        if (processor->isMerger())
+        {
+            Merger* merger = (Merger*) processor;
+            
+            GenericProcessor* sourceA = merger->getSourceNode(0);
+            GenericProcessor* sourceB = merger->getSourceNode(1);
+            
+            if (sourceA != nullptr)
+                sourceA->setDestNode(nullptr);
+            
+            if (sourceB != nullptr)
+                sourceB->setDestNode(nullptr);
+        }
+        
     }
     
     if (processor->isSplitter())
