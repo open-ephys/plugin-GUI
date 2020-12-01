@@ -249,11 +249,11 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 	{
 		uint8 selectedEngineIndex = box->getSelectedId();
 
-		//Prevent using OpenEphys format if > 200 channels coming into Record Node
-		if (recordNode->getNumInputs() > 200 && selectedEngineIndex == 2)
+		//Prevent using OpenEphys format if > 300 channels coming into Record Node
+		if (recordNode->getNumInputs() > 300 && selectedEngineIndex == 2)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-				"WARNING!", "Open Ephys format does not support > 200 channels. Resetting to Binary format");
+				"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
 			box->setSelectedItemIndex(0);
 			recordNode->setEngine(0);
 			return;
