@@ -27,8 +27,8 @@ jobs:
       run: |
         cd Build 
         cmake -G "Visual Studio 16 2019" -A x64 ..
-    - name: Setup MSBuild.exe
-      uses: warrenbuckley/Setup-MSBuild@v1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: build
       run: |
         msbuild Build/ALL_BUILD.vcxproj -p:Configuration=Release -p:Platform=x64
