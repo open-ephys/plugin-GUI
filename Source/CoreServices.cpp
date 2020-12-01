@@ -40,7 +40,7 @@ namespace CoreServices
 {
 	void updateSignalChain(GenericEditor* source)
 	{
-		getEditorViewport()->makeEditorVisible(source, false, true);
+		getProcessorGraph()->updateSettings(source->getProcessor());
 	}
 
 	bool getRecordingStatus()

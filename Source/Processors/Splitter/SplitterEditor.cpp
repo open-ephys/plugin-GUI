@@ -105,8 +105,6 @@ void SplitterEditor::buttonEvent(Button* button)
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
 
-		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
-
     }
     else if (button == pipelineSelectorB)
     {
@@ -115,9 +113,9 @@ void SplitterEditor::buttonEvent(Button* button)
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
 
-		AccessClass::getEditorViewport()->makeEditorVisible(this, false);
-
     }
+    
+    AccessClass::getProcessorGraph()->updateViews(getProcessor());
 }
 
 void SplitterEditor::switchDest(int dest)
@@ -139,7 +137,7 @@ void SplitterEditor::switchDest(int dest)
 
     }
 
-	AccessClass::getEditorViewport()->makeEditorVisible(this, false);
+	
 }
 
 void SplitterEditor::switchIO(int dest)
@@ -155,11 +153,9 @@ int SplitterEditor::getPathForEditor(GenericEditor* editor)
 
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
-        processor->switchIO();
-
-        if (processor->getDestNode() != nullptr)
+        if (processor->getDestNode(pathNum) != nullptr)
         {
-            if (processor->getDestNode()->getEditor() == editor)
+            if (processor->getDestNode(pathNum)->getEditor() == editor)
                 return processor->getPath();
         }
     }
@@ -178,10 +174,8 @@ Array<GenericEditor*> SplitterEditor::getConnectedEditors()
 
     for (int pathNum = 0; pathNum < 2; pathNum++)
     {
-        processor->switchIO();
-
-        if (processor->getDestNode() != nullptr)
-            editors.add(processor->getDestNode()->getEditor());
+        if (processor->getDestNode(pathNum) != nullptr)
+            editors.add(processor->getDestNode(pathNum)->getEditor());
         else
             editors.add(nullptr);
     }

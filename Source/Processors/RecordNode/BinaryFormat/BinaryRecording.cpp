@@ -92,7 +92,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 String datPath = getProcessorString(channelInfo);
                 continuousFileNames.add(contPath + datPath + "continuous.dat");
 
-                //std::cout << "Creating file: " << contPath << datPath << "timestamps.npy" << std::endl;
+                LOGDD("Creating file: ", contPath, datPath, "timestamps.npy");
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
 
@@ -159,19 +159,19 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         switch (chan->getChannelType())
         {
         case EventChannel::TEXT:
-            //LOGD("Got TEXT channel");
+            LOGDD("Got TEXT channel");
             eventName += "TEXT_group";
             type = NpyType(BaseType::CHAR, chan->getLength());
             dataFileName = "text";
             break;
         case EventChannel::TTL:
-            //LOGD("Got TTL channel");
+            LOGDD("Got TTL channel");
             eventName += "TTL";
             type = NpyType(BaseType::INT16, 1);
             dataFileName = "channel_states";
             break;
         default:
-            //LOGD("Got BINARY group");
+            LOGDD("Got BINARY group");
             eventName += "BINARY_group";
             type = NpyType(chan->getEquivalentMetaDataType(), chan->getLength());
             dataFileName = "data_array";
@@ -642,14 +642,14 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 {
 
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
-    //LOGD("Got spike channel");
+    LOGDD("Got spike channel");
 	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
-    //LOGD("Got event recording");
+    LOGDD("Got event recording");
 	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
-    //LOGD("Got real spike channel");
+    LOGDD("Got real spike channel");
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-    //LOGD("Got total number of samples: ", totalSamples);
+    LOGDD("Got total number of samples: ", totalSamples);
 
 	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{

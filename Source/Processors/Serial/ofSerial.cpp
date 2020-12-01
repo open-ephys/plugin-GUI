@@ -262,7 +262,7 @@ void ofSerial::listDevices()
     buildDeviceList();
     for (int k = 0; k < (int)devices.size(); k++)
     {
-        std::cout << "[" << devices[k].getDeviceID() << "] = "<< devices[k].getDeviceName().c_str() << std::endl;
+        printf("[", devices[k].getDeviceID(), "] = ", devices[k].getDeviceName().c_str());
     }
 }
 

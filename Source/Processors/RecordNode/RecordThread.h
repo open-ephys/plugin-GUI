@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BinaryFormat/BinaryRecording.h"
 #include "EventQueue.h"
 #include "DataQueue.h"
-#include "Utils.h"
+#include "../../Utils/Utils.h"
 #include <atomic>
 
 #define BLOCK_MAX_WRITE_SAMPLES 4096

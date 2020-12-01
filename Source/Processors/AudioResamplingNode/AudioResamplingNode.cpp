@@ -23,6 +23,7 @@
 
 #include "AudioResamplingNode.h"
 #include <stdio.h>
+#include "../../Utils/Utils.h"
 
 AudioResamplingNode::AudioResamplingNode()
     : GenericProcessor("Resampling Node"),
@@ -91,7 +92,7 @@ void AudioResamplingNode::setParameter(int parameterIndex, float newValue)
 void AudioResamplingNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
-    // std::cout << "AudioResamplingNode preparing to play." << std::endl;
+LOGDD("AudioResamplingNode preparing to play.");
 
     if (destBufferIsTempBuffer)
     {
@@ -109,7 +110,7 @@ void AudioResamplingNode::prepareToPlay(double sampleRate_, int estimatedSamples
 
     destBufferPos = 0;
 
-    // std::cout << "Temp buffer size: " << tempBuffer->getNumChannels() << " x "
+LOGDD("Temp buffer size: ", tempBuffer->getNumChannels(), " x ");
     //           << tempBuffer->getNumSamples() << std::endl;
 
     updateFilter();
@@ -156,8 +157,8 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
         ratio = sourceBufferSampleRate / destBufferSampleRate;
         valuesNeeded = (int) buffer.getNumSamples() / ratio;
         //std::cout << std::endl;
-        //std::cout << "Ratio: " << ratio << std::endl;
-        //std::cout << "Values needed: " << valuesNeeded << std::endl;
+LOGDD("Ratio: ", ratio);
+LOGDD("Values needed: ", valuesNeeded);
     }
 
 
@@ -229,7 +230,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
         }
     }
 
-    // std::cout << sourceBufferPos << " " << tempBufferPos << std::endl;
+LOGDD(sourceBufferPos, " ", tempBufferPos);
 
 
     if (ratio < 0.9999)
@@ -257,7 +258,7 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
     else
     {
 
-        //std::cout << "Copying into dest buffer..." << std::endl;
+LOGDD("Copying into dest buffer...");
 
         // copy the temp buffer into the destination buffer
 
@@ -298,8 +299,8 @@ void AudioResamplingNode::process(AudioSampleBuffer& buffer,
         destBufferPos += pos;
         destBufferPos %= destBufferWidth;
 
-        //std::cout << "Temp buffer position: " << tempBufferPos << std::endl;
-        //std::cout << "Resampling node value:" << *destBuffer->getReadPointer(0,0) << std::endl;
+LOGDD("Temp buffer position: ", tempBufferPos);
+LOGDD("Resampling node value:", *destBuffer->getReadPointer(0,0));
 
     }
 

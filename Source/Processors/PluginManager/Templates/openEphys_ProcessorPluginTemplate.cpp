@@ -57,7 +57,7 @@ AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()
 {
     editor = new EDITORCLASSNAME (this, true);
 
-    //std::cout << "Creating editor." << std::endl;
+LOGDD("Creating editor.");
 
     return editor;
 }
@@ -73,7 +73,7 @@ void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 
     //threshold = newValue;
 
-    //std::cout << float(p[0]) << std::endl;
+LOGDD(float(p[0]));
 }
 
 

@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DATAQUEUE_H_INCLUDED
 
 #include <JuceHeader.h>
-#include "Utils.h"
+#include "../../Utils/Utils.h"
 
 class Synchronizer;
 

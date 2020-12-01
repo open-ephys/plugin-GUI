@@ -14,7 +14,7 @@
 #include "RecordThread.h"
 #include "DataQueue.h"
 #include "Synchronizer.h"
-#include "Utils.h"
+#include "../../Utils/Utils.h"
 
 //#include "taskflow/taskflow.hpp"
 
@@ -62,6 +62,9 @@ public:
 
     /** If messageCenter event channel is not present in EventChannelArray, add it*/
 	void connectToMessageCenter();
+
+    /** Need to remove message center event channel after recording*/
+    void disconnectMessageCenter();
 
 	void updateRecordChannelIndexes();
 
@@ -229,6 +232,8 @@ private:
 
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

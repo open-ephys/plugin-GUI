@@ -27,6 +27,8 @@
 #include "../../AccessClass.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+#include "../../Utils/Utils.h"
+
 
 SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     : GenericProcessor      (name_)
@@ -64,7 +66,7 @@ SourceNode::~SourceNode()
 {
     if (dataThread->isThreadRunning())
     {
-        std::cout << "Forcing thread to stop." << std::endl;
+        LOGD("Forcing thread to stop.");
         dataThread->stopThread (500);
     }
 }
@@ -142,17 +144,17 @@ void SourceNode::updateSettings()
 
 void SourceNode::actionListenerCallback (const String& msg)
 {
-    //std::cout << msg << std::endl;
+    LOGDD(msg);
 
     if (msg.equalsIgnoreCase ("HI"))
     {
-        // std::cout << "HI." << std::endl;
+        LOGDD("HI.");
         // dataThread->setOutputHigh();
         ttlState = 1;
     }
     else if (msg.equalsIgnoreCase ("LO"))
     {
-        // std::cout << "LO." << std::endl;
+        LOGDD("LO.");
         // dataThread->setOutputLow();
         ttlState = 0;
     }
@@ -243,7 +245,7 @@ void SourceNode::setEnabledState (bool newState)
 void SourceNode::setParameter (int parameterIndex, float newValue)
 {
     editor->updateParameterButtons (parameterIndex);
-    //std::cout << "Got parameter change notification";
+    LOGDD("Got parameter change notification");
 }
 
 
@@ -271,7 +273,7 @@ bool SourceNode::tryEnablingEditor()
 {
     if (! isSourcePresent())
     {
-        //std::cout << "No input source found." << std::endl;
+        LOGDD("No input source found.");
         return false;
     }
     else if (isEnabled)
@@ -282,7 +284,7 @@ bool SourceNode::tryEnablingEditor()
         return true;
     }
 
-    std::cout << "Input source found." << std::endl;
+    LOGD("Input source found.");
     setEnabledState (true);
 
     GenericEditor* ed = getEditor();
@@ -295,7 +297,7 @@ void SourceNode::timerCallback()
 {
     if (! tryEnablingEditor() && isEnabled)
     {
-        std::cout << "Input source lost." << std::endl;
+        LOGD("Input source lost.");
         setEnabledState (false);
         GenericEditor* ed = getEditor();
         CoreServices::highlightEditor (ed);
@@ -317,7 +319,7 @@ bool SourceNode::isSourcePresent() const
 
 bool SourceNode::enable()
 {
-    std::cout << "Source node received enable signal" << std::endl;
+    LOGD("Source node received enable signal");
 
     wasDisabled = false;
 
@@ -337,7 +339,7 @@ bool SourceNode::enable()
 
 bool SourceNode::disable()
 {
-    std::cout << "Source node received disable signal" << std::endl;
+    LOGD("Source node received disable signal");
 
     if (dataThread != nullptr)
         dataThread->stopAcquisition();
@@ -346,7 +348,7 @@ bool SourceNode::disable()
 
     wasDisabled = true;
 
-    std::cout << "SourceNode returning true." << std::endl;
+    LOGD("SourceNode returning true.");
 
     return true;
 }
@@ -356,7 +358,7 @@ void SourceNode::acquisitionStopped()
 {
     if (! wasDisabled)
     {
-        std::cout << "Source node sending signal to UI." << std::endl;
+        LOGD("Source node sending signal to UI.");
 
         AccessClass::getUIComponent()->disableCallbacks();
         setEnabledState (false);

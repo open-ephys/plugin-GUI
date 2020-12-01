@@ -1,5 +1,4 @@
 #include "Synchronizer.h"
-#include "Utils.h"
 
 FloatTimestampBuffer::FloatTimestampBuffer(int size)
 	: abstractFifo(size)
@@ -188,7 +187,7 @@ void Subprocessor::closeSyncWindow()
 		}
 	}
 
-	//std::cout << "Subprocessor closed sync window." << std::endl;
+	LOGDD("Subprocessor closed sync window.");
 
 	receivedEventInWindow = false;
 	receivedMasterTimeInWindow = false;

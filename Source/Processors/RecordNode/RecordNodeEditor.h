@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RecordChannelSelector.h"
 #include "SyncChannelSelector.h"
-#include "Utils.h"
+#include "../../Utils/Utils.h"
 
 class RecordThread;
 class RecordNode;

@@ -21,6 +21,7 @@
 */
 
 #include "ParameterEditor.h"
+#include "../../Utils/Utils.h"
 
 
 static const int FONT_SIZE = 10;
@@ -45,7 +46,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
 
     if (parameter->isBoolean())
     {
-        std::cout << "Boolean parameter-> Creating checkbox." << std::endl;
+        LOGD("Boolean parameter-> Creating checkbox.");
 
         // create checkbox
         ParameterCheckbox* pc = new ParameterCheckbox ((bool) parameter->getDefaultValue());
@@ -72,7 +73,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
     }
     else if (parameter->isContinuous())
     {
-        std::cout << "Continuous parameter-> Creating slider." << std::endl;
+        LOGD("Continuous parameter-> Creating slider.");
 
         // create slider
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -107,7 +108,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
     }
     else if (parameter->isDiscrete())
     {
-        std::cout << "Discrete parameter-> Creating buttons." << std::endl;
+        LOGD("Discrete parameter-> Creating buttons.");
 
 
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -116,12 +117,12 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
         const int buttonWidth = isParameterHasCustomBounds ? (m_parameter->getEditorDesiredBounds().getWidth() / numButtons)
                                                            : 35;
 
-        std::cout << "Button width: " << buttonWidth << std::endl;
-        std::cout << "Default value: " << (int) parameter->getDefaultValue() << std::endl;
+        LOGD("Button width: ", buttonWidth);
+        LOGD("Default value: ", (int) parameter->getDefaultValue());
 
         for (int i = 0; i < numButtons; ++i)
         {
-            std::cout << "Creating button " << i << std::endl;
+            LOGD("Creating button ", i);
 
             int buttonType = MIDDLE;
             if (i == 0)
@@ -165,7 +166,7 @@ ParameterEditor::ParameterEditor (GenericProcessor* processor, Parameter* parame
     }
     else if (parameter->isNumerical())
     {
-        std::cout << "Numerical parameter-> Creating slider." << std::endl;
+        LOGD("Numerical parameter-> Creating slider.");
 
         // create slider
         Array<var> possibleValues = parameter->getPossibleValues();
@@ -214,7 +215,7 @@ void ParameterEditor::setChannelSelector (ChannelSelector* channelSelector)
 
 void ParameterEditor::setEnabled (bool isEnabled)
 {
-    std::cout << "Changing editor state!" << std::endl;
+    LOGD("Changing editor state!");
 
     if (shouldDeactivateDuringAcquisition)
     {
@@ -251,9 +252,9 @@ void ParameterEditor::setEnabled (bool isEnabled)
 
 void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
 {
-    std::cout << "Button ID: "      << buttonThatWasClicked->getComponentID()   << std::endl;
-    std::cout << "Button name: "    << buttonThatWasClicked->getName()          << std::endl;
-    std::cout << "Button value: "   << buttonThatWasClicked->getButtonText()    << std::endl;
+    LOGD("Button ID: ", buttonThatWasClicked->getComponentID());
+    LOGD("Button name: ", buttonThatWasClicked->getName());
+    LOGD("Button value: ", buttonThatWasClicked->getButtonText());
 
     ParameterButton* b = (ParameterButton*) buttonThatWasClicked;
 
@@ -648,7 +649,7 @@ void ParameterEditor::updateChannelSelectionUI()
     }
     else if (m_parameter->isDiscrete())
     {
-        std::cout << "Calculating colors for discrete buttons" << std::endl;
+        LOGD("Calculating colors for discrete buttons");
         Array<var> possibleValues = m_parameter->getPossibleValues();
 
         for (int i = 0; i < m_buttonArray.size(); ++i)

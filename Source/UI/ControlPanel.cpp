@@ -869,15 +869,15 @@ void ControlPanel::buttonClicked(Button* button)
                 if (recordEngines[recordSelector->getSelectedId()-1]->isWindowOpen())
                     recordEngines[recordSelector->getSelectedId()-1]->toggleConfigWindow();
 
-                audio->beginCallbacks();
-                masterClock->start();
+                audio->beginCallbacks(); // launches acquisition
+                masterClock->start(); // starts the clock
                 //audioEditor->disable();
 
                 stopTimer();
                 startTimer(250); // refresh every 250 ms
 
             }
-            recordSelector->setEnabled(false);
+            recordSelector->setEnabled(false); // why is this outside the "if" statement?
             recordOptionsButton->setEnabled(false);
         }
         else
@@ -971,12 +971,12 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
     //AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
     if (combo->getSelectedId() > 0)
     {
-        std::cout << "Num engines: " << recordEngines.size() << std::endl;
+        LOGD("Num engines: ", recordEngines.size());
         re = recordEngines[combo->getSelectedId()-1]->instantiateEngine();
     }
     else
     {
-        std::cout << "Engine ComboBox: Bad ID" << std::endl;
+        LOGD("Engine ComboBox: Bad ID");
         combo->setSelectedId(1,dontSendNotification);
         re = recordEngines[0]->instantiateEngine();
     }
@@ -995,15 +995,15 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
 void ControlPanel::disableCallbacks()
 {
 
-    std::cout << "Control panel received signal to disable callbacks." << std::endl;
+    LOGD("Control panel received signal to disable callbacks.");
 
     if (audio->callbacksAreActive())
     {
-        std::cout << "Stopping audio." << std::endl;
+        LOGD("Stopping audio.");
         audio->endCallbacks();
-        std::cout << "Disabling processors." << std::endl;
+        LOGD("Disabling processors.");
         graph->disableProcessors();
-        std::cout << "Updating control panel." << std::endl;
+        LOGD("Updating control panel.");
         refreshMeters();
         stopTimer();
         startTimer(60000); // back to refresh every 10 seconds
@@ -1020,7 +1020,7 @@ void ControlPanel::disableCallbacks()
 
 // void ControlPanel::actionListenerCallback(const String & msg)
 // {
-// 	//std::cout << "Message Received." << std::endl;
+// 	LOGDD("Message Received");
 // 	if (playButton->getToggleState()) {
 // 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
 // 	}
@@ -1035,7 +1035,7 @@ void ControlPanel::disableCallbacks()
 
 void ControlPanel::timerCallback()
 {
-    //std::cout << "Message Received." << std::endl;
+    LOGDD("Message Received.");
     refreshMeters();
 
 }
@@ -1068,7 +1068,7 @@ void ControlPanel::refreshMeters()
 
 bool ControlPanel::keyPressed(const KeyPress& key)
 {
-    std::cout << "Control panel received" << key.getKeyCode() << std::endl;
+    LOGD("Control panel received", key.getKeyCode());
 
     return false;
 

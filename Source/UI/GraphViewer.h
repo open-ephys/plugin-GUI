@@ -85,11 +85,14 @@ public:
     /** Returns level (y-position) of node in graph display */
     int getLevel()     const;
     
-    /** Returns horizontal shift (x-position of node in graph display) */
+    /** Returns horizontal shift (x-position of node in graph display */
     int getHorzShift() const;
     
-    /** Sets the level (y-position) of node in graph display) */
+    /** Sets the level (y-position) of node in graph display */
     void setLevel (int newLevel);
+    
+    /** Sets the width of node in graph display */
+    void setWidth (int newWidth);
     
     /** Sets the horizontal shift (x-position of node in graph display) */
     void setHorzShift (int newHorizontalShift);
@@ -97,15 +100,22 @@ public:
     /** Not currently used (consider deleting) */
     //void switchIO (int path);
     
+    void updateBoundaries();
+    
 private:
     GenericEditor* editor;
     GraphViewer* gv;
     
-    void updateBoundaries();
+    
+    
+    String getInfoString();
     
     bool isMouseOver;
     int horzShift;
     int vertShift;
+    int nodeWidth;
+    
+    int nodeId;
 };
 
 /**
@@ -131,36 +141,27 @@ public:
     void paint (Graphics& g)    override;
     
     /** Adds a graph node for a particular processor */
-    void addNode    (GenericEditor* editor);
+    void updateNodes    (Array<GenericProcessor*> rootProcessors);
     
-    /** Removevs a graph node for a particular processor */
-    void removeNode (GenericEditor* editor);
+    /** Adds a graph node for a particular processor */
+    void addNode    (GenericEditor* editor, int level, int offset);
     
     /** Clears the graph */
     void removeAllNodes();
     
-    /** Repositions all nodes in the graph */
-    void updateNodeLocations();
-    
-    /** Returns the number of nodes at a particular level (y-position) */
-    //int nodesAtLevel (int lvl) const;
-    
-    /** Returns the horizontal shift (x-position) of a particular node  */
-    int getHorizontalShift (GraphNode*) const;
-    
     /** Returns the graph node for a particular processor editor */
     GraphNode* getNodeForEditor (GenericEditor* editor) const;
     
+    int getIndexOfEditor(GenericEditor* editor) const;
+    
+    /** Checks if a node exists for a given processor*/
+    bool nodeExists(GenericProcessor* processor);
+    
 private:
     void connectNodes (int, int, Graphics&);
-    void adjustBranchLayout(GraphNode*, int);
-    bool isEmptySpace(int level, int horzShift);
 
-    int getLevel(GraphNode*);
-    int getIndexOfEditor (GenericEditor* editor) const;
-    
     int rootNum;
-    
+
     String currentVersionText;
     
     OwnedArray<GraphNode> availableNodes;

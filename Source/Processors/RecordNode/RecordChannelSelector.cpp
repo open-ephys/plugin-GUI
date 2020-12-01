@@ -283,7 +283,7 @@ void RecordChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 
         for (auto val : channelStates)
         {
-            std::cout << val << ",";
+            LOGDD(val, ",");
         }
         std::cout << std::endl;
 

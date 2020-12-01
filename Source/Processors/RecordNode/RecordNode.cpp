@@ -74,19 +74,37 @@ RecordNode::~RecordNode()
 void RecordNode::connectToMessageCenter()
 {
 
-	const EventChannel* orig = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+	const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+
+	if (!isConnectedToMessageCenter)
+	{
+		eventChannelArray.add(new EventChannel(*messageChannel));
+	
+		isConnectedToMessageCenter = true;
+
+		LOGD("Record node ", getNodeId(), " connected to Message Center");
+	}
+
+}
+
+
+void RecordNode::disconnectMessageCenter()
+{
+
+	const EventChannel* origin = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
 	for (auto eventChannel : eventChannelArray)
 	{
-		if (eventChannel == orig)
-			return;
+
+		if (eventChannel->getSourceNodeID() > 900)
+		{
+			eventChannelArray.removeObject(eventChannel);
+		}
+
+		isConnectedToMessageCenter = false;
+
+		LOGD("Record node ", getNodeId(), " disconnected from Message Center");
 	}
-
-	eventChannelArray.add(new EventChannel(*orig));
-	
-	isConnectedToMessageCenter = true;
-
-	std::cout << "Record node " << getNodeId() << " connected to Message Center" << std::endl;
 
 }
 
@@ -304,19 +322,20 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 void RecordNode::updateSubprocessorMap()
 {
 
+	LOGDD("Record Node ", getNodeId(), " updating subprocessor map");
     
     std::map<int, std::vector<int>> inputs;
 
     int updatedNumSubprocessors = 0;
     int ch = 0;
-    
+
     while (ch < dataChannelArray.size())
     {
         
         DataChannel* chan = dataChannelArray[ch];
         int sourceID = chan->getSourceNodeID();
         int subProcIdx = chan->getSubProcessorIdx();
-        
+
         if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != subProcIdx)
         {
             //Found a new subprocessor
@@ -330,11 +349,13 @@ void RecordNode::updateSubprocessorMap()
         {
             int orderInSubprocessor = 0;
             synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
+
             if (synchronizer->masterProcessor < 0)
             {
                 synchronizer->setMasterSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx());
             }
-            while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcIdx)
+            while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcIdx
+            	& dataChannelArray[ch]->getSourceNodeID() == sourceID)
             {
                 dataChannelStates[sourceID][dataChannelArray[ch]->getSubProcessorIdx()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
                 dataChannelOrder[ch] = orderInSubprocessor++;
@@ -378,7 +399,7 @@ void RecordNode::updateSubprocessorMap()
     syncChannelMap.clear();
     syncOrderMap.clear();
 
-	LOGD("Record Node: ", getNodeId(), " has ", eventChannelArray.size(), " channels");
+	LOGDD("Record Node: ", getNodeId(), " has ", eventChannelArray.size(), " event channels");
     for (int ch = 0; ch < eventChannelArray.size(); ch++)
     {
 
@@ -443,7 +464,7 @@ void RecordNode::updateSettings()
 bool RecordNode::enable()
 {
 
-	//connectToMessageCenter();
+	connectToMessageCenter();
 	
 	if (hasRecorded)
 	{
@@ -487,7 +508,7 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		//std::cout << "Channel: " << ch << " Source Node: " << srcIndex << " Sub Index: " << subIndex << std::endl;
+		LOGD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
@@ -573,7 +594,7 @@ void RecordNode::startRecording()
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
-		std::cout << "Num event channels: " << eventChannelArray.size() << std::endl;
+		LOGD("Num event channels: ", eventChannelArray.size());
 		recordThread->startThread();
 		isRecording = true;
 	}
@@ -594,6 +615,8 @@ void RecordNode::stopRecording()
 	}
 
 	eventMonitor->displayStatus();
+
+	disconnectMessageCenter();
 
 }
 
@@ -616,7 +639,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		if (!msgCenterMessages.contains(Event::getTimestamp(event)))
 		{
 			msgCenterMessages.add(Event::getTimestamp(event));
-			std::cout << "Received message." << std::endl;
+			LOGD("Received message.");
 		}
 		else
 			return;
@@ -653,7 +676,7 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
 	if (!newSpike) 
 	{
-		std::cout << "Unable to deserialize spike event!" << std::endl; 
+		LOGD("Unable to deserialize spike event!");
 		return;
 	}
 

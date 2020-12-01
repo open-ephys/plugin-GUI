@@ -93,7 +93,7 @@ void AudioNode::setChannel(const DataChannel* ch)
 		channelNum = -1;
 	}
 
-    std::cout << "Audio node setting channel to " << channelNum << std::endl;
+    LOGD("Audio node setting channel to ", channelNum);
 
     setCurrentChannel(channelNum);
 }
@@ -172,9 +172,9 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
 
-    // std::cout << "Processor sample rate: " << getSampleRate() << std::endl;
-    // std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
-    // std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
+    LOGDD("Processor sample rate: ", getSampleRate());
+    LOGDD("Audio card sample rate: ", sampleRate_);
+    LOGDD("Samples per block: ", estimatedSamplesPerBlock);
 	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
 	{
 		destBufferSampleRate = sampleRate_;
@@ -247,7 +247,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
-    //std::cout << "Buffer size: " << buffer.getNumChannels() << std::endl;
+    LOGDD("Buffer size: ", buffer.getNumChannels());
 
     // clear the left and right channels
     buffer.clear(0,0,buffer.getNumSamples());
@@ -271,7 +271,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                 if (dataChannelArray[i]->isMonitored())
                 {
                     tempBuffer->clear();
-                    //std::cout << "Processing channel " << i << std::endl;
+                    LOGDD("Processing channel ", i);
 
                     if (!bufferSwap[i])
                     {
@@ -302,7 +302,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                          samplesInOverflowBuffer[i] :
                          numSamplesExpected[i]);
 
-                    //std::cout << "Copying " << samplesToCopyFromOverflowBuffer << " samples from overflow buffer of " << samplesInOverflowBuffer[i] << " samples." << std::endl;
+                    LOGDD("Copying ", samplesToCopyFromOverflowBuffer, " samples from overflow buffer of ", samplesInOverflowBuffer[i], " samples.");
 
                     if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
                     {
@@ -318,7 +318,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
 
                         int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
 
-                        // std::cout << "Samples remaining in overflow buffer: " << leftoverSamples << std::endl;
+                        LOGDD("Samples remaining in overflow buffer: ", leftoverSamples);
 
                         if (leftoverSamples > 0) // move remaining samples to the backup buffer
                         {
@@ -348,7 +348,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                                                            remainingSamples :
                                                            samplesAvailable);
 
-                    //std::cout << "Copying " << samplesToCopyFromIncomingBuffer << " samples from incoming buffer of " << samplesAvailable << " samples." << std::endl;
+                    LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
 
 
                     if (samplesToCopyFromIncomingBuffer > 0)
@@ -365,13 +365,13 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                                            );
 
                         //if (destBufferPos == 0)
-                        //  std::cout << "Temp buffer 0 value: " << *tempBuffer->getReadPointer(i,0) << std::endl;
+                        LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
 
                     }
 
                     orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
 
-                    // std::cout << "Samples remaining in incoming buffer: " << orphanedSamples << std::endl;
+                    LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
 
                     if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
                     {
@@ -392,8 +392,8 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                     // now that our tempBuffer is ready, we can filter it and copy it into the
                     // original buffer
 
-                    //std::cout << "Ratio = " << ratio[i] << ", gain = " << gain << std::endl;
-                    //std::cout << "Values needed = " << valuesNeeded << ", channel = " << i << std::endl;
+                    LOGDD("Ratio = ", ratio[i], ", gain = ", gain);
+                    LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
 
                     if (ratio[i] > 1.00001)
                     {
@@ -418,7 +418,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                         float alpha = (float) subSampleOffset;
                         float invAlpha = 1.0f - alpha;
 
-                        // std::cout << "Copying sample " << sourceBufferPos << std::endl;
+                        LOGDD("Copying sample ", sourceBufferPos);
 
                         buffer.addFrom(0,    // destChannel
                                        destBufferPos,  // destSampleOffset
@@ -439,7 +439,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                                        alpha*gain);       // gain to apply to source
 
                         // if (destBufferPos == 0)
-                        //std::cout << "Output buffer 0 value: " << *buffer.getReadPointer(i+2,destBufferPos) << std::endl;
+                        LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i+2,destBufferPos));
 
                         subSampleOffset += ratio[i];
 
@@ -524,8 +524,8 @@ void Expander::setThreshold(float value)
     threshold = value;
     transfer_B = output * pow(threshold, -transfer_A);
 
-    std::cout << "Threshold set to " << threshold << std::endl;
-    std::cout << "transfer_B set to " << transfer_B << std::endl;
+    LOGD("Threshold set to ", threshold);
+    LOGD("transfer_B set to ", transfer_B);
 }
 
 

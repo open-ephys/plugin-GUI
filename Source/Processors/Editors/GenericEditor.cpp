@@ -77,7 +77,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
-        // std::cout << "Adding drawer button." << std::endl;
+LOGDD("Adding drawer button.");
 
         drawerButton = new DrawerButton("name");
         drawerButton->addListener(this);
@@ -123,7 +123,7 @@ void GenericEditor::updateName()
 void GenericEditor::setDisplayName(const String& string)
 {
     displayName = string;
-    AccessClass::getGraphViewer()->updateNodeLocations();
+    AccessClass::getGraphViewer()->repaint();
     repaint();
 }
 
@@ -147,7 +147,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
         int xPos = 15;
         int yPos = 30;
 
-        // std::cout << "Adding parameter editors." << std::endl;
+LOGDD("Adding parameter editors.");
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
@@ -181,7 +181,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 void GenericEditor::refreshColors()
 {
 
-    //std::cout << getName() << " refreshing colors." << std::endl;
+LOGDD(getName(), " refreshing colors.");
 
     enum
     {
@@ -228,7 +228,7 @@ bool GenericEditor::keyPressed(const KeyPress& key)
 
 void GenericEditor::switchSelectedState()
 {
-    //std::cout << "Switching selected state" << std::endl;
+LOGDD("Switching selected state");
     isSelected = !isSelected;
     repaint();
 }
@@ -272,14 +272,14 @@ void GenericEditor::enable()
 {
     isEnabled = true;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->setEnabledState (true);
+    //p->setEnabledState (true);
 }
 
 void GenericEditor::disable()
 {
     isEnabled = false;
     GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->setEnabledState (false);
+    //p->setEnabledState (false);
 }
 
 bool GenericEditor::getEnabledState()
@@ -317,7 +317,7 @@ void GenericEditor::stopRecording()
 void GenericEditor::editorStartAcquisition()
 {
 	startAcquisition();
-    //std::cout << "GenericEditor received message to start acquisition." << std::endl;
+LOGDD("GenericEditor received message to start acquisition.");
 
 	if (channelSelector != 0)
 	{
@@ -458,7 +458,7 @@ void GenericEditor::timerCallback()
 void GenericEditor::buttonClicked(Button* button)
 {
 
-    // std::cout << "Button clicked." << std::endl;
+LOGDD("Button clicked.");
 
     checkDrawerButton(button);
 
@@ -491,7 +491,7 @@ bool GenericEditor::checkDrawerButton(Button* button)
             drawerOpen = false;
         }
 
-        AccessClass::getEditorViewport()->makeEditorVisible(this);
+        AccessClass::getEditorViewport()->refreshEditors();
 
         deselect();
 
@@ -512,11 +512,11 @@ void GenericEditor::sliderValueChanged(Slider* slider)
 void GenericEditor::update()
 {
 
-    //std::cout << "Editor for ";
+LOGDD("Editor for ");
 
     GenericProcessor* p = (GenericProcessor*)getProcessor();
 
-    // std::cout << p->getName() << " updating settings." << std::endl;
+LOGDD(p->getName(), " updating settings.");
 
     updateSettings();
 
@@ -536,7 +536,7 @@ void GenericEditor::update()
 
         for (int i = 0; i < numChannels; i++)
         {
-            // std::cout << p->channels[i]->getRecordState() << std::endl;
+            //LOGDD(p->channels[i]->getRecordState());
             channelSelector->setRecordStatus(i, p->getDataChannel(i)->getRecordState());
         }
     }
@@ -1132,7 +1132,7 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
     if (parameterEditors.size() == 0)
     {
         //Checks if there is a parameter editor, and stops a bug if there isn't.
-        //std::cout << "No parameterEditors" << std::endl;
+LOGDD("No parameterEditors");
     }
     else
     {
@@ -1147,7 +1147,7 @@ void GenericEditor::updateParameterButtons(int parameterIndex)
         {
             parameterEditors[parameterIndex]->updateChannelSelectionUI();
         }
-        //std::cout << "updateParameterButtons" << std::endl;
+LOGDD("updateParameterButtons");
     }
 }
 
@@ -1191,7 +1191,10 @@ void GenericEditor::editorWasClicked() {}
 
 Colour GenericEditor::getBackgroundColor()
 {
-    return backgroundColor;
+    if (getProcessor()->isEnabledState())
+        return backgroundColor;
+    else
+        return Colours::grey;
 }
 
 ColourGradient GenericEditor::getBackgroundGradient()

@@ -108,7 +108,7 @@ bool FileReader::isReady()
 {
     if (! input)
     {
-        CoreServices::sendStatusMessage ("No file selected in File Reader.");
+        //CoreServices::sendStatusMessage ("No file selected in File Reader.");
         return false;
     }
     else

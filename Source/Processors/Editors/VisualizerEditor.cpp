@@ -26,6 +26,8 @@
 #include "../../UI/UIComponent.h"
 #include "../../UI/DataViewport.h"
 
+#include "../../Utils/Utils.h"
+
 
 SelectorButton::SelectorButton (const String& buttonName)
     : Button (buttonName)
@@ -154,7 +156,7 @@ void VisualizerEditor::buttonEvent (Button* button) {}
 
 void VisualizerEditor::enable()
 {
-    std::cout << "   Enabling VisualizerEditor" << std::endl;
+    LOGD("   Enabling VisualizerEditor");
     if (canvas != 0)
         canvas->beginAnimation();
 
@@ -187,7 +189,7 @@ void VisualizerEditor::editorWasClicked()
 {
     if (tabIndex > -1)
     {
-        std::cout << "Setting tab index to " << tabIndex << std::endl;
+        LOGD("Setting tab index to ", tabIndex);
         AccessClass::getDataViewport()->selectTab (tabIndex);
     }
 }

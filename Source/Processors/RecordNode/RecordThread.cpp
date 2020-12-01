@@ -52,7 +52,7 @@ void RecordThread::setFileComponents(File rootFolder, int experimentNumber, int 
 	}
 
 	m_rootFolder = rootFolder;
-	//LOGD(__FUNCTION__, " Experiment number: ", experimentNumber, " Recording number: ", recordingNumber);
+	LOGDD("Experiment number: ", experimentNumber, " Recording number: ", recordingNumber);
 	m_experimentNumber = experimentNumber;
 	m_recordingNumber = recordingNumber;
 }

@@ -22,7 +22,6 @@ add_sources(open-ephys
 	SyncChannelSelector.h
 	Synchronizer.cpp
 	Synchronizer.h
-	Utils.h
 )
 
 #add nested directories

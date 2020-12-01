@@ -25,6 +25,7 @@
 #include "SourceNodeEditor.h"
 #include "../SourceNode/SourceNode.h"
 #include <stdio.h>
+#include "../../Utils/Utils.h"
 
 
 SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
@@ -35,7 +36,7 @@ SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode, bool useDefault
 
     Image im;
 
-    std::cout << "I think my name is: " << getName() << std::endl;
+    LOGD("I think my name is: ", getName());
 
     if (getName().equalsIgnoreCase("Intan Demo Board"))
     {

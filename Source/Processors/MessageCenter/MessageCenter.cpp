@@ -25,6 +25,8 @@
 #include "MessageCenterEditor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../AccessClass.h"
+#include "../../Utils/Utils.h"
+
 #define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
@@ -126,14 +128,14 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
     {
         //int numBytes = 0;
 
-        String eventString = messageCenterEditor->getLabelString();
+        String eventString = messageCenterEditor->getOutgoingMessage();
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
 		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
 
-        std::cout << "Message Center added event." << std::endl;
+        LOGD("Message Center added event.");
 
         newEventAvailable = false;
     }
