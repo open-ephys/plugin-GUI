@@ -543,9 +543,9 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
     
     if (destNode != nullptr)
     {
-        updateViews(destNode);
+        updateSettings(destNode);
     } else {
-        updateViews(sourceNode);
+        updateSettings(sourceNode);
     }
         
 }
