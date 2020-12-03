@@ -279,6 +279,9 @@ void MessageCenterEditor::paint(Graphics& g)
         getHeight()-60, Justification::centred);
     }
 
+    g.setColour(Colours::grey);
+    g.drawRect(getWidth()/2+26,getHeight()-25,getWidth()/2-80, 20);
+
 }
 
 void MessageCenterEditor::resized()
@@ -370,7 +373,7 @@ MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     setJustificationType(Justification::bottomLeft);
     setColour(Label::textColourId, Colours::black);
     setColour(Label::textWhenEditingColourId, Colours::black);
-    setColour(Label::outlineWhenEditingColourId, Colours::grey);
+    setColour(Label::outlineWhenEditingColourId, Colours::darkgrey);
     setFont(Font("Default", 15, Font::plain));
     setBorderSize(BorderSize<int>(0, 7, 2, 0));
     setMinimumHorizontalScale (1.0f);
