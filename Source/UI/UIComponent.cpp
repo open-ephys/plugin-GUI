@@ -110,6 +110,7 @@ LOGD("Created plugin manager");
 	mainWindow->setMenuBar(0);
 #else
 	mainWindow->setMenuBar(this);
+	mainWindow->getMenuBarComponent()->setName("MainMenu");
 #endif
 
 }

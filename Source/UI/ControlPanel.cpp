@@ -180,6 +180,7 @@ Clock::Clock() : isRunning(false), isRecording(false)
 {
 
     clockFont = Font("Default Light", 30, Font::plain);
+    clockFont.setHorizontalScale(0.95f);
 
     // MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
     // Typeface::Ptr typeface = new CustomTypeface(mis);

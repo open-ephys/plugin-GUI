@@ -533,6 +533,30 @@ Font CustomLookAndFeel::getPopupMenuFont()
     return getCommonMenuFont();
 }
 
+void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int height,
+                                            bool, MenuBarComponent& menuBar)
+{
+    const Colour colour (58, 58, 58);
+
+    Rectangle<int> r (width, height);
+
+    g.setColour (colour.contrasting (0.15f));
+    g.fillRect  (r.removeFromTop (1));
+    g.fillRect  (r.removeFromBottom (1));
+
+    g.setGradientFill (ColourGradient (colour, 0, 0, colour.darker (0.08f), 0, (float) height, false));
+    g.fillRect (r);
+
+    if(menuBar.getName().equalsIgnoreCase("MainMenu"))
+    {
+        g.setColour(Colours::lightgrey);
+        String ver = "v" + String(ProjectInfo::versionString);
+        g.setFont(getPopupMenuFont());
+        int verStrWidth = getPopupMenuFont().getStringWidth(ver);
+        g.drawText(ver, width - verStrWidth - 10, 0, verStrWidth, height, Justification::centred);
+    }
+}
+
 //==================================================================
 // BUTTON METHODS :
 //==================================================================
@@ -571,6 +595,8 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
                                   ! (flatOnRight || flatOnBottom));
 
         g.fillPath (path);
+        g.setColour(findColour(ComboBox::outlineColourId));
+        g.strokePath (path, PathStrokeType (1.0f));
     }
     else
     {
