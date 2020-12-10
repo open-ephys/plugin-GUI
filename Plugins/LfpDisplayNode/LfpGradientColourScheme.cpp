@@ -45,7 +45,7 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpGradientColourScheme
 
-LfpGradientColourScheme::LfpGradientColourScheme(LfpDisplay * display, LfpDisplayCanvas * canvas)
+LfpGradientColourScheme::LfpGradientColourScheme(LfpDisplay * display, LfpDisplaySplitter * canvas)
     : LfpMonochromaticColourScheme(display, canvas)
 {
     setName("Gradient");
@@ -136,7 +136,7 @@ void LfpGradientColourScheme::mouseUp(const MouseEvent &e)
             baseHue = swatchHue;
             calculateColourSeriesFromBaseHue();
             lfpDisplay->setColors();
-            canvas->redraw();
+            canvasSplit->redraw();
         }
     }
     else
@@ -146,7 +146,7 @@ void LfpGradientColourScheme::mouseUp(const MouseEvent &e)
             baseHueB = swatchHueB;
             calculateColourSeriesFromBaseHue();
             lfpDisplay->setColors();
-            canvas->redraw();
+            canvasSplit->redraw();
         }
     }
 }

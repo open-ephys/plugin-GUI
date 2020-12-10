@@ -50,7 +50,6 @@ SupersampledBitmapPlotter::SupersampledBitmapPlotter(LfpDisplay * lfpDisplay)
 void SupersampledBitmapPlotter::plot(Image::BitmapData &bdLfpChannelBitmap, LfpBitmapPlotterInfo &pInfo)
 {
     std::array<float, MAX_N_SAMP_PER_PIXEL> samplesThisPixel = pInfo.samplesPerPixel;
-//    int sampleCountThisPixel = lfpDisplay->canvas->getSampleCountPerPixel(pInfo.samp);
     int sampleCountThisPixel = pInfo.sampleCountPerPixel;
     
     if (pInfo.samplerange>0 && sampleCountThisPixel>0)

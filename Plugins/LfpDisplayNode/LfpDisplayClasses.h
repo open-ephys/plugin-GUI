@@ -10,6 +10,7 @@ namespace LfpViewer {
 
     class LfpDisplayNode;
     class LfpDisplayCanvas;
+    class LfpDisplaySplitter;
     class ShowHideOptionsButton;
     class LfpDisplayOptions;
     class LfpTimescale;

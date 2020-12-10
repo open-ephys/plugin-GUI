@@ -43,15 +43,15 @@ using namespace LfpViewer;
 #pragma  mark - LfpViewport -
 // Lfp Viewport -------------------------------------------
 
-LfpViewport::LfpViewport(LfpDisplayCanvas *canvas)
+LfpViewport::LfpViewport(LfpDisplaySplitter *split)
     : Viewport()
 {
-    this->canvas = canvas;
+    this->canvasSplit = split;
 }
 
 void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
-    canvas->fullredraw = true;
-    canvas->refresh();
+    canvasSplit->fullredraw = true;
+    canvasSplit->refresh();
 }
 

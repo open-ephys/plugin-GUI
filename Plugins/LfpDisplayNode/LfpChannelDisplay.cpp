@@ -44,8 +44,8 @@ using namespace LfpViewer;
 #pragma  mark - LfpChannelDisplay -
 // ------------------------------------------------------------------
 
-LfpChannelDisplay::LfpChannelDisplay(LfpDisplayCanvas* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
-    : canvas(c)
+LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
+    : canvasSplit(c)
     , display(d)
     , options(o)
     , isSelected(false)
@@ -127,16 +127,16 @@ void LfpChannelDisplay::pxPaint()
     //int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
     
     // max and min of channel, this is the range where actual data is drawn
-    int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvas->channelOverlapFactor)+1  ;
-    int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvas->channelOverlapFactor) -0;
+    int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvasSplit->channelOverlapFactor)+1  ;
+    int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvasSplit->channelOverlapFactor) -0;
     
     if (jfrom_wholechannel<0) {jfrom_wholechannel=0;};
     if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
     
     // draw most recent drawn sample position
-    if (canvas->screenBufferIndex[chan]+1 <= display->lfpChannelBitmap.getWidth())
+    if (canvasSplit->screenBufferIndex[chan]+1 <= display->lfpChannelBitmap.getWidth())
         for (int k=jfrom_wholechannel; k<=jto_wholechannel; k+=2) // draw line
-            bdLfpChannelBitmap.setPixelColour(canvas->screenBufferIndex[chan]+1,k, Colours::yellow);
+            bdLfpChannelBitmap.setPixelColour(canvasSplit->screenBufferIndex[chan]+1,k, Colours::yellow);
     
     bool clipWarningHi =false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
     bool clipWarningLo =false;
@@ -147,18 +147,18 @@ void LfpChannelDisplay::pxPaint()
     // pre compute some colors for later so we dont do it once per pixel.
     Colour lineColourBright = lineColour.withMultipliedBrightness(2.0f);
     //Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f).withMultipliedBrightness(0.3f);
-    Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f*canvas->histogramParameterB).withMultipliedBrightness(canvas->histogramParameterB);
+    Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f*canvasSplit->histogramParameterB).withMultipliedBrightness(canvasSplit->histogramParameterB);
     
     int stepSize = 1;
     int from = 0; // for vertical line drawing in the LFP data
     int to = 0;
     
-    int ifrom = canvas->lastScreenBufferIndex[chan] - 1; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
+    int ifrom = canvasSplit->lastScreenBufferIndex[chan] - 1; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
     
     if (ifrom < 0)
         ifrom = 0;
     
-    int ito = canvas->screenBufferIndex[chan] +0;
+    int ito = canvasSplit->screenBufferIndex[chan] +0;
     
     if (fullredraw)
     {
@@ -202,7 +202,7 @@ void LfpChannelDisplay::pxPaint()
             }
             
             // draw event markers
-            int rawEventState = canvas->getYCoord(canvas->getNumChannels(), i);// get last channel+1 in buffer (represents events)
+            int rawEventState = canvasSplit->getYCoord(canvasSplit->getNumChannels(), i);// get last channel+1 in buffer (represents events)
             
             for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
             {
@@ -223,10 +223,10 @@ void LfpChannelDisplay::pxPaint()
             //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
             
             // set max-min range for plotting, used in all methods
-            double a = (canvas->getYCoordMax(chan, i)/range*channelHeightFloat);
-            double b = (canvas->getYCoordMin(chan, i)/range*channelHeightFloat);
+            double a = (canvasSplit->getYCoordMax(chan, i)/range*channelHeightFloat);
+            double b = (canvasSplit->getYCoordMin(chan, i)/range*channelHeightFloat);
             
-            double mean = (canvas->getMean(chan)/range*channelHeightFloat);
+            double mean = (canvasSplit->getMean(chan)/range*channelHeightFloat);
             
             if (drawWithOffsetCorrection)
             {
@@ -234,8 +234,8 @@ void LfpChannelDisplay::pxPaint()
                 b -= mean;
             }
             
-            double a_raw = canvas->getYCoordMax(chan, i);
-            double b_raw = canvas->getYCoordMin(chan, i);
+            double a_raw = canvasSplit->getYCoordMax(chan, i);
+            double b_raw = canvasSplit->getYCoordMin(chan, i);
             double from_raw=0; double to_raw=0;
             
             //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
@@ -252,7 +252,7 @@ void LfpChannelDisplay::pxPaint()
             }
             
             // start by clipping so that we're not populating pixels that we dont want to plot
-            int lm= channelHeightFloat*canvas->channelOverlapFactor;
+            int lm= channelHeightFloat*canvasSplit->channelOverlapFactor;
             if (lm>0)
                 lm=-lm;
             
@@ -269,8 +269,8 @@ void LfpChannelDisplay::pxPaint()
             
             bool spikeFlag = display->getSpikeRasterPlotting()
                 && !(saturateWarningHi || saturateWarningLo)
-                && (from_raw - canvas->getYCoordMean(chan, i) < display->getSpikeRasterThreshold()
-                        || to_raw - canvas->getYCoordMean(chan, i) < display->getSpikeRasterThreshold());
+                && (from_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold()
+                        || to_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold());
             
             from = from + getHeight()/2;       // so the plot is centered in the channeldisplay
             to = to + getHeight()/2;
@@ -288,9 +288,9 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.lineColourDark = lineColourDark;
                 plotterInfo.range = range;
                 plotterInfo.channelHeightFloat = channelHeightFloat;
-                plotterInfo.sampleCountPerPixel = canvas->getSampleCountPerPixel(i);
-                plotterInfo.samplesPerPixel = canvas->getSamplesPerPixel(chan, i);
-                plotterInfo.histogramParameterA = canvas->histogramParameterA;
+                plotterInfo.sampleCountPerPixel = canvasSplit->getSampleCountPerPixel(i);
+                plotterInfo.samplesPerPixel = canvasSplit->getSamplesPerPixel(chan, i);
+                plotterInfo.histogramParameterA = canvasSplit->histogramParameterA;
                 plotterInfo.samplerange = samplerange;
                 
                 // TODO: (kelly) complete transition toward plotter class encapsulation
@@ -317,7 +317,7 @@ void LfpChannelDisplay::pxPaint()
                 display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
             
             // now draw warnings, if needed
-            if (canvas->drawClipWarning) // draw simple warning if display cuts off data
+            if (canvasSplit->drawClipWarning) // draw simple warning if display cuts off data
             {
                 
                 if(clipWarningHi) {
@@ -355,7 +355,7 @@ void LfpChannelDisplay::pxPaint()
                 };
             }
             
-            if (canvas->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
+            if (canvasSplit->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
             {
                 
                 if(saturateWarningHi || saturateWarningLo) {

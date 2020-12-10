@@ -44,7 +44,7 @@ class LfpDisplayOptions : public Component,
     public Button::Listener
 {
 public:
-    LfpDisplayOptions(LfpDisplayCanvas*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
+    LfpDisplayOptions(LfpDisplaySplitter*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
     ~LfpDisplayOptions();
 
     void paint(Graphics& g);
@@ -124,7 +124,7 @@ public:
 
 private:
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     LfpDisplay* lfpDisplay;
     LfpTimescale* timescale;
     LfpDisplayNode* processor;

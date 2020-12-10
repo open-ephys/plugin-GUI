@@ -46,7 +46,7 @@ namespace LfpViewer {
 class LfpDisplay : public Component
 {
 public:
-    LfpDisplay(LfpDisplayCanvas*, Viewport*);
+    LfpDisplay(LfpDisplaySplitter*, Viewport*);
     ~LfpDisplay();
     
     Image lfpChannelBitmap; // plot as bitmap instead of separately setting pixels
@@ -216,7 +216,7 @@ private:
     bool m_SpikeRasterPlottingFlag;
     float m_SpikeRasterThreshold;
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     Viewport* viewport;
 
     float range[3];

@@ -44,7 +44,7 @@ using namespace LfpViewer;
 #pragma  mark - LfpChannelDisplayInfo -
 // -------------------------------
 
-LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplayCanvas* canvas_, LfpDisplay* display_, LfpDisplayOptions* options_, int ch)
+LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDisplay* display_, LfpDisplayOptions* options_, int ch)
     : LfpChannelDisplay(canvas_, display_, options_, ch)
 {
 
@@ -131,7 +131,7 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
                 zoomInfo.componentStartHeight = getChannelHeight();
                 zoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY())/(float)display->getHeight();
                 zoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)display->getWidth();
-                zoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvas->viewport->getViewPosition();
+                zoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvasSplit->viewport->getViewPosition();
                 
                 zoomInfo.unpauseOnScrollEnd = !display->isPaused;
                 if (!display->isPaused) display->options->togglePauseButton(true);
@@ -183,14 +183,14 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
             
             options->setSpreadSelection(newHeight, false, true); // update combobox
             
-            canvas->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
+            canvasSplit->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
             
             display->setBounds(0,0,display->getWidth()-0, display->getChannelHeight()*display->drawableChannels.size()); // update height so that the scrollbar is correct
             
             int newViewportY = display->trackZoomInfo.zoomPivotRatioY * display->getHeight() - display->trackZoomInfo.zoomPivotViewportOffset.getY();
             if (newViewportY < 0) newViewportY = 0; // make sure we don't adjust beyond the edge of the actual view
             
-            canvas->viewport->setViewPosition(0, newViewportY);
+            canvasSplit->viewport->setViewPosition(0, newViewportY);
         }
     }
 }
@@ -252,8 +252,8 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
         //g.drawText("Y:", 5, center+200,41,10,Justification::centred,false);
 
         g.setColour(Colours::grey);
-        g.drawText(String(canvas->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
-        g.drawText(String(canvas->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
+        g.drawText(String(canvasSplit->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
+        g.drawText(String(canvasSplit->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
         if (x > 0)
         {
             //g.drawText(String(x), 5, center+150,41,10,Justification::centred,false);

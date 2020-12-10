@@ -65,7 +65,7 @@ Array<Colour> LfpDefaultColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-LfpDefaultColourScheme::LfpDefaultColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
+LfpDefaultColourScheme::LfpDefaultColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
 	: LfpViewer::LfpChannelColourScheme(LfpDefaultColourScheme::colourList.size(), display, canvas)
 {
     setName("Default");

@@ -35,13 +35,13 @@ namespace LfpViewer {
 //==============================================================================
 /**
  
-    Displays the timescale of the LfpDisplayCanvas in the viewport.
+    Displays the timescale of the LfpDisplaySplitter in the viewport.
  
  */
 class LfpTimescale : public Component
 {
 public:
-    LfpTimescale(LfpDisplayCanvas*, LfpDisplay*);
+    LfpTimescale(LfpDisplaySplitter*, LfpDisplay*);
     ~LfpTimescale();
 
     void paint(Graphics& g);
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     LfpDisplay* lfpDisplay;
 
     float timebase;

@@ -38,7 +38,7 @@ class LfpGradientColourScheme : public LfpMonochromaticColourScheme
 {
 public:
     
-    LfpGradientColourScheme(LfpDisplay*, LfpDisplayCanvas*);
+    LfpGradientColourScheme(LfpDisplay*, LfpDisplaySplitter*);
     
     void paint(Graphics &) override;
     void resized() override;

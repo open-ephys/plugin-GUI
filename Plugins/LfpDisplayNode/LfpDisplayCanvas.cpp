@@ -43,10 +43,188 @@ using namespace LfpViewer;
 #pragma  mark - LfpDisplayCanvas -
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), 
-    processor(processor_)
+                  processor(processor_)
+{
+    
+    displaySplits.add(new LfpDisplaySplitter(processor, this));
+    displaySplits.add(new LfpDisplaySplitter(processor, this));
+
+    addAndMakeVisible(displaySplits[0]);
+    addAndMakeVisible(displaySplits[1]);
+
+    resized();
+    
+    juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
+
+}
+
+LfpDisplayCanvas::~LfpDisplayCanvas()
+{
+    juce::TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+}
+
+void LfpDisplayCanvas::resized()
 {
 
+    displaySplits[0]->setBounds(0, 0, getWidth()/2 - 5, getHeight());
+    displaySplits[1]->setBounds(getWidth()/2 + 5, 0, getWidth()/2 - 5, getHeight());
+
+}
+
+void LfpDisplayCanvas::beginAnimation()
+{
+
+    if (true)
+    {
+
+        for (auto split : displaySplits)
+        {
+            split->beginAnimation();
+        }
+
+        startCallbacks();
+    }    
+}
+
+void LfpDisplayCanvas::endAnimation()
+{
+    if (true)
+    {
+
+        stopCallbacks();
+    }
+}
+
+void LfpDisplayCanvas::update()
+{
+
+    for (auto split : displaySplits)
+    {
+        split->processorUpdate();
+    }
+
+}
+
+void LfpDisplayCanvas::setParameter(int param, float val)
+{
+    // not used for anything, since LfpDisplayCanvas is not a processor
+}
+
+void LfpDisplayCanvas::refreshState()
+{
+    // called when the component's tab becomes visible again
+
+    if (true)
+    {
+        for (auto split : displaySplits)
+        {
+            split->refreshSplitterState();
+        }
+    }
+
+}
+
+void LfpDisplayCanvas::setDrawableSubprocessor(uint32 sp)
+{
+    for (auto split : displaySplits)
+    {
+        split->setDrawableSubprocessor(sp);
+    }
+    //update();
+}
+
+void LfpDisplayCanvas::paint(Graphics& g)
+{
+    
+    //std::cout << "Painting" << std::endl;
+
+    g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
+    // g.setColour(lfpDisplay->backgroundColour); //background color
+    // g.fillRect(0, 0, getWidth(), getHeight());
+
+    // g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
+    //                                  Colour(25,25,25),0,30,
+    //                                  false));
+
+    // g.fillRect(0, 0, getWidth()-scrollBarThickness, 30);
+
+    // g.setColour(Colours::black);
+
+    // g.drawLine(0,30,getWidth()-scrollBarThickness,30);
+
+    // g.setColour(Colour(25,25,60)); // timing grid color
+
+    // int w = getWidth()-scrollBarThickness-leftmargin;
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     if (i == 5 || i == 0)
+    //         g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),3.0f);
+    //     else
+    //         g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),1.0f);
+    // }
+
+    // g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
+
+}
+
+void LfpDisplayCanvas::refresh()
+{
+    if (true)
+    { 
+        for (auto split : displaySplits)
+        {
+            split->refresh();
+        }
+    }
+}
+
+bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
+{
+    if (key.getKeyCode() == key.spaceKey)
+    {
+        for (auto split : displaySplits)
+        {
+            split->handleSpaceKeyPauseEvent();
+        }
+        
+        return true;
+    }
+
+    return false;
+}
+
+bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
+{
+    if (getTopLevelComponent() == orig && isVisible())
+    {
+        return keyPressed(key);
+    }
+    return false;
+}
+
+void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
+{
+
+    //options->saveParameters(xml);
+    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
+    ed->saveVisualizerParameters(xml);
+}
+
+void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
+{
+    //options->loadParameters(xml);
+    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
+    ed->loadVisualizerParameters(xml);
+}
+
+
+/*****************************************************/
+LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
+                                       LfpDisplayCanvas* canvas) :
+                    timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), 
+                    processor(node)
+{
     nChans = processor->getNumSubprocessorChannels();
 
     displayBuffer = processor->getDisplayBufferAddress();
@@ -88,59 +266,23 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
 
     resizeSamplesPerPixelBuffer(nChans);
 
-    TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
-
     optionsDrawerIsOpen = false;
-
 }
 
-LfpDisplayCanvas::~LfpDisplayCanvas()
+LfpDisplaySplitter::~LfpDisplaySplitter()
 {
-
-    // de-allocate 3d-array samplesPerPixel [nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-
-    //for(int i=0;i<nChans;i++)
-    //{
-    //    for(int j=0;j<MAX_N_SAMP;j++)
-    //    {
-    //        free(samplesPerPixel[i][j]);
-    //    }
-    //    free(samplesPerPixel[i]);
-    // }
-    // free(samplesPerPixel);
-
     samplesPerPixel.clear();
-    
-    TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
 }
 
-void LfpDisplayCanvas::resizeSamplesPerPixelBuffer(int numCh)
-{
-    // allocate samplesPerPixel, behaves like float samplesPerPixel[nChans][MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL]
-    //samplesPerPixel = (float***)malloc(nChans * sizeof(float **));
 
+void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
+{
     // 3D array: dimensions channels x samples x samples per pixel
     samplesPerPixel.clear();
     samplesPerPixel.resize(numCh);
-
-    //for(int i = 0; i < numCh; i++)
-    //{
-        //std::vector< std::vector<float>> v1;
-    //    samplesPerPixel[i].resize(MAX_N_SAMP);
-        //samplesPerPixel.push_back(v1);
-        //samplesPerPixel[i] = (float**)malloc(MAX_N_SAMP * sizeof(float*));
-
-    //    for(int j = 0; j < MAX_N_SAMP; j++)
-    //    {
-            //std::vector<float> v2;
-            //v2.resize(MAX_N_SAMP_PER_PIXEL);
-    //        samplesPerPixel[i][j].resize(MAX_N_SAMP_PER_PIXEL);
-    //        //samplesPerPixel[i][j] = (float*)malloc(MAX_N_SAMP_PER_PIXEL*sizeof(float));
-    //    }
-   //}
 }
 
-void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
+void LfpDisplaySplitter::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
     auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
@@ -148,7 +290,7 @@ void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
     viewport->setViewPosition(0, viewportPosition);         // return viewport position
 }
 
-void LfpDisplayCanvas::resized()
+void LfpDisplaySplitter::resized()
 {
 
     timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
@@ -173,7 +315,7 @@ void LfpDisplayCanvas::resized()
 
 }
 
-void LfpDisplayCanvas::resizeToChannels(bool respectViewportPosition)
+void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     
@@ -191,7 +333,7 @@ void LfpDisplayCanvas::resizeToChannels(bool respectViewportPosition)
                               lfpDisplay->getHeight() * yPositionRatio);
 }
 
-void LfpDisplayCanvas::beginAnimation()
+void LfpDisplaySplitter::beginAnimation()
 {
 
     if (true)
@@ -204,20 +346,10 @@ void LfpDisplayCanvas::beginAnimation()
             screenBufferIndex.set(i, 0);
         }
 
-        startCallbacks();
     }    
 }
 
-void LfpDisplayCanvas::endAnimation()
-{
-    if (true)
-    {
-
-        stopCallbacks();
-    }
-}
-
-void LfpDisplayCanvas::update()
+void LfpDisplaySplitter::processorUpdate()
 {
 
     displayBufferSize = displayBuffer->getNumSamples();
@@ -292,19 +424,14 @@ void LfpDisplayCanvas::update()
     }
 }
 
-int LfpDisplayCanvas::getChannelHeight()
+int LfpDisplaySplitter::getChannelHeight()
 {
     //return spreads[spreadSelection->getSelectedId()-1].getIntValue();
     return options->getChannelHeight();
     
 }
 
-void LfpDisplayCanvas::setParameter(int param, float val)
-{
-    // not used for anything, since LfpDisplayCanvas is not a processor
-}
-
-void LfpDisplayCanvas::refreshState()
+void LfpDisplaySplitter::refreshSplitterState()
 {
     // called when the component's tab becomes visible again
 
@@ -320,7 +447,7 @@ void LfpDisplayCanvas::refreshState()
 
 }
 
-void LfpDisplayCanvas::refreshScreenBuffer()
+void LfpDisplaySplitter::refreshScreenBuffer()
 {
     if (true)
     {
@@ -335,7 +462,7 @@ void LfpDisplayCanvas::refreshScreenBuffer()
 
 }
 
-void LfpDisplayCanvas::updateScreenBuffer()
+void LfpDisplaySplitter::updateScreenBuffer()
 {
     if (true)
     {
@@ -538,54 +665,54 @@ void LfpDisplayCanvas::updateScreenBuffer()
 
 }
 
-const float LfpDisplayCanvas::getXCoord(int chan, int samp)
+const float LfpDisplaySplitter::getXCoord(int chan, int samp)
 {
     return samp;
 }
 
-int LfpDisplayCanvas::getNumChannels()
-{
-    return nChans;
-}
-
-int LfpDisplayCanvas::getNumChannelsVisible()
-{
-    return lfpDisplay->drawableChannels.size();
-}
-
-int LfpDisplayCanvas::getChannelSubprocessorIdx(int channel)
-{
-    return processor->getDataChannel(channel)->getSubProcessorIdx();
-}
-
-const float LfpDisplayCanvas::getYCoord(int chan, int samp)
+const float LfpDisplaySplitter::getYCoord(int chan, int samp)
 {
     return *screenBuffer->getReadPointer(chan, samp);
 }
 
-const float LfpDisplayCanvas::getYCoordMean(int chan, int samp)
+const float LfpDisplaySplitter::getYCoordMean(int chan, int samp)
 {
     return *screenBufferMean->getReadPointer(chan, samp);
 }
-const float LfpDisplayCanvas::getYCoordMin(int chan, int samp)
+const float LfpDisplaySplitter::getYCoordMin(int chan, int samp)
 {
     return *screenBufferMin->getReadPointer(chan, samp);
 }
-const float LfpDisplayCanvas::getYCoordMax(int chan, int samp)
+const float LfpDisplaySplitter::getYCoordMax(int chan, int samp)
 {
     return *screenBufferMax->getReadPointer(chan, samp);
 }
 
-std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplayCanvas::getSamplesPerPixel(int chan, int px)
+int LfpDisplaySplitter::getNumChannels()
+{
+    return nChans;
+}
+
+int LfpDisplaySplitter::getNumChannelsVisible()
+{
+    return lfpDisplay->drawableChannels.size();
+}
+
+int LfpDisplaySplitter::getChannelSubprocessorIdx(int channel)
+{
+    return processor->getDataChannel(channel)->getSubProcessorIdx();
+}
+
+std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
 {
     return samplesPerPixel[chan][px];
 }
-const int LfpDisplayCanvas::getSampleCountPerPixel(int px)
+const int LfpDisplaySplitter::getSampleCountPerPixel(int px)
 {
     return sampleCountPerPixel[px];
 }
 
-float LfpDisplayCanvas::getMean(int chan)
+float LfpDisplaySplitter::getMean(int chan)
 {
     float total = 0.0f;
     float numPts = 0;
@@ -603,7 +730,7 @@ float LfpDisplayCanvas::getMean(int chan)
     return total / numPts;
 }
 
-float LfpDisplayCanvas::getStd(int chan)
+float LfpDisplaySplitter::getStd(int chan)
 {
     float std = 0.0f;
 
@@ -620,43 +747,43 @@ float LfpDisplayCanvas::getStd(int chan)
 
 }
 
-bool LfpDisplayCanvas::getInputInvertedState()
+bool LfpDisplaySplitter::getInputInvertedState()
 {
     return options->getInputInvertedState(); //invertInputButton->getToggleState();
 }
 
-bool LfpDisplayCanvas::getDisplaySpikeRasterizerState()
+bool LfpDisplaySplitter::getDisplaySpikeRasterizerState()
 {
     return options->getDisplaySpikeRasterizerState();
 }
 
-bool LfpDisplayCanvas::getDrawMethodState()
+bool LfpDisplaySplitter::getDrawMethodState()
 {
     
     return options->getDrawMethodState(); //drawMethodButton->getToggleState();
 }
 
-void LfpDisplayCanvas::setDrawableSampleRate(float samplerate)
+void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
 {
 //    std::cout << "setting the drawable sample rate in the canvas" << std::endl;
     displayedSampleRate = samplerate;
 }
 
-void LfpDisplayCanvas::setDrawableSubprocessor(uint32 sp)
+void LfpDisplaySplitter::setDrawableSubprocessor(uint32 sp)
 {
     drawableSubprocessor = sp;
     displayBuffer = processor->getDisplayBufferAddress();
-    update();
+    processorUpdate();
 }
 
-void LfpDisplayCanvas::redraw()
+void LfpDisplaySplitter::redraw()
 {
     fullredraw=true;
     repaint();
     refresh();
 }
 
-void LfpDisplayCanvas::paint(Graphics& g)
+void LfpDisplaySplitter::paint(Graphics& g)
 {
     
     //std::cout << "Painting" << std::endl;
@@ -691,49 +818,17 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 }
 
-void LfpDisplayCanvas::refresh()
+void LfpDisplaySplitter::refresh()
 {
     if (true)
     { 
-    updateScreenBuffer();
+        updateScreenBuffer();
 
-    lfpDisplay->refresh(); // redraws only the new part of the screen buffer
+        lfpDisplay->refresh(); // redraws only the new part of the screen buffer
     }
 }
 
-bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
+void LfpDisplaySplitter::handleSpaceKeyPauseEvent()
 {
-    if (key.getKeyCode() == key.spaceKey)
-    {
-        options->togglePauseButton();
-        
-        return true;
-    }
-
-    return false;
+    options->togglePauseButton();
 }
-
-bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
-{
-    if (getTopLevelComponent() == orig && isVisible())
-    {
-        return keyPressed(key);
-    }
-    return false;
-}
-
-void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
-{
-
-    options->saveParameters(xml);
-    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
-    ed->saveVisualizerParameters(xml);
-}
-
-void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
-{
-    options->loadParameters(xml);
-    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
-    ed->loadVisualizerParameters(xml);
-}
-

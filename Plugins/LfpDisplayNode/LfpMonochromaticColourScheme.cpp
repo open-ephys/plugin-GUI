@@ -44,7 +44,7 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpMonochromaticColorScheme
 
-LfpMonochromaticColourScheme::LfpMonochromaticColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
+LfpMonochromaticColourScheme::LfpMonochromaticColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
     : LfpChannelColourScheme (8, display, canvas)
     , isBlackAndWhite (false)
     , colourPattern (DOWN_UP)
@@ -160,7 +160,7 @@ void LfpMonochromaticColourScheme::comboBoxChanged(ComboBox *cb)
     calculateColourSeriesFromBaseHue();
     lfpDisplay->setColors();
 //    canvas->fullredraw = true;
-    canvas->redraw();
+    canvasSplit->redraw();
 }
 
 void LfpMonochromaticColourScheme::mouseUp(const MouseEvent &e)
@@ -170,7 +170,7 @@ void LfpMonochromaticColourScheme::mouseUp(const MouseEvent &e)
         baseHue = swatchHue;
         calculateColourSeriesFromBaseHue();
         lfpDisplay->setColors();
-        canvas->redraw();
+        canvasSplit->redraw();
     }
 }
 

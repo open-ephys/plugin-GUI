@@ -46,7 +46,7 @@ class LfpMonochromaticColourScheme : public LfpChannelColourScheme,
     public Slider::Listener
 {
 public:
-    LfpMonochromaticColourScheme(LfpDisplay*, LfpDisplayCanvas*);
+    LfpMonochromaticColourScheme(LfpDisplay*, LfpDisplaySplitter*);
     virtual ~LfpMonochromaticColourScheme() {}
     
     void paint(Graphics &g) override;

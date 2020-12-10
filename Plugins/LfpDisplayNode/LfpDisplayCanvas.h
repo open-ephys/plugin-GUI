@@ -31,6 +31,9 @@
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
 namespace LfpViewer {
+
+class LfpDisplaySplitter;
+
 #pragma  mark - LfpDisplayCanvas -
 //==============================================================================
 /**
@@ -62,12 +65,51 @@ public:
     void refresh();
     void resized();
     
-    /** Resizes the LfpDisplay to the size required to fit all channels that are being
+    /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
+        this canvas */
+    void setDrawableSubprocessor(uint32 sp);
+
+    void saveVisualizerParameters(XmlElement* xml);
+    void loadVisualizerParameters(XmlElement* xml);
+
+    bool keyPressed(const KeyPress& key);
+    bool keyPressed(const KeyPress& key, Component* orig);
+
+private:
+
+    LfpDisplayNode* processor;
+
+    OwnedArray<LfpDisplaySplitter> displaySplits;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+
+};
+
+
+class LfpDisplaySplitter : public Component
+{
+public:
+    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas);
+    ~LfpDisplaySplitter();
+
+    void paint(Graphics& g);
+
+    void beginAnimation();
+
+        /** Resizes the LfpDisplay to the size required to fit all channels that are being
         drawn to the screen.
         
         @param respectViewportPosition  (optional) if true, viewport automatically
                                         scrolls to maintain view prior to resizing
      */
+    
+    void refreshSplitterState();
+
+    void processorUpdate();
+    
+    void resized();
+    void refresh();
+
     void resizeToChannels(bool respectViewportPosition = false);
 
     void toggleOptionsDrawer(bool);
@@ -118,12 +160,6 @@ public:
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
 
-    void saveVisualizerParameters(XmlElement* xml);
-    void loadVisualizerParameters(XmlElement* xml);
-
-    bool keyPressed(const KeyPress& key);
-    bool keyPressed(const KeyPress& key, Component* orig);
-
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
@@ -141,26 +177,27 @@ public:
 
     void redraw();
 
+    void handleSpaceKeyPauseEvent();
+
 	DataChannel::DataChannelTypes selectedChannelType;
 
     ScopedPointer<LfpViewport> viewport;
 
+
 private:
-    
+
+    LfpDisplayNode* processor;
+
     float sampleRate;
 
     bool optionsDrawerIsOpen;
-    
+
     float displayGain;
     float timeOffset;
-    //int spread ; // vertical spacing between channels
 
 	uint32 drawableSubprocessor;
 	float displayedSampleRate;
     
-    //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
-
-    LfpDisplayNode* processor;
     std::shared_ptr<AudioSampleBuffer> displayBuffer; // sample wise data buffer for display
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
@@ -184,17 +221,15 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
-    
-    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    //float*** samplesPerPixel;
 
 	void resizeSamplesPerPixelBuffer(int numChannels);
     std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
 
     int sampleCountPerPixel[MAX_N_SAMP];
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 
+    
 };
 
 }; // namespace

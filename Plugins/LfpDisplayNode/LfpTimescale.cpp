@@ -43,8 +43,8 @@ using namespace LfpViewer;
 #pragma  mark - LfpTimescale -
 // -------------------------------------------------------------
 
-LfpTimescale::LfpTimescale(LfpDisplayCanvas* c, LfpDisplay* lfpDisplay)
-    : canvas(c)
+LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
+    : canvasSplit(c)
     , lfpDisplay(lfpDisplay)
 {
 
@@ -173,7 +173,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             if (timescale != newTimescale)
             {
                 lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
-                setTimebase(canvas->timebase);
+                setTimebase(canvasSplit->timebase);
             }
         }
     }

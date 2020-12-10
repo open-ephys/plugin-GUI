@@ -39,7 +39,7 @@ namespace LfpViewer {
 class LfpChannelDisplay : public Component
 {
 public:
-    LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+    LfpChannelDisplay(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
     ~LfpChannelDisplay();
 
     void resized();
@@ -113,7 +113,7 @@ public:
 
 protected:
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     LfpDisplay* display;
     LfpDisplayOptions* options;
 

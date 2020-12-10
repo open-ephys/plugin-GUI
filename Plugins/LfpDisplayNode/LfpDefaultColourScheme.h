@@ -36,7 +36,7 @@ namespace LfpViewer {
 class LfpDefaultColourScheme : public LfpChannelColourScheme
 {
 public:
-    LfpDefaultColourScheme(LfpDisplay*, LfpDisplayCanvas*);
+    LfpDefaultColourScheme(LfpDisplay*, LfpDisplaySplitter*);
     virtual ~LfpDefaultColourScheme() {}
     
     void paint(Graphics &g) override;

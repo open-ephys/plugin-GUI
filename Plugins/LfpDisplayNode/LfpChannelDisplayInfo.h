@@ -45,7 +45,7 @@ class LfpChannelDisplayInfo : public LfpChannelDisplay,
 {
     friend class LfpDisplay;
 public:
-    LfpChannelDisplayInfo(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+    LfpChannelDisplayInfo(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
     void paint(Graphics& g);
 

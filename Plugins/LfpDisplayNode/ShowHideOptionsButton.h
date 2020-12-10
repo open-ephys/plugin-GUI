@@ -35,7 +35,7 @@ namespace LfpViewer {
 //==============================================================================
 /**
  
- Toggles view options drawer for LfpDisplayCanvas.
+ Toggles view options drawer for LfpDisplaySplitter.
  
  */
 class ShowHideOptionsButton : public Button

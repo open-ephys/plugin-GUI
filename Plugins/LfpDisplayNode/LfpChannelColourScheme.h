@@ -38,9 +38,9 @@ namespace LfpViewer {
 class LfpChannelColourScheme : public Component
 {
 public:
-    LfpChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplayCanvas* canvas)
+    LfpChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplaySplitter* split)
     : lfpDisplay(display)
-    , canvas(canvas)
+    , canvasSplit(split)
     , numColourChannels(numColourChannels_)
     { }
     
@@ -61,7 +61,7 @@ public:
     
 protected:
     LfpDisplay * lfpDisplay;
-    LfpDisplayCanvas * canvas;
+    LfpDisplaySplitter * canvasSplit;
     
     int numColourChannels;
     static int colourGrouping;

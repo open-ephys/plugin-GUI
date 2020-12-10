@@ -43,9 +43,9 @@ using namespace LfpViewer;
 #pragma  mark - LfpDisplayOptions -
 // -------------------------------------------------------------
 
-LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* timescale_, 
+LfpDisplayOptions::LfpDisplayOptions(LfpDisplaySplitter* canvas_, LfpTimescale* timescale_, 
                                      LfpDisplay* lfpDisplay_, LfpDisplayNode* processor_)
-    : canvas(canvas_),
+    : canvasSplit(canvas_),
       lfpDisplay(lfpDisplay_),
       timescale(timescale_),
       processor(processor_),
@@ -432,7 +432,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpTimescale* ti
     for (int i = 0; i < 8; i++)
     {
 
-        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvas, i);
+        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
         eventDisplayInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
         eventOptions->setBounds(700+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
@@ -592,13 +592,13 @@ void LfpDisplayOptions::paint(Graphics& g)
     g.drawText("Event disp.",270,getHeight()-row1,300,20,Justification::left, false);
     g.drawText("Trigger",375,getHeight()-row1,300,20,Justification::left, false);
 
-    if(canvas->drawClipWarning)
+    if(canvasSplit->drawClipWarning)
     {
         g.setColour(Colours::white);
         g.fillRoundedRectangle(173,getHeight()-90-1,24,24,6.0f);
     }
     
-    if(canvas->drawSaturationWarning)
+    if(canvasSplit->drawSaturationWarning)
     {
         g.setColour(Colours::red);
         g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
@@ -653,8 +653,8 @@ void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
         selectedVoltageRange[selectedChannelType] = rangeSelection->getSelectedId();
         selectedVoltageRangeValues[selectedChannelType] = rangeSelection->getText();
 
-        canvas->repaint();
-        canvas->refresh();
+        canvasSplit->repaint();
+        canvasSplit->refresh();
     }
 
 }
@@ -674,8 +674,8 @@ void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate, bo
 
         if (!deferDisplayRefresh)
         {
-            canvas->repaint();
-            canvas->refresh();
+            canvasSplit->repaint();
+            canvasSplit->refresh();
         }
     }
 }
@@ -717,14 +717,14 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     }
     if (b == drawClipWarningButton)
     {
-        canvas->drawClipWarning = b->getToggleState();
-        canvas->redraw();
+        canvasSplit->drawClipWarning = b->getToggleState();
+        canvasSplit->redraw();
         return;
     }
     if (b == drawSaturateWarningButton)
     {
-        canvas->drawSaturationWarning = b->getToggleState();
-        canvas->redraw();
+        canvasSplit->drawSaturationWarning = b->getToggleState();
+        canvasSplit->redraw();
         return;
     }
     
@@ -736,7 +736,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
     if (b == showHideOptionsButton)
     {
-        canvas->toggleOptionsDrawer(b->getToggleState());
+        canvasSplit->toggleOptionsDrawer(b->getToggleState());
     }
 
     if (b == showChannelNumberButton)
@@ -769,22 +769,22 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
 void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
 {
-    canvas->timebase = timebase;
+    canvasSplit->timebase = timebase;
     
-    if (canvas->timebase) // if timebase != 0
+    if (canvasSplit->timebase) // if timebase != 0
     {
-        if (canvas->timebase < timebases[0].getFloatValue())
+        if (canvasSplit->timebase < timebases[0].getFloatValue())
         {
             timebaseSelection->setSelectedId(1, dontSendNotification);
-            canvas->timebase = timebases[0].getFloatValue();
+            canvasSplit->timebase = timebases[0].getFloatValue();
         }
-        else if (canvas->timebase > timebases[timebases.size()-1].getFloatValue())
+        else if (canvasSplit->timebase > timebases[timebases.size()-1].getFloatValue())
         {
             timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
-            canvas->timebase = timebases[timebases.size()-1].getFloatValue();
+            canvasSplit->timebase = timebases[timebases.size()-1].getFloatValue();
         }
         else{
-            timebaseSelection->setText(String(canvas->timebase, 1), dontSendNotification);
+            timebaseSelection->setText(String(canvasSplit->timebase, 1), dontSendNotification);
         }
     }
     else
@@ -792,12 +792,12 @@ void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
         if (selectedSpread == 0)
         {
             timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
-            canvas->timebase = selectedTimebaseValue.getFloatValue();
+            canvasSplit->timebase = selectedTimebaseValue.getFloatValue();
         }
         else
         {
             timebaseSelection->setSelectedId(selectedTimebase,dontSendNotification);
-            canvas->timebase = timebases[selectedTimebase-1].getFloatValue();
+            canvasSplit->timebase = timebases[selectedTimebase-1].getFloatValue();
         }
         
     }
@@ -805,7 +805,7 @@ void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
-    if (canvas->getNumChannels() == 0) return;
+    if (canvasSplit->getNumChannels() == 0) return;
     
     if (cb == channelDisplaySkipSelection)
     {
@@ -876,13 +876,13 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         
         // update the lfpDisplay's colors and redraw
         lfpDisplay->setColors();
-        canvas->redraw();
+        canvasSplit->redraw();
     }
     else if (cb == timebaseSelection)
     {
         if (cb->getSelectedId())
         {
-            canvas->timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+            canvasSplit->timebase = timebases[cb->getSelectedId()-1].getFloatValue();
         }
         else
         {
@@ -931,7 +931,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedVoltageRange[selectedChannelType] = cb->getSelectedId();
         selectedVoltageRangeValues[selectedChannelType] = cb->getText();
         //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
-        canvas->redraw();
+        canvasSplit->redraw();
     }
     else if (cb == spreadSelection)
     {
@@ -976,7 +976,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
                 else
                 {
                     lfpDisplay->setChannelHeight(spread);
-                    canvas->resized();
+                    canvasSplit->resized();
                 }
             }
             else
@@ -990,7 +990,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedSpread = cb->getSelectedId();
         selectedSpreadValue = cb->getText();
 
-        if (!lfpDisplay->getSingleChannelState()) canvas->redraw();
+        if (!lfpDisplay->getSingleChannelState()) canvasSplit->redraw();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == saturationWarningSelection)
@@ -1022,7 +1022,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
             }
         }
-        canvas->redraw();
+        canvasSplit->redraw();
 
         std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
     }
@@ -1030,8 +1030,8 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     {
         if (cb->getSelectedId())
         {
-            canvas->channelOverlapFactor = (overlaps[cb->getSelectedId()-1].getFloatValue());
-            canvas->resized();
+            canvasSplit->channelOverlapFactor = (overlaps[cb->getSelectedId()-1].getFloatValue());
+            canvasSplit->resized();
         }
         else
         {
@@ -1052,8 +1052,8 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
                 {
                     cb->setText(String(overlap),dontSendNotification);
                 }
-                canvas->channelOverlapFactor= overlap;
-                canvas->resized();
+                canvasSplit->channelOverlapFactor= overlap;
+                canvasSplit->resized();
             }
             else
             {
@@ -1066,14 +1066,14 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedSpread = cb->getSelectedId();
         selectedSpreadValue = cb->getText();
         lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
-        canvas->redraw();
+        canvasSplit->redraw();
         //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == colorGroupingSelection)
     {
         // set color grouping here
         lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
-        canvas->redraw();
+        canvasSplit->redraw();
     }
     else if (cb == triggerSourceSelection)
     {
@@ -1081,20 +1081,20 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
 
 
-    timescale->setTimebase(canvas->timebase);
+    timescale->setTimebase(canvasSplit->timebase);
 }
 
 void LfpDisplayOptions::sliderValueChanged(Slider* sl)
 {
     if (sl == brightnessSliderA)
-        canvas->histogramParameterA = sl->getValue();
+        canvasSplit->histogramParameterA = sl->getValue();
 
     if (sl == brightnessSliderB)
-        canvas->histogramParameterB = sl->getValue();
+        canvasSplit->histogramParameterB = sl->getValue();
 
-    canvas->fullredraw=true;
+    canvasSplit->fullredraw=true;
     //repaint();
-    canvas->refresh();
+    canvasSplit->refresh();
 
 }
 
@@ -1180,7 +1180,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
     String channelDisplayState = "";
 
-    for (int i = 0; i < canvas->nChans; i++)
+    for (int i = 0; i < canvasSplit->nChans; i++)
     {
         if (lfpDisplay->getEnabledState(i))
         {
@@ -1197,8 +1197,8 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
     xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
 
-    xmlNode->setAttribute("ScrollX",canvas->viewport->getViewPositionX());
-    xmlNode->setAttribute("ScrollY",canvas->viewport->getViewPositionY());
+    xmlNode->setAttribute("ScrollX",canvasSplit->viewport->getViewPositionX());
+    xmlNode->setAttribute("ScrollY",canvasSplit->viewport->getViewPositionY());
 }
 
 void LfpDisplayOptions::loadParameters(XmlElement* xml)
@@ -1244,7 +1244,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
-            canvas->viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
+            canvasSplit->viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));
 
             int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
@@ -1265,12 +1265,12 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 {
                     //std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
                     //lfpDisplay->enableChannel(true, i);
-                    canvas->isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
+                    canvasSplit->isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
                 }
                 else
                 {
                     //lfpDisplay->enableChannel(false, i);
-                    canvas->isChannelEnabled.set(i,false);
+                    canvasSplit->isChannelEnabled.set(i,false);
                 }
 
             }

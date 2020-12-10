@@ -44,8 +44,8 @@ using namespace LfpViewer;
 #pragma  mark - EventDisplayInterface -
 // Event display Options --------------------------------------------------------------------
 
-EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplayCanvas* canvas_, int chNum):
-    isEnabled(true), display(display_), canvas(canvas_)
+EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplaySplitter* split, int chNum):
+    isEnabled(true), display(display_), canvasSplit(split)
 {
 
     channelNumber = chNum;
