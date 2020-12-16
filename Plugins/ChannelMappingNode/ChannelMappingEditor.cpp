@@ -149,7 +149,6 @@ void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevi
         selectedReference = 0;
         modifyButton->setToggleState(false, dontSendNotification);
         reorderActive = false;
-        channelSelector->activateButtons();
 
     }
     else
