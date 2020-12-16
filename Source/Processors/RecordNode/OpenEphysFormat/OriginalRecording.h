@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HEADER_SIZE 1024
 #define BLOCK_LENGTH 1024
 
-#define VERSION 0.4
+#define VERSION 0.5
 
 #define VSTR(s) #s
 #define VSTR2(s) VSTR(s)
