@@ -629,6 +629,13 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 parameterButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
             }
+            
+            if (radioStatus) // if radio buttons are active
+            {
+                // send a message to parent
+                GenericEditor* editor = (GenericEditor*) getParentComponent();
+                editor->channelChanged (-1, false);
+            }
         }
         else if (offsetLR == audioOffset)
         {
@@ -636,13 +643,6 @@ void ChannelSelector::buttonClicked(Button* button)
             {
                 audioButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
             }
-        }
-
-        if (radioStatus) // if radio buttons are active
-        {
-            // send a message to parent
-            GenericEditor* editor = (GenericEditor*) getParentComponent();
-            editor->channelChanged (-1, false);
         }
     }
     else
