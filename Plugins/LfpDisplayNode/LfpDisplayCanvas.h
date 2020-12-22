@@ -172,6 +172,7 @@ public:
     
     int nChans;
     //int nChansVisible; // the number of channels NOT hidden for display
+    int splitID; //split display ID
 
     float timebase;
 

@@ -52,6 +52,10 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     addAndMakeVisible(displaySplits[0]);
     addAndMakeVisible(displaySplits[1]);
 
+    for(int i = 0; i < displaySplits.size(); i++)
+        displaySplits[i]->splitID = i;
+
+    processor->setNumberOfDisplays(displaySplits.size());
     resized();
     
     juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
@@ -471,10 +475,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
         ScopedLock displayLock(*processor->getMutex());
 
-        int triggerTime = processor->getTriggerSource()>=0 
-                          ? processor->getLatestTriggerTime() 
+        int triggerTime = processor->getTriggerSource(splitID)>=0 
+                          ? processor->getLatestTriggerTime(splitID) 
                           : -1;
-        processor->acknowledgeTrigger();
+        processor->acknowledgeTrigger(splitID);
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
@@ -486,7 +490,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
             {
-                if (processor->getTriggerSource()>=0)
+                if (processor->getTriggerSource(splitID)>=0)
                 {
                     // we may need to wait for a trigger
                     if (triggerTime>=0)

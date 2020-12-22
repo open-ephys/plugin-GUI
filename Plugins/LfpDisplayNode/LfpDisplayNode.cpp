@@ -31,7 +31,7 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
     , displayGain       (1)
-    , bufferLength      (10.0f)
+    , bufferLength      (2.0f)
     , abstractFifo      (100)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
@@ -45,8 +45,6 @@ LfpDisplayNode::LfpDisplayNode()
 
     subprocessorToDraw = 0;
     numSubprocessors = -1;
-    triggerSource = -1;
-    latestTrigger = -1;
 }
 
 
@@ -304,9 +302,12 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
         if (eventId == 1)
         {
             ttlState[eventSourceNodeId] |= (1LL << eventChannel);
-            if (eventChannel==triggerSource)
+            for(int i = 0; i < numDisplays; i++)
             {
-                latestCurrentTrigger = eventTime;
+                if (eventChannel==triggerSource[i])
+                {
+                    latestCurrentTrigger.set(i, eventTime);
+                }
             }
         }
         else
@@ -358,7 +359,8 @@ void LfpDisplayNode::initializeEventChannels()
 {
 
     //std::cout << "Initializing events..." << std::endl
-    latestCurrentTrigger = -1;
+    latestCurrentTrigger.insertMultiple(0, -1, numDisplays);
+
     for (int i = 0 ; i < numSubprocessors ; i++)
     {
         const int chan = numChannelsInSubprocessor[allSubprocessors[i]];
@@ -397,7 +399,7 @@ void LfpDisplayNode::finalizeEventChannels()
 {
     for (int i = 0 ; i < numSubprocessors ; i++){    
         const int chan          = numChannelsInSubprocessor[allSubprocessors[i]];
-        const int index = displayBufferIndices[i][chan];
+        const int index         = displayBufferIndices[i][chan];
         const int samplesLeft   = displayBuffers[i]->getNumSamples() - index;
         const int nSamples      = getNumSourceSamples(allSubprocessors[i]);
         
@@ -415,13 +417,15 @@ void LfpDisplayNode::finalizeEventChannels()
         displayBufferIndices[i][chan] = newIdx;
     }
     
-    if (latestCurrentTrigger >= 0)
+    for(int i = 0; i < numDisplays; i++)
     {
-        int chan = numChannelsInSubprocessor[subprocessorToDraw];
-        int subProcIndex = allSubprocessors.indexOf(subprocessorToDraw);
-        latestTrigger = latestCurrentTrigger + displayBufferIndices[subProcIndex][chan];
-    }
-        
+        if (latestCurrentTrigger[i] >= 0)
+        {
+            int chan = numChannelsInSubprocessor[subprocessorToDraw];
+            int subProcIndex = allSubprocessors.indexOf(subprocessorToDraw);
+            latestTrigger.set(i, latestCurrentTrigger[i] + displayBufferIndices[subProcIndex][chan]);
+        }
+    }  
 }
 
 
@@ -495,19 +499,37 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
     }
 }
 
-void LfpDisplayNode::setTriggerSource(int ch) {
+void LfpDisplayNode::setNumberOfDisplays(int num)
+{
+    numDisplays = num;
+
+    triggerSource.clear();
+    triggerSource.insertMultiple(0, -1, num);
+
+    latestTrigger.clear();
+    latestTrigger.insertMultiple(0, -1, num);
+
+    latestCurrentTrigger.clear();
+    latestCurrentTrigger.resize(num);
+}
+
+void LfpDisplayNode::setTriggerSource(int ch, int id)
+{
   printf("Trigger source: %i\n", ch);
-  triggerSource = ch;
+  triggerSource.set(id, ch);
 }
 
-int LfpDisplayNode::getTriggerSource() const {
-  return triggerSource;
+int LfpDisplayNode::getTriggerSource(int id) const
+{
+  return triggerSource[id];
 }
 
-int64 LfpDisplayNode::getLatestTriggerTime() const {
-  return latestTrigger;
+int64 LfpDisplayNode::getLatestTriggerTime(int id) const
+{
+  return latestTrigger[id];
 }
 
-void LfpDisplayNode::acknowledgeTrigger() {
-  latestTrigger = -1;
+void LfpDisplayNode::acknowledgeTrigger(int id)
+{
+  latestTrigger.set(id, -1);
 }

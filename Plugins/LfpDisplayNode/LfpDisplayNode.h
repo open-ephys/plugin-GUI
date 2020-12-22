@@ -77,10 +77,11 @@ public:
 
     uint32 getDataSubprocId(int chan) const;
 
-    void setTriggerSource(int ch);
-    int getTriggerSource() const;
-    int64 getLatestTriggerTime() const;
-    void acknowledgeTrigger();
+    void setNumberOfDisplays(int num);
+    void setTriggerSource(int ch, int splitId);
+    int getTriggerSource(int splitId) const;
+    int64 getLatestTriggerTime(int splitId) const;
+    void acknowledgeTrigger(int splitId);
 private:
     void initializeEventChannels();
     void finalizeEventChannels();
@@ -101,10 +102,12 @@ private:
     std::map<uint32, uint64> ttlState;
     float* arrayOfOnes;
     int totalSamples;
-    int triggerSource;
-    int64 latestTrigger; // overall timestamp
-    int latestCurrentTrigger; // within current input buffer
- 
+    
+    int numDisplays; // total number of split displays
+
+    Array<int> triggerSource;
+    Array<int64> latestTrigger; // overall timestamp
+    Array<int> latestCurrentTrigger; // within current input buffer
 
     bool resizeBuffer();
 

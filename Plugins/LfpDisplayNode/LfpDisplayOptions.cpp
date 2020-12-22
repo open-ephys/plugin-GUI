@@ -1077,7 +1077,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == triggerSourceSelection)
     {
-        processor->setTriggerSource(cb->getSelectedId() - 2);
+        processor->setTriggerSource(cb->getSelectedId() - 2, canvasSplit->splitID);
     }
 
 
