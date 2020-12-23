@@ -504,15 +504,21 @@ bool EditorViewport::keyPressed(const KeyPress& key)
         else if (key.getKeyCode() == key.upKey)
         {
 
-            lastEditorClicked->switchIO(0);
-            AccessClass::getProcessorGraph()->updateSettings(lastEditorClicked->getProcessor());
-
+            if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+            {
+                lastEditorClicked->switchIO(0);
+                AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+            }
+        
             return true;
         }
         else if (key.getKeyCode() == key.downKey)
         {
-            lastEditorClicked->switchIO(1);
-            AccessClass::getProcessorGraph()->updateSettings(lastEditorClicked->getProcessor());
+            if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+            {
+                lastEditorClicked->switchIO(1);
+                AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+            }
             return true;
         }
     }

@@ -455,8 +455,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         refreshElectrodeList();
 
         CoreServices::updateSignalChain(this);
-        CoreServices::highlightEditor(this);
-
+        
         return;
 
     }
@@ -469,7 +468,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
         }
         removeElectrode(electrodeList->getSelectedItemIndex());
 
-        //getEditorViewport()->makeEditorVisible(this, true, true);
+        CoreServices::updateSignalChain(this);
 
         return;
     }

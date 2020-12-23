@@ -228,8 +228,13 @@ String RecordNode::generateDateString() const
 	Time calendar = Time::getCurrentTime();
 
 	String datestring;
+    
+    int day = calendar.getDayOfMonth();
+    
+    if (day < 10)
+        datestring += "0";
 
-	datestring += String(calendar.getDayOfMonth());
+	datestring += String(day);
 	datestring += "-";
 	datestring += calendar.getMonthName(true);
 	datestring += "-";
@@ -240,16 +245,21 @@ String RecordNode::generateDateString() const
 	hrs = calendar.getHours();
 	mins = calendar.getMinutes();
 	secs = calendar.getSeconds();
+    
+    if (hrs < 10)
+        datestring += "0";
 
 	datestring += hrs;
+    datestring += ":";
 
 	if (mins < 10)
-		datestring += 0;
+		datestring += "0";
 
 	datestring += mins;
+    datestring += ":";
 
 	if (secs < 0)
-		datestring += 0;
+		datestring += "0";
 
 	datestring += secs;
 
