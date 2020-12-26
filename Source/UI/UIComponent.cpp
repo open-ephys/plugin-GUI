@@ -521,15 +521,15 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			break;
 
 		case copySignalChain:
-			result.setInfo("Copy", "Copy a portion of the signal chain.", "General", 0);
+			result.setInfo("Copy", "Copy selected processors.", "General", 0);
 			result.addDefaultKeypress('C', ModifierKeys::commandModifier);
-			result.setActive(false);
+			result.setActive(!acquisitionStarted);
 			break;
 
 		case pasteSignalChain:
-			result.setInfo("Paste", "Paste a portion of the signal chain.", "General", 0);
+			result.setInfo("Paste", "Paste processors.", "General", 0);
 			result.addDefaultKeypress('V', ModifierKeys::commandModifier);
-			result.setActive(false);
+			result.setActive(!acquisitionStarted);
 			break;
 
 		case clearSignalChain:
@@ -662,6 +662,18 @@ bool UIComponent::perform(const InvocationInfo& info)
 			}
 			break;
 
+        case copySignalChain:
+            {
+                getEditorViewport()->copySelectedEditors();
+                break;
+            }
+            
+        case pasteSignalChain:
+            {
+                getEditorViewport()->paste();
+                break;
+            }
+                
 		case clearSignalChain:
 			{
 				getEditorViewport()->clearSignalChain();

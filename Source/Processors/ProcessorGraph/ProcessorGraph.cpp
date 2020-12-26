@@ -568,6 +568,8 @@ void ProcessorGraph::clearSignalChain()
     updateViews(nullptr);
 }
 
+
+
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
     refreshColors();

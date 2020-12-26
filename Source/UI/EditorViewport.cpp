@@ -527,6 +527,108 @@ bool EditorViewport::keyPressed(const KeyPress& key)
 
 }
 
+
+void EditorViewport::copySelectedEditors()
+{
+
+    LOGDD("Editor viewport received copy signal");
+
+    if (!CoreServices::getAcquisitionStatus())
+    {
+
+        Array<XmlElement*> copyInfo;
+
+        for (auto editor : editorArray)
+        {
+            if (editor->getSelectionState())
+                copyInfo.add( createNodeXml(editor->getProcessor(), false) );
+        }
+
+        if (copyInfo.size() > 0)
+        {
+            copy(copyInfo);
+        } else {
+            CoreServices::sendStatusMessage("No processors selected.");
+        }
+        
+    } else {
+        
+        CoreServices::sendStatusMessage("Cannot copy while acquisition is active.");
+    }
+            
+}
+
+
+void EditorViewport::copy(Array<XmlElement*> copyInfo)
+{
+    copyBuffer.clear();
+    copyBuffer.addArray(copyInfo);
+    
+}
+
+void EditorViewport::addToUndoBuffer(XmlElement*)
+{
+    
+}
+
+void EditorViewport::paste()
+{
+    LOGDD("Editor viewport received paste signal");
+
+    if (!CoreServices::getAcquisitionStatus())
+    {
+
+        int insertionPoint;
+        bool foundSelected = false;
+
+        for (int i = 0; i < editorArray.size(); i++)
+        {
+            if (editorArray[i]->getSelectionState())
+            {
+                insertionPoint = i + 1;
+                foundSelected = true;
+            }
+                
+        }
+        
+        LOGD("Insertion point: ", insertionPoint);
+
+        if (foundSelected)
+        {
+            Array<GenericProcessor*> newProcessors;
+            
+            for (int i = 0; i < copyBuffer.size(); i++)
+            {
+                newProcessors.add(createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
+                                                    insertionPoint++, false, true));
+                
+            }
+            
+            for (auto p : newProcessors)
+                p->loadFromXml();
+            
+            AccessClass::getProcessorGraph()->updateSettings(newProcessors[0]);
+
+        } else {
+            CoreServices::sendStatusMessage("Select an insertion point to paste.");
+        }
+        
+    } else {
+        
+        CoreServices::sendStatusMessage("Cannot paste while acquisition is active.");
+    }
+}
+
+void EditorViewport::undo()
+{
+    
+}
+
+void EditorViewport::redo()
+{
+    
+}
+
 //void EditorViewport::modifierKeysChanged (const ModifierKeys & modifiers) {
 
 /*     if (modifiers.isShiftDown()) {
@@ -1424,59 +1526,14 @@ const String EditorViewport::loadState(File fileToLoad)
 
                     int insertionPt = processor->getIntAttribute("insertionPoint");
                     
-                    if (insertionPt == 1)
-                    {
-                        insertionPoint = editorArray.size();
-                    }
-                    else
-                    {
-                        insertionPoint = 0;
-                    }
-
-					ProcessorDescription description;
-                    
-                    description.fromProcessorList = false;
-                    description.processorName = processor->getStringAttribute("pluginName");
-					description.processorType = processor->getIntAttribute("pluginType");
-					description.processorIndex = processor->getIntAttribute("pluginIndex");
-					description.libName = processor->getStringAttribute("libraryName");
-					description.libVersion = processor->getIntAttribute("libraryVersion");
-					description.isSource = processor->getBoolAttribute("isSource");
-					description.isSink = processor->getBoolAttribute("isSink");
-                    description.nodeId = processor->getIntAttribute("NodeId");
-
-					if (rhythmNodePatch) //old version, when rhythm was a plugin
-					{
-						if (description.processorType == -1) //if builtin
-						{
-							if (description.processorIndex == 0) //Rhythm node
-							{
-								description.processorType = 4; //DataThread
-								description.processorIndex = 1;
-								description.libName = "Rhythm FPGA";
-							}
-							else
-								description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
-						}
-					}
-                    
-                    
-
-                    p = addProcessor(description, insertionPoint);
+                    p = createProcessorAtInsertionPoint(processor, insertionPt, rhythmNodePatch, false);
                     p->loadOrder = loadOrder++;
-                    p->parametersAsXml = processor;
-
+                    
                     if (p->isSplitter()) //|| p->isMerger())
                     {
                         splitPoints.add(p);
                     }
-                    
-                    //if (p->isMerger())
-                    //{
-                   //     MergerEditor* editor = (MergerEditor*) p->getEditor();
-                    //    editor->switchSource(1);
-                    //    AccessClass::getProcessorGraph()->updateViews(p);
-                   // }
+                
                 }
                 else if (processor->hasTagName("SWITCH"))
                 {
@@ -1491,22 +1548,11 @@ const String EditorViewport::loadState(File fileToLoad)
 
                         if (splitPoints[n]->loadOrder == processorNum)
                         {
-
-                            //if (splitPoints[n]->isMerger())
-                            //{
-                            //    LOGD("Switching merger source.");
-                             //   MergerEditor* editor = (MergerEditor*) splitPoints[n]->getEditor();
-                            //    editor->switchSource(1);
-                            //    AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-                            //}
-                            //else
-                            //{
-                                LOGD("Switching splitter destination.");
-                                SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
-                                editor->switchDest(1);
-                                AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-                           // }
-
+                            LOGD("Switching splitter destination.");
+                            SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
+                            editor->switchDest(1);
+                            AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
+                            
                             splitPoints.remove(n);
                         }
                     }
@@ -1551,4 +1597,61 @@ const String EditorViewport::loadState(File fileToLoad)
     loadingConfig = false;
     
     return error;
+}
+
+GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* processor,
+                                                                  int insertionPt,
+                                                                  bool rhythmNodePatch,
+                                                                  bool ignoreNodeId)
+{
+    if (loadingConfig)
+    {
+        if (insertionPt == 1)
+        {
+            insertionPoint = editorArray.size();
+        }
+        else
+        {
+            insertionPoint = 0;
+        }
+
+    } else {
+        insertionPoint = insertionPt;
+    }
+    
+    ProcessorDescription description;
+    
+    description.fromProcessorList = false;
+    description.processorName = processor->getStringAttribute("pluginName");
+    description.processorType = processor->getIntAttribute("pluginType");
+    description.processorIndex = processor->getIntAttribute("pluginIndex");
+    description.libName = processor->getStringAttribute("libraryName");
+    description.libVersion = processor->getIntAttribute("libraryVersion");
+    description.isSource = processor->getBoolAttribute("isSource");
+    description.isSink = processor->getBoolAttribute("isSink");
+    
+    if (!ignoreNodeId)
+        description.nodeId = processor->getIntAttribute("NodeId");
+    else
+        description.nodeId = -1;
+
+    if (rhythmNodePatch) //old version, when rhythm was a plugin
+    {
+        if (description.processorType == -1) //if builtin
+        {
+            if (description.processorIndex == 0) //Rhythm node
+            {
+                description.processorType = 4; //DataThread
+                description.processorIndex = 1;
+                description.libName = "Rhythm FPGA";
+            }
+            else
+                description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
+        }
+    }
+
+    GenericProcessor* p = addProcessor(description, insertionPoint);
+    p->parametersAsXml = processor;
+    
+    return p;
 }

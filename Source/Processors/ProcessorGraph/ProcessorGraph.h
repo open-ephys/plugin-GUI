@@ -144,6 +144,8 @@ private:
     int currentNodeId;
     
     bool isLoadingSignalChain;
+    
+
 
     enum nodeIds
     {

@@ -169,6 +169,20 @@ public:
     int getDesiredWidth();
     
     GenericProcessor* addProcessor(ProcessorDescription desc, int insertionPt);
+    
+    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool rhythmNodePatch, bool ignoreNodeId);
+
+    void copySelectedEditors();
+    
+    void addToUndoBuffer(XmlElement*);
+    
+    void copy(Array<XmlElement*>);
+    
+    void paste();
+    
+    void undo();
+    
+    void redo();
 
 private:
 
@@ -198,6 +212,12 @@ private:
     void resized();
     
     bool shiftDown;
+    
+    OwnedArray<XmlElement> copyBuffer;
+    
+    OwnedArray<XmlElement> undoBuffer;
+    
+    OwnedArray<XmlElement> redoBuffer;
     
     Label editorNamingLabel;
 
