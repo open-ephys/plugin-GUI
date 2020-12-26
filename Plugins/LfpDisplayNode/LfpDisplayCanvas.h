@@ -86,10 +86,11 @@ private:
 };
 
 
-class LfpDisplaySplitter : public Component
+class LfpDisplaySplitter : public Component,
+                           public ComboBoxListener
 {
 public:
-    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas);
+    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, int id);
     ~LfpDisplaySplitter();
 
     void paint(Graphics& g);
@@ -140,6 +141,9 @@ public:
     /** Returns the subprocessor index of the given channel */
     int getChannelSubprocessorIdx(int channel);
     
+    /** Fetch list of input subprocessors from LfpDisplayNode */
+    void setInputSubprocessors();
+
     /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
         this canvas */
     void setDrawableSubprocessor(uint32 sp);
@@ -180,6 +184,9 @@ public:
 
     void handleSpaceKeyPauseEvent();
 
+    /** Respond to user's subprocessor selection */
+    void comboBoxChanged(ComboBox *cb);
+
 	DataChannel::DataChannelTypes selectedChannelType;
 
     ScopedPointer<LfpViewport> viewport;
@@ -214,6 +221,8 @@ private:
     ScopedPointer<LfpDisplay> lfpDisplay;
     
     ScopedPointer<LfpDisplayOptions> options;
+
+    ScopedPointer<ComboBox> subprocessorSelection;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();

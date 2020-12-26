@@ -45,17 +45,13 @@ using namespace LfpViewer;
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
                   processor(processor_)
 {
-    
-    displaySplits.add(new LfpDisplaySplitter(processor, this));
-    displaySplits.add(new LfpDisplaySplitter(processor, this));
+    processor->setNumberOfDisplays(2);
+    for(int i = 0; i < 2; i++)
+    {
+        displaySplits.add(new LfpDisplaySplitter(processor, this, i));
+        addAndMakeVisible(displaySplits[i]);
+    }
 
-    addAndMakeVisible(displaySplits[0]);
-    addAndMakeVisible(displaySplits[1]);
-
-    for(int i = 0; i < displaySplits.size(); i++)
-        displaySplits[i]->splitID = i;
-
-    processor->setNumberOfDisplays(displaySplits.size());
     resized();
     
     juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
@@ -104,6 +100,7 @@ void LfpDisplayCanvas::update()
 
     for (auto split : displaySplits)
     {
+        split->setInputSubprocessors();
         split->processorUpdate();
     }
 
@@ -225,13 +222,14 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
 /*****************************************************/
 LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
-                                       LfpDisplayCanvas* canvas) :
+                                       LfpDisplayCanvas* canvas,
+                                       int id) :
                     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), 
-                    processor(node)
+                    splitID(id), processor(node)
 {
-    nChans = processor->getNumSubprocessorChannels();
+    nChans = processor->getNumSubprocessorChannels(splitID);
 
-    displayBuffer = processor->getDisplayBufferAddress();
+    displayBuffer = processor->getDisplayBufferAddress(splitID);
     displayBufferSize = displayBuffer->getNumSamples();
 
     screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
@@ -248,6 +246,8 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     lfpDisplay = new LfpDisplay(this, viewport);
     timescale = new LfpTimescale(this, lfpDisplay);
     options = new LfpDisplayOptions(this, timescale, lfpDisplay, processor);
+    subprocessorSelection = new ComboBox("Subprocessor sample rate");
+    subprocessorSelection->addListener(this);
 
     lfpDisplay->options = options;
 
@@ -265,6 +265,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
     addAndMakeVisible(options);
+    addAndMakeVisible(subprocessorSelection);
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -317,6 +318,7 @@ void LfpDisplaySplitter::resized()
     else
         options->setBounds(0, getHeight()-55, getWidth(), 55);
 
+    subprocessorSelection->setBounds(0, 4, 130, 22);
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
@@ -353,12 +355,37 @@ void LfpDisplaySplitter::beginAnimation()
     }    
 }
 
+void LfpDisplaySplitter::setInputSubprocessors()
+{
+    subprocessorSelection->clear(dontSendNotification);
+    int totalInputs = processor->inputSubprocessors.size();
+
+    if(totalInputs > 0)
+    {
+        std::cout << "********** TOTAL INPUTS:" << totalInputs <<std::endl;
+        for(int i = 0; i < totalInputs; i++)
+        {
+            subprocessorSelection->addItem(processor->getSubprocessorName(processor->inputSubprocessors[i]), i+1);
+        }
+
+        uint32 selectedSubproc = processor->getSubprocessor(splitID);
+        int selectedSubprocId = (selectedSubproc ? processor->inputSubprocessors.indexOf(selectedSubproc) : 0) + 1;
+
+		subprocessorSelection->setSelectedId(selectedSubprocId, sendNotification);
+    }
+    else
+    {
+        subprocessorSelection->addItem("None", 1);
+        subprocessorSelection->setSelectedId(1, dontSendNotification);
+    }
+}
+
 void LfpDisplaySplitter::processorUpdate()
 {
 
     displayBufferSize = displayBuffer->getNumSamples();
 
-    nChans = jmax(processor->getNumSubprocessorChannels(), 0);
+    nChans = jmax(processor->getNumSubprocessorChannels(splitID), 0);
 
     resizeSamplesPerPixelBuffer(nChans);
 
@@ -444,7 +471,7 @@ void LfpDisplaySplitter::refreshSplitterState()
         for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
         {
 
-            displayBufferIndex.set(i, processor->getDisplayBufferIndex(i));
+            displayBufferIndex.set(i, processor->getDisplayBufferIndex(i, splitID));
             screenBufferIndex.set(i, 0);
         }
     }
@@ -518,7 +545,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             lastScreenBufferIndex.set(channel, sbi);
 
-            int index = processor->getDisplayBufferIndex(channel);
+            int index = processor->getDisplayBufferIndex(channel, splitID);
 
             int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
@@ -776,7 +803,7 @@ void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
 void LfpDisplaySplitter::setDrawableSubprocessor(uint32 sp)
 {
     drawableSubprocessor = sp;
-    displayBuffer = processor->getDisplayBufferAddress();
+    displayBuffer = processor->getDisplayBufferAddress(splitID);
     processorUpdate();
 }
 
@@ -829,6 +856,18 @@ void LfpDisplaySplitter::refresh()
         updateScreenBuffer();
 
         lfpDisplay->refresh(); // redraws only the new part of the screen buffer
+    }
+}
+
+void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *cb)
+{
+    if (cb == subprocessorSelection)
+    {
+        std::cout << "Setting subprocessor for Display #"<< splitID << " to " << cb->getSelectedId() << std::endl;
+        uint32 subproc = processor->inputSubprocessors[cb->getSelectedId() - 1];
+
+        processor->setSubprocessor(subproc, splitID);
+        setDrawableSubprocessor(subproc);
     }
 }
 

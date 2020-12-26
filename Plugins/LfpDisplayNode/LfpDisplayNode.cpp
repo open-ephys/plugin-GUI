@@ -43,7 +43,7 @@ LfpDisplayNode::LfpDisplayNode()
         arrayOfOnes[n] = 1;
     }
 
-    subprocessorToDraw = 0;
+    numDisplays = 1;
     numSubprocessors = -1;
 }
 
@@ -90,29 +90,16 @@ void LfpDisplayNode::updateSettings()
 
     channelIndices.resize(numSubprocessors);
 
-    if (numChannelsInSubprocessor.find(subprocessorToDraw) == numChannelsInSubprocessor.end())
-    {
-        // subprocessor to draw does not exist
-        if (numSubprocessors == 0)
-        {
-            subprocessorToDraw = 0;
-        }
-        else
-        {
-            // there are channels, but none on the current subprocessorToDraw
-            // default to the first subprocessor
-            subprocessorToDraw = getDataSubprocId(0);
-        }
-    }
+    setDefaultSubprocessors();
 
-    int numChans = getNumSubprocessorChannels();
-    int srate = getSubprocessorSampleRate(subprocessorToDraw);
+    // int numChans = getNumSubprocessorChannels();
+    // int srate = getSubprocessorSampleRate(subprocessorToDraw);
 
-    std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChans << std::endl;
-    if (numChans > 0)
-    {
-        std::cout << "Sample rate = " << srate << std::endl;
-    }
+    // std::cout << "Re-setting num inputs on LfpDisplayNode to " << numChans << std::endl;
+    // if (numChans > 0)
+    // {
+    //     std::cout << "Sample rate = " << srate << std::endl;
+    // }
 
     eventSourceNodes.clear();
     ttlState.clear();
@@ -129,14 +116,12 @@ void LfpDisplayNode::updateSettings()
 
     for (int i = 0; i < eventSourceNodes.size(); ++i)
     {
-        std::cout << "Adding channel " << numChans + i << " for event source node " << eventSourceNodes[i] << std::endl;
+        // std::cout << "Adding channel " << numChans + i << " for event source node " << eventSourceNodes[i] << std::endl;
 
         ttlState[eventSourceNodes[i]] = 0;
     }
     
-    // update the editor's subprocessor selection display and sample rate
-    LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
-    ed->updateSubprocessorSelectorOptions();
+    updateInputSubprocessors();
 
     resizeBuffer();
 }
@@ -161,24 +146,46 @@ uint32 LfpDisplayNode::getDataSubprocId(int chan) const
     return getChannelSourceId(getDataChannel(chan));
 }
 
-void LfpDisplayNode::setSubprocessor(uint32 sp)
+void LfpDisplayNode::setSubprocessor(uint32 sp, int id)
 {
-    subprocessorToDraw = sp;
-    std::cout << "LfpDisplayNode setting subprocessor to " << sp << std::endl;    
+    subprocessorToDraw.set(id, sp);
+    std::cout << "LfpDisplayNode setting subprocessor of display #"<< id << " to " << sp << std::endl;    
 }
 
-uint32 LfpDisplayNode::getSubprocessor() const
+uint32 LfpDisplayNode::getSubprocessor(int id) const
 {
-    return subprocessorToDraw;
+    return subprocessorToDraw[id];
 }
 
-int LfpDisplayNode::getNumSubprocessorChannels()
+int LfpDisplayNode::getNumSubprocessorChannels(int id)
 {
-    if (subprocessorToDraw != 0)
+    if (subprocessorToDraw[id] != 0)
     {
-        return numChannelsInSubprocessor[subprocessorToDraw];
+        return numChannelsInSubprocessor[subprocessorToDraw[id]];
     }
     return 0;
+}
+
+void LfpDisplayNode::setDefaultSubprocessors()
+{
+    for(int i = 0; i < numDisplays; i++)
+    {
+        if (numChannelsInSubprocessor.find(subprocessorToDraw[i]) == numChannelsInSubprocessor.end())
+        {
+            // subprocessor to draw does not exist
+            if (numSubprocessors == 0)
+            {
+                return;
+            }
+            else
+            {
+                // there are channels, but none on the current subprocessorToDraw
+                // default to the first subprocessor
+                subprocessorToDraw.set(i, getDataSubprocId(0));
+            }
+        }
+        std::cout << "****** DEFAULT SUBP FOR #"<< i << " = " << subprocessorToDraw[i] << std::endl;
+    }
 }
 
 float LfpDisplayNode::getSubprocessorSampleRate(uint32 subprocId)
@@ -191,11 +198,35 @@ float LfpDisplayNode::getSubprocessorSampleRate(uint32 subprocId)
     return 0.0f;
 }
 
-bool LfpDisplayNode::resizeBuffer()
+void LfpDisplayNode::updateInputSubprocessors()
 {
-    LfpDisplayEditor * ed = (LfpDisplayEditor*)getEditor();
-    allSubprocessors = ed->getInputSubprocessors();
+    // clear out the old data
+    inputSubprocessors.clear();
+    subprocessorNames.clear();
     
+	if (getTotalDataChannels() != 0)
+	{
+		for (int i = 0, len = getTotalDataChannels(); i < len; ++i)
+		{
+            const DataChannel* ch = getDataChannel(i);
+            uint16 sourceNodeId = ch->getSourceNodeID();
+			uint16 subProcessorIdx = ch->getSubProcessorIdx();
+            uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
+
+			bool added = inputSubprocessors.add(subProcFullId);
+
+            if (added)
+            {
+                String sourceName = ch->getSourceName();
+                subprocessorNames.set(subProcFullId,
+                    sourceName + " " + String(sourceNodeId) + "/" + String(subProcessorIdx));
+            }
+		}
+	}
+}
+
+bool LfpDisplayNode::resizeBuffer()
+{   
     int totalResized = 0;
 
     if (true)
@@ -204,10 +235,10 @@ bool LfpDisplayNode::resizeBuffer()
 
         for (int currSubproc = 0; currSubproc < numSubprocessors ; currSubproc++)
         {
-            int nSamples = (int)getSubprocessorSampleRate(allSubprocessors[currSubproc]) * bufferLength;
-            int nInputs = numChannelsInSubprocessor[allSubprocessors[currSubproc]];
+            int nSamples = (int)getSubprocessorSampleRate(inputSubprocessors[currSubproc]) * bufferLength;
+            int nInputs = numChannelsInSubprocessor[inputSubprocessors[currSubproc]];
 
-            std::cout << "Resizing buffer for Subprocessor " << allSubprocessors[currSubproc] << ". Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+            std::cout << "Resizing buffer for Subprocessor " << inputSubprocessors[currSubproc] << ". Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
 
             if (nSamples > 0 && nInputs > 0)
             {
@@ -315,7 +346,7 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             ttlState[eventSourceNodeId] &= ~(1LL << eventChannel);
         }
 
-        int subProcIndex = allSubprocessors.indexOf(eventSourceNodeId);
+        int subProcIndex = inputSubprocessors.indexOf(eventSourceNodeId);
 
         const int chan          = numChannelsInSubprocessor[eventSourceNodeId];
         const int index         = (displayBufferIndices[subProcIndex][chan] + eventTime) % displayBuffers[subProcIndex]->getNumSamples();
@@ -363,8 +394,8 @@ void LfpDisplayNode::initializeEventChannels()
 
     for (int i = 0 ; i < numSubprocessors ; i++)
     {
-        const int chan = numChannelsInSubprocessor[allSubprocessors[i]];
-        const int nSamples = getNumSourceSamples(allSubprocessors[i]);
+        const int chan = numChannelsInSubprocessor[inputSubprocessors[i]];
+        const int nSamples = getNumSourceSamples(inputSubprocessors[i]);
         const int samplesLeft   = displayBuffers[i]->getNumSamples() - displayBufferIndices[i][chan];
         
         if (nSamples < samplesLeft)
@@ -374,7 +405,7 @@ void LfpDisplayNode::initializeEventChannels()
                                      displayBufferIndices[i][chan],             // destStartSample
                                      arrayOfOnes,                               // source
                                      nSamples,                                  // numSamples
-                                     float (ttlState[subprocessorToDraw]));     // gain
+                                     float (ttlState[inputSubprocessors[i]]));     // gain
         }
         else
         {
@@ -384,13 +415,13 @@ void LfpDisplayNode::initializeEventChannels()
                                      displayBufferIndices[i][chan],             // destStartSample
                                      arrayOfOnes,                               // source
                                      samplesLeft,                               // numSamples
-                                     float (ttlState[subprocessorToDraw]));     // gain
+                                     float (ttlState[inputSubprocessors[i]]));     // gain
 
             displayBuffers[i]->copyFrom (chan,                                      // destChannel
                                      0,                                         // destStartSample
                                      arrayOfOnes,                               // source
                                      extraSamples,                              // numSamples
-                                     float (ttlState[subprocessorToDraw]));     // gain
+                                     float (ttlState[inputSubprocessors[i]]));     // gain
         }
     }
 }
@@ -398,10 +429,10 @@ void LfpDisplayNode::initializeEventChannels()
 void LfpDisplayNode::finalizeEventChannels()
 {
     for (int i = 0 ; i < numSubprocessors ; i++){    
-        const int chan          = numChannelsInSubprocessor[allSubprocessors[i]];
+        const int chan          = numChannelsInSubprocessor[inputSubprocessors[i]];
         const int index         = displayBufferIndices[i][chan];
         const int samplesLeft   = displayBuffers[i]->getNumSamples() - index;
-        const int nSamples      = getNumSourceSamples(allSubprocessors[i]);
+        const int nSamples      = getNumSourceSamples(inputSubprocessors[i]);
         
         int newIdx = 0;
         
@@ -421,8 +452,8 @@ void LfpDisplayNode::finalizeEventChannels()
     {
         if (latestCurrentTrigger[i] >= 0)
         {
-            int chan = numChannelsInSubprocessor[subprocessorToDraw];
-            int subProcIndex = allSubprocessors.indexOf(subprocessorToDraw);
+            int chan = numChannelsInSubprocessor[subprocessorToDraw[i]];
+            int subProcIndex = inputSubprocessors.indexOf(subprocessorToDraw[i]);
             latestTrigger.set(i, latestCurrentTrigger[i] + displayBufferIndices[subProcIndex][chan]);
         }
     }  
@@ -455,7 +486,7 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
             for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
             {
                 subProcId =  getDataSubprocId(chan);
-                currSubproc = allSubprocessors.indexOf(subProcId);
+                currSubproc = inputSubprocessors.indexOf(subProcId);
 
                 channelIndices.set(currSubproc, channelIndices[currSubproc] + 1);
 
@@ -502,6 +533,10 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 void LfpDisplayNode::setNumberOfDisplays(int num)
 {
     numDisplays = num;
+
+    subprocessorToDraw.clear();
+    subprocessorToDraw.insertMultiple(0, 0, num);
+    setDefaultSubprocessors();
 
     triggerSource.clear();
     triggerSource.insertMultiple(0, -1, num);

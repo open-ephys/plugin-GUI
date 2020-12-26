@@ -43,53 +43,31 @@ class LfpDisplayCanvas;
 
 */
 
-class LfpDisplayEditor : public VisualizerEditor,
-                         public ComboBox::Listener
+class LfpDisplayEditor : public VisualizerEditor
 {
 public:
     LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~LfpDisplayEditor();
 
-    /** Override the default VisualizerEditor behavior slightly, only for
-        initialization 
-     */
-    void buttonClicked(Button* button) override;
     // not really being used (yet) ...
     void buttonEvent(Button* button);
-    /** Respond to user's subprocessor sample rate selection */
-    void comboBoxChanged(ComboBox *cb);
 
     /** Called by the base class VisualizerEditor to display the canvas
         when the user chooses to display one
      
         @see VisualizerEditor::buttonClicked
      */
-    Visualizer* createNewCanvas();
+    Visualizer* createNewCanvas() override;
 
 	void startAcquisition();
 	void stopAcquisition();
 
 	void saveVisualizerParameters(XmlElement* xml);
 	void loadVisualizerParameters(XmlElement* xml);
-    
-    /** Handle the state and options within the subprocessor sample rate
-        selection combobox 
-     */
-    void updateSubprocessorSelectorOptions();
-
-	SortedSet<uint32> getInputSubprocessors();
 
 private:
-    
-    SortedSet<uint32> inputSubprocessors;
-    
+        
     LfpDisplayNode* lfpProcessor;
-
-    // label and combobox for subprocessor selection
-    ScopedPointer<Label> subprocessorSelectionLabel;
-    ScopedPointer<ComboBox> subprocessorSelection;
-    
-    ScopedPointer<Label> subprocessorSampleRateLabel;
     
     bool hasNoInputs;
 

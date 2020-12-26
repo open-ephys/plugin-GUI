@@ -62,16 +62,26 @@ public:
 
     void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
-    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)]; }
+    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress(int splitId) const 
+    { 
+        return displayBuffers[inputSubprocessors.indexOf(subprocessorToDraw[splitId])]; 
+    }
 
-    int getDisplayBufferIndex (int chan) const { return displayBufferIndices[allSubprocessors.indexOf(subprocessorToDraw)][chan]; }
+    int getDisplayBufferIndex (int chan, int splitId) const 
+    { 
+        return displayBufferIndices[inputSubprocessors.indexOf(subprocessorToDraw[splitId])][chan]; 
+    }
+
+    SortedSet<uint32> inputSubprocessors;
+    String getSubprocessorName(uint32 sn) { return subprocessorNames[sn]; }
 
     CriticalSection* getMutex() { return &displayMutex; }
 
-    void setSubprocessor(uint32 sp);
-    uint32 getSubprocessor() const;
-
-    int getNumSubprocessorChannels();
+    void setSubprocessor(uint32 sp, int splitId);
+    uint32 getSubprocessor(int splitId) const;
+    void setDefaultSubprocessors();
+    
+    int getNumSubprocessorChannels(int splitId);
 
     float getSubprocessorSampleRate(uint32 subprocId);
 
@@ -109,11 +119,14 @@ private:
     Array<int64> latestTrigger; // overall timestamp
     Array<int> latestCurrentTrigger; // within current input buffer
 
+    HashMap<int, String> subprocessorNames;
+    void updateInputSubprocessors();
+    
     bool resizeBuffer();
 
     int numSubprocessors;
-    uint32 subprocessorToDraw;
-    SortedSet<uint32> allSubprocessors; 
+    Array<uint32> subprocessorToDraw;
+ 
     std::map<uint32, int> numChannelsInSubprocessor;
     std::map<uint32, float> subprocessorSampleRate;
 
