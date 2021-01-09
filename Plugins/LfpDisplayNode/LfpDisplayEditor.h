@@ -35,6 +35,16 @@ namespace LfpViewer {
 class LfpDisplayNode;
 class LfpDisplayCanvas;
 
+class LayoutButton : public Button
+{
+public:
+    LayoutButton(const String& buttonName);
+    ~LayoutButton();
+
+private:
+    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
+};
+
 /**
 
   User interface for the LfpDisplayNode sink.
@@ -49,6 +59,9 @@ public:
     LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
     ~LfpDisplayEditor();
 
+    // Override VisualEditor behavior to add support for Layout switching
+    void buttonClicked(Button* button) override;
+    
     // not really being used (yet) ...
     void buttonEvent(Button* button);
 
@@ -65,6 +78,8 @@ public:
 	void saveVisualizerParameters(XmlElement* xml);
 	void loadVisualizerParameters(XmlElement* xml);
 
+    void resized() override;
+
 private:
         
     LfpDisplayNode* lfpProcessor;
@@ -72,6 +87,17 @@ private:
     bool hasNoInputs;
 
 	int defaultSubprocessor;
+
+    ScopedPointer<Label> layoutLabel;
+    ScopedPointer<LayoutButton> singleDisplay;
+    ScopedPointer<LayoutButton> twoVertDisplay;
+    ScopedPointer<LayoutButton> threeVertDisplay;
+    ScopedPointer<LayoutButton> twoHoriDisplay;
+    ScopedPointer<LayoutButton> threeHoriDisplay;
+
+    SplitLayouts selectedLayout;
+
+    void enableLayoutSelection(bool);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 

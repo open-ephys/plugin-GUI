@@ -42,17 +42,10 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpDisplayCanvas -
 
-LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
-                  processor(processor_)
+LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) :
+                  processor(processor_), selectedLayout(sl)
 {
-    processor->setNumberOfDisplays(2);
-    for(int i = 0; i < 2; i++)
-    {
-        displaySplits.add(new LfpDisplaySplitter(processor, this, i));
-        addAndMakeVisible(displaySplits[i]);
-    }
-
-    resized();
+    setLayout(sl);
     
     juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 
@@ -65,9 +58,31 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
 
 void LfpDisplayCanvas::resized()
 {
-
-    displaySplits[0]->setBounds(0, 0, getWidth()/2 - 5, getHeight());
-    displaySplits[1]->setBounds(getWidth()/2 + 5, 0, getWidth()/2 - 5, getHeight());
+    if(selectedLayout == SINGLE)
+    {
+        displaySplits[0]->setBounds(0, 0, getWidth(), getHeight());
+    }
+    else if(selectedLayout == TWO_VERT)
+    {
+        displaySplits[0]->setBounds(0, 0, getWidth()/2 - 5, getHeight());
+        displaySplits[1]->setBounds(getWidth()/2 + 5, 0, getWidth()/2 - 5, getHeight());
+    }
+    else if(selectedLayout == THREE_VERT)
+    {
+        displaySplits[0]->setBounds(0, 0, getWidth()/3 - 7, getHeight());
+        displaySplits[1]->setBounds(getWidth()/3 + 3, 0, getWidth()/3 - 7, getHeight());
+        displaySplits[2]->setBounds(2*getWidth()/3 + 5, 0, getWidth()/3 - 7, getHeight());
+    }
+    else if(selectedLayout == TWO_HORZ)
+    {
+        displaySplits[0]->setBounds(0, 0, getWidth(), getHeight()/2 - 5);
+        displaySplits[1]->setBounds(0, getHeight()/2 + 5, getWidth(), getHeight()/2 - 5);
+    }
+    else{
+        displaySplits[0]->setBounds(0, 0, getWidth(), getHeight()/3 - 7);
+        displaySplits[1]->setBounds(0, getHeight()/3 + 3, getWidth(), getHeight()/3 - 7);
+        displaySplits[2]->setBounds(0, 2*getHeight()/3 + 5, getWidth(), getHeight()/3 - 7);
+    }
 
 }
 
@@ -125,47 +140,34 @@ void LfpDisplayCanvas::refreshState()
 
 }
 
-void LfpDisplayCanvas::setDrawableSubprocessor(uint32 sp)
+void LfpDisplayCanvas::setLayout(SplitLayouts sl)
 {
-    for (auto split : displaySplits)
+    selectedLayout = sl;
+
+    //the number of split displays to create
+    int num = (sl < 4) ? sl : sl - 2;
+
+    if(num != displaySplits.size())
     {
-        split->setDrawableSubprocessor(sp);
+        processor->setNumberOfDisplays(num);
+        displaySplits.clear();
+
+        for(int i = 0; i < num; i++)
+        {
+            displaySplits.add(new LfpDisplaySplitter(processor, this, i));
+            addAndMakeVisible(displaySplits[i]);
+            displaySplits[i]->setInputSubprocessors();
+        }
     }
-    //update();
+
+    resized();
 }
 
 void LfpDisplayCanvas::paint(Graphics& g)
 {
     
     //std::cout << "Painting" << std::endl;
-
     g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
-    // g.setColour(lfpDisplay->backgroundColour); //background color
-    // g.fillRect(0, 0, getWidth(), getHeight());
-
-    // g.setGradientFill(ColourGradient(Colour(50,50,50),0,0,
-    //                                  Colour(25,25,25),0,30,
-    //                                  false));
-
-    // g.fillRect(0, 0, getWidth()-scrollBarThickness, 30);
-
-    // g.setColour(Colours::black);
-
-    // g.drawLine(0,30,getWidth()-scrollBarThickness,30);
-
-    // g.setColour(Colour(25,25,60)); // timing grid color
-
-    // int w = getWidth()-scrollBarThickness-leftmargin;
-
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     if (i == 5 || i == 0)
-    //         g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),3.0f);
-    //     else
-    //         g.drawLine(w/10*i+leftmargin,timescale->getHeight(),w/10*i+leftmargin,getHeight()-60-timescale->getHeight(),1.0f);
-    // }
-
-    // g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
 
 }
 
@@ -362,7 +364,6 @@ void LfpDisplaySplitter::setInputSubprocessors()
 
     if(totalInputs > 0)
     {
-        std::cout << "********** TOTAL INPUTS:" << totalInputs <<std::endl;
         for(int i = 0; i < totalInputs; i++)
         {
             subprocessorSelection->addItem(processor->getSubprocessorName(processor->inputSubprocessors[i]), i+1);

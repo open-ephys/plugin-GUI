@@ -48,7 +48,8 @@ class LfpDisplayCanvas : public Visualizer,
     public KeyListener
 {
 public:
-    LfpDisplayCanvas(LfpDisplayNode* n);
+
+    LfpDisplayCanvas(LfpDisplayNode* n, SplitLayouts sl);
     ~LfpDisplayCanvas();
 
     void beginAnimation();
@@ -64,10 +65,8 @@ public:
 
     void refresh();
     void resized();
-    
-    /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
-        this canvas */
-    void setDrawableSubprocessor(uint32 sp);
+
+    void setLayout(SplitLayouts);
 
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
@@ -80,6 +79,8 @@ private:
     LfpDisplayNode* processor;
 
     OwnedArray<LfpDisplaySplitter> displaySplits;
+
+    SplitLayouts selectedLayout;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 

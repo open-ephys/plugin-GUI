@@ -26,6 +26,63 @@
 using namespace LfpViewer;
 
 
+LayoutButton::LayoutButton(const String& buttonName)
+            : Button(buttonName)
+{
+    setClickingTogglesState(true);
+}
+
+LayoutButton::~LayoutButton()
+{
+}
+
+void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if(getToggleState())
+        g.setColour(Colours::orange);
+    else
+        g.setColour(Colours::grey);
+
+    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 3);
+    
+    if(isMouseOver)
+        g.setColour(Colours::white);
+    else
+        g.setColour(Colours::black);
+
+    juce::Path path;
+
+    if(getName().equalsIgnoreCase("single"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+    }
+    else if(getName().equalsIgnoreCase("two-vertical"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect((float)(getWidth()/2) - 0.5f, 3.0f, 1.0f, (float)(getHeight()-6));
+    }
+    else if(getName().equalsIgnoreCase("three-vertical"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect((float)(getWidth()/3) + 1.0f, 3.0f, 1.0f, (float)(getHeight()-6));
+        g.fillRect((float)(2*getWidth()/3) - 1.0f, 3.0f, 1.0f, (float)(getHeight()-6));
+    }
+    else if(getName().equalsIgnoreCase("two-horizontal"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect(3.0f, (float)(getHeight()/2) - 0.5f, (float)(getWidth()-6), 1.0f);
+    }
+    else
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect(3.0f, (float)(getHeight()/3) + 1.0f, (float)(getWidth()-6), 1.0f);
+        g.fillRect(3.0f, (float)(2*getHeight()/3) - 1.0f, (float)(getWidth()-6), 1.0f);
+    }
+    
+
+}
+
+
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : VisualizerEditor(parentNode, useDefaultParameterEditors)
 , hasNoInputs(true)
@@ -33,9 +90,43 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
     lfpProcessor = (LfpDisplayNode*) parentNode;
     tabText = "LFP";
 
-    desiredWidth = 180;
+    desiredWidth = 195;
 
 	defaultSubprocessor = 0;
+
+    layoutLabel = new Label("layout", "Layout:");
+    addAndMakeVisible(layoutLabel);
+    
+    singleDisplay = new LayoutButton("single");
+    singleDisplay->setToggleState(true, dontSendNotification);
+    singleDisplay->setRadioGroupId(201, dontSendNotification);
+    singleDisplay->addListener(this);
+    addAndMakeVisible(singleDisplay);
+    selectedLayout = SplitLayouts::SINGLE;
+
+    twoVertDisplay = new LayoutButton("two-vertical");
+    twoVertDisplay->setToggleState(false, dontSendNotification);
+    twoVertDisplay->setRadioGroupId(201, dontSendNotification);
+    twoVertDisplay->addListener(this);
+    addAndMakeVisible(twoVertDisplay);
+
+    threeVertDisplay = new LayoutButton("three-vertical");
+    threeVertDisplay->setToggleState(false, dontSendNotification);
+    threeVertDisplay->setRadioGroupId(201, dontSendNotification);
+    threeVertDisplay->addListener(this);
+    addAndMakeVisible(threeVertDisplay);
+
+    twoHoriDisplay = new LayoutButton("two-horizontal");
+    twoHoriDisplay->setToggleState(false, dontSendNotification);
+    twoHoriDisplay->setRadioGroupId(201, dontSendNotification);
+    twoHoriDisplay->addListener(this);
+    addAndMakeVisible(twoHoriDisplay);
+
+    threeHoriDisplay = new LayoutButton("three-horizontal");
+    threeHoriDisplay->setToggleState(false, dontSendNotification);
+    threeHoriDisplay->setRadioGroupId(201, dontSendNotification);
+    threeHoriDisplay->addListener(this);
+    addAndMakeVisible(threeHoriDisplay);
 }
 
 LfpDisplayEditor::~LfpDisplayEditor()
@@ -44,18 +135,38 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 void LfpDisplayEditor::startAcquisition()
 {
-	//subprocessorSelection->setEnabled(false);
+	enableLayoutSelection(false);
 }
 
 void LfpDisplayEditor::stopAcquisition()
 {
-	//subprocessorSelection->setEnabled(true);
+	enableLayoutSelection(true);
 }
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-    canvas = new LfpDisplayCanvas(lfpProcessor);
+    canvas = new LfpDisplayCanvas(lfpProcessor, selectedLayout);
     return canvas;
+}
+
+void LfpDisplayEditor::buttonClicked(Button* button)
+{
+    if(button == singleDisplay)
+        selectedLayout = SplitLayouts::SINGLE;
+    else if(button == twoVertDisplay)
+        selectedLayout = SplitLayouts::TWO_VERT;
+    else if(button == threeVertDisplay)
+        selectedLayout = SplitLayouts::THREE_VERT;
+    else if(button == twoHoriDisplay)
+        selectedLayout = SplitLayouts::TWO_HORZ;
+    else if(button == threeHoriDisplay)
+        selectedLayout = SplitLayouts::THREE_HORZ;
+    else
+        VisualizerEditor::buttonClicked(button);
+    
+    if(button->getRadioGroupId() == 201 && canvas != nullptr)
+        static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
+
 }
 
 // not really being used (yet)...
@@ -63,6 +174,27 @@ void LfpDisplayEditor::buttonEvent(Button* button)
 {
 
 
+}
+
+void LfpDisplayEditor::enableLayoutSelection(bool state)
+{
+    singleDisplay->setEnabled(state);
+    twoVertDisplay->setEnabled(state);
+    threeVertDisplay->setEnabled(state);
+    twoHoriDisplay->setEnabled(state);
+    threeHoriDisplay->setEnabled(state);
+}
+
+void LfpDisplayEditor::resized()
+{
+    VisualizerEditor::resized();
+
+    layoutLabel->setBounds(5, 30, 50, 20);
+    singleDisplay->setBounds(55, 30, 20, 20);
+    twoVertDisplay->setBounds(80, 30, 20, 20);
+    threeVertDisplay->setBounds(105, 30, 20, 20);
+    twoHoriDisplay->setBounds(130, 30, 20, 20);
+    threeHoriDisplay->setBounds(155, 30, 20, 20);
 }
 
 

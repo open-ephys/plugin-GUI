@@ -184,7 +184,6 @@ void LfpDisplayNode::setDefaultSubprocessors()
                 subprocessorToDraw.set(i, getDataSubprocId(0));
             }
         }
-        std::cout << "****** DEFAULT SUBP FOR #"<< i << " = " << subprocessorToDraw[i] << std::endl;
     }
 }
 
