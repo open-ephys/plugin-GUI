@@ -315,7 +315,10 @@ void VisualizerEditor::loadCustomParameters (XmlElement* xml)
             bool tabState = xmlNode->getBoolAttribute ("Active");
 
             if (tabState)
-                tabSelector->setToggleState (true, sendNotification);
+            {
+                tabSelector->setToggleState(true, sendNotification);
+                break;
+            }
         }
         else if (xmlNode->hasTagName (EDITOR_TAG_WINDOW))
         {
@@ -331,6 +334,7 @@ void VisualizerEditor::loadCustomParameters (XmlElement* xml)
                                            xmlNode->getIntAttribute ("width"),
                                            xmlNode->getIntAttribute ("height"));
                 }
+                break;
             }
         }
         else
