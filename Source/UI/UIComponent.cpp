@@ -511,25 +511,25 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case undo:
 			result.setInfo("Undo", "Undo the last action.", "General", 0);
 			result.addDefaultKeypress('Z', ModifierKeys::commandModifier);
-			result.setActive(false);
+			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canUndo());
 			break;
 
 		case redo:
 			result.setInfo("Redo", "Undo the last action.", "General", 0);
-			result.addDefaultKeypress('Y', ModifierKeys::commandModifier);
-			result.setActive(false);
+			result.addDefaultKeypress('Z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
+			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canRedo());
 			break;
 
 		case copySignalChain:
 			result.setInfo("Copy", "Copy selected processors.", "General", 0);
 			result.addDefaultKeypress('C', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted);
+			result.setActive(!acquisitionStarted && getEditorViewport()->editorIsSelected());
 			break;
 
 		case pasteSignalChain:
 			result.setInfo("Paste", "Paste processors.", "General", 0);
 			result.addDefaultKeypress('V', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted);
+			result.setActive(!acquisitionStarted && getEditorViewport()->canPaste());
 			break;
 
 		case clearSignalChain:
@@ -662,6 +662,18 @@ bool UIComponent::perform(const InvocationInfo& info)
 			}
 			break;
 
+        case undo:
+            {
+                getEditorViewport()->undo();
+                break;
+            }
+            
+        case redo:
+            {
+                getEditorViewport()->redo();
+                break;
+            }
+            
         case copySignalChain:
             {
                 getEditorViewport()->copySelectedEditors();

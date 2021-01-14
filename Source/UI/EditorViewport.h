@@ -43,6 +43,9 @@ class SignalChainScrollButton;
 class ControlPanel;
 class UIComponent;
 
+enum Action {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
+
+
 /**
 
   Allows the user to view and edit the signal chain.
@@ -170,11 +173,11 @@ public:
     
     GenericProcessor* addProcessor(ProcessorDescription desc, int insertionPt);
     
+    void deleteProcessors(Array<GenericProcessor*>);
+    
     GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool rhythmNodePatch, bool ignoreNodeId);
 
     void copySelectedEditors();
-    
-    void addToUndoBuffer(XmlElement*);
     
     void copy(Array<XmlElement*>);
     
@@ -183,6 +186,12 @@ public:
     void undo();
     
     void redo();
+    
+    bool editorIsSelected();
+    
+    bool canPaste();
+    
+    UndoManager undoManager;
 
 private:
 
@@ -205,7 +214,6 @@ private:
     bool componentWantsToMove;
     int indexOfMovingComponent;
 
-    enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
 
     SignalChainTabComponent* signalChainTabComponent;
 
@@ -215,13 +223,44 @@ private:
     
     OwnedArray<XmlElement> copyBuffer;
     
-    OwnedArray<XmlElement> undoBuffer;
-    
-    OwnedArray<XmlElement> redoBuffer;
-    
     Label editorNamingLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
+
+};
+
+/**
+
+  Specifies an action (ADD, DELETE, MOVE) that can be undone
+
+  @see EditorViewport, UndoManager
+
+*/
+class AddProcessorAction : public UndoableAction
+{
+    
+public:
+    AddProcessor(Action, Array<GenericProcessor*>, EditorViewport*);
+ 
+    ~AddProcessor();
+    
+    bool perform();
+    bool undo();
+    
+private:
+    Action action;
+    
+    struct ProcessorInfo
+    {
+        int nodeId;
+        int sourceNodeId;
+        int destNodeId;
+        XmlElement* settings;
+    };
+    
+    Array<ProcessorInfo> processorInfo;
+    
+    EditorViewport* editorViewport;
 
 };
 

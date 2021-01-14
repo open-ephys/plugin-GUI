@@ -486,7 +486,7 @@ bool EditorViewport::keyPressed(const KeyPress& key)
                         processorsToRemove.add(editor->getProcessor());
                 }
 
-                AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
+                deleteProcessors(processorsToRemove);
 
                 return true;
             }
@@ -558,16 +558,30 @@ void EditorViewport::copySelectedEditors()
             
 }
 
+bool EditorViewport::editorIsSelected()
+{
+    for (auto editor : editorArray)
+    {
+        if (editor->getSelectionState())
+            return true;
+    }
+    
+    return false;
+}
+
+bool EditorViewport::canPaste()
+{
+    if (copyBuffer.size() > 0 && editorIsSelected())
+        return true;
+    else
+        return false;
+}
+
 
 void EditorViewport::copy(Array<XmlElement*> copyInfo)
 {
     copyBuffer.clear();
     copyBuffer.addArray(copyInfo);
-    
-}
-
-void EditorViewport::addToUndoBuffer(XmlElement*)
-{
     
 }
 
@@ -622,28 +636,14 @@ void EditorViewport::paste()
 void EditorViewport::undo()
 {
     
+    undoManager.undo();
+    
 }
 
 void EditorViewport::redo()
 {
-    
+    undoManager.redo();
 }
-
-//void EditorViewport::modifierKeysChanged (const ModifierKeys & modifiers) {
-
-/*     if (modifiers.isShiftDown()) {
-
-LOGD("Shift key pressed.");
-        shiftDown  = true;
-
-    } else {
-
-
-LOGD("Shift key released.");
-        shiftDown = false;
-    }*/
-
-//}
 
 void EditorViewport::selectEditor(GenericEditor* editor)
 {
@@ -746,7 +746,9 @@ void EditorViewport::mouseDown(const MouseEvent& e)
 
                     processorsToRemove.add(editorArray[i]->getProcessor());
 
-                    AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
+                    deleteProcessors(processorsToRemove);
+                    
+                    
                     return;
                 }
                 else if (result == 3)
@@ -938,7 +940,11 @@ void EditorViewport::mouseUp(const MouseEvent& e)
                 newDest = editorArray[insertionPoint]->getProcessor();
             }
             
-            AccessClass::getProcessorGraph()->moveProcessor(editorArray[indexOfMovingComponent]->getProcessor(),
+            EditorViewportAction* action = new EditorViewportAction(MOVE, editorArray[indexOfMovingComponent]->getProcessor(),
+                                                                    newSource,
+                                                                    newDest)
+            
+            AccessClass::getProcessorGraph()->moveProcessor(,
                                                             newSource, newDest,
                                                             insertionPoint > indexOfMovingComponent);
         }
@@ -1599,6 +1605,14 @@ const String EditorViewport::loadState(File fileToLoad)
     return error;
 }
 
+void EditorViewport::deleteProcessors(Array<GenericProcessor*> processorsToRemove)
+{
+    EditorViewportAction* action = new EditorViewportAction(REMOVE, processorsToRemove, this);
+    
+    undoManager.perform(action);
+
+}
+
 GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* processor,
                                                                   int insertionPt,
                                                                   bool rhythmNodePatch,
@@ -1649,9 +1663,192 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
                 description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
         }
     }
-
+    
+    EditorViewportAction* action = new EditorViewportAction(ADD, description, insertionPoint, this);
+    
     GenericProcessor* p = addProcessor(description, insertionPoint);
     p->parametersAsXml = processor;
     
     return p;
+}
+
+
+EditorViewportAction::EditorViewportAction(Action action_, Array<GenericProcessor*> processors, EditorViewport* ev) :
+        action(action_),
+        editorViewport(ev)
+{
+    
+    for (auto p : processors)
+    {
+        
+        int sourceNodeId, destNodeId;
+        
+        if (p->getSourceNode() != nullptr)
+            sourceNodeId = p->getSourceNode()->getNodeId();
+        else
+            sourceNodeId = -1;
+        
+        if (p->getDestNode() != nullptr)
+            destNodeId = p->getDestNode()->getNodeId();
+        else
+            destNodeId = -1;
+        
+        ProcessorInfo info = {p->getNodeId(),
+                              sourceNodeId,
+                              destNodeId,
+                              editorViewport->createNodeXml(p, false)
+        };
+    }
+    
+}
+
+EditorViewportAction::EditorViewportAction(Action action_, ProcessorDescription descr, int insertionPoint, EditorViewport* ev) :
+    action(action_),
+    editorViewport(ev)
+{
+    
+}
+
+EditorViewportAction::~EditorViewportAction()
+{
+    for (auto info : processorInfo)
+    {
+        delete info.settings;
+    }
+}
+
+bool EditorViewportAction::perform()
+{
+  /*  switch (action)
+    {
+        case ADD:
+            
+            int insertionPoint;
+            bool foundSourceOrDest;
+            
+            for (auto p : availableProcessors)
+            {
+                if (p->getNodeId() == nextAction->sourceNodeId)
+                {
+                    AccessClass::getProcessorGraph()->updateViews(p);
+                    
+                    insertionPoint = editorArray.indexOf(p->getEditor()) + 1;
+                    
+                    foundSourceOrDest = true;
+                    
+                    break;
+                } else if (p->getNodeId() == nextAction->destNodeId)
+                {
+                    AccessClass::getProcessorGraph()->updateViews(p);
+                    
+                    insertionPoint = editorArray.indexOf(p->getEditor());
+                    
+                    foundSourceOrDest = true;
+                    break;
+                }
+            }
+            
+            if (foundSourceOrDest)
+            {
+                LOGD("Insertion point: ", insertionPoint);
+                
+                GenericProcessor* newProcessor = createProcessorAtInsertionPoint(nextAction->processorInfo.getFirst(), insertionPoint, false, true);
+                
+                newProcessor->loadFromXml();
+                
+                AccessClass::getProcessorGraph()->updateSettings(newProcessor);
+            }
+            
+            
+            break;
+            
+        case REMOVE:
+            
+            AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
+            
+            Array<GenericProcessor*> processorToRemove;
+            
+            for (auto p : availableProcessors)
+            {
+                if (p->getNodeId() == nextAction->nodeId)
+                    processorToRemove.add(p);
+            }
+            
+            if (processorToRemove.size() > 0)
+                deleteProcessors(processorToRemove);
+            
+            break;
+
+    }*/
+    
+}
+
+
+bool EditorViewportAction::undo()
+{
+    
+     /*   switch (action)
+        {
+            case ADD:
+                
+                int insertionPoint;
+                bool foundSourceOrDest;
+                
+                for (auto p : availableProcessors)
+                {
+                    if (p->getNodeId() == nextAction->sourceNodeId)
+                    {
+                        AccessClass::getProcessorGraph()->updateViews(p);
+                        
+                        insertionPoint = editorArray.indexOf(p->getEditor()) + 1;
+                        
+                        foundSourceOrDest = true;
+                        
+                        break;
+                    } else if (p->getNodeId() == nextAction->destNodeId)
+                    {
+                        AccessClass::getProcessorGraph()->updateViews(p);
+                        
+                        insertionPoint = editorArray.indexOf(p->getEditor());
+                        
+                        foundSourceOrDest = true;
+                        break;
+                    }
+                }
+                
+                if (foundSourceOrDest)
+                {
+                    LOGD("Insertion point: ", insertionPoint);
+                    
+                    GenericProcessor* newProcessor = createProcessorAtInsertionPoint(nextAction->processorInfo.getFirst(), insertionPoint, false, true);
+                    
+                    newProcessor->loadFromXml();
+                    
+                    AccessClass::getProcessorGraph()->updateSettings(newProcessor);
+                }
+                
+                
+                break;
+                
+            case REMOVE:
+                
+                Array<GenericProcessor*> processorToRemove;
+                
+                for (auto p : availableProcessors)
+                {
+                    if (p->getNodeId() == nextAction->nodeId)
+                        processorToRemove.add(p);
+                }
+                
+                if (processorToRemove.size() > 0)
+                    deleteProcessors(processorToRemove);
+                
+                break;
+
+        }
+        
+        undoIndex += 1;
+    
+    }*/
+    
 }
