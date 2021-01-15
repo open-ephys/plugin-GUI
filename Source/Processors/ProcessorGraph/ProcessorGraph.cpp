@@ -170,8 +170,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 
 	if (processor != nullptr)
 	{
-        //NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "OpenEphys", "HALP");
-        
+
         int id;
         
         if (description.nodeId > 0)
@@ -256,11 +255,11 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             }
         }
         
-        
-        
         if (!checkForNewRootNodes(processor))
         {
             removeProcessor(processor);
+            updateViews(rootNodes.getLast());
+            return nullptr;
         }
         
 	}
@@ -295,6 +294,16 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 {
                     rootNodes.set(rootNodes.indexOf(processor->getDestNode()), processor);
                     return true;
+                } else {
+                    if (rootNodes.size() == 8)
+                    {
+                        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                                                              "Maximum of 8 signal chains.");
+                        return false;
+                    } else {
+                        rootNodes.add(processor);
+                        return true;
+                    }
                 }
                 
                 if (processor->getDestNode()->isMerger())
