@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RecordChannelSelector.h"
 #include "SyncChannelSelector.h"
-#include "Utils.h"
+#include "../../Utils/Utils.h"
 
 class RecordThread;
 class RecordNode;
@@ -101,7 +101,7 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 \
-class RecordNodeEditor : public GenericEditor, ComboBoxListener
+class RecordNodeEditor : public GenericEditor, ComboBoxListener, LabelListener
 {
 public:
 
@@ -119,12 +119,15 @@ public:
 
 	void timerCallback() override;
 	void comboBoxChanged(ComboBox*); 
+	void labelTextChanged(Label*);
 
 	void saveCustomParameters(XmlElement* xml);
 	void loadCustomParameters(XmlElement* xml);
     
     void buttonEvent(Button* button);
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;
+
+	ScopedPointer<ComboBox> engineSelectCombo;
 
 private:
 
@@ -141,7 +144,6 @@ private:
 	ScopedPointer<Label> engineSelectLabel;
 	ScopedPointer<Label> dataPathLabel;
 	ScopedPointer<Button> dataPathButton;
-	ScopedPointer<ComboBox> engineSelectCombo;
 	ScopedPointer<Label> recordEventsLabel;
 	ScopedPointer<RecordToggleButton> eventRecord;
 	ScopedPointer<Label> recordSpikesLabel;

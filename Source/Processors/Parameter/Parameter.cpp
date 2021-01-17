@@ -22,7 +22,7 @@
 
 
 #include "Parameter.h"
-#include "../../../PluginGenerator/Source/Utility/openEphys_pluginHelpers.h"
+#include "ParameterHelpers.h"
 
 
 Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)

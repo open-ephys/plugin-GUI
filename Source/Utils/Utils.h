@@ -8,13 +8,16 @@
 #include <string>
 #include <map>
 
-#define LOGD OELogger::instance().LOGDebug
-
+/*
 #define LOGD(...) \
     OELogger::instance().LOGDebug(__func__, __FILE__, __LINE__, __VA_ARGS__);
+*/
+
+#define LOGD(...) \
+    OELogger::instance().LOGDebug(__VA_ARGS__);
 
 #define LOGDD(...) \
-    OELogger::instance().LOGDebug(__func__, __FILE__, __LINE__, __VA_ARGS__);
+    OELogger::instance().LOGDeepDebug(__func__, __FILE__, __LINE__, __VA_ARGS__);
 
 /* Function Timer */
 template <typename Time = std::chrono::microseconds, typename Clock = std::chrono::high_resolution_clock>
@@ -52,6 +55,12 @@ public:
 		std::lock_guard<std::mutex> lock(mt);
 		(std::cout << ... << args);
 		std::cout << std::endl;
+	}
+
+	template<typename ...Args>
+	void LOGDeepDebug(Args&& ...args)
+	{
+		/*TODO: Print deep debug logs in a verbose format*/
 	}
 
 private:

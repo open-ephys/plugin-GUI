@@ -41,7 +41,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         zipfile=open-ephys-${gui_ver}-linux-beta.zip
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"
@@ -68,7 +68,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         zipfile=open-ephys-${gui_ver}-linux.zip
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"

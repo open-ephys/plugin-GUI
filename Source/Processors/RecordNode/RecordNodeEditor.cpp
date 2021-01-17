@@ -62,10 +62,12 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 
 	dataPathLabel = new Label(CoreServices::getRecordingDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
+	dataPathLabel->setTooltip(dataPathLabel->getText());
 	dataPathLabel->setBounds(42,35,72,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
 	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
 	dataPathLabel->setJustificationType(Justification::centredLeft);
+	dataPathLabel->addListener(this);
 	addAndMakeVisible(dataPathLabel);
 
 	dataPathButton = new UtilityButton("...", Font(12));
@@ -246,6 +248,16 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 	if (!recordNode->recordThread->isThreadRunning())
 	{
 		uint8 selectedEngineIndex = box->getSelectedId();
+
+		//Prevent using OpenEphys format if > 300 channels coming into Record Node
+		if (recordNode->getNumInputs() > 300 && selectedEngineIndex == 2)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+				"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
+			box->setSelectedItemIndex(0);
+			recordNode->setEngine(0);
+			return;
+		}
 		recordNode->setEngine(selectedEngineIndex-1);
 	}
 
@@ -349,10 +361,20 @@ void RecordNodeEditor::buttonEvent(Button *button)
 		{
 			recordNode->setDataDirectory(chooseWriteDirectory.getResult());
 			dataPathLabel->setText(chooseWriteDirectory.getResult().getFullPathName(), juce::NotificationType::dontSendNotification);
+			dataPathLabel->setTooltip(dataPathLabel->getText());
 		}
 
 	}
 
+}
+
+void RecordNodeEditor::labelTextChanged(Label* label)
+{
+	if(label == dataPathLabel)
+	{
+		recordNode->setDataDirectory(label->getText());
+		label->setTooltip(label->getText());
+	}
 }
 
 void RecordNodeEditor::collapsedStateChanged()

@@ -63,6 +63,7 @@ public:
     void switchIO(int);
     void switchIO();
     void setSplitterDestNode(GenericProcessor* dn);
+    GenericProcessor* getDestNode(int);
 
     void setPathToProcessor(GenericProcessor* processor);
 

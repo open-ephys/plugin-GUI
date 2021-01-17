@@ -120,6 +120,8 @@ public:
         
     Font getPopupMenuFont() override;
 
+    void drawMenuBarBackground (Graphics&, int width, int height, bool isMouseOverBar, MenuBarComponent&) override;
+
     // ========= custom button methods: ===========================
 
     void drawButtonBackground (Graphics& g,

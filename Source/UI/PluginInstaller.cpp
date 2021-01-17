@@ -117,7 +117,7 @@ void PluginInstaller::createXmlFile()
 		baseTag->addChildElement(plugins.release());
 
 		if (! baseTag->writeToFile(file, String::empty))
-			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+			LOGD("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
 	{
@@ -140,7 +140,7 @@ void PluginInstaller::createXmlFile()
 
 		if (! xml->writeToFile(file, String::empty))
 		{
-			std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+			LOGD("Error! Couldn't write to installedPlugins.xml");
 		}
 
 		elementsToRemove.clear();
@@ -337,7 +337,7 @@ void PluginInstallerComponent::run()
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
-		std::cout << "[PluginInstaller] File not found." << std::endl;
+		LOGD("[PluginInstaller] File not found.");
 		return;
 	}
 	else
@@ -602,7 +602,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 	if(selectedPackage.isEmpty())
 	{
-	 	std::cout << "*********** No platform specific package found for " << pluginName << std::endl;
+		LOGD("*********** No platform specific package found for ", pluginName);
 		pluginInfoPanel.makeInfoVisible(false);
 		return false;
 	}
@@ -661,7 +661,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
-		std::cout << "[PluginInstaller] File not found." << std::endl;
+		LOGD("File not found.");
 		return false;
 	}
 	else
@@ -840,7 +840,7 @@ void PluginInfoComponent::buttonClicked(Button* button)
 
 void PluginInfoComponent::run()
 {
-	std::cout << "\nDownloading Plugin: " << pInfo.pluginName << "...  " << std::endl;
+	LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
 		
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
@@ -864,7 +864,7 @@ void PluginInfoComponent::run()
 											"Could not install dependency: " + pInfo.dependencies[i] 
 											+ ". Please contact the developers.");
 			
-			std::cout << "Download Failed!!" << std::endl;
+			LOGD("Download Failed!!");
 			return;
 		}
 	}
@@ -880,7 +880,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										pInfo.displayName + " Installed Successfully");
 
-		std::cout << "Download Successfull!!" << std::endl;
+		LOGD("Download Successfull!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		downloadButton.setEnabled(false);
@@ -893,7 +893,7 @@ void PluginInfoComponent::run()
 										"Could not find the ZIP file for " + pInfo.displayName 
 										+ ". Please contact the developers.");
 
-		std::cout << "Download Failed!!" << std::endl;
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == UNCMP_ERR)
 	{
@@ -901,7 +901,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Could not uncompress the ZIP file. Please try again.");
 
-		std::cout << "Download Failed!!" << std::endl;
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == XML_MISSING)
 	{
@@ -909,7 +909,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
 
-		std::cout << "XML File Missing!!" << std::endl;
+		LOGD("XML File Missing!!");
 	}
 	else if (dlReturnCode == VER_EXISTS_ERR)
 	{
@@ -918,7 +918,7 @@ void PluginInfoComponent::run()
 										pInfo.displayName + " v" + pInfo.selectedVersion 
 										+ " already exists. Please download another version.");
 
-		std::cout << "Download Failed!!" << std::endl;
+		LOGD("Download Failed!!");
 	}
 	else if (dlReturnCode == XML_WRITE_ERR)
 	{
@@ -926,7 +926,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Unable to write to installedPlugins.xml \n Please try again.");
 		
-		std::cout << "Writing to XML Failed!!" << std::endl;
+		LOGD("Writing to XML Failed!!");
 	}
 	else if (dlReturnCode == LOAD_ERR)
 	{
@@ -935,7 +935,7 @@ void PluginInfoComponent::run()
 										"Unable to load " + pInfo.displayName 
 										+ " in the Processor List.\nLook at console output for more details.");
 
-		std::cout << "Loading Plugin Failed!!" << std::endl;
+		LOGD("Loading Plugin Failed!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		downloadButton.setEnabled(false);
@@ -947,7 +947,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										"Plugin already in use. Please remove it from the signal chain and try again.");
 
-		std::cout << "Error.. Plugin already in use. Please remove it from the signal chain and try again." << std::endl;
+		LOGD("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
 	}
 
 }
@@ -1147,7 +1147,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 			if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 			{
-				std::cout << "[PluginInstaller] File not found." << std::endl;
+				LOGD("[PluginInstaller] File not found.");
 				pluginFile.deleteFile();
 				return 3;
 			}
@@ -1165,7 +1165,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 					{
 						if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
 						{
-							std::cout << plugin << " v" << version << " already exists!!" << std::endl;
+							LOGD(plugin, " v", version, " already exists!!");
 							pluginFile.deleteFile();
 							return 4;
 						}
@@ -1214,27 +1214,27 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 					HMODULE md = GetModuleHandleA(processorLocCString);
 
 					if(FreeLibrary(md))
-						std::cout << "Unloaded old " << dllToUnload << std::endl;
+						LOGD("Unloaded old ", dllToUnload);
 #endif
 					rs = pluginZip.uncompressTo(pluginsPath, true);
 
 					if(rs.failed())
 					{
-						std::cout <<  rs.getErrorMessage() << std::endl;
+						LOGD(rs.getErrorMessage());
 						pluginFile.deleteFile();
 						return 2;
 					}
 				}
 				else
 				{
-					std::cout << "Dependency already exists" << std::endl;
+					LOGD("Dependency already exists");
 				}
 				
 
 			}
 			else
 			{
-				std::cout << rs.getErrorMessage() << std::endl;
+				LOGD(rs.getErrorMessage());
 				pluginFile.deleteFile(); // delete zip after uncompressing
 				return 2;
 			}
@@ -1248,7 +1248,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			// Write installed plugin's info to XML file
 			if (! xml->writeToFile(xmlFile, String::empty))
 			{
-				std::cout << "Error! Couldn't write to installedPlugins.xml" << std::endl;
+				LOGD("Error! Couldn't write to installedPlugins.xml");
 				return 5;
 			}
 			

@@ -45,7 +45,7 @@
 */
 
 
-class OpenEphysApplication  : public JUCEApplication
+class OpenEphysApplication : public JUCEApplication
 {
 public:
     //==============================================================================
@@ -60,23 +60,23 @@ public:
         std::cout << commandLine << std::endl;
 
         StringArray parameters;
-        parameters.addTokens(commandLine," ","\"");
+        parameters.addTokens(commandLine, " ", "\"");
         parameters.removeEmptyStrings();
 
 #ifdef WIN32
         //glWinInit();
         if (AllocConsole())
         {
-            freopen("CONOUT$","w",stdout);
-            freopen("CONOUT$","w",stderr);
+            freopen("CONOUT$", "w", stdout);
+            freopen("CONOUT$", "w", stderr);
             console_out = std::ofstream("CONOUT$");
             std::cout.rdbuf(console_out.rdbuf());
             std::cerr.rdbuf(console_out.rdbuf());
-            SMALL_RECT windowSize = {0, 0, 85 - 1, 35 - 1};
+            SMALL_RECT windowSize = { 0, 0, 85 - 1, 35 - 1 };
             COORD bufferSize = { 85 , 9999 };
             HANDLE wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
             SetConsoleTitle("[Open Ephys] Debug Console");
-            SetConsoleWindowInfo(wHnd, true, &windowSize); 
+            SetConsoleWindowInfo(wHnd, true, &windowSize);
             SetConsoleScreenBufferSize(wHnd, bufferSize);
             std::cout << "Debug console..." << std::endl;
         }
@@ -104,7 +104,7 @@ public:
     //==============================================================================
     void systemRequestedQuit()
     {
-		mainWindow->shutDownGUI();
+        mainWindow->shutDownGUI();
         //std::cout << "Quit requested" << std::endl;
         quit();
     }

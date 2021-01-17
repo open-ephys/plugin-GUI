@@ -5,6 +5,7 @@
 #include <map>
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../Utils/Utils.h"
 
 class FloatTimestampBuffer
 {

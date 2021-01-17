@@ -44,7 +44,7 @@ AudioProcessorEditor* Splitter::createEditor()
     editor = new SplitterEditor(this, true);
     //tEditor(editor);
 
-    //std::cout << "Creating editor." << std::endl;
+    LOGDD("Creating editor.");
     return editor;
 }
 
@@ -60,8 +60,6 @@ void Splitter::setPathToProcessor(GenericProcessor* p)
     {
         switchIO(1);
     }
-
-
 }
 
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
@@ -70,13 +68,13 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 
     if (activePath == 0)
     {
-        std::cout << "Setting destination node A." << std::endl;
+        LOGD("Setting destination node A.");
         destNodeA = dn;
     }
     else
     {
         destNodeB = dn;
-        std::cout << "Setting destination node B." << std::endl;
+        LOGD("Setting destination node B.");
 
     }
 }
@@ -84,19 +82,19 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 void Splitter::switchIO(int destNum)
 {
 
-    //std::cout << "Switching to dest number " << destNum << std::endl;
+    LOGDD("Switching to dest number ", destNum);
 
     activePath = destNum;
 
     if (destNum == 0)
     {
         destNode = destNodeA;
-        // std::cout << "Dest node: " << getDestNode() << std::endl;
+//LOGDD("Dest node: ", getDestNode());
     }
     else
     {
         destNode = destNodeB;
-        // std::cout << "Dest node: " << getDestNode() << std::endl;
+//LOGDD("Dest node: ", getDestNode());
     }
 
     // getEditorViewport()->makeEditorVisible(getEditor(), false);
@@ -106,7 +104,7 @@ void Splitter::switchIO(int destNum)
 void Splitter::switchIO()
 {
 
-    //std::cout << "Splitter switching source." << std::endl;
+    LOGDD("Splitter switching source.");
 
     if (activePath == 0)
     {
@@ -124,4 +122,14 @@ void Splitter::switchIO()
 int Splitter::getPath()
 {
     return activePath;
+}
+
+GenericProcessor* Splitter::getDestNode(int path)
+{
+    if (path == 0)
+    {
+        return destNodeA;
+    } else {
+        return destNodeB;
+    }
 }

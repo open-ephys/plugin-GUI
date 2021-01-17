@@ -25,6 +25,9 @@
 #include "AudioComponent.h"
 #include <stdio.h>
 
+
+#include "../Utils/Utils.h"
+
 AudioComponent::AudioComponent() : isPlaying(false)
 {
     bool initialized = false;
@@ -77,11 +80,11 @@ AudioComponent::AudioComponent() : isPlaying(false)
     }
 
 
-    std::cout << "Got audio device." << std::endl;
+    LOGD("Got audio device.");
 
     String devName = aIOd->getName();
 
-    std::cout << std::endl << "Audio device name: " << devName << std::endl;
+    LOGD("Audio device name: ", devName);
 
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
@@ -96,16 +99,16 @@ AudioComponent::AudioComponent() : isPlaying(false)
     String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
     String devType = deviceManager.getCurrentAudioDeviceType();
-    std::cout << "Audio device type: " << devType << std::endl;
+    LOGD("Audio device type: ", devType);
 
     float sr = setup.sampleRate;
     int buffSize = setup.bufferSize;
     String oDN = setup.outputDeviceName;
     BigInteger oC = setup.outputChannels;
 
-    std::cout << "Audio output channels: " <<  oC.toInteger() << std::endl;
-    std::cout << "Audio device sample rate: " <<  sr << std::endl;
-    std::cout << "Audio device buffer size: " << buffSize << std::endl << std::endl;
+    LOGD("Audio output channels: ", oC.toInteger());
+    LOGD("Audio device sample rate: ", sr);
+    LOGD("Audio device buffer size: ", buffSize);
 
     graphPlayer = new AudioProcessorPlayer();
 
@@ -181,18 +184,18 @@ void AudioComponent::beginCallbacks()
 
         // if (mml.lockWasGained())
         // {
-        //     std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
+        //LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
         // } else {
-        //     std::cout << "AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING." << std::endl;
+        //LOGDD("AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING.");
         //     return;
         // }
 
         //     MessageManager* mm = MessageManager::getInstance();
 
         //     if (mm->isThisTheMessageThread())
-        //         std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+        //LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
         //     else
-        //         std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+        //LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
 
 
 
@@ -207,13 +210,13 @@ void AudioComponent::beginCallbacks()
         }
 
 
-        std::cout << std::endl << "Adding audio callback." << std::endl;
+        LOGD("Adding audio callback.");
         deviceManager.addAudioCallback(graphPlayer);
         isPlaying = true;
     }
     else
     {
-        std::cout << "beginCallbacks was called while acquisition was active." << std::endl;
+        LOGD("beginCallbacks was called while acquisition was active.");
     }
 
     //int64 ms = Time::getCurrentTime().toMilliseconds();
@@ -229,24 +232,28 @@ void AudioComponent::beginCallbacks()
 void AudioComponent::endCallbacks()
 {
 
-    // const MessageManagerLock mmLock; // add a lock to prevent crashes
+    const MessageManagerLock mmLock; // add a lock to prevent crashes
 
-    // MessageManagerLock mml (Thread::getCurrentThread());
+    MessageManagerLock mml (Thread::getCurrentThread());
 
-    // if (mml.lockWasGained())
-    // {
-    //     std::cout << "AUDIO COMPONENT GOT THAT LOCK!" << std::endl;
-    // }
+    if (mml.lockWasGained())
+    {
+        LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
+    }
 
-    // MessageManager* mm = MessageManager::getInstance();
+    MessageManager* mm = MessageManager::getInstance();
 
-    // if (mm->isThisTheMessageThread())
-    //     std::cout << "THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
-    // else
-    //     std::cout << "NOT THE MESSAGE THREAD -- AUDIO COMPONENT" << std::endl;
+    if (mm->isThisTheMessageThread())
+    {
+        LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
+    }
+    else
+    {
+        LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
+    }
 
 
-    std::cout << std::endl << "Removing audio callback." << std::endl;
+    LOGD("Removing audio callback.");
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
@@ -329,7 +336,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
     }
     else
     {
-        std::cout << "Buffer size out of range." << std::endl;
+    LOGD("Buffer size out of range.");
     }
 
     deviceManager.setAudioDeviceSetup(setup, true);

@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define NPYFILE_H
 
 #include "../RecordEngine.h"
+#include "../../../Utils/Utils.h"
 
 
 class NpyType

@@ -1,5 +1,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "../../Utils/Utils.h"
 
 class SyncChannelSelector;
 

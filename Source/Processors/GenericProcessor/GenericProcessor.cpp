@@ -23,6 +23,7 @@
 #include "GenericProcessor.h"
 #include "../../UI/UIComponent.h"
 #include "../../AccessClass.h"
+#include "../../Utils/Utils.h"
 
 #include <exception>
 
@@ -30,8 +31,8 @@
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 GenericProcessor::GenericProcessor(const String& name)
-	: sourceNode(0)
-	, destNode(0)
+	: sourceNode(nullptr)
+	, destNode(nullptr)
 	, isEnabled(true)
 	, wasConnected(false)
 	, nextAvailableChannel(0)
@@ -101,7 +102,7 @@ Parameter* GenericProcessor::getParameterObject(int parameterIndex) const
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
 	editor->updateParameterButtons(parameterIndex);
-	std::cout << "Setting parameter" << std::endl;
+	LOGD("Setting parameter");
 
 	if (currentChannel >= 0)
 		parameters[parameterIndex]->setValue(newValue, currentChannel);
@@ -144,7 +145,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	//std::cout << "Next channel: " << chan << ", num inputs: " << getNumInputs() << std::endl;
+	LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
 
 	if (increment)
 		nextAvailableChannel++;
@@ -166,121 +167,33 @@ void GenericProcessor::resetConnections()
 
 void GenericProcessor::setSourceNode(GenericProcessor* sn)
 {
-	//std::cout << "My name is " << getName() << ". Setting source node." << std::endl;
-
-	if (!isSource())
-	{
-		//	std::cout << " I am not a source." << std::endl;
-
-		if (sn != 0)
-		{
-			//	std::cout << " The source is not blank." << std::endl;
-
-			//if (!sn->isSink())
-			//{
-				//		std::cout << " The source is not a sink." << std::endl;
-            if (sourceNode != sn)
-            {
-                //			std::cout << " The source is new and named " << sn->getName() << std::endl;
-
-                if (this->isMerger())
-                    setMergerSourceNode(sn);
-                else
-                    sourceNode = sn;
-
-                sn->setDestNode(this);
-            }
-            //else
-            //{
-                //			std::cout << "  The source node is not new." << std::endl;
-            //}
-			//}
-			//else
-			//{
-				//		std::cout << " The source is a sink." << std::endl;
-			//	sourceNode = 0;
-			//}
-
-		}
-		else
-		{
-			//		std::cout << " The source is blank." << std::endl;
-			sourceNode = 0;
-		}
-	}
-	else
-	{
-		//	std::cout << " I am a source. I can't have a source node." << std::endl;
-
-		if (sn != 0)
-			sn->setDestNode(this);
-	}
+    if (this->isMerger())
+        setMergerSourceNode(sn);
+    else
+        sourceNode = sn;
 }
 
 
 void GenericProcessor::setDestNode(GenericProcessor* dn)
 {
-	//	std::cout << "My name is " << getName() << ". Setting dest node." << std::endl;
+	
+    if (this->isSplitter())
+        setSplitterDestNode(dn);
+    else
+        destNode = dn;
 
-	//if (!isSink())
-	//{
-		//	std::cout << "  I am not a sink." << std::endl;
-
-		if (dn != 0)
-		{
-			//		std::cout << "  The dest node is not blank." << std::endl;
-			if (!dn->isSource())
-			{
-				//		std::cout << "  The dest node is not a source." << std::endl;
-
-				if (destNode != dn)
-				{
-					//		std::cout << "  The dest node is new and named " << dn->getName() << std::endl;
-					//
-					if (this->isSplitter())
-						setSplitterDestNode(dn);
-					else
-						destNode = dn;
-
-					dn->setSourceNode(this);
-				}
-				else
-				{
-					//		std::cout << "  The dest node is not new." << std::endl;
-				}
-			}
-			else
-			{
-				//	std::cout << "  The dest node is a source." << std::endl;
-
-				destNode = 0;
-			}
-		}
-		else
-		{
-			//	std::cout << "  The dest node is blank." << std::endl;
-
-			destNode = 0;
-		}
-	//}
-	//else
-	//{
-		//std::cout << "  I am a sink, I can't have a dest node." << std::endl;
-		//if (dn != 0)
-		//	dn->setSourceNode(this);
-	//}
 }
 
 
 void GenericProcessor::clearSettings()
 {
-	//std::cout << "Generic processor clearing settings." << std::endl;
+	LOGDD("Generic processor clearing settings.");
 
-	settings.originalSource = 0;
+	settings.originalSource = nullptr;
 	settings.numInputs = 0;
 	settings.numOutputs = 0;
 
-	// std::cout << "Record status size = " << recordStatus.size() << std::endl;
+//LOGDD("Record status size = ", recordStatus.size());
 
 	if (m_recordStatus.size() < dataChannelArray.size())
 		m_recordStatus.resize(dataChannelArray.size());
@@ -290,96 +203,103 @@ void GenericProcessor::clearSettings()
 
 	for (int i = 0; i < dataChannelArray.size(); ++i)
 	{
-		// std::cout << channels[i]->getRecordState() << std::endl;
+//LOGDD(channels[i]->getRecordState());
 		m_recordStatus.set(i, dataChannelArray[i]->getRecordState());
 		m_monitorStatus.set(i, dataChannelArray[i]->isMonitored());
 	}
 
+    // clear channel arrays
 	dataChannelArray.clear();
 	eventChannelArray.clear();
 	spikeChannelArray.clear();
 	configurationObjectArray.clear();
+    
 	clearChannelCreationCounts();
 }
 
 
 void GenericProcessor::update()
 {
-	std::cout << getName() << " updating settings." << std::endl;
+	LOGD(getName(), " updating settings.");
 
 	// ---- RESET EVERYTHING ---- ///
 	clearSettings();
+    
+    if (!isMerger())
+    {
 
-	if (sourceNode != 0) // copy settings from source node
-	{
-		// everything is inherited except numOutputs
-		settings = sourceNode->settings;
-		settings.numInputs = settings.numOutputs;
-		settings.numOutputs = settings.numInputs;
+        if (sourceNode != nullptr) // copy settings from source node
+        {
+            // everything is inherited except numOutputs
+            settings = sourceNode->settings;
+            settings.numInputs = settings.numOutputs;
+            settings.numOutputs = settings.numInputs;
 
-		for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
-		{
-			DataChannel* sourceChan = sourceNode->dataChannelArray[i];
-			DataChannel* ch = new DataChannel(*sourceChan);
-
-
-			if (i < m_recordStatus.size())
-			{
-				ch->setRecordState(m_recordStatus[i]);
-				ch->setMonitored(m_monitorStatus[i]);
-			}
-
-			ch->addToHistoricString(getName());
-			dataChannelArray.add(ch);
-		}
-
-		for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
-		{
-			EventChannel* sourceChan = sourceNode->eventChannelArray[i];
-			EventChannel* ch = new EventChannel(*sourceChan);
-			ch->eventMetaDataLock = true;
-			eventChannelArray.add(ch);
-		}
-		for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
-		{
-			SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
-			SpikeChannel* ch = new SpikeChannel(*sourceChan);
-			ch->eventMetaDataLock = true;
-			spikeChannelArray.add(ch);
-
-		}
-		for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
-		{
-			ConfigurationObject* sourceChan = sourceNode->configurationObjectArray[i];
-			ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
-			configurationObjectArray.add(ch);
-		}
-	}
-	else // generate new settings
-	{
-
-		createDataChannels(); //Only sources can create data channels
-		settings.numOutputs = dataChannelArray.size();
-		std::cout << getName() << " setting num outputs to " << settings.numOutputs << std::endl;
-
-		for (int i = 0; i < dataChannelArray.size(); i++)
-		{
-            if (i < m_recordStatus.size())
+            for (int i = 0; i < sourceNode->dataChannelArray.size(); ++i)
             {
-                dataChannelArray[i]->setRecordState(m_recordStatus[i]);
-                dataChannelArray[i]->setMonitored(m_monitorStatus[i]);
-            }
-            else if (isSource())
-            {
-                dataChannelArray[i]->setRecordState(true);
-            }
-		}
-	}
+                DataChannel* sourceChan = sourceNode->dataChannelArray[i];
+                DataChannel* ch = new DataChannel(*sourceChan);
 
-	//Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
-	createEventChannels();
-	createSpikeChannels();
-	createConfigurationObjects();
+
+                if (i < m_recordStatus.size())
+                {
+                    ch->setRecordState(m_recordStatus[i]);
+                    ch->setMonitored(m_monitorStatus[i]);
+                }
+
+                ch->addToHistoricString(getName());
+                dataChannelArray.add(ch);
+            }
+
+            for (int i = 0; i < sourceNode->eventChannelArray.size(); ++i)
+            {
+                EventChannel* sourceChan = sourceNode->eventChannelArray[i];
+                EventChannel* ch = new EventChannel(*sourceChan);
+                ch->eventMetaDataLock = true;
+                eventChannelArray.add(ch);
+            }
+            for (int i = 0; i < sourceNode->spikeChannelArray.size(); ++i)
+            {
+                SpikeChannel* sourceChan = sourceNode->spikeChannelArray[i];
+                SpikeChannel* ch = new SpikeChannel(*sourceChan);
+                ch->eventMetaDataLock = true;
+                spikeChannelArray.add(ch);
+
+            }
+            for (int i = 0; i < sourceNode->configurationObjectArray.size(); ++i)
+            {
+                ConfigurationObject* sourceChan = sourceNode->configurationObjectArray[i];
+                ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
+                configurationObjectArray.add(ch);
+            }
+        }
+        else // generate new settings
+        {
+
+            createDataChannels(); //Only sources can create data channels
+            settings.numOutputs = dataChannelArray.size();
+			LOGD(getName(), " setting num outputs to ", settings.numOutputs);
+
+            for (int i = 0; i < dataChannelArray.size(); i++)
+            {
+                if (i < m_recordStatus.size())
+                {
+                    dataChannelArray[i]->setRecordState(m_recordStatus[i]);
+                    dataChannelArray[i]->setMonitored(m_monitorStatus[i]);
+                }
+                else if (isSource())
+                {
+                    dataChannelArray[i]->setRecordState(true);
+                }
+            }
+        }
+
+        //Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
+        createEventChannels();
+        createSpikeChannels();
+        createConfigurationObjects();
+        
+    }
 
 	//if (this->isSink())
 	//{
@@ -397,7 +317,7 @@ void GenericProcessor::update()
 	// details of this processor:
 	setPlayConfigDetails(getNumInputs(),  // numIns
 		getNumOutputs(), // numOuts
-		44100.0,         // sampleRate
+		44100.0,         // sampleRate (always 44100 Hz, default audio card rate)
 		128);            // blockSize
 
 	editor->update(); // allow the editor to update its settings
@@ -523,7 +443,7 @@ void GenericProcessor::setAllChannelsToRecord()
 		m_recordStatus.set(i, true);
 	}
 
-	// std::cout << "Setting all channels to record for source." << std::endl;
+	LOGDD("Setting all channels to record for source.");
 }
 
 
@@ -590,7 +510,7 @@ uint32 GenericProcessor::getNumSamples(int channelNum) const
 		return 0;
 	}
 
-	// std::cout << "Requesting samples for channel " << channelNum << " with source node " << sourceNodeId << std::endl;
+	LOGDD("Requesting samples for channel ", channelNum, " with source node ", sourceNodeId);
 	uint32 sourceID = getProcessorFullId(sourceNodeId, subProcessorId);
 	try
 	{
@@ -601,7 +521,7 @@ uint32 GenericProcessor::getNumSamples(int channelNum) const
 		return 0;
 	}
 
-	//std::cout << nSamples << " were found." << std::endl;
+	LOGDD(nSamples, " were found.");
 
 	return nSamples;
 }
@@ -682,7 +602,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 {
 
 	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-	//std::cout << "Setting timestamp to " << timestamp << std:;endl;
+	LOGDD("Setting timestamp to ", timestamp);
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, subProcessorIdx, timestamp, nSamples);
@@ -766,8 +686,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 		MidiBuffer temporalEventBuffer;
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
 		m_currentMidiBuffer = &temporalEventBuffer;
-		// int m = midiMessages.getNumEvents();
-		//std::cout << m << " events received by node " << getNodeId() << std::endl;
+		//int m = midiMessages.getNumEvents();
+		//LOGDD(m, " events received by node ", getNodeId());
 
 		MidiBuffer::Iterator i(*originalEventBuffer);
 		MidiMessage message(0xf4);
@@ -1009,7 +929,7 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, int
 	saveCustomChannelParametersToXml(channelInfo, channelNumber, type);
 
 	// deprecated parameter configuration:
-	//std::cout <<"Creating Parameters" << std::endl;
+	LOGDD("Creating Parameters");
 	// int maxsize = parameters.size();
 	// String parameterName;
 	// String parameterValue;
@@ -1036,12 +956,12 @@ void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo,
 
 void GenericProcessor::loadFromXml()
 {
-	update(); // make sure settings are updated
+	//update(); // make sure settings are updated
 	if (parametersAsXml != nullptr)
 	{
         if (!m_isParamsWereLoaded)
         {
-            std::cout << "Loading parameters for " << m_name << std::endl;
+			LOGD("Loading parameters for ", m_name);
 
             // use parametersAsXml to restore state
             loadCustomParametersFromXml();
@@ -1236,6 +1156,11 @@ void GenericProcessor::handleTimestampSyncTexts(const MidiMessage& event) {};
 void GenericProcessor::setEnabledState(bool t)
 {
 	isEnabled = t;
+    
+    if (isEnabled)
+        getEditor()->enable();
+    else
+        getEditor()->disable();
 }
 
 bool GenericProcessor::enableProcessor()

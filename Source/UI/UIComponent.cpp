@@ -29,6 +29,7 @@
 #include "ControlPanel.h"
 #include "ProcessorList.h"
 #include "EditorViewport.h"
+#include "MessageCenterButton.h"
 #include "DataViewport.h"
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "GraphViewer.h"
@@ -37,7 +38,7 @@
 #include "../MainWindow.h"
 
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
-: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_)
+: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
 
 {
 
@@ -45,46 +46,53 @@
 
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	addActionListener(messageCenterEditor);
-	addAndMakeVisible(messageCenterEditor);
-	std::cout << "Created message center." << std::endl;
+	
+LOGD("Created message center.");
 
 	infoLabel = new InfoLabel();
-	std::cout << "Created info label." << std::endl;
+LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
-	std::cout << "Created graph viewer." << std::endl;
+LOGD("Created graph viewer.");
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
 	dataViewport->addTabToDataViewport("Info", infoLabel,0);
 	dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
-	std::cout << "Created data viewport." << std::endl;
+LOGD("Created data viewport.");
 
-	editorViewport = new EditorViewport();
-
-	addAndMakeVisible(editorViewport);
-
-	std::cout << "Created filter viewport." << std::endl;
+    signalChainTabComponent = new SignalChainTabComponent();
+    addAndMakeVisible(signalChainTabComponent);
+    
+	editorViewport = new EditorViewport(signalChainTabComponent);
+	//addAndMakeVisible(editorViewport);
+    
+LOGD("Created editor viewport.");
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
 
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
-
-	std::cout << "Created control panel." << std::endl;
+    
+LOGD("Created control panel.");
 
 	processorList = new ProcessorList();
 	processorListViewport.setViewedComponent(processorList,false);
 	processorListViewport.setScrollBarsShown(true,false);
 	addAndMakeVisible(&processorListViewport);
+    
+    messageCenterButton.addListener(this);
+    addAndMakeVisible(messageCenterEditor);
+    addAndMakeVisible(&messageCenterButton);
+    
 	processorList->setVisible(true);
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
-	std::cout << "Created filter list." << std::endl;
+LOGD("Created filter list.");
 
 	pluginManager = new PluginManager();
-	std::cout << "Created plugin manager" << std::endl;
+LOGD("Created plugin manager");
 
 	setBounds(0,0,500,400);
 
@@ -102,6 +110,7 @@
 	mainWindow->setMenuBar(0);
 #else
 	mainWindow->setMenuBar(this);
+	mainWindow->getMenuBarComponent()->setName("MainMenu");
 #endif
 
 }
@@ -174,13 +183,25 @@ PluginManager* UIComponent::getPluginManager()
 	return pluginManager;
 }
 
+void UIComponent::buttonClicked(Button* button)
+{
+    if (button == &messageCenterButton)
+    {
+        messageCenterButton.switchState();
+        
+        messageCenterIsCollapsed = !messageCenterIsCollapsed;
+        
+        resized();
+    }
+}
+
 void UIComponent::resized()
 {
 
 	int w = getWidth();
 	int h = getHeight();
 
-	if (editorViewportButton != 0)
+	if (editorViewportButton != nullptr)
 	{
 		editorViewportButton->setBounds(w-230, h-40, 225, 35);
 
@@ -193,24 +214,22 @@ void UIComponent::resized()
 		//    editorViewportButton->setVisible(true);
 	}
 
-	if (editorViewport != 0)
+	if (signalChainTabComponent != nullptr)
 	{
-		//if (h < 400)
-		//    editorViewport->setVisible(false);
-		//else
-		//    editorViewport->setVisible(true);
-
-		if (editorViewportButton->isOpen() && !editorViewport->isVisible())
-			editorViewport->setVisible(true);
-		else if (!editorViewportButton->isOpen() && editorViewport->isVisible())
-			editorViewport->setVisible(false);
-
-		editorViewport->setBounds(6,h-190,w-11,150);
-
-
+		if (editorViewportButton->isOpen() && !signalChainTabComponent->isVisible())
+        {
+            signalChainTabComponent->setVisible(true);
+        }
+			
+		else if (!editorViewportButton->isOpen() && signalChainTabComponent->isVisible())
+        {
+            signalChainTabComponent->setVisible(false);
+        }
+			
+		signalChainTabComponent->setBounds(6,h-200,w-11,160);
 	}
 
-	if (controlPanel != 0)
+	if (controlPanel != nullptr)
 	{
 
 		int controlPanelWidth = w-210;
@@ -249,12 +268,12 @@ void UIComponent::resized()
 			controlPanel->setBounds(leftBound,6,controlPanelWidth,32+addHeight);
 	}
 
-	if (processorList != 0)
+	if (processorList != nullptr)
 	{
 		if (processorList->isOpen())
 		{
 			if (editorViewportButton->isOpen())
-				processorListViewport.setBounds(5,5,195,h-200);
+				processorListViewport.setBounds(5,5,195,h-210);
 			else
 				processorListViewport.setBounds(5,5,195,h-50);
 
@@ -272,7 +291,7 @@ void UIComponent::resized()
 			processorListViewport.setBounds(5-460+getWidth(),5,195,processorList->getHeight());
 	}
 
-	if (dataViewport != 0)
+	if (dataViewport != nullptr)
 	{
 		int left, top, width, height;
 		left = 6;
@@ -286,7 +305,7 @@ void UIComponent::resized()
 		top = controlPanel->getHeight()+8;
 
 		if (editorViewportButton->isOpen())
-			height = h - top - 195;
+			height = h - top - 205;
 		else
 			height = h - top - 45;
 
@@ -301,16 +320,26 @@ void UIComponent::resized()
 
 	}
 
-
-
-	if (messageCenterEditor != 0)
+	if (messageCenterEditor != nullptr)
 	{
-		messageCenterEditor->setBounds(6,h-35,w-241,30);
-		if (h < 200)
-			messageCenterEditor->setBounds(6,h-35+200-h,w-241,30);
-		//  else
-		//      messageCenter->setVisible(true);
+        if (messageCenterIsCollapsed)
+        {
+            messageCenterEditor->collapse();
+            messageCenterEditor->setBounds(6,h-35,w-241,30);
+            
+        } else {
+            messageCenterEditor->expand();
+            messageCenterEditor->setBounds(6,h-305,w-241,300);
+        }
 	}
+    
+
+    //if (messageCenterIsCollapsed)
+   // {
+    messageCenterButton.setBounds((w-241)/2,h-35,30,30);
+   // } else {
+   //     messageCenterButton.setBounds((w-241)/2,h-305,30,30);
+   // }
 
 	// for debugging purposes:
 	if (false)
@@ -592,7 +621,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 					if (fc.browseForFileToSave(true))
 					{
 						currentConfigFile = fc.getResult();
-						std::cout << currentConfigFile.getFileName() << std::endl;
+						LOGD(currentConfigFile.getFileName());
 						sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 					}
 					else
@@ -615,7 +644,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				if (fc.browseForFileToSave(true))
 				{
 					currentConfigFile = fc.getResult();
-					std::cout << currentConfigFile.getFileName() << std::endl;
+					LOGD(currentConfigFile.getFileName());
 					sendActionMessage(getEditorViewport()->saveState(currentConfigFile));
 				}
 				else

@@ -29,6 +29,7 @@
 #include <stdio.h>
 
 class MessageLabel;
+class MessageLog;
 
 /**
 	Holds the interface for adding events to the message queue
@@ -56,13 +57,16 @@ public:
 
     void enable();
     void disable();
+    
+    void expand();
+    void collapse();
 
     void startAcquisition();
     void stopAcquisition();
 
     void messageReceived(bool state);
 
-    String getLabelString();
+    String getOutgoingMessage();
 
     MessageCenter* messageCenter;
 
@@ -74,6 +78,7 @@ private:
     bool acquisitionIsActive;
 
     bool isEnabled;
+    bool isExpanded;
 
     /** Called when a new message is received. */
     void actionListenerCallback(const String& message);
@@ -81,23 +86,70 @@ private:
     /** A JUCE label used to display message text. */
     ScopedPointer<MessageLabel> incomingMessageDisplayArea;
 
-    /** A JUCE label used to display message text. */
-    ScopedPointer<MessageLabel> outgoingMessageDisplayArea;
-
+    /** A JUCE label used to input message text. */
+    ScopedPointer<MessageLabel> editableMessageDisplayArea;
+    
     /** A JUCE button used to send messages. */
     ScopedPointer<Button> sendMessageButton;
 
+    /** A log of all incoming messages. */
+    ScopedPointer<MessageLog> incomingMessageLog;
+    
+    /** A log of all outgoing messages. */
+    ScopedPointer<MessageLog> outgoingMessageLog;
+    
+    /** A viewport to hold the log all incoming messages. */
+    ScopedPointer<Viewport> incomingMessageViewport;
+    
+    /** A viewport to hold the log of all outgoing messages. */
+    ScopedPointer<Viewport> outgoingMessageViewport;
+    
     Colour incomingBackground;
     Colour outgoingBackground;
+    Colour backgroundColor;
+
+    bool firstMessageReceived;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenterEditor);
 
 };
 
+class MessageLog : public Component
+{
+public:
+    MessageLog(Viewport * vp);
+    
+    void addMessage(MessageLabel* message);
+    
+    void paint(Graphics& g);
+    
+    int getDesiredHeight();
+    
+    void resized();
+    
+    void copyText();
+    
+private:
+    OwnedArray<MessageLabel> messages;
+    Viewport* viewport;
+    int messageHeight;
+    
+    String getMessageNumberAsString();
+};
+
+
 class MessageLabel : public Label
 {
 public:
     MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
+    
+    String getTooltip();
+    
+    void prependText(String text);
+    
+private:
+    String timestring;
+
 };
 
 #endif  // MESSAGECENTEREDITOR_H_INCLUDED

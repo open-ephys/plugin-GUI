@@ -30,6 +30,8 @@
 #include "../Processors/ProcessorManager/ProcessorManager.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
+#include "../Utils/Utils.h"
+
 
 enum colorIds
 {
@@ -267,8 +269,8 @@ ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 {
 	int bottom = (yBuffer + itemHeight); // - getScrollAmount();
 
-	//std::cout << "Bottom: " << bottom << std::endl;
-	//std::cout << "Y coordinate: " << y << std::endl;
+LOGDD("Bottom: ", bottom);
+LOGDD("Y coordinate: ", y);
 
 	if (y < bottom)
 	{
@@ -330,7 +332,7 @@ void ProcessorList::setViewport(Graphics& g, bool hasSubItems)
 
 	totalHeight += yBuffer + height;
 
-	//std::cout << totalHeight << std::endl;
+LOGDD(totalHeight);
 }
 
 int ProcessorList::getTotalHeight()
@@ -355,13 +357,13 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 	int xcoord = pos.getX();
 	int ycoord = pos.getY();
 
-	//std::cout << xcoord << " " << ycoord << std::endl;
+LOGDD(xcoord, " ", ycoord);
 
 	ProcessorListItem* listItem = getListItemForYPos(ycoord);
 
 	if (listItem != 0)
 	{
-		//std::cout << "Selecting: " << fli->getName() << std::endl;
+LOGDD("Selecting: ", listItem->getName());
 		if (!listItem->hasSubItems())
 		{
 			clearSelectionState();
@@ -371,7 +373,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 	}
 	else
 	{
-		//std::cout << "No selection." << std::endl;
+LOGDD("No selection.");
 	}
 
 	if (listItem != 0)
@@ -482,7 +484,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 				const String dragDescription = b;
 
-				//std::cout << dragDescription << std::endl;
+LOGDD(dragDescription);
 
 				if (dragDescription.isNotEmpty())
 				{
@@ -506,13 +508,12 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 						juce::Point<int> imageOffset(20,10);
 
-						//See ProcessorGraph::createProcesorFromDescription for description info
 						Array<var> dragData;
-						dragData.add(true);
-						dragData.add(dragDescription);
-						dragData.add(listItem->processorType);
-						dragData.add(listItem->processorId);
-						dragData.add(listItem->getParentName());
+						dragData.add(true); // fromProcessorList
+						dragData.add(dragDescription); // processorName
+						dragData.add(listItem->processorType); // processorType
+						dragData.add(listItem->processorId);  // processorIndex
+						dragData.add(listItem->getParentName()); // libName
 
 						dragContainer->startDragging(dragData, this,
 								dragImage, true, &imageOffset);
