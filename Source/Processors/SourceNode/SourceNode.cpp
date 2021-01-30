@@ -234,10 +234,22 @@ void SourceNode::setEnabledState (bool newState)
     if (newState && ! dataThread->foundInputSource())
     {
         isEnabled = false;
+
+        if (editor != nullptr)
+            editor->disable();
     }
     else
     {
         isEnabled = newState;
+
+        if (editor != nullptr)
+        {
+            if (newState)
+                editor->enable();
+            else
+                editor->disable();
+        }
+        
     }
 }
 

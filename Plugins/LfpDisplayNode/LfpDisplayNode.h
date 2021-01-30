@@ -62,9 +62,9 @@ public:
 
     void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
 
-    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const { return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)]; }
+    std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress() const;
 
-    int getDisplayBufferIndex (int chan) const { return displayBufferIndices[allSubprocessors.indexOf(subprocessorToDraw)][chan]; }
+    int getDisplayBufferIndex(int chan) const;
 
     CriticalSection* getMutex() { return &displayMutex; }
 

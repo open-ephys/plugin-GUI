@@ -50,7 +50,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_) :
     nChans = processor->getNumSubprocessorChannels();
 
     displayBuffer = processor->getDisplayBufferAddress();
-    displayBufferSize = displayBuffer->getNumSamples();
+
+    if (displayBuffer != nullptr)
+        displayBufferSize = displayBuffer->getNumSamples();
 
     screenBuffer = new AudioSampleBuffer(MAX_N_CHAN, MAX_N_SAMP);
     screenBuffer->clear();
@@ -194,7 +196,7 @@ void LfpDisplayCanvas::resizeToChannels(bool respectViewportPosition)
 void LfpDisplayCanvas::beginAnimation()
 {
 
-    if (true)
+    if (displayBuffer != nullptr)
     {
 
         displayBufferSize = displayBuffer->getNumSamples();
@@ -220,7 +222,8 @@ void LfpDisplayCanvas::endAnimation()
 void LfpDisplayCanvas::update()
 {
 
-    displayBufferSize = displayBuffer->getNumSamples();
+    if (displayBuffer != nullptr)
+        displayBufferSize = displayBuffer->getNumSamples();
 
     nChans = jmax(processor->getNumSubprocessorChannels(), 0);
 
