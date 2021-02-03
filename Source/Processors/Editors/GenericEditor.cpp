@@ -37,11 +37,11 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
-GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors=true)
+GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors = true)
     : AudioProcessorEditor(owner),
-      desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-      drawerButton(0), drawerWidth(170),
-      drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
+    desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
+    drawerButton(0), drawerWidth(170),
+    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(false), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }

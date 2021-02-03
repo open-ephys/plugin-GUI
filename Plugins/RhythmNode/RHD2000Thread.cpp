@@ -130,6 +130,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     dacChannels = nullptr;
     dacThresholds = nullptr;
     dacChannelsToUpdate = nullptr;
+
     if (openBoard(libraryFilePath))
     {
         dataBlock = new Rhd2000DataBlock(1,evalBoard->isUSB3());
@@ -201,7 +202,10 @@ bool RHD2000Thread::usesCustomNames() const
 
 unsigned int RHD2000Thread::getNumSubProcessors() const
 {
-    return 1;
+    if (deviceFound)
+        return 1;
+    else
+        return 0;
 }
 
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
@@ -1176,12 +1180,14 @@ void RHD2000Thread::enableAuxs(bool t)
     acquireAuxChannels = t;
     sourceBuffers[0]->resize(getNumChannels(), 10000);
     updateRegisters();
+    sn->update();
 }
 
 void RHD2000Thread::enableAdcs(bool t)
 {
     acquireAdcChannels = t;
     sourceBuffers[0]->resize(getNumChannels(), 10000);
+    sn->update();
 }
 
 bool RHD2000Thread::isAuxEnabled()

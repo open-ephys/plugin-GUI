@@ -143,6 +143,22 @@ void LfpDisplayNode::updateSettings()
     resizeBuffer();
 }
 
+std::shared_ptr<AudioSampleBuffer> LfpDisplayNode::getDisplayBufferAddress() const
+{ 
+    if (displayBuffers.size() > 0)
+        return displayBuffers[allSubprocessors.indexOf(subprocessorToDraw)];
+    else
+        return nullptr;
+}
+
+int LfpDisplayNode::getDisplayBufferIndex(int chan) const
+{ 
+    if (displayBufferIndices.size() > 0)
+        return displayBufferIndices[allSubprocessors.indexOf(subprocessorToDraw)][chan];
+    else
+        return -1;
+}
+
 uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
 {
     return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());

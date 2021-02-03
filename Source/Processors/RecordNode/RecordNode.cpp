@@ -337,6 +337,7 @@ void RecordNode::updateSubprocessorMap()
     std::map<int, std::vector<int>> inputs;
 
     int updatedNumSubprocessors = 0;
+	int originalChannelCount = numChannels;
     int ch = 0;
 
     while (ch < dataChannelArray.size())
@@ -379,7 +380,7 @@ void RecordNode::updateSubprocessorMap()
         }
         
     }
-    
+
     //Remove any stale processors
     std::vector<int> sources;
     for(auto const& sourceID : inputs)
