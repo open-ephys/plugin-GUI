@@ -348,6 +348,15 @@ void RecordNode::updateSubprocessorMap()
 
         if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != subProcIdx)
         {
+
+			//Check if this (src,sub) combo has already been seen and show warning
+			if (!inputs.empty() && !inputs[sourceID].empty() && std::find(inputs[sourceID].begin(), inputs[sourceID].end(), subProcIdx) != inputs[sourceID].end())
+			{
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+					"WARNING!", "Detected input channels re-mapped from different subprocessors. Please correct the channel mapping or else the RecordNode will crash!");
+				return;
+			}
+
             //Found a new subprocessor
             inputs[sourceID].push_back(subProcIdx);
             fifoUsage[sourceID][subProcIdx] = 0.0f;
@@ -377,13 +386,13 @@ void RecordNode::updateSubprocessorMap()
 		{
 			// check if channel count has changed for existing source
 			int count = 0;
-			//get count of all channels in dataChannelArray that belong to that subprocessor (should be its own method)
+
 			for (int i = 0; i < dataChannelArray.size(); i++)
 			{
 				if (dataChannelArray[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
 					count++;
 			}
-			//If channel count is greater, add channel to dataChannelStates
+			//If channel count is greater, add new channels to dataChannelStates
 			if (count > dataChannelStates[sourceID][subProcIdx].size())
 			{
 				count = count - dataChannelStates[sourceID][subProcIdx].size();
@@ -558,7 +567,7 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		LOGD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
+		LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
