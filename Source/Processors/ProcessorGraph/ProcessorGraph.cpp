@@ -531,7 +531,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     GenericProcessor* rootProcessor = processor;
     
     if (processor != nullptr)
-        LOGD("Processor to view: ", processor->getName());
+        LOGDD("Processor to view: ", processor->getName());
     
     while (processor != nullptr)
     {
@@ -539,7 +539,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
         processor = processor->getSourceNode();
         
         if (rootProcessor != nullptr)
-            LOGD("  Source: ", rootProcessor->getName());
+            LOGDD("  Source: ", rootProcessor->getName());
     }
     
     processor = rootProcessor;
@@ -548,7 +548,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     {
         editorArray.add(processor->getEditor());
         
-        LOGD(" Adding ", processor->getName(), " to editor array.");
+        LOGDD(" Adding ", processor->getName(), " to editor array.");
         
         if (processor->getDestNode() != nullptr)
         {
