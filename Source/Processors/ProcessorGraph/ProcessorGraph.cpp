@@ -98,10 +98,14 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     GenericProcessor* originalDest = processor->getDestNode();
     
     if (originalSource != nullptr)
+    {
         originalSource->setDestNode(originalDest);
-    
+    }
+        
     if (originalDest != nullptr)
+    {
         originalDest->setSourceNode(originalSource);
+    }
     
     LOGD("Processor to move: ", processor->getName());
     if (originalSource != nullptr)
@@ -136,17 +140,12 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         {
             processor->setDestNode(newDest);
             newDest->setSourceNode(processor);
-            //if (rootNodes.contains(newDest))
-            //{
-            //    rootNodes.set(rootNodes.indexOf(newDest), processor);
-           // }
         } else {
             processor->setDestNode(nullptr);
-           // rootNodes.add(processor);
         }
     }
     
-    checkForNewRootNodes(processor, false);
+    checkForNewRootNodes(processor, false, true);
     
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
         updateSettings(originalDest);
@@ -160,6 +159,18 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                                       bool signalChainIsLoading)
 {
 	GenericProcessor* processor = nullptr;
+    
+    LOGD("Creating processor with name: ", description.processorName);
+    
+    if (sourceNode != nullptr)
+        LOGD("Source node: ", sourceNode->getName());
+    //else
+     //   LOGD("No source node.");
+    
+    if (destNode != nullptr)
+        LOGD("Dest node: ", destNode->getName());
+    //else
+    //    LOGD("No dest node.");
     
 	try {
 		processor = createProcessorFromDescription(description);
@@ -195,7 +206,9 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             {
                 // if there's a source feeding into source, form a new signal chain
                 processor->setDestNode(sourceNode->getDestNode());
+                processor->setSourceNode(nullptr);
                 sourceNode->setDestNode(nullptr);
+                destNode->setSourceNode(processor);
             }
             
             if (sourceNode == nullptr && destNode != nullptr)
@@ -279,22 +292,33 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 }
 
 bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
-                                          bool processorBeingAdded,
-                                          bool processorBeingMoved)
+                                          bool processorBeingAdded, // default = true
+                                          bool processorBeingMoved) // default = false
 {
     
     if (processorBeingAdded) // adding processor
     {
+        LOGDD("Checking ", processor->getName(), " for new root node.")
+        
         if (processor->getSourceNode() == nullptr)
         {
+            LOGDD("  Has no source node.");
+            
             if (processor->getDestNode() != nullptr)
             {
+                LOGDD("  Has a dest node.");
                 
                 if (rootNodes.indexOf(processor->getDestNode()) > -1)
                 {
+                    
+                    LOGDD("  Found dest node in root nodes; swapping.");
+                    
                     rootNodes.set(rootNodes.indexOf(processor->getDestNode()), processor);
                     return true;
                 } else {
+                    
+                    LOGDD("  Didn't find dest node; adding a new root.");
+                    
                     if (rootNodes.size() == 8)
                     {
                         NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
@@ -308,6 +332,8 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 
                 if (processor->getDestNode()->isMerger())
                 {
+                    LOGDD("  Dest node is merger; adding a new root.");
+                    
                     if (rootNodes.size() == 8)
                     {
                         NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
@@ -320,6 +346,9 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                     
                 }
             } else {
+                
+                LOGDD("  Has no dest node; adding.");
+                
                 if (rootNodes.size() == 8)
                 {
                     NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
@@ -332,6 +361,8 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 }
             }
         }
+        
+        return true;
     }
     
     if (!processorBeingMoved) // deleting processor
@@ -365,17 +396,27 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
         }
         
         return true;
+        
     } else { // processor being moved
+        
+        LOGDD("Processing being moved.");
         
         for (auto p : getListOfProcessors())
         {
+            LOGDD("Checking ", p->getName());
+            
             if (p->getSourceNode() == nullptr) // no source node
             {
+                LOGDD("  Should be root.");
+                
                 if (rootNodes.indexOf(p) == -1) // not a root node yet
                 {
                     if (!p->isMerger())
                     {
                         rootNodes.add(p); // add it
+                        
+                        LOGDD("  Adding as root.");
+
                     } else {
                         
                         Merger* merger = (Merger*) processor->getDestNode();
@@ -389,16 +430,26 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                         }
                     }
                         
+                } else {
+                    LOGDD("  Already is root.");
                 }
             } else {
+                
+                LOGDD("  Should not be root.");
+                
                 if (rootNodes.indexOf(p) > -1) // has a source node, but is also a root node
                 {
                     rootNodes.remove(rootNodes.indexOf(p)); // remove it
+                    LOGDD("  Removing as root.");
+                } else {
+                    LOGDD("  Not a root.");
                 }
+
             }
         }
-        return true;
     }
+    
+    return true;
     
 }
 
@@ -479,10 +530,16 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     Array<GenericEditor*> editorArray;
     GenericProcessor* rootProcessor = processor;
     
+    if (processor != nullptr)
+        LOGD("Processor to view: ", processor->getName());
+    
     while (processor != nullptr)
     {
         rootProcessor = processor;
         processor = processor->getSourceNode();
+        
+        if (rootProcessor != nullptr)
+            LOGD("  Source: ", rootProcessor->getName());
     }
     
     processor = rootProcessor;
@@ -490,6 +547,8 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     while (processor != nullptr)
     {
         editorArray.add(processor->getEditor());
+        
+        LOGD(" Adding ", processor->getName(), " to editor array.");
         
         if (processor->getDestNode() != nullptr)
         {
@@ -1204,7 +1263,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 			m_timestampWindow->updateProcessorList();
 	}
 
-    checkForNewRootNodes(processor, false);
+    checkForNewRootNodes(processor, false, false);
 }
 
 bool ProcessorGraph::enableProcessors()
