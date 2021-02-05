@@ -1,7 +1,7 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.5.0)
 
-set(GUI_VERSION 0.5.3)
+set(GUI_VERSION 0.5.3.1)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
 set(GUI_VERSION_HEX "0x")
