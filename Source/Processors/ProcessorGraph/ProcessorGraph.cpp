@@ -208,7 +208,8 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 processor->setDestNode(sourceNode->getDestNode());
                 processor->setSourceNode(nullptr);
                 sourceNode->setDestNode(nullptr);
-                destNode->setSourceNode(processor);
+                if (destNode != nullptr)
+                    destNode->setSourceNode(processor);
             }
             
             if (sourceNode == nullptr && destNode != nullptr)
