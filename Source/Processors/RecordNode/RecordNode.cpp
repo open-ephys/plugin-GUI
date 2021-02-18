@@ -644,21 +644,22 @@ void RecordNode::startRecording()
 		{
 			rootFolder.createDirectory();
 		}
-		
-		if (settingsNeeded)
-		{
-			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
-			settingsNeeded = false;
-		}
 
 		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
 		LOGD("Num event channels: ", eventChannelArray.size());
+
 		recordThread->startThread();
 		isRecording = true;
+
+		if (settingsNeeded)
+		{
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
+			settingsNeeded = false;
+		}
 	}
 	else
 		isRecording = false;
@@ -750,20 +751,7 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 
 void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 {
-
-	if (event.getVelocity() == 136)
-	{
-		if (!receivedSoftwareTime)
-		{
-			handleEvent(nullptr, event, 0);
-			receivedSoftwareTime = true;
-		}
-	}
-	else
-	{
-		handleEvent(nullptr, event, 0);
-	}
-
+	handleEvent(nullptr, event, 0);
 }
 	
 void RecordNode::process(AudioSampleBuffer& buffer)
