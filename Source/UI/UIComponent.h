@@ -100,6 +100,8 @@ public:
 
 	PluginManager* getPluginManager();
     
+    PluginInstaller* getPluginInstaller();
+    
     /** Called by the MessageCenterButton */
     void buttonClicked(Button* button);
 
