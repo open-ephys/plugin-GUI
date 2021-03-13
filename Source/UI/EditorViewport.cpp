@@ -29,6 +29,7 @@
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "ProcessorList.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "EditorViewportActions.h"
 
 const int BORDER_SIZE = 6;
 const int TAB_SIZE = 30;
@@ -47,12 +48,6 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
 {
 
     addMouseListener(this, true);
-
-    //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    //Typeface::Ptr typeface = new CustomTypeface(mis);
-    
-    //font = Font("Small Text", 10, Font::plain);
-    //font.setHeight(10);
 
     sourceDropImage = ImageCache::getFromMemory(BinaryData::SourceDrop_png,
                                                 BinaryData::SourceDrop_pngSize);
@@ -228,23 +223,34 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
 
 GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description, int insertionPt)
 {
-    GenericProcessor* sourceProcessor = nullptr;
-    GenericProcessor* destProcessor = nullptr;
+    
+    GenericProcessor* source = nullptr;
+    GenericProcessor* dest = nullptr;
 
     if (insertionPoint > 0)
     {
-        sourceProcessor = editorArray[insertionPt-1]->getProcessor();
+        source = editorArray[insertionPoint-1]->getProcessor();
     }
     
     if (editorArray.size() > insertionPoint)
     {
-        destProcessor = editorArray[insertionPoint]->getProcessor();
+        dest = editorArray[insertionPoint]->getProcessor();
     }
     
-    return AccessClass::getProcessorGraph()->createProcessor(description,
-                                                      sourceProcessor,
-                                                      destProcessor,
-                                                      loadingConfig);
+    AddProcessor* action = new AddProcessor(description, source, dest, this);
+    
+    if (!loadingConfig)
+    {
+        undoManager.beginNewTransaction();
+        undoManager.perform(action);
+        return action->processor;
+    }
+    else
+    {
+        action->perform();
+        return action->processor;
+    }
+    
 }
 
 void EditorViewport::clearSignalChain()
@@ -252,7 +258,12 @@ void EditorViewport::clearSignalChain()
 
     if (!CoreServices::getAcquisitionStatus())
     {
-        AccessClass::getProcessorGraph()->clearSignalChain();
+        LOGD("Clearing signal chain.");
+        
+        undoManager.beginNewTransaction();
+        ClearSignalChain* action = new ClearSignalChain(this);
+        undoManager.perform(action);
+        
     }
     else
     {
@@ -478,15 +489,7 @@ bool EditorViewport::keyPressed(const KeyPress& key)
             if (!mk.isAnyModifierKeyDown())
             {
 
-                Array<GenericProcessor*> processorsToRemove;
-
-                for (auto editor : editorArray)
-                {
-                    if (editor->getSelectionState())
-                        processorsToRemove.add(editor->getProcessor());
-                }
-
-                deleteProcessors(processorsToRemove);
+                deleteSelectedProcessors();
 
                 return true;
             }
@@ -709,7 +712,8 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     return;
 
                 PopupMenu m;
-
+                
+                
                 if (editorArray[i]->getCollapsedState())
                     m.addItem(3, "Uncollapse", true);
                 else
@@ -721,6 +725,16 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     m.addItem(2, "Delete", false);
 
                 m.addItem(1, "Rename", true);
+                
+                m.addSeparator();
+
+                m.addItem(4, "Save settings...", true);
+                
+                if (!CoreServices::getAcquisitionStatus())
+                    m.addItem(5, "Load settings...", true);
+                else
+                    m.addItem(5, "Load settings...", false);
+
 
                 const int result = m.show();
 
@@ -742,11 +756,11 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 else if (result == 2)
                 {
                     
-                    Array<GenericProcessor*> processorsToRemove;
+                    //Array<GenericProcessor*> processorsToRemove;
 
-                    processorsToRemove.add(editorArray[i]->getProcessor());
+                    //processorsToRemove.add(editorArray[i]->getProcessor());
 
-                    deleteProcessors(processorsToRemove);
+                    deleteSelectedProcessors();
                     
                     
                     return;
@@ -756,6 +770,37 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     editorArray[i]->switchCollapsedState();
                     refreshEditors();
                     return;
+                } else if (result == 4)
+                {
+                    FileChooser fc("Choose the file name...",
+                            CoreServices::getDefaultUserSaveDirectory(),
+                            "*",
+                            true);
+
+                    if (fc.browseForFileToSave(true))
+                    {
+                        savePluginState(fc.getResult(), editorArray[i]);
+                    }
+                    else
+                    {
+                        CoreServices::sendStatusMessage("No file chosen.");
+                    }
+                } else if (result == 5)
+                {
+                    FileChooser fc("Choose a settings file to load...",
+                            CoreServices::getDefaultUserSaveDirectory(),
+                            "*",
+                            true);
+
+                    if (fc.browseForFileToOpen())
+                    {
+                        currentFile = fc.getResult();
+                        loadPluginState(currentFile, editorArray[i]);
+                    }
+                    else
+                    {
+                        CoreServices::sendStatusMessage("No file selected.");
+                    }
                 }
             }
 
@@ -940,13 +985,16 @@ void EditorViewport::mouseUp(const MouseEvent& e)
                 newDest = editorArray[insertionPoint]->getProcessor();
             }
             
-            EditorViewportAction* action = new EditorViewportAction(MOVE, editorArray[indexOfMovingComponent]->getProcessor(),
-                                                                    newSource,
-                                                                    newDest)
+            undoManager.beginNewTransaction();
+           
+            MoveProcessor* action = new MoveProcessor(
+                                                      editorArray           [indexOfMovingComponent]->getProcessor(),
+                                                      newSource,
+                                                      newDest,
+                                                      insertionPoint > indexOfMovingComponent);
             
-            AccessClass::getProcessorGraph()->moveProcessor(,
-                                                            newSource, newDest,
-                                                            insertionPoint > indexOfMovingComponent);
+            undoManager.perform(action);
+                                                      
         }
     }
 
@@ -1273,7 +1321,32 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     String error;
 
     currentFile = fileToUse;
+    
+    XmlElement* xml = createSettingsXml();
 
+    if (! xml->writeToFile(currentFile, String::empty))
+        error = "Couldn't write to file ";
+    else
+        error = "Saved configuration as ";
+
+    error += currentFile.getFileName();
+
+    if (xmlText != nullptr)
+    {
+        (*xmlText) = xml->createDocument(String::empty);
+        if ((*xmlText).isEmpty())
+            (*xmlText) = "Couldn't create configuration xml";
+    }
+
+    delete xml;
+
+    return error;
+    
+}
+    
+XmlElement* EditorViewport::createSettingsXml()
+{
+    
     Array<GenericProcessor*> splitPoints;
     Array<GenericProcessor*> allSplitters;
     Array<int> splitterStates;
@@ -1281,7 +1354,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     Array<GenericProcessor*> allProcessors;
 
     int saveOrder = 0;
-
+    
     XmlElement* xml = new XmlElement("SETTINGS");
 
     XmlElement* info = xml->createNewChildElement("INFO");
@@ -1376,12 +1449,6 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
     xml->addChildElement(audioSettings);
 
-    /*
-	XmlElement* recordSettings = new XmlElement("RECORDING");
-	recordSettings->setAttribute("isRecordThreadEnabled", AccessClass::getProcessorGraph()->getRecordNode()->getRecordThreadStatus());
-	xml->addChildElement(recordSettings);
-    */
-
 	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
 	int tsID, tsSubID;
 	AccessClass::getProcessorGraph()->getTimestampSources(tsID, tsSubID);
@@ -1400,23 +1467,107 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     AccessClass::getProcessorList()->saveStateToXml(xml);
     AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
 
-    if (! xml->writeToFile(currentFile, String::empty))
-        error = "Couldn't write to file ";
-    else
-        error = "Saved configuration as ";
+    return xml;
+    
+}
 
-    error += currentFile.getFileName();
+const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* selectedEditor)
+{
 
-	if (xmlText != nullptr)
-	{
-		(*xmlText) = xml->createDocument(String::empty);
-		if ((*xmlText).isEmpty())
-			(*xmlText) = "Couldn't create configuration xml";
-	}
+    int numSelected = 0;
+    
+    if (selectedEditor == nullptr)
+    {
+        for (auto editor : editorArray)
+        {
+            if (editor->getSelectionState())
+            {
+                selectedEditor = editor;
+                numSelected++;
+            }
+        }
+    } else {
+        numSelected = 1;
+    }
+    
+    if (numSelected == 0)
+    {
+        return("No editors selected.");
+        
+    } else if (numSelected > 1)
+    {
+        return("Multiple editors selected.");
+        
+    } else {
+        
+        XmlDocument doc(fileToLoad);
+        XmlElement* xml = doc.getDocumentElement();
+        
+        if (xml == 0 || ! xml->hasTagName("PROCESSOR"))
+        {
+            LOGD("File not found.");
+            delete xml;
+            return "Not a valid file.";
+        } else {
+            
+            undoManager.beginNewTransaction();
+            
+            LoadPluginSettings* action = new LoadPluginSettings(this,
+                                                             selectedEditor->getProcessor(),
+                                                             xml);
+            undoManager.perform(action);
+        }
+    }
+    
+    return "Success";
+}
+    
+const String EditorViewport::savePluginState(File fileToSave, GenericEditor* selectedEditor)
+{
+    
+    int numSelected = 0;
+    
+    if (selectedEditor == nullptr)
+    {
+        for (auto editor : editorArray)
+        {
+            if (editor->getSelectionState())
+            {
+                selectedEditor = editor;
+                numSelected++;
+            }
+        }
+    } else {
+        numSelected = 1;
+    }
+    
+    if (numSelected == 0)
+    {
+        return("No editors selected.");
+        
+    } else if (numSelected > 1)
+    {
+        return("Multiple editors selected.");
+    } else {
+        
+        String error;
+        
+        XmlElement* settings = createNodeXml(selectedEditor->getProcessor(), false);
+        
+        if (! settings->writeToFile(fileToSave, String::empty))
+            error = "Couldn't write to file ";
+        else
+            error = "Saved plugin settings to ";
 
-    delete xml;
+        error += fileToSave.getFileName();
 
-    return error;
+        delete settings;
+        
+        return error;
+        
+    }
+    
+    
 }
 
 const String EditorViewport::loadState(File fileToLoad)
@@ -1424,19 +1575,28 @@ const String EditorViewport::loadState(File fileToLoad)
     
     currentFile = fileToLoad;
 
-    LOGD("Loading processor graph.");
-
-    Array<GenericProcessor*> splitPoints;
-
     XmlDocument doc(currentFile);
     XmlElement* xml = doc.getDocumentElement();
-
+    
     if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
         LOGD("File not found.");
         delete xml;
         return "Not a valid file.";
     }
+
+    undoManager.beginNewTransaction();
+    
+    LoadSignalChain* action = new LoadSignalChain(this, xml);
+    undoManager.perform(action);
+    
+    return "Loaded signal chain.";
+    
+}
+
+const String EditorViewport::loadStateFromXml(XmlElement* xml)
+{
+    Array<GenericProcessor*> splitPoints;
 
     bool sameVersion = false;
 	bool pluginAPI = false;
@@ -1497,7 +1657,7 @@ const String EditorViewport::loadState(File fileToLoad)
         if (!response)
         {
             delete xml;
-            return "Failed To Open " + fileToLoad.getFileName();
+            return "Failed To Open " + currentFile.getFileName();
         }
             
 
@@ -1508,9 +1668,10 @@ const String EditorViewport::loadState(File fileToLoad)
 		responseString += "Save files from non-plugin versions are incompatible with the current load system.\n";
 		responseString += "The chain file will not load.";
 		AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Non-plugin save file", responseString);
-		return "Failed To Open " + fileToLoad.getFileName();
+		return "Failed To Open " + currentFile.getFileName();
 	}
-    clearSignalChain();
+    
+    AccessClass::getProcessorGraph()->clearSignalChain();
     
     loadingConfig = true; //Indicate config is being loaded into the GUI
     String description;// = " ";
@@ -1598,19 +1759,62 @@ const String EditorViewport::loadState(File fileToLoad)
     String error = "Opened ";
     error += currentFile.getFileName();
 
-    delete xml;
+    //delete xml;
 
     loadingConfig = false;
     
     return error;
 }
 
-void EditorViewport::deleteProcessors(Array<GenericProcessor*> processorsToRemove)
+void EditorViewport::deleteSelectedProcessors()
 {
-    EditorViewportAction* action = new EditorViewportAction(REMOVE, processorsToRemove, this);
+    undoManager.beginNewTransaction();
     
-    undoManager.perform(action);
+    for (auto editor : editorArray)
+    {
+        if (editor->getSelectionState())
+        {
+            DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
+            undoManager.perform(action);
+        }
+    }
 
+}
+
+ProcessorDescription EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId, bool rhythmNodePatch)
+{
+    ProcessorDescription description;
+    
+    description.fromProcessorList = false;
+    description.processorName = settings->getStringAttribute("pluginName");
+    description.processorType = settings->getIntAttribute("pluginType");
+    description.processorIndex = settings->getIntAttribute("pluginIndex");
+    description.libName = settings->getStringAttribute("libraryName");
+    description.libVersion = settings->getIntAttribute("libraryVersion");
+    description.isSource = settings->getBoolAttribute("isSource");
+    description.isSink = settings->getBoolAttribute("isSink");
+    
+    if (!ignoreNodeId)
+        description.nodeId = settings->getIntAttribute("NodeId");
+    else
+        description.nodeId = -1;
+
+    if (rhythmNodePatch) //old version, when rhythm was a plugin
+    {
+        if (description.processorType == -1) //if builtin
+        {
+            if (description.processorIndex == 0) //Rhythm node
+            {
+                description.processorType = 4; //DataThread
+                description.processorIndex = 1;
+                description.libName = "Rhythm FPGA";
+            }
+            else
+                description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
+        }
+    }
+    
+    return description;
 }
 
 GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* processor,
@@ -1633,38 +1837,7 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
         insertionPoint = insertionPt;
     }
     
-    ProcessorDescription description;
-    
-    description.fromProcessorList = false;
-    description.processorName = processor->getStringAttribute("pluginName");
-    description.processorType = processor->getIntAttribute("pluginType");
-    description.processorIndex = processor->getIntAttribute("pluginIndex");
-    description.libName = processor->getStringAttribute("libraryName");
-    description.libVersion = processor->getIntAttribute("libraryVersion");
-    description.isSource = processor->getBoolAttribute("isSource");
-    description.isSink = processor->getBoolAttribute("isSink");
-    
-    if (!ignoreNodeId)
-        description.nodeId = processor->getIntAttribute("NodeId");
-    else
-        description.nodeId = -1;
-
-    if (rhythmNodePatch) //old version, when rhythm was a plugin
-    {
-        if (description.processorType == -1) //if builtin
-        {
-            if (description.processorIndex == 0) //Rhythm node
-            {
-                description.processorType = 4; //DataThread
-                description.processorIndex = 1;
-                description.libName = "Rhythm FPGA";
-            }
-            else
-                description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
-        }
-    }
-    
-    EditorViewportAction* action = new EditorViewportAction(ADD, description, insertionPoint, this);
+    ProcessorDescription description = getDescriptionFromXml(processor, ignoreNodeId, rhythmNodePatch);
     
     GenericProcessor* p = addProcessor(description, insertionPoint);
     p->parametersAsXml = processor;
@@ -1672,183 +1845,3 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
     return p;
 }
 
-
-EditorViewportAction::EditorViewportAction(Action action_, Array<GenericProcessor*> processors, EditorViewport* ev) :
-        action(action_),
-        editorViewport(ev)
-{
-    
-    for (auto p : processors)
-    {
-        
-        int sourceNodeId, destNodeId;
-        
-        if (p->getSourceNode() != nullptr)
-            sourceNodeId = p->getSourceNode()->getNodeId();
-        else
-            sourceNodeId = -1;
-        
-        if (p->getDestNode() != nullptr)
-            destNodeId = p->getDestNode()->getNodeId();
-        else
-            destNodeId = -1;
-        
-        ProcessorInfo info = {p->getNodeId(),
-                              sourceNodeId,
-                              destNodeId,
-                              editorViewport->createNodeXml(p, false)
-        };
-    }
-    
-}
-
-EditorViewportAction::EditorViewportAction(Action action_, ProcessorDescription descr, int insertionPoint, EditorViewport* ev) :
-    action(action_),
-    editorViewport(ev)
-{
-    
-}
-
-EditorViewportAction::~EditorViewportAction()
-{
-    for (auto info : processorInfo)
-    {
-        delete info.settings;
-    }
-}
-
-bool EditorViewportAction::perform()
-{
-  /*  switch (action)
-    {
-        case ADD:
-            
-            int insertionPoint;
-            bool foundSourceOrDest;
-            
-            for (auto p : availableProcessors)
-            {
-                if (p->getNodeId() == nextAction->sourceNodeId)
-                {
-                    AccessClass::getProcessorGraph()->updateViews(p);
-                    
-                    insertionPoint = editorArray.indexOf(p->getEditor()) + 1;
-                    
-                    foundSourceOrDest = true;
-                    
-                    break;
-                } else if (p->getNodeId() == nextAction->destNodeId)
-                {
-                    AccessClass::getProcessorGraph()->updateViews(p);
-                    
-                    insertionPoint = editorArray.indexOf(p->getEditor());
-                    
-                    foundSourceOrDest = true;
-                    break;
-                }
-            }
-            
-            if (foundSourceOrDest)
-            {
-                LOGD("Insertion point: ", insertionPoint);
-                
-                GenericProcessor* newProcessor = createProcessorAtInsertionPoint(nextAction->processorInfo.getFirst(), insertionPoint, false, true);
-                
-                newProcessor->loadFromXml();
-                
-                AccessClass::getProcessorGraph()->updateSettings(newProcessor);
-            }
-            
-            
-            break;
-            
-        case REMOVE:
-            
-            AccessClass::getProcessorGraph()->deleteNodes(processorsToRemove);
-            
-            Array<GenericProcessor*> processorToRemove;
-            
-            for (auto p : availableProcessors)
-            {
-                if (p->getNodeId() == nextAction->nodeId)
-                    processorToRemove.add(p);
-            }
-            
-            if (processorToRemove.size() > 0)
-                deleteProcessors(processorToRemove);
-            
-            break;
-
-    }*/
-    
-}
-
-
-bool EditorViewportAction::undo()
-{
-    
-     /*   switch (action)
-        {
-            case ADD:
-                
-                int insertionPoint;
-                bool foundSourceOrDest;
-                
-                for (auto p : availableProcessors)
-                {
-                    if (p->getNodeId() == nextAction->sourceNodeId)
-                    {
-                        AccessClass::getProcessorGraph()->updateViews(p);
-                        
-                        insertionPoint = editorArray.indexOf(p->getEditor()) + 1;
-                        
-                        foundSourceOrDest = true;
-                        
-                        break;
-                    } else if (p->getNodeId() == nextAction->destNodeId)
-                    {
-                        AccessClass::getProcessorGraph()->updateViews(p);
-                        
-                        insertionPoint = editorArray.indexOf(p->getEditor());
-                        
-                        foundSourceOrDest = true;
-                        break;
-                    }
-                }
-                
-                if (foundSourceOrDest)
-                {
-                    LOGD("Insertion point: ", insertionPoint);
-                    
-                    GenericProcessor* newProcessor = createProcessorAtInsertionPoint(nextAction->processorInfo.getFirst(), insertionPoint, false, true);
-                    
-                    newProcessor->loadFromXml();
-                    
-                    AccessClass::getProcessorGraph()->updateSettings(newProcessor);
-                }
-                
-                
-                break;
-                
-            case REMOVE:
-                
-                Array<GenericProcessor*> processorToRemove;
-                
-                for (auto p : availableProcessors)
-                {
-                    if (p->getNodeId() == nextAction->nodeId)
-                        processorToRemove.add(p);
-                }
-                
-                if (processorToRemove.size() > 0)
-                    deleteProcessors(processorToRemove);
-                
-                break;
-
-        }
-        
-        undoIndex += 1;
-    
-    }*/
-    
-}

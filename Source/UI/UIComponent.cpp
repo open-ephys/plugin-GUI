@@ -394,10 +394,14 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 
 	if (menuIndex == 0)
 	{
-		menu.addCommandItem(commandManager, openConfiguration);
-		menu.addCommandItem(commandManager, saveConfiguration);
-		menu.addCommandItem(commandManager, saveConfigurationAs);
-		menu.addSeparator();
+		menu.addCommandItem(commandManager, openSignalChain);
+        menu.addSeparator();
+		menu.addCommandItem(commandManager, saveSignalChain);
+		menu.addCommandItem(commandManager, saveSignalChainAs);
+		//menu.addSeparator();
+       // menu.addCommandItem(commandManager, loadPluginSettings);
+        //menu.addCommandItem(commandManager, savePluginSettings);
+        menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, openPluginInstaller);
@@ -457,9 +461,11 @@ ApplicationCommandTarget* UIComponent::getNextCommandTarget()
 
 void UIComponent::getAllCommands(Array <CommandID>& commands)
 {
-	const CommandID ids[] = {openConfiguration,
-		saveConfiguration,
-		saveConfigurationAs,
+	const CommandID ids[] = {openSignalChain,
+		saveSignalChain,
+		saveSignalChainAs,
+        loadPluginSettings,
+        savePluginSettings,
 		reloadOnStartup,
 		undo,
 		redo,
@@ -486,21 +492,30 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 	switch (commandID)
 	{
-		case openConfiguration:
-			result.setInfo("Open...", "Load a saved processor graph.", "General", 0);
+		case openSignalChain:
+			result.setInfo("Open...", "Open a saved signal chain.", "General", 0);
 			result.addDefaultKeypress('O', ModifierKeys::commandModifier);
 			result.setActive(!acquisitionStarted);
 			break;
 
-		case saveConfiguration:
-			result.setInfo("Save", "Save the current processor graph.", "General", 0);
+		case saveSignalChain:
+			result.setInfo("Save", "Save the current signal chain.", "General", 0);
 			result.addDefaultKeypress('S', ModifierKeys::commandModifier);
 			break;
 
-		case saveConfigurationAs:
-			result.setInfo("Save as...", "Save the current processor graph with a new name.", "General", 0);
+		case saveSignalChainAs:
+			result.setInfo("Save as...", "Save the current signal chain with a new name.", "General", 0);
 			result.addDefaultKeypress('S', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
 			break;
+            
+        case loadPluginSettings:
+            result.setInfo("Load plugin settings...", "Load saved plugin settings.", "General", 0);
+            result.setActive(!acquisitionStarted);
+            break;
+
+        case savePluginSettings:
+            result.setInfo("Save plugin settings...", "Save the settings of the selected plugin.", "General", 0);
+            break;
 
 		case reloadOnStartup:
 			result.setInfo("Reload on startup", "Load the last used configuration on startup.", "General", 0);
@@ -585,9 +600,9 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 	switch (info.commandID)
 	{
-		case openConfiguration:
+		case openSignalChain:
 			{
-				FileChooser fc("Choose a file to load...",
+				FileChooser fc("Choose a settings file to load...",
 						CoreServices::getDefaultUserSaveDirectory(),
 						"*",
 						true);
@@ -599,12 +614,12 @@ bool UIComponent::perform(const InvocationInfo& info)
 				}
 				else
 				{
-					sendActionMessage("No configuration selected.");
+					sendActionMessage("No file selected.");
 				}
 
 				break;
 			}
-		case saveConfiguration:
+		case saveSignalChain:
 			{
 
 				if (currentConfigFile.exists())
@@ -633,7 +648,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				break;
 			}
 
-		case saveConfigurationAs:
+		case saveSignalChainAs:
 			{
 
 				FileChooser fc("Choose the file name...",
@@ -654,6 +669,47 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 				break;
 			}
+            
+        case loadPluginSettings:
+        {
+            FileChooser fc("Choose a settings file to load...",
+                    CoreServices::getDefaultUserSaveDirectory(),
+                    "*",
+                    true);
+
+            if (fc.browseForFileToOpen())
+            {
+                currentConfigFile = fc.getResult();
+                sendActionMessage(getEditorViewport()->loadPluginState(currentConfigFile));
+            }
+            else
+            {
+                sendActionMessage("No file selected.");
+            }
+
+            break;
+        }
+        case savePluginSettings:
+        {
+
+            FileChooser fc("Choose the file name...",
+                    CoreServices::getDefaultUserSaveDirectory(),
+                    "*",
+                    true);
+
+            if (fc.browseForFileToSave(true))
+            {
+                currentConfigFile = fc.getResult();
+                LOGD(currentConfigFile.getFileName());
+                sendActionMessage(getEditorViewport()->savePluginState(currentConfigFile));
+            }
+            else
+            {
+                sendActionMessage("No file chosen.");
+            }
+
+            break;
+        }
 
 		case reloadOnStartup:
 			{

@@ -90,7 +90,7 @@ void ProcessorGraph::updatePointers()
 }
 
 void ProcessorGraph::moveProcessor(GenericProcessor* processor,
-                                    GenericProcessor* newSource,
+                                   GenericProcessor* newSource,
                                    GenericProcessor* newDest,
                                    bool moveDownstream)
 {
@@ -146,7 +146,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         }
     }
     
-    checkForNewRootNodes(processor, false);
+    checkForNewRootNodes(processor, false, true);
     
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
         updateSettings(originalDest);
@@ -267,6 +267,8 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 	else
 	{
 		CoreServices::sendStatusMessage("Not a valid processor.");
+        
+        return nullptr;
 	}
     
     if (!signalChainIsLoading)
@@ -704,6 +706,20 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
 }
 
+GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)
+{
+
+    for (auto processor : getListOfProcessors())
+    {
+        if (processor->getNodeId() == nodeId)
+        {
+            return processor;
+        }
+    }
+    
+    return nullptr;
+}
+
 void ProcessorGraph::clearConnections()
 {
 
@@ -1029,7 +1045,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescri
 	{
 
         LOGD("Creating from description...");
-        LOGD(description.libName, "::", description.processorName, \
+        LOGD(description.libName, "::", description.processorName, " (", \
             description.processorType, "-", description.processorIndex,")");
 
 		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
