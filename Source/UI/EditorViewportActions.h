@@ -43,10 +43,14 @@ public:
     
     GenericProcessor* processor;
     
+    XmlElement* settings;
+    
 private:
 
     int sourceNodeId;
     int destNodeId;
+    
+    int nodeId;
     
     ProcessorDescription description;
 
@@ -71,6 +75,7 @@ private:
     
     int sourceNodeId;
     int destNodeId;
+    int nodeId;
     
     XmlElement* settings;
     
@@ -96,12 +101,14 @@ public:
     
 private:
 
-    GenericProcessor* processor;
+    int nodeId;
     
     int originalSourceNodeId;
     int originalDestNodeId;
     int newSourceNodeId;
     int newDestNodeId;
+    
+    int originalDestNodeDestNodeId;
     
     bool moveDownstream;
     
@@ -175,5 +182,24 @@ private:
 
 };
 
+class SwitchIO : public UndoableAction
+{
+    
+public:
+    SwitchIO(GenericProcessor* processor, int path);
+ 
+    ~SwitchIO();
+    
+    bool perform();
+    bool undo();
+
+private:
+
+    EditorViewport* editorViewport;
+    int processorId;
+    
+    int originalPath;
+
+};
 
 #endif /* EditorViewportActions_h */

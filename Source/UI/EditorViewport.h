@@ -190,6 +190,8 @@ public:
     GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool rhythmNodePatch, bool ignoreNodeId);
     
     ProcessorDescription getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId, bool rhythmNodePatch);
+    
+    void switchIO(GenericProcessor* processor, int path);
 
     void copySelectedEditors();
     

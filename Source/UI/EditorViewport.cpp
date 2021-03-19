@@ -530,6 +530,16 @@ bool EditorViewport::keyPressed(const KeyPress& key)
 
 }
 
+void EditorViewport::switchIO(GenericProcessor* processor, int path)
+{
+    
+    undoManager.beginNewTransaction();
+    
+    SwitchIO* switchIO = new SwitchIO(processor, path);
+    
+    undoManager.perform(switchIO);
+}
+
 
 void EditorViewport::copySelectedEditors()
 {
