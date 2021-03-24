@@ -76,6 +76,8 @@ public:
 
 private:
 
+
+
     LfpDisplayNode* processor;
 
     OwnedArray<LfpDisplaySplitter> displaySplits;
@@ -198,6 +200,7 @@ private:
     LfpDisplayNode* processor;
 
     float sampleRate;
+    float numTrials;
 
     bool optionsDrawerIsOpen;
 

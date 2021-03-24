@@ -349,6 +349,8 @@ void LfpDisplaySplitter::beginAnimation()
 
         displayBufferSize = displayBuffer->getNumSamples();
 
+        numTrials = 0;
+
         for (int i = 0; i < screenBufferIndex.size(); i++)
         {
             screenBufferIndex.set(i, 0);
@@ -531,9 +533,21 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             t0 += displayBufferSize;
                         }
                         displayBufferIndex.set(channel, t0); // fast-forward
+
+                        if (channel == 0)
+                        {
+                            numTrials += 1;
+                            std::cout << "Trial number: " << numTrials << std::endl;
+                        }
+                            
+
+                        
                     } else {
                         return; // don't display right now
                     }
+                }
+                else {
+                    numTrials = 0;
                 }
                 
                 screenBufferIndex.set(channel, 0);
@@ -575,10 +589,11 @@ void LfpDisplaySplitter::updateScreenBuffer()
             //                       << dbi << " : " 
             //                       << valuesNeeded << " : " 
             //                       << ratio 
-            //                                     << std::endl;
+            //                       << std::endl;
 
             if (valuesNeeded > 0 && valuesNeeded < 1000000)
             {
+
                 for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
                 {
                     //If paused don't update screen buffers, but update all indexes as needed
@@ -586,11 +601,21 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     {
                         float gain = 1.0;
 
-                        screenBuffer->clear(channel, sbi, 1);
-                        screenBufferMean->clear(channel, sbi, 1);
-                        screenBufferMin->clear(channel, sbi, 1);
-                        screenBufferMax->clear(channel, sbi, 1);
-
+                        
+                        if (processor->getTriggerSource(splitID) == -1 || numTrials == 0)
+                        {
+                            screenBuffer->clear(channel, sbi, 1);
+                            screenBufferMean->clear(channel, sbi, 1);
+                            screenBufferMin->clear(channel, sbi, 1);
+                            screenBufferMax->clear(channel, sbi, 1);
+                        }
+                        else {
+                            screenBuffer->applyGain(channel, sbi, 1, numTrials);
+                            screenBufferMean->applyGain(channel, sbi, 1, numTrials);
+                            screenBufferMin->applyGain(channel, sbi, 1, numTrials);
+                            screenBufferMax->applyGain(channel, sbi, 1, numTrials);
+                        }
+                        
                         // update continuous data channels
                         int nextpix = dbi + int(ceil(ratio));
                         if (nextpix > displayBufferSize)
@@ -676,7 +701,18 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             screenBufferMin->addSample(channel, sbi, sample_min*gain);
                             screenBufferMax->addSample(channel, sbi, sample_max*gain);
                         }
+
+                        if (processor->getTriggerSource(splitID) >= 0)
+                        {
+
+                            screenBuffer->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
+                            screenBufferMean->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
+                            screenBufferMin->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
+                            screenBufferMax->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
+                        }
+
                         sbi++;
+           
                     }
 
                     subSampleOffset += ratio;
@@ -690,8 +726,9 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 // update values after we're done
                 screenBufferIndex.set(channel, sbi);
                 displayBufferIndex.set(channel, dbi);
-            }
 
+               
+            }
         }
     }
 
