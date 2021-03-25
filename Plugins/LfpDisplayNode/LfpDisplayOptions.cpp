@@ -43,9 +43,11 @@ using namespace LfpViewer;
 #pragma  mark - LfpDisplayOptions -
 // -------------------------------------------------------------
 
-LfpDisplayOptions::LfpDisplayOptions(LfpDisplaySplitter* canvas_, LfpTimescale* timescale_, 
-                                     LfpDisplay* lfpDisplay_, LfpDisplayNode* processor_)
-    : canvasSplit(canvas_),
+LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitter* canvasSplit_, 
+                                     LfpTimescale* timescale_, LfpDisplay* lfpDisplay_, 
+                                     LfpDisplayNode* processor_)
+    : canvas(canvas_),
+      canvasSplit(canvasSplit_),
       lfpDisplay(lfpDisplay_),
       timescale(timescale_),
       processor(processor_),
@@ -457,8 +459,8 @@ LfpDisplayOptions::~LfpDisplayOptions()
 
 void LfpDisplayOptions::resized()
 {
-    rangeSelection->setBounds(5,getHeight()-30,80,25);
-    timebaseSelection->setBounds(175,getHeight()-30,60,25);
+    rangeSelection->setBounds(115,getHeight()-30,80,25);
+    timebaseSelection->setBounds(270,getHeight()-30,80,25);
     
     spreadSelection->setBounds(5,getHeight()-90,60,25);
     
@@ -468,15 +470,15 @@ void LfpDisplayOptions::resized()
     drawSaturateWarningButton->setBounds(325, getHeight()-89, 20, 20);
     
     colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
-    triggerSourceSelection->setBounds(375,getHeight()-30,60,25);
+    triggerSourceSelection->setBounds(475,getHeight()-30,60,25);
 
     invertInputButton->setBounds(35,getHeight()-190,100,22);
     drawMethodButton->setBounds(35,getHeight()-160,100,22);
 
-    pauseButton->setBounds(465,getHeight()-50,50,44);
+    pauseButton->setBounds(555,getHeight()-50,50,44);
     
     // Reverse Channels Display
-    reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 5,
+    reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 10,
                                  getHeight() - 50,
                                  20,
                                  20);
@@ -506,14 +508,14 @@ void LfpDisplayOptions::resized()
                                          22);
     
     //Channel name toggle
-    showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
-        medianOffsetPlottingLabel->getY(),
-        20,
-        20);
-    showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
-        showChannelNumberButton->getY(),
-        200,
-        22);
+    // showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
+    //     medianOffsetPlottingLabel->getY(),
+    //     20,
+    //     20);
+    // showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
+    //     showChannelNumberButton->getY(),
+    //     200,
+    //     22);
     
     // Spike raster plotting button
     spikeRasterSelection->setBounds(medianOffsetPlottingButton->getX(),
@@ -530,7 +532,7 @@ void LfpDisplayOptions::resized()
     
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(270+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(375+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
     
@@ -547,7 +549,7 @@ void LfpDisplayOptions::resized()
     int bh = 25/typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds(95,getHeight()-30+i*bh,50,bh);
+        typeButtons[i]->setBounds(200,getHeight()-30+i*bh,50,bh);
     }
     
     colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
@@ -579,8 +581,8 @@ void LfpDisplayOptions::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",5,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Timebase(s)",160,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Timebase(s)",265,getHeight()-row1,300,20,Justification::left, false);
     g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
     g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
     g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
@@ -589,8 +591,8 @@ void LfpDisplayOptions::paint(Graphics& g)
 
     g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
 
-    g.drawText("Event disp.",270,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Trigger",375,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Event disp.",375,getHeight()-row1,300,20,Justification::left, false);
+    g.drawText("Trigger",475,getHeight()-row1,300,20,Justification::left, false);
 
     if(canvasSplit->drawClipWarning)
     {
@@ -736,7 +738,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
     if (b == showHideOptionsButton)
     {
-        canvasSplit->toggleOptionsDrawer(b->getToggleState());
+        canvas->toggleOptionsDrawer(b->getToggleState());
     }
 
     if (b == showChannelNumberButton)

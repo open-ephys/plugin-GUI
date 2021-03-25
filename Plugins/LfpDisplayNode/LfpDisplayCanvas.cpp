@@ -46,9 +46,10 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
                   processor(processor_), selectedLayout(sl)
 {
     setLayout(sl);
-    
-    juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
 
+    juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
+    
+    optionsDrawerIsOpen = false;
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -84,6 +85,13 @@ void LfpDisplayCanvas::resized()
         displaySplits[2]->setBounds(0, 2*getHeight()/3 + 5, getWidth(), getHeight()/3 - 7);
     }
 
+    if (optionsDrawerIsOpen)
+        options->setBounds(0, getHeight()-200, getWidth(), 200);
+    else
+        options->setBounds(0, getHeight()-55, getWidth(), 55);
+    
+    displaySelection->setBounds(5, getHeight()-30,95,25);
+    displayLabel->setBounds(5,getHeight()-55,95,20);
 }
 
 void LfpDisplayCanvas::beginAnimation()
@@ -144,6 +152,13 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
 {
     selectedLayout = sl;
 
+    displaySelection = new ComboBox("Display");
+    displaySelection->addListener(this);
+
+    displayLabel = new Label("displayLabel", "Display");
+    displayLabel->setFont(Font("Default", 16.0f, Font::plain));
+    displayLabel->setColour(Label::textColourId, Colour(100, 100, 100));
+
     //the number of split displays to create
     int num = (sl < 4) ? sl : sl - 2;
 
@@ -151,16 +166,46 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
     {
         processor->setNumberOfDisplays(num);
         displaySplits.clear();
+        optionsList.clear();
+        //displaySelection->clear(dontSendNotification);
 
         for(int i = 0; i < num; i++)
         {
             displaySplits.add(new LfpDisplaySplitter(processor, this, i));
             addAndMakeVisible(displaySplits[i]);
             displaySplits[i]->setInputSubprocessors();
+
+            // create options menu per split display
+            optionsList.add(new LfpDisplayOptions(this, displaySplits[i], displaySplits[i]->timescale, displaySplits[i]->lfpDisplay, processor));
+            displaySelection->addItem("Display " + String(i+1), i+1);
+
+            displaySplits[i]->options = optionsList[i];
+            displaySplits[i]->lfpDisplay->options = optionsList[i];
+            displaySplits[i]->lfpDisplay->setNumChannels(displaySplits[i]->nChans);
         }
     }
 
+    options.release();
+    options = optionsList[0];
+    displaySelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(options);
+    addAndMakeVisible(displaySelection);
+    addAndMakeVisible(displayLabel);
+
     resized();
+}
+
+void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
+{
+    optionsDrawerIsOpen = isOpen;
+    // auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
+    resized();
+    // viewport->setViewPosition(0, viewportPosition);         // return viewport position
+}
+
+int LfpDisplayCanvas::getTotalSplits()
+{
+    return displaySplits.size();
 }
 
 void LfpDisplayCanvas::paint(Graphics& g)
@@ -179,6 +224,19 @@ void LfpDisplayCanvas::refresh()
         {
             split->refresh();
         }
+    }
+}
+
+void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
+{
+    if(cb == displaySelection)
+    {
+        int id = displaySelection->getSelectedId();
+
+        options.release();
+        options = optionsList[id-1];
+        this->repaint();
+        options->repaint();
     }
 }
 
@@ -247,7 +305,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     viewport = new LfpViewport(this);
     lfpDisplay = new LfpDisplay(this, viewport);
     timescale = new LfpTimescale(this, lfpDisplay);
-    options = new LfpDisplayOptions(this, timescale, lfpDisplay, processor);
+
     subprocessorSelection = new ComboBox("Subprocessor sample rate");
     subprocessorSelection->addListener(this);
 
@@ -266,14 +324,12 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
-    addAndMakeVisible(options);
     addAndMakeVisible(subprocessorSelection);
 
-    lfpDisplay->setNumChannels(nChans);
+    //lfpDisplay->setNumChannels(nChans);
 
     resizeSamplesPerPixelBuffer(nChans);
 
-    optionsDrawerIsOpen = false;
 }
 
 LfpDisplaySplitter::~LfpDisplaySplitter()
@@ -289,13 +345,6 @@ void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
     samplesPerPixel.resize(numCh);
 }
 
-void LfpDisplaySplitter::toggleOptionsDrawer(bool isOpen)
-{
-    optionsDrawerIsOpen = isOpen;
-    auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
-    resized();
-    viewport->setViewPosition(0, viewportPosition);         // return viewport position
-}
 
 void LfpDisplaySplitter::resized()
 {
@@ -315,10 +364,10 @@ void LfpDisplaySplitter::resized()
         lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
     }
 
-    if (optionsDrawerIsOpen)
-        options->setBounds(0, getHeight()-200, getWidth(), 200);
-    else
-        options->setBounds(0, getHeight()-55, getWidth(), 55);
+    // if (optionsDrawerIsOpen)
+    //     options->setBounds(0, getHeight()-200, getWidth(), 200);
+    // else
+    //     options->setBounds(0, getHeight()-55, getWidth(), 55);
 
     subprocessorSelection->setBounds(0, 4, 130, 22);
 }

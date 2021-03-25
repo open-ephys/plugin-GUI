@@ -45,7 +45,8 @@ class LfpDisplaySplitter;
 */
     
 class LfpDisplayCanvas : public Visualizer,
-    public KeyListener
+                         public KeyListener,
+                         public ComboBox::Listener
 {
 public:
 
@@ -66,7 +67,13 @@ public:
     void refresh();
     void resized();
 
+    void comboBoxChanged(ComboBox* cb);
+
     void setLayout(SplitLayouts);
+
+    void toggleOptionsDrawer(bool);
+
+    int getTotalSplits();
 
     void saveVisualizerParameters(XmlElement* xml);
     void loadVisualizerParameters(XmlElement* xml);
@@ -74,11 +81,20 @@ public:
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);
 
+    bool optionsDrawerIsOpen;
+
 private:
 
     LfpDisplayNode* processor;
 
     OwnedArray<LfpDisplaySplitter> displaySplits;
+
+    OwnedArray<LfpDisplayOptions> optionsList;
+
+    ScopedPointer<LfpDisplayOptions> options;
+
+    ScopedPointer<ComboBox> displaySelection;
+    ScopedPointer<Label> displayLabel;
 
     SplitLayouts selectedLayout;
 
@@ -113,8 +129,6 @@ public:
     void refresh();
 
     void resizeToChannels(bool respectViewportPosition = false);
-
-    void toggleOptionsDrawer(bool);
 
     int getChannelHeight();
     
@@ -191,6 +205,9 @@ public:
 	DataChannel::DataChannelTypes selectedChannelType;
 
     ScopedPointer<LfpViewport> viewport;
+    ScopedPointer<LfpTimescale> timescale;
+    ScopedPointer<LfpDisplay> lfpDisplay;
+    LfpDisplayOptions* options;
 
 
 private:
@@ -198,8 +215,6 @@ private:
     LfpDisplayNode* processor;
 
     float sampleRate;
-
-    bool optionsDrawerIsOpen;
 
     float displayGain;
     float timeOffset;
@@ -217,11 +232,6 @@ private:
     ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
 
     MidiBuffer* eventBuffer;
-
-    ScopedPointer<LfpTimescale> timescale;
-    ScopedPointer<LfpDisplay> lfpDisplay;
-    
-    ScopedPointer<LfpDisplayOptions> options;
 
     ScopedPointer<ComboBox> subprocessorSelection;
 
