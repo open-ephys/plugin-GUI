@@ -44,7 +44,7 @@ class LfpDisplayOptions : public Component,
     public Button::Listener
 {
 public:
-    LfpDisplayOptions(LfpDisplaySplitter*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
+    LfpDisplayOptions(LfpDisplayCanvas*, LfpDisplaySplitter*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
     ~LfpDisplayOptions();
 
     void paint(Graphics& g);
@@ -106,7 +106,7 @@ public:
     
     int selectedSpikeRasterThreshold;
     String selectedSpikeRasterThresholdValue;
-    
+
     // this enum is a candidate option for refactoring, not used yet
     enum ChannelDisplaySkipValue {
         None = 0,
@@ -124,6 +124,7 @@ public:
 
 private:
 
+    LfpDisplayCanvas* canvas;
     LfpDisplaySplitter* canvasSplit;
     LfpDisplay* lfpDisplay;
     LfpTimescale* timescale;

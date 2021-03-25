@@ -135,12 +135,12 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 void LfpDisplayEditor::startAcquisition()
 {
-	enableLayoutSelection(false);
+	//enableLayoutSelection(false);
 }
 
 void LfpDisplayEditor::stopAcquisition()
 {
-	enableLayoutSelection(true);
+	//enableLayoutSelection(true);
 }
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
