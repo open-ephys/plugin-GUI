@@ -33,7 +33,7 @@ namespace LfpViewer {
 #define BUFFER_LENGTH 3000
 
     DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
-        id(id_), name(name_), bufferIndex(0), sampleRate(sampleRate_), channelIndices(0)
+        id(id_), name(name_), sampleRate(sampleRate_)
     {
         previousSize = 0;
 
@@ -96,11 +96,11 @@ namespace LfpViewer {
         {
             int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(chan,                                      // destChannel
+            copyFrom(chan,                               // destChannel
                 displayBufferIndices[chan],             // destStartSample
                 arrayOfOnes,                               // source
                 samplesLeft,                               // numSamples
-                float(ttlState));     // gain
+                float(ttlState));                        // gain
 
             copyFrom(chan,                                      // destChannel
                 0,                                         // destStartSample
@@ -192,14 +192,14 @@ namespace LfpViewer {
         {
             const int extraSamples = nSamples - samplesLeft;
 
-            displayBuffers[currSubproc]->copyFrom(channelIndices[currSubproc],                      // destChannel
-                displayBufferIndices[currSubproc][channelIndices[currSubproc]],  // destStartSample
+            copyFrom(channelMap[chan],                      // destChannel
+                displayBufferIndices[channelMap[chan]],  // destStartSample
                 buffer,                    // source
                 chan,                      // source channel
                 0,                         // source start sample
                 samplesLeft);              // numSamples
 
-            displayBuffers[currSubproc]->copyFrom(channelIndices[currSubproc],                      // destChannel
+            copyFrom(channelMap[chan],                      // destChannel
                 0,                         // destStartSample
                 buffer,                    // source
                 chan,                      // source channel
