@@ -92,6 +92,10 @@ public:
 
     void select(LfpDisplaySplitter*);
 
+    void mouseMove(const MouseEvent&) override;
+    void mouseDrag(const MouseEvent&) override;
+    void mouseUp(const MouseEvent&) override;
+
 private:
 
     LfpDisplayNode* processor;
@@ -102,6 +106,13 @@ private:
     ScopedPointer<Label> displayLabel;
 
     SplitLayouts selectedLayout;
+
+    float doubleVerticalSplitRatio;
+    Array<float> tripleVerticalSplitRatio;
+    float doubleHorizontalSplitRatio;
+    Array<float> tripleHorizontalSplitRatio;
+
+    int borderToDrag;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
 

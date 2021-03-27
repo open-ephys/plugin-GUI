@@ -35,10 +35,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
 #include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
-#include "LfpDefaultColourScheme.h"
-#include "LfpMonochromaticColourScheme.h"
-#include "LfpGradientColourScheme.h"
+
+#include "ColourSchemes/DefaultColourScheme.h"
+#include "ColourSchemes/MonochromaticLightColourScheme.h"
+#include "ColourSchemes/MonochromaticDarkColourScheme.h"
+
 
 #include <math.h>
 
@@ -58,10 +59,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     perPixelPlotter = new PerPixelBitmapPlotter(this);
     supersampledPlotter = new SupersampledBitmapPlotter(this);
     
-//    colorScheme = new LfpDefaultColourScheme();
-    colourSchemeList.add(new LfpDefaultColourScheme(this, canvasSplit));
-    colourSchemeList.add(new LfpMonochromaticColourScheme(this, canvasSplit));
-    colourSchemeList.add(new LfpGradientColourScheme(this, canvasSplit));
+    colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromaticLightColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromaticDarkColourScheme(this, canvasSplit));
     
     activeColourScheme = 0;
     
@@ -69,7 +69,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     m_MedianOffsetPlottingFlag = false;
     
     totalHeight = 0;
-    colorGrouping=1;
+    colorGrouping = 1;
 
     range[0] = 1000;
     range[1] = 500;
@@ -77,35 +77,10 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
     addMouseListener(this, true);
 
-    // hue cycle
-    //for (int i = 0; i < 15; i++)
-    //{
-    //    channelColours.add(Colour(float(sin((3.14/2)*(float(i)/15))),float(1.0),float(1),float(1.0)));
-    //}
-    
-//    setBufferedToImage(true); // TODO: (kelly) test
+    backgroundColour = colourSchemeList[0]->getBackgroundColour();
+   
 
-    backgroundColour = Colour(0,18,43);
-    
-    //hand-built palette
-    channelColours.add(Colour(224,185,36));
-    channelColours.add(Colour(214,210,182));
-    channelColours.add(Colour(243,119,33));
-    channelColours.add(Colour(186,157,168));
-    channelColours.add(Colour(237,37,36));
-    channelColours.add(Colour(179,122,79));
-    channelColours.add(Colour(217,46,171));
-    channelColours.add(Colour(217, 139,196));
-    channelColours.add(Colour(101,31,255));
-    channelColours.add(Colour(141,111,181));
-    channelColours.add(Colour(48,117,255));
-    channelColours.add(Colour(184,198,224));
-    channelColours.add(Colour(116,227,156));
-    channelColours.add(Colour(150,158,155));
-    channelColours.add(Colour(82,173,0));
-    channelColours.add(Colour(125,99,32));
-
-    isPaused=false;
+    isPaused = false;
 
 }
 
@@ -132,7 +107,7 @@ void LfpDisplay::setColorGrouping(int i)
 
 }
 
-LfpChannelColourScheme * LfpDisplay::getColourSchemePtr()
+ChannelColourScheme * LfpDisplay::getColourSchemePtr()
 {
     return colourSchemeList[activeColourScheme];
 }
@@ -317,13 +292,13 @@ void LfpDisplay::refresh()
     // clear appropriate section of the bitmap --
     // we need to do this before each channel draws its new section of data into lfpChannelBitmap
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(backgroundColour); //background color
+    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
 
     if (canvasSplit->fullredraw)
     {
         gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
     } else {
-        gLfpChannelBitmap.setColour(backgroundColour); //background color
+        gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
 
         gLfpChannelBitmap.fillRect(fillfrom,0, (fillto-fillfrom)+1, getHeight());
     };

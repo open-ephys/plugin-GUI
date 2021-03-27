@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
 #include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
+#include "ColourSchemes/ChannelColourScheme.h"
 
 #include <math.h>
 
@@ -55,25 +55,55 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
       labelFont("Default", 13.0f, Font::plain),
       labelColour(100, 100, 100)
 {
-    // draw the colour scheme options
-    // TODO: (kelly) this might be better as a modal window
-    colourSchemeOptionLabel = new Label("colorSchemeOptionLabel", "Color Scheme");
-    colourSchemeOptionLabel->setFont(labelFont);
-    colourSchemeOptionLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(colourSchemeOptionLabel);
-    
-    StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
-    colourSchemeOptionSelection = new ComboBox("colorSchemeOptionSelection");
-    colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
-    colourSchemeOptionSelection->setEditableText(false);
-    colourSchemeOptionSelection->addListener(this);
-    colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(colourSchemeOptionSelection);
-    
-    if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-        addAndMakeVisible(lfpDisplay->getColourSchemePtr());
-    
- //Ranges for neural data
+
+    // MAIN OPTIONS
+
+    // Timebase
+    timebases.add("0.010");
+    timebases.add("0.025");
+    timebases.add("0.050");
+    timebases.add("0.100");
+    timebases.add("0.250");
+    timebases.add("0.500");
+    timebases.add("1.0");
+    timebases.add("2.0");
+    timebases.add("3.0");
+    timebases.add("4.0");
+    timebases.add("5.0");
+    timebases.add("10.0");
+    timebases.add("20.0");
+    selectedTimebase = 8;
+    selectedTimebaseValue = timebases[selectedTimebase - 1];
+
+    timebaseSelection = new ComboBox("Timebase");
+    timebaseSelection->addItemList(timebases, 1);
+    timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
+    timebaseSelection->setEditableText(true);
+    timebaseSelection->addListener(this);
+    addAndMakeVisible(timebaseSelection);
+
+    // Channel height
+    spreads.add("10");
+    spreads.add("20");
+    spreads.add("30");
+    spreads.add("40");
+    spreads.add("50");
+    spreads.add("60");
+    spreads.add("70");
+    spreads.add("80");
+    spreads.add("90");
+    spreads.add("100");
+    selectedSpread = 4;
+    selectedSpreadValue = spreads[selectedSpread - 1];
+
+    spreadSelection = new ComboBox("Spread");
+    spreadSelection->addItemList(spreads, 1);
+    spreadSelection->setSelectedId(selectedSpread, sendNotification);
+    spreadSelection->addListener(this);
+    spreadSelection->setEditableText(true);
+    addAndMakeVisible(spreadSelection);
+
+    // Voltage range
     voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
     voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
     voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
@@ -93,16 +123,16 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeNames.add("DATA");
 
     UtilityButton* tbut;
-    tbut = new UtilityButton("DATA",Font("Small Text", 9, Font::plain));
+    tbut = new UtilityButton("DATA", Font("Small Text", 9, Font::plain));
     tbut->setEnabledState(true);
-    tbut->setCorners(false,false,false,false);
+    tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
     tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100,dontSendNotification);
-    tbut->setToggleState(true,dontSendNotification);
+    tbut->setRadioGroupId(100, dontSendNotification);
+    tbut->setToggleState(true, dontSendNotification);
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
-    
+
     //Ranges for AUX/accelerometer data
     voltageRanges[DataChannel::AUX_CHANNEL].add("25");
     voltageRanges[DataChannel::AUX_CHANNEL].add("50");
@@ -113,53 +143,168 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[DataChannel::AUX_CHANNEL].add("750");
     voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
     voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
-    //voltageRanges[DataChannel::AUX_CHANNEL].add("5000");
     selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
     rangeGain[DataChannel::AUX_CHANNEL] = 0.001f; //mV
     rangeSteps[DataChannel::AUX_CHANNEL] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
-    
-    tbut = new UtilityButton("AUX",Font("Small Text", 9, Font::plain));
+
+    tbut = new UtilityButton("AUX", Font("Small Text", 9, Font::plain));
     tbut->setEnabledState(true);
-    tbut->setCorners(false,false,false,false);
+    tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
     tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100,dontSendNotification);
-    tbut->setToggleState(false,dontSendNotification);
+    tbut->setRadioGroupId(100, dontSendNotification);
+    tbut->setToggleState(false, dontSendNotification);
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
     //Ranges for ADC data
-     voltageRanges[DataChannel::ADC_CHANNEL].add("0.01");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
-     voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
-     selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
-     rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
-     rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
+    voltageRanges[DataChannel::ADC_CHANNEL].add("0.01");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
+    voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
+    selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
+    rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
+    rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
     rangeUnits.add("V");
     typeNames.add("ADC");
 
-    tbut = new UtilityButton("ADC",Font("Small Text", 9, Font::plain));
+    tbut = new UtilityButton("ADC", Font("Small Text", 9, Font::plain));
     tbut->setEnabledState(true);
-    tbut->setCorners(false,false,false,false);
+    tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
     tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100,dontSendNotification);
-    tbut->setToggleState(false,dontSendNotification);
+    tbut->setRadioGroupId(100, dontSendNotification);
+    tbut->setToggleState(false, dontSendNotification);
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
     selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
     selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
     selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
-    
-    // init channel display skipping options
+
+    rangeSelection = new ComboBox("Voltage range");
+    rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
+    rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
+    rangeSelection->setEditableText(true);
+    rangeSelection->addListener(this);
+    addAndMakeVisible(rangeSelection);
+
+    // Event overlay
+    for (int i = 0; i < 8; i++)
+    {
+
+        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
+        eventDisplayInterfaces.add(eventOptions);
+        addAndMakeVisible(eventOptions);
+        eventOptions->setBounds(700 + (floor(i / 2) * 20), getHeight() - 20 - (i % 2) * 20, 40, 20);
+
+        lfpDisplay->setEventDisplayState(i, true);
+    }
+
+    // Pause button
+    pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
+    pauseButton->setRadius(5.0f);
+    pauseButton->setEnabledState(true);
+    pauseButton->setCorners(true, true, true, true);
+    pauseButton->addListener(this);
+    pauseButton->setClickingTogglesState(true);
+    pauseButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(pauseButton);
+
+    // Color scheme
+    StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
+    colourSchemeOptionSelection = new ComboBox("colorSchemeOptionSelection");
+    colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
+    colourSchemeOptionSelection->setEditableText(false);
+    colourSchemeOptionSelection->addListener(this);
+    colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(colourSchemeOptionSelection);
+
+    // Color grouping
+    colorGroupings.add("1");
+    colorGroupings.add("2");
+    colorGroupings.add("4");
+    colorGroupings.add("8");
+    colorGroupings.add("16");
+
+    colorGroupingSelection = new ComboBox("Color Grouping");
+    colorGroupingSelection->addItemList(colorGroupings, 1);
+    colorGroupingSelection->setSelectedId(1, sendNotification);
+    colorGroupingSelection->addListener(this);
+    addAndMakeVisible(colorGroupingSelection);
+
+    // THRESHOLDS SECTION
+    sectionTitles.add("THRESHOLDS");
+
+    // Spike raster
+    spikeRasterSelectionOptions = { "OFF", "-50", "-100", "-150", "-200", "-300", "-400", "-500" };
+    selectedSpikeRasterThreshold = 1;
+    selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
+
+    spikeRasterSelection = new ComboBox("spikeRasterSelection");
+    spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
+    spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
+    spikeRasterSelection->setEditableText(true);
+    spikeRasterSelection->addListener(this);
+    addAndMakeVisible(spikeRasterSelection);
+
+    // Clip warning
+    clipThresholds.add("OFF");
+    clipThresholds.add("ON");
+
+    clipWarningSelection = new ComboBox("Clip Warning");
+    clipWarningSelection->addItemList(clipThresholds, 1);
+    clipWarningSelection->setSelectedId(1, dontSendNotification);
+    clipWarningSelection->addListener(this);
+    clipWarningSelection->setEditableText(false);
+    addAndMakeVisible(clipWarningSelection);
+
+    // Saturation warning
+    saturationThresholds.add("OFF");
+    saturationThresholds.add("0.5");
+    saturationThresholds.add("100");
+    saturationThresholds.add("1000");
+    saturationThresholds.add("5000");
+    saturationThresholds.add("6389");
+
+    saturationWarningSelection = new ComboBox("Saturation Warning");
+    saturationWarningSelection->addItemList(saturationThresholds, 1);
+    saturationWarningSelection->setSelectedId(1, dontSendNotification);
+    saturationWarningSelection->addListener(this);
+    saturationWarningSelection->setEditableText(false);
+    addAndMakeVisible(saturationWarningSelection);
+
+
+    // CHANNELS SECTION
+    sectionTitles.add("CHANNELS");
+
+    // Reverse order
+    reverseChannelsDisplayButton = new UtilityButton("OFF", labelFont);
+    reverseChannelsDisplayButton->setRadius(5.0f);
+    reverseChannelsDisplayButton->setEnabledState(true);
+    reverseChannelsDisplayButton->setCorners(true, true, true, true);
+    reverseChannelsDisplayButton->addListener(this);
+    reverseChannelsDisplayButton->setClickingTogglesState(true);
+    reverseChannelsDisplayButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(reverseChannelsDisplayButton);
+
+    // Sort by depth
+    sortByDepthButton = new UtilityButton("OFF", labelFont);
+    sortByDepthButton->setRadius(5.0f);
+    sortByDepthButton->setEnabledState(true);
+    sortByDepthButton->setCorners(true, true, true, true);
+    sortByDepthButton->addListener(this);
+    sortByDepthButton->setClickingTogglesState(true);
+    sortByDepthButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(sortByDepthButton);
+
+    // Channel skip
     channelDisplaySkipOptions.add("All");
     channelDisplaySkipOptions.add("2");
     channelDisplaySkipOptions.add("4");
@@ -176,50 +321,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     channelDisplaySkipSelection->setEditableText(false);
     channelDisplaySkipSelection->addListener(this);
     addAndMakeVisible(channelDisplaySkipSelection);
-    
-    channelDisplaySkipLabel = new Label("Channel Display Skip", "Ch. Skip");
-    channelDisplaySkipLabel->setFont(labelFont);
-    channelDisplaySkipLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(channelDisplaySkipLabel);
-    
-    // init spike raster options
-    spikeRasterSelectionOptions = {"Off", "-50", "-100", "-150", "-200", "-300", "-400", "-500"};
-    selectedSpikeRasterThreshold = 1;
-    selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
-    
-    spikeRasterSelection = new ComboBox("spikeRasterSelection");
-    spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
-    spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
-    spikeRasterSelection->setEditableText(true);
-    spikeRasterSelection->addListener(this);
-    addAndMakeVisible(spikeRasterSelection);
-    
-    spikeRasterLabel = new Label("spikeRasterLabel", "Spike Raster Thresh.");
-    spikeRasterLabel->setFont(labelFont);
-    spikeRasterLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(spikeRasterLabel);
-    
-    // init median offset plotting
-    medianOffsetPlottingLabel = new Label("Median Offset Correction", "Median Offset Correction");
-    medianOffsetPlottingLabel->setFont(labelFont);
-    medianOffsetPlottingLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(medianOffsetPlottingLabel);
-    
-    medianOffsetPlottingButton = new UtilityButton("0", labelFont);
-    medianOffsetPlottingButton->setRadius(5.0f);
-    medianOffsetPlottingButton->setEnabledState(true);
-    medianOffsetPlottingButton->setCorners(true, true, true, true);
-    medianOffsetPlottingButton->addListener(this);
-    medianOffsetPlottingButton->setClickingTogglesState(true);
-    medianOffsetPlottingButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(medianOffsetPlottingButton);
 
-    //init channel name toggle
-    showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
-    showChannelNumberLabel->setFont(labelFont);
-    showChannelNumberLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(showChannelNumberLabel);
-
+    // Show channel number button
     showChannelNumberButton = new UtilityButton("0", labelFont);
     showChannelNumberButton->setRadius(5.0f);
     showChannelNumberButton->setEnabledState(true);
@@ -229,41 +332,70 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     showChannelNumberButton->setToggleState(false, sendNotification);
     addAndMakeVisible(showChannelNumberButton);
 
+    // SIGNAL PROCESSING SECTION
+    sectionTitles.add("SIGNALS");
+
+    // invert signal
+    invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
+    invertInputButton->setRadius(5.0f);
+    invertInputButton->setEnabledState(true);
+    invertInputButton->setCorners(true, true, true, true);
+    invertInputButton->addListener(this);
+    invertInputButton->setClickingTogglesState(true);
+    invertInputButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(invertInputButton);
+
+    // subtract offset
+    medianOffsetPlottingButton = new UtilityButton("0", labelFont);
+    medianOffsetPlottingButton->setRadius(5.0f);
+    medianOffsetPlottingButton->setEnabledState(true);
+    medianOffsetPlottingButton->setCorners(true, true, true, true);
+    medianOffsetPlottingButton->addListener(this);
+    medianOffsetPlottingButton->setClickingTogglesState(true);
+    medianOffsetPlottingButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(medianOffsetPlottingButton);
+
+    // TRIGGERED DISPLAY
+    sectionTitles.add("TRIGGERED DISPLAY");
+    // trigger channel selection
+    triggerSources.add("none");
+    for (int k = 1; k <= 8; k++)
+    {
+        triggerSources.add(String(k));
+    }
+
+    triggerSourceSelection = new ComboBox("Trigger Source");
+    triggerSourceSelection->addItemList(triggerSources, 1);
+    triggerSourceSelection->setSelectedId(1, sendNotification);
+    triggerSourceSelection->addListener(this);
+    addAndMakeVisible(triggerSourceSelection);
+
+    // average signal
+    averageSignalButton = new UtilityButton("OFF", labelFont);
+    averageSignalButton->setRadius(5.0f);
+    averageSignalButton->setEnabledState(true);
+    averageSignalButton->setCorners(true, true, true, true);
+    averageSignalButton->addListener(this);
+    averageSignalButton->setClickingTogglesState(true);
+    averageSignalButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(averageSignalButton);
+
+    // reset triggered display
+    resetButton = new UtilityButton("RESET", labelFont);
+    resetButton->setRadius(5.0f);
+    resetButton->setEnabledState(true);
+    resetButton->setCorners(true, true, true, true);
+    resetButton->addListener(this);
+    resetButton->setClickingTogglesState(false);
+    resetButton->setToggleState(false, sendNotification);
+    addAndMakeVisible(resetButton);
+
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
     showHideOptionsButton->addListener(this);
     addAndMakeVisible(showHideOptionsButton);
 
-    // init timebases options
-    timebases.add("0.010");
-    timebases.add("0.025");
-    timebases.add("0.050");
-    timebases.add("0.100");
-    timebases.add("0.250");
-    timebases.add("0.500");
-    timebases.add("1.0");
-    timebases.add("2.0");
-    timebases.add("3.0");
-    timebases.add("4.0");
-    timebases.add("5.0");
-    timebases.add("10.0");
-    timebases.add("20.0");
-    selectedTimebase = 8;
-    selectedTimebaseValue = timebases[selectedTimebase-1];
-
-    spreads.add("10");
-    spreads.add("20");
-    spreads.add("30");
-    spreads.add("40");
-    spreads.add("50");
-    spreads.add("60");
-    spreads.add("70");
-    spreads.add("80");
-    spreads.add("90");
-    spreads.add("100");
-    selectedSpread = 4;
-    selectedSpreadValue = spreads[selectedSpread-1];
-
+    // do we still need this?
     overlaps.add("0.5");
     overlaps.add("0.75");
     overlaps.add("1");
@@ -274,48 +406,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedOverlap = 4;
     selectedOverlapValue = overlaps[selectedOverlap-1];
 
-    saturationThresholds.add("0.5");
-    saturationThresholds.add("100");
-    saturationThresholds.add("1000");
-    saturationThresholds.add("5000");
-    saturationThresholds.add("6389");
-    
-    selectedSaturation = 5;
-    selectedSaturationValue = saturationThresholds[selectedSaturation-1];
-    
-    colorGroupings.add("1");
-    colorGroupings.add("2");
-    colorGroupings.add("4");
-    colorGroupings.add("8");
-    colorGroupings.add("16");
-
-    triggerSources.add("none");
-    for (int k=1; k<=8; k++)
-    {
-        triggerSources.add(String(k));
-    }
-
-    rangeSelection = new ComboBox("Voltage range");
-    rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
-    rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
-    rangeSelection->setEditableText(true);
-    rangeSelection->addListener(this);
-    addAndMakeVisible(rangeSelection);
-
-    timebaseSelection = new ComboBox("Timebase");
-    timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
-    timebaseSelection->setEditableText(true);
-    timebaseSelection->addListener(this);
-    addAndMakeVisible(timebaseSelection);
-
-    spreadSelection = new ComboBox("Spread");
-    spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(selectedSpread,sendNotification);
-    spreadSelection->addListener(this);
-    spreadSelection->setEditableText(true);
-    addAndMakeVisible(spreadSelection);
-
     overlapSelection = new ComboBox("Overlap");
     overlapSelection->addItemList(overlaps, 1);
     overlapSelection->setSelectedId(selectedOverlap,sendNotification);
@@ -323,85 +413,72 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     overlapSelection->setEditableText(true);
     addAndMakeVisible(overlapSelection);
     
-    saturationWarningSelection = new ComboBox("Sat.Warn");
-    saturationWarningSelection->addItemList(saturationThresholds, 1);
-    saturationWarningSelection->setSelectedId(selectedSaturation,sendNotification);
-    saturationWarningSelection->addListener(this);
-    saturationWarningSelection->setEditableText(true);
-    addAndMakeVisible(saturationWarningSelection);
-    
-    colorGroupingSelection = new ComboBox("Color Grouping");
-    colorGroupingSelection->addItemList(colorGroupings, 1);
-    colorGroupingSelection->setSelectedId(1,sendNotification);
-    colorGroupingSelection->addListener(this);
-    addAndMakeVisible(colorGroupingSelection);
 
-    triggerSourceSelection = new ComboBox("Trigger Source");
-    triggerSourceSelection->addItemList(triggerSources, 1);
-    triggerSourceSelection->setSelectedId(1, sendNotification);
-    triggerSourceSelection->addListener(this);
-    addAndMakeVisible(triggerSourceSelection);
+    //channelDisplaySkipLabel = new Label("Channel Display Skip", "Ch. Skip");
+   //channelDisplaySkipLabel->setFont(labelFont);
+   //channelDisplaySkipLabel->setColour(Label::textColourId, labelColour);
+   //addAndMakeVisible(channelDisplaySkipLabel);
 
-    invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
-    invertInputButton->setRadius(5.0f);
-    invertInputButton->setEnabledState(true);
-    invertInputButton->setCorners(true, true, true, true);
-    invertInputButton->addListener(this);
-    invertInputButton->setClickingTogglesState(true);
-    invertInputButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(invertInputButton);
+   // init spike raster options
+
+   //spikeRasterLabel = new Label("spikeRasterLabel", "Spike Raster Thresh.");
+   //spikeRasterLabel->setFont(labelFont);
+   //spikeRasterLabel->setColour(Label::textColourId, labelColour);
+  // addAndMakeVisible(spikeRasterLabel);
+
+   // init median offset plotting
+  // medianOffsetPlottingLabel = new Label("Median Offset Correction", "Median Offset Correction");
+  // medianOffsetPlottingLabel->setFont(labelFont);
+  // medianOffsetPlottingLabel->setColour(Label::textColourId, labelColour);
+  // addAndMakeVisible(medianOffsetPlottingLabel);
+
+   //init channel name toggle
+   //showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
+  // showChannelNumberLabel->setFont(labelFont);
+   //showChannelNumberLabel->setColour(Label::textColourId, labelColour);
+   //addAndMakeVisible(showChannelNumberLabel);
     
-    // toggle button to reverse the order of channels
-    reverseChannelsDisplayButton = new UtilityButton("0", labelFont);
-    reverseChannelsDisplayButton->setRadius(5.0f);
-    reverseChannelsDisplayButton->setEnabledState(true);
-    reverseChannelsDisplayButton->setCorners(true, true, true, true);
-    reverseChannelsDisplayButton->addListener(this);
-    reverseChannelsDisplayButton->setClickingTogglesState(true);
-    reverseChannelsDisplayButton->setToggleState(lfpDisplay->getChannelsReversed(), sendNotification);
-    addAndMakeVisible(reverseChannelsDisplayButton);
-    
-    reverseChannelsDisplayLabel = new Label("Rev. Channels", "Rev. Channels");
-    reverseChannelsDisplayLabel->setFont(labelFont);
-    reverseChannelsDisplayLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(reverseChannelsDisplayLabel);
+    //reverseChannelsDisplayLabel = new Label("Rev. Channels", "Rev. Channels");
+   // reverseChannelsDisplayLabel->setFont(labelFont);
+    //reverseChannelsDisplayLabel->setColour(Label::textColourId, labelColour);
+    //addAndMakeVisible(reverseChannelsDisplayLabel);
     
     //button for controlling drawing algorithm - old line-style or new per-pixel style
-    drawMethodButton = new UtilityButton("DrawMethod", Font("Small Text", 13, Font::plain));
-    drawMethodButton->setRadius(5.0f);
-    drawMethodButton->setEnabledState(true);
-    drawMethodButton->setCorners(true, true, true, true);
-    drawMethodButton->addListener(this);
-    drawMethodButton->setClickingTogglesState(true);
-    drawMethodButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(drawMethodButton);
+    //drawMethodButton = new UtilityButton("DrawMethod", Font("Small Text", 13, Font::plain));
+    //drawMethodButton->setRadius(5.0f);
+    //drawMethodButton->setEnabledState(true);
+    //drawMethodButton->setCorners(true, true, true, true);
+   // drawMethodButton->addListener(this);
+   // drawMethodButton->setClickingTogglesState(true);
+   // drawMethodButton->setToggleState(false, sendNotification);
+   // addAndMakeVisible(drawMethodButton);
     
     // two sliders for the two histogram components of the supersampled plotting mode
     // todo: rename these
-    brightnessSliderA = new Slider();
-    brightnessSliderA->setRange (0, 1);
-    brightnessSliderA->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-    brightnessSliderA->addListener(this);
-    addAndMakeVisible (brightnessSliderA);
+    //brightnessSliderA = new Slider();
+    //brightnessSliderA->setRange (0, 1);
+    //brightnessSliderA->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
+    //brightnessSliderA->addListener(this);
+    //addAndMakeVisible (brightnessSliderA);
     
-    brightnessSliderB = new Slider;
-    brightnessSliderB->setRange (0, 1);
-    brightnessSliderB->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-    brightnessSliderB->addListener(this);
-    addAndMakeVisible (brightnessSliderB);
+   // brightnessSliderB = new Slider;
+    //brightnessSliderB->setRange (0, 1);
+   // brightnessSliderB->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
+   // brightnessSliderB->addListener(this);
+   // addAndMakeVisible (brightnessSliderB);
     
-    sliderALabel = new Label("Brightness","Brightness");
-    sliderALabel->setFont(Font("Small Text", 13, Font::plain));
-    sliderALabel->setColour(Label::textColourId,Colour(150,150,150));
-    addAndMakeVisible(sliderALabel);
+   // sliderALabel = new Label("Brightness","Brightness");
+   // sliderALabel->setFont(Font("Small Text", 13, Font::plain));
+    //sliderALabel->setColour(Label::textColourId,Colour(150,150,150));
+    //addAndMakeVisible(sliderALabel);
     
-    sliderBLabel = new Label("Min. brightness","Min. brightness");
-    sliderBLabel->setFont(Font("Small Text", 13, Font::plain));
-    sliderBLabel->setColour(Label::textColourId,Colour(150,150,150));
-    addAndMakeVisible(sliderBLabel);
+   // sliderBLabel = new Label("Min. brightness","Min. brightness");
+   // sliderBLabel->setFont(Font("Small Text", 13, Font::plain));
+   // sliderBLabel->setColour(Label::textColourId,Colour(150,150,150));
+   // addAndMakeVisible(sliderBLabel);
     
     //ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
-    drawClipWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
+    /*drawClipWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
     drawClipWarningButton->setRadius(5.0f);
     drawClipWarningButton->setEnabledState(true);
     drawClipWarningButton->setCorners(true, true, true, true);
@@ -418,30 +495,22 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     drawSaturateWarningButton->addListener(this);
     drawSaturateWarningButton->setClickingTogglesState(true);
     drawSaturateWarningButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(drawSaturateWarningButton);
+    addAndMakeVisible(drawSaturateWarningButton);*/
     
     //button for pausing the display - works by skipping buffer updates. This way scrolling etc still works
-    pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
-    pauseButton->setRadius(5.0f);
-    pauseButton->setEnabledState(true);
-    pauseButton->setCorners(true, true, true, true);
-    pauseButton->addListener(this);
-    pauseButton->setClickingTogglesState(true);
-    pauseButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(pauseButton);
 
-    // add event display-specific controls (currently just an enable/disable button)
-    for (int i = 0; i < 8; i++)
-    {
+        // draw the colour scheme options
+// TODO: (kelly) this might be better as a modal window
+//colourSchemeOptionLabel = new Label("colorSchemeOptionLabel", "Color Scheme");
+//colourSchemeOptionLabel->setFont(labelFont);
+//colourSchemeOptionLabel->setColour(Label::textColourId, labelColour);
+//addAndMakeVisible(colourSchemeOptionLabel);
 
-        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
-        eventDisplayInterfaces.add(eventOptions);
-        addAndMakeVisible(eventOptions);
-        eventOptions->setBounds(700+(floor(i/2)*20), getHeight()-20-(i%2)*20, 40, 20);
+   // if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+    //    addAndMakeVisible(lfpDisplay->getColourSchemePtr());
 
-        lfpDisplay->setEventDisplayState(i,true);
-
-    }
+ //Ranges for neural data
+    
 
     lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
         , DataChannel::HEADSTAGE_CHANNEL);
@@ -449,6 +518,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
         , DataChannel::ADC_CHANNEL);
     lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
         , DataChannel::AUX_CHANNEL);
+
+    canvasSplit->options = this;
     
 }
 
@@ -459,116 +530,121 @@ LfpDisplayOptions::~LfpDisplayOptions()
 
 void LfpDisplayOptions::resized()
 {
-    rangeSelection->setBounds(115,getHeight()-30,80,25);
-    timebaseSelection->setBounds(270,getHeight()-30,80,25);
-    
-    spreadSelection->setBounds(5,getHeight()-90,60,25);
-    
-    overlapSelection->setBounds(100,getHeight()-90,60,25);
+    int height = 22;
 
-    drawClipWarningButton->setBounds(175,getHeight()-89,20,20);
-    drawSaturateWarningButton->setBounds(325, getHeight()-89, 20, 20);
-    
-    colorGroupingSelection->setBounds(400,getHeight()-90,60,25);
-    triggerSourceSelection->setBounds(475,getHeight()-30,60,25);
+    // MAIN OPTIONS
+    timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
+    spreadSelection->setBounds(timebaseSelection->getRight() + 15, getHeight() - 30, 75, height);
+    overlapSelection->setBounds(spreadSelection->getRight() + 15, getHeight() - 30, 75, height);
+    rangeSelection->setBounds(overlapSelection->getRight() + 15, getHeight()-30, 85, height);
 
-    invertInputButton->setBounds(35,getHeight()-190,100,22);
-    drawMethodButton->setBounds(35,getHeight()-160,100,22);
-
-    pauseButton->setBounds(555,getHeight()-50,50,44);
-    
-    // Reverse Channels Display
-    reverseChannelsDisplayButton->setBounds(pauseButton->getRight() + 10,
-                                 getHeight() - 50,
-                                 20,
-                                 20);
-    reverseChannelsDisplayLabel->setBounds(reverseChannelsDisplayButton->getRight(),
-                                           reverseChannelsDisplayButton->getY(),
-                                           120,
-                                           22);
-    
-    // Channel Display Skip Selector
-    channelDisplaySkipSelection->setBounds(reverseChannelsDisplayButton->getX(),
-                                           reverseChannelsDisplayButton->getBottom(),
-                                           60,
-                                           25);
-    channelDisplaySkipLabel->setBounds(channelDisplaySkipSelection->getRight(),
-                                       channelDisplaySkipSelection->getY() + 2,
-                                       100,
-                                       22);
-    
-    // Median Offset Plotting Button
-    medianOffsetPlottingButton->setBounds(reverseChannelsDisplayLabel->getRight() + 5,
-                                          reverseChannelsDisplayButton->getY(),
-                                          20,
-                                          20);
-    medianOffsetPlottingLabel->setBounds(medianOffsetPlottingButton->getRight(),
-                                         medianOffsetPlottingButton->getY(),
-                                         150,
-                                         22);
-    
-    //Channel name toggle
-    // showChannelNumberButton->setBounds(medianOffsetPlottingLabel->getRight() + 5,
-    //     medianOffsetPlottingLabel->getY(),
-    //     20,
-    //     20);
-    // showChannelNumberLabel->setBounds(showChannelNumberButton->getRight(),
-    //     showChannelNumberButton->getY(),
-    //     200,
-    //     22);
-    
-    // Spike raster plotting button
-    spikeRasterSelection->setBounds(medianOffsetPlottingButton->getX(),
-                                    medianOffsetPlottingButton->getBottom(),
-                                    60,
-                                    25);
-    spikeRasterLabel->setBounds(spikeRasterSelection->getRight(),
-                                spikeRasterSelection->getY(),
-                                120,
-                                22);
-    
-    // Saturation Warning Selection
-    saturationWarningSelection->setBounds(250, getHeight()-90, 60, 25);
-    
-    for (int i = 0; i < 8; i++)
-    {
-        eventDisplayInterfaces[i]->setBounds(375+(floor(i/2)*20), getHeight()-40+(i%2)*20, 40, 20); // arrange event channel buttons in two rows
-        eventDisplayInterfaces[i]->repaint();
-    }
-    
-    brightnessSliderA->setBounds(170,getHeight()-190,100,22);
-    sliderALabel->setBounds(270, getHeight()-190, 180, 22);
-    brightnessSliderA->setValue(0.9); //set default value
-    
-    brightnessSliderB->setBounds(170,getHeight()-160,100,22);
-    sliderBLabel->setBounds(270, getHeight()-160, 180, 22);
-    brightnessSliderB->setValue(0.1); //set default value
-    
-    showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
-    
-    int bh = 25/typeButtons.size();
+    int bh = 25 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds(200,getHeight()-30+i*bh,50,bh);
+        typeButtons[i]->setBounds(rangeSelection->getRight()+5, getHeight() - 30 + i * bh, 50, bh);
     }
+
+    for (int i = 0; i < 8; i++)
+    {
+        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 80 + (floor(i / 2) * 20), getHeight() - 45 + (i % 2) * 20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->repaint();
+    }
+
+    pauseButton->setBounds(650, getHeight() - 40, 70, 30);
     
-    colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
-                                       getHeight()-190,
-                                       100,
-                                       22);
-    colourSchemeOptionSelection->setBounds(colourSchemeOptionLabel->getRight(),
-                                           colourSchemeOptionLabel->getY(),
-                                           80,
-                                           25);
+    colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 40,
+        getHeight() - 30,
+        100,
+        height);
+
+    colorGroupingSelection->setBounds(colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 100, height);
+
+    int startHeight = 167;
+    int verticalSpacing = 29;
+    int xOffset = 200;
+
+    // THRESHOLDS
+    spikeRasterSelection->setBounds(getWidth() / 4 - xOffset,
+        getHeight() - startHeight,
+        80,
+        height);
+
+    clipWarningSelection->setBounds(getWidth() / 4 - xOffset,
+        getHeight() - startHeight + verticalSpacing, 
+        80, 
+        height);
+
+    saturationWarningSelection->setBounds(getWidth() / 4 - xOffset,
+        getHeight() - startHeight + verticalSpacing * 2,
+        80, 
+        height);
+
+    // CHANNELS
+    
+    reverseChannelsDisplayButton->setBounds(getWidth() / 2 - xOffset,
+        getHeight() - startHeight,
+        50,
+        height);
+
+    sortByDepthButton->setBounds(getWidth() / 2 - xOffset,
+        getHeight() - startHeight + verticalSpacing,
+        50,
+        height);
+
+    channelDisplaySkipSelection->setBounds(getWidth() / 2 - xOffset,
+        getHeight() - startHeight + verticalSpacing *2,
+        80,
+        height);
+    
+    showChannelNumberButton->setBounds(getWidth() / 2 - xOffset,
+             getHeight() - startHeight + +verticalSpacing*3,
+             50,
+        height);
+
+    // SIGNAL PROCESSING
+    invertInputButton->setBounds(getWidth() / 4 * 3 - xOffset,
+        getHeight() - startHeight, 
+        80, 
+        height);
+
+    medianOffsetPlottingButton->setBounds(getWidth() / 4 * 3 - xOffset,
+        getHeight()- startHeight + verticalSpacing,
+        50,
+        height);
+
+    //TRIGGERED DISPLAY
+    triggerSourceSelection->setBounds(getWidth() - xOffset,
+        getHeight()-startHeight,
+        80,
+        height);
+
+    averageSignalButton->setBounds(getWidth() - xOffset,
+        getHeight() - startHeight + verticalSpacing, 
+        50, 
+        height);
+
+    resetButton->setBounds(getWidth() - xOffset,
+        getHeight() - startHeight + verticalSpacing * 2, 
+        60, 
+        height);
+
+
+    showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
+
+   // colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
+    //                                   getHeight()-190,
+     //                                  100,
+    //                                   22);
+    
     
     // set the size of the active colour scheme's options, if it has configurable options
-    if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+   /* if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
     {
         lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
                                                     colourSchemeOptionLabel->getBottom(),
                                                     200,
                                                     110);
-    }
+    }*/
 }
 
 void LfpDisplayOptions::paint(Graphics& g)
@@ -577,12 +653,42 @@ void LfpDisplayOptions::paint(Graphics& g)
     int row2 = 110;
 
     g.fillAll(Colours::black);
-    g.setFont(Font("Default", 16, Font::plain));
+    g.setFont(Font("Default", 20, Font::plain));
 
     g.setColour(Colour(100,100,100));
 
-    g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Timebase(s)",265,getHeight()-row1,300,20,Justification::left, false);
+    if (getHeight() > 150)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (i > 0)
+                g.drawLine(getWidth() / 4 * i, getHeight() - 200, getWidth() / 4 * i, 150);
+
+            g.drawText(sectionTitles[i], 
+                getWidth()/4 * i + 10, 
+                7, 
+                300, 
+                20, 
+                Justification::left, false);
+        }
+  
+    }
+
+    g.setFont(Font("Default", 14, Font::plain));
+    g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
+    g.drawText("Height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Overlap", overlapSelection->getX(), overlapSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
+
+    g.drawText("Overlay", 425, getHeight() - 45, 100, 20, Justification::right, false);
+    g.drawText("Events:", 425, getHeight() - 27, 100, 20, Justification::right, false);
+
+    g.drawText("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
+
+
+    /*g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
+    
     g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
     g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
     g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
@@ -604,8 +710,9 @@ void LfpDisplayOptions::paint(Graphics& g)
     {
         g.setColour(Colours::red);
         g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
-    }
-    
+    }*/
+
+
 }
 
 int LfpDisplayOptions::getChannelHeight()
@@ -616,7 +723,7 @@ int LfpDisplayOptions::getChannelHeight()
 bool LfpDisplayOptions::getDrawMethodState()
 {
     
-    return drawMethodButton->getToggleState();
+    return true; // drawMethodButton->getToggleState();
 }
 
 bool LfpDisplayOptions::getInputInvertedState()
@@ -711,7 +818,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         }
         return;
     }
-    if (b == drawMethodButton)
+    /*if (b == drawMethodButton)
     {
         lfpDisplay->setDrawMethod(b->getToggleState()); // this should be done the same way as drawClipWarning - or the other way around.
         
@@ -728,7 +835,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         canvasSplit->drawSaturationWarning = b->getToggleState();
         canvasSplit->redraw();
         return;
-    }
+    }*/
     
     if (b == pauseButton)
     {
@@ -859,22 +966,23 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     else if (cb == colourSchemeOptionSelection)
     {
         // hide the old colour scheme config options if they are displayed
-        if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-            removeChildComponent(lfpDisplay->getColourSchemePtr());
+        //if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+        //    removeChildComponent(lfpDisplay->getColourSchemePtr());
         
         // change the active colour scheme ptr
         lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
+        //canvasSplit->repaint();  // setBackgroundColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour());
         
         // show the new colour scheme's config options if has any
         
-        if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-        {
-            lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
-                                                        colourSchemeOptionLabel->getBottom(),
-                                                        200,
-                                                        110);
-            addAndMakeVisible(lfpDisplay->getColourSchemePtr());
-        }
+        //if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
+        //{
+            //lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
+            //                                            colourSchemeOptionLabel->getBottom(),
+            //                                            200,
+           //                                             110);
+            //addAndMakeVisible(lfpDisplay->getColourSchemePtr());
+        //}
         
         // update the lfpDisplay's colors and redraw
         lfpDisplay->setColors();
@@ -997,36 +1105,19 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == saturationWarningSelection)
     {
-        if (cb->getSelectedId())
+        if (cb->getSelectedId() > 1)
         {
             selectedSaturationValueFloat = (saturationThresholds[cb->getSelectedId()-1].getFloatValue());
+            canvasSplit->drawSaturationWarning = true;
         }
         else
         {
-            selectedSaturationValueFloat = cb->getText().getFloatValue();
-            if (selectedSaturationValueFloat)
-            {
-                 std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
-                if (selectedSaturationValueFloat < 0)
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    selectedSaturationValueFloat = saturationThresholds[0].getFloatValue();
-                }
-                else
-                {
-                  //  cb->setText(String(selectedSaturationValueFloat),dontSendNotification);
-                }
-            }
-            else
-            {
-               // cb->setSelectedId(1,dontSendNotification);
-                //selectedSaturationValueFloat = saturationThresholds[0].getFloatValue();
-
-            }
+            canvasSplit->drawSaturationWarning = false;
         }
+
         canvasSplit->redraw();
 
-        std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
+        //std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
     }
     else if (cb == overlapSelection)
     {
@@ -1079,7 +1170,8 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == triggerSourceSelection)
     {
-        processor->setTriggerSource(cb->getSelectedId() - 2, canvasSplit->splitID);
+        canvasSplit->setTriggerChannel(cb->getSelectedId() - 2);
+        processor->setParameter(cb->getSelectedId(), float(canvasSplit->splitID));
     }
 
 
@@ -1088,7 +1180,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
 void LfpDisplayOptions::sliderValueChanged(Slider* sl)
 {
-    if (sl == brightnessSliderA)
+    /*if (sl == brightnessSliderA)
         canvasSplit->histogramParameterA = sl->getValue();
 
     if (sl == brightnessSliderB)
@@ -1096,7 +1188,7 @@ void LfpDisplayOptions::sliderValueChanged(Slider* sl)
 
     canvasSplit->fullredraw=true;
     //repaint();
-    canvasSplit->refresh();
+    canvasSplit->refresh();*/
 
 }
 
@@ -1164,7 +1256,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
     xmlNode->setAttribute("triggerSource", triggerSourceSelection->getSelectedId());
     xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
-    xmlNode->setAttribute("drawMethod",drawMethodButton->getToggleState());
+    //xmlNode->setAttribute("drawMethod",drawMethodButton->getToggleState());
 
     int eventButtonState = 0;
 
@@ -1244,7 +1336,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
               
             invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", true), sendNotification);
 
-            drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
+           // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
             canvasSplit->viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
                                       xmlNode->getIntAttribute("ScrollY"));

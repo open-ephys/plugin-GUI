@@ -24,10 +24,10 @@ namespace LfpViewer {
     class LfpBitmapPlotter;
     class PerPixelBitmapPlotter;
     class SupersampledBitmapPlotter;
-    class LfpChannelColourScheme;
-    class LfpDefaultColourScheme;
-    class LfpMonochromaticColourScheme;
-    class LfpGradientColourScheme;
+    class ChannelColourScheme;
+    class DefaultColourScheme;
+    class MonochromaticColourScheme;
+    class GradientColourScheme;
 
 };
 #endif

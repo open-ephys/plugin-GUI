@@ -75,7 +75,20 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
 
     }
 
+    doubleVerticalSplitRatio = 0.5f;
+    doubleHorizontalSplitRatio = 0.5f;
+
+    tripleHorizontalSplitRatio.add(0.33f);
+    tripleHorizontalSplitRatio.add(0.66f);
+
+    tripleVerticalSplitRatio.add(0.33f);
+    tripleVerticalSplitRatio.add(0.66f);
+
     setLayout(sl);
+
+    addMouseListener(this, true);
+
+    borderToDrag = -1;
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -100,17 +113,35 @@ void LfpDisplayCanvas::resized()
     }
     else if(selectedLayout == TWO_VERT)
     {
-        displaySplits[0]->setBounds(0, 0, getWidth()/2 - 5, getHeight());
-        displaySplits[1]->setBounds(getWidth()/2 + 5, 0, getWidth()/2 - 5, getHeight());
+        displaySplits[0]->setBounds(0, 
+            0, 
+            getWidth() * doubleVerticalSplitRatio - 5, 
+            getHeight());
+
+        displaySplits[1]->setBounds(getWidth() * doubleVerticalSplitRatio + 5, 
+            0, 
+            getWidth() * (1- doubleVerticalSplitRatio) - 5, 
+            getHeight());
 
         displaySplits[0]->setVisible(true);
         displaySplits[1]->setVisible(true);
     }
     else if(selectedLayout == THREE_VERT)
     {
-        displaySplits[0]->setBounds(0, 0, getWidth()/3 - 7, getHeight());
-        displaySplits[1]->setBounds(getWidth()/3 + 3, 0, getWidth()/3 - 7, getHeight());
-        displaySplits[2]->setBounds(2*getWidth()/3 + 5, 0, getWidth()/3 - 7, getHeight());
+        displaySplits[0]->setBounds(0, 
+            0, 
+            getWidth() * tripleVerticalSplitRatio[0] - 7, 
+            getHeight());
+
+        displaySplits[1]->setBounds(getWidth() * tripleVerticalSplitRatio[0] + 3, 
+            0, 
+            getWidth() * (tripleVerticalSplitRatio[1]-tripleVerticalSplitRatio[0]) - 7, 
+            getHeight());
+
+        displaySplits[2]->setBounds(getWidth() * (tripleVerticalSplitRatio[1]) + 5, 
+            0, 
+            getWidth() * (1-tripleVerticalSplitRatio[1]) - 7, 
+            getHeight());
 
         displaySplits[0]->setVisible(true);
         displaySplits[1]->setVisible(true);
@@ -119,16 +150,34 @@ void LfpDisplayCanvas::resized()
     }
     else if(selectedLayout == TWO_HORZ)
     {
-        displaySplits[0]->setBounds(0, 0, getWidth(), getHeight()/2 - 5);
-        displaySplits[1]->setBounds(0, getHeight()/2 + 5, getWidth(), getHeight()/2 - 5);
+        displaySplits[0]->setBounds(0, 
+            0, 
+            getWidth(), 
+            getHeight() * doubleHorizontalSplitRatio - 5);
+
+        displaySplits[1]->setBounds(0, 
+            getHeight() * doubleHorizontalSplitRatio + 5, 
+            getWidth(), 
+            getHeight() * (1-doubleHorizontalSplitRatio) - 5);
 
         displaySplits[0]->setVisible(true);
         displaySplits[1]->setVisible(true);
     }
     else{
-        displaySplits[0]->setBounds(0, 0, getWidth(), getHeight()/3 - 7);
-        displaySplits[1]->setBounds(0, getHeight()/3 + 3, getWidth(), getHeight()/3 - 7);
-        displaySplits[2]->setBounds(0, 2*getHeight()/3 + 5, getWidth(), getHeight()/3 - 7);
+        displaySplits[0]->setBounds(0, 
+            0, 
+            getWidth(), 
+            getHeight() * tripleHorizontalSplitRatio[0] - 7);
+
+        displaySplits[1]->setBounds(0, 
+            getHeight() * tripleHorizontalSplitRatio[0] + 3, 
+            getWidth(), 
+            getHeight() * (tripleHorizontalSplitRatio[1] - tripleHorizontalSplitRatio[0]) - 7);
+
+        displaySplits[2]->setBounds(0, 
+            getHeight() * (tripleHorizontalSplitRatio[1]) + 5,
+            getWidth(), 
+            getHeight() * (1-tripleHorizontalSplitRatio[1]) - 7);
 
         displaySplits[0]->setVisible(true);
         displaySplits[1]->setVisible(true);
@@ -225,47 +274,241 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
 {
     selectedLayout = sl;
 
-    /*displaySelection = new ComboBox("Display");
-    displaySelection->addListener(this);
+    resized();
+}
 
-    displayLabel = new Label("displayLabel", "Display");
-    displayLabel->setFont(Font("Default", 16.0f, Font::plain));
-    displayLabel->setColour(Label::textColourId, Colour(100, 100, 100));
+void LfpDisplayCanvas::mouseMove(const MouseEvent& e)
+{
+    MouseEvent event = e.getEventRelativeTo(this);
 
-    //the number of split displays to create
-    int num = (sl < 4) ? sl : sl - 2;
+    int borderSize = 5;
 
-    if(num != displaySplits.size())
+    if (selectedLayout == TWO_VERT)
     {
-        processor->setNumberOfDisplays(num);
-        displaySplits.clear();
-        optionsList.clear();
-        //displaySelection->clear(dontSendNotification);
-
-        for(int i = 0; i < num; i++)
+        int relativeX = event.position.getX();
+        //
+        if ((relativeX > getWidth() * doubleVerticalSplitRatio - borderSize) &&
+            (relativeX < getWidth() * doubleVerticalSplitRatio + borderSize))
         {
-            displaySplits.add(new LfpDisplaySplitter(processor, this, i));
-            addAndMakeVisible(displaySplits[i]);
-            displaySplits[i]->setInputSubprocessors();
+            setMouseCursor(MouseCursor::LeftRightResizeCursor);
+            //std::cout << "over center border" << std::endl;
+        }
+        else {
+            setMouseCursor(MouseCursor::NormalCursor);
+        }
+    }
+    else if (selectedLayout == THREE_VERT)
+    {
+        int relativeX = event.position.getX();
 
-            // create options menu per split display
-            optionsList.add(new LfpDisplayOptions(this, displaySplits[i], displaySplits[i]->timescale, displaySplits[i]->lfpDisplay, processor));
-            displaySelection->addItem("Display " + String(i+1), i+1);
+        if ((relativeX > getWidth() * tripleVerticalSplitRatio[0] - borderSize) &&
+            (relativeX < getWidth() * tripleVerticalSplitRatio[0] + borderSize))
+        {
+            setMouseCursor(MouseCursor::LeftRightResizeCursor);
+        }
+        else if (
+            (relativeX > getWidth() * tripleVerticalSplitRatio[1] - borderSize) &&
+            (relativeX < getWidth() * tripleVerticalSplitRatio[1] + borderSize)
+            )
+        {
+            setMouseCursor(MouseCursor::LeftRightResizeCursor);
+        }
+        else {
+            setMouseCursor(MouseCursor::NormalCursor);
+        }
+    }  else if (selectedLayout == TWO_HORZ)
+    {
+        int relativeY = event.position.getY();
+        //
+        if ((relativeY > getHeight() * doubleHorizontalSplitRatio - borderSize) &&
+            (relativeY < getHeight() * doubleHorizontalSplitRatio + borderSize))
+        {
+            setMouseCursor(MouseCursor::UpDownResizeCursor);
+        }
+        else {
+            setMouseCursor(MouseCursor::NormalCursor);
+        }
+    }
+    else if (selectedLayout == THREE_HORZ)
+    {
+        int relativeY = event.position.getY();
 
-            displaySplits[i]->options = optionsList[i];
-            displaySplits[i]->lfpDisplay->options = optionsList[i];
-            displaySplits[i]->lfpDisplay->setNumChannels(displaySplits[i]->nChans);
+        if ((relativeY > getHeight() * tripleHorizontalSplitRatio[0] - borderSize) &&
+            (relativeY < getHeight() * tripleHorizontalSplitRatio[0] + borderSize))
+        {
+            setMouseCursor(MouseCursor::UpDownResizeCursor);
+        }
+        else if (
+            (relativeY > getHeight() * tripleHorizontalSplitRatio[1] - borderSize) &&
+            (relativeY < getHeight() * tripleHorizontalSplitRatio[1] + borderSize)
+            )
+        {
+            setMouseCursor(MouseCursor::UpDownResizeCursor);
+        }
+        else {
+            setMouseCursor(MouseCursor::NormalCursor);
         }
     }
 
-    options.release();
-    options = optionsList[0];
-    displaySelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(options);
-    addAndMakeVisible(displaySelection);
-    addAndMakeVisible(displayLabel);*/
+}
 
-    resized();
+void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
+{
+    MouseEvent event = e.getEventRelativeTo(this);
+
+    int borderSize = 5;
+
+    if (selectedLayout == TWO_VERT)
+    {
+        int relativeX = event.getMouseDownX();
+
+        //std::cout << relativeX << std::endl;
+
+        if ((relativeX > getWidth() * doubleVerticalSplitRatio - borderSize) &&
+            (relativeX < getWidth() * doubleVerticalSplitRatio + borderSize))
+        {
+            borderToDrag = 0;
+        }
+
+        if (borderToDrag == 0)
+        {
+
+            doubleVerticalSplitRatio = float(event.position.getX()) / float(getWidth());
+
+            if (doubleVerticalSplitRatio < 0.15)
+                doubleVerticalSplitRatio = 0.15;
+            else if (doubleVerticalSplitRatio > 0.85)
+                doubleVerticalSplitRatio = 0.85;
+
+            // std::cout << doubleVerticalSplitRatio << std::endl;
+
+        }
+
+    } else if (selectedLayout == THREE_VERT)
+    {
+        int relativeX = event.getMouseDownX();
+
+        //std::cout << relativeX << std::endl;
+
+        if ((relativeX > getWidth() * tripleVerticalSplitRatio[0] - borderSize) &&
+            (relativeX < getWidth() * tripleVerticalSplitRatio[0] + borderSize))
+        {
+            borderToDrag = 0;
+        } else if ((relativeX > getWidth() * tripleVerticalSplitRatio[1] - borderSize) &&
+            (relativeX < getWidth() * tripleVerticalSplitRatio[1] + borderSize))
+        {
+            borderToDrag = 1;
+        }
+
+        if (borderToDrag == 0)
+        {
+
+            tripleVerticalSplitRatio.set(0, float(event.position.getX()) / float(getWidth()));
+
+            if (tripleVerticalSplitRatio[0] < 0.15)
+                tripleVerticalSplitRatio.set(0, 0.15);
+            else if (tripleVerticalSplitRatio[0] > tripleVerticalSplitRatio[1] - 0.15)
+                tripleVerticalSplitRatio.set(0, tripleVerticalSplitRatio[1] - 0.15);
+
+           // std::cout << doubleVerticalSplitRatio << std::endl;
+
+        }
+
+        else if (borderToDrag == 1)
+        {
+
+            tripleVerticalSplitRatio.set(1, float(event.position.getX()) / float(getWidth()));
+
+            if (tripleVerticalSplitRatio[1] < tripleVerticalSplitRatio[0] + 0.15)
+                tripleVerticalSplitRatio.set(1, tripleVerticalSplitRatio[0] + 0.15);
+            else if (tripleVerticalSplitRatio[1] > 0.85)
+                tripleVerticalSplitRatio.set(1, 0.85);
+
+            // std::cout << doubleVerticalSplitRatio << std::endl;
+
+        }
+
+    } else if (selectedLayout == TWO_HORZ)
+    {
+        int relativeY = event.getMouseDownY();
+        //
+        if ((relativeY > getHeight() * doubleHorizontalSplitRatio - borderSize) &&
+            (relativeY < getHeight() * doubleHorizontalSplitRatio + borderSize))
+
+        {
+            borderToDrag = 0;
+        }
+
+        if (borderToDrag == 0)
+        {
+
+            doubleHorizontalSplitRatio = float(event.position.getY()) / float(getHeight());
+
+            if (doubleHorizontalSplitRatio < 0.15)
+                doubleHorizontalSplitRatio = 0.15;
+            else if (doubleHorizontalSplitRatio > 0.85)
+                doubleHorizontalSplitRatio = 0.85;
+
+          //  std::cout << doubleHorizontalSplitRatio << std::endl;
+        }
+        
+    }
+    else if (selectedLayout == THREE_HORZ)
+    {
+        int relativeY = event.getMouseDownY();
+
+        //std::cout << relativeX << std::endl;
+
+        if ((relativeY > getHeight() * tripleHorizontalSplitRatio[0] - borderSize) &&
+            (relativeY < getHeight() * tripleHorizontalSplitRatio[0] + borderSize))
+        {
+            borderToDrag = 0;
+        }
+        else if ((relativeY > getHeight() * tripleHorizontalSplitRatio[1] - borderSize) &&
+            (relativeY < getHeight() * tripleHorizontalSplitRatio[1] + borderSize))
+        {
+            borderToDrag = 1;
+        }
+
+        if (borderToDrag == 0)
+        {
+
+            tripleHorizontalSplitRatio.set(0, float(event.position.getY()) / float(getHeight()));
+
+            if (tripleHorizontalSplitRatio[0] < 0.15)
+                tripleHorizontalSplitRatio.set(0, 0.15);
+            else if (tripleHorizontalSplitRatio[0] > tripleHorizontalSplitRatio[1] - 0.15)
+                tripleHorizontalSplitRatio.set(0, tripleHorizontalSplitRatio[1] - 0.15);
+
+            // std::cout << doubleVerticalSplitRatio << std::endl;
+
+        }
+
+        else if (borderToDrag == 1)
+        {
+
+            tripleHorizontalSplitRatio.set(1, float(event.position.getY()) / float(getHeight()));
+
+            if (tripleHorizontalSplitRatio[1] < tripleHorizontalSplitRatio[0] + 0.15)
+                tripleHorizontalSplitRatio.set(1, tripleHorizontalSplitRatio[0] + 0.15);
+            else if (tripleHorizontalSplitRatio[1] > 0.85)
+                tripleHorizontalSplitRatio.set(1, 0.85);
+
+            // std::cout << doubleVerticalSplitRatio << std::endl;
+
+        }
+
+    }
+
+}
+
+void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
+{
+    if (borderToDrag >= 0)
+    {
+        resized();
+        borderToDrag = -1;
+    }
 }
 
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
@@ -395,6 +638,9 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     nChans = 0;
 
     resizeSamplesPerPixelBuffer(nChans);
+
+    drawSaturationWarning = false;
+    drawClipWarning = false;
 
 }
 

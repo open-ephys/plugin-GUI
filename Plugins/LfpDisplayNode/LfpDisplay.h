@@ -30,6 +30,7 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
 #pragma  mark - LfpDisplay -
 //==============================================================================
@@ -77,7 +78,7 @@ public:
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
     
-    LfpChannelColourScheme * getColourSchemePtr();
+    ChannelColourScheme * getColourSchemePtr();
         
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
@@ -229,7 +230,7 @@ private:
     // TODO: (kelly) add reference to a color scheme
 //    LfpChannelColourScheme * colourScheme;
     uint8 activeColourScheme;
-    OwnedArray<LfpChannelColourScheme> colourSchemeList;
+    OwnedArray<ChannelColourScheme> colourSchemeList;
 };
   
 }; // namespace
