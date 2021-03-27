@@ -272,7 +272,10 @@ void LfpDisplay::resized()
     if (singleChan != -1)
         viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
 
-    lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+    if (getWidth() > 0 && getHeight() > 0)
+        lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+    else
+        lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
     
     //inititalize black background
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
@@ -281,7 +284,7 @@ void LfpDisplay::resized()
 
     canvasSplit->fullredraw = true;
     
-    refresh();
+   // refresh();
     // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
@@ -899,6 +902,8 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
                                                       );
         }
     }
+
+    canvasSplit->select();
 
 //    canvas->fullredraw = true;//issue full redraw
 

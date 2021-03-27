@@ -36,6 +36,7 @@ namespace LfpViewer {
         id(id_), name(name_), sampleRate(sampleRate_)
     {
         previousSize = 0;
+        numChannels = 0;
 
         const int heapSize = 5000;
         arrayOfOnes = new float[heapSize];
@@ -63,7 +64,7 @@ namespace LfpViewer {
     void DisplayBuffer::addChannel(String name, int channelNum)
     {
         channelNames.add(name);
-        channelMap.set(channelNum, numChannels);
+        channelMap[channelNum] = numChannels;
         numChannels++;
     }
 

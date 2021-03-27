@@ -76,6 +76,9 @@ public:
     //SortedSet<uint32> inputSubprocessors;
     String getSubprocessorName(int ch); // { return subprocessorNames[sn]; }
 
+    Array<DisplayBuffer*> getDisplayBuffers();
+    std::map<uint32, DisplayBuffer*> displayBufferMap;
+
     
 
    // void setSubprocessor(uint32 sp, int splitId); // should not be needed
@@ -89,6 +92,7 @@ public:
     //uint32 getDataSubprocId(int chan) const;
 
    // void setNumberOfDisplays(int num); // should not be needed
+
     void setTriggerSource(int ch, int splitId); 
     int getTriggerSource(int splitId) const;
     int64 getLatestTriggerTime(int splitId) const;
@@ -98,13 +102,15 @@ private:
     void finalizeEventChannels();
 
     //std::vector<std::shared_ptr<DisplayBuffer>> displayBuffers;
-    HashMap<uint32, DisplayBuffer*> displayBufferMap;
+    
     OwnedArray<DisplayBuffer> displayBuffers;
+
+    
 
    // std::vector<std::vector<int>> displayBufferIndices;
     //Array<int> channelIndices;
 
-    Array<uint32> eventSourceNodes;
+    //Array<uint32> eventSourceNodes;
 
    // float displayGain; //
    // float bufferLength; // s
@@ -115,7 +121,9 @@ private:
     
     //int numDisplays; // total number of split displays
 
-    Array<int> triggerSource;
+   // Array<int> triggerSource;
+
+    Array<int> triggerChannels;
     Array<int64> latestTrigger; // overall timestamp
     Array<int> latestCurrentTrigger; // within current input buffer
 

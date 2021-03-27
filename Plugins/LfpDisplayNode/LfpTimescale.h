@@ -68,6 +68,8 @@ private:
     Font font;
 
     StringArray labels;
+    Array<bool> isMajor;
+    Array<float> fractionWidth;
 
 };
 

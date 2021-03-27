@@ -30,6 +30,9 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+#include "DisplayBuffer.h"
+
+
 namespace LfpViewer {
 
 class LfpDisplaySplitter;
@@ -56,15 +59,19 @@ public:
     void beginAnimation();
     void endAnimation();
 
+    /** Called when the tab becomes visible again*/
     void refreshState();
+
+    /* Called when settings need to be updated*/
     void update();
 
-    void setParameter(int, float);
+    void setParameter(int, float) {}
     void setParameter(int, int, int, float) {}
 
     void paint(Graphics& g);
 
     void refresh();
+    /* Called when the component changes size*/
     void resized();
 
     void comboBoxChanged(ComboBox* cb);
@@ -83,17 +90,13 @@ public:
 
     bool optionsDrawerIsOpen;
 
+    void select(LfpDisplaySplitter*);
+
 private:
-
-
 
     LfpDisplayNode* processor;
 
     OwnedArray<LfpDisplaySplitter> displaySplits;
-
-    OwnedArray<LfpDisplayOptions> optionsList;
-
-    ScopedPointer<LfpDisplayOptions> options;
 
     ScopedPointer<ComboBox> displaySelection;
     ScopedPointer<Label> displayLabel;
@@ -109,7 +112,7 @@ class LfpDisplaySplitter : public Component,
                            public ComboBoxListener
 {
 public:
-    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, int id);
+    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, DisplayBuffer* displayBuffer, int id);
     ~LfpDisplaySplitter();
 
     void paint(Graphics& g);
@@ -125,7 +128,7 @@ public:
     
     void refreshSplitterState();
 
-    void processorUpdate();
+    void updateSettings();
     
     void resized();
     void refresh();
@@ -193,11 +196,15 @@ public:
     
     int nChans;
     //int nChansVisible; // the number of channels NOT hidden for display
+
     int splitID; //split display ID
 
     float timebase;
 
     void redraw();
+
+    void select();
+    void deselect();
 
     void handleSpaceKeyPauseEvent();
 
@@ -209,12 +216,15 @@ public:
     ScopedPointer<LfpViewport> viewport;
     ScopedPointer<LfpTimescale> timescale;
     ScopedPointer<LfpDisplay> lfpDisplay;
-    LfpDisplayOptions* options;
+    ScopedPointer<LfpDisplayOptions> options;
 
-
+    void setTriggerChannel(int);
 private:
 
+    bool isSelected;
+
     LfpDisplayNode* processor;
+    LfpDisplayCanvas* canvas;
 
     float sampleRate;
     float numTrials;
@@ -222,10 +232,12 @@ private:
     float displayGain;
     float timeOffset;
 
-	uint32 drawableSubprocessor;
+    int triggerChannel;
+
+	uint32 subprocessorId;
 	float displayedSampleRate;
     
-    std::shared_ptr<AudioSampleBuffer> displayBuffer; // sample wise data buffer for display
+    DisplayBuffer* displayBuffer; // sample wise data buffer for display
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes

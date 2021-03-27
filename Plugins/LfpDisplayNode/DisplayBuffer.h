@@ -25,6 +25,8 @@
 
 #include <ProcessorHeaders.h>
 
+#include <map>
+
 namespace LfpViewer {
 #pragma  mark - LfpDisplay -
     //==============================================================================
@@ -56,7 +58,7 @@ namespace LfpViewer {
         int id;
 
         int64 bufferIndex;
-        HashMap<int, int> channelMap;
+        std::map<int, int> channelMap;
 
         Array<int> displayBufferIndices;
 
@@ -72,7 +74,10 @@ namespace LfpViewer {
 
         uint64 ttlState;
 
+        int triggerChannel;
 
+        int latestTriggerTime;
+        int latestCurrentTriggerTime;
 
         CriticalSection displayMutex;
 

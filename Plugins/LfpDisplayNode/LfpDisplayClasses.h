@@ -3,7 +3,7 @@
 #define LFPDISPLAYCLASSES_H
 
 namespace LfpViewer {
-    constexpr int MAX_N_CHAN = 2048;
+    constexpr int MAX_N_CHAN = 16;
     constexpr int MAX_N_SAMP = 5000;
     constexpr int MAX_N_SAMP_PER_PIXEL = 100;
     constexpr int CHANNEL_TYPES = 3;

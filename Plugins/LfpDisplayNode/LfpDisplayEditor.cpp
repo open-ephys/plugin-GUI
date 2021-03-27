@@ -145,6 +145,8 @@ void LfpDisplayEditor::stopAcquisition()
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
+    selectedLayout = SplitLayouts::SINGLE;
+
     canvas = new LfpDisplayCanvas(lfpProcessor, selectedLayout);
     return canvas;
 }
