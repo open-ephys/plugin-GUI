@@ -127,6 +127,10 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
     threeHoriDisplay->setRadioGroupId(201, dontSendNotification);
     threeHoriDisplay->addListener(this);
     addAndMakeVisible(threeHoriDisplay);
+
+    syncButton = new UtilityButton("SYNC DISPLAYS", Font("Default", 13.0f, Font::plain)),
+    syncButton->addListener(this);
+    addAndMakeVisible(syncButton);
 }
 
 LfpDisplayEditor::~LfpDisplayEditor()
@@ -153,16 +157,25 @@ Visualizer* LfpDisplayEditor::createNewCanvas()
 
 void LfpDisplayEditor::buttonClicked(Button* button)
 {
-    if(button == singleDisplay)
+    if (button == singleDisplay)
         selectedLayout = SplitLayouts::SINGLE;
-    else if(button == twoVertDisplay)
+    else if (button == twoVertDisplay)
         selectedLayout = SplitLayouts::TWO_VERT;
-    else if(button == threeVertDisplay)
+    else if (button == threeVertDisplay)
         selectedLayout = SplitLayouts::THREE_VERT;
-    else if(button == twoHoriDisplay)
+    else if (button == twoHoriDisplay)
         selectedLayout = SplitLayouts::TWO_HORZ;
-    else if(button == threeHoriDisplay)
+    else if (button == threeHoriDisplay)
         selectedLayout = SplitLayouts::THREE_HORZ;
+    else if (button == syncButton)
+    {
+        if (canvas != nullptr)
+        {
+            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas.get();
+            c->syncDisplays();
+        }
+            
+    }
     else
         VisualizerEditor::buttonClicked(button);
     
@@ -191,12 +204,14 @@ void LfpDisplayEditor::resized()
 {
     VisualizerEditor::resized();
 
-    layoutLabel->setBounds(5, 30, 50, 20);
-    singleDisplay->setBounds(55, 30, 20, 20);
-    twoVertDisplay->setBounds(80, 30, 20, 20);
-    threeVertDisplay->setBounds(105, 30, 20, 20);
-    twoHoriDisplay->setBounds(130, 30, 20, 20);
-    threeHoriDisplay->setBounds(155, 30, 20, 20);
+    layoutLabel->setBounds(5, 40, 50, 20);
+    singleDisplay->setBounds(55, 40, 20, 20);
+    twoVertDisplay->setBounds(80, 40, 20, 20);
+    threeVertDisplay->setBounds(105, 40, 20, 20);
+    twoHoriDisplay->setBounds(130, 40, 20, 20);
+    threeHoriDisplay->setBounds(155, 40, 20, 20);
+
+    syncButton->setBounds(40, 80, 110, 30);
 }
 
 

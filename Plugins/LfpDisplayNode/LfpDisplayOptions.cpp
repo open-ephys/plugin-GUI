@@ -53,7 +53,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
       processor(processor_),
       selectedChannelType(DataChannel::HEADSTAGE_CHANNEL),
       labelFont("Default", 13.0f, Font::plain),
-      labelColour(100, 100, 100)
+      labelColour(100, 100, 100),
+      medianOffsetOnForSpikeRaster(false)
 {
 
     // MAIN OPTIONS
@@ -202,8 +203,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
         EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
         eventDisplayInterfaces.add(eventOptions);
         addAndMakeVisible(eventOptions);
-        eventOptions->setBounds(700 + (floor(i / 2) * 20), getHeight() - 20 - (i % 2) * 20, 40, 20);
-
         lfpDisplay->setEventDisplayState(i, true);
     }
 
@@ -305,7 +304,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(sortByDepthButton);
 
     // Channel skip
-    channelDisplaySkipOptions.add("All");
+    channelDisplaySkipOptions.add("None");
     channelDisplaySkipOptions.add("2");
     channelDisplaySkipOptions.add("4");
     channelDisplaySkipOptions.add("8");
@@ -323,7 +322,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(channelDisplaySkipSelection);
 
     // Show channel number button
-    showChannelNumberButton = new UtilityButton("0", labelFont);
+    showChannelNumberButton = new UtilityButton("OFF", labelFont);
     showChannelNumberButton->setRadius(5.0f);
     showChannelNumberButton->setEnabledState(true);
     showChannelNumberButton->setCorners(true, true, true, true);
@@ -336,7 +335,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     sectionTitles.add("SIGNALS");
 
     // invert signal
-    invertInputButton = new UtilityButton("Invert", Font("Small Text", 13, Font::plain));
+    invertInputButton = new UtilityButton("OFF", labelFont);
     invertInputButton->setRadius(5.0f);
     invertInputButton->setEnabledState(true);
     invertInputButton->setCorners(true, true, true, true);
@@ -346,7 +345,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(invertInputButton);
 
     // subtract offset
-    medianOffsetPlottingButton = new UtilityButton("0", labelFont);
+    medianOffsetPlottingButton = new UtilityButton("OFF", labelFont);
     medianOffsetPlottingButton->setRadius(5.0f);
     medianOffsetPlottingButton->setEnabledState(true);
     medianOffsetPlottingButton->setCorners(true, true, true, true);
@@ -358,7 +357,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     // TRIGGERED DISPLAY
     sectionTitles.add("TRIGGERED DISPLAY");
     // trigger channel selection
-    triggerSources.add("none");
+    triggerSources.add("None");
     for (int k = 1; k <= 8; k++)
     {
         triggerSources.add(String(k));
@@ -388,7 +387,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     resetButton->addListener(this);
     resetButton->setClickingTogglesState(false);
     resetButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(resetButton);
+    addChildComponent(resetButton);
 
     // init show/hide options button
     showHideOptionsButton = new ShowHideOptionsButton(this);
@@ -534,9 +533,9 @@ void LfpDisplayOptions::resized()
 
     // MAIN OPTIONS
     timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
-    spreadSelection->setBounds(timebaseSelection->getRight() + 15, getHeight() - 30, 75, height);
-    overlapSelection->setBounds(spreadSelection->getRight() + 15, getHeight() - 30, 75, height);
-    rangeSelection->setBounds(overlapSelection->getRight() + 15, getHeight()-30, 85, height);
+    spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
+    //overlapSelection->setBounds(spreadSelection->getRight() + 15, getHeight() - 30, 75, height);
+    rangeSelection->setBounds(spreadSelection->getRight() + 20, getHeight()-30, 90, height);
 
     int bh = 25 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
@@ -546,7 +545,8 @@ void LfpDisplayOptions::resized()
 
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 80 + (floor(i / 2) * 20), getHeight() - 45 + (i % 2) * 20, 40, 20); // arrange event channel buttons in two rows
+        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 120 + (floor(i / 2) * 20),
+                                                            getHeight() - 45 + (i % 2) * 20, 20, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
 
@@ -564,68 +564,68 @@ void LfpDisplayOptions::resized()
     int xOffset = 200;
 
     // THRESHOLDS
-    spikeRasterSelection->setBounds(getWidth() / 4 - xOffset,
+    spikeRasterSelection->setBounds(96,
         getHeight() - startHeight,
         80,
         height);
 
-    clipWarningSelection->setBounds(getWidth() / 4 - xOffset,
+    clipWarningSelection->setBounds(96,
         getHeight() - startHeight + verticalSpacing, 
         80, 
         height);
 
-    saturationWarningSelection->setBounds(getWidth() / 4 - xOffset,
+    saturationWarningSelection->setBounds(96,
         getHeight() - startHeight + verticalSpacing * 2,
         80, 
         height);
 
     // CHANNELS
     
-    reverseChannelsDisplayButton->setBounds(getWidth() / 2 - xOffset,
+    reverseChannelsDisplayButton->setBounds(getWidth() / 4 + 107,
         getHeight() - startHeight,
-        50,
+        35,
         height);
 
-    sortByDepthButton->setBounds(getWidth() / 2 - xOffset,
+    sortByDepthButton->setBounds(getWidth() / 4 + 102,
         getHeight() - startHeight + verticalSpacing,
-        50,
+        35,
         height);
 
-    channelDisplaySkipSelection->setBounds(getWidth() / 2 - xOffset,
+    channelDisplaySkipSelection->setBounds(getWidth() / 4 + 47,
         getHeight() - startHeight + verticalSpacing *2,
         80,
         height);
     
-    showChannelNumberButton->setBounds(getWidth() / 2 - xOffset,
+    showChannelNumberButton->setBounds(getWidth() / 4 + 102,
              getHeight() - startHeight + +verticalSpacing*3,
-             50,
+             35,
         height);
 
     // SIGNAL PROCESSING
-    invertInputButton->setBounds(getWidth() / 4 * 3 - xOffset,
+    invertInputButton->setBounds(getWidth() / 2 + 95,
         getHeight() - startHeight, 
-        80, 
+        35, 
         height);
 
-    medianOffsetPlottingButton->setBounds(getWidth() / 4 * 3 - xOffset,
+    medianOffsetPlottingButton->setBounds(getWidth() / 2 + 110,
         getHeight()- startHeight + verticalSpacing,
-        50,
+        35,
         height);
 
     //TRIGGERED DISPLAY
-    triggerSourceSelection->setBounds(getWidth() - xOffset,
+    triggerSourceSelection->setBounds(getWidth() / 4 * 3 + 118,
         getHeight()-startHeight,
         80,
         height);
 
-    averageSignalButton->setBounds(getWidth() - xOffset,
+    averageSignalButton->setBounds(getWidth() / 4 * 3 + 112,
         getHeight() - startHeight + verticalSpacing, 
-        50, 
+        35, 
         height);
 
-    resetButton->setBounds(getWidth() - xOffset,
-        getHeight() - startHeight + verticalSpacing * 2, 
-        60, 
+    resetButton->setBounds(getWidth() / 4 * 3 + 156,
+        getHeight() - startHeight + verticalSpacing, 
+        50, 
         height);
 
 
@@ -674,18 +674,105 @@ void LfpDisplayOptions::paint(Graphics& g)
   
     }
 
-    g.setFont(Font("Default", 14, Font::plain));
+    g.setFont(Font("FiraSans", 16, Font::plain));
     g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
-    g.drawText("Height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText("Overlap", overlapSelection->getX(), overlapSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
+    //g.drawText("Overlap", overlapSelection->getX(), overlapSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
 
-    g.drawText("Overlay", 425, getHeight() - 45, 100, 20, Justification::right, false);
-    g.drawText("Events:", 425, getHeight() - 27, 100, 20, Justification::right, false);
+    g.drawText("Overlay", 380, getHeight() - 43, 100, 20, Justification::right, false);
+    g.drawText("Events:", 380, getHeight() - 25, 100, 20, Justification::right, false);
 
     g.drawText("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
 
+    g.drawText("Spike raster:",
+        10,
+        spikeRasterSelection->getY(),
+        100,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Clip warning:",
+        10,
+        clipWarningSelection->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Sat. warning:",
+        10,
+        saturationWarningSelection->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Reverse order:",
+        getWidth() / 4 + 10,
+        reverseChannelsDisplayButton->getY(),
+        100,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Sort by depth:",
+        getWidth() / 4 + 10,
+        sortByDepthButton->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Skip:",
+        getWidth() / 4 + 10,
+        channelDisplaySkipSelection->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Show number:",
+        getWidth() / 4 + 10,
+        showChannelNumberButton->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Invert signal:",
+        getWidth() / 2 + 10,
+        invertInputButton->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Subtract offset:",
+        getWidth() / 2 + 10,
+        medianOffsetPlottingButton->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Trigger channel:",
+        getWidth() / 4 * 3 + 10,
+        triggerSourceSelection->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
+
+    g.drawText("Trial averaging:",
+        getWidth() / 4 * 3 + 10,
+        averageSignalButton->getY(),
+        150,
+        22,
+        Justification::left,
+        false);
 
     /*g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
     
@@ -799,11 +886,27 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     if (b == invertInputButton)
     {
         lfpDisplay->setInputInverted(b->getToggleState());
+        
+        if (b->getToggleState())
+        {
+            invertInputButton->setLabel("ON");
+        }
+        else {
+            invertInputButton->setLabel("OFF");
+        }
         return;
     }
     if (b == reverseChannelsDisplayButton)
     {
         lfpDisplay->setChannelsReversed(b->getToggleState());
+        
+        if (b->getToggleState())
+        {
+            reverseChannelsDisplayButton->setLabel("ON");
+        }
+        else {
+            reverseChannelsDisplayButton->setLabel("OFF");
+        }
         return;
     }
     if (b == medianOffsetPlottingButton)
@@ -816,8 +919,53 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         {
             lfpDisplay->setMedianOffsetPlotting(b->getToggleState());
         }
+
+        if (b->getToggleState())
+        {
+            medianOffsetPlottingButton->setLabel("ON");
+        }
+        else {
+            medianOffsetPlottingButton->setLabel("OFF");
+        }
+
+        return;
+    } 
+    
+    if (b == averageSignalButton)
+    {
+        canvasSplit->setAveraging(b->getToggleState());
+
+        if (b->getToggleState())
+        {
+            averageSignalButton->setLabel("ON");
+            resetButton->setVisible(true);
+        }
+        else {
+            averageSignalButton->setLabel("OFF");
+            resetButton->setVisible(false);
+        }
         return;
     }
+
+    if (b == sortByDepthButton)
+    {
+        lfpDisplay->orderChannelsByDepth(b->getToggleState());
+
+        if (b->getToggleState())
+        {
+            sortByDepthButton->setLabel("ON");
+        }
+        else {
+            sortByDepthButton->setLabel("OFF");
+        }
+        return;
+    }
+
+    if (b == resetButton)
+    {
+        canvasSplit->resetTrials();
+    }
+
     /*if (b == drawMethodButton)
     {
         lfpDisplay->setDrawMethod(b->getToggleState()); // this should be done the same way as drawClipWarning - or the other way around.
@@ -854,6 +1002,14 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         for (int i = 0; i < numChannels; ++i)
         {
             lfpDisplay->channelInfo[i]->repaint();
+        }
+
+        if (b->getToggleState())
+        {
+            showChannelNumberButton->setLabel("ON");
+        }
+        else {
+            showChannelNumberButton->setLabel("OFF");
         }
         return;
     }
@@ -927,11 +1083,19 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         if (cb->getSelectedId() == 0)
         {
             auto val = fabsf(cb->getText().getFloatValue());
+
+            std::cout << "Spike raster thresh: " << val << std::endl;
             
             if (val == 0) // if value is zero, just disable plotting and set text to "Off"
             {
                 cb->setSelectedItemIndex(0, dontSendNotification);
                 lfpDisplay->setSpikeRasterPlotting(false);
+
+                if (medianOffsetOnForSpikeRaster)
+                {
+                    medianOffsetPlottingButton->setToggleState(false, sendNotification);
+                    medianOffsetOnForSpikeRaster = false;
+                }
                 return;
             }
             
@@ -944,22 +1108,47 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             
             spikeRasterSelection->setText(String(val), dontSendNotification);
             lfpDisplay->setSpikeRasterThreshold(val);
-            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
-            lfpDisplay->setMedianOffsetPlotting(true);
+
+            if (!medianOffsetPlottingButton->getToggleState())
+            {
+                medianOffsetPlottingButton->setToggleState(true, sendNotification);
+                //lfpDisplay->setMedianOffsetPlotting(true);
+                medianOffsetOnForSpikeRaster = true;
+            }
+            else {
+                medianOffsetOnForSpikeRaster = false;
+            }
+                
             lfpDisplay->setSpikeRasterPlotting(true);
         }
         else if (cb->getSelectedItemIndex() == 0) // if "Off"
         {
+            std::cout << "Spike raster off" << std::endl;
+
             lfpDisplay->setSpikeRasterPlotting(false);
+
+            if (medianOffsetOnForSpikeRaster)
+            {
+                medianOffsetPlottingButton->setToggleState(false, sendNotification);
+                medianOffsetOnForSpikeRaster = false;
+            }
             return;
         }
         else
         {
             auto val = cb->getText().getFloatValue();
+
+            std::cout << "Spike raster thresh: " << val << std::endl;
             
             lfpDisplay->setSpikeRasterThreshold(val);
-            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
-            lfpDisplay->setMedianOffsetPlotting(true);
+
+            if (!medianOffsetPlottingButton->getToggleState())
+            {
+                medianOffsetPlottingButton->setToggleState(true, sendNotification);
+                medianOffsetOnForSpikeRaster = true;
+            }
+                
+
             lfpDisplay->setSpikeRasterPlotting(true);
         }
     }

@@ -71,12 +71,16 @@ public:
     void paint(Graphics& g);
 
     void refresh();
+
+    void syncDisplays();
+
     /* Called when the component changes size*/
     void resized();
 
     void comboBoxChanged(ComboBox* cb);
 
     void setLayout(SplitLayouts);
+    bool makeRoomForOptions(int splitID);
 
     void toggleOptionsDrawer(bool);
 
@@ -140,6 +144,8 @@ public:
     void refreshSplitterState();
 
     void updateSettings();
+
+    
     
     void resized();
     void refresh();
@@ -214,6 +220,8 @@ public:
 
     void redraw();
 
+    void syncDisplay();
+
     void select();
     void deselect();
 
@@ -230,6 +238,11 @@ public:
     ScopedPointer<LfpDisplayOptions> options;
 
     void setTriggerChannel(int);
+    void setAveraging(bool);
+    void resetTrials();
+
+    DisplayBuffer* displayBuffer; // sample wise data buffer for display
+
 private:
 
     bool isSelected;
@@ -240,6 +253,8 @@ private:
     float sampleRate;
     float numTrials;
 
+    bool trialAveraging;
+
     float displayGain;
     float timeOffset;
 
@@ -248,7 +263,7 @@ private:
 	uint32 subprocessorId;
 	float displayedSampleRate;
     
-    DisplayBuffer* displayBuffer; // sample wise data buffer for display
+    
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes

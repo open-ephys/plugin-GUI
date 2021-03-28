@@ -26,6 +26,7 @@
 
 #include <ProcessorHeaders.h>
 #include "LfpDisplayEditor.h"
+#include "LfpDisplayCanvas.h"
 #include "DisplayBuffer.h"
 
 #include <map>
@@ -79,7 +80,7 @@ public:
     Array<DisplayBuffer*> getDisplayBuffers();
     std::map<uint32, DisplayBuffer*> displayBufferMap;
 
-    
+    void setSplitDisplays(Array<LfpDisplaySplitter*>);
 
    // void setSubprocessor(uint32 sp, int splitId); // should not be needed
    // uint32 getSubprocessor(int splitId) const; // should not be needed
@@ -105,7 +106,8 @@ private:
     
     OwnedArray<DisplayBuffer> displayBuffers;
 
-    
+    Array<LfpDisplaySplitter*> splitDisplays;
+
 
    // std::vector<std::vector<int>> displayBufferIndices;
     //Array<int> channelIndices;

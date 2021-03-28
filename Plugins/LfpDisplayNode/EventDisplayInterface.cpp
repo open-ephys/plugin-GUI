@@ -22,20 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "EventDisplayInterface.h"
-#include "LfpDisplayNode.h"
+
 #include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
 #include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotterInfo.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
 
 #include <math.h>
 
@@ -55,7 +44,6 @@ EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplaySpl
     chButton->setBounds(4,4,14,14);
     chButton->setEnabledState(true);
     chButton->setCorners(true, false, true, false);
-    //chButton.color = display->channelColours[channelNumber*2];
     chButton->addListener(this);
     addAndMakeVisible(chButton);
 
@@ -72,7 +60,6 @@ void EventDisplayInterface::checkEnabledState()
 {
     isEnabled = display->getEventDisplayState(channelNumber);
 
-    //repaint();
 }
 
 void EventDisplayInterface::buttonClicked(Button* button)
@@ -98,11 +85,11 @@ void EventDisplayInterface::paint(Graphics& g)
 
     if (isEnabled)
     {
-        g.setColour(display->channelColours[channelNumber*2]);
-        g.fillRoundedRectangle(2,2,18,18,6.0f);
-    }
+        g.setColour(display->channelColours[channelNumber * 2]);
+        g.fillRoundedRectangle(2,2,getWidth()-2,getHeight()-2,6.0f);
 
-    //g.drawText(String(channelNumber), 8, 2, 200, 15, Justification::left, false);
+       // std::cout << "Painting event display " << channelNumber << " width: " << getWidth() << " height: " << getHeight() << std::endl;
+    }
 
 }
 

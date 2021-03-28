@@ -192,6 +192,8 @@ private:
     StringArray typeNames;
     int rangeSteps[CHANNEL_TYPES];
 
+    bool medianOffsetOnForSpikeRaster;
+
     // NOT USED:
     //ScopedPointer<Slider> brightnessSliderA;
     //ScopedPointer<Slider> brightnessSliderB;

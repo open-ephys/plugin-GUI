@@ -53,6 +53,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     , canvasSplit(c)
     , viewport(v)
     , channelsReversed(false)
+    , channelsOrderedByDepth(false)
     , displaySkipAmt(0)
     , m_SpikeRasterPlottingFlag(false)
 {
@@ -60,25 +61,44 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     supersampledPlotter = new SupersampledBitmapPlotter(this);
     
     colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromaticLightColourScheme(this, canvasSplit));
+    //colourSchemeList.add(new MonochromaticLightColourScheme(this, canvasSplit));
     colourSchemeList.add(new MonochromaticDarkColourScheme(this, canvasSplit));
-    
-    activeColourScheme = 0;
     
     plotter = perPixelPlotter;
     m_MedianOffsetPlottingFlag = false;
     
+    activeColourScheme = 0;
     totalHeight = 0;
     colorGrouping = 1;
 
-    range[0] = 1000;
-    range[1] = 500;
-    range[2] = 500000;
+    //hand-built palette (used for event channels)
+    channelColours.add(Colour(224, 185, 36));
+    channelColours.add(Colour(214, 210, 182));
+    channelColours.add(Colour(243, 119, 33));
+    channelColours.add(Colour(186, 157, 168));
+    channelColours.add(Colour(237, 37, 36));
+    channelColours.add(Colour(179, 122, 79));
+    channelColours.add(Colour(217, 46, 171));
+    channelColours.add(Colour(217, 139, 196));
+    channelColours.add(Colour(101, 31, 255));
+    channelColours.add(Colour(141, 111, 181));
+    channelColours.add(Colour(48, 117, 255));
+    channelColours.add(Colour(184, 198, 224));
+    channelColours.add(Colour(116, 227, 156));
+    channelColours.add(Colour(150, 158, 155));
+    channelColours.add(Colour(82, 173, 0));
+    channelColours.add(Colour(125, 99, 32));
+
+    range[0] = 1000; // headstage channels
+    range[1] = 500;  // aux channels
+    range[2] = 500000; // adc channels
 
     addMouseListener(this, true);
 
-    backgroundColour = colourSchemeList[0]->getBackgroundColour();
-   
+    for (int i = 0; i < 8; i++)
+    {
+        eventDisplayEnabled[i] = true;
+    }
 
     isPaused = false;
 
@@ -86,7 +106,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
 LfpDisplay::~LfpDisplay()
 {
-//    deleteAllChildren();
+
 }
 
 int LfpDisplay::getNumChannels()
@@ -234,9 +254,9 @@ void LfpDisplay::resized()
         
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
         
-        info->setBounds(0,
+        info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
-                        canvasSplit->leftmargin + 50,
+                        canvasSplit->leftmargin + 48,
                         disp->getChannelHeight());
         
         totalHeight += disp->getChannelHeight();
@@ -259,7 +279,7 @@ void LfpDisplay::resized()
 
     canvasSplit->fullredraw = true;
     
-   // refresh();
+    refresh();
     // std::cout << "Total height: " << totalHeight << std::endl;
 
 }
@@ -267,7 +287,7 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
 
-    g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin,0);
+    g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
     
 }
 
@@ -296,15 +316,12 @@ void LfpDisplay::refresh()
 
     if (canvasSplit->fullredraw)
     {
-        gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
+        gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight()); // clear everything
     } else {
-        gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
-
-        gLfpChannelBitmap.fillRect(fillfrom,0, (fillto-fillfrom)+1, getHeight());
+        gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto-fillfrom)+1, getHeight()); // just clear one section
     };
     
     for (int i = 0; i < numChans; i++)
-//    for (int i = 0; i < drawableChannels.size(); ++i)
     {
 
         int componentTop = channels[i]->getY();
@@ -315,16 +332,18 @@ void LfpDisplay::refresh()
             if (canvasSplit->fullredraw)
             {
                 channels[i]->fullredraw = true;
-                
                 channels[i]->pxPaint();
                 channelInfo[i]->repaint();
-                
             }
             else
             {
                  channels[i]->pxPaint(); // draws to lfpChannelBitmap
                 
-                 // it's not clear why, but apparently because the pxPaint() in a child component of LfpDisplay, we also need to issue repaint() calls for each channel, even though there's nothin to repaint there. Otherwise, the repaint call in LfpDisplay::refresh(), a few lines down, lags behind the update line by ~60 px. This could ahev something to do with teh reopaint message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
+                 // it's not clear why, but apparently because the pxPaint() is in a child component of LfpDisplay, 
+                 // we also need to issue repaint() calls for each channel, even though there's nothing 
+                 // to repaint there. Otherwise, the repaint call in LfpDisplay::refresh(), a few lines down, 
+                 // lags behind the update line by ~60 px. This could have something to do with the repaint 
+                 // message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
                 
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
                  channels[i]->repaint(fillfrom, 0, (fillto-fillfrom)+2, channels[i]->getHeight());
@@ -343,8 +362,8 @@ void LfpDisplay::refresh()
     if (canvasSplit->fullredraw)
     {
         repaint(0,topBorder,getWidth(),bottomBorder-topBorder);
-    }else{
-        //repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder); // doesntb seem to be needed and results in duplicate repaint calls
+    } else {
+        //repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder); // doesn't seem to be needed and results in duplicate repaint calls
     }
     
     canvasSplit->fullredraw = false;
@@ -512,6 +531,66 @@ void LfpDisplay::setChannelsReversed(bool state)
         drawableChannels[i].channel->fullredraw = true;
     }
     
+    // necessary to overwrite lfpChannelBitmap's display
+    refresh();
+}
+
+void LfpDisplay::orderChannelsByDepth(bool state)
+{
+    if (state == channelsOrderedByDepth) return; // bail early, in case bookkeeping error
+
+    channelsOrderedByDepth = state;
+
+    if (getSingleChannelState()) return; // don't reverse if single channel
+
+    // reverse channels that are currently in drawableChannels
+    for (int i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size() / 2;
+        i < len;
+        i++, j--)
+    {
+        // remove channel and info components from front and back
+        // moving toward middle
+        removeChildComponent(drawableChannels[i].channel);
+        removeChildComponent(drawableChannels[j].channel);
+        removeChildComponent(drawableChannels[i].channelInfo);
+        removeChildComponent(drawableChannels[j].channelInfo);
+
+        // swap front and back, moving towards middle
+        drawableChannels.swap(i, j);
+
+        // also swap coords
+        {
+            const auto channelBoundsA = drawableChannels[i].channel->getBounds();
+            const auto channelInfoBoundsA = drawableChannels[i].channelInfo->getBounds();
+
+            drawableChannels[i].channel->setBounds(drawableChannels[j].channel->getBounds());
+            drawableChannels[i].channelInfo->setBounds(drawableChannels[j].channelInfo->getBounds());
+            drawableChannels[j].channel->setBounds(channelBoundsA);
+            drawableChannels[j].channelInfo->setBounds(channelInfoBoundsA);
+        }
+    }
+
+    // remove middle component if odd number of channels
+    if (drawableChannels.size() % 2 != 0)
+    {
+        removeChildComponent(drawableChannels[drawableChannels.size() / 2 + 1].channel);
+        removeChildComponent(drawableChannels[drawableChannels.size() / 2 + 1].channelInfo);
+    }
+
+    // add the channels and channel info again
+    for (int i = 0, len = drawableChannels.size(); i < len; i++)
+    {
+
+        if (!drawableChannels[i].channel->getHidden())
+        {
+            addAndMakeVisible(drawableChannels[i].channel);
+            addAndMakeVisible(drawableChannels[i].channelInfo);
+        }
+
+        // flag this to update the waveforms
+        drawableChannels[i].channel->fullredraw = true;
+    }
+
     // necessary to overwrite lfpChannelBitmap's display
     refresh();
 }

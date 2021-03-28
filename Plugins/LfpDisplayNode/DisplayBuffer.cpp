@@ -55,15 +55,17 @@ namespace LfpViewer {
 
     void DisplayBuffer::prepareToUpdate()
     {
-        previousSize = channelNames.size();
-        channelNames.clear();
+        previousSize = numChannels;
+        channelMetadata.clear();
         channelMap.clear();
         numChannels = 0;
     }
 
-    void DisplayBuffer::addChannel(String name, int channelNum)
+    void DisplayBuffer::addChannel(String name, int channelNum, int group, float ypos, String structure)
     {
-        channelNames.add(name);
+        ChannelMetadata metadata = ChannelMetadata({ name, group, ypos, structure });
+
+        channelMetadata.add(metadata);
         channelMap[channelNum] = numChannels;
         numChannels++;
     }
@@ -76,7 +78,7 @@ namespace LfpViewer {
         clear();
 
         displayBufferIndices.clear();
-        displayBufferIndices.insert(channelNames.size() + 1, 0);
+        displayBufferIndices.insert(channelMetadata.size() + 1, 0);
     }
 
     void DisplayBuffer::initializeEventChannel(int nSamples)

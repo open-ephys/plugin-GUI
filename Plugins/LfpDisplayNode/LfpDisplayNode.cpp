@@ -22,7 +22,7 @@
 */
 
 #include "LfpDisplayNode.h"
-#include "LfpDisplayCanvas.h"
+
 #include <stdio.h>
 
 using namespace LfpViewer;
@@ -80,7 +80,25 @@ void LfpDisplayNode::updateSettings()
             // also add channel positions
         }
 
-        displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch);
+        int depthId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
+        int groupId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
+
+        float channelDepth = 0;
+        float channelGroup = 0;
+   
+        if (depthId > -1)
+        {
+            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(depthId);
+            val->getValue(&channelDepth);
+        }
+
+        if (groupId > -1)
+        {
+            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(groupId);
+            val->getValue(&channelGroup);
+        }
+
+        displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch, channelGroup, channelDepth);
     }
     
     for (auto displayBuffer : displayBuffers)
@@ -89,8 +107,12 @@ void LfpDisplayNode::updateSettings()
     }
 
 
+    // TODO: add event channels separately, as they may have a different source
+}
 
-    // need to add event channels separately, as they may have a different source
+void LfpDisplayNode::setSplitDisplays(Array<LfpDisplaySplitter*> splits)
+{
+    splitDisplays = splits;
 }
 
 uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
@@ -109,11 +131,28 @@ String LfpDisplayNode::getSubprocessorName(int channel)
 	if (getTotalDataChannels() != 0)
 	{
         const DataChannel* ch = getDataChannel(channel);
-        uint16 sourceNodeId = ch->getSourceNodeID();
-		uint16 subProcessorIdx = ch->getSubProcessorIdx();
-        uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
 
-        String name = ch->getSourceName() + " " + String(sourceNodeId) + "/" + String(subProcessorIdx);
+        int subprocessorNameId = ch->findMetaData(MetaDataDescriptor::CHAR, 32, "subprocessor-name");
+
+        String name;
+
+        if (subprocessorNameId > -1)
+        {
+           
+            const MetaDataValue* val = ch->getMetaDataValue(subprocessorNameId);
+            String stringValue;
+            val->getValue(stringValue);
+
+            name = ch->getSourceName() + " " + stringValue;
+        }
+        else {
+
+            uint16 sourceNodeId = ch->getSourceNodeID();
+            uint16 subProcessorIdx = ch->getSubProcessorIdx();
+            uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
+
+            name = ch->getSourceName() + " " + String(sourceNodeId) + "/" + String(subProcessorIdx);
+        }
 
         return name;
     }
@@ -158,17 +197,6 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-    //editor->updateParameterButtons (parameterIndex);
-    //
-    //Sets Parameter in parameters array for processor
-    //parameters[parameterIndex]->setValue (newValue, currentChannel);
-
-    //std::cout << "Saving Parameter from " << currentChannel << ", channel ";
-
-    //LfpDisplayEditor* ed = (LfpDisplayEditor*) getEditor();
-    //if (ed->canvas != 0)
-    //    ed->canvas->setParameter (parameterIndex, newValue);
-
     triggerChannels.set(int(newValue), parameterIndex);
 }
 
@@ -248,8 +276,6 @@ void LfpDisplayNode::initializeEventChannels()
     {
         int numSamples = getNumSourceSamples(displayBuffer->id);
         displayBuffer->initializeEventChannel(numSamples);
-
-        
     }
 }
 
@@ -265,8 +291,8 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (int i = 0; i < 3; i++)
     {
-        //if (latestCurrentTrigger[i] > 0)
-        //    latestTrigger.set(i, latestCurrentTriggerTime + displayBuffer->displayBufferIndices.getLast());
+        if (latestCurrentTrigger[i] > 0)
+            latestTrigger.set(i, latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast());
     }
     
 }

@@ -91,6 +91,9 @@ public:
     
     /** Reorders the displayed channels, reversed if state == true and normal if false */
     void setChannelsReversed(bool state);
+
+    /** Reorders the displayed channels by depth if state == true and normal if false */
+    void orderChannelsByDepth(bool state);
     
     /** Returns a factor of 2 by which the displayed channels should skip */
     int getChannelDisplaySkipAmount();
@@ -213,6 +216,7 @@ private:
     int colorGrouping;
     
     bool channelsReversed;
+    bool channelsOrderedByDepth;
     bool m_MedianOffsetPlottingFlag;
     bool m_SpikeRasterPlottingFlag;
     float m_SpikeRasterThreshold;

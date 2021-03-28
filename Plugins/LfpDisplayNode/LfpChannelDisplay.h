@@ -56,6 +56,8 @@ public:
     bool getSelected();
 
     void setName(String);
+    void setGroup(int);
+    void setDepth(float);
 
     void setColour(Colour c);
 
@@ -124,6 +126,8 @@ protected:
     int drawableChan;
 
     String name;
+    int group;
+    float depth;
 
     Font channelFont;
 

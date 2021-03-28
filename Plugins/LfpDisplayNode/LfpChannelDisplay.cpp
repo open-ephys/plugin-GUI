@@ -127,8 +127,8 @@ void LfpChannelDisplay::pxPaint()
     //int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
     
     // max and min of channel, this is the range where actual data is drawn
-    int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvasSplit->channelOverlapFactor)+1  ;
-    int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvasSplit->channelOverlapFactor) -0;
+    int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvasSplit->channelOverlapFactor) + 1;
+    int jto_wholechannel_clip  = (int) (getY()+center+(channelHeight)*canvasSplit->channelOverlapFactor) - 0;
     
     if (jfrom_wholechannel<0) {jfrom_wholechannel=0;};
     if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
@@ -268,9 +268,10 @@ void LfpChannelDisplay::pxPaint()
             if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo=true;};
             
             bool spikeFlag = display->getSpikeRasterPlotting()
-                && !(saturateWarningHi || saturateWarningLo)
                 && (from_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold()
                         || to_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold());
+
+           // && !(saturateWarningHi || saturateWarningLo)
             
             from = from + getHeight()/2;       // so the plot is centered in the channeldisplay
             to = to + getHeight()/2;
@@ -508,6 +509,17 @@ void LfpChannelDisplay::setName(String name_)
 {
     name = name_;
 }
+
+void LfpChannelDisplay::setGroup(int group_)
+{
+    group = group_;
+}
+
+void LfpChannelDisplay::setDepth(float depth_)
+{
+    depth = depth_;
+}
+
 
 DataChannel::DataChannelTypes LfpChannelDisplay::getType()
 {

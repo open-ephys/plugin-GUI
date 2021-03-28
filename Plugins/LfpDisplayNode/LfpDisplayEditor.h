@@ -83,6 +83,8 @@ public:
 private:
         
     LfpDisplayNode* lfpProcessor;
+
+    ScopedPointer<UtilityButton> syncButton;
     
     bool hasNoInputs;
 

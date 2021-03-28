@@ -44,7 +44,7 @@ namespace LfpViewer {
         void prepareToUpdate();
         void update();
 
-        void addChannel(String name, int channelNum);
+        void addChannel(String name, int channelNum, int group = 0, float ypos = 0, String structure = "None");
 
         void initializeEventChannel(int nSamples);
         void finalizeEventChannel(int nSamples);
@@ -53,6 +53,15 @@ namespace LfpViewer {
         void addData(AudioSampleBuffer& buffer, int chan, int nSamples);
 
         CriticalSection* getMutex() { return &displayMutex; }
+
+        struct ChannelMetadata {
+            String name = "";
+            int group = 0;
+            float ypos = 0;
+            String structure = "None";
+        };
+
+        Array<ChannelMetadata> channelMetadata;
 
         String name;
         int id;
@@ -68,7 +77,7 @@ namespace LfpViewer {
 
         int previousSize;
 
-        Array<String> channelNames;
+        //Array<String> channelNames;
 
         float sampleRate;
 
