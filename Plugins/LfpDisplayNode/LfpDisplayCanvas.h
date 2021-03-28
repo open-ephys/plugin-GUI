@@ -80,7 +80,10 @@ public:
     void comboBoxChanged(ComboBox* cb);
 
     void setLayout(SplitLayouts);
+
     bool makeRoomForOptions(int splitID);
+
+    bool canSelect(int splitID);
 
     void toggleOptionsDrawer(bool);
 
@@ -224,6 +227,8 @@ public:
 
     void select();
     void deselect();
+
+    bool getSelectedState() { return isSelected; }
 
     void handleSpaceKeyPauseEvent();
 

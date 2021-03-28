@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
 #include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
+#include "ColourSchemes/ChannelColourScheme.h"
 
 #include <math.h>
 
@@ -180,7 +180,7 @@ void LfpChannelDisplay::pxPaint()
             
             if(m > 0 && m < display->lfpChannelBitmap.getHeight())
             {
-                if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) { // make sure we're not drawing over an existing plot from another channel
+                if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->getColourSchemePtr()->getBackgroundColour() ) { // make sure we're not drawing over an existing plot from another channel
                     bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
                 }
             }
@@ -195,7 +195,7 @@ void LfpChannelDisplay::pxPaint()
                 {
                     if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                     {
-                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->backgroundColour ) // make sure we're not drawing over an existing plot from another channel
+                        if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->getColourSchemePtr()->getBackgroundColour()) // make sure we're not drawing over an existing plot from another channel
                             bdLfpChannelBitmap.setPixelColour(i, m, Colour(80,80,80));
                     }
                 }
@@ -419,6 +419,9 @@ int LfpChannelDisplay::getRange()
 void LfpChannelDisplay::select()
 {
     isSelected = true;
+
+   // if (isSelected)
+    //    std::cout << "Selected channel " << chan << std::endl;
 }
 
 void LfpChannelDisplay::deselect()
@@ -517,6 +520,7 @@ void LfpChannelDisplay::setGroup(int group_)
 
 void LfpChannelDisplay::setDepth(float depth_)
 {
+    std::cout << "Channel " << name << ", depth = " << depth_ << std::endl;
     depth = depth_;
 }
 

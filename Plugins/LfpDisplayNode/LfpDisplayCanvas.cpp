@@ -106,6 +106,8 @@ void LfpDisplayCanvas::resized()
    //     split->setVisible(false);
    // }
 
+    int borderSize = 5;
+
     if(selectedLayout == SINGLE)
     {
         displaySplits[0]->setVisible(true);
@@ -125,14 +127,16 @@ void LfpDisplayCanvas::resized()
 
         displaySplits[0]->setBounds(0, 
             0, 
-            getWidth() * doubleVerticalSplitRatio - 5, 
+            getWidth() * doubleVerticalSplitRatio - borderSize,
             getHeight());
 
-        displaySplits[1]->setBounds(getWidth() * doubleVerticalSplitRatio + 5, 
+        displaySplits[1]->setBounds(getWidth() * doubleVerticalSplitRatio + borderSize,
             0, 
-            getWidth() * (1- doubleVerticalSplitRatio) - 5, 
+            getWidth() * (1- doubleVerticalSplitRatio) - borderSize,
             getHeight());
 
+        if (!displaySplits[1]->getSelectedState())
+            displaySplits[0]->select();
         
     }
     else if(selectedLayout == THREE_VERT)
@@ -143,20 +147,21 @@ void LfpDisplayCanvas::resized()
 
         displaySplits[0]->setBounds(0, 
             0, 
-            getWidth() * tripleVerticalSplitRatio[0] - 7, 
+            getWidth() * tripleVerticalSplitRatio[0] - borderSize,
             getHeight());
 
-        displaySplits[1]->setBounds(getWidth() * tripleVerticalSplitRatio[0] + 3, 
+        displaySplits[1]->setBounds(getWidth() * tripleVerticalSplitRatio[0] + borderSize,
             0, 
-            getWidth() * (tripleVerticalSplitRatio[1]-tripleVerticalSplitRatio[0]) - 7, 
+            getWidth() * (tripleVerticalSplitRatio[1]-tripleVerticalSplitRatio[0]) - borderSize,
             getHeight());
 
-        displaySplits[2]->setBounds(getWidth() * (tripleVerticalSplitRatio[1]) + 5, 
+        displaySplits[2]->setBounds(getWidth() * (tripleVerticalSplitRatio[1]) + borderSize,
             0, 
-            getWidth() * (1-tripleVerticalSplitRatio[1]) - 7, 
+            getWidth() * (1-tripleVerticalSplitRatio[1]) - borderSize,
             getHeight());
 
-        
+        if (!displaySplits[1]->getSelectedState() && !displaySplits[2]->getSelectedState())
+            displaySplits[0]->select();
 
     }
     else if(selectedLayout == TWO_HORZ)
@@ -169,14 +174,15 @@ void LfpDisplayCanvas::resized()
         displaySplits[0]->setBounds(0, 
             0, 
             getWidth(), 
-            getHeight() * doubleHorizontalSplitRatio - 5);
+            getHeight() * doubleHorizontalSplitRatio - borderSize);
 
         displaySplits[1]->setBounds(0, 
-            getHeight() * doubleHorizontalSplitRatio + 5, 
+            getHeight() * doubleHorizontalSplitRatio + borderSize,
             getWidth(), 
-            getHeight() * (1-doubleHorizontalSplitRatio) - 5);
+            getHeight() * (1-doubleHorizontalSplitRatio) - borderSize);
 
-        
+        if (!displaySplits[1]->getSelectedState())
+            displaySplits[0]->select();
     }
     else{
         
@@ -187,19 +193,20 @@ void LfpDisplayCanvas::resized()
         displaySplits[0]->setBounds(0, 
             0, 
             getWidth(), 
-            getHeight() * tripleHorizontalSplitRatio[0] - 7);
+            getHeight() * tripleHorizontalSplitRatio[0] - borderSize);
 
         displaySplits[1]->setBounds(0, 
-            getHeight() * tripleHorizontalSplitRatio[0] + 3, 
+            getHeight() * tripleHorizontalSplitRatio[0] + borderSize,
             getWidth(), 
-            getHeight() * (tripleHorizontalSplitRatio[1] - tripleHorizontalSplitRatio[0]) - 7);
+            getHeight() * (tripleHorizontalSplitRatio[1] - tripleHorizontalSplitRatio[0]) - borderSize);
 
         displaySplits[2]->setBounds(0, 
-            getHeight() * (tripleHorizontalSplitRatio[1]) + 5,
+            getHeight() * (tripleHorizontalSplitRatio[1]) + borderSize,
             getWidth(), 
-            getHeight() * (1-tripleHorizontalSplitRatio[1]) - 7);
+            getHeight() * (1-tripleHorizontalSplitRatio[1]) - borderSize);
 
-        
+        if (!displaySplits[1]->getSelectedState() && !displaySplits[2]->getSelectedState())
+            displaySplits[0]->select();
     }
 
     syncDisplays();
@@ -319,6 +326,16 @@ bool LfpDisplayCanvas::makeRoomForOptions(int splitID)
     return true;
 
 
+}
+
+bool LfpDisplayCanvas::canSelect(int splitID)
+{
+    if (selectedLayout != SINGLE)
+    {
+        return true;
+    }
+    
+    return false;
 }
 
 void LfpDisplayCanvas::mouseMove(const MouseEvent& e)
@@ -702,9 +719,9 @@ void LfpDisplaySplitter::resized()
     timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
 
     if (canvas->makeRoomForOptions(splitID))
-        viewport->setBounds(0, 30, getWidth(), getHeight()-95);
+        viewport->setBounds(0, 30, getWidth(), getHeight()-90);
     else
-        viewport->setBounds(0, 30, getWidth(), getHeight()-5);
+        viewport->setBounds(0, 30, getWidth(), getHeight());
 
     if (nChans > 0)
     {
@@ -761,9 +778,12 @@ void LfpDisplaySplitter::beginAnimation()
 
 void LfpDisplaySplitter::select()
 {
-    isSelected = true;
+    if (canvas->canSelect(splitID))
+    {
+        isSelected = true;
 
-    canvas->select(this);
+        canvas->select(this);
+    }
 
     repaint();
 }

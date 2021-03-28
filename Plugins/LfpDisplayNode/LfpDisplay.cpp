@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <math.h>
+#include <numeric>
 
 using namespace LfpViewer;
 
@@ -237,6 +238,8 @@ int LfpDisplay::getTotalHeight()
 void LfpDisplay::resized()
 {
     int totalHeight = 0;
+
+    //std::cout << "Resizing channels" << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -253,6 +256,8 @@ void LfpDisplay::resized()
         disp-> resized();
         
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
+
+       // std::cout << info->getDepth() << std::endl;
         
         info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
@@ -543,55 +548,73 @@ void LfpDisplay::orderChannelsByDepth(bool state)
 
     if (getSingleChannelState()) return; // don't reverse if single channel
 
-    // reverse channels that are currently in drawableChannels
-    for (int i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size() / 2;
-        i < len;
-        i++, j--)
+    const int numChannels = drawableChannels.size();
+
+    std::vector<float> depths(numChannels);
+
+    bool allSame = true;
+    float last = drawableChannels[0].channel->getDepth();
+
+    if (channelsOrderedByDepth)
     {
-        // remove channel and info components from front and back
-        // moving toward middle
-        removeChildComponent(drawableChannels[i].channel);
-        removeChildComponent(drawableChannels[j].channel);
-        removeChildComponent(drawableChannels[i].channelInfo);
-        removeChildComponent(drawableChannels[j].channelInfo);
 
-        // swap front and back, moving towards middle
-        drawableChannels.swap(i, j);
-
-        // also swap coords
+        for (int i = 0; i < drawableChannels.size(); i++)
         {
-            const auto channelBoundsA = drawableChannels[i].channel->getBounds();
-            const auto channelInfoBoundsA = drawableChannels[i].channelInfo->getBounds();
+            float d = drawableChannels[i].channelInfo->getDepth();
 
-            drawableChannels[i].channel->setBounds(drawableChannels[j].channel->getBounds());
-            drawableChannels[i].channelInfo->setBounds(drawableChannels[j].channelInfo->getBounds());
-            drawableChannels[j].channel->setBounds(channelBoundsA);
-            drawableChannels[j].channelInfo->setBounds(channelInfoBoundsA);
+            if (d != last)
+                allSame = false;
+
+           // std::cout << d << std::endl;
+
+            depths[i] = d;
+
+            last = d;
         }
+
+        if (allSame)
+            return;
+            
+    }
+    else {
+        for (int i = 0; i < drawableChannels.size(); i++)
+        {
+            int ch = drawableChannels[i].channel->getChan();
+            depths[i] = float(ch);
+
+           // std::cout << ch << std::endl;
+        }
+            
+    }
+    
+    std::vector<int> V(numChannels);
+
+    std::iota(V.begin(), V.end(), 0); //Initializing
+    sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
+
+    // reverse channels that are currently in drawableChannels
+   // std::cout << "New order: " << std::endl;
+
+    for (int i = 0; i < drawableChannels.size(); i++)
+    {
+        //std::cout << V[i] << std::endl;
+        // re-order by depth
+        removeChildComponent(drawableChannels[i].channel);
+        drawableChannels.move(V[i]-i, drawableChannels.size()); // not working
+        
     }
 
-    // remove middle component if odd number of channels
-    if (drawableChannels.size() % 2 != 0)
+    for (int i = 0; i < drawableChannels.size(); i++)
     {
-        removeChildComponent(drawableChannels[drawableChannels.size() / 2 + 1].channel);
-        removeChildComponent(drawableChannels[drawableChannels.size() / 2 + 1].channelInfo);
-    }
-
-    // add the channels and channel info again
-    for (int i = 0, len = drawableChannels.size(); i < len; i++)
-    {
-
         if (!drawableChannels[i].channel->getHidden())
         {
             addAndMakeVisible(drawableChannels[i].channel);
-            addAndMakeVisible(drawableChannels[i].channelInfo);
         }
-
-        // flag this to update the waveforms
         drawableChannels[i].channel->fullredraw = true;
     }
 
     // necessary to overwrite lfpChannelBitmap's display
+    resized();
     refresh();
 }
 
@@ -831,6 +854,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 channels[i],
                 channelInfo[i]
             });
+
+           // std::cout << channels[i]->getDepth() << std::endl;
             
             addAndMakeVisible(channels[i]);
             addAndMakeVisible(channelInfo[i]);
@@ -921,7 +946,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-//        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+       // std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {
@@ -929,6 +954,8 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
             closest = n;
         }
     }
+
+   // std::cout << "Closest channel" << closest << std::endl;
 
     drawableChannels[closest].channel->select();
     options->setSelectedType(drawableChannels[closest].channel->getType());

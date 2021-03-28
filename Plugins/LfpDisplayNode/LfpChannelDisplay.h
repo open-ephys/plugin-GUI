@@ -111,6 +111,10 @@ public:
 	DataChannel::DataChannelTypes getType();
     void updateType();
 
+    float getDepth() { return depth; }
+    int getGroup() { return group; }
+    int getChan() { return chan; }
+
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:

@@ -132,7 +132,7 @@ String LfpDisplayNode::getSubprocessorName(int channel)
 	{
         const DataChannel* ch = getDataChannel(channel);
 
-        int subprocessorNameId = ch->findMetaData(MetaDataDescriptor::CHAR, 32, "subprocessor-name");
+        int subprocessorNameId = ch->findMetaData(MetaDataDescriptor::CHAR, 64, "subprocessor-name");
 
         String name;
 
@@ -144,6 +144,8 @@ String LfpDisplayNode::getSubprocessorName(int channel)
             val->getValue(stringValue);
 
             name = ch->getSourceName() + " " + stringValue;
+
+            std::cout << "Sb name: " << name << std::endl;
         }
         else {
 
