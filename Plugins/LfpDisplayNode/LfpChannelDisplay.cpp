@@ -520,7 +520,7 @@ void LfpChannelDisplay::setGroup(int group_)
 
 void LfpChannelDisplay::setDepth(float depth_)
 {
-    std::cout << "Channel " << name << ", depth = " << depth_ << std::endl;
+    //std::cout << "Channel " << name << ", depth = " << depth_ << std::endl;
     depth = depth_;
 }
 
