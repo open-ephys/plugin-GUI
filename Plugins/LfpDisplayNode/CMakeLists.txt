@@ -10,6 +10,8 @@ add_sources(${PLUGIN_NAME}
 	LfpDisplayNode.h
 	LfpDisplayEditor.cpp
 	LfpDisplayEditor.h
+	DisplayBuffer.cpp
+	DisplayBuffer.h
 	EventDisplayInterface.cpp
 	EventDisplayInterface.h
 	LfpBitmapPlotter.h
@@ -42,6 +44,14 @@ add_sources(${PLUGIN_NAME}
 	ShowHideOptionsButton.h
 	SupersampledBitmapPlotter.cpp
 	SupersampledBitmapPlotter.h
+	ColourSchemes/ChannelColourScheme.cpp
+	ColourSchemes/ChannelColourScheme.h
+	ColourSchemes/DefaultColourScheme.cpp
+	ColourSchemes/DefaultColourScheme.h
+	ColourSchemes/MonochromaticDarkColourScheme.cpp
+	ColourSchemes/MonochromaticDarkColourScheme.h
+	ColourSchemes/MonochromaticLightColourScheme.cpp
+	ColourSchemes/MonochromaticLightColourScheme.h
 	)
 	
 #optional: create IDE groups
