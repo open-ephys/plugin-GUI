@@ -245,7 +245,13 @@ void FPGAchannelList::update()
     // add buttons for TTL channels
     for (int k=0; k<ttlNames.size(); k++)
     {
-        FPGAchannelComponent* comp = new FPGAchannelComponent(this,k, -1, ttlNames[k],gains,DataChannel::INVALID); //let's treat invalid as an event channel
+        FPGAchannelComponent* comp = new FPGAchannelComponent(this, 
+                                                               k, 
+                                                              -1,
+                                                               ttlNames[k], 
+                                                               gains,
+                                                               DataChannel::INVALID); //let's treat invalid as an event channel
+
         comp->setBounds(10+numActiveHeadstages*columnWidth,70+k*22,columnWidth,22);
         comp->setUserDefinedData(k);
         addAndMakeVisible(comp);
@@ -295,10 +301,15 @@ void FPGAchannelList::setNewGain(int channel, float gain)
         proc->requestChainUpdate();
 }
 
-void FPGAchannelList::setNewName(int channel, String newName)
+void FPGAchannelList::setNewName(int channel, String newName, DataChannel::DataChannelTypes type)
 {
     RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
-    thread->modifyChannelName(channel, newName);
+
+    if (!(type == DataChannel::DataChannelTypes::INVALID))
+        thread->modifyChannelName(channel, newName);
+    else
+        thread->modifyEventChannelName(channel, newName);
+    
     if (chainUpdate)
         proc->requestChainUpdate();
 }
@@ -358,7 +369,11 @@ type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gai
     staticLabel->setEditable(false);
     addAndMakeVisible(staticLabel);
 
-    editName = new Label(name,name);
+    if (!(type == DataChannel::DataChannelTypes::INVALID))
+        editName = new Label("CONTINUOUS" + String(ch), name);
+    else
+        editName = new Label("EVENT" + String(ch), name);
+
     editName->setFont(f);
     editName->setEditable(true);
     editName->setColour(Label::backgroundColourId,juce::Colours::lightgrey);
@@ -425,7 +440,9 @@ void FPGAchannelComponent::labelTextChanged(Label* lbl)
 {
     // channel name change
     String newName = lbl->getText();
-    channelList->setNewName(channel, newName);
+
+    channelList->setNewName(channel, newName, type);
+
 }
 
 void FPGAchannelComponent::disableEdit()
@@ -947,6 +964,16 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
         adc->setAttribute("Channel", i);
         adc->setAttribute("Range", board->getAdcRange(i));
     }
+
+    StringArray eventChannelNames;
+    board->getEventChannelNames(eventChannelNames);
+
+    for (int i = 0; i < eventChannelNames.size(); i++)
+    {
+        XmlElement* adc = xml->createNewChildElement("EVENT_CHANNEL");
+        adc->setAttribute("Channel", i);
+        adc->setAttribute("Name", eventChannelNames[i]);
+    }
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -971,12 +998,21 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
     ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
     clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio"));
+    
     forEachXmlChildElementWithTagName(*xml, adc, "ADCRANGE")
     {
         int channel = adc->getIntAttribute("Channel", -1);
         int range = adc->getIntAttribute("Range", -1);
         if (channel >= 0 && range >= 0)
             board->setAdcRange(channel, range);
+    }
+
+    forEachXmlChildElementWithTagName(*xml, evnt, "EVENT_CHANNEL")
+    {
+        int channel = evnt->getIntAttribute("Channel", -1);
+        String name = evnt->getStringAttribute("Name", "NONE");
+        
+        board->modifyEventChannelName(channel, name);
     }
 }
 

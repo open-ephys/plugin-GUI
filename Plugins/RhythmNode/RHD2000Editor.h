@@ -57,7 +57,7 @@ namespace RhythmNode
 
 		FPGAchannelList(GenericProcessor* proc, Viewport* p, FPGAcanvas* c);
 		~FPGAchannelList();
-		void setNewName(int channelIndex, String newName);
+		void setNewName(int channelIndex, String newName, DataChannel::DataChannelTypes type);
 		void setNewGain(int channel, float gain);
 		void disableAll();
 		void enableAll();
