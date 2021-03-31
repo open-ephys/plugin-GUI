@@ -4,7 +4,7 @@
 
 namespace LfpViewer {
     constexpr int MAX_N_CHAN = 16;
-    constexpr int MAX_N_SAMP = 5000;
+    constexpr int MAX_N_SAMP = 5000; // used for screen buffer; this could be resized dynamically depending on the display width
     constexpr int MAX_N_SAMP_PER_PIXEL = 100;
     constexpr int CHANNEL_TYPES = 3;
     enum SplitLayouts {SINGLE = 1, TWO_VERT, THREE_VERT, TWO_HORZ, THREE_HORZ};
