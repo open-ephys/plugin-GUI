@@ -237,6 +237,8 @@ public:
 
 	DataChannel::DataChannelTypes selectedChannelType;
 
+    ScopedPointer<ComboBox> subprocessorSelection;
+
     ScopedPointer<LfpViewport> viewport;
     ScopedPointer<LfpTimescale> timescale;
     ScopedPointer<LfpDisplay> lfpDisplay;
@@ -278,8 +280,6 @@ private:
     ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
 
     MidiBuffer* eventBuffer;
-
-    ScopedPointer<ComboBox> subprocessorSelection;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();

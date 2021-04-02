@@ -149,8 +149,6 @@ void LfpDisplayEditor::stopAcquisition()
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-    selectedLayout = SplitLayouts::SINGLE;
-
     canvas = new LfpDisplayCanvas(lfpProcessor, selectedLayout);
     return canvas;
 }
@@ -218,26 +216,34 @@ void LfpDisplayEditor::resized()
 void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
 {
 
-	// xml->setAttribute("Type", "LfpDisplayEditor");
+	xml->setAttribute("Type", "LfpDisplayEditor");
 
-	// int subprocessorItemId = subprocessorSelection->getSelectedId();
-
-	// XmlElement* values = xml->createNewChildElement("VALUES");
-	// values->setAttribute("SubprocessorId", subprocessorItemId - 1);
+	XmlElement* values = xml->createNewChildElement("VALUES");
+	values->setAttribute("SelectedLayout", static_cast<int>(selectedLayout));
 }
 
 void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 {
 
-	// forEachXmlChildElement(*xml, xmlNode)
-	// {
-	// 	if (xmlNode->hasTagName("VALUES"))
-	// 	{
-	// 		std::cout << "LfpDisplay found " << xmlNode->getIntAttribute("SubprocessorId") << std::endl;
-	// 		defaultSubprocessor = xmlNode->getIntAttribute("SubprocessorId");
-	// 		subprocessorSelection->setSelectedItemIndex(defaultSubprocessor, sendNotification);
+	forEachXmlChildElement(*xml, xmlNode)
+	{
+		if (xmlNode->hasTagName("VALUES"))
+		{
+			std::cout << "Loading saved layout: " << xmlNode->getIntAttribute("SelectedLayout") << std::endl;
+			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
+            static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
-	// 	}
-	// }
+            if (selectedLayout == SplitLayouts::SINGLE)
+                singleDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::TWO_VERT)
+                twoVertDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::THREE_VERT)
+                threeVertDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::TWO_HORZ)
+                twoHoriDisplay->setToggleState(true, dontSendNotification);
+            else
+                threeHoriDisplay->setToggleState(true, dontSendNotification);
+		}
+	}
 
 }

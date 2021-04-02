@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpDisplayOptions.h"
 #include "LfpTimescale.h"
 #include "LfpDisplay.h"
-#include "LfpChannelDisplayInfo.h";
+#include "LfpChannelDisplayInfo.h"
 #include "LfpViewport.h"
 #include "ColourSchemes/ChannelColourScheme.h"
 
@@ -643,15 +643,52 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
 
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
+    for (int i = 0; i < 3; i++)
+    {
+        displaySplits[i]->options->saveParameters(xml);
+    }
 
-    //options->saveParameters(xml);
+    XmlElement* xmlNode = xml->createNewChildElement("CANVAS");
+    xmlNode->setAttribute("doubleVerticalSplitRatio", doubleVerticalSplitRatio);
+    xmlNode->setAttribute("doubleHorizontalSplitRatio", doubleHorizontalSplitRatio);
+    xmlNode->setAttribute("tripleHorizontalSplitRatio", String(tripleHorizontalSplitRatio[0]) 
+                                                      + "," + String(tripleHorizontalSplitRatio[1]));
+    xmlNode->setAttribute("tripleVerticalSplitRatio", String(tripleVerticalSplitRatio[0]) 
+                                                      + "," + String(tripleVerticalSplitRatio[1]));
+
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->saveVisualizerParameters(xml);
 }
 
 void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 {
-    //options->loadParameters(xml);
+    for (int i = 0; i < 3; i++)
+    {
+        displaySplits[i]->options->loadParameters(xml);
+    }
+
+    forEachXmlChildElement(*xml, xmlNode)
+	{
+		if (xmlNode->hasTagName("CANVAS"))
+		{
+			doubleHorizontalSplitRatio = xmlNode->getStringAttribute("doubleHorizontalSplitRatio").getFloatValue();
+            doubleVerticalSplitRatio = xmlNode->getStringAttribute("doubleVerticalSplitRatio").getFloatValue ();
+
+            juce::StringArray values;
+
+            values.addTokens(xmlNode->getStringAttribute("tripleHorizontalSplitRatio"), ",", String::empty);
+            tripleHorizontalSplitRatio.set(0, values[0].getFloatValue());
+            tripleHorizontalSplitRatio.set(1, values[1].getFloatValue());
+            values.clear();
+
+            values.addTokens(xmlNode->getStringAttribute("tripleVerticalSplitRatio"), ",", String::empty);
+            tripleVerticalSplitRatio.set(0, values[0].getFloatValue());
+            tripleVerticalSplitRatio.set(1, values[1].getFloatValue());
+
+            resized();
+		}
+	}
+
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->loadVisualizerParameters(xml);
 }
