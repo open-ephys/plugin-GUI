@@ -16,24 +16,16 @@ add_sources(${PLUGIN_NAME}
 	EventDisplayInterface.h
 	LfpBitmapPlotter.h
 	LfpBitmapPlotterInfo.h
-	LfpChannelColourScheme.cpp
-	LfpChannelColourScheme.h
 	LfpChannelDisplay.cpp
 	LfpChannelDisplay.h
 	LfpChannelDisplayInfo.cpp
 	LfpChannelDisplayInfo.h
-	LfpDefaultColourScheme.cpp
-	LfpDefaultColourScheme.h
 	LfpDisplay.cpp
 	LfpDisplay.h
 	LfpDisplayCanvas.cpp
 	LfpDisplayCanvas.h
 	LfpDisplayOptions.cpp
 	LfpDisplayOptions.h
-	LfpGradientColourScheme.cpp
-	LfpGradientColourScheme.h
-	LfpMonochromaticColourScheme.cpp
-	LfpMonochromaticColourScheme.h
 	LfpTimescale.cpp
 	LfpTimescale.h
 	LfpViewport.cpp
@@ -48,11 +40,19 @@ add_sources(${PLUGIN_NAME}
 	ColourSchemes/ChannelColourScheme.h
 	ColourSchemes/DefaultColourScheme.cpp
 	ColourSchemes/DefaultColourScheme.h
-	ColourSchemes/MonochromaticDarkColourScheme.cpp
-	ColourSchemes/MonochromaticDarkColourScheme.h
-	ColourSchemes/MonochromaticLightColourScheme.cpp
-	ColourSchemes/MonochromaticLightColourScheme.h
+	ColourSchemes/MonochromeGrayColourScheme.cpp
+	ColourSchemes/MonochromeGrayColourScheme.h
+	ColourSchemes/MonochromeYellowColourScheme.cpp
+	ColourSchemes/MonochromeYellowColourScheme.h
+	ColourSchemes/MonochromeGreenColourScheme.cpp
+	ColourSchemes/MonochromeGreenColourScheme.h
+	ColourSchemes/MonochromePurpleColourScheme.cpp
+	ColourSchemes/MonochromePurpleColourScheme.h
+	ColourSchemes/OELogoColourScheme.cpp
+	ColourSchemes/OELogoColourScheme.h
+	ColourSchemes/TropicalColourScheme.cpp
+	ColourSchemes/TropicalColourScheme.h
 	)
 	
 #optional: create IDE groups
-#plugin_create_filters()
+plugin_create_filters()

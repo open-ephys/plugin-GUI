@@ -554,10 +554,10 @@ void LfpDisplayOptions::resized()
     
     colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 40,
         getHeight() - 30,
-        100,
+        180,
         height);
 
-    colorGroupingSelection->setBounds(colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 100, height);
+    colorGroupingSelection->setBounds(colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
 
     int startHeight = 167;
     int verticalSpacing = 29;

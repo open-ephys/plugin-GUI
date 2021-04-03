@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __DEFAULTCOLOURSCHEME_H__
-#define __DEFAULTCOLOURSCHEME_H__
+#ifndef __TROPICALCOLOURSCHEME_H__
+#define __TROPICALCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
@@ -33,23 +33,22 @@
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
-#pragma  mark - DefaultColourScheme -
-class DefaultColourScheme : public ChannelColourScheme
-{
-public:
-    DefaultColourScheme(LfpDisplay*, LfpDisplaySplitter*);
-    virtual ~DefaultColourScheme() {}
-    
-    void paint(Graphics &g) override;
-    void resized() override;
-    
-    virtual const Colour getColourForIndex(int index) const override;
-    virtual const Colour getBackgroundColour() const override;
+#pragma  mark - TropicalColourScheme -
+    class TropicalColourScheme : public ChannelColourScheme
+    {
+    public:
+        TropicalColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~TropicalColourScheme() {}
 
-private:
-    static Array<Colour> colourList;
+        void paint(Graphics& g) override;
+        void resized() override;
 
-};
+        virtual const Colour getColourForIndex(int index) const override;
+        virtual const Colour getBackgroundColour() const override;
+
+    private:
+        static Array<Colour> colourList;
+    };
     
 }; // namespace
 #endif

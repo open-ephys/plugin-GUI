@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __MONOCHROMATICDARKCOLOURSCHEME_H__
-#define __MONOCHROMATICDARKCOLOURSCHEME_H__
+#ifndef __OELOGOCOLOURSCHEME_H__
+#define __OELOGCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
@@ -33,12 +33,12 @@
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
-#pragma  mark - MonochromaticDarkColourScheme -
-    class MonochromaticDarkColourScheme : public ChannelColourScheme
+#pragma  mark - OELogoColourScheme -
+    class OELogoColourScheme : public ChannelColourScheme
     {
     public:
-        MonochromaticDarkColourScheme(LfpDisplay*, LfpDisplaySplitter*);
-        virtual ~MonochromaticDarkColourScheme() {}
+        OELogoColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~OELogoColourScheme() {}
 
         void paint(Graphics& g) override;
         void resized() override;
@@ -46,6 +46,8 @@ namespace LfpViewer {
         virtual const Colour getColourForIndex(int index) const override;
         virtual const Colour getBackgroundColour() const override;
 
+    private:
+        static Array<Colour> colourList;
     };
     
 }; // namespace

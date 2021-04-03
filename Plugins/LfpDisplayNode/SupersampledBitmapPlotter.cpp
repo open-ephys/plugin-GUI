@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotterInfo.h"
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
 
 #include <math.h>
 

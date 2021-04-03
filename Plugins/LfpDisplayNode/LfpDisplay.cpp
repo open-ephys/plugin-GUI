@@ -37,8 +37,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SupersampledBitmapPlotter.h"
 
 #include "ColourSchemes/DefaultColourScheme.h"
-#include "ColourSchemes/MonochromaticLightColourScheme.h"
-#include "ColourSchemes/MonochromaticDarkColourScheme.h"
+#include "ColourSchemes/MonochromeGrayColourScheme.h"
+#include "ColourSchemes/MonochromeYellowColourScheme.h"
+#include "ColourSchemes/MonochromePurpleColourScheme.h"
+#include "ColourSchemes/MonochromeGreenColourScheme.h"
+#include "ColourSchemes/OELogoColourScheme.h"
+#include "ColourSchemes/TropicalColourScheme.h"
 
 
 #include <math.h>
@@ -62,8 +66,12 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     supersampledPlotter = new SupersampledBitmapPlotter(this);
     
     colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
-    //colourSchemeList.add(new MonochromaticLightColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromaticDarkColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromeGrayColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromeYellowColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromePurpleColourScheme(this, canvasSplit));
+    colourSchemeList.add(new MonochromeGreenColourScheme(this, canvasSplit));
+    colourSchemeList.add(new OELogoColourScheme(this, canvasSplit));
+    colourSchemeList.add(new TropicalColourScheme(this, canvasSplit));
     
     plotter = perPixelPlotter;
     m_MedianOffsetPlottingFlag = false;

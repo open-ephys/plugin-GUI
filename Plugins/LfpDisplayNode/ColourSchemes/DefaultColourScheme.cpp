@@ -55,7 +55,7 @@ Array<Colour> DefaultColourScheme::colourList = []() -> Array<Colour> {
 DefaultColourScheme::DefaultColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
 	: LfpViewer::ChannelColourScheme(DefaultColourScheme::colourList.size(), display, canvas)
 {
-    setName("Default");
+    setName("Classic");
 }
 
 void DefaultColourScheme::paint(Graphics &g)
@@ -75,7 +75,6 @@ const Colour DefaultColourScheme::getBackgroundColour() const
 
 const Colour DefaultColourScheme::getColourForIndex(int index) const
 {
-//    return colourList[index % colourList.size()];
     return colourList[(int(index/colourGrouping)) % colourList.size()];
 }
 

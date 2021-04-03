@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __MONOCHROMATICLIGHTCOLOURSCHEME_H__
-#define __MONOCHROMATICLIGHTCOLOURSCHEME_H__
+#ifndef __MONOCHROMEGREENCOLOURSCHEME_H__
+#define __MONOCHROMEGREENCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
@@ -33,12 +33,12 @@
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
-#pragma  mark - MonochromaticLightColourScheme -
-    class MonochromaticLightColourScheme : public ChannelColourScheme
+#pragma  mark - MonochromeGreenColourScheme -
+    class MonochromeGreenColourScheme : public ChannelColourScheme
     {
     public:
-        MonochromaticLightColourScheme(LfpDisplay*, LfpDisplaySplitter*);
-        virtual ~MonochromaticLightColourScheme() {}
+        MonochromeGreenColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~MonochromeGreenColourScheme() {}
 
         void paint(Graphics& g) override;
         void resized() override;
@@ -46,7 +46,9 @@ namespace LfpViewer {
         virtual const Colour getColourForIndex(int index) const override;
         virtual const Colour getBackgroundColour() const override;
 
+    private:
+        static Array<Colour> colourList;
     };
-
+    
 }; // namespace
 #endif
