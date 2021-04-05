@@ -1509,7 +1509,11 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
         if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))
         {
-            canvasSplit->displayBuffer = processor->displayBufferMap[(xmlNode->getIntAttribute("SubprocessorID"))];
+            uint32 id = xmlNode->getIntAttribute("SubprocessorID");
+            if(processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
+                canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
+            else
+                canvasSplit->displayBuffer = processor->displayBufferMap[id];
             
             StringArray ranges;
             ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String::empty);
@@ -1543,7 +1547,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
             canvasSplit->viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
-                                      xmlNode->getIntAttribute("ScrollY"));
+                                                   xmlNode->getIntAttribute("ScrollY"));
 
             int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
 

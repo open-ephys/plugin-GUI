@@ -236,7 +236,7 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             {
                 if (triggerChannels[i] == eventChannel)
                 {
-                    latestTrigger.set(i, eventTime);
+                    latestCurrentTrigger.set(i, eventTime);
                 }
             }
         }
@@ -293,7 +293,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (int i = 0; i < 3; i++)
     {
-        if (latestCurrentTrigger[i] > 0)
+        if (latestCurrentTrigger[i] >= 0)
             latestTrigger.set(i, latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast());
     }
     
