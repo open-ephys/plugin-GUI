@@ -1000,7 +1000,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                           ? processor->getLatestTriggerTime(splitID)
                           : -1;
 
-        processor->acknowledgeTrigger(splitID);
+        if (triggerTime > 0)
+            processor->acknowledgeTrigger(splitID);
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
@@ -1074,15 +1075,15 @@ void LfpDisplaySplitter::updateScreenBuffer()
             }
             float subSampleOffset = 0.0;
 
-            //         if (channel == 0)
-            //             std::cout << "Channel " 
-            //                       << channel << " : " 
-            //                       << sbi << " : " 
-            //                       << index << " : " 
-            //                       << dbi << " : " 
-            //                       << valuesNeeded << " : " 
-            //                       << ratio 
-            //                       << std::endl;
+                     if (channel == 0 || channel == 1)
+                         std::cout << "Channel " 
+                                   << channel << " : " 
+                                   << sbi << " : " 
+                                   << index << " : " 
+                                   << dbi << " : " 
+                                   << valuesNeeded << " : " 
+                                   << ratio 
+                                   << std::endl;
 
             if (valuesNeeded > 0 && valuesNeeded < 1000000)
             {

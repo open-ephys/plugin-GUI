@@ -199,6 +199,7 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
+    std::cout << "Setting trigger channel for display index " << int(newValue) << " to " << parameterIndex << std::endl;
     triggerChannels.set(int(newValue), parameterIndex);
 }
 
@@ -236,6 +237,7 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             {
                 if (triggerChannels[i] == eventChannel)
                 {
+                    std::cout << "Setting latest trigger to " << eventTime << std::endl;
                     latestTrigger.set(i, eventTime);
                 }
             }
@@ -272,7 +274,7 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
 
 void LfpDisplayNode::initializeEventChannels()
 {
-    latestCurrentTrigger.insertMultiple(0, -1, 3);
+    latestTrigger.insertMultiple(0, -1, 3);
 
     for (auto displayBuffer : displayBuffers)
     {
@@ -287,14 +289,16 @@ void LfpDisplayNode::finalizeEventChannels()
     {
         int numSamples = getNumSourceSamples(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
-
-
     }
 
     for (int i = 0; i < 3; i++)
     {
-        if (latestCurrentTrigger[i] > 0)
-            latestTrigger.set(i, latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast());
+        if (latestTrigger[i] > -1 && latestCurrentTrigger[i] == -1)
+        {
+            int triggerSample = latestTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
+            std::cout << "Setting latest current trigger to " << triggerSample << std::endl;
+            latestCurrentTrigger.set(i, triggerSample);
+        }
     }
     
 }
@@ -330,10 +334,11 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 
 int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 {
-  return latestTrigger[id];
+  return latestCurrentTrigger[id];
 }
 
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
-  latestTrigger.set(id, -1);
+  latestCurrentTrigger.set(id, -1);
+  std::cout << "Display " << id << " acknowledging trigger." << std::endl;
 }
