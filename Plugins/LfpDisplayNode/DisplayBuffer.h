@@ -49,6 +49,8 @@ namespace LfpViewer {
         void initializeEventChannel(int nSamples);
         void finalizeEventChannel(int nSamples);
 
+        void resetIndices();
+
         void addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples);
         void addData(AudioSampleBuffer& buffer, int chan, int nSamples);
 

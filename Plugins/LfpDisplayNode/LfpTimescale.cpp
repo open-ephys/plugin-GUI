@@ -34,7 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
 #include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
 
 #include <math.h>
 
@@ -138,6 +137,9 @@ void LfpTimescale::mouseUp(const MouseEvent &e)
     {
         lfpDisplay->trackZoomInfo.isScrollingX = false;
     }
+
+    canvasSplit->select();
+    
 }
 
 void LfpTimescale::resized()

@@ -68,6 +68,8 @@ namespace LfpViewer {
         channelMetadata.add(metadata);
         channelMap[channelNum] = numChannels;
         numChannels++;
+
+       // std::cout << "Adding channel " << name << " with index " << numChannels << "; ";
     }
 
     void DisplayBuffer::update()
@@ -78,19 +80,26 @@ namespace LfpViewer {
         clear();
 
         displayBufferIndices.clear();
-        displayBufferIndices.insert(channelMetadata.size() + 1, 0);
+
+        for (int i = 0; i <= numChannels; i++)
+            displayBufferIndices.set(i, 0);
+    }
+
+    void DisplayBuffer::resetIndices()
+    {
+        for (int i = 0; i <= numChannels; i++)
+            displayBufferIndices.set(i, 0);
     }
 
     void DisplayBuffer::initializeEventChannel(int nSamples)
     {
-        const int chan = numChannels;
-        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[chan];
+        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[numChannels];
 
         if (nSamples < samplesLeft)
         {
 
-            copyFrom(chan,                                      // destChannel
-                displayBufferIndices[chan],             // destStartSample
+            copyFrom(numChannels,                                      // destChannel
+                displayBufferIndices[numChannels],             // destStartSample
                 arrayOfOnes,                               // source
                 nSamples,                                  // numSamples
                 float(ttlState));     // gain
@@ -99,13 +108,13 @@ namespace LfpViewer {
         {
             int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(chan,                               // destChannel
-                displayBufferIndices[chan],             // destStartSample
+            copyFrom(numChannels,                               // destChannel
+                displayBufferIndices[numChannels],             // destStartSample
                 arrayOfOnes,                               // source
                 samplesLeft,                               // numSamples
                 float(ttlState));                        // gain
 
-            copyFrom(chan,                                      // destChannel
+            copyFrom(numChannels,                                      // destChannel
                 0,                                         // destStartSample
                 arrayOfOnes,                               // source
                 extraSamples,                              // numSamples
@@ -115,28 +124,26 @@ namespace LfpViewer {
 
     void DisplayBuffer::finalizeEventChannel(int nSamples)
     {
-        const int chan = numChannels;
-        const int index = displayBufferIndices[chan];
+        const int index = displayBufferIndices[numChannels];
         const int samplesLeft = BUFFER_LENGTH - index;
    
         int newIdx = 0;
 
         if (nSamples < samplesLeft)
         {
-            newIdx = displayBufferIndices[chan] + nSamples;
+            newIdx = displayBufferIndices[numChannels] + nSamples;
         }
         else
         {
             newIdx = nSamples - samplesLeft;
         }
-
-        displayBufferIndices.set(chan, newIdx);
+        
+        displayBufferIndices.set(numChannels, newIdx);
     }
 
     void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
     {
-        const int chan = numChannels;
-        const int index = (displayBufferIndices[chan] + eventTime) % BUFFER_LENGTH;
+        const int index = (displayBufferIndices[numChannels] + eventTime) % BUFFER_LENGTH;
         const int samplesLeft = BUFFER_LENGTH - index;
         const int nSamples = numSourceSamples - eventTime;
 
@@ -150,7 +157,7 @@ namespace LfpViewer {
 
         if (nSamples < samplesLeft)
         {
-            copyFrom(chan,                            // destChannel
+            copyFrom(numChannels,                            // destChannel
                 index,                                // destStartSample
                 arrayOfOnes,                          // source
                 nSamples,                             // numSamples
@@ -160,13 +167,13 @@ namespace LfpViewer {
         {
             int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(chan,                                 // destChannel
+            copyFrom(numChannels,                                 // destChannel
                 index,                                // destStartSample
                 arrayOfOnes,                          // source
                 samplesLeft,                          // numSamples
                 float(ttlState));  // gain
 
-            copyFrom(chan,                                 // destChannel
+            copyFrom(numChannels,                                 // destChannel
                 0,                                    // destStartSample
                 arrayOfOnes,                          // source
                 extraSamples,                         // numSamples
@@ -177,6 +184,9 @@ namespace LfpViewer {
     void DisplayBuffer::addData(AudioSampleBuffer& buffer, int chan, int nSamples)
     {
         ScopedLock displayLock(displayMutex);
+
+        int previousIndex = displayBufferIndices[channelMap[chan]];
+        int channelIndex = channelMap[chan];
 
         const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[channelMap[chan]];
         
@@ -189,7 +199,8 @@ namespace LfpViewer {
                 0,                         // source start sample
                 nSamples);                 // numSamples
 
-            displayBufferIndices.set(channelMap[chan], displayBufferIndices[channelMap[chan]] + nSamples);
+            int lastIndex = displayBufferIndices[channelMap[chan]];
+            displayBufferIndices.set(channelMap[chan],  lastIndex + nSamples);
         }
         else
         {
@@ -211,6 +222,9 @@ namespace LfpViewer {
 
             displayBufferIndices.set(channelMap[chan], extraSamples);
         }
+
+        int newIndex = displayBufferIndices[channelMap[chan]];
+
     }
 
 };

@@ -199,7 +199,7 @@ bool LfpDisplayNode::disable()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-    std::cout << "Setting trigger channel for display index " << int(newValue) << " to " << parameterIndex << std::endl;
+    //std::cout << "Setting trigger channel for display index " << int(newValue) << " to " << parameterIndex << std::endl;
     triggerChannels.set(int(newValue), parameterIndex);
 }
 
@@ -237,8 +237,10 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             {
                 if (triggerChannels[i] == eventChannel)
                 {
-                    std::cout << "Setting latest trigger to " << eventTime << std::endl;
-                    latestTrigger.set(i, eventTime);
+                    // if an event came in on the trigger channel
+                    //std::cout << "Setting latest current trigger to " << eventTime << std::endl;
+                    latestCurrentTrigger.set(i, eventTime);
+
                 }
             }
         }
@@ -274,7 +276,7 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
 
 void LfpDisplayNode::initializeEventChannels()
 {
-    latestTrigger.insertMultiple(0, -1, 3);
+    latestCurrentTrigger.insertMultiple(0, -1, 3); // reset to -1
 
     for (auto displayBuffer : displayBuffers)
     {
@@ -285,22 +287,22 @@ void LfpDisplayNode::initializeEventChannels()
 
 void LfpDisplayNode::finalizeEventChannels()
 {
+    for (int i = 0; i < 3; i++)
+    {
+        if (latestTrigger[i] == -1 && latestCurrentTrigger[i] > -1) // received a trigger, but not yet acknowledged
+        {
+            int triggerSample = latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
+            //std::cout << "Setting latest trigger to " << triggerSample << std::endl;
+            latestTrigger.set(i, triggerSample);
+        }
+    }
+
     for (auto displayBuffer : displayBuffers)
     {
         int numSamples = getNumSourceSamples(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
     }
 
-    for (int i = 0; i < 3; i++)
-    {
-        if (latestTrigger[i] > -1 && latestCurrentTrigger[i] == -1)
-        {
-            int triggerSample = latestTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
-            std::cout << "Setting latest current trigger to " << triggerSample << std::endl;
-            latestCurrentTrigger.set(i, triggerSample);
-        }
-    }
-    
 }
 
 void LfpDisplayNode::process (AudioSampleBuffer& buffer)
@@ -313,7 +315,6 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
     for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
     {
         uint32 subProcId = getChannelSourceId(getDataChannel(chan));
-        //currSubproc = inputSubprocessors.indexOf(subProcId);
 
         const int nSamples = getNumSamples(chan);
 
@@ -334,11 +335,11 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 
 int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 {
-  return latestCurrentTrigger[id];
+  return latestTrigger[id];
 }
 
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
-  latestCurrentTrigger.set(id, -1);
-  std::cout << "Display " << id << " acknowledging trigger." << std::endl;
+  latestTrigger.set(id, -1);
+  //std::cout << "Display " << id << " acknowledging trigger." << std::endl;
 }

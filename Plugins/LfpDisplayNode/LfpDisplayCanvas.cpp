@@ -804,9 +804,11 @@ void LfpDisplaySplitter::beginAnimation()
     if (true)
     {
 
+        displayBuffer->resetIndices();
+
         displayBufferSize = displayBuffer->getNumSamples();
 
-        numTrials = 0;
+        numTrials = -1;
 
         //refreshSplitterState();
 
@@ -943,7 +945,7 @@ void LfpDisplaySplitter::setAveraging(bool avg)
 
 void LfpDisplaySplitter::resetTrials()
 {
-    numTrials = 0;
+    numTrials = -1;
 }
 
 void LfpDisplaySplitter::refreshSplitterState()
@@ -953,10 +955,10 @@ void LfpDisplaySplitter::refreshSplitterState()
     if (true)
     {
 
-        for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
-        {
-            displayBufferIndex.set(i, displayBuffer->displayBufferIndices[i]);
-        }
+        //for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
+        //{
+        //    displayBufferIndex.set(i, displayBuffer->displayBufferIndices[i]);
+       // }
 
         syncDisplay();
     }
@@ -1002,6 +1004,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
         if (triggerTime > 0)
             processor->acknowledgeTrigger(splitID);
+            
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
@@ -1018,6 +1021,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     // we may need to wait for a trigger
                     if (triggerTime >= 0)
                     {
+                        
+
                         const int screenThird = int(maxSamples * ratio / 4);
                         const int dispBufLim = displayBufferSize / 2;
 
@@ -1075,15 +1080,18 @@ void LfpDisplaySplitter::updateScreenBuffer()
             }
             float subSampleOffset = 0.0;
 
-                     if (channel == 0 || channel == 1)
-                         std::cout << "Channel " 
-                                   << channel << " : " 
-                                   << sbi << " : " 
-                                   << index << " : " 
-                                   << dbi << " : " 
-                                   << valuesNeeded << " : " 
-                                   << ratio 
-                                   << std::endl;
+           /* if (channel == 0 || channel == 1 || channel == 2)
+                std::cout << "Channel "
+                << channel << " : "
+                << sbi << " : "
+                << index << " : "
+                << dbi << " : "
+                << valuesNeeded << " : "
+                << ratio
+                << std::endl;*/
+
+            //if (channel == 2)
+            //    std::cout << std::endl;
 
             if (valuesNeeded > 0 && valuesNeeded < 1000000)
             {
