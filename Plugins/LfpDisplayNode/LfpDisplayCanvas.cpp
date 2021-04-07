@@ -1104,7 +1104,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         float gain = 1.0;
 
                         
-                        if (triggerChannel < 0 || numTrials == 0 || trialAveraging == false)
+                        if (triggerChannel < 0 || numTrials == 0 || trialAveraging == false || channel == nChans)
                         {
                             screenBuffer->clear(channel, sbi, 1);
                             screenBufferMean->clear(channel, sbi, 1);
@@ -1205,7 +1205,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             screenBufferMax->addSample(channel, sbi, sample_max);
                         }
 
-                        if (triggerChannel >= 0 && trialAveraging == true)
+                        if (triggerChannel >= 0 && trialAveraging == true && channel != nChans)
                         {
 
                             screenBuffer->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
