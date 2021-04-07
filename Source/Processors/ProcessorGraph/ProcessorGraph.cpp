@@ -90,7 +90,7 @@ void ProcessorGraph::updatePointers()
 }
 
 void ProcessorGraph::moveProcessor(GenericProcessor* processor,
-                                    GenericProcessor* newSource,
+                                   GenericProcessor* newSource,
                                    GenericProcessor* newDest,
                                    bool moveDownstream)
 {
@@ -280,6 +280,8 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 	else
 	{
 		CoreServices::sendStatusMessage("Not a valid processor.");
+        
+        return nullptr;
 	}
     
     if (!signalChainIsLoading)
@@ -637,6 +639,8 @@ void ProcessorGraph::clearSignalChain()
     updateViews(nullptr);
 }
 
+
+
 void ProcessorGraph::changeListenerCallback(ChangeBroadcaster* source)
 {
     refreshColors();
@@ -769,6 +773,20 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
     return allProcessors;
 
+}
+
+GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)
+{
+
+    for (auto processor : getListOfProcessors())
+    {
+        if (processor->getNodeId() == nodeId)
+        {
+            return processor;
+        }
+    }
+    
+    return nullptr;
 }
 
 void ProcessorGraph::clearConnections()
@@ -1096,7 +1114,7 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescri
 	{
 
         LOGD("Creating from description...");
-        LOGD(description.libName, "::", description.processorName, \
+        LOGD(description.libName, "::", description.processorName, " (", \
             description.processorType, "-", description.processorIndex,")");
 
 		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,

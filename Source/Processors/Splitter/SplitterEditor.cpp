@@ -100,22 +100,12 @@ void SplitterEditor::buttonEvent(Button* button)
 {
     if (button == pipelineSelectorA)
     {
-        pipelineSelectorA->setToggleState(true, dontSendNotification);
-        pipelineSelectorB->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(0);
-
+        AccessClass::getEditorViewport()->switchIO(getProcessor(), 0);
     }
     else if (button == pipelineSelectorB)
     {
-        pipelineSelectorB->setToggleState(true, dontSendNotification);
-        pipelineSelectorA->setToggleState(false, dontSendNotification);
-        Splitter* processor = (Splitter*) getProcessor();
-        processor->switchIO(1);
-
+        AccessClass::getEditorViewport()->switchIO(getProcessor(), 1);
     }
-    
-    AccessClass::getProcessorGraph()->updateViews(getProcessor());
 }
 
 void SplitterEditor::switchDest(int dest)

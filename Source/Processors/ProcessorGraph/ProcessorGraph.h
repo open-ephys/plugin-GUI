@@ -85,6 +85,7 @@ public:
     void removeProcessor(GenericProcessor* processor);
     Array<GenericProcessor*> getListOfProcessors();
     
+    GenericProcessor* getProcessorWithNodeId(int nodeId);
     
     Array<GenericProcessor*> getRootNodes() {return rootNodes;}
     
@@ -144,6 +145,8 @@ private:
     int currentNodeId;
     
     bool isLoadingSignalChain;
+    
+
 
     enum nodeIds
     {
