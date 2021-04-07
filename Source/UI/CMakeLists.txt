@@ -10,6 +10,8 @@ add_sources(open-ephys
 	DataViewport.h
 	EditorViewport.cpp
 	EditorViewport.h
+	EditorViewportActions.cpp
+	EditorViewportActions.h
 	EditorViewportButtons.cpp
 	EditorViewportButtons.h
 	GraphViewer.cpp
