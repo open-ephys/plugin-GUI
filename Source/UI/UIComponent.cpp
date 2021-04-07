@@ -183,6 +183,11 @@ PluginManager* UIComponent::getPluginManager()
 	return pluginManager;
 }
 
+PluginInstaller* UIComponent::getPluginInstaller()
+{
+    return pluginInstaller;
+}
+
 void UIComponent::buttonClicked(Button* button)
 {
     if (button == &messageCenterButton)

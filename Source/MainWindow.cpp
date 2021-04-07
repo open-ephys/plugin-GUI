@@ -114,12 +114,22 @@ MainWindow::~MainWindow()
 		audioComponent->endCallbacks();
 		processorGraph->disableProcessors();
 	}
+    
+    
+        
 
 	saveWindowBounds();
 
 	audioComponent->disconnectProcessorGraph();
 	UIComponent* ui = (UIComponent*) getContentComponent();
 	ui->disableDataViewport();
+    
+    if (ui->getPluginInstaller() != nullptr)
+    {
+        PluginInstaller* pi =ui->getPluginInstaller();
+        pi->setVisible(false);
+        delete pi;
+    }
 
 	File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
 	File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
