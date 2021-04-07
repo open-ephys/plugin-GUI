@@ -161,6 +161,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
         // setDefaultNamingScheme(numberingScheme);
         //setDefaultChannelNamesAndType();
+
+        for (int k = 0; k < 8; ++k)
+        {
+            eventChannelNames.add("TTL" + String(k + 1));
+        }
     }
 }
 
@@ -762,12 +767,13 @@ int RHD2000Thread::getHeadstageChannels (int hsNum) const
 }
 
 
-void RHD2000Thread::getEventChannelNames (StringArray& Names) const
+void RHD2000Thread::getEventChannelNames (StringArray& names) const
 {
-    Names.clear();
-    for (int k = 0; k < 8; ++k)
+    names.clear();
+
+    for (auto name : eventChannelNames)
     {
-        Names.add ("TTL" + String (k + 1));
+        names.add(name);
     }
 }
 
@@ -780,6 +786,14 @@ int RHD2000Thread::modifyChannelName(int channel, String newName)
     i.name = newName;
     i.modified = true;
     channelInfo.set(channel, i);
+    return 0;
+}
+
+int RHD2000Thread::modifyEventChannelName(int channel, String newName)
+{
+
+    eventChannelNames.set(channel, newName);
+
     return 0;
 }
 
