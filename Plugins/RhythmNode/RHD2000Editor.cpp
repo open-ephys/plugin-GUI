@@ -771,6 +771,19 @@ void RHD2000Editor::handleAsyncUpdate()
 
 }
 
+void RhythmNode::RHD2000Editor::checkAux()
+{
+    if (bandwidthInterface->getLowerBandwidth() < 0 || bandwidthInterface->getUpperBandwidth() < 0)
+    {
+        auxButton->setToggleState(false, sendNotificationSync);
+        auxButton->setEnabled(false);
+    }
+    else
+    {
+        auxButton->setEnabled(true);
+    }
+}
+
 void RHD2000Editor::setSaveImpedance(bool en)
 {
     saveImpedances = en;
@@ -1037,20 +1050,33 @@ void BandwidthInterface::labelTextChanged(Label* label)
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
 
-            if (requestedValue < 100.0 || requestedValue > 20000.0 || requestedValue < lastLowCutString.getFloatValue())
+            if (requestedValue < 0) //enable off-chip resistors 
             {
-                CoreServices::sendStatusMessage("Value out of range.");
-
-                label->setText(lastHighCutString, dontSendNotification);
-
-                return;
+                actualUpperBandwidth = board->setUpperBandwidth(-1);
+                std::cout << "Setting Upper Bandwidth to off-chip resistor" << "\n";
+                label->setText("-1",dontSendNotification);
+                lastHighCutString = label->getText();
+                editor->checkAux();
             }
+            else
+            {
+                if (requestedValue < 100.0 || requestedValue > 20000.0 || (lastLowCutString.getFloatValue() > 0 && requestedValue < lastLowCutString.getFloatValue()))
+                {
+                    CoreServices::sendStatusMessage("Value out of range.");
 
-            actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
+                    label->setText(lastHighCutString, dontSendNotification);
 
-            std::cout << "Setting Upper Bandwidth to " << requestedValue << "\n";
-            std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << "\n";
-            label->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
+                    return;
+                }
+
+                actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
+
+                std::cout << "Setting Upper Bandwidth to " << requestedValue << "\n";
+                std::cout << "Actual Upper Bandwidth:  " << actualUpperBandwidth << "\n";
+                label->setText(String(round(actualUpperBandwidth * 10.f) / 10.f), dontSendNotification);
+                lastHighCutString = label->getText();
+                editor->checkAux();
+            }
 
         }
         else
@@ -1059,21 +1085,34 @@ void BandwidthInterface::labelTextChanged(Label* label)
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
 
-            if (requestedValue < 0.1 || requestedValue > 500.0 || requestedValue > lastHighCutString.getFloatValue())
+            if (requestedValue < 0) //enable off-chip resistors 
             {
-                CoreServices::sendStatusMessage("Value out of range.");
-
-                label->setText(lastLowCutString, dontSendNotification);
-
-                return;
+                actualLowerBandwidth = board->setLowerBandwidth(-1);
+                std::cout << "Setting Lower Bandwidth to off-chip resistor" << "\n";
+                label->setText("-1", dontSendNotification);
+                lastLowCutString = label->getText();
+                editor->checkAux();
             }
+            else
+            {
+                if (requestedValue < 0.1 || requestedValue > 500.0 || (lastHighCutString.getFloatValue() > 0 && requestedValue > lastHighCutString.getFloatValue()))
+                {
+                    CoreServices::sendStatusMessage("Value out of range.");
 
-            actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
+                    label->setText(lastLowCutString, dontSendNotification);
 
-            std::cout << "Setting Lower Bandwidth to " << requestedValue << "\n";
-            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << "\n";
+                    return;
+                }
 
-            label->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
+                actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
+
+                std::cout << "Setting Lower Bandwidth to " << requestedValue << "\n";
+                std::cout << "Actual Lower Bandwidth:  " << actualLowerBandwidth << "\n";
+
+                label->setText(String(round(actualLowerBandwidth * 10.f) / 10.f), dontSendNotification);
+                lastLowCutString = label->getText();
+                editor->checkAux();
+            }
         }
     }
     else if (editor->acquisitionIsActive)
@@ -1090,14 +1129,32 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
 void BandwidthInterface::setLowerBandwidth(double value)
 {
-    actualLowerBandwidth = board->setLowerBandwidth(value);
-    lowerBandwidthSelection->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
+    if (value < 0)
+    {
+        actualLowerBandwidth = board->setLowerBandwidth(-1);
+        lowerBandwidthSelection->setText("-1", dontSendNotification);
+    }
+    else
+    {
+        actualLowerBandwidth = board->setLowerBandwidth(value);
+        lowerBandwidthSelection->setText(String(round(actualLowerBandwidth * 10.f) / 10.f), dontSendNotification);
+    }
+    editor->checkAux();
 }
 
 void BandwidthInterface::setUpperBandwidth(double value)
 {
-    actualUpperBandwidth = board->setUpperBandwidth(value);
-    upperBandwidthSelection->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
+    if (value < 0)
+    {
+        actualUpperBandwidth = board->setUpperBandwidth(-1);
+        upperBandwidthSelection->setText("-1", dontSendNotification);
+    }
+    else
+    {
+        actualUpperBandwidth = board->setUpperBandwidth(value);
+        upperBandwidthSelection->setText(String(round(actualUpperBandwidth * 10.f) / 10.f), dontSendNotification);
+    }
+    editor->checkAux();
 }
 
 double BandwidthInterface::getLowerBandwidth()
@@ -1109,7 +1166,6 @@ double BandwidthInterface::getUpperBandwidth()
 {
     return actualUpperBandwidth;
 }
-
 
 void BandwidthInterface::paint(Graphics& g)
 {

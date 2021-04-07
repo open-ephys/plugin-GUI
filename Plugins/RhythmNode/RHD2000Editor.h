@@ -186,6 +186,8 @@ namespace RhythmNode
 
 		void handleAsyncUpdate();
 
+		void checkAux();
+
 	private:
 
 		OwnedArray<HeadstageOptionsInterface> headstageOptionsInterfaces;
