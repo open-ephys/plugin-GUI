@@ -1546,8 +1546,8 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
-            canvasSplit->viewport->setViewPosition(xmlNode->getIntAttribute("ScrollX"),
-                                                   xmlNode->getIntAttribute("ScrollY"));
+            lfpDisplay->setScrollPosition(xmlNode->getIntAttribute("ScrollX"),
+                                          xmlNode->getIntAttribute("ScrollY"));
 
             int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
 

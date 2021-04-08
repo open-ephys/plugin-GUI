@@ -102,6 +102,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     range[1] = 500;  // aux channels
     range[2] = 500000; // adc channels
 
+    scrollX = 0;
+    scrollY = 0;
+
     addMouseListener(this, true);
 
     for (int i = 0; i < 8; i++)
@@ -153,6 +156,10 @@ void LfpDisplay::setNumChannels(int numChannels)
     drawableChannels.clear();
 
     totalHeight = 0;
+
+    scrollX = 0; 
+    scrollY = 0;
+
     cachedDisplayChannelHeight = canvasSplit->getChannelHeight();
 
 	if (numChans > 0)
@@ -277,6 +284,9 @@ void LfpDisplay::resized()
     }
 
     canvasSplit->fullredraw = true; //issue full redraw
+    
+    viewport->setViewPosition(scrollX, scrollY);
+
     if (singleChan != -1)
         viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
 
@@ -626,7 +636,6 @@ void LfpDisplay::orderChannelsByDepth(bool state)
 
     // necessary to overwrite lfpChannelBitmap's display
     resized();
-    refresh();
 }
 
 int LfpDisplay::getChannelDisplaySkipAmount()
@@ -642,6 +651,12 @@ void LfpDisplay::setChannelDisplaySkipAmount(int skipAmt)
         rebuildDrawableChannelsList();
     
     canvasSplit->redraw();
+}
+
+void LfpDisplay::setScrollPosition(int x, int y)
+{
+    scrollX = x;
+    scrollY = y;
 }
 
 bool LfpDisplay::getMedianOffsetPlotting()
@@ -903,6 +918,37 @@ void LfpDisplay::rebuildDrawableChannelsList()
         for (int i = channelsToDraw.size() - 1; i >= 0; --i)
         {
             drawableChannels.add(channelsToDraw[i]);
+        }
+    }
+    else if(channelsOrderedByDepth)
+    {
+        std::vector<float> depths(channelsToDraw.size());
+
+        bool allSame = true;
+        float last = channelsToDraw[0].channel->getDepth();
+
+        for (int i = 0; i < channelsToDraw.size(); i++)
+        {
+            float d = channelsToDraw[i].channelInfo->getDepth();
+
+            if (d != last)
+                allSame = false;
+
+            depths[i] = d;
+            last = d;
+        }
+
+        if (!allSame)
+        {
+            std::vector<int> V(channelsToDraw.size());
+
+            std::iota(V.begin(), V.end(), 0); //Initializing
+            sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
+            
+            for (int i = 0; i < channelsToDraw.size(); i++)
+            {
+                drawableChannels.add(channelsToDraw[V[i]]);
+            }
         }
     }
     else

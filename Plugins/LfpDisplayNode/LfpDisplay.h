@@ -118,6 +118,8 @@ public:
     void setEnabledState(bool state, int chan, bool updateSavedChans = true);
     bool getEnabledState(int);
     
+    void setScrollPosition(int x, int y);
+
     /** Returns true if the median offset is enabled for plotting, else false */
     bool getMedianOffsetPlotting();
     
@@ -210,6 +212,9 @@ private:
     int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
     float drawableSampleRate;
     uint32 drawableSubprocessor;
+
+    int scrollX;
+    int scrollY;
 
     int totalHeight;
 
