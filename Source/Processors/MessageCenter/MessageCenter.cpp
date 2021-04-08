@@ -41,6 +41,8 @@ GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
 
     eventChannel = nullptr;
 
+    needsToSendTimestampMessage = true;
+
 }
 
 MessageCenter::~MessageCenter()

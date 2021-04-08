@@ -44,7 +44,7 @@ jobs:
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows-beta.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
@@ -68,7 +68,7 @@ jobs:
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}

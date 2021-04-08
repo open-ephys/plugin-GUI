@@ -365,7 +365,7 @@ void AudioNode::process(AudioSampleBuffer& buffer)
                                            );
 
                         //if (destBufferPos == 0)
-                        LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
+                      //  LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
 
                     }
 

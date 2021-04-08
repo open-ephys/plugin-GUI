@@ -130,6 +130,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     dacChannels = nullptr;
     dacThresholds = nullptr;
     dacChannelsToUpdate = nullptr;
+
     if (openBoard(libraryFilePath))
     {
         dataBlock = new Rhd2000DataBlock(1,evalBoard->isUSB3());
@@ -160,6 +161,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
         // setDefaultNamingScheme(numberingScheme);
         //setDefaultChannelNamesAndType();
+
+        for (int k = 0; k < 8; ++k)
+        {
+            eventChannelNames.add("TTL" + String(k + 1));
+        }
     }
 }
 
@@ -201,7 +207,10 @@ bool RHD2000Thread::usesCustomNames() const
 
 unsigned int RHD2000Thread::getNumSubProcessors() const
 {
-    return 1;
+    if (deviceFound)
+        return 1;
+    else
+        return 0;
 }
 
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
@@ -758,12 +767,13 @@ int RHD2000Thread::getHeadstageChannels (int hsNum) const
 }
 
 
-void RHD2000Thread::getEventChannelNames (StringArray& Names) const
+void RHD2000Thread::getEventChannelNames (StringArray& names) const
 {
-    Names.clear();
-    for (int k = 0; k < 8; ++k)
+    names.clear();
+
+    for (auto name : eventChannelNames)
     {
-        Names.add ("TTL" + String (k + 1));
+        names.add(name);
     }
 }
 
@@ -776,6 +786,14 @@ int RHD2000Thread::modifyChannelName(int channel, String newName)
     i.name = newName;
     i.modified = true;
     channelInfo.set(channel, i);
+    return 0;
+}
+
+int RHD2000Thread::modifyEventChannelName(int channel, String newName)
+{
+
+    eventChannelNames.set(channel, newName);
+
     return 0;
 }
 
@@ -1176,12 +1194,14 @@ void RHD2000Thread::enableAuxs(bool t)
     acquireAuxChannels = t;
     sourceBuffers[0]->resize(getNumChannels(), 10000);
     updateRegisters();
+    sn->update();
 }
 
 void RHD2000Thread::enableAdcs(bool t)
 {
     acquireAdcChannels = t;
     sourceBuffers[0]->resize(getNumChannels(), 10000);
+    sn->update();
 }
 
 bool RHD2000Thread::isAuxEnabled()
@@ -1353,8 +1373,27 @@ void RHD2000Thread::updateRegisters()
     // bandwidth paramters.
     actualDspCutoffFreq = chipRegisters.setDspCutoffFreq(desiredDspCutoffFreq);
     //std::cout << "DSP Cutoff Frequency " << actualDspCutoffFreq << std::endl;
-    actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
-    actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+    if (desiredLowerBandwidth < 0)
+    {
+        actualLowerBandwidth = -1;
+        chipRegisters.setOffChipRL(true);
+    }
+    else
+    {
+        actualLowerBandwidth = chipRegisters.setLowerBandwidth(desiredLowerBandwidth);
+        chipRegisters.setOffChipRL(false);
+    }
+
+    if (desiredUpperBandwidth < 0)
+    {
+        actualUpperBandwidth = -1;
+        chipRegisters.setOffChipRH(true);
+    }
+    else
+    {
+        actualUpperBandwidth = chipRegisters.setUpperBandwidth(desiredUpperBandwidth);
+        chipRegisters.setOffChipRH(false);
+    }
     chipRegisters.enableDsp(dspEnabled);
     //std::cout << "DSP Offset Status " << dspEnabled << std::endl;
 
@@ -1920,6 +1959,14 @@ float RHDImpedanceMeasure::updateImpedanceFrequency(float desiredImpedanceFreq, 
     int impedancePeriod;
     double lowerBandwidthLimit, upperBandwidthLimit;
     float actualImpedanceFreq;
+
+    if (board->actualLowerBandwidth < 0 || board->actualUpperBandwidth < 0)
+    {
+        CoreServices::sendStatusMessage("Cannot run impedance check with external resistors");
+        std::cout << "Cannot run impedance check with external resistors" << std::endl;
+        impedanceFreqValid = false;
+        return 0.0;
+    }
 
     upperBandwidthLimit = board->actualUpperBandwidth / 1.5;
     lowerBandwidthLimit = board->actualLowerBandwidth * 1.5;

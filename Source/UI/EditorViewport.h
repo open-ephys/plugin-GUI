@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -42,6 +42,9 @@ class SignalChainTabComponent;
 class SignalChainScrollButton;
 class ControlPanel;
 class UIComponent;
+
+enum Action {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
+
 
 /**
 
@@ -132,9 +135,21 @@ public:
 
 	/** Save the current configuration as an XML file. Reference wrapper*/
 	const String saveState(File filename, String& xmlText);
+    
+    /** Save the current configuration as an XML file. Reference wrapper*/
+    XmlElement* createSettingsXml();
 
     /** Load a saved configuration from an XML file. */
     const String loadState(File filename);
+    
+    /** Load a saved configuration from an XML object*/
+    const String loadStateFromXml(XmlElement* xml);
+    
+    /** Load a saved plugin configuration from an XML file. */
+    const String loadPluginState(File filename, GenericEditor* selectedEditor = nullptr);
+    
+    /** Load a saved plugin configuration from an XML file. */
+    const String savePluginState(File filename, GenericEditor* selectedEditor = nullptr);
 
     /** Converts information about a given editor to XML. */
     XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
@@ -169,6 +184,32 @@ public:
     int getDesiredWidth();
     
     GenericProcessor* addProcessor(ProcessorDescription desc, int insertionPt);
+    
+    void deleteSelectedProcessors();
+    
+    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool rhythmNodePatch, bool ignoreNodeId);
+    
+    ProcessorDescription getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId, bool rhythmNodePatch);
+    
+    void switchIO(GenericProcessor* processor, int path);
+
+    void copySelectedEditors();
+    
+    void copy(Array<XmlElement*>);
+    
+    void paste();
+    
+    void undo();
+    
+    void redo();
+    
+    bool editorIsSelected();
+    
+    bool canPaste();
+    
+    UndoManager undoManager;
+    
+    Array<GenericEditor*> editorArray;
 
 private:
 
@@ -182,8 +223,6 @@ private:
 
     int selectionIndex;
 
-    Array<GenericEditor*> editorArray;
-
     Font font;
     Image sourceDropImage;
     
@@ -191,19 +230,21 @@ private:
     bool componentWantsToMove;
     int indexOfMovingComponent;
 
-    enum actions {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
-
     SignalChainTabComponent* signalChainTabComponent;
 
     void resized();
     
     bool shiftDown;
     
+    OwnedArray<XmlElement> copyBuffer;
+    
     Label editorNamingLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
 };
+
+
 
 /**
 

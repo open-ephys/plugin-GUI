@@ -82,6 +82,10 @@ public:
 
     GenericProcessor* sourceNodeA;
     GenericProcessor* sourceNodeB;
+    
+    int getPath() {
+        return activePath;
+    }
 
 private:
 

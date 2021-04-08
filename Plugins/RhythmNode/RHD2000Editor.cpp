@@ -119,6 +119,10 @@ void FPGAchannelList::buttonClicked(Button* btn)
 
 void FPGAchannelList::update()
 {
+
+    if (!proc->isEnabled)
+        return;
+
    // const int columnWidth = 330;
     const int columnWidth = 250;
     // Query processor for number of channels, types, gains, etc... and update the UI
@@ -204,25 +208,33 @@ void FPGAchannelList::update()
             {
                 int channelGainIndex = 1;
                 int realChan = thread->getChannelFromHeadstage(k, ch);
-                float ch_gain = proc->getDataChannel(realChan)->getBitVolts() / proc->getBitVolts(proc->getDataChannel(realChan));
-                for (int j = 0; j < gains.size(); j++)
-                {
-                    if (fabs(gains[j] - ch_gain) < 1e-3)
-                    {
-                        channelGainIndex = j;
-                        break;
-                    }
-                }
-                if (k < MAX_NUM_HEADSTAGES)
-                    type = ch < numChannelsPerHeadstage[k] ? DataChannel::HEADSTAGE_CHANNEL : DataChannel::AUX_CHANNEL;
-                else
-                    type = DataChannel::ADC_CHANNEL;
 
-                FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains, type);
-                comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
-                comp->setUserDefinedData(k);
-                addAndMakeVisible(comp);
-                channelComponents.add(comp);
+                RHD2000Thread* p = (RHD2000Thread*) proc->getThread();
+
+                if (realChan < p->getNumChannels())
+                {
+                    float ch_gain = proc->getDataChannel(realChan)->getBitVolts() / proc->getBitVolts(proc->getDataChannel(realChan));
+
+                    for (int j = 0; j < gains.size(); j++)
+                    {
+                        if (fabs(gains[j] - ch_gain) < 1e-3)
+                        {
+                            channelGainIndex = j;
+                            break;
+                        }
+                    }
+                    if (k < MAX_NUM_HEADSTAGES)
+                        type = ch < numChannelsPerHeadstage[k] ? DataChannel::HEADSTAGE_CHANNEL : DataChannel::AUX_CHANNEL;
+                    else
+                        type = DataChannel::ADC_CHANNEL;
+
+                    FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains, type);
+                    comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
+                    comp->setUserDefinedData(k);
+                    addAndMakeVisible(comp);
+                    channelComponents.add(comp);
+                }
+                
             }
         }
     }
@@ -233,7 +245,13 @@ void FPGAchannelList::update()
     // add buttons for TTL channels
     for (int k=0; k<ttlNames.size(); k++)
     {
-        FPGAchannelComponent* comp = new FPGAchannelComponent(this,k, -1, ttlNames[k],gains,DataChannel::INVALID); //let's treat invalid as an event channel
+        FPGAchannelComponent* comp = new FPGAchannelComponent(this, 
+                                                               k, 
+                                                              -1,
+                                                               ttlNames[k], 
+                                                               gains,
+                                                               DataChannel::INVALID); //let's treat invalid as an event channel
+
         comp->setBounds(10+numActiveHeadstages*columnWidth,70+k*22,columnWidth,22);
         comp->setUserDefinedData(k);
         addAndMakeVisible(comp);
@@ -283,10 +301,15 @@ void FPGAchannelList::setNewGain(int channel, float gain)
         proc->requestChainUpdate();
 }
 
-void FPGAchannelList::setNewName(int channel, String newName)
+void FPGAchannelList::setNewName(int channel, String newName, DataChannel::DataChannelTypes type)
 {
     RHD2000Thread* thread = (RHD2000Thread*)proc->getThread();
-    thread->modifyChannelName(channel, newName);
+
+    if (!(type == DataChannel::DataChannelTypes::INVALID))
+        thread->modifyChannelName(channel, newName);
+    else
+        thread->modifyEventChannelName(channel, newName);
+    
     if (chainUpdate)
         proc->requestChainUpdate();
 }
@@ -346,7 +369,11 @@ type(type_), gains(gains_), channelList(cl), channel(ch), name(N), gainIndex(gai
     staticLabel->setEditable(false);
     addAndMakeVisible(staticLabel);
 
-    editName = new Label(name,name);
+    if (!(type == DataChannel::DataChannelTypes::INVALID))
+        editName = new Label("CONTINUOUS" + String(ch), name);
+    else
+        editName = new Label("EVENT" + String(ch), name);
+
     editName->setFont(f);
     editName->setEditable(true);
     editName->setColour(Label::backgroundColourId,juce::Colours::lightgrey);
@@ -413,7 +440,9 @@ void FPGAchannelComponent::labelTextChanged(Label* lbl)
 {
     // channel name change
     String newName = lbl->getText();
-    channelList->setNewName(channel, newName);
+
+    channelList->setNewName(channel, newName, type);
+
 }
 
 void FPGAchannelComponent::disableEdit()
@@ -759,6 +788,19 @@ void RHD2000Editor::handleAsyncUpdate()
 
 }
 
+void RhythmNode::RHD2000Editor::checkAux()
+{
+    if (bandwidthInterface->getLowerBandwidth() < 0 || bandwidthInterface->getUpperBandwidth() < 0)
+    {
+        auxButton->setToggleState(false, sendNotificationSync);
+        auxButton->setEnabled(false);
+    }
+    else
+    {
+        auxButton->setEnabled(true);
+    }
+}
+
 void RHD2000Editor::setSaveImpedance(bool en)
 {
     saveImpedances = en;
@@ -935,6 +977,16 @@ void RHD2000Editor::saveCustomParameters(XmlElement* xml)
         adc->setAttribute("Channel", i);
         adc->setAttribute("Range", board->getAdcRange(i));
     }
+
+    StringArray eventChannelNames;
+    board->getEventChannelNames(eventChannelNames);
+
+    for (int i = 0; i < eventChannelNames.size(); i++)
+    {
+        XmlElement* adc = xml->createNewChildElement("EVENT_CHANNEL");
+        adc->setAttribute("Channel", i);
+        adc->setAttribute("Name", eventChannelNames[i]);
+    }
 }
 
 void RHD2000Editor::loadCustomParameters(XmlElement* xml)
@@ -959,12 +1011,21 @@ void RHD2000Editor::loadCustomParameters(XmlElement* xml)
     measureWhenRecording = xml->getBoolAttribute("auto_measure_impedances");
     ledButton->setToggleState(xml->getBoolAttribute("LEDs", true),sendNotification);
     clockInterface->setClockDivideRatio(xml->getIntAttribute("ClockDivideRatio"));
+    
     forEachXmlChildElementWithTagName(*xml, adc, "ADCRANGE")
     {
         int channel = adc->getIntAttribute("Channel", -1);
         int range = adc->getIntAttribute("Range", -1);
         if (channel >= 0 && range >= 0)
             board->setAdcRange(channel, range);
+    }
+
+    forEachXmlChildElementWithTagName(*xml, evnt, "EVENT_CHANNEL")
+    {
+        int channel = evnt->getIntAttribute("Channel", -1);
+        String name = evnt->getStringAttribute("Name", "NONE");
+        
+        board->modifyEventChannelName(channel, name);
     }
 }
 
@@ -1025,20 +1086,33 @@ void BandwidthInterface::labelTextChanged(Label* label)
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
 
-            if (requestedValue < 100.0 || requestedValue > 20000.0 || requestedValue < lastLowCutString.getFloatValue())
+            if (requestedValue < 0) //enable off-chip resistors 
             {
-                CoreServices::sendStatusMessage("Value out of range.");
-
-                label->setText(lastHighCutString, dontSendNotification);
-
-                return;
+                actualUpperBandwidth = board->setUpperBandwidth(-1);
+                std::cout << "Setting Upper Bandwidth to off-chip resistor" << "\n";
+                label->setText("-1",dontSendNotification);
+                lastHighCutString = label->getText();
+                editor->checkAux();
             }
+            else
+            {
+                if (requestedValue < 100.0 || requestedValue > 20000.0 || (lastLowCutString.getFloatValue() > 0 && requestedValue < lastLowCutString.getFloatValue()))
+                {
+                    CoreServices::sendStatusMessage("Value out of range.");
 
-            actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
+                    label->setText(lastHighCutString, dontSendNotification);
 
-            std::cout << "Setting Upper Bandwidth to " << requestedValue << "\n";
-            std::cout << "Actual Upper Bandwidth:  " <<  actualUpperBandwidth  << "\n";
-            label->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
+                    return;
+                }
+
+                actualUpperBandwidth = board->setUpperBandwidth(requestedValue);
+
+                std::cout << "Setting Upper Bandwidth to " << requestedValue << "\n";
+                std::cout << "Actual Upper Bandwidth:  " << actualUpperBandwidth << "\n";
+                label->setText(String(round(actualUpperBandwidth * 10.f) / 10.f), dontSendNotification);
+                lastHighCutString = label->getText();
+                editor->checkAux();
+            }
 
         }
         else
@@ -1047,21 +1121,34 @@ void BandwidthInterface::labelTextChanged(Label* label)
             Value val = label->getTextValue();
             double requestedValue = double(val.getValue());
 
-            if (requestedValue < 0.1 || requestedValue > 500.0 || requestedValue > lastHighCutString.getFloatValue())
+            if (requestedValue < 0) //enable off-chip resistors 
             {
-                CoreServices::sendStatusMessage("Value out of range.");
-
-                label->setText(lastLowCutString, dontSendNotification);
-
-                return;
+                actualLowerBandwidth = board->setLowerBandwidth(-1);
+                std::cout << "Setting Lower Bandwidth to off-chip resistor" << "\n";
+                label->setText("-1", dontSendNotification);
+                lastLowCutString = label->getText();
+                editor->checkAux();
             }
+            else
+            {
+                if (requestedValue < 0.1 || requestedValue > 500.0 || (lastHighCutString.getFloatValue() > 0 && requestedValue > lastHighCutString.getFloatValue()))
+                {
+                    CoreServices::sendStatusMessage("Value out of range.");
 
-            actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
+                    label->setText(lastLowCutString, dontSendNotification);
 
-            std::cout << "Setting Lower Bandwidth to " << requestedValue << "\n";
-            std::cout << "Actual Lower Bandwidth:  " <<  actualLowerBandwidth  << "\n";
+                    return;
+                }
 
-            label->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
+                actualLowerBandwidth = board->setLowerBandwidth(requestedValue);
+
+                std::cout << "Setting Lower Bandwidth to " << requestedValue << "\n";
+                std::cout << "Actual Lower Bandwidth:  " << actualLowerBandwidth << "\n";
+
+                label->setText(String(round(actualLowerBandwidth * 10.f) / 10.f), dontSendNotification);
+                lastLowCutString = label->getText();
+                editor->checkAux();
+            }
         }
     }
     else if (editor->acquisitionIsActive)
@@ -1078,14 +1165,32 @@ void BandwidthInterface::labelTextChanged(Label* label)
 
 void BandwidthInterface::setLowerBandwidth(double value)
 {
-    actualLowerBandwidth = board->setLowerBandwidth(value);
-    lowerBandwidthSelection->setText(String(round(actualLowerBandwidth*10.f)/10.f), dontSendNotification);
+    if (value < 0)
+    {
+        actualLowerBandwidth = board->setLowerBandwidth(-1);
+        lowerBandwidthSelection->setText("-1", dontSendNotification);
+    }
+    else
+    {
+        actualLowerBandwidth = board->setLowerBandwidth(value);
+        lowerBandwidthSelection->setText(String(round(actualLowerBandwidth * 10.f) / 10.f), dontSendNotification);
+    }
+    editor->checkAux();
 }
 
 void BandwidthInterface::setUpperBandwidth(double value)
 {
-    actualUpperBandwidth = board->setUpperBandwidth(value);
-    upperBandwidthSelection->setText(String(round(actualUpperBandwidth*10.f)/10.f), dontSendNotification);
+    if (value < 0)
+    {
+        actualUpperBandwidth = board->setUpperBandwidth(-1);
+        upperBandwidthSelection->setText("-1", dontSendNotification);
+    }
+    else
+    {
+        actualUpperBandwidth = board->setUpperBandwidth(value);
+        upperBandwidthSelection->setText(String(round(actualUpperBandwidth * 10.f) / 10.f), dontSendNotification);
+    }
+    editor->checkAux();
 }
 
 double BandwidthInterface::getLowerBandwidth()
@@ -1097,7 +1202,6 @@ double BandwidthInterface::getUpperBandwidth()
 {
     return actualUpperBandwidth;
 }
-
 
 void BandwidthInterface::paint(Graphics& g)
 {

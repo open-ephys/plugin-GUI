@@ -346,7 +346,7 @@ void PluginInstallerComponent::run()
 		updatablePlugins.clear();
 		auto child = xml->getFirstChildElement();
 
-		String baseUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
+		String baseUrl = "https://open-ephys-bintray-gateway.herokuapp.com/";
 
 		forEachXmlChildElement(*child, e)
 		{
@@ -471,17 +471,17 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 /* ================================== Plugin Table Component ================================== */
 
-PluginListBoxComponent::PluginListBoxComponent() : ThreadWithProgressWindow("Loading Plugin Installer", true, false)
+PluginListBoxComponent::PluginListBoxComponent() : Thread("Plugin List")
 {
 	listFont = Font("FiraSans Bold", 22, Font::plain);
 
 	// Set progress window text and background colors
-	auto window = this->getAlertWindow();
-	window->setColour(AlertWindow::textColourId, Colours::white);
-	window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
-	setStatusMessage("Fetching plugins ...");
+	//auto window = this->getAlertWindow();
+	//window->setColour(AlertWindow::textColourId, Colours::white);
+	//window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
+	//setStatusMessage("Fetching plugins ...");
 
-	this->runThread(); //Load all plugin names and labels from bintray
+	this->run(); //Load all plugin names and labels from bintray
 
 	addAndMakeVisible(pluginList);
 	pluginList.setModel(this);
@@ -526,31 +526,36 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 void PluginListBoxComponent::run()
 {
 	/* Get list of plugins uploaded to bintray */
-	String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins";
+	String baseUrl = "https://open-ephys-bintray-gateway.herokuapp.com";
 	String response = URL(baseUrl).readEntireTextStream();
 
-	var pluginData = JSON::parse(response);
+	Result result = JSON::parse(response, pluginData);
 
 	numRows = pluginData.size();
 	
 	String pluginName;
 
 	int pluginTextWidth;
+    
+    std::cout << "Error: " << result.getErrorMessage() << std::endl;
+    std::cout << "Found " << numRows << " plugins " << std::endl;
 
 	// Get each plugin's labels and add them to the list
 	for (int i = 0; i < numRows; i++)
-	{		
+	{
+        
 		pluginName = pluginData[i].getProperty("name", var()).toString();
+        std::cout << pluginName << std::endl;
 
-		setStatusMessage("Fetching " + pluginName + " ...");
+		//setStatusMessage("Fetching " + pluginName + " ...");
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
 			maxTextWidth = pluginTextWidth;
 		
-		String pluginUrl = baseUrl + "/" + pluginName;
-		response = URL(pluginUrl).readEntireTextStream();
-		var labelData = JSON::parse(response);
+		//String pluginUrl = baseUrl + "/" + pluginName;
+		//response = URL(pluginUrl).readEntireTextStream();
+		var labelData = pluginData[i];
 
 		StringArray labels;
 		auto allLabels = labelData.getProperty("labels", "NULL").getArray();
@@ -564,67 +569,53 @@ void PluginListBoxComponent::run()
 			pluginLabels.set(pluginName, labels);
 		}
 
-		setProgress ((i + 1) / (double) numRows);
+		//setProgress ((i + 1) / (double) numRows);
 	}
-	setNumRows(pluginArray.size());
+	
+    const MessageManagerLock mmLock;
+    setNumRows(pluginArray.size());
 }
 
 bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 {
-	// Find out all available packages for the plugin
-	String url, version_url;
-	
-	url = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
-	url+=pluginName;
-	url+="/packages";
 
-	String packageResponse = URL(url).readEntireTextStream();
+    var availablePackages;
+    
+    for (int i = 0; i < pluginData.size(); i++)
+    {
+      if (pluginName.compare(pluginData[i].getProperty("name", "none")) == 0)
+      {
+          availablePackages = pluginData[i].getProperty("packages", var());
+          break;
+      }
+    }
+    
+	var selectedPackage;
 
-	var packageReply = JSON::parse(packageResponse);
-
-	Array<String> packages;
-
-	for (int i = 0; i < packageReply.size(); i++)
+	for (int i = 0; i < availablePackages.size(); i++)
 	{
-	 	packages.add(packageReply[i].getProperty("name", var()).toString());
-	}
-		
-	// Select platform specific package for the plugin
-	String selectedPackage;
-	for (int i = 0; i < packages.size(); i++)
-	{
-	 	if(packages[i].contains(osType))
-	 	{
-	 		selectedPackage = packages[i];
-	 		break;
-	 	}
+	 	if (availablePackages[i].getProperty("name", "none").toString().contains(osType))
+         {
+             selectedPackage = availablePackages[i];
+             break;
+         }
 	}
 
-	if(selectedPackage.isEmpty())
+	if (selectedPackage.isVoid())
 	{
 		LOGD("*********** No platform specific package found for ", pluginName);
 		pluginInfoPanel.makeInfoVisible(false);
 		return false;
 	}
 
-	//Get latest version
-	version_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-	version_url+=pluginName;
-	version_url+="/";
-	version_url+=selectedPackage;
-
-	String version_response = URL(version_url).readEntireTextStream();;
-
-	var version_reply = JSON::parse(version_response);
-
-	String owner= version_reply.getProperty("owner", "NULL");
-	String latest_version = version_reply.getProperty("latest_version", "NULL");
-	String updated = version_reply.getProperty("updated", "NULL");
+	String owner= selectedPackage.getProperty("owner", "NULL");
+	String latest_version = selectedPackage.getProperty("latest_version", "NULL");
+	String updated = selectedPackage.getProperty("updated", "NULL");
 	updated = updated.substring(0, updated.indexOf("T")) + " at " 
 			  + updated.substring(updated.indexOf("T") + 1, updated.indexOf("."));
-	String description = version_reply.getProperty("desc", "NULL");
+	String description = selectedPackage.getProperty("desc", "NULL");
 
-	auto allVersions = version_reply.getProperty("versions", "NULL").getArray();
+	auto allVersions = selectedPackage.getProperty("versions", "NULL").getArray();
 
 	selectedPluginInfo.versions.clear();
 
@@ -636,12 +627,12 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 			selectedPluginInfo.versions.add(version);
 	}
 
-	auto dependencies = version_reply.getProperty("attribute_names", "NULL").getArray();
+	auto dependencies = selectedPackage.getProperty("attribute_names", "NULL").getArray();
 	selectedPluginInfo.dependencies.clear();
 	for (String dependency : *dependencies)
 		selectedPluginInfo.dependencies.add(dependency);
 
-	selectedPluginInfo.docURL = version_reply.getProperty("website_url", "NULL").toString();
+	selectedPluginInfo.docURL = selectedPackage.getProperty("website_url", "NULL").toString();
 	selectedPluginInfo.selectedVersion = String();
 
 	selectedPluginInfo.pluginName = pluginName;
@@ -938,6 +929,8 @@ void PluginInfoComponent::run()
 		LOGD("Loading Plugin Failed!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
+        
+        const MessageManagerLock mmLock;
 		downloadButton.setEnabled(false);
 		downloadButton.setButtonText("Installed");
 	}

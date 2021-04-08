@@ -135,7 +135,8 @@ private:
 */
 class PluginListBoxComponent : public Component,
                                public ListBoxModel,
-                               public ThreadWithProgressWindow
+                               public Thread
+                             //  public ThreadWithProgressWindow
 {
 public:
 
@@ -164,6 +165,8 @@ private:
     Font listFont;
     int numRows;
     int maxTextWidth = 0;
+    
+    var pluginData;
 
     String lastPluginSelected; 
     Array<String> pluginVersion;

@@ -228,8 +228,13 @@ String RecordNode::generateDateString() const
 	Time calendar = Time::getCurrentTime();
 
 	String datestring;
+    
+    int day = calendar.getDayOfMonth();
+    
+    if (day < 10)
+        datestring += "0";
 
-	datestring += String(calendar.getDayOfMonth());
+	datestring += String(day);
 	datestring += "-";
 	datestring += calendar.getMonthName(true);
 	datestring += "-";
@@ -240,16 +245,21 @@ String RecordNode::generateDateString() const
 	hrs = calendar.getHours();
 	mins = calendar.getMinutes();
 	secs = calendar.getSeconds();
+    
+    if (hrs < 10)
+        datestring += "0";
 
 	datestring += hrs;
+    datestring += ":";
 
 	if (mins < 10)
-		datestring += 0;
+		datestring += "0";
 
 	datestring += mins;
+    datestring += ":";
 
 	if (secs < 0)
-		datestring += 0;
+		datestring += "0";
 
 	datestring += secs;
 
@@ -322,11 +332,12 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 void RecordNode::updateSubprocessorMap()
 {
 
-	LOGDD("Record Node ", getNodeId(), " updating subprocessor map");
+	bool refreshEditor = false;
     
     std::map<int, std::vector<int>> inputs;
 
     int updatedNumSubprocessors = 0;
+	int originalChannelCount = numChannels;
     int ch = 0;
 
     while (ch < dataChannelArray.size())
@@ -338,6 +349,15 @@ void RecordNode::updateSubprocessorMap()
 
         if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != subProcIdx)
         {
+
+			//Check if this (src,sub) combo has already been seen and show warning
+			if (!inputs.empty() && !inputs[sourceID].empty() && std::find(inputs[sourceID].begin(), inputs[sourceID].end(), subProcIdx) != inputs[sourceID].end())
+			{
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+					"WARNING!", "Detected input channels re-mapped from different subprocessors. Please correct the channel mapping or else the RecordNode will crash!");
+				return;
+			}
+
             //Found a new subprocessor
             inputs[sourceID].push_back(subProcIdx);
             fifoUsage[sourceID][subProcIdx] = 0.0f;
@@ -361,15 +381,44 @@ void RecordNode::updateSubprocessorMap()
                 dataChannelOrder[ch] = orderInSubprocessor++;
                 ch++;
             }
+			refreshEditor = true;
         }
         else
-        {
-            ch++;
-            //Don't do anything
-        }
+		{
+			// check if channel count has changed for existing source
+			int count = 0;
+
+			for (int i = 0; i < dataChannelArray.size(); i++)
+			{
+				if (dataChannelArray[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
+					count++;
+			}
+			//If channel count is greater, add new channels to dataChannelStates
+			if (count > dataChannelStates[sourceID][subProcIdx].size())
+			{
+				count = count - dataChannelStates[sourceID][subProcIdx].size();
+				for (int i=0; i<count; i++)
+				{
+					dataChannelStates[sourceID][subProcIdx].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+				}
+			} //else if less, remove n channels from dataChannelStates
+			else if (count < dataChannelStates[sourceID][subProcIdx].size())
+			{
+				count = dataChannelStates[sourceID][subProcIdx].size() - count;
+				for (int i=0; i<count; i++)
+				{
+					dataChannelStates[sourceID][subProcIdx].pop_back();
+				}
+			}
+			else
+			{
+				//else do nothing
+			}
+			ch += count;
+		}
         
     }
-    
+
     //Remove any stale processors
     std::vector<int> sources;
     for(auto const& sourceID : inputs)
@@ -386,7 +435,7 @@ void RecordNode::updateSubprocessorMap()
     for (int i = 0; i < toErase.size(); i++)
         dataChannelStates.erase(toErase[i]);
     
-    if (numSubprocessors != updatedNumSubprocessors && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
+    if (refreshEditor && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
     {
         numSubprocessors = updatedNumSubprocessors;
         static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
@@ -519,7 +568,7 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		LOGD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
+		LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
@@ -527,6 +576,7 @@ void RecordNode::startRecording()
 			int chanOrderInProcessor = subIndex * dataChannelStates[srcIndex][subIndex].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
+			//TODO: This logic will not work after a channel mapper with channels mapped from different subprocessors!
 			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
 			{
 				recordedProcessorIdx++;
@@ -538,6 +588,7 @@ void RecordNode::startRecording()
 				pi->processorId = chan->getSourceNodeID();
 				procInfo.add(pi);
 			}
+
 			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 			chanProcessorMap.add(srcIndex);
 			chanOrderinProc.add(chanOrderInProcessor);
@@ -593,21 +644,22 @@ void RecordNode::startRecording()
 		{
 			rootFolder.createDirectory();
 		}
-		
-		if (settingsNeeded)
-		{
-			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
-			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
-			settingsNeeded = false;
-		}
 
 		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
 		LOGD("Num event channels: ", eventChannelArray.size());
+
 		recordThread->startThread();
 		isRecording = true;
+
+		if (settingsNeeded)
+		{
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
+			settingsNeeded = false;
+		}
 	}
 	else
 		isRecording = false;
@@ -699,20 +751,7 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& e
 
 void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 {
-
-	if (event.getVelocity() == 136)
-	{
-		if (!receivedSoftwareTime)
-		{
-			handleEvent(nullptr, event, 0);
-			receivedSoftwareTime = true;
-		}
-	}
-	else
-	{
-		handleEvent(nullptr, event, 0);
-	}
-
+	handleEvent(nullptr, event, 0);
 }
 	
 void RecordNode::process(AudioSampleBuffer& buffer)

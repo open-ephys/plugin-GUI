@@ -872,7 +872,7 @@ void ControlPanel::buttonClicked(Button* button)
 
                 audio->beginCallbacks(); // launches acquisition
                 masterClock->start(); // starts the clock
-                //audioEditor->disable();
+                audioEditor->disable();
 
                 stopTimer();
                 startTimer(250); // refresh every 250 ms
@@ -930,7 +930,7 @@ void ControlPanel::buttonClicked(Button* button)
 					startRecording();
                     masterClock->start();
 					audio->beginCallbacks();
-                    //audioEditor->disable();
+                    audioEditor->disable();
 
                     stopTimer();
                     startTimer(250); // refresh every 250 ms

@@ -82,12 +82,14 @@ void DataThread::updateChannels()
 	ttlEventWords.clear();
 	timestamps.clear();
 	int nSub = getNumSubProcessors();
+
 	for (int i = 0; i < nSub; i++)
 	{
 		ttlEventWords.add(0);
 		timestamps.add(0);
 	}
-    if (usesCustomNames())
+
+    if (foundInputSource() && usesCustomNames())
     {
         channelInfo.resize (sn->getTotalDataChannels());
         setDefaultChannelNames();

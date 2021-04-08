@@ -801,7 +801,7 @@ void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 void LfpDisplaySplitter::beginAnimation()
 {
 
-    if (true)
+    if (displayBuffer != nullptr)
     {
 
         displayBuffer->resetIndices();

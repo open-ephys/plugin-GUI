@@ -305,6 +305,9 @@ void VisualizerEditor::saveCustomParameters (XmlElement* xml)
 
 void VisualizerEditor::loadCustomParameters (XmlElement* xml)
 {
+
+    bool canvasHidden = false;
+
     forEachXmlChildElement (*xml, xmlNode)
     {
         if (xmlNode->hasTagName (EDITOR_TAG_TAB))
@@ -312,7 +315,10 @@ void VisualizerEditor::loadCustomParameters (XmlElement* xml)
             bool tabState = xmlNode->getBoolAttribute ("Active");
 
             if (tabState)
-                tabSelector->setToggleState (true, sendNotification);
+            {
+                tabSelector->setToggleState(true, sendNotification);
+                break;
+            }
         }
         else if (xmlNode->hasTagName (EDITOR_TAG_WINDOW))
         {
@@ -328,14 +334,27 @@ void VisualizerEditor::loadCustomParameters (XmlElement* xml)
                                            xmlNode->getIntAttribute ("width"),
                                            xmlNode->getIntAttribute ("height"));
                 }
+                break;
             }
+        }
+        else
+        {
+            canvasHidden = true;
         }
     }
 
-    if (canvas != nullptr)
+    if (canvasHidden)
+    {
+        //Canvas is created on button callback, so open/close tab to simulate a hidden canvas
+        tabSelector->setToggleState(true, sendNotification);
+        canvas->loadVisualizerParameters(xml);
+        tabSelector->setToggleState(false, sendNotification);
+    }
+    else if (canvas != nullptr)
     {
         canvas->loadVisualizerParameters (xml);
     }
+
 }
 
 

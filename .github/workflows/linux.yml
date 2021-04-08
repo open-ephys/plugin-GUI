@@ -19,15 +19,15 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: configure
+    - name: build
       run: |
         sudo apt update
+        sudo apt install gcc-8 g++-8
+        export CC=gcc-8
+        export CXX=g++-8
         cd Resources/Scripts
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-    - name: build
-      run: |
-        cd Build
         make all
 #    - name: test
 #      run: cd build && ctest
@@ -41,7 +41,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         zipfile=open-ephys-${gui_ver}-linux-beta.zip
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"
@@ -68,7 +68,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DataFiles open-ephys
-        cp -r ../Licenses open-ephys
+        cp ../LICENSE open-ephys
         zipfile=open-ephys-${gui_ver}-linux.zip
         zip -r $zipfile open-ephys
         user_info="$bintrayUser:$bintrayApiKey"

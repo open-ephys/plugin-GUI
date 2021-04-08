@@ -118,6 +118,8 @@ namespace RhythmNode
 		int modifyChannelGain(int channel, float gain)      override;
 		int modifyChannelName(int channel, String newName)  override;
 
+		int modifyEventChannelName(int channel, String newName);
+
 		void getEventChannelNames(StringArray& Names) const override;
 		Array<int> getDACchannels() const;
 
@@ -229,6 +231,8 @@ namespace RhythmNode
 
 		// Sync ouput divide factor
 		uint16 clockDivideFactor;
+
+		StringArray eventChannelNames;
 
 		//ADC ranges
 		std::array<atomic_short, 8> adcRangeSettings;

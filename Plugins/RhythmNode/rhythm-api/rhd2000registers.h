@@ -90,6 +90,10 @@ public:
     int createRhd2000Command(Rhd2000CommandType commandType, int arg1);
     int createRhd2000Command(Rhd2000CommandType commandType, int arg1, int arg2);
 
+    //open-ephys modifications
+    void setOffChipRH(bool enabled);
+    void setOffChipRL(bool enabled);
+
 private:
     double sampleRate;
 
