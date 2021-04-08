@@ -1308,6 +1308,21 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         //std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
     }
+    else if (cb == clipWarningSelection)
+    {
+        if (cb->getSelectedId() == 1)
+        {
+            canvasSplit->drawClipWarning = false;
+        }
+        else
+        {
+            canvasSplit->drawClipWarning = true;
+        }
+
+        canvasSplit->redraw();
+
+    //std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
+    }
     else if (cb == overlapSelection)
     {
         if (cb->getSelectedId())
