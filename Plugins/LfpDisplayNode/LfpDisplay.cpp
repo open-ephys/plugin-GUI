@@ -587,7 +587,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     else {
         for (int i = 0; i < drawableChannels.size(); i++)
         {
-            int ch = drawableChannels[i].channel->getChan();
+            int ch = drawableChannels[i].channel->getChannelNumber();
             depths[i] = float(ch);
 
            // std::cout << ch << std::endl;
@@ -602,15 +602,18 @@ void LfpDisplay::orderChannelsByDepth(bool state)
 
     // reverse channels that are currently in drawableChannels
    // std::cout << "New order: " << std::endl;
-
+    juce::Array<LfpChannelTrack> orderedDrawableChannels;
+    
     for (int i = 0; i < drawableChannels.size(); i++)
     {
         //std::cout << V[i] << std::endl;
         // re-order by depth
-        removeChildComponent(drawableChannels[i].channel);
-        drawableChannels.move(V[i]-i, drawableChannels.size()); // not working
-        
+        removeChildComponent(drawableChannels[V[i]].channel);
+        // drawableChannels.move(V[i]-i, drawableChannels.size()); // not working
+        orderedDrawableChannels.add(drawableChannels[V[i]]);
     }
+    
+    drawableChannels = orderedDrawableChannels;
 
     for (int i = 0; i < drawableChannels.size(); i++)
     {
