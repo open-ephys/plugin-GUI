@@ -1432,7 +1432,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     //      - channel reverse
     //      - channel zoom slider
     //      - channel display skip
-    std::cout << "Saving lfp display params" << std::endl;
+   // std::cout << "Saving lfp display params" << std::endl;
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
 
@@ -1500,10 +1500,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
 void LfpDisplayOptions::loadParameters(XmlElement* xml)
 {
-    // TODO: (kelly) add loaders for:
-    //      - channel reverse
-    //      - channel zoom slider
-    //      - channel display skip
+
     forEachXmlChildElement(*xml, xmlNode)
     {
 
@@ -1565,19 +1562,18 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
                 if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
                 {
-                    //std::cout << "LfpDisplayCanvas enabling channel " << i << std::endl;
-                    //lfpDisplay->enableChannel(true, i);
-                    canvasSplit->isChannelEnabled.set(i,true); //lfpDisplay->enableChannel(true, i);
+                    lfpDisplay->setEnabledState(true, i, true);
                 }
                 else
                 {
-                    //lfpDisplay->enableChannel(false, i);
-                    canvasSplit->isChannelEnabled.set(i,false);
+                    lfpDisplay->setEnabledState(false, i, true);
                 }
 
             }
         }
     }
+
+    //std::cout << "Finished loading LFP options." << std::endl;
 
 }
 

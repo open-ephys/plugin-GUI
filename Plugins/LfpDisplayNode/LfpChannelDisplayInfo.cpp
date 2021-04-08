@@ -79,7 +79,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
     bool state = button->getToggleState();
 
-    display->setEnabledState(state, chan);
+    display->setEnabledState(state, chan, true);
 
     //UtilityButton* b = (UtilityButton*) button;
 
@@ -96,7 +96,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-    enableButton->setToggleState(state, sendNotification);
+    enableButton->setToggleState(state, dontSendNotification);
 }
 
 void LfpChannelDisplayInfo::setSingleChannelState(bool state)

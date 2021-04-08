@@ -114,6 +114,11 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
     isPaused = false;
 
+    savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
+
+    numChans = 0;
+
+
 }
 
 LfpDisplay::~LfpDisplay()
@@ -144,66 +149,82 @@ ChannelColourScheme * LfpDisplay::getColourSchemePtr()
     return colourSchemeList[activeColourScheme];
 }
 
-void LfpDisplay::setNumChannels(int numChannels)
+void LfpDisplay::setNumChannels(int newChannelCount)
 {
-    numChans = numChannels;
     
-//    deleteAllChildren();
-    removeAllChildren();
+    if (numChans > newChannelCount)
+    {
+        for (int i = newChannelCount; i < numChans; i++)
+        {
+            removeChildComponent(channels[i]);
+            removeChildComponent(channelInfo[i]);
 
-    channels.clear();
-    channelInfo.clear();
-    drawableChannels.clear();
+        }
+
+        channels.removeLast(numChans - newChannelCount);
+        channelInfo.removeLast(numChans - newChannelCount);
+        drawableChannels.removeLast(numChans - newChannelCount);
+    }
+    
+    //removeAllChildren();
+
+    //channels.clear();
+    //channelInfo.clear();
+    //drawableChannels.clear();
 
     totalHeight = 0;
 
-    scrollX = 0; 
-    scrollY = 0;
-
     cachedDisplayChannelHeight = canvasSplit->getChannelHeight();
 
-	if (numChans > 0)
+	if (newChannelCount > 0)
 	{
-		for (int i = 0; i < numChans; i++)
+		for (int i = 0; i < newChannelCount; i++)
 		{
-			//std::cout << "Adding new display for channel " << i << std::endl;
 
-			LfpChannelDisplay* lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
+            LfpChannelDisplay* lfpChan;
+            LfpChannelDisplayInfo* lfpInfo;
 
-			//lfpChan->setColour(channelColours[i % channelColours.size()]);
+            if (i >= numChans)
+            {
+                std::cout << "Adding new display for channel " << i << std::endl;
+
+                lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
+                addAndMakeVisible(lfpChan);
+                channels.add(lfpChan);
+
+                lfpInfo = new LfpChannelDisplayInfo(canvasSplit, this, options, i);
+                addAndMakeVisible(lfpInfo);
+                channelInfo.add(lfpInfo);
+
+                drawableChannels.add(LfpChannelTrack{
+                lfpChan,
+                lfpInfo
+                    });
+            }
+            else {
+                
+                lfpChan = channels[i];
+                lfpInfo = channelInfo[i];
+            }
+            
 			lfpChan->setRange(range[options->getChannelType(i)]);
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
+            lfpChan->setEnabledState(savedChannelState[i]);
 
-			addAndMakeVisible(lfpChan);
-
-			channels.add(lfpChan);
-
-			LfpChannelDisplayInfo* lfpInfo = new LfpChannelDisplayInfo(canvasSplit, this, options, i);
-
-			//lfpInfo->setColour(channelColours[i % channelColours.size()]);
 			lfpInfo->setRange(range[options->getChannelType(i)]);
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
 			lfpInfo->setSubprocessorIdx(canvasSplit->getChannelSubprocessorIdx(i));
-
-			addAndMakeVisible(lfpInfo);
-
-			channelInfo.add(lfpInfo);
-
-			drawableChannels.add(LfpChannelTrack{
-				lfpChan,
-				lfpInfo
-			});
-
-			savedChannelState.add(true);
+            lfpInfo->setEnabledState(savedChannelState[i]);
 
 			totalHeight += lfpChan->getChannelHeight();
 
 		}
-
 	}
     
+    numChans = newChannelCount;
+
     setColors();
-    
+
     std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
 }
@@ -846,7 +867,7 @@ void LfpDisplay::reactivateChannels()
 {
 
     for (int n = 0; n < channels.size(); n++)
-       setEnabledState(savedChannelState[n], n);
+       setEnabledState(savedChannelState[n], n, true);
 
 }
 
@@ -1073,7 +1094,13 @@ void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)
         if (updateSaved)
             savedChannelState.set(chan, state);
 
-        canvasSplit->isChannelEnabled.set(chan, state);
+       // if (!state)
+        //    std::cout << "UPDATING CANVAS VALUE FOR CHANNEL " << chan <<  std::endl;
+
+        //canvasSplit->isChannelEnabled.set(chan, state);
+
+       // if (!state)
+        //    std::cout << "CANVAS VALUE: " << canvasSplit->isChannelEnabled[chan] << std::endl;
     }
 }
 

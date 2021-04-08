@@ -722,7 +722,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
-    isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
+    //isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
 
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
@@ -850,6 +850,8 @@ void LfpDisplaySplitter::updateSettings()
     nChans = displayBuffer->numChannels;
     resizeSamplesPerPixelBuffer(nChans);
     sampleRate = displayBuffer->sampleRate;
+
+    std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
     
     options->setEnabled(nChans != 0);
     // must manually ensure that overlapSelection propagates up to canvas
@@ -877,27 +879,37 @@ void LfpDisplaySplitter::updateSettings()
         screenBufferMax->setSize(nChans + 1, MAX_N_SAMP);
 
         refreshScreenBuffer();
-
-        if (nChans > 0)
-            lfpDisplay->setNumChannels(nChans);
-
-        for (int i = 0; i < nChans; i++)
-        {
-            lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
-            lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
-            lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-            lfpDisplay->setEnabledState(isChannelEnabled[i], i);
-        }
-        
-        if (nChans == 0) 
-            lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
-        else {
-            lfpDisplay->rebuildDrawableChannelsList();
-            lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-        }
-        
-        resized();
     }
+
+    if (nChans > 0)
+        lfpDisplay->setNumChannels(nChans);
+
+    for (int i = 0; i < nChans; i++)
+    {
+        lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
+        lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
+        lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        //lfpDisplay->setEnabledState(isChannelEnabled[i], i);
+
+       // if (isChannelEnabled[i])
+        //{
+       //     std::cout << "CH" << i << " enabled." << std::endl;
+
+       // }
+       // else {
+       //     std::cout << "CH" << i << " DISABLED." << std::endl;
+      //  }
+    }
+        
+    if (nChans == 0) 
+        lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+    else {
+        lfpDisplay->rebuildDrawableChannelsList();
+        lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+    }
+        
+    resized();
+  /*  }
     else
     {
         for (int i = 0; i < nChans; i++)
@@ -914,7 +926,7 @@ void LfpDisplaySplitter::updateSettings()
         {
             lfpDisplay->rebuildDrawableChannelsList();
         }
-    }
+    }*/
 
     syncDisplay();
 }

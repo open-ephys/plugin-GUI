@@ -74,10 +74,15 @@ void LfpDisplayNode::updateSettings()
         if (displayBufferMap.count(id) == 0)
         {
             String name = getSubprocessorName(ch);
+
+            
             displayBuffers.add(new DisplayBuffer(id, name, getDataChannel(ch)->getSampleRate()));
             displayBufferMap[id] = displayBuffers.getLast();
 
             // also add channel positions
+        }
+        else {
+            displayBufferMap[id]->sampleRate = getDataChannel(ch)->getSampleRate();
         }
 
         int depthId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");

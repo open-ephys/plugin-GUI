@@ -46,6 +46,8 @@ namespace LfpViewer {
         }
 
         ttlState = 0;
+
+        std::cout << "Display buffer sample rate: " << sampleRate << std::endl;
     }
 
     DisplayBuffer::~DisplayBuffer()

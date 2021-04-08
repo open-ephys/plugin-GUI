@@ -95,25 +95,17 @@ void LfpChannelDisplay::updateType()
 
 void LfpChannelDisplay::setEnabledState(bool state)
 {
-
-    //if (state)
-    //std::cout << "Setting channel " << name << " to true." << std::endl;
-    //else
-    //std::cout << "Setting channel " << name << " to false." << std::endl;
-
     isEnabled = state;
-
 }
 
 void LfpChannelDisplay::setHidden(bool isHidden_)
 {
     isHidden = isHidden_;
-    isEnabled = !isHidden;
 }
 
 void LfpChannelDisplay::pxPaint()
 {
-    if (!isEnabled) return; // return early if THIS display is not enabled
+    if (!isEnabled || isHidden) return; // return early if THIS display is not enabled
     
     Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
     
