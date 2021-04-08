@@ -44,7 +44,11 @@ class LfpDisplayOptions : public Component,
     public Button::Listener
 {
 public:
-    LfpDisplayOptions(LfpDisplayCanvas*, LfpTimescale*, LfpDisplay*, LfpDisplayNode*);
+    LfpDisplayOptions(LfpDisplayCanvas*,
+                      LfpDisplaySplitter*, 
+                      LfpTimescale*, 
+                      LfpDisplay*, 
+                      LfpDisplayNode*);
     ~LfpDisplayOptions();
 
     void paint(Graphics& g);
@@ -106,7 +110,7 @@ public:
     
     int selectedSpikeRasterThreshold;
     String selectedSpikeRasterThresholdValue;
-    
+
     // this enum is a candidate option for refactoring, not used yet
     enum ChannelDisplaySkipValue {
         None = 0,
@@ -125,6 +129,7 @@ public:
 private:
 
     LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     LfpDisplay* lfpDisplay;
     LfpTimescale* timescale;
     LfpDisplayNode* processor;
@@ -132,65 +137,41 @@ private:
     Font labelFont;
     Colour labelColour;
 
+    // Main options
     ScopedPointer<ComboBox> timebaseSelection;
-    ScopedPointer<ComboBox> rangeSelection;
     ScopedPointer<ComboBox> spreadSelection;
-    
-    ScopedPointer<ComboBox> overlapSelection;
-    ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
-    
-    ScopedPointer<ComboBox> saturationWarningSelection;
-    ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
-    
-    ScopedPointer<ComboBox> colorGroupingSelection;
-    ScopedPointer<UtilityButton> invertInputButton;
-    ScopedPointer<UtilityButton> drawMethodButton;
-    ScopedPointer<UtilityButton> pauseButton;
+    ScopedPointer<ComboBox> rangeSelection;
     OwnedArray<UtilityButton> typeButtons;
     
-    // label and button for spike raster functionality
-    ScopedPointer<Label> spikeRasterLabel;
-    ScopedPointer<ComboBox> spikeRasterSelection;
-    StringArray spikeRasterSelectionOptions;
+    ScopedPointer<ComboBox> overlapSelection; // what do we do with this?
     
-    // label and button for reversing the order of displayed channels
-    ScopedPointer<Label> reverseChannelsDisplayLabel;
-    ScopedPointer<UtilityButton> reverseChannelsDisplayButton;
-    
-    // label and combobox for channel skipping in display
-    ScopedPointer<Label> channelDisplaySkipLabel;
-    ScopedPointer<ComboBox> channelDisplaySkipSelection;
-    StringArray channelDisplaySkipOptions;
-    
-    // label and combobox for stream rate to be displayed (only show one or other)
-    ScopedPointer<Label> streamRateDisplayedLabel;
-    ScopedPointer<ComboBox> streamRateDisplayedSelection;
-    StringArray streamRateDisplayedOptions;
-    
-    // label and toggle button for the median offset plotting feature
-    ScopedPointer<Label> medianOffsetPlottingLabel;
-    ScopedPointer<UtilityButton> medianOffsetPlottingButton;
-
-	// label and toggle button for channel numbering
-	ScopedPointer<Label> showChannelNumberLabel;
-	ScopedPointer<UtilityButton> showChannelNumberButton;
-    
-    // label and combobox for color scheme options
-    ScopedPointer<Label> colourSchemeOptionLabel;
+    OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
+    ScopedPointer<UtilityButton> pauseButton;
     ScopedPointer<ComboBox> colourSchemeOptionSelection;
+    ScopedPointer<ComboBox> colorGroupingSelection;
     
-    ScopedPointer<Slider> brightnessSliderA;
-    ScopedPointer<Slider> brightnessSliderB;
-    
-    ScopedPointer<Label> sliderALabel;
-    ScopedPointer<Label> sliderBLabel;
-
-    ScopedPointer<ComboBox> triggerSourceSelection;
-
     ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
 
-    // TODO: (kelly) consider moving these into a config singleton (meyers?) to clean up
-    //               the constructor and huge array inits currently in there
+    // THRESHOLDS SECTION
+    ScopedPointer<ComboBox> spikeRasterSelection;
+    ScopedPointer<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
+    ScopedPointer<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
+    
+    // CHANNELS SECTION
+    ScopedPointer<UtilityButton> reverseChannelsDisplayButton;
+    ScopedPointer<UtilityButton> sortByDepthButton;
+    ScopedPointer<ComboBox> channelDisplaySkipSelection;
+    ScopedPointer<UtilityButton> showChannelNumberButton;
+
+    // SIGNAL PROCESSING SECTION
+    ScopedPointer<UtilityButton> medianOffsetPlottingButton;
+    ScopedPointer<UtilityButton> invertInputButton;
+
+    // TRIGGERED DISPLAY SECTION
+    ScopedPointer<ComboBox> triggerSourceSelection;
+    ScopedPointer<UtilityButton> averageSignalButton;
+    ScopedPointer<UtilityButton> resetButton;
+     
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;
     StringArray spreads; // option for vertical spacing between channels
@@ -198,6 +179,10 @@ private:
     StringArray triggerSources; // option for trigger source event channel
     StringArray overlaps; //
     StringArray saturationThresholds; //default values for when different amplifiers saturate
+    StringArray clipThresholds;
+    StringArray spikeRasterSelectionOptions;
+    StringArray channelDisplaySkipOptions;
+    StringArray sectionTitles;
     
 	DataChannel::DataChannelTypes selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
@@ -207,9 +192,36 @@ private:
     StringArray typeNames;
     int rangeSteps[CHANNEL_TYPES];
 
-    OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
+    bool medianOffsetOnForSpikeRaster;
+
+    // NOT USED:
+    //ScopedPointer<Slider> brightnessSliderA;
+    //ScopedPointer<Slider> brightnessSliderB;
+
+    //ScopedPointer<Label> sliderALabel;
+    //ScopedPointer<Label> sliderBLabel;
+
+    // label and combobox for stream rate to be displayed (only show one or other)
+    //ScopedPointer<Label> streamRateDisplayedLabel;
+    //ScopedPointer<ComboBox> streamRateDisplayedSelection;
+    //StringArray streamRateDisplayedOptions;
+
+    // label and toggle button for the median offset plotting feature
+    //ScopedPointer<Label> medianOffsetPlottingLabel;
+
+        //ScopedPointer<UtilityButton> drawMethodButton;
+
+    // label and toggle button for channel numbering
+    //ScopedPointer<Label> showChannelNumberLabel;
+
+
+    // label and combobox for color scheme options
+    //ScopedPointer<Label> colourSchemeOptionLabel;
+    //ScopedPointer<ComboBox> colourSchemeOptionSelection;
+ 
 
 };
     
 }; // namespace
+
 #endif

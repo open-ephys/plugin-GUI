@@ -3,13 +3,15 @@
 #define LFPDISPLAYCLASSES_H
 
 namespace LfpViewer {
-    constexpr int MAX_N_CHAN = 2048;
-    constexpr int MAX_N_SAMP = 5000;
+    constexpr int MAX_N_CHAN = 16;
+    constexpr int MAX_N_SAMP = 5000; // used for screen buffer; this could be resized dynamically depending on the display width
     constexpr int MAX_N_SAMP_PER_PIXEL = 100;
     constexpr int CHANNEL_TYPES = 3;
+    enum SplitLayouts {SINGLE = 1, TWO_VERT, THREE_VERT, TWO_HORZ, THREE_HORZ};
 
     class LfpDisplayNode;
     class LfpDisplayCanvas;
+    class LfpDisplaySplitter;
     class ShowHideOptionsButton;
     class LfpDisplayOptions;
     class LfpTimescale;
@@ -22,10 +24,10 @@ namespace LfpViewer {
     class LfpBitmapPlotter;
     class PerPixelBitmapPlotter;
     class SupersampledBitmapPlotter;
-    class LfpChannelColourScheme;
-    class LfpDefaultColourScheme;
-    class LfpMonochromaticColourScheme;
-    class LfpGradientColourScheme;
+    class ChannelColourScheme;
+    class DefaultColourScheme;
+    class MonochromaticColourScheme;
+    class GradientColourScheme;
 
 };
 #endif

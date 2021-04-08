@@ -30,7 +30,13 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+#include "DisplayBuffer.h"
+
+
 namespace LfpViewer {
+
+class LfpDisplaySplitter;
+
 #pragma  mark - LfpDisplayCanvas -
 //==============================================================================
 /**
@@ -42,35 +48,112 @@ namespace LfpViewer {
 */
     
 class LfpDisplayCanvas : public Visualizer,
-    public KeyListener
+                         public KeyListener,
+                         public ComboBox::Listener
 {
 public:
-    LfpDisplayCanvas(LfpDisplayNode* n);
+
+    LfpDisplayCanvas(LfpDisplayNode* n, SplitLayouts sl);
     ~LfpDisplayCanvas();
 
     void beginAnimation();
     void endAnimation();
 
+    /** Called when the tab becomes visible again*/
     void refreshState();
+
+    /* Called when settings need to be updated*/
     void update();
 
-    void setParameter(int, float);
+    void setParameter(int, float) {}
     void setParameter(int, int, int, float) {}
 
     void paint(Graphics& g);
 
     void refresh();
+
+    void syncDisplays();
+
+    /* Called when the component changes size*/
     void resized();
-    
-    /** Resizes the LfpDisplay to the size required to fit all channels that are being
+
+    void comboBoxChanged(ComboBox* cb);
+
+    void setLayout(SplitLayouts);
+
+    bool makeRoomForOptions(int splitID);
+
+    bool canSelect(int splitID);
+
+    void toggleOptionsDrawer(bool);
+
+    int getTotalSplits();
+
+    void saveVisualizerParameters(XmlElement* xml);
+    void loadVisualizerParameters(XmlElement* xml);
+
+    bool keyPressed(const KeyPress& key);
+    bool keyPressed(const KeyPress& key, Component* orig);
+
+    bool optionsDrawerIsOpen;
+
+    void select(LfpDisplaySplitter*);
+
+    void mouseMove(const MouseEvent&) override;
+    void mouseDrag(const MouseEvent&) override;
+    void mouseUp(const MouseEvent&) override;
+
+private:
+
+    LfpDisplayNode* processor;
+
+    OwnedArray<LfpDisplaySplitter> displaySplits;
+
+    ScopedPointer<ComboBox> displaySelection;
+    ScopedPointer<Label> displayLabel;
+
+    SplitLayouts selectedLayout;
+
+    float doubleVerticalSplitRatio;
+    Array<float> tripleVerticalSplitRatio;
+    float doubleHorizontalSplitRatio;
+    Array<float> tripleHorizontalSplitRatio;
+
+    int borderToDrag;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+
+};
+
+
+class LfpDisplaySplitter : public Component,
+                           public ComboBoxListener
+{
+public:
+    LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, DisplayBuffer* displayBuffer, int id);
+    ~LfpDisplaySplitter();
+
+    void paint(Graphics& g);
+
+    void beginAnimation();
+
+        /** Resizes the LfpDisplay to the size required to fit all channels that are being
         drawn to the screen.
         
         @param respectViewportPosition  (optional) if true, viewport automatically
                                         scrolls to maintain view prior to resizing
      */
-    void resizeToChannels(bool respectViewportPosition = false);
+    
+    void refreshSplitterState();
 
-    void toggleOptionsDrawer(bool);
+    void updateSettings();
+
+    
+    
+    void resized();
+    void refresh();
+
+    void resizeToChannels(bool respectViewportPosition = false);
 
     int getChannelHeight();
     
@@ -98,6 +181,9 @@ public:
     /** Returns the subprocessor index of the given channel */
     int getChannelSubprocessorIdx(int channel);
     
+    /** Fetch list of input subprocessors from LfpDisplayNode */
+    void setInputSubprocessors();
+
     /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
         this canvas */
     void setDrawableSubprocessor(uint32 sp);
@@ -118,12 +204,6 @@ public:
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
 
-    void saveVisualizerParameters(XmlElement* xml);
-    void loadVisualizerParameters(XmlElement* xml);
-
-    bool keyPressed(const KeyPress& key);
-    bool keyPressed(const KeyPress& key, Component* orig);
-
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
@@ -137,31 +217,60 @@ public:
     int nChans;
     //int nChansVisible; // the number of channels NOT hidden for display
 
+    int splitID; //split display ID
+
     float timebase;
 
     void redraw();
 
+    void syncDisplay();
+
+    void select();
+    void deselect();
+
+    bool getSelectedState() { return isSelected; }
+
+    void handleSpaceKeyPauseEvent();
+
+    /** Respond to user's subprocessor selection */
+    void comboBoxChanged(ComboBox *cb);
+
 	DataChannel::DataChannelTypes selectedChannelType;
 
+    ScopedPointer<ComboBox> subprocessorSelection;
+
     ScopedPointer<LfpViewport> viewport;
+    ScopedPointer<LfpTimescale> timescale;
+    ScopedPointer<LfpDisplay> lfpDisplay;
+    ScopedPointer<LfpDisplayOptions> options;
+
+    void setTriggerChannel(int);
+    void setAveraging(bool);
+    void resetTrials();
+
+    DisplayBuffer* displayBuffer; // sample wise data buffer for display
 
 private:
-    
-    float sampleRate;
 
-    bool optionsDrawerIsOpen;
-    
-    float displayGain;
-    float timeOffset;
-    //int spread ; // vertical spacing between channels
-
-	uint32 drawableSubprocessor;
-	float displayedSampleRate;
-    
-    //float waves[MAX_N_CHAN][MAX_N_SAMP*2]; // we need an x and y point for each sample
+    bool isSelected;
 
     LfpDisplayNode* processor;
-    std::shared_ptr<AudioSampleBuffer> displayBuffer; // sample wise data buffer for display
+    LfpDisplayCanvas* canvas;
+
+    float sampleRate;
+    float numTrials;
+
+    bool trialAveraging;
+
+    float displayGain;
+    float timeOffset;
+
+    int triggerChannel;
+
+	uint32 subprocessorId;
+	float displayedSampleRate;
+    
+    
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
     //'define 3 buffers for min mean and max for better plotting of spikes
@@ -172,11 +281,6 @@ private:
 
     MidiBuffer* eventBuffer;
 
-    ScopedPointer<LfpTimescale> timescale;
-    ScopedPointer<LfpDisplay> lfpDisplay;
-    
-    ScopedPointer<LfpDisplayOptions> options;
-
     void refreshScreenBuffer();
     void updateScreenBuffer();
 
@@ -184,17 +288,15 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
-    
-    //float samplesPerPixel[MAX_N_SAMP][MAX_N_SAMP_PER_PIXEL];
-    //float*** samplesPerPixel;
 
 	void resizeSamplesPerPixelBuffer(int numChannels);
     std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
 
     int sampleCountPerPixel[MAX_N_SAMP];
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayCanvas);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 
+    
 };
 
 }; // namespace

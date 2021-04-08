@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -30,6 +30,7 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
 #pragma  mark - LfpDisplay -
 //==============================================================================
@@ -46,7 +47,7 @@ namespace LfpViewer {
 class LfpDisplay : public Component
 {
 public:
-    LfpDisplay(LfpDisplayCanvas*, Viewport*);
+    LfpDisplay(LfpDisplaySplitter*, Viewport*);
     ~LfpDisplay();
     
     Image lfpChannelBitmap; // plot as bitmap instead of separately setting pixels
@@ -77,7 +78,7 @@ public:
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();
     
-    LfpChannelColourScheme * getColourSchemePtr();
+    ChannelColourScheme * getColourSchemePtr();
         
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
@@ -90,6 +91,9 @@ public:
     
     /** Reorders the displayed channels, reversed if state == true and normal if false */
     void setChannelsReversed(bool state);
+
+    /** Reorders the displayed channels by depth if state == true and normal if false */
+    void orderChannelsByDepth(bool state);
     
     /** Returns a factor of 2 by which the displayed channels should skip */
     int getChannelDisplaySkipAmount();
@@ -114,6 +118,8 @@ public:
     void setEnabledState(bool state, int chan, bool updateSavedChans = true);
     bool getEnabledState(int);
     
+    void setScrollPosition(int x, int y);
+
     /** Returns true if the median offset is enabled for plotting, else false */
     bool getMedianOffsetPlotting();
     
@@ -207,16 +213,20 @@ private:
     float drawableSampleRate;
     uint32 drawableSubprocessor;
 
+    int scrollX;
+    int scrollY;
+
     int totalHeight;
 
     int colorGrouping;
     
     bool channelsReversed;
+    bool channelsOrderedByDepth;
     bool m_MedianOffsetPlottingFlag;
     bool m_SpikeRasterPlottingFlag;
     float m_SpikeRasterThreshold;
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     Viewport* viewport;
 
     float range[3];
@@ -229,7 +239,7 @@ private:
     // TODO: (kelly) add reference to a color scheme
 //    LfpChannelColourScheme * colourScheme;
     uint8 activeColourScheme;
-    OwnedArray<LfpChannelColourScheme> colourSchemeList;
+    OwnedArray<ChannelColourScheme> colourSchemeList;
 };
   
 }; // namespace

@@ -20,31 +20,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __LFPCHANNELCOLOURSCHEME_H__
-#define __LFPCHANNELCOLOURSCHEME_H__
+#ifndef __CHANNELCOLOURSCHEME_H__
+#define __CHANNELCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
 #include <vector>
 #include <array>
 
-#include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
 namespace LfpViewer {
 #pragma  mark - LfpChannelColourScheme -
 /**
  Interface for a color scheme object
  */
-class LfpChannelColourScheme : public Component
+class ChannelColourScheme : public Component
 {
 public:
-    LfpChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplayCanvas* canvas)
+    ChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplaySplitter* split)
     : lfpDisplay(display)
-    , canvas(canvas)
+    , canvasSplit(split)
     , numColourChannels(numColourChannels_)
     { }
     
-    virtual ~LfpChannelColourScheme() {}
+    virtual ~ChannelColourScheme() {}
     
     void paint(Graphics &g) override {}
     void resized() override {}
@@ -58,13 +58,16 @@ public:
     
     void setColourGrouping(int grouping);
     int getColourGrouping();
+
+    virtual const Colour getBackgroundColour() const = 0;
     
 protected:
     LfpDisplay * lfpDisplay;
-    LfpDisplayCanvas * canvas;
+    LfpDisplaySplitter * canvasSplit;
     
     int numColourChannels;
     static int colourGrouping;
+
 };
     
 }; // namespace

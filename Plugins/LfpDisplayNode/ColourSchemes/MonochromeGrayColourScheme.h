@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,47 +20,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __LFPGRADIENTCOLOURSCHEME_H__
-#define __LFPGRADIENTCOLOURSCHEME_H__
+#ifndef __MONOCHROMEGRAYCOLOURSCHEME_H__
+#define __MONOCHROMEGRAYCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
 #include <vector>
 #include <array>
 
-#include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
-#include "LfpMonochromaticColourScheme.h"
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
+#include "ChannelColourScheme.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpGradientColourScheme
-    
-class LfpGradientColourScheme : public LfpMonochromaticColourScheme
-{
-public:
-    
-    LfpGradientColourScheme(LfpDisplay*, LfpDisplayCanvas*);
-    
-    void paint(Graphics &) override;
-    void resized() override;
-    
-    void sliderValueChanged(Slider *sl) override;
-    void mouseUp(const MouseEvent &e) override;
-    
-    void setLerpToHue(Colour c);
-    Colour getLerpToHue();
-    
-private:
-    Colour baseHueB;
-    Colour swatchHueB;
-    Rectangle<int> colourSwatchRectB;
-    
-    ScopedPointer<Label> baseHueLabelB;
-    ScopedPointer<Slider> baseHueSliderB;
-    
-    void calculateColourSeriesFromBaseHue() override;
-};
-    
-};
+#pragma  mark - MonochromeGrayColourScheme -
+    class MonochromeGrayColourScheme : public ChannelColourScheme
+    {
+    public:
+        MonochromeGrayColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~MonochromeGrayColourScheme() {}
 
-#endif  // __LFPDISPLAYCANVAS_H_Alpha__
+        void paint(Graphics& g) override;
+        void resized() override;
 
+        virtual const Colour getColourForIndex(int index) const override;
+        virtual const Colour getBackgroundColour() const override;
+
+
+    private:
+        static Array<Colour> colourList;
+    };
+    
+}; // namespace
+#endif

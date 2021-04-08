@@ -21,21 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "LfpChannelColourScheme.h"
-#include "LfpDisplayNode.h"
-#include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
-#include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotterInfo.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
+#include "ChannelColourScheme.h"
+#include "../LfpDisplayNode.h"
+#include "../LfpDisplayCanvas.h"
+#include "../ShowHideOptionsButton.h"
+#include "../LfpDisplayOptions.h"
+#include "../LfpTimescale.h"
+#include "../LfpDisplay.h"
+#include "../LfpChannelDisplay.h"
+#include "../LfpChannelDisplayInfo.h"
+#include "../EventDisplayInterface.h"
+#include "../LfpViewport.h"
+#include "../LfpBitmapPlotterInfo.h"
+#include "../LfpBitmapPlotter.h"
+#include "../PerPixelBitmapPlotter.h"
+#include "../SupersampledBitmapPlotter.h"
 
 #include <math.h>
 
@@ -43,14 +43,14 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpChannelColourScheme -
 
-int LfpChannelColourScheme::colourGrouping = 1;
+int ChannelColourScheme::colourGrouping = 1;
 
-void LfpChannelColourScheme::setColourGrouping(int grouping)
+void ChannelColourScheme::setColourGrouping(int grouping)
 {
     colourGrouping = grouping;
 }
 
-int LfpChannelColourScheme::getColourGrouping()
+int ChannelColourScheme::getColourGrouping()
 {
     return colourGrouping;
 }

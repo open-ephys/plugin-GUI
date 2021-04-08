@@ -40,7 +40,7 @@ class EventDisplayInterface : public Component,
     public Button::Listener
 {
 public:
-    EventDisplayInterface(LfpDisplay*, LfpDisplayCanvas*, int chNum);
+    EventDisplayInterface(LfpDisplay*, LfpDisplaySplitter*, int chNum);
     ~EventDisplayInterface();
 
     void paint(Graphics& g);
@@ -56,7 +56,7 @@ private:
     int channelNumber;
 
     LfpDisplay* display;
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
 
     ScopedPointer<UtilityButton> chButton;
 

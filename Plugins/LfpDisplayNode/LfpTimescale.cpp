@@ -34,7 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LfpBitmapPlotter.h"
 #include "PerPixelBitmapPlotter.h"
 #include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
 
 #include <math.h>
 
@@ -43,8 +42,8 @@ using namespace LfpViewer;
 #pragma  mark - LfpTimescale -
 // -------------------------------------------------------------
 
-LfpTimescale::LfpTimescale(LfpDisplayCanvas* c, LfpDisplay* lfpDisplay)
-    : canvas(c)
+LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
+    : canvasSplit(c)
     , lfpDisplay(lfpDisplay)
 {
 
@@ -63,21 +62,43 @@ void LfpTimescale::paint(Graphics& g)
 
     g.setColour(Colour(100,100,100));
 
-    const String timeScaleUnitLabel = (timebase >= 2)?("s:"):("ms:");
-    g.drawText(timeScaleUnitLabel,5,0,100,getHeight(),Justification::left, false);
+    const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");
 
-    const int steps = labels.size() + 1;
-    for (int i = 0; i < steps; i++)
+    for (int i = 1; i < labels.size(); i++)
+    {
+
+        float lineHeight;
+
+        /*if (isMajor[i])
+        {
+            lineHeight = getHeight() / 2;
+        }
+        else {
+            lineHeight = getHeight() / 4;
+        }*/
+
+        g.drawLine(getWidth() * fractionWidth[i],
+            0,
+            getWidth() * fractionWidth[i],
+            getHeight(),
+            2.0f);
+
+        g.drawText(labels[i] + " " + timeScaleUnitLabel,
+                   getWidth()*fractionWidth[i]+10,
+                   0,
+                   100,
+                   getHeight(),
+                   Justification::left, false);
+        
+    }
+
+    /*for (int i = 0; i < steps; i++)
     {
         
         // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
         if (i == 0)
         {
-            g.drawLine(1,
-                       0,
-                       1,
-                       getHeight(),
-                       3.0f);
+            
         }
         if (i != 0 && i % 4 == 0)
         {
@@ -107,7 +128,7 @@ void LfpTimescale::paint(Graphics& g)
         if (i != 0 && i % 2 == 0)
             g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
 
-    }
+    }*/
 }
 
 void LfpTimescale::mouseUp(const MouseEvent &e)
@@ -116,6 +137,9 @@ void LfpTimescale::mouseUp(const MouseEvent &e)
     {
         lfpDisplay->trackZoomInfo.isScrollingX = false;
     }
+
+    canvasSplit->select();
+    
 }
 
 void LfpTimescale::resized()
@@ -173,7 +197,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             if (timescale != newTimescale)
             {
                 lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
-                setTimebase(canvas->timebase);
+                setTimebase(canvasSplit->timebase);
             }
         }
     }
@@ -184,9 +208,51 @@ void LfpTimescale::setTimebase(float t)
     timebase = t;
 
     labels.clear();
+    isMajor.clear();
+    fractionWidth.clear();
+
+    float stepSize;
+
+    if (timebase <= 0.01)
+        stepSize = 0.002;
+    else if (timebase > 0.01 && timebase <= 0.025)
+        stepSize = 0.005;
+    else if (timebase > 0.025 && timebase <= 0.1)
+        stepSize = 0.01;
+    else if (timebase > 0.1 && timebase < 0.5)
+        stepSize = 0.025;
+    else if (timebase >= 0.5 && timebase < 2)
+        stepSize = 0.25;
+    else if (timebase >= 2 && timebase < 5)
+        stepSize = 0.5;
+    else if (timebase >= 5 && timebase < 15)
+        stepSize = 1.0;
+    else
+        stepSize = 2.0;
+
+    float time = 0;
+    int index = 0;
+
+    while (time < timebase)
+    {
+        String labelString = String(time * ((timebase >= 2) ? (1) : (1000.0f)));
+        labels.add(labelString.substring(0, 6));
+
+        fractionWidth.add(time / timebase);
+        
+        if (index % 2 == 0)
+            isMajor.add(true);
+        else
+            isMajor.add(false);
+
+        time += stepSize;
+        index++;
+    }
     
-    const int minWidth = 60;
+    /*const int minWidth = 60;
     labelIncrement = 0.005f;
+
+    if (timebase < 5)
     
     while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
            getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
@@ -202,7 +268,7 @@ void LfpTimescale::setTimebase(float t)
     {
         String labelString = String(i * ((timebase >= 2)?(1):(1000.0f)));
         labels.add(labelString.substring(0,6));
-    }
+    }*/
 
     repaint();
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,40 +20,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef __TROPICALCOLOURSCHEME_H__
+#define __TROPICALCOLOURSCHEME_H__
 
-#include "LfpDisplayEditor.h"
+#include <VisualizerWindowHeaders.h>
 
-using namespace LfpDisplayNodeBeta;
+#include <vector>
+#include <array>
 
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
+#include "ChannelColourScheme.h"
 
-LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : VisualizerEditor(parentNode, useDefaultParameterEditors)
+namespace LfpViewer {
+#pragma  mark - TropicalColourScheme -
+    class TropicalColourScheme : public ChannelColourScheme
+    {
+    public:
+        TropicalColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~TropicalColourScheme() {}
 
-{
+        void paint(Graphics& g) override;
+        void resized() override;
 
-    tabText = "LFP";
+        virtual const Colour getColourForIndex(int index) const override;
+        virtual const Colour getBackgroundColour() const override;
 
-    desiredWidth = 180;
-
-}
-
-LfpDisplayEditor::~LfpDisplayEditor()
-{
-}
-
-
-Visualizer* LfpDisplayEditor::createNewCanvas()
-{
-
-    LfpDisplayNode* processor = (LfpDisplayNode*) getProcessor();
-    return new LfpDisplayCanvas(processor);
-
-}
-
-// not really being used (yet)...
-void LfpDisplayEditor::buttonEvent(Button* button)
-{
-
-
-}
-
+    private:
+        static Array<Colour> colourList;
+    };
+    
+}; // namespace
+#endif

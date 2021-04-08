@@ -20,42 +20,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef __DEFAULTCOLOURSCHEME_H__
+#define __DEFAULTCOLOURSCHEME_H__
 
-#ifndef __LFPDISPLAYEDITOR_H_BETA__
-#define __LFPDISPLAYEDITOR_H_BETA__
+#include <VisualizerWindowHeaders.h>
 
-#include <VisualizerEditorHeaders.h>
-#include "LfpDisplayNode.h"
-#include "LfpDisplayCanvas.h"
+#include <vector>
+#include <array>
 
-class Visualizer;
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
+#include "ChannelColourScheme.h"
 
-namespace LfpDisplayNodeBeta { 
-
-/**
-
-  User interface for the LfpDisplayNode sink.
-
-  @see LfpDisplayNode, LfpDisplayCanvas
-
-*/
-
-class LfpDisplayEditor : public VisualizerEditor
+namespace LfpViewer {
+#pragma  mark - DefaultColourScheme -
+class DefaultColourScheme : public ChannelColourScheme
 {
 public:
-    LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
-    ~LfpDisplayEditor();
-
-    // not really being used (yet) ...
-    void buttonEvent(Button* button);
-
-    Visualizer* createNewCanvas();
+    DefaultColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+    virtual ~DefaultColourScheme() {}
+    
+    void paint(Graphics &g) override;
+    void resized() override;
+    
+    virtual const Colour getColourForIndex(int index) const override;
+    virtual const Colour getBackgroundColour() const override;
 
 private:
-
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
+    static Array<Colour> colourList;
 
 };
-};
-#endif  // __LFPDISPLAYEDITOR_H_BETA__
+    
+}; // namespace
+#endif

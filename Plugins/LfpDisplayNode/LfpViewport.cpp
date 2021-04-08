@@ -22,19 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LfpViewport.h"
-#include "LfpDisplayNode.h"
 #include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
-#include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
 
 #include <math.h>
 
@@ -43,15 +31,15 @@ using namespace LfpViewer;
 #pragma  mark - LfpViewport -
 // Lfp Viewport -------------------------------------------
 
-LfpViewport::LfpViewport(LfpDisplayCanvas *canvas)
+LfpViewport::LfpViewport(LfpDisplaySplitter *split)
     : Viewport()
 {
-    this->canvas = canvas;
+    this->canvasSplit = split;
 }
 
 void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
-    canvas->fullredraw = true;
-    canvas->refresh();
+    canvasSplit->fullredraw = true;
+    canvasSplit->refresh();
 }
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,33 +20,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __LFPDEFAULTCOLOURSCHEME_H__
-#define __LFPDEFAULTCOLOURSCHEME_H__
+#ifndef __OELOGOCOLOURSCHEME_H__
+#define __OELOGCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
 #include <vector>
 #include <array>
 
-#include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
-#include "LfpChannelColourScheme.h"
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
+#include "ChannelColourScheme.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpDefaultColourScheme -
-class LfpDefaultColourScheme : public LfpChannelColourScheme
-{
-public:
-    LfpDefaultColourScheme(LfpDisplay*, LfpDisplayCanvas*);
-    virtual ~LfpDefaultColourScheme() {}
-    
-    void paint(Graphics &g) override;
-    void resized() override;
-    
-    virtual const Colour getColourForIndex(int index) const override;
-    
-private:
-    static Array<Colour> colourList;
-};
+#pragma  mark - OELogoColourScheme -
+    class OELogoColourScheme : public ChannelColourScheme
+    {
+    public:
+        OELogoColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~OELogoColourScheme() {}
+
+        void paint(Graphics& g) override;
+        void resized() override;
+
+        virtual const Colour getColourForIndex(int index) const override;
+        virtual const Colour getBackgroundColour() const override;
+
+    private:
+        static Array<Colour> colourList;
+    };
     
 }; // namespace
 #endif

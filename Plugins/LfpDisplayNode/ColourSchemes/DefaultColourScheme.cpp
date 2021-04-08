@@ -21,30 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "LfpDefaultColourScheme.h"
-#include "LfpDisplayNode.h"
-#include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
-#include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotterInfo.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
-#include "LfpChannelColourScheme.h"
+#include "DefaultColourScheme.h"
+#include "../LfpDisplayCanvas.h"
+#include "../LfpDisplay.h"
 
 #include <math.h>
 
 using namespace LfpViewer;
 
-#pragma  mark - LfpDefaultColourScheme -
+#pragma  mark - DefaultColourScheme -
 
-Array<Colour> LfpDefaultColourScheme::colourList = []() -> Array<Colour> {
+Array<Colour> DefaultColourScheme::colourList = []() -> Array<Colour> {
     Array<Colour> colours;
     colours.add(Colour(224,185,36));
     colours.add(Colour(214,210,182));
@@ -65,25 +52,29 @@ Array<Colour> LfpDefaultColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-LfpDefaultColourScheme::LfpDefaultColourScheme(LfpDisplay* display, LfpDisplayCanvas* canvas)
-	: LfpViewer::LfpChannelColourScheme(LfpDefaultColourScheme::colourList.size(), display, canvas)
+DefaultColourScheme::DefaultColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
+	: LfpViewer::ChannelColourScheme(DefaultColourScheme::colourList.size(), display, canvas)
 {
-    setName("Default");
+    setName("Classic");
 }
 
-void LfpDefaultColourScheme::paint(Graphics &g)
+void DefaultColourScheme::paint(Graphics &g)
 {
     
 }
 
-void LfpDefaultColourScheme::resized()
+void DefaultColourScheme::resized()
 {
     
 }
 
-const Colour LfpDefaultColourScheme::getColourForIndex(int index) const
+const Colour DefaultColourScheme::getBackgroundColour() const
 {
-//    return colourList[index % colourList.size()];
+    return Colour(0, 18, 43);
+}
+
+const Colour DefaultColourScheme::getColourForIndex(int index) const
+{
     return colourList[(int(index/colourGrouping)) % colourList.size()];
 }
 

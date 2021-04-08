@@ -26,6 +26,63 @@
 using namespace LfpViewer;
 
 
+LayoutButton::LayoutButton(const String& buttonName)
+            : Button(buttonName)
+{
+    setClickingTogglesState(true);
+}
+
+LayoutButton::~LayoutButton()
+{
+}
+
+void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if(getToggleState())
+        g.setColour(Colours::orange);
+    else
+        g.setColour(Colours::grey);
+
+    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 3);
+    
+    if(isMouseOver)
+        g.setColour(Colours::white);
+    else
+        g.setColour(Colours::black);
+
+    juce::Path path;
+
+    if(getName().equalsIgnoreCase("single"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+    }
+    else if(getName().equalsIgnoreCase("two-vertical"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect((float)(getWidth()/2) - 0.5f, 3.0f, 1.0f, (float)(getHeight()-6));
+    }
+    else if(getName().equalsIgnoreCase("three-vertical"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect((float)(getWidth()/3) + 1.0f, 3.0f, 1.0f, (float)(getHeight()-6));
+        g.fillRect((float)(2*getWidth()/3) - 1.0f, 3.0f, 1.0f, (float)(getHeight()-6));
+    }
+    else if(getName().equalsIgnoreCase("two-horizontal"))
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect(3.0f, (float)(getHeight()/2) - 0.5f, (float)(getWidth()-6), 1.0f);
+    }
+    else
+    {
+        g.drawRoundedRectangle(3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect(3.0f, (float)(getHeight()/3) + 1.0f, (float)(getWidth()-6), 1.0f);
+        g.fillRect(3.0f, (float)(2*getHeight()/3) - 1.0f, (float)(getWidth()-6), 1.0f);
+    }
+    
+
+}
+
+
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : VisualizerEditor(parentNode, useDefaultParameterEditors)
 , hasNoInputs(true)
@@ -33,23 +90,47 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
     lfpProcessor = (LfpDisplayNode*) parentNode;
     tabText = "LFP";
 
-    desiredWidth = 180;
-    
-    subprocessorSelectionLabel = new Label("Display subprocessor sample rate", "Display Subprocessor:");
-    subprocessorSelectionLabel->setBounds(10, 30, 130, 20);
-    addAndMakeVisible(subprocessorSelectionLabel);
-
-    subprocessorSelection = new ComboBox("Subprocessor sample rate");
-    subprocessorSelection->setBounds(10, 55, 130, 22);
-    subprocessorSelection->addListener(this);
-    addAndMakeVisible(subprocessorSelection);
-    
-    subprocessorSampleRateLabel = new Label("Subprocessor sample rate label", "Sample Rate:");
-    subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14, Font::plain));
-    subprocessorSampleRateLabel->setBounds(subprocessorSelection->getX(), subprocessorSelection->getBottom() + 10, 200, 40);
-    addAndMakeVisible(subprocessorSampleRateLabel);
+    desiredWidth = 195;
 
 	defaultSubprocessor = 0;
+
+    layoutLabel = new Label("layout", "Layout:");
+    addAndMakeVisible(layoutLabel);
+    
+    singleDisplay = new LayoutButton("single");
+    singleDisplay->setToggleState(true, dontSendNotification);
+    singleDisplay->setRadioGroupId(201, dontSendNotification);
+    singleDisplay->addListener(this);
+    addAndMakeVisible(singleDisplay);
+    selectedLayout = SplitLayouts::SINGLE;
+
+    twoVertDisplay = new LayoutButton("two-vertical");
+    twoVertDisplay->setToggleState(false, dontSendNotification);
+    twoVertDisplay->setRadioGroupId(201, dontSendNotification);
+    twoVertDisplay->addListener(this);
+    addAndMakeVisible(twoVertDisplay);
+
+    threeVertDisplay = new LayoutButton("three-vertical");
+    threeVertDisplay->setToggleState(false, dontSendNotification);
+    threeVertDisplay->setRadioGroupId(201, dontSendNotification);
+    threeVertDisplay->addListener(this);
+    addAndMakeVisible(threeVertDisplay);
+
+    twoHoriDisplay = new LayoutButton("two-horizontal");
+    twoHoriDisplay->setToggleState(false, dontSendNotification);
+    twoHoriDisplay->setRadioGroupId(201, dontSendNotification);
+    twoHoriDisplay->addListener(this);
+    addAndMakeVisible(twoHoriDisplay);
+
+    threeHoriDisplay = new LayoutButton("three-horizontal");
+    threeHoriDisplay->setToggleState(false, dontSendNotification);
+    threeHoriDisplay->setRadioGroupId(201, dontSendNotification);
+    threeHoriDisplay->addListener(this);
+    addAndMakeVisible(threeHoriDisplay);
+
+    syncButton = new UtilityButton("SYNC DISPLAYS", Font("Default", 13.0f, Font::plain)),
+    syncButton->addListener(this);
+    addAndMakeVisible(syncButton);
 }
 
 LfpDisplayEditor::~LfpDisplayEditor()
@@ -58,40 +139,47 @@ LfpDisplayEditor::~LfpDisplayEditor()
 
 void LfpDisplayEditor::startAcquisition()
 {
-	//subprocessorSelection->setEnabled(false);
+	//enableLayoutSelection(false);
 }
 
 void LfpDisplayEditor::stopAcquisition()
 {
-	//subprocessorSelection->setEnabled(true);
+	//enableLayoutSelection(true);
 }
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-    canvas = new LfpDisplayCanvas(lfpProcessor);
+    canvas = new LfpDisplayCanvas(lfpProcessor, selectedLayout);
     return canvas;
 }
 
-void LfpDisplayEditor::buttonClicked(Button *button)
+void LfpDisplayEditor::buttonClicked(Button* button)
 {
-    // duplicate default VisualizerEditor behavior, except...
-    if (canvas == nullptr)
+    if (button == singleDisplay)
+        selectedLayout = SplitLayouts::SINGLE;
+    else if (button == twoVertDisplay)
+        selectedLayout = SplitLayouts::TWO_VERT;
+    else if (button == threeVertDisplay)
+        selectedLayout = SplitLayouts::THREE_VERT;
+    else if (button == twoHoriDisplay)
+        selectedLayout = SplitLayouts::TWO_HORZ;
+    else if (button == threeHoriDisplay)
+        selectedLayout = SplitLayouts::THREE_HORZ;
+    else if (button == syncButton)
     {
-        canvas = createNewCanvas();
-        
-        // initialize the subprocessor sample rate filtering before canvas updates
-        // (else) initialization errors. lots of time-critical cross dependencies here,
-        // should be cleaned up
-        updateSubprocessorSelectorOptions();
-        
-        canvas->update();
-        
-        if (isPlaying)
-            canvas->beginAnimation();
+        if (canvas != nullptr)
+        {
+            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas.get();
+            c->syncDisplays();
+        }
+            
     }
+    else
+        VisualizerEditor::buttonClicked(button);
     
-    // resume default behavior
-    VisualizerEditor::buttonClicked(button);
+    if(button->getRadioGroupId() == 201 && canvas != nullptr)
+        static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
+
 }
 
 // not really being used (yet)...
@@ -101,89 +189,37 @@ void LfpDisplayEditor::buttonEvent(Button* button)
 
 }
 
-void LfpDisplayEditor::comboBoxChanged(juce::ComboBox *cb)
+void LfpDisplayEditor::enableLayoutSelection(bool state)
 {
-    if (cb == subprocessorSelection)
-    {
-        std::cout << "Setting subprocessor to " << cb->getSelectedId() << std::endl;
-        uint32 subproc = inputSubprocessors[cb->getSelectedId() - 1];
-		
-        String sampleRateLabelText = "Sample Rate: ";
-		sampleRateLabelText += String(lfpProcessor->getSubprocessorSampleRate(subproc));
-		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        std::cout << sampleRateLabelText << std::endl;
-
-        lfpProcessor->setSubprocessor(subproc);
-        if (canvas)
-        {
-            static_cast<LfpDisplayCanvas*>(canvas.get())->setDrawableSubprocessor(subproc);
-        }
-    }
+    singleDisplay->setEnabled(state);
+    twoVertDisplay->setEnabled(state);
+    threeVertDisplay->setEnabled(state);
+    twoHoriDisplay->setEnabled(state);
+    threeHoriDisplay->setEnabled(state);
 }
 
-void LfpDisplayEditor::updateSubprocessorSelectorOptions()
+void LfpDisplayEditor::resized()
 {
-    // clear out the old data
-    inputSubprocessors.clear();
-    subprocessorSelection->clear(dontSendNotification);
-    
-	if (lfpProcessor->getTotalDataChannels() != 0)
+    VisualizerEditor::resized();
 
-	{
-        HashMap<int, String> subprocessorNames;
+    layoutLabel->setBounds(5, 40, 50, 20);
+    singleDisplay->setBounds(55, 40, 20, 20);
+    twoVertDisplay->setBounds(80, 40, 20, 20);
+    threeVertDisplay->setBounds(105, 40, 20, 20);
+    twoHoriDisplay->setBounds(130, 40, 20, 20);
+    threeHoriDisplay->setBounds(155, 40, 20, 20);
 
-		for (int i = 0, len = lfpProcessor->getTotalDataChannels(); i < len; ++i)
-		{
-            const DataChannel* ch = lfpProcessor->getDataChannel(i);
-            uint16 sourceNodeId = ch->getSourceNodeID();
-			uint16 subProcessorIdx = ch->getSubProcessorIdx();
-            uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
-
-			bool added = inputSubprocessors.add(subProcFullId);
-
-            if (added)
-            {
-                String sourceName = ch->getSourceName();
-                subprocessorNames.set(subProcFullId,
-                    sourceName + " " + String(sourceNodeId) + "/" + String(subProcessorIdx));
-            }
-		}
-
-		for (int i = 0; i < inputSubprocessors.size(); ++i)
-		{
-			subprocessorSelection->addItem(subprocessorNames[inputSubprocessors[i]], i + 1);
-		}
-
-        uint32 selectedSubproc = lfpProcessor->getSubprocessor();
-        int selectedSubprocId = (selectedSubproc ? inputSubprocessors.indexOf(selectedSubproc) : defaultSubprocessor) + 1;
-
-		subprocessorSelection->setSelectedId(selectedSubprocId, sendNotification);
-	}
-    else
-    {
-        subprocessorSelection->addItem("None", 1);
-        subprocessorSelection->setSelectedId(1, dontSendNotification);
-
-        String sampleRateLabelText = "Sample Rate: <not available>";
-        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        //setCanvasDrawableSubprocessor(-1);
-    }
+    syncButton->setBounds(40, 80, 110, 30);
 }
 
-SortedSet<uint32> LfpDisplayEditor::getInputSubprocessors()
-{
-	return inputSubprocessors;
-}
 
 void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
 {
 
 	xml->setAttribute("Type", "LfpDisplayEditor");
 
-	int subprocessorItemId = subprocessorSelection->getSelectedId();
-
 	XmlElement* values = xml->createNewChildElement("VALUES");
-	values->setAttribute("SubprocessorId", subprocessorItemId - 1);
+	values->setAttribute("SelectedLayout", static_cast<int>(selectedLayout));
 }
 
 void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
@@ -193,10 +229,20 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 	{
 		if (xmlNode->hasTagName("VALUES"))
 		{
-			std::cout << "LfpDisplay found " << xmlNode->getIntAttribute("SubprocessorId") << std::endl;
-			defaultSubprocessor = xmlNode->getIntAttribute("SubprocessorId");
-			subprocessorSelection->setSelectedItemIndex(defaultSubprocessor, sendNotification);
+			std::cout << "Loading saved layout: " << xmlNode->getIntAttribute("SelectedLayout") << std::endl;
+			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
+            static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
+            if (selectedLayout == SplitLayouts::SINGLE)
+                singleDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::TWO_VERT)
+                twoVertDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::THREE_VERT)
+                threeVertDisplay->setToggleState(true, dontSendNotification);
+            else if (selectedLayout == SplitLayouts::TWO_HORZ)
+                twoHoriDisplay->setToggleState(true, dontSendNotification);
+            else
+                threeHoriDisplay->setToggleState(true, dontSendNotification);
 		}
 	}
 

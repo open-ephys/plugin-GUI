@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,32 +20,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef __SHOWHIDEOPTIONSBUTTON_H__
-#define __SHOWHIDEOPTIONSBUTTON_H__
+#ifndef __MONOCHROMEGREENCOLOURSCHEME_H__
+#define __MONOCHROMEGREENCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 
 #include <vector>
 #include <array>
 
-#include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
+#include "../LfpDisplayClasses.h"
+#include "../LfpDisplayNode.h"
+#include "ChannelColourScheme.h"
+
 namespace LfpViewer {
-#pragma  mark - ShowHideOptionsButton -
-//==============================================================================
-/**
- 
- Toggles view options drawer for LfpDisplaySplitter.
- 
- */
-class ShowHideOptionsButton : public Button
-{
-public:
-    ShowHideOptionsButton(LfpDisplayOptions*);
-    virtual ~ShowHideOptionsButton();
-    void paintButton(Graphics& g, bool, bool);
-    LfpDisplayOptions* options;
-};
+#pragma  mark - MonochromeGreenColourScheme -
+    class MonochromeGreenColourScheme : public ChannelColourScheme
+    {
+    public:
+        MonochromeGreenColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        virtual ~MonochromeGreenColourScheme() {}
+
+        void paint(Graphics& g) override;
+        void resized() override;
+
+        virtual const Colour getColourForIndex(int index) const override;
+        virtual const Colour getBackgroundColour() const override;
+
+    private:
+        static Array<Colour> colourList;
+    };
     
 }; // namespace
 #endif

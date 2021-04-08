@@ -39,7 +39,7 @@ namespace LfpViewer {
 class LfpChannelDisplay : public Component
 {
 public:
-    LfpChannelDisplay(LfpDisplayCanvas*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+    LfpChannelDisplay(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
     ~LfpChannelDisplay();
 
     void resized();
@@ -56,6 +56,8 @@ public:
     bool getSelected();
 
     void setName(String);
+    void setGroup(int);
+    void setDepth(float);
 
     void setColour(Colour c);
 
@@ -109,11 +111,14 @@ public:
 	DataChannel::DataChannelTypes getType();
     void updateType();
 
+    float getDepth() { return depth; }
+    int getGroup() { return group; }
+
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
 
-    LfpDisplayCanvas* canvas;
+    LfpDisplaySplitter* canvasSplit;
     LfpDisplay* display;
     LfpDisplayOptions* options;
 
@@ -124,6 +129,8 @@ protected:
     int drawableChan;
 
     String name;
+    int group;
+    float depth;
 
     Font channelFont;
 
