@@ -254,6 +254,9 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
+    scrollX = viewport->getViewPositionX();
+    scrollY = viewport->getViewPositionY();
+
     //std::cout << "Resizing channels" << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
@@ -287,8 +290,8 @@ void LfpDisplay::resized()
     
     viewport->setViewPosition(scrollX, scrollY);
 
-    if (singleChan != -1)
-        viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
+    //if (singleChan != -1)
+    //    viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
 
     if (getWidth() > 0 && getHeight() > 0)
         lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
