@@ -273,7 +273,8 @@ int LfpDisplay::getTotalHeight()
 
 void LfpDisplay::restoreViewPosition()
 {
-    viewport->setViewPosition(scrollX, scrollY);
+    if (!getSingleChannelState())
+      viewport->setViewPosition(scrollX, scrollY);
 }
 
 void LfpDisplay::resized()
@@ -375,6 +376,8 @@ void LfpDisplay::refresh()
     } else {
         gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto-fillfrom)+1, getHeight()); // just clear one section
     };
+
+
     
     for (int i = 0; i < numChans; i++)
     {
@@ -392,6 +395,8 @@ void LfpDisplay::refresh()
             }
             else
             {
+                
+
                  channels[i]->pxPaint(); // draws to lfpChannelBitmap
                 
                  // it's not clear why, but apparently because the pxPaint() is in a child component of LfpDisplay, 
@@ -467,12 +472,11 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         channelInfo[i]->setChannelHeight(r);
     }
 
-    int overallHeight = drawableChannels.size() * getChannelHeight();
 
     if (resetSingle && singleChan != -1)
     {
         
-        setSize(getWidth(), overallHeight );
+        setSize(getWidth(), getChannelHeight());
         viewport->setScrollBarsShown(true,false);
         viewport->setViewPosition(juce::Point<int>(0,singleChan*r));
         singleChan = -1;
@@ -481,14 +485,14 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 			channelInfo[n]->setEnabledState(savedChannelState[n]);
         }
     }
-    else {
+    else if (singleChan == -1) {
 
+        int overallHeight = drawableChannels.size() * getChannelHeight();
+        
         setSize(getWidth(), overallHeight);
         //std::cout << "LFP DISPLAY width: " << getWidth() << "; height: " << overallHeight << std::endl;
 
     }
-
-    //resized();
 
 }
 
@@ -739,11 +743,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //TODO Changing ranges with the wheel is currently broken. With multiple ranges, most
     //of the wheel range code needs updating
 
-    if (!getSingleChannelState())
-    {
-        scrollX = viewport->getViewPositionX();
-        scrollY = viewport->getViewPositionY();
-    }
+    
     
 
    // std::cout << "Y: " << scrollY << std::endl;
@@ -829,13 +829,20 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         }
       
     }
-       //refresh(); // doesn't seem to be needed now that channels daraw to bitmap
+
+    if (!getSingleChannelState())
+    {
+        scrollX = viewport->getViewPositionX();
+        scrollY = viewport->getViewPositionY();
+    }
+    
+   // refresh(); // doesn't seem to be needed now that channels draw to bitmap
 
 }
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-    if (getSingleChannelState())
+    if (!getSingleChannelState())
     {
         
         std::cout << "Single channel on (" << chan << ")" << std::endl;
@@ -855,6 +862,9 @@ void LfpDisplay::toggleSingleChannel(int chan)
             {
                 drawableChannels[i].channel->setEnabledState(false);
             }
+            else {
+                drawableChannels[i].channel->setEnabledState(true);
+            }
         }
         
         // update drawableChannels, give only the single channel to focus on
@@ -863,7 +873,8 @@ void LfpDisplay::toggleSingleChannel(int chan)
         
         addAndMakeVisible(lfpChannelTrack.channel);
         addAndMakeVisible(lfpChannelTrack.channelInfo);
-        
+
+
         // set channel height and position (so that we allocate the smallest
         // necessary image size for drawing)
         setChannelHeight(newHeight, false);

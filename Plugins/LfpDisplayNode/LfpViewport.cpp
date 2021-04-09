@@ -40,6 +40,6 @@ LfpViewport::LfpViewport(LfpDisplaySplitter *split)
 void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
     canvasSplit->fullredraw = true;
-    canvasSplit->refresh();
+    //canvasSplit->refresh();
 }
 

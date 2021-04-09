@@ -772,7 +772,7 @@ void LfpDisplaySplitter::resized()
 
     if (nChans > 0)
     {
-        std::cout << "Changing view for display " << splitID << std::endl;
+        //std::cout << "Changing view for display " << splitID << std::endl;
 
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
@@ -793,7 +793,7 @@ void LfpDisplaySplitter::resized()
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
-    std::cout << "Resize to channels " << std::endl;
+    //std::cout << "Resize to channels " << std::endl;
 
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     
@@ -1446,7 +1446,7 @@ void LfpDisplaySplitter::refresh()
     { 
        updateScreenBuffer();
 
-       lfpDisplay->refresh(); // redraws only the new part of the screen buffer
+       lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
     }
 }
 

@@ -105,8 +105,11 @@ void LfpChannelDisplay::setHidden(bool isHidden_)
 
 void LfpChannelDisplay::pxPaint()
 {
-    if (!isEnabled || isHidden) return; // return early if THIS display is not enabled
-    
+    if (!isEnabled || isHidden)
+    {
+        return; // return early if THIS display is not enabled
+    }
+
     Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
     
     int center = getHeight()/2;
