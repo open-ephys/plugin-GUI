@@ -89,6 +89,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
     addMouseListener(this, true);
 
     borderToDrag = -1;
+    
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -567,17 +568,19 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 {
     if (borderToDrag >= 0)
     {
+        std::cout << "Mouse up" << std::endl;
+
         resized();
         borderToDrag = -1;
+
+        
     }
 }
 
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
-    // auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
     resized();
-    // viewport->setViewPosition(0, viewportPosition);         // return viewport position
 }
 
 int LfpDisplayCanvas::getTotalSplits()
@@ -735,6 +738,8 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     drawSaturationWarning = false;
     drawClipWarning = false;
 
+    isLoading = true;
+
 }
 
 LfpDisplaySplitter::~LfpDisplaySplitter()
@@ -756,32 +761,40 @@ void LfpDisplaySplitter::resized()
     timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
 
     if (canvas->makeRoomForOptions(splitID))
-        viewport->setBounds(0, 30, getWidth(), getHeight()-90);
+    {
+        viewport->setBounds(0, 30, getWidth(), getHeight() - 90);
+    }
     else
-        viewport->setBounds(0, 30, getWidth(), getHeight());
+    {
+        viewport->setBounds(0, 30, getWidth(), getHeight() - 2);
+    }
+       
 
     if (nChans > 0)
     {
+        std::cout << "Changing view for display " << splitID << std::endl;
+
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
-        
-        lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+ 
+        lfpDisplay->setBounds(0,0,
+            getWidth()-scrollBarThickness, 
+            lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+
+        lfpDisplay->restoreViewPosition();
     }
     else
     {
         lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
     }
 
-    // if (optionsDrawerIsOpen)
-    //     options->setBounds(0, getHeight()-200, getWidth(), 200);
-    // else
-    //     options->setBounds(0, getHeight()-55, getWidth(), 55);
-
     subprocessorSelection->setBounds(4, 4, 140, 22);
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
+    std::cout << "Resize to channels " << std::endl;
+
     lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     
     // if param is flagged, move the viewport scroll back to same relative position before
@@ -907,6 +920,8 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->rebuildDrawableChannelsList();
         lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
     }
+
+    isLoading = false;
         
     resized();
   /*  }
@@ -928,7 +943,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }*/
 
-    syncDisplay();
+    //syncDisplay();
 }
 
 int LfpDisplaySplitter::getChannelHeight()
@@ -1364,9 +1379,13 @@ void LfpDisplaySplitter::setDrawableSubprocessor(uint32 sp)
 
 void LfpDisplaySplitter::redraw()
 {
-    fullredraw=true;
-    repaint();
-    refresh();
+    if (!isLoading)
+    {
+        fullredraw = true;
+        repaint();
+        refresh();
+    }
+    
 }
 
 void LfpDisplaySplitter::paint(Graphics& g)

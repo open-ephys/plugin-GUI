@@ -79,7 +79,6 @@ void LfpDisplayNode::updateSettings()
             displayBuffers.add(new DisplayBuffer(id, name, getDataChannel(ch)->getSampleRate()));
             displayBufferMap[id] = displayBuffers.getLast();
 
-            // also add channel positions
         }
         else {
             displayBufferMap[id]->sampleRate = getDataChannel(ch)->getSampleRate();

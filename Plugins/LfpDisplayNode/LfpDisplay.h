@@ -64,6 +64,8 @@ public:
 
     void resized();
 
+    void restoreViewPosition();
+
     void reactivateChannels();
 
     void mouseDown(const MouseEvent& event);

@@ -1516,6 +1516,8 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 void LfpDisplayOptions::loadParameters(XmlElement* xml)
 {
 
+    canvasSplit->isLoading = true;
+
     forEachXmlChildElement(*xml, xmlNode)
     {
 
@@ -1588,7 +1590,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
         }
     }
 
-    //std::cout << "Finished loading LFP options." << std::endl;
+    std::cout << "Finished loading LFP options." << std::endl;
 
 }
 

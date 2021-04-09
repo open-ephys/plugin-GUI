@@ -210,6 +210,8 @@ public:
     static const int leftmargin = 50; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
+
+    bool isLoading;
     
     bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
     bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating

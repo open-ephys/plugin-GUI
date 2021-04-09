@@ -271,14 +271,16 @@ int LfpDisplay::getTotalHeight()
     return totalHeight;
 }
 
+void LfpDisplay::restoreViewPosition()
+{
+    viewport->setViewPosition(scrollX, scrollY);
+}
+
 void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    scrollX = viewport->getViewPositionX();
-    scrollY = viewport->getViewPositionY();
-
-    //std::cout << "Resizing channels" << std::endl;
+    std::cout << "Resizing channels" << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -292,7 +294,7 @@ void LfpDisplay::resized()
                         getWidth(),
                         disp->getChannelHeight()+(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor));
         
-        disp-> resized();
+       // disp-> resized();
         
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
 
@@ -309,11 +311,16 @@ void LfpDisplay::resized()
 
     canvasSplit->fullredraw = true; //issue full redraw
     
-    viewport->setViewPosition(scrollX, scrollY);
-
-    //if (singleChan != -1)
-    //    viewport->setViewPosition(juce::Point<int>(0,singleChan*getChannelHeight()));
-
+    if (!getSingleChannelState())
+    {
+        viewport->setViewPosition(scrollX, scrollY);
+        std::cout << "Setting view position to " << scrollY << std::endl;
+    }
+    else {
+        std::cout << "Setting view position for single channel " << std::endl;
+        viewport->setViewPosition(juce::Point<int>(0, singleChan * getChannelHeight()));
+    }
+       
     if (getWidth() > 0 && getHeight() > 0)
         lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
     else
@@ -327,7 +334,8 @@ void LfpDisplay::resized()
     canvasSplit->fullredraw = true;
     
     refresh();
-    // std::cout << "Total height: " << totalHeight << std::endl;
+    
+    std::cout << "Total height: " << totalHeight << std::endl;
 
 }
 
@@ -414,6 +422,8 @@ void LfpDisplay::refresh()
     }
     
     canvasSplit->fullredraw = false;
+
+    //std::cout << "REFRESH" << std::endl;
 }
 
 void LfpDisplay::setRange(float r, DataChannel::DataChannelTypes type)
@@ -456,10 +466,13 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         channels[i]->setChannelHeight(r);
         channelInfo[i]->setChannelHeight(r);
     }
+
+    int overallHeight = drawableChannels.size() * getChannelHeight();
+
     if (resetSingle && singleChan != -1)
     {
-        //std::cout << "width " <<  getWidth() << " numchans  " << numChans << " height " << getChannelHeight() << std::endl;
-        setSize(getWidth(),drawableChannels.size()*getChannelHeight());
+        
+        setSize(getWidth(), overallHeight );
         viewport->setScrollBarsShown(true,false);
         viewport->setViewPosition(juce::Point<int>(0,singleChan*r));
         singleChan = -1;
@@ -468,8 +481,14 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 			channelInfo[n]->setEnabledState(savedChannelState[n]);
         }
     }
+    else {
 
-    resized();
+        setSize(getWidth(), overallHeight);
+        //std::cout << "LFP DISPLAY width: " << getWidth() << "; height: " << overallHeight << std::endl;
+
+    }
+
+    //resized();
 
 }
 
@@ -719,6 +738,15 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
     //TODO Changing ranges with the wheel is currently broken. With multiple ranges, most
     //of the wheel range code needs updating
+
+    if (!getSingleChannelState())
+    {
+        scrollX = viewport->getViewPositionX();
+        scrollY = viewport->getViewPositionY();
+    }
+    
+
+   // std::cout << "Y: " << scrollY << std::endl;
     
     if (e.mods.isCommandDown() && singleChan == -1)  // CTRL + scroll wheel -> change channel spacing
     {
@@ -807,7 +835,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 void LfpDisplay::toggleSingleChannel(int chan)
 {
-    if (!getSingleChannelState())
+    if (getSingleChannelState())
     {
         
         std::cout << "Single channel on (" << chan << ")" << std::endl;
@@ -851,6 +879,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
     else
     {
         std::cout << "Single channel off" << std::endl;
+        
         for (int n = 0; n < numChans; n++)
         {
             channelInfo[n]->setSingleChannelState(false);
