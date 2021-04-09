@@ -618,7 +618,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     std::vector<float> depths(numChannels);
 
     bool allSame = true;
-    float last = drawableChannels[0].channel->getDepth();
+    float last = drawableChannels[0].channelInfo->getDepth();
 
     if (channelsOrderedByDepth)
     {
@@ -630,7 +630,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
             if (d != last)
                 allSame = false;
 
-           // std::cout << d << std::endl;
+            //std::cout << d << std::endl;
 
             depths[i] = d;
 
@@ -647,7 +647,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
             int ch = drawableChannels[i].channel->getChannelNumber();
             depths[i] = float(ch);
 
-           // std::cout << ch << std::endl;
+            //std::cout << ch << std::endl;
         }
             
     }

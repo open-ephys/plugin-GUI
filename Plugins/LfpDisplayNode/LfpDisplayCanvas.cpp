@@ -902,16 +902,6 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-        //lfpDisplay->setEnabledState(isChannelEnabled[i], i);
-
-       // if (isChannelEnabled[i])
-        //{
-       //     std::cout << "CH" << i << " enabled." << std::endl;
-
-       // }
-       // else {
-       //     std::cout << "CH" << i << " DISABLED." << std::endl;
-      //  }
     }
         
     if (nChans == 0) 
