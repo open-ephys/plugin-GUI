@@ -186,7 +186,7 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
             if (i >= numChans)
             {
-                std::cout << "Adding new display for channel " << i << std::endl;
+                //std::cout << "Adding new display for channel " << i << std::endl;
 
                 lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
                 addAndMakeVisible(lfpChan);
@@ -225,7 +225,7 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
     setColors();
 
-    std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
+    //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
 }
 
@@ -281,7 +281,7 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    std::cout << "Resizing channels" << std::endl;
+    //std::cout << "Resizing channels" << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
     {
@@ -315,10 +315,10 @@ void LfpDisplay::resized()
     if (!getSingleChannelState())
     {
         viewport->setViewPosition(scrollX, scrollY);
-        std::cout << "Setting view position to " << scrollY << std::endl;
+        //std::cout << "Setting view position to " << scrollY << std::endl;
     }
     else {
-        std::cout << "Setting view position for single channel " << std::endl;
+        //std::cout << "Setting view position for single channel " << std::endl;
         viewport->setViewPosition(juce::Point<int>(0, singleChan * getChannelHeight()));
     }
        
@@ -336,7 +336,7 @@ void LfpDisplay::resized()
     
     refresh();
     
-    std::cout << "Total height: " << totalHeight << std::endl;
+    //std::cout << "Total height: " << totalHeight << std::endl;
 
 }
 
@@ -845,7 +845,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
     if (!getSingleChannelState())
     {
         
-        std::cout << "Single channel on (" << chan << ")" << std::endl;
+        //std::cout << "Single channel on (" << chan << ")" << std::endl;
         singleChan = chan;
         
         int newHeight = viewport->getHeight();
@@ -889,7 +889,7 @@ void LfpDisplay::toggleSingleChannel(int chan)
 //    else if (chan == singleChan || chan == -2)
     else
     {
-        std::cout << "Single channel off" << std::endl;
+        //std::cout << "Single channel off" << std::endl;
         
         for (int n = 0; n < numChans; n++)
         {
