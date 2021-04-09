@@ -229,6 +229,7 @@ void LfpDisplayCanvas::beginAnimation()
 
     if (true)
     {
+        syncDisplays();
 
         for (auto split : displaySplits)
         {
@@ -825,8 +826,6 @@ void LfpDisplaySplitter::beginAnimation()
 
         numTrials = -1;
 
-        //refreshSplitterState();
-
     }    
 }
 
@@ -859,18 +858,26 @@ void LfpDisplaySplitter::updateSettings()
         subprocessorSelection->addItem(buffer->name, buffer->id);
     }
 
-    subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+    if (displayBuffer != nullptr)
+    {
+        subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
 
-    displayBufferSize = displayBuffer->getNumSamples();
-    nChans = displayBuffer->numChannels;
-    resizeSamplesPerPixelBuffer(nChans);
-    sampleRate = displayBuffer->sampleRate;
+        displayBufferSize = displayBuffer->getNumSamples();
+        nChans = displayBuffer->numChannels;
+        resizeSamplesPerPixelBuffer(nChans);
+        sampleRate = displayBuffer->sampleRate;
 
-    //std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
+        //std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
+
+        options->setEnabled(nChans != 0);
+        // must manually ensure that overlapSelection propagates up to canvas
+        channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
+    }
+    else {
+        nChans = 0;
+        sampleRate = 44100;
+    }
     
-    options->setEnabled(nChans != 0);
-    // must manually ensure that overlapSelection propagates up to canvas
-    channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
    // std::cout << "getting sample rate" << std::endl;
     int firstChannelInSubprocessor = 0;
@@ -901,6 +908,10 @@ void LfpDisplaySplitter::updateSettings()
 
     for (int i = 0; i < nChans; i++)
     {
+        lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
+        lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
+        lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
@@ -1010,13 +1021,12 @@ void LfpDisplaySplitter::syncDisplay()
 
 void LfpDisplaySplitter::updateScreenBuffer()
 {
-    if (true)
+    if (isVisible())
     {
         // copy new samples from the displayBuffer into the screenBuffer
         int maxSamples = lfpDisplay->getWidth() - leftmargin;
 
-        ScopedLock displayLock(*displayBuffer->getMutex());
-
+        
         int triggerTime = triggerChannel >=0 
                           ? processor->getLatestTriggerTime(splitID)
                           : -1;
@@ -1078,7 +1088,11 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             lastScreenBufferIndex.set(channel, sbi);
 
-            int index = displayBuffer->displayBufferIndices[channel]; // get the latest value from the display buffer
+            int index;
+            {
+                ScopedLock displayLock(*displayBuffer->getMutex());
+                index = displayBuffer->displayBufferIndices[channel]; // get the latest value from the display buffer
+            }
 
             int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 

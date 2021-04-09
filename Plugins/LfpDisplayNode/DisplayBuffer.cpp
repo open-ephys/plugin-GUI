@@ -185,12 +185,14 @@ namespace LfpViewer {
 
     void DisplayBuffer::addData(AudioSampleBuffer& buffer, int chan, int nSamples)
     {
-        ScopedLock displayLock(displayMutex);
+        
 
         int previousIndex = displayBufferIndices[channelMap[chan]];
         int channelIndex = channelMap[chan];
 
         const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[channelMap[chan]];
+
+        int newIndex;
         
         if (nSamples < samplesLeft)
         {
@@ -202,7 +204,9 @@ namespace LfpViewer {
                 nSamples);                 // numSamples
 
             int lastIndex = displayBufferIndices[channelMap[chan]];
-            displayBufferIndices.set(channelMap[chan],  lastIndex + nSamples);
+
+            newIndex = lastIndex + nSamples;
+            
         }
         else
         {
@@ -222,10 +226,16 @@ namespace LfpViewer {
                 samplesLeft,               // source start sample
                 extraSamples);             // numSamples
 
-            displayBufferIndices.set(channelMap[chan], extraSamples);
+            newIndex = extraSamples;
         }
 
-        int newIndex = displayBufferIndices[channelMap[chan]];
+        {
+            ScopedLock displayLock(displayMutex);
+
+            displayBufferIndices.set(channelMap[chan], newIndex);
+        }
+
+        //int newIndex = displayBufferIndices[channelMap[chan]];
 
     }
 

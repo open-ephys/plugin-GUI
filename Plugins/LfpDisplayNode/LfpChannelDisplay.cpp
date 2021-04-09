@@ -148,7 +148,7 @@ void LfpChannelDisplay::pxPaint()
     int from = 0; // for vertical line drawing in the LFP data
     int to = 0;
     
-    int ifrom = canvasSplit->lastScreenBufferIndex[chan] - 1; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
+    int ifrom = canvasSplit->lastScreenBufferIndex[chan] - 40; // need to start drawing a bit before the actual redraw window for the interpolated line to join correctly
     
     if (ifrom < 0)
         ifrom = 0;

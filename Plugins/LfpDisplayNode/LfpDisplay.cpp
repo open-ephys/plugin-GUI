@@ -1107,9 +1107,9 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
     canvasSplit->select();
 
-//    canvas->fullredraw = true;//issue full redraw
+    canvasSplit->fullredraw = true;//issue full redraw
 
-//    refresh();
+    refresh();
 
 }
 
