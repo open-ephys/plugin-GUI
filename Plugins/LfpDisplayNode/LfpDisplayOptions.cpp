@@ -1590,7 +1590,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
         }
     }
 
-    std::cout << "Finished loading LFP options." << std::endl;
+   // std::cout << "Finished loading LFP options." << std::endl;
 
 }
 

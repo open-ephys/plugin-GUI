@@ -113,6 +113,8 @@ void LfpDisplayCanvas::resized()
     {
         displaySplits[0]->setVisible(true);
 
+        displaySplits[0]->deselect();
+
         displaySplits[1]->setVisible(false);
         displaySplits[2]->setVisible(false);
 
@@ -762,11 +764,11 @@ void LfpDisplaySplitter::resized()
 
     if (canvas->makeRoomForOptions(splitID))
     {
-        viewport->setBounds(0, 30, getWidth(), getHeight() - 90);
+        viewport->setBounds(0, 30, getWidth(), getHeight() - 87);
     }
     else
     {
-        viewport->setBounds(0, 30, getWidth(), getHeight() - 2);
+        viewport->setBounds(0, 30, getWidth(), getHeight() - 32);
     }
        
 
@@ -864,13 +866,13 @@ void LfpDisplaySplitter::updateSettings()
     resizeSamplesPerPixelBuffer(nChans);
     sampleRate = displayBuffer->sampleRate;
 
-    std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
+    //std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
     
     options->setEnabled(nChans != 0);
     // must manually ensure that overlapSelection propagates up to canvas
     channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
 
-    std::cout << "getting sample rate" << std::endl;
+   // std::cout << "getting sample rate" << std::endl;
     int firstChannelInSubprocessor = 0;
 
     if (screenBuffer == nullptr)
@@ -882,7 +884,7 @@ void LfpDisplaySplitter::updateSettings()
 
     }
         
-    std::cout << "updating channels" << std::endl;
+   // std::cout << "updating channels" << std::endl;
 
     if (nChans != lfpDisplay->getNumChannels())
     {
@@ -1387,26 +1389,35 @@ void LfpDisplaySplitter::paint(Graphics& g)
     g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
+    Colour borderColour;
+    ColourGradient timelineColour;
+
     if (isSelected)
     {
-        g.setColour(Colour(252, 210, 0));
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        borderColour = Colour(252, 210, 0);
 
-        g.setGradientFill(ColourGradient(Colour(252, 210, 0), 0, 0,
+        timelineColour = ColourGradient(Colour(252, 210, 0), 0, 0,
             Colour(173, 145, 3), 0, 30,
-            false));
+            false);
     }
     else {
 
-        g.setColour(Colour(50, 50, 50));
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        borderColour = Colour(40, 40, 40);
 
-        g.setGradientFill(ColourGradient(Colour(50, 50, 50), 0, 0,
+        timelineColour = ColourGradient(Colour(50, 50, 50), 0, 0,
             Colour(25, 25, 25), 0, 30,
-            false));
+            false);
     }
+
+    g.setColour(borderColour);
+
+    if (!canvas->makeRoomForOptions(splitID))
+        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+    else
+        g.drawRect(0, 0, getWidth(), getHeight() - 55, 2);
     
-     g.fillRect(2, 2, getWidth()-4, 28);
+    g.setGradientFill(timelineColour);
+    g.fillRect(2, 2, getWidth()-4, 28);
 
   //  g.setColour(Colours::black);
 
@@ -1444,7 +1455,7 @@ void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)
 {
     if (comboBox == subprocessorSelection)
     {
-        std::cout << "Setting subprocessor for Display #"<< splitID << " to " << comboBox->getSelectedId() << std::endl;
+        //std::cout << "Setting subprocessor for Display #"<< splitID << " to " << comboBox->getSelectedId() << std::endl;
         //uint32 subproc = processor->inputSubprocessors[cb->getSelectedId() - 1];
 
         //processor->setSubprocessor(subproc, splitID);

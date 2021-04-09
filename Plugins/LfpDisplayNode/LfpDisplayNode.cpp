@@ -60,7 +60,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 void LfpDisplayNode::updateSettings()
 {
 
-    std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+    //std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 
     for (auto displayBuffer : displayBuffers)
     {
@@ -149,7 +149,7 @@ String LfpDisplayNode::getSubprocessorName(int channel)
 
             name = ch->getSourceName() + " " + stringValue;
 
-            std::cout << "Sb name: " << name << std::endl;
+           // std::cout << "Sb name: " << name << std::endl;
         }
         else {
 
