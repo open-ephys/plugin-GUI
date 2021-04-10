@@ -248,7 +248,12 @@ GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description,
     else
     {
         action->perform();
+
+        orphanedActions.add(action);
+
         return action->processor;
+        
+
     }
     
 }
