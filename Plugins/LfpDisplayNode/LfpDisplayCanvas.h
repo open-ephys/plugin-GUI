@@ -250,6 +250,8 @@ public:
     void setAveraging(bool);
     void resetTrials();
 
+    void setTimebase(float timebase);
+
     DisplayBuffer* displayBuffer; // sample wise data buffer for display
 
 private:

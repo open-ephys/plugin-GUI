@@ -583,7 +583,14 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
-    resized();
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (optionsDrawerIsOpen)
+            displaySplits[i]->options->setBounds(0, getHeight() - 200, getWidth(), 200);
+        else
+            displaySplits[i]->options->setBounds(0, getHeight() - 55, getWidth(), 55);
+    }
 }
 
 int LfpDisplayCanvas::getTotalSplits()
@@ -944,10 +951,7 @@ void LfpDisplaySplitter::updateSettings()
         
     resized();
 
-    for (int i = 0; i <= nChans; i++)
-    {
-        displayBufferIndex.set(i, displayBuffer->displayBufferIndices[i]);
-    }
+    
 
     syncDisplay();
 
@@ -970,7 +974,7 @@ void LfpDisplaySplitter::setAveraging(bool avg)
 {
     if (trialAveraging == false)
     {
-        numTrials = 0;
+        numTrials = -1;
     }
 
     trialAveraging = avg;
@@ -1025,7 +1029,12 @@ void LfpDisplaySplitter::syncDisplay()
     for (int channel = 0; channel <= nChans; channel++)
     {
         screenBufferIndex.set(channel, 0);
+
+        if (displayBuffer != nullptr)
+            displayBufferIndex.set(channel, displayBuffer->displayBufferIndices[channel]);
     }
+
+
 }
 
 void LfpDisplaySplitter::updateScreenBuffer()
@@ -1277,6 +1286,18 @@ void LfpDisplaySplitter::updateScreenBuffer()
         }
     }
 
+}
+
+void LfpDisplaySplitter::setTimebase(float t)
+{
+    timebase = t;
+
+    if (trialAveraging)
+    {
+        numTrials = -1;
+    }
+
+    syncDisplay();
 }
 
 const float LfpDisplaySplitter::getXCoord(int chan, int samp)

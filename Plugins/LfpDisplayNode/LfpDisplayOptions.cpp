@@ -1034,19 +1034,19 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
 void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
 {
-    canvasSplit->timebase = timebase;
+    canvasSplit->setTimebase(timebase);
     
     if (canvasSplit->timebase) // if timebase != 0
     {
         if (canvasSplit->timebase < timebases[0].getFloatValue())
         {
             timebaseSelection->setSelectedId(1, dontSendNotification);
-            canvasSplit->timebase = timebases[0].getFloatValue();
+            canvasSplit->setTimebase(timebases[0].getFloatValue());
         }
         else if (canvasSplit->timebase > timebases[timebases.size()-1].getFloatValue())
         {
             timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
-            canvasSplit->timebase = timebases[timebases.size()-1].getFloatValue();
+            canvasSplit->setTimebase(timebases[timebases.size()-1].getFloatValue());
         }
         else{
             timebaseSelection->setText(String(canvasSplit->timebase, 1), dontSendNotification);
@@ -1057,15 +1057,17 @@ void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
         if (selectedSpread == 0)
         {
             timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
-            canvasSplit->timebase = selectedTimebaseValue.getFloatValue();
+            canvasSplit->setTimebase(selectedTimebaseValue.getFloatValue());
         }
         else
         {
             timebaseSelection->setSelectedId(selectedTimebase,dontSendNotification);
-            canvasSplit->timebase = timebases[selectedTimebase-1].getFloatValue();
+            canvasSplit->setTimebase(timebases[selectedTimebase-1].getFloatValue());
         }
         
     }
+
+    timescale->setTimebase(canvasSplit->timebase);
 }
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
@@ -1181,12 +1183,14 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     {
         if (cb->getSelectedId())
         {
-            canvasSplit->timebase = timebases[cb->getSelectedId()-1].getFloatValue();
+            canvasSplit->setTimebase(timebases[cb->getSelectedId() - 1].getFloatValue());
         }
         else
         {
             setTimebaseAndSelectionText(cb->getText().getFloatValue());
         }
+
+        timescale->setTimebase(canvasSplit->timebase);
     }
     else if (cb == rangeSelection)
     {
@@ -1379,7 +1383,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
 
 
-    timescale->setTimebase(canvasSplit->timebase);
+    
 }
 
 void LfpDisplayOptions::sliderValueChanged(Slider* sl)

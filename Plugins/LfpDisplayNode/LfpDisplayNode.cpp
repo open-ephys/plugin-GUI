@@ -110,11 +110,11 @@ void LfpDisplayNode::updateSettings()
         if (displayBuffer->isNeeded)
         {
             displayBuffer->update();
-            std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
+            //std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
         }
         else {
 
-            std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
+            //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
             displayBuffers.removeObject(displayBuffer, true);
             displayBuffer = nullptr;
@@ -122,7 +122,7 @@ void LfpDisplayNode::updateSettings()
         }
     }
 
-    std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
+    //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
 
     // TODO: add event channels separately, as they may have a different source
 }
