@@ -170,8 +170,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
 
         PopupMenu menu;
         int menuItemIndex = 1;
-        int continuousMergeIndexA, continuousMergeIndexB = -1;
-        int inputSelectionIndexA, inputSelectionIndexB = -1;
+        int continuousMergeIndexA = -1;
+        int continuousMergeIndexB = -1;
+        int inputSelectionIndexA = -1;
+        int inputSelectionIndexB = -1;
         
         Array<GenericProcessor*> selectableProcessors = getSelectableProcessors();
         

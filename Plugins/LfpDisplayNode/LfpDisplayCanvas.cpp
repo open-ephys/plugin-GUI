@@ -743,6 +743,8 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     isLoading = true;
 
+    displayBuffer = nullptr;
+
 }
 
 LfpDisplaySplitter::~LfpDisplaySplitter()
@@ -850,50 +852,63 @@ void LfpDisplaySplitter::deselect()
 
 void LfpDisplaySplitter::updateSettings()
 {
+    Array<DisplayBuffer*> availableBuffers = processor->getDisplayBuffers();
+
+    if (availableBuffers.size() == 0)
+        displayBuffer = nullptr;
 
     subprocessorSelection->clear(dontSendNotification);
 
-    for (auto buffer : processor->getDisplayBuffers())
+    bool foundMatchingBuffer = false;
+
+    for (auto buffer : availableBuffers)
     {
         subprocessorSelection->addItem(buffer->name, buffer->id);
+
+        if (displayBuffer != nullptr)
+        {
+            if (buffer->id == displayBuffer->id)
+                foundMatchingBuffer = true;
+        }
     }
 
-    if (displayBuffer != nullptr)
-    {
-        subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+    if (!foundMatchingBuffer)
+        displayBuffer = nullptr;
 
+    if (displayBuffer == nullptr) // displayBuffer was deleted
+    {
+        if (availableBuffers.size() > 0)
+        {
+            displayBuffer = availableBuffers[0];
+        }
+    }
+
+    if (displayBuffer == nullptr) // no inputs to this processor
+    {
+        nChans = 0;
+        sampleRate = 44100.0f;
+    }
+    else {
+        
+        subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
         resizeSamplesPerPixelBuffer(nChans);
         sampleRate = displayBuffer->sampleRate;
 
-        //std::cout << "Split canvas sample rate: " << sampleRate << std::endl;
-
         options->setEnabled(nChans != 0);
-        // must manually ensure that overlapSelection propagates up to canvas
         channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
     }
-    else {
-        nChans = 0;
-        sampleRate = 44100;
-    }
     
-
-   // std::cout << "getting sample rate" << std::endl;
-    int firstChannelInSubprocessor = 0;
-
-    if (screenBuffer == nullptr)
+    if (screenBuffer == nullptr) // not yet initialized
     {
         screenBuffer = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
         screenBufferMin = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
         screenBufferMean = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
         screenBufferMax = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-
     }
         
-   // std::cout << "updating channels" << std::endl;
-
-    if (nChans != lfpDisplay->getNumChannels())
+    if (nChans != lfpDisplay->getNumChannels()) // new channel count
     {
         screenBuffer->setSize(nChans + 1, MAX_N_SAMP);
         screenBufferMin->setSize(nChans + 1, MAX_N_SAMP);
@@ -903,10 +918,9 @@ void LfpDisplaySplitter::updateSettings()
         refreshScreenBuffer();
     }
 
-    if (nChans > 0)
-        lfpDisplay->setNumChannels(nChans);
+    lfpDisplay->setNumChannels(nChans);
 
-    for (int i = 0; i < nChans; i++)
+    for (int i = 0; i < nChans; i++) // update channel metadata
     {
         lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
@@ -917,16 +931,13 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
     }
         
-    if (nChans == 0) 
-        lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
-    else {
-        lfpDisplay->rebuildDrawableChannelsList();
-        lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-    }
+    lfpDisplay->rebuildDrawableChannelsList();
+    lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
     isLoading = false;
         
     resized();
+
   /*  }
     else
     {
@@ -1021,7 +1032,7 @@ void LfpDisplaySplitter::syncDisplay()
 
 void LfpDisplaySplitter::updateScreenBuffer()
 {
-    if (isVisible())
+    if (isVisible() && displayBuffer != nullptr)
     {
         // copy new samples from the displayBuffer into the screenBuffer
         int maxSamples = lfpDisplay->getWidth() - leftmargin;

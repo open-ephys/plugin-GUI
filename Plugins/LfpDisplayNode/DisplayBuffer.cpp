@@ -33,7 +33,7 @@ namespace LfpViewer {
 #define BUFFER_LENGTH 3000
 
     DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
-        id(id_), name(name_), sampleRate(sampleRate_)
+        id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
     {
         previousSize = 0;
         numChannels = 0;
@@ -61,6 +61,8 @@ namespace LfpViewer {
         channelMetadata.clear();
         channelMap.clear();
         numChannels = 0;
+
+        isNeeded = false;
     }
 
     void DisplayBuffer::addChannel(String name, int channelNum, int group, float ypos, String structure)
@@ -71,11 +73,14 @@ namespace LfpViewer {
         channelMap[channelNum] = numChannels;
         numChannels++;
 
+        isNeeded = true;
+
        // std::cout << "Adding channel " << name << " with index " << numChannels << "; ";
     }
 
     void DisplayBuffer::update()
     {
+            
         if (numChannels != previousSize)
             setSize(numChannels + 1, BUFFER_LENGTH);
 

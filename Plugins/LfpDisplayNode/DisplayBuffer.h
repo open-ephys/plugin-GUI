@@ -92,6 +92,8 @@ namespace LfpViewer {
 
         CriticalSection displayMutex;
 
+        bool isNeeded;
+
     };
 };
 

@@ -166,12 +166,6 @@ void LfpDisplay::setNumChannels(int newChannelCount)
         drawableChannels.removeLast(numChans - newChannelCount);
     }
     
-    //removeAllChildren();
-
-    //channels.clear();
-    //channelInfo.clear();
-    //drawableChannels.clear();
-
     totalHeight = 0;
 
     cachedDisplayChannelHeight = canvasSplit->getChannelHeight();
@@ -225,7 +219,7 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
     setColors();
 
-    //std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
+   // std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
 }
 
@@ -327,9 +321,9 @@ void LfpDisplay::resized()
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
     
-    //inititalize black background
+    //inititalize background
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(Colour(0,0,0)); //background color
+    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
     gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
 
     canvasSplit->fullredraw = true;
@@ -342,13 +336,17 @@ void LfpDisplay::resized()
 
 void LfpDisplay::paint(Graphics& g)
 {
-
+    
     g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
     
 }
 
 void LfpDisplay::refresh()
 {
+
+    if (numChans == 0)
+        return;
+
     // Ensure the lfpChannelBitmap has been initialized
     if (lfpChannelBitmap.isNull())
     {
@@ -913,6 +911,9 @@ void LfpDisplay::reactivateChannels()
 
 void LfpDisplay::rebuildDrawableChannelsList()
 {
+
+    if (channels.size() == 0)
+        return;
     
     if (displaySkipAmt != 0) removeAllChildren(); // start with clean slate
     
