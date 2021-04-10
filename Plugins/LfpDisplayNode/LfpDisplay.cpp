@@ -163,7 +163,6 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
         channels.removeLast(numChans - newChannelCount);
         channelInfo.removeLast(numChans - newChannelCount);
-        drawableChannels.removeLast(numChans - newChannelCount);
     }
     
     totalHeight = 0;
@@ -183,11 +182,11 @@ void LfpDisplay::setNumChannels(int newChannelCount)
                 //std::cout << "Adding new display for channel " << i << std::endl;
 
                 lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
-                addAndMakeVisible(lfpChan);
+                //addAndMakeVisible(lfpChan);
                 channels.add(lfpChan);
 
                 lfpInfo = new LfpChannelDisplayInfo(canvasSplit, this, options, i);
-                addAndMakeVisible(lfpInfo);
+                //addAndMakeVisible(lfpInfo);
                 channelInfo.add(lfpInfo);
 
                 drawableChannels.add(LfpChannelTrack{
@@ -915,7 +914,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     if (channels.size() == 0)
         return;
     
-    if (displaySkipAmt != 0) removeAllChildren(); // start with clean slate
+    removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw;
     drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
@@ -923,14 +922,6 @@ void LfpDisplay::rebuildDrawableChannelsList()
     // iterate over all channels and select drawable ones
     for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
     {
-//        std::cout << "\tchannel " << i << " has subprocessor index of "  << channelInfo[i]->getSubprocessorIdx() << std::endl;
-        // if channel[i] is not sourced from the correct subprocessor, then hide it and continue
-        //if (channelInfo[i]->getSubprocessorIdx() != getDisplayedSubprocessor())
-        //{
-        //    channels[i]->setHidden(true);
-        //    channelInfo[i]->setHidden(true);
-        //    continue;
-        //}
         
 		//std::cout << "Checking for hidden channels" << std::endl;
         if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
@@ -971,8 +962,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 channels[i]->setHidden(true);
                 channelInfo[i]->setHidden(true);
                 
-                removeChildComponent(channels[i]);
-                removeChildComponent(channelInfo[i]);
+                //removeChildComponent(channels[i]);
+                //removeChildComponent(channelInfo[i]);
 //            }
         }
     }

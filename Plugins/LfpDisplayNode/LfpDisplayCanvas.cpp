@@ -742,6 +742,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     drawClipWarning = false;
 
     isLoading = true;
+    isUpdating = false;
 
     displayBuffer = nullptr;
 
@@ -852,6 +853,9 @@ void LfpDisplaySplitter::deselect()
 
 void LfpDisplaySplitter::updateSettings()
 {
+
+    isUpdating = true;
+
     Array<DisplayBuffer*> availableBuffers = processor->getDisplayBuffers();
 
     if (availableBuffers.size() == 0)
@@ -887,6 +891,8 @@ void LfpDisplaySplitter::updateSettings()
     {
         nChans = 0;
         sampleRate = 44100.0f;
+
+        options->setEnabled(true);
     }
     else {
         
@@ -896,9 +902,11 @@ void LfpDisplaySplitter::updateSettings()
         resizeSamplesPerPixelBuffer(nChans);
         sampleRate = displayBuffer->sampleRate;
 
-        options->setEnabled(nChans != 0);
+        options->setEnabled(true);
         channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
     }
+
+    //std::cout << "Sample rate for display " << splitID << ": " << sampleRate << std::endl;
     
     if (screenBuffer == nullptr) // not yet initialized
     {
@@ -907,17 +915,13 @@ void LfpDisplaySplitter::updateSettings()
         screenBufferMean = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
         screenBufferMax = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
     }
-        
-    if (nChans != lfpDisplay->getNumChannels()) // new channel count
-    {
-        screenBuffer->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMin->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMean->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMax->setSize(nChans + 1, MAX_N_SAMP);
-
-        refreshScreenBuffer();
+    else {
+        if (nChans != lfpDisplay->getNumChannels()) // new channel count
+        {
+            refreshScreenBuffer();
+        }
     }
-
+        
     lfpDisplay->setNumChannels(nChans);
 
     for (int i = 0; i < nChans; i++) // update channel metadata
@@ -925,10 +929,12 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channels[i]->updateType();
 
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channelInfo[i]->updateType();
     }
         
     lfpDisplay->rebuildDrawableChannelsList();
@@ -938,33 +944,20 @@ void LfpDisplaySplitter::updateSettings()
         
     resized();
 
-  /*  }
-    else
+    for (int i = 0; i <= nChans; i++)
     {
-        for (int i = 0; i < nChans; i++)
-        {
-            lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
-            lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
-            lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        displayBufferIndex.set(i, displayBuffer->displayBufferIndices[i]);
+    }
 
-            lfpDisplay->channels[i]->updateType();
-            lfpDisplay->channelInfo[i]->updateType();
-        }
-        
-        if (nChans > 0)
-        {
-            lfpDisplay->rebuildDrawableChannelsList();
-        }
-    }*/
+    syncDisplay();
 
-    //syncDisplay();
+    isUpdating = false;
+
 }
 
 int LfpDisplaySplitter::getChannelHeight()
 {
-    //return spreads[spreadSelection->getSelectedId()-1].getIntValue();
     return options->getChannelHeight();
-    
 }
 
 void LfpDisplaySplitter::setTriggerChannel(int ch)
@@ -1012,6 +1005,11 @@ void LfpDisplaySplitter::refreshScreenBuffer()
     if (true)
     {
 
+        screenBuffer->setSize(nChans + 1, MAX_N_SAMP);
+        screenBufferMin->setSize(nChans + 1, MAX_N_SAMP);
+        screenBufferMean->setSize(nChans + 1, MAX_N_SAMP);
+        screenBufferMax->setSize(nChans + 1, MAX_N_SAMP);
+
         screenBuffer->clear();
         screenBufferMin->clear();
         screenBufferMean->clear();
@@ -1032,7 +1030,7 @@ void LfpDisplaySplitter::syncDisplay()
 
 void LfpDisplaySplitter::updateScreenBuffer()
 {
-    if (isVisible() && displayBuffer != nullptr)
+    if (isVisible() && displayBuffer != nullptr && !isUpdating)
     {
         // copy new samples from the displayBuffer into the screenBuffer
         int maxSamples = lfpDisplay->getWidth() - leftmargin;
@@ -1091,7 +1089,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 
                 screenBufferIndex.set(channel, 0);
             }
-            // hold these values locally for each channel - is this a good idea?
+            // hold these values locally for each channel
             int sbi = screenBufferIndex[channel];
             int dbi = displayBufferIndex[channel];
 

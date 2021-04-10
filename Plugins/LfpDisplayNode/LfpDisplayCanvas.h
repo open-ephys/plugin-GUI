@@ -255,6 +255,7 @@ public:
 private:
 
     bool isSelected;
+    bool isUpdating;
 
     LfpDisplayNode* processor;
     LfpDisplayCanvas* canvas;
