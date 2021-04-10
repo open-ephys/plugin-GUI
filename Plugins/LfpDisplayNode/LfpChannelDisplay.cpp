@@ -153,7 +153,7 @@ void LfpChannelDisplay::pxPaint()
     if (ifrom < 0)
         ifrom = 0;
     
-    int ito = canvasSplit->screenBufferIndex[chan] +0;
+    int ito = canvasSplit->screenBufferIndex[chan] + 0;
     
     if (fullredraw)
     {
@@ -199,21 +199,25 @@ void LfpChannelDisplay::pxPaint()
             // draw event markers
             int rawEventState = canvasSplit->getYCoord(canvasSplit->getNumChannels(), i);// get last channel+1 in buffer (represents events)
             
-            for (int ev_ch = 0; ev_ch < 8 ; ev_ch++) // for all event channels
+            if (i > ifrom + 39)
             {
-                if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
+                for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
                 {
-                    if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
+                    if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
                     {
-//                        std::cout << "Drawing event." << std::endl;
-                        Colour currentcolor=display->channelColours[ev_ch*2];
-                        
-                        for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++) // draw line
-                            bdLfpChannelBitmap.setPixelColour(i,k,bdLfpChannelBitmap.getPixelColour(i,k).interpolatedWith(currentcolor,0.3f));
-                        
+                        if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
+                        {
+                            //                        std::cout << "Drawing event." << std::endl;
+                            Colour currentcolor = display->channelColours[ev_ch * 2];
+
+                            for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
+                                bdLfpChannelBitmap.setPixelColour(i, k, bdLfpChannelBitmap.getPixelColour(i, k).interpolatedWith(currentcolor, 0.3f));
+
+                        }
                     }
                 }
             }
+           
             
             //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
             
