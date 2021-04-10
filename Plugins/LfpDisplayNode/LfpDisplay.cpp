@@ -164,7 +164,7 @@ void LfpDisplay::setNumChannels(int newChannelCount)
         channels.removeLast(numChans - newChannelCount);
         channelInfo.removeLast(numChans - newChannelCount);
     }
-    
+
     totalHeight = 0;
 
     cachedDisplayChannelHeight = canvasSplit->getChannelHeight();
@@ -213,12 +213,8 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
 		}
 	}
-    
+
     numChans = newChannelCount;
-
-    setColors();
-
-   // std::cout << "TOTAL HEIGHT = " << totalHeight << std::endl;
 
 }
 
@@ -226,9 +222,6 @@ void LfpDisplay::setColors()
 {
     for (int i = 0; i < drawableChannels.size(); i++)
     {
-
-//        channels[i]->setColour(channelColours[(int(i/colorGrouping)+1) % channelColours.size()]);
-//        channelInfo[i]->setColour(channelColours[(int(i/colorGrouping)+1)  % channelColours.size()]);
         drawableChannels[i].channel->setColour(getColourSchemePtr()->getColourForIndex(i));
         drawableChannels[i].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(i));
     }
@@ -528,7 +521,11 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
 int LfpDisplay::getChannelHeight()
 {
 //    return cachedDisplayChannelHeight;
-    return drawableChannels[0].channel->getChannelHeight();
+
+    if (drawableChannels.size() > 0)
+        return drawableChannels[0].channel->getChannelHeight();
+    else
+        return 0;
 //    return channels[0]->getChannelHeight();
 }
 
@@ -911,9 +908,6 @@ void LfpDisplay::reactivateChannels()
 void LfpDisplay::rebuildDrawableChannelsList()
 {
 
-    if (channels.size() == 0)
-        return;
-    
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw;
@@ -937,34 +931,13 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 channelInfo[i]
             });
 
-           // std::cout << channels[i]->getDepth() << std::endl;
-            
             addAndMakeVisible(channels[i]);
             addAndMakeVisible(channelInfo[i]);
         }
         else // skip some channels
         {
-//            if (i % (displaySkipAmt) == 0) // add these channels
-//            {
-//                channels[i]->setHidden(false);
-//                channelInfo[i]->setHidden(false);
-//                
-//                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
-//                    channels[i],
-//                    channelInfo[i]
-//                });
-//                
-//                addAndMakeVisible(channels[i]);
-//                addAndMakeVisible(channelInfo[i]);
-//            }
-//            else // but not these
-//            {
-                channels[i]->setHidden(true);
-                channelInfo[i]->setHidden(true);
-                
-                //removeChildComponent(channels[i]);
-                //removeChildComponent(channelInfo[i]);
-//            }
+            channels[i]->setHidden(true);
+            channelInfo[i]->setHidden(true);
         }
     }
     

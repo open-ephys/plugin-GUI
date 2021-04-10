@@ -945,6 +945,7 @@ void LfpDisplaySplitter::updateSettings()
     }
         
     lfpDisplay->rebuildDrawableChannelsList();
+
     lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
 
     isLoading = false;
