@@ -116,7 +116,11 @@ void LfpDisplayCanvas::resized()
     {
         displaySplits[0]->setVisible(true);
 
-        displaySplits[0]->deselect();
+        
+        displaySplits[0]->deselect(); // to remove boundary
+        displaySplits[0]->options->setVisible(true);
+        displaySplits[1]->options->setVisible(false);
+        displaySplits[2]->options->setVisible(false);
 
         displaySplits[1]->setVisible(false);
         displaySplits[2]->setVisible(false);
@@ -143,6 +147,8 @@ void LfpDisplayCanvas::resized()
 
         if (!displaySplits[1]->getSelectedState())
             displaySplits[0]->select();
+        else
+            displaySplits[1]->select();
         
     }
     else if(selectedLayout == THREE_VERT)
