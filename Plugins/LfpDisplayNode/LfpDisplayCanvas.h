@@ -191,8 +191,8 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
-    const int getSampleCountPerPixel(int px);
+    //std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
+    //const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
     const float getYCoordMean(int chan, int samp);
@@ -294,10 +294,10 @@ private:
 
     int scrollBarThickness;
 
-	void resizeSamplesPerPixelBuffer(int numChannels);
-    std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
+	//void resizeSamplesPerPixelBuffer(int numChannels);
+    //std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
 
-    int sampleCountPerPixel[MAX_N_SAMP];
+    //Array<int> sampleCountPerPixel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 

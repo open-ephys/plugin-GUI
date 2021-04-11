@@ -37,6 +37,9 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpDisplayCanvas -
 
+#define MAX_N_SAMP 3000 // used for screen buffer; this could be resized dynamically depending on the display width
+
+
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) :
                   processor(processor_), selectedLayout(sl)
 {
@@ -743,7 +746,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     nChans = 0;
 
-    resizeSamplesPerPixelBuffer(nChans);
+    //resizeSamplesPerPixelBuffer(nChans);
 
     drawSaturationWarning = false;
     drawClipWarning = false;
@@ -757,16 +760,19 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
 LfpDisplaySplitter::~LfpDisplaySplitter()
 {
-    samplesPerPixel.clear();
+    //samplesPerPixel.clear();
 }
 
 
-void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
+/*void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
 {
     // 3D array: dimensions channels x samples x samples per pixel
     samplesPerPixel.clear();
     samplesPerPixel.resize(numCh);
-}
+
+    sampleCountPerPixel.clear();
+    sampleCountPerPixel.insertMultiple(0, 0, MAX_N_SAMP);
+}*/
 
 void LfpDisplaySplitter::resized()
 {
@@ -781,8 +787,10 @@ void LfpDisplaySplitter::resized()
     {
         viewport->setBounds(0, 30, getWidth(), getHeight() - 32);
     }
-       
 
+    if (screenBuffer->getNumSamples() < getWidth())
+        refreshScreenBuffer();
+       
     if (nChans > 0)
     {
         //std::cout << "Changing view for display " << splitID << std::endl;
@@ -802,6 +810,8 @@ void LfpDisplaySplitter::resized()
     }
 
     subprocessorSelection->setBounds(4, 4, 140, 22);
+
+    
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
@@ -906,7 +916,7 @@ void LfpDisplaySplitter::updateSettings()
         subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
-        resizeSamplesPerPixelBuffer(nChans);
+        //resizeSamplesPerPixelBuffer(nChans);
         sampleRate = displayBuffer->sampleRate;
 
         options->setEnabled(true);
@@ -1010,10 +1020,10 @@ void LfpDisplaySplitter::refreshScreenBuffer()
     if (true)
     {
 
-        screenBuffer->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMin->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMean->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMax->setSize(nChans + 1, MAX_N_SAMP);
+        screenBuffer->setSize(nChans + 1, getWidth());
+        screenBufferMin->setSize(nChans + 1, getWidth());
+        screenBufferMean->setSize(nChans + 1, getWidth());
+        screenBufferMax->setSize(nChans + 1, getWidth());
 
         screenBuffer->clear();
         screenBufferMin->clear();
@@ -1175,7 +1185,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         if (nextpix > displayBufferSize)
                             nextpix = displayBufferSize;
 
-                        if (nextpix - dbi > 1) 
+                        /*if (nextpix - dbi > 1) 
                         {
                             // multiple samples, calculate average
                             float sum = 0;
@@ -1187,8 +1197,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         else
                         {
                             // interpolate between two samples with invAlpha and alpha
-                            /* This is only reasonable if there are more pixels
-                            than samples. Otherwise, we should calculate average. */
+                            // This is only reasonable if there are more pixels
+                            // than samples. Otherwise, we should calculate average. 
                             float alpha = (float) subSampleOffset;
                             float invAlpha = 1.0f - alpha;
 
@@ -1198,19 +1208,20 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             float val = invAlpha * val0  + alpha * val1;
 
                             screenBuffer->addSample(channel, sbi, val*gain);
-                        }
+                        }*/
                         
 
                         // same thing again, but this time add the min,mean, and max of all samples in current pixel
                         float sample_min = 10000000;
                         float sample_max = -10000000;
-                        float sample_mean = 0;
+                        float sample_sum = 0;
+                        int sampleCount = 0;
 
                         for (int j = dbi; j < nextpix; j++)
                         {
 
                             float sample_current = displayBuffer->getSample(channel, j);
-                            sample_mean = sample_mean + sample_current;
+                            sample_sum = sample_sum + sample_current;
 
                             if (sample_min > sample_current)
                             {
@@ -1222,7 +1233,13 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 sample_max = sample_current;
                             }
 
+                            sampleCount++;
+
                         }
+
+                        screenBufferMean->addSample(channel, sbi, sample_sum / sampleCount);
+                        screenBufferMin->addSample(channel, sbi, sample_min);
+                        screenBufferMax->addSample(channel, sbi, sample_max);
 
                         // update event channel
                         if (channel == nChans)
@@ -1235,9 +1252,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
                         // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
 
-                        if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
-                        {
-                            int c = 0;
+                        //if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
+                       // {
+                            // this is for fancy drawing -- not used in new LFP Viewer
+                            /*int c = 0;
                             for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
                             {
                                 float sample_current = displayBuffer->getSample(channel, j);
@@ -1245,17 +1263,14 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 c++;
                             }
                             if (c > 0){
-                                sampleCountPerPixel[sbi] = c - 1; // save count of samples for this pixel
+                                sampleCountPerPixel.set(sbi, c - 1); // save count of samples for this pixel
                             }
                             else{
-                                sampleCountPerPixel[sbi] = 0;
-                            }
-                            sample_mean = sample_mean / c;
-                            screenBufferMean->addSample(channel, sbi, sample_mean);
-
-                            screenBufferMin->addSample(channel, sbi, sample_min);
-                            screenBufferMax->addSample(channel, sbi, sample_max);
-                        }
+                                sampleCountPerPixel.set(sbi, 0);
+                            }*/
+                            //sample_mean = sample_mean / c;
+                            
+                     //   }
 
                         if (triggerChannel >= 0 && trialAveraging == true && channel != nChans)
                         {
@@ -1339,14 +1354,14 @@ int LfpDisplaySplitter::getChannelSubprocessorIdx(int channel)
     return processor->getDataChannel(channel)->getSubProcessorIdx();
 }
 
-std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
+/*std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
 {
     return samplesPerPixel[chan][px];
 }
 const int LfpDisplaySplitter::getSampleCountPerPixel(int px)
 {
     return sampleCountPerPixel[px];
-}
+}*/
 
 float LfpDisplaySplitter::getMean(int chan)
 {

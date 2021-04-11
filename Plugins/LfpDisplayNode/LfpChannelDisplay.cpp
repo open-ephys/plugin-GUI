@@ -288,8 +288,8 @@ void LfpChannelDisplay::pxPaint()
                 plotterInfo.lineColourDark = lineColourDark;
                 plotterInfo.range = range;
                 plotterInfo.channelHeightFloat = channelHeightFloat;
-                plotterInfo.sampleCountPerPixel = canvasSplit->getSampleCountPerPixel(i);
-                plotterInfo.samplesPerPixel = canvasSplit->getSamplesPerPixel(chan, i);
+               // plotterInfo.sampleCountPerPixel = canvasSplit->getSampleCountPerPixel(i);
+                //plotterInfo.samplesPerPixel = canvasSplit->getSamplesPerPixel(chan, i);
                 plotterInfo.histogramParameterA = canvasSplit->histogramParameterA;
                 plotterInfo.samplerange = samplerange;
                 
