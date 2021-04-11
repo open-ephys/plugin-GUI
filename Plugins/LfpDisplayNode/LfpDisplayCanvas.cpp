@@ -273,7 +273,7 @@ void LfpDisplayCanvas::update()
 
     for (auto split : displaySplits)
     {
-        //split->setInputSubprocessors();
+        //if (split->isVisible())
         split->updateSettings();
     }
 
@@ -321,6 +321,8 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
     selectedLayout = sl;
 
     resized();
+
+    //update();
 }
 
 bool LfpDisplayCanvas::makeRoomForOptions(int splitID)
@@ -794,8 +796,11 @@ void LfpDisplaySplitter::resized()
         viewport->setBounds(0, 30, getWidth(), getHeight() - 32);
     }
 
-    if (screenBuffer->getNumSamples() < getWidth())
-        refreshScreenBuffer();
+    if (screenBuffer != nullptr)
+    {
+        if (screenBuffer->getNumSamples() < getWidth())
+            refreshScreenBuffer();
+    }
        
     if (nChans > 0)
     {
