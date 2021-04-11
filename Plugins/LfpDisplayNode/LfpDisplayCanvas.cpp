@@ -933,10 +933,10 @@ void LfpDisplaySplitter::updateSettings()
     
     if (screenBuffer == nullptr) // not yet initialized
     {
-        screenBuffer = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMin = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMean = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMax = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
+        screenBuffer = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMin = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMean = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMax = new AudioSampleBuffer(nChans + 1, getWidth());
     }
     else {
         if (nChans != lfpDisplay->getNumChannels()) // new channel count
