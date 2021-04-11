@@ -273,7 +273,6 @@ void LfpDisplayCanvas::update()
 
     for (auto split : displaySplits)
     {
-        //if (split->isVisible())
         split->updateSettings();
     }
 
@@ -321,8 +320,6 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
     selectedLayout = sl;
 
     resized();
-
-    //update();
 }
 
 bool LfpDisplayCanvas::makeRoomForOptions(int splitID)
@@ -809,7 +806,7 @@ void LfpDisplaySplitter::resized()
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
  
-        lfpDisplay->setBounds(0,0,
+        lfpDisplay->setBounds(leftmargin,0,
             getWidth()-scrollBarThickness, 
             lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
 
@@ -817,7 +814,7 @@ void LfpDisplaySplitter::resized()
     }
     else
     {
-        lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
+        lfpDisplay->setBounds(leftmargin, 0, getWidth(), getHeight());
     }
 
     subprocessorSelection->setBounds(4, 4, 140, 22);
@@ -949,6 +946,7 @@ void LfpDisplaySplitter::updateSettings()
             refreshScreenBuffer();
         }
     }
+
         
     lfpDisplay->setNumChannels(nChans);
 
@@ -971,10 +969,6 @@ void LfpDisplaySplitter::updateSettings()
 
     isLoading = false;
         
-    resized();
-
-    
-
     syncDisplay();
 
     isUpdating = false;
