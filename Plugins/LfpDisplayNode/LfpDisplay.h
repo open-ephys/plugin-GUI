@@ -142,6 +142,9 @@ public:
 
     /** Returns true if a single channel is focused in viewport */
     bool getSingleChannelState();
+
+    /** Returns the index of the channel that is focused in viewport */
+    int getSingleChannelShown();
     
     /** Set the viewport's channel focus behavior.
      

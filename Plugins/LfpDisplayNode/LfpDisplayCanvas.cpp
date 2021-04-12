@@ -782,15 +782,17 @@ LfpDisplaySplitter::~LfpDisplaySplitter()
 void LfpDisplaySplitter::resized()
 {
 
-    timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
+    const int timescaleHeight = 30;
+
+    timescale->setBounds(leftmargin, 0, getWidth()-scrollBarThickness, timescaleHeight);
 
     if (canvas->makeRoomForOptions(splitID))
     {
-        viewport->setBounds(0, 30, getWidth(), getHeight() - 87);
+        viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 87);
     }
     else
     {
-        viewport->setBounds(0, 30, getWidth(), getHeight() - 32);
+        viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
     }
 
     if (screenBuffer != nullptr)
@@ -806,7 +808,7 @@ void LfpDisplaySplitter::resized()
         if (lfpDisplay->getSingleChannelState())
             lfpDisplay->setChannelHeight(viewport->getHeight(),false);
  
-        lfpDisplay->setBounds(leftmargin,0,
+        lfpDisplay->setBounds(0, 0,
             getWidth()-scrollBarThickness, 
             lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
 
@@ -814,7 +816,7 @@ void LfpDisplaySplitter::resized()
     }
     else
     {
-        lfpDisplay->setBounds(leftmargin, 0, getWidth(), getHeight());
+        lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
     }
 
     subprocessorSelection->setBounds(4, 4, 140, 22);
@@ -947,7 +949,6 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-        
     lfpDisplay->setNumChannels(nChans);
 
     for (int i = 0; i < nChans; i++) // update channel metadata
@@ -965,7 +966,7 @@ void LfpDisplaySplitter::updateSettings()
         
     lfpDisplay->rebuildDrawableChannelsList();
 
-    lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
+    resized();
 
     isLoading = false;
         
@@ -1058,9 +1059,9 @@ void LfpDisplaySplitter::updateScreenBuffer()
     if (isVisible() && displayBuffer != nullptr && !isUpdating)
     {
         // copy new samples from the displayBuffer into the screenBuffer
-        int maxSamples = lfpDisplay->getWidth() - leftmargin;
+        int maxSamples = lfpDisplay->getWidth() - leftmargin; // leftmargin accounts for the fact that the display doesn't start
+                                                              // at the leftmost pixel
 
-        
         int triggerTime = triggerChannel >=0 
                           ? processor->getLatestTriggerTime(splitID)
                           : -1;

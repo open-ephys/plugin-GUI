@@ -207,7 +207,7 @@ public:
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
-    static const int leftmargin = 50; // left margin for lfp plots (so the ch number text doesnt overlap)
+    static const int leftmargin = 60; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
 

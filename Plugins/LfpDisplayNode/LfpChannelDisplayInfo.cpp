@@ -209,7 +209,6 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
-
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
 	const bool showChannelNumbers = options->getChannelNameState();
 
@@ -222,7 +221,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     g.drawText(channelString,
                showChannelNumbers ? 6 : 2,
                center-4,
-               getWidth()/2,
+               getWidth(),
                10,
                isCentered ? Justification::centred : Justification::centredLeft,
                false);
@@ -279,7 +278,7 @@ void LfpChannelDisplayInfo::resized()
     
     if (getEnabledButtonVisibility())
     {
-        enableButton->setBounds(getWidth()/2 - 10, center - 5, 10, 10);
+        enableButton->setBounds(getWidth() - 13, center - 5, 10, 10);
     }
     
     setChannelNumberIsHidden(getHeight() < 16 && (getDrawableChannelNumber() + 1) % 10 != 0);

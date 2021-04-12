@@ -179,14 +179,11 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
             if (i >= numChans)
             {
-                //std::cout << "Adding new display for channel " << i << std::endl;
 
                 lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
-                //addAndMakeVisible(lfpChan);
                 channels.add(lfpChan);
 
                 lfpInfo = new LfpChannelDisplayInfo(canvasSplit, this, options, i);
-                //addAndMakeVisible(lfpInfo);
                 channelInfo.add(lfpInfo);
 
                 drawableChannels.add(LfpChannelTrack{
@@ -202,12 +199,16 @@ void LfpDisplay::setNumChannels(int newChannelCount)
             
 			lfpChan->setRange(range[options->getChannelType(i)]);
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
-            lfpChan->setEnabledState(savedChannelState[i]);
+
+            if (!getSingleChannelState())
+                lfpChan->setEnabledState(savedChannelState[i]);
 
 			lfpInfo->setRange(range[options->getChannelType(i)]);
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
 			lfpInfo->setSubprocessorIdx(canvasSplit->getChannelSubprocessorIdx(i));
-            lfpInfo->setEnabledState(savedChannelState[i]);
+
+            if (!getSingleChannelState())
+                lfpInfo->setEnabledState(savedChannelState[i]);
 
 			totalHeight += lfpChan->getChannelHeight();
 
@@ -289,7 +290,7 @@ void LfpDisplay::resized()
         
         info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
-                        canvasSplit->leftmargin + 48,
+                        canvasSplit->leftmargin -2,
                         disp->getChannelHeight());
         
         totalHeight += disp->getChannelHeight();
@@ -839,7 +840,8 @@ void LfpDisplay::toggleSingleChannel(int chan)
     if (!getSingleChannelState())
     {
         
-        //std::cout << "Single channel on (" << chan << ")" << std::endl;
+        std::cout << "Single channel on (" << chan << ")" << std::endl;
+
         singleChan = chan;
         
         int newHeight = viewport->getHeight();
@@ -883,12 +885,11 @@ void LfpDisplay::toggleSingleChannel(int chan)
 //    else if (chan == singleChan || chan == -2)
     else
     {
-        //std::cout << "Single channel off" << std::endl;
-        
-        for (int n = 0; n < numChans; n++)
-        {
-            channelInfo[n]->setSingleChannelState(false);
-        }
+        std::cout << "Single channel off" << std::endl;
+
+        channelInfo[singleChan]->setSingleChannelState(false);
+
+        singleChan = -1;
         
         setChannelHeight(cachedDisplayChannelHeight);
 
@@ -1005,9 +1006,12 @@ LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
 
 bool LfpDisplay::getSingleChannelState()
 {
-    //if (singleChan < 0) return false;
-    //else return true;
     return singleChan >= 0;
+}
+
+int LfpDisplay::getSingleChannelShown()
+{
+    return singleChan;
 }
 
 void LfpDisplay::mouseDown(const MouseEvent& event)
