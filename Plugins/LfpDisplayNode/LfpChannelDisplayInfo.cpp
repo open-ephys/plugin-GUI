@@ -273,6 +273,8 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 void LfpChannelDisplayInfo::resized()
 {
 
+   // std::cout << "Resizing info" << std::endl;
+
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
     setEnabledButtonVisibility(getHeight() >= 16);
     

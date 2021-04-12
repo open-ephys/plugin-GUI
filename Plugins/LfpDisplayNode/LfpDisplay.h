@@ -145,6 +145,9 @@ public:
 
     /** Returns the index of the channel that is focused in viewport */
     int getSingleChannelShown();
+
+    /** Sets the view to a single channel */
+    void setSingleChannelView(int channel);
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannelTrack
@@ -211,10 +214,12 @@ public:
     
     TrackZoomInfo_Struct trackZoomInfo; // and create an instance here
 
+    Array<bool> savedChannelState;
+
 private:
     
     int singleChan;
-	Array<bool> savedChannelState;
+	
 
     int numChans;
     int displaySkipAmt;

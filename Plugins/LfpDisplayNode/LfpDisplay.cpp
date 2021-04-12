@@ -151,9 +151,14 @@ ChannelColourScheme * LfpDisplay::getColourSchemePtr()
 
 void LfpDisplay::setNumChannels(int newChannelCount)
 {
+
+    std::cout << "setting num channels to " << newChannelCount << std::endl;
     
     if (numChans > newChannelCount)
     {
+
+        std::cout << "   removing " << numChans - newChannelCount << " extra channels." << std::endl;
+
         for (int i = newChannelCount; i < numChans; i++)
         {
             removeChildComponent(channels[i]);
@@ -186,11 +191,6 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
                 lfpInfo = new LfpChannelDisplayInfo(canvasSplit, this, options, i);
                 channelInfo.add(lfpInfo);
-
-                drawableChannels.add(LfpChannelTrack{
-                lfpChan,
-                lfpInfo
-                    });
             }
             else {
                 
@@ -201,20 +201,16 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 			lfpChan->setRange(range[options->getChannelType(i)]);
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
 
-            if (!getSingleChannelState())
-
-            {
-                std::cout << "Enabling channel " << i << std::endl;
-                lfpChan->setEnabledState(savedChannelState[i]);
-            }
-                
-
 			lfpInfo->setRange(range[options->getChannelType(i)]);
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
 			lfpInfo->setSubprocessorIdx(canvasSplit->getChannelSubprocessorIdx(i));
 
             if (!getSingleChannelState())
+            {
+                lfpChan->setEnabledState(savedChannelState[i]);
                 lfpInfo->setEnabledState(savedChannelState[i]);
+            }
+                
 
 			totalHeight += lfpChan->getChannelHeight();
 
@@ -222,6 +218,8 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 	}
 
     numChans = newChannelCount;
+
+    std::cout << "Done setting channels." << std::endl;
 
 }
 
@@ -312,7 +310,7 @@ void LfpDisplay::resized()
     }
     else {
         //std::cout << "Setting view position for single channel " << std::endl;
-        viewport->setViewPosition(juce::Point<int>(0, singleChan * getChannelHeight()));
+        viewport->setViewPosition(0, 0);
     }
        
     if (getWidth() > 0 && getHeight() > 0)
@@ -875,6 +873,7 @@ void LfpDisplay::reactivateChannels()
 
 void LfpDisplay::rebuildDrawableChannelsList()
 {
+    std::cout << "REBUILDING DRAWABLE CHANNELS LIST" << std::endl;
 
     if (getSingleChannelState())
     {
@@ -908,7 +907,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
             }
 
             // update drawableChannels, give only the single channel to focus on
-            drawableChannels.clearQuick();
+            drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
             drawableChannels.add(lfpChannelTrack);
 
             lfpChannelTrack.channel->setEnabledState(true);
@@ -934,6 +933,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
             {
                 canvasSplit->resizeToChannels();
             }
+
+            std::cout << "Finished single channel rebuild" << std::endl;
 
             return;
         }
@@ -1032,6 +1033,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
     }
     
     setColors();
+
+    std::cout << "Finished standard channel rebuild" << std::endl;
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
@@ -1047,6 +1050,11 @@ bool LfpDisplay::getSingleChannelState()
 int LfpDisplay::getSingleChannelShown()
 {
     return singleChan;
+}
+
+void LfpDisplay::setSingleChannelView(int chan)
+{
+    singleChan = chan;
 }
 
 void LfpDisplay::mouseDown(const MouseEvent& event)

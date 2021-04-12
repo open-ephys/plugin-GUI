@@ -824,7 +824,7 @@ void LfpDisplaySplitter::resized()
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
-    //std::cout << "Resize to channels " << std::endl;
+    std::cout << "Resize to channels!!!" << std::endl;
 
     lfpDisplay->setBounds(0, 0, 
         getWidth()-scrollBarThickness, 
@@ -968,13 +968,14 @@ void LfpDisplaySplitter::updateSettings()
         
     lfpDisplay->rebuildDrawableChannelsList();
 
-    //resized();
-
     isLoading = false;
         
     syncDisplay();
 
     isUpdating = false;
+
+    std::cout << " done " << std::endl;
+    std::cout << "   " << std::endl;
 
 }
 

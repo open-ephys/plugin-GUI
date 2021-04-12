@@ -1447,15 +1447,8 @@ int LfpDisplayOptions::getRangeStep(DataChannel::DataChannelTypes type)
 
 void LfpDisplayOptions::saveParameters(XmlElement* xml)
 {
-    // TODO: (kelly) add savers for:
-    //      - channel reverse
-    //      - channel zoom slider
-    //      - channel display skip
-   // std::cout << "Saving lfp display params" << std::endl;
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
-
-    lfpDisplay->reactivateChannels();
 
     xmlNode->setAttribute("SubprocessorID",canvasSplit->subprocessorSelection->getSelectedId());
 
@@ -1480,6 +1473,8 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("triggerSource", triggerSourceSelection->getSelectedId());
     xmlNode->setAttribute("trialAvg", averageSignalButton->getToggleState());
 
+    xmlNode->setAttribute("singleChannelView", lfpDisplay->getSingleChannelShown());
+
     int eventButtonState = 0;
 
     for (int i = 0; i < 8; i++)
@@ -1490,15 +1485,13 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
         }
     }
 
-    lfpDisplay->reactivateChannels();
-
     xmlNode->setAttribute("EventButtonState", eventButtonState);
 
     String channelDisplayState = "";
 
     for (int i = 0; i < canvasSplit->nChans; i++)
     {
-        if (lfpDisplay->getEnabledState(i))
+        if (lfpDisplay->savedChannelState[i])
         {
             channelDisplayState += "1";
         }
@@ -1506,10 +1499,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
         {
             channelDisplayState += "0";
         }
-        //std::cout << channelDisplayState;
     }
-
-    //std::cout << std::endl;
 
     xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
 
@@ -1591,7 +1581,11 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 }
 
             }
+
+            lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
         }
+
+        
     }
 
    // std::cout << "Finished loading LFP options." << std::endl;
