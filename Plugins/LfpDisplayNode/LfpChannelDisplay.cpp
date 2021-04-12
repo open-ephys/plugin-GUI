@@ -95,6 +95,11 @@ void LfpChannelDisplay::updateType()
 
 void LfpChannelDisplay::setEnabledState(bool state)
 {
+    if (state)
+        std::cout << "ENABLING CHANNEL " << chan << std::endl;
+    else
+        std::cout << "DISABLING CHANNEL " << chan << std::endl;
+
     isEnabled = state;
 }
 

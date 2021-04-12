@@ -179,6 +179,7 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
             if (i >= numChans)
             {
+                std::cout << "ADDING NEW CHANNEL " << i << std::endl;
 
                 lfpChan = new LfpChannelDisplay(canvasSplit, this, options, i);
                 channels.add(lfpChan);
@@ -201,7 +202,12 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
 
             if (!getSingleChannelState())
+
+            {
+                std::cout << "Enabling channel " << i << std::endl;
                 lfpChan->setEnabledState(savedChannelState[i]);
+            }
+                
 
 			lfpInfo->setRange(range[options->getChannelType(i)]);
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
@@ -835,59 +841,20 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
 
 }
 
-void LfpDisplay::toggleSingleChannel(int chan)
+void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)
 {
     if (!getSingleChannelState())
     {
-        
-        std::cout << "Single channel on (" << chan << ")" << std::endl;
+        singleChan = drawableChannel.channel->getChannelNumber();
 
-        singleChan = chan;
-        
-        int newHeight = viewport->getHeight();
-        LfpChannelTrack lfpChannelTrack{drawableChannels[chan].channel, drawableChannels[chan].channelInfo};
-        lfpChannelTrack.channelInfo->setEnabledState(true);
-        lfpChannelTrack.channelInfo->setSingleChannelState(true);
-        
-        removeAllChildren();
-        
-        // disable unused channels
-        for (int i = 0; i < getNumChannels(); i++)
-        {
-            if (i != chan)
-            {
-                drawableChannels[i].channel->setEnabledState(false);
-            }
-            else {
-                drawableChannels[i].channel->setEnabledState(true);
-            }
-        }
-        
-        // update drawableChannels, give only the single channel to focus on
-        drawableChannels.clearQuick();
-        drawableChannels.add(lfpChannelTrack);
-        
-        addAndMakeVisible(lfpChannelTrack.channel);
-        addAndMakeVisible(lfpChannelTrack.channelInfo);
-
-
-        // set channel height and position (so that we allocate the smallest
-        // necessary image size for drawing)
-        setChannelHeight(newHeight, false);
-        
-        lfpChannelTrack.channel->setTopLeftPosition(canvasSplit->leftmargin, 0);
-        lfpChannelTrack.channelInfo->setTopLeftPosition(0, 0);
-        setSize(getWidth(), getChannelHeight());
-        
-        viewport->setViewPosition(0, 0);
+        rebuildDrawableChannelsList();
 
     }
-//    else if (chan == singleChan || chan == -2)
     else
     {
         std::cout << "Single channel off" << std::endl;
 
-        channelInfo[singleChan]->setSingleChannelState(false);
+        drawableChannels[0].channelInfo->setSingleChannelState(false);
 
         singleChan = -1;
         
@@ -908,6 +875,74 @@ void LfpDisplay::reactivateChannels()
 
 void LfpDisplay::rebuildDrawableChannelsList()
 {
+
+    if (getSingleChannelState())
+    {
+        std::cout << "Single channel on (" << singleChan << ")" << std::endl;
+
+        int newHeight = viewport->getHeight();
+
+        int channelIndex = -1;
+
+        for (int i = 0; i < channels.size(); i++)
+        {
+            if (channels[i]->getChannelNumber() == singleChan)
+            {
+                channelIndex = i;
+                break;
+            }
+        }
+            
+        if (channelIndex > -1)
+        {
+
+            LfpChannelTrack lfpChannelTrack{ channels[channelIndex], channelInfo[channelIndex] };
+
+            removeAllChildren();
+
+            // disable unused channels
+            for (int i = 0; i < drawableChannels.size(); i++)
+            {
+                if (drawableChannels[i].channel != lfpChannelTrack.channel)
+                    drawableChannels[i].channel->setEnabledState(false);
+            }
+
+            // update drawableChannels, give only the single channel to focus on
+            drawableChannels.clearQuick();
+            drawableChannels.add(lfpChannelTrack);
+
+            lfpChannelTrack.channel->setEnabledState(true);
+            lfpChannelTrack.channelInfo->setEnabledState(true);
+            lfpChannelTrack.channelInfo->setSingleChannelState(true);
+
+            addAndMakeVisible(lfpChannelTrack.channel);
+            addAndMakeVisible(lfpChannelTrack.channelInfo);
+
+            // set channel height and position (so that we allocate the smallest
+            // necessary image size for drawing)
+            setChannelHeight(newHeight, false);
+
+            lfpChannelTrack.channel->setTopLeftPosition(canvasSplit->leftmargin, 0);
+            lfpChannelTrack.channelInfo->setTopLeftPosition(0, 0);
+            setSize(getWidth(), getChannelHeight());
+
+            viewport->setViewPosition(0, 0);
+
+            // this guards against an exception where the editor sets the drawable samplerate
+            // before the lfpDisplay is fully initialized
+            if (getHeight() > 0 && getWidth() > 0)
+            {
+                canvasSplit->resizeToChannels();
+            }
+
+            return;
+        }
+
+        std::cout << "Single channel not found." << std::endl;
+
+    }
+
+    std::cout << "Standard channel rebuild" << std::endl;
 
     removeAllChildren(); // start with clean slate
     
@@ -1029,6 +1064,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     int dist = 0;
     int mindist = 10000;
     int closest = 5;
+
     for (int n = 0; n < drawableChannels.size(); n++) // select closest instead of relying on eventComponent
     {
         drawableChannels[n].channel->deselect();
@@ -1057,16 +1093,12 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     }
     else // if left click
     {
-//    if (singleChan != -1)
         if (event.getNumberOfClicks() == 2) {
-            toggleSingleChannel(closest);
+            toggleSingleChannel(drawableChannels[closest]);
         }
         
-        if (getSingleChannelState())
+        if (getSingleChannelState()) // show info for point that was selected
         {
-            
-            //        std::cout << "singleChan = " << singleChan << " " << y << " " << drawableChannels[0].channel->getHeight() << " " << getRange() << std::endl;
-            //channelInfo[singleChan]->updateXY(
             drawableChannels[0].channelInfo->updateXY(
                                                       float(x)/getWidth()*canvasSplit->timebase,
                                                       (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)

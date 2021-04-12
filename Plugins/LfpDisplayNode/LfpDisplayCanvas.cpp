@@ -806,7 +806,7 @@ void LfpDisplaySplitter::resized()
         //std::cout << "Changing view for display " << splitID << std::endl;
 
         if (lfpDisplay->getSingleChannelState())
-            lfpDisplay->setChannelHeight(viewport->getHeight(),false);
+            lfpDisplay->setChannelHeight(viewport->getHeight(), false);
  
         lfpDisplay->setBounds(0, 0,
             getWidth()-scrollBarThickness, 
@@ -820,15 +820,15 @@ void LfpDisplaySplitter::resized()
     }
 
     subprocessorSelection->setBounds(4, 4, 140, 22);
-
-    
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
     //std::cout << "Resize to channels " << std::endl;
 
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+    lfpDisplay->setBounds(0, 0, 
+        getWidth()-scrollBarThickness, 
+        lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     
     // if param is flagged, move the viewport scroll back to same relative position before
     // resize took place
@@ -949,6 +949,8 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
+    std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+
     lfpDisplay->setNumChannels(nChans);
 
     for (int i = 0; i < nChans; i++) // update channel metadata
@@ -966,7 +968,7 @@ void LfpDisplaySplitter::updateSettings()
         
     lfpDisplay->rebuildDrawableChannelsList();
 
-    resized();
+    //resized();
 
     isLoading = false;
         
@@ -1087,7 +1089,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     {
                         
 
-                        const int screenThird = int(maxSamples * ratio / 4);
+                        const int screenThird = int(maxSamples * ratio / 3);
                         const int dispBufLim = displayBufferSize / 2;
 
                         int t0 = triggerTime - std::min(screenThird, dispBufLim);

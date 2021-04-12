@@ -146,6 +146,17 @@ public:
     /** Returns the index of the channel that is focused in viewport */
     int getSingleChannelShown();
     
+    /** Convenience struct for holding a channel and its info in drawableChannels */
+    struct LfpChannelTrack
+    {
+        LfpChannelDisplay* channel;
+        LfpChannelDisplayInfo* channelInfo;
+    };
+
+    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
+                                                // drawable to the screen
+
+
     /** Set the viewport's channel focus behavior.
      
         When a single channel is selected, it fills the entire viewport and
@@ -158,7 +169,7 @@ public:
                         Note: this parameter is NOT the index in channel[], but
                         the index of the channel in drawableChannels[].
      */
-    void toggleSingleChannel(int chan = -2);
+    void toggleSingleChannel(LfpChannelTrack drawableChannel);
     
     /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
     void rebuildDrawableChannelsList();
@@ -173,14 +184,7 @@ public:
     OwnedArray<LfpChannelDisplay> channels;             // all channels
     OwnedArray<LfpChannelDisplayInfo> channelInfo;      // all channelInfos
     
-    /** Convenience struct for holding a channel and its info in drawableChannels */
-    struct LfpChannelTrack
-    {
-        LfpChannelDisplay * channel;
-        LfpChannelDisplayInfo * channelInfo;
-    };
-    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
-                                                    // drawable to the screen
+    
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen buffer updates
