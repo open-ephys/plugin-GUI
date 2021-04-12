@@ -119,6 +119,10 @@ void FPGAchannelList::buttonClicked(Button* btn)
 
 void FPGAchannelList::update()
 {
+    
+    if (!proc->isEnabled)
+        return;
+
    // const int columnWidth = 330;
 	const int columnWidth = 250;
     // Query processor for number of channels, types, gains, etc... and update the UI
@@ -209,26 +213,35 @@ void FPGAchannelList::update()
             for (int ch = 0; ch < numChannelsPerHeadstage[k]+ (k < MAX_NUM_HEADSTAGES ? 3 : 0); ch++)
             {
                 int channelGainIndex = 1;
+                
                 int realChan = thread->getChannelFromHeadstage(k, ch);
-                float ch_gain = proc->getDataChannel(realChan)->getBitVolts() / proc->getBitVolts(proc->getDataChannel(realChan));
-                for (int j = 0; j < gains.size(); j++)
-                {
-                    if (fabs(gains[j] - ch_gain) < 1e-3)
-                    {
-                        channelGainIndex = j;
-                        break;
-                    }
-                }
-                if (k < MAX_NUM_HEADSTAGES)
-                    type = ch < numChannelsPerHeadstage[k] ? DataChannel::HEADSTAGE_CHANNEL : DataChannel::AUX_CHANNEL;
-                else
-                    type = DataChannel::ADC_CHANNEL;
 
-                FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains,type);
-                comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
-                comp->setUserDefinedData(k);
-                addAndMakeVisible(comp);
-                channelComponents.add(comp);
+                RHD2000Thread* p = (RHD2000Thread*)proc->getThread();
+
+                if (realChan < p->getNumChannels())
+                {
+                    float ch_gain = proc->getDataChannel(realChan)->getBitVolts() / proc->getBitVolts(proc->getDataChannel(realChan));
+
+                    for (int j = 0; j < gains.size(); j++)
+                    {
+                        if (fabs(gains[j] - ch_gain) < 1e-3)
+                        {
+                            channelGainIndex = j;
+                            break;
+                        }
+                    }
+                    if (k < MAX_NUM_HEADSTAGES)
+                        type = ch < numChannelsPerHeadstage[k] ? DataChannel::HEADSTAGE_CHANNEL : DataChannel::AUX_CHANNEL;
+                    else
+                        type = DataChannel::ADC_CHANNEL;
+
+                    FPGAchannelComponent* comp = new FPGAchannelComponent(this, realChan, channelGainIndex + 1, thread->getChannelName(realChan), gains, type);
+                    comp->setBounds(10 + hsColumn[k], 70 + ch * 22, columnWidth, 22);
+                    comp->setUserDefinedData(k);
+                    addAndMakeVisible(comp);
+                    channelComponents.add(comp);
+                }
+
             }
         }
     }
