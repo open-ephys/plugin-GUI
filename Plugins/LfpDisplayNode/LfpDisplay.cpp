@@ -225,11 +225,20 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 
 void LfpDisplay::setColors()
 {
-    for (int i = 0; i < drawableChannels.size(); i++)
+
+    if (!getSingleChannelState())
     {
-        drawableChannels[i].channel->setColour(getColourSchemePtr()->getColourForIndex(i));
-        drawableChannels[i].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(i));
+        for (int i = 0; i < drawableChannels.size(); i++)
+        {
+            drawableChannels[i].channel->setColour(getColourSchemePtr()->getColourForIndex(i));
+            drawableChannels[i].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(i));
+        }
     }
+    else {
+        drawableChannels[0].channel->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
+        drawableChannels[0].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
+    }
+    
 
 }
 
@@ -468,7 +477,7 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
     }
 
 
-    if (resetSingle && singleChan != -1)
+    /*if (resetSingle && singleChan != -1)
     {
         
         setSize(getWidth(), getChannelHeight());
@@ -480,7 +489,8 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
 			channelInfo[n]->setEnabledState(savedChannelState[n]);
         }
     }
-    else if (singleChan == -1) {
+    else*/
+    if (singleChan == -1) {
 
         int overallHeight = drawableChannels.size() * getChannelHeight();
         
@@ -927,6 +937,8 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
             viewport->setViewPosition(0, 0);
 
+            setColors();
+
             // this guards against an exception where the editor sets the drawable samplerate
             // before the lfpDisplay is fully initialized
             if (getHeight() > 0 && getWidth() > 0)
@@ -1054,6 +1066,7 @@ int LfpDisplay::getSingleChannelShown()
 
 void LfpDisplay::setSingleChannelView(int chan)
 {
+    std::cout << "SETTING SINGLE CHANNEL VIWWWWWWEEEE  TI " << chan << std::endl;
     singleChan = chan;
 }
 
