@@ -626,6 +626,19 @@ void LfpDisplayCanvas::refresh()
     }
 }
 
+void LfpDisplayCanvas::redrawAll()
+{
+    for (auto split : displaySplits)
+    {
+        if (split->isVisible())
+        {
+           // split->fullredraw = true;
+           // split->syncDisplayBuffer();
+        }
+            
+    }
+}
+
 void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
 {
     if(cb == displaySelection)
@@ -1050,11 +1063,23 @@ void LfpDisplaySplitter::syncDisplay()
     {
         screenBufferIndex.set(channel, 0);
 
-        if (displayBuffer != nullptr)
-            displayBufferIndex.set(channel, displayBuffer->displayBufferIndices[channel]);
     }
 
+    syncDisplayBuffer();
 
+}
+
+void LfpDisplaySplitter::syncDisplayBuffer()
+{
+    // std::cout << "Synchronizing display " << splitID << std::endl;
+
+    if (displayBuffer == nullptr)
+        return;
+
+    for (int channel = 0; channel <= nChans; channel++)
+    {
+        displayBufferIndex.set(channel, displayBuffer->displayBufferIndices[channel]);
+    }
 }
 
 void LfpDisplaySplitter::updateScreenBuffer()
@@ -1131,6 +1156,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 ScopedLock displayLock(*displayBuffer->getMutex());
                 index = displayBuffer->displayBufferIndices[channel]; // get the latest value from the display buffer
             }
+            
 
             int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
 
@@ -1151,7 +1177,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
             }
             float subSampleOffset = 0.0;
 
-           /* if (channel == 0 || channel == 1 || channel == 2)
+            /*if (channel == 15 && splitID == 2)
                 std::cout << "Channel "
                 << channel << " : "
                 << sbi << " : "
@@ -1304,7 +1330,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                 // update values after we're done
                 screenBufferIndex.set(channel, sbi);
-                displayBufferIndex.set(channel, dbi); // need to store this locally
+                displayBufferIndex.set(channel, index); // need to store this locally
 
                
             }
@@ -1508,6 +1534,16 @@ void LfpDisplaySplitter::paint(Graphics& g)
     g.drawLine(0,getHeight()-60,getWidth(),getHeight()-60,3.0f);
     */
 
+}
+
+void LfpDisplaySplitter::visibleAreaChanged()
+{
+
+    canvas->redrawAll();
+
+    fullredraw = true;
+
+    refresh();
 }
 
 void LfpDisplaySplitter::refresh()

@@ -833,7 +833,12 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         {
             //  passes the event up to the viewport so the screen scrolls
             if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
+            {
                 viewport->mouseWheelMove(e.getEventRelativeTo(canvasSplit), wheel);
+
+                //canvasSplit->syncDisplayBuffer();
+            }
+                
 
         }
       
@@ -952,6 +957,12 @@ void LfpDisplay::rebuildDrawableChannelsList()
             //std::cout << "Finished single channel rebuild" << std::endl;
 
             return;
+        }
+        else {
+
+            reactivateChannels();
+
+            singleChan = -1; // our channel no longer exists
         }
 
         //std::cout << "Single channel not found." << std::endl;

@@ -97,6 +97,8 @@ public:
 
     bool optionsDrawerIsOpen;
 
+    void redrawAll();
+
     void select(LfpDisplaySplitter*);
 
     void mouseMove(const MouseEvent&) override;
@@ -226,6 +228,10 @@ public:
     void redraw();
 
     void syncDisplay();
+
+    void syncDisplayBuffer();
+
+    void visibleAreaChanged();
 
     void select();
     void deselect();
