@@ -824,7 +824,7 @@ void LfpDisplaySplitter::resized()
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
-    std::cout << "Resize to channels!!!" << std::endl;
+    //std::cout << "Resize to channels!!!" << std::endl;
 
     lfpDisplay->setBounds(0, 0, 
         getWidth()-scrollBarThickness, 
@@ -949,7 +949,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-    std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+   // std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -974,8 +974,8 @@ void LfpDisplaySplitter::updateSettings()
 
     isUpdating = false;
 
-    std::cout << " done " << std::endl;
-    std::cout << "   " << std::endl;
+   // std::cout << " done " << std::endl;
+   // std::cout << "   " << std::endl;
 
 }
 
