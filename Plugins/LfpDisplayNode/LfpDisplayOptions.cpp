@@ -1533,23 +1533,23 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
             rangeSelection->setText(ranges[0]);
 
-            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"));
-            spreadSelection->setText(xmlNode->getStringAttribute("Spread"));
-            colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"));
-            colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"));
+            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), sendNotification);
+            spreadSelection->setText(xmlNode->getStringAttribute("Spread"), sendNotification);
+            colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"), sendNotification);
+            colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"), sendNotification);
 
-            spikeRasterSelection->setText(xmlNode->getStringAttribute("spikeRaster"));
-            clipWarningSelection->setSelectedId(xmlNode->getIntAttribute("clipWarning"));
-            saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"));
+            spikeRasterSelection->setText(xmlNode->getStringAttribute("spikeRaster"), sendNotification);
+            clipWarningSelection->setSelectedId(xmlNode->getIntAttribute("clipWarning"), sendNotification);
+            saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), sendNotification);
             
             reverseChannelsDisplayButton->setToggleState(xmlNode->getBoolAttribute("reverseOrder", false), sendNotification);
             sortByDepthButton->setToggleState(xmlNode->getBoolAttribute("sortByDepth", false), sendNotification);
-            channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"));
+            channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), sendNotification);
             showChannelNumberButton->setToggleState(xmlNode->getBoolAttribute("showChannelNum", false), sendNotification);
 
             invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", false), sendNotification);
 
-            triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"));
+            triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), sendNotification);
             averageSignalButton->setToggleState(xmlNode->getBoolAttribute("trialAvg", false), sendNotification);
 
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
