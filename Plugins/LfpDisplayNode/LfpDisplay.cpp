@@ -281,6 +281,9 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
+    std::cout << "LFP display width: " << getWidth() << std::endl;
+
+
     //std::cout << "Resizing channels" << std::endl;
     
     for (int i = 0; i < drawableChannels.size(); i++)
@@ -292,7 +295,7 @@ void LfpDisplay::resized()
         
         disp->setBounds(canvasSplit->leftmargin,
                         totalHeight-(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/2,
-                        getWidth(),
+                        getWidth()- canvasSplit->leftmargin,
                         disp->getChannelHeight()+(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor));
         
        // disp-> resized();
@@ -323,14 +326,17 @@ void LfpDisplay::resized()
     }
        
     if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
     
+    std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
+
+
     //inititalize background
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
     gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
-    gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight());
+    gLfpChannelBitmap.fillRect(0,0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
 
     canvasSplit->fullredraw = true;
     
@@ -354,7 +360,7 @@ void LfpDisplay::refresh()
         return;
 
     // Ensure the lfpChannelBitmap has been initialized
-    if (lfpChannelBitmap.isNull())
+    if (lfpChannelBitmap.isNull() || lfpChannelBitmap.getWidth() < getWidth() - canvasSplit->leftmargin)
     {
         resized();
     }
@@ -363,8 +369,8 @@ void LfpDisplay::refresh()
     int fillfrom = canvasSplit->lastScreenBufferIndex[0];
     int fillto = (canvasSplit->screenBufferIndex[0]);
     
-    if (fillfrom<0){fillfrom=0;};
-    if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
+    ///if (fillfrom<0){fillfrom=0;};
+    //if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
     
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
@@ -376,10 +382,22 @@ void LfpDisplay::refresh()
 
     if (canvasSplit->fullredraw)
     {
-        gLfpChannelBitmap.fillRect(0,0, getWidth(), getHeight()); // clear everything
-    } else {
-        gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto-fillfrom)+1, getHeight()); // just clear one section
-    };
+        gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+        
+    }
+    else {
+
+        if (fillfrom < fillto)
+        {
+            gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 1, lfpChannelBitmap.getHeight()); // just clear one section
+        }
+        else {
+
+            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom, lfpChannelBitmap.getHeight()); // first segment
+            gLfpChannelBitmap.fillRect(0, 0, fillto, lfpChannelBitmap.getHeight()); // second segment
+        }
+        
+    }
 
 
     

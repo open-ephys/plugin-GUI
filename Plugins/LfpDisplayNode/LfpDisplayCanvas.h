@@ -205,6 +205,7 @@ public:
 
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
+    Array<float> leftOverSamples;
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
@@ -280,7 +281,8 @@ private:
 
 	uint32 subprocessorId;
 	float displayedSampleRate;
-    
+
+    int samplesPerBufferPass;
     
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
