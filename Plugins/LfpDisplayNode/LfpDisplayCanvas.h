@@ -129,7 +129,8 @@ private:
 
 
 class LfpDisplaySplitter : public Component,
-                           public ComboBoxListener
+                           public ComboBoxListener,
+                           public Timer
 {
 public:
     LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, DisplayBuffer* displayBuffer, int id);
@@ -138,6 +139,7 @@ public:
     void paint(Graphics& g);
 
     void beginAnimation();
+    void endAnimation();
 
         /** Resizes the LfpDisplay to the size required to fit all channels that are being
         drawn to the screen.
@@ -260,6 +262,8 @@ public:
     void setTimebase(float timebase);
 
     DisplayBuffer* displayBuffer; // sample wise data buffer for display
+
+    void timerCallback();
 
 private:
 

@@ -390,11 +390,15 @@ void LfpDisplay::refresh()
         if (fillfrom < fillto)
         {
             gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 1, lfpChannelBitmap.getHeight()); // just clear one section
+            //std::cout << "Clearing " << fillfrom << " to " << fillto << std::endl;
         }
         else {
 
-            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom, lfpChannelBitmap.getHeight()); // first segment
-            gLfpChannelBitmap.fillRect(0, 0, fillto, lfpChannelBitmap.getHeight()); // second segment
+            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 1, lfpChannelBitmap.getHeight()); // first segment
+            gLfpChannelBitmap.fillRect(0, 0, fillto + 1, lfpChannelBitmap.getHeight()); // second segment
+
+           // std::cout << "Clearing " << fillfrom << " to " << lfpChannelBitmap.getWidth() << std::endl;
+            //std::cout << "Clearing " << 0 << " to " << fillto << std::endl;
         }
         
     }
@@ -428,7 +432,16 @@ void LfpDisplay::refresh()
                  // message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
                 
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
-                 channels[i]->repaint(fillfrom, 0, (fillto-fillfrom)+2, channels[i]->getHeight());
+                 if (fillfrom < fillto)
+                 {
+                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 2, channels[i]->getHeight());
+                 }
+                    
+                 else
+                 {
+                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, channels[i]->getHeight());
+                     channels[i]->repaint(0, 0, fillto + 2, channels[i]->getHeight());
+                 }
                 
             }
             //std::cout << i << std::endl;
