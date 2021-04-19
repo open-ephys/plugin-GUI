@@ -282,6 +282,7 @@ private:
     float timeOffset;
 
     int triggerChannel;
+    bool reachedEnd;
 
 	uint32 subprocessorId;
 	float displayedSampleRate;
