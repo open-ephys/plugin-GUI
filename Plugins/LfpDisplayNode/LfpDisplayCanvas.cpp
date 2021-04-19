@@ -880,7 +880,7 @@ void LfpDisplaySplitter::beginAnimation()
 
     }    
 
-    startTimer(33);
+    startTimer(20);
 
     reachedEnd = true;
 }
@@ -1411,16 +1411,29 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                                 float sample_current = displayBuffer->getSample(channel, dbi);
 
-                                sample_sum = sample_sum + sample_current;
-
-                                if (sample_min >= sample_current)
+                                if (dbi < newDisplayBufferIndex)
                                 {
-                                    sample_min = sample_current;
+                                    
+
+                                    sample_sum = sample_sum + sample_current;
+
+                                    if (sample_min >= sample_current)
+                                    {
+                                        sample_min = sample_current;
+                                    }
+
+                                    if (sample_max <= sample_current)
+                                    {
+                                        sample_max = sample_current;
+                                    }
                                 }
+                                else {
 
-                                if (sample_max <= sample_current)
-                                {
-                                    sample_max = sample_current;
+                                    if (sample_min == 10000000)
+                                        sample_min = sample_current;
+
+                                    if (sample_max == -10000000)
+                                        sample_max = sample_current;
                                 }
 
                                 subSampleOffset -= 1.0f;
