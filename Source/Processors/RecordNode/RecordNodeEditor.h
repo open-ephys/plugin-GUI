@@ -129,6 +129,8 @@ public:
 
 	ScopedPointer<ComboBox> engineSelectCombo;
 
+	void setDataDirectory(String dir);
+
 private:
 
 	RecordNode* recordNode;

@@ -402,6 +402,11 @@ void RecordNodeEditor::collapsedStateChanged()
 	
 }
 
+void RecordNodeEditor::setDataDirectory(String dir)
+{
+	dataPathLabel->setText(dir, sendNotificationSync);
+}
+
 void RecordNodeEditor::showSubprocessorFifos(bool show)
 {
 

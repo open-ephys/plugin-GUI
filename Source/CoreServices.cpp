@@ -106,6 +106,11 @@ namespace CoreServices
 	void setRecordingDirectory(String dir)
 	{
 		getControlPanel()->setRecordingDirectory(dir);
+		//Updates path in all record nodes, only when programatically calling the method
+		for (auto* node : getProcessorGraph()->getRecordNodes())
+		{
+			static_cast<RecordNodeEditor*>(node->getEditor())->setDataDirectory(dir);
+		}
 	}
 
 	File getRecordingDirectory()
