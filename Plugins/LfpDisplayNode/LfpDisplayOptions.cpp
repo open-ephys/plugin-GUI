@@ -1589,6 +1589,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
             
+            // RANGE
             StringArray ranges;
             ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String::empty);
             selectedVoltageRangeValues[0] = ranges[0];
@@ -1598,6 +1599,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             selectedVoltageRange[1] = voltageRanges[1].indexOf(ranges[1])+1;
             selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
             rangeSelection->setText(ranges[0]);
+            lfpDisplay->setRange(ranges[0].getFloatValue() * rangeGain[0], DataChannel::HEADSTAGE_CHANNEL);
+            lfpDisplay->setRange(ranges[1].getFloatValue() * rangeGain[1], DataChannel::AUX_CHANNEL);
+            lfpDisplay->setRange(ranges[2].getFloatValue() * rangeGain[2], DataChannel::ADC_CHANNEL);
 
             // TIMEBASE
             timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);
@@ -1605,8 +1609,6 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             // SPREAD
             spreadSelection->setText(xmlNode->getStringAttribute("Spread"), dontSendNotification);
-
-            //std::cout << "Saved colour scheme: " << xmlNode->getIntAttribute("colourScheme") << std::endl;
 
             // COLOUR SCHEME
             lfpDisplay->setActiveColourSchemeIdx(xmlNode->getIntAttribute("colourScheme") - 1);
@@ -1617,12 +1619,30 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             lfpDisplay->setColorGrouping(colorGroupings[colorGroupingSelection->getSelectedId() - 1].getIntValue());
 
             // SPIKE RASTER
-            spikeRasterSelection->setText(xmlNode->getStringAttribute("spikeRaster"), sendNotification);
+            String spikeRasterThresh = xmlNode->getStringAttribute("spikeRaster", "OFF");
+            spikeRasterSelection->setText(spikeRasterThresh, dontSendNotification);
+            if (!spikeRasterThresh.equalsIgnoreCase("OFF"))
+            {
+                lfpDisplay->setSpikeRasterPlotting(true);
+                lfpDisplay->setSpikeRasterThreshold(spikeRasterThresh.getFloatValue());
+            }
 
+            // CLIP WARNING
+            int clipWarning = xmlNode->getIntAttribute("clipWarning", 1);
+            clipWarningSelection->setSelectedId(clipWarning, dontSendNotification);
+            if (clipWarning == 2)
+                canvasSplit->drawClipWarning = true;
 
-            clipWarningSelection->setSelectedId(xmlNode->getIntAttribute("clipWarning"), sendNotification);
-            saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), sendNotification);
-            
+            // SATURATION WARNING
+            saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), dontSendNotification);
+
+            if (saturationWarningSelection->getSelectedId() > 1)
+            {
+                selectedSaturationValueFloat = (saturationThresholds[saturationWarningSelection->getSelectedId() - 1].getFloatValue());
+                canvasSplit->drawSaturationWarning = true;
+            }
+
+            // TOGGLE BUTTONS
             setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
             setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
             setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));
@@ -1630,11 +1650,16 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             setAveraging(xmlNode->getBoolAttribute("trialAvg", false));
             setMedianOffset(xmlNode->getBoolAttribute("subtractOffset", false));
 
-            channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), sendNotification);
-            triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), sendNotification);
+            // CHANNEL SKIP
+            channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), dontSendNotification);
+            const int skipAmt = pow(2, channelDisplaySkipSelection->getSelectedId() - 1);
+            lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
 
+            // TRIGGER SOURCE
+            triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), dontSendNotification);
+            canvasSplit->setTriggerChannel(triggerSourceSelection->getSelectedId() - 2);
+            processor->setParameter(triggerSourceSelection->getSelectedId() - 2, float(canvasSplit->splitID));
             
-
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
             lfpDisplay->setScrollPosition(xmlNode->getIntAttribute("ScrollX"),
@@ -1669,6 +1694,8 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             lfpDisplay->setColors();
             canvasSplit->redraw();
+
+            lfpDisplay->restoreViewPosition();
         }
 
         
