@@ -206,7 +206,10 @@ bool RHD2000Thread::usesCustomNames() const
 
 unsigned int RHD2000Thread::getNumSubProcessors() const
 {
-	return 1;
+	if (deviceFound)
+		return 1;
+	else
+		return 0;
 }
 
 void RHD2000Thread::setDACthreshold(int dacOutput, float threshold)
@@ -1206,6 +1209,8 @@ void RHD2000Thread::enableAdcs(bool t)
     acquireAdcChannels = t;
 
     sourceBuffers[0]->resize (getNumChannels(), 10000);
+
+	sn->update();
 }
 
 
