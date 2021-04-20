@@ -884,6 +884,7 @@ void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
 void LfpDisplayOptions::setChannelsReversed(bool state)
 {
     lfpDisplay->setChannelsReversed(state);
+    canvasSplit->fullredraw = true;
 
     reverseChannelsDisplayButton->setToggleState(state, dontSendNotification);
 
@@ -1575,12 +1576,12 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             std::cout << "Saved subprocessor ID: " << id << std::endl;
 
-            std::cout << "Available IDs: " << std::endl;
+            /*std::cout << "Available IDs: " << std::endl;
 
             for (auto db : processor->getDisplayBuffers())
             {
                 std::cout << " " << db->id << std::endl;
-            }
+            }*/
 
             if(processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
                 canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   

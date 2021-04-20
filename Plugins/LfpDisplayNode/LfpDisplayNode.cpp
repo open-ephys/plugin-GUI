@@ -113,11 +113,11 @@ void LfpDisplayNode::updateSettings()
         if (displayBuffer->isNeeded)
         {
             displayBuffer->update();
-            std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
+            //std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
         }
         else {
 
-            std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
+            //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
             toDelete.add(displayBuffer);
         }
