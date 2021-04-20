@@ -437,13 +437,13 @@ void LfpDisplay::refresh()
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
                  if (fillfrom < fillto)
                  {
-                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 1, channels[i]->getHeight());
                  }
                     
                  else
                  {
-                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, channels[i]->getHeight());
-                     channels[i]->repaint(0, 0, fillto + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 1, channels[i]->getHeight());
+                     channels[i]->repaint(0, 0, fillto + 1, channels[i]->getHeight());
                  }
                 
             }
@@ -1132,7 +1132,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
     int dist = 0;
     int mindist = 10000;
     int closest = 5;
-
+    
     for (int n = 0; n < drawableChannels.size(); n++) // select closest instead of relying on eventComponent
     {
         drawableChannels[n].channel->deselect();
@@ -1149,7 +1149,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         }
     }
 
-   // std::cout << "Closest channel" << closest << std::endl;
+    //std::cout << "Closest channel" << closest << std::endl;
 
     drawableChannels[closest].channel->select();
     options->setSelectedType(drawableChannels[closest].channel->getType());
@@ -1176,7 +1176,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
     canvasSplit->select();
 
-    canvasSplit->fullredraw = true;//issue full redraw
+    canvasSplit->fullredraw = true; //issue full redraw
 
     refresh();
 

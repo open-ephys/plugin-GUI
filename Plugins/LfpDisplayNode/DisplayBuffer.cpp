@@ -30,7 +30,7 @@ namespace LfpViewer {
 
 
     */
-#define BUFFER_LENGTH 30000
+#define BUFFER_LENGTH 20000
 
     DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
         id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
@@ -202,8 +202,6 @@ namespace LfpViewer {
         const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[channelMap[chan]];
 
         int newIndex;
-
-        
         
         if (nSamples < samplesLeft)
         {
@@ -240,11 +238,9 @@ namespace LfpViewer {
             newIndex = extraSamples;
         }
 
-        displayBufferIndices.set(channelMap[chan], newIndex);
-        
         ScopedLock displayLock(displayMutex);
-        
-        newIndex = displayBufferIndices[channelMap[chan]];
+
+        displayBufferIndices.set(channelMap[chan], newIndex);
 
     }
 

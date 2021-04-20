@@ -881,83 +881,141 @@ void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
     pauseButton->setToggleState(!pauseButton->getToggleState(), sendUpdate ? sendNotification : dontSendNotification);
 }
 
+void LfpDisplayOptions::setChannelsReversed(bool state)
+{
+    lfpDisplay->setChannelsReversed(state);
+
+    reverseChannelsDisplayButton->setToggleState(state, dontSendNotification);
+
+    if (state)
+    {
+        reverseChannelsDisplayButton->setLabel("ON");
+    }
+    else {
+        reverseChannelsDisplayButton->setLabel("OFF");
+    }
+}
+
+void LfpDisplayOptions::setInputInverted(bool state)
+{
+    lfpDisplay->setInputInverted(state);
+
+    invertInputButton->setToggleState(state, dontSendNotification);
+
+    if (state)
+    {
+        invertInputButton->setLabel("ON");
+    }
+    else {
+        invertInputButton->setLabel("OFF");
+    }
+
+}
+
+void LfpDisplayOptions::setMedianOffset(bool state)
+{
+    if (lfpDisplay->getSpikeRasterPlotting())
+    {
+        medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
+        medianOffsetPlottingButton->setLabel("ON");
+        return;
+    }
+    else
+    {
+        lfpDisplay->setMedianOffsetPlotting(state);
+        medianOffsetPlottingButton->setToggleState(state, dontSendNotification);
+    }
+
+
+    if (state)
+    {
+        medianOffsetPlottingButton->setLabel("ON");
+    }
+    else {
+        medianOffsetPlottingButton->setLabel("OFF");
+    }
+}
+
+void LfpDisplayOptions::setAveraging(bool state)
+{
+    canvasSplit->setAveraging(state);
+
+    averageSignalButton->setToggleState(state, dontSendNotification);
+
+    if (state)
+    {
+        averageSignalButton->setLabel("ON");
+        resetButton->setVisible(true);
+    }
+    else {
+        averageSignalButton->setLabel("OFF");
+        resetButton->setVisible(false);
+    }
+}
+
+void LfpDisplayOptions::setSortByDepth(bool state)
+{
+    lfpDisplay->orderChannelsByDepth(state);
+
+    sortByDepthButton->setToggleState(state, dontSendNotification);
+
+    if (state)
+    {
+        sortByDepthButton->setLabel("ON");
+    }
+    else {
+        sortByDepthButton->setLabel("OFF");
+    }
+}
+
+void LfpDisplayOptions::setShowChannelNumbers(bool state)
+{
+
+    showChannelNumberButton->setToggleState(state, dontSendNotification);
+
+    int numChannels = lfpDisplay->channelInfo.size();
+
+    for (int i = 0; i < numChannels; ++i)
+    {
+        lfpDisplay->channelInfo[i]->repaint();
+    }
+
+    if (state)
+    {
+        showChannelNumberButton->setLabel("ON");
+    }
+    else {
+        showChannelNumberButton->setLabel("OFF");
+    }
+}
+
 void LfpDisplayOptions::buttonClicked(Button* b)
 {
     if (b == invertInputButton)
     {
-        lfpDisplay->setInputInverted(b->getToggleState());
-        
-        if (b->getToggleState())
-        {
-            invertInputButton->setLabel("ON");
-        }
-        else {
-            invertInputButton->setLabel("OFF");
-        }
+        setInputInverted(b->getToggleState());
         return;
     }
     if (b == reverseChannelsDisplayButton)
     {
-        lfpDisplay->setChannelsReversed(b->getToggleState());
-        
-        if (b->getToggleState())
-        {
-            reverseChannelsDisplayButton->setLabel("ON");
-        }
-        else {
-            reverseChannelsDisplayButton->setLabel("OFF");
-        }
+        setChannelsReversed(b->getToggleState());
         return;
     }
     if (b == medianOffsetPlottingButton)
     {
-        if (lfpDisplay->getSpikeRasterPlotting())
-        {
-            medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
-        }
-        else
-        {
-            lfpDisplay->setMedianOffsetPlotting(b->getToggleState());
-        }
-
-        if (b->getToggleState())
-        {
-            medianOffsetPlottingButton->setLabel("ON");
-        }
-        else {
-            medianOffsetPlottingButton->setLabel("OFF");
-        }
-
+        setMedianOffset(b->getToggleState());
         return;
     } 
     
     if (b == averageSignalButton)
     {
-        canvasSplit->setAveraging(b->getToggleState());
-
-        if (b->getToggleState())
-        {
-            averageSignalButton->setLabel("ON");
-            resetButton->setVisible(true);
-        }
-        else {
-            averageSignalButton->setLabel("OFF");
-            resetButton->setVisible(false);
-        }
+        setAveraging(b->getToggleState());
         return;
     }
 
     if (b == sortByDepthButton)
     {
-        lfpDisplay->orderChannelsByDepth(b->getToggleState());
-
-        if (b->getToggleState())
-        {
-            sortByDepthButton->setLabel("ON");
-        }
-        else {
-            sortByDepthButton->setLabel("OFF");
-        }
+        setSortByDepth(b->getToggleState());
         return;
     }
 
@@ -998,23 +1056,11 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
     if (b == showChannelNumberButton)
     {
-        int numChannels = lfpDisplay->channelInfo.size();
-        for (int i = 0; i < numChannels; ++i)
-        {
-            lfpDisplay->channelInfo[i]->repaint();
-        }
-
-        if (b->getToggleState())
-        {
-            showChannelNumberButton->setLabel("ON");
-        }
-        else {
-            showChannelNumberButton->setLabel("OFF");
-        }
+        setShowChannelNumbers(b->getToggleState());
         return;
     }
 
-    int idx = typeButtons.indexOf((UtilityButton*)b);
+    int idx = typeButtons.indexOf((UtilityButton*) b);
 
     if ((idx >= 0) && (b->getToggleState()))
     {
@@ -1161,6 +1207,9 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         //    removeChildComponent(lfpDisplay->getColourSchemePtr());
         
         // change the active colour scheme ptr
+
+        std::cout << "Setting color scheme to " << cb->getSelectedId() << std::endl;
+
         lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
         //canvasSplit->repaint();  // setBackgroundColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour());
         
@@ -1467,6 +1516,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("sortByDepth", sortByDepthButton->getToggleState());
     xmlNode->setAttribute("channelSkip", channelDisplaySkipSelection->getSelectedId());
     xmlNode->setAttribute("showChannelNum", showChannelNumberButton->getToggleState());
+    xmlNode->setAttribute("subtractOffset", medianOffsetPlottingButton->getToggleState());
 
     xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
     
@@ -1474,6 +1524,8 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("trialAvg", averageSignalButton->getToggleState());
 
     xmlNode->setAttribute("singleChannelView", lfpDisplay->getSingleChannelShown());
+
+    
 
     int eventButtonState = 0;
 
@@ -1518,10 +1570,24 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
         if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))
         {
             uint32 id = xmlNode->getIntAttribute("SubprocessorID");
+
+            std::cout << "Loading options for display " << canvasSplit->splitID << std::endl;
+
+            std::cout << "Saved subprocessor ID: " << id << std::endl;
+
+            std::cout << "Available IDs: " << std::endl;
+
+            for (auto db : processor->getDisplayBuffers())
+            {
+                std::cout << " " << db->id << std::endl;
+            }
+
             if(processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
                 canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
             else
                 canvasSplit->displayBuffer = processor->displayBufferMap[id];
+
+            std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
             
             StringArray ranges;
             ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String::empty);
@@ -1533,24 +1599,41 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
             rangeSelection->setText(ranges[0]);
 
-            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), sendNotification);
-            spreadSelection->setText(xmlNode->getStringAttribute("Spread"), sendNotification);
-            colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"), sendNotification);
-            colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"), sendNotification);
+            // TIMEBASE
+            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);
+            canvasSplit->setTimebase(xmlNode->getStringAttribute("Timebase").getFloatValue());
 
+            // SPREAD
+            spreadSelection->setText(xmlNode->getStringAttribute("Spread"), dontSendNotification);
+
+            //std::cout << "Saved colour scheme: " << xmlNode->getIntAttribute("colourScheme") << std::endl;
+
+            // COLOUR SCHEME
+            lfpDisplay->setActiveColourSchemeIdx(xmlNode->getIntAttribute("colourScheme") - 1);
+            colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"), dontSendNotification);
+
+            // COLOUR GROUPING
+            colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"), dontSendNotification);
+            lfpDisplay->setColorGrouping(colorGroupings[colorGroupingSelection->getSelectedId() - 1].getIntValue());
+
+            // SPIKE RASTER
             spikeRasterSelection->setText(xmlNode->getStringAttribute("spikeRaster"), sendNotification);
+
+
             clipWarningSelection->setSelectedId(xmlNode->getIntAttribute("clipWarning"), sendNotification);
             saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), sendNotification);
             
-            reverseChannelsDisplayButton->setToggleState(xmlNode->getBoolAttribute("reverseOrder", false), sendNotification);
-            sortByDepthButton->setToggleState(xmlNode->getBoolAttribute("sortByDepth", false), sendNotification);
+            setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
+            setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
+            setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));
+            setInputInverted(xmlNode->getBoolAttribute("isInverted", false));
+            setAveraging(xmlNode->getBoolAttribute("trialAvg", false));
+            setMedianOffset(xmlNode->getBoolAttribute("subtractOffset", false));
+
             channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), sendNotification);
-            showChannelNumberButton->setToggleState(xmlNode->getBoolAttribute("showChannelNum", false), sendNotification);
-
-            invertInputButton->setToggleState(xmlNode->getBoolAttribute("isInverted", false), sendNotification);
-
             triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), sendNotification);
-            averageSignalButton->setToggleState(xmlNode->getBoolAttribute("trialAvg", false), sendNotification);
+
+            
 
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
@@ -1583,6 +1666,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             }
 
             lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
+
+            lfpDisplay->setColors();
+            canvasSplit->redraw();
         }
 
         

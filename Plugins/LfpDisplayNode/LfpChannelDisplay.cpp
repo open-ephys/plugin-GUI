@@ -156,11 +156,14 @@ void LfpChannelDisplay::pxPaint()
     int ifrom = canvasSplit->lastScreenBufferIndex[0]; // base everything on the first channel
     
     //if (ifrom < 0)
-    //    ifrom = display->lfpChannelBitmap.getWidth() + ifrom;
+   //     ifrom = 0;
     
     int ito = canvasSplit->screenBufferIndex[0];
 
-    if (ito < ifrom)
+    //if (ito < 0)
+    //    ito = getWidth();
+
+     if (ito < ifrom)
         ito = getWidth() + ito;
     
     if (fullredraw)

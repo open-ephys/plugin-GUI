@@ -680,6 +680,7 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
 
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
+
     for (int i = 0; i < 3; i++)
     {
         displaySplits[i]->options->saveParameters(xml);
@@ -692,6 +693,8 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
                                                       + "," + String(tripleHorizontalSplitRatio[1]));
     xmlNode->setAttribute("tripleVerticalSplitRatio", String(tripleVerticalSplitRatio[0]) 
                                                       + "," + String(tripleVerticalSplitRatio[1]));
+
+    xmlNode->setAttribute("showAllOptions", optionsDrawerIsOpen);
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->saveVisualizerParameters(xml);
@@ -722,12 +725,16 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             tripleVerticalSplitRatio.set(0, values[0].getFloatValue());
             tripleVerticalSplitRatio.set(1, values[1].getFloatValue());
 
-            resized();
+            toggleOptionsDrawer(xmlNode->getBoolAttribute("showAllOptions", false));
+
+            //resized();
 		}
 	}
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->loadVisualizerParameters(xml);
+
+    resized();
 }
 
 
@@ -985,7 +992,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-   // std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+    //std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -1009,6 +1016,12 @@ void LfpDisplaySplitter::updateSettings()
     syncDisplay();
 
     isUpdating = false;
+
+    lfpDisplay->setColors();
+
+    resized();
+
+   // lfpDisplay->refresh();
 
    // std::cout << " done " << std::endl;
    // std::cout << "   " << std::endl;
@@ -1186,6 +1199,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
             if (ratio > 1)
                 pixelsToFill += subSampleOffset; // *ratio;
 
+
             //if (sbi + int(pixelsToFill) > maxSamples) // wrap around if we reached right edge before
             //{
             if (triggerChannel >= 0)
@@ -1259,13 +1273,14 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 
            // }
 
-           /* if (channel == 0 && splitID == 0)
+            /*if (channel == 1 && splitID == 1)
                 std::cout << "Split "
                 << splitID << " : "
                 << channel << " : "
                 << sbi << " : "
                 << newDisplayBufferIndex << " : "
                 << dbi << " : "
+                << newSamples << " : "
                 << pixelsToFill << " : "
                 << ratio << " : "
                 << subSampleOffset << " : "
@@ -1276,11 +1291,13 @@ void LfpDisplaySplitter::updateScreenBuffer()
              //   std::cout << std::endl;
 
 
-            if (channel == 0)
-                samplesPerBufferPass += pixelsToFill;
+            //if (channel == 0)
+           //     samplesPerBufferPass += pixelsToFill;
 
             //if (channel == 2)
             //    std::cout << std::endl;
+
+            int sampleNumber = 0;
 
             if (pixelsToFill > 0 && pixelsToFill < 1000000)
             {
@@ -1390,10 +1407,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                             subSampleOffset += ratio;
 
-                            //if (channel == 1 && splitID == 0)
-                           // {
-                            //    std::cout << i << " : " << subSampleOffset << std::endl;
-                           // }
+                           /* if (channel == 1 && splitID == 1)
+                            {
+                                std::cout << i << " : " << subSampleOffset << std::endl;
+                            }*/
                                
 
                             if (subSampleOffset <= 1.0f)
@@ -1404,16 +1421,27 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 sampleCount = 1.0f;
 
                             }
-                                //std::cout << "SKIP" << std::endl;
 
-                            while (subSampleOffset > 1.0f) // && dbi < newDisplayBufferIndex)
+                            
+                            bool foundIt = false;
+
+                            while (subSampleOffset > 1.0f && sampleNumber < newSamples) // && dbi < newDisplayBufferIndex)
                             {
+                                sampleNumber++;
 
                                 float sample_current = displayBuffer->getSample(channel, dbi);
 
-                                if (dbi < newDisplayBufferIndex)
+                                if (true) //dbi < newDisplayBufferIndex)
                                 {
                                     
+                                    /*if (splitID == 1 && channel == 1 && sample_current == 0.0f)
+                                    {
+                                        if (!foundIt)
+                                        {
+                                            std::cout << "Zeros after sample: " << sampleNumber << std::endl;
+                                            foundIt = true;
+                                        }
+                                    }*/
 
                                     sample_sum = sample_sum + sample_current;
 
@@ -1430,10 +1458,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 else {
 
                                     if (sample_min == 10000000)
-                                        sample_min = sample_current;
+                                        sample_min = sample_current -100;
 
                                     if (sample_max == -10000000)
-                                        sample_max = sample_current;
+                                        sample_max = sample_current + 100;
                                 }
 
                                 subSampleOffset -= 1.0f;
@@ -1447,13 +1475,13 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                             float sample_mean = sample_sum / sampleCount;
 
-                            /*if (splitID == 0 && channel == 1)
+                            /*if (splitID == 1 && channel == 1)
                             {
                                 if (sample_min == 0)
-                                    sample_min = sample_mean; // std::cout << "SAMPLE MIN ZERO" << std::endl;
+                                    std::cout << "SAMPLE MIN ZERO" << std::endl;
 
                                 if (sample_max == 0)
-                                    sample_max = sample_mean; // std::cout << "SAMPLE MAX ZERO" << std::endl;
+                                    std::cout << "SAMPLE MAX ZERO" << std::endl;
 
                                 if (sample_sum == 0)
                                     std::cout << "SAMPLE SUM ZERO" << std::endl;

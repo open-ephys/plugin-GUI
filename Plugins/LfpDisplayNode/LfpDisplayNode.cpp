@@ -104,22 +104,29 @@ void LfpDisplayNode::updateSettings()
 
         displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch, channelGroup, channelDepth);
     }
+
+    Array<DisplayBuffer*> toDelete;
     
     for (auto displayBuffer : displayBuffers)
     {
+
         if (displayBuffer->isNeeded)
         {
             displayBuffer->update();
-            //std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
+            std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
         }
         else {
 
-            //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
+            std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
-            displayBuffers.removeObject(displayBuffer, true);
-            displayBuffer = nullptr;
-
+            toDelete.add(displayBuffer);
         }
+        
+    }
+
+    for (auto displayBuffer : toDelete)
+    {
+        displayBuffers.removeObject(displayBuffer, true);
     }
 
     //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
