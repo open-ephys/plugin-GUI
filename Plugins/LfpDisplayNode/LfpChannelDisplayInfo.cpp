@@ -79,7 +79,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
     bool state = button->getToggleState();
 
-    display->setEnabledState(state, chan);
+    display->setEnabledState(state, chan, true);
 
     //UtilityButton* b = (UtilityButton*) button;
 
@@ -96,7 +96,7 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
 
 void LfpChannelDisplayInfo::setEnabledState(bool state)
 {
-    enableButton->setToggleState(state, sendNotification);
+    enableButton->setToggleState(state, dontSendNotification);
 }
 
 void LfpChannelDisplayInfo::setSingleChannelState(bool state)
@@ -209,7 +209,6 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
 
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
-
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
 	const bool showChannelNumbers = options->getChannelNameState();
 
@@ -222,7 +221,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     g.drawText(channelString,
                showChannelNumbers ? 6 : 2,
                center-4,
-               getWidth()/2,
+               getWidth(),
                10,
                isCentered ? Justification::centred : Justification::centredLeft,
                false);
@@ -274,12 +273,14 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 void LfpChannelDisplayInfo::resized()
 {
 
+   // std::cout << "Resizing info" << std::endl;
+
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
     setEnabledButtonVisibility(getHeight() >= 16);
     
     if (getEnabledButtonVisibility())
     {
-        enableButton->setBounds(getWidth()/2 - 10, center - 5, 10, 10);
+        enableButton->setBounds(getWidth() - 13, center - 5, 10, 10);
     }
     
     setChannelNumberIsHidden(getHeight() < 16 && (getDrawableChannelNumber() + 1) % 10 != 0);

@@ -64,6 +64,8 @@ public:
 
     void resized();
 
+    void restoreViewPosition();
+
     void reactivateChannels();
 
     void mouseDown(const MouseEvent& event);
@@ -140,7 +142,24 @@ public:
 
     /** Returns true if a single channel is focused in viewport */
     bool getSingleChannelState();
+
+    /** Returns the index of the channel that is focused in viewport */
+    int getSingleChannelShown();
+
+    /** Sets the view to a single channel */
+    void setSingleChannelView(int channel);
     
+    /** Convenience struct for holding a channel and its info in drawableChannels */
+    struct LfpChannelTrack
+    {
+        LfpChannelDisplay* channel;
+        LfpChannelDisplayInfo* channelInfo;
+    };
+
+    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
+                                                // drawable to the screen
+
+
     /** Set the viewport's channel focus behavior.
      
         When a single channel is selected, it fills the entire viewport and
@@ -153,7 +172,7 @@ public:
                         Note: this parameter is NOT the index in channel[], but
                         the index of the channel in drawableChannels[].
      */
-    void toggleSingleChannel(int chan = -2);
+    void toggleSingleChannel(LfpChannelTrack drawableChannel);
     
     /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
     void rebuildDrawableChannelsList();
@@ -168,14 +187,7 @@ public:
     OwnedArray<LfpChannelDisplay> channels;             // all channels
     OwnedArray<LfpChannelDisplayInfo> channelInfo;      // all channelInfos
     
-    /** Convenience struct for holding a channel and its info in drawableChannels */
-    struct LfpChannelTrack
-    {
-        LfpChannelDisplay * channel;
-        LfpChannelDisplayInfo * channelInfo;
-    };
-    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
-                                                    // drawable to the screen
+    
 
     bool eventDisplayEnabled[8];
     bool isPaused; // simple pause function, skips screen buffer updates
@@ -202,10 +214,12 @@ public:
     
     TrackZoomInfo_Struct trackZoomInfo; // and create an instance here
 
+    Array<bool> savedChannelState;
+
 private:
     
     int singleChan;
-	Array<bool> savedChannelState;
+	
 
     int numChans;
     int displaySkipAmt;

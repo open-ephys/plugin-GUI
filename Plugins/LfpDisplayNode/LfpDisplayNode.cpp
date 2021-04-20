@@ -60,7 +60,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 void LfpDisplayNode::updateSettings()
 {
 
-    std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+    //std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
 
     for (auto displayBuffer : displayBuffers)
     {
@@ -74,10 +74,14 @@ void LfpDisplayNode::updateSettings()
         if (displayBufferMap.count(id) == 0)
         {
             String name = getSubprocessorName(ch);
+
+            
             displayBuffers.add(new DisplayBuffer(id, name, getDataChannel(ch)->getSampleRate()));
             displayBufferMap[id] = displayBuffers.getLast();
 
-            // also add channel positions
+        }
+        else {
+            displayBufferMap[id]->sampleRate = getDataChannel(ch)->getSampleRate();
         }
 
         int depthId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
@@ -100,12 +104,32 @@ void LfpDisplayNode::updateSettings()
 
         displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch, channelGroup, channelDepth);
     }
+
+    Array<DisplayBuffer*> toDelete;
     
     for (auto displayBuffer : displayBuffers)
     {
-        displayBuffer->update();
+
+        if (displayBuffer->isNeeded)
+        {
+            displayBuffer->update();
+            //std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
+        }
+        else {
+
+            //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
+            displayBufferMap.erase(displayBuffer->id);
+            toDelete.add(displayBuffer);
+        }
+        
     }
 
+    for (auto displayBuffer : toDelete)
+    {
+        displayBuffers.removeObject(displayBuffer, true);
+    }
+
+    //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
 
     // TODO: add event channels separately, as they may have a different source
 }
@@ -145,7 +169,7 @@ String LfpDisplayNode::getSubprocessorName(int channel)
 
             name = ch->getSourceName() + " " + stringValue;
 
-            std::cout << "Sb name: " << name << std::endl;
+           // std::cout << "Sb name: " << name << std::endl;
         }
         else {
 
@@ -292,7 +316,7 @@ void LfpDisplayNode::finalizeEventChannels()
         if (latestTrigger[i] == -1 && latestCurrentTrigger[i] > -1) // received a trigger, but not yet acknowledged
         {
             int triggerSample = latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
-            //std::cout << "Setting latest trigger to " << triggerSample << std::endl;
+            std::cout << "Setting latest trigger to " << triggerSample << std::endl;
             latestTrigger.set(i, triggerSample);
         }
     }
@@ -341,5 +365,5 @@ int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
   latestTrigger.set(id, -1);
-  //std::cout << "Display " << id << " acknowledging trigger." << std::endl;
+  std::cout << "Display " << id << " acknowledging trigger." << std::endl;
 }

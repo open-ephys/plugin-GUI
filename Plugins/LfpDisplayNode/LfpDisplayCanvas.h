@@ -97,6 +97,8 @@ public:
 
     bool optionsDrawerIsOpen;
 
+    void redrawAll();
+
     void select(LfpDisplaySplitter*);
 
     void mouseMove(const MouseEvent&) override;
@@ -127,7 +129,8 @@ private:
 
 
 class LfpDisplaySplitter : public Component,
-                           public ComboBoxListener
+                           public ComboBoxListener,
+                           public Timer
 {
 public:
     LfpDisplaySplitter(LfpDisplayNode* node, LfpDisplayCanvas* canvas, DisplayBuffer* displayBuffer, int id);
@@ -136,6 +139,7 @@ public:
     void paint(Graphics& g);
 
     void beginAnimation();
+    void endAnimation();
 
         /** Resizes the LfpDisplay to the size required to fit all channels that are being
         drawn to the screen.
@@ -191,8 +195,8 @@ public:
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
     
-    std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
-    const int getSampleCountPerPixel(int px);
+    //std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
+    //const int getSampleCountPerPixel(int px);
     
     const float getYCoordMin(int chan, int samp);
     const float getYCoordMean(int chan, int samp);
@@ -203,13 +207,16 @@ public:
 
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
+    Array<float> leftOverSamples;
 
     //void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart);
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw, there is a similar switch for each display;
-    static const int leftmargin = 50; // left margin for lfp plots (so the ch number text doesnt overlap)
+    static const int leftmargin = 60; // left margin for lfp plots (so the ch number text doesnt overlap)
 
     Array<bool> isChannelEnabled;
+
+    bool isLoading;
     
     bool  drawClipWarning; // optinally draw (subtle) warning if data is clipped in display
     bool  drawSaturationWarning; // optionally raise hell if the actual data is saturating
@@ -224,6 +231,10 @@ public:
     void redraw();
 
     void syncDisplay();
+
+    void syncDisplayBuffer();
+
+    void visibleAreaChanged();
 
     void select();
     void deselect();
@@ -248,11 +259,16 @@ public:
     void setAveraging(bool);
     void resetTrials();
 
+    void setTimebase(float timebase);
+
     DisplayBuffer* displayBuffer; // sample wise data buffer for display
+
+    void timerCallback();
 
 private:
 
     bool isSelected;
+    bool isUpdating;
 
     LfpDisplayNode* processor;
     LfpDisplayCanvas* canvas;
@@ -266,10 +282,12 @@ private:
     float timeOffset;
 
     int triggerChannel;
+    bool reachedEnd;
 
 	uint32 subprocessorId;
 	float displayedSampleRate;
-    
+
+    int samplesPerBufferPass;
     
     ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
 
@@ -289,10 +307,10 @@ private:
 
     int scrollBarThickness;
 
-	void resizeSamplesPerPixelBuffer(int numChannels);
-    std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
+	//void resizeSamplesPerPixelBuffer(int numChannels);
+    //std::vector<std::array<std::array<float, MAX_N_SAMP_PER_PIXEL>, MAX_N_SAMP>> samplesPerPixel;
 
-    int sampleCountPerPixel[MAX_N_SAMP];
+    //Array<int> sampleCountPerPixel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 

@@ -215,8 +215,6 @@ void UIComponent::resized()
 
 		if (h < 200)
 			editorViewportButton->setBounds(w-230,h-40+200-h,225,35);
-		//else
-		//    editorViewportButton->setVisible(true);
 	}
 
 	if (signalChainTabComponent != nullptr)

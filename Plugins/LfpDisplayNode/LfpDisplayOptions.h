@@ -126,6 +126,13 @@ public:
     String selectedSaturationValue;
     float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the general plugin parameter overhaul.
 
+    void setChannelsReversed(bool);
+    void setInputInverted(bool);
+    void setMedianOffset(bool);
+    void setAveraging(bool);
+    void setSortByDepth(bool);
+    void setShowChannelNumbers(bool);
+
 private:
 
     LfpDisplayCanvas* canvas;

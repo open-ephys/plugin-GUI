@@ -37,6 +37,9 @@ using namespace LfpViewer;
 
 #pragma  mark - LfpDisplayCanvas -
 
+#define MAX_N_SAMP 3000 // used for screen buffer; this could be resized dynamically depending on the display width
+
+
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) :
                   processor(processor_), selectedLayout(sl)
 {
@@ -89,6 +92,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
     addMouseListener(this, true);
 
     borderToDrag = -1;
+    
 }
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
@@ -111,6 +115,12 @@ void LfpDisplayCanvas::resized()
     if(selectedLayout == SINGLE)
     {
         displaySplits[0]->setVisible(true);
+
+        
+        displaySplits[0]->deselect(); // to remove boundary
+        displaySplits[0]->options->setVisible(true);
+        displaySplits[1]->options->setVisible(false);
+        displaySplits[2]->options->setVisible(false);
 
         displaySplits[1]->setVisible(false);
         displaySplits[2]->setVisible(false);
@@ -137,6 +147,8 @@ void LfpDisplayCanvas::resized()
 
         if (!displaySplits[1]->getSelectedState())
             displaySplits[0]->select();
+        else
+            displaySplits[1]->select();
         
     }
     else if(selectedLayout == THREE_VERT)
@@ -226,13 +238,14 @@ void LfpDisplayCanvas::beginAnimation()
 
     if (true)
     {
+        //syncDisplays();
 
         for (auto split : displaySplits)
         {
             split->beginAnimation();
         }
 
-        startCallbacks();
+        //startCallbacks();
     }    
 }
 
@@ -240,8 +253,11 @@ void LfpDisplayCanvas::endAnimation()
 {
     if (true)
     {
-
-        stopCallbacks();
+        for (auto split : displaySplits)
+        {
+            split->endAnimation();
+        }
+        //stopCallbacks();
     }
 }
 
@@ -260,7 +276,6 @@ void LfpDisplayCanvas::update()
 
     for (auto split : displaySplits)
     {
-        //split->setInputSubprocessors();
         split->updateSettings();
     }
 
@@ -567,17 +582,26 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 {
     if (borderToDrag >= 0)
     {
+        std::cout << "Mouse up" << std::endl;
+
         resized();
         borderToDrag = -1;
+
+        
     }
 }
 
 void LfpDisplayCanvas::toggleOptionsDrawer(bool isOpen)
 {
     optionsDrawerIsOpen = isOpen;
-    // auto viewportPosition = viewport->getViewPositionY();   // remember viewport position
-    resized();
-    // viewport->setViewPosition(0, viewportPosition);         // return viewport position
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (optionsDrawerIsOpen)
+            displaySplits[i]->options->setBounds(0, getHeight() - 200, getWidth(), 200);
+        else
+            displaySplits[i]->options->setBounds(0, getHeight() - 55, getWidth(), 55);
+    }
 }
 
 int LfpDisplayCanvas::getTotalSplits()
@@ -595,13 +619,26 @@ void LfpDisplayCanvas::paint(Graphics& g)
 
 void LfpDisplayCanvas::refresh()
 {
-    if (true)
+    /*if (true)
     { 
         for (auto split : displaySplits)
         {
             if (split->isVisible())
                  split->refresh();
         }
+    }*/
+}
+
+void LfpDisplayCanvas::redrawAll()
+{
+    for (auto split : displaySplits)
+    {
+        if (split->isVisible())
+        {
+           // split->fullredraw = true;
+           // split->syncDisplayBuffer();
+        }
+            
     }
 }
 
@@ -643,6 +680,7 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
 
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
+
     for (int i = 0; i < 3; i++)
     {
         displaySplits[i]->options->saveParameters(xml);
@@ -655,6 +693,8 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
                                                       + "," + String(tripleHorizontalSplitRatio[1]));
     xmlNode->setAttribute("tripleVerticalSplitRatio", String(tripleVerticalSplitRatio[0]) 
                                                       + "," + String(tripleVerticalSplitRatio[1]));
+
+    xmlNode->setAttribute("showAllOptions", optionsDrawerIsOpen);
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->saveVisualizerParameters(xml);
@@ -685,12 +725,16 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
             tripleVerticalSplitRatio.set(0, values[0].getFloatValue());
             tripleVerticalSplitRatio.set(1, values[1].getFloatValue());
 
-            resized();
+            toggleOptionsDrawer(xmlNode->getBoolAttribute("showAllOptions", false));
+
+            //resized();
 		}
 	}
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
     ed->loadVisualizerParameters(xml);
+
+    resized();
 }
 
 
@@ -700,7 +744,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
                                        DisplayBuffer* db,
                                        int id) :
                     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), triggerChannel(-1), trialAveraging(false),
-                    splitID(id), processor(node), displayBuffer(db), canvas(canvas_)
+                    splitID(id), processor(node), displayBuffer(db), canvas(canvas_), reachedEnd(false)
 {
 
     isSelected = false;
@@ -722,7 +766,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
-    isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
+    //isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
 
     addAndMakeVisible(viewport);
     addAndMakeVisible(timescale);
@@ -730,59 +774,86 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     nChans = 0;
 
-    resizeSamplesPerPixelBuffer(nChans);
+    //resizeSamplesPerPixelBuffer(nChans);
 
     drawSaturationWarning = false;
     drawClipWarning = false;
+
+    isLoading = true;
+    isUpdating = false;
+
+    displayBuffer = nullptr;
 
 }
 
 LfpDisplaySplitter::~LfpDisplaySplitter()
 {
-    samplesPerPixel.clear();
+    //samplesPerPixel.clear();
 }
 
 
-void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
+/*void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
 {
     // 3D array: dimensions channels x samples x samples per pixel
     samplesPerPixel.clear();
     samplesPerPixel.resize(numCh);
-}
+
+    sampleCountPerPixel.clear();
+    sampleCountPerPixel.insertMultiple(0, 0, MAX_N_SAMP);
+}*/
 
 void LfpDisplaySplitter::resized()
 {
 
-    timescale->setBounds(leftmargin,0,getWidth()-scrollBarThickness-leftmargin,30);
+    std::cout << "Split display " << splitID << " width: " << getWidth() << std::endl;
+
+    const int timescaleHeight = 30;
+
+    timescale->setBounds(leftmargin, 0, getWidth()-scrollBarThickness, timescaleHeight);
 
     if (canvas->makeRoomForOptions(splitID))
-        viewport->setBounds(0, 30, getWidth(), getHeight()-90);
+    {
+        viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 87);
+    }
     else
-        viewport->setBounds(0, 30, getWidth(), getHeight());
+    {
+        viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
+    }
 
+    if (screenBuffer != nullptr)
+    {
+        if (screenBuffer->getNumSamples() < getWidth())
+            refreshScreenBuffer();
+    }
+       
     if (nChans > 0)
     {
+        //std::cout << "Changing view for display " << splitID << std::endl;
+
         if (lfpDisplay->getSingleChannelState())
-            lfpDisplay->setChannelHeight(viewport->getHeight(),false);
-        
-        lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+            lfpDisplay->setChannelHeight(viewport->getHeight(), false);
+ 
+        lfpDisplay->setBounds(0, 0,
+            getWidth()-scrollBarThickness, 
+            lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+
+        lfpDisplay->restoreViewPosition();
     }
     else
     {
         lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
     }
 
-    // if (optionsDrawerIsOpen)
-    //     options->setBounds(0, getHeight()-200, getWidth(), 200);
-    // else
-    //     options->setBounds(0, getHeight()-55, getWidth(), 55);
-
     subprocessorSelection->setBounds(4, 4, 140, 22);
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
-    lfpDisplay->setBounds(0,0,getWidth()-scrollBarThickness, lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
+    //std::cout << "Resize to channels!!!" << std::endl;
+
+    lfpDisplay->setBounds(0, 0, 
+        getWidth()-scrollBarThickness, 
+        lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
     
     // if param is flagged, move the viewport scroll back to same relative position before
     // resize took place
@@ -804,15 +875,31 @@ void LfpDisplaySplitter::beginAnimation()
     if (displayBuffer != nullptr)
     {
 
+        
+
         displayBuffer->resetIndices();
 
         displayBufferSize = displayBuffer->getNumSamples();
 
+        syncDisplay();
+
         numTrials = -1;
 
-        //refreshSplitterState();
-
     }    
+
+    startTimer(20);
+
+    reachedEnd = true;
+}
+
+void LfpDisplaySplitter::endAnimation()
+{
+    stopTimer();
+}
+
+void LfpDisplaySplitter::timerCallback()
+{
+    refresh();
 }
 
 void LfpDisplaySplitter::select()
@@ -837,93 +924,115 @@ void LfpDisplaySplitter::deselect()
 void LfpDisplaySplitter::updateSettings()
 {
 
+    isUpdating = true;
+
+    Array<DisplayBuffer*> availableBuffers = processor->getDisplayBuffers();
+
+    if (availableBuffers.size() == 0)
+        displayBuffer = nullptr;
+
     subprocessorSelection->clear(dontSendNotification);
 
-    for (auto buffer : processor->getDisplayBuffers())
+    bool foundMatchingBuffer = false;
+
+    for (auto buffer : availableBuffers)
     {
         subprocessorSelection->addItem(buffer->name, buffer->id);
+
+        if (displayBuffer != nullptr)
+        {
+            if (buffer->id == displayBuffer->id)
+                foundMatchingBuffer = true;
+        }
     }
 
-    subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+    if (!foundMatchingBuffer)
+        displayBuffer = nullptr;
 
-    displayBufferSize = displayBuffer->getNumSamples();
-    nChans = displayBuffer->numChannels;
-    resizeSamplesPerPixelBuffer(nChans);
-    sampleRate = displayBuffer->sampleRate;
+    if (displayBuffer == nullptr) // displayBuffer was deleted
+    {
+        if (availableBuffers.size() > 0)
+        {
+            displayBuffer = availableBuffers[0];
+        }
+    }
+
+    if (displayBuffer == nullptr) // no inputs to this processor
+    {
+        nChans = 0;
+        sampleRate = 44100.0f;
+
+        options->setEnabled(true);
+    }
+    else {
+        
+        subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+        displayBufferSize = displayBuffer->getNumSamples();
+        nChans = displayBuffer->numChannels;
+        //resizeSamplesPerPixelBuffer(nChans);
+        sampleRate = displayBuffer->sampleRate;
+
+        options->setEnabled(true);
+        channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
+    }
+
+    //std::cout << "Sample rate for display " << splitID << ": " << sampleRate << std::endl;
     
-    options->setEnabled(nChans != 0);
-    // must manually ensure that overlapSelection propagates up to canvas
-    channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
-
-    std::cout << "getting sample rate" << std::endl;
-    int firstChannelInSubprocessor = 0;
-
-    if (screenBuffer == nullptr)
+    if (screenBuffer == nullptr) // not yet initialized
     {
-        screenBuffer = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMin = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMean = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-        screenBufferMax = new AudioSampleBuffer(nChans + 1, MAX_N_SAMP);
-
+        screenBuffer = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMin = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMean = new AudioSampleBuffer(nChans + 1, getWidth());
+        screenBufferMax = new AudioSampleBuffer(nChans + 1, getWidth());
     }
-        
-    std::cout << "updating channels" << std::endl;
-
-    if (nChans != lfpDisplay->getNumChannels())
-    {
-        screenBuffer->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMin->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMean->setSize(nChans + 1, MAX_N_SAMP);
-        screenBufferMax->setSize(nChans + 1, MAX_N_SAMP);
-
-        refreshScreenBuffer();
-
-        if (nChans > 0)
-            lfpDisplay->setNumChannels(nChans);
-
-        for (int i = 0; i < nChans; i++)
+    else {
+        if (nChans != lfpDisplay->getNumChannels()) // new channel count
         {
-            lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
-            lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
-            lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-            lfpDisplay->setEnabledState(isChannelEnabled[i], i);
-        }
-        
-        if (nChans == 0) 
-            lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
-        else {
-            lfpDisplay->rebuildDrawableChannelsList();
-            lfpDisplay->setBounds(0, 0, getWidth()-scrollBarThickness*2, lfpDisplay->getTotalHeight());
-        }
-        
-        resized();
-    }
-    else
-    {
-        for (int i = 0; i < nChans; i++)
-        {
-            lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
-            lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
-            lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-
-            lfpDisplay->channels[i]->updateType();
-            lfpDisplay->channelInfo[i]->updateType();
-        }
-        
-        if (nChans > 0)
-        {
-            lfpDisplay->rebuildDrawableChannelsList();
+            refreshScreenBuffer();
         }
     }
 
+    //std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+
+    lfpDisplay->setNumChannels(nChans);
+
+    for (int i = 0; i < nChans; i++) // update channel metadata
+    {
+        lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
+        lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
+        lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channels[i]->updateType();
+
+        lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
+        lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
+        lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channelInfo[i]->updateType();
+    }
+        
+    lfpDisplay->rebuildDrawableChannelsList();
+
+    isLoading = false;
+        
     syncDisplay();
+
+    isUpdating = false;
+
+    lfpDisplay->setColors();
+
+    resized();
+
+    lfpDisplay->restoreViewPosition();
+
+   // lfpDisplay->refresh();
+
+   // std::cout << " done " << std::endl;
+   // std::cout << "   " << std::endl;
+
 }
 
 int LfpDisplaySplitter::getChannelHeight()
 {
-    //return spreads[spreadSelection->getSelectedId()-1].getIntValue();
     return options->getChannelHeight();
-    
 }
 
 void LfpDisplaySplitter::setTriggerChannel(int ch)
@@ -936,7 +1045,7 @@ void LfpDisplaySplitter::setAveraging(bool avg)
 {
     if (trialAveraging == false)
     {
-        numTrials = 0;
+        numTrials = -1;
     }
 
     trialAveraging = avg;
@@ -971,6 +1080,11 @@ void LfpDisplaySplitter::refreshScreenBuffer()
     if (true)
     {
 
+        screenBuffer->setSize(nChans + 1, getWidth());
+        screenBufferMin->setSize(nChans + 1, getWidth());
+        screenBufferMean->setSize(nChans + 1, getWidth());
+        screenBufferMax->setSize(nChans + 1, getWidth());
+
         screenBuffer->clear();
         screenBufferMin->clear();
         screenBufferMean->clear();
@@ -986,17 +1100,37 @@ void LfpDisplaySplitter::syncDisplay()
     for (int channel = 0; channel <= nChans; channel++)
     {
         screenBufferIndex.set(channel, 0);
+
+
     }
+
+    syncDisplayBuffer();
+
+}
+
+void LfpDisplaySplitter::syncDisplayBuffer()
+{
+    // std::cout << "Synchronizing display " << splitID << std::endl;
+
+    if (displayBuffer == nullptr)
+        return;
+
+    for (int channel = 0; channel <= nChans; channel++)
+    {
+        displayBufferIndex.set(channel, displayBuffer->displayBufferIndices[channel]);
+        leftOverSamples.set(channel, 0.0f);
+    }
+
+    samplesPerBufferPass = 0;
 }
 
 void LfpDisplaySplitter::updateScreenBuffer()
 {
-    if (true)
+    if (isVisible() && displayBuffer != nullptr && !isUpdating)
     {
         // copy new samples from the displayBuffer into the screenBuffer
-        int maxSamples = lfpDisplay->getWidth() - leftmargin;
-
-        ScopedLock displayLock(*displayBuffer->getMutex());
+        int maxSamples = lfpDisplay->getWidth() - leftmargin; // leftmargin accounts for the fact that the display doesn't start
+                                                              // at the leftmost pixel
 
         int triggerTime = triggerChannel >=0 
                           ? processor->getLatestTriggerTime(splitID)
@@ -1008,95 +1142,170 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
-            float ratio = sampleRate * timebase / float(getWidth() - leftmargin - scrollBarThickness); // samples / pixel
+            float ratio = sampleRate * timebase / float(maxSamples); // samples / pixel
             // this number is crucial: converting from samples to values (in px) for the screen buffer
 
             //if (channel == 0)
             //    std::cout << sampleRate[channel] << std::endl;
 
-            if (screenBufferIndex[channel] >= maxSamples) // wrap around if we reached right edge before
-            {
-                if (triggerChannel >= 0)
-                {
-                    // we may need to wait for a trigger
-                    if (triggerTime >= 0)
-                    {
-                        
-
-                        const int screenThird = int(maxSamples * ratio / 4);
-                        const int dispBufLim = displayBufferSize / 2;
-
-                        int t0 = triggerTime - std::min(screenThird, dispBufLim);
-
-                        if (t0 < 0)
-                        {
-                            t0 += displayBufferSize;
-                        }
-
-                        displayBufferIndex.set(channel, t0); // fast-forward
-
-                        if (channel == 0)
-                        {
-                            numTrials += 1;
-                            std::cout << "Trial number: " << numTrials << std::endl;
-                        }
-
-                    } else {
-                        return; // don't display right now
-                    }
-                }
-                else {
-                    numTrials = 0;
-                }
-                
-                screenBufferIndex.set(channel, 0);
-            }
-            // hold these values locally for each channel - is this a good idea?
-            int sbi = screenBufferIndex[channel];
+            
+            
             int dbi = displayBufferIndex[channel];
 
             // N samples from display buffer --> M pixels in screen buffer
 
-            lastScreenBufferIndex.set(channel, sbi);
+            
 
-            int index = displayBuffer->displayBufferIndices[channel]; // get the latest value from the display buffer
-
-            int nSamples = index - dbi; // N new samples (not pixels) to be added to displayBufferIndex
-
-            if (nSamples < 0)
+            int newDisplayBufferIndex;
             {
-                nSamples += displayBufferSize;
-                //  std::cout << "nsamples 0 " ;
+                ScopedLock displayLock(*displayBuffer->getMutex());
+                newDisplayBufferIndex = displayBuffer->displayBufferIndices[channel]; // get the latest value from the display buffer
+            }
+            
+
+            int newSamples = newDisplayBufferIndex - dbi; // N new samples (not pixels) to be added to displayBufferIndex
+
+            if (newSamples < 0) // we've wrapped around to the start of the displayBuffer
+            {
+                newSamples += displayBufferSize;
+
+
+                /*if (channel == 0)
+                {
+                    std::cout << "Samples per buffer pass: " << samplesPerBufferPass + nSamples << std::endl;
+                    samplesPerBufferPass = 0;
+                }*/
+                    
             }
 
             //if (channel == 15 || channel == 16)
             //     std::cout << channel << " " << sbi << " " << dbi << " " << nSamples << std::endl;
 
-            int valuesNeeded = (int) float(nSamples) / ratio; // M pixels to update
+            float pixelsToFill = float(newSamples) / ratio; // +leftOverSamples[channel]; // M pixels to update
 
-            if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width (this could lead to desynchronization)
+            if (newSamples == 0)
+                return;
+
+            // hold these values locally for each channel
+            int sbi = screenBufferIndex[channel];
+
+            // hold the last screen buffer index for comparison
+            lastScreenBufferIndex.set(channel, sbi);
+
+            //if (sbi + valuesNeeded > maxSamples)  // crop number of samples to fit canvas width (this could lead to desynchronization)
+            //{
+           //     valuesNeeded = maxSamples - sbi;
+           // }
+            float subSampleOffset = leftOverSamples[channel];//
+            
+            if (ratio > 1)
+                pixelsToFill += subSampleOffset; // *ratio;
+
+
+            //if (sbi + int(pixelsToFill) > maxSamples) // wrap around if we reached right edge before
+            //{
+            if (triggerChannel >= 0)
             {
-                valuesNeeded = maxSamples - sbi;
-            }
-            float subSampleOffset = 0.0;
+                // we may need to wait for a trigger
+                if (triggerTime >= 0) // && sbi + int(pixelsToFill) > maxSamples)
+                {
+                    //std::cout << "Got trigger." << std::endl;
 
-           /* if (channel == 0 || channel == 1 || channel == 2)
-                std::cout << "Channel "
+                    const int screenThird = int(maxSamples * ratio / 3);
+                    const int dispBufLim = displayBufferSize / 2;
+
+                    int t0 = triggerTime - std::min(screenThird, dispBufLim); // rewind displayBufferIndex
+
+                    
+                    reachedEnd = false;
+
+                    if (t0 < 0)
+                    {
+                        t0 += displayBufferSize;
+                    }
+
+                    // displayBufferIndex.set(channel, t0); // rewind
+                    dbi = t0;
+                    newSamples = newDisplayBufferIndex - dbi;
+
+                    if (newSamples < 0)
+                        newSamples += displayBufferSize;
+
+                    pixelsToFill = newSamples / ratio;
+
+                    if (channel == 0)
+                    {
+                        numTrials += 1;
+                        std::cout << "t0: " << t0 << std::endl;
+                        std::cout << "newSamples: " << newSamples << std::endl;
+                        std::cout << "pixels to fill: " << pixelsToFill << std::endl;
+                        std::cout << "Trial number: " << numTrials << std::endl;
+                    }
+
+                    //screenBufferIndex.set(channel, 0);
+                    screenBufferIndex.set(channel, 0);
+                    sbi = 0;
+                    lastScreenBufferIndex.set(channel, 0);
+
+                    if (channel == nChans)
+                    {
+                        triggerTime = -1;
+                    }
+
+                }
+
+                if (reachedEnd)
+                {
+                    screenBufferIndex.set(channel, sbi); // don't update
+                    return;
+                    // std::cout << "sbi: " << sbi << std::endl;
+                    // std::cout << "pixelsToFill: " << pixelsToFill << std::endl;
+                     //std::cout << "maxSamples: " << maxSamples << std::endl;
+                     //return;
+                }
+                //else {
+                //    return; // don't display right now
+                //}
+
+            }
+            //else {
+            //    numTrials = 0;
+            //}
+
+                
+           // }
+
+            /*if (channel == 1 && splitID == 1)
+                std::cout << "Split "
+                << splitID << " : "
                 << channel << " : "
                 << sbi << " : "
-                << index << " : "
+                << newDisplayBufferIndex << " : "
                 << dbi << " : "
-                << valuesNeeded << " : "
-                << ratio
+                << newSamples << " : "
+                << pixelsToFill << " : "
+                << ratio << " : "
+                << subSampleOffset << " : "
+                << maxSamples
                 << std::endl;*/
+
+           // if (channel == 15 && splitID == 2)
+             //   std::cout << std::endl;
+
+
+            //if (channel == 0)
+           //     samplesPerBufferPass += pixelsToFill;
 
             //if (channel == 2)
             //    std::cout << std::endl;
 
-            if (valuesNeeded > 0 && valuesNeeded < 1000000)
-            {
+            int sampleNumber = 0;
 
-                for (int i = 0; i < valuesNeeded; i++) // also fill one extra sample for line drawing interpolation to match across draws
+            if (pixelsToFill > 0 && pixelsToFill < 1000000)
+            {
+                float i; 
+
+                for (i = 0; i < pixelsToFill; i++) // also fill one extra sample for line drawing interpolation to match across draws
                 {
                     //If paused don't update screen buffers, but update all indexes as needed
                     if (!lfpDisplay->isPaused)
@@ -1119,11 +1328,12 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         }
                         
                         // update continuous data channels
-                        int nextpix = dbi + int(ceil(ratio));
-                        if (nextpix > displayBufferSize)
-                            nextpix = displayBufferSize;
+                        //float nextpix = ;
 
-                        if (nextpix - dbi > 1) 
+                        //if (nextpix > displayBufferSize)
+                        //    nextpix = displayBufferSize;
+
+                        /*if (nextpix - dbi > 1) 
                         {
                             // multiple samples, calculate average
                             float sum = 0;
@@ -1135,8 +1345,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         else
                         {
                             // interpolate between two samples with invAlpha and alpha
-                            /* This is only reasonable if there are more pixels
-                            than samples. Otherwise, we should calculate average. */
+                            // This is only reasonable if there are more pixels
+                            // than samples. Otherwise, we should calculate average. 
                             float alpha = (float) subSampleOffset;
                             float invAlpha = 1.0f - alpha;
 
@@ -1146,65 +1356,154 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             float val = invAlpha * val0  + alpha * val1;
 
                             screenBuffer->addSample(channel, sbi, val*gain);
-                        }
-                        
+                        }*/
 
-                        // same thing again, but this time add the min,mean, and max of all samples in current pixel
-                        float sample_min = 10000000;
-                        float sample_max = -10000000;
-                        float sample_mean = 0;
-
-                        for (int j = dbi; j < nextpix; j++)
+                        if (ratio < 1.0)
                         {
 
-                            float sample_current = displayBuffer->getSample(channel, j);
-                            sample_mean = sample_mean + sample_current;
+                           // float gain = 1 / (numTrials + 1);
+                            
+                            //while (subSampleOffset < 1.0f)
+                            //{
+                            float alpha = subSampleOffset;
+                            float invAlpha = 1.0f - alpha;
 
-                            if (sample_min > sample_current)
+                            float val0 = displayBuffer->getSample(channel, dbi);
+                            float val1 = displayBuffer->getSample(channel, (dbi + 1) % displayBufferSize);
+
+                            float val = invAlpha * val0 + alpha * val1;
+
+                            screenBufferMean->addSample(channel, sbi, val);
+                            screenBufferMin->addSample(channel, sbi, val);
+                            screenBufferMax->addSample(channel, sbi, val);
+
+                            subSampleOffset += ratio;
+
+                            if (channel == nChans)
                             {
-                                sample_min = sample_current;
+                                //std::cout << sample_max << std::endl;
+                                screenBuffer->setSample(channel, sbi, displayBuffer->getSample(channel, dbi));
                             }
 
-                            if (sample_max < sample_current)
+
+                            if (subSampleOffset > 1.0f)
                             {
-                                sample_max = sample_current;
+                                subSampleOffset -= 1.0f;
+                                dbi += 1;
+                                dbi %= displayBufferSize;
                             }
 
+                            //    sbi++;
+                            //    sbi %= maxSamples;
+                            //}
+
+                            
                         }
+                        else {
 
-                        // update event channel
-                        if (channel == nChans)
-                        {
-                            //std::cout << sample_max << std::endl;
-                            screenBuffer->setSample(channel, sbi, sample_max);
-                        }
+                            // same thing again, but this time add the min,mean, and max of all samples in current pixel
+                            float sample_min = 10000000;
+                            float sample_max = -10000000;
+                            float sample_sum = 0;
+                            float sampleCount = 0;
 
-                        // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
-                        // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
-                        // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
+                            subSampleOffset += ratio;
 
-                        if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
-                        {
-                            int c = 0;
-                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
+                           /* if (channel == 1 && splitID == 1)
                             {
-                                float sample_current = displayBuffer->getSample(channel, j);
-                                samplesPerPixel[channel][sbi][c] = sample_current;
-                                c++;
+                                std::cout << i << " : " << subSampleOffset << std::endl;
+                            }*/
+                               
+
+                            if (subSampleOffset <= 1.0f)
+                            {
+                                sample_sum = displayBuffer->getSample(channel, dbi);
+                                sample_min = sample_sum;
+                                sample_max = sample_sum;
+                                sampleCount = 1.0f;
+
                             }
-                            if (c > 0){
-                                sampleCountPerPixel[sbi] = c - 1; // save count of samples for this pixel
+
+                            
+                            bool foundIt = false;
+
+                            while (subSampleOffset > 1.0f && sampleNumber < newSamples) // && dbi < newDisplayBufferIndex)
+                            {
+                                sampleNumber++;
+
+                                float sample_current = displayBuffer->getSample(channel, dbi);
+
+                                if (true) //dbi < newDisplayBufferIndex)
+                                {
+                                    
+                                    /*if (splitID == 1 && channel == 1 && sample_current == 0.0f)
+                                    {
+                                        if (!foundIt)
+                                        {
+                                            std::cout << "Zeros after sample: " << sampleNumber << std::endl;
+                                            foundIt = true;
+                                        }
+                                    }*/
+
+                                    sample_sum = sample_sum + sample_current;
+
+                                    if (sample_min >= sample_current)
+                                    {
+                                        sample_min = sample_current;
+                                    }
+
+                                    if (sample_max <= sample_current)
+                                    {
+                                        sample_max = sample_current;
+                                    }
+                                }
+                                else {
+
+                                    if (sample_min == 10000000)
+                                        sample_min = sample_current -100;
+
+                                    if (sample_max == -10000000)
+                                        sample_max = sample_current + 100;
+                                }
+
+                                subSampleOffset -= 1.0f;
+
+                                dbi += 1;
+                                dbi %= displayBufferSize;
+
+                                sampleCount += 1.0f;
+
                             }
-                            else{
-                                sampleCountPerPixel[sbi] = 0;
-                            }
-                            sample_mean = sample_mean / c;
+
+                            float sample_mean = sample_sum / sampleCount;
+
+                            /*if (splitID == 1 && channel == 1)
+                            {
+                                if (sample_min == 0)
+                                    std::cout << "SAMPLE MIN ZERO" << std::endl;
+
+                                if (sample_max == 0)
+                                    std::cout << "SAMPLE MAX ZERO" << std::endl;
+
+                                if (sample_sum == 0)
+                                    std::cout << "SAMPLE SUM ZERO" << std::endl;
+                            }*/
+                                
+
                             screenBufferMean->addSample(channel, sbi, sample_mean);
-
                             screenBufferMin->addSample(channel, sbi, sample_min);
                             screenBufferMax->addSample(channel, sbi, sample_max);
-                        }
 
+                            // update event channel
+                            if (channel == nChans)
+                            {
+                                //std::cout << sample_max << std::endl;
+                                screenBuffer->setSample(channel, sbi, sample_max);
+                            }
+
+                           
+                        }
+                        
                         if (triggerChannel >= 0 && trialAveraging == true && channel != nChans)
                         {
 
@@ -1215,26 +1514,95 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         }
 
                         sbi++;
-           
-                    }
 
-                    subSampleOffset += ratio;
+                        sbi %= maxSamples;
+
+                        //if (splitID == 0 && channel == 0)
+                        //    std::cout << sbi << std::endl;
+                        
+
+                        if (triggerChannel >= 0)
+                        {
+                            
+                            if (sbi == 0)
+                            {
+                                //std::cout << "sbi: " << sbi << std::endl;
+                                //std::cout << "Reached end." << std::endl;
+                                reachedEnd = true;
+                                break;
+                            }
+                        }
+
+                        
+
+                        // similarly, for each pixel on the screen, we want a list of all values so we can draw a histogram later
+                        // for simplicity, we'll just do this as 2d array, samplesPerPixel[px][samples]
+                        // with an additional array sampleCountPerPixel[px] that holds the N samples per pixel
+
+                        //if (channel < nChans) // we're looping over one 'extra' channel for events above, so make sure not to loop over that one here
+                       // {
+                            // this is for fancy drawing -- not used in new LFP Viewer
+                            /*int c = 0;
+                            for (int j = dbi; j < nextpix && c < MAX_N_SAMP_PER_PIXEL; j++)
+                            {
+                                float sample_current = displayBuffer->getSample(channel, j);
+                                samplesPerPixel[channel][sbi][c] = sample_current;
+                                c++;
+                            }
+                            if (c > 0){
+                                sampleCountPerPixel.set(sbi, c - 1); // save count of samples for this pixel
+                            }
+                            else{
+                                sampleCountPerPixel.set(sbi, 0);
+                            }*/
+                            //sample_mean = sample_mean / c;
+                            
+                     //   }
+
+                        
+                        
+                    } // !isPaused
+
+                    /*subSampleOffset += ratio;
 
                     int steps(floor(subSampleOffset));
-                    dbi = (dbi + steps) % displayBufferSize;
-                    subSampleOffset -= steps;
+                    
+                    subSampleOffset -= steps;*/
 
                 }
 
-                // update values after we're done
+                /*if (channel == 15)
+                {
+                    std::cout << "Pixels needed: " << pixelsToFill << std::endl;
+                    std::cout << "Pixels filled: " << i << std::endl;
+                }*/
+               
+
+                if (ratio > 1.0f)
+                    leftOverSamples.set(channel, pixelsToFill - i); // +(pixelsToFill - (i - 1)) * ratio);
+                else
+                    leftOverSamples.set(channel, subSampleOffset - 1.0f);
+
                 screenBufferIndex.set(channel, sbi);
-                displayBufferIndex.set(channel, dbi); // need to store this locally
+                displayBufferIndex.set(channel, newDisplayBufferIndex); // need to store this locally
 
                
             }
         }
     }
 
+}
+
+void LfpDisplaySplitter::setTimebase(float t)
+{
+    timebase = t;
+
+    if (trialAveraging)
+    {
+        numTrials = -1;
+    }
+
+    syncDisplay();
 }
 
 const float LfpDisplaySplitter::getXCoord(int chan, int samp)
@@ -1275,14 +1643,14 @@ int LfpDisplaySplitter::getChannelSubprocessorIdx(int channel)
     return processor->getDataChannel(channel)->getSubProcessorIdx();
 }
 
-std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
+/*std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
 {
     return samplesPerPixel[chan][px];
 }
 const int LfpDisplaySplitter::getSampleCountPerPixel(int px)
 {
     return sampleCountPerPixel[px];
-}
+}*/
 
 float LfpDisplaySplitter::getMean(int chan)
 {
@@ -1292,7 +1660,7 @@ float LfpDisplaySplitter::getMean(int chan)
     float sample = 0.0f;
     for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
-        sample = *screenBuffer->getReadPointer(chan, samp);
+        sample = *screenBufferMean->getReadPointer(chan, samp);
         total += sample;
         numPts++;
     }
@@ -1311,7 +1679,7 @@ float LfpDisplaySplitter::getStd(int chan)
 
     for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
-        std += pow((*screenBuffer->getReadPointer(chan, samp) - mean),2);
+        std += pow((*screenBufferMean->getReadPointer(chan, samp) - mean),2);
         numPts++;
     }
 
@@ -1352,9 +1720,13 @@ void LfpDisplaySplitter::setDrawableSubprocessor(uint32 sp)
 
 void LfpDisplaySplitter::redraw()
 {
-    fullredraw=true;
-    repaint();
-    refresh();
+    if (!isLoading)
+    {
+        fullredraw = true;
+        repaint();
+        refresh();
+    }
+    
 }
 
 void LfpDisplaySplitter::paint(Graphics& g)
@@ -1366,26 +1738,35 @@ void LfpDisplaySplitter::paint(Graphics& g)
     g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
+    Colour borderColour;
+    ColourGradient timelineColour;
+
     if (isSelected)
     {
-        g.setColour(Colour(252, 210, 0));
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        borderColour = Colour(252, 210, 0);
 
-        g.setGradientFill(ColourGradient(Colour(252, 210, 0), 0, 0,
+        timelineColour = ColourGradient(Colour(252, 210, 0), 0, 0,
             Colour(173, 145, 3), 0, 30,
-            false));
+            false);
     }
     else {
 
-        g.setColour(Colour(50, 50, 50));
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        borderColour = Colour(40, 40, 40);
 
-        g.setGradientFill(ColourGradient(Colour(50, 50, 50), 0, 0,
+        timelineColour = ColourGradient(Colour(50, 50, 50), 0, 0,
             Colour(25, 25, 25), 0, 30,
-            false));
+            false);
     }
+
+    g.setColour(borderColour);
+
+    if (!canvas->makeRoomForOptions(splitID))
+        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+    else
+        g.drawRect(0, 0, getWidth(), getHeight() - 55, 2);
     
-     g.fillRect(2, 2, getWidth()-4, 28);
+    g.setGradientFill(timelineColour);
+    g.fillRect(2, 2, getWidth()-4, 28);
 
   //  g.setColour(Colours::black);
 
@@ -1409,13 +1790,23 @@ void LfpDisplaySplitter::paint(Graphics& g)
 
 }
 
+void LfpDisplaySplitter::visibleAreaChanged()
+{
+
+    canvas->redrawAll();
+
+    fullredraw = true;
+
+    refresh();
+}
+
 void LfpDisplaySplitter::refresh()
 {
     if (true)
     { 
        updateScreenBuffer();
 
-       lfpDisplay->refresh(); // redraws only the new part of the screen buffer
+       lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
     }
 }
 
@@ -1423,7 +1814,7 @@ void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)
 {
     if (comboBox == subprocessorSelection)
     {
-        std::cout << "Setting subprocessor for Display #"<< splitID << " to " << comboBox->getSelectedId() << std::endl;
+        //std::cout << "Setting subprocessor for Display #"<< splitID << " to " << comboBox->getSelectedId() << std::endl;
         //uint32 subproc = processor->inputSubprocessors[cb->getSelectedId() - 1];
 
         //processor->setSubprocessor(subproc, splitID);

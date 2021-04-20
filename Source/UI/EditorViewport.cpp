@@ -248,7 +248,12 @@ GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description,
     else
     {
         action->perform();
+
+        orphanedActions.add(action);
+
         return action->processor;
+        
+
     }
     
 }
@@ -1779,9 +1784,12 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 void EditorViewport::deleteSelectedProcessors()
 {
     undoManager.beginNewTransaction();
+
+    Array<GenericEditor*> editors = Array(editorArray);
     
-    for (auto editor : editorArray)
+    for (auto editor : editors)
     {
+        std::cout << "Editor name: " << editor->getName() << std::endl;
         if (editor->getSelectionState())
         {
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);

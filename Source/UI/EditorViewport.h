@@ -38,13 +38,10 @@
 class GenericEditor;
 class SignalChainTabButton;
 class SignalChainTabComponent;
-//class EditorScrollButton;
 class SignalChainScrollButton;
 class ControlPanel;
 class UIComponent;
-
-enum Action {ADD, MOVE, REMOVE, ACTIVATE, UPDATE};
-
+class AddProcessor;
 
 /**
 
@@ -239,6 +236,8 @@ private:
     OwnedArray<XmlElement> copyBuffer;
     
     Label editorNamingLabel;
+
+    OwnedArray<AddProcessor> orphanedActions;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
 
