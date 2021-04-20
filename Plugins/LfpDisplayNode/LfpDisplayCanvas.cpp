@@ -1021,6 +1021,8 @@ void LfpDisplaySplitter::updateSettings()
 
     resized();
 
+    lfpDisplay->restoreViewPosition();
+
    // lfpDisplay->refresh();
 
    // std::cout << " done " << std::endl;
