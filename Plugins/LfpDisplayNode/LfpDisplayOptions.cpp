@@ -1576,6 +1576,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             std::cout << "Saved subprocessor ID: " << id << std::endl;
 
+            if (canvasSplit->displayBuffer != nullptr)
+                canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
+
             /*std::cout << "Available IDs: " << std::endl;
 
             for (auto db : processor->getDisplayBuffers())
@@ -1583,10 +1586,12 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 std::cout << " " << db->id << std::endl;
             }*/
 
-            if(processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
+            if (processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
                 canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
             else
                 canvasSplit->displayBuffer = processor->displayBufferMap[id];
+
+            canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
 
             std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
             

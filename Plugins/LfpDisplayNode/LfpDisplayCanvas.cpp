@@ -924,6 +924,9 @@ void LfpDisplaySplitter::deselect()
 void LfpDisplaySplitter::updateSettings()
 {
 
+    if (displayBuffer != nullptr)
+        displayBuffer->removeDisplay(splitID);
+
     isUpdating = true;
 
     Array<DisplayBuffer*> availableBuffers = processor->getDisplayBuffers();
@@ -965,6 +968,8 @@ void LfpDisplaySplitter::updateSettings()
         options->setEnabled(true);
     }
     else {
+
+        displayBuffer->addDisplay(splitID);
         
         subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
         displayBufferSize = displayBuffer->getNumSamples();
@@ -1155,8 +1160,13 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             if (newSamples == 0)
             {
+                // std::cout << "No new samples." << std::endl;
                 return;
             }
+
+            if (newSamples < 0)
+                newSamples += displayBufferSize;
+
 
             // this number is crucial -- converting from samples to values (in px) for the screen buffer:
             float ratio = sampleRate * timebase / float(maxSamples); // samples / pixel
@@ -1231,7 +1241,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-           /* if (channel == 1 && splitID == 1)
+           /*if (channel == 1 && splitID == 0)
                 std::cout << "Split "
                 << splitID << " : "
                 << channel << " : "
