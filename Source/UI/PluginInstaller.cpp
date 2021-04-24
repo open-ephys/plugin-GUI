@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------
 
-static String osType;
+static juce::String osType;
 
 PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 : DocumentWindow(WINDOW_TITLE,
@@ -101,7 +101,7 @@ void PluginInstaller::createXmlFile()
     if (!pluginsDir.isDirectory())
         pluginsDir.createDirectory();
     
-    String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
+    juce::String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
 	File file = CoreServices::getSavedStateDirectory().getChildFile(xmlFile);
 
 	XmlDocument doc(file);
@@ -116,12 +116,12 @@ void PluginInstaller::createXmlFile()
 
 		baseTag->addChildElement(plugins.release());
 
-		if (! baseTag->writeToFile(file, String::empty))
+		if (! baseTag->writeToFile(file, juce::String::empty))
 			LOGD("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
 	{
-		String baseStr = "plugins" + File::separatorString;
+		juce::String baseStr = "plugins" + File::separatorString;
 
 		auto child = xml->getFirstChildElement();
 		Array<XmlElement*> elementsToRemove;
@@ -138,7 +138,7 @@ void PluginInstaller::createXmlFile()
 			child->removeChildElement(element, true);
 		}
 
-		if (! xml->writeToFile(file, String::empty))
+		if (! xml->writeToFile(file, juce::String::empty))
 		{
 			LOGD("Error! Couldn't write to installedPlugins.xml");
 		}
@@ -148,10 +148,10 @@ void PluginInstaller::createXmlFile()
 	}
 }
 
-int versionCompare(const String& v1, const String& v2)
+int versionCompare(const juce::String& v1, const juce::String& v2)
 { 
-    String nv1 = v1.substring(0, v1.indexOf("-"));
-	String nv2 = v2.substring(0, v2.indexOf("-"));
+    juce::String nv1 = v1.substring(0, v1.indexOf("-"));
+	juce::String nv2 = v2.substring(0, v2.indexOf("-"));
 
 	//  vnum stores each numeric part of version 
     int vnum1 = 0, vnum2 = 0; 
@@ -329,7 +329,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 void PluginInstallerComponent::run()
 {
-	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
 	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
@@ -346,23 +346,23 @@ void PluginInstallerComponent::run()
 		updatablePlugins.clear();
 		auto child = xml->getFirstChildElement();
 
-		String baseUrl = "https://open-ephys-bintray-gateway.herokuapp.com/";
+		juce::String baseUrl = "https://open-ephys-bintray-gateway.herokuapp.com/";
 
 		forEachXmlChildElement(*child, e)
 		{
-			String pName = e->getTagName();
+			juce::String pName = e->getTagName();
 			installedPlugins.add(pName);
 
 			if (updatesButton.getToggleState())
 			{
 				setStatusMessage("Fetching plugin updates...");
 				//Get latest version
-				String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
+				juce::String versionUrl = baseUrl + pName + "/" + pName + "-" + osType + "/versions/_latest";
 
-				String vResponse = URL(versionUrl).readEntireTextStream();
+				juce::String vResponse = URL(versionUrl).readEntireTextStream();
 				var vReply = JSON::parse(vResponse);
 
-				String latest_ver = vReply.getProperty("name", "NULL").toString();
+				juce::String latest_ver = vReply.getProperty("name", "NULL").toString();
 
 				if (versionCompare(latest_ver, e->getAttributeValue(0)) > 0)
 					updatablePlugins.add(pName);
@@ -411,7 +411,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 		if( sourceState || filterState || sinkState || otherState)
 		{
-			String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
+			juce::String baseUrl = "https://api.bintray.com/repos/open-ephys-gui-plugins/";
 
 			StringArray tempArray;
 
@@ -426,15 +426,15 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 			for (int i = 0; i < tempArray.size(); i++)
 			{
-				StringArray labels;
+				juce::String label;
 
-				labels = pluginListAndInfo.pluginLabels[tempArray[i]];
+				label = pluginListAndInfo.pluginLabels[tempArray[i]];
 				
 				int containsType = 0;
 
-				bool isSource = labels.contains("source", true);
-				bool isFilter = labels.contains("filter", true);
-				bool isSink = labels.contains("sink", true);
+				bool isSource = label.equalsIgnoreCase("source");
+				bool isFilter = label.equalsIgnoreCase("filter");
+				bool isSink = label.equalsIgnoreCase("sink");
 				bool isOther = isSource ? false : (isFilter ? false : (isSink ? false : true));
 
 				if(sourceState && isSource)
@@ -517,8 +517,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	g.setFont(listFont);
 
-	StringArray pLabels = pluginLabels[pluginArray[rowNumber]];
-	String text = pLabels[0];
+	juce::String text = displayNames[pluginArray[rowNumber]];
 
 	g.drawText (text, 20, 0, width - 10, height, Justification::centredLeft, true);
 }
@@ -526,14 +525,20 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 void PluginListBoxComponent::run()
 {
 	/* Get list of plugins uploaded to bintray */
-	String baseUrl = "https://open-ephys-bintray-gateway.herokuapp.com";
-	String response = URL(baseUrl).readEntireTextStream();
+	juce::String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+	juce::String response = URL(baseUrl).readEntireTextStream();
 
-	Result result = JSON::parse(response, pluginData);
+	var gatewayData;
+	Result result = JSON::parse(response, gatewayData);
+	
+	juce::String url = gatewayData.getProperty("download_url", var()).toString();
+	pluginInfoPanel.setDownloadURL(url);
+
+	pluginData = gatewayData.getProperty("plugins", var());
 
 	numRows = pluginData.size();
 	
-	String pluginName;
+	juce::String pluginName, label, dispName;
 
 	int pluginTextWidth;
     
@@ -545,28 +550,25 @@ void PluginListBoxComponent::run()
 	{
         
 		pluginName = pluginData[i].getProperty("name", var()).toString();
-        std::cout << pluginName << std::endl;
-
-		//setStatusMessage("Fetching " + pluginName + " ...");
 
 		pluginTextWidth = listFont.getStringWidth(pluginName);
 		if (pluginTextWidth > maxTextWidth)
 			maxTextWidth = pluginTextWidth;
 		
-		//String pluginUrl = baseUrl + "/" + pluginName;
-		//response = URL(pluginUrl).readEntireTextStream();
-		var labelData = pluginData[i];
 
-		StringArray labels;
-		auto allLabels = labelData.getProperty("labels", "NULL").getArray();
-
-		for(String label : *allLabels)
-			labels.add(label);
+		label = pluginData[i].getProperty("type", "NULL").toString();
+		dispName = pluginData[i].getProperty("display_name", "NULL").toString();
 		
-		if(!labels.contains("Dependency", true))
+		if(!label.equalsIgnoreCase("CommonLib"))
 		{
 			pluginArray.add(pluginName);
-			pluginLabels.set(pluginName, labels);
+			displayNames.set(pluginName, dispName);
+			pluginLabels.set(pluginName, label);
+		}
+		else
+		{	
+			juce::String ver = pluginData[i].getProperty("latest_version", "NULL").toString();
+			dependencyVersion.set(pluginName, ver);
 		}
 
 		//setProgress ((i + 1) / (double) numRows);
@@ -579,72 +581,58 @@ void PluginListBoxComponent::run()
 bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 {
 
-    var availablePackages;
-    
-    for (int i = 0; i < pluginData.size(); i++)
-    {
-      if (pluginName.compare(pluginData[i].getProperty("name", "none")) == 0)
-      {
-          availablePackages = pluginData[i].getProperty("packages", var());
-          break;
-      }
-    }
-    
-	var selectedPackage;
-
-	for (int i = 0; i < availablePackages.size(); i++)
+    int pIndex;
+	for (int i = 0; i < pluginData.size(); i++)
 	{
-	 	if (availablePackages[i].getProperty("name", "none").toString().contains(osType))
-         {
-             selectedPackage = availablePackages[i];
-             break;
-         }
+		if(pluginData[i].getProperty("name", "NULL").toString().equalsIgnoreCase(pluginName))
+			pIndex = i;
 	}
+    
+	auto platforms = pluginData[pIndex].getProperty("platforms", "none").getArray();
 
-	if (selectedPackage.isVoid())
+	if (!platforms->contains(osType))
 	{
 		LOGD("*********** No platform specific package found for ", pluginName);
 		pluginInfoPanel.makeInfoVisible(false);
 		return false;
 	}
 
-	String owner= selectedPackage.getProperty("owner", "NULL");
-	String latest_version = selectedPackage.getProperty("latest_version", "NULL");
-	String updated = selectedPackage.getProperty("updated", "NULL");
-	updated = updated.substring(0, updated.indexOf("T")) + " at " 
-			  + updated.substring(updated.indexOf("T") + 1, updated.indexOf("."));
-	String description = selectedPackage.getProperty("desc", "NULL");
+	selectedPluginInfo.pluginName = pluginName;
+	selectedPluginInfo.displayName = displayNames[pluginName];
+	selectedPluginInfo.type = pluginLabels[pluginName];
+	selectedPluginInfo.developers= pluginData[pIndex].getProperty("developers", "NULL");
+	selectedPluginInfo.latestVersion = pluginData[pIndex].getProperty("latest_version", "NULL");
+	juce::String updated = pluginData[pIndex].getProperty("updated", "NULL");
+	selectedPluginInfo.lastUpdated = updated.substring(0, updated.indexOf("T"));
+	selectedPluginInfo.description = pluginData[pIndex].getProperty("desc", "NULL");
+	selectedPluginInfo.docURL = pluginData[pIndex].getProperty("docs", "NULL").toString();
+	selectedPluginInfo.selectedVersion = juce::String();
 
-	auto allVersions = selectedPackage.getProperty("versions", "NULL").getArray();
+	auto allVersions = pluginData[pIndex].getProperty("versions", "NULL").getArray();
 
 	selectedPluginInfo.versions.clear();
 
-	for (String version : *allVersions)
+	for (juce::String version : *allVersions)
 	{
-		String apiVer = version.substring(version.indexOf("I") + 1);
+		juce::String apiVer = version.substring(version.indexOf("I") + 1);
 		
-		if (apiVer.equalsIgnoreCase(String(PLUGIN_API_VER)))
+		if (apiVer.equalsIgnoreCase(juce::String(PLUGIN_API_VER)))
 			selectedPluginInfo.versions.add(version);
 	}
 
-	auto dependencies = selectedPackage.getProperty("attribute_names", "NULL").getArray();
 	selectedPluginInfo.dependencies.clear();
-	for (String dependency : *dependencies)
-		selectedPluginInfo.dependencies.add(dependency);
-
-	selectedPluginInfo.docURL = selectedPackage.getProperty("website_url", "NULL").toString();
-	selectedPluginInfo.selectedVersion = String();
-
-	selectedPluginInfo.pluginName = pluginName;
-	selectedPluginInfo.displayName = pluginLabels[pluginName][0];
-	selectedPluginInfo.type = pluginLabels[pluginName][1];
-	selectedPluginInfo.owner = owner;
-	selectedPluginInfo.latestVersion = latest_version;
-	selectedPluginInfo.lastUpdated = updated;
-	selectedPluginInfo.description = description;
+	auto dependencies = pluginData[pIndex].getProperty("dependencies", "NULL").getArray();
+	for (juce::String dependency : *dependencies)
+	{
+		if(!dependency.equalsIgnoreCase("None"))
+		{
+			selectedPluginInfo.dependencies.add(dependency);
+			selectedPluginInfo.dependencyVersions.add(dependencyVersion[dependency]);
+		}
+	}
 
 	// If the plugin is already installed, get installed version number
-	String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
 	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
@@ -664,7 +652,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 		if (pluginEntry != nullptr)
 			selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue(0);
 		else
-			selectedPluginInfo.installedVersion = String::empty;
+			selectedPluginInfo.installedVersion = juce::String::empty;
 		
 	}
 
@@ -721,14 +709,14 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin In
 	pluginNameText.setFont(infoFont);
 	pluginNameText.setColour(Label::textColourId, Colours::white);
 
-	addChildComponent(ownerLabel);
-	ownerLabel.setFont(infoFontBold);
-	ownerLabel.setColour(Label::textColourId, Colours::white);
-	ownerLabel.setText("Owner: ", dontSendNotification);
+	addChildComponent(developersLabel);
+	developersLabel.setFont(infoFontBold);
+	developersLabel.setColour(Label::textColourId, Colours::white);
+	developersLabel.setText("Developers: ", dontSendNotification);
 
-	addChildComponent(ownerText);
-	ownerText.setFont(infoFont);
-	ownerText.setColour(Label::textColourId, Colours::white);
+	addChildComponent(developersText);
+	developersText.setFont(infoFont);
+	developersText.setColour(Label::textColourId, Colours::white);
 
 	addChildComponent(versionLabel);
 	versionLabel.setFont(infoFontBold);
@@ -795,8 +783,8 @@ void PluginInfoComponent::resized()
 	pluginNameLabel.setBounds(10, 30, 60, 30);
 	pluginNameText.setBounds(125, 30, getWidth() - 10, 30);
 
-	ownerLabel.setBounds(10, 60, 60, 30);
-	ownerText.setBounds(125, 60, getWidth() - 10, 30);
+	developersLabel.setBounds(10, 60, 100, 30);
+	developersText.setBounds(125, 60, getWidth() - 10, 30);
 
 	versionLabel.setBounds(10, 90, 80, 30);
 	versionMenu.setBounds(130, 90, 110, 30);
@@ -829,24 +817,21 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	}
 }
 
+void PluginInfoComponent::setDownloadURL(const String& url)
+{
+	downloadURL = url;
+}
+
 void PluginInfoComponent::run()
 {
 	LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
-		
+
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
 	{
-		String depUrl = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-		depUrl += pInfo.dependencies[i] + "/" + pInfo.dependencies[i] + "-" ;
-		depUrl += osType + "/versions/_latest";
-
 		setStatusMessage("Downloading dependency: " + pInfo.dependencies[i]);
 
-		String depResponse = URL(depUrl).readEntireTextStream();
-		var depReply = JSON::parse(depResponse);
-		String ver = depReply.getProperty("name", "NULL");
-
-		int retCode = downloadPlugin(pInfo.dependencies[i], ver, true);
+		int retCode = downloadPlugin(pInfo.dependencies[i], pInfo.dependencyVersions[i], true);
 
 		if (retCode == 2)
 		{
@@ -985,7 +970,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 {
 	pInfo = p;
 	pluginNameText.setText(pInfo.displayName, dontSendNotification);
-	ownerText.setText(pInfo.owner, dontSendNotification);
+	developersText.setText(pInfo.developers, dontSendNotification);
 	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
 	descriptionText.setText(pInfo.description, dontSendNotification);
 	if (pInfo.dependencies.isEmpty())
@@ -1011,7 +996,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
 	}
 }
 
-void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
+void PluginInfoComponent::updateStatusMessage(const juce::String& str, bool isVisible)
 {
 	statusLabel.setText(str, dontSendNotification);
 	statusLabel.setVisible(isVisible);
@@ -1022,8 +1007,8 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 	pluginNameLabel.setVisible(isEnabled);
 	pluginNameText.setVisible(isEnabled);
 
-	ownerLabel.setVisible(isEnabled);
-	ownerText.setVisible(isEnabled);
+	developersLabel.setVisible(isEnabled);
+	developersText.setVisible(isEnabled);
 
 	versionLabel.setVisible(isEnabled);
 	versionMenu.setVisible(isEnabled);
@@ -1041,227 +1026,209 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 	documentationButton.setVisible(isEnabled);
 }
 
-int PluginInfoComponent::downloadPlugin(const String& plugin, const String& version, bool isDependency) 
+int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::String& version, bool isDependency) 
 {
 
-	String files_url = "https://api.bintray.com/packages/open-ephys-gui-plugins/";
-	files_url += plugin;
-	files_url += "/";
-	files_url += plugin + "-" + osType;
-	files_url += "/versions/";
-	files_url += version;
-	files_url += "/files";
+	juce::String fileDownloadURL = downloadURL;
+	fileDownloadURL = fileDownloadURL.replace("<plugin-name>", plugin);
+	fileDownloadURL = fileDownloadURL.replace("<platform>", osType);
+	fileDownloadURL = fileDownloadURL.replace("<version>", version);
 
-	String files_response = URL(files_url).readEntireTextStream();;
+	LOGD("Download URL:", fileDownloadURL);
 
-	var files_reply = JSON::parse(files_response);
+	juce::String filename = plugin + "-" + osType + "_" + version + ".zip";
 
-	String filename;
+	//Unzip plugin and install in plugins directory
+	//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
 
-	if (files_reply.size())
+	URL fileUrl(fileDownloadURL);
+
+	int statusC;
+	StringPairArray responseHeaders;
+
+	//Create input stream from the plugin's zip file URL
+	ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, juce::String(), 1000, &responseHeaders, &statusC, 5, juce::String());		
+	juce::String newLocation = responseHeaders.getValue("Location", "NULL");
+
+	// ZIP URL Location changed, use the new location
+	if(newLocation != "NULL")
 	{
-		for (int i = 0; i < files_reply.size(); i++)
-		{
-			filename = files_reply[i].getProperty("name", "NULL").toString();
-		}
-
-		//Unzip plugin and install in plugins directory
-		//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
-		String fileDownloadURL = "https://dl.bintray.com/open-ephys-gui-plugins/";
-		fileDownloadURL += plugin;
-		fileDownloadURL += "/";
-		fileDownloadURL += filename;
-
-		URL fileUrl(fileDownloadURL);
-
-		int statusC;
-		StringPairArray responseHeaders;
-
-		//Create input stream from the plugin's zip file URL
-		ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, String(), 1000, &responseHeaders, &statusC, 5, String());		
-		String newLocation = responseHeaders.getValue("Location", "NULL");
-
-		// ZIP URL Location changed, use the new location
-		if(newLocation != "NULL")
-		{
-			fileUrl = newLocation;
-			fileStream = fileUrl.createInputStream(false);
-		}
-
-		// ZIP file empty, return.
-		if(fileStream->getTotalLength() == 0)
-			return 0;
-
-		//Get path to plugins directory
-		File pluginsPath = CoreServices::getSavedStateDirectory();
-
-		//Construct path for downloaded zip file
-		String pluginFilePath = pluginsPath.getFullPathName();
-		pluginFilePath += File::separatorString;
-		pluginFilePath += filename;
-
-		//Create local file
-		File pluginFile(pluginFilePath);
-		pluginFile.deleteFile();
-
-		//Use the Url's input stream and write it to a file using output stream
-		FileOutputStream* out = pluginFile.createOutputStream();
-		out->writeFromInputStream(*fileStream, -1);
-		out->flush();
-		delete out;
-
-		//Uncompress zip file contents
-		ZipFile pluginZip(pluginFile);
-
-		//Get *.dll/*.so name of plugin
-#if JUCE_WINDOWS
-		auto entry = pluginZip.getEntry(0);
-#else
-		auto entry = pluginZip.getEntry(1);
-#endif
-
-		// Open installedPluings.xml file
-		String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
-		File xmlFile = pluginsPath.getChildFile(fileStr);
-
-		XmlDocument doc(xmlFile);
-		std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-
-		if (!isDependency)
-		{	
-			// Create a new entry in xml for the downloaded plugin
-			std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
-
-			// set version and dllName attributes of the plugins
-			pluginEntry->setAttribute("version", version);
-			String dllName = entry->filename;
-			dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
-			pluginEntry->setAttribute("dllName", dllName);
-
-			if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
-			{
-				LOGD("[PluginInstaller] File not found.");
-				pluginFile.deleteFile();
-				return 3;
-			}
-			else
-			{	
-				auto child = xml->getFirstChildElement();
-				bool hasTag = false; 
-
-				/** Check for whether the plugin is installed and if it has the same version
-				 * 	as the one being downloaded
-				 **/
-				forEachXmlChildElement(*child, e)
-				{
-					if (e->hasTagName(pluginEntry->getTagName()))
-					{
-						if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
-						{
-							LOGD(plugin, " v", version, " already exists!!");
-							pluginFile.deleteFile();
-							return 4;
-						}
-						else 
-						{
-							e->setAttribute("version", version);
-						}
-						hasTag = true;
-					}
-				}
-
-				// if no such plugin is installed, add its info to the xml file
-				if (!hasTag)
-					child->addChildElement(pluginEntry.release());
-
-			}
-
-			// Check if plugin already present in signal chain
-			bool procInSignalChain;
-			if(pInfo.type == "Record Engine")
-				procInSignalChain = AccessClass::getProcessorGraph()->hasRecordNode();
-			else
-				procInSignalChain = AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName);
-				
-			if(procInSignalChain)
-			{
-				pluginFile.deleteFile();
-				return 7;
-			}
-		}
-
-		// Uncompress the downloaded plugin's zip file
-		Result rs = pluginZip.uncompressTo(pluginsPath, true);
-
-		if (rs.failed())
-		{
-			String errorMsg = rs.getErrorMessage();
-
-			if(errorMsg.containsIgnoreCase("Failed to write to target file"))
-			{
-				if(!isDependency)
-				{
-#ifdef WIN32
-					String dllToUnload = errorMsg.substring(errorMsg.lastIndexOf("\\") + 1);
-					const char* processorLocCString = static_cast<const char*>(dllToUnload.toUTF8());
-					HMODULE md = GetModuleHandleA(processorLocCString);
-
-					if(FreeLibrary(md))
-						LOGD("Unloaded old ", dllToUnload);
-#endif
-					rs = pluginZip.uncompressTo(pluginsPath, true);
-
-					if(rs.failed())
-					{
-						LOGD(rs.getErrorMessage());
-						pluginFile.deleteFile();
-						return 2;
-					}
-				}
-				else
-				{
-					LOGD("Dependency already exists");
-				}
-				
-
-			}
-			else
-			{
-				LOGD(rs.getErrorMessage());
-				pluginFile.deleteFile(); // delete zip after uncompressing
-				return 2;
-			}
-		}
-
-		pluginFile.deleteFile(); // delete zip after uncompressing
-
-		// if the plugin is not a dependency, load the plugin and show it in processor list	
-		if (!isDependency)
-		{
-			// Write installed plugin's info to XML file
-			if (! xml->writeToFile(xmlFile, String::empty))
-			{
-				LOGD("Error! Couldn't write to installedPlugins.xml");
-				return 5;
-			}
-			
-			String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
-
-			int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
-
-			if (loadPlugin == -1)
-				return 6;
-
-			AccessClass::getProcessorList()->fillItemList();
-			AccessClass::getProcessorList()->repaint();
-
-			if(pInfo.type == "Record Engine")
-				AccessClass::getControlPanel()->updateRecordEngineList();
-			
-			return 1;
-		}
-
+		fileUrl = newLocation;
+		fileStream = fileUrl.createInputStream(false);
 	}
 
-	return 0;
+	// ZIP file empty, return.
+	if(fileStream->getTotalLength() == 0)
+		return 0;
+
+	//Get path to plugins directory
+	File pluginsPath = CoreServices::getSavedStateDirectory();
+
+	//Construct path for downloaded zip file
+	juce::String pluginFilePath = pluginsPath.getFullPathName();
+	pluginFilePath += File::separatorString;
+	pluginFilePath += filename;
+
+	//Create local file
+	File pluginFile(pluginFilePath);
+	pluginFile.deleteFile();
+
+	//Use the Url's input stream and write it to a file using output stream
+	FileOutputStream* out = pluginFile.createOutputStream();
+	out->writeFromInputStream(*fileStream, -1);
+	out->flush();
+	delete out;
+
+	//Uncompress zip file contents
+	ZipFile pluginZip(pluginFile);
+
+	//Get *.dll/*.so name of plugin
+#if JUCE_WINDOWS
+	auto entry = pluginZip.getEntry(0);
+#else
+	auto entry = pluginZip.getEntry(1);
+#endif
+
+	// Open installedPluings.xml file
+	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	File xmlFile = pluginsPath.getChildFile(fileStr);
+
+	XmlDocument doc(xmlFile);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	if (!isDependency)
+	{	
+		// Create a new entry in xml for the downloaded plugin
+		std::unique_ptr<XmlElement> pluginEntry(new XmlElement(plugin));
+
+		// set version and dllName attributes of the plugins
+		pluginEntry->setAttribute("version", version);
+		juce::String dllName = entry->filename;
+		dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
+		pluginEntry->setAttribute("dllName", dllName);
+
+		if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+		{
+			LOGD("[PluginInstaller] File not found.");
+			pluginFile.deleteFile();
+			return 3;
+		}
+		else
+		{	
+			auto child = xml->getFirstChildElement();
+			bool hasTag = false; 
+
+			/** Check for whether the plugin is installed and if it has the same version
+			 * 	as the one being downloaded
+			 **/
+			forEachXmlChildElement(*child, e)
+			{
+				if (e->hasTagName(pluginEntry->getTagName()))
+				{
+					if (e->getAttributeValue(0).equalsIgnoreCase(pluginEntry->getAttributeValue(0)))
+					{
+						LOGD(plugin, " v", version, " already exists!!");
+						pluginFile.deleteFile();
+						return 4;
+					}
+					else 
+					{
+						e->setAttribute("version", version);
+					}
+					hasTag = true;
+				}
+			}
+
+			// if no such plugin is installed, add its info to the xml file
+			if (!hasTag)
+				child->addChildElement(pluginEntry.release());
+
+		}
+
+		// Check if plugin already present in signal chain
+		bool procInSignalChain;
+		if(pInfo.type == "Record Engine")
+			procInSignalChain = AccessClass::getProcessorGraph()->hasRecordNode();
+		else
+			procInSignalChain = AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName);
+			
+		if(procInSignalChain)
+		{
+			pluginFile.deleteFile();
+			return 7;
+		}
+	}
+
+	// Uncompress the downloaded plugin's zip file
+	Result rs = pluginZip.uncompressTo(pluginsPath, true);
+
+	if (rs.failed())
+	{
+		juce::String errorMsg = rs.getErrorMessage();
+
+		if(errorMsg.containsIgnoreCase("Failed to write to target file"))
+		{
+			if(!isDependency)
+			{
+#ifdef WIN32
+				juce::String dllToUnload = errorMsg.substring(errorMsg.lastIndexOf("\\") + 1);
+				const char* processorLocCString = static_cast<const char*>(dllToUnload.toUTF8());
+				HMODULE md = GetModuleHandleA(processorLocCString);
+
+				if(FreeLibrary(md))
+					LOGD("Unloaded old ", dllToUnload);
+#endif
+				rs = pluginZip.uncompressTo(pluginsPath, true);
+
+				if(rs.failed())
+				{
+					LOGD(rs.getErrorMessage());
+					pluginFile.deleteFile();
+					return 2;
+				}
+			}
+			else
+			{
+				LOGD("Dependency already exists");
+			}
+			
+
+		}
+		else
+		{
+			LOGD(rs.getErrorMessage());
+			pluginFile.deleteFile(); // delete zip after uncompressing
+			return 2;
+		}
+	}
+
+	pluginFile.deleteFile(); // delete zip after uncompressing
+
+	// if the plugin is not a dependency, load the plugin and show it in processor list	
+	if (!isDependency)
+	{
+		// Write installed plugin's info to XML file
+		if (! xml->writeToFile(xmlFile, juce::String::empty))
+		{
+			LOGD("Error! Couldn't write to installedPlugins.xml");
+			return 5;
+		}
+		
+		juce::String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
+
+		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
+
+		if (loadPlugin == -1)
+			return 6;
+
+		AccessClass::getProcessorList()->fillItemList();
+		AccessClass::getProcessorList()->repaint();
+
+		if(pInfo.type == "Record Engine")
+			AccessClass::getControlPanel()->updateRecordEngineList();
+		
+	}
+
+	return 1;
+
 }

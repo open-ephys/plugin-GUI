@@ -8,8 +8,6 @@
 class MainWindow;
 class PluginInstallerComponent;
 
-using namespace juce;
-
 class PluginInstaller : public DocumentWindow
 {
 public:
@@ -52,7 +50,7 @@ struct SelectedPluginInfo
     String pluginName;
     String displayName;
     String type;
-    String owner;
+    String developers;
     String latestVersion;
     String installedVersion;
     StringArray versions;
@@ -60,6 +58,7 @@ struct SelectedPluginInfo
     String lastUpdated;
     String description;
     StringArray dependencies;
+    StringArray dependencyVersions;
     String docURL;
 };
 
@@ -100,14 +99,17 @@ public:
     /** Called when the user hits the 'Download' button for a selected plugin **/
     int downloadPlugin(const String& plugin, const String& version,
                        bool isDependency);
+    
+    void setDownloadURL(const String& url);
 
 private:
 
     int selectedPlugin;
+    String downloadURL;
     Font infoFont, infoFontBold;
 
     Label pluginNameLabel, pluginNameText;
-    Label ownerLabel, ownerText;
+    Label developersLabel, developersText;
     Label versionLabel;
     Label lastUpdatedLabel, lastUpdatedText;
     Label descriptionLabel;
@@ -144,7 +146,9 @@ public:
 
     /* Raw list of plugins available for download */
     StringArray pluginArray;
-    HashMap<String, StringArray> pluginLabels;
+    HashMap<String, String> pluginLabels;
+    HashMap<String, String> displayNames;
+    HashMap<String, String> dependencyVersion;
 
     int getNumRows() override;
 
