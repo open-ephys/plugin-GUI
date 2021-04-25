@@ -331,6 +331,7 @@ void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<b
 // called by updateSettings (could be refactored)
 void RecordNode::updateSubprocessorMap()
 {
+	//std::cout << "UPDATE SUBPROCESSOR MAP" << std::endl;
 
 	bool refreshEditor = false;
     
@@ -379,14 +380,23 @@ void RecordNode::updateSubprocessorMap()
             {
                 dataChannelStates[sourceID][dataChannelArray[ch]->getSubProcessorIdx()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
                 dataChannelOrder[ch] = orderInSubprocessor++;
+
+				//std::cout << " Channel " << ch << ", " << " order: " << dataChannelOrder[ch] << ", record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
+
+
                 ch++;
+
+
             }
 			refreshEditor = true;
+
+
         }
         else
 		{
 			// check if channel count has changed for existing source
 			int count = 0;
+			int originalSize = dataChannelStates[sourceID][subProcIdx].size();
 
 			for (int i = 0; i < dataChannelArray.size(); i++)
 			{
@@ -394,12 +404,14 @@ void RecordNode::updateSubprocessorMap()
 					count++;
 			}
 			//If channel count is greater, add new channels to dataChannelStates
-			if (count > dataChannelStates[sourceID][subProcIdx].size())
+			if (count > originalSize)
 			{
 				count = count - dataChannelStates[sourceID][subProcIdx].size();
-				for (int i=0; i<count; i++)
+
+				for (int i = 0; i < count; i++)
 				{
 					dataChannelStates[sourceID][subProcIdx].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+					dataChannelOrder[originalSize+i] = originalSize + i;
 				}
 			} //else if less, remove n channels from dataChannelStates
 			else if (count < dataChannelStates[sourceID][subProcIdx].size())
@@ -414,8 +426,13 @@ void RecordNode::updateSubprocessorMap()
 			{
 				//else do nothing
 			}
+
 			ch += count;
+
+			//std::cout << " Channel " << ch << " record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
 		}
+
+		
         
     }
 
@@ -568,13 +585,15 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex);
+		//LOGD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{
 
 			int chanOrderInProcessor = subIndex * dataChannelStates[srcIndex][subIndex].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
+
+			//LOGD("  RECORD!");
 
 			//TODO: This logic will not work after a channel mapper with channels mapped from different subprocessors!
 			if (chan->getSourceNodeID() != lastProcessor || chan->getSubProcessorIdx() != lastSubProcessor)
