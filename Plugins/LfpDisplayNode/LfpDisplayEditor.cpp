@@ -212,6 +212,17 @@ void LfpDisplayEditor::resized()
     syncButton->setBounds(40, 80, 110, 30);
 }
 
+void LfpDisplayEditor::removeBufferForDisplay(int splitID)
+{
+    if (canvas != nullptr)
+    {
+        LfpDisplayCanvas* cv = (LfpDisplayCanvas*) canvas.get();
+
+        cv->removeBufferForDisplay(splitID);
+    }
+        
+}
+
 
 void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
 {

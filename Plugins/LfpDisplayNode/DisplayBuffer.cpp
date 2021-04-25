@@ -30,7 +30,7 @@ namespace LfpViewer {
 
 
     */
-#define BUFFER_LENGTH 20000
+#define BUFFER_LENGTH_S 1.0f
 
     DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
         id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
@@ -87,7 +87,7 @@ namespace LfpViewer {
     {
             
         if (numChannels != previousSize)
-            setSize(numChannels + 1, BUFFER_LENGTH);
+            setSize(numChannels + 1, 20000); // int(sampleRate * BUFFER_LENGTH_S));
 
         clear();
 
@@ -125,7 +125,7 @@ namespace LfpViewer {
         if (displays.size() == 0)
             return;
 
-        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[numChannels];
+        const int samplesLeft = getNumSamples() - displayBufferIndices[numChannels];
 
         if (nSamples < samplesLeft)
         {
@@ -161,7 +161,7 @@ namespace LfpViewer {
             return;
 
         const int index = displayBufferIndices[numChannels];
-        const int samplesLeft = BUFFER_LENGTH - index;
+        const int samplesLeft = getNumSamples() - index;
    
         int newIdx = 0;
 
@@ -183,8 +183,8 @@ namespace LfpViewer {
         if (displays.size() == 0)
             return;
 
-        const int index = (displayBufferIndices[numChannels] + eventTime) % BUFFER_LENGTH;
-        const int samplesLeft = BUFFER_LENGTH - index;
+        const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
+        const int samplesLeft = getNumSamples() - index;
         const int nSamples = numSourceSamples - eventTime;
 
         if (eventId == 1)
@@ -229,7 +229,7 @@ namespace LfpViewer {
         int previousIndex = displayBufferIndices[channelMap[chan]];
         int channelIndex = channelMap[chan];
 
-        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[channelMap[chan]];
+        const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
 
         int newIndex;
         

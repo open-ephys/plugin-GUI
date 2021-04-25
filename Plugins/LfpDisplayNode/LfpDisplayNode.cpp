@@ -120,6 +120,12 @@ void LfpDisplayNode::updateSettings()
             //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
             toDelete.add(displayBuffer);
+
+            for (auto splitID : displayBuffer->displays)
+            {
+                LfpDisplayEditor* ed = (LfpDisplayEditor*)getEditor();
+                ed->removeBufferForDisplay(splitID);
+            }
         }
         
     }

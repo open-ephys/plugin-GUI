@@ -678,6 +678,11 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key, Component* orig)
     return false;
 }
 
+void LfpDisplayCanvas::removeBufferForDisplay(int splitID)
+{
+    displaySplits[splitID]->displayBuffer = nullptr;
+}
+
 void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 {
 
@@ -820,9 +825,9 @@ void LfpDisplaySplitter::resized()
         viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
     }
 
-    if (screenBuffer != nullptr)
+    if (screenBufferMean != nullptr)
     {
-        if (screenBuffer->getNumSamples() < getWidth())
+        if (screenBufferMean->getNumSamples() < getWidth())
             refreshScreenBuffer();
     }
        
@@ -983,12 +988,12 @@ void LfpDisplaySplitter::updateSettings()
 
     //std::cout << "Sample rate for display " << splitID << ": " << sampleRate << std::endl;
     
-    if (screenBuffer == nullptr) // not yet initialized
+    if (eventDisplayBuffer == nullptr) // not yet initialized
     {
-        screenBuffer = new AudioSampleBuffer(nChans + 1, getWidth());
-        screenBufferMin = new AudioSampleBuffer(nChans + 1, getWidth());
-        screenBufferMean = new AudioSampleBuffer(nChans + 1, getWidth());
-        screenBufferMax = new AudioSampleBuffer(nChans + 1, getWidth());
+        eventDisplayBuffer = new AudioSampleBuffer(1, getWidth());
+        screenBufferMin = new AudioSampleBuffer(nChans, getWidth());
+        screenBufferMean = new AudioSampleBuffer(nChans, getWidth());
+        screenBufferMax = new AudioSampleBuffer(nChans, getWidth());
     }
     else {
         if (nChans != lfpDisplay->getNumChannels()) // new channel count
@@ -1085,12 +1090,12 @@ void LfpDisplaySplitter::refreshScreenBuffer()
     if (true)
     {
 
-        screenBuffer->setSize(nChans + 1, getWidth());
-        screenBufferMin->setSize(nChans + 1, getWidth());
-        screenBufferMean->setSize(nChans + 1, getWidth());
-        screenBufferMax->setSize(nChans + 1, getWidth());
+        eventDisplayBuffer->setSize(1, getWidth());
+        screenBufferMin->setSize(nChans, getWidth());
+        screenBufferMean->setSize(nChans, getWidth());
+        screenBufferMax->setSize(nChans, getWidth());
 
-        screenBuffer->clear();
+        eventDisplayBuffer->clear();
         screenBufferMin->clear();
         screenBufferMean->clear();
         screenBufferMax->clear();
@@ -1266,19 +1271,26 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     if (!lfpDisplay->isPaused)
                     {
 
-                        if (triggerChannel < 0 || numTrials == 0 || trialAveraging == false || channel == nChans)
+                        
+
+                        if (channel == nChans)
                         {
-                            screenBuffer->clear(channel, sbi, 1);
-                            screenBufferMean->clear(channel, sbi, 1);
-                            screenBufferMin->clear(channel, sbi, 1);
-                            screenBufferMax->clear(channel, sbi, 1);
+                            eventDisplayBuffer->clear(0, sbi, 1);
                         }
                         else {
-                            screenBuffer->applyGain(channel, sbi, 1, numTrials);
-                            screenBufferMean->applyGain(channel, sbi, 1, numTrials);
-                            screenBufferMin->applyGain(channel, sbi, 1, numTrials);
-                            screenBufferMax->applyGain(channel, sbi, 1, numTrials);
+                            if (triggerChannel < 0 || numTrials == 0 || trialAveraging == false)
+                            {
+                                screenBufferMean->clear(channel, sbi, 1);
+                                screenBufferMin->clear(channel, sbi, 1);
+                                screenBufferMax->clear(channel, sbi, 1);
+                            }
+                            else {
+                                screenBufferMean->applyGain(channel, sbi, 1, numTrials);
+                                screenBufferMin->applyGain(channel, sbi, 1, numTrials);
+                                screenBufferMax->applyGain(channel, sbi, 1, numTrials);
+                            }
                         }
+                            
 
                         if (ratio < 1.0) // less than one sample per pixel
                         {
@@ -1291,15 +1303,16 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                             float val = invAlpha * val0 + alpha * val1;
 
-                            screenBufferMean->addSample(channel, sbi, val);
-                            screenBufferMin->addSample(channel, sbi, val);
-                            screenBufferMax->addSample(channel, sbi, val);
-
                             subSampleOffset += ratio;
 
                             if (channel == nChans)
                             {
-                                screenBuffer->setSample(channel, sbi, displayBuffer->getSample(channel, dbi));
+                                eventDisplayBuffer->setSample(0, sbi, displayBuffer->getSample(channel, dbi));
+                            }
+                            else {
+                                screenBufferMean->addSample(channel, sbi, val);
+                                screenBufferMin->addSample(channel, sbi, val);
+                                screenBufferMax->addSample(channel, sbi, val);
                             }
 
 
@@ -1360,23 +1373,25 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                             float sample_mean = sample_sum / sampleCount;
 
-                            if (sbi > 0)
-                            {
-                                if (sample_max < screenBufferMin->getSample(channel, sbi - 1))
-                                    sample_max = screenBufferMin->getSample(channel, sbi - 1);
-
-                                if (sample_min > screenBufferMax->getSample(channel, sbi - 1))
-                                    sample_min = screenBufferMax->getSample(channel, sbi - 1);
-                            }
-
-                            screenBufferMean->addSample(channel, sbi, sample_mean);
-                            screenBufferMin->addSample(channel, sbi, sample_min);
-                            screenBufferMax->addSample(channel, sbi, sample_max);
-
                             // update event channel
                             if (channel == nChans)
                             {
-                                screenBuffer->setSample(channel, sbi, sample_max);
+                                eventDisplayBuffer->setSample(0, sbi, sample_max);
+                            }
+                            else {
+
+                                if (sbi > 0)
+                                {
+                                    if (sample_max < screenBufferMin->getSample(channel, sbi - 1))
+                                        sample_max = screenBufferMin->getSample(channel, sbi - 1);
+
+                                    if (sample_min > screenBufferMax->getSample(channel, sbi - 1))
+                                        sample_min = screenBufferMax->getSample(channel, sbi - 1);
+                                }
+
+                                screenBufferMean->addSample(channel, sbi, sample_mean);
+                                screenBufferMin->addSample(channel, sbi, sample_min);
+                                screenBufferMax->addSample(channel, sbi, sample_max);
                             }
 
                            
@@ -1385,7 +1400,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         if (triggerChannel >= 0 && trialAveraging == true && channel != nChans)
                         {
 
-                            screenBuffer->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
                             screenBufferMean->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
                             screenBufferMin->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
                             screenBufferMax->applyGain(channel, sbi, 1, 1 / (numTrials + 1));
@@ -1469,7 +1483,12 @@ const float LfpDisplaySplitter::getXCoord(int chan, int samp)
 
 const float LfpDisplaySplitter::getYCoord(int chan, int samp)
 {
-    return *screenBuffer->getReadPointer(chan, samp);
+    return *screenBufferMean->getReadPointer(chan, samp);
+}
+
+const float LfpDisplaySplitter::getEventState(int samp)
+{
+    return *eventDisplayBuffer->getReadPointer(0, samp);
 }
 
 const float LfpDisplaySplitter::getYCoordMean(int chan, int samp)

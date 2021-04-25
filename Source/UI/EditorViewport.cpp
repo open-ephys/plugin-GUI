@@ -66,7 +66,7 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
 
 EditorViewport::~EditorViewport()
 {
-
+    copyBuffer.clear();
 }
 
 void EditorViewport::resized()
@@ -598,6 +598,7 @@ bool EditorViewport::canPaste()
 
 void EditorViewport::copy(Array<XmlElement*> copyInfo)
 {
+
     copyBuffer.clear();
     copyBuffer.addArray(copyInfo);
     

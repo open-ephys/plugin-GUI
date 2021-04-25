@@ -80,6 +80,8 @@ public:
 
     void resized() override;
 
+    void removeBufferForDisplay(int);
+
 private:
         
     LfpDisplayNode* lfpProcessor;
