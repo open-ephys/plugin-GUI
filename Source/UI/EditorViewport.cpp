@@ -1727,7 +1727,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                     for (int n = 0; n < splitPoints.size(); n++)
                     {
 
-                        LOGD("Trying split point ", ", load order: ", splitPoints[n]->loadOrder);
+                        LOGD("Trying split point ", n,  ", load order: ", splitPoints[n]->loadOrder);
 
                         if (splitPoints[n]->loadOrder == processorNum)
                         {
@@ -1735,6 +1735,12 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);
                             AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
+
+                            /*std::cout << "Editor array: " << std::endl;
+                            for (auto ed : editorArray)
+                            {
+                                std::cout << " " << ed->getName() << std::endl;
+                            }*/
                             
                             splitPoints.remove(n);
                         }

@@ -542,7 +542,24 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
         processor = processor->getSourceNode();
         
         if (rootProcessor != nullptr)
+        {
             LOGDD("  Source: ", rootProcessor->getName());
+
+           
+        }
+
+        if (processor != nullptr)
+        {
+            if (processor->isSplitter())
+            {
+                SplitterEditor* sp = (SplitterEditor*)processor->getEditor();
+                GenericEditor* ed = rootProcessor->getEditor();
+
+                LOGDD("  Switching splitter to view: ", ed->getName())
+                sp->switchDest(sp->getPathForEditor(ed));
+            }
+        }
+           
     }
     
     processor = rootProcessor;

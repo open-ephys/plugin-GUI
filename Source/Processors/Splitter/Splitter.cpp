@@ -68,13 +68,13 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
 
     if (activePath == 0)
     {
-        LOGD("Setting destination node A.");
+        LOGDD("Setting destination node A.");
         destNodeA = dn;
     }
     else
     {
         destNodeB = dn;
-        LOGD("Setting destination node B.");
+        LOGDD("Setting destination node B.");
 
     }
 }
@@ -89,12 +89,12 @@ void Splitter::switchIO(int destNum)
     if (destNum == 0)
     {
         destNode = destNodeA;
-//LOGDD("Dest node: ", getDestNode());
+        LOGDD("Dest node: ", getDestNode(0));
     }
     else
     {
         destNode = destNodeB;
-//LOGDD("Dest node: ", getDestNode());
+        LOGDD("Dest node: ", getDestNode(1));
     }
 
     // getEditorViewport()->makeEditorVisible(getEditor(), false);
