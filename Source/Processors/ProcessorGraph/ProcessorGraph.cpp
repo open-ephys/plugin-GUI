@@ -739,7 +739,14 @@ void ProcessorGraph::restoreParameters()
         }
     }
     
-    // then update everyone's settings
+    // load source node parameters
+    for (auto p : rootNodes)
+    {
+        p->loadFromXml();
+        
+    }
+
+    // update everyone's settings
     for (auto p : rootNodes)
     {
         updateSettings(p, true);

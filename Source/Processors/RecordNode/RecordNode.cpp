@@ -411,7 +411,7 @@ void RecordNode::updateSubprocessorMap()
 				for (int i = 0; i < count; i++)
 				{
 					dataChannelStates[sourceID][subProcIdx].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-					dataChannelOrder[originalSize+i] = originalSize + i;
+					dataChannelOrder[ch + originalSize + i] = originalSize + i;
 				}
 			} //else if less, remove n channels from dataChannelStates
 			else if (count < dataChannelStates[sourceID][subProcIdx].size())
@@ -585,7 +585,7 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
-		//LOGD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
+		LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{

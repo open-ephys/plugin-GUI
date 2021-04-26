@@ -204,7 +204,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 
 						for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
 						{
-							//std::cout << "Setting channel " << ch << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
+							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
 							recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH" + String(ch));
 						}
 
