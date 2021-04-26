@@ -322,7 +322,7 @@ void LfpDisplayNode::finalizeEventChannels()
         if (latestTrigger[i] == -1 && latestCurrentTrigger[i] > -1) // received a trigger, but not yet acknowledged
         {
             int triggerSample = latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
-            std::cout << "Setting latest trigger to " << triggerSample << std::endl;
+            //std::cout << "Setting latest trigger to " << triggerSample << std::endl;
             latestTrigger.set(i, triggerSample);
         }
     }
@@ -371,5 +371,5 @@ int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
   latestTrigger.set(id, -1);
-  std::cout << "Display " << id << " acknowledging trigger." << std::endl;
+  //std::cout << "Display " << id << " acknowledging trigger." << std::endl;
 }

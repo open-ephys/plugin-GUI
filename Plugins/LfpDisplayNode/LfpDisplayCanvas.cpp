@@ -810,7 +810,7 @@ LfpDisplaySplitter::~LfpDisplaySplitter()
 void LfpDisplaySplitter::resized()
 {
 
-    std::cout << "Split display " << splitID << " width: " << getWidth() << std::endl;
+    //std::cout << "Split display " << splitID << " width: " << getWidth() << std::endl;
 
     const int timescaleHeight = 30;
 
@@ -1201,7 +1201,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 if (triggerTime >= 0) 
                 {
  
-                    if (sbi == 0)
+                    if (sbi == 0 || reachedEnd)
                     {
                         const int screenThird = int(maxSamples * ratio / 3);
                         const int dispBufLim = displayBufferSize / 2;
@@ -1227,7 +1227,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         {
                             numTrials += 1;
                             
-                            std::cout << "Trial number: " << numTrials << std::endl;
+                            /*std::cout << "Trial number: " << numTrials << std::endl;
 
                             std::cout << "maxSamples: " << maxSamples << std::endl;
                             std::cout << "ratio: " << ratio << std::endl;
@@ -1239,7 +1239,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             std::cout << "pixels to fill: " << pixelsToFill << std::endl;
                             std::cout << "sbi: " << sbi << std::endl;
 
-                            std::cout << std::endl;
+                            std::cout << std::endl;*/
                         }
 
                         // rewind screen buffer to the far left

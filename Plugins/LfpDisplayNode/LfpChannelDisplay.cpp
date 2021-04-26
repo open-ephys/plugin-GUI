@@ -214,7 +214,7 @@ void LfpChannelDisplay::pxPaint()
         }
             
         // draw event markers
-        int rawEventState = canvasSplit->getEventState(i);// get event state
+        int rawEventState = canvasSplit->getEventState(i); // get event state
             
         for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
         {

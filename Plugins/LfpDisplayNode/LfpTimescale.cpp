@@ -171,8 +171,6 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
     timebase = timebase_;
     offset = offset_;
 
-    std::cout << "offset: " << offset << std::endl;
-
     labels.clear();
     isMajor.clear();
     fractionWidth.clear();
@@ -214,27 +212,6 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
         time += stepSize;
         index++;
     }
-    
-    /*const int minWidth = 60;
-    labelIncrement = 0.005f;
-
-    if (timebase < 5)
-    
-    while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
-           getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
-    {
-//        std::cout << getWidth() / (timebase / labelIncrement) << " is smaller than minimum width, calculating new step size" << std::endl;
-        if (labelIncrement < 0.2)
-            labelIncrement *= 2;
-        else
-            labelIncrement += 0.2f;
-    }
-    
-    for (float i = labelIncrement; i < timebase; i += labelIncrement)
-    {
-        String labelString = String(i * ((timebase >= 2)?(1):(1000.0f)));
-        labels.add(labelString.substring(0,6));
-    }*/
 
     repaint();
 

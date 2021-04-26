@@ -108,7 +108,7 @@ namespace LfpViewer {
         if (!displays.contains(splitID))
              displays.add(splitID);
 
-        std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
+        //std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
     }
 
     void DisplayBuffer::removeDisplay(int splitID)
