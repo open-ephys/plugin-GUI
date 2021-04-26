@@ -880,8 +880,6 @@ void LfpDisplaySplitter::beginAnimation()
     if (displayBuffer != nullptr)
     {
 
-        
-
         displayBuffer->resetIndices();
 
         displayBufferSize = displayBuffer->getNumSamples();
@@ -1048,7 +1046,8 @@ int LfpDisplaySplitter::getChannelHeight()
 void LfpDisplaySplitter::setTriggerChannel(int ch)
 {
     triggerChannel = ch;
-    //displayBuffer->triggerChannel = ch;
+    
+    syncDisplay();
 }
 
 void LfpDisplaySplitter::setAveraging(bool avg)
@@ -1195,44 +1194,48 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 if (triggerTime >= 0) 
                 {
  
-                    const int screenThird = int(maxSamples * ratio / 3);
-                    const int dispBufLim = displayBufferSize / 2;
-
-                    int t0 = triggerTime - std::min(screenThird, dispBufLim); // rewind displayBufferIndex
-
-                    reachedEnd = false;
-
-                    if (t0 < 0)
+                    if (sbi == 0)
                     {
-                        t0 += displayBufferSize;
+                        const int screenThird = int(maxSamples * ratio / 3);
+                        const int dispBufLim = displayBufferSize / 2;
+
+                        int t0 = triggerTime - std::min(screenThird, dispBufLim); // rewind displayBufferIndex
+
+                        reachedEnd = false;
+
+                        if (t0 < 0)
+                        {
+                            t0 += displayBufferSize;
+                        }
+
+                        dbi = t0;
+                        newSamples = newDisplayBufferIndex - dbi;
+
+                        if (newSamples < 0)
+                            newSamples += displayBufferSize;
+
+                        pixelsToFill = newSamples / ratio;
+
+                        if (channel == 0)
+                        {
+                            numTrials += 1;
+                            std::cout << "t0: " << t0 << std::endl;
+                            std::cout << "newSamples: " << newSamples << std::endl;
+                            std::cout << "pixels to fill: " << pixelsToFill << std::endl;
+                            std::cout << "Trial number: " << numTrials << std::endl;
+                        }
+
+                        // rewind screen buffer to the far left
+                        screenBufferIndex.set(channel, 0);
+                        sbi = 0;
+                        lastScreenBufferIndex.set(channel, 0);
+
+                        if (channel == nChans) // all channels have been reset
+                        {
+                            triggerTime = -1;
+                        }
                     }
-
-                    dbi = t0; 
-                    newSamples = newDisplayBufferIndex - dbi;
-
-                    if (newSamples < 0)
-                        newSamples += displayBufferSize;
-
-                    pixelsToFill = newSamples / ratio;
-
-                    if (channel == 0)
-                    {
-                        numTrials += 1;
-                        std::cout << "t0: " << t0 << std::endl;
-                        std::cout << "newSamples: " << newSamples << std::endl;
-                        std::cout << "pixels to fill: " << pixelsToFill << std::endl;
-                        std::cout << "Trial number: " << numTrials << std::endl;
-                    }
-
-                    // rewind screen buffer to the far left
-                    screenBufferIndex.set(channel, 0);
-                    sbi = 0;
-                    lastScreenBufferIndex.set(channel, 0);
-
-                    if (channel == nChans) // all channels have been reset
-                    {
-                        triggerTime = -1;
-                    }
+                    
 
                 }
 
@@ -1241,6 +1244,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     screenBufferIndex.set(channel, sbi); // don't update
                     return;
                 }
+
+                
 
             }
 
@@ -1414,7 +1419,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             
                             if (sbi == 0)
                             {
-                                reachedEnd = true;
+                                if (channel == nChans)
+                                    reachedEnd = true;
                                 break;
                             }
                         }
@@ -1474,6 +1480,8 @@ void LfpDisplaySplitter::setTimebase(float t)
     }
 
     syncDisplay();
+
+    reachedEnd = true;
 }
 
 const float LfpDisplaySplitter::getXCoord(int chan, int samp)
