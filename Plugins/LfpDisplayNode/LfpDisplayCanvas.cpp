@@ -1222,6 +1222,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             newSamples += displayBufferSize;
 
                         pixelsToFill = newSamples / ratio;
+                        subSampleOffset = 0;
 
                         if (channel == 0)
                         {

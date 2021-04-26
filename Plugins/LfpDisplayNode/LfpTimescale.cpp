@@ -183,9 +183,11 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
         stepSize = 0.005;
     else if (timebase > 0.025 && timebase <= 0.1)
         stepSize = 0.01;
-    else if (timebase > 0.1 && timebase < 0.5)
+    else if (timebase > 0.1 && timebase <= 0.25)
         stepSize = 0.025;
-    else if (timebase >= 0.5 && timebase < 2)
+    else if (timebase > 0.25 && timebase <= 0.5)
+        stepSize = 0.1;
+    else if (timebase > 0.5 && timebase < 2)
         stepSize = 0.25;
     else if (timebase >= 2 && timebase < 5)
         stepSize = 0.5;
