@@ -956,7 +956,7 @@ void ProcessorGraph::updateConnections()
                 }
             }
 
-            std::cout << std::endl;
+           // std::cout << std::endl;
 
             source->wasConnected = true;
 

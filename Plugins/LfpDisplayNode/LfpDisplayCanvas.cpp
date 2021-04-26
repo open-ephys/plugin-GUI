@@ -1191,8 +1191,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             float subSampleOffset = leftOverSamples[channel];
             
-            if (ratio > 1)
-                pixelsToFill += subSampleOffset; // keep track of fractional pixels left over from the last round
+            //if (ratio > 1)
+            pixelsToFill += subSampleOffset; // keep track of fractional pixels left over from the last round
 
 
             if (triggerChannel >= 0)
@@ -1270,7 +1270,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-           /*if (channel == 1 && splitID == 0)
+            /*if (channel == 0)
                 std::cout << "Split "
                 << splitID << " : "
                 << channel << " : "
@@ -1319,28 +1319,33 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         if (ratio < 1.0) // less than one sample per pixel
                         {
 
-                            float alpha = subSampleOffset;
-                            float invAlpha = 1.0f - alpha;
-
-                            float val0 = displayBuffer->getSample(channel, dbi);
-                            float val1 = displayBuffer->getSample(channel, (dbi + 1) % displayBufferSize);
-
-                            float val = invAlpha * val0 + alpha * val1;
-
-                            subSampleOffset += ratio;
-
                             if (channel == nChans)
                             {
                                 eventDisplayBuffer->setSample(0, sbi, displayBuffer->getSample(channel, dbi));
                             }
                             else {
+
+                                float alpha = subSampleOffset;
+                                float invAlpha = 1.0f - alpha;
+
+                                int lastIndex = dbi - 1;
+                                
+                                if (lastIndex < 0)
+                                    lastIndex = displayBufferSize;
+
+                                float val0 = displayBuffer->getSample(channel, lastIndex);
+                                float val1 = displayBuffer->getSample(channel, dbi);
+
+                                float val = invAlpha * val0 + alpha * val1;
+
                                 screenBufferMean->addSample(channel, sbi, val);
                                 screenBufferMin->addSample(channel, sbi, val);
                                 screenBufferMax->addSample(channel, sbi, val);
                             }
 
+                            subSampleOffset += ratio;
 
-                            if (subSampleOffset > 1.0f)
+                            if (subSampleOffset > 1.0f) // go to next pixel
                             {
                                 subSampleOffset -= 1.0f;
                                 dbi += 1;
