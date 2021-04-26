@@ -814,7 +814,7 @@ void LfpDisplaySplitter::resized()
 
     const int timescaleHeight = 30;
 
-    timescale->setBounds(leftmargin, 0, getWidth()-scrollBarThickness, timescaleHeight);
+    timescale->setBounds(leftmargin, 0, getWidth() - scrollBarThickness - leftmargin, timescaleHeight);
 
     if (canvas->makeRoomForOptions(splitID))
     {
@@ -1046,6 +1046,9 @@ int LfpDisplaySplitter::getChannelHeight()
 void LfpDisplaySplitter::setTriggerChannel(int ch)
 {
     triggerChannel = ch;
+
+    if (triggerChannel == -1)
+        timescale->setTimebase(timebase);
     
     syncDisplay();
 }
@@ -1146,8 +1149,12 @@ void LfpDisplaySplitter::updateScreenBuffer()
                           : -1;
 
         if (triggerTime > 0)
+        {
             processor->acknowledgeTrigger(splitID);
-            
+
+            //if (lastScreenBufferIndex[0] == screenBufferIndex[0] && screenBufferIndex[0] != 0) // display is stuck
+            //    syncDisplay();
+        }
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
         {
@@ -1219,10 +1226,20 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         if (channel == 0)
                         {
                             numTrials += 1;
+                            
+                            std::cout << "Trial number: " << numTrials << std::endl;
+
+                            std::cout << "maxSamples: " << maxSamples << std::endl;
+                            std::cout << "ratio: " << ratio << std::endl;
+                            std::cout << "dispBufLim: " << dispBufLim << std::endl;
+                            std::cout << "screenThird: " << screenThird << std::endl;
+                            std::cout << "triggerTime: " << triggerTime << std::endl;
                             std::cout << "t0: " << t0 << std::endl;
                             std::cout << "newSamples: " << newSamples << std::endl;
                             std::cout << "pixels to fill: " << pixelsToFill << std::endl;
-                            std::cout << "Trial number: " << numTrials << std::endl;
+                            std::cout << "sbi: " << sbi << std::endl;
+
+                            std::cout << std::endl;
                         }
 
                         // rewind screen buffer to the far left
@@ -1233,6 +1250,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                         if (channel == nChans) // all channels have been reset
                         {
                             triggerTime = -1;
+                            timescale->setTimebase(timebase, float(std::min(screenThird, dispBufLim)) / sampleRate);
                         }
                     }
                     
@@ -1421,6 +1439,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             {
                                 if (channel == nChans)
                                     reachedEnd = true;
+
                                 break;
                             }
                         }

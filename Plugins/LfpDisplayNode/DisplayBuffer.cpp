@@ -87,7 +87,7 @@ namespace LfpViewer {
     {
             
         if (numChannels != previousSize)
-            setSize(numChannels + 1, 20000); // int(sampleRate * BUFFER_LENGTH_S));
+            setSize(numChannels + 1, int(sampleRate * BUFFER_LENGTH_S));
 
         clear();
 

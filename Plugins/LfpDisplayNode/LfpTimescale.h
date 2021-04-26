@@ -54,7 +54,7 @@ public:
     
     void mouseUp(const MouseEvent &e) override;
 
-    void setTimebase(float t);
+    void setTimebase(float t, float offset = 0.0f);
 
 private:
 
@@ -62,6 +62,7 @@ private:
     LfpDisplay* lfpDisplay;
 
     float timebase;
+    float offset;
     float labelIncrement;
     float numIncrements;
 
