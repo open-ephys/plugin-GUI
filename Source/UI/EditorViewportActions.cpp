@@ -59,7 +59,7 @@ AddProcessor::~AddProcessor()
    
 bool AddProcessor::perform()
 {
-    LOGD("Performing add processor.");
+    LOGDD("Performing add processor.");
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
     
     GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(destNodeId);
@@ -88,7 +88,7 @@ bool AddProcessor::perform()
 
 bool AddProcessor::undo()
 {
-    LOGD("Undoing add processor.");
+    LOGDD("Undoing add processor.");
     Array<GenericProcessor*> processorToDelete;
     
     processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
@@ -132,7 +132,7 @@ DeleteProcessor::~DeleteProcessor()
    
 bool DeleteProcessor::perform()
 {
-    LOGD("Peforming delete processor.");
+    LOGDD("Peforming delete processor.");
     Array<GenericProcessor*> processorToDelete;
     
     processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
@@ -145,7 +145,7 @@ bool DeleteProcessor::perform()
 
 bool DeleteProcessor::undo()
 {
-    LOGD("Undoing delete processor.");
+    LOGDD("Undoing delete processor.");
     ProcessorDescription description = editorViewport->getDescriptionFromXml(settings, false, false);
 
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
@@ -219,7 +219,7 @@ MoveProcessor::~MoveProcessor()
    
 bool MoveProcessor::perform()
 {
-    LOGD("Peforming move processor.");
+    LOGDD("Peforming move processor.");
     
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
@@ -239,7 +239,7 @@ bool MoveProcessor::undo()
 {
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
-    LOGD("Undoing move processor.");
+    LOGDD("Undoing move processor.");
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalSourceNodeId);
     
     GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalDestNodeId);
@@ -278,7 +278,7 @@ ClearSignalChain::~ClearSignalChain()
     
 bool ClearSignalChain::perform()
 {
-    LOGD("Performing clear signal chain.");
+    LOGDD("Performing clear signal chain.");
     AccessClass::getProcessorGraph()->clearSignalChain();
     
     return true;
@@ -286,7 +286,7 @@ bool ClearSignalChain::perform()
 
 bool ClearSignalChain::undo()
 {
-    LOGD("Undoing clear signal chain.");
+    LOGDD("Undoing clear signal chain.");
     editorViewport->loadStateFromXml(settings);
     
     return true;
@@ -311,7 +311,7 @@ LoadSignalChain::~LoadSignalChain()
     
 bool LoadSignalChain::perform()
 {
-    LOGD("Performing load signal chain.");
+    LOGDD("Performing load signal chain.");
     error = editorViewport->loadStateFromXml(newSettings);
     
     return true;
@@ -319,7 +319,7 @@ bool LoadSignalChain::perform()
 
 bool LoadSignalChain::undo()
 {
-    LOGD("Undoing load signal chain.");
+    LOGDD("Undoing load signal chain.");
     error = editorViewport->loadStateFromXml(oldSettings);
     
     return true;
@@ -358,16 +358,16 @@ bool LoadPluginSettings::perform()
     
     if (oldPluginType.equalsIgnoreCase(newPluginType))
     {
-        LOGD("Performing load plugin settings.");
-        LOGD("Getting processor");
+        LOGDD("Performing load plugin settings.");
+        LOGDD("Getting processor");
         GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
         
         
-        LOGD("Updating NodeId");
+        LOGDD("Updating NodeId");
         newSettings->setAttribute("NodeId", processorId);
-        LOGD("Setting parameters");
+        LOGDD("Setting parameters");
         processor->parametersAsXml = newSettings;
-        LOGD("Loading parameters");
+        LOGDD("Loading parameters");
         processor->loadCustomParametersFromXml();
 
         // need to replicate internals of loadFromXml(), because this can't be called twice for the
@@ -412,7 +412,7 @@ bool LoadPluginSettings::perform()
 
 bool LoadPluginSettings::undo()
 {
-    LOGD("Undoing load plugin settings.");
+    LOGDD("Undoing load plugin settings.");
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
     
     processor->parametersAsXml = oldSettings;

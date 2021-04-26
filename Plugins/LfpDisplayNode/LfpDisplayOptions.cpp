@@ -1133,8 +1133,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         {
             auto val = fabsf(cb->getText().getFloatValue());
 
-            std::cout << "Spike raster thresh: " << val << std::endl;
-            
             if (val == 0) // if value is zero, just disable plotting and set text to "Off"
             {
                 cb->setSelectedItemIndex(0, dontSendNotification);
@@ -1161,7 +1159,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             if (!medianOffsetPlottingButton->getToggleState())
             {
                 medianOffsetPlottingButton->setToggleState(true, sendNotification);
-                //lfpDisplay->setMedianOffsetPlotting(true);
                 medianOffsetOnForSpikeRaster = true;
             }
             else {
@@ -1172,7 +1169,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         }
         else if (cb->getSelectedItemIndex() == 0) // if "Off"
         {
-            std::cout << "Spike raster off" << std::endl;
 
             lfpDisplay->setSpikeRasterPlotting(false);
 
@@ -1187,8 +1183,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         {
             auto val = cb->getText().getFloatValue();
 
-            std::cout << "Spike raster thresh: " << val << std::endl;
-            
             lfpDisplay->setSpikeRasterThreshold(val);
 
             if (!medianOffsetPlottingButton->getToggleState())
@@ -1203,29 +1197,8 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
     }
     else if (cb == colourSchemeOptionSelection)
     {
-        // hide the old colour scheme config options if they are displayed
-        //if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-        //    removeChildComponent(lfpDisplay->getColourSchemePtr());
-        
-        // change the active colour scheme ptr
-
-        std::cout << "Setting color scheme to " << cb->getSelectedId() << std::endl;
-
         lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
-        //canvasSplit->repaint();  // setBackgroundColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour());
-        
-        // show the new colour scheme's config options if has any
-        
-        //if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-        //{
-            //lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
-            //                                            colourSchemeOptionLabel->getBottom(),
-            //                                            200,
-           //                                             110);
-            //addAndMakeVisible(lfpDisplay->getColourSchemePtr());
-        //}
-        
-        // update the lfpDisplay's colors and redraw
+
         lfpDisplay->setColors();
         canvasSplit->redraw();
     }
@@ -1283,7 +1256,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         }
         selectedVoltageRange[selectedChannelType] = cb->getSelectedId();
         selectedVoltageRangeValues[selectedChannelType] = cb->getText();
-        //std::cout << "Setting range to " << voltageRanges[cb->getSelectedId()-1].getFloatValue() << std::endl;
         canvasSplit->redraw();
     }
     else if (cb == spreadSelection)
@@ -1572,9 +1544,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
         {
             uint32 id = xmlNode->getIntAttribute("SubprocessorID");
 
-            std::cout << "Loading options for display " << canvasSplit->splitID << std::endl;
+            //std::cout << "Loading options for display " << canvasSplit->splitID << std::endl;
 
-            std::cout << "Saved subprocessor ID: " << id << std::endl;
+            //std::cout << "Saved subprocessor ID: " << id << std::endl;
 
             if (canvasSplit->displayBuffer != nullptr)
                 canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
@@ -1593,7 +1565,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
 
-            std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
+            //std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
             
             // RANGE
             StringArray ranges;

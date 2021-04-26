@@ -281,7 +281,7 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    std::cout << "LFP display width: " << getWidth() << std::endl;
+   // std::cout << "LFP display width: " << getWidth() << std::endl;
 
 
     //std::cout << "Resizing channels" << std::endl;
@@ -330,7 +330,7 @@ void LfpDisplay::resized()
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
     
-    std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
+  //  std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
 
 
     //inititalize background

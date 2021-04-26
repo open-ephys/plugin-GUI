@@ -163,12 +163,12 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
     LOGD("Creating processor with name: ", description.processorName);
     
     if (sourceNode != nullptr)
-        LOGD("Source node: ", sourceNode->getName());
+        LOGDD("Source node: ", sourceNode->getName());
     //else
      //   LOGD("No source node.");
     
     if (destNode != nullptr)
-        LOGD("Dest node: ", destNode->getName());
+        LOGDD("Dest node: ", destNode->getName());
     //else
     //    LOGD("No dest node.");
     
@@ -727,7 +727,7 @@ void ProcessorGraph::restoreParameters()
     
     isLoadingSignalChain = true;
 
-    LOGD("Restoring parameters for each processor...");
+    LOGDD("Restoring parameters for each processor...");
     
     // first connect the mergers
     for (auto p : getListOfProcessors())
@@ -884,7 +884,7 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-        LOGD("Signal chain: ", n);
+        LOGDD("Signal chain: ", n);
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
@@ -892,7 +892,7 @@ void ProcessorGraph::updateConnections()
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
-            LOGD("Source node: ", source->getName(), ".");
+            LOGDD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if (source->isReady())
@@ -945,7 +945,7 @@ void ProcessorGraph::updateConnections()
                 }
                 else
                 {
-                    LOGD("     No dest node.");
+                    LOGDD("     No dest node.");
                 }
             }
 
@@ -959,7 +959,7 @@ void ProcessorGraph::updateConnections()
                 // (but if it leads to a splitter that is still in the stack, it may still be
                 // used as a source for the unexplored branch.)
 
-                LOGD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
+                LOGDD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
                 dest = nullptr;
             }
 
