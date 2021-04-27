@@ -341,7 +341,7 @@ void RecordNode::updateSubprocessorMap()
 	int originalChannelCount = numChannels;
     int ch = 0;
 
-    while (ch < dataChannelArray.size())
+    while (ch < dataChannelArray.size()) 
     {
         
         DataChannel* chan = dataChannelArray[ch];
@@ -390,7 +390,7 @@ void RecordNode::updateSubprocessorMap()
             }
 			refreshEditor = true;
 
-
+			LOGDD("RecordNode found ", orderInSubprocessor, " channels in ", sourceID, ".", subProcIdx);
         }
         else
 		{
@@ -400,24 +400,27 @@ void RecordNode::updateSubprocessorMap()
 
 			for (int i = 0; i < dataChannelArray.size(); i++)
 			{
+
+				//std::cout << "Channel " << i << ": " << dataChannelArray[i]->getSourceNodeID() << "." << dataChannelArray[i]->getSubProcessorIdx() << std::endl;
 				if (dataChannelArray[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
+				{
+					dataChannelOrder[ch + count] = count;
 					count++;
+				}
+					
 			}
 			//If channel count is greater, add new channels to dataChannelStates
 			if (count > originalSize)
 			{
-				count = count - dataChannelStates[sourceID][subProcIdx].size();
-
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < count - originalSize; i++)
 				{
 					dataChannelStates[sourceID][subProcIdx].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-					dataChannelOrder[ch + originalSize + i] = originalSize + i;
+					
 				}
 			} //else if less, remove n channels from dataChannelStates
 			else if (count < dataChannelStates[sourceID][subProcIdx].size())
 			{
-				count = dataChannelStates[sourceID][subProcIdx].size() - count;
-				for (int i=0; i<count; i++)
+				for (int i = 0; i < originalSize - count; i++)
 				{
 					dataChannelStates[sourceID][subProcIdx].pop_back();
 				}
@@ -426,6 +429,8 @@ void RecordNode::updateSubprocessorMap()
 			{
 				//else do nothing
 			}
+
+			LOGDD("RecordNode found ", count, " channels in ", sourceID, ".", subProcIdx);
 
 			ch += count;
 
