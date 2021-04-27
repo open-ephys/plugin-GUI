@@ -888,6 +888,8 @@ void LfpDisplaySplitter::beginAnimation()
 
         numTrials = -1;
 
+        eventState = 0;
+
     }    
 
     startTimer(20);
@@ -1405,6 +1407,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             // update event channel
                             if (channel == nChans)
                             {
+                               // if (eventState != sample_max)
+                                //    std::cout << "Event state changed to " << sample_max << " at dbi " << dbi << " & sbi " << sbi << std::endl;
+
+                               // eventState = sample_max;
                                 eventDisplayBuffer->setSample(0, sbi, sample_max);
                             }
                             else {

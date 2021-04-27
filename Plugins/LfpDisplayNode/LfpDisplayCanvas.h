@@ -291,6 +291,8 @@ private:
 	float displayedSampleRate;
 
     int samplesPerBufferPass;
+
+    int eventState;
     
     ScopedPointer<AudioSampleBuffer> eventDisplayBuffer; // buffer for event data
 

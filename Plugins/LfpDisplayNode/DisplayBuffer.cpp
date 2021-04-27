@@ -195,6 +195,8 @@ namespace LfpViewer {
             ttlState &= ~(1LL << eventChannel);
         }
 
+       // std::cout << "Display buffer received event on " << eventChannel << " at " << eventTime << " with " << numSourceSamples << std::endl;
+
         if (nSamples < samplesLeft)
         {
             copyFrom(numChannels,                     // destChannel

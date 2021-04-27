@@ -135,6 +135,7 @@ void LfpDisplayNode::updateSettings()
         displayBuffers.removeObject(displayBuffer, true);
     }
 
+   
     //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
 
     // TODO: add event channels separately, as they may have a different source
@@ -289,17 +290,17 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             for (auto displayBuffer : displayBuffers)
             {
                 displayBuffer->addEvent(eventTime, eventChannel, eventId,
-                    getNumSourceSamples(eventSourceNodeId)
+                    getNumSourceSamples(displayBuffer->id)
                 );
                 
             }
 
         }
 
-        //         std::cout << "Received event from " << eventSourceNodeId
-        //                   << " on channel " << eventChannel
-        //                   << " with value " << eventId
-        //                   << " at timestamp " << event.getTimeStamp() << std::endl;
+       /*          std::cout << "Received event from " << eventSourceNodeId
+                           << " on channel " << eventChannel
+                           << " with value " << eventId
+                           << " at timestamp " << event.getTimeStamp() << std::endl;*/
     }
 }
 
