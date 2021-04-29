@@ -66,7 +66,7 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
 
 EditorViewport::~EditorViewport()
 {
-
+    copyBuffer.clear();
 }
 
 void EditorViewport::resized()
@@ -598,6 +598,7 @@ bool EditorViewport::canPaste()
 
 void EditorViewport::copy(Array<XmlElement*> copyInfo)
 {
+
     copyBuffer.clear();
     copyBuffer.addArray(copyInfo);
     
@@ -623,7 +624,7 @@ void EditorViewport::paste()
                 
         }
         
-        LOGD("Insertion point: ", insertionPoint);
+        LOGDD("Insertion point: ", insertionPoint);
 
         if (foundSelected)
         {
@@ -1064,7 +1065,7 @@ void SignalChainTabButton::clicked()
 {
     if (getToggleState())
     {
-        LOGD("Tab button clicked: ", num);
+        LOGDD("Tab button clicked: ", num);
         
         AccessClass::getProcessorGraph()->viewSignalChain(num);
     }
@@ -1251,14 +1252,14 @@ void SignalChainTabComponent::buttonClicked(Button* button)
 {
     if (button == upButton)
     {
-        LOGD("Up button pressed.");
+        LOGDD("Up button pressed.");
 
         if (topTab > 0)
             topTab -= 1;
     }
     else if (button == downButton)
     {
-        LOGD("Down button pressed.");
+        LOGDD("Down button pressed.");
         
         if (numberOfTabs > 4)
         {
@@ -1721,19 +1722,25 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                 {
                     int processorNum = processor->getIntAttribute("number");
 
-                    LOGD("SWITCHING number ", processorNum);
+                    LOGDD("SWITCHING number ", processorNum);
 
                     for (int n = 0; n < splitPoints.size(); n++)
                     {
 
-                        LOGD("Trying split point ", ", load order: ", splitPoints[n]->loadOrder);
+                        LOGDD("Trying split point ", n,  ", load order: ", splitPoints[n]->loadOrder);
 
                         if (splitPoints[n]->loadOrder == processorNum)
                         {
-                            LOGD("Switching splitter destination.");
+                            LOGDD("Switching splitter destination.");
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);
                             AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
+
+                            /*std::cout << "Editor array: " << std::endl;
+                            for (auto ed : editorArray)
+                            {
+                                std::cout << " " << ed->getName() << std::endl;
+                            }*/
                             
                             splitPoints.remove(n);
                         }

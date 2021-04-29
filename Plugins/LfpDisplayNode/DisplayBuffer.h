@@ -79,8 +79,6 @@ namespace LfpViewer {
 
         int previousSize;
 
-        //Array<String> channelNames;
-
         float sampleRate;
 
         uint64 ttlState;
@@ -93,6 +91,12 @@ namespace LfpViewer {
         CriticalSection displayMutex;
 
         bool isNeeded;
+
+        void addDisplay(int splitID);
+
+        void removeDisplay(int splitID);
+
+        Array<int> displays;
 
     };
 };

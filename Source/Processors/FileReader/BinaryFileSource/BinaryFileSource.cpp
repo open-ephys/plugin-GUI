@@ -35,14 +35,26 @@ bool BinaryFileSource::Open(File file)
 {
 	m_jsonData = JSON::parse(file);
 	if (m_jsonData.isVoid())
+	{
+		std::cout << "Invalid JSON." << std::endl;
 		return false;
+	}
+		
 
 	if (m_jsonData["GUI version"].isVoid())
+	{
+		std::cout << "No GUI version." << std::endl;
 		return false;
+	}
+		
 	
 	var cont = m_jsonData["continuous"];
 	if (cont.isVoid() || cont.size() <= 0)
+	{
+		std::cout << "No continuous data found." << std::endl;
 		return false;
+	}
+		
 
 	m_rootPath = file.getParentDirectory();
 

@@ -274,7 +274,7 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 {
 	if (creator)
 	{
-		LOGD("Got creator");
+		LOGDD("Got creator");
 		return creator();
 	}
 	//Built-in engines

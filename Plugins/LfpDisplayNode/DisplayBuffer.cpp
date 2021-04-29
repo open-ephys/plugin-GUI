@@ -30,7 +30,7 @@ namespace LfpViewer {
 
 
     */
-#define BUFFER_LENGTH 20000
+#define BUFFER_LENGTH_S 1.0f
 
     DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
         id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
@@ -47,6 +47,7 @@ namespace LfpViewer {
 
         ttlState = 0;
 
+       // std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
         //std::cout << "Display buffer sample rate: " << sampleRate << std::endl;
     }
 
@@ -86,7 +87,7 @@ namespace LfpViewer {
     {
             
         if (numChannels != previousSize)
-            setSize(numChannels + 1, BUFFER_LENGTH);
+            setSize(numChannels + 1, int(sampleRate * BUFFER_LENGTH_S));
 
         clear();
 
@@ -102,9 +103,29 @@ namespace LfpViewer {
             displayBufferIndices.set(i, 0);
     }
 
+    void DisplayBuffer::addDisplay(int splitID)
+    {
+        if (!displays.contains(splitID))
+             displays.add(splitID);
+
+        //std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
+    }
+
+    void DisplayBuffer::removeDisplay(int splitID)
+    {
+        if (displays.contains(splitID))
+            displays.remove(displays.indexOf(splitID));
+
+       // std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
+
+    }
+
     void DisplayBuffer::initializeEventChannel(int nSamples)
     {
-        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[numChannels];
+        if (displays.size() == 0)
+            return;
+
+        const int samplesLeft = getNumSamples() - displayBufferIndices[numChannels];
 
         if (nSamples < samplesLeft)
         {
@@ -135,8 +156,12 @@ namespace LfpViewer {
 
     void DisplayBuffer::finalizeEventChannel(int nSamples)
     {
+
+        if (displays.size() == 0)
+            return;
+
         const int index = displayBufferIndices[numChannels];
-        const int samplesLeft = BUFFER_LENGTH - index;
+        const int samplesLeft = getNumSamples() - index;
    
         int newIdx = 0;
 
@@ -154,8 +179,12 @@ namespace LfpViewer {
 
     void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
     {
-        const int index = (displayBufferIndices[numChannels] + eventTime) % BUFFER_LENGTH;
-        const int samplesLeft = BUFFER_LENGTH - index;
+
+        if (displays.size() == 0)
+            return;
+
+        const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
+        const int samplesLeft = getNumSamples() - index;
         const int nSamples = numSourceSamples - eventTime;
 
         if (eventId == 1)
@@ -166,40 +195,43 @@ namespace LfpViewer {
             ttlState &= ~(1LL << eventChannel);
         }
 
+       // std::cout << "Display buffer received event on " << eventChannel << " at " << eventTime << " with " << numSourceSamples << std::endl;
+
         if (nSamples < samplesLeft)
         {
-            copyFrom(numChannels,                            // destChannel
+            copyFrom(numChannels,                     // destChannel
                 index,                                // destStartSample
                 arrayOfOnes,                          // source
                 nSamples,                             // numSamples
-                float(ttlState));                              // gain
+                float(ttlState));                     // gain
         }
         else
         {
             int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(numChannels,                                 // destChannel
+            copyFrom(numChannels,                     // destChannel
                 index,                                // destStartSample
                 arrayOfOnes,                          // source
                 samplesLeft,                          // numSamples
-                float(ttlState));  // gain
+                float(ttlState));                     // gain
 
-            copyFrom(numChannels,                                 // destChannel
+            copyFrom(numChannels,                     // destChannel
                 0,                                    // destStartSample
                 arrayOfOnes,                          // source
                 extraSamples,                         // numSamples
-                float(ttlState));  // gain
+                float(ttlState));                     // gain
         }
     }
 
     void DisplayBuffer::addData(AudioSampleBuffer& buffer, int chan, int nSamples)
     {
-        
+        if (displays.size() == 0)
+            return;
 
         int previousIndex = displayBufferIndices[channelMap[chan]];
         int channelIndex = channelMap[chan];
 
-        const int samplesLeft = BUFFER_LENGTH - displayBufferIndices[channelMap[chan]];
+        const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
 
         int newIndex;
         

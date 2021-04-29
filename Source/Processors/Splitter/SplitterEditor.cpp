@@ -145,8 +145,14 @@ int SplitterEditor::getPathForEditor(GenericEditor* editor)
     {
         if (processor->getDestNode(pathNum) != nullptr)
         {
+            LOGDD(" PATH ", pathNum, " editor: ", processor->getDestNode(pathNum)->getEditor()->getName());
+
             if (processor->getDestNode(pathNum)->getEditor() == editor)
-                return processor->getPath();
+            {
+                LOGDD(" MATCHING PATH: ", pathNum);
+                return pathNum;
+            }
+                
         }
     }
 

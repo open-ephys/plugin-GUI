@@ -45,6 +45,7 @@ using namespace LfpViewer;
 LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
     : canvasSplit(c)
     , lfpDisplay(lfpDisplay)
+    , offset(0.0f)
 {
 
     font = Font("Default", 16, Font::plain);
@@ -64,18 +65,17 @@ void LfpTimescale::paint(Graphics& g)
 
     const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");
 
-    for (int i = 1; i < labels.size(); i++)
+    int startIndex; 
+
+    if (offset > 0)
+        startIndex = 0;
+    else
+        startIndex = 1;
+
+    for (int i = startIndex; i < labels.size(); i++)
     {
 
         float lineHeight;
-
-        /*if (isMajor[i])
-        {
-            lineHeight = getHeight() / 2;
-        }
-        else {
-            lineHeight = getHeight() / 4;
-        }*/
 
         g.drawLine(getWidth() * fractionWidth[i],
             0,
@@ -92,43 +92,6 @@ void LfpTimescale::paint(Graphics& g)
         
     }
 
-    /*for (int i = 0; i < steps; i++)
-    {
-        
-        // TODO: (kelly) added an extra spatial dimension to the timeline ticks, may be overkill
-        if (i == 0)
-        {
-            
-        }
-        if (i != 0 && i % 4 == 0)
-        {
-            g.drawLine(getWidth()/steps*i,
-                       0,
-                       getWidth()/steps*i,
-                       getHeight(),
-                       3.0f);
-        }
-        else if (i != 0 && i % 2 == 0)
-        {
-            g.drawLine(getWidth()/steps*i,
-                       getHeight(),
-                       getWidth()/steps*i,
-                       getHeight() / 2,
-                       3.0f);
-        }
-        else
-        {
-            g.drawLine(getWidth()/steps*i,
-                       getHeight(),
-                       getWidth()/steps*i,
-                       3 * getHeight()/4,
-                       2.0f);
-        }
-        
-        if (i != 0 && i % 2 == 0)
-            g.drawText(labels[i-1],getWidth()/steps*i+3,0,100,getHeight(),Justification::left, false);
-
-    }*/
 }
 
 void LfpTimescale::mouseUp(const MouseEvent &e)
@@ -203,9 +166,10 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
     }
 }
 
-void LfpTimescale::setTimebase(float t)
+void LfpTimescale::setTimebase(float timebase_, float offset_)
 {
-    timebase = t;
+    timebase = timebase_;
+    offset = offset_;
 
     labels.clear();
     isMajor.clear();
@@ -219,9 +183,11 @@ void LfpTimescale::setTimebase(float t)
         stepSize = 0.005;
     else if (timebase > 0.025 && timebase <= 0.1)
         stepSize = 0.01;
-    else if (timebase > 0.1 && timebase < 0.5)
+    else if (timebase > 0.1 && timebase <= 0.25)
         stepSize = 0.025;
-    else if (timebase >= 0.5 && timebase < 2)
+    else if (timebase > 0.25 && timebase <= 0.5)
+        stepSize = 0.1;
+    else if (timebase > 0.5 && timebase < 2)
         stepSize = 0.25;
     else if (timebase >= 2 && timebase < 5)
         stepSize = 0.5;
@@ -233,12 +199,12 @@ void LfpTimescale::setTimebase(float t)
     float time = 0;
     int index = 0;
 
-    while (time < timebase)
+    while ((time + offset) < timebase)
     {
         String labelString = String(time * ((timebase >= 2) ? (1) : (1000.0f)));
         labels.add(labelString.substring(0, 6));
 
-        fractionWidth.add(time / timebase);
+        fractionWidth.add((time + offset) / timebase);
         
         if (index % 2 == 0)
             isMajor.add(true);
@@ -248,27 +214,6 @@ void LfpTimescale::setTimebase(float t)
         time += stepSize;
         index++;
     }
-    
-    /*const int minWidth = 60;
-    labelIncrement = 0.005f;
-
-    if (timebase < 5)
-    
-    while (getWidth() != 0 &&                                   // setTimebase can be called before LfpTimescale has width
-           getWidth() / (timebase / labelIncrement) < minWidth) // so, if width is 0 then don't iterate for scale factor
-    {
-//        std::cout << getWidth() / (timebase / labelIncrement) << " is smaller than minimum width, calculating new step size" << std::endl;
-        if (labelIncrement < 0.2)
-            labelIncrement *= 2;
-        else
-            labelIncrement += 0.2f;
-    }
-    
-    for (float i = labelIncrement; i < timebase; i += labelIncrement)
-    {
-        String labelString = String(i * ((timebase >= 2)?(1):(1000.0f)));
-        labels.add(labelString.substring(0,6));
-    }*/
 
     repaint();
 

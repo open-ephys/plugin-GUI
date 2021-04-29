@@ -74,7 +74,7 @@ int DataViewport::addTabToDataViewport(String name, Component* component, Generi
 
     editorArray.add(editor);
 
-    LOGD("Adding tab with index ", tabIndex);
+    LOGDD("Adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 

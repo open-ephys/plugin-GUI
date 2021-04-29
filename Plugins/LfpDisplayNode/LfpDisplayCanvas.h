@@ -105,6 +105,8 @@ public:
     void mouseDrag(const MouseEvent&) override;
     void mouseUp(const MouseEvent&) override;
 
+    void removeBufferForDisplay(int);
+
 private:
 
     LfpDisplayNode* processor;
@@ -194,6 +196,7 @@ public:
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
+    const float getEventState(int samp);
     
     //std::array<float, MAX_N_SAMP_PER_PIXEL> getSamplesPerPixel(int chan, int px);
     //const int getSampleCountPerPixel(int px);
@@ -288,16 +291,16 @@ private:
 	float displayedSampleRate;
 
     int samplesPerBufferPass;
+
+    int eventState;
     
-    ScopedPointer<AudioSampleBuffer> screenBuffer; // subsampled buffer- one int per pixel
+    ScopedPointer<AudioSampleBuffer> eventDisplayBuffer; // buffer for event data
 
     //'define 3 buffers for min mean and max for better plotting of spikes
     // not pretty, but 'AudioSampleBuffer works only for channels X samples
     ScopedPointer<AudioSampleBuffer> screenBufferMin; // like screenBuffer but holds min/mean/max values per pixel
     ScopedPointer<AudioSampleBuffer> screenBufferMean; // like screenBuffer but holds min/mean/max values per pixel
     ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds min/mean/max values per pixel
-
-    MidiBuffer* eventBuffer;
 
     void refreshScreenBuffer();
     void updateScreenBuffer();

@@ -120,6 +120,12 @@ void LfpDisplayNode::updateSettings()
             //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
             toDelete.add(displayBuffer);
+
+            for (auto splitID : displayBuffer->displays)
+            {
+                LfpDisplayEditor* ed = (LfpDisplayEditor*)getEditor();
+                ed->removeBufferForDisplay(splitID);
+            }
         }
         
     }
@@ -129,6 +135,7 @@ void LfpDisplayNode::updateSettings()
         displayBuffers.removeObject(displayBuffer, true);
     }
 
+   
     //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
 
     // TODO: add event channels separately, as they may have a different source
@@ -283,17 +290,17 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
             for (auto displayBuffer : displayBuffers)
             {
                 displayBuffer->addEvent(eventTime, eventChannel, eventId,
-                    getNumSourceSamples(eventSourceNodeId)
+                    getNumSourceSamples(displayBuffer->id)
                 );
                 
             }
 
         }
 
-        //         std::cout << "Received event from " << eventSourceNodeId
-        //                   << " on channel " << eventChannel
-        //                   << " with value " << eventId
-        //                   << " at timestamp " << event.getTimeStamp() << std::endl;
+       /*          std::cout << "Received event from " << eventSourceNodeId
+                           << " on channel " << eventChannel
+                           << " with value " << eventId
+                           << " at timestamp " << event.getTimeStamp() << std::endl;*/
     }
 }
 
@@ -316,7 +323,7 @@ void LfpDisplayNode::finalizeEventChannels()
         if (latestTrigger[i] == -1 && latestCurrentTrigger[i] > -1) // received a trigger, but not yet acknowledged
         {
             int triggerSample = latestCurrentTrigger[i] + splitDisplays[i]->displayBuffer->displayBufferIndices.getLast();
-            std::cout << "Setting latest trigger to " << triggerSample << std::endl;
+            //std::cout << "Setting latest trigger to " << triggerSample << std::endl;
             latestTrigger.set(i, triggerSample);
         }
     }
@@ -365,5 +372,5 @@ int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
   latestTrigger.set(id, -1);
-  std::cout << "Display " << id << " acknowledging trigger." << std::endl;
+  //std::cout << "Display " << id << " acknowledging trigger." << std::endl;
 }

@@ -281,7 +281,7 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    std::cout << "LFP display width: " << getWidth() << std::endl;
+   // std::cout << "LFP display width: " << getWidth() << std::endl;
 
 
     //std::cout << "Resizing channels" << std::endl;
@@ -330,7 +330,7 @@ void LfpDisplay::resized()
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
     
-    std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
+  //  std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
 
 
     //inititalize background
@@ -389,13 +389,13 @@ void LfpDisplay::refresh()
 
         if (fillfrom < fillto)
         {
-            gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 1, lfpChannelBitmap.getHeight()); // just clear one section
+            gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 2, lfpChannelBitmap.getHeight()); // just clear one section
             //std::cout << "Clearing " << fillfrom << " to " << fillto << std::endl;
         }
         else if (fillfrom > fillto) {
 
-            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 1, lfpChannelBitmap.getHeight()); // first segment
-            gLfpChannelBitmap.fillRect(0, 0, fillto + 1, lfpChannelBitmap.getHeight()); // second segment
+            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, lfpChannelBitmap.getHeight()); // first segment
+            gLfpChannelBitmap.fillRect(0, 0, fillto + 2, lfpChannelBitmap.getHeight()); // second segment
 
             //std::cout << "Clearing " << fillfrom << " to " << lfpChannelBitmap.getWidth() << std::endl;
             //std::cout << "Clearing " << 0 << " to " << fillto << std::endl;

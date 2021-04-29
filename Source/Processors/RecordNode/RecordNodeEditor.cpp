@@ -181,6 +181,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
 
+			//std::cout << "Loading RecordNode settings" << std::endl;
 
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
@@ -203,6 +204,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 
 						for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
 						{
+							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
 							recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH" + String(ch));
 						}
 

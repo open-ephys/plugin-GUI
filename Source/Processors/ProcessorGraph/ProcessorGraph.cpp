@@ -163,12 +163,12 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
     LOGD("Creating processor with name: ", description.processorName);
     
     if (sourceNode != nullptr)
-        LOGD("Source node: ", sourceNode->getName());
+        LOGDD("Source node: ", sourceNode->getName());
     //else
      //   LOGD("No source node.");
     
     if (destNode != nullptr)
-        LOGD("Dest node: ", destNode->getName());
+        LOGDD("Dest node: ", destNode->getName());
     //else
     //    LOGD("No dest node.");
     
@@ -542,7 +542,24 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
         processor = processor->getSourceNode();
         
         if (rootProcessor != nullptr)
+        {
             LOGDD("  Source: ", rootProcessor->getName());
+
+           
+        }
+
+        if (processor != nullptr)
+        {
+            if (processor->isSplitter())
+            {
+                SplitterEditor* sp = (SplitterEditor*)processor->getEditor();
+                GenericEditor* ed = rootProcessor->getEditor();
+
+                LOGDD("  Switching splitter to view: ", ed->getName())
+                sp->switchDest(sp->getPathForEditor(ed));
+            }
+        }
+           
     }
     
     processor = rootProcessor;
@@ -710,7 +727,7 @@ void ProcessorGraph::restoreParameters()
     
     isLoadingSignalChain = true;
 
-    LOGD("Restoring parameters for each processor...");
+    LOGDD("Restoring parameters for each processor...");
     
     // first connect the mergers
     for (auto p : getListOfProcessors())
@@ -722,7 +739,14 @@ void ProcessorGraph::restoreParameters()
         }
     }
     
-    // then update everyone's settings
+    // load source node parameters
+    for (auto p : rootNodes)
+    {
+        p->loadFromXml();
+        
+    }
+
+    // update everyone's settings
     for (auto p : rootNodes)
     {
         updateSettings(p, true);
@@ -867,7 +891,7 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-        LOGD("Signal chain: ", n);
+        LOGDD("Signal chain: ", n);
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
@@ -875,7 +899,7 @@ void ProcessorGraph::updateConnections()
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
-            LOGD("Source node: ", source->getName(), ".");
+            LOGDD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if (source->isReady())
@@ -928,11 +952,11 @@ void ProcessorGraph::updateConnections()
                 }
                 else
                 {
-                    LOGD("     No dest node.");
+                    LOGDD("     No dest node.");
                 }
             }
 
-            std::cout << std::endl;
+           // std::cout << std::endl;
 
             source->wasConnected = true;
 
@@ -942,7 +966,7 @@ void ProcessorGraph::updateConnections()
                 // (but if it leads to a splitter that is still in the stack, it may still be
                 // used as a source for the unexplored branch.)
 
-                LOGD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
+                LOGDD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
                 dest = nullptr;
             }
 

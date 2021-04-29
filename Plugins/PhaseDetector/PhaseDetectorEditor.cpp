@@ -230,7 +230,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
 
     sineWave.startNewSubPath(5,35);
 
-    std::cout << "Creating sine wave" << std::endl;
+    //std::cout << "Creating sine wave" << std::endl;
 
     for (double i = 0; i < 2*PI; i += PI/10)
     {
@@ -239,7 +239,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
 
     sineWave.addEllipse(2,35,4,4);
 
-    std::cout << "Creating phase buttons" << std::endl;
+    //std::cout << "Creating phase buttons" << std::endl;
 
     for (int phase = 0; phase < 4; phase++)
     {
@@ -255,7 +255,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
         addAndMakeVisible(phaseButton);
     }
 
-    std::cout << "Creating combo boxes" << std::endl;
+    //std::cout << "Creating combo boxes" << std::endl;
 
 
     inputSelector = new ComboBox();
@@ -270,7 +270,7 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     gateSelector->addItem("-",1);
     gateSelector->addListener(this);
 
-    std::cout << "Populating combo boxes" << std::endl;
+    //std::cout << "Populating combo boxes" << std::endl;
 
 
     for (int i = 1; i < 9; i++)
@@ -294,11 +294,11 @@ DetectorInterface::DetectorInterface(PhaseDetector* pd, Colour c, int id) :
     addAndMakeVisible(outputSelector);
 
 
-    std::cout << "Updating channels" << std::endl;
+   // std::cout << "Updating channels" << std::endl;
 
     updateChannels(processor->getNumInputs());
 
-    std::cout << "Updating processor" << std::endl;
+   // std::cout << "Updating processor" << std::endl;
 
 
     processor->addModule();
