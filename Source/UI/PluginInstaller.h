@@ -62,8 +62,7 @@ struct SelectedPluginInfo
     String docURL;
 };
 
-/** Compares two different version numbers **/
-int versionCompare(const String& v1, const String& v2);
+extern StringArray updatablePlugins;
 
 /**
  *  Create Info Panel for the selected plugin from the table
@@ -78,9 +77,6 @@ public:
 
     void paint (Graphics&) override;
     void resized() override;
-
-    /** Returns the plugin that is currently selected in the list **/
-    String getSelectedPlugin() { return pInfo.pluginName; }
 
     /** Called when any of the buttons inside this component is clicked that has a listener **/
     void buttonClicked(Button* button) override;
@@ -124,7 +120,7 @@ private:
 
     SelectedPluginInfo pInfo;
 
-    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PROC_IN_USE};
+    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PLUGIN_IN_USE, RECNODE_IN_USE};
 
     void run() override;
 
@@ -208,9 +204,6 @@ public:
     void resized() override;
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
-
-    /** Load plugin names that are either installed or has updates **/
-    void loadInstalledPluginNames();
     
     void buttonClicked(Button* button) override;
  
@@ -220,13 +213,15 @@ private:
 
     StringArray allPlugins;
     StringArray installedPlugins;
-    StringArray updatablePlugins;
+
+    bool checkForUpdates;
 
     Label sortingLabel;
     ComboBox sortByMenu;
 
     Label viewLabel;
-    ToggleButton allButton, installedButton, updatesButton;
+    ToggleButton allButton, installedButton;
+    TextButton updatesButton;
 
     Label typeLabel;
     ToggleButton filterType, sourceType, sinkType, otherType;
