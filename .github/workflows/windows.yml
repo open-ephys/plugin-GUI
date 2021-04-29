@@ -37,8 +37,7 @@ jobs:
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:
-        bintrayUser: ${{ secrets.bintrayUsername }}
-        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -48,21 +47,18 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows-beta.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-windows/$gui_ver/$zipfile
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-windows/$gui_ver/publish
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-windows/$gui_ver/publish
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
       shell: bash
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
       env:
-        bintrayUser: ${{ secrets.bintrayUsername }}
-        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -72,13 +68,11 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-windows/$gui_ver/$zipfile
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-windows/$gui_ver/publish
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/windows/$zipfile"
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-${gui_ver}.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-windows/$gui_ver/publish
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/$installer"
       shell: bash
