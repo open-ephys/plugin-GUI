@@ -35,8 +35,7 @@ jobs:
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:
-        bintrayUser: ${{ secrets.bintrayUsername }}
-        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-mac-beta.zip
@@ -46,9 +45,8 @@ jobs:
         cp -r ../../Resources/DataFiles open-ephys/
         cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/$zipfile
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test/Test-mac/$gui_ver/publish
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/mac/$zipfile"
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
           --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
@@ -63,14 +61,11 @@ jobs:
           "open-ephys/"
         installer=Open_Ephys_GUI_${gui_ver}-beta.dmg
         mv -v Open-Ephys-Installer.dmg $installer
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-mac/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Test-Installer/Test-Installer-mac/$gui_ver/publish
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/mac/$installer"
     - name: deploy_release
       if: github.ref == 'refs/heads/master'
       env:
-        bintrayUser: ${{ secrets.bintrayUsername }}
-        bintrayApiKey: ${{ secrets.bintrayApiKey }}
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-mac.zip
@@ -80,9 +75,8 @@ jobs:
         cp -r ../../Resources/DataFiles open-ephys/
         cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $zipfile --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-mac/$gui_ver/$zipfile
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release/Release-mac/$gui_ver/publish
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/mac/$zipfile"
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
           --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
@@ -97,6 +91,4 @@ jobs:
           "open-ephys/"
         installer=Open_Ephys_GUI_${gui_ver}.dmg
         mv -v Open-Ephys-Installer.dmg $installer
-        user_info="$bintrayUser:$bintrayApiKey"
-        curl -T $installer --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-mac/$gui_ver/$installer
-        curl -X POST --user $user_info https://api.bintray.com/content/open-ephys-gui/Release-Installer/Release-Installer-mac/$gui_ver/publish
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/$installer"
