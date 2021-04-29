@@ -8,8 +8,6 @@
 class MainWindow;
 class PluginInstallerComponent;
 
-using namespace juce;
-
 class PluginInstaller : public DocumentWindow
 {
 public:
@@ -52,7 +50,7 @@ struct SelectedPluginInfo
     String pluginName;
     String displayName;
     String type;
-    String owner;
+    String developers;
     String latestVersion;
     String installedVersion;
     StringArray versions;
@@ -60,11 +58,11 @@ struct SelectedPluginInfo
     String lastUpdated;
     String description;
     StringArray dependencies;
+    StringArray dependencyVersions;
     String docURL;
 };
 
-/** Compares two different version numbers **/
-int versionCompare(const String& v1, const String& v2);
+extern StringArray updatablePlugins;
 
 /**
  *  Create Info Panel for the selected plugin from the table
@@ -79,9 +77,6 @@ public:
 
     void paint (Graphics&) override;
     void resized() override;
-
-    /** Returns the plugin that is currently selected in the list **/
-    String getSelectedPlugin() { return pInfo.pluginName; }
 
     /** Called when any of the buttons inside this component is clicked that has a listener **/
     void buttonClicked(Button* button) override;
@@ -100,14 +95,17 @@ public:
     /** Called when the user hits the 'Download' button for a selected plugin **/
     int downloadPlugin(const String& plugin, const String& version,
                        bool isDependency);
+    
+    void setDownloadURL(const String& url);
 
 private:
 
     int selectedPlugin;
+    String downloadURL;
     Font infoFont, infoFontBold;
 
     Label pluginNameLabel, pluginNameText;
-    Label ownerLabel, ownerText;
+    Label developersLabel, developersText;
     Label versionLabel;
     Label lastUpdatedLabel, lastUpdatedText;
     Label descriptionLabel;
@@ -122,7 +120,7 @@ private:
 
     SelectedPluginInfo pInfo;
 
-    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PROC_IN_USE};
+    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PLUGIN_IN_USE, RECNODE_IN_USE};
 
     void run() override;
 
@@ -144,7 +142,9 @@ public:
 
     /* Raw list of plugins available for download */
     StringArray pluginArray;
-    HashMap<String, StringArray> pluginLabels;
+    HashMap<String, String> pluginLabels;
+    HashMap<String, String> displayNames;
+    HashMap<String, String> dependencyVersion;
 
     int getNumRows() override;
 
@@ -204,9 +204,6 @@ public:
     void resized() override;
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
-
-    /** Load plugin names that are either installed or has updates **/
-    void loadInstalledPluginNames();
     
     void buttonClicked(Button* button) override;
  
@@ -216,13 +213,15 @@ private:
 
     StringArray allPlugins;
     StringArray installedPlugins;
-    StringArray updatablePlugins;
+
+    bool checkForUpdates;
 
     Label sortingLabel;
     ComboBox sortByMenu;
 
     Label viewLabel;
-    ToggleButton allButton, installedButton, updatesButton;
+    ToggleButton allButton, installedButton;
+    TextButton updatesButton;
 
     Label typeLabel;
     ToggleButton filterType, sourceType, sinkType, otherType;
