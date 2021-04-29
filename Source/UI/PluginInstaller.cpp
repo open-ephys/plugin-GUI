@@ -241,8 +241,8 @@ void PluginInstallerComponent::paint(Graphics& g)
 {
 	g.fillAll (Colours::darkgrey);
 	g.setColour(Colour::fromRGB(110, 110, 110));
-	g.fillRect(310, 5, 3, 38);
-	g.fillRect(512, 5, 3, 38);
+	g.fillRect(190, 5, 3, 38);
+	g.fillRect(400, 5, 3, 38);
 }
 
 void PluginInstallerComponent::resized()
@@ -250,16 +250,17 @@ void PluginInstallerComponent::resized()
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 90, 30);
 
-	updatesButton.setBounds(190, 10, 110, 30);
-	viewLabel.setBounds(315, 10, 50, 30);
-	allButton.setBounds(365, 10, 50, 30);
-	installedButton.setBounds(415, 10, 90, 30);
+	viewLabel.setBounds(200, 10, 50, 30);
+	allButton.setBounds(250, 10, 50, 30);
+	installedButton.setBounds(300, 10, 90, 30);
 
-	typeLabel.setBounds(520, 10, 45, 30);
-	sourceType.setBounds(565, 10, 80, 30);
-	filterType.setBounds(645, 10, 70, 30);
-	sinkType.setBounds(715, 10, 60, 30);
-	otherType.setBounds(775, 10, 70, 30);
+	typeLabel.setBounds(410, 10, 45, 30);
+	sourceType.setBounds(455, 10, 80, 30);
+	filterType.setBounds(535, 10, 70, 30);
+	sinkType.setBounds(605, 10, 60, 30);
+	otherType.setBounds(665, 10, 70, 30);
+
+	updatesButton.setBounds(getWidth() - 135, 10, 115, 30);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -377,7 +378,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 	{
 		checkForUpdates = true;
 		this->runThread();
-		pluginListAndInfo.repaint();
+		pluginListAndInfo.resized();
 	}
 
 	if ( button == &sourceType || button == &filterType || button == &sinkType || button == &otherType)
@@ -496,12 +497,13 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	g.drawText (text, 20, 0, maxTextWidth + 5, height, Justification::centredLeft, true);
 
+	// Draw update indicator next to plugin name, if any
 	if(updatablePlugins.contains(pluginArray[rowNumber]))
 	{
 		g.setColour(Colours::green);
-		g.fillEllipse(maxTextWidth + 24.0f, 5.0f, 25.0f, height - 10.0f);
+		g.fillEllipse(maxTextWidth + 25.0f, 6.0f, 23.0f, height - 12.0f);
 		g.setColour(Colours::white);
-		g.drawArrow(juce::Line(maxTextWidth + 37.0f, height - 10.0f, maxTextWidth + 37.0f, 10.0f ), 3.0f, 10.0f, 10.0f);
+		g.drawArrow(juce::Line(maxTextWidth + 37.0f, height - 11.0f, maxTextWidth + 37.0f, 11.0f ), 3.0f, 9.0f, 9.0f);
 	}
 }
 
@@ -654,9 +656,20 @@ void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent &)
 void PluginListBoxComponent::resized()
 {
 	// position our table with a gap around its edge
-    pluginList.setBounds(10, 10, maxTextWidth + 70, getHeight() - 30);
-	pluginInfoPanel.setBounds(maxTextWidth + 90, 10, 
-							  getWidth() - maxTextWidth - 110, getHeight() - 30);
+	if(updatablePlugins.isEmpty())
+	{
+		pluginList.setBounds(10, 10, maxTextWidth + 60, getHeight() - 30);
+		pluginInfoPanel.setBounds(maxTextWidth + 80, 10, 
+								  getWidth() - maxTextWidth - 100, 
+								  getHeight() - 30);
+	}
+	else
+	{
+    	pluginList.setBounds(10, 10, maxTextWidth + 70, getHeight() - 30);
+		pluginInfoPanel.setBounds(maxTextWidth + 90, 10, 
+								  getWidth() - maxTextWidth - 110, 
+								  getHeight() - 30);
+	}
 }
 
 void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
@@ -850,7 +863,7 @@ void PluginInfoComponent::run()
 		if(pInfo.latestVersion.equalsIgnoreCase(pInfo.latestVersion))
 		{
 			updatablePlugins.removeString(pInfo.pluginName);
-			this->getParentComponent()->repaint();
+			this->getParentComponent()->resized();
 		}
 		
 	}
@@ -914,7 +927,7 @@ void PluginInfoComponent::run()
 		if(pInfo.latestVersion.equalsIgnoreCase(pInfo.latestVersion))
 		{
 			updatablePlugins.removeString(pInfo.pluginName);
-			this->getParentComponent()->repaint();
+			this->getParentComponent()->resized();
 		}
 	}
 	else if (dlReturnCode == PLUGIN_IN_USE || dlReturnCode == RECNODE_IN_USE)
