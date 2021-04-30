@@ -564,6 +564,11 @@ bool RecordNode::enable()
 
 }
 
+bool RecordNode::disable()
+{
+	disconnectMessageCenter();
+}
+
 // called by GenericProcessor::setRecording()
 void RecordNode::startRecording()
 {
@@ -702,8 +707,6 @@ void RecordNode::stopRecording()
 	}
 
 	eventMonitor->displayStatus();
-
-	disconnectMessageCenter();
 
 }
 

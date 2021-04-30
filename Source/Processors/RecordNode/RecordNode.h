@@ -81,6 +81,7 @@ public:
 
 	void updateSettings() override;
     bool enable() override;
+	bool disable() override;
 	int getNumSubProcessors() const override;
 
 	void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
