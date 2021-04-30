@@ -567,6 +567,7 @@ bool RecordNode::enable()
 bool RecordNode::disable()
 {
 	disconnectMessageCenter();
+	return true;
 }
 
 // called by GenericProcessor::setRecording()
