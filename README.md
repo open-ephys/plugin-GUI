@@ -33,11 +33,11 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 The easiest way to get started is to download the installer for your platform of choice:
 
-- [Windows](https://dl.bintray.com/open-ephys-gui/Release-Installer/Install-Open-Ephys-GUI-v0.5.3.1.exe) (Neuropixels plugins available via File -> Plugin Installer)
-- [Ubuntu/Debian](https://dl.bintray.com/open-ephys-gui/Release-Installer/open-ephys-gui-v0.5.3.1.deb)
-- [macOS](https://dl.bintray.com/open-ephys-gui/Release-Installer/Open_Ephys_GUI_v0.5.3.1.dmg)
+- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.5.4.exe) (Neuropixels plugins available via File -> Plugin Installer)
+- [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.5.4.deb)
+- [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.5.4.dmg)
 
-It’s also possible to obtain the binaries as a .zip file for [Windows](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.5.3.1-windows.zip), [Linux](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.5.3.1-linux.zip), or [Mac](https://dl.bintray.com/open-ephys-gui/Release/open-ephys-v0.5.3.1-mac.zip).
+It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephysgui.jfrog.io/artifactory/Release/windows/open-ephys-v0.5.4-windows.zip), [Linux](https://openephysgui.jfrog.io/artifactory/Release/linux/open-ephys-v0.5.4-linux.zip), or [Mac](https://openephysgui.jfrog.io/artifactory/Release/mac/open-ephys-v0.5.4-mac.zip).
 
 Detailed installation instructions can be found [here](https://open-ephys.github.io/gui-docs/User-Manual/Installing-the-GUI.html).
 
