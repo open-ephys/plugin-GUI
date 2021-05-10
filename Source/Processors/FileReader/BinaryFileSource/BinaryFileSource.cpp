@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinaryFileSource.h"
+#include "../../../Utils/Utils.h"
 
 using namespace BinarySource;
 

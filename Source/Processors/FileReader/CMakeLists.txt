@@ -12,4 +12,5 @@ add_sources(open-ephys
 
 #add nested directories
 add_subdirectory(BinaryFileSource)
+add_subdirectory(OpenEphysFileSource)
 

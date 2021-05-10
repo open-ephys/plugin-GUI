@@ -28,6 +28,7 @@
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
+#include "OpenEphysFileSource/OpenEphysFileSource.h"
 
 
 FileReader::FileReader()
@@ -465,6 +466,7 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         // if reached end of file stream
         if ( (currentSample + samplesToRead) > stopSample)
         {
+            LOGD("Reached end of file stream");
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
@@ -499,7 +501,7 @@ StringArray FileReader::getSupportedExtensions() const
 
 int FileReader::getNumBuiltInFileSources() const
 {
-	return 1;
+	return 2;
 }
 
 String FileReader::getBuiltInFileSourceExtensions(int index) const
@@ -508,6 +510,8 @@ String FileReader::getBuiltInFileSourceExtensions(int index) const
 	{
 	case 0: //Binary
 		return "oebin";
+    case 1: //OpenEphys
+        return "openephys";
 	default:
 		return "";
 	}
@@ -519,6 +523,8 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	{
 	case 0:
 		return new BinarySource::BinaryFileSource();
+    case 1: 
+        return new OpenEphysSource::OpenEphysFileSource();
 	default:
 		return nullptr;
 	}
