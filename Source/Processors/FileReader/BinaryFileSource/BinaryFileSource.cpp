@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BinarySource;
 
-BinaryFileSource::BinaryFileSource() : m_samplePos(0)
+BinaryFileSource::BinaryFileSource() : m_samplePos(0), hasEventData(false)
 {}
 
 BinaryFileSource::~BinaryFileSource()
@@ -54,7 +54,12 @@ bool BinaryFileSource::Open(File file)
 		std::cout << "No continuous data found." << std::endl;
 		return false;
 	}
-		
+
+	var event = m_jsonData["events"];
+	if (!(event.isVoid() || event.size() <= 0))
+	{
+		hasEventData = true;
+	}
 
 	m_rootPath = file.getParentDirectory();
 
@@ -114,6 +119,85 @@ void BinaryFileSource::fillRecordInfo()
 
 		m_dataFileArray.add(dataFile);
 		
+	}
+
+	
+
+	if (hasEventData)
+	{
+		var eventData = m_jsonData["events"];
+		
+		//create identifiers to speed up stuff
+		Identifier idFolder("folder_name");
+		Identifier idChannelName("channel_name");
+		Identifier idDescription("description");
+		Identifier idIdentifier("identifier");
+		Identifier idSampleRate("sample_rate");
+		Identifier idType("type");
+		Identifier idNumChannels("num_channels");
+		Identifier idChannels("channels");
+		Identifier idSourceProcessor("source_processor");
+
+		int numEventProcessors = eventData.size();
+
+		for (int i = 0; i < numEventProcessors; i++) 
+		{
+
+			var events = eventData[i];
+
+			String folderName = events[idFolder];
+			folderName = folderName.trimCharactersAtEnd("/");
+
+			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
+			if (!channelFile.existsAsFile()) continue;
+
+			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channel_states.npy");
+			if (!channelStatesFile.existsAsFile()) continue;
+
+			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("timestamps.npy");
+			if (!timestampsFile.existsAsFile()) continue;
+
+			int channelFileSize = channelFile.getSize(); 
+
+			int nEvents = (channelFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT; 
+
+			//Convert to std::unique_ptr<FileInputStream> when upgrade to JUCE6
+			ScopedPointer<FileInputStream> channelDataStream = channelFile.createInputStream();
+			MemoryBlock channelData;
+			ScopedPointer<FileInputStream> channelStateDataStream = channelStatesFile.createInputStream();
+			MemoryBlock channelStateData;
+			ScopedPointer<FileInputStream> timestampsDataStream = timestampsFile.createInputStream();
+			MemoryBlock timestampData;
+
+			const int maxSensibleFileSize = 2 * 1024 * 1024;
+
+			// (put a sanity-check on the file size, as channel files are relatively small)
+			if (!(channelDataStream->readIntoMemoryBlock (channelData, maxSensibleFileSize))) continue;
+			if (!(channelStateDataStream->readIntoMemoryBlock (channelStateData, maxSensibleFileSize))) continue;
+			if (!(timestampsDataStream->readIntoMemoryBlock (timestampData, maxSensibleFileSize))) continue;
+		
+			std::vector<int16> channels;
+			std::vector<int16> channelStates;
+			std::vector<int64> timestamps;
+
+			for (int i = 0; i < nEvents; i++)
+			{
+				int16* data = static_cast<int16*>(channelFile.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));	
+				channels.push_back(*data);
+
+				data = static_cast<int16*>(channelStateData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));
+				channelStates.push_back(*data);
+
+				int64* tsData = static_cast<int64*>(timestampData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int64));
+				timestamps.push_back(*tsData);
+
+			}
+
+			for (int i = 0; i < channels.size(); i++)
+				LOGD("CH: ", channels[i], " State: ", channelStates[i], " ts: ", timestamps[i]);
+
+
+		}
 	}
 
 }

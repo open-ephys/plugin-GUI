@@ -25,6 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BINARYFILESOURCE_H_INCLUDED
 
 #include "../FileSource.h"
+#include "../../../Utils/Utils.h"
+
+#define EVENT_HEADER_SIZE_IN_BYTES 128
+#define BYTES_PER_EVENT 2
 
 namespace BinarySource
 {
@@ -53,6 +57,8 @@ namespace BinarySource
 
 		File m_rootPath;
 		int64 m_samplePos;
+
+		bool hasEventData;
 		
 	};
 }
