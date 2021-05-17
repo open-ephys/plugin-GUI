@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../FileSource.h"
 #include "../../../Utils/Utils.h"
 
+// Continuous data has no data header in BinaryFormat
 #define EVENT_HEADER_SIZE_IN_BYTES 128
 #define BYTES_PER_EVENT 2
 
@@ -43,8 +44,11 @@ namespace BinarySource
 		void seekTo(int64 sample) override;
 
 		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
 
 		bool isReady() override;
+
+		int64 loopCount;
 
 	private:
 		bool Open(File file) override;

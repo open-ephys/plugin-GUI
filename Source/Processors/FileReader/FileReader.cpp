@@ -40,6 +40,7 @@ FileReader::FileReader()
     , currentNumSamples     (0)
     , startSample           (0)
     , stopSample            (0)
+    , loopCount             (0)
     , counter               (0)
     , bufferCacheWindow     (0)
     , m_shouldFillBackBuffer(false)
@@ -99,9 +100,13 @@ AudioProcessorEditor* FileReader::createEditor()
 
 void FileReader::createEventChannels()
 {
-    //editor = new FileReaderEditor (this, true);
 
-    //return editor;
+    EventChannel* chan = new EventChannel(EventChannel::TTL, 8, 0, -1, this);
+    chan->setName(getName() + " source TTL events input");
+    chan->setDescription("TTL Events coming from the hardware source processor \"" + getName() + "\"");
+    chan->setIdentifier("sourceevent");
+    eventChannelArray.add(chan);
+
 }
 
 bool FileReader::isReady()
@@ -155,6 +160,7 @@ void FileReader::setEnabledState (bool t)
 bool FileReader::enable()
 {
 	timestamp = 0;
+    loopCount = 0;
 
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
 	AudioDeviceManager::AudioDeviceSetup ads;
@@ -281,6 +287,7 @@ void FileReader::setActiveRecording (int index)
     startSample     = 0;
     stopSample      = currentNumSamples;
     bufferCacheWindow = 0;
+    loopCount = 0;
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
@@ -312,6 +319,7 @@ void FileReader::updateSettings()
          dataChannelArray[i]->setBitVolts(channelInfo[i].bitVolts);
          dataChannelArray[i]->setName(channelInfo[i].name);
      }
+
 }
 
 void FileReader::process (AudioSampleBuffer& buffer)
@@ -337,10 +345,31 @@ void FileReader::process (AudioSampleBuffer& buffer)
     }
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
+
+    EventInfo events;
+
+    int64 startTimestamp = timestamp;
 	timestamp += samplesNeededPerBuffer;
+    int64 stopTimestamp = timestamp;
+
+    if (stopTimestamp % currentNumSamples < startTimestamp % currentNumSamples)
+    {
+        loopCount++;
+        LOGD("Loop counter ++");
+    }
 
 	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
-    
+
+    //Find all events int the current process block
+    input->processEventData(events, startTimestamp, stopTimestamp);
+
+    for (int i = 0; i < events.channels.size(); i++) {
+
+        uint8 ttlData = events.channelStates[i];
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp - loopCount, &ttlData, sizeof(uint8), uint16(events.channels[i]));
+        addEvent(events.channels[i], event, events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp - loopCount); 
+    }
+
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 }

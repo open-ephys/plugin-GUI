@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BinarySource;
 
-BinaryFileSource::BinaryFileSource() : m_samplePos(0), hasEventData(false)
+BinaryFileSource::BinaryFileSource() : m_samplePos(0), hasEventData(false), loopCount(0)
 {}
 
 BinaryFileSource::~BinaryFileSource()
@@ -68,6 +68,9 @@ bool BinaryFileSource::Open(File file)
 
 void BinaryFileSource::fillRecordInfo()
 {
+
+	const int maxSensibleFileSize = 2 * 1024 * 1024; 
+
 	var continuousData = m_jsonData["continuous"];
 
 	//create identifiers to speed up stuff
@@ -102,6 +105,14 @@ void BinaryFileSource::fillRecordInfo()
 		info.name = folderName;
 		info.sampleRate = record[idSampleRate];
 		info.numSamples = numSamples;
+		
+		//Get start timestsamp to align any associated events with
+		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(folderName).getChildFile("timestamps.npy");
+		ScopedPointer<FileInputStream> tsDataStream = tsFile.createInputStream();
+		MemoryBlock tsData;
+		if (!(tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize))) continue;
+		int64* startTimestamp = static_cast<int64*>(tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES);
+		info.startTimestamp = startTimestamp[0];
 
 		for (int c = 0; c < numChannels; c++)
 		{
@@ -121,10 +132,9 @@ void BinaryFileSource::fillRecordInfo()
 		
 	}
 
-	
-
 	if (hasEventData)
 	{
+
 		var eventData = m_jsonData["events"];
 		
 		//create identifiers to speed up stuff
@@ -148,6 +158,8 @@ void BinaryFileSource::fillRecordInfo()
 			String folderName = events[idFolder];
 			folderName = folderName.trimCharactersAtEnd("/");
 
+			LOGD("Found event source: ", folderName);
+
 			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
 			if (!channelFile.existsAsFile()) continue;
 
@@ -169,36 +181,63 @@ void BinaryFileSource::fillRecordInfo()
 			ScopedPointer<FileInputStream> timestampsDataStream = timestampsFile.createInputStream();
 			MemoryBlock timestampData;
 
-			const int maxSensibleFileSize = 2 * 1024 * 1024;
-
 			// (put a sanity-check on the file size, as channel files are relatively small)
 			if (!(channelDataStream->readIntoMemoryBlock (channelData, maxSensibleFileSize))) continue;
 			if (!(channelStateDataStream->readIntoMemoryBlock (channelStateData, maxSensibleFileSize))) continue;
 			if (!(timestampsDataStream->readIntoMemoryBlock (timestampData, maxSensibleFileSize))) continue;
 		
-			std::vector<int16> channels;
-			std::vector<int16> channelStates;
-			std::vector<int64> timestamps;
+			EventInfo eventInfo;
 
 			for (int i = 0; i < nEvents; i++)
 			{
-				int16* data = static_cast<int16*>(channelFile.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));	
-				channels.push_back(*data);
+				int16* data = static_cast<int16*>(channelData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));	
+				eventInfo.channels.push_back(*data);
 
 				data = static_cast<int16*>(channelStateData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));
-				channelStates.push_back(*data);
+				eventInfo.channelStates.push_back(*data);
 
 				int64* tsData = static_cast<int64*>(timestampData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int64));
-				timestamps.push_back(*tsData);
+				eventInfo.timestamps.push_back(*tsData);
 
 			}
 
-			for (int i = 0; i < channels.size(); i++)
-				LOGD("CH: ", channels[i], " State: ", channelStates[i], " ts: ", timestamps[i]);
+			for (int i = 0; i < eventInfo.channels.size(); i++)
+				LOGD("CH: ", eventInfo.channels[i], " State: ", eventInfo.channelStates[i], " ts: ", eventInfo.timestamps[i]);
 
+			if (nEvents)
+				eventInfoArray.add(eventInfo);
 
 		}
 	}
+	LOGD("infoArraySize: ", eventInfoArray.size());
+
+}
+
+void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
+{
+
+	//Convert start and stop times relative to number of total samples
+	start = start % infoArray[getActiveRecord()].numSamples;
+	stop = stop % infoArray[getActiveRecord()].numSamples;
+
+	if (stop < start) //we've reached the end of the data file
+	{
+		//TODO: Set all event channels to low and return
+	}
+
+	for (auto info : eventInfoArray)
+	{
+		int i = 0;
+		while (info.timestamps[i] < start) { i++; } 
+		while (info.timestamps[i] < stop) 
+		{
+			eventInfo.channels.push_back(info.channels[i] - 1);
+			eventInfo.channelStates.push_back((uint8)(info.channelStates[i] > 0));
+			eventInfo.timestamps.push_back(info.timestamps[i]);
+			i++;
+		}
+	}
+
 
 }
 

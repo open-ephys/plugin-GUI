@@ -92,6 +92,7 @@ private:
     int64 stopSample;
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
+    int64 loopCount;
 
     // for testing purposes only
     int counter;
