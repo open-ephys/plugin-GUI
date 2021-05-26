@@ -111,7 +111,7 @@ void BinaryFileSource::fillRecordInfo()
 		ScopedPointer<FileInputStream> tsDataStream = tsFile.createInputStream();
 		MemoryBlock tsData;
 		if (!(tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize))) continue;
-		int64* startTimestamp = static_cast<int64*>(tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES);
+		int64* startTimestamp = (int64 *)tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES;
 		info.startTimestamp = startTimestamp[0];
 
 		for (int c = 0; c < numChannels; c++)
@@ -161,48 +161,35 @@ void BinaryFileSource::fillRecordInfo()
 			LOGD("Found event source: ", folderName);
 
 			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
-			if (!channelFile.existsAsFile()) continue;
+			std::unique_ptr<MemoryMappedFile> channelFileMap(new MemoryMappedFile(channelFile, MemoryMappedFile::readOnly)); 
 
 			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channel_states.npy");
-			if (!channelStatesFile.existsAsFile()) continue;
+			std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly)); 
 
 			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("timestamps.npy");
-			if (!timestampsFile.existsAsFile()) continue;
+			std::unique_ptr<MemoryMappedFile> timestampsFileMap(new MemoryMappedFile(timestampsFile, MemoryMappedFile::readOnly)); 
 
 			int channelFileSize = channelFile.getSize(); 
 
 			int nEvents = (channelFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT; 
-
-			//Convert to std::unique_ptr<FileInputStream> when upgrade to JUCE6
-			ScopedPointer<FileInputStream> channelDataStream = channelFile.createInputStream();
-			MemoryBlock channelData;
-			ScopedPointer<FileInputStream> channelStateDataStream = channelStatesFile.createInputStream();
-			MemoryBlock channelStateData;
-			ScopedPointer<FileInputStream> timestampsDataStream = timestampsFile.createInputStream();
-			MemoryBlock timestampData;
-
-			// (put a sanity-check on the file size, as channel files are relatively small)
-			if (!(channelDataStream->readIntoMemoryBlock (channelData, maxSensibleFileSize))) continue;
-			if (!(channelStateDataStream->readIntoMemoryBlock (channelStateData, maxSensibleFileSize))) continue;
-			if (!(timestampsDataStream->readIntoMemoryBlock (timestampData, maxSensibleFileSize))) continue;
 		
 			EventInfo eventInfo;
 
 			for (int i = 0; i < nEvents; i++)
 			{
-				int16* data = static_cast<int16*>(channelData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));	
+				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i * sizeof(int16) / 2;
 				eventInfo.channels.push_back(*data);
 
-				data = static_cast<int16*>(channelStateData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int16));
+				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i * sizeof(int16) / 2;
 				eventInfo.channelStates.push_back(*data);
 
-				int64* tsData = static_cast<int64*>(timestampData.getData() + EVENT_HEADER_SIZE_IN_BYTES + i*sizeof(int64));
+				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
 				eventInfo.timestamps.push_back(*tsData);
 
 			}
 
 			for (int i = 0; i < eventInfo.channels.size(); i++)
-				LOGD("CH: ", eventInfo.channels[i], " State: ", eventInfo.channelStates[i], " ts: ", eventInfo.timestamps[i]);
+				LOGD("[", i, "]", " CH: ", eventInfo.channels[i], " State: ", eventInfo.channelStates[i], " ts: ", eventInfo.timestamps[i]);
 
 			if (nEvents)
 				eventInfoArray.add(eventInfo);
@@ -222,18 +209,19 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 
 	if (stop < start) //we've reached the end of the data file
 	{
-		//TODO: Set all event channels to low and return
 	}
 
 	for (auto info : eventInfoArray)
 	{
 		int i = 0;
-		while (info.timestamps[i] < start) { i++; } 
-		while (info.timestamps[i] < stop) 
+		while (i < info.timestamps.size())
 		{
-			eventInfo.channels.push_back(info.channels[i] - 1);
-			eventInfo.channelStates.push_back((uint8)(info.channelStates[i] > 0));
-			eventInfo.timestamps.push_back(info.timestamps[i]);
+			if (info.timestamps[i] >= start && info.timestamps[i] <= stop)
+			{
+				eventInfo.channels.push_back(info.channels[i] - 1);
+				eventInfo.channelStates.push_back((uint8)(info.channelStates[i] > 0));
+				eventInfo.timestamps.push_back(info.timestamps[i]);
+			}
 			i++;
 		}
 	}
