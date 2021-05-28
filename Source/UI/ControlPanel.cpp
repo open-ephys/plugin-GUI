@@ -1159,7 +1159,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
     {
         if (xmlNode->hasTagName("CONTROLPANEL"))
         {
-			String recordPath = xmlNode->getStringAttribute("recordPath", String::empty);
+			String recordPath = xmlNode->getStringAttribute("recordPath", String());
 			if (!recordPath.isEmpty())
 			{
 				filenameComponent->setCurrentFile(File(recordPath), true, sendNotificationAsync);

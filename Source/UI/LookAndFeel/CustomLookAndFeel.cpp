@@ -468,7 +468,7 @@ void CustomLookAndFeel::drawGlassPointer(Graphics& g,
 
 Button* CustomLookAndFeel::createSliderButton(Slider& s, bool isIncrement)
 {
-    return new CustomArrowButton(String::empty, isIncrement ? 0 : 0.5);
+    return new CustomArrowButton(String(), isIncrement ? 0 : 0.5);
 }
 
 

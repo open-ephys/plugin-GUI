@@ -136,7 +136,7 @@ bool FileSource::OpenFile (File file)
     else
     {
         fileOpened = false;
-        filename = String::empty;
+        filename = String();
     }
 
     return fileOpened;

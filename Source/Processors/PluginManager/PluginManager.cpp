@@ -420,7 +420,7 @@ Plugin::FileSourceInfo PluginManager::getFileSourceInfo(String name, String libN
 String PluginManager::getLibraryName(int index) const
 {
 	if (index < 0 || index >= libArray.size())
-		return String::empty;
+		return String();
 	else
 		return libArray[index].name;
 }

@@ -29,7 +29,7 @@ Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deacti
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
     , m_nameValueObject                 (name)
-    , m_descriptionValueObject          (String::empty)
+    , m_descriptionValueObject          (String())
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
 {
@@ -50,7 +50,7 @@ Parameter::Parameter (const String& name,
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_CONTINUOUS)
     , m_nameValueObject                 (name)
-    , m_descriptionValueObject          (String::empty)
+    , m_descriptionValueObject          (String())
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
 {
@@ -74,7 +74,7 @@ Parameter::Parameter (const String& name,
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_DISCRETE)
     , m_nameValueObject                 (name)
-    , m_descriptionValueObject          (String::empty)
+    , m_descriptionValueObject          (String())
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
 {
@@ -94,7 +94,7 @@ Parameter::Parameter (const String& name, const String& labelName,
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_NUMERICAL)
     , m_nameValueObject                 (name)
-    , m_descriptionValueObject          (String::empty)
+    , m_descriptionValueObject          (String())
     , m_parameterIdValueObject          (ID)
     , m_defaultValueObject              (defaultValue)
 {
@@ -181,7 +181,7 @@ String Parameter::getParameterTypeString() const noexcept
 
     // This should never happen
     jassertfalse;
-    return String::empty;
+    return String();
 }
 
 

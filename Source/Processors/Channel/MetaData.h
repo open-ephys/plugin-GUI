@@ -187,7 +187,7 @@ public:
 	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
 	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
 	const MetaDataValue* getMetaDataValue(int index) const;
-	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
+	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String()) const;
 	const int getMetaDataCount() const;
 	bool hasSameMetadata(const MetaDataInfoObject& other) const;
 	bool hasSimilarMetadata(const MetaDataInfoObject& other) const;
@@ -219,7 +219,7 @@ public:
 	void addEventMetaData(MetaDataDescriptor* desc);
 	void addEventMetaData(const MetaDataDescriptor& desc);
 	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
-	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String::empty) const;
+	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String()) const;
 	size_t getTotalEventMetaDataSize() const;
 	int getEventMetaDataCount() const;
 	//gets the largest metadata size, which can be useful to reserve buffers in advance

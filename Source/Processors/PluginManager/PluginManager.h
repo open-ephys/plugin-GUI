@@ -72,13 +72,13 @@ public:
 	int getNumRecordEngines() const;
 	int getNumFileSources() const;
 	Plugin::ProcessorInfo getProcessorInfo(int index) const;
-	Plugin::ProcessorInfo getProcessorInfo(String name, String libName = String::empty) const;
+	Plugin::ProcessorInfo getProcessorInfo(String name, String libName = String()) const;
 	Plugin::DataThreadInfo getDataThreadInfo(int index) const;
-	Plugin::DataThreadInfo getDataThreadInfo(String name, String libName = String::empty) const;
+	Plugin::DataThreadInfo getDataThreadInfo(String name, String libName = String()) const;
 	Plugin::RecordEngineInfo getRecordEngineInfo(int index) const;
-	Plugin::RecordEngineInfo getRecordEngineInfo(String name, String libName = String::empty) const;
+	Plugin::RecordEngineInfo getRecordEngineInfo(String name, String libName = String()) const;
 	Plugin::FileSourceInfo getFileSourceInfo(int index) const;
-	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String::empty) const;
+	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String()) const;
 	String getLibraryName(int index) const;
 	int getLibraryVersion(int index) const;
 	int getLibraryIndexFromPlugin(Plugin::PluginType type, int index);

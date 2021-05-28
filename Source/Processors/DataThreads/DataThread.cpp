@@ -146,5 +146,5 @@ void DataThread::resizeBuffers()
 
 String DataThread::getChannelUnits(int chanIndex) const
 {
-	return String::empty;
+	return String();
 }

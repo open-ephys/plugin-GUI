@@ -686,7 +686,7 @@ void RecordNode::startRecording()
 
 		if (settingsNeeded)
 		{
-			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String::empty) + ".xml";
+			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
 			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
 			settingsNeeded = false;
 		}

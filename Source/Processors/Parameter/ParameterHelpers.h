@@ -33,7 +33,7 @@ static String convertArrayToString (const Array<ValueType>& sourceArray)
     //if (! std::is_arithmetic<ValueType>::value)
     //{
     //    DBG ("Not Arithmetic");
-    //    return String::empty;
+    //    return String();
     //}
 
     String stringRepr;
@@ -49,7 +49,7 @@ static String convertArrayToString (const Array<ValueType>& sourceArray)
 
 /** Creates and returns the array created from given string. Could be dangerous. */
 template <typename ValueType>
-static Array<var> createArrayFromString (const String& arrayString, const String& breakCharacters, const String& quoteCharacters = String::empty)
+static Array<var> createArrayFromString (const String& arrayString, const String& breakCharacters, const String& quoteCharacters = String())
 {
     // Allow to convert only the arrays which store arithmetic types
     if (! std::is_arithmetic<ValueType>::value)

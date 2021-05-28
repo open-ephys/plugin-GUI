@@ -1340,7 +1340,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     
     XmlElement* xml = createSettingsXml();
 
-    if (! xml->writeToFile(currentFile, String::empty))
+    if (! xml->writeToFile(currentFile, String()))
         error = "Couldn't write to file ";
     else
         error = "Saved configuration as ";
@@ -1349,7 +1349,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     if (xmlText != nullptr)
     {
-        (*xmlText) = xml->createDocument(String::empty);
+        (*xmlText) = xml->createDocument(String());
         if ((*xmlText).isEmpty())
             (*xmlText) = "Couldn't create configuration xml";
     }
@@ -1570,7 +1570,7 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
         
         XmlElement* settings = createNodeXml(selectedEditor->getProcessor(), false);
         
-        if (! settings->writeToFile(fileToSave, String::empty))
+        if (! settings->writeToFile(fileToSave, String()))
             error = "Couldn't write to file ";
         else
             error = "Saved plugin settings to ";
@@ -1629,7 +1629,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                 {
                     versionString = element2->getAllSubText();
 					StringArray tokens;
-					tokens.addTokens(versionString, ".", String::empty);
+					tokens.addTokens(versionString, ".", String());
 
 					//Patch to correctly load saved chains from before 0.4.4
 					if (tokens[0].getIntValue() == 0 && tokens[1].getIntValue() == 4 && tokens[2].getIntValue() < 4)

@@ -299,7 +299,7 @@ String FileReader::getFile() const
     if (input)
         return input->getFileName();
     else
-        return String::empty;
+        return String();
 }
 
 

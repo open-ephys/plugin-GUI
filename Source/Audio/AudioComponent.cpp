@@ -38,10 +38,10 @@ AudioComponent::AudioComponent() : isPlaying(false)
             2,  // numOutputChannelsNeeded
             0,  // *savedState (XmlElement)
             true, // selectDefaultDeviceOnFailure
-            String::empty, // preferred device
+            String(), // preferred device
             0); // preferred device setup options
 
-        if (error == String::empty)
+        if (error == String())
         {
             initialized = true;
         }
@@ -303,7 +303,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
                 2,              // numOutputChannelsNeeded
                 child,          // savedState
                 true,           // selectDefaultDeviceOnFailure
-                String::empty,  // preferred device
+                String(),  // preferred device
                 nullptr);       // preferred device setup options
 
             if (error.isEmpty())
@@ -314,7 +314,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
     }
 
     // Now the important parameters separately, as a backup (in case the devices have different names or something)
-    String deviceType = parent->getStringAttribute("deviceType", String::empty);
+    String deviceType = parent->getStringAttribute("deviceType", String());
     if (!deviceType.isEmpty())
     {
         deviceManager.setCurrentAudioDeviceType(deviceType, true);

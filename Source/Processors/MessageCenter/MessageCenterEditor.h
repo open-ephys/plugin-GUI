@@ -141,7 +141,7 @@ private:
 class MessageLabel : public Label
 {
 public:
-    MessageLabel(const String& componentName=String::empty, const String& labelText=String::empty);
+    MessageLabel(const String& componentName=String(), const String& labelText=String());
     
     String getTooltip();
     

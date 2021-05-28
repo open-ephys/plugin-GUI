@@ -384,7 +384,7 @@ String BinaryRecording::jsonTypeValue(BaseType type)
 	case BaseType::DOUBLE:
 		return "double";
 	default:
-		return String::empty;
+		return String();
 	}
 }
 

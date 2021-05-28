@@ -117,7 +117,7 @@ void PluginInstaller::createXmlFile()
 
 		baseTag->addChildElement(plugins.release());
 
-		if (! baseTag->writeToFile(file, juce::String::empty))
+		if (! baseTag->writeToFile(file, juce::String()))
 			LOGD("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
@@ -139,7 +139,7 @@ void PluginInstaller::createXmlFile()
 			child->removeChildElement(element, true);
 		}
 
-		if (! xml->writeToFile(file, juce::String::empty))
+		if (! xml->writeToFile(file, juce::String()))
 		{
 			LOGD("Error! Couldn't write to installedPlugins.xml");
 		}
@@ -638,7 +638,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 		if (pluginEntry != nullptr)
 			selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue(0);
 		else
-			selectedPluginInfo.installedVersion = juce::String::empty;
+			selectedPluginInfo.installedVersion = juce::String();
 		
 	}
 
@@ -1217,7 +1217,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	if (!isDependency)
 	{
 		// Write installed plugin's info to XML file
-		if (! xml->writeToFile(xmlFile, juce::String::empty))
+		if (! xml->writeToFile(xmlFile, juce::String()))
 		{
 			LOGD("Error! Couldn't write to installedPlugins.xml");
 			return 5;

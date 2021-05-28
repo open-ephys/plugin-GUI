@@ -211,7 +211,7 @@ uint32 SystemEvent::getNumSamples(const MidiMessage& msg)
 String SystemEvent::getSyncText(const MidiMessage& msg)
 {
 	if (getBaseType(msg) != SYSTEM_EVENT && getSystemEventType(msg) != TIMESTAMP_SYNC_TEXT)
-		return String::empty;
+		return String();
 
 	const char* data = reinterpret_cast<const char*>(msg.getRawData());
 	return String::fromUTF8(data + 16, msg.getRawDataSize() - 17);

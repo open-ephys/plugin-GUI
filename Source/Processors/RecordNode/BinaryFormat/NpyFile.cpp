@@ -222,12 +222,12 @@ NpyType::NpyType(String n, BaseType t, size_t l)
 }
 
 NpyType::NpyType(BaseType t, size_t l)
-    : name(String::empty), type(t), length(l)
+    : name(String()), type(t), length(l)
 {
 }
 
 NpyType::NpyType()
-    : name(String::empty), type(BaseType::INT8), length(1)
+    : name(String()), type(BaseType::INT8), length(1)
 {
 
 }

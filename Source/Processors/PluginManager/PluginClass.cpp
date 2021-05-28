@@ -28,8 +28,8 @@
 
 PluginClass::PluginClass()
 {
-	libName = String::empty;
-	pluginName = String::empty;
+	libName = String();
+	pluginName = String();
 	libVersion = -1;
     pluginType = Plugin::NOT_A_PLUGIN_TYPE;
 }

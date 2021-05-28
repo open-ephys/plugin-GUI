@@ -57,7 +57,7 @@ class SlicerChannelSelectorComponent    : public Component
 {
 public:
     SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
-                                    const String& componentName = String::empty);
+                                    const String& componentName = String());
 
     class Listener
     {

@@ -107,7 +107,7 @@ void FileReaderEditor::buttonEvent (Button* button)
         if (button == fileButton)
         {
 			StringArray extensions = fileReader->getSupportedExtensions();
-			String supportedFormats = String::empty;
+			String supportedFormats = String();
 
 			int numExtensions = extensions.size();
 			for (int i = 0; i < numExtensions; ++i)
@@ -427,7 +427,7 @@ void DualTimeComponent::labelTextChanged (Label* label)
     const int index = (label == timeLabel[0]) ? 0 : 1;
 
     StringArray elements;
-    elements.addTokens (label->getText(), ":.", String::empty);
+    elements.addTokens (label->getText(), ":.", String());
 
     unsigned int time = elements[0].getIntValue();
     time = 60   * time + elements[1].getIntValue();

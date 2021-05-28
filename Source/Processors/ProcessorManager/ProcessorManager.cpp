@@ -67,7 +67,7 @@ namespace ProcessorManager
 			type = FilterProcessor;
 			break;
 		default:
-			name = String::empty;
+			name = String();
 			type = -1;
 			break;
 		}
@@ -141,7 +141,7 @@ namespace ProcessorManager
 			break;
 		}
 		default:
-			name = String::empty;
+			name = String();
 			type = -1;
 			break;
 		}
