@@ -200,6 +200,8 @@ void OpenEphysFileSource::processChannelData(int16* inBuffer, float* outBuffer, 
 	}
 }
 
+void OpenEphysFileSource::processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) { /* TODO */ };
+
 bool OpenEphysFileSource::isReady()
 {
 	return true;

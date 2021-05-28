@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinaryFileSource.h"
-#include "../../../Utils/Utils.h"
 
 using namespace BinarySource;
 
@@ -159,8 +158,6 @@ void BinaryFileSource::fillRecordInfo()
 			String folderName = events[idFolder];
 			folderName = folderName.trimCharactersAtEnd("/");
 
-			LOGD("Found event source: ", folderName);
-
 			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
 			std::unique_ptr<MemoryMappedFile> channelFileMap(new MemoryMappedFile(channelFile, MemoryMappedFile::readOnly)); 
 
@@ -178,10 +175,10 @@ void BinaryFileSource::fillRecordInfo()
 
 			for (int i = 0; i < nEvents; i++)
 			{
-				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i * sizeof(int16) / 2;
+				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
 				eventInfo.channels.push_back(*data);
 
-				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i * sizeof(int16) / 2;
+				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
 				eventInfo.channelStates.push_back(*data);
 
 				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
@@ -189,15 +186,11 @@ void BinaryFileSource::fillRecordInfo()
 
 			}
 
-			for (int i = 0; i < eventInfo.channels.size(); i++)
-				LOGD("[", i, "]", " CH: ", eventInfo.channels[i], " State: ", eventInfo.channelStates[i], " ts: ", eventInfo.timestamps[i]);
-
 			if (nEvents)
 				eventInfoArray.add(eventInfo);
 
 		}
 	}
-	LOGD("infoArraySize: ", eventInfoArray.size());
 
 }
 
@@ -220,7 +213,7 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 			if (info.timestamps[i] >= start && info.timestamps[i] <= stop)
 			{
 				eventInfo.channels.push_back(info.channels[i] - 1);
-				eventInfo.channelStates.push_back((uint8)(info.channelStates[i] > 0));
+				eventInfo.channelStates.push_back((info.channelStates[i]));
 				eventInfo.timestamps.push_back(info.timestamps[i]);
 			}
 			i++;

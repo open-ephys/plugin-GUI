@@ -41,6 +41,7 @@ namespace OpenEphysSource
 		void seekTo(int64 sample) override;
 
 		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
 
 		bool isReady() override;
 

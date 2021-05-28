@@ -28,7 +28,6 @@
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
-#include "OpenEphysFileSource/OpenEphysFileSource.h"
 
 
 FileReader::FileReader()
@@ -347,28 +346,27 @@ void FileReader::process (AudioSampleBuffer& buffer)
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 
-    EventInfo events;
-
     int64 startTimestamp = timestamp;
 	timestamp += samplesNeededPerBuffer;
     int64 stopTimestamp = timestamp;
 
-    if (stopTimestamp % currentNumSamples < startTimestamp % currentNumSamples)
+    if (stopTimestamp == currentNumSamples || stopTimestamp % currentNumSamples < startTimestamp % currentNumSamples)
     {
         loopCount++;
-        LOGD("Loop counter ++");
     }
 
 	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
 
-    //Find all events int the current process block
+    //Find all events in the current process block
+    EventInfo events;
     input->processEventData(events, startTimestamp, stopTimestamp);
 
-    for (int i = 0; i < events.channels.size(); i++) {
-
-        uint8 ttlData = events.channelStates[i];
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp - loopCount, &ttlData, sizeof(uint8), uint16(events.channels[i]));
-        addEvent(events.channels[i], event, events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp - loopCount); 
+    for (int i = 0; i < events.channels.size(); i++) 
+    { 
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp;
+        uint8 ttlData = events.channelStates[i] > 0 ? (1 << events.channels[i]) : 0;
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
+        addEvent(0, event, absoluteCurrentTimestamp); 
     }
 
     bufferCacheWindow += 1;
@@ -466,7 +464,6 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         // if reached end of file stream
         if ( (currentSample + samplesToRead) > stopSample)
         {
-            LOGD("Reached end of file stream");
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
@@ -501,7 +498,7 @@ StringArray FileReader::getSupportedExtensions() const
 
 int FileReader::getNumBuiltInFileSources() const
 {
-	return 2;
+	return 1;
 }
 
 String FileReader::getBuiltInFileSourceExtensions(int index) const
@@ -510,8 +507,6 @@ String FileReader::getBuiltInFileSourceExtensions(int index) const
 	{
 	case 0: //Binary
 		return "oebin";
-    case 1: //OpenEphys
-        return "openephys";
 	default:
 		return "";
 	}
@@ -523,8 +518,6 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	{
 	case 0:
 		return new BinarySource::BinaryFileSource();
-    case 1: 
-        return new OpenEphysSource::OpenEphysFileSource();
 	default:
 		return nullptr;
 	}
