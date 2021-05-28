@@ -101,7 +101,7 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 \
-class RecordNodeEditor : public GenericEditor, ComboBoxListener, LabelListener
+class RecordNodeEditor : public GenericEditor, ComboBox::Listener, Label::Listener
 {
 public:
 

@@ -60,7 +60,7 @@ class UIComponent : public Component,
     public ActionBroadcaster,
     public MenuBarModel,
     public ApplicationCommandTarget,
-    public ButtonListener,
+    public Button::Listener,
     public DragAndDropContainer // required for
 // drag-and-drop
 // internal components
