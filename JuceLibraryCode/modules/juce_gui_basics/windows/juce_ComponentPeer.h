@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_COMPONENTPEER_H_INCLUDED
-#define JUCE_COMPONENTPEER_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -37,6 +37,8 @@
     User-code should very rarely need to have any involvement with this class.
 
     @see Component::createNewPeer
+
+    @tags{GUI}
 */
 class JUCE_API  ComponentPeer
 {
@@ -68,8 +70,9 @@ public:
                                                         performAnyPendingRepaintsNow() method is called. */
         windowIgnoresKeyPresses     = (1 << 10),   /**< Tells the window not to catch any keypresses. This can
                                                         be used for things like plugin windows, to stop them interfering
-                                                        with the host's shortcut keys */
-        windowIsSemiTransparent     = (1 << 31)    /**< Not intended for public use - makes a window transparent. */
+                                                        with the host's shortcut keys. This will prevent the window from
+                                                        gaining keyboard focus. */
+        windowIsSemiTransparent     = (1 << 30)    /**< Not intended for public use - makes a window transparent. */
 
     };
 
@@ -164,6 +167,12 @@ public:
 
     /** Converts a screen area to a position relative to the top-left of this component. */
     virtual Rectangle<int> globalToLocal (const Rectangle<int>& screenPosition);
+
+    /** Converts a rectangle relative to the top-left of this component to screen coordinates. */
+    Rectangle<float> localToGlobal (const Rectangle<float>& relativePosition);
+
+    /** Converts a screen area to a position relative to the top-left of this component. */
+    Rectangle<float> globalToLocal (const Rectangle<float>& screenPosition);
 
     /** Returns the area in peer coordinates that is covered by the given sub-comp (which
         may be at any depth)
@@ -311,12 +320,18 @@ public:
     virtual void setAlpha (float newAlpha) = 0;
 
     //==============================================================================
-    void handleMouseEvent (int touchIndex, Point<float> positionWithinPeer, ModifierKeys newMods, float pressure, int64 time);
-    void handleMouseWheel (int touchIndex, Point<float> positionWithinPeer, int64 time, const MouseWheelDetails&);
-    void handleMagnifyGesture (int touchIndex, Point<float> positionWithinPeer, int64 time, float scaleFactor);
+    void handleMouseEvent (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer, ModifierKeys newMods, float pressure,
+                           float orientation, int64 time, PenDetails pen = {}, int touchIndex = 0);
+
+    void handleMouseWheel (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer,
+                           int64 time, const MouseWheelDetails&, int touchIndex = 0);
+
+    void handleMagnifyGesture (MouseInputSource::InputSourceType type, Point<float> positionWithinPeer,
+                               int64 time, float scaleFactor, int touchIndex = 0);
 
     void handleUserClosingWindow();
 
+    /** Structure to describe drag and drop information */
     struct DragInfo
     {
         StringArray files;
@@ -355,23 +370,71 @@ public:
     virtual int getCurrentRenderingEngine() const;
     virtual void setCurrentRenderingEngine (int index);
 
+    //==============================================================================
+    /** On desktop platforms this method will check all the mouse and key states and return
+        a ModifierKeys object representing them.
+
+        This isn't recommended and is only needed in special circumstances for up-to-date
+        modifier information at times when the app's event loop isn't running normally.
+
+        Another reason to avoid this method is that it's not stateless and calling it may
+        update the ModifierKeys::currentModifiers object, which could cause subtle changes
+        in the behaviour of some components.
+    */
+    static ModifierKeys getCurrentModifiersRealtime() noexcept;
+
+    //==============================================================================
+    /**  Used to receive callbacks when the OS scale factor of this ComponentPeer changes.
+
+         This is used internally by some native JUCE windows on Windows and Linux and you
+         shouldn't need to worry about it in your own code unless you are dealing directly
+         with native windows.
+    */
+    struct JUCE_API  ScaleFactorListener
+    {
+        /** Destructor. */
+        virtual ~ScaleFactorListener() = default;
+
+        /** Called when the scale factor changes. */
+        virtual void nativeScaleFactorChanged (double newScaleFactor) = 0;
+    };
+
+    /** Adds a scale factor listener. */
+    void addScaleFactorListener (ScaleFactorListener* listenerToAdd)          { scaleFactorListeners.add (listenerToAdd); }
+
+    /** Removes a scale factor listener. */
+    void removeScaleFactorListener (ScaleFactorListener* listenerToRemove)    { scaleFactorListeners.remove (listenerToRemove);  }
+
+    //==============================================================================
+    /** On Windows and Linux this will return the OS scaling factor currently being applied
+        to the native window. This is used to convert between physical and logical pixels
+        at the OS API level and you shouldn't need to use it in your own code unless you
+        are dealing directly with the native window.
+    */
+    virtual double getPlatformScaleFactor() const noexcept    { return 1.0; }
+
 protected:
     //==============================================================================
+    static void forceDisplayUpdate();
+
     Component& component;
     const int styleFlags;
     Rectangle<int> lastNonFullscreenBounds;
-    ComponentBoundsConstrainer* constrainer;
+    ComponentBoundsConstrainer* constrainer = nullptr;
+    static std::function<ModifierKeys()> getNativeRealtimeModifiers;
+    ListenerList<ScaleFactorListener> scaleFactorListeners;
 
 private:
     //==============================================================================
-    WeakReference<Component> lastFocusedComponent, dragAndDropTargetComponent;
-    Component* lastDragAndDropCompUnderMouse;
-    const uint32 uniqueID;
-    bool isWindowMinimised;
     Component* getTargetForKeyPress();
 
+    WeakReference<Component> lastFocusedComponent, dragAndDropTargetComponent;
+    Component* lastDragAndDropCompUnderMouse = nullptr;
+    const uint32 uniqueID;
+    bool isWindowMinimised = false;
+
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ComponentPeer)
 };
 
-
-#endif   // JUCE_COMPONENTPEER_H_INCLUDED
+} // namespace juce

@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_FILEBROWSERCOMPONENT_H_INCLUDED
-#define JUCE_FILEBROWSERCOMPONENT_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,12 +35,11 @@
     be used for loading or saving a file, or for choosing a directory.
 
     @see FileChooserDialogBox, FileChooser, FileListComponent
+
+    @tags{GUI}
 */
 class JUCE_API  FileBrowserComponent  : public Component,
                                         private FileBrowserListener,
-                                        private TextEditorListener,
-                                        private ButtonListener,
-                                        private ComboBoxListener,  // (can't use ComboBox::Listener due to idiotic VC2005 bug)
                                         private FileFilter,
                                         private Timer
 {
@@ -74,7 +73,7 @@ public:
                                         specify the component's behaviour. The flags must contain either openMode
                                         or saveMode, and canSelectFiles and/or canSelectDirectories.
         @param initialFileOrDirectory   The file or directory that should be selected when the component begins.
-                                        If this is File::nonexistent, a default directory will be chosen.
+                                        If this is File(), a default directory will be chosen.
         @param fileFilter               an optional filter to use to determine which files are shown.
                                         If this is nullptr then all files are displayed. Note that a pointer
                                         is kept internally to this object, so make sure that it is not deleted
@@ -88,7 +87,7 @@ public:
                           FilePreviewComponent* previewComp);
 
     /** Destructor. */
-    ~FileBrowserComponent();
+    ~FileBrowserComponent() override;
 
     //==============================================================================
     /** Returns the number of files that the user has got selected.
@@ -183,7 +182,7 @@ public:
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         // These return a pointer to an internally cached drawable - make sure you don't keep
         // a copy of this pointer anywhere, as it may become invalid in the future.
@@ -194,6 +193,7 @@ public:
                                                               const String& instructions) = 0;
 
         virtual void drawFileBrowserRow (Graphics&, int width, int height,
+                                         const File& file,
                                          const String& filename,
                                          Image* optionalIcon,
                                          const String& fileSizeDescription,
@@ -213,21 +213,27 @@ public:
                                                  Button* goUpButton) = 0;
     };
 
+    /** A set of colour IDs to use to change the colour of various aspects of the FileBrowserComponent.
+
+        These constants can be used either via the Component::setColour(), or LookAndFeel::setColour()
+        methods.
+
+        @see Component::setColour, Component::findColour, LookAndFeel::setColour, LookAndFeel::findColour
+    */
+    enum ColourIds
+    {
+        currentPathBoxBackgroundColourId    = 0x1000640, /**< The colour to use to fill the background of the current path ComboBox. */
+        currentPathBoxTextColourId          = 0x1000641, /**< The colour to use for the text of the current path ComboBox. */
+        currentPathBoxArrowColourId         = 0x1000642, /**< The colour to use to draw the arrow of the current path ComboBox. */
+        filenameBoxBackgroundColourId       = 0x1000643, /**< The colour to use to fill the background of the filename TextEditor. */
+        filenameBoxTextColourId             = 0x1000644  /**< The colour to use for the text of the filename TextEditor. */
+    };
+
     //==============================================================================
     /** @internal */
     void resized() override;
     /** @internal */
-    void buttonClicked (Button*) override;
-    /** @internal */
-    void comboBoxChanged (ComboBox*) override;
-    /** @internal */
-    void textEditorTextChanged (TextEditor&) override;
-    /** @internal */
-    void textEditorReturnKeyPressed (TextEditor&) override;
-    /** @internal */
-    void textEditorEscapeKeyPressed (TextEditor&) override;
-    /** @internal */
-    void textEditorFocusLost (TextEditor&) override;
+    void lookAndFeelChanged() override;
     /** @internal */
     bool keyPressed (const KeyPress&) override;
     /** @internal */
@@ -260,7 +266,7 @@ protected:
 
 private:
     //==============================================================================
-    ScopedPointer<DirectoryContentsList> fileList;
+    std::unique_ptr<DirectoryContentsList> fileList;
     const FileFilter* fileFilter;
 
     int flags;
@@ -268,22 +274,22 @@ private:
     Array<File> chosenFiles;
     ListenerList<FileBrowserListener> listeners;
 
-    ScopedPointer<DirectoryContentsDisplayComponent> fileListComponent;
+    std::unique_ptr<DirectoryContentsDisplayComponent> fileListComponent;
     FilePreviewComponent* previewComp;
     ComboBox currentPathBox;
     TextEditor filenameBox;
     Label fileLabel;
-    ScopedPointer<Button> goUpButton;
+    std::unique_ptr<Button> goUpButton;
     TimeSliceThread thread;
     bool wasProcessActive;
 
     void timerCallback() override;
     void sendListenerChangeMessage();
     bool isFileOrDirSuitable (const File&) const;
+    void updateSelectedPath();
+    void changeFilename();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileBrowserComponent)
 };
 
-
-
-#endif   // JUCE_FILEBROWSERCOMPONENT_H_INCLUDED
+} // namespace juce

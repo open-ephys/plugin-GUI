@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_BLUETOOTHMIDIDEVICPAIRINGCOMPONENT_H_INCLUDED
-#define JUCE_BLUETOOTHMIDIDEVICPAIRINGCOMPONENT_H_INCLUDED
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,22 +36,31 @@
     Only after a Bluetooth MIDI device has been paired will its MIDI ports
     be available through JUCE's MidiInput and MidiOutput classes.
 
-    This dialogue is currently only available on iOS and Android. On OSX,
-    you should instead pair Bluetooth MIDI devices using the "Audio MIDI Setup"
-    app (located in /Applications/Utilities). On Windows, you should use
-    the system settings. On Linux, Bluetooth MIDI devices are currently not
-    supported.
-*/
+    This dialogue is currently only available on macOS targetting versions 10.11+,
+    iOS and Android. When targeting older versions of macOS you should instead
+    pair Bluetooth MIDI devices using the "Audio MIDI Setup" app (located in
+    /Applications/Utilities). On Windows, you should use the system settings. On
+    Linux, Bluetooth MIDI devices are currently not supported.
 
-class BluetoothMidiDevicePairingDialogue
+    @tags{Audio}
+*/
+class JUCE_API BluetoothMidiDevicePairingDialogue
 {
 public:
 
     /** Opens the Bluetooth MIDI pairing dialogue, if it is available.
 
+        @param  exitCallback A callback which will be called when the modal
+                bluetooth dialog is closed.
+        @param  btWindowBounds The bounds of the bluetooth window that will
+                be opened. The dialog itself is opened by the OS so cannot
+                be customised by JUCE.
         @return true if the dialogue was opened, false on error.
+
+        @see ModalComponentManager::Callback
     */
-    static bool open();
+    static bool open (ModalComponentManager::Callback* exitCallback = nullptr,
+                      Rectangle<int>* btWindowBounds = nullptr);
 
     /** Checks if a Bluetooth MIDI pairing dialogue is available on this
         platform.
@@ -70,5 +80,4 @@ public:
     static bool isAvailable();
 };
 
-
-#endif   // JUCE_BLUETOOTHMIDIDEVICPAIRINGCOMPONENT_H_INCLUDED
+} // namespace juce

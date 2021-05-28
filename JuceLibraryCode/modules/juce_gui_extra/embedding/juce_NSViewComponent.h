@@ -2,28 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_NSVIEWCOMPONENT_H_INCLUDED
-#define JUCE_NSVIEWCOMPONENT_H_INCLUDED
+namespace juce
+{
 
 #if JUCE_MAC || DOXYGEN
 
@@ -36,7 +37,9 @@
     moved and resized to follow the movements of this component.
 
     Of course, since the view is a native object, it'll obliterate any
-    juce components that may overlap this component, but that's life.
+    JUCE components that may overlap this component, but that's life.
+
+    @tags{GUI}
 */
 class JUCE_API  NSViewComponent   : public Component
 {
@@ -46,25 +49,24 @@ public:
     NSViewComponent();
 
     /** Destructor. */
-    ~NSViewComponent();
+    ~NSViewComponent() override;
 
     /** Assigns an NSView to this peer.
 
         The view will be retained and released by this component for as long as
         it is needed. To remove the current view, just call setView (nullptr).
 
-        Note: a void* is used here to avoid including the cocoa headers as
-        part of the juce.h, but the method expects an NSView*.
+        Note: A void* is used here to avoid including the cocoa headers as
+        part of JuceHeader.h, but the method expects an NSView*.
     */
     void setView (void* nsView);
 
     /** Returns the current NSView.
 
-        Note: a void* is returned here to avoid the needing to include the cocoa
+        Note: A void* is returned here to avoid the needing to include the cocoa
         headers, so you should just cast the return value to an NSView*.
     */
     void* getView() const;
-
 
     /** Resizes this component to fit the view that it contains. */
     void resizeToFitView();
@@ -84,4 +86,5 @@ private:
 };
 
 #endif
-#endif   // JUCE_NSVIEWCOMPONENT_H_INCLUDED
+
+} // namespace juce

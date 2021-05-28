@@ -2,53 +2,55 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
 
 /*******************************************************************************
  The block below describes the properties of this module, and is read by
  the Projucer to automatically generate project code that uses it.
  For details about the syntax and how to create or use a module, see the
- JUCE Module Format.txt file.
+ JUCE Module Format.md file.
 
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:               juce_audio_formats
-  vendor:           juce
-  version:          4.2.1
-  name:             JUCE audio file format codecs
-  description:      Classes for reading and writing various audio file formats.
-  website:          http://www.juce.com/juce
-  license:          GPL/Commercial
+  ID:                 juce_audio_formats
+  vendor:             juce
+  version:            6.0.8
+  name:               JUCE audio file format codecs
+  description:        Classes for reading and writing various audio file formats.
+  website:            http://www.juce.com/juce
+  license:            GPL/Commercial
 
-  dependencies:     juce_audio_basics
-  OSXFrameworks:    CoreAudio CoreMIDI QuartzCore AudioToolbox
-  iOSFrameworks:    AudioToolbox QuartzCore
+  dependencies:       juce_audio_basics
+  OSXFrameworks:      CoreAudio CoreMIDI QuartzCore AudioToolbox
+  iOSFrameworks:      AudioToolbox QuartzCore
 
  END_JUCE_MODULE_DECLARATION
 
 *******************************************************************************/
 
 
-#ifndef JUCE_AUDIO_FORMATS_H_INCLUDED
+#pragma once
 #define JUCE_AUDIO_FORMATS_H_INCLUDED
 
 #include <juce_audio_basics/juce_audio_basics.h>
@@ -76,8 +78,8 @@
     Enables the software-based MP3AudioFormat class.
     IMPORTANT DISCLAIMER: By choosing to enable the JUCE_USE_MP3AUDIOFORMAT flag and to compile
     this MP3 code into your software, you do so AT YOUR OWN RISK! By doing so, you are agreeing
-    that ROLI Ltd. is in no way responsible for any patent, copyright, or other legal issues
-    that you may suffer as a result.
+    that Raw Material Software Limited is in no way responsible for any patent, copyright, or other
+    legal issues that you may suffer as a result.
 
     The code in juce_MP3AudioFormat.cpp is NOT guaranteed to be free from infringements of 3rd-party
     intellectual property. If you wish to use it, please seek your own independent advice about the
@@ -102,16 +104,12 @@
  #define JUCE_USE_WINDOWS_MEDIA_FORMAT 1
 #endif
 
-#if ! JUCE_MSVC
+#if ! JUCE_WINDOWS
  #undef JUCE_USE_WINDOWS_MEDIA_FORMAT
  #define JUCE_USE_WINDOWS_MEDIA_FORMAT 0
 #endif
 
 //==============================================================================
-namespace juce
-{
-
-class AudioFormat;
 #include "format/juce_AudioFormatReader.h"
 #include "format/juce_AudioFormatWriter.h"
 #include "format/juce_MemoryMappedAudioFormatReader.h"
@@ -126,11 +124,6 @@ class AudioFormat;
 #include "codecs/juce_LAMEEncoderAudioFormat.h"
 #include "codecs/juce_MP3AudioFormat.h"
 #include "codecs/juce_OggVorbisAudioFormat.h"
-#include "codecs/juce_QuickTimeAudioFormat.h"
 #include "codecs/juce_WavAudioFormat.h"
 #include "codecs/juce_WindowsMediaAudioFormat.h"
 #include "sampler/juce_Sampler.h"
-
-}
-
-#endif   // JUCE_AUDIO_FORMATS_H_INCLUDED

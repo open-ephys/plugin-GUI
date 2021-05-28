@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MIDIKEYBOARDCOMPONENT_H_INCLUDED
-#define JUCE_MIDIKEYBOARDCOMPONENT_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -43,9 +43,11 @@
     keyboard is scrolled, you can register a ChangeListener for callbacks.
 
     @see MidiKeyboardState
+
+    @tags{Audio}
 */
 class JUCE_API  MidiKeyboardComponent  : public Component,
-                                         public MidiKeyboardStateListener,
+                                         public MidiKeyboardState::Listener,
                                          public ChangeBroadcaster,
                                          private Timer
 {
@@ -64,13 +66,13 @@ public:
     /** Creates a MidiKeyboardComponent.
 
         @param state        the midi keyboard model that this component will represent
-        @param orientation  whether the keyboard is horizonal or vertical
+        @param orientation  whether the keyboard is horizontal or vertical
     */
     MidiKeyboardComponent (MidiKeyboardState& state,
                            Orientation orientation);
 
     /** Destructor. */
-    ~MidiKeyboardComponent();
+    ~MidiKeyboardComponent() override;
 
     //==============================================================================
     /** Changes the velocity used in midi note-on messages that are triggered by clicking
@@ -126,6 +128,12 @@ public:
     /** Returns the width that was set by setKeyWidth(). */
     float getKeyWidth() const noexcept                              { return keyWidth; }
 
+    /** Changes the width used to draw the buttons that scroll the keyboard up/down in octaves. */
+    void setScrollButtonWidth (int widthInPixels);
+
+    /** Returns the width that was set by setScrollButtonWidth(). */
+    int getScrollButtonWidth() const noexcept                       { return scrollButtonWidth; }
+
     /** Changes the keyboard's current direction. */
     void setOrientation (Orientation newOrientation);
 
@@ -174,7 +182,18 @@ public:
     /** Returns the absolute length of the black notes.
         This will be their vertical or horizontal length, depending on the keyboard's orientation.
     */
-    int getBlackNoteLength() const noexcept;
+    float getBlackNoteLength() const noexcept;
+
+    /** Sets the width of the black notes as a proportion of the white note width. */
+    void setBlackNoteWidthProportion (float ratio) noexcept;
+
+    /** Returns the width of the black notes as a proportion of the white note width. */
+    float getBlackNoteWidthProportion() const noexcept             { return blackNoteWidthRatio; }
+
+    /** Returns the absolute width of the black notes.
+        This will be their vertical or horizontal width, depending on the keyboard's orientation.
+    */
+    float getBlackNoteWidth() const noexcept                       { return keyWidth * blackNoteWidthRatio; }
 
     /** If set to true, then scroll buttons will appear at either end of the keyboard
         if there are too many notes to fit them all in the component at once.
@@ -207,13 +226,13 @@ public:
         Depending on the keyboard's orientation, this may be a horizontal or vertical
         distance, in either direction.
     */
-    int getKeyStartPosition (int midiNoteNumber) const;
+    float getKeyStartPosition (int midiNoteNumber) const;
 
     /** Returns the total width needed to fit all the keys in the available range. */
-    int getTotalKeyboardWidth() const noexcept;
+    float getTotalKeyboardWidth() const noexcept;
 
     /** Returns the key at a given coordinate. */
-    int getNoteAtPosition (Point<int> position);
+    int getNoteAtPosition (Point<float> position);
 
     //==============================================================================
     /** Deletes all key-mappings.
@@ -310,11 +329,9 @@ protected:
         When doing this, be sure to note the keyboard's orientation.
     */
     virtual void drawWhiteNote (int midiNoteNumber,
-                                Graphics& g,
-                                int x, int y, int w, int h,
+                                Graphics& g, Rectangle<float> area,
                                 bool isDown, bool isOver,
-                                const Colour& lineColour,
-                                const Colour& textColour);
+                                Colour lineColour, Colour textColour);
 
     /** Draws a black note in the given rectangle.
 
@@ -324,22 +341,21 @@ protected:
         When doing this, be sure to note the keyboard's orientation.
     */
     virtual void drawBlackNote (int midiNoteNumber,
-                                Graphics& g,
-                                int x, int y, int w, int h,
+                                Graphics& g, Rectangle<float> area,
                                 bool isDown, bool isOver,
-                                const Colour& noteFillColour);
+                                Colour noteFillColour);
 
     /** Allows text to be drawn on the white notes.
         By default this is used to label the C in each octave, but could be used for other things.
         @see setOctaveForMiddleC
     */
-    virtual String getWhiteNoteText (const int midiNoteNumber);
+    virtual String getWhiteNoteText (int midiNoteNumber);
 
-    /** Draws the up and down buttons that change the base note. */
+    /** Draws the up and down buttons that scroll the keyboard up/down in octaves. */
     virtual void drawUpDownButton (Graphics& g, int w, int h,
-                                   const bool isMouseOver,
-                                   const bool isButtonPressed,
-                                   const bool movesOctavesUp);
+                                   bool isMouseOver,
+                                   bool isButtonPressed,
+                                   bool movesOctavesUp);
 
     /** Callback when the mouse is clicked on a key.
 
@@ -353,9 +369,13 @@ protected:
     virtual bool mouseDownOnKey (int midiNoteNumber, const MouseEvent& e);
 
     /** Callback when the mouse is dragged from one key onto another.
+
+        Return true if you want the drag to trigger the new note, or false if you
+        want to handle it yourself and not have the note played.
+
         @see mouseDownOnKey
     */
-    virtual void mouseDraggedToKey (int midiNoteNumber, const MouseEvent& e);
+    virtual bool mouseDraggedToKey (int midiNoteNumber, const MouseEvent& e);
 
     /** Callback when the mouse is released from a key.
         @see mouseDownOnKey
@@ -368,57 +388,59 @@ protected:
 
         @param midiNoteNumber   the note to find
         @param keyWidth         the desired width in pixels of one key - see setKeyWidth()
-        @param x                the x position of the left-hand edge of the key (this method
-                                always works in terms of a horizontal keyboard)
-        @param w                the width of the key
+        @returns                the start and length of the key along the axis of the keyboard
     */
-    virtual void getKeyPosition (int midiNoteNumber, float keyWidth,
-                                 int& x, int& w) const;
+    virtual Range<float> getKeyPosition (int midiNoteNumber, float keyWidth) const;
 
     /** Returns the rectangle for a given key if within the displayable range */
-    Rectangle<int> getRectangleForKey (int midiNoteNumber) const;
+    Rectangle<float> getRectangleForKey (int midiNoteNumber) const;
 
 
 private:
     //==============================================================================
-    friend class MidiKeyboardUpDownButton;
+    struct UpDownButton;
 
     MidiKeyboardState& state;
-    float blackNoteLengthRatio;
-    int xOffset;
-    float keyWidth;
+    float blackNoteLengthRatio = 0.7f;
+    float blackNoteWidthRatio = 0.7f;
+    float xOffset = 0;
+    float keyWidth = 16.0f;
+    int scrollButtonWidth = 12;
     Orientation orientation;
 
-    int midiChannel, midiInChannelMask;
-    float velocity;
+    int midiChannel = 1, midiInChannelMask = 0xffff;
+    float velocity = 1.0f;
 
     Array<int> mouseOverNotes, mouseDownNotes;
     BigInteger keysPressed, keysCurrentlyDrawnDown;
-    bool shouldCheckState;
+    bool shouldCheckState = false;
 
-    int rangeStart, rangeEnd;
-    float firstKey;
-    bool canScroll, useMousePositionForVelocity, shouldCheckMousePos;
-    ScopedPointer<Button> scrollDown, scrollUp;
+    int rangeStart = 0, rangeEnd = 127;
+    float firstKey = 12 * 4.0f;
+    bool canScroll = true, useMousePositionForVelocity = true;
+    std::unique_ptr<Button> scrollDown, scrollUp;
 
     Array<KeyPress> keyPresses;
     Array<int> keyPressNotes;
-    int keyMappingOctave, octaveNumForMiddleC;
+    int keyMappingOctave = 6, octaveNumForMiddleC = 3;
 
-    static const uint8 whiteNotes[];
-    static const uint8 blackNotes[];
-
-    void getKeyPos (int midiNoteNumber, int& x, int& w) const;
-    int xyToNote (Point<int>, float& mousePositionVelocity);
-    int remappedXYToNote (Point<int>, float& mousePositionVelocity) const;
+    Range<float> getKeyPos (int midiNoteNumber) const;
+    int xyToNote (Point<float>, float& mousePositionVelocity);
+    int remappedXYToNote (Point<float>, float& mousePositionVelocity) const;
     void resetAnyKeysInUse();
-    void updateNoteUnderMouse (Point<int>, bool isDown, int fingerNum);
+    void updateNoteUnderMouse (Point<float>, bool isDown, int fingerNum);
     void updateNoteUnderMouse (const MouseEvent&, bool isDown);
     void repaintNote (int midiNoteNumber);
     void setLowestVisibleKeyFloat (float noteNumber);
 
+   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
+    // Note that the parameters for these method have changed
+    virtual int getKeyPosition (int, float, int&, int&) const { return 0; }
+    virtual int drawWhiteNote (int, Graphics&, int, int, int, int, bool, bool, const Colour&, const Colour&) { return 0; }
+    virtual int drawBlackNote (int, Graphics&, int, int, int, int, bool, bool, const Colour&) { return 0; }
+   #endif
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiKeyboardComponent)
 };
 
-
-#endif   // JUCE_MIDIKEYBOARDCOMPONENT_H_INCLUDED
+} // namespace juce

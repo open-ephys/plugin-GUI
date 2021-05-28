@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2016 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_CACHEDVALUE_H_INCLUDED
-#define JUCE_CACHEDVALUE_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -51,6 +51,8 @@
     out-of-the-box, but if you want to use more complex custom types, you may need to implement
     some template specialisations of VariantConverter which this class uses to convert between
     the type and the ValueTree's internal var.
+
+    @tags{DataStructures}
 */
 template <typename Type>
 class CachedValue   : private ValueTree::Listener
@@ -178,11 +180,14 @@ public:
     /** Returns the property ID of the referenced property. */
     const Identifier& getPropertyID() const noexcept        { return targetProperty; }
 
+    /** Returns the UndoManager that is being used. */
+    UndoManager* getUndoManager() noexcept                  { return undoManager; }
+
 private:
     //==============================================================================
     ValueTree targetTree;
     Identifier targetProperty;
-    UndoManager* undoManager;
+    UndoManager* undoManager = nullptr;
     Type defaultValue;
     Type cachedValue;
 
@@ -191,18 +196,16 @@ private:
     Type getTypedValue() const;
 
     void valueTreePropertyChanged (ValueTree& changedTree, const Identifier& changedProperty) override;
-    void valueTreeChildAdded (ValueTree&, ValueTree&) override {}
-    void valueTreeChildRemoved (ValueTree&, ValueTree&, int) override {}
-    void valueTreeChildOrderChanged (ValueTree&, int, int) override {}
-    void valueTreeParentChanged (ValueTree&) override {}
 
+    //==============================================================================
+    JUCE_DECLARE_WEAK_REFERENCEABLE (CachedValue)
     JUCE_DECLARE_NON_COPYABLE (CachedValue)
 };
 
 
 //==============================================================================
 template <typename Type>
-inline CachedValue<Type>::CachedValue()  : undoManager (nullptr) {}
+inline CachedValue<Type>::CachedValue() = default;
 
 template <typename Type>
 inline CachedValue<Type>::CachedValue (ValueTree& v, const Identifier& i, UndoManager* um)
@@ -242,7 +245,7 @@ inline CachedValue<Type>& CachedValue<Type>::operator= (const Type& newValue)
 template <typename Type>
 inline void CachedValue<Type>::setValue (const Type& newValue, UndoManager* undoManagerToUse)
 {
-    if (cachedValue != newValue)
+    if (cachedValue != newValue || isUsingDefault())
     {
         cachedValue = newValue;
         targetTree.setProperty (targetProperty, VariantConverter<Type>::toVar (newValue), undoManagerToUse);
@@ -308,4 +311,4 @@ inline void CachedValue<Type>::valueTreePropertyChanged (ValueTree& changedTree,
         forceUpdateOfCachedValue();
 }
 
-#endif   // JUCE_CACHEDVALUE_H_INCLUDED
+} // namespace juce

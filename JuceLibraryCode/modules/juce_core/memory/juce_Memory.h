@@ -1,33 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MEMORY_H_INCLUDED
-#define JUCE_MEMORY_H_INCLUDED
+namespace juce
+{
 
 //==============================================================================
 /** Fills a block of memory with zeros. */
@@ -35,22 +29,23 @@ inline void zeromem (void* memory, size_t numBytes) noexcept        { memset (me
 
 /** Overwrites a structure or object with zeros. */
 template <typename Type>
-inline void zerostruct (Type& structure) noexcept                   { memset (&structure, 0, sizeof (structure)); }
+inline void zerostruct (Type& structure) noexcept                   { memset ((void*) &structure, 0, sizeof (structure)); }
 
 /** Delete an object pointer, and sets the pointer to null.
 
-    Remember that it's not good c++ practice to use delete directly - always try to use a ScopedPointer
+    Remember that it's not good c++ practice to use delete directly - always try to use a std::unique_ptr
     or other automatic lifetime-management system rather than resorting to deleting raw pointers!
 */
 template <typename Type>
 inline void deleteAndZero (Type& pointer)                           { delete pointer; pointer = nullptr; }
 
-/** A handy function which adds a number of bytes to any type of pointer and returns the result.
-    This can be useful to avoid casting pointers to a char* and back when you want to move them by
-    a specific number of bytes,
-*/
+/** A handy function to round up a pointer to the nearest multiple of a given number of bytes.
+    alignmentBytes must be a power of two. */
 template <typename Type, typename IntegerType>
-inline Type* addBytesToPointer (Type* basePointer, IntegerType bytes) noexcept  { return (Type*) (((char*) basePointer) + bytes); }
+inline Type* snapPointerToAlignment (Type* basePointer, IntegerType alignmentBytes) noexcept
+{
+    return (Type*) ((((size_t) basePointer) + (alignmentBytes - 1)) & ~(alignmentBytes - 1));
+}
 
 /** A handy function which returns the difference between any two pointers, in bytes.
     The address of the second pointer is subtracted from the first, and the difference in bytes is returned.
@@ -71,7 +66,6 @@ inline Type readUnaligned (const void* srcPtr) noexcept
 {
     Type value;
     memcpy (&value, srcPtr, sizeof (Type));
-
     return value;
 }
 
@@ -79,7 +73,54 @@ inline Type readUnaligned (const void* srcPtr) noexcept
 template <typename Type>
 inline void writeUnaligned (void* dstPtr, Type value) noexcept
 {
-    memcpy (dstPtr, &value, sizeof(Type));
+    memcpy (dstPtr, &value, sizeof (Type));
+}
+
+//==============================================================================
+/** Casts a pointer to another type via `void*`, which suppresses the cast-align
+    warning which sometimes arises when casting pointers to types with different
+    alignment.
+    You should only use this when you know for a fact that the input pointer points
+    to a region that has suitable alignment for `Type`, e.g. regions returned from
+    malloc/calloc that should be suitable for any non-over-aligned type.
+*/
+template <typename Type, typename std::enable_if<std::is_pointer<Type>::value, int>::type = 0>
+inline Type unalignedPointerCast (void* ptr) noexcept
+{
+    return reinterpret_cast<Type> (ptr);
+}
+
+/** Casts a pointer to another type via `void*`, which suppresses the cast-align
+    warning which sometimes arises when casting pointers to types with different
+    alignment.
+    You should only use this when you know for a fact that the input pointer points
+    to a region that has suitable alignment for `Type`, e.g. regions returned from
+    malloc/calloc that should be suitable for any non-over-aligned type.
+*/
+template <typename Type, typename std::enable_if<std::is_pointer<Type>::value, int>::type = 0>
+inline Type unalignedPointerCast (const void* ptr) noexcept
+{
+    return reinterpret_cast<Type> (ptr);
+}
+
+/** A handy function which adds a number of bytes to any type of pointer and returns the result.
+    This can be useful to avoid casting pointers to a char* and back when you want to move them by
+    a specific number of bytes,
+*/
+template <typename Type, typename IntegerType>
+inline Type* addBytesToPointer (Type* basePointer, IntegerType bytes) noexcept
+{
+    return unalignedPointerCast<Type*> (reinterpret_cast<char*> (basePointer) + bytes);
+}
+
+/** A handy function which adds a number of bytes to any type of pointer and returns the result.
+    This can be useful to avoid casting pointers to a char* and back when you want to move them by
+    a specific number of bytes,
+*/
+template <typename Type, typename IntegerType>
+inline const Type* addBytesToPointer (const Type* basePointer, IntegerType bytes) noexcept
+{
+    return unalignedPointerCast<const Type*> (reinterpret_cast<const char*> (basePointer) + bytes);
 }
 
 //==============================================================================
@@ -87,6 +128,8 @@ inline void writeUnaligned (void* dstPtr, Type value) noexcept
 
  /** A handy C++ wrapper that creates and deletes an NSAutoreleasePool object using RAII.
      You should use the JUCE_AUTORELEASEPOOL macro to create a local auto-release pool on the stack.
+
+     @tags{Core}
  */
  class JUCE_API  ScopedAutoReleasePool
  {
@@ -140,5 +183,18 @@ inline void writeUnaligned (void* dstPtr, Type value) noexcept
  #define juce_UseDebuggingNewOperator
 #endif
 
+ /** Converts an owning raw pointer into a unique_ptr, deriving the
+     type of the unique_ptr automatically.
 
-#endif   // JUCE_MEMORY_H_INCLUDED
+     This should only be used with pointers to single objects.
+     Do NOT pass a pointer to an array to this function, as the
+     destructor of the unique_ptr will incorrectly call `delete`
+     instead of `delete[]` on the pointer.
+ */
+ template <typename T>
+ std::unique_ptr<T> rawToUniquePtr (T* ptr)
+ {
+     return std::unique_ptr<T> (ptr);
+ }
+
+} // namespace juce

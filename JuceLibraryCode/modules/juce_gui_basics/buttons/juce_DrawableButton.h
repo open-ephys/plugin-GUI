@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_DRAWABLEBUTTON_H_INCLUDED
-#define JUCE_DRAWABLEBUTTON_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -34,6 +34,8 @@
     'normal', 'over' and 'down' states.
 
     @see Button
+
+    @tags{GUI}
 */
 class JUCE_API  DrawableButton  : public Button
 {
@@ -41,14 +43,16 @@ public:
     //==============================================================================
     enum ButtonStyle
     {
-        ImageFitted,                /**< The button will just display the images, but will resize and centre them to fit inside it. */
-        ImageRaw,                   /**< The button will just display the images in their normal size and position.
-                                         This leaves it up to the caller to make sure the images are the correct size and position for the button. */
-        ImageAboveTextLabel,        /**< Draws the button as a text label across the bottom with the image resized and scaled to fit above it. */
-        ImageOnButtonBackground,    /**< Draws the button as a standard rounded-rectangle button with the image on top.
-                                         Note that if you use this style, the colour IDs that control the button colour are
-                                         TextButton::buttonColourId and TextButton::buttonOnColourId. */
-        ImageStretched              /**< Fills the button with a stretched version of the image. */
+        ImageFitted,                            /**< The button will just display the images, but will resize and centre them to fit inside it. */
+        ImageRaw,                               /**< The button will just display the images in their normal size and position.
+                                                     This leaves it up to the caller to make sure the images are the correct size and position for the button. */
+        ImageAboveTextLabel,                    /**< Draws the button as a text label across the bottom with the image resized and scaled to fit above it. */
+        ImageOnButtonBackground,                /**< Draws the button as a standard rounded-rectangle button with the image on top. The image will be resized
+                                                     to match the button's proportions.
+                                                     Note that if you use this style, the colour IDs that control the button colour are
+                                                     TextButton::buttonColourId and TextButton::buttonOnColourId. */
+        ImageOnButtonBackgroundOriginalSize,    /** Same as ImageOnButtonBackground, but keeps the original image size. */
+        ImageStretched                          /**< Fills the button with a stretched version of the image. */
     };
 
     //==============================================================================
@@ -65,7 +69,7 @@ public:
                     ButtonStyle buttonStyle);
 
     /** Destructor. */
-    ~DrawableButton();
+    ~DrawableButton() override;
 
     //==============================================================================
     /** Sets up the images to draw for the various button states.
@@ -73,19 +77,19 @@ public:
         The button will keep its own internal copies of these drawables.
 
         @param normalImage      the thing to draw for the button's 'normal' state. An internal copy
-                                will be made of the object passed-in if it is non-zero.
+                                will be made of the object passed-in if it is non-null.
         @param overImage        the thing to draw for the button's 'over' state - if this is
-                                zero, the button's normal image will be used when the mouse is
+                                null, the button's normal image will be used when the mouse is
                                 over it. An internal copy will be made of the object passed-in
-                                if it is non-zero.
+                                if it is non-null.
         @param downImage        the thing to draw for the button's 'down' state - if this is
-                                zero, the 'over' image will be used instead (or the normal image
+                                null, the 'over' image will be used instead (or the normal image
                                 as a last resort). An internal copy will be made of the object
-                                passed-in if it is non-zero.
-        @param disabledImage    an image to draw when the button is disabled. If this is zero,
+                                passed-in if it is non-null.
+        @param disabledImage    an image to draw when the button is disabled. If this is null,
                                 the normal image will be drawn with a reduced opacity instead.
                                 An internal copy will be made of the object passed-in if it is
-                                non-zero.
+                                non-null.
         @param normalImageOn    same as the normalImage, but this is used when the button's toggle
                                 state is 'on'. If this is nullptr, the normal image is used instead
         @param overImageOn      same as the overImage, but this is used when the button's toggle
@@ -121,6 +125,9 @@ public:
     */
     void setEdgeIndent (int numPixelsIndent);
 
+    /** Returns the current edge indent size. */
+    int getEdgeIndent() const noexcept          { return edgeIndent; }
+
     //==============================================================================
     /** Returns the image that the button is currently displaying. */
     Drawable* getCurrentImage() const noexcept;
@@ -149,7 +156,7 @@ public:
     enum ColourIds
     {
         textColourId             = 0x1004010,  /**< The colour to use for the button's text label. */
-        textColourOnId           = 0x1004013,  /**< The colour to use for the button's text.when the button's toggle state is "on". */
+        textColourOnId           = 0x1004013,  /**< The colour to use for the button's text when the button's toggle state is "on". */
 
         backgroundColourId       = 0x1004011,  /**< The colour used to fill the button's background (when
                                                     the button is toggled 'off'). Note that if you use the
@@ -163,7 +170,7 @@ public:
 
     //==============================================================================
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
+    void paintButton (Graphics&, bool, bool) override;
     /** @internal */
     void buttonStateChanged() override;
     /** @internal */
@@ -175,14 +182,16 @@ public:
 
 private:
     //==============================================================================
+    bool shouldDrawButtonBackground() const  { return style == ImageOnButtonBackground || style == ImageOnButtonBackgroundOriginalSize; }
+
+    //==============================================================================
     ButtonStyle style;
-    ScopedPointer<Drawable> normalImage, overImage, downImage, disabledImage,
-                            normalImageOn, overImageOn, downImageOn, disabledImageOn;
-    Drawable* currentImage;
-    int edgeIndent;
+    std::unique_ptr<Drawable> normalImage, overImage, downImage, disabledImage,
+                              normalImageOn, overImageOn, downImageOn, disabledImageOn;
+    Drawable* currentImage = nullptr;
+    int edgeIndent = 3;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DrawableButton)
 };
 
-
-#endif   // JUCE_DRAWABLEBUTTON_H_INCLUDED
+} // namespace juce

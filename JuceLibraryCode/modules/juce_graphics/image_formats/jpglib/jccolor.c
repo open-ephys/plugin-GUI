@@ -62,7 +62,7 @@ typedef my_color_converter * my_cconvert_ptr;
 
 /* We allocate one big table and divide it up into eight parts, instead of
  * doing eight alloc_small requests.  This lets us use a single table base
- * address, which can be held in a in the inner loops on many
+ * address, which can be held in a register in the inner loops on many
  * machines (more than can hold all eight addresses, anyway).
  */
 

@@ -59,20 +59,20 @@ add_executable(open-ephys
 	${JUCE_DIRECTORY}/JuceHeader.h
 	${JUCE_DIRECTORY}/BinaryData.h
 	${JUCE_DIRECTORY}/BinaryData.cpp
-	${JUCE_DIRECTORY}/juce_audio_basics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_audio_devices.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_audio_formats.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_audio_processors.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_audio_utils.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_core.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_cryptography.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_data_structures.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_events.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_graphics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_gui_basics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_gui_extra.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_opengl.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/juce_video.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_audio_basics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_audio_devices.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_audio_formats.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_audio_processors.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_audio_utils.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_core.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_cryptography.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_data_structures.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_events.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_graphics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_video.${JUCE_FILES_EXTENSION}
 	)
  if(MSVC)
 	target_sources(open-ephys PRIVATE ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
@@ -127,15 +127,20 @@ elseif(LINUX)
 		message(FATAL_ERROR "Invalid build type")
 	endif()
 	find_package(CURL REQUIRED)
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(WEBKIT2GTK REQUIRED webkit2gtk-4.0)
+	# pkg_check_modules(GTK REQUIRED gtk+-3.0)
+
 	target_include_directories(open-ephys PRIVATE
 		/usr/include
 		/usr/include/freetype2
-		${CURL_INCLUDE_DIR}
+		${CURL_INCLUDE_DIRS}
+		${WEBKIT2GTK_INCLUDE_DIRS}
 	)
-	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES})
+	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
-	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
+	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
 	target_compile_options(open-ephys PRIVATE -O3) #enable optimization for linux debug
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
 

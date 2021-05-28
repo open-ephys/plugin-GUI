@@ -2,27 +2,31 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-class DocumentWindow::ButtonListenerProxy  : public ButtonListener // (can't use Button::Listener due to idiotic VC2005 bug)
+namespace juce
+{
+
+class DocumentWindow::ButtonListenerProxy  : public Button::Listener
 {
 public:
     ButtonListenerProxy (DocumentWindow& w) : owner (w) {}
@@ -46,16 +50,12 @@ DocumentWindow::DocumentWindow (const String& title,
                                 int requiredButtons_,
                                 bool addToDesktop_)
     : ResizableWindow (title, backgroundColour, addToDesktop_),
-      titleBarHeight (26),
-      menuBarHeight (24),
       requiredButtons (requiredButtons_),
      #if JUCE_MAC
-      positionTitleBarButtonsOnLeft (true),
+      positionTitleBarButtonsOnLeft (true)
      #else
-      positionTitleBarButtonsOnLeft (false),
+      positionTitleBarButtonsOnLeft (false)
      #endif
-      drawTitleTextCentred (true),
-      menuBarModel (nullptr)
 {
     setResizeLimits (128, 128, 32768, 32768);
 
@@ -67,15 +67,15 @@ DocumentWindow::~DocumentWindow()
     // Don't delete or remove the resizer components yourself! They're managed by the
     // DocumentWindow, and you should leave them alone! You may have deleted them
     // accidentally by careless use of deleteAllChildren()..?
-    jassert (menuBar == nullptr || getIndexOfChildComponent (menuBar) >= 0);
-    jassert (titleBarButtons[0] == nullptr || getIndexOfChildComponent (titleBarButtons[0]) >= 0);
-    jassert (titleBarButtons[1] == nullptr || getIndexOfChildComponent (titleBarButtons[1]) >= 0);
-    jassert (titleBarButtons[2] == nullptr || getIndexOfChildComponent (titleBarButtons[2]) >= 0);
+    jassert (menuBar == nullptr || getIndexOfChildComponent (menuBar.get()) >= 0);
+    jassert (titleBarButtons[0] == nullptr || getIndexOfChildComponent (titleBarButtons[0].get()) >= 0);
+    jassert (titleBarButtons[1] == nullptr || getIndexOfChildComponent (titleBarButtons[1].get()) >= 0);
+    jassert (titleBarButtons[2] == nullptr || getIndexOfChildComponent (titleBarButtons[2].get()) >= 0);
 
-    for (int i = numElementsInArray (titleBarButtons); --i >= 0;)
-        titleBarButtons[i] = nullptr;
+    for (auto& b : titleBarButtons)
+        b.reset();
 
-    menuBar = nullptr;
+    menuBar.reset();
 }
 
 //==============================================================================
@@ -124,7 +124,7 @@ void DocumentWindow::setMenuBar (MenuBarModel* newMenuBarModel, const int newMen
 {
     if (menuBarModel != newMenuBarModel)
     {
-        menuBar = nullptr;
+        menuBar.reset();
 
         menuBarModel = newMenuBarModel;
         menuBarHeight = newMenuBarHeight > 0 ? newMenuBarHeight
@@ -139,13 +139,13 @@ void DocumentWindow::setMenuBar (MenuBarModel* newMenuBarModel, const int newMen
 
 Component* DocumentWindow::getMenuBarComponent() const noexcept
 {
-    return menuBar;
+    return menuBar.get();
 }
 
 void DocumentWindow::setMenuBarComponent (Component* newMenuBarComponent)
 {
-    // (call the Component method directly to avoid the assertion in ResizableWindow)
-    Component::addAndMakeVisible (menuBar = newMenuBarComponent);
+    menuBar.reset (newMenuBarComponent);
+    Component::addAndMakeVisible (menuBar.get()); // (call the superclass method directly to avoid the assertion in ResizableWindow)
 
     if (menuBar != nullptr)
         menuBar->setEnabled (isActiveWindow());
@@ -188,16 +188,16 @@ void DocumentWindow::paint (Graphics& g)
 {
     ResizableWindow::paint (g);
 
-    const Rectangle<int> titleBarArea (getTitleBarArea());
+    auto titleBarArea = getTitleBarArea();
     g.reduceClipRegion (titleBarArea);
     g.setOrigin (titleBarArea.getPosition());
 
     int titleSpaceX1 = 6;
     int titleSpaceX2 = titleBarArea.getWidth() - 6;
 
-    for (int i = 0; i < 3; ++i)
+    for (auto& b : titleBarButtons)
     {
-        if (Button* const b = titleBarButtons[i])
+        if (b != nullptr)
         {
             if (positionTitleBarButtonsOnLeft)
                 titleSpaceX1 = jmax (titleSpaceX1, b->getRight() + (getWidth() - b->getRight()) / 8);
@@ -211,7 +211,7 @@ void DocumentWindow::paint (Graphics& g)
                                                  titleBarArea.getHeight(),
                                                  titleSpaceX1,
                                                  jmax (1, titleSpaceX2 - titleSpaceX1),
-                                                 titleBarIcon.isValid() ? &titleBarIcon : 0,
+                                                 titleBarIcon.isValid() ? &titleBarIcon : nullptr,
                                                  ! drawTitleTextCentred);
 }
 
@@ -219,18 +219,18 @@ void DocumentWindow::resized()
 {
     ResizableWindow::resized();
 
-    if (Button* const b = getMaximiseButton())
+    if (auto* b = getMaximiseButton())
         b->setToggleState (isFullScreen(), dontSendNotification);
 
-    const Rectangle<int> titleBarArea (getTitleBarArea());
+    auto titleBarArea = getTitleBarArea();
 
     getLookAndFeel()
         .positionDocumentWindowButtons (*this,
                                         titleBarArea.getX(), titleBarArea.getY(),
                                         titleBarArea.getWidth(), titleBarArea.getHeight(),
-                                        titleBarButtons[0],
-                                        titleBarButtons[1],
-                                        titleBarButtons[2],
+                                        titleBarButtons[0].get(),
+                                        titleBarButtons[1].get(),
+                                        titleBarButtons[2].get(),
                                         positionTitleBarButtonsOnLeft);
 
     if (menuBar != nullptr)
@@ -245,7 +245,7 @@ BorderSize<int> DocumentWindow::getBorderThickness()
 
 BorderSize<int> DocumentWindow::getContentComponentBorder()
 {
-    BorderSize<int> border (getBorderThickness());
+    auto border = getBorderThickness();
 
     if (! isKioskMode())
         border.setTop (border.getTop()
@@ -262,22 +262,20 @@ int DocumentWindow::getTitleBarHeight() const
 
 Rectangle<int> DocumentWindow::getTitleBarArea()
 {
-    const BorderSize<int> border (getBorderThickness());
-
     if (isKioskMode())
-        return Rectangle<int>();
+        return {};
 
-    return Rectangle<int> (border.getLeft(), border.getTop(),
-                           getWidth() - border.getLeftAndRight(), getTitleBarHeight());
+    auto border = getBorderThickness();
+    return { border.getLeft(), border.getTop(), getWidth() - border.getLeftAndRight(), getTitleBarHeight() };
 }
 
-Button* DocumentWindow::getCloseButton()    const noexcept  { return titleBarButtons[2]; }
-Button* DocumentWindow::getMinimiseButton() const noexcept  { return titleBarButtons[0]; }
-Button* DocumentWindow::getMaximiseButton() const noexcept  { return titleBarButtons[1]; }
+Button* DocumentWindow::getCloseButton()    const noexcept  { return titleBarButtons[2].get(); }
+Button* DocumentWindow::getMinimiseButton() const noexcept  { return titleBarButtons[0].get(); }
+Button* DocumentWindow::getMaximiseButton() const noexcept  { return titleBarButtons[1].get(); }
 
 int DocumentWindow::getDesktopWindowStyleFlags() const
 {
-    int styleFlags = ResizableWindow::getDesktopWindowStyleFlags();
+    auto styleFlags = ResizableWindow::getDesktopWindowStyleFlags();
 
     if ((requiredButtons & minimiseButton) != 0)  styleFlags |= ComponentPeer::windowHasMinimiseButton;
     if ((requiredButtons & maximiseButton) != 0)  styleFlags |= ComponentPeer::windowHasMaximiseButton;
@@ -288,33 +286,33 @@ int DocumentWindow::getDesktopWindowStyleFlags() const
 
 void DocumentWindow::lookAndFeelChanged()
 {
-    for (int i = numElementsInArray (titleBarButtons); --i >= 0;)
-        titleBarButtons[i] = nullptr;
+    for (auto& b : titleBarButtons)
+        b.reset();
 
     if (! isUsingNativeTitleBar())
     {
-        LookAndFeel& lf = getLookAndFeel();
+        auto& lf = getLookAndFeel();
 
-        if ((requiredButtons & minimiseButton) != 0)  titleBarButtons[0] = lf.createDocumentWindowButton (minimiseButton);
-        if ((requiredButtons & maximiseButton) != 0)  titleBarButtons[1] = lf.createDocumentWindowButton (maximiseButton);
-        if ((requiredButtons & closeButton)    != 0)  titleBarButtons[2] = lf.createDocumentWindowButton (closeButton);
+        if ((requiredButtons & minimiseButton) != 0)  titleBarButtons[0].reset (lf.createDocumentWindowButton (minimiseButton));
+        if ((requiredButtons & maximiseButton) != 0)  titleBarButtons[1].reset (lf.createDocumentWindowButton (maximiseButton));
+        if ((requiredButtons & closeButton)    != 0)  titleBarButtons[2].reset (lf.createDocumentWindowButton (closeButton));
 
-        for (int i = 0; i < 3; ++i)
+        for (auto& b : titleBarButtons)
         {
-            if (Button* const b = titleBarButtons[i])
+            if (b != nullptr)
             {
                 if (buttonListener == nullptr)
-                    buttonListener = new ButtonListenerProxy (*this);
+                    buttonListener.reset (new ButtonListenerProxy (*this));
 
-                b->addListener (buttonListener);
+                b->addListener (buttonListener.get());
                 b->setWantsKeyboardFocus (false);
 
                 // (call the Component method directly to avoid the assertion in ResizableWindow)
-                Component::addAndMakeVisible (b);
+                Component::addAndMakeVisible (b.get());
             }
         }
 
-        if (Button* const b = getCloseButton())
+        if (auto* b = getCloseButton())
         {
            #if JUCE_MAC
             b->addShortcut (KeyPress ('w', ModifierKeys::commandModifier, 0));
@@ -337,24 +335,26 @@ void DocumentWindow::parentHierarchyChanged()
 void DocumentWindow::activeWindowStatusChanged()
 {
     ResizableWindow::activeWindowStatusChanged();
+    bool isActive = isActiveWindow();
 
-    for (int i = numElementsInArray (titleBarButtons); --i >= 0;)
-        if (Button* const b = titleBarButtons[i])
-            b->setEnabled (isActiveWindow());
+    for (auto& b : titleBarButtons)
+        if (b != nullptr)
+            b->setEnabled (isActive);
 
     if (menuBar != nullptr)
-        menuBar->setEnabled (isActiveWindow());
+        menuBar->setEnabled (isActive);
 }
 
 void DocumentWindow::mouseDoubleClick (const MouseEvent& e)
 {
-    Button* const maximise = getMaximiseButton();
-
-    if (maximise != nullptr && getTitleBarArea().contains (e.x, e.y))
-        maximise->triggerClick();
+    if (getTitleBarArea().contains (e.x, e.y))
+        if (auto* maximise = getMaximiseButton())
+            maximise->triggerClick();
 }
 
 void DocumentWindow::userTriedToCloseWindow()
 {
     closeButtonPressed();
 }
+
+} // namespace juce

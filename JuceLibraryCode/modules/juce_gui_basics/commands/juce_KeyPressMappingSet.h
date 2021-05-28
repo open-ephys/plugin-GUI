@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_KEYPRESSMAPPINGSET_H_INCLUDED
-#define JUCE_KEYPRESSMAPPINGSET_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -80,6 +80,8 @@
     to easily edit the key mappings.
 
     @see Component::addKeyListener(), KeyMappingEditorComponent, ApplicationCommandManager
+
+    @tags{GUI}
 */
 class JUCE_API  KeyPressMappingSet  : public KeyListener,
                                       public ChangeBroadcaster,
@@ -105,7 +107,7 @@ public:
     KeyPressMappingSet (const KeyPressMappingSet&);
 
     /** Destructor. */
-    ~KeyPressMappingSet();
+    ~KeyPressMappingSet() override;
 
     //==============================================================================
     ApplicationCommandManager& getCommandManager() const noexcept       { return commandManager; }
@@ -191,8 +193,6 @@ public:
         This will produce a lump of XML that can be later reloaded using
         restoreFromXml() to recreate the current mapping state.
 
-        The object that is returned must be deleted by the caller.
-
         @param saveDifferencesFromDefaultSet    if this is false, then all keypresses
                             will be saved into the XML. If it's true, then the XML will
                             only store the differences between the current mappings and
@@ -203,7 +203,7 @@ public:
 
         @see restoreFromXml
     */
-    XmlElement* createXml (bool saveDifferencesFromDefaultSet) const;
+    std::unique_ptr<XmlElement> createXml (bool saveDifferencesFromDefaultSet) const;
 
     //==============================================================================
     /** @internal */
@@ -241,5 +241,4 @@ private:
     JUCE_LEAK_DETECTOR (KeyPressMappingSet)
 };
 
-
-#endif   // JUCE_KEYPRESSMAPPINGSET_H_INCLUDED
+} // namespace juce

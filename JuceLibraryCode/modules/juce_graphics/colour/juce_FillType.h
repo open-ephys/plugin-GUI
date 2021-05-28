@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_FILLTYPE_H_INCLUDED
-#define JUCE_FILLTYPE_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -34,8 +34,10 @@
     a brush type. It can either be a solid colour, a gradient, or a tiled image.
 
     @see Graphics::setFillType, DrawablePath::setFill
+
+    @tags{Graphics}
 */
-class JUCE_API  FillType
+class JUCE_API  FillType  final
 {
 public:
     //==============================================================================
@@ -52,6 +54,11 @@ public:
     */
     FillType (const ColourGradient& gradient);
 
+    /** Creates a gradient fill type.
+        @see setGradient
+    */
+    FillType (ColourGradient&& gradient);
+
     /** Creates a tiled image fill type. The transform allows you to set the scaling, offset
         and rotation of the pattern.
         @see setTiledImage
@@ -64,10 +71,11 @@ public:
     /** Makes a copy of another FillType. */
     FillType& operator= (const FillType&);
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+    /** Move constructor */
     FillType (FillType&&) noexcept;
+
+    /** Move assignment operator */
     FillType& operator= (FillType&&) noexcept;
-   #endif
 
     /** Destructor. */
     ~FillType() noexcept;
@@ -122,11 +130,11 @@ public:
     Colour colour;
 
     /** Returns the gradient that should be used for filling.
-        This will be zero if the object is some other type of fill.
+        This will be nullptr if the object is some other type of fill.
         If a gradient is active, the overall opacity with which it should be applied
         is indicated by the alpha channel of the colour variable.
     */
-    ScopedPointer<ColourGradient> gradient;
+    std::unique_ptr<ColourGradient> gradient;
 
     /** The image that should be used for tiling.
         If an image fill is active, the overall opacity with which it should be applied
@@ -145,5 +153,4 @@ private:
     JUCE_LEAK_DETECTOR (FillType)
 };
 
-
-#endif   // JUCE_FILLTYPE_H_INCLUDED
+} // namespace juce

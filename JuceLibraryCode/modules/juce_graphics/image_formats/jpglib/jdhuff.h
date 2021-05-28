@@ -92,7 +92,7 @@ typedef struct {		/* Bitreading working state within an MCU */
   /* We need a copy, rather than munging the original, in case of suspension */
   const JOCTET * next_input_byte; /* => next byte to read from source */
   size_t bytes_in_buffer;	/* # of bytes remaining in source buffer */
-  /* Bit input buffer --- note these values are kept in variables,
+  /* Bit input buffer --- note these values are kept in register variables,
    * not in this struct, inside the inner loops.
    */
   bit_buf_type get_buffer;	/* current bit-extraction buffer */

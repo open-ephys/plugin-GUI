@@ -1,38 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_SORTEDSET_H_INCLUDED
-#define JUCE_SORTEDSET_H_INCLUDED
+namespace juce
+{
 
-#if JUCE_MSVC
- #pragma warning (push)
- #pragma warning (disable: 4512)
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4512)
 
 //==============================================================================
 /**
@@ -55,6 +46,8 @@
     TypeOfCriticalSectionToUse parameter, instead of the default DummyCriticalSection.
 
     @see Array, OwnedArray, ReferenceCountedArray, StringArray, CriticalSection
+
+    @tags{Core}
 */
 template <class ElementType, class TypeOfCriticalSectionToUse = DummyCriticalSection>
 class SortedSet
@@ -62,31 +55,22 @@ class SortedSet
 public:
     //==============================================================================
     /** Creates an empty set. */
-    SortedSet() noexcept
-    {
-    }
+    SortedSet() = default;
 
-    /** Creates a copy of another set.
-        @param other    the set to copy
-    */
-    SortedSet (const SortedSet& other)
-        : data (other.data)
-    {
-    }
+    /** Creates a copy of another set. */
+    SortedSet (const SortedSet&) = default;
+
+    /** Creates a copy of another set. */
+    SortedSet (SortedSet&&) noexcept = default;
+
+    /** Makes a copy of another set. */
+    SortedSet& operator= (const SortedSet&) = default;
+
+    /** Makes a copy of another set. */
+    SortedSet& operator= (SortedSet&&) noexcept = default;
 
     /** Destructor. */
-    ~SortedSet() noexcept
-    {
-    }
-
-    /** Copies another set over this one.
-        @param other    the set to copy
-    */
-    SortedSet& operator= (const SortedSet& other) noexcept
-    {
-        data = other.data;
-        return *this;
-    }
+    ~SortedSet() = default;
 
     //==============================================================================
     /** Compares this set to another one.
@@ -179,7 +163,16 @@ public:
 
         @param index    the index of the element being requested (0 is the first element in the array)
     */
-    inline ElementType& getReference (const int index) const noexcept
+    inline ElementType& getReference (const int index) noexcept
+    {
+        return data.getReference (index);
+    }
+
+    /** Returns a direct reference to one of the elements in the set, without checking the index passed in.
+
+        @param index    the index of the element being requested (0 is the first element in the array)
+    */
+    inline const ElementType& getReference (const int index) const noexcept
     {
         return data.getReference (index);
     }
@@ -204,7 +197,7 @@ public:
     /** Returns a pointer to the first element in the set.
         This method is provided for compatibility with standard C++ iteration mechanisms.
     */
-    inline ElementType* begin() const noexcept
+    inline const ElementType* begin() const noexcept
     {
         return data.begin();
     }
@@ -212,7 +205,7 @@ public:
     /** Returns a pointer to the element which follows the last element in the set.
         This method is provided for compatibility with standard C++ iteration mechanisms.
     */
-    inline ElementType* end() const noexcept
+    inline const ElementType* end() const noexcept
     {
         return data.end();
     }
@@ -241,7 +234,7 @@ public:
             if (elementToLookFor == data.getReference (s))
                 return s;
 
-            const int halfway = (s + e) / 2;
+            auto halfway = (s + e) / 2;
 
             if (halfway == s)
                 return -1;
@@ -284,15 +277,16 @@ public:
 
         while (s < e)
         {
-            ElementType& elem = data.getReference (s);
+            auto& elem = data.getReference (s);
+
             if (newElement == elem)
             {
                 elem = newElement; // force an update in case operator== permits differences.
                 return false;
             }
 
-            const int halfway = (s + e) / 2;
-            const bool isBeforeHalfway = (newElement < data.getReference (halfway));
+            auto halfway = (s + e) / 2;
+            bool isBeforeHalfway = (newElement < data.getReference (halfway));
 
             if (halfway == s)
             {
@@ -342,25 +336,22 @@ public:
                  int numElementsToAdd = -1) noexcept
     {
         const typename OtherSetType::ScopedLockType lock1 (setToAddFrom.getLock());
+        const ScopedLockType lock2 (getLock());
+        jassert (this != &setToAddFrom);
 
+        if (this != &setToAddFrom)
         {
-            const ScopedLockType lock2 (getLock());
-            jassert (this != &setToAddFrom);
-
-            if (this != &setToAddFrom)
+            if (startIndex < 0)
             {
-                if (startIndex < 0)
-                {
-                    jassertfalse;
-                    startIndex = 0;
-                }
-
-                if (numElementsToAdd < 0 || startIndex + numElementsToAdd > setToAddFrom.size())
-                    numElementsToAdd = setToAddFrom.size() - startIndex;
-
-                if (numElementsToAdd > 0)
-                    addArray (&setToAddFrom.data.getReference (startIndex), numElementsToAdd);
+                jassertfalse;
+                startIndex = 0;
             }
+
+            if (numElementsToAdd < 0 || startIndex + numElementsToAdd > setToAddFrom.size())
+                numElementsToAdd = setToAddFrom.size() - startIndex;
+
+            if (numElementsToAdd > 0)
+                addArray (&setToAddFrom.data.getReference (startIndex), numElementsToAdd);
         }
     }
 
@@ -376,7 +367,7 @@ public:
     */
     ElementType remove (const int indexToRemove) noexcept
     {
-        return data.remove (indexToRemove);
+        return data.removeAndReturn (indexToRemove);
     }
 
     /** Removes an item from the set.
@@ -386,7 +377,7 @@ public:
         @param valueToRemove   the object to try to remove
         @see remove, removeRange
     */
-    void removeValue (const ElementType valueToRemove) noexcept
+    void removeValue (const ElementType& valueToRemove) noexcept
     {
         const ScopedLockType lock (getLock());
         data.remove (indexOf (valueToRemove));
@@ -407,7 +398,7 @@ public:
         {
             clear();
         }
-        else if (otherSet.size() > 0)
+        else if (! otherSet.isEmpty())
         {
             for (int i = data.size(); --i >= 0;)
                 if (otherSet.contains (data.getReference (i)))
@@ -430,7 +421,7 @@ public:
 
         if (this != &otherSet)
         {
-            if (otherSet.size() <= 0)
+            if (otherSet.isEmpty())
             {
                 clear();
             }
@@ -485,7 +476,7 @@ public:
     inline const TypeOfCriticalSectionToUse& getLock() const noexcept      { return data.getLock(); }
 
     /** Returns the type of scoped lock to use for locking this array */
-    typedef typename TypeOfCriticalSectionToUse::ScopedLockType ScopedLockType;
+    using ScopedLockType = typename TypeOfCriticalSectionToUse::ScopedLockType;
 
 
 private:
@@ -493,8 +484,6 @@ private:
     Array<ElementType, TypeOfCriticalSectionToUse> data;
 };
 
-#if JUCE_MSVC
- #pragma warning (pop)
-#endif
+JUCE_END_IGNORE_WARNINGS_MSVC
 
-#endif   // JUCE_SORTEDSET_H_INCLUDED
+} // namespace juce

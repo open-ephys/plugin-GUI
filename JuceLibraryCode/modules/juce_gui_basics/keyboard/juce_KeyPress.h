@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_KEYPRESS_H_INCLUDED
-#define JUCE_KEYPRESS_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,6 +33,8 @@
     E.g. a KeyPress might represent CTRL+C, SHIFT+ALT+H, Spacebar, Escape, etc.
 
     @see Component, KeyListener, KeyPressMappingSet, Button::addShortcut
+
+    @tags{GUI}
 */
 class JUCE_API  KeyPress
 {
@@ -42,13 +44,16 @@ public:
 
         @see isValid
     */
-    KeyPress() noexcept;
+    KeyPress() = default;
+
+    /** Destructor. */
+    ~KeyPress() = default;
 
     /** Creates a KeyPress for a key and some modifiers.
 
         e.g.
-        CTRL+C would be: KeyPress ('c', ModifierKeys::ctrlModifier)
-        SHIFT+Escape would be: KeyPress (KeyPress::escapeKey, ModifierKeys::shiftModifier)
+        CTRL+C would be: KeyPress ('c', ModifierKeys::ctrlModifier, 0)
+        SHIFT+Escape would be: KeyPress (KeyPress::escapeKey, ModifierKeys::shiftModifier, 0)
 
         @param keyCode      a code that represents the key - this value must be
                             one of special constants listed in this class, or an
@@ -71,10 +76,10 @@ public:
     explicit KeyPress (int keyCode) noexcept;
 
     /** Creates a copy of another KeyPress. */
-    KeyPress (const KeyPress& other) noexcept;
+    KeyPress (const KeyPress&) = default;
 
     /** Copies this KeyPress from another one. */
-    KeyPress& operator= (const KeyPress& other) noexcept;
+    KeyPress& operator= (const KeyPress&) = default;
 
     /** Compares two KeyPress objects. */
     bool operator== (const KeyPress& other) const noexcept;
@@ -129,7 +134,7 @@ public:
     //==============================================================================
     /** Converts a textual key description to a KeyPress.
 
-        This attempts to decode a textual version of a keypress, e.g. "CTRL + C" or "SPACE".
+        This attempts to decode a textual version of a keypress, e.g. "ctrl + c" or "spacebar".
 
         This isn't designed to cope with any kind of input, but should be given the
         strings that are created by the getTextDescription() method.
@@ -142,7 +147,7 @@ public:
 
     /** Creates a textual description of the key combination.
 
-        e.g. "CTRL + C" or "DELETE".
+        e.g. "ctrl + c" or "delete".
 
         To store a keypress in a file, use this method, along with createFromDescription()
         to retrieve it later.
@@ -215,6 +220,25 @@ public:
     static const int F14Key;        /**< key-code for the F14 key */
     static const int F15Key;        /**< key-code for the F15 key */
     static const int F16Key;        /**< key-code for the F16 key */
+    static const int F17Key;        /**< key-code for the F17 key */
+    static const int F18Key;        /**< key-code for the F18 key */
+    static const int F19Key;        /**< key-code for the F19 key */
+    static const int F20Key;        /**< key-code for the F20 key */
+    static const int F21Key;        /**< key-code for the F21 key */
+    static const int F22Key;        /**< key-code for the F22 key */
+    static const int F23Key;        /**< key-code for the F23 key */
+    static const int F24Key;        /**< key-code for the F24 key */
+    static const int F25Key;        /**< key-code for the F25 key */
+    static const int F26Key;        /**< key-code for the F26 key */
+    static const int F27Key;        /**< key-code for the F27 key */
+    static const int F28Key;        /**< key-code for the F28 key */
+    static const int F29Key;        /**< key-code for the F29 key */
+    static const int F30Key;        /**< key-code for the F30 key */
+    static const int F31Key;        /**< key-code for the F31 key */
+    static const int F32Key;        /**< key-code for the F32 key */
+    static const int F33Key;        /**< key-code for the F33 key */
+    static const int F34Key;        /**< key-code for the F34 key */
+    static const int F35Key;        /**< key-code for the F35 key */
 
     static const int numberPad0;     /**< key-code for the 0 on the numeric keypad. */
     static const int numberPad1;     /**< key-code for the 1 on the numeric keypad. */
@@ -243,12 +267,11 @@ public:
 
 private:
     //==============================================================================
-    int keyCode;
+    int keyCode = 0;
     ModifierKeys mods;
-    juce_wchar textCharacter;
+    juce_wchar textCharacter = 0;
 
     JUCE_LEAK_DETECTOR (KeyPress)
 };
 
-
-#endif   // JUCE_KEYPRESS_H_INCLUDED
+} // namespace juce

@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_LASSOCOMPONENT_H_INCLUDED
-#define JUCE_LASSOCOMPONENT_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -34,13 +34,15 @@
     and to change the list of selected items.
 
     @see LassoComponent, SelectedItemSet
+
+    @tags{GUI}
 */
 template <class SelectableItemType>
 class LassoSource
 {
 public:
     /** Destructor. */
-    virtual ~LassoSource() {}
+    virtual ~LassoSource() = default;
 
     /** Returns the set of items that lie within a given lassoable region.
 
@@ -51,7 +53,7 @@ public:
         component. (i.e. they are the same as the size and position of the lasso
         component itself).
     */
-    virtual void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
+    virtual void findLassoItemsInArea (Array<SelectableItemType>& itemsFound,
                                        const Rectangle<int>& area) = 0;
 
     /** Returns the SelectedItemSet that the lasso should update.
@@ -91,6 +93,8 @@ public:
     xor'ed with any previously selected items.
 
     @see LassoSource, SelectedItemSet
+
+    @tags{GUI}
 */
 template <class SelectableItemType>
 class LassoComponent  : public Component
@@ -98,9 +102,7 @@ class LassoComponent  : public Component
 public:
     //==============================================================================
     /** Creates a Lasso component. */
-    LassoComponent()  : source (nullptr)
-    {
-    }
+    LassoComponent() = default;
 
     //==============================================================================
     /** Call this in your mouseDown event, to initialise a drag.
@@ -157,7 +159,7 @@ public:
             }
             else if (e.mods.isCommandDown() || e.mods.isAltDown())
             {
-                Array<SelectableItemType> originalMinusNew (originalSelection);
+                auto originalMinusNew = originalSelection;
                 originalMinusNew.removeValuesIn (itemsInLasso);
 
                 itemsInLasso.removeValuesIn (originalSelection);
@@ -213,11 +215,10 @@ public:
 private:
     //==============================================================================
     Array<SelectableItemType> originalSelection;
-    LassoSource<SelectableItemType>* source;
+    LassoSource<SelectableItemType>* source = nullptr;
     Point<int> dragStartPos;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LassoComponent)
 };
 
-
-#endif   // JUCE_LASSOCOMPONENT_H_INCLUDED
+} // namespace juce

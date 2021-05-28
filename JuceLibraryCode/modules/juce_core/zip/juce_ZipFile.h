@@ -1,34 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_ZIPFILE_H_INCLUDED
-#define JUCE_ZIPFILE_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -36,6 +29,8 @@
 
     This can enumerate the items in a ZIP file and can create suitable stream objects
     to read each one.
+
+    @tags{Core}
 */
 class JUCE_API  ZipFile
 {
@@ -84,6 +79,15 @@ public:
 
         /** The last time the file was modified. */
         Time fileTime;
+
+        /** True if the zip entry is a symbolic link. */
+        bool isSymbolicLink;
+
+        /** Platform specific data. Depending on how the zip file was created this
+            may contain macOS and Linux file types, permissions and
+            setuid/setgid/sticky bits.
+        */
+        uint32 externalFileAttributes;
     };
 
     //==============================================================================
@@ -91,7 +95,7 @@ public:
     int getNumEntries() const noexcept;
 
     /** Returns a structure that describes one of the entries in the zip file.
-        This may return zero if the index is out of range.
+        This may return a nullptr if the index is out of range.
         @see ZipFile::ZipEntry
     */
     const ZipEntry* getEntry (int index) const noexcept;
@@ -102,7 +106,7 @@ public:
 
         @see ZipFile::ZipEntry
     */
-    int getIndexOfFileName (const String& fileName) const noexcept;
+    int getIndexOfFileName (const String& fileName, bool ignoreCase = false) const noexcept;
 
     /** Returns a structure that describes one of the entries in the zip file.
 
@@ -111,7 +115,7 @@ public:
 
         @see ZipFile::ZipEntry
     */
-    const ZipEntry* getEntry (const String& fileName) const noexcept;
+    const ZipEntry* getEntry (const String& fileName, bool ignoreCase = false) const noexcept;
 
     /** Sorts the list of entries, based on the filename. */
     void sortEntriesByFilename();
@@ -120,7 +124,7 @@ public:
     /** Creates a stream that can read from one of the zip file's entries.
 
         The stream that is returned must be deleted by the caller (and
-        zero might be returned if a stream can't be opened for some reason).
+        a nullptr might be returned if a stream can't be opened for some reason).
 
         The stream must not be used after the ZipFile object that created
         has been deleted.
@@ -135,7 +139,7 @@ public:
     /** Creates a stream that can read from one of the zip file's entries.
 
         The stream that is returned must be deleted by the caller (and
-        zero might be returned if a stream can't be opened for some reason).
+        a nullptr might be returned if a stream can't be opened for some reason).
 
         The stream must not be used after the ZipFile object that created
         has been deleted.
@@ -225,8 +229,7 @@ public:
 
         //==============================================================================
     private:
-        class Item;
-        friend struct ContainerDeletePolicy<Item>;
+        struct Item;
         OwnedArray<Item> items;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Builder)
@@ -234,24 +237,22 @@ public:
 
 private:
     //==============================================================================
-    class ZipInputStream;
-    class ZipEntryHolder;
-    friend class ZipInputStream;
-    friend class ZipEntryHolder;
+    struct ZipInputStream;
+    struct ZipEntryHolder;
 
     OwnedArray<ZipEntryHolder> entries;
     CriticalSection lock;
-    InputStream* inputStream;
-    ScopedPointer<InputStream> streamToDelete;
-    ScopedPointer<InputSource> inputSource;
+    InputStream* inputStream = nullptr;
+    std::unique_ptr<InputStream> streamToDelete;
+    std::unique_ptr<InputSource> inputSource;
 
    #if JUCE_DEBUG
     struct OpenStreamCounter
     {
-        OpenStreamCounter() : numOpenStreams (0) {}
+        OpenStreamCounter() = default;
         ~OpenStreamCounter();
 
-        int numOpenStreams;
+        int numOpenStreams = 0;
     };
 
     OpenStreamCounter streamCounter;
@@ -262,4 +263,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZipFile)
 };
 
-#endif   // JUCE_ZIPFILE_H_INCLUDED
+} // namespace juce

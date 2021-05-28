@@ -2,22 +2,23 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
@@ -39,6 +40,8 @@
 #define JUCE_CORE_INCLUDE_NATIVE_HEADERS 1
 #define JUCE_EVENTS_INCLUDE_WIN32_MESSAGE_WINDOW 1
 #define JUCE_GRAPHICS_INCLUDE_COREGRAPHICS_HELPERS 1
+#define JUCE_GUI_BASICS_INCLUDE_XHEADERS 1
+#define JUCE_GUI_BASICS_INCLUDE_SCOPED_THREAD_DPI_AWARENESS_SETTER 1
 
 #include "juce_gui_basics.h"
 
@@ -51,6 +54,13 @@
   #import <Carbon/Carbon.h> // still needed for SetSystemUIMode()
  #endif
 
+#elif JUCE_IOS
+ #if JUCE_PUSH_NOTIFICATIONS && defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+  #import <UserNotifications/UserNotifications.h>
+ #endif
+
+ #import <UIKit/UIActivityViewController.h>
+
 //==============================================================================
 #elif JUCE_WINDOWS
  #include <windowsx.h>
@@ -62,90 +72,42 @@
   #include <exdispid.h>
  #endif
 
- #if JUCE_MSVC && ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+ #if JUCE_MINGW
+  #include <imm.h>
+ #elif ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
   #pragma comment(lib, "vfw32.lib")
   #pragma comment(lib, "imm32.lib")
- #endif
 
- #if JUCE_OPENGL
-  #if JUCE_MSVC && ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+  #if JUCE_OPENGL
    #pragma comment(lib, "OpenGL32.Lib")
    #pragma comment(lib, "GlU32.Lib")
   #endif
+
+  #if JUCE_DIRECT2D
+   #pragma comment (lib, "Dwrite.lib")
+   #pragma comment (lib, "D2d1.lib")
+  #endif
  #endif
-
- #if JUCE_QUICKTIME && JUCE_MSVC && ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
-  #pragma comment (lib, "QTMLClient.lib")
- #endif
-
- #if JUCE_DIRECT2D && JUCE_MSVC && ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
-  #pragma comment (lib, "Dwrite.lib")
-  #pragma comment (lib, "D2d1.lib")
- #endif
-
- #if JUCE_MINGW
-  #include <imm.h>
- #endif
-
-//==============================================================================
-#elif JUCE_LINUX
- #include <X11/Xlib.h>
- #include <X11/Xatom.h>
- #include <X11/Xresource.h>
- #include <X11/Xutil.h>
- #include <X11/Xmd.h>
- #include <X11/keysym.h>
- #include <X11/XKBlib.h>
- #include <X11/cursorfont.h>
- #include <unistd.h>
-
- #if JUCE_USE_XRANDR
-  /* If you're trying to use Xrandr, you'll need to install the "libxrandr-dev" package..  */
-  #include <X11/extensions/Xrandr.h>
- #endif
-
- #if JUCE_USE_XINERAMA
-  /* If you're trying to use Xinerama, you'll need to install the "libxinerama-dev" package..  */
-  #include <X11/extensions/Xinerama.h>
- #endif
-
- #if JUCE_USE_XSHM
-  #include <X11/extensions/XShm.h>
-  #include <sys/shm.h>
-  #include <sys/ipc.h>
- #endif
-
- #if JUCE_USE_XRENDER
-  // If you're missing these headers, try installing the libxrender-dev and libxcomposite-dev
-  #include <X11/extensions/Xrender.h>
-  #include <X11/extensions/Xcomposite.h>
- #endif
-
- #if JUCE_USE_XCURSOR
-  // If you're missing this header, try installing the libxcursor-dev package
-  #include <X11/Xcursor/Xcursor.h>
- #endif
-
- #undef SIZEOF
- #undef KeyPress
 #endif
 
+#include <set>
+
 //==============================================================================
+#define JUCE_ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN \
+    jassert ((MessageManager::getInstanceWithoutCreating() != nullptr \
+               && MessageManager::getInstanceWithoutCreating()->currentThreadHasLockedMessageManager()) \
+              || getPeer() == nullptr);
+
 namespace juce
 {
-
-#define ASSERT_MESSAGE_MANAGER_IS_LOCKED \
-    jassert (MessageManager::getInstance()->currentThreadHasLockedMessageManager());
-
-#define ASSERT_MESSAGE_MANAGER_IS_LOCKED_OR_OFFSCREEN \
-    jassert (MessageManager::getInstance()->currentThreadHasLockedMessageManager() || getPeer() == nullptr);
-
-extern bool juce_areThereAnyAlwaysOnTopWindows();
+    extern bool juce_areThereAnyAlwaysOnTopWindows();
+}
 
 #include "components/juce_Component.cpp"
 #include "components/juce_ComponentListener.cpp"
 #include "mouse/juce_MouseInputSource.cpp"
-#include "components/juce_Desktop.cpp"
+#include "desktop/juce_Displays.cpp"
+#include "desktop/juce_Desktop.cpp"
 #include "components/juce_ModalComponentManager.cpp"
 #include "mouse/juce_ComponentDragger.cpp"
 #include "mouse/juce_DragAndDropContainer.cpp"
@@ -185,6 +147,7 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "filebrowser/juce_FileSearchPathListComponent.cpp"
 #include "filebrowser/juce_FileTreeComponent.cpp"
 #include "filebrowser/juce_ImagePreviewComponent.cpp"
+#include "filebrowser/juce_ContentSharer.cpp"
 #include "layout/juce_ComponentAnimator.cpp"
 #include "layout/juce_ComponentBoundsConstrainer.cpp"
 #include "layout/juce_ComponentBuilder.cpp"
@@ -196,6 +159,7 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "layout/juce_ResizableCornerComponent.cpp"
 #include "layout/juce_ResizableEdgeComponent.cpp"
 #include "layout/juce_ScrollBar.cpp"
+#include "layout/juce_SidePanel.cpp"
 #include "layout/juce_StretchableLayoutManager.cpp"
 #include "layout/juce_StretchableLayoutResizerBar.cpp"
 #include "layout/juce_StretchableObjectResizer.cpp"
@@ -206,7 +170,9 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "lookandfeel/juce_LookAndFeel_V2.cpp"
 #include "lookandfeel/juce_LookAndFeel_V1.cpp"
 #include "lookandfeel/juce_LookAndFeel_V3.cpp"
+#include "lookandfeel/juce_LookAndFeel_V4.cpp"
 #include "menus/juce_MenuBarComponent.cpp"
+#include "menus/juce_BurgerMenuComponent.cpp"
 #include "menus/juce_MenuBarModel.cpp"
 #include "menus/juce_PopupMenu.cpp"
 #include "positioning/juce_MarkerList.cpp"
@@ -223,6 +189,7 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "properties/juce_PropertyPanel.cpp"
 #include "properties/juce_SliderPropertyComponent.cpp"
 #include "properties/juce_TextPropertyComponent.cpp"
+#include "properties/juce_MultiChoicePropertyComponent.cpp"
 #include "widgets/juce_ComboBox.cpp"
 #include "widgets/juce_ImageComponent.cpp"
 #include "widgets/juce_Label.cpp"
@@ -252,24 +219,34 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
 #include "application/juce_Application.cpp"
 #include "misc/juce_BubbleComponent.cpp"
 #include "misc/juce_DropShadower.cpp"
+#include "misc/juce_JUCESplashScreen.cpp"
+
+#include "layout/juce_FlexBox.cpp"
+#include "layout/juce_GridItem.cpp"
+#include "layout/juce_Grid.cpp"
 
 #if JUCE_IOS || JUCE_WINDOWS
  #include "native/juce_MultiTouchMapper.h"
 #endif
 
 #if JUCE_MAC || JUCE_IOS
-
  #if JUCE_IOS
   #include "native/juce_ios_UIViewComponentPeer.mm"
   #include "native/juce_ios_Windowing.mm"
+  #include "native/juce_ios_FileChooser.mm"
+
+  #if JUCE_CONTENT_SHARING
+   #include "native/juce_ios_ContentSharer.cpp"
+  #endif
+
  #else
   #include "native/juce_mac_NSViewComponentPeer.mm"
   #include "native/juce_mac_Windowing.mm"
   #include "native/juce_mac_MainMenu.mm"
+  #include "native/juce_mac_FileChooser.mm"
  #endif
 
  #include "native/juce_mac_MouseCursor.mm"
- #include "native/juce_mac_FileChooser.mm"
 
 #elif JUCE_WINDOWS
  #include "native/juce_win32_Windowing.cpp"
@@ -277,14 +254,25 @@ extern bool juce_areThereAnyAlwaysOnTopWindows();
  #include "native/juce_win32_FileChooser.cpp"
 
 #elif JUCE_LINUX
- #include "native/juce_linux_Clipboard.cpp"
+ #include "native/x11/juce_linux_X11_Symbols.cpp"
+ #include "native/x11/juce_linux_X11_DragAndDrop.cpp"
+
+ JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wzero-as-null-pointer-constant")
+
  #include "native/juce_linux_Windowing.cpp"
+ #include "native/x11/juce_linux_XWindowSystem.cpp"
+
+ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+
  #include "native/juce_linux_FileChooser.cpp"
 
 #elif JUCE_ANDROID
  #include "native/juce_android_Windowing.cpp"
+ #include "native/juce_common_MimeTypes.cpp"
  #include "native/juce_android_FileChooser.cpp"
 
-#endif
+ #if JUCE_CONTENT_SHARING
+  #include "native/juce_android_ContentSharer.cpp"
+ #endif
 
-}
+#endif

@@ -1,32 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-Random::Random (const int64 seedValue) noexcept   : seed (seedValue)
+namespace juce
+{
+
+Random::Random (int64 seedValue) noexcept  : seed (seedValue)
 {
 }
 
@@ -41,6 +38,16 @@ Random::~Random() noexcept
 
 void Random::setSeed (const int64 newSeed) noexcept
 {
+    if (this == &getSystemRandom())
+    {
+        // Resetting the system Random risks messing up
+        // JUCE's internal state. If you need a predictable
+        // stream of random numbers you should use a local
+        // Random object.
+        jassertfalse;
+        return;
+    }
+
     seed = newSeed;
 }
 
@@ -51,7 +58,7 @@ void Random::combineSeed (const int64 seedValue) noexcept
 
 void Random::setSeedRandomly()
 {
-    static int64 globalSeed = 0;
+    static std::atomic<int64> globalSeed { 0 };
 
     combineSeed (globalSeed ^ (int64) (pointer_sized_int) this);
     combineSeed (Time::getMillisecondCounter());
@@ -70,7 +77,7 @@ Random& Random::getSystemRandom() noexcept
 //==============================================================================
 int Random::nextInt() noexcept
 {
-    seed = (seed * 0x5deece66dLL + 11) & 0xffffffffffffLL;
+    seed = (int64) (((((uint64) seed) * 0x5deece66dLL) + 11) & 0xffffffffffffLL);
 
     return (int) (seed >> 16);
 }
@@ -88,7 +95,7 @@ int Random::nextInt (Range<int> range) noexcept
 
 int64 Random::nextInt64() noexcept
 {
-    return (((int64) nextInt()) << 32) | (int64) (uint64) (uint32) nextInt();
+    return (int64) ((((uint64) (unsigned int) nextInt()) << 32) | (uint64) (unsigned int) nextInt());
 }
 
 bool Random::nextBool() noexcept
@@ -98,7 +105,9 @@ bool Random::nextBool() noexcept
 
 float Random::nextFloat() noexcept
 {
-    return static_cast<uint32> (nextInt()) / (std::numeric_limits<uint32>::max() + 1.0f);
+    auto result = static_cast<float> (static_cast<uint32> (nextInt()))
+                  / (static_cast<float> (std::numeric_limits<uint32>::max()) + 1.0f);
+    return result == 1.0f ? 1.0f - std::numeric_limits<float>::epsilon() : result;
 }
 
 double Random::nextDouble() noexcept
@@ -154,13 +163,17 @@ void Random::fillBitsRandomly (BigInteger& arrayToChange, int startBit, int numB
         arrayToChange.setBit (startBit + numBits, nextBool());
 }
 
+
+//==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
 class RandomTests  : public UnitTest
 {
 public:
-    RandomTests() : UnitTest ("Random") {}
+    RandomTests()
+        : UnitTest ("Random", UnitTestCategories::maths)
+    {}
 
     void runTest() override
     {
@@ -187,3 +200,5 @@ public:
 static RandomTests randomTests;
 
 #endif
+
+} // namespace juce

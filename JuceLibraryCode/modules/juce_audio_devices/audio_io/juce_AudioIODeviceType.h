@@ -2,29 +2,26 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_AUDIOIODEVICETYPE_H_INCLUDED
-#define JUCE_AUDIOIODEVICETYPE_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -58,6 +55,8 @@
     AudioDeviceManager class.
 
     @see AudioIODevice, AudioDeviceManager
+
+    @tags{Audio}
 */
 class JUCE_API  AudioIODeviceType
 {
@@ -81,9 +80,8 @@ public:
 
         The scanForDevices() method must have been called to create this list.
 
-        @param wantInputNames     only really used by DirectSound where devices are split up
-                                  into inputs and outputs, this indicates whether to use
-                                  the input or output name to refer to a pair of devices.
+        @param wantInputNames    for devices which have separate inputs and outputs
+                                 this determines which list of names is returned
     */
     virtual StringArray getDeviceNames (bool wantInputNames = false) const = 0;
 
@@ -127,7 +125,7 @@ public:
     class Listener
     {
     public:
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** Called when the list of available audio devices changes. */
         virtual void audioDeviceListChanged() = 0;
@@ -150,8 +148,8 @@ public:
     static AudioIODeviceType* createAudioIODeviceType_CoreAudio();
     /** Creates an iOS device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_iOSAudio();
-    /** Creates a WASAPI device type if it's available on this platform, or returns null. */
-    static AudioIODeviceType* createAudioIODeviceType_WASAPI (bool exclusiveMode);
+    /** Creates a WASAPI device type in the specified mode if it's available on this platform, or returns null. */
+    static AudioIODeviceType* createAudioIODeviceType_WASAPI (WASAPIDeviceMode deviceMode);
     /** Creates a DirectSound device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_DirectSound();
     /** Creates an ASIO device type if it's available on this platform, or returns null. */
@@ -164,6 +162,13 @@ public:
     static AudioIODeviceType* createAudioIODeviceType_Android();
     /** Creates an Android OpenSLES device type if it's available on this platform, or returns null. */
     static AudioIODeviceType* createAudioIODeviceType_OpenSLES();
+    /** Creates an Oboe device type if it's available on this platform, or returns null. */
+    static AudioIODeviceType* createAudioIODeviceType_Oboe();
+    /** Creates a Bela device type if it's available on this platform, or returns null. */
+    static AudioIODeviceType* createAudioIODeviceType_Bela();
+
+    /** This method has been deprecated. You should call the method which takes a WASAPIDeviceMode instead. */
+    JUCE_DEPRECATED (static AudioIODeviceType* createAudioIODeviceType_WASAPI (bool exclusiveMode));
 
 protected:
     explicit AudioIODeviceType (const String& typeName);
@@ -178,5 +183,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE (AudioIODeviceType)
 };
 
-
-#endif   // JUCE_AUDIOIODEVICETYPE_H_INCLUDED
+} // namespace juce

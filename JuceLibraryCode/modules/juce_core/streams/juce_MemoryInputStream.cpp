@@ -1,57 +1,55 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-MemoryInputStream::MemoryInputStream (const void* const sourceData,
-                                      const size_t sourceDataSize,
-                                      const bool keepInternalCopy)
+namespace juce
+{
+
+MemoryInputStream::MemoryInputStream (const void* sourceData, size_t sourceDataSize, bool keepCopy)
     : data (sourceData),
-      dataSize (sourceDataSize),
-      position (0)
+      dataSize (sourceDataSize)
 {
-    if (keepInternalCopy)
-        createInternalCopy();
+    if (keepCopy)
+    {
+        internalCopy = MemoryBlock (sourceData, sourceDataSize);
+        data = internalCopy.getData();
+    }
 }
 
-MemoryInputStream::MemoryInputStream (const MemoryBlock& sourceData,
-                                      const bool keepInternalCopy)
+MemoryInputStream::MemoryInputStream (const MemoryBlock& sourceData, bool keepCopy)
     : data (sourceData.getData()),
-      dataSize (sourceData.getSize()),
-      position (0)
+      dataSize (sourceData.getSize())
 {
-    if (keepInternalCopy)
-        createInternalCopy();
+    if (keepCopy)
+    {
+        internalCopy = sourceData;
+        data = internalCopy.getData();
+    }
 }
 
-void MemoryInputStream::createInternalCopy()
+MemoryInputStream::MemoryInputStream (MemoryBlock&& source)
+    : internalCopy (std::move (source))
 {
-    internalCopy.malloc (dataSize);
-    memcpy (internalCopy, data, dataSize);
-    data = internalCopy;
+    data = internalCopy.getData();
+    dataSize = internalCopy.getSize();
 }
 
 MemoryInputStream::~MemoryInputStream()
@@ -63,14 +61,14 @@ int64 MemoryInputStream::getTotalLength()
     return (int64) dataSize;
 }
 
-int MemoryInputStream::read (void* const buffer, const int howMany)
+int MemoryInputStream::read (void* buffer, int howMany)
 {
     jassert (buffer != nullptr && howMany >= 0);
 
     if (howMany <= 0 || position >= dataSize)
         return 0;
 
-    const size_t num = jmin ((size_t) howMany, dataSize - position);
+    auto num = jmin ((size_t) howMany, dataSize - position);
 
     if (num > 0)
     {
@@ -97,14 +95,23 @@ int64 MemoryInputStream::getPosition()
     return (int64) position;
 }
 
+void MemoryInputStream::skipNextBytes (int64 numBytesToSkip)
+{
+    if (numBytesToSkip > 0)
+        setPosition (getPosition() + numBytesToSkip);
+}
 
+
+//==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
 class MemoryStreamTests  : public UnitTest
 {
 public:
-    MemoryStreamTests() : UnitTest ("MemoryInputStream & MemoryOutputStream") {}
+    MemoryStreamTests()
+        : UnitTest ("MemoryInputStream & MemoryOutputStream", UnitTestCategories::streams)
+    {}
 
     void runTest() override
     {
@@ -135,6 +142,60 @@ public:
         expect (mi.readInt64BigEndian() == randomInt64);
         expect (mi.readDouble() == randomDouble);
         expect (mi.readDoubleBigEndian() == randomDouble);
+
+        const MemoryBlock data ("abcdefghijklmnopqrstuvwxyz", 26);
+        MemoryInputStream stream (data, true);
+
+        beginTest ("Read");
+
+        expectEquals (stream.getPosition(), (int64) 0);
+        expectEquals (stream.getTotalLength(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), stream.getTotalLength());
+        expect (! stream.isExhausted());
+
+        size_t numBytesRead = 0;
+        MemoryBlock readBuffer (data.getSize());
+
+        while (numBytesRead < data.getSize())
+        {
+            numBytesRead += (size_t) stream.read (&readBuffer[numBytesRead], 3);
+
+            expectEquals (stream.getPosition(), (int64) numBytesRead);
+            expectEquals (stream.getNumBytesRemaining(), (int64) (data.getSize() - numBytesRead));
+            expect (stream.isExhausted() == (numBytesRead == data.getSize()));
+        }
+
+        expectEquals (stream.getPosition(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), (int64) 0);
+        expect (stream.isExhausted());
+
+        expect (readBuffer == data);
+
+        beginTest ("Skip");
+
+        stream.setPosition (0);
+        expectEquals (stream.getPosition(), (int64) 0);
+        expectEquals (stream.getTotalLength(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), stream.getTotalLength());
+        expect (! stream.isExhausted());
+
+        numBytesRead = 0;
+        const int numBytesToSkip = 5;
+
+        while (numBytesRead < data.getSize())
+        {
+            stream.skipNextBytes (numBytesToSkip);
+            numBytesRead += numBytesToSkip;
+            numBytesRead = std::min (numBytesRead, data.getSize());
+
+            expectEquals (stream.getPosition(), (int64) numBytesRead);
+            expectEquals (stream.getNumBytesRemaining(), (int64) (data.getSize() - numBytesRead));
+            expect (stream.isExhausted() == (numBytesRead == data.getSize()));
+        }
+
+        expectEquals (stream.getPosition(), (int64) data.getSize());
+        expectEquals (stream.getNumBytesRemaining(), (int64) 0);
+        expect (stream.isExhausted());
     }
 
     static String createRandomWideCharString (Random& r)
@@ -162,3 +223,5 @@ public:
 static MemoryStreamTests memoryInputStreamUnitTests;
 
 #endif
+
+} // namespace juce

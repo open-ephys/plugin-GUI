@@ -10,8 +10,7 @@
 
 */
 
-#ifndef __APPHEADERFILE_YNSYIRR__
-#define __APPHEADERFILE_YNSYIRR__
+#pragma once
 
 #include "AppConfig.h"
 
@@ -42,9 +41,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "open-ephys";
+    const char* const  companyName    = "Open Ephys";
     const char* const  versionString  = "@GUI_VERSION@";
     const int          versionNumber  = @GUI_VERSION_HEX@;
 }
 #endif
-
-#endif   // __APPHEADERFILE_YNSYIRR__

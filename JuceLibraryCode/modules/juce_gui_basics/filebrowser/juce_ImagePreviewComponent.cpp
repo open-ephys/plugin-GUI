@@ -2,25 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 ImagePreviewComponent::ImagePreviewComponent()
 {
@@ -33,12 +37,12 @@ ImagePreviewComponent::~ImagePreviewComponent()
 //==============================================================================
 void ImagePreviewComponent::getThumbSize (int& w, int& h) const
 {
-    const int availableW = proportionOfWidth (0.97f);
-    const int availableH = getHeight() - 13 * 4;
+    auto availableW = proportionOfWidth (0.97f);
+    auto availableH = getHeight() - 13 * 4;
 
-    const double scale = jmin (1.0,
-                               availableW / (double) w,
-                               availableH / (double) h);
+    auto scale = jmin (1.0,
+                       availableW / (double) w,
+                       availableH / (double) h);
 
     w = roundToInt (scale * w);
     h = roundToInt (scale * h);
@@ -61,18 +65,18 @@ void ImagePreviewComponent::timerCallback()
     currentDetails.clear();
     repaint();
 
-    ScopedPointer<FileInputStream> in (fileToLoad.createInputStream());
+    FileInputStream in (fileToLoad);
 
-    if (in != nullptr)
+    if (in.openedOk() && fileToLoad.existsAsFile())
     {
-        if (ImageFileFormat* const format = ImageFileFormat::findImageFormatForStream (*in))
+        if (auto format = ImageFileFormat::findImageFormatForStream (in))
         {
-            currentThumbnail = format->decodeImage (*in);
+            currentThumbnail = format->decodeImage (in);
 
             if (currentThumbnail.isValid())
             {
-                int w = currentThumbnail.getWidth();
-                int h = currentThumbnail.getHeight();
+                auto w = currentThumbnail.getWidth();
+                auto h = currentThumbnail.getHeight();
 
                 currentDetails
                     << fileToLoad.getFileName() << "\n"
@@ -94,13 +98,13 @@ void ImagePreviewComponent::paint (Graphics& g)
     {
         g.setFont (13.0f);
 
-        int w = currentThumbnail.getWidth();
-        int h = currentThumbnail.getHeight();
+        auto w = currentThumbnail.getWidth();
+        auto h = currentThumbnail.getHeight();
         getThumbSize (w, h);
 
         const int numLines = 4;
-        const int totalH = 13 * numLines + h + 4;
-        const int y = (getHeight() - totalH) / 2;
+        auto totalH = 13 * numLines + h + 4;
+        auto y = (getHeight() - totalH) / 2;
 
         g.drawImageWithin (currentThumbnail,
                            (getWidth() - w) / 2, y, w, h,
@@ -112,3 +116,5 @@ void ImagePreviewComponent::paint (Graphics& g)
                           Justification::centredTop, numLines);
     }
 }
+
+} // namespace juce

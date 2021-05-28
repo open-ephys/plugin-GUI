@@ -2,32 +2,35 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 FileBasedDocument::FileBasedDocument (const String& fileExtension_,
                                       const String& fileWildcard_,
                                       const String& openFileDialogTitle_,
                                       const String& saveFileDialogTitle_)
-    : changedSinceSave (false),
-      fileExtension (fileExtension_),
+    : fileExtension (fileExtension_),
       fileWildcard (fileWildcard_),
       openFileDialogTitle (openFileDialogTitle_),
       saveFileDialogTitle (saveFileDialogTitle_)
@@ -39,7 +42,7 @@ FileBasedDocument::~FileBasedDocument()
 }
 
 //==============================================================================
-void FileBasedDocument::setChangedFlag (const bool hasChanged)
+void FileBasedDocument::setChangedFlag (bool hasChanged)
 {
     if (changedSinceSave != hasChanged)
     {
@@ -65,14 +68,15 @@ void FileBasedDocument::setFile (const File& newFile)
 }
 
 //==============================================================================
-Result FileBasedDocument::loadFrom (const File& newFile, const bool showMessageOnFailure)
+Result FileBasedDocument::loadFrom (const File& newFile, bool showMessageOnFailure, bool showWaitCursor)
 {
-    MouseCursor::showWaitCursor();
+    if (showWaitCursor)
+        MouseCursor::showWaitCursor();
 
-    const File oldFile (documentFile);
+    auto oldFile = documentFile;
     documentFile = newFile;
 
-    Result result (Result::fail (TRANS("The file doesn't exist")));
+    auto result = Result::fail (TRANS("The file doesn't exist"));
 
     if (newFile.existsAsFile())
     {
@@ -81,7 +85,9 @@ Result FileBasedDocument::loadFrom (const File& newFile, const bool showMessageO
         if (result.wasOk())
         {
             setChangedFlag (false);
-            MouseCursor::hideWaitCursor();
+
+            if (showWaitCursor)
+                MouseCursor::hideWaitCursor();
 
             setLastDocumentOpened (newFile);
             return result;
@@ -89,7 +95,9 @@ Result FileBasedDocument::loadFrom (const File& newFile, const bool showMessageO
     }
 
     documentFile = oldFile;
-    MouseCursor::hideWaitCursor();
+
+    if (showWaitCursor)
+        MouseCursor::hideWaitCursor();
 
     if (showMessageOnFailure)
         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
@@ -128,8 +136,8 @@ static bool askToOverwriteFile (const File& newFile)
 }
 
 //==============================================================================
-FileBasedDocument::SaveResult FileBasedDocument::save (const bool askUserForFileIfNotSpecified,
-                                                       const bool showMessageOnFailure)
+FileBasedDocument::SaveResult FileBasedDocument::save (bool askUserForFileIfNotSpecified,
+                                                       bool showMessageOnFailure)
 {
     return saveAs (documentFile,
                    false,
@@ -138,11 +146,12 @@ FileBasedDocument::SaveResult FileBasedDocument::save (const bool askUserForFile
 }
 
 FileBasedDocument::SaveResult FileBasedDocument::saveAs (const File& newFile,
-                                                         const bool warnAboutOverwritingExistingFiles,
-                                                         const bool askUserForFileIfNotSpecified,
-                                                         const bool showMessageOnFailure)
+                                                         bool warnAboutOverwritingExistingFiles,
+                                                         bool askUserForFileIfNotSpecified,
+                                                         bool showMessageOnFailure,
+                                                         bool showWaitCursor)
 {
-    if (newFile == File::nonexistent)
+    if (newFile == File())
     {
         if (askUserForFileIfNotSpecified)
             return saveAsInteractive (true);
@@ -157,24 +166,29 @@ FileBasedDocument::SaveResult FileBasedDocument::saveAs (const File& newFile,
           && ! askToOverwriteFile (newFile))
         return userCancelledSave;
 
-    MouseCursor::showWaitCursor();
+    if (showWaitCursor)
+        MouseCursor::showWaitCursor();
 
-    const File oldFile (documentFile);
+    auto oldFile = documentFile;
     documentFile = newFile;
 
-    const Result result (saveDocument (newFile));
+    auto result = saveDocument (newFile);
 
     if (result.wasOk())
     {
         setChangedFlag (false);
-        MouseCursor::hideWaitCursor();
+
+        if (showWaitCursor)
+            MouseCursor::hideWaitCursor();
 
         sendChangeMessage(); // because the filename may have changed
         return savedOk;
     }
 
     documentFile = oldFile;
-    MouseCursor::hideWaitCursor();
+
+    if (showWaitCursor)
+        MouseCursor::hideWaitCursor();
 
     if (showMessageOnFailure)
         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
@@ -194,13 +208,13 @@ FileBasedDocument::SaveResult FileBasedDocument::saveIfNeededAndUserAgrees()
     if (! hasChangedSinceSaved())
         return savedOk;
 
-    const int r = AlertWindow::showYesNoCancelBox (AlertWindow::QuestionIcon,
-                                                   TRANS("Closing document..."),
-                                                   TRANS("Do you want to save the changes to \"DCNM\"?")
-                                                    .replace ("DCNM", getDocumentTitle()),
-                                                   TRANS("Save"),
-                                                   TRANS("Discard changes"),
-                                                   TRANS("Cancel"));
+    auto r = AlertWindow::showYesNoCancelBox (AlertWindow::QuestionIcon,
+                                              TRANS("Closing document..."),
+                                              TRANS("Do you want to save the changes to \"DCNM\"?")
+                                                   .replace ("DCNM", getDocumentTitle()),
+                                              TRANS("Save"),
+                                              TRANS("Discard changes"),
+                                              TRANS("Cancel"));
 
     if (r == 1)  // save changes
         return save (true, true);
@@ -216,16 +230,11 @@ File FileBasedDocument::getSuggestedSaveAsFile (const File& defaultFile)
     return defaultFile.withFileExtension (fileExtension).getNonexistentSibling (true);
 }
 
-FileBasedDocument::SaveResult FileBasedDocument::saveAsInteractive (const bool warnAboutOverwritingExistingFiles)
+FileBasedDocument::SaveResult FileBasedDocument::saveAsInteractive (bool warnAboutOverwritingExistingFiles)
 {
-    File f;
+    auto f = documentFile.existsAsFile() ? documentFile : getLastDocumentOpened();
 
-    if (documentFile.existsAsFile())
-        f = documentFile;
-    else
-        f = getLastDocumentOpened();
-
-    String legalFilename (File::createLegalFileName (getDocumentTitle()));
+    auto legalFilename = File::createLegalFileName (getDocumentTitle());
 
     if (legalFilename.isEmpty())
         legalFilename = "unnamed";
@@ -241,7 +250,8 @@ FileBasedDocument::SaveResult FileBasedDocument::saveAsInteractive (const bool w
 
     if (fc.browseForFileToSave (warnAboutOverwritingExistingFiles))
     {
-        File chosen (fc.getResult());
+        auto chosen = fc.getResult();
+
         if (chosen.getFileExtension().isEmpty())
         {
             chosen = chosen.withFileExtension (fileExtension);
@@ -257,3 +267,5 @@ FileBasedDocument::SaveResult FileBasedDocument::saveAsInteractive (const bool w
     return userCancelledSave;
 }
 #endif
+
+} // namespace juce

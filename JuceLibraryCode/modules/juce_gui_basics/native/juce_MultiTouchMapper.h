@@ -2,28 +2,31 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MULTITOUCHMAPPER_H_INCLUDED
-#define JUCE_MULTITOUCHMAPPER_H_INCLUDED
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wzero-as-null-pointer-constant")
+
+namespace juce
+{
 
 template <typename IDType>
 class MultiTouchMapper
@@ -31,19 +34,19 @@ class MultiTouchMapper
 public:
     MultiTouchMapper() {}
 
-    int getIndexOfTouch (IDType touchID)
+    int getIndexOfTouch (ComponentPeer* peer, IDType touchID)
     {
         jassert (touchID != 0); // need to rethink this if IDs can be 0!
+        TouchInfo info {touchID, peer};
 
-        int touchIndex = currentTouches.indexOf (touchID);
+        int touchIndex = currentTouches.indexOf (info);
 
         if (touchIndex < 0)
         {
-            for (touchIndex = 0; touchIndex < currentTouches.size(); ++touchIndex)
-                if (currentTouches.getUnchecked (touchIndex) == 0)
-                    break;
+            auto emptyTouchIndex = currentTouches.indexOf ({});
+            touchIndex = (emptyTouchIndex >= 0 ? emptyTouchIndex : currentTouches.size());
 
-            currentTouches.set (touchIndex, touchID);
+            currentTouches.set (touchIndex, info);
         }
 
         return touchIndex;
@@ -56,22 +59,49 @@ public:
 
     void clearTouch (int index)
     {
-        currentTouches.set (index, 0);
+        currentTouches.set (index, {});
     }
 
     bool areAnyTouchesActive() const noexcept
     {
-        for (int i = currentTouches.size(); --i >= 0;)
-            if (currentTouches.getUnchecked(i) != 0)
+        for (auto& t : currentTouches)
+            if (t.touchId != 0)
                 return true;
 
         return false;
     }
 
+    void deleteAllTouchesForPeer (ComponentPeer* peer)
+    {
+        for (auto& t : currentTouches)
+            if (t.owner == peer)
+                t.touchId = 0;
+    }
+
 private:
-    Array<IDType> currentTouches;
+    //==============================================================================
+    struct TouchInfo
+    {
+        TouchInfo() noexcept  : touchId (0), owner (nullptr) {}
+        TouchInfo (IDType idToUse, ComponentPeer* peer) noexcept  : touchId (idToUse), owner (peer) {}
+
+        TouchInfo (const TouchInfo&) = default;
+        TouchInfo& operator= (const TouchInfo&) = default;
+        TouchInfo (TouchInfo&&) noexcept = default;
+        TouchInfo& operator= (TouchInfo&&) noexcept = default;
+
+        IDType touchId;
+        ComponentPeer* owner;
+
+        bool operator== (const TouchInfo& o) const noexcept     { return (touchId == o.touchId); }
+    };
+
+    //==============================================================================
+    Array<TouchInfo> currentTouches;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiTouchMapper)
 };
 
-#endif   // JUCE_MULTITOUCHMAPPER_H_INCLUDED
+} // namespace juce
+
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE

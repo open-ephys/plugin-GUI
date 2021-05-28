@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_DIALOGWINDOW_H_INCLUDED
-#define JUCE_DIALOGWINDOW_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -45,6 +45,8 @@
     button - for more info, see the DocumentWindow help.
 
     @see DocumentWindow, ResizableWindow
+
+    @tags{GUI}
 */
 class JUCE_API  DialogWindow   : public DocumentWindow
 {
@@ -69,7 +71,7 @@ public:
     /** Destructor.
         If a content component has been set with setContentOwned(), it will be deleted.
     */
-    ~DialogWindow();
+    ~DialogWindow() override;
 
     //==============================================================================
     /** This class defines a collection of settings to be used to open a DialogWindow.
@@ -86,7 +88,7 @@ public:
         String dialogTitle;
 
         /** The background colour for the window. */
-        Colour dialogBackgroundColour;
+        Colour dialogBackgroundColour = Colours::lightgrey;
 
         /** The content component to show in the window. This must not be null!
             Using an OptionalScopedPointer to hold this pointer lets you indicate whether
@@ -99,16 +101,16 @@ public:
             dialog box in front of. See the DocumentWindow::centreAroundComponent() method for
             more info about this parameter.
         */
-        Component* componentToCentreAround;
+        Component* componentToCentreAround = nullptr;
 
         /** If true, then the escape key will trigger the dialog's close button. */
-        bool escapeKeyTriggersCloseButton;
+        bool escapeKeyTriggersCloseButton = true;
         /** If true, the dialog will use a native title bar. See TopLevelWindow::setUsingNativeTitleBar() */
-        bool useNativeTitleBar;
+        bool useNativeTitleBar = true;
         /** If true, the window will be resizable. See ResizableWindow::setResizable() */
-        bool resizable;
+        bool resizable = true;
         /** Indicates whether to use a border or corner resizer component. See ResizableWindow::setResizable() */
-        bool useBottomRightCornerResizer;
+        bool useBottomRightCornerResizer = false;
 
         /** Launches a new modal dialog window.
             This will create a dialog based on the settings in this structure,
@@ -143,12 +145,14 @@ public:
         */
         int runModal();
        #endif
+
+        JUCE_DECLARE_NON_COPYABLE (LaunchOptions)
     };
 
     //==============================================================================
     /** Easy way of quickly showing a dialog box containing a given component.
 
-        Note: this method has been superceded by the DialogWindow::LaunchOptions structure,
+        Note: This method has been superseded by the DialogWindow::LaunchOptions structure,
         which does the same job with some extra flexibility. The showDialog method is here
         for backwards compatibility, but please use DialogWindow::LaunchOptions in new code.
 
@@ -171,7 +175,7 @@ public:
                                     be before calling this method. The component won't
                                     be deleted by this call, so you can re-use it or delete
                                     it afterwards
-        @param componentToCentreAround  if this is non-zero, it indicates a component that
+        @param componentToCentreAround  if this is not a nullptr, it indicates a component that
                                     you'd like to show this dialog box in front of. See the
                                     DocumentWindow::centreAroundComponent() method for more
                                     info on this parameter
@@ -194,7 +198,7 @@ public:
    #if JUCE_MODAL_LOOPS_PERMITTED || DOXYGEN
     /** Easy way of quickly showing a dialog box containing a given component.
 
-        Note: this method has been superceded by the DialogWindow::LaunchOptions structure,
+        Note: This method has been superseded by the DialogWindow::LaunchOptions structure,
         which does the same job with some extra flexibility. The showDialog method is here
         for backwards compatibility, but please use DialogWindow::LaunchOptions in new code.
 
@@ -217,7 +221,7 @@ public:
                                     be before calling this method. The component won't
                                     be deleted by this call, so you can re-use it or delete
                                     it afterwards
-        @param componentToCentreAround  if this is non-zero, it indicates a component that
+        @param componentToCentreAround  if this is not a nullptr, it indicates a component that
                                     you'd like to show this dialog box in front of. See the
                                     DocumentWindow::centreAroundComponent() method for more
                                     info on this parameter
@@ -258,4 +262,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DialogWindow)
 };
 
-#endif   // JUCE_DIALOGWINDOW_H_INCLUDED
+} // namespace juce

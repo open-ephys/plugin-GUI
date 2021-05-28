@@ -2,30 +2,39 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 class ComponentAnimator::AnimationTask
 {
 public:
     AnimationTask (Component* c) noexcept  : component (c) {}
+
+    ~AnimationTask()
+    {
+        proxy.deleteAndZero();
+    }
 
     void reset (const Rectangle<int>& finalBounds,
                 float finalAlpha,
@@ -53,24 +62,25 @@ public:
         midSpeed = invTotalDistance;
         endSpeed = jmax (0.0, endSpd * invTotalDistance);
 
+        proxy.deleteAndZero();
+
         if (useProxyComponent)
             proxy = new ProxyComponent (*component);
-        else
-            proxy = nullptr;
 
         component->setVisible (! useProxyComponent);
     }
 
     bool useTimeslice (const int elapsed)
     {
-        if (Component* const c = proxy != nullptr ? static_cast<Component*> (proxy)
-                                                  : static_cast<Component*> (component))
+        if (auto* c = proxy != nullptr ? proxy.getComponent()
+                                       : component.get())
         {
             msElapsed += elapsed;
             double newProgress = msElapsed / (double) msTotal;
 
             if (newProgress >= 0 && newProgress < 1.0)
             {
+                const WeakReference<AnimationTask> weakRef (this);
                 newProgress = timeToDistance (newProgress);
                 const double delta = (newProgress - lastProgress) / (1.0 - lastProgress);
                 jassert (newProgress >= lastProgress);
@@ -99,6 +109,11 @@ public:
                         }
                     }
 
+                    // Check whether the animation was cancelled/deleted during
+                    // a callback during the setBounds method
+                    if (weakRef.wasObjectDeleted())
+                        return false;
+
                     if (isChangingAlpha)
                     {
                         alpha += (destAlpha - alpha) * delta;
@@ -120,18 +135,19 @@ public:
     {
         if (component != nullptr)
         {
+            const WeakReference<AnimationTask> weakRef (this);
             component->setAlpha ((float) destAlpha);
             component->setBounds (destination);
 
-            if (proxy != nullptr)
-                component->setVisible (destAlpha > 0);
+            if (! weakRef.wasObjectDeleted())
+                if (proxy != nullptr)
+                    component->setVisible (destAlpha > 0);
         }
     }
 
     //==============================================================================
-    class ProxyComponent  : public Component
+    struct ProxyComponent  : public Component
     {
-    public:
         ProxyComponent (Component& c)
         {
             setWantsKeyboardFocus (false);
@@ -140,15 +156,15 @@ public:
             setAlpha (c.getAlpha());
             setInterceptsMouseClicks (false, false);
 
-            if (Component* const parent = c.getParentComponent())
+            if (auto* parent = c.getParentComponent())
                 parent->addAndMakeVisible (this);
             else if (c.isOnDesktop() && c.getPeer() != nullptr)
                 addToDesktop (c.getPeer()->getStyleFlags() | ComponentPeer::windowIgnoresKeyPresses);
             else
                 jassertfalse; // seem to be trying to animate a component that's not visible..
 
-            const float scale = (float) Desktop::getInstance().getDisplays()
-                                            .getDisplayContaining (getScreenBounds().getCentre()).scale;
+            auto scale = (float) Desktop::getInstance().getDisplays().getDisplayForRect (getScreenBounds())->scale
+                           * Component::getApproximateScaleFactorForComponent (&c);
 
             image = c.createComponentSnapshot (c.getLocalBounds(), false, scale);
 
@@ -159,8 +175,8 @@ public:
         void paint (Graphics& g) override
         {
             g.setOpacity (1.0f);
-            g.drawImageTransformed (image, AffineTransform::scale (getWidth()  / (float) image.getWidth(),
-                                                                   getHeight() / (float) image.getHeight()), false);
+            g.drawImageTransformed (image, AffineTransform::scale ((float) getWidth()  / (float) jmax (1, image.getWidth()),
+                                                                   (float) getHeight() / (float) jmax (1, image.getHeight())), false);
         }
 
     private:
@@ -170,7 +186,7 @@ public:
     };
 
     WeakReference<Component> component;
-    ScopedPointer<Component> proxy;
+    Component::SafePointer<Component> proxy;
 
     Rectangle<int> destination;
     double destAlpha;
@@ -187,6 +203,9 @@ private:
                             : 0.5 * (startSpeed + 0.5 * (midSpeed - startSpeed))
                                 + (time - 0.5) * (midSpeed + (time - 0.5) * (endSpeed - midSpeed));
     }
+
+    JUCE_DECLARE_WEAK_REFERENCEABLE (AnimationTask)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnimationTask)
 };
 
 //==============================================================================
@@ -216,7 +235,7 @@ void ComponentAnimator::animateComponent (Component* const component,
 
     if (component != nullptr)
     {
-        AnimationTask* at = findTaskFor (component);
+        auto* at = findTaskFor (component);
 
         if (at == nullptr)
         {
@@ -273,7 +292,7 @@ void ComponentAnimator::cancelAllAnimations (const bool moveComponentsToTheirFin
 void ComponentAnimator::cancelAnimation (Component* const component,
                                          const bool moveComponentToItsFinalPosition)
 {
-    if (AnimationTask* const at = findTaskFor (component))
+    if (auto* at = findTaskFor (component))
     {
         if (moveComponentToItsFinalPosition)
             at->moveToFinalDestination();
@@ -287,7 +306,7 @@ Rectangle<int> ComponentAnimator::getComponentDestination (Component* const comp
 {
     jassert (component != nullptr);
 
-    if (AnimationTask* const at = findTaskFor (component))
+    if (auto* at = findTaskFor (component))
         return at->destination;
 
     return component->getBounds();
@@ -305,18 +324,18 @@ bool ComponentAnimator::isAnimating() const noexcept
 
 void ComponentAnimator::timerCallback()
 {
-    const uint32 timeNow = Time::getMillisecondCounter();
+    auto timeNow = Time::getMillisecondCounter();
 
-    if (lastTime == 0 || lastTime == timeNow)
+    if (lastTime == 0)
         lastTime = timeNow;
 
-    const int elapsed = (int) (timeNow - lastTime);
+    auto elapsed = (int) (timeNow - lastTime);
 
-    for (int i = tasks.size(); --i >= 0;)
+    for (auto* task : Array<AnimationTask*> (tasks.begin(), tasks.size()))
     {
-        if (! tasks.getUnchecked(i)->useTimeslice (elapsed))
+        if (tasks.contains (task) && ! task->useTimeslice (elapsed))
         {
-            tasks.remove (i);
+            tasks.removeObject (task);
             sendChangeMessage();
         }
     }
@@ -326,3 +345,5 @@ void ComponentAnimator::timerCallback()
     if (tasks.size() == 0)
         stopTimer();
 }
+
+} // namespace juce

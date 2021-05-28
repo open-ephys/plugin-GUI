@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_CONCERTINAPANEL_H_INCLUDED
-#define JUCE_CONCERTINAPANEL_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,6 +33,8 @@
 
     Each section has its own header bar which can be dragged up and down
     to resize it, or double-clicked to fully expand that section.
+
+    @tags{GUI}
 */
 class JUCE_API  ConcertinaPanel   : public Component
 {
@@ -43,7 +45,7 @@ public:
     ConcertinaPanel();
 
     /** Destructor. */
-    ~ConcertinaPanel();
+    ~ConcertinaPanel() override;
 
     /** Adds a component to the panel.
         @param insertIndex          the index at which this component will be inserted, or
@@ -93,11 +95,24 @@ public:
     /** Sets the height of the header section for one of the panels. */
     void setPanelHeaderSize (Component* panelComponent, int headerSize);
 
+    /** Sets a custom header Component for one of the panels.
+
+        @param panelComponent           the panel component to add the custom header to.
+        @param customHeaderComponent    the custom component to use for the panel header.
+                                        This can be nullptr to clear the custom header component
+                                        and just use the standard LookAndFeel panel.
+        @param takeOwnership            if true, then the PanelHolder will take ownership
+                                        of the custom header component, and will delete it later when
+                                        it's no longer needed. If false, it won't delete it, and
+                                        you must make sure it doesn't get deleted while in use.
+     */
+    void setCustomPanelHeader (Component* panelComponent, Component* customHeaderComponent, bool takeOwnership);
+
     //==============================================================================
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawConcertinaPanelHeader (Graphics&, const Rectangle<int>& area,
                                                 bool isMouseOver, bool isMouseDown,
@@ -109,12 +124,7 @@ private:
 
     class PanelHolder;
     struct PanelSizes;
-    friend class PanelHolder;
-    friend struct PanelSizes;
-    friend struct ContainerDeletePolicy<PanelSizes>;
-    friend struct ContainerDeletePolicy<PanelHolder>;
-
-    ScopedPointer<PanelSizes> currentSizes;
+    std::unique_ptr<PanelSizes> currentSizes;
     OwnedArray<PanelHolder> holders;
     ComponentAnimator animator;
     int headerHeight;
@@ -128,5 +138,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConcertinaPanel)
 };
 
-
-#endif   // JUCE_CONCERTINAPANEL_H_INCLUDED
+} // namespace juce

@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_IMAGEFILEFORMAT_H_INCLUDED
-#define JUCE_IMAGEFILEFORMAT_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,17 +35,19 @@
     from files, streams or from memory.
 
     @see Image, ImageCache
+
+    @tags{Graphics}
 */
 class JUCE_API  ImageFileFormat
 {
 protected:
     //==============================================================================
     /** Creates an ImageFormat. */
-    ImageFileFormat()                   {}
+    ImageFileFormat() = default;
 
 public:
     /** Destructor. */
-    virtual ~ImageFileFormat()          {}
+    virtual ~ImageFileFormat() = default;
 
     //==============================================================================
     /** Returns a description of this file format.
@@ -142,13 +144,15 @@ public:
     A subclass of ImageFileFormat for reading and writing PNG files.
 
     @see ImageFileFormat, JPEGImageFormat
+
+    @tags{Graphics}
 */
 class JUCE_API  PNGImageFormat  : public ImageFileFormat
 {
 public:
     //==============================================================================
     PNGImageFormat();
-    ~PNGImageFormat();
+    ~PNGImageFormat() override;
 
     //==============================================================================
     String getFormatName() override;
@@ -164,13 +168,15 @@ public:
     A subclass of ImageFileFormat for reading and writing JPEG files.
 
     @see ImageFileFormat, PNGImageFormat
+
+    @tags{Graphics}
 */
 class JUCE_API  JPEGImageFormat  : public ImageFileFormat
 {
 public:
     //==============================================================================
     JPEGImageFormat();
-    ~JPEGImageFormat();
+    ~JPEGImageFormat() override;
 
     //==============================================================================
     /** Specifies the quality to be used when writing a JPEG file.
@@ -196,13 +202,15 @@ private:
     A subclass of ImageFileFormat for reading GIF files.
 
     @see ImageFileFormat, PNGImageFormat, JPEGImageFormat
+
+    @tags{Graphics}
 */
 class JUCE_API  GIFImageFormat  : public ImageFileFormat
 {
 public:
     //==============================================================================
     GIFImageFormat();
-    ~GIFImageFormat();
+    ~GIFImageFormat() override;
 
     //==============================================================================
     String getFormatName() override;
@@ -212,5 +220,4 @@ public:
     bool writeImageToStream (const Image&, OutputStream&) override;
 };
 
-
-#endif   // JUCE_IMAGEFILEFORMAT_H_INCLUDED
+} // namespace juce

@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_DOCUMENTWINDOW_H_INCLUDED
-#define JUCE_DOCUMENTWINDOW_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -48,6 +48,8 @@
     method.
 
     @see ResizableWindow, DialogWindow
+
+    @tags{GUI}
 */
 class JUCE_API  DocumentWindow   : public ResizableWindow
 {
@@ -92,7 +94,7 @@ public:
     /** Destructor.
         If a content component has been set with setContentOwned(), it will be deleted.
     */
-    ~DocumentWindow();
+    ~DocumentWindow() override;
 
     //==============================================================================
     /** Changes the component's name.
@@ -105,8 +107,8 @@ public:
     /** Sets an icon to show in the title bar, next to the title.
 
         A copy is made internally of the image, so the caller can delete the
-        image after calling this. If 0 is passed-in, any existing icon will be
-        removed.
+        image after calling this. If an empty Image is passed-in, any existing icon
+        will be removed.
     */
     void setIcon (const Image& imageToUse);
 
@@ -141,9 +143,9 @@ public:
         @param menuBarModel     this specifies a MenuBarModel that should be used to
                                 generate the contents of a menu bar that will be placed
                                 just below the title bar, and just above any content
-                                component. If this value is zero, any existing menu bar
-                                will be removed from the component; if non-zero, one will
-                                be added if it's required.
+                                component. If this value is a nullptr, any existing menu bar
+                                will be removed from the component; if it is not a nullptr,
+                                one will be added if it's required.
         @param menuBarHeight    the height of the menu bar component, if one is needed. Pass a value of zero
                                 or less to use the look-and-feel's default size.
     */
@@ -229,7 +231,7 @@ public:
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawDocumentWindowTitleBar (DocumentWindow&,
                                                  Graphics&, int w, int h,
@@ -275,21 +277,19 @@ public:
 
 private:
     //==============================================================================
-    int titleBarHeight, menuBarHeight, requiredButtons;
-    bool positionTitleBarButtonsOnLeft, drawTitleTextCentred;
-    ScopedPointer<Button> titleBarButtons [3];
+    int titleBarHeight = 26, menuBarHeight = 24, requiredButtons;
+    bool positionTitleBarButtonsOnLeft, drawTitleTextCentred = true;
+    std::unique_ptr<Button> titleBarButtons [3];
     Image titleBarIcon;
-    ScopedPointer<Component> menuBar;
-    MenuBarModel* menuBarModel;
+    std::unique_ptr<Component> menuBar;
+    MenuBarModel* menuBarModel = nullptr;
 
     class ButtonListenerProxy;
-    friend struct ContainerDeletePolicy<ButtonListenerProxy>;
-    ScopedPointer<ButtonListenerProxy> buttonListener;
+    std::unique_ptr<ButtonListenerProxy> buttonListener;
 
     void repaintTitleBar();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DocumentWindow)
 };
 
-
-#endif   // JUCE_DOCUMENTWINDOW_H_INCLUDED
+} // namespace juce

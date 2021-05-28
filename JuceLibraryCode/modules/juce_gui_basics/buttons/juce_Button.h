@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_BUTTON_H_INCLUDED
-#define JUCE_BUTTON_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,6 +35,8 @@
     and radio groups, etc.
 
     @see TextButton, DrawableButton, ToggleButton
+
+    @tags{GUI}
 */
 class JUCE_API  Button  : public Component,
                           public SettableTooltipClient
@@ -51,7 +53,7 @@ protected:
 
 public:
     /** Destructor. */
-    virtual ~Button();
+    ~Button() override;
 
     //==============================================================================
     /** Changes the button's text.
@@ -104,10 +106,12 @@ public:
     */
     bool getToggleState() const noexcept                        { return isOn.getValue(); }
 
-    /** Returns the Value object that represents the botton's toggle state.
+    /** Returns the Value object that represents the button's toggle state.
+
         You can use this Value object to connect the button's state to external values or setters,
         either by taking a copy of the Value, or by using Value::referTo() to make it point to
         your own Value object.
+
         @see getToggleState, Value
     */
     Value& getToggleStateValue() noexcept                       { return isOn; }
@@ -163,7 +167,7 @@ public:
     {
     public:
         /** Destructor. */
-        virtual ~Listener()  {}
+        virtual ~Listener() = default;
 
         /** Called when the button is clicked. */
         virtual void buttonClicked (Button*) = 0;
@@ -182,6 +186,13 @@ public:
         @see addListener
     */
     void removeListener (Listener* listener);
+
+    //==============================================================================
+    /** You can assign a lambda to this callback object to have it called when the button is clicked. */
+    std::function<void()> onClick;
+
+    /** You can assign a lambda to this callback object to have it called when the button's state changes. */
+    std::function<void()> onStateChange;
 
     //==============================================================================
     /** Causes the button to act as if it's been clicked.
@@ -266,6 +277,11 @@ public:
     */
     void setTriggeredOnMouseDown (bool isTriggeredOnMouseDown) noexcept;
 
+    /** Returns whether the button click happens when the mouse is pressed or released.
+        @see setTriggeredOnMouseDown
+    */
+    bool getTriggeredOnMouseDown() const noexcept;
+
     /** Returns the number of milliseconds since the last time the button
         went into the 'down' state.
     */
@@ -346,55 +362,49 @@ public:
     /** Returns the button's current over/down/up state. */
     ButtonState getState() const noexcept               { return buttonState; }
 
-    // This method's parameters have changed - see the new version.
-    JUCE_DEPRECATED (void setToggleState (bool, bool));
-
     //==============================================================================
     /** This abstract base class is implemented by LookAndFeel classes to provide
         button-drawing functionality.
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
-                                           bool isMouseOverButton, bool isButtonDown) = 0;
+                                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) = 0;
 
         virtual Font getTextButtonFont (TextButton&, int buttonHeight) = 0;
         virtual int getTextButtonWidthToFitText (TextButton&, int buttonHeight) = 0;
 
         /** Draws the text for a TextButton. */
-        virtual void drawButtonText (Graphics&, TextButton&, bool isMouseOverButton, bool isButtonDown) = 0;
+        virtual void drawButtonText (Graphics&, TextButton&,
+                                     bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) = 0;
 
         /** Draws the contents of a standard ToggleButton. */
-        virtual void drawToggleButton (Graphics&, ToggleButton&, bool isMouseOverButton, bool isButtonDown) = 0;
+        virtual void drawToggleButton (Graphics&, ToggleButton&,
+                                       bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) = 0;
 
         virtual void changeToggleButtonWidthToFitText (ToggleButton&) = 0;
 
         virtual void drawTickBox (Graphics&, Component&, float x, float y, float w, float h,
-                                  bool ticked, bool isEnabled, bool isMouseOverButton, bool isButtonDown) = 0;
+                                  bool ticked, bool isEnabled,
+                                  bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) = 0;
 
-        virtual void drawDrawableButton (Graphics&, DrawableButton&, bool isMouseOverButton, bool isButtonDown) = 0;
-
-    private:
-       #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-        // These method have been deprecated: see their replacements above.
-        virtual int getTextButtonFont (TextButton&) { return 0; }
-        virtual int changeTextButtonWidthToFitText (TextButton&, int) { return 0; }
-       #endif
+        virtual void drawDrawableButton (Graphics&, DrawableButton&,
+                                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) = 0;
     };
+
+    // This method's parameters have changed - see the new version.
+    JUCE_DEPRECATED (void setToggleState (bool, bool));
 
 protected:
     //==============================================================================
     /** This method is called when the button has been clicked.
 
-        Subclasses can override this to perform whatever they actions they need
-        to do.
-
-        Alternatively, a ButtonListener can be added to the button, and these listeners
-        will be called when the click occurs.
-
-        @see triggerClick
+        Subclasses can override this to perform whatever actions they need to do.
+        In general, you wouldn't use this method to receive clicks, but should get your callbacks
+        by attaching a std::function to the onClick callback, or adding a Button::Listener.
+        @see triggerClick, onClick
     */
     virtual void clicked();
 
@@ -412,14 +422,13 @@ protected:
         It's better to use this than the paint method, because it gives you information
         about the over/down state of the button.
 
-        @param g                    the graphics context to use
-        @param isMouseOverButton    true if the button is either in the 'over' or
-                                    'down' state
-        @param isButtonDown         true if the button should be drawn in the 'down' position
+        @param g                                the graphics context to use
+        @param shouldDrawButtonAsHighlighted    true if the button is either in the 'over' or 'down' state
+        @param shouldDrawButtonAsDown           true if the button should be drawn in the 'down' position
     */
     virtual void paintButton (Graphics& g,
-                              bool isMouseOverButton,
-                              bool isButtonDown) = 0;
+                              bool shouldDrawButtonAsHighlighted,
+                              bool shouldDrawButtonAsDown) = 0;
 
     /** Called when the button's up/down/over state changes.
 
@@ -469,25 +478,23 @@ private:
     String text;
     ListenerList<Listener> buttonListeners;
 
-    class CallbackHelper;
-    friend class CallbackHelper;
-    friend struct ContainerDeletePolicy<CallbackHelper>;
-    ScopedPointer<CallbackHelper> callbackHelper;
-    uint32 buttonPressTime, lastRepeatTime;
-    ApplicationCommandManager* commandManagerToUse;
-    int autoRepeatDelay, autoRepeatSpeed, autoRepeatMinimumDelay;
-    int radioGroupId, connectedEdgeFlags;
-    CommandID commandID;
-    ButtonState buttonState, lastStatePainted;
+    struct CallbackHelper;
+    std::unique_ptr<CallbackHelper> callbackHelper;
+    uint32 buttonPressTime = 0, lastRepeatTime = 0;
+    ApplicationCommandManager* commandManagerToUse = nullptr;
+    int autoRepeatDelay = -1, autoRepeatSpeed = 0, autoRepeatMinimumDelay = -1;
+    int radioGroupId = 0, connectedEdgeFlags = 0;
+    CommandID commandID = {};
+    ButtonState buttonState = buttonNormal, lastStatePainted = buttonNormal;
 
     Value isOn;
-    bool lastToggleState;
-    bool clickTogglesState;
-    bool needsToRelease;
-    bool needsRepainting;
-    bool isKeyDown;
-    bool triggerOnMouseDown;
-    bool generateTooltip;
+    bool lastToggleState = false;
+    bool clickTogglesState = false;
+    bool needsToRelease = false;
+    bool needsRepainting = false;
+    bool isKeyDown = false;
+    bool triggerOnMouseDown = false;
+    bool generateTooltip = false;
 
     void repeatTimerCallback();
     bool keyStateChangedCallback();
@@ -497,18 +504,17 @@ private:
     ButtonState updateState();
     ButtonState updateState (bool isOver, bool isDown);
     bool isShortcutPressed() const;
-    void turnOffOtherButtonsInGroup (NotificationType);
+    void turnOffOtherButtonsInGroup (NotificationType click, NotificationType state);
 
     void flashButtonState();
     void sendClickMessage (const ModifierKeys&);
     void sendStateMessage();
+    void setToggleState (bool shouldBeOn, NotificationType click, NotificationType state);
+
+    bool isMouseSourceOver (const MouseEvent& e);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Button)
 };
 
-#ifndef DOXYGEN
- /** This typedef is just for compatibility with old code and VC6 - newer code should use Button::Listener instead. */
- typedef Button::Listener ButtonListener;
-#endif
 
-#endif   // JUCE_BUTTON_H_INCLUDED
+} // namespace juce

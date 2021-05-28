@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_MD5_H_INCLUDED
-#define JUCE_MD5_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,19 +35,21 @@
 
     You can then retrieve this checksum as a 16-byte block, or as a hex string.
     @see SHA256
+
+    @tags{Cryptography}
 */
 class JUCE_API  MD5
 {
 public:
     //==============================================================================
     /** Creates a null MD5 object. */
-    MD5() noexcept;
+    MD5();
 
     /** Creates a copy of another MD5. */
-    MD5 (const MD5&) noexcept;
+    MD5 (const MD5&);
 
     /** Copies another MD5. */
-    MD5& operator= (const MD5&) noexcept;
+    MD5& operator= (const MD5&);
 
     //==============================================================================
     /** Creates a checksum for a block of binary data. */
@@ -75,7 +77,7 @@ public:
     explicit MD5 (CharPointer_UTF8 utf8Text) noexcept;
 
     /** Destructor. */
-    ~MD5() noexcept;
+    ~MD5();
 
     //==============================================================================
     /** Returns the checksum as a 16-byte block of data. */
@@ -103,17 +105,15 @@ public:
 
 private:
     //==============================================================================
-    uint8 result [16];
+    uint8 result[16] = {};
 
-    void processData (const void*, size_t) noexcept;
     void processStream (InputStream&, int64);
 
     // This private constructor is declared here to prevent you accidentally passing a
     // String and having it unexpectedly call the constructor that takes a File.
-    explicit MD5 (const String&) JUCE_DELETED_FUNCTION;
+    explicit MD5 (const String&) = delete;
 
     JUCE_LEAK_DETECTOR (MD5)
 };
 
-
-#endif   // JUCE_MD5_H_INCLUDED
+} // namespace juce

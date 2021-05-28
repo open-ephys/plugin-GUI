@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_CHOICEPROPERTYCOMPONENT_H_INCLUDED
-#define JUCE_CHOICEPROPERTYCOMPONENT_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -44,10 +44,15 @@
     called to let your class process this.
 
     @see PropertyComponent, PropertyPanel
+
+    @tags{GUI}
 */
-class JUCE_API  ChoicePropertyComponent    : public PropertyComponent,
-                                             private ComboBoxListener  // (can't use ComboBox::Listener due to idiotic VC2005 bug)
+class JUCE_API  ChoicePropertyComponent    : public PropertyComponent
 {
+private:
+    /** Delegating constructor. */
+    ChoicePropertyComponent (const String&, const StringArray&, const Array<var>&);
+
 protected:
     /** Creates the component.
         Your subclass's constructor must add a list of options to the choices member variable.
@@ -74,8 +79,33 @@ public:
                              const StringArray& choices,
                              const Array<var>& correspondingValues);
 
+    /** Creates the component using a ValueWithDefault object. This will add an item to the ComboBox for the
+        default value with an ID of -1.
+
+        @param valueToControl       the ValueWithDefault object that contains the Value object that the combo box will read and control.
+        @param propertyName         the name of the property
+        @param choices              the list of possible values that the drop-down list will contain
+        @param correspondingValues  a list of values corresponding to each item in the 'choices' StringArray.
+                                    These are the values that will be read and written to the
+                                    valueToControl value. This array must contain the same number of items
+                                    as the choices array
+
+    */
+    ChoicePropertyComponent (ValueWithDefault& valueToControl,
+                             const String& propertyName,
+                             const StringArray& choices,
+                             const Array<var>& correspondingValues);
+
+    /** Creates the component using a ValueWithDefault object, adding an item to the ComboBox for the
+        default value with an ID of -1 as well as adding separate "Enabled" and "Disabled" options.
+
+        This is useful for simple on/off choices that also need a default value.
+    */
+    ChoicePropertyComponent (ValueWithDefault& valueToControl,
+                             const String& propertyName);
+
     /** Destructor. */
-    ~ChoicePropertyComponent();
+    ~ChoicePropertyComponent() override;
 
     //==============================================================================
     /** Called when the user selects an item from the combo box.
@@ -94,10 +124,9 @@ public:
     /** Returns the list of options. */
     const StringArray& getChoices() const;
 
-
     //==============================================================================
     /** @internal */
-    void refresh();
+    void refresh() override;
 
 protected:
     /** The list of options that will be shown in the combo box.
@@ -109,17 +138,25 @@ protected:
     StringArray choices;
 
 private:
-    ComboBox comboBox;
-    bool isCustomClass;
-
+    //==============================================================================
     class RemapperValueSource;
-    void createComboBox();
-    void comboBoxChanged (ComboBox*);
+    class RemapperValueSourceWithDefault;
 
+    //==============================================================================
+    void initialiseComboBox (const Value&);
+    void refreshChoices();
+    void refreshChoices (const String&);
+
+    void changeIndex();
+
+    //==============================================================================
+    ComboBox comboBox;
+    bool isCustomClass = false;
+
+    WeakReference<ValueWithDefault> valueWithDefault;
+
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChoicePropertyComponent)
 };
 
-
-
-
-#endif   // JUCE_CHOICEPROPERTYCOMPONENT_H_INCLUDED
+} // namespace juce

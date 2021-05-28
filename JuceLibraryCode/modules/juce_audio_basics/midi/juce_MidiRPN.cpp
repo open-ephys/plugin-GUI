@@ -2,25 +2,26 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-   ------------------------------------------------------------------------------
-
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 MidiRPNDetector::MidiRPNDetector() noexcept
 {
@@ -35,7 +36,7 @@ bool MidiRPNDetector::parseControllerMessage (int midiChannel,
                                               int controllerValue,
                                               MidiRPNMessage& result) noexcept
 {
-    jassert (midiChannel >= 1 && midiChannel <= 16);
+    jassert (midiChannel > 0 && midiChannel <= 16);
     jassert (controllerNumber >= 0 && controllerNumber < 128);
     jassert (controllerValue >= 0 && controllerValue < 128);
 
@@ -158,6 +159,7 @@ MidiBuffer MidiRPNGenerator::generate (int midiChannel,
     return buffer;
 }
 
+
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
@@ -165,7 +167,9 @@ MidiBuffer MidiRPNGenerator::generate (int midiChannel,
 class MidiRPNDetectorTests   : public UnitTest
 {
 public:
-    MidiRPNDetectorTests()  : UnitTest ("MidiRPNDetector class") {}
+    MidiRPNDetectorTests()
+        : UnitTest ("MidiRPNDetector class", UnitTestCategories::midi)
+    {}
 
     void runTest() override
     {
@@ -307,7 +311,9 @@ static MidiRPNDetectorTests MidiRPNDetectorUnitTests;
 class MidiRPNGeneratorTests   : public UnitTest
 {
 public:
-    MidiRPNGeneratorTests()  : UnitTest ("MidiRPNGenerator class") {}
+    MidiRPNGeneratorTests()
+        : UnitTest ("MidiRPNGenerator class", UnitTestCategories::midi)
+    {}
 
     void runTest() override
     {
@@ -345,14 +351,13 @@ private:
     //==============================================================================
     void expectContainsRPN (const MidiBuffer& midiBuffer, MidiRPNMessage expected)
     {
-        MidiBuffer::Iterator iter (midiBuffer);
-        MidiMessage midiMessage;
         MidiRPNMessage result = MidiRPNMessage();
         MidiRPNDetector detector;
-        int samplePosition; // not actually used, so no need to initialise.
 
-        while (iter.getNextEvent (midiMessage, samplePosition))
+        for (const auto metadata : midiBuffer)
         {
+            const auto midiMessage = metadata.getMessage();
+
             if (detector.parseControllerMessage (midiMessage.getChannel(),
                                                  midiMessage.getControllerNumber(),
                                                  midiMessage.getControllerValue(),
@@ -363,11 +368,13 @@ private:
         expectEquals (result.channel, expected.channel);
         expectEquals (result.parameterNumber, expected.parameterNumber);
         expectEquals (result.value, expected.value);
-        expect (result.isNRPN == expected.isNRPN),
+        expect (result.isNRPN == expected.isNRPN);
         expect (result.is14BitValue == expected.is14BitValue);
     }
 };
 
 static MidiRPNGeneratorTests MidiRPNGeneratorUnitTests;
 
-#endif // JUCE_UNIT_TESTS
+#endif
+
+} // namespace juce

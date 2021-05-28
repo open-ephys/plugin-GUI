@@ -2,50 +2,62 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_VST3HEADERS_H_INCLUDED
-#define JUCE_VST3HEADERS_H_INCLUDED
-
 // Wow, those Steinberg guys really don't worry too much about compiler warnings.
-#if _MSC_VER
- #pragma warning (disable: 4505)
- #pragma warning (push, 0)
- #pragma warning (disable: 4702)
-#elif __clang__
- #pragma clang diagnostic push
- #pragma clang diagnostic ignored "-Wnon-virtual-dtor"
- #pragma clang diagnostic ignored "-Wreorder"
- #pragma clang diagnostic ignored "-Wunsequenced"
- #pragma clang diagnostic ignored "-Wint-to-pointer-cast"
- #pragma clang diagnostic ignored "-Wunused-parameter"
- #pragma clang diagnostic ignored "-Wconversion"
- #pragma clang diagnostic ignored "-Woverloaded-virtual"
- #pragma clang diagnostic ignored "-Wshadow"
- #pragma clang diagnostic ignored "-Wdeprecated-register"
- #pragma clang diagnostic ignored "-Wunused-function"
- #pragma clang diagnostic ignored "-Wsign-conversion"
- #pragma clang diagnostic ignored "-Wsign-compare"
- #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_LEVEL_MSVC (0, 4505 4702)
+
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wnon-virtual-dtor",
+                                     "-Wreorder",
+                                     "-Wunsequenced",
+                                     "-Wint-to-pointer-cast",
+                                     "-Wunused-parameter",
+                                     "-Wconversion",
+                                     "-Woverloaded-virtual",
+                                     "-Wshadow",
+                                     "-Wdeprecated-register",
+                                     "-Wunused-function",
+                                     "-Wsign-conversion",
+                                     "-Wsign-compare",
+                                     "-Wdelete-non-virtual-dtor",
+                                     "-Wdeprecated-declarations",
+                                     "-Wextra-semi",
+                                     "-Wmissing-braces",
+                                     "-Wswitch-default",
+                                     "-Wshadow-field",
+                                     "-Wpragma-pack",
+                                     "-Wcomma",
+                                     "-Wzero-as-null-pointer-constant",
+                                     "-Winconsistent-missing-destructor-override",
+                                     "-Wcast-align",
+                                     "-Wignored-qualifiers",
+                                     "-Wmissing-field-initializers",
+                                     "-Wformat=",
+                                     "-Wformat",
+                                     "-Wpedantic",
+                                     "-Wextra",
+                                     "-Wclass-memaccess",
+                                     "-Wmissing-prototypes",
+                                     "-Wtype-limits")
 
 #undef DEVELOPMENT
 #define DEVELOPMENT 0  // This avoids a Clang warning in Steinberg code about unused values
@@ -65,6 +77,7 @@
  #include <pluginterfaces/base/ipluginbase.h>
  #include <pluginterfaces/base/ustring.h>
  #include <pluginterfaces/gui/iplugview.h>
+ #include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
  #include <pluginterfaces/vst/ivstattributes.h>
  #include <pluginterfaces/vst/ivstaudioprocessor.h>
  #include <pluginterfaces/vst/ivstcomponent.h>
@@ -80,24 +93,37 @@
  #include <pluginterfaces/vst/vsttypes.h>
  #include <pluginterfaces/vst/ivstunits.h>
  #include <pluginterfaces/vst/ivstmidicontrollers.h>
+ #include <pluginterfaces/vst/ivstchannelcontextinfo.h>
  #include <public.sdk/source/common/memorystream.h>
+ #include <public.sdk/source/vst/vsteditcontroller.h>
+ #include <public.sdk/source/vst/vstpresetfile.h>
 #else
+ // needed for VST_VERSION
+ #include <pluginterfaces/vst/vsttypes.h>
+
  #include <base/source/baseiids.cpp>
- #include <base/source/fatomic.cpp>
  #include <base/source/fbuffer.cpp>
  #include <base/source/fdebug.cpp>
  #include <base/source/fobject.cpp>
- #include <base/source/frect.cpp>
  #include <base/source/fstreamer.cpp>
  #include <base/source/fstring.cpp>
- #include <base/source/fthread.cpp>
+
+ #if VST_VERSION >= 0x030608
+  #include <base/thread/source/flock.cpp>
+  #include <pluginterfaces/base/coreiids.cpp>
+ #else
+  #include <base/source/flock.cpp>
+ #endif
+
  #include <base/source/updatehandler.cpp>
  #include <pluginterfaces/base/conststringtable.cpp>
  #include <pluginterfaces/base/funknown.cpp>
  #include <pluginterfaces/base/ipluginbase.h>
  #include <pluginterfaces/base/ustring.cpp>
  #include <pluginterfaces/gui/iplugview.h>
+ #include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
  #include <pluginterfaces/vst/ivstmidicontrollers.h>
+ #include <pluginterfaces/vst/ivstchannelcontextinfo.h>
  #include <public.sdk/source/common/memorystream.cpp>
  #include <public.sdk/source/common/pluginview.cpp>
  #include <public.sdk/source/vst/vsteditcontroller.cpp>
@@ -106,26 +132,41 @@
  #include <public.sdk/source/vst/vstcomponent.cpp>
  #include <public.sdk/source/vst/vstcomponentbase.cpp>
  #include <public.sdk/source/vst/vstparameters.cpp>
+ #include <public.sdk/source/vst/vstpresetfile.cpp>
  #include <public.sdk/source/vst/hosting/hostclasses.cpp>
+
+ #if VST_VERSION >= 0x03060c   // 3.6.12
+  #include <public.sdk/source/vst/hosting/pluginterfacesupport.cpp>
+ #endif
 
 //==============================================================================
 namespace Steinberg
 {
     /** Missing IIDs */
+  #if VST_VERSION < 0x03060d   // 3.6.13
     DEF_CLASS_IID (IPluginBase)
-    DEF_CLASS_IID (IPlugView)
-    DEF_CLASS_IID (IPlugFrame)
-    DEF_CLASS_IID (IBStream)
     DEF_CLASS_IID (IPluginFactory)
     DEF_CLASS_IID (IPluginFactory2)
     DEF_CLASS_IID (IPluginFactory3)
-}
-#endif //JUCE_VST3HEADERS_INCLUDE_HEADERS_ONLY
+   #if VST_VERSION < 0x030608
+    DEF_CLASS_IID (IBStream)
+   #endif
+  #endif
+    DEF_CLASS_IID (IPlugView)
+    DEF_CLASS_IID (IPlugFrame)
+    DEF_CLASS_IID (IPlugViewContentScaleSupport)
 
-#if _MSC_VER
- #pragma warning (pop)
-#elif __clang__
- #pragma clang diagnostic pop
+   #if JUCE_LINUX
+    DEF_CLASS_IID (Linux::IRunLoop)
+   #endif
+}
+#endif // JUCE_VST3HEADERS_INCLUDE_HEADERS_ONLY
+
+JUCE_END_IGNORE_WARNINGS_MSVC
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+
+#if JUCE_WINDOWS
+ #include <windows.h>
 #endif
 
 //==============================================================================
@@ -171,5 +212,3 @@ namespace Steinberg
 #undef DEF_CLASS2
 #undef DEF_CLASS_W
 #undef END_FACTORY
-
-#endif   // JUCE_VST3HEADERS_H_INCLUDED

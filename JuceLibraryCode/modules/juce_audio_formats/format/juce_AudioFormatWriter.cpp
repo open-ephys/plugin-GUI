@@ -2,25 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 AudioFormatWriter::AudioFormatWriter (OutputStream* const out,
                                       const String& formatName_,
@@ -31,6 +35,22 @@ AudioFormatWriter::AudioFormatWriter (OutputStream* const out,
     numChannels (numChannels_),
     bitsPerSample (bitsPerSample_),
     usesFloatingPointData (false),
+    channelLayout (AudioChannelSet::canonicalChannelSet(static_cast<int> (numChannels_))),
+    output (out),
+    formatName (formatName_)
+{
+}
+
+AudioFormatWriter::AudioFormatWriter (OutputStream* const out,
+                                      const String& formatName_,
+                                      const double rate,
+                                      const AudioChannelSet& channelLayout_,
+                                      const unsigned int bitsPerSample_)
+  : sampleRate (rate),
+    numChannels (static_cast<unsigned int> (channelLayout_.size())),
+    bitsPerSample (bitsPerSample_),
+    usesFloatingPointData (false),
+    channelLayout (channelLayout_),
     output (out),
     formatName (formatName_)
 {
@@ -63,9 +83,9 @@ bool AudioFormatWriter::writeFromAudioReader (AudioFormatReader& reader,
                                               int64 numSamplesToRead)
 {
     const int bufferSize = 16384;
-    AudioSampleBuffer tempBuffer ((int) numChannels, bufferSize);
+    AudioBuffer<float> tempBuffer ((int) numChannels, bufferSize);
 
-    int* buffers [128] = { 0 };
+    int* buffers[128] = { nullptr };
 
     for (int i = tempBuffer.getNumChannels(); --i >= 0;)
         buffers[i] = reinterpret_cast<int*> (tempBuffer.getWritePointer (i, 0));
@@ -88,8 +108,10 @@ bool AudioFormatWriter::writeFromAudioReader (AudioFormatReader& reader,
             {
                 void* const b = *bufferChan++;
 
+                constexpr auto scaleFactor = 1.0f / static_cast<float> (0x7fffffff);
+
                 if (isFloatingPoint())
-                    FloatVectorOperations::convertFixedToFloat ((float*) b, (int*) b, 1.0f / 0x7fffffff, numToDo);
+                    FloatVectorOperations::convertFixedToFloat ((float*) b, (int*) b, scaleFactor, numToDo);
                 else
                     convertFloatsToInts ((int*) b, (float*) b, numToDo);
             }
@@ -107,11 +129,11 @@ bool AudioFormatWriter::writeFromAudioReader (AudioFormatReader& reader,
 
 bool AudioFormatWriter::writeFromAudioSource (AudioSource& source, int numSamplesToRead, const int samplesPerBlock)
 {
-    AudioSampleBuffer tempBuffer (getNumChannels(), samplesPerBlock);
+    AudioBuffer<float> tempBuffer (getNumChannels(), samplesPerBlock);
 
     while (numSamplesToRead > 0)
     {
-        const int numToDo = jmin (numSamplesToRead, samplesPerBlock);
+        auto numToDo = jmin (numSamplesToRead, samplesPerBlock);
 
         AudioSourceChannelInfo info (&tempBuffer, 0, numToDo);
         info.clearActiveBufferRegion();
@@ -135,8 +157,8 @@ bool AudioFormatWriter::writeFromFloatArrays (const float* const* channels, int 
     if (isFloatingPoint())
         return write ((const int**) channels, numSamples);
 
-    int* chans [256];
-    int scratch [4096];
+    int* chans[256];
+    int scratch[4096];
 
     jassert (numSourceChannels < numElementsInArray (chans));
     const int maxSamples = (int) (numElementsInArray (scratch) / numSourceChannels);
@@ -149,7 +171,7 @@ bool AudioFormatWriter::writeFromFloatArrays (const float* const* channels, int 
 
     while (numSamples > 0)
     {
-        const int numToDo = jmin (numSamples, maxSamples);
+        auto numToDo = jmin (numSamples, maxSamples);
 
         for (int i = 0; i < numSourceChannels; ++i)
             convertFloatsToInts (chans[i], channels[i] + startSample, numToDo);
@@ -164,15 +186,15 @@ bool AudioFormatWriter::writeFromFloatArrays (const float* const* channels, int 
     return true;
 }
 
-bool AudioFormatWriter::writeFromAudioSampleBuffer (const AudioSampleBuffer& source, int startSample, int numSamples)
+bool AudioFormatWriter::writeFromAudioSampleBuffer (const AudioBuffer<float>& source, int startSample, int numSamples)
 {
-    const int numSourceChannels = source.getNumChannels();
+    auto numSourceChannels = source.getNumChannels();
     jassert (startSample >= 0 && startSample + numSamples <= source.getNumSamples() && numSourceChannels > 0);
 
     if (startSample == 0)
         return writeFromFloatArrays (source.getArrayOfReadPointers(), numSourceChannels, numSamples);
 
-    const float* chans [256];
+    const float* chans[256];
     jassert ((int) numChannels < numElementsInArray (chans));
 
     for (int i = 0; i < numSourceChannels; ++i)
@@ -196,17 +218,12 @@ public:
         : fifo (numSamples),
           buffer (channels, numSamples),
           timeSliceThread (tst),
-          writer (w),
-          receiver (nullptr),
-          samplesWritten (0),
-          samplesPerFlush (0),
-          flushSampleCounter (0),
-          isRunning (true)
+          writer (w)
     {
         timeSliceThread.addTimeSliceClient (this);
     }
 
-    ~Buffer()
+    ~Buffer() override
     {
         isRunning = false;
         timeSliceThread.removeTimeSliceClient (this);
@@ -246,7 +263,7 @@ public:
 
     int writePendingData()
     {
-        const int numToDo = fifo.getTotalSize() / 4;
+        auto numToDo = fifo.getTotalSize() / 4;
 
         int start1, size1, start2, size2;
         fifo.prepareToRead (numToDo, start1, size1, start2, size2);
@@ -257,6 +274,7 @@ public:
         writer->writeFromAudioSampleBuffer (buffer, start1, size1);
 
         const ScopedLock sl (thumbnailLock);
+
         if (receiver != nullptr)
             receiver->addBlock (samplesWritten, buffer, start1, size1);
 
@@ -305,14 +323,14 @@ public:
 
 private:
     AbstractFifo fifo;
-    AudioSampleBuffer buffer;
+    AudioBuffer<float> buffer;
     TimeSliceThread& timeSliceThread;
-    ScopedPointer<AudioFormatWriter> writer;
+    std::unique_ptr<AudioFormatWriter> writer;
     CriticalSection thumbnailLock;
-    IncomingDataReceiver* receiver;
-    int64 samplesWritten;
-    int samplesPerFlush, flushSampleCounter;
-    volatile bool isRunning;
+    IncomingDataReceiver* receiver = {};
+    int64 samplesWritten = 0;
+    int samplesPerFlush = 0, flushSampleCounter = 0;
+    std::atomic<bool> isRunning { true };
 
     JUCE_DECLARE_NON_COPYABLE (Buffer)
 };
@@ -340,3 +358,5 @@ void AudioFormatWriter::ThreadedWriter::setFlushInterval (int numSamplesPerFlush
 {
     buffer->setFlushInterval (numSamplesPerFlush);
 }
+
+} // namespace juce

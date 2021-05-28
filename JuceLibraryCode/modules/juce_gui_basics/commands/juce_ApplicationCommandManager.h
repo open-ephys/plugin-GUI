@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_APPLICATIONCOMMANDMANAGER_H_INCLUDED
-#define JUCE_APPLICATIONCOMMANDMANAGER_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -80,6 +80,8 @@
     the object yourself.
 
     @see ApplicationCommandTarget, ApplicationCommandInfo
+
+    @tags{GUI}
 */
 class JUCE_API  ApplicationCommandManager   : private AsyncUpdater,
                                               private FocusChangeListener
@@ -99,7 +101,7 @@ public:
         Make sure that you don't delete this if pointers to it are still being used by
         objects such as PopupMenus or Buttons.
     */
-    virtual ~ApplicationCommandManager();
+    ~ApplicationCommandManager() override;
 
     //==============================================================================
     /** Clears the current list of all commands.
@@ -197,7 +199,7 @@ public:
 
         @see KeyPressMappingSet
     */
-    KeyPressMappingSet* getKeyMappings() const noexcept                         { return keyMappings; }
+    KeyPressMappingSet* getKeyMappings() const noexcept         { return keyMappings.get(); }
 
 
     //==============================================================================
@@ -302,8 +304,8 @@ private:
     //==============================================================================
     OwnedArray<ApplicationCommandInfo> commands;
     ListenerList<ApplicationCommandManagerListener> listeners;
-    ScopedPointer<KeyPressMappingSet> keyMappings;
-    ApplicationCommandTarget* firstTarget;
+    std::unique_ptr<KeyPressMappingSet> keyMappings;
+    ApplicationCommandTarget* firstTarget = nullptr;
 
     void sendListenerInvokeCallback (const ApplicationCommandTarget::InvocationInfo&);
     void handleAsyncUpdate() override;
@@ -327,13 +329,15 @@ private:
 
     @see ApplicationCommandManager::addListener, ApplicationCommandManager::removeListener
 
+
+    @tags{GUI}
 */
 class JUCE_API  ApplicationCommandManagerListener
 {
 public:
     //==============================================================================
     /** Destructor. */
-    virtual ~ApplicationCommandManagerListener()  {}
+    virtual ~ApplicationCommandManagerListener() = default;
 
     /** Called when an app command is about to be invoked. */
     virtual void applicationCommandInvoked (const ApplicationCommandTarget::InvocationInfo&) = 0;
@@ -348,6 +352,4 @@ public:
     virtual void applicationCommandListChanged() = 0;
 };
 
-
-
-#endif   // JUCE_APPLICATIONCOMMANDMANAGER_H_INCLUDED
+} // namespace juce

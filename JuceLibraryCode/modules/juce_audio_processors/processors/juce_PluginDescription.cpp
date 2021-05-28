@@ -2,76 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-PluginDescription::PluginDescription()
-    : uid (0),
-      isInstrument (false),
-      numInputChannels (0),
-      numOutputChannels (0),
-      hasSharedContainer (false)
+namespace juce
 {
-}
-
-PluginDescription::~PluginDescription()
-{
-}
-
-PluginDescription::PluginDescription (const PluginDescription& other)
-    : name (other.name),
-      descriptiveName (other.descriptiveName),
-      pluginFormatName (other.pluginFormatName),
-      category (other.category),
-      manufacturerName (other.manufacturerName),
-      version (other.version),
-      fileOrIdentifier (other.fileOrIdentifier),
-      lastFileModTime (other.lastFileModTime),
-      lastInfoUpdateTime (other.lastInfoUpdateTime),
-      uid (other.uid),
-      isInstrument (other.isInstrument),
-      numInputChannels (other.numInputChannels),
-      numOutputChannels (other.numOutputChannels),
-      hasSharedContainer (other.hasSharedContainer)
-{
-}
-
-PluginDescription& PluginDescription::operator= (const PluginDescription& other)
-{
-    name = other.name;
-    descriptiveName = other.descriptiveName;
-    pluginFormatName = other.pluginFormatName;
-    category = other.category;
-    manufacturerName = other.manufacturerName;
-    version = other.version;
-    fileOrIdentifier = other.fileOrIdentifier;
-    uid = other.uid;
-    isInstrument = other.isInstrument;
-    lastFileModTime = other.lastFileModTime;
-    lastInfoUpdateTime = other.lastInfoUpdateTime;
-    numInputChannels = other.numInputChannels;
-    numOutputChannels = other.numOutputChannels;
-    hasSharedContainer = other.hasSharedContainer;
-
-    return *this;
-}
 
 bool PluginDescription::isDuplicateOf (const PluginDescription& other) const noexcept
 {
@@ -95,10 +48,12 @@ String PluginDescription::createIdentifierString() const
     return pluginFormatName + "-" + name + getPluginDescSuffix (*this);
 }
 
-XmlElement* PluginDescription::createXml() const
+std::unique_ptr<XmlElement> PluginDescription::createXml() const
 {
-    XmlElement* const e = new XmlElement ("PLUGIN");
+    auto e = std::make_unique<XmlElement> ("PLUGIN");
+
     e->setAttribute ("name", name);
+
     if (descriptiveName != name)
         e->setAttribute ("descriptiveName", descriptiveName);
 
@@ -142,3 +97,5 @@ bool PluginDescription::loadFromXml (const XmlElement& xml)
 
     return false;
 }
+
+} // namespace juce

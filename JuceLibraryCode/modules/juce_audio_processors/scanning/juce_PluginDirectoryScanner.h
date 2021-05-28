@@ -2,29 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_PLUGINDIRECTORYSCANNER_H_INCLUDED
-#define JUCE_PLUGINDIRECTORYSCANNER_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,6 +32,8 @@
 
     To use one of these, create it and call scanNextFile() repeatedly, until
     it returns false.
+
+    @tags{Audio}
 */
 class JUCE_API  PluginDirectoryScanner
 {
@@ -44,12 +46,11 @@ public:
         @param formatToLookFor          this is the type of format that you want to look for
         @param directoriesToSearch      the path to search
         @param searchRecursively        true to search recursively
-        @param deadMansPedalFile        if this isn't File::nonexistent, then it will
-                                        be used as a file to store the names of any plugins
-                                        that crash during initialisation. If there are
-                                        any plugins listed in it, then these will always
-                                        be scanned after all other possible files have
-                                        been tried - in this way, even if there's a few
+        @param deadMansPedalFile        if this isn't File(), then it will be used as a file
+                                        to store the names of any plugins that crash during
+                                        initialisation. If there are any plugins listed in it,
+                                        then these will always be scanned after all other possible
+                                        files have been tried - in this way, even if there's a few
                                         dodgy plugins in your path, then a couple of rescans
                                         will still manage to find all the proper plugins.
                                         It's probably best to choose a file in the user's
@@ -72,6 +73,12 @@ public:
     ~PluginDirectoryScanner();
 
     //==============================================================================
+    /** Sets a specific list of filesOrIdentifiersToScan to scan.
+        N.B. This list must match the format passed to the constructor.
+        @see AudioPluginFormat::searchPathsForPlugins
+    */
+    void setFilesOrIdentifiersToScan (const StringArray& filesOrIdentifiersToScan);
+
     /** Tries the next likely-looking file.
 
         If dontRescanIfAlreadyInList is true, then the file will only be loaded and
@@ -119,8 +126,8 @@ private:
     File deadMansPedalFile;
     StringArray failedFiles;
     Atomic<int> nextIndex;
-    float progress;
-    bool allowAsync;
+    float progress = 0;
+    const bool allowAsync;
 
     void updateProgress();
     void setDeadMansPedalFile (const StringArray& newContents);
@@ -128,5 +135,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginDirectoryScanner)
 };
 
-
-#endif   // JUCE_PLUGINDIRECTORYSCANNER_H_INCLUDED
+} // namespace juce

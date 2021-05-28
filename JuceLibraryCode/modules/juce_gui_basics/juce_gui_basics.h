@@ -2,54 +2,55 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
 
 /*******************************************************************************
  The block below describes the properties of this module, and is read by
  the Projucer to automatically generate project code that uses it.
  For details about the syntax and how to create or use a module, see the
- JUCE Module Format.txt file.
+ JUCE Module Format.md file.
 
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:               juce_gui_basics
-  vendor:           juce
-  version:          4.2.1
-  name:             JUCE GUI core classes
-  description:      Basic user-interface components and related classes.
-  website:          http://www.juce.com/juce
-  license:          GPL/Commercial
+  ID:                 juce_gui_basics
+  vendor:             juce
+  version:            6.0.8
+  name:               JUCE GUI core classes
+  description:        Basic user-interface components and related classes.
+  website:            http://www.juce.com/juce
+  license:            GPL/Commercial
 
-  dependencies:     juce_events juce_graphics juce_data_structures
-  OSXFrameworks:    Cocoa Carbon QuartzCore
-  iOSFrameworks:    UIKit
-  linuxLibs:        X11 Xinerama Xext
+  dependencies:       juce_graphics juce_data_structures
+  OSXFrameworks:      Cocoa Carbon QuartzCore
+  iOSFrameworks:      UIKit CoreServices
 
  END_JUCE_MODULE_DECLARATION
 
 *******************************************************************************/
 
 
-#ifndef JUCE_GUI_BASICS_H_INCLUDED
+#pragma once
 #define JUCE_GUI_BASICS_H_INCLUDED
 
 #include <juce_graphics/juce_graphics.h>
@@ -65,7 +66,8 @@
  #define JUCE_ENABLE_REPAINT_DEBUGGING 0
 #endif
 
-/** JUCE_USE_XRANDR: Enables Xrandr multi-monitor support (Linux only).
+/** Config: JUCE_USE_XRANDR
+    Enables Xrandr multi-monitor support (Linux only).
     Unless you specifically want to disable this, it's best to leave this option turned on.
     Note that your users do not need to have Xrandr installed for your JUCE app to run, as
     the availability of Xrandr is queried during runtime.
@@ -74,10 +76,11 @@
  #define JUCE_USE_XRANDR 1
 #endif
 
-/** JUCE_USE_XINERAMA: Enables Xinerama multi-monitor support (Linux only).
+/** Config: JUCE_USE_XINERAMA
+    Enables Xinerama multi-monitor support (Linux only).
     Unless you specifically want to disable this, it's best to leave this option turned on.
     This will be used as a fallback if JUCE_USE_XRANDR not set or libxrandr cannot be found.
-    Note that your users do not need to have Xrandr installed for your JUCE app to run, as
+    Note that your users do not need to have Xinerama installed for your JUCE app to run, as
     the availability of Xinerama is queried during runtime.
 */
 #ifndef JUCE_USE_XINERAMA
@@ -107,52 +110,55 @@
  #define JUCE_USE_XCURSOR 1
 #endif
 
+/** Config: JUCE_WIN_PER_MONITOR_DPI_AWARE
+    Enables per-monitor DPI awareness on Windows 8.1 and above.
+*/
+#ifndef JUCE_WIN_PER_MONITOR_DPI_AWARE
+ #define JUCE_WIN_PER_MONITOR_DPI_AWARE 1
+#endif
+
 //==============================================================================
 namespace juce
 {
+    class Component;
+    class LookAndFeel;
+    class MouseInputSource;
+    class MouseInputSourceInternal;
+    class ComponentPeer;
+    class MouseEvent;
+    struct MouseWheelDetails;
+    struct PenDetails;
+    class ToggleButton;
+    class TextButton;
+    class AlertWindow;
+    class TextLayout;
+    class ScrollBar;
+    class ComboBox;
+    class Button;
+    class FilenameComponent;
+    class ResizableWindow;
+    class MenuBarComponent;
+    class GlyphArrangement;
+    class TableHeaderComponent;
+    class Toolbar;
+    class PopupMenu;
+    class ProgressBar;
+    class FileBrowserComponent;
+    class DirectoryContentsDisplayComponent;
+    class FilePreviewComponent;
+    class CallOutBox;
+    class Drawable;
+    class DrawablePath;
+    class DrawableComposite;
+    class CaretComponent;
+    class KeyPressMappingSet;
+    class ApplicationCommandManagerListener;
+    class DrawableButton;
+    class Displays;
 
-class Component;
-class LookAndFeel;
-class MouseInputSource;
-class MouseInputSourceInternal;
-class ComponentPeer;
-class MarkerList;
-class RelativeRectangle;
-class MouseEvent;
-struct MouseWheelDetails;
-class ToggleButton;
-class TextButton;
-class AlertWindow;
-class TextLayout;
-class ScrollBar;
-class ComboBox;
-class Button;
-class FilenameComponent;
-class DocumentWindow;
-class ResizableWindow;
-class GroupComponent;
-class MenuBarComponent;
-class DropShadower;
-class GlyphArrangement;
-class PropertyComponent;
-class TableHeaderComponent;
-class Toolbar;
-class ToolbarItemComponent;
-class PopupMenu;
-class ProgressBar;
-class FileBrowserComponent;
-class DirectoryContentsDisplayComponent;
-class FilePreviewComponent;
-class ImageButton;
-class CallOutBox;
-class Drawable;
-class DrawablePath;
-class DrawableComposite;
-class CaretComponent;
-class BubbleComponent;
-class KeyPressMappingSet;
-class ApplicationCommandManagerListener;
-class DrawableButton;
+    class FlexBox;
+    class Grid;
+}
 
 #include "mouse/juce_MouseCursor.h"
 #include "mouse/juce_MouseListener.h"
@@ -167,7 +173,8 @@ class DrawableButton;
 #include "components/juce_CachedComponentImage.h"
 #include "components/juce_Component.h"
 #include "layout/juce_ComponentAnimator.h"
-#include "components/juce_Desktop.h"
+#include "desktop/juce_Desktop.h"
+#include "desktop/juce_Displays.h"
 #include "layout/juce_ComponentBoundsConstrainer.h"
 #include "mouse/juce_ComponentDragger.h"
 #include "mouse/juce_DragAndDropTarget.h"
@@ -240,8 +247,10 @@ class DrawableButton;
 #include "widgets/juce_ToolbarItemComponent.h"
 #include "widgets/juce_ToolbarItemFactory.h"
 #include "widgets/juce_ToolbarItemPalette.h"
+#include "menus/juce_BurgerMenuComponent.h"
 #include "buttons/juce_ToolbarButton.h"
 #include "misc/juce_DropShadower.h"
+#include "misc/juce_JUCESplashScreen.h"
 #include "widgets/juce_TreeView.h"
 #include "windows/juce_TopLevelWindow.h"
 #include "windows/juce_AlertWindow.h"
@@ -254,6 +263,7 @@ class DrawableButton;
 #include "windows/juce_ThreadWithProgressWindow.h"
 #include "windows/juce_TooltipWindow.h"
 #include "layout/juce_MultiDocumentPanel.h"
+#include "layout/juce_SidePanel.h"
 #include "filebrowser/juce_FileBrowserListener.h"
 #include "filebrowser/juce_DirectoryContentsList.h"
 #include "filebrowser/juce_DirectoryContentsDisplayComponent.h"
@@ -266,6 +276,7 @@ class DrawableButton;
 #include "filebrowser/juce_FileSearchPathListComponent.h"
 #include "filebrowser/juce_FileTreeComponent.h"
 #include "filebrowser/juce_ImagePreviewComponent.h"
+#include "filebrowser/juce_ContentSharer.h"
 #include "properties/juce_PropertyComponent.h"
 #include "properties/juce_BooleanPropertyComponent.h"
 #include "properties/juce_ButtonPropertyComponent.h"
@@ -273,14 +284,70 @@ class DrawableButton;
 #include "properties/juce_PropertyPanel.h"
 #include "properties/juce_SliderPropertyComponent.h"
 #include "properties/juce_TextPropertyComponent.h"
+#include "properties/juce_MultiChoicePropertyComponent.h"
 #include "application/juce_Application.h"
 #include "misc/juce_BubbleComponent.h"
 #include "lookandfeel/juce_LookAndFeel.h"
 #include "lookandfeel/juce_LookAndFeel_V2.h"
 #include "lookandfeel/juce_LookAndFeel_V1.h"
 #include "lookandfeel/juce_LookAndFeel_V3.h"
+#include "lookandfeel/juce_LookAndFeel_V4.h"
 #include "mouse/juce_LassoComponent.h"
 
-}
+#if JUCE_LINUX
+ #if JUCE_GUI_BASICS_INCLUDE_XHEADERS
+  // If you're missing these headers, you need to install the libx11-dev package
+  #include <X11/Xlib.h>
+  #include <X11/Xatom.h>
+  #include <X11/Xresource.h>
+  #include <X11/Xutil.h>
+  #include <X11/Xmd.h>
+  #include <X11/keysym.h>
+  #include <X11/XKBlib.h>
+  #include <X11/cursorfont.h>
+  #include <unistd.h>
 
-#endif   // JUCE_GUI_BASICS_H_INCLUDED
+  #if JUCE_USE_XRANDR
+   // If you're missing this header, you need to install the libxrandr-dev package
+   #include <X11/extensions/Xrandr.h>
+  #endif
+
+  #if JUCE_USE_XINERAMA
+   // If you're missing this header, you need to install the libxinerama-dev package
+   #include <X11/extensions/Xinerama.h>
+  #endif
+
+  #if JUCE_USE_XSHM
+   #include <X11/extensions/XShm.h>
+   #include <sys/shm.h>
+   #include <sys/ipc.h>
+  #endif
+
+  #if JUCE_USE_XRENDER
+   // If you're missing these headers, you need to install the libxrender-dev and libxcomposite-dev packages
+   #include <X11/extensions/Xrender.h>
+   #include <X11/extensions/Xcomposite.h>
+  #endif
+
+  #if JUCE_USE_XCURSOR
+   // If you're missing this header, you need to install the libxcursor-dev package
+   #include <X11/Xcursor/Xcursor.h>
+  #endif
+
+  #undef SIZEOF
+  #undef KeyPress
+
+  #include "native/x11/juce_linux_XWindowSystem.h"
+  #include "native/x11/juce_linux_X11_Symbols.h"
+ #endif
+#endif
+
+#if JUCE_GUI_BASICS_INCLUDE_SCOPED_THREAD_DPI_AWARENESS_SETTER && JUCE_WINDOWS
+ #include "native/juce_win32_ScopedThreadDPIAwarenessSetter.h"
+#endif
+
+#include "layout/juce_FlexItem.h"
+#include "layout/juce_FlexBox.h"
+
+#include "layout/juce_GridItem.h"
+#include "layout/juce_Grid.h"

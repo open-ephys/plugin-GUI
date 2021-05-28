@@ -1,30 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 ScopedAutoReleasePool::ScopedAutoReleasePool()
 {
@@ -54,14 +51,17 @@ namespace SystemStatsHelpers
     {
         uint32 la = a, lb = b, lc = c, ld = d;
 
-        asm ("mov %%ebx, %%esi \n\t"
-             "cpuid \n\t"
-             "xchg %%esi, %%ebx"
-               : "=a" (la), "=S" (lb), "=c" (lc), "=d" (ld) : "a" (type)
-           #if JUCE_64BIT
-                  , "b" (lb), "c" (lc), "d" (ld)
-           #endif
-        );
+       #if JUCE_32BIT && defined (__pic__)
+        asm ("mov %%ebx, %%edi\n"
+             "cpuid\n"
+             "xchg %%edi, %%ebx\n"
+               : "=a" (la), "=D" (lb), "=c" (lc), "=d" (ld)
+               : "a" (type), "c" (0));
+       #else
+        asm ("cpuid\n"
+               : "=a" (la), "=b" (lb), "=c" (lc), "=d" (ld)
+               : "a" (type), "c" (0));
+       #endif
 
         a = la; b = lb; c = lc; d = ld;
     }
@@ -81,15 +81,38 @@ void CPUInformation::initialise() noexcept
     has3DNow = (b & (1u << 31)) != 0;
     hasSSE3  = (c & (1u <<  0)) != 0;
     hasSSSE3 = (c & (1u <<  9)) != 0;
-    hasSSE41 = (c & (1u << 20)) != 0;
-    hasSSE42 = (c & (1u << 19)) != 0;
+    hasFMA3  = (c & (1u << 12)) != 0;
+    hasSSE41 = (c & (1u << 19)) != 0;
+    hasSSE42 = (c & (1u << 20)) != 0;
     hasAVX   = (c & (1u << 28)) != 0;
 
+    SystemStatsHelpers::doCPUID (a, b, c, d, 0x80000001);
+    hasFMA4  = (c & (1u << 16)) != 0;
+
     SystemStatsHelpers::doCPUID (a, b, c, d, 7);
-    hasAVX2  = (b & (1u <<  5)) != 0;
+    hasAVX2            = (b & (1u <<  5)) != 0;
+    hasAVX512F         = (b & (1u << 16)) != 0;
+    hasAVX512DQ        = (b & (1u << 17)) != 0;
+    hasAVX512IFMA      = (b & (1u << 21)) != 0;
+    hasAVX512PF        = (b & (1u << 26)) != 0;
+    hasAVX512ER        = (b & (1u << 27)) != 0;
+    hasAVX512CD        = (b & (1u << 28)) != 0;
+    hasAVX512BW        = (b & (1u << 30)) != 0;
+    hasAVX512VL        = (b & (1u << 31)) != 0;
+    hasAVX512VBMI      = (c & (1u <<  1)) != 0;
+    hasAVX512VPOPCNTDQ = (c & (1u << 14)) != 0;
    #endif
 
-    numCpus = (int) [[NSProcessInfo processInfo] activeProcessorCount];
+    numLogicalCPUs = (int) [[NSProcessInfo processInfo] activeProcessorCount];
+
+    unsigned int physicalcpu = 0;
+    size_t len = sizeof (physicalcpu);
+
+    if (sysctlbyname ("hw.physicalcpu", &physicalcpu, &len, nullptr, 0) >= 0)
+        numPhysicalCPUs = (int) physicalcpu;
+
+    if (numPhysicalCPUs <= 0)
+        numPhysicalCPUs = numLogicalCPUs;
 }
 
 //==============================================================================
@@ -98,10 +121,21 @@ static String getOSXVersion()
 {
     JUCE_AUTORELEASEPOOL
     {
-        NSDictionary* dict = [NSDictionary dictionaryWithContentsOfFile:
-                                    nsStringLiteral ("/System/Library/CoreServices/SystemVersion.plist")];
+        const String systemVersionPlist ("/System/Library/CoreServices/SystemVersion.plist");
 
-        return nsStringToJuce ([dict objectForKey: nsStringLiteral ("ProductVersion")]);
+       #if (defined (MAC_OS_X_VERSION_10_13) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_13)
+        NSError* error = nullptr;
+        NSDictionary* dict = [NSDictionary dictionaryWithContentsOfURL: createNSURLFromFile (systemVersionPlist)
+                                                                 error: &error];
+       #else
+        NSDictionary* dict = [NSDictionary dictionaryWithContentsOfFile: juceStringToNS (systemVersionPlist)];
+       #endif
+
+        if (dict != nullptr)
+            return nsStringToJuce ([dict objectForKey: nsStringLiteral ("ProductVersion")]);
+
+        jassertfalse;
+        return {};
     }
 }
 #endif
@@ -114,11 +148,17 @@ SystemStats::OperatingSystemType SystemStats::getOperatingSystemType()
     StringArray parts;
     parts.addTokens (getOSXVersion(), ".", StringRef());
 
-    jassert (parts[0].getIntValue() == 10);
-    const int major = parts[1].getIntValue();
-    jassert (major > 2);
+    const auto major = parts[0].getIntValue();
+    const auto minor = parts[1].getIntValue();
 
-    return (OperatingSystemType) (major + MacOSX_10_4 - 4);
+    if (major == 10)
+    {
+        jassert (minor > 2);
+        return (OperatingSystemType) (minor + MacOSX_10_7 - 7);
+    }
+
+    jassert (major == 11);
+    return MacOS_11;
    #endif
 }
 
@@ -134,20 +174,50 @@ String SystemStats::getOperatingSystemName()
 String SystemStats::getDeviceDescription()
 {
    #if JUCE_IOS
-    return nsStringToJuce ([[UIDevice currentDevice] model]);
+    const char* name = "hw.machine";
    #else
-    return String();
+    const char* name = "hw.model";
    #endif
+
+    size_t size;
+
+    if (sysctlbyname (name, nullptr, &size, nullptr, 0) >= 0)
+    {
+        HeapBlock<char> model (size);
+
+        if (sysctlbyname (name, model, &size, nullptr, 0) >= 0)
+        {
+            String description (model.get());
+
+           #if JUCE_IOS
+            if (description == "x86_64") // running in the simulator
+            {
+                if (auto* userInfo = [[NSProcessInfo processInfo] environment])
+                {
+                    if (auto* simDeviceName = [userInfo objectForKey: @"SIMULATOR_DEVICE_NAME"])
+                        return nsStringToJuce (simDeviceName);
+                }
+            }
+          #endif
+
+            return description;
+        }
+    }
+
+    return {};
+}
+
+String SystemStats::getDeviceManufacturer()
+{
+    return "Apple";
 }
 
 bool SystemStats::isOperatingSystem64Bit()
 {
    #if JUCE_IOS
     return false;
-   #elif JUCE_64BIT
-    return true;
    #else
-    return getOperatingSystemType() >= MacOSX_10_6;
+    return true;
    #endif
 }
 
@@ -156,7 +226,7 @@ int SystemStats::getMemorySizeInMegabytes()
     uint64 mem = 0;
     size_t memSize = sizeof (mem);
     int mib[] = { CTL_HW, HW_MEMSIZE };
-    sysctl (mib, 2, &mem, &memSize, 0, 0);
+    sysctl (mib, 2, &mem, &memSize, nullptr, 0);
     return (int) (mem / (1024 * 1024));
 }
 
@@ -170,16 +240,27 @@ String SystemStats::getCpuVendor()
 
     return String (reinterpret_cast<const char*> (vendor), 12);
    #else
-    return String();
+    return {};
    #endif
 }
 
-int SystemStats::getCpuSpeedInMegaherz()
+String SystemStats::getCpuModel()
+{
+    char name[65] = { 0 };
+    size_t size = sizeof (name) - 1;
+
+    if (sysctlbyname ("machdep.cpu.brand_string", &name, &size, nullptr, 0) >= 0)
+        return String (name);
+
+    return {};
+}
+
+int SystemStats::getCpuSpeedInMegahertz()
 {
     uint64 speedHz = 0;
     size_t speedSize = sizeof (speedHz);
     int mib[] = { CTL_HW, HW_CPU_FREQ };
-    sysctl (mib, 2, &speedHz, &speedSize, 0, 0);
+    sysctl (mib, 2, &speedHz, &speedSize, nullptr, 0);
 
    #if JUCE_BIG_ENDIAN
     if (speedSize == 4)
@@ -202,11 +283,11 @@ String SystemStats::getFullUserName()
 
 String SystemStats::getComputerName()
 {
-    char name [256] = { 0 };
+    char name[256] = { 0 };
     if (gethostname (name, sizeof (name) - 1) == 0)
         return String (name).upToLastOccurrenceOf (".local", false, true);
 
-    return String();
+    return {};
 }
 
 static String getLocaleValue (CFStringRef key)
@@ -292,3 +373,5 @@ int SystemStats::getPageSize()
 {
     return (int) NSPageSize();
 }
+
+} // namespace juce

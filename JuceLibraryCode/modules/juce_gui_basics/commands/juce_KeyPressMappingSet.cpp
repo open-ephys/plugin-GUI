@@ -2,25 +2,29 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 KeyPressMappingSet::KeyPressMappingSet (ApplicationCommandManager& cm)
     : commandManager (cm)
@@ -46,7 +50,7 @@ Array<KeyPress> KeyPressMappingSet::getKeyPressesAssignedToCommand (const Comman
         if (mappings.getUnchecked(i)->commandID == commandID)
             return mappings.getUnchecked (i)->keypresses;
 
-    return Array<KeyPress>();
+    return {};
 }
 
 void KeyPressMappingSet::addKeyPress (const CommandID commandID, const KeyPress& newKeyPress, int insertIndex)
@@ -223,13 +227,13 @@ bool KeyPressMappingSet::restoreFromXml (const XmlElement& xmlVersion)
             clearAllKeyPresses();
         }
 
-        forEachXmlChildElement (xmlVersion, map)
+        for (auto* map : xmlVersion.getChildIterator())
         {
             const CommandID commandId = map->getStringAttribute ("commandId").getHexValue32();
 
             if (commandId != 0)
             {
-                const KeyPress key (KeyPress::createFromDescription (map->getStringAttribute ("key")));
+                auto key = KeyPress::createFromDescription (map->getStringAttribute ("key"));
 
                 if (map->hasTagName ("MAPPING"))
                 {
@@ -237,9 +241,9 @@ bool KeyPressMappingSet::restoreFromXml (const XmlElement& xmlVersion)
                 }
                 else if (map->hasTagName ("UNMAPPING"))
                 {
-                    for (int i = mappings.size(); --i >= 0;)
-                        if (mappings.getUnchecked(i)->commandID == commandId)
-                            mappings.getUnchecked(i)->keypresses.removeAllInstancesOf (key);
+                    for (auto& m : mappings)
+                        if (m->commandID == commandId)
+                            m->keypresses.removeAllInstancesOf (key);
                 }
             }
         }
@@ -250,30 +254,30 @@ bool KeyPressMappingSet::restoreFromXml (const XmlElement& xmlVersion)
     return false;
 }
 
-XmlElement* KeyPressMappingSet::createXml (const bool saveDifferencesFromDefaultSet) const
+std::unique_ptr<XmlElement> KeyPressMappingSet::createXml (const bool saveDifferencesFromDefaultSet) const
 {
-    ScopedPointer<KeyPressMappingSet> defaultSet;
+    std::unique_ptr<KeyPressMappingSet> defaultSet;
 
     if (saveDifferencesFromDefaultSet)
     {
-        defaultSet = new KeyPressMappingSet (commandManager);
+        defaultSet = std::make_unique<KeyPressMappingSet> (commandManager);
         defaultSet->resetToDefaultMappings();
     }
 
-    XmlElement* const doc = new XmlElement ("KEYMAPPINGS");
+    auto doc = std::make_unique<XmlElement> ("KEYMAPPINGS");
 
     doc->setAttribute ("basedOnDefaults", saveDifferencesFromDefaultSet);
 
     for (int i = 0; i < mappings.size(); ++i)
     {
-        const CommandMapping& cm = *mappings.getUnchecked(i);
+        auto& cm = *mappings.getUnchecked(i);
 
         for (int j = 0; j < cm.keypresses.size(); ++j)
         {
             if (defaultSet == nullptr
                  || ! defaultSet->containsMapping (cm.commandID, cm.keypresses.getReference (j)))
             {
-                XmlElement* const map = doc->createNewChildElement ("MAPPING");
+                auto map = doc->createNewChildElement ("MAPPING");
 
                 map->setAttribute ("commandId", String::toHexString ((int) cm.commandID));
                 map->setAttribute ("description", commandManager.getDescriptionOfCommand (cm.commandID));
@@ -286,13 +290,13 @@ XmlElement* KeyPressMappingSet::createXml (const bool saveDifferencesFromDefault
     {
         for (int i = 0; i < defaultSet->mappings.size(); ++i)
         {
-            const CommandMapping& cm = *defaultSet->mappings.getUnchecked(i);
+            auto& cm = *defaultSet->mappings.getUnchecked(i);
 
             for (int j = 0; j < cm.keypresses.size(); ++j)
             {
                 if (! containsMapping (cm.commandID, cm.keypresses.getReference (j)))
                 {
-                    XmlElement* const map = doc->createNewChildElement ("UNMAPPING");
+                    auto map = doc->createNewChildElement ("UNMAPPING");
 
                     map->setAttribute ("commandId", String::toHexString ((int) cm.commandID));
                     map->setAttribute ("description", commandManager.getDescriptionOfCommand (cm.commandID));
@@ -410,3 +414,5 @@ void KeyPressMappingSet::globalFocusChanged (Component* focusedComponent)
     if (focusedComponent != nullptr)
         focusedComponent->keyStateChanged (false);
 }
+
+} // namespace juce

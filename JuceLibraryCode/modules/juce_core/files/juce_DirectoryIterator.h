@@ -1,37 +1,32 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_DIRECTORYITERATOR_H_INCLUDED
-#define JUCE_DIRECTORYITERATOR_H_INCLUDED
-
+namespace juce
+{
 
 //==============================================================================
 /**
+    This class is now deprecated in favour of RangedDirectoryIterator.
+
     Searches through the files in a directory, returning each file that is found.
 
     A DirectoryIterator will search through a directory and its subdirectories using
@@ -41,13 +36,23 @@
     class than File::findChildFiles() because it allows you to stop at any time, rather
     than having to wait for the entire scan to finish before getting the results.
 
+    Please note that the order in which files are returned is completely undefined!
+    They'll arrive in whatever order the underlying OS calls provide them, which will
+    depend on the filesystem and other factors. If you need a sorted list, you'll need
+    to manually sort them using your preferred comparator after collecting the list.
+
     It also provides an estimate of its progress, using a (highly inaccurate!) algorithm.
+
+    @tags{Core}
+    @see RangedDirectoryIterator
 */
-class JUCE_API  DirectoryIterator
+class JUCE_API  DirectoryIterator  final
 {
 public:
     //==============================================================================
-    /** Creates a DirectoryIterator for a given directory.
+    /** This class is now deprecated in favour of RangedDirectoryIterator.
+
+        Creates a DirectoryIterator for a given directory.
 
         After creating one of these, call its next() method to get the
         first file - e.g. @code
@@ -62,17 +67,12 @@ public:
         }
         @endcode
 
-        @param directory    the directory to search in
-        @param isRecursive  whether all the subdirectories should also be searched
-        @param wildCard     the file pattern to match. This may contain multiple patterns
-                            separated by a semi-colon or comma, e.g. "*.jpg;*.png"
-        @param whatToLookFor    a value from the File::TypesOfFileToFind enum, specifying
-                                whether to look for files, directories, or both.
+        @see RangedDirectoryIterator
     */
-    DirectoryIterator (const File& directory,
-                       bool isRecursive,
-                       const String& wildCard = "*",
-                       int whatToLookFor = File::findFiles);
+    JUCE_DEPRECATED (DirectoryIterator (const File& directory,
+                                        bool isRecursive,
+                                        const String& wildCard = "*",
+                                        int whatToLookFor = File::findFiles));
 
     /** Destructor. */
     ~DirectoryIterator();
@@ -118,9 +118,8 @@ public:
 
 private:
     //==============================================================================
-    class NativeIterator
+    struct NativeIterator
     {
-    public:
         NativeIterator (const File& directory, const String& wildCard);
         ~NativeIterator();
 
@@ -129,25 +128,20 @@ private:
                    Time* modTime, Time* creationTime, bool* isReadOnly);
 
         class Pimpl;
-
-    private:
-        friend class DirectoryIterator;
-        friend struct ContainerDeletePolicy<Pimpl>;
-        ScopedPointer<Pimpl> pimpl;
+        std::unique_ptr<Pimpl> pimpl;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NativeIterator)
     };
 
-    friend struct ContainerDeletePolicy<NativeIterator::Pimpl>;
     StringArray wildCards;
     NativeIterator fileFinder;
     String wildCard, path;
-    int index;
-    mutable int totalNumFiles;
+    int index = -1;
+    mutable int totalNumFiles = -1;
     const int whatToLookFor;
     const bool isRecursive;
-    bool hasBeenAdvanced;
-    ScopedPointer<DirectoryIterator> subIterator;
+    bool hasBeenAdvanced = false;
+    std::unique_ptr<DirectoryIterator> subIterator;
     File currentFile;
 
     static StringArray parseWildcards (const String& pattern);
@@ -156,4 +150,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DirectoryIterator)
 };
 
-#endif   // JUCE_DIRECTORYITERATOR_H_INCLUDED
+} // namespace juce

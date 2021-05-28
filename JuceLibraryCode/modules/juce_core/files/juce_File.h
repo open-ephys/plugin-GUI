@@ -1,34 +1,35 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifndef JUCE_FILE_H_INCLUDED
-#define JUCE_FILE_H_INCLUDED
+#if ! DOXYGEN && (JUCE_MAC || JUCE_IOS)
+ #if __LP64__
+  using OSType = unsigned int;
+ #else
+  using OSType = unsigned long;
+ #endif
+#endif
 
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -41,20 +42,21 @@
     output stream.
 
     @see FileInputStream, FileOutputStream
+
+    @tags{Core}
 */
-class JUCE_API  File
+class JUCE_API  File final
 {
 public:
     //==============================================================================
     /** Creates an (invalid) file object.
 
         The file is initially set to an empty path, so getFullPathName() will return
-        an empty string, and comparing the file to File::nonexistent will return
-        true.
+        an empty string.
 
         You can use its operator= method to point it at a proper file.
     */
-    File() noexcept  {}
+    File() = default;
 
     /** Creates a file from an absolute path.
 
@@ -72,7 +74,7 @@ public:
     File (const File&);
 
     /** Destructor. */
-    ~File() noexcept  {}
+    ~File() = default;
 
     /** Sets the file based on an absolute pathname.
 
@@ -89,14 +91,11 @@ public:
     /** Copies from another file object. */
     File& operator= (const File& otherFile);
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+    /** Move constructor */
     File (File&&) noexcept;
-    File& operator= (File&&) noexcept;
-   #endif
 
-    //==============================================================================
-    /** This static constant is used for referring to an 'invalid' file. */
-    static const File nonexistent;
+    /** Move assignment operator */
+    File& operator= (File&&) noexcept;
 
     //==============================================================================
     /** Checks whether the file actually exists.
@@ -121,6 +120,14 @@ public:
         @see exists, existsAsFile
     */
     bool isDirectory() const;
+
+    /** Checks whether the path of this file represents the root of a file system,
+        irrespective of its existence.
+
+        This will return true for "C:", "D:", etc on Windows and "/" on other
+        platforms.
+    */
+    bool isRoot() const;
 
     /** Returns the size of the file in bytes.
 
@@ -269,6 +276,9 @@ public:
     /** Returns the directory that contains this file or directory.
 
         e.g. for "/moose/fish/foo.txt" this will return "/moose/fish".
+
+        If you are already at the root directory ("/" or "C:") then this method will
+        return the root directory.
     */
     File getParentDirectory() const;
 
@@ -430,6 +440,9 @@ public:
 
         If it already exists or is a directory, this method will do nothing.
 
+        If the parent directories of the File do not exist then this method will
+        recursively create the parent directories.
+
         @returns    a result to indicate whether the file was created successfully,
                     or an error message if it failed.
         @see createDirectory
@@ -452,6 +465,9 @@ public:
         If this file is actually a directory, it may not be deleted correctly if it
         contains files. See deleteRecursively() as a better way of deleting directories.
 
+        If this file is a symlink, then the symlink will be deleted and not the target
+        of the symlink.
+
         @returns    true if the file has been successfully deleted (or if it didn't exist to
                     begin with).
         @see deleteRecursively
@@ -463,11 +479,14 @@ public:
         If this file is a directory, this will try to delete it and all its subfolders. If
         it's just a file, it will just try to delete the file.
 
-        @returns    true if the file and all its subfolders have been successfully deleted
-                    (or if it didn't exist to begin with).
+
+        @param followSymlinks If true, then any symlink pointing to a directory will also
+                              recursively delete the contents of that directory
+        @returns              true if the file and all its subfolders have been successfully
+                              deleted (or if it didn't exist to begin with).
         @see deleteFile
     */
-    bool deleteRecursively() const;
+    bool deleteRecursively (bool followSymlinks = false) const;
 
     /** Moves this file or folder to the trash.
 
@@ -503,6 +522,18 @@ public:
     */
     bool copyFileTo (const File& targetLocation) const;
 
+    /** Replaces a file.
+
+        Replace the file in the given location, assuming the replaced files identity.
+        Depending on the file system this will preserve file attributes such as
+        creation date, short file name, etc.
+
+        If replacement succeeds the original file is deleted.
+
+        @returns    true if the operation succeeds
+    */
+    bool replaceFileIn (const File& targetLocation) const;
+
     /** Copies a directory.
 
         Tries to copy an entire directory, recursively.
@@ -529,27 +560,33 @@ public:
         ignoreHiddenFiles           = 4     /**< Add this flag to avoid returning any hidden files in the results. */
     };
 
-    /** Searches inside a directory for files matching a wildcard pattern.
+    /** Searches this directory for files matching a wildcard pattern.
 
         Assuming that this file is a directory, this method will search it
         for either files or subdirectories whose names match a filename pattern.
+        Note that the order in which files are returned is completely undefined!
 
-        @param results                  an array to which File objects will be added for the
-                                        files that the search comes up with
         @param whatToLookFor            a value from the TypesOfFileToFind enum, specifying whether to
                                         return files, directories, or both. If the ignoreHiddenFiles flag
                                         is also added to this value, hidden files won't be returned
         @param searchRecursively        if true, all subdirectories will be recursed into to do
                                         an exhaustive search
         @param wildCardPattern          the filename pattern to search for, e.g. "*.txt"
-        @returns                        the number of results that have been found
+        @returns                        the set of files that were found
 
-        @see getNumberOfChildFiles, DirectoryIterator
+        @see getNumberOfChildFiles, RangedDirectoryIterator
     */
-    int findChildFiles (Array<File>& results,
-                        int whatToLookFor,
-                        bool searchRecursively,
-                        const String& wildCardPattern = "*") const;
+    Array<File> findChildFiles (int whatToLookFor,
+                                bool searchRecursively,
+                                const String& wildCardPattern = "*") const;
+
+    /** Searches inside a directory for files matching a wildcard pattern.
+        Note that there's a newer, better version of this method which returns the results
+        array, and in almost all cases, you should use that one instead! This one is kept around
+        mainly for legacy code to use.
+    */
+    int findChildFiles (Array<File>& results, int whatToLookFor,
+                        bool searchRecursively, const String& wildCardPattern = "*") const;
 
     /** Searches inside a directory and counts how many files match a wildcard pattern.
 
@@ -565,7 +602,8 @@ public:
                                 is also added to this value, hidden files won't be counted
         @param wildCardPattern  the filename pattern to search for, e.g. "*.txt"
         @returns                the number of matches found
-        @see findChildFiles, DirectoryIterator
+
+        @see findChildFiles, RangedDirectoryIterator
     */
     int getNumberOfChildFiles (int whatToLookFor,
                                const String& wildCardPattern = "*") const;
@@ -578,23 +616,55 @@ public:
     //==============================================================================
     /** Creates a stream to read from this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileInputStream directly, e.g.
+        @code
+        FileInputStream input (fileToOpen);
+
+        if (input.openedOk())
+        {
+            input.read (etc...
+        }
+        @endcode
+
         @returns    a stream that will read from this file (initially positioned at the
                     start of the file), or nullptr if the file can't be opened for some reason
         @see createOutputStream, loadFileAsData
     */
-    FileInputStream* createInputStream() const;
+    std::unique_ptr<FileInputStream> createInputStream() const;
 
     /** Creates a stream to write to this file.
 
+        Note that this is an old method, and actually it's usually best to avoid it and
+        instead use an RAII pattern with an FileOutputStream directly, e.g.
+        @code
+        FileOutputStream output (fileToOpen);
+
+        if (output.openedOk())
+        {
+            output.read etc...
+        }
+        @endcode
+
         If the file exists, the stream that is returned will be positioned ready for
-        writing at the end of the file, so you might want to use deleteFile() first
-        to write to an empty file.
+        writing at the end of the file. If you want to write to the start of the file,
+        replacing the existing content, then you can do the following:
+        @code
+        FileOutputStream output (fileToOverwrite);
+
+        if (output.openedOk())
+        {
+            output.setPosition (0);
+            output.truncate();
+            ...
+        }
+        @endcode
 
         @returns    a stream that will write to this file (initially positioned at the
                     end of the file), or nullptr if the file can't be opened for some reason
         @see createInputStream, appendData, appendText
     */
-    FileOutputStream* createOutputStream (size_t bufferSize = 0x8000) const;
+    std::unique_ptr<FileOutputStream> createOutputStream (size_t bufferSize = 0x8000) const;
 
     //==============================================================================
     /** Loads a file's contents into memory as a block of binary data.
@@ -658,13 +728,15 @@ public:
         It can also write the 'ff fe' unicode header bytes before the text to indicate
         the endianness of the file.
 
-        Any single \\n characters in the string are replaced with \\r\\n before it is written.
+        If lineEndings is nullptr, then line endings in the text won't be modified. If you
+        pass "\\n" or "\\r\\n" then this function will replace any existing line feeds.
 
         @see replaceWithText
     */
     bool appendText (const String& textToAppend,
                      bool asUnicode = false,
-                     bool writeUnicodeHeaderBytes = false) const;
+                     bool writeUnicodeHeaderBytes = false,
+                     const char* lineEndings = "\r\n") const;
 
     /** Replaces this file's contents with a given text string.
 
@@ -684,7 +756,8 @@ public:
     */
     bool replaceWithText (const String& textToWrite,
                           bool asUnicode = false,
-                          bool writeUnicodeHeaderBytes = false) const;
+                          bool writeUnicodeHeaderBytes = false,
+                          const char* lineEndings = "\r\n") const;
 
     /** Attempts to scan the contents of this file and compare it to another file, returning
         true if this is possible and they match byte-for-byte.
@@ -789,6 +862,7 @@ public:
             On Windows, this might be "\Documents and Settings\username\Application Data".
             On the Mac, it might be "~/Library". If you're going to store your settings in here,
             always create your own sub-folder to put them in, to avoid making a mess.
+            On GNU/Linux it is "~/.config".
         */
         userApplicationDataDirectory,
 
@@ -797,6 +871,8 @@ public:
 
             On the Mac it'll be "/Library", on Windows, it could be something like
             "\Documents and Settings\All Users\Application Data".
+
+            On GNU/Linux it is "/opt".
 
             Depending on the setup, this folder may be read-only.
         */
@@ -847,16 +923,27 @@ public:
         /** In a plugin, this will return the path of the host executable. */
         hostApplicationPath,
 
-       #if JUCE_WINDOWS
+       #if JUCE_WINDOWS || DOXYGEN
         /** On a Windows machine, returns the location of the Windows/System32 folder. */
         windowsSystemDirectory,
        #endif
 
         /** The directory in which applications normally get installed.
-            So on windows, this would be something like "c:\program files", on the
+            So on windows, this would be something like "C:\Program Files", on the
             Mac "/Applications", or "/usr" on linux.
         */
-        globalApplicationsDirectory
+        globalApplicationsDirectory,
+
+       #if JUCE_WINDOWS || DOXYGEN
+        /** On a Windows machine, returns the directory in which 32 bit applications
+            normally get installed. On a 64 bit machine this would be something like
+            "C:\Program Files (x86)", whereas for 32 bit machines this would match
+            globalApplicationsDirectory and be something like "C:\Program Files".
+
+            @see globalApplicationsDirectory
+        */
+        globalApplicationsDirectoryX86
+       #endif
     };
 
     /** Finds the location of a special type of file or directory, such as a home folder or
@@ -892,12 +979,12 @@ public:
     /** The system-specific file separator character.
         On Windows, this will be '\', on Mac/Linux, it'll be '/'
     */
-    static const juce_wchar separator;
+    static juce_wchar getSeparatorChar();
 
     /** The system-specific file separator character, as a string.
         On Windows, this will be '\', on Mac/Linux, it'll be '/'
     */
-    static const String separatorString;
+    static StringRef getSeparatorString();
 
     //==============================================================================
     /** Returns a version of a filename with any illegal characters removed.
@@ -950,12 +1037,27 @@ public:
     */
     File getLinkedTarget() const;
 
-   #if JUCE_WINDOWS
+    /** Create a symbolic link to a native path and return a boolean to indicate success.
+
+        Use this method if you want to create a link to a relative path or a special native
+        file path (such as a device file on Windows).
+    */
+    static bool createSymbolicLink (const File& linkFileToCreate,
+                                    const String& nativePathOfTarget,
+                                    bool overwriteExisting);
+
+    /** This returns the native path that the symbolic link points to. The returned path
+        is a native path of the current OS and can be a relative, absolute or special path. */
+    String getNativeLinkedTarget() const;
+
+   #if JUCE_WINDOWS || DOXYGEN
     /** Windows ONLY - Creates a win32 .LNK shortcut file that links to this file. */
     bool createShortcut (const String& description, const File& linkFileToCreate) const;
 
     /** Windows ONLY - Returns true if this is a win32 .LNK file. */
     bool isShortcut() const;
+   #else
+
    #endif
 
     //==============================================================================
@@ -972,6 +1074,36 @@ public:
     void addToDock() const;
    #endif
 
+    //==============================================================================
+    /** Comparator for files */
+    struct NaturalFileComparator
+    {
+        NaturalFileComparator (bool shouldPutFoldersFirst) noexcept : foldersFirst (shouldPutFoldersFirst) {}
+
+        int compareElements (const File& firstFile, const File& secondFile) const
+        {
+            if (foldersFirst && (firstFile.isDirectory() != secondFile.isDirectory()))
+                return firstFile.isDirectory() ? -1 : 1;
+
+           #if NAMES_ARE_CASE_SENSITIVE
+            return firstFile.getFullPathName().compareNatural (secondFile.getFullPathName(), true);
+           #else
+            return firstFile.getFullPathName().compareNatural (secondFile.getFullPathName(), false);
+           #endif
+        }
+
+        bool foldersFirst;
+    };
+
+    /* These static objects are deprecated because it's too easy to accidentally use them indirectly
+       during a static constructor, which leads to very obscure order-of-initialisation bugs.
+       Use File::getSeparatorChar() and File::getSeparatorString(), and instead of File::nonexistent,
+       just use File() or {}.
+    */
+    JUCE_DEPRECATED_STATIC (static const juce_wchar separator;)
+    JUCE_DEPRECATED_STATIC (static const StringRef separatorString;)
+    JUCE_DEPRECATED_STATIC (static const File nonexistent;)
+
 private:
     //==============================================================================
     String fullPath;
@@ -982,10 +1114,11 @@ private:
     Result createDirectoryInternal (const String&) const;
     bool copyInternal (const File&) const;
     bool moveInternal (const File&) const;
+    bool replaceInternal (const File&) const;
     bool setFileTimesInternal (int64 m, int64 a, int64 c) const;
     void getFileTimesInternal (int64& m, int64& a, int64& c) const;
     bool setFileReadOnlyInternal (bool) const;
     bool setFileExecutableInternal (bool) const;
 };
 
-#endif   // JUCE_FILE_H_INCLUDED
+} // namespace juce

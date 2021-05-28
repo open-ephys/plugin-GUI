@@ -1,32 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission to use, copy, modify, and/or distribute this software for any purpose with
-   or without fee is hereby granted, provided that the above copyright notice and this
-   permission notice appear in all copies.
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
-   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
-   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+   The code included in this file is provided under the terms of the ISC license
+   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+   To use, copy, modify, and/or distribute this software for any purpose with or
+   without fee is hereby granted provided that the above copyright notice and
+   this permission notice appear in all copies.
 
-   ------------------------------------------------------------------------------
-
-   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
-   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
-   using any other modules, be sure to check that you also comply with their license.
-
-   For more details, visit www.juce.com
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-PropertySet::PropertySet (const bool ignoreCaseOfKeyNames)
+namespace juce
+{
+
+PropertySet::PropertySet (bool ignoreCaseOfKeyNames)
     : properties (ignoreCaseOfKeyNames),
       fallbackProperties (nullptr),
       ignoreCaseOfKeys (ignoreCaseOfKeyNames)
@@ -68,8 +65,7 @@ void PropertySet::clear()
 String PropertySet::getValue (StringRef keyName, const String& defaultValue) const noexcept
 {
     const ScopedLock sl (lock);
-
-    const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+    auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
     if (index >= 0)
         return properties.getAllValues() [index];
@@ -78,10 +74,10 @@ String PropertySet::getValue (StringRef keyName, const String& defaultValue) con
                                          : defaultValue;
 }
 
-int PropertySet::getIntValue (StringRef keyName, const int defaultValue) const noexcept
+int PropertySet::getIntValue (StringRef keyName, int defaultValue) const noexcept
 {
     const ScopedLock sl (lock);
-    const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+    auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
     if (index >= 0)
         return properties.getAllValues() [index].getIntValue();
@@ -90,10 +86,10 @@ int PropertySet::getIntValue (StringRef keyName, const int defaultValue) const n
                                          : defaultValue;
 }
 
-double PropertySet::getDoubleValue (StringRef keyName, const double defaultValue) const noexcept
+double PropertySet::getDoubleValue (StringRef keyName, double defaultValue) const noexcept
 {
     const ScopedLock sl (lock);
-    const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+    auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
     if (index >= 0)
         return properties.getAllValues()[index].getDoubleValue();
@@ -102,10 +98,10 @@ double PropertySet::getDoubleValue (StringRef keyName, const double defaultValue
                                          : defaultValue;
 }
 
-bool PropertySet::getBoolValue (StringRef keyName, const bool defaultValue) const noexcept
+bool PropertySet::getBoolValue (StringRef keyName, bool defaultValue) const noexcept
 {
     const ScopedLock sl (lock);
-    const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+    auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
     if (index >= 0)
         return properties.getAllValues() [index].getIntValue() != 0;
@@ -114,21 +110,20 @@ bool PropertySet::getBoolValue (StringRef keyName, const bool defaultValue) cons
                                          : defaultValue;
 }
 
-XmlElement* PropertySet::getXmlValue (StringRef keyName) const
+std::unique_ptr<XmlElement> PropertySet::getXmlValue (StringRef keyName) const
 {
-    return XmlDocument::parse (getValue (keyName));
+    return parseXML (getValue (keyName));
 }
 
-void PropertySet::setValue (const String& keyName, const var& v)
+void PropertySet::setValue (StringRef keyName, const var& v)
 {
     jassert (keyName.isNotEmpty()); // shouldn't use an empty key name!
 
     if (keyName.isNotEmpty())
     {
-        const String value (v.toString());
+        auto value = v.toString();
         const ScopedLock sl (lock);
-
-        const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+        auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
         if (index < 0 || properties.getAllValues() [index] != value)
         {
@@ -143,7 +138,7 @@ void PropertySet::removeValue (StringRef keyName)
     if (keyName.isNotEmpty())
     {
         const ScopedLock sl (lock);
-        const int index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
+        auto index = properties.getAllKeys().indexOf (keyName, ignoreCaseOfKeys);
 
         if (index >= 0)
         {
@@ -153,10 +148,10 @@ void PropertySet::removeValue (StringRef keyName)
     }
 }
 
-void PropertySet::setValue (const String& keyName, const XmlElement* const xml)
+void PropertySet::setValue (StringRef keyName, const XmlElement* xml)
 {
     setValue (keyName, xml == nullptr ? var()
-                                      : var (xml->createDocument ("", true)));
+                                      : var (xml->toString (XmlElement::TextFormat().singleLine().withoutHeader())));
 }
 
 bool PropertySet::containsKey (StringRef keyName) const noexcept
@@ -180,14 +175,15 @@ void PropertySet::setFallbackPropertySet (PropertySet* fallbackProperties_) noex
     fallbackProperties = fallbackProperties_;
 }
 
-XmlElement* PropertySet::createXml (const String& nodeName) const
+std::unique_ptr<XmlElement> PropertySet::createXml (const String& nodeName) const
 {
+    auto xml = std::make_unique<XmlElement> (nodeName);
+
     const ScopedLock sl (lock);
-    XmlElement* const xml = new XmlElement (nodeName);
 
     for (int i = 0; i < properties.getAllKeys().size(); ++i)
     {
-        XmlElement* const e = xml->createNewChildElement ("VALUE");
+        auto e = xml->createNewChildElement ("VALUE");
         e->setAttribute ("name", properties.getAllKeys()[i]);
         e->setAttribute ("val", properties.getAllValues()[i]);
     }
@@ -200,7 +196,7 @@ void PropertySet::restoreFromXml (const XmlElement& xml)
     const ScopedLock sl (lock);
     clear();
 
-    forEachXmlChildElementWithTagName (xml, e, "VALUE")
+    for (auto* e : xml.getChildWithTagNameIterator ("VALUE"))
     {
         if (e->hasAttribute ("name")
              && e->hasAttribute ("val"))
@@ -217,3 +213,5 @@ void PropertySet::restoreFromXml (const XmlElement& xml)
 void PropertySet::propertyChanged()
 {
 }
+
+} // namespace juce

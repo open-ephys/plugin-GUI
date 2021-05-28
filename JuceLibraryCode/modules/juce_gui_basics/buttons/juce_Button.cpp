@@ -2,32 +2,35 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-class Button::CallbackHelper  : public Timer,
-                                public ApplicationCommandManagerListener,
-                                public ValueListener,
-                                public KeyListener
+namespace juce
 {
-public:
+
+struct Button::CallbackHelper  : public Timer,
+                                 public ApplicationCommandManagerListener,
+                                 public Value::Listener,
+                                 public KeyListener
+{
     CallbackHelper (Button& b) : button (b)   {}
 
     void timerCallback() override
@@ -43,7 +46,7 @@ public:
     void valueChanged (Value& value) override
     {
         if (value.refersToSameSourceAs (button.isOn))
-            button.setToggleState (button.isOn.getValue(), sendNotification);
+            button.setToggleState (button.isOn.getValue(), dontSendNotification, sendNotification);
     }
 
     bool keyPressed (const KeyPress&, Component*) override
@@ -64,39 +67,18 @@ public:
         button.applicationCommandListChangeCallback();
     }
 
-private:
     Button& button;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CallbackHelper)
 };
 
 //==============================================================================
-Button::Button (const String& name)
-  : Component (name),
-    text (name),
-    buttonPressTime (0),
-    lastRepeatTime (0),
-    commandManagerToUse (nullptr),
-    autoRepeatDelay (-1),
-    autoRepeatSpeed (0),
-    autoRepeatMinimumDelay (-1),
-    radioGroupId (0),
-    connectedEdgeFlags (0),
-    commandID(),
-    buttonState (buttonNormal),
-    lastStatePainted (buttonNormal),
-    lastToggleState (false),
-    clickTogglesState (false),
-    needsToRelease (false),
-    needsRepainting (false),
-    isKeyDown (false),
-    triggerOnMouseDown (false),
-    generateTooltip (false)
+Button::Button (const String& name)  : Component (name), text (name)
 {
-    callbackHelper = new CallbackHelper (*this);
+    callbackHelper.reset (new CallbackHelper (*this));
 
     setWantsKeyboardFocus (true);
-    isOn.addListener (callbackHelper);
+    isOn.addListener (callbackHelper.get());
 }
 
 Button::~Button()
@@ -104,10 +86,10 @@ Button::~Button()
     clearShortcuts();
 
     if (commandManagerToUse != nullptr)
-        commandManagerToUse->removeListener (callbackHelper);
+        commandManagerToUse->removeListener (callbackHelper.get());
 
-    isOn.removeListener (callbackHelper);
-    callbackHelper = nullptr;
+    isOn.removeListener (callbackHelper.get());
+    callbackHelper.reset();
 }
 
 //==============================================================================
@@ -130,14 +112,12 @@ void Button::updateAutomaticTooltip (const ApplicationCommandInfo& info)
 {
     if (generateTooltip && commandManagerToUse != nullptr)
     {
-        String tt (info.description.isNotEmpty() ? info.description
-                                                 : info.shortName);
+        auto tt = info.description.isNotEmpty() ? info.description
+                                                : info.shortName;
 
-        Array<KeyPress> keyPresses (commandManagerToUse->getKeyMappings()->getKeyPressesAssignedToCommand (commandID));
-
-        for (int i = 0; i < keyPresses.size(); ++i)
+        for (auto& kp : commandManagerToUse->getKeyMappings()->getKeyPressesAssignedToCommand (commandID))
         {
-            const String key (keyPresses.getReference(i).getTextDescription());
+            auto key = kp.getTextDescription();
 
             tt << " [";
 
@@ -151,7 +131,7 @@ void Button::updateAutomaticTooltip (const ApplicationCommandInfo& info)
     }
 }
 
-void Button::setConnectedEdges (const int newFlags)
+void Button::setConnectedEdges (int newFlags)
 {
     if (connectedEdgeFlags != newFlags)
     {
@@ -161,7 +141,12 @@ void Button::setConnectedEdges (const int newFlags)
 }
 
 //==============================================================================
-void Button::setToggleState (const bool shouldBeOn, const NotificationType notification)
+void Button::setToggleState (bool shouldBeOn, NotificationType notification)
+{
+    setToggleState (shouldBeOn, notification, notification);
+}
+
+void Button::setToggleState (bool shouldBeOn, NotificationType clickNotification, NotificationType stateNotification)
 {
     if (shouldBeOn != lastToggleState)
     {
@@ -169,42 +154,49 @@ void Button::setToggleState (const bool shouldBeOn, const NotificationType notif
 
         if (shouldBeOn)
         {
-            turnOffOtherButtonsInGroup (notification);
+            turnOffOtherButtonsInGroup (clickNotification, stateNotification);
 
             if (deletionWatcher == nullptr)
                 return;
         }
 
-        if (getToggleState() != shouldBeOn)  // this test means that if the value is void rather than explicitly set to
-            isOn = shouldBeOn;               // false, it won't be changed unless the required value is true.
+        // This test is done so that if the value is void rather than explicitly set to
+        // false, the value won't be changed unless the required value is true.
+        if (getToggleState() != shouldBeOn)
+        {
+            isOn = shouldBeOn;
+
+            if (deletionWatcher == nullptr)
+                return;
+        }
 
         lastToggleState = shouldBeOn;
         repaint();
 
-        if (notification != dontSendNotification)
+        if (clickNotification != dontSendNotification)
         {
             // async callbacks aren't possible here
-            jassert (notification != sendNotificationAsync);
+            jassert (clickNotification != sendNotificationAsync);
 
-            sendClickMessage (ModifierKeys::getCurrentModifiers());
+            sendClickMessage (ModifierKeys::currentModifiers);
 
             if (deletionWatcher == nullptr)
                 return;
         }
 
-        if (notification != dontSendNotification)
+        if (stateNotification != dontSendNotification)
             sendStateMessage();
         else
             buttonStateChanged();
     }
 }
 
-void Button::setToggleState (const bool shouldBeOn, bool sendChange)
+void Button::setToggleState (bool shouldBeOn, bool sendChange)
 {
     setToggleState (shouldBeOn, sendChange ? sendNotification : dontSendNotification);
 }
 
-void Button::setClickingTogglesState (const bool shouldToggle) noexcept
+void Button::setClickingTogglesState (bool shouldToggle) noexcept
 {
     clickTogglesState = shouldToggle;
 
@@ -220,36 +212,34 @@ bool Button::getClickingTogglesState() const noexcept
     return clickTogglesState;
 }
 
-void Button::setRadioGroupId (const int newGroupId, NotificationType notification)
+void Button::setRadioGroupId (int newGroupId, NotificationType notification)
 {
     if (radioGroupId != newGroupId)
     {
         radioGroupId = newGroupId;
 
         if (lastToggleState)
-            turnOffOtherButtonsInGroup (notification);
+            turnOffOtherButtonsInGroup (notification, notification);
     }
 }
 
-void Button::turnOffOtherButtonsInGroup (const NotificationType notification)
+void Button::turnOffOtherButtonsInGroup (NotificationType clickNotification, NotificationType stateNotification)
 {
-    if (Component* const p = getParentComponent())
+    if (auto* p = getParentComponent())
     {
         if (radioGroupId != 0)
         {
             WeakReference<Component> deletionWatcher (this);
 
-            for (int i = p->getNumChildComponents(); --i >= 0;)
+            for (auto* c : p->getChildren())
             {
-                Component* const c = p->getChildComponent (i);
-
                 if (c != this)
                 {
-                    if (Button* const b = dynamic_cast<Button*> (c))
+                    if (auto b = dynamic_cast<Button*> (c))
                     {
                         if (b->getRadioGroupId() == radioGroupId)
                         {
-                            b->setToggleState (false, notification);
+                            b->setToggleState (false, clickNotification, stateNotification);
 
                             if (deletionWatcher == nullptr)
                                 return;
@@ -273,7 +263,7 @@ Button::ButtonState Button::updateState()
     return updateState (isMouseOver (true), isMouseButtonDown());
 }
 
-Button::ButtonState Button::updateState (const bool over, const bool down)
+Button::ButtonState Button::updateState (bool over, bool down)
 {
     ButtonState newState = buttonNormal;
 
@@ -289,7 +279,7 @@ Button::ButtonState Button::updateState (const bool over, const bool down)
     return newState;
 }
 
-void Button::setState (const ButtonState newState)
+void Button::setState (ButtonState newState)
 {
     if (buttonState != newState)
     {
@@ -313,13 +303,18 @@ void Button::buttonStateChanged() {}
 
 uint32 Button::getMillisecondsSinceButtonDown() const noexcept
 {
-    const uint32 now = Time::getApproximateMillisecondCounter();
+    auto now = Time::getApproximateMillisecondCounter();
     return now > buttonPressTime ? now - buttonPressTime : 0;
 }
 
-void Button::setTriggeredOnMouseDown (const bool isTriggeredOnMouseDown) noexcept
+void Button::setTriggeredOnMouseDown (bool isTriggeredOnMouseDown) noexcept
 {
     triggerOnMouseDown = isTriggeredOnMouseDown;
+}
+
+bool Button::getTriggeredOnMouseDown() const noexcept
+{
+    return triggerOnMouseDown;
 }
 
 //==============================================================================
@@ -372,7 +367,7 @@ void Button::handleCommandMessage (int commandId)
         if (isEnabled())
         {
             flashButtonState();
-            internalClickCallback (ModifierKeys::getCurrentModifiers());
+            internalClickCallback (ModifierKeys::currentModifiers);
         }
     }
     else
@@ -382,15 +377,8 @@ void Button::handleCommandMessage (int commandId)
 }
 
 //==============================================================================
-void Button::addListener (ButtonListener* const newListener)
-{
-    buttonListeners.add (newListener);
-}
-
-void Button::removeListener (ButtonListener* const listener)
-{
-    buttonListeners.remove (listener);
-}
+void Button::addListener (Listener* l)      { buttonListeners.add (l); }
+void Button::removeListener (Listener* l)   { buttonListeners.remove (l); }
 
 void Button::sendClickMessage (const ModifierKeys& modifiers)
 {
@@ -407,8 +395,16 @@ void Button::sendClickMessage (const ModifierKeys& modifiers)
 
     clicked (modifiers);
 
-    if (! checker.shouldBailOut())
-        buttonListeners.callChecked (checker, &ButtonListener::buttonClicked, this);  // (can't use Button::Listener due to idiotic VC2005 bug)
+    if (checker.shouldBailOut())
+        return;
+
+    buttonListeners.callChecked (checker, [this] (Listener& l) { l.buttonClicked (this); });
+
+    if (checker.shouldBailOut())
+        return;
+
+    if (onClick != nullptr)
+        onClick();
 }
 
 void Button::sendStateMessage()
@@ -417,8 +413,16 @@ void Button::sendStateMessage()
 
     buttonStateChanged();
 
-    if (! checker.shouldBailOut())
-        buttonListeners.callChecked (checker, &ButtonListener::buttonStateChanged, this);
+    if (checker.shouldBailOut())
+        return;
+
+    buttonListeners.callChecked (checker, [this] (Listener& l) { l.buttonStateChanged (this); });
+
+    if (checker.shouldBailOut())
+        return;
+
+    if (onStateChange != nullptr)
+        onStateChange();
 }
 
 //==============================================================================
@@ -456,7 +460,7 @@ void Button::mouseUp (const MouseEvent& e)
 {
     const bool wasDown = isDown();
     const bool wasOver = isOver();
-    updateState (isMouseOver(), false);
+    updateState (isMouseSourceOver (e), false);
 
     if (wasDown && wasOver && ! triggerOnMouseDown)
     {
@@ -467,13 +471,21 @@ void Button::mouseUp (const MouseEvent& e)
     }
 }
 
-void Button::mouseDrag (const MouseEvent&)
+void Button::mouseDrag (const MouseEvent& e)
 {
-    const ButtonState oldState = buttonState;
-    updateState (isMouseOver(), true);
+    auto oldState = buttonState;
+    updateState (isMouseSourceOver (e), true);
 
     if (autoRepeatDelay >= 0 && buttonState != oldState && isDown())
         callbackHelper->startTimer (autoRepeatSpeed);
+}
+
+bool Button::isMouseSourceOver (const MouseEvent& e)
+{
+    if (e.source.isTouch() || e.source.isPen())
+        return getLocalBounds().toFloat().contains (e.position);
+
+    return isMouseOver();
 }
 
 void Button::focusGained (FocusChangeType)
@@ -496,23 +508,23 @@ void Button::visibilityChanged()
 
 void Button::parentHierarchyChanged()
 {
-    Component* const newKeySource = (shortcuts.size() == 0) ? nullptr : getTopLevelComponent();
+    auto* newKeySource = shortcuts.isEmpty() ? nullptr : getTopLevelComponent();
 
     if (newKeySource != keySource.get())
     {
         if (keySource != nullptr)
-            keySource->removeKeyListener (callbackHelper);
+            keySource->removeKeyListener (callbackHelper.get());
 
         keySource = newKeySource;
 
         if (keySource != nullptr)
-            keySource->addKeyListener (callbackHelper);
+            keySource->addKeyListener (callbackHelper.get());
     }
 }
 
 //==============================================================================
-void Button::setCommandToTrigger (ApplicationCommandManager* const newCommandManager,
-                                  const CommandID newCommandID, const bool generateTip)
+void Button::setCommandToTrigger (ApplicationCommandManager* newCommandManager,
+                                  CommandID newCommandID, bool generateTip)
 {
     commandID = newCommandID;
     generateTooltip = generateTip;
@@ -520,12 +532,12 @@ void Button::setCommandToTrigger (ApplicationCommandManager* const newCommandMan
     if (commandManagerToUse != newCommandManager)
     {
         if (commandManagerToUse != nullptr)
-            commandManagerToUse->removeListener (callbackHelper);
+            commandManagerToUse->removeListener (callbackHelper.get());
 
         commandManagerToUse = newCommandManager;
 
         if (commandManagerToUse != nullptr)
-            commandManagerToUse->addListener (callbackHelper);
+            commandManagerToUse->addListener (callbackHelper.get());
 
         // if you've got clickTogglesState turned on, you shouldn't also connect the button
         // up to be a command invoker. Instead, your command handler must flip the state of whatever
@@ -580,8 +592,8 @@ void Button::clearShortcuts()
 bool Button::isShortcutPressed() const
 {
     if (isShowing() && ! isCurrentlyBlockedByAnotherModalComponent())
-        for (int i = shortcuts.size(); --i >= 0;)
-            if (shortcuts.getReference(i).isCurrentlyDown())
+        for (auto& s : shortcuts)
+            if (s.isCurrentlyDown())
                 return true;
 
     return false;
@@ -589,8 +601,8 @@ bool Button::isShortcutPressed() const
 
 bool Button::isRegisteredForShortcut (const KeyPress& key) const
 {
-    for (int i = shortcuts.size(); --i >= 0;)
-        if (key == shortcuts.getReference(i))
+    for (auto& s : shortcuts)
+        if (key == s)
             return true;
 
     return false;
@@ -611,7 +623,7 @@ bool Button::keyStateChangedCallback()
 
     if (isEnabled() && wasDown && ! isKeyDown)
     {
-        internalClickCallback (ModifierKeys::getCurrentModifiers());
+        internalClickCallback (ModifierKeys::currentModifiers);
 
         // (return immediately - this button may now have been deleted)
         return true;
@@ -632,9 +644,9 @@ bool Button::keyPressed (const KeyPress& key)
 }
 
 //==============================================================================
-void Button::setRepeatSpeed (const int initialDelayMillisecs,
-                             const int repeatMillisecs,
-                             const int minimumDelayInMillisecs) noexcept
+void Button::setRepeatSpeed (int initialDelayMillisecs,
+                             int repeatMillisecs,
+                             int minimumDelayInMillisecs) noexcept
 {
     autoRepeatDelay = initialDelayMillisecs;
     autoRepeatSpeed = repeatMillisecs;
@@ -651,11 +663,11 @@ void Button::repeatTimerCallback()
     }
     else if (autoRepeatSpeed > 0 && (isKeyDown || (updateState() == buttonDown)))
     {
-        int repeatSpeed = autoRepeatSpeed;
+        auto repeatSpeed = autoRepeatSpeed;
 
         if (autoRepeatMinimumDelay >= 0)
         {
-            double timeHeldDown = jmin (1.0, getMillisecondsSinceButtonDown() / 4000.0);
+            auto timeHeldDown = jmin (1.0, getMillisecondsSinceButtonDown() / 4000.0);
             timeHeldDown *= timeHeldDown;
 
             repeatSpeed = repeatSpeed + (int) (timeHeldDown * (autoRepeatMinimumDelay - repeatSpeed));
@@ -663,7 +675,7 @@ void Button::repeatTimerCallback()
 
         repeatSpeed = jmax (1, repeatSpeed);
 
-        const uint32 now = Time::getMillisecondCounter();
+        auto now = Time::getMillisecondCounter();
 
         // if we've been blocked from repeating often enough, speed up the repeat timer to compensate..
         if (lastRepeatTime != 0 && (int) (now - lastRepeatTime) > repeatSpeed * 2)
@@ -672,10 +684,12 @@ void Button::repeatTimerCallback()
         lastRepeatTime = now;
         callbackHelper->startTimer (repeatSpeed);
 
-        internalClickCallback (ModifierKeys::getCurrentModifiers());
+        internalClickCallback (ModifierKeys::currentModifiers);
     }
     else if (! needsToRelease)
     {
         callbackHelper->stopTimer();
     }
 }
+
+} // namespace juce

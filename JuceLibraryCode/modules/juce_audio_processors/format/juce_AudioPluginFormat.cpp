@@ -2,208 +2,97 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2015 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
-   Permission is granted to use this software under the terms of either:
-   a) the GPL v2 (or any later version)
-   b) the Affero GPL v3
+   JUCE is an open source library subject to commercial or open-source
+   licensing.
 
-   Details of these licenses can be found at: www.gnu.org/licenses
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
-   ------------------------------------------------------------------------------
+   Or: You may also use this code under the terms of the GPL v3 (see
+   www.gnu.org/licenses).
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.juce.com for more information.
+   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+   DISCLAIMED.
 
   ==============================================================================
 */
 
-namespace AudioPluginFormatHelpers
+namespace juce
 {
-    struct CallbackInvoker
-    {
-        struct InvokeOnMessageThread : public CallbackMessage
-        {
-            InvokeOnMessageThread (AudioPluginInstance* inInstance, const String& inError,
-                                   AudioPluginFormat::InstantiationCompletionCallback* inCompletion,
-                                   CallbackInvoker* invoker)
-                : instance (inInstance), error (inError), compCallback (inCompletion), owner (invoker)
-            {}
 
-            void messageCallback() override     { compCallback->completionCallback (instance, error); }
-
-            //==============================================================================
-            AudioPluginInstance* instance;
-            String error;
-            ScopedPointer<AudioPluginFormat::InstantiationCompletionCallback> compCallback;
-            ScopedPointer<CallbackInvoker> owner;
-        };
-
-        //==============================================================================
-        CallbackInvoker (AudioPluginFormat::InstantiationCompletionCallback* cc)  : completion (cc)
-        {}
-
-        void completionCallback (AudioPluginInstance* instance, const String& error)
-        {
-            (new InvokeOnMessageThread (instance, error, completion, this))->post();
-        }
-
-        static void staticCompletionCallback (void* userData, AudioPluginInstance* instance, const String& error)
-        {
-            reinterpret_cast<CallbackInvoker*> (userData)->completionCallback (instance, error);
-        }
-
-        //==============================================================================
-        AudioPluginFormat::InstantiationCompletionCallback* completion;
-    };
-}
-
-AudioPluginFormat::AudioPluginFormat() noexcept {}
+AudioPluginFormat::AudioPluginFormat() {}
 AudioPluginFormat::~AudioPluginFormat() {}
 
-AudioPluginInstance* AudioPluginFormat::createInstanceFromDescription (const PluginDescription& desc,
-                                                                       double initialSampleRate,
-                                                                       int initialBufferSize)
+std::unique_ptr<AudioPluginInstance> AudioPluginFormat::createInstanceFromDescription (const PluginDescription& desc,
+                                                                                       double initialSampleRate,
+                                                                                       int initialBufferSize)
 {
     String errorMessage;
     return createInstanceFromDescription (desc, initialSampleRate, initialBufferSize, errorMessage);
 }
 
-//==============================================================================
-struct EventSignaler : public AudioPluginFormat::InstantiationCompletionCallback
-{
-    EventSignaler (WaitableEvent& inEvent, AudioPluginInstance*& inInstance, String& inErrorMessage)
-        : event (inEvent), outInstance (inInstance), outErrorMessage (inErrorMessage)
-    {}
-
-    void completionCallback (AudioPluginInstance* newInstance, const String& result) override
-    {
-        outInstance = newInstance;
-        outErrorMessage = result;
-        event.signal();
-    }
-
-    static void staticCompletionCallback (void* userData, AudioPluginInstance* pluginInstance, const String& error)
-    {
-        reinterpret_cast<EventSignaler*> (userData)->completionCallback (pluginInstance, error);
-    }
-
-    WaitableEvent& event;
-    AudioPluginInstance*& outInstance;
-    String& outErrorMessage;
-
-    JUCE_DECLARE_NON_COPYABLE (EventSignaler)
-};
-
-AudioPluginInstance* AudioPluginFormat::createInstanceFromDescription (const PluginDescription& desc,
-                                                                       double initialSampleRate,
-                                                                       int initialBufferSize,
-                                                                       String& errorMessage)
+std::unique_ptr<AudioPluginInstance> AudioPluginFormat::createInstanceFromDescription (const PluginDescription& desc,
+                                                                                       double initialSampleRate,
+                                                                                       int initialBufferSize,
+                                                                                       String& errorMessage)
 {
     if (MessageManager::getInstance()->isThisTheMessageThread()
-          && requiresUnblockedMessageThreadDuringCreation(desc))
+          && requiresUnblockedMessageThreadDuringCreation (desc))
     {
         errorMessage = NEEDS_TRANS ("This plug-in cannot be instantiated synchronously");
-        return nullptr;
+        return {};
     }
 
-    WaitableEvent waitForCreation;
-    AudioPluginInstance* instance = nullptr;
+    WaitableEvent finishedSignal;
+    std::unique_ptr<AudioPluginInstance> instance;
 
-    ScopedPointer<EventSignaler> eventSignaler (new EventSignaler (waitForCreation, instance, errorMessage));
+    auto callback = [&] (std::unique_ptr<AudioPluginInstance> p, const String& error)
+    {
+       errorMessage = error;
+       instance = std::move (p);
+       finishedSignal.signal();
+    };
 
     if (! MessageManager::getInstance()->isThisTheMessageThread())
-        createPluginInstanceAsync (desc, initialSampleRate, initialBufferSize, eventSignaler.release());
+        createPluginInstanceAsync (desc, initialSampleRate, initialBufferSize, std::move (callback));
     else
-        createPluginInstance (desc, initialSampleRate, initialBufferSize,
-                              eventSignaler, EventSignaler::staticCompletionCallback);
+        createPluginInstance (desc, initialSampleRate, initialBufferSize, std::move (callback));
 
-
-    waitForCreation.wait();
-
+    finishedSignal.wait();
     return instance;
 }
 
-void AudioPluginFormat::createPluginInstanceAsync (const PluginDescription& description,
-                                                   double initialSampleRate,
-                                                   int initialBufferSize,
-                                                   AudioPluginFormat::InstantiationCompletionCallback* callback)
+struct AudioPluginFormat::AsyncCreateMessage  : public Message
 {
-    if (MessageManager::getInstance()->isThisTheMessageThread())
+    AsyncCreateMessage (const PluginDescription& d, double sr, int size, PluginCreationCallback call)
+        : desc (d), sampleRate (sr), bufferSize (size), callbackToUse (std::move (call))
     {
-        createPluginInstanceOnMessageThread (description, initialSampleRate, initialBufferSize, callback);
-        return;
     }
 
-    //==============================================================================
-    struct InvokeOnMessageThread  : public CallbackMessage
-    {
-        InvokeOnMessageThread (AudioPluginFormat* myself,
-                               const PluginDescription& descriptionParam,
-                               double initialSampleRateParam,
-                               int initialBufferSizeParam,
-                               AudioPluginFormat::InstantiationCompletionCallback* callbackParam)
-            : owner (myself), descr (descriptionParam), sampleRate (initialSampleRateParam),
-              bufferSize (initialBufferSizeParam), call (callbackParam)
-        {}
+    PluginDescription desc;
+    double sampleRate;
+    int bufferSize;
+    PluginCreationCallback callbackToUse;
+};
 
-        void messageCallback() override
-        {
-            owner->createPluginInstanceOnMessageThread (descr, sampleRate, bufferSize, call);
-        }
-
-        AudioPluginFormat* owner;
-        PluginDescription descr;
-        double sampleRate;
-        int bufferSize;
-        AudioPluginFormat::InstantiationCompletionCallback* call;
-    };
-
-    (new InvokeOnMessageThread (this, description, initialSampleRate, initialBufferSize, callback))->post();
-}
-
-#if JUCE_COMPILER_SUPPORTS_LAMBDAS
 void AudioPluginFormat::createPluginInstanceAsync (const PluginDescription& description,
-                                                   double initialSampleRate,
-                                                   int initialBufferSize,
-                                                   std::function<void (AudioPluginInstance*, const String&)> f)
-{
-    struct CallbackInvoker  : public AudioPluginFormat::InstantiationCompletionCallback
-    {
-        CallbackInvoker (std::function<void (AudioPluginInstance*, const String&)> inCompletion)
-            : completion (inCompletion)
-        {}
-
-        void completionCallback (AudioPluginInstance* instance, const String& error) override
-        {
-            completion (instance, error);
-        }
-
-        std::function<void (AudioPluginInstance*, const String&)> completion;
-    };
-
-    createPluginInstanceAsync (description, initialSampleRate, initialBufferSize, new CallbackInvoker (f));
-}
-#endif
-
-void AudioPluginFormat::createPluginInstanceOnMessageThread (const PluginDescription& description,
-                                                             double initialSampleRate,
-                                                             int initialBufferSize,
-                                                             AudioPluginFormat::InstantiationCompletionCallback* callback)
+                                                   double initialSampleRate, int initialBufferSize,
+                                                   PluginCreationCallback callback)
 {
     jassert (callback != nullptr);
-    jassert (MessageManager::getInstance()->isThisTheMessageThread());
-
-    //==============================================================================
-
-
-    //==============================================================================
-    AudioPluginFormatHelpers::CallbackInvoker* completion = new AudioPluginFormatHelpers::CallbackInvoker (callback);
-
-    createPluginInstance (description, initialSampleRate, initialBufferSize, completion,
-                          AudioPluginFormatHelpers::CallbackInvoker::staticCompletionCallback);
+    postMessage (new AsyncCreateMessage (description, initialSampleRate, initialBufferSize, std::move (callback)));
 }
+
+void AudioPluginFormat::handleMessage (const Message& message)
+{
+    if (auto m = dynamic_cast<const AsyncCreateMessage*> (&message))
+        createPluginInstance (m->desc, m->sampleRate, m->bufferSize, std::move (m->callbackToUse));
+}
+
+} // namespace juce
