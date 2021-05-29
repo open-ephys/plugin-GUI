@@ -1088,8 +1088,8 @@ SlicerChannelSelectorComponent::SlicerChannelSelectorComponent (Channels::Channe
     m_showComponentButton = new ImageButton;
     m_showComponentButton->setImages (false, true, true,
                                       m_dropdownArrowImageCollapsed, 1.f, Colours::white,
-                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
-                                      Image::null, 1.f, Colours::white);
+                                      Image(), 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image(), 1.f, Colours::white);
     m_showComponentButton->addListener (this);
     addAndMakeVisible (m_showComponentButton);
 
@@ -1187,8 +1187,8 @@ void SlicerChannelSelectorComponent::setCollapsed (bool isCollapsed)
                                       m_isCollapsed
                                       ? m_dropdownArrowImageCollapsed
                                       : m_dropdownArrowImage, 1.f, Colours::white,
-                                      Image::null, 0.8f,  Colours::blue.withAlpha (0.5f),
-                                      Image::null, 1.f, Colours::white);
+                                      Image(), 0.8f,  Colours::blue.withAlpha (0.5f),
+                                      Image(), 1.f, Colours::white);
 
     m_controlsButtonListener->channelSelectorCollapsedStateChanged (this, m_isCollapsed);
 }
