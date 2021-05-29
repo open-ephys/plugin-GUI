@@ -273,7 +273,7 @@ void AudioComponent::endCallbacks()
 void AudioComponent::saveStateToXml(XmlElement* parent)
 {
     // JUCE's audioState XML format (includes all info)
-    ScopedPointer<XmlElement> audioState = deviceManager.createStateXml();
+    std::unique_ptr<XmlElement> audioState = deviceManager.createStateXml();
 
     if (audioState != nullptr)
     {

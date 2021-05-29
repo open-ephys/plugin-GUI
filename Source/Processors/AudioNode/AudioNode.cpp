@@ -26,7 +26,7 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-    : GenericProcessor("Audio Node"), audioEditor(0), volume(0.00001f), noiseGateLevel(0.0f)
+    : GenericProcessor("Audio Node"), audioEditor(nullptr), volume(0.00001f), noiseGateLevel(0.0f)
 {
 
     // settings.numInputs = 4096;
@@ -49,9 +49,9 @@ AudioNode::~AudioNode()
 AudioProcessorEditor* AudioNode::createEditor()
 {
 
-    audioEditor = new AudioEditor(this);
+    audioEditor = std::make_unique<AudioEditor>(this);
 
-    return audioEditor;
+    return audioEditor.get();
 
 }
 

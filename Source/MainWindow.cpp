@@ -216,13 +216,12 @@ void MainWindow::loadWindowBounds()
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
 
 	XmlDocument doc(file);
-	XmlElement* xml = doc.getDocumentElement();
+	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
 
 	if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
 	{
 
 		LOGD("File not found.");
-		delete xml;
 		centreWithSize(800, 600);
 
 	}
@@ -276,7 +275,6 @@ void MainWindow::loadWindowBounds()
 
 		}
 
-		delete xml;
 	}
 	// return "Everything went ok.";
 }

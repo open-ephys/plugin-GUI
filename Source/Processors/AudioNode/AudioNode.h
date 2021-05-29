@@ -116,7 +116,7 @@ public:
 	void updatePlaybackBuffer();
 
     /** A pointer to the AudioNode's editor. */
-    ScopedPointer<AudioEditor> audioEditor;
+    std::unique_ptr<AudioEditor> audioEditor;
 
     void updateBufferSize();
 
