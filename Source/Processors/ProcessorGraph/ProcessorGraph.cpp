@@ -62,25 +62,25 @@ void ProcessorGraph::createDefaultNodes()
 {
 
     // add output node -- sends output to the audio card
-    AudioProcessorGraph::AudioGraphIOProcessor* on =
-        new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
+    auto on =
+        std::make_unique<AudioProcessorGraph::AudioGraphIOProcessor>(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
 
     // add record node -- sends output to disk
     //RecordNode* recn = new RecordNode();
     //recn->setNodeId(RECORD_NODE_ID);
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
-    AudioNode* an = new AudioNode();
+    auto an = std::make_unique<AudioNode>();
     an->setNodeId(AUDIO_NODE_ID);
 
     // add message center
-    MessageCenter* msgCenter = new MessageCenter();
+    auto msgCenter = std::make_unique<MessageCenter>();
     msgCenter->setNodeId(MESSAGE_CENTER_ID);
 
-    addNode(on, OUTPUT_NODE_ID);
+    addNode(std::move(on), NodeID(OUTPUT_NODE_ID));
     //addNode(recn, RECORD_NODE_ID);
-    addNode(an, AUDIO_NODE_ID);
-    addNode(msgCenter, MESSAGE_CENTER_ID);
+    addNode(std::move(an), NodeID(AUDIO_NODE_ID));
+    addNode(std::move(msgCenter), NodeID(MESSAGE_CENTER_ID));
 
 }
 
@@ -194,7 +194,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 
          // identifier within processor graph
         processor->setNodeId(id);
-        addNode(processor, id); // have to add it so it can be deleted by the graph
+        addNode(std::make_unique<GenericProcessor>(processor), NodeID(id)); // have to add it so it can be deleted by the graph
         GenericEditor* editor = (GenericEditor*) processor->createEditor();
 
         editor->refreshColors();
@@ -783,7 +783,7 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
     {
         Node* node = getNode(i);
 
-        int nodeId = node->nodeId;
+        int nodeId = node->nodeID.uid;
 
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
@@ -819,14 +819,14 @@ void ProcessorGraph::clearConnections()
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
-        int nodeId = node->nodeId;
+        int nodeId = node->nodeID.uid;
 
         if (nodeId != OUTPUT_NODE_ID)
         {
 
             if (nodeId != RECORD_NODE_ID && nodeId != AUDIO_NODE_ID)
             {
-                disconnectNode(node->nodeId);
+                disconnectNode(node->nodeID);
             }
 
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
@@ -838,15 +838,30 @@ void ProcessorGraph::clearConnections()
     // connect audio subnetwork
     for (int n = 0; n < 2; n++)
     {
+        NodeAndChannel src, dest;
 
-        addConnection(AUDIO_NODE_ID, n,
-                      OUTPUT_NODE_ID, n);
+        src.nodeID = NodeID(AUDIO_NODE_ID);
+        src.channelIndex = n;
+
+        dest.nodeID = NodeID(OUTPUT_NODE_ID);
+        dest.channelIndex = n;
+
+        addConnection(Connection(src, dest));
 
     }
 
     for (auto& recordNode : getRecordNodes())
-        addConnection(MESSAGE_CENTER_ID, midiChannelIndex,
-                  recordNode->getNodeId(), midiChannelIndex);
+    {
+        NodeAndChannel src, dest;
+
+        src.nodeID = NodeID(MESSAGE_CENTER_ID);
+        src.channelIndex = midiChannelIndex;
+
+        dest.nodeID = NodeID(recordNode->getNodeId());
+        dest.channelIndex = midiChannelIndex;
+
+        addConnection(Connection(src, dest));
+    }
 
 }
 
@@ -1032,6 +1047,10 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     LOGD("     Connecting ", source->getName(), " ", source->getNodeId()); //" channel ";);
     LOGD("              to ", dest->getName(), " ", dest->getNodeId());
 
+    NodeAndChannel cs, cd;
+    cs.nodeID = NodeID(source->getNodeId()); //source
+    cd.nodeID = NodeID(dest->getNodeId()); //dest
+
     // 1. connect continuous channels
     if (connectContinuous)
     {
@@ -1039,20 +1058,19 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
         {
             LOGDD(chan, " ");
 
-            addConnection(source->getNodeId(),         // sourceNodeID
-                          chan,                        // sourceNodeChannelIndex
-                          dest->getNodeId(),           // destNodeID
-                          dest->getNextChannel(true)); // destNodeChannelIndex
+            cs.channelIndex = chan;
+            cd.channelIndex = dest->getNextChannel(true);
+
+            addConnection(Connection(cs, cd));
         }
     }
 
     // 2. connect event channel
     if (connectEvents)
     {
-        addConnection(source->getNodeId(),    // sourceNodeID
-                      midiChannelIndex,       // sourceNodeChannelIndex
-                      dest->getNodeId(),      // destNodeID
-                      midiChannelIndex);      // destNodeChannelIndex
+        cs.channelIndex = midiChannelIndex;
+        cd.channelIndex = midiChannelIndex;
+        addConnection(Connection(cs, cd));
     }
 
     //3. If dest is a record node, register the processor
@@ -1076,15 +1094,19 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
     getAudioNode()->registerProcessor(source);
     //getRecordNode()->registerProcessor(source);
 
+    NodeAndChannel cs, cd;
+    cs.nodeID = NodeID(source->getNodeId()); //source
+    cd.nodeID = NodeID(AUDIO_NODE_ID); // dest
+
     for (int chan = 0; chan < source->getNumOutputs(); chan++)
     {
 
         getAudioNode()->addInputChannel(source, chan);
 
-        addConnection(source->getNodeId(),                   // sourceNodeID
-                      chan,                                  // sourceNodeChannelIndex
-                      AUDIO_NODE_ID,                         // destNodeID
-                      getAudioNode()->getNextChannel(true)); // destNodeChannelIndex
+        cs.channelIndex = chan;
+        cd.channelIndex = getAudioNode()->getNextChannel(true);
+
+        addConnection(Connection(cs, cd));
    
 
         /*
@@ -1107,10 +1129,9 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
     */
 
     // connect event channel
-    addConnection(source->getNodeId(),    // sourceNodeID
-                  midiChannelIndex,       // sourceNodeChannelIndex
-                  AUDIO_NODE_ID,          // destNodeID
-                  midiChannelIndex);      // destNodeChannelIndex
+    cs.channelIndex = midiChannelIndex;
+    cd.channelIndex = midiChannelIndex;
+    addConnection(Connection(cs, cd));
 
 
     //getRecordNode()->addInputChannel(source, midiChannelIndex);
@@ -1122,10 +1143,14 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 {
 
     // connect event channel
-    addConnection(getMessageCenter()->getNodeId(),    // sourceNodeID
-                  midiChannelIndex,       // sourceNodeChannelIndex
-                  source->getNodeId(),          // destNodeID
-                  midiChannelIndex);      // destNodeChannelIndex
+    NodeAndChannel cs, cd;
+    cs.nodeID = NodeID(getMessageCenter()->getNodeId()); //source
+    cs.channelIndex = midiChannelIndex;
+
+    cd.nodeID = NodeID(source->getNodeId()); // dest
+    cd.channelIndex = midiChannelIndex;
+
+    addConnection(Connection(cs, cd));
 
 }
 
@@ -1273,7 +1298,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     LOGD("Removing processor with ID ", processor->getNodeId());
 
-    int nodeId = processor->getNodeId();
+    NodeID nodeId = NodeID(processor->getNodeId());
 
     disconnectNode(nodeId);
     removeNode(nodeId);
@@ -1289,7 +1314,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 			//Look for the next source node. If none is found, set the sourceid to 0
 			for (int i = 0; i < getNumNodes() && newProc == nullptr; i++)
 			{
-				if (getNode(i)->nodeId != OUTPUT_NODE_ID)
+				if (getNode(i)->nodeID != NodeID(OUTPUT_NODE_ID))
 				{
 					GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
 					//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
@@ -1330,7 +1355,7 @@ bool ProcessorGraph::enableProcessors()
 
         Node* node = getNode(i);
 
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             allClear = p->isReady();
@@ -1351,7 +1376,7 @@ bool ProcessorGraph::enableProcessors()
 
         Node* node = getNode(i);
 
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->enableEditor();
@@ -1384,11 +1409,11 @@ bool ProcessorGraph::disableProcessors()
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
-        if (node->nodeId != OUTPUT_NODE_ID )
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID) )
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             LOGD("Disabling ", p->getName());
-			if (node->nodeId != MESSAGE_CENTER_ID)
+			if (node->nodeID != NodeID(MESSAGE_CENTER_ID))
 				p->disableEditor();
             allClear = p->disableProcessor();
 
@@ -1414,7 +1439,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
-        if (node->nodeId != OUTPUT_NODE_ID)
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
@@ -1428,7 +1453,7 @@ void ProcessorGraph::setRecordState(bool isRecording)
 AudioNode* ProcessorGraph::getAudioNode()
 {
 
-    Node* node = getNodeForId(AUDIO_NODE_ID);
+    Node* node = getNodeForId(NodeID(AUDIO_NODE_ID));
     return (AudioNode*) node->getProcessor();
 
 }
@@ -1454,7 +1479,7 @@ Array<RecordNode*> ProcessorGraph::getRecordNodes()
 MessageCenter* ProcessorGraph::getMessageCenter()
 {
 
-    Node* node = getNodeForId(MESSAGE_CENTER_ID);
+    Node* node = getNodeForId(NodeID(MESSAGE_CENTER_ID));
     return (MessageCenter*) node->getProcessor();
 
 }

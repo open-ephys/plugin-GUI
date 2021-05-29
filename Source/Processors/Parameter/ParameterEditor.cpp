@@ -459,7 +459,7 @@ void ParameterCheckbox::clicked()
 {
     Button::clicked();
 
-    setButtonText (String (getToggleState()));
+    setButtonText (String (int(getToggleState())));
 }
 
 
