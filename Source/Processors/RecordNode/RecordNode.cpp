@@ -217,7 +217,7 @@ void RecordNode::setDataDirectory(File directory)
 // called by RecordNode::startRecording and RHD2000Editor (should be removed)
 void RecordNode::createNewDirectory()
 {
-	rootFolder = File(dataDirectory.getFullPathName() + File::separator + generateDirectoryName() + File::separator + getName() + " " + String(getNodeId()));
+	rootFolder = File(dataDirectory.getFullPathName() + File::getSeparatorString() + generateDirectoryName() + File::getSeparatorString() + getName() + " " + String(getNodeId()));
 	newDirectoryNeeded = false;
 }
 
@@ -284,8 +284,8 @@ int RecordNode::getRecordingNumber() const
 // called by ProcessorGraph::createNewProcessor
 AudioProcessorEditor* RecordNode::createEditor()
 {
-	editor = new RecordNodeEditor(this, true);
-	return editor;
+	editor = std::make_unique<RecordNodeEditor>(this, true);
+	return editor.get();
 }
 
 // Juce method, not used
@@ -686,7 +686,7 @@ void RecordNode::startRecording()
 
 		if (settingsNeeded)
 		{
-			String settingsFileName = rootFolder.getFullPathName() + File::separator + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
+			String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
 			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
 			settingsNeeded = false;
 		}

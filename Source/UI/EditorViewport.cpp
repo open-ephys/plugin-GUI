@@ -1517,12 +1517,11 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
     } else {
         
         XmlDocument doc(fileToLoad);
-        XmlElement* xml = doc.getDocumentElement();
+        std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
         
         if (xml == 0 || ! xml->hasTagName("PROCESSOR"))
         {
             LOGD("File not found.");
-            delete xml;
             return "Not a valid file.";
         } else {
             
@@ -1530,7 +1529,7 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
             
             LoadPluginSettings* action = new LoadPluginSettings(this,
                                                              selectedEditor->getProcessor(),
-                                                             xml);
+                                                             xml.get());
             undoManager.perform(action);
         }
     }
@@ -1592,18 +1591,17 @@ const String EditorViewport::loadState(File fileToLoad)
     currentFile = fileToLoad;
 
     XmlDocument doc(currentFile);
-    XmlElement* xml = doc.getDocumentElement();
+    std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
     
     if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
         LOGD("File not found.");
-        delete xml;
         return "Not a valid file.";
     }
 
     undoManager.beginNewTransaction();
     
-    LoadSignalChain* action = new LoadSignalChain(this, xml);
+    LoadSignalChain* action = new LoadSignalChain(this, xml.get());
     undoManager.perform(action);
     
     return "Loaded signal chain.";

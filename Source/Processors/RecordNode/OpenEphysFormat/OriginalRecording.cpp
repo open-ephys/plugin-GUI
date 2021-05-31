@@ -119,7 +119,7 @@ void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, in
 {
 	FILE* chFile;
 	bool isEvent;
-	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	String fullPath(rootFolder.getFullPathName() + rootFolder.getSeparatorString());
 	String fileName;
 
 	recordPath = fullPath;
@@ -198,7 +198,7 @@ void OriginalRecording::openSpikeFile(File rootFolder, const SpikeChannel* elec,
 {
 
 	FILE* spFile;
-	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	String fullPath(rootFolder.getFullPathName() + rootFolder.getSeparatorString());
 	fullPath += elec->getName().removeCharacters(" ");
 
 	if (experimentNumber > 1)
@@ -234,7 +234,7 @@ void OriginalRecording::openSpikeFile(File rootFolder, const SpikeChannel* elec,
 void OriginalRecording::openMessageFile(File rootFolder)
 {
 	FILE* mFile;
-	String fullPath(rootFolder.getFullPathName() + rootFolder.separatorString);
+	String fullPath(rootFolder.getFullPathName() + rootFolder.getSeparatorString());
 
 	fullPath += "messages";
 
@@ -733,10 +733,11 @@ void OriginalRecording::writeXml()
 
 	File file(name);
 	XmlDocument doc(file);
-	ScopedPointer<XmlElement> xml = doc.getDocumentElement();
+	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
+
 	if (!xml || !xml->hasTagName("EXPERIMENT"))
 	{
-		xml = new XmlElement("EXPERIMENT");
+		xml = std::make_unique<XmlElement>("EXPERIMENT");
 		xml->setAttribute("version", VERSION);
 		xml->setAttribute("number", experimentNumber);
 		xml->setAttribute("separatefiles", separateFiles);

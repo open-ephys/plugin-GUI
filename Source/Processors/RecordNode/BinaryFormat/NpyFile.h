@@ -57,7 +57,7 @@ private:
     String getShapeString();
     void writeHeader(const Array<NpyType>& typeList);
     void updateHeader();
-    ScopedPointer<FileOutputStream> m_file;
+    std::unique_ptr<FileOutputStream> m_file;
     int64 m_headerLen; // total header length
     bool m_okOpen{ false };
     int64 m_recordCount{ 0 };

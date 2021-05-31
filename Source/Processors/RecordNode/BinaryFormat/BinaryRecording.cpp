@@ -24,16 +24,16 @@ String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
 	String fName = (channelInfo->getSourceName().replaceCharacter(' ', '_') + "-" +
 		String(channelInfo->getSourceNodeID()));
     fName += "." + String(channelInfo->getSubProcessorIdx());
-	fName += File::separatorString;
+	fName += File::getSeparatorString();
 	return fName;
 }
 
 void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
 
-	String basepath = rootFolder.getFullPathName() + rootFolder.separatorString + "experiment" + String(experimentNumber)
-        + File::separatorString + "recording" + String(recordingNumber + 1) + File::separatorString;
-    String contPath = basepath + "continuous" + File::separatorString;
+	String basepath = rootFolder.getFullPathName() + rootFolder.getSeparatorString() + "experiment" + String(experimentNumber)
+        + File::getSeparatorString() + "recording" + String(recordingNumber + 1) + File::getSeparatorString();
+    String contPath = basepath + "continuous" + File::getSeparatorString();
 
     m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
     m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
@@ -108,7 +108,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 jsonChanArray.add(var(jsonChan));
                 jsonChannels.add(var(jsonChanArray));
                 DynamicObject::Ptr jsonFile = new DynamicObject();
-                jsonFile->setProperty("folder_name", datPath.replace(File::separatorString, "/")); //to make it more system agnostic, replace separator with only one slash
+                jsonFile->setProperty("folder_name", datPath.replace(File::getSeparatorString(), "/")); //to make it more system agnostic, replace separator with only one slash
                 jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
                 jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
                 jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
@@ -145,7 +145,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     }
 
     int nEvents = getNumRecordedEvents();
-    String eventPath(basepath + "events" + File::separatorString);
+    String eventPath(basepath + "events" + File::getSeparatorString());
     Array<var> jsonEventFiles;
 
     for (int ev = 0; ev < nEvents; ev++)
@@ -177,19 +177,19 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             dataFileName = "data_array";
             break;
         }
-        eventName += "_" + String(chan->getSourceIndex() + 1) + File::separatorString;
+        eventName += "_" + String(chan->getSourceIndex() + 1) + File::getSeparatorString();
         ScopedPointer<EventRecording> rec = new EventRecording();
 
-        rec->mainFile = new NpyFile(eventPath + eventName + dataFileName + ".npy", type);
-        rec->timestampFile = new NpyFile(eventPath + eventName + "timestamps.npy", NpyType(BaseType::INT64, 1));
-        rec->channelFile = new NpyFile(eventPath + eventName + "channels.npy", NpyType(BaseType::UINT16, 1));
+        rec->mainFile = std::make_unique<NpyFile>(eventPath + eventName + dataFileName + ".npy", type);
+        rec->timestampFile = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::INT64, 1));
+        rec->channelFile = std::make_unique<NpyFile>(eventPath + eventName + "channels.npy", NpyType(BaseType::UINT16, 1));
         if (chan->getChannelType() == EventChannel::TTL && m_saveTTLWords)
         {
-            rec->extraFile = new NpyFile(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
+            rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
         }
 
         DynamicObject::Ptr jsonChannel = new DynamicObject();
-        jsonChannel->setProperty("folder_name", eventName.replace(File::separatorString, "/"));
+        jsonChannel->setProperty("folder_name", eventName.replace(File::getSeparatorString(), "/"));
         jsonChannel->setProperty("channel_name", chan->getName());
         jsonChannel->setProperty("description", chan->getDescription());
         jsonChannel->setProperty("identifier", chan->getIdentifier());
@@ -210,7 +210,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     Array<uint16> indexedChannels;
     m_spikeFileIndexes.insertMultiple(0, 0, nSpikes);
     m_spikeChannelIndexes.insertMultiple(0, 0, nSpikes);
-    String spikePath(basepath + "spikes" + File::separatorString);
+    String spikePath(basepath + "spikes" + File::getSeparatorString());
     Array<var> jsonSpikeFiles;
     Array<var> jsonSpikeChannels;
     std::map<uint32, int> groupMap;
@@ -265,12 +265,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             uint32 procID = GenericProcessor::getProcessorFullId(ch->getSourceNodeID(), ch->getSubProcessorIdx());
             int groupIndex = ++groupMap[procID];
 
-            String spikeName = getProcessorString(ch) + "spike_group_" + String(groupIndex) + File::separatorString;
+            String spikeName = getProcessorString(ch) + "spike_group_" + String(groupIndex) + File::getSeparatorString();
 
-            rec->mainFile = new NpyFile(spikePath + spikeName + "spike_waveforms.npy", NpyType(BaseType::INT16, ch->getTotalSamples()), ch->getNumChannels());
-            rec->timestampFile = new NpyFile(spikePath + spikeName + "spike_times.npy", NpyType(BaseType::INT64, 1));
-            rec->channelFile = new NpyFile(spikePath + spikeName + "spike_electrode_indices.npy", NpyType(BaseType::UINT16, 1));
-            rec->extraFile = new NpyFile(spikePath + spikeName + "spike_clusters.npy", NpyType(BaseType::UINT16, 1));
+            rec->mainFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_waveforms.npy", NpyType(BaseType::INT16, ch->getTotalSamples()), ch->getNumChannels());
+            rec->timestampFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_times.npy", NpyType(BaseType::INT64, 1));
+            rec->channelFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_electrode_indices.npy", NpyType(BaseType::UINT16, 1));
+            rec->extraFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_clusters.npy", NpyType(BaseType::UINT16, 1));
             Array<NpyType> tsTypes;
 
             Array<var> jsonChanArray;
@@ -278,7 +278,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             jsonSpikeChannels.add(var(jsonChanArray));
             DynamicObject::Ptr jsonFile = new DynamicObject();
 
-            jsonFile->setProperty("folder_name", spikeName.replace(File::separatorString,"/"));
+            jsonFile->setProperty("folder_name", spikeName.replace(File::getSeparatorString(),"/"));
             jsonFile->setProperty("sample_rate", ch->getSampleRate());
             jsonFile->setProperty("source_processor", ch->getSourceName());
             jsonFile->setProperty("num_channels", (int)numSpikeChannels);
@@ -319,11 +319,11 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     jsonSettingsFile->setProperty("spikes", jsonSpikeFiles);
     FileOutputStream settingsFileStream(File(basepath + "structure.oebin"));
 
-    jsonSettingsFile->writeAsJSON(settingsFileStream, 2, false);
+    jsonSettingsFile->writeAsJSON(settingsFileStream, 2, false, 3);
 
 }
 
-NpyFile* BinaryRecording::createEventMetadataFile(const MetaDataEventObject* channel, String filename, DynamicObject* jsonFile)
+std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile(const MetaDataEventObject* channel, String filename, DynamicObject* jsonFile)
 {
     int nMetaData = channel->getEventMetaDataCount();
     if (nMetaData < 1) return nullptr;
@@ -344,7 +344,7 @@ NpyFile* BinaryRecording::createEventMetadataFile(const MetaDataEventObject* cha
     }
     if (jsonFile)
         jsonFile->setProperty("event_metadata", jsonMetaData);
-    return new NpyFile(filename, types);
+    return std::make_unique<NpyFile>(filename, types);
 }
 
 template <typename TO, typename FROM>
@@ -629,7 +629,7 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
-	writeEventMetaData(ev.get(), rec->metaDataFile);
+	writeEventMetaData(ev.get(), rec->metaDataFile.get());
 	increaseEventCounts(rec);
 	
 }
@@ -670,7 +670,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	uint16 sortedID = spike->getSortedID();
 	rec->extraFile->writeData(&sortedID, sizeof(uint16));
-	writeEventMetaData(spike, rec->metaDataFile);
+	writeEventMetaData(spike, rec->metaDataFile.get());
 
 	increaseEventCounts(rec);
 	
@@ -680,7 +680,7 @@ void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, 
 {
 	if (!m_syncTextFile)
 		return;
-	m_syncTextFile->writeText(text + "\n", false, false);
+	m_syncTextFile->writeText(text + "\n", false, false, nullptr);
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()

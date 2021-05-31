@@ -58,8 +58,8 @@ GenericProcessor::~GenericProcessor()
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
-	editor = new GenericEditor(this, true);
-	return editor;
+	editor = std::make_unique<GenericEditor>(this, true);
+	return editor.get();
 }
 
 
@@ -1128,7 +1128,7 @@ GenericProcessor* GenericProcessor::getDestNode()   const { return destNode; }
 
 int GenericProcessor::getNumSubProcessors() const { return 1; }
 
-GenericEditor* GenericProcessor::getEditor() const { return editor; }
+GenericEditor* GenericProcessor::getEditor() const { return editor.get(); }
 
 AudioSampleBuffer* GenericProcessor::getContinuousBuffer() const { return 0; }
 MidiBuffer* GenericProcessor::getEventBuffer() const             { return 0; }

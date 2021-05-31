@@ -110,7 +110,7 @@ public:
 
     /** Called by JUCE as soon as a processor is created, as well as before the start of audio callbacks.
         To avoid starting data acquisition prematurely, use the enable() function instead. */
-    virtual void prepareToPlay (double sampleRate, int estimatedSamplesPerBlock) override;
+    virtual void prepareToPlay (double sampleRate, int maximumExpectedSamplesPerBlock) override;
 
     /** Called by JUCE as soon as audio callbacks end. Use disable() instead. */
     void releaseResources() override;
@@ -401,7 +401,7 @@ public:
     virtual GenericEditor* getEditor() const;
 
     /** Pointer to the processor's editor. */
-    ScopedPointer<GenericEditor> editor;
+    std::unique_ptr<GenericEditor> editor;
 
     /** Returns total number of channels */
     int getTotalNumberOfChannels() const;

@@ -58,7 +58,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
         switch (param.type)
         {
             case EngineParameter::BOOL:
-                lab->setText(String(param.boolParam.value),dontSendNotification);
+                lab->setText(String(int(param.boolParam.value)),dontSendNotification);
                 lab->setBounds(120,0,50,20);
                 break;
             case EngineParameter::INT:

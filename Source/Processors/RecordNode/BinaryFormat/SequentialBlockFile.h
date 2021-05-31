@@ -16,7 +16,7 @@ public:
 	bool writeChannel(uint64 startPos, int channel, int16* data, int nSamples);
 
 private:
-	ScopedPointer<FileOutputStream> m_file;
+	std::unique_ptr<FileOutputStream> m_file;
 	const int m_nChannels;
 	const int m_samplesPerBlock;
 	const int m_blockSize;

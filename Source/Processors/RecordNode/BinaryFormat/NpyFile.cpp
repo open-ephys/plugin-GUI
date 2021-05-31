@@ -138,7 +138,7 @@ void NpyFile::writeHeader(const Array<NpyType>& typeList)
 
     for (int i = 0; i < nTypes; i++)
     {
-        NpyType& type = typeList.getReference(i);
+       const NpyType& type = typeList.getReference(i);
         if (i > 0) strHeader += ", ";
         if (multiValue)
             strHeader += "('" + type.getName() + "', '" + type.getTypeString()

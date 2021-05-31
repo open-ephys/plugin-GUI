@@ -102,7 +102,7 @@ void PluginInstaller::createXmlFile()
     if (!pluginsDir.isDirectory())
         pluginsDir.createDirectory();
     
-    juce::String xmlFile = "plugins" + File::separatorString + "installedPlugins.xml";
+    juce::String xmlFile = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
 	File file = CoreServices::getSavedStateDirectory().getChildFile(xmlFile);
 
 	XmlDocument doc(file);
@@ -122,7 +122,7 @@ void PluginInstaller::createXmlFile()
 	}
 	else
 	{
-		juce::String baseStr = "plugins" + File::separatorString;
+		juce::String baseStr = "plugins" + File::getSeparatorString();
 
 		auto child = xml->getFirstChildElement();
 		Array<XmlElement*> elementsToRemove;
@@ -288,7 +288,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 void PluginInstallerComponent::run()
 {
-	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
 	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
@@ -618,7 +618,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	}
 
 	// If the plugin is already installed, get installed version number
-	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
 	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
@@ -1057,7 +1057,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	StringPairArray responseHeaders;
 
 	//Create input stream from the plugin's zip file URL
-	ScopedPointer<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, juce::String(), 1000, &responseHeaders, &statusC, 5, juce::String());		
+	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, juce::String(), 1000, &responseHeaders, &statusC, 5, juce::String());		
 	juce::String newLocation = responseHeaders.getValue("Location", "NULL");
 
 	// ZIP URL Location changed, use the new location
@@ -1076,7 +1076,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 
 	//Construct path for downloaded zip file
 	juce::String pluginFilePath = pluginsPath.getFullPathName();
-	pluginFilePath += File::separatorString;
+	pluginFilePath += File::getSeparatorString();
 	pluginFilePath += filename;
 
 	//Create local file
@@ -1084,10 +1084,9 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	pluginFile.deleteFile();
 
 	//Use the Url's input stream and write it to a file using output stream
-	FileOutputStream* out = pluginFile.createOutputStream();
+	std::unique_ptr<FileOutputStream> out = pluginFile.createOutputStream();
 	out->writeFromInputStream(*fileStream, -1);
 	out->flush();
-	delete out;
 
 	//Uncompress zip file contents
 	ZipFile pluginZip(pluginFile);
@@ -1100,7 +1099,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 #endif
 
 	// Open installedPluings.xml file
-	juce::String fileStr = "plugins" + File::separatorString + "installedPlugins.xml";
+	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
 	File xmlFile = pluginsPath.getChildFile(fileStr);
 
 	XmlDocument doc(xmlFile);
@@ -1114,7 +1113,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		// set version and dllName attributes of the plugins
 		pluginEntry->setAttribute("version", version);
 		juce::String dllName = entry->filename;
-		dllName = dllName.substring(dllName.indexOf(File::separatorString) + 1);
+		dllName = dllName.substring(dllName.indexOf(File::getSeparatorString()) + 1);
 		pluginEntry->setAttribute("dllName", dllName);
 
 		if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
@@ -1223,7 +1222,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 			return 5;
 		}
 		
-		juce::String libName = pluginsPath.getFullPathName() + File::separatorString + entry->filename;
+		juce::String libName = pluginsPath.getFullPathName() + File::getSeparatorString() + entry->filename;
 
 		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
 

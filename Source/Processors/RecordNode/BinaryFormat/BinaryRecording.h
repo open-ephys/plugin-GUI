@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <iomanip>
+#include <memory>
 
 #include "../../../Utils/Utils.h"
 #include "../RecordEngine.h"
@@ -35,14 +36,14 @@ private:
     class EventRecording
     {
     public:
-        ScopedPointer<NpyFile> mainFile;
-        ScopedPointer<NpyFile> timestampFile;
-        ScopedPointer<NpyFile> metaDataFile;
-        ScopedPointer<NpyFile> channelFile;
-        ScopedPointer<NpyFile> extraFile;
+		std::unique_ptr<NpyFile> mainFile;
+		std::unique_ptr<NpyFile> timestampFile;
+		std::unique_ptr<NpyFile> metaDataFile;
+		std::unique_ptr<NpyFile> channelFile;
+		std::unique_ptr<NpyFile> extraFile;
     };
 
-    NpyFile* createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
+    std::unique_ptr<NpyFile> createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
 	void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
     void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
     void increaseEventCounts(EventRecording* rec);
@@ -67,7 +68,7 @@ private:
 	
 	OwnedArray<NpyFile> m_dataTimestampFiles;
 	OwnedArray<NpyFile> m_dataFloatTimestampFiles;
-	ScopedPointer<FileOutputStream> m_syncTextFile;
+	std::unique_ptr<FileOutputStream> m_syncTextFile;
 
 	Array<unsigned int> m_spikeFileIndexes;
     Array<uint16> m_spikeChannelIndexes;

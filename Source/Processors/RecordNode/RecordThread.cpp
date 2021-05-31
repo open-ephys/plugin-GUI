@@ -210,7 +210,7 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		if (spikes[sp] != NULL)
+		if (spikes[sp] != nullptr)
 		{
 			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
 		}
@@ -279,7 +279,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
-		if (spikes[sp] != NULL)
+		if (spikes[sp] != nullptr)
 		{
 			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
 		}

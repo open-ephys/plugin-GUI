@@ -46,11 +46,11 @@ Merger::~Merger()
 
 AudioProcessorEditor* Merger::createEditor()
 {
-    editor = new MergerEditor(this, true);
+    editor = std::make_unique<MergerEditor>(this, true);
     //tEditor(editor);
 
     LOGDD("Creating editor.");
-    return editor;
+    return editor.get();
 }
 
 void Merger::setMergerSourceNode(GenericProcessor* sn)

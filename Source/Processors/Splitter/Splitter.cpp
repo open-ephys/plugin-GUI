@@ -41,11 +41,11 @@ Splitter::~Splitter()
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-    editor = new SplitterEditor(this, true);
+    editor = std::make_unique<SplitterEditor>(this, true);
     //tEditor(editor);
 
     LOGDD("Creating editor.");
-    return editor;
+    return editor.get();
 }
 
 void Splitter::setPathToProcessor(GenericProcessor* p)

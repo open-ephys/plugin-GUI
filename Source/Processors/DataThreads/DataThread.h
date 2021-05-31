@@ -133,7 +133,7 @@ public:
     void getChannelInfo (Array<ChannelCustomInfo>& infoArray) const;
 
     /** Create the DataThread custom editor, if any*/
-    virtual GenericEditor* createEditor (SourceNode* sn);
+    virtual std::unique_ptr<GenericEditor> createEditor (SourceNode* sn);
 
 	void createTTLChannels();
 

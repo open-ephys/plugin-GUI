@@ -133,7 +133,7 @@ void DataThread::setDefaultChannelNames()
 {
 }
 
-GenericEditor* DataThread::createEditor (SourceNode*)
+std::unique_ptr<GenericEditor> DataThread::createEditor (SourceNode*)
 {
     return nullptr;
 }

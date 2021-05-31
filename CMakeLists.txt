@@ -119,6 +119,8 @@ if(MSVC)
 	add_custom_command(TARGET open-ephys POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
 		)
+
+	add_compile_options("/bigobj")
 elseif(LINUX)
 	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 

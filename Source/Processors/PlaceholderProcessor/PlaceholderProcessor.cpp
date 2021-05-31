@@ -49,8 +49,8 @@ bool PlaceholderProcessor::hasEditor() const
 
 AudioProcessorEditor* PlaceholderProcessor::createEditor()
 {
-    editor = new PlaceholderProcessorEditor (this, m_processorName, m_libName, m_libVersion);
-    return editor;
+    editor = std::make_unique<PlaceholderProcessorEditor> (this, m_processorName, m_libName, m_libVersion);
+    return editor.get();
 }
 
 

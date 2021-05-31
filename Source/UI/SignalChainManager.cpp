@@ -75,13 +75,13 @@ LOGDD("Scrolling down.");
 
 void SignalChainManager::clearSignalChain()
 {
-    editorArray.clear();
+  /*  editorArray.clear();
 
     while (signalChainArray.size() > 0)
     {
-        SignalChainTabButton* t = signalChainArray.remove(signalChainArray.size()-1);
+        //SignalChainTabButton* t = signalChainArray.remove(signalChainArray.size()-1);
         deleteAndZero(t);
-    }
+    }*/
 
 }
 
@@ -93,15 +93,15 @@ void SignalChainManager::createNewTab(GenericEditor* editor)
 void SignalChainManager::removeTab(int tabIndex)
 {
 
-    SignalChainTabButton* t = signalChainArray.remove(tabIndex);
-    deleteAndZero(t);
+   /*// SignalChainTabButton* t = signalChainArray.remove(tabIndex);
+   // deleteAndZero(t);
 
     if (signalChainArray.size()-topTab < 4)
     {
         scrollUp();
     }
 
-    refreshTabs();
+    refreshTabs();*/
 
 }
 

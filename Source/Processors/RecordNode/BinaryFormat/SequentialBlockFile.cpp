@@ -68,7 +68,7 @@ bool SequentialBlockFile::openFile(String filename)
 	}
 
 	LOGDD("Added new FileBlock");
-	m_memBlocks.add(new FileBlock(m_file, m_blockSize, 0));
+	m_memBlocks.add(std::make_unique<FileBlock>(m_file, m_blockSize, 0));
 	return true;
 }
 
@@ -163,7 +163,7 @@ void SequentialBlockFile::allocateBlocks(uint64 startIndex, int numSamples)
 	for (int i = 0; i < newBlocks; i++)
 	{
 		lastOffset += m_samplesPerBlock;
-		m_memBlocks.add(new FileBlock(m_file, m_blockSize, lastOffset));
+		m_memBlocks.add(std::make_unique<FileBlock>(m_file, m_blockSize, lastOffset));
 	}
 	if (newBlocks > 0)
 		m_lastBlockFill = 0; //we've added some new blocks, so the last one will be empty
