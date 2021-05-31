@@ -73,7 +73,7 @@ public:
                          GenericProcessor* sourceNode = nullptr,
                          GenericProcessor* destNode = nullptr,
                          bool signalChainIsLoading=false);
-    GenericProcessor* createProcessorFromDescription(ProcessorDescription& description);
+    std::unique_ptr<GenericProcessor> createProcessorFromDescription(ProcessorDescription& description);
     
     bool checkForNewRootNodes(GenericProcessor* processor,
                               bool processorBeingAdded = true,

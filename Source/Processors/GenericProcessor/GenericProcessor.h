@@ -232,7 +232,7 @@ public:
         automatically calls process() in order to add the 'nSamples' variable to indicate
         the number of samples in the current buffer.
     */
-    virtual void process (AudioSampleBuffer& continuousBuffer) = 0;
+    virtual void process (AudioBuffer<float>& continuousBuffer) = 0;
 
     /** Pointer to a processor's immediate source node.*/
     GenericProcessor* sourceNode;
@@ -381,7 +381,7 @@ public:
     bool wasConnected;
 
     /** Returns a pointer to the processor's internal continuous buffer, if it exists. */
-    virtual AudioSampleBuffer* getContinuousBuffer() const;
+    virtual AudioBuffer<float>* getContinuousBuffer() const;
 
     /** Returns a pointer to the processor's internal event buffer, if it exists. */
     virtual MidiBuffer* getEventBuffer() const;
@@ -619,7 +619,7 @@ private:
 
     /** Automatically extracts the number of samples in the buffer, then
     calls the process(), where custom actions take place.*/
-    virtual void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    virtual void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
 
     /** Extracts sample counts and timestamps from the MidiBuffer. */
     int processEventBuffer ();

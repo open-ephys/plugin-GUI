@@ -109,7 +109,7 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
 int DataBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
 
 
-int DataBuffer::readAllFromBuffer (AudioSampleBuffer& data, uint64* timestamp, uint64* eventCodes, int maxSize, int dstStartChannel, int numChannels)
+int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data, uint64* timestamp, uint64* eventCodes, int maxSize, int dstStartChannel, int numChannels)
 {
     // check to see if the maximum size is smaller than the total number of available ints
 

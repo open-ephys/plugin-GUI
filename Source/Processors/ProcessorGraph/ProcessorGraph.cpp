@@ -62,25 +62,19 @@ void ProcessorGraph::createDefaultNodes()
 {
 
     // add output node -- sends output to the audio card
-    auto on =
-        std::make_unique<AudioProcessorGraph::AudioGraphIOProcessor>(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
-
-    // add record node -- sends output to disk
-    //RecordNode* recn = new RecordNode();
-    //recn->setNodeId(RECORD_NODE_ID);
+    auto outputNode = new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
 
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
-    auto an = std::make_unique<AudioNode>();
-    an->setNodeId(AUDIO_NODE_ID);
+    auto audioNode = new AudioNode();
+    audioNode->setNodeId(AUDIO_NODE_ID);
 
     // add message center
-    auto msgCenter = std::make_unique<MessageCenter>();
+    auto msgCenter = new MessageCenter();
     msgCenter->setNodeId(MESSAGE_CENTER_ID);
 
-    addNode(std::move(on), NodeID(OUTPUT_NODE_ID));
-    //addNode(recn, RECORD_NODE_ID);
-    addNode(std::move(an), NodeID(AUDIO_NODE_ID));
-    addNode(std::move(msgCenter), NodeID(MESSAGE_CENTER_ID));
+    addNode(std::unique_ptr< AudioProcessorGraph::AudioGraphIOProcessor>(outputNode), NodeID(OUTPUT_NODE_ID));
+    addNode(std::unique_ptr<AudioNode>(audioNode), NodeID(AUDIO_NODE_ID));
+    addNode(std::unique_ptr<MessageCenter>(msgCenter), NodeID(MESSAGE_CENTER_ID));
 
 }
 
@@ -158,7 +152,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                                       GenericProcessor* destNode,
                                       bool signalChainIsLoading)
 {
-	GenericProcessor* processor = nullptr;
+	std::unique_ptr<GenericProcessor> processor = nullptr;
     
     LOGD("Creating processor with name: ", description.processorName);
     
@@ -194,7 +188,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 
          // identifier within processor graph
         processor->setNodeId(id);
-        addNode(std::make_unique<GenericProcessor>(processor), NodeID(id)); // have to add it so it can be deleted by the graph
+        addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
         GenericEditor* editor = (GenericEditor*) processor->createEditor();
 
         editor->refreshColors();
@@ -209,7 +203,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 processor->setSourceNode(nullptr);
                 sourceNode->setDestNode(nullptr);
                 if (destNode != nullptr)
-                    destNode->setSourceNode(processor);
+                    destNode->setSourceNode(processor.get());
             }
             
             if (sourceNode == nullptr && destNode != nullptr)
@@ -219,7 +213,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 {
                     // if it's not a source, connect them
                     processor->setDestNode(destNode);
-                    destNode->setSourceNode(processor);
+                    destNode->setSourceNode(processor.get());
                 }
                 else
                 {
@@ -231,10 +225,10 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 			if (processor->isGeneratesTimestamps())
 			{ // If there are no source processors and we add one,
               //  set it as default for global timestamps and sample rates
-				m_validTimestampSources.add(processor);
+				m_validTimestampSources.add(processor.get());
 				if (m_timestampSource == nullptr)
 				{
-					m_timestampSource = processor;
+					m_timestampSource = processor.get();
 					m_timestampSourceSubIdx = 0;
 				}
 				if (m_timestampWindow)
@@ -247,7 +241,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             {
                 // if there's a source available, connect them
                 processor->setSourceNode(sourceNode);
-                sourceNode->setDestNode(processor);
+                sourceNode->setDestNode(processor.get());
             }
                 
             if (destNode != nullptr)
@@ -258,9 +252,9 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                     processor->setDestNode(destNode);
                     
                     if (!destNode->isMerger())
-                        destNode->setSourceNode(processor);
+                        destNode->setSourceNode(processor.get());
                     else
-                        destNode->setMergerSourceNode(processor);
+                        destNode->setMergerSourceNode(processor.get());
                     
                 } else {
                     // if there's a source downstream, start a new signalchain
@@ -269,9 +263,9 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             }
         }
         
-        if (!checkForNewRootNodes(processor))
+        if (!checkForNewRootNodes(processor.get()))
         {
-            removeProcessor(processor);
+            removeProcessor(processor.get());
             updateViews(rootNodes.getLast());
             return nullptr;
         }
@@ -286,12 +280,12 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
     
     if (!signalChainIsLoading)
     {
-        updateSettings(processor);
+        updateSettings(processor.get());
     } else {
-        updateViews(processor);
+        updateViews(processor.get());
     }
     
-    return processor;
+    return processor.get();
 }
 
 bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
@@ -1155,9 +1149,9 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 }
 
 
-GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescription& description)
+std::unique_ptr<GenericProcessor> ProcessorGraph::createProcessorFromDescription(ProcessorDescription& description)
 {
-	GenericProcessor* processor = nullptr;
+	std::unique_ptr<GenericProcessor> processor = nullptr;
 
 	if (description.fromProcessorList)
 	{
@@ -1166,22 +1160,22 @@ GenericProcessor* ProcessorGraph::createProcessorFromDescription(ProcessorDescri
         LOGD(description.libName, "::", description.processorName, " (", \
             description.processorType, "-", description.processorIndex,")");
 
-		processor = ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
-                                                      description.processorIndex);
+		processor = std::move(ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
+                                                      description.processorIndex));
 	}
 	else
 	{
         LOGD("Creating from plugin info...");
         LOGD(description.libName, "(", description.libVersion, ")::", description.processorName);
 
-		processor = ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
+		processor = std::move(ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
                                                                     description.processorType,
                                                                     description.processorIndex,
                                                                     description.processorName,
                                                                     description.libName,
                                                                     description.libVersion,
                                                                     description.isSource,
-                                                                    description.isSink);
+                                                                    description.isSink));
 	}
 
 	String msg = "New " + description.processorName + " created";

@@ -74,7 +74,7 @@ namespace ProcessorManager
 	}
 
 	/** Built-in constructors **/
-	GenericProcessor* createBuiltInProcessor(int index)
+	std::unique_ptr<GenericProcessor> createBuiltInProcessor(int index)
 	{
 		GenericProcessor* proc;
 		switch (index)
@@ -98,7 +98,7 @@ namespace ProcessorManager
 			return nullptr;
 		}
 		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, index);
-		return proc;
+		return std::unique_ptr<GenericProcessor>(proc);
 	}
 
 	int getNumProcessors(ProcessorClasses pClass)
@@ -147,7 +147,7 @@ namespace ProcessorManager
 		}
 	}
 
-	GenericProcessor* createProcessor(ProcessorClasses pClass, int index)
+	std::unique_ptr<GenericProcessor> createProcessor(ProcessorClasses pClass, int index)
 	{
 		switch (pClass)
 		{
@@ -159,7 +159,7 @@ namespace ProcessorManager
 				Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
 				GenericProcessor* proc = info.creator();
 				proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, index);
-				return proc;
+				return std::unique_ptr<GenericProcessor>(proc);
 				break;
 			}
 		case DataThreadProcessor:
@@ -167,7 +167,7 @@ namespace ProcessorManager
 			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
 			GenericProcessor* proc = new SourceNode(info.name, info.creator);
 			proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, index);
-			return proc;
+			return std::unique_ptr<GenericProcessor>(proc);
 			break;
 		}
 				
@@ -176,7 +176,7 @@ namespace ProcessorManager
 		}
 	}
 
-	GenericProcessor* createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source, bool sink)
+	std::unique_ptr<GenericProcessor> createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source, bool sink)
 	{
 		PluginManager* pm = AccessClass::getPluginManager();
 		GenericProcessor* proc = nullptr;
@@ -198,7 +198,7 @@ namespace ProcessorManager
 						{
 							proc = info.creator();
 							proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, i);
-							return proc;
+							return std::unique_ptr<GenericProcessor>(proc);
 						}
 					}
 				}
@@ -215,7 +215,7 @@ namespace ProcessorManager
 						{
 							proc = new SourceNode(info.name, info.creator);
 							proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
-							return proc;
+							return std::unique_ptr<GenericProcessor>(proc);
 						}
 					}
 				}
@@ -223,6 +223,6 @@ namespace ProcessorManager
 		}		
 		proc = new PlaceholderProcessor(procName, libName, libVersion, source, sink);
 		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, -1);
-		return proc;
+		return std::unique_ptr<GenericProcessor>(proc);
 	}
 };

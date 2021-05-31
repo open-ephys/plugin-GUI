@@ -553,12 +553,11 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		
 		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents,syncChannel,node->isMasterSubprocessor(srcIndex, subProcIdx));
 
-		//std::unique_ptr<Component> c = std::make_unique(channelSelector);
+		CallOutBox& myBox
+			= CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
 
-		//CallOutBox& myBox
-		//	= CallOutBox::launchAsynchronously (c, getScreenBounds(), nullptr);
+		myBox.addComponentListener(this);
 
-		//myBox.addComponentListener(this);
 		return;
 
 	}
@@ -692,10 +691,10 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new RecordChannelSelector(channelStates, editable);
  
-    //CallOutBox& myBox
-    //    = CallOutBox::launchAsynchronously (channelSelector, getScreenBounds(), nullptr);
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
 
-	//myBox.addComponentListener(this);
+	myBox.addComponentListener(this);
 
 }
 void FifoMonitor::componentBeingDeleted(Component &component)

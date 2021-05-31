@@ -88,7 +88,7 @@ public:
 
     /** Handle incoming data and decide which channels to monitor
     */
-    void process(AudioSampleBuffer& buffer) override;
+    void process(AudioBuffer<float>& buffer) override;
 
     /** Used to change audio monitoring parameters (such as channels to monitor and volume) while acquisition is active.
     */

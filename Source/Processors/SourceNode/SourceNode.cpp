@@ -386,7 +386,7 @@ int SourceNode::getNumSubProcessors() const
 	return dataThread->getNumSubProcessors();
 }
 
-void SourceNode::process(AudioSampleBuffer& buffer)
+void SourceNode::process(AudioBuffer<float>& buffer)
 {
 	int nSubs = dataThread->getNumSubProcessors();
 	int copiedChannels = 0;

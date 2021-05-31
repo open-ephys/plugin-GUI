@@ -58,8 +58,8 @@ public:
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
 
-    /** Copies as many samples as possible from the DataBuffer to an AudioSampleBuffer.*/
-    int readAllFromBuffer (AudioSampleBuffer& data, uint64* ts, uint64* eventCodes, int maxSize, int dstStartChannel = 0, int numChannels = -1);
+    /** Copies as many samples as possible from the DataBuffer to an AudioBuffer.*/
+    int readAllFromBuffer (AudioBuffer<float>& data, uint64* ts, uint64* eventCodes, int maxSize, int dstStartChannel = 0, int numChannels = -1);
 
     /** Resizes the data buffer */
     void resize (int chans, int size);
@@ -67,7 +67,7 @@ public:
 
 private:
     AbstractFifo abstractFifo;
-    AudioSampleBuffer buffer;
+    AudioBuffer<float> buffer;
 
     HeapBlock<int64> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;

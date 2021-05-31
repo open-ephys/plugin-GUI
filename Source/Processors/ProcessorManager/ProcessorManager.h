@@ -37,8 +37,8 @@ namespace ProcessorManager
 {
 	int getNumProcessors(ProcessorClasses pClass);
 	void getProcessorNameAndType(ProcessorClasses pClass, int index, String& name, int& type);
-	GenericProcessor* createProcessor(ProcessorClasses pClass, int index);
-	GenericProcessor* createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source = false, bool sink = false);
+	std::unique_ptr<GenericProcessor> createProcessor(ProcessorClasses pClass, int index);
+	std::unique_ptr<GenericProcessor> createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source = false, bool sink = false);
 };
 
 

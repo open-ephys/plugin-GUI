@@ -98,7 +98,7 @@ public:
 
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 
-	void process(AudioSampleBuffer& buffer) override;
+	void process(AudioBuffer<float>& buffer) override;
 
 	void stopRecording() override;
 

@@ -28,7 +28,7 @@
 AudioResamplingNode::AudioResamplingNode()
     : GenericProcessor("Resampling Node"),
       sourceBufferSampleRate(40000.0), destBufferSampleRate(44100.0),
-      ratio(1.0), lastRatio(1.0), destBuffer(0), tempBuffer(0),
+      ratio(1.0), lastRatio(1.0),
       destBufferIsTempBuffer(true), isTransmitting(false), destBufferPos(0)
 {
 
@@ -40,8 +40,7 @@ AudioResamplingNode::AudioResamplingNode()
                          44100.0, // sampleRate
                          128);    // blockSize
 
-    filter = new Dsp::SmoothedFilterDesign
-    <Dsp::RBJ::Design::LowPass, 1> (1024);
+    filter = std::make_unique<Dsp::SmoothedFilterDesign <Dsp::RBJ::Design::LowPass, 1>>(1024);
 
     if (destBufferIsTempBuffer)
         destBufferWidth = 1024;
@@ -50,8 +49,8 @@ AudioResamplingNode::AudioResamplingNode()
 
     destBufferTimebaseSecs = 1.0;
 
-    destBuffer = new AudioSampleBuffer(16, destBufferWidth);
-    tempBuffer = new AudioSampleBuffer(16, destBufferWidth);
+    destBuffer = std::make_unique<AudioBuffer<float>>(16, destBufferWidth);
+    tempBuffer = std::make_unique<AudioBuffer<float>>(16, destBufferWidth);
 
     continuousDataBuffer = new int16[10000];
 
@@ -60,9 +59,6 @@ AudioResamplingNode::AudioResamplingNode()
 AudioResamplingNode::~AudioResamplingNode()
 {
     delete[] continuousDataBuffer;
-    deleteAndZero(tempBuffer);
-    deleteAndZero(destBuffer);
-    delete filter;
 }
 
 

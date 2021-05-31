@@ -4,7 +4,7 @@ template <class StorageType = int16>
 class FileMemoryBlock
 {
 public:
-	FileMemoryBlock(FileOutputStream* file, int blockSize, uint64 offset) :
+	FileMemoryBlock(std::shared_ptr<FileOutputStream> file, int blockSize, uint64 offset) :
 		m_data(blockSize, true),
 		m_file(file),
 		m_blockSize(blockSize),
@@ -28,7 +28,7 @@ public:
 
 private:
 	HeapBlock<StorageType> m_data;
-	FileOutputStream* const m_file;
+	std::shared_ptr<FileOutputStream> m_file;
 	const int m_blockSize;
 	const uint64 m_offset;
     size_t m_finalFlushSamples;

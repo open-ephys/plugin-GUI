@@ -51,20 +51,20 @@ public:
     AudioResamplingNode();
     ~AudioResamplingNode();
 
-    AudioSampleBuffer* getBufferAddress()
+    AudioBuffer<float>* getBufferAddress()
     {
-        return destBuffer;
+        return destBuffer.get();
     }
     void updateFilter();
 
     void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
     void releaseResources();
-    void process(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void process(AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
     void setParameter(int parameterIndex, float newValue);
 
-    AudioSampleBuffer* getContinuousBuffer()
+    AudioBuffer<float>* getContinuousBuffer()
     {
-        return destBuffer;
+        return destBuffer.get();
     }
 
 
@@ -77,9 +77,9 @@ private:
     int destBufferWidth;
 
     // major objects:
-    Dsp::Filter* filter;
-    AudioSampleBuffer* destBuffer;
-    AudioSampleBuffer* tempBuffer;
+    std::unique_ptr<Dsp::Filter> filter;
+    std::unique_ptr<AudioBuffer<float>> destBuffer;
+    std::unique_ptr<AudioBuffer<float>> tempBuffer;
 
     // is the destBuffer a temp buffer or not?
     bool destBufferIsTempBuffer;

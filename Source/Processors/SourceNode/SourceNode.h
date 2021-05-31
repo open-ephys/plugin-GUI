@@ -50,7 +50,7 @@ public:
 
     void setEnabledState (bool newState) override;
 
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 

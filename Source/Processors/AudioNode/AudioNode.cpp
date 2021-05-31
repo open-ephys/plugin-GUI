@@ -37,7 +37,7 @@ AudioNode::AudioNode()
     //nextAvailableChannel = 2; // keep first two channels empty
     resetConnections();
 
-    tempBuffer = new AudioSampleBuffer(16, 1024);
+    tempBuffer = new AudioBuffer<float>(16, 1024);
 
 }
 
@@ -208,8 +208,8 @@ void AudioNode::recreateBuffers()
         ratio.add(float(numSamplesExpected[i])/float(estimatedSamples));
         updateFilter(i);
 
-        bufferA.add(new AudioSampleBuffer(1,10000));
-        bufferB.add(new AudioSampleBuffer(1,10000));
+        bufferA.add(new AudioBuffer<float>(1,10000));
+        bufferB.add(new AudioBuffer<float>(1,10000));
         bufferSwap.add(false);
 
     }
@@ -242,7 +242,7 @@ void AudioNode::updateFilter(int i)
 
 }
 
-void AudioNode::process(AudioSampleBuffer& buffer)
+void AudioNode::process(AudioBuffer<float>& buffer)
 {
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
@@ -256,8 +256,8 @@ void AudioNode::process(AudioSampleBuffer& buffer)
     if (1)
     {
 
-        AudioSampleBuffer* overflowBuffer;
-        AudioSampleBuffer* backupBuffer;
+        AudioBuffer<float>* overflowBuffer;
+        AudioBuffer<float>* backupBuffer;
 
         int nInputs = dataChannelArray.size();
         if (nInputs > 0) // we have some channels

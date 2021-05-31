@@ -755,7 +755,7 @@ void GenericProcessor::addSpike(const SpikeChannel* channel, const SpikeEvent* e
 }
 
 
-void GenericProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuffer& eventBuffer)
+void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& eventBuffer)
 {
 	m_currentMidiBuffer = &eventBuffer;
 	processEventBuffer(); // extract buffer sizes and timestamps,
@@ -1130,7 +1130,7 @@ int GenericProcessor::getNumSubProcessors() const { return 1; }
 
 GenericEditor* GenericProcessor::getEditor() const { return editor.get(); }
 
-AudioSampleBuffer* GenericProcessor::getContinuousBuffer() const { return 0; }
+AudioBuffer<float>* GenericProcessor::getContinuousBuffer() const { return 0; }
 MidiBuffer* GenericProcessor::getEventBuffer() const             { return 0; }
 
 void GenericProcessor::switchIO(int)   { }

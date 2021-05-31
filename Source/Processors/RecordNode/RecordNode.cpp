@@ -782,7 +782,7 @@ void RecordNode::handleTimestampSyncTexts(const MidiMessage& event)
 	handleEvent(nullptr, event, 0);
 }
 	
-void RecordNode::process(AudioSampleBuffer& buffer)
+void RecordNode::process(AudioBuffer<float>& buffer)
 
 {
 
