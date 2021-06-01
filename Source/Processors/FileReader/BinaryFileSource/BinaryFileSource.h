@@ -27,10 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../FileSource.h"
 #include "../../../Utils/Utils.h"
 
-// Continuous data has no data header in BinaryFormat
-#define EVENT_HEADER_SIZE_IN_BYTES 128
-#define BYTES_PER_EVENT 2
-
 namespace BinarySource
 {
 	class BinaryFileSource : public FileSource
@@ -61,6 +57,9 @@ namespace BinarySource
 
 		File m_rootPath;
 		int64 m_samplePos;
+
+		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 128;
+		const unsigned int BYTES_PER_EVENT = 2;
 
 		bool hasEventData;
 		

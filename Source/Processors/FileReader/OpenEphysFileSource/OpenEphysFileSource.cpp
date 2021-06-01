@@ -95,6 +95,8 @@ bool OpenEphysFileSource::Open(File file)
 
 	m_rootPath = file.getParentDirectory();
 
+	loadEventData();
+
 	return true;
 }
 
@@ -132,6 +134,103 @@ void OpenEphysFileSource::fillRecordInfo()
 		}
 	}
 
+}
+
+void OpenEphysFileSource::loadEventData()
+{
+
+	File eventsFile = m_rootPath.getChildFile("all_channels.events");
+	int eventsFileSize = eventsFile.getSize(); 
+
+	if (eventsFileSize > 1024)
+	{
+		//Load event data
+		std::unique_ptr<MemoryMappedFile> eventFileMap(new MemoryMappedFile(eventsFile, MemoryMappedFile::readOnly)); 
+		int nEvents = (eventsFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT;
+
+		LOGD("Found ", nEvents, " events.");
+
+		EventInfo eventInfo;
+
+		for (int i = 0; i < nEvents; i++)
+		{
+			int64* timestamp = static_cast<int64*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES / 8 + i*sizeof(int64) / 4;
+			uint8* eventType = static_cast<uint8*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES + i*BYTES_PER_EVENT + 10; 
+			uint8* sourceID = static_cast<uint8*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES + i*BYTES_PER_EVENT + 11;
+			uint8* channelState = static_cast<uint8*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES + i*BYTES_PER_EVENT + 12;
+			uint8* channel = static_cast<uint8*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES + i*BYTES_PER_EVENT + 13;
+			uint8* recordingNum = static_cast<uint8*>(eventFileMap->getData()) + EVENT_HEADER_SIZE_IN_BYTES + i*BYTES_PER_EVENT + 14;
+		}
+
+		eventInfoArray.add(eventInfo);
+
+	}
+	//Check if .events file has any data in it other than the header file
+	//File eventsFile = m
+
+	/*
+	if (hasEventData)
+	{
+
+		var eventData = m_jsonData["events"];
+		
+		//create identifiers to speed up stuff
+		Identifier idFolder("folder_name");
+		Identifier idChannelName("channel_name");
+		Identifier idDescription("description");
+		Identifier idIdentifier("identifier");
+		Identifier idSampleRate("sample_rate");
+		Identifier idType("type");
+		Identifier idNumChannels("num_channels");
+		Identifier idChannels("channels");
+		Identifier idSourceProcessor("source_processor");
+
+		int numEventProcessors = eventData.size();
+
+		for (int i = 0; i < numEventProcessors; i++) 
+		{
+
+			var events = eventData[i];
+
+			String folderName = events[idFolder];
+			folderName = folderName.trimCharactersAtEnd("/");
+
+			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
+			std::unique_ptr<MemoryMappedFile> channelFileMap(new MemoryMappedFile(channelFile, MemoryMappedFile::readOnly)); 
+
+			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channel_states.npy");
+			std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly)); 
+
+			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("timestamps.npy");
+			std::unique_ptr<MemoryMappedFile> timestampsFileMap(new MemoryMappedFile(timestampsFile, MemoryMappedFile::readOnly)); 
+
+			int channelFileSize = channelFile.getSize(); 
+
+			int nEvents = (channelFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT; 
+		
+			EventInfo eventInfo;
+
+			for (int i = 0; i < nEvents; i++)
+			{
+				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
+				eventInfo.channels.push_back(*data);
+
+				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
+				eventInfo.channelStates.push_back(*data);
+
+				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
+				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp);
+
+			}
+
+			if (nEvents)
+				eventInfoArray.add(eventInfo);
+
+		}
+		
+	}
+	*/
+	
 }
 
 void OpenEphysFileSource::updateActiveRecord()
@@ -200,7 +299,8 @@ void OpenEphysFileSource::processChannelData(int16* inBuffer, float* outBuffer, 
 	}
 }
 
-void OpenEphysFileSource::processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) { /* TODO */ };
+void OpenEphysFileSource::processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) 
+{ /* TODO */ };
 
 bool OpenEphysFileSource::isReady()
 {

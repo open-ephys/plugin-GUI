@@ -50,6 +50,8 @@ namespace OpenEphysSource
 		void fillRecordInfo() override;
 		void updateActiveRecord() override;
 
+		void loadEventData();
+
 		void readSamples(int16* buffer, int64 samplesToRead);
 
 		struct ChannelInfo
@@ -84,6 +86,9 @@ namespace OpenEphysSource
 
 		int64 blockIdx;
 		int64 samplesLeftInBlock;
+
+		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 1024;
+		const unsigned int BYTES_PER_EVENT = 16;
 		
 	};
 }
