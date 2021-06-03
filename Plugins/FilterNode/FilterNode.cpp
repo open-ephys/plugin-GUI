@@ -59,12 +59,12 @@ FilterNode::~FilterNode()
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-    editor = new FilterEditor (this, true);
+    editor = std::make_unique<FilterEditor> (this, true);
 
     FilterEditor* ed = (FilterEditor*) getEditor();
     ed->setDefaults (defaultLowCut, defaultHighCut);
 
-    return editor;
+    return editor.get();
 }
 
 // ----------------------------------------------------

@@ -123,7 +123,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
     String dirName = executableDirectory;
     libraryFilePath = dirName;
-    libraryFilePath += File::separatorString;
+    libraryFilePath += File::getSeparatorString();
     libraryFilePath += okLIB_NAME;
 
     dacStream = nullptr;
@@ -379,7 +379,7 @@ void RHD2000Thread::initializeBoard()
 #endif
 
     bitfilename = executableDirectory;
-    bitfilename += File::separatorString;
+    bitfilename += File::getSeparatorString();
     bitfilename += evalBoard->isUSB3() ? "rhd2000_usb3.bit" : "rhd2000.bit";
 
     if (!uploadBitfile(bitfilename))

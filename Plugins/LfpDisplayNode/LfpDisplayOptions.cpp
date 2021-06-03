@@ -1569,7 +1569,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             
             // RANGE
             StringArray ranges;
-            ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String::empty);
+            ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String());
             selectedVoltageRangeValues[0] = ranges[0];
             selectedVoltageRangeValues[1] = ranges[1];
             selectedVoltageRangeValues[2] = ranges[2];

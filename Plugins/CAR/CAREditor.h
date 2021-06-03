@@ -27,7 +27,7 @@
 
 #include <EditorHeaders.h>
 #include <UIUtilitiesHeaders.h>
-
+#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 
 class MaterialButtonLookAndFeel;
 class ParameterSlider;

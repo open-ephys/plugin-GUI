@@ -77,8 +77,8 @@ SpikeDetector::~SpikeDetector()
 
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
-    editor = new SpikeDetectorEditor (this, true);
-    return editor;
+    editor = std::make_unique<SpikeDetectorEditor> (this, true);
+    return editor.get();
 }
 
 void SpikeDetector::createSpikeChannels()

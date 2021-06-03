@@ -721,12 +721,12 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 
             juce::StringArray values;
 
-            values.addTokens(xmlNode->getStringAttribute("tripleHorizontalSplitRatio"), ",", String::empty);
+            values.addTokens(xmlNode->getStringAttribute("tripleHorizontalSplitRatio"), ",", String());
             tripleHorizontalSplitRatio.set(0, values[0].getFloatValue());
             tripleHorizontalSplitRatio.set(1, values[1].getFloatValue());
             values.clear();
 
-            values.addTokens(xmlNode->getStringAttribute("tripleVerticalSplitRatio"), ",", String::empty);
+            values.addTokens(xmlNode->getStringAttribute("tripleVerticalSplitRatio"), ",", String());
             tripleVerticalSplitRatio.set(0, values[0].getFloatValue());
             tripleVerticalSplitRatio.set(1, values[1].getFloatValue());
 

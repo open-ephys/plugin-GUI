@@ -45,11 +45,11 @@ PhaseDetector::~PhaseDetector()
 
 AudioProcessorEditor* PhaseDetector::createEditor()
 {
-    editor = new PhaseDetectorEditor (this, true);
+    editor = std::make_unique<PhaseDetectorEditor> (this, true);
 
     //std::cout << "Creating editor." << std::endl;
 
-    return editor;
+    return editor.get();
 }
 
 void PhaseDetector::addModule()

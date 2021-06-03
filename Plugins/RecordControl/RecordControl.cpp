@@ -40,8 +40,8 @@ RecordControl::~RecordControl()
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
-    editor = new RecordControlEditor (this, true);
-    return editor;
+    editor = std::make_unique<RecordControlEditor> (this, true);
+    return editor.get();
 }
 
 

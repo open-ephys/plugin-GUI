@@ -23,7 +23,6 @@
 
 #include "CAREditor.h"
 #include "CAR.h"
-#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 #include "../../Source/Processors/Parameter/ParameterEditor.h"
 
 

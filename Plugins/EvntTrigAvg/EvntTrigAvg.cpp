@@ -281,11 +281,10 @@ void EvntTrigAvg::addNewSortedIdMinMaxMean(int electrode,int sortedId)
     }
 }
 
-//AudioProcessorEditor* EvntTrigAvg::createEditor()
 AudioProcessorEditor* EvntTrigAvg::createEditor()
 {
-    editor = new EvntTrigAvgEditor (this, true);
-    return editor;
+    editor = std::make_unique<EvntTrigAvgEditor> (this, true);
+    return editor.get();
 }
 
 float EvntTrigAvg::getSampleRate()

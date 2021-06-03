@@ -129,7 +129,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
     String dirName = executableDirectory;
     libraryFilePath = dirName;
-    libraryFilePath += File::separatorString;
+    libraryFilePath += File::getSeparatorString();
     libraryFilePath += okLIB_NAME;
 
     dacStream = nullptr;
@@ -376,7 +376,7 @@ void RHD2000Thread::initializeBoard()
 #endif
 
     bitfilename = executableDirectory;
-    bitfilename += File::separatorString;
+    bitfilename += File::getSeparatorString();
 	bitfilename += "intan_rec_controller.bit";
 
     if (!uploadBitfile(bitfilename))

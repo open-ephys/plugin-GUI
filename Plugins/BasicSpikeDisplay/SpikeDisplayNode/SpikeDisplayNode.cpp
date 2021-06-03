@@ -44,8 +44,8 @@ SpikeDisplayNode::~SpikeDisplayNode()
 
 AudioProcessorEditor* SpikeDisplayNode::createEditor()
 {
-    editor = new SpikeDisplayEditor (this);
-    return editor;
+    editor = std::make_unique<SpikeDisplayEditor> (this);
+    return editor.get();
 }
 
 

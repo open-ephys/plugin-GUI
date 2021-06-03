@@ -43,8 +43,8 @@ CAR::~CAR()
 
 AudioProcessorEditor* CAR::createEditor()
 {
-    editor = new CAREditor (this, true);
-    return editor;
+    editor = std::make_unique<CAREditor> (this, true);
+    return editor.get();
 }
 
 

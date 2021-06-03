@@ -49,8 +49,8 @@ ArduinoOutput::~ArduinoOutput()
 
 AudioProcessorEditor* ArduinoOutput::createEditor()
 {
-    editor = new ArduinoOutputEditor (this, true);
-    return editor;
+    editor = std::make_unique<ArduinoOutputEditor>(this, true);
+    return editor.get();
 }
 
 

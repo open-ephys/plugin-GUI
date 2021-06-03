@@ -172,6 +172,6 @@ void SerialInput::process (AudioSampleBuffer&)
 
 AudioProcessorEditor* SerialInput::createEditor()
 {
-    editor = new SerialInputEditor (this);
-    return editor;
+    editor = std::make_unique<SerialInputEditor> (this);
+    return editor.get();
 }

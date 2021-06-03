@@ -52,8 +52,8 @@ LfpDisplayNode::~LfpDisplayNode()
 
 AudioProcessorEditor* LfpDisplayNode::createEditor()
 {
-    editor = new LfpDisplayEditor (this, true);
-    return editor;
+    editor = std::make_unique<LfpDisplayEditor> (this, true);
+    return editor.get();
 }
 
 

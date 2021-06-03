@@ -169,9 +169,9 @@ SpikeSorter::~SpikeSorter()
 
 AudioProcessorEditor* SpikeSorter::createEditor()
 {
-    editor = new SpikeSorterEditor(this, true);
+    editor = std::make_unique<SpikeSorterEditor>(this, true);
 
-    return editor;
+    return editor.get();
 }
 
 void SpikeSorter::updateSettings()

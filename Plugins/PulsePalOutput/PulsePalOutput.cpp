@@ -82,8 +82,8 @@ PulsePalOutput::~PulsePalOutput()
 
 AudioProcessorEditor* PulsePalOutput::createEditor()
 {
-    editor = new PulsePalOutputEditor (this, &pulsePal, true);
-    return editor;
+    editor = std::make_unique<PulsePalOutputEditor> (this, &pulsePal, true);
+    return editor.get();
 }
 
 void PulsePalOutput::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
