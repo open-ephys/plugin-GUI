@@ -754,7 +754,7 @@ void RHD2000Editor::handleAsyncUpdate()
 		CoreServices::RecordNode::createNewrecordingDir();
 
 		String path(CoreServices::RecordNode::getRecordingPath().getFullPathName()
-                    + File::getSeparatorString + "impedance_measurement.xml");
+                    + File::getSeparatorString() + "impedance_measurement.xml");
         std::cout << "Saving impedance measurements in " << path << "\n";
         File file(path);
 

@@ -168,9 +168,9 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     }
 }
 
-GenericEditor* RHD2000Thread::createEditor(SourceNode* sn)
+std::unique_ptr<GenericEditor> RHD2000Thread::createEditor(SourceNode* sn)
 {
-	return new RHD2000Editor(sn, this, true);
+	return std::make_unique<RHD2000Editor>(sn, this, true);
 }
 
 void RHD2000Thread::timerCallback()

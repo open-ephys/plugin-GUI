@@ -147,7 +147,7 @@ namespace RhythmNode
 		void setAdcRange(int adcChannel, short rangeType);
 		short getAdcRange(int adcChannel) const;
 
-		GenericEditor* createEditor(SourceNode* sn);
+		std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
 
 		static DataThread* createDataThread(SourceNode* sn);
 

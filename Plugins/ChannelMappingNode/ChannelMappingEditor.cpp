@@ -976,7 +976,7 @@ String ChannelMappingEditor::writePrbFile(File filename)
 
 	info->setProperty("recording",nestedObj3);
 
-    info->writeAsJSON(outputStream, 2, false);
+    info->writeAsJSON(outputStream, 2, false, 3);
 
     return "Saved " + filename.getFileName();
 

@@ -1394,13 +1394,13 @@ XmlElement* EditorViewport::createSettingsXml()
     
     Array<GenericProcessor*> rootNodes = AccessClass::getProcessorGraph()->getRootNodes();
     
-    for (auto p : rootNodes)
+    for (int i = 0; i < rootNodes.size(); i++)
     {
         XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
         
         bool isStartOfSignalChain = true;
         
-        GenericProcessor* processor = p;
+        GenericProcessor* processor = rootNodes[i];
 
         while (processor != nullptr)
         {

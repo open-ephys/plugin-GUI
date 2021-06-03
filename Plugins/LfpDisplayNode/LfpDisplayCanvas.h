@@ -131,7 +131,7 @@ private:
 
 
 class LfpDisplaySplitter : public Component,
-                           public ComboBoxListener,
+                           public ComboBox::Listener,
                            public Timer
 {
 public:

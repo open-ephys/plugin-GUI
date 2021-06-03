@@ -135,7 +135,7 @@ namespace IntanRecordingController
 		int getHeadstageChannel(int& hs, int ch) const;
 
 		void runImpedanceTest(ImpedanceData* data);
-		GenericEditor* createEditor(SourceNode* sn);
+		std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
 
 		static DataThread* createDataThread(SourceNode* sn);
 

@@ -1558,9 +1558,9 @@ void WaveformAxes::isOverUnitBox(float x, float y, int& UnitID, int& BoxID, Stri
             }
 
             if (rectx1 > rectx2)
-                swapVariables(rectx1,rectx2);
+                std::swap(rectx1,rectx2);
             if (recty1 > recty2)
-                swapVariables(recty1,recty2);
+                std::swap(recty1,recty2);
 
             if (x >= rectx1 - 10 & y >= recty1 -10 & x <= rectx2 + 10 & y <= recty2+10)
             {
