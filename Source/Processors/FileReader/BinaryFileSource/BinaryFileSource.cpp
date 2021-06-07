@@ -182,7 +182,7 @@ void BinaryFileSource::fillRecordInfo()
 				eventInfo.channelStates.push_back(*data);
 
 				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
-				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp);
+				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp); //TODO: This 
 
 			}
 

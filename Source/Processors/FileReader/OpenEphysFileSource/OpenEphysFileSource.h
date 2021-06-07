@@ -68,6 +68,7 @@ namespace OpenEphysSource
 			int id;
 			float sampleRate;
 			std::vector<ChannelInfo> channels;
+			long int startPos; //Currently assumes all channels within a processor have the same startPos
 		};
 
 		struct Recording 
@@ -75,11 +76,13 @@ namespace OpenEphysSource
 			int id;
 			int sampleRate;
 			std::map<int, ProcInfo> processors;
+			int64 numSamples; 
 		};
 
 		OwnedArray<MemoryMappedFile> dataFiles;
 
         std::map<int, Recording> recordings;
+		std::map<int, EventInfo> events;
 
 		File m_rootPath;
 		int64 m_samplePos;
