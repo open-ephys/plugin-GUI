@@ -153,6 +153,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                                       bool signalChainIsLoading)
 {
 	std::unique_ptr<GenericProcessor> processor = nullptr;
+    GenericProcessor* addedProc = nullptr;
     
     LOGD("Creating processor with name: ", description.processorName);
     
@@ -188,22 +189,24 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 
          // identifier within processor graph
         processor->setNodeId(id);
-        addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
-        GenericEditor* editor = (GenericEditor*) processor->createEditor();
+        Node* n = addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
+
+        addedProc = (GenericProcessor*)n->getProcessor();
+        GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
 
         editor->refreshColors();
         
-		if (processor->isSource()) // if we are adding a source processor
+		if (addedProc->isSource()) // if we are adding a source processor
         {
             
             if (sourceNode != nullptr)
             {
                 // if there's a source feeding into source, form a new signal chain
-                processor->setDestNode(sourceNode->getDestNode());
-                processor->setSourceNode(nullptr);
+                addedProc->setDestNode(sourceNode->getDestNode());
+                addedProc->setSourceNode(nullptr);
                 sourceNode->setDestNode(nullptr);
                 if (destNode != nullptr)
-                    destNode->setSourceNode(processor.get());
+                    destNode->setSourceNode(addedProc);
             }
             
             if (sourceNode == nullptr && destNode != nullptr)
@@ -212,23 +215,23 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 if (!destNode->isSource())
                 {
                     // if it's not a source, connect them
-                    processor->setDestNode(destNode);
-                    destNode->setSourceNode(processor.get());
+                    addedProc->setDestNode(destNode);
+                    destNode->setSourceNode(addedProc);
                 }
                 else
                 {
                     // if it's in front of a source, start a new signal chain
-                    processor->setDestNode(nullptr);
+                    addedProc->setDestNode(nullptr);
                 }
             }
             
-			if (processor->isGeneratesTimestamps())
+			if (addedProc->isGeneratesTimestamps())
 			{ // If there are no source processors and we add one,
               //  set it as default for global timestamps and sample rates
-				m_validTimestampSources.add(processor.get());
+				m_validTimestampSources.add(addedProc);
 				if (m_timestampSource == nullptr)
 				{
-					m_timestampSource = processor.get();
+					m_timestampSource = addedProc;
 					m_timestampSourceSubIdx = 0;
 				}
 				if (m_timestampWindow)
@@ -240,8 +243,8 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             if (sourceNode != nullptr)
             {
                 // if there's a source available, connect them
-                processor->setSourceNode(sourceNode);
-                sourceNode->setDestNode(processor.get());
+                addedProc->setSourceNode(sourceNode);
+                sourceNode->setDestNode(addedProc);
             }
                 
             if (destNode != nullptr)
@@ -249,23 +252,23 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 if (!destNode->isSource())
                 {
                     // if it's not behind a source node, connect them
-                    processor->setDestNode(destNode);
+                    addedProc->setDestNode(destNode);
                     
                     if (!destNode->isMerger())
-                        destNode->setSourceNode(processor.get());
+                        destNode->setSourceNode(addedProc);
                     else
-                        destNode->setMergerSourceNode(processor.get());
+                        destNode->setMergerSourceNode(addedProc);
                     
                 } else {
                     // if there's a source downstream, start a new signalchain
-                    processor->setDestNode(nullptr);
+                    addedProc->setDestNode(nullptr);
                 }
             }
         }
         
-        if (!checkForNewRootNodes(processor.get()))
+        if (!checkForNewRootNodes(addedProc))
         {
-            removeProcessor(processor.get());
+            removeProcessor(addedProc);
             updateViews(rootNodes.getLast());
             return nullptr;
         }
@@ -280,12 +283,12 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
     
     if (!signalChainIsLoading)
     {
-        updateSettings(processor.get());
+        updateSettings(addedProc);
     } else {
-        updateViews(processor.get());
+        updateViews(addedProc);
     }
     
-    return processor.get();
+    return addedProc;
 }
 
 bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
