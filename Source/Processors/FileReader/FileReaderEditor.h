@@ -29,6 +29,7 @@
 #include "../Editors/GenericEditor.h"
 
 class FileReader;
+class FileReaderEditor;
 class DualTimeComponent;
 class FileSource;
 
@@ -39,6 +40,43 @@ class FileSource;
   @see SourceNode, FileReaderThread
 
 */
+
+class PlaybackButton : public Button
+{
+public:
+    PlaybackButton(FileReader*);
+
+    ~PlaybackButton();
+private:
+    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+};
+
+class FullTimeline : public Component
+{
+public:
+    FullTimeline(FileReader*);
+    ~FullTimeline();
+private:
+    void paint(Graphics& g);
+};
+
+class ZoomTimeline : public Component
+{
+public:
+    ZoomTimeline(FileReader*);
+    ~ZoomTimeline();
+private:
+    void paint(Graphics& g);
+};
+
+class ScrubDrawerButton : public DrawerButton
+{
+public:
+	ScrubDrawerButton(const String& name);
+	~ScrubDrawerButton();
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+};
 
 class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
@@ -75,10 +113,13 @@ public:
     void comboBoxChanged (ComboBox* combo);
     void populateRecordings (FileSource* source);
 
+    void showScrubbingInterface(bool show);
+
 
 private:
     void clearEditor();
 
+    ScopedPointer<ScrubDrawerButton>    scrubDrawerButton;
 
     ScopedPointer<UtilityButton>        fileButton;
     ScopedPointer<Label>                fileNameLabel;
@@ -86,10 +127,22 @@ private:
     ScopedPointer<DualTimeComponent>    currentTime;
     ScopedPointer<DualTimeComponent>    timeLimits;
 
+    //ScrubbingInterface controls
+    ScopedPointer<Label>                zoomStartTimeLabel;
+    ScopedPointer<Label>                zoomMiddleTimeLabel;
+    ScopedPointer<Label>                zoomEndTimeLabel;
+    ScopedPointer<Label>                fullStartTimeLabel;
+    ScopedPointer<Label>                fullEndTimeLabel;
+    ScopedPointer<FullTimeline>         fullTimeline;
+    ScopedPointer<ZoomTimeline>         zoomTimeline;
+    ScopedPointer<PlaybackButton>       playbackButton;
+
     FileReader* fileReader;
     unsigned int recTotalTime;
 
     bool m_isFileDragAndDropActive;
+    bool scrubInterfaceVisible;
+    int scrubInterfaceWidth;
 
     File lastFilePath;
 

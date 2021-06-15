@@ -27,39 +27,185 @@
 
 #include <stdio.h>
 
+ScrubDrawerButton::ScrubDrawerButton(const String &name) : DrawerButton(name) {}
+
+ScrubDrawerButton::~ScrubDrawerButton() {}
+
+FullTimeline::FullTimeline(FileReader*) {}
+
+FullTimeline::~FullTimeline() {}
+
+void FullTimeline::paint(Graphics& g) {
+
+    int tickHeight = 4;
+    int borderThickness = 1;
+
+    g.setColour(Colours::black);
+
+    int numTicks = 5;
+
+    for (int i = 0; i < numTicks; i++) {
+
+        float dX = float(i) / numTicks * 450;
+
+        Path tick;
+        tick.startNewSubPath(dX, this->getHeight() - tickHeight);
+        tick.lineTo(dX, this->getHeight());
+        g.strokePath(tick, PathStrokeType(1.0));
+    }
+
+	g.fillRect(0, 0, this->getWidth(), this->getHeight()-tickHeight);
+	g.setColour(Colours::white);
+	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
+	
+}
+
+ZoomTimeline::ZoomTimeline(FileReader*) {}
+
+ZoomTimeline::~ZoomTimeline() {}
+
+void ZoomTimeline::paint(Graphics& g) {
+
+    int tickHeight = 4;
+    int borderThickness = 1;
+
+    g.setColour(Colours::black);
+
+    int numTicks = 7;
+
+    for (int i = 0; i < numTicks; i++) {
+
+        float dX = float(i) / numTicks * 420;
+
+        Path tick;
+        tick.startNewSubPath(dX,0);
+        tick.lineTo(dX, tickHeight);
+        g.strokePath(tick, PathStrokeType(1.0));
+    }
+
+	g.fillRect(0, tickHeight, this->getWidth(), this->getHeight()-tickHeight);
+	g.setColour(Colours::white);
+	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
+	
+}
+
+PlaybackButton::PlaybackButton(FileReader*) : Button ("Playback") {}
+
+PlaybackButton::~PlaybackButton() {}
+
+void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) {
+
+    g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
+
+	g.setColour(Colour(110,110,110));
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+
+    int x = getScreenX(); 
+    int y = getScreenY(); 
+    int width = getWidth(); 
+    int height = getHeight(); 
+
+    //Draw right facing triangle
+    int padding = 0.2*height;
+    g.setColour(Colour(255,255,255)); 
+    Path triangle; 
+    triangle.addTriangle(padding, padding, padding, height - padding, width - padding, height/2); 
+    g.fillPath(triangle);
+
+	
+}
+
+void ScrubDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+	g.setColour(Colour(110, 110, 110));
+	if (isMouseOver)
+		g.setColour(Colour(210, 210, 210));
+
+	g.drawVerticalLine(3, 0.0f, getHeight());
+	g.drawVerticalLine(5, 0.0f, getHeight());
+	g.drawVerticalLine(7, 0.0f, getHeight());
+}
+
 FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
     , fileReader   (static_cast<FileReader*> (parentNode))
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
+    , scrubInterfaceVisible (false)
+    , scrubInterfaceWidth(420)
 {
+
+    scrubDrawerButton = new ScrubDrawerButton("ScrubDrawer");
+	scrubDrawerButton->setBounds(4, 40, 10, 78);
+	scrubDrawerButton->addListener(this);
+	addAndMakeVisible(scrubDrawerButton);
+
+    zoomStartTimeLabel = new Label("ZoomStartTime", "00:00");
+    zoomStartTimeLabel->setBounds(10,30,40,10);
+    addChildComponent(zoomStartTimeLabel);
+
+    zoomMiddleTimeLabel = new Label("ZoomMidTime", "00:00");
+    zoomMiddleTimeLabel->setBounds(0.454*scrubInterfaceWidth,30,40,10);
+    addChildComponent(zoomMiddleTimeLabel);
+
+    zoomEndTimeLabel = new Label("ZoomEndTime", "00:00");
+    zoomEndTimeLabel->setBounds(0.88*scrubInterfaceWidth,30,40,10);
+    addChildComponent(zoomEndTimeLabel);
+
+    fullStartTimeLabel = new Label("FullStartTime", "00:00:00");
+    fullStartTimeLabel->setBounds(0,100,60,10);
+    addChildComponent(fullStartTimeLabel);
+
+    fullEndTimeLabel = new Label("FullEndTime", "00:00:00");
+    fullEndTimeLabel->setBounds(0.855*scrubInterfaceWidth,100,60,10);
+    addChildComponent(fullEndTimeLabel);
+
+    int padding = 30;
+    zoomTimeline = new ZoomTimeline(fileReader);
+    zoomTimeline->setBounds(padding, 46, scrubInterfaceWidth - 2*padding, 20);
+    addChildComponent(zoomTimeline);
+
+    fullTimeline = new FullTimeline(fileReader);
+    fullTimeline->setBounds(padding, 76, scrubInterfaceWidth - 2*padding, 20);
+    addChildComponent(fullTimeline);
+
+    int buttonSize = 24;
+    playbackButton = new PlaybackButton(fileReader);
+    playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
+    addChildComponent(playbackButton);
+
     lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 
     fileButton = new UtilityButton ("F:", Font ("Small Text", 13, Font::plain));
     fileButton->addListener (this);
-    fileButton->setBounds (5, 27, 20, 20);
+    fileButton->setBounds (20, 27, 20, 20);
     addAndMakeVisible (fileButton);
 
     fileNameLabel = new Label ("FileNameLabel", "No file selected.");
-    fileNameLabel->setBounds (30, 25, 140, 20);
+    fileNameLabel->setBounds (50, 25, 140, 20);
     addAndMakeVisible (fileNameLabel);
 
     recordSelector = new ComboBox ("Recordings");
-    recordSelector->setBounds (30, 50, 120, 20);
+    recordSelector->setBounds (50, 50, 120, 20);
     recordSelector->addListener (this);
     addAndMakeVisible (recordSelector);
 
     currentTime = new DualTimeComponent (this, false);
-    currentTime->setBounds (5, 80, 175, 20);
+    currentTime->setBounds (20, 80, 175, 20);
     addAndMakeVisible (currentTime);
 
     timeLimits = new DualTimeComponent (this,true);
-    timeLimits->setBounds (5, 105, 175, 20);
+    timeLimits->setBounds (20, 105, 175, 20);
     addAndMakeVisible (timeLimits);
 
-    desiredWidth = 180;
+    desiredWidth = 200;
 
     setEnabledState (false);
+
+    //buttonEvent(scrubDrawerButton);
 }
 
 
@@ -134,6 +280,65 @@ void FileReaderEditor::buttonEvent (Button* button)
             }
         }
     }
+
+    if (button == scrubDrawerButton) {
+        showScrubbingInterface(!scrubInterfaceVisible);
+    }
+}
+
+void FileReaderEditor::showScrubbingInterface(bool show)
+{
+
+    scrubInterfaceVisible = show;
+
+    int dX = scrubInterfaceWidth;
+    dX = show ? dX : -dX;
+    desiredWidth += dX;
+
+    //Move all static components to the right
+    scrubDrawerButton->setBounds(
+        scrubDrawerButton->getX() + dX, scrubDrawerButton->getY(),
+        scrubDrawerButton->getWidth(), scrubDrawerButton->getHeight()
+    );
+
+    fileButton->setBounds(
+        fileButton->getX() + dX, fileButton->getY(),
+        fileButton->getWidth(), fileButton->getHeight()
+    );
+
+    fileNameLabel->setBounds(
+        fileNameLabel->getX() + dX, fileNameLabel->getY(),
+        fileNameLabel->getWidth(), fileNameLabel->getHeight()
+    );
+
+    recordSelector->setBounds(
+        recordSelector->getX() + dX, recordSelector->getY(),
+        recordSelector->getWidth(), recordSelector->getHeight()
+    );
+
+    currentTime->setBounds(
+        currentTime->getX() + dX, currentTime->getY(),
+        currentTime->getWidth(), currentTime->getHeight()
+    );
+
+    timeLimits->setBounds(
+        timeLimits->getX() + dX, timeLimits->getY(),
+        timeLimits->getWidth(), timeLimits->getHeight()
+    );
+
+    //Set scrubber interface components 
+    fullTimeline->setVisible(show);
+    zoomTimeline->setVisible(show);
+    playbackButton->setVisible(show);
+    zoomStartTimeLabel->setVisible(show);
+    zoomMiddleTimeLabel->setVisible(show);
+    zoomEndTimeLabel->setVisible(show);
+    fullStartTimeLabel->setVisible(show);
+    fullEndTimeLabel->setVisible(show);
+
+    CoreServices::highlightEditor(this);
+    deselect();
+
 }
 
 
