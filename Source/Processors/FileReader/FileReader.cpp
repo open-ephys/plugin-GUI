@@ -323,6 +323,22 @@ void FileReader::updateSettings()
 
 }
 
+int FileReader::getPlaybackStart() 
+{
+    return 0;
+}
+
+int FileReader::getPlaybackStop()
+{
+    return 1;
+}
+
+EventInfo FileReader::getActiveEventInfo()
+{
+    EventInfo info;
+    return info;
+}
+
 void FileReader::process (AudioSampleBuffer& buffer)
 {
     const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));

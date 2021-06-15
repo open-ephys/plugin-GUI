@@ -60,9 +60,22 @@ void FullTimeline::paint(Graphics& g) {
 	
 }
 
-ZoomTimeline::ZoomTimeline(FileReader*) {}
+ZoomTimeline::ZoomTimeline(FileReader*) {
+
+    sliderWidth = 8;
+}
 
 ZoomTimeline::~ZoomTimeline() {}
+
+void ZoomTimeline::updatePlaybackRegion(int min, int max) {
+
+    //TODO: Input will be start/stop time -- convert those to pixel coords here
+    //Only called when loading saved config or loading in new file
+    //Default to min and max of the zoomed timeline for now
+    leftSliderPosition = 0;
+    rightSliderPosition = getWidth() - sliderWidth;
+
+}
 
 void ZoomTimeline::paint(Graphics& g) {
 
@@ -86,7 +99,58 @@ void ZoomTimeline::paint(Graphics& g) {
 	g.fillRect(0, tickHeight, this->getWidth(), this->getHeight()-tickHeight);
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
-	
+ 
+    g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(leftSliderPosition, 0, sliderWidth, this->getHeight(), 2);
+    g.setColour(Colour(110, 110, 110));
+    g.setOpacity(0.8f);
+    g.fillRoundedRectangle(leftSliderPosition+1, 1, sliderWidth-2, this->getHeight()-2, 2);
+
+    g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(rightSliderPosition, 0, sliderWidth, this->getHeight(), 2);
+    g.setColour(Colour(110, 110, 110));
+    g.setOpacity(0.8f);
+    g.fillRoundedRectangle(rightSliderPosition+1, 1, sliderWidth-2, this->getHeight()-2, 2);
+
+    g.setColour(Colour(110, 110, 110));
+    g.setOpacity(0.5f);
+ 
+    g.fillRoundedRectangle(leftSliderPosition, 4, rightSliderPosition + sliderWidth - leftSliderPosition, this->getHeight(), 2);
+
+
+}
+
+void ZoomTimeline::mouseDown(const MouseEvent& event) {
+
+    if (event.x > leftSliderPosition && event.x < leftSliderPosition + sliderWidth) {
+        leftSliderIsSelected = true;
+    } else if (event.x > rightSliderPosition && event.x < rightSliderPosition + sliderWidth) {
+        rightSliderIsSelected = true;
+    }
+}
+
+void ZoomTimeline::mouseDrag(const MouseEvent & event) {
+
+    if (leftSliderIsSelected) {
+
+        if (event.x > sliderWidth / 2 && event.x < rightSliderPosition - sliderWidth / 2)
+            leftSliderPosition = event.x - sliderWidth / 2;
+
+    } else if (rightSliderIsSelected) {
+
+        if (event.x > leftSliderPosition + 1.5*sliderWidth && event.x < getWidth() - sliderWidth / 2)
+            rightSliderPosition = event.x - sliderWidth / 2;
+    }
+
+    repaint();
+    
+}
+
+void ZoomTimeline::mouseUp(const MouseEvent& event) {
+
+    //TODO: Check if another key is being pressed instead of using mouse button for dragging
+    leftSliderIsSelected = false;
+    rightSliderIsSelected = false;
 }
 
 PlaybackButton::PlaybackButton(FileReader*) : Button ("Playback") {}
@@ -109,7 +173,7 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
     int height = getHeight(); 
 
     //Draw right facing triangle
-    int padding = 0.2*height;
+    int padding = 0.3*height;
     g.setColour(Colour(255,255,255)); 
     Path triangle; 
     triangle.addTriangle(padding, padding, padding, height - padding, width - padding, height/2); 
@@ -166,6 +230,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
     int padding = 30;
     zoomTimeline = new ZoomTimeline(fileReader);
     zoomTimeline->setBounds(padding, 46, scrubInterfaceWidth - 2*padding, 20);
+    zoomTimeline->updatePlaybackRegion(fileReader->getPlaybackStart(), fileReader->getPlaybackStop());
     addChildComponent(zoomTimeline);
 
     fullTimeline = new FullTimeline(fileReader);
@@ -282,11 +347,11 @@ void FileReaderEditor::buttonEvent (Button* button)
     }
 
     if (button == scrubDrawerButton) {
-        showScrubbingInterface(!scrubInterfaceVisible);
+        showScrubInterface(!scrubInterfaceVisible);
     }
 }
 
-void FileReaderEditor::showScrubbingInterface(bool show)
+void FileReaderEditor::showScrubInterface(bool show)
 {
 
     scrubInterfaceVisible = show;
@@ -365,12 +430,72 @@ bool FileReaderEditor::setPlaybackStopTime (unsigned int ms)
 
 void FileReaderEditor::setTotalTime (unsigned int ms)
 {
+
     timeLimits->setTimeMilliseconds     (0, 0);
     timeLimits->setTimeMilliseconds     (1, ms);
     currentTime->setTimeMilliseconds    (0, 0);
     currentTime->setTimeMilliseconds    (1, ms);
 
+    updateScrubInterface(true);
+
     recTotalTime = ms;
+}
+
+void FileReaderEditor::updateScrubInterface(bool reset)
+{
+
+    if (reset) {
+
+        //Reset interface to show first 30 seconds of recording 
+        int ms = timeLimits->getTimeMilliseconds(1);
+
+        int msFrac      = 0;
+        int secFrac     = 0;
+        int minFrac     = 0;
+        int hourFrac    = 0;
+
+        msFrac = ms % 1000;
+        ms /= 1000;
+        secFrac = ms % 60;
+        ms /= 60;
+        minFrac = ms % 60;
+        ms /= 60;
+        hourFrac = ms;
+
+        if (msFrac > 0.5)
+            secFrac += 1;
+        
+        String fullTime = String(hourFrac).paddedLeft ('0', 2) + ":" 
+                        + String (minFrac).paddedLeft ('0', 2) + ":" 
+                        + String (secFrac).paddedLeft ('0', 2);
+
+        fullEndTimeLabel->setText(fullTime, juce::sendNotificationAsync);
+
+        if (minFrac >= 1 || secFrac >= 30) {
+            zoomMiddleTimeLabel->setText("00:15", juce::sendNotificationAsync);
+            zoomEndTimeLabel->setText("00:30", juce::sendNotificationAsync);
+
+            //Draw 30 second interval on full timeline
+
+        }
+        else
+        {
+            String halfZoomTime = String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac / 2).paddedLeft ('0', 2);
+            zoomMiddleTimeLabel->setText(halfZoomTime, juce::sendNotificationAsync);
+            String fullZoomTime = String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
+            zoomEndTimeLabel->setText(fullZoomTime, juce::sendNotificationAsync);
+        }
+
+        //TODO: Draw events on full timeline
+        
+
+    }
+    else
+    {
+        //TODO: Update interval selection interface
+    }
+    
+
 }
 
 

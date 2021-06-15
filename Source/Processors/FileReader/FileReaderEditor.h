@@ -60,13 +60,28 @@ private:
     void paint(Graphics& g);
 };
 
-class ZoomTimeline : public Component
+class ZoomTimeline : public Component, MouseListener
 {
 public:
     ZoomTimeline(FileReader*);
     ~ZoomTimeline();
+
+    void updatePlaybackRegion(int min, int max);
+
 private:
+
+    int sliderWidth;
+    float leftSliderPosition;
+    float rightSliderPosition;
+
     void paint(Graphics& g);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+    void mouseUp(const MouseEvent& event);
+
+    bool leftSliderIsSelected;
+    bool rightSliderIsSelected;
+
 };
 
 class ScrubDrawerButton : public DrawerButton
@@ -113,7 +128,8 @@ public:
     void comboBoxChanged (ComboBox* combo);
     void populateRecordings (FileSource* source);
 
-    void showScrubbingInterface(bool show);
+    void showScrubInterface(bool show);
+    void updateScrubInterface(bool reset);
 
 
 private:

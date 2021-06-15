@@ -73,6 +73,12 @@ public:
     void createEventChannels();
 	StringArray getSupportedExtensions() const;
 
+    // FileScrubber methods
+    int getPlaybackStart();
+    int getPlaybackStop();
+
+    EventInfo getActiveEventInfo();
+
 private:
     Array<const EventChannel*> moduleEventChannels;
     unsigned int count = 0;
