@@ -31,7 +31,10 @@ ScrubDrawerButton::ScrubDrawerButton(const String &name) : DrawerButton(name) {}
 
 ScrubDrawerButton::~ScrubDrawerButton() {}
 
-FullTimeline::FullTimeline(FileReader*) {}
+FullTimeline::FullTimeline(FileReader* fr) {
+
+    fileReader = fr;
+}
 
 FullTimeline::~FullTimeline() {}
 
@@ -57,7 +60,64 @@ void FullTimeline::paint(Graphics& g) {
 	g.fillRect(0, 0, this->getWidth(), this->getHeight()-tickHeight);
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
+
+    //Draw 30-second interval
+    g.setColour(Colour(0,0,0));
+    g.setOpacity(0.8f);
+    g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
+    g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 	
+}
+
+void FullTimeline::setIntervalPosition(int min, int max) 
+{
+
+    int totalSamples = fileReader->getCurrentNumSamples();
+    float sampleRate = fileReader->getCurrentSampleRate();
+
+    float totalTimeInSeconds = float(totalSamples) / sampleRate; 
+
+    //TODO: Check bounds here
+    intervalStartPosition = min;
+    intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
+}
+
+
+void FullTimeline::mouseDown(const MouseEvent& event) {
+
+    if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth) {
+        intervalIsSelected = true;
+    }
+}
+
+void FullTimeline::mouseDrag(const MouseEvent & event) {
+
+    if (intervalIsSelected) {
+        if (event.x > intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
+            intervalStartPosition = event.x - intervalWidth / 2;
+    }
+
+    repaint();
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updateZoomTimeLabels();
+    fileReader->getEditor()->repaint();
+    
+}
+
+void FullTimeline::mouseUp(const MouseEvent& event) {
+
+    intervalIsSelected = false;
+}
+
+int FullTimeline::getStartInterval() {
+
+    return intervalStartPosition;
+
+}
+
+int FullTimeline::getIntervalWidth() {
+
+    return intervalWidth;
+
 }
 
 ZoomTimeline::ZoomTimeline(FileReader*) {
@@ -278,6 +338,53 @@ FileReaderEditor::~FileReaderEditor()
 {
 }
 
+void FileReaderEditor::updateZoomTimeLabels()
+{
+
+    //Get interval position values 
+    int startPos = fullTimeline->getStartInterval();
+
+    float frac = float(startPos) / float(fullTimeline->getWidth());
+
+    for (int i = 0; i < 3; i++) {
+
+        int ms = frac * timeLimits->getTimeMilliseconds(1) + i*15000;
+
+        int msFrac      = 0;
+        int secFrac     = 0;
+        int minFrac     = 0;
+        int hourFrac    = 0;
+
+        msFrac = ms % 1000;
+        ms /= 1000;
+        secFrac = ms % 60;
+        ms /= 60;
+        minFrac = ms % 60;
+        ms /= 60;
+        hourFrac = ms;
+
+        if (msFrac > 0.5)
+            secFrac += 1;
+        
+        String timeString;
+        
+        if (hourFrac > 0)
+            timeString += String(hourFrac).paddedLeft ('0', 2) + ":";
+
+        timeString += String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
+
+        if (i == 0)
+            zoomStartTimeLabel->setText(timeString, juce::sendNotificationAsync);
+        else if (i == 1)
+            zoomMiddleTimeLabel->setText(timeString, juce::sendNotificationAsync);
+        else
+            zoomEndTimeLabel->setText(timeString, juce::sendNotificationAsync);
+
+    }
+
+    
+
+}
 
 void FileReaderEditor::setFile (String file)
 {
@@ -308,6 +415,16 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
         g.setColour (Colours::aqua);
         g.drawRect (getLocalBounds(), 2.f);
     }
+
+    if (scrubInterfaceVisible)
+    {
+        int leftRay = fullTimeline->getStartInterval();
+        int rightRay = leftRay + fullTimeline->getIntervalWidth();
+
+        g.drawLine(zoomTimeline->getX(), zoomTimeline->getY() + zoomTimeline->getHeight(), zoomTimeline->getX() + leftRay, fullTimeline->getY());
+        g.drawLine(zoomTimeline->getX()+zoomTimeline->getWidth(), zoomTimeline->getY() + zoomTimeline->getHeight(), zoomTimeline->getX() + rightRay, fullTimeline->getY());
+    }
+
 }
 
 
@@ -436,9 +553,9 @@ void FileReaderEditor::setTotalTime (unsigned int ms)
     currentTime->setTimeMilliseconds    (0, 0);
     currentTime->setTimeMilliseconds    (1, ms);
 
-    updateScrubInterface(true);
-
     recTotalTime = ms;
+
+    updateScrubInterface(true);
 }
 
 void FileReaderEditor::updateScrubInterface(bool reset)
@@ -471,11 +588,13 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
         fullEndTimeLabel->setText(fullTime, juce::sendNotificationAsync);
 
-        if (minFrac >= 1 || secFrac >= 30) {
+        if (recTotalTime / 1000.0f > 30) {
+
             zoomMiddleTimeLabel->setText("00:15", juce::sendNotificationAsync);
             zoomEndTimeLabel->setText("00:30", juce::sendNotificationAsync);
 
             //Draw 30 second interval on full timeline
+            fullTimeline->setIntervalPosition(0, 30);
 
         }
         else
@@ -485,9 +604,6 @@ void FileReaderEditor::updateScrubInterface(bool reset)
             String fullZoomTime = String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
             zoomEndTimeLabel->setText(fullZoomTime, juce::sendNotificationAsync);
         }
-
-        //TODO: Draw events on full timeline
-        
 
     }
     else

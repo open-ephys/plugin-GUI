@@ -99,6 +99,16 @@ AudioProcessorEditor* FileReader::createEditor()
     return editor;
 }
 
+int64 FileReader::getCurrentNumSamples()
+{
+    return currentNumSamples;
+}
+
+float FileReader::getCurrentSampleRate() const
+{
+    return input->getActiveSampleRate();
+}
+
 void FileReader::createEventChannels()
 {
 

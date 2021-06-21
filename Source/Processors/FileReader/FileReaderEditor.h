@@ -27,6 +27,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "../../Utils/Utils.h"
 
 class FileReader;
 class FileReaderEditor;
@@ -56,8 +57,26 @@ class FullTimeline : public Component
 public:
     FullTimeline(FileReader*);
     ~FullTimeline();
+
+    void setIntervalPosition(int start, int width);
+
+    int getStartInterval();
+    int getIntervalWidth();
+
 private:
+
+    FileReader* fileReader;
+
+    int intervalStartPosition;
+    int intervalWidth;
+    bool intervalIsSelected;
+
     void paint(Graphics& g);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+    void mouseUp(const MouseEvent& event);
+
+    bool leftSliderIsSelected;
 };
 
 class ZoomTimeline : public Component, MouseListener
@@ -130,6 +149,8 @@ public:
 
     void showScrubInterface(bool show);
     void updateScrubInterface(bool reset);
+
+    void updateZoomTimeLabels();
 
 
 private:

@@ -74,6 +74,8 @@ public:
 	StringArray getSupportedExtensions() const;
 
     // FileScrubber methods
+    int64 getCurrentNumSamples();
+    float getCurrentSampleRate() const;
     int getPlaybackStart();
     int getPlaybackStop();
 
