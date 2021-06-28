@@ -399,6 +399,11 @@ void SourceNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
     }
 }
 
+String SourceNode::handleConfigMessage(String msg)
+{
+    return dataThread->handleConfigMessage(msg);
+}
+
 void SourceNode::broadcastDataThreadMessage(String msg)
 {
     broadcastMessage(msg);

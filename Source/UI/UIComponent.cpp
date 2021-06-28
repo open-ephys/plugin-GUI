@@ -407,6 +407,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 		menu.addSeparator();
+		menu.addCommandItem(commandManager, toggleHttpServer);
+		menu.addSeparator();
 		menu.addCommandItem(commandManager, openPluginInstaller);
 
 #if !JUCE_MAC
@@ -477,6 +479,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		clearSignalChain,
 		toggleProcessorList,
 		toggleSignalChain,
+		toggleHttpServer,
 		toggleFileInfo,
 		showHelp,
 		resizeWindow,
@@ -524,6 +527,12 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("Reload on startup", "Load the last used configuration on startup.", "General", 0);
 			result.setActive(!acquisitionStarted);
 			result.setTicked(mainWindow->shouldReloadOnStartup);
+			break;
+
+		case toggleHttpServer:
+			result.setInfo("Enable HTTP Server", "Enable the HTTP server on port 37497.", "General", 0);
+			result.setActive(!acquisitionStarted);
+			result.setTicked(mainWindow->shouldEnableHttpServer);
 			break;
 
 		case undo:
@@ -718,6 +727,18 @@ bool UIComponent::perform(const InvocationInfo& info)
 			{
 				mainWindow->shouldReloadOnStartup = !mainWindow->shouldReloadOnStartup;
 
+			}
+			break;
+
+		case toggleHttpServer:
+
+			mainWindow->shouldEnableHttpServer = !mainWindow->shouldEnableHttpServer;
+
+			if (mainWindow->shouldEnableHttpServer) {
+				AccessClass::getProcessorGraph()->enableHttpServer();
+			}
+			else {
+				AccessClass::getProcessorGraph()->disableHttpServer();
 			}
 			break;
 

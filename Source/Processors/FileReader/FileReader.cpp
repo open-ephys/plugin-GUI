@@ -342,6 +342,11 @@ void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
     }
 }
 
+String FileReader::handleConfigMessage(String msg)
+{
+    return "File Reader received config: " + msg;
+}
+
 void FileReader::process (AudioSampleBuffer& buffer)
 {
 

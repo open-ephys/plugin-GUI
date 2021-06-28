@@ -197,6 +197,7 @@ private:
         toggleProcessorList 	= 0x2008,
         toggleSignalChain	    = 0x2009,
         toggleFileInfo			= 0x2010,
+        toggleHttpServer        = 0x4001,
         showHelp				= 0x2011,
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
@@ -204,7 +205,8 @@ private:
 		openTimestampSelectionWindow = 0x2015,
         openPluginInstaller     = 0x2016,
         loadPluginSettings      = 0x3001,
-        savePluginSettings      = 0x3002
+        savePluginSettings      = 0x3002,
+        
     };
 
     File currentConfigFile;

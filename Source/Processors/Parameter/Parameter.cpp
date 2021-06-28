@@ -264,6 +264,59 @@ void Parameter::setValue (float value, int channel)
 }
 
 
+bool Parameter::setValue(const var& val, int chan) {
+    if (isBoolean()) {
+        if (!val.isBool()) {
+            return false;
+        }
+    }
+    else if (isContinuous()) {
+        if (!val.isDouble()) {
+            return false;
+        }
+    }
+    else if (isDiscrete()) {
+        if (!val.isInt()) {
+            return false;
+        }
+    }
+    else if (isNumerical()) {
+        if (!val.isDouble()) {
+            return false;
+        }
+    }
+    /*else if (isContinuousArray()) {
+        // Must be an array of doubles
+        if (!val.isArray()) {
+            return false;
+        }
+        if (val.size() > 0) {
+            if (!val[0].isDouble()) {
+                return false;
+            }
+        }
+    }
+    else if (isString()) {
+        if (!val.isString()) {
+            return false;
+        }
+    }*/
+    else {
+        // Unhandled type?
+        jassertfalse;
+    }
+    m_values.set(chan, val);
+    return true;
+}
+
+
+int Parameter::getNumChannels() const
+{
+    return m_values.size();
+}
+
+
+
 void Parameter::setPossibleValues (Array<var> possibleValues)
 {
     m_possibleValues = possibleValues;

@@ -390,6 +390,11 @@ void GenericProcessor::createDataChannels()
 	createDataChannelsByType(DataChannel::ADC_CHANNEL);
 }
 
+String GenericProcessor::handleConfigMessage(String msg)
+{
+	return "";
+}
+
 void GenericProcessor::createDataChannelsByType(DataChannel::DataChannelTypes type)
 {
 	int nSub = getNumSubProcessors();

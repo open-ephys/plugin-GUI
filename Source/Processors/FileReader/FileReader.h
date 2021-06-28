@@ -49,6 +49,7 @@ public:
 
     void process (AudioSampleBuffer& buffer) override;
     void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
+    String handleConfigMessage(String msg) override;
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
