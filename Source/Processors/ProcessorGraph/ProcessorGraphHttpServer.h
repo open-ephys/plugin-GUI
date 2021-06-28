@@ -213,7 +213,6 @@ public:
 
             json ret;
             ret["info"] = return_msg.toStdString();
-            //status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json");
             });
 
