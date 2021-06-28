@@ -5,7 +5,7 @@
 #include "../../Processors/MessageCenter/MessageCenterEditor.h"
 #include "BinaryFormat/BinaryRecording.h"
 #include "OpenEphysFormat/OriginalRecording.h"
-
+#include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
 using namespace std::chrono;
@@ -46,7 +46,14 @@ RecordNode::RecordNode()
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
-	dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
+	//Get the current audio device's buffer size and use as data queue block size
+	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
+	AudioDeviceManager::AudioDeviceSetup ads;
+	adm.getAudioDeviceSetup(ads);
+	int bufferSize = ads.bufferSize;
+
+	//dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
+	dataQueue = new DataQueue(bufferSize, DATA_BUFFER_NBLOCKS);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
 	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
 
@@ -69,6 +76,12 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
+}
+
+void RecordNode::updateBlockSize(int newBlockSize)
+{
+	dataQueue = new DataQueue(newBlockSize, DATA_BUFFER_NBLOCKS);
+	LOGD("Updated Record Node buffer size to: ", newBlockSize);
 }
 
 void RecordNode::connectToMessageCenter()

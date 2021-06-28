@@ -58,6 +58,8 @@ public:
 	void stopRead();
 	void stopSynchronizedRead();
 
+	int getBlockSize();
+
 private:
 	void fillTimestamps(int channel, int index, int size, int64 timestamp);
 
@@ -76,7 +78,7 @@ private:
 
 	int m_numChans;
 	int m_numFTSChans;
-	const int m_blockSize;
+	int m_blockSize;
 	bool m_readInProgress;
 	int m_numBlocks;
 	int m_maxSize;

@@ -35,6 +35,11 @@ DataQueue::DataQueue(int blockSize, int nBlocks) :
 DataQueue::~DataQueue()
 {}
 
+int DataQueue::getBlockSize()
+{
+	return m_blockSize;
+}
+
 void DataQueue::setFTSChannels(int nChans)
 {
 	if (m_readInProgress)

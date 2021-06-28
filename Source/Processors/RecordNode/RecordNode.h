@@ -60,6 +60,9 @@ public:
      */
 	~RecordNode();
 
+	/** Update DataQueue block size when Audio Settings buffer size changes */
+	void updateBlockSize(int newBlockSize);
+
     /** If messageCenter event channel is not present in EventChannelArray, add it*/
 	void connectToMessageCenter();
 

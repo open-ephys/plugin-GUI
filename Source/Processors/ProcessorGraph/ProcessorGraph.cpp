@@ -40,6 +40,8 @@
 #include "../../UI/GraphViewer.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
+#include "../../Audio/AudioComponent.h"
+#include "../../AccessClass.h"
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(false)
 {
@@ -1055,10 +1057,17 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
                       midiChannelIndex);      // destNodeChannelIndex
     }
 
-    //3. If dest is a record node, register the processor
+    //3. If dest is a record node, register the processor and 
+    //ensure the RecordNode block size matches the buffer size of Audio Settings
     if (dest->isRecordNode())
     {
         ((RecordNode*)dest)->registerProcessor(source);
+
+        AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
+        AudioDeviceManager::AudioDeviceSetup ads;
+        adm.getAudioDeviceSetup(ads);
+        int blockSize = ads.bufferSize;
+        ((RecordNode*)dest)->updateBlockSize(blockSize);
     }
 
 }
