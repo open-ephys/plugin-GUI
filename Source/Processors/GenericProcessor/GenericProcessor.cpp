@@ -25,6 +25,9 @@
 #include "../../AccessClass.h"
 #include "../../Utils/Utils.h"
 
+#include "../../Processors/MessageCenter/MessageCenterEditor.h"
+
+
 #include <exception>
 
 
@@ -292,6 +295,11 @@ void GenericProcessor::update()
                     dataChannelArray[i]->setRecordState(true);
                 }
             }
+
+			const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+
+			eventChannelArray.add(new EventChannel(*messageChannel));
+			std::cout << getNodeId() << " connected to Message Center" << std::endl;
         }
 
         //Any processor, not only sources, can add new event and spike channels. It's best to do it in their dedicated methods
@@ -665,6 +673,9 @@ int GenericProcessor::processEventBuffer()
 				numSamples[sourceID] = nSamples;
 				timestamps[sourceID] = timestamp;
 			}
+			//else {
+			//	std::cout << nodeId << " : " << " received event" << std::endl;
+			//}
 			//set the "recorded" bit on the first byte. This will go away when the probe system is implemented.
 			//doing a const cast is always a bad idea, but there's no better way to do this until whe change the event record system
 			if (nodeId < 900) //If the processor is not a specialized one
@@ -678,14 +689,15 @@ int GenericProcessor::processEventBuffer()
 
 int GenericProcessor::checkForEvents(bool checkForSpikes)
 {
+	//std::cout << nodeId << ": check for events" << std::endl;
 
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-		//Since adding events to the buffer inside this loop could be dangerous, create a temporal event buffer
+		//Since adding events to the buffer inside this loop could be dangerous, create a temporary event buffer
 		//so any call to addEvent will operate on it;
-		MidiBuffer temporalEventBuffer;
+		MidiBuffer temporaryEventBuffer;
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
-		m_currentMidiBuffer = &temporalEventBuffer;
+		m_currentMidiBuffer = &temporaryEventBuffer;
 		//int m = midiMessages.getNumEvents();
 		//LOGDD(m, " events received by node ", getNodeId());
 
@@ -700,11 +712,16 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 			uint16 sourceId = EventBase::getSourceID(message);
 			uint16 subProc = EventBase::getSubProcessorIdx(message);
 			uint16 index = EventBase::getSourceIndex(message);
+
 			if (EventBase::getBaseType(message) == EventType::PROCESSOR_EVENT)
 			{
 				int eventIndex = getEventChannelIndex(index, sourceId, subProc);
+
+				std::cout << nodeId << " : " << " received event from " << EventBase::getSourceID(message) << " (check for events) " << " index: " << eventIndex << std::endl;
+				
 				if (eventIndex >= 0)
 					handleEvent(eventChannelArray[eventIndex], message, samplePosition);
+
 			}
 			else if (EventBase::getBaseType(message) == EventType::SYSTEM_EVENT && SystemEvent::getSystemEventType(message) == SystemEventType::TIMESTAMP_SYNC_TEXT)
 			{
@@ -719,8 +736,12 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 		}
 		//Restore the original buffer pointer and, if some new event has been added here, copy it to the original buffer
 		m_currentMidiBuffer = originalEventBuffer;
-		if (temporalEventBuffer.getNumEvents() > 0)
-			m_currentMidiBuffer->addEvents(temporalEventBuffer, 0, -1, 0);
+		if (temporaryEventBuffer.getNumEvents() > 0)
+		{
+			m_currentMidiBuffer->addEvents(temporaryEventBuffer, 0, -1, 0);
+			std::cout << nodeId << " added " << temporaryEventBuffer.getNumEvents() << " events." << std::endl;
+		}
+			
 
 		return 0;
 	}
@@ -739,6 +760,11 @@ void GenericProcessor::addEvent(const EventChannel* channel, const Event* event,
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
 	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
+}
+
+void GenericProcessor::broadcastMessage(String msg)
+{
+	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
 
 void GenericProcessor::addSpike(int channelIndex, const SpikeEvent* event, int sampleNum)
@@ -1147,7 +1173,10 @@ void GenericProcessor::updateSettings() { }
 
 void GenericProcessor::enableCurrentChannel(bool) {}
 
-void GenericProcessor::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) {}
+void GenericProcessor::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) {
+
+	std::cout << nodeId << " generic handleEvent" << std::endl;
+}
 
 void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) {}
 

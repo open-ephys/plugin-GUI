@@ -74,7 +74,7 @@ RecordNode::~RecordNode()
 void RecordNode::connectToMessageCenter()
 {
 
-	const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+	/*const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
 	if (!isConnectedToMessageCenter)
 	{
@@ -83,7 +83,7 @@ void RecordNode::connectToMessageCenter()
 		isConnectedToMessageCenter = true;
 
 		LOGD("Record node ", getNodeId(), " connected to Message Center");
-	}
+	}*/
 
 }
 
@@ -91,7 +91,7 @@ void RecordNode::connectToMessageCenter()
 void RecordNode::disconnectMessageCenter()
 {
 
-	const EventChannel* origin = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+	/*const EventChannel* origin = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
 	for (auto eventChannel : eventChannelArray)
 	{
@@ -104,7 +104,7 @@ void RecordNode::disconnectMessageCenter()
 		isConnectedToMessageCenter = false;
 
 		LOGD("Record node ", getNodeId(), " disconnected from Message Center");
-	}
+	}*/
 
 }
 
@@ -535,7 +535,7 @@ void RecordNode::updateSettings()
 bool RecordNode::enable()
 {
 
-	connectToMessageCenter();
+	//connectToMessageCenter();
 
 	bool openEphysFormatSelected = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 1;
 
@@ -566,7 +566,7 @@ bool RecordNode::enable()
 
 bool RecordNode::disable()
 {
-	disconnectMessageCenter();
+	//disconnectMessageCenter();
 	return true;
 }
 
@@ -725,7 +725,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 {
 
 	//Ignore any duplicate messages from MessageCenter
-	if (Event::getSourceID(event) > 900)
+	/*if (Event::getSourceID(event) > 900)
 	{
 		if (!msgCenterMessages.contains(Event::getTimestamp(event)))
 		{
@@ -734,7 +734,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		}
 		else
 			return;
-	}
+	}*/
 
 	eventMonitor->receivedEvents++;
 
@@ -745,12 +745,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 		int64 timestamp = Event::getTimestamp(event);
 		uint64 eventChan = event.getChannel();
 		int eventIndex;
+
 		if (eventInfo)
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
 		else
 			eventIndex = -1;
 
-		if (samplePosition > 0 && dataChannelStates[Event::getSourceID(event)][Event::getSubProcessorIdx(event)].size())
+		if (samplePosition >= 0 && dataChannelStates[Event::getSourceID(event)][Event::getSubProcessorIdx(event)].size())
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 
 		if (isRecording)

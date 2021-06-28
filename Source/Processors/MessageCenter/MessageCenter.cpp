@@ -88,14 +88,10 @@ const EventChannel* MessageCenter::getMessageChannel()
 
 void MessageCenter::setParameter(int parameterIndex, float newValue)
 {
-    if (isRecording)
+    if (parameterIndex == 1)
     {
         newEventAvailable = true;
         messageCenterEditor->messageReceived(true);
-    }
-    else
-    {
-        messageCenterEditor->messageReceived(false);
     }
 
 }
@@ -111,7 +107,6 @@ bool MessageCenter::disable()
     messageCenterEditor->stopAcquisition();
     return true;
 }
-
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
@@ -137,7 +132,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
 		addEvent(getEventChannel(0), event, 0);
 
-        LOGD("Message Center added event.");
+        LOGD("Message Center added ", eventString);
 
         newEventAvailable = false;
     }

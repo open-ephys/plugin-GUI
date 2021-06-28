@@ -148,3 +148,8 @@ String DataThread::getChannelUnits(int chanIndex) const
 {
 	return String::empty;
 }
+
+void DataThread::broadcastMessage(String msg)
+{
+    sn->broadcastDataThreadMessage(msg);
+}

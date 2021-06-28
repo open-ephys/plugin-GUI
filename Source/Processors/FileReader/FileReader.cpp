@@ -23,6 +23,7 @@
 
 #include "FileReader.h"
 #include "FileReaderEditor.h"
+
 #include <stdio.h>
 #include "../../AccessClass.h"
 #include "../../Audio/AudioComponent.h"
@@ -102,6 +103,17 @@ void FileReader::createEventChannels()
     //editor = new FileReaderEditor (this, true);
 
     //return editor;
+
+    /*eventChannel = new EventChannel(EventChannel::TEXT,
+        1,
+        512,
+        CoreServices::getGlobalSampleRate(),
+        this,
+        0);
+
+    eventChannel->setName("File Reader Messages");
+    eventChannel->setDescription("Messages from the File Reader");
+    eventChannelArray.add(new EventChannel(*eventChannel));*/
 }
 
 bool FileReader::isReady()
@@ -155,6 +167,7 @@ void FileReader::setEnabledState (bool t)
 bool FileReader::enable()
 {
 	timestamp = 0;
+    count = 0;
 
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
 	AudioDeviceManager::AudioDeviceSetup ads;
@@ -312,10 +325,28 @@ void FileReader::updateSettings()
          dataChannelArray[i]->setBitVolts(channelInfo[i].bitVolts);
          dataChannelArray[i]->setName(channelInfo[i].name);
      }
+
+}
+
+void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
+{
+
+    //std::cout << "File reader received event." << std::endl;
+
+    if (Event::getSourceID(event) > 900)
+    {
+
+        TextEventPtr textEvent = TextEvent::deserializeFromMessage(event, eventInfo);
+
+        std::cout << "File Reader received: " << textEvent->getText() << std::endl;
+    }
 }
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
+
+    checkForEvents();
+
     const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
@@ -338,11 +369,19 @@ void FileReader::process (AudioSampleBuffer& buffer)
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 	timestamp += samplesNeededPerBuffer;
+    count += samplesNeededPerBuffer;
 
 	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
     
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
+
+    if (count > 80000)
+    {
+        broadcastMessage("FILE READER MESSAGE.");
+        std::cout << "File reader adding message." << std::endl;
+        count = 0;
+    }
 }
 
 

@@ -464,6 +464,8 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         //updateViews(processor);
         return;
     }
+
+    getMessageCenter()->addSpecialProcessorChannels();
         
     GenericProcessor* processorToUpdate = processor;
     
@@ -907,7 +909,7 @@ void ProcessorGraph::updateConnections()
                 //TODO: This is will be removed when probe based audio node added. 
                 connectProcessorToAudioNode(source);
 
-                if (source->isRecordNode())
+                if (source->isSource())
                     connectProcessorToMessageCenter(source);
 
                 // find the next dest that's not a merger or splitter
@@ -1011,7 +1013,7 @@ void ProcessorGraph::updateConnections()
     }
 
     //OwnedArray<EventChannel> extraChannels;
-    getMessageCenter()->addSpecialProcessorChannels();
+//getMessageCenter()->addSpecialProcessorChannels();
 	
 	getAudioNode()->updatePlaybackBuffer();
 
@@ -1126,6 +1128,8 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
                   midiChannelIndex,       // sourceNodeChannelIndex
                   source->getNodeId(),          // destNodeID
                   midiChannelIndex);      // destNodeChannelIndex
+
+    std::cout << "Connecting " << source->getNodeId() << " to message center" << std::endl;
 
 }
 

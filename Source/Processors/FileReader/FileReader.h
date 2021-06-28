@@ -31,6 +31,7 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "FileSource.h"
 
+
 #define BUFFER_WINDOW_CACHE_SIZE 10
 
 
@@ -47,6 +48,7 @@ public:
     ~FileReader();
 
     void process (AudioSampleBuffer& buffer) override;
+    void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
@@ -61,6 +63,7 @@ public:
     float getBitVolts (const DataChannel* chan)   const override;
 
     void updateSettings() override;
+
     void setEnabledState (bool t)  override;
 	bool enable() override;
 	bool disable() override;
@@ -70,11 +73,12 @@ public:
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-    void createEventChannels();
+    void createEventChannels() override;
 	StringArray getSupportedExtensions() const;
 
 private:
     Array<const EventChannel*> moduleEventChannels;
+    ScopedPointer<EventChannel> eventChannel;
     unsigned int count = 0;
     
     void setActiveRecording (int index);

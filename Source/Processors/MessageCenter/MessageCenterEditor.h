@@ -66,6 +66,9 @@ public:
 
     void messageReceived(bool state);
 
+    void broadcastMessage(String msg);
+
+
     String getOutgoingMessage();
 
     MessageCenter* messageCenter;
@@ -79,6 +82,8 @@ private:
 
     bool isEnabled;
     bool isExpanded;
+
+    String outgoingMessage;
 
     /** Called when a new message is received. */
     void actionListenerCallback(const String& message);

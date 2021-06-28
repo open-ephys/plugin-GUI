@@ -74,7 +74,15 @@ MessageCenterEditor::~MessageCenterEditor()
 
 void MessageCenterEditor::buttonClicked(Button* button)
 {
+    outgoingMessage = editableMessageDisplayArea->getText();
+
     messageCenter->setParameter(1,1);
+
+    outgoingMessageLog->addMessage(new MessageLabel("message", outgoingMessage));
+    outgoingBackground = Colour(244, 208, 80);
+    
+    resized();
+   startTimer(75);
 
 }
 
@@ -142,7 +150,7 @@ bool MessageCenterEditor::keyPressed(const KeyPress& key)
 
 String MessageCenterEditor::getOutgoingMessage()
 {
-    return editableMessageDisplayArea->getText();
+    return outgoingMessage;
 }
 
 void MessageCenterEditor::startAcquisition()
@@ -200,7 +208,7 @@ void MessageCenterEditor::collapse()
 
 void MessageCenterEditor::messageReceived(bool isRecording)
 {
-    if (!isRecording)
+    /*if (!isRecording)
     {
         String msg = "Cannot save messages when recording is not active.";
         
@@ -216,15 +224,15 @@ void MessageCenterEditor::messageReceived(bool isRecording)
         resized();
         
     }
-    else
+    else*/
     {
-        outgoingMessageLog->addMessage(new MessageLabel("message", editableMessageDisplayArea->getText()));
-        outgoingBackground = Colour(244, 208, 80);
-        
-        resized();
+        //outgoingMessageLog->addMessage(new MessageLabel("message", outgoingMessage));
+       // outgoingBackground = Colour(244, 208, 80);
+       // 
+       // resized();
     }
-
-    startTimer(75);
+//
+   // startTimer(75);
 }
 
 void MessageCenterEditor::paint(Graphics& g)
@@ -362,6 +370,18 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
     startTimer(75);
     resized();
 
+}
+
+void MessageCenterEditor::broadcastMessage(String msg)
+{
+    outgoingMessage = msg;
+
+    //outgoingMessageLog->addMessage(new MessageLabel("message", outgoingMessage);
+    //outgoingBackground = Colour(244, 208, 80);
+
+    //startTimer(75);
+    
+    messageCenter->setParameter(1, 1);
 }
 
 // #################################################################

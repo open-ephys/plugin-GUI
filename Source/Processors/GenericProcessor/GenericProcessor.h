@@ -586,6 +586,9 @@ protected:
 	void addSpike(int channelIndex, const SpikeEvent* event, int sampleNum);
 	void addSpike(const SpikeChannel* channel, const SpikeEvent* event, int sampleNum);
 
+    /** Sends a TEXT event to all other processors, via the MessageCenter*/
+    void broadcastMessage(String msg);
+
 	/** Method to create the data channels pertaining to this processor, called automatically by update()*/
 	virtual void createDataChannels();
 
