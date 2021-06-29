@@ -91,6 +91,11 @@ int FileSource::getActiveRecord() const
     return activeRecord.get();
 }
 
+EventInfo FileSource::getEventInfo()
+{
+    return eventInfoArray[0];
+}
+
 
 RecordedChannelInfo FileSource::getChannelInfo (int recordIndex, int channel) const
 {

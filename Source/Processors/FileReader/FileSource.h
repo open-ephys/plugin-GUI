@@ -78,6 +78,8 @@ public:
 
     int64 loopCount;
 
+    EventInfo getEventInfo();
+
 protected:
 
     struct RecordInfo

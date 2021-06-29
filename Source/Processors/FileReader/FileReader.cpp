@@ -345,7 +345,7 @@ int FileReader::getPlaybackStop()
 
 EventInfo FileReader::getActiveEventInfo()
 {
-    EventInfo info;
+    EventInfo info = input->getEventInfo();
     return info;
 }
 

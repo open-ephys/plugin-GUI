@@ -61,6 +61,26 @@ void FullTimeline::paint(Graphics& g) {
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
+    //Draw colored bars for each event
+    EventInfo info = fileReader->getActiveEventInfo();
+    int64 totalSamples = fileReader->getCurrentNumSamples();
+
+    for (int i = 0; i < info.timestamps.size(); i++) {
+        
+        int64 ts = info.timestamps[i];
+        int16 state = info.channelStates[i];
+
+        if (state == 1)
+        {
+            float timelinePos = ts / float(totalSamples) * getWidth();
+            g.setColour(Colour(224, 185, 36));
+            g.setOpacity(1.0f);
+            g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
+
+        }
+
+    }
+
     //Draw 30-second interval
     g.setColour(Colour(0,0,0));
     g.setOpacity(0.8f);
@@ -120,8 +140,8 @@ int FullTimeline::getIntervalWidth() {
 
 }
 
-ZoomTimeline::ZoomTimeline(FileReader*) {
-
+ZoomTimeline::ZoomTimeline(FileReader* fr) {
+    fileReader = fr; 
     sliderWidth = 8;
 }
 
@@ -156,9 +176,34 @@ void ZoomTimeline::paint(Graphics& g) {
         g.strokePath(tick, PathStrokeType(1.0));
     }
 
-	g.fillRect(0, tickHeight, this->getWidth(), this->getHeight()-tickHeight);
+    g.fillRect(0, tickHeight, this->getWidth(), this->getHeight()-tickHeight);
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
+
+    //Draw colored bars for each event
+    EventInfo info = fileReader->getActiveEventInfo();
+    int64 totalSamples = fileReader->getCurrentNumSamples();
+
+    int intervalStartPos = static_cast<FileReaderEditor*>(fileReader->getEditor())->getTimelineZoomStartInterval();
+
+    int startTimestamp = int(float(intervalStartPos) / float(getWidth()) * float(totalSamples)); 
+    int stopTimestamp = startTimestamp + 30 * fileReader->getCurrentSampleRate();
+
+    for (int i = 0; i < info.timestamps.size(); i++) {
+        
+        int64 ts = info.timestamps[i];
+        int16 state = info.channelStates[i];
+
+        if (ts >= startTimestamp && ts <= stopTimestamp)
+        {
+            float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
+            g.setColour(Colour(224, 185, 36)); // test yellow color
+            g.setOpacity(1.0f);
+            g.fillRect(int(timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
+
+        }
+
+    }
  
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(leftSliderPosition, 0, sliderWidth, this->getHeight(), 2);
@@ -173,7 +218,7 @@ void ZoomTimeline::paint(Graphics& g) {
     g.fillRoundedRectangle(rightSliderPosition+1, 1, sliderWidth-2, this->getHeight()-2, 2);
 
     g.setColour(Colour(110, 110, 110));
-    g.setOpacity(0.5f);
+    g.setOpacity(0.4f);
  
     g.fillRoundedRectangle(leftSliderPosition, 4, rightSliderPosition + sliderWidth - leftSliderPosition, this->getHeight(), 2);
 
@@ -336,6 +381,11 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
 
 FileReaderEditor::~FileReaderEditor()
 {
+}
+
+int FileReaderEditor::getTimelineZoomStartInterval() 
+{
+    return fullTimeline->getStartInterval();
 }
 
 void FileReaderEditor::updateZoomTimeLabels()

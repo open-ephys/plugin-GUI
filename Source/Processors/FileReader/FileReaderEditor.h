@@ -89,6 +89,8 @@ public:
 
 private:
 
+    FileReader* fileReader;
+
     int sliderWidth;
     float leftSliderPosition;
     float rightSliderPosition;
@@ -151,6 +153,7 @@ public:
     void updateScrubInterface(bool reset);
 
     void updateZoomTimeLabels();
+    int getTimelineZoomStartInterval();
 
 
 private:
