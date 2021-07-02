@@ -113,7 +113,7 @@ void FullTimeline::mouseDown(const MouseEvent& event) {
 void FullTimeline::mouseDrag(const MouseEvent & event) {
 
     if (intervalIsSelected) {
-        if (event.x > intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
+        if (event.x >= intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
             intervalStartPosition = event.x - intervalWidth / 2;
     }
 
@@ -231,6 +231,8 @@ void ZoomTimeline::mouseDown(const MouseEvent& event) {
         leftSliderIsSelected = true;
     } else if (event.x > rightSliderPosition && event.x < rightSliderPosition + sliderWidth) {
         rightSliderIsSelected = true;
+    } else if (event.x > leftSliderPosition && event.x < rightSliderPosition) {
+        playbackRegionIsSelected = true;
     }
 }
 
@@ -245,7 +247,24 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event) {
 
         if (event.x > leftSliderPosition + 1.5*sliderWidth && event.x < getWidth() - sliderWidth / 2)
             rightSliderPosition = event.x - sliderWidth / 2;
+
+    } else if (playbackRegionIsSelected) {
+    
+        if (leftSliderPosition >= 0 && rightSliderPosition <= getWidth() - sliderWidth) {
+
+            float regionWidth = rightSliderPosition - leftSliderPosition;
+
+            if (event.x >= regionWidth / 2 + sliderWidth && event.x <= getWidth() - regionWidth / 2) {
+
+                leftSliderPosition = event.x - regionWidth / 2 - sliderWidth;
+                rightSliderPosition = event.x + regionWidth / 2 - sliderWidth;
+
+            }
+            
+        }
     }
+
+    lastDragXPosition = event.x;
 
     repaint();
     
@@ -256,6 +275,7 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     //TODO: Check if another key is being pressed instead of using mouse button for dragging
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
+    playbackRegionIsSelected = true;
 }
 
 PlaybackButton::PlaybackButton(FileReader*) : Button ("Playback") {}

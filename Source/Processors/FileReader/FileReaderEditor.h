@@ -94,6 +94,7 @@ private:
     int sliderWidth;
     float leftSliderPosition;
     float rightSliderPosition;
+    float lastDragXPosition;
 
     void paint(Graphics& g);
     void mouseDown(const MouseEvent& event);
@@ -102,6 +103,7 @@ private:
 
     bool leftSliderIsSelected;
     bool rightSliderIsSelected;
+    bool playbackRegionIsSelected;
 
 };
 
