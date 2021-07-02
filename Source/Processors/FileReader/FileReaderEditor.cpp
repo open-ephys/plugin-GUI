@@ -278,7 +278,10 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     playbackRegionIsSelected = true;
 }
 
-PlaybackButton::PlaybackButton(FileReader*) : Button ("Playback") {}
+PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback") {
+
+    fileReader = fr;
+}
 
 PlaybackButton::~PlaybackButton() {}
 
@@ -297,13 +300,24 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
     int width = getWidth(); 
     int height = getHeight(); 
 
-    //Draw right facing triangle
-    int padding = 0.3*height;
-    g.setColour(Colour(255,255,255)); 
-    Path triangle; 
-    triangle.addTriangle(padding, padding, padding, height - padding, width - padding, height/2); 
-    g.fillPath(triangle);
+    if (fileReader->playbackIsActive())
+    {
+        //Draw pause button
+        int padding = 0.3*width;
+        g.setColour(Colour(255,255,255)); 
+        g.fillRect(padding, padding, 0.2*width, height - 2*padding);
+        g.fillRect(width / 2 + 0.075*width, padding, 0.2*width, height - 2*padding);
 
+    } else {
+        
+        //Draw play button
+        int padding = 0.3*height;
+        g.setColour(Colour(255,255,255)); 
+        Path triangle; 
+        triangle.addTriangle(padding, padding, padding, height - padding, width - padding, height/2); 
+        g.fillPath(triangle);
+
+    }
 	
 }
 
@@ -365,6 +379,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
     int buttonSize = 24;
     playbackButton = new PlaybackButton(fileReader);
     playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
+    playbackButton->addListener(this);
     addChildComponent(playbackButton);
 
     lastFilePath = CoreServices::getDefaultUserSaveDirectory();
@@ -535,7 +550,10 @@ void FileReaderEditor::buttonEvent (Button* button)
 
     if (button == scrubDrawerButton) {
         showScrubInterface(!scrubInterfaceVisible);
+    } else if (button == playbackButton) {
+        fileReader->togglePlayback();
     }
+
 }
 
 void FileReaderEditor::showScrubInterface(bool show)

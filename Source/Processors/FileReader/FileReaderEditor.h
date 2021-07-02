@@ -49,6 +49,9 @@ public:
 
     ~PlaybackButton();
 private:
+
+    FileReader* fileReader;
+    
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 };
 

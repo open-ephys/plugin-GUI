@@ -47,6 +47,7 @@ FileReader::FileReader()
     , m_shouldFillBackBuffer(false)
 	, m_bufferSize(1024)
 	, m_sysSampleRate(44100)
+    , playbackActive(true)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -97,6 +98,22 @@ AudioProcessorEditor* FileReader::createEditor()
     editor = new FileReaderEditor (this, true);
 
     return editor;
+}
+
+void FileReader::togglePlayback()
+{
+    playbackActive = !playbackActive;
+
+    if (!playbackActive) {
+        this->disable();
+    } else {
+        this->enable();
+    }
+}
+
+bool FileReader::playbackIsActive()
+{
+    return playbackActive == true;
 }
 
 int64 FileReader::getCurrentNumSamples()
@@ -351,7 +368,14 @@ EventInfo FileReader::getActiveEventInfo()
 
 void FileReader::process (AudioSampleBuffer& buffer)
 {
-    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+
+    int samplesNeededPerBuffer;
+
+    if (!playbackActive)
+        samplesNeededPerBuffer = 0;
+    else
+        samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
@@ -366,15 +390,15 @@ void FileReader::process (AudioSampleBuffer& buffer)
     {
         // offset readBuffer index by current cache window count * buffer window size * num channels
         input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                   buffer.getWritePointer (i, 0),
-                                   i,
-                                   samplesNeededPerBuffer);
+                                buffer.getWritePointer (i, 0),
+                                i,
+                                samplesNeededPerBuffer);
     }
     
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 
     int64 startTimestamp = timestamp;
-	timestamp += samplesNeededPerBuffer;
+    timestamp += samplesNeededPerBuffer;
     int64 stopTimestamp = timestamp;
 
     if (stopTimestamp == currentNumSamples || stopTimestamp % currentNumSamples < startTimestamp % currentNumSamples)
@@ -382,7 +406,7 @@ void FileReader::process (AudioSampleBuffer& buffer)
         loopCount++;
     }
 
-	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
+    static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
 
     //Find all events in the current process block
     EventInfo events;
@@ -398,6 +422,7 @@ void FileReader::process (AudioSampleBuffer& buffer)
 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
+
 }
 
 

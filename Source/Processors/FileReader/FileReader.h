@@ -81,6 +81,10 @@ public:
 
     EventInfo getActiveEventInfo();
 
+    /** Toggles playback on/off */
+    void togglePlayback();
+    bool playbackIsActive();
+
 private:
     Array<const EventChannel*> moduleEventChannels;
     unsigned int count = 0;
@@ -101,6 +105,8 @@ private:
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
     int64 loopCount;
+
+    bool playbackActive;
 
     // for testing purposes only
     int counter;
