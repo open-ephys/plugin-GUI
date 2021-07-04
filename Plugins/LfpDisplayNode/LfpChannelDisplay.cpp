@@ -93,6 +93,12 @@ void LfpChannelDisplay::updateType()
     typeStr = options->getTypeName(type);
 }
 
+void LfpChannelDisplay::setType(DataChannel::DataChannelTypes type_)
+{
+    type = type_;
+    typeStr = options->getTypeName(type);
+}
+
 void LfpChannelDisplay::setEnabledState(bool state)
 {
     /*if (state)

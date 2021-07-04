@@ -84,25 +84,29 @@ void LfpDisplayNode::updateSettings()
             displayBufferMap[id]->sampleRate = getDataChannel(ch)->getSampleRate();
         }
 
-        int depthId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
-        int groupId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
+        const DataChannel* chan = getDataChannel(ch);
+
+        int depthId = chan->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
+        int groupId = chan->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
 
         float channelDepth = 0;
         float channelGroup = 0;
+
+        //std::cout << id << " " << ch << " " << getDataChannel(ch)->getChannelType() << std::endl;
    
         if (depthId > -1)
         {
-            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(depthId);
+            const MetaDataValue* val = chan->getMetaDataValue(depthId);
             val->getValue(&channelDepth);
         }
 
         if (groupId > -1)
         {
-            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(groupId);
+            const MetaDataValue* val = chan->getMetaDataValue(groupId);
             val->getValue(&channelGroup);
         }
 
-        displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch, channelGroup, channelDepth);
+        displayBufferMap[id]->addChannel(chan->getName(), ch, chan->getChannelType(), channelGroup, channelDepth);
     }
 
     Array<DisplayBuffer*> toDelete;

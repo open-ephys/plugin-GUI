@@ -44,7 +44,7 @@ namespace LfpViewer {
         void prepareToUpdate();
         void update();
 
-        void addChannel(String name, int channelNum, int group = 0, float ypos = 0, String structure = "None");
+        void addChannel(String name, int channelNum, DataChannel::DataChannelTypes channelType, int group = 0, float ypos = 0, String structure = "None");
 
         void initializeEventChannel(int nSamples);
         void finalizeEventChannel(int nSamples);
@@ -61,6 +61,7 @@ namespace LfpViewer {
             int group = 0;
             float ypos = 0;
             String structure = "None";
+            DataChannel::DataChannelTypes type;
         };
 
         Array<ChannelMetadata> channelMetadata;
