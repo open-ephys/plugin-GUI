@@ -87,9 +87,9 @@ void LfpChannelDisplay::resized()
     //lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
 }
 
-void LfpChannelDisplay::updateType()
+void LfpChannelDisplay::updateType(DataChannel::DataChannelTypes type_)
 {
-    type = options->getChannelType(chan);
+    type = type_;
     typeStr = options->getTypeName(type);
 }
 

@@ -67,9 +67,9 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDis
 
 }
 
-void LfpChannelDisplayInfo::updateType()
+void LfpChannelDisplayInfo::updateType(DataChannel::DataChannelTypes type_)
 {
-    type = options->getChannelType(chan);
+    type = type_;
     typeStr = options->getTypeName(type);
     repaint();
 }
