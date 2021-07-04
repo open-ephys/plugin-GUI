@@ -1033,7 +1033,7 @@ void LfpDisplaySplitter::updateSettings()
 
     lfpDisplay->restoreViewPosition();
 
-   // lfpDisplay->refresh();
+    lfpDisplay->refresh();
 
    // std::cout << " done " << std::endl;
    // std::cout << "   " << std::endl;
