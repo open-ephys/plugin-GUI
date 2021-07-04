@@ -13,7 +13,7 @@
 #endif
 
 #ifdef TARGET_LINUX
-	#include <linux/serial.h>
+#include <linux/serial.h>
 #endif
 
 #pragma comment(lib, "setupapi.lib")
@@ -31,7 +31,7 @@
 // needed for serial bus enumeration:
 //4d36e978-e325-11ce-bfc1-08002be10318}
 DEFINE_GUID(GUID_SERENUM_BUS_ENUMERATOR, 0x4D36E978, 0xE325,
-            0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18);
+    0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18);
 //------------------------------------
 
 void ofSerial::enumerateWin32Ports()
@@ -50,7 +50,7 @@ void ofSerial::enumerateWin32Ports()
     // Reset Port List
     nPorts = 0;
     // Search device set
-    hDevInfo = SetupDiGetClassDevs((struct _GUID*)&GUID_SERENUM_BUS_ENUMERATOR,0,0,DIGCF_PRESENT);
+    hDevInfo = SetupDiGetClassDevs((struct _GUID*)&GUID_SERENUM_BUS_ENUMERATOR, 0, 0, DIGCF_PRESENT);
     if (hDevInfo)
     {
         while (TRUE)
@@ -64,12 +64,12 @@ void ofSerial::enumerateWin32Ports()
             }
 
             if (SetupDiGetDeviceRegistryPropertyA(hDevInfo,
-                                                  &DeviceInterfaceData,
-                                                  SPDRP_FRIENDLYNAME,
-                                                  &dataType,
-                                                  dataBuf,
-                                                  sizeof(dataBuf),
-                                                  &actualSize))
+                &DeviceInterfaceData,
+                SPDRP_FRIENDLYNAME,
+                &dataType,
+                dataBuf,
+                sizeof(dataBuf),
+                &actualSize))
             {
 
                 sprintf(portNamesFriendly[nPorts], "%s", dataBuf);
@@ -77,14 +77,14 @@ void ofSerial::enumerateWin32Ports()
 
                 // turn blahblahblah(COM4) into COM4
 
-                char*    begin    = NULL;
-                char*    end    = NULL;
-                begin          = strstr((char*)dataBuf, "COM");
+                char* begin = NULL;
+                char* end = NULL;
+                begin = strstr((char*)dataBuf, "COM");
 
 
                 if (begin)
                 {
-                    end          = strstr(begin, ")");
+                    end = strstr(begin, ")");
                     if (end)
                     {
                         *end = 0;   // get rid of the )...
@@ -116,11 +116,11 @@ ofSerial::ofSerial()
     //---------------------------------------------
 #ifdef TARGET_WIN32
     //---------------------------------------------
-    nPorts              = 0;
-    bPortsEnumerated    = false;
+    nPorts = 0;
+    bPortsEnumerated = false;
 
-    portNamesShort = new char * [MAX_SERIAL_PORTS];
-    portNamesFriendly = new char * [MAX_SERIAL_PORTS];
+    portNamesShort = new char* [MAX_SERIAL_PORTS];
+    portNamesFriendly = new char* [MAX_SERIAL_PORTS];
     for (int i = 0; i < MAX_SERIAL_PORTS; i++)
     {
         portNamesShort[i] = new char[10];
@@ -143,16 +143,16 @@ ofSerial::~ofSerial()
     //---------------------------------------------
 #ifdef TARGET_WIN32
     //---------------------------------------------
-    nPorts              = 0;
-    bPortsEnumerated    = false;
+    nPorts = 0;
+    bPortsEnumerated = false;
 
     for (int i = 0; i < MAX_SERIAL_PORTS; i++)
     {
-        delete [] portNamesShort[i];
-        delete [] portNamesFriendly[i];
+        delete[] portNamesShort[i];
+        delete[] portNamesFriendly[i];
     }
-    delete [] portNamesShort;
-    delete [] portNamesFriendly;
+    delete[] portNamesShort;
+    delete[] portNamesFriendly;
 
     //---------------------------------------------
 #endif
@@ -195,8 +195,8 @@ void ofSerial::buildDeviceList()
     struct dirent* entry;
     dir = opendir("/dev");
 
-    string deviceName   = "";
-    int deviceCount     = 0;
+    string deviceName = "";
+    int deviceCount = 0;
 
     if (dir == NULL)
     {
@@ -218,7 +218,7 @@ void ofSerial::buildDeviceList()
                     //do they match ?
                     if (deviceName.substr(0, prefixMatch[k].size()) == prefixMatch[k].c_str())
                     {
-                        devices.push_back(ofSerialDeviceInfo("/dev/"+deviceName, deviceName, deviceCount));
+                        devices.push_back(ofSerialDeviceInfo("/dev/" + deviceName, deviceName, deviceCount));
                         deviceCount++;
                         break;
                     }
@@ -288,17 +288,17 @@ void ofSerial::close()
     //---------------------------------------------
     if (bInited)
     {
-        SetCommTimeouts(hComm,&oldTimeout);
+        SetCommTimeouts(hComm, &oldTimeout);
         CloseHandle(hComm);
-        hComm       = INVALID_HANDLE_VALUE;
-        bInited     = false;
+        hComm = INVALID_HANDLE_VALUE;
+        bInited = false;
     }
     //---------------------------------------------
 #else
     //---------------------------------------------
     if (bInited)
     {
-        tcsetattr(fd,TCSANOW,&oldoptions);
+        tcsetattr(fd, TCSANOW, &oldoptions);
         ::close(fd);
     }
     // [CHECK] -- anything else need to be reset?
@@ -311,7 +311,7 @@ void ofSerial::close()
 //----------------------------------------------------------------
 bool ofSerial::setup()
 {
-    return setup(0,9600);       // the first one, at 9600 is a good choice...
+    return setup(0, 9600);       // the first one, at 9600 is a good choice...
 }
 
 //----------------------------------------------------------------
@@ -357,85 +357,85 @@ bool ofSerial::setup(string portName, int baud)
     }
 
     struct termios options;
-    tcgetattr(fd,&oldoptions);
+    tcgetattr(fd, &oldoptions);
     options = oldoptions;
     switch (baud)
     {
-        case 300:
-            cfsetispeed(&options,B300);
-            cfsetospeed(&options,B300);
-            break;
-        case 1200:
-            cfsetispeed(&options,B1200);
-            cfsetospeed(&options,B1200);
-            break;
-        case 2400:
-            cfsetispeed(&options,B2400);
-            cfsetospeed(&options,B2400);
-            break;
-        case 4800:
-            cfsetispeed(&options,B4800);
-            cfsetospeed(&options,B4800);
-            break;
-        case 9600:
-            cfsetispeed(&options,B9600);
-            cfsetospeed(&options,B9600);
-            break;
-        case 14400:
-            cfsetispeed(&options,B14400);
-            cfsetospeed(&options,B14400);
-            break;
-        case 19200:
-            cfsetispeed(&options,B19200);
-            cfsetospeed(&options,B19200);
-            break;
-        case 28800:
-            cfsetispeed(&options,B28800);
-            cfsetospeed(&options,B28800);
-            break;
-        case 38400:
-            cfsetispeed(&options,B38400);
-            cfsetospeed(&options,B38400);
-            break;
-        case 57600:
-            cfsetispeed(&options,B57600);
-            cfsetospeed(&options,B57600);
-            break;
-        case 115200:
-            cfsetispeed(&options,B115200);
-            cfsetospeed(&options,B115200);
-            break;
-        case 230400:
-            cfsetispeed(&options,B230400);
-            cfsetospeed(&options,B230400);
-            break;
+    case 300:
+        cfsetispeed(&options, B300);
+        cfsetospeed(&options, B300);
+        break;
+    case 1200:
+        cfsetispeed(&options, B1200);
+        cfsetospeed(&options, B1200);
+        break;
+    case 2400:
+        cfsetispeed(&options, B2400);
+        cfsetospeed(&options, B2400);
+        break;
+    case 4800:
+        cfsetispeed(&options, B4800);
+        cfsetospeed(&options, B4800);
+        break;
+    case 9600:
+        cfsetispeed(&options, B9600);
+        cfsetospeed(&options, B9600);
+        break;
+    case 14400:
+        cfsetispeed(&options, B14400);
+        cfsetospeed(&options, B14400);
+        break;
+    case 19200:
+        cfsetispeed(&options, B19200);
+        cfsetospeed(&options, B19200);
+        break;
+    case 28800:
+        cfsetispeed(&options, B28800);
+        cfsetospeed(&options, B28800);
+        break;
+    case 38400:
+        cfsetispeed(&options, B38400);
+        cfsetospeed(&options, B38400);
+        break;
+    case 57600:
+        cfsetispeed(&options, B57600);
+        cfsetospeed(&options, B57600);
+        break;
+    case 115200:
+        cfsetispeed(&options, B115200);
+        cfsetospeed(&options, B115200);
+        break;
+    case 230400:
+        cfsetispeed(&options, B230400);
+        cfsetospeed(&options, B230400);
+        break;
 
-        default:
-            cfsetispeed(&options,B9600);
-            cfsetospeed(&options,B9600);
-            printf("ofSerialInit: cannot set %i baud setting baud to 9600", baud);
-            break;
+    default:
+        cfsetispeed(&options, B9600);
+        cfsetospeed(&options, B9600);
+        printf("ofSerialInit: cannot set %i baud setting baud to 9600", baud);
+        break;
     }
 
     options.c_cflag |= (CLOCAL | CREAD);
     options.c_cflag &= ~PARENB;
     options.c_cflag &= ~CSTOPB;
     options.c_cflag &= ~CSIZE;
-	options.c_iflag &= (tcflag_t) ~(INLCR | IGNCR | ICRNL | IGNBRK);
-	options.c_oflag &= (tcflag_t) ~(OPOST);
-	#if defined( TARGET_LINUX )
-		options.c_cflag |= CRTSCTS;
-		options.c_lflag &= ~(ICANON | ECHO | ISIG);
-	#endif
+    options.c_iflag &= (tcflag_t)~(INLCR | IGNCR | ICRNL | IGNBRK);
+    options.c_oflag &= (tcflag_t)~(OPOST);
+#if defined( TARGET_LINUX )
+    options.c_cflag |= CRTSCTS;
+    options.c_lflag &= ~(ICANON | ECHO | ISIG);
+#endif
     options.c_cflag |= CS8;
-    tcsetattr(fd,TCSANOW,&options);
-	#ifdef TARGET_LINUX
-		struct serial_struct kernel_serial_settings;
-		if (ioctl(fd, TIOCGSERIAL, &kernel_serial_settings) == 0) {
-			kernel_serial_settings.flags |= ASYNC_LOW_LATENCY;
-			ioctl(fd, TIOCSSERIAL, &kernel_serial_settings);
-		}
-	#endif
+    tcsetattr(fd, TCSANOW, &options);
+#ifdef TARGET_LINUX
+    struct serial_struct kernel_serial_settings;
+    if (ioctl(fd, TIOCGSERIAL, &kernel_serial_settings) == 0) {
+        kernel_serial_settings.flags |= ASYNC_LOW_LATENCY;
+        ioctl(fd, TIOCSSERIAL, &kernel_serial_settings);
+    }
+#endif
 
     bInited = true;
     printf("Success in opening serial connection!\n\n");
@@ -453,37 +453,46 @@ bool ofSerial::setup(string portName, int baud)
     // open the serial port:
     // "COM4", etc...
 
-    hComm=CreateFileA(portName.c_str(),GENERIC_READ|GENERIC_WRITE,0,0,
-                      OPEN_EXISTING,0,0);
+    char pn[sizeof(portName)];
+    int comIndex;
+    sscanf(portName.c_str(), "COM%d", &comIndex);
+    if (comIndex > 9) {
+        // Microsoft KB115831 a.k.a if COM > COM9 you have to use a different syntax
+        sprintf(pn, "\\\\.\\COM%d", comIndex);
+    }
+    else {
+        strncpy(pn, (const char*)portName.c_str(), sizeof(portName) - 1);
+    }
+    hComm = CreateFileA(pn, GENERIC_READ | GENERIC_WRITE, 0, 0,
+        OPEN_EXISTING, 0, 0);
 
-    if (hComm==INVALID_HANDLE_VALUE)
+    if (hComm == INVALID_HANDLE_VALUE)
     {
         printf("ofSerial: unable to open port");
         return false;
     }
-
 
     // now try the settings:
     COMMCONFIG cfg;
     DWORD cfgSize;
     char  buf[80];
 
-    cfgSize=sizeof(cfg);
-    GetCommConfig(hComm,&cfg,&cfgSize);
+    cfgSize = sizeof(cfg);
+    GetCommConfig(hComm, &cfg, &cfgSize);
     int bps = baud;
-    sprintf(buf,"baud=%d parity=N data=8 stop=1",bps);
+    sprintf(buf, "baud=%d parity=N data=8 stop=1", bps);
 
 #if (_MSC_VER)       // microsoft visual studio
     // msvc doesn't like BuildCommDCB,
     //so we need to use this version: BuildCommDCBA
-    if (!BuildCommDCBA(buf,&cfg.dcb))
+    if (!BuildCommDCBA(buf, &cfg.dcb))
     {
-        printf("ofSerial: unable to build comm dcb; (%s)",buf);
+        printf("ofSerial: unable to build comm dcb; (%s)", buf);
     }
 #else
-    if (!BuildCommDCB(buf,&cfg.dcb))
+    if (!BuildCommDCB(buf, &cfg.dcb))
     {
-        printf("ofSerial: Can't build comm dcb; %s",buf);
+        printf("ofSerial: Can't build comm dcb; %s", buf);
     }
 #endif
 
@@ -491,22 +500,22 @@ bool ofSerial::setup(string portName, int baud)
     // Set baudrate and bits etc.
     // Note that BuildCommDCB() clears XON/XOFF and hardware control by default
 
-    if (!SetCommState(hComm,&cfg.dcb))
+    if (!SetCommState(hComm, &cfg.dcb))
     {
         printf("ofSerial: Can't set comm state");
     }
-    sprintf(buf,"bps=%d, xio=%d/%d",cfg.dcb.BaudRate,cfg.dcb.fOutX,cfg.dcb.fInX);
+    sprintf(buf, "bps=%d, xio=%d/%d", cfg.dcb.BaudRate, cfg.dcb.fOutX, cfg.dcb.fInX);
 
     // Set communication timeouts (NT)
     COMMTIMEOUTS tOut;
-    GetCommTimeouts(hComm,&oldTimeout);
+    GetCommTimeouts(hComm, &oldTimeout);
     tOut = oldTimeout;
     // Make timeout so that:
     // - return immediately with buffered characters
-    tOut.ReadIntervalTimeout=MAXDWORD;
-    tOut.ReadTotalTimeoutMultiplier=0;
-    tOut.ReadTotalTimeoutConstant=0;
-    SetCommTimeouts(hComm,&tOut);
+    tOut.ReadIntervalTimeout = MAXDWORD;
+    tOut.ReadTotalTimeoutMultiplier = 0;
+    tOut.ReadTotalTimeoutConstant = 0;
+    SetCommTimeouts(hComm, &tOut);
 
     bInited = true;
     return true;
@@ -546,7 +555,7 @@ int ofSerial::writeBytes(unsigned char* buffer, int length)
     //---------------------------------------------
 #ifdef TARGET_WIN32
     DWORD written;
-    if (!WriteFile(hComm, buffer, length, &written,0))
+    if (!WriteFile(hComm, buffer, length, &written, 0))
     {
         //ofLog(OF_LOG_ERROR,"ofSerial: Can't write to com port");
         return OF_SERIAL_ERROR;
@@ -587,7 +596,7 @@ int ofSerial::readBytes(unsigned char* buffer, int length)
     //---------------------------------------------
 #ifdef TARGET_WIN32
     DWORD nRead = 0;
-    if (!ReadFile(hComm,buffer,length,&nRead,0))
+    if (!ReadFile(hComm, buffer, length, &nRead, 0))
     {
         //ofLog(OF_LOG_ERROR,"ofSerial: trouble reading from port");
         return OF_SERIAL_ERROR;
@@ -632,7 +641,7 @@ bool ofSerial::writeByte(unsigned char singleByte)
     //---------------------------------------------
 #ifdef TARGET_WIN32
     DWORD written = 0;
-    if (!WriteFile(hComm, tmpByte, 1, &written,0))
+    if (!WriteFile(hComm, tmpByte, 1, &written, 0))
     {
         //ofLog(OF_LOG_ERROR,"ofSerial: Can't write to com port");
         return OF_SERIAL_ERROR;;
@@ -752,7 +761,7 @@ int ofSerial::available()
 
     //---------------------------------------------
 #if defined( TARGET_OSX ) || defined( TARGET_LINUX )
-    ioctl(fd,FIONREAD,&numBytes);
+    ioctl(fd, FIONREAD, &numBytes);
 #endif
     //---------------------------------------------
 
@@ -760,7 +769,7 @@ int ofSerial::available()
 #ifdef TARGET_WIN32
     COMSTAT stat;
     DWORD err;
-    if (hComm!=INVALID_HANDLE_VALUE)
+    if (hComm != INVALID_HANDLE_VALUE)
     {
         if (!ClearCommError(hComm, &err, &stat))
         {
