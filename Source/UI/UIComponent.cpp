@@ -753,7 +753,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case showHelp:
 			{
-				URL url = URL("https://open-ephys.atlassian.net/wiki/display/OEW/Open+Ephys+GUI");
+				URL url = URL("https://open-ephys.github.io/gui-docs/");
 				url.launchInDefaultBrowser();
 				break;
 			}
