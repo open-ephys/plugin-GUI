@@ -1038,11 +1038,20 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
 
-    for (int i = 0; i < channelsToDraw.size(); ++i)
+    if (getChannelsReversed())
     {
-        drawableChannels.add(channelsToDraw[i]);
+        for (int i = channelsToDraw.size() - 1; i >= 0; --i)
+        {
+            drawableChannels.add(channelsToDraw[i]);
+        }
     }
-
+    else {
+        for (int i = 0; i < channelsToDraw.size(); ++i)
+        {
+            drawableChannels.add(channelsToDraw[i]);
+        }
+    }
+    
     if (channelsOrderedByDepth)
     {
         orderChannelsByDepth(true);
