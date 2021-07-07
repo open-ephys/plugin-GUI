@@ -1069,7 +1069,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     
     setColors();
 
-    std::cout << "Finished standard channel rebuild" << std::endl;
+    //std::cout << "Finished standard channel rebuild" << std::endl;
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
