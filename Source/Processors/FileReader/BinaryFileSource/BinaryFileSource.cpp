@@ -197,15 +197,11 @@ void BinaryFileSource::fillRecordInfo()
 void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
 {
 
-	//Convert start and stop times relative to number of total samples
-	start = start % infoArray[getActiveRecord()].numSamples;
-	stop = stop % infoArray[getActiveRecord()].numSamples;
-
 	if (stop < start) //we've reached the end of the data file
 	{
 	}
 
-	for (auto info : eventInfoArray)
+	auto info = eventInfoArray[getActiveRecord()];
 	{
 		int i = 0;
 		while (i < info.timestamps.size())

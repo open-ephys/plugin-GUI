@@ -34,20 +34,21 @@
 FileReader::FileReader()
     : GenericProcessor ("File Reader")
     , Thread ("filereader_Async_Reader")
-    , timestamp             (0)
-    , currentSampleRate     (0)
-    , currentNumChannels    (0)
-    , currentSample         (0)
-    , currentNumSamples     (0)
-    , startSample           (0)
-    , stopSample            (0)
-    , loopCount             (0)
-    , counter               (0)
-    , bufferCacheWindow     (0)
-    , m_shouldFillBackBuffer(false)
-	, m_bufferSize(1024)
-	, m_sysSampleRate(44100)
-    , playbackActive(true)
+    , timestamp                 (0) 
+    , currentSampleRate         (0)
+    , currentNumChannels        (0)
+    , currentSample             (0)
+    , currentNumTotalSamples    (0)
+    , currentNumScrubbedSamples (0)
+    , startSample               (0)
+    , stopSample                (0)
+    , loopCount                 (0)
+    , counter                   (0)
+    , bufferCacheWindow         (0)
+    , m_shouldFillBackBuffer    (false)
+	, m_bufferSize              (1024)
+	, m_sysSampleRate           (44100)
+    , playbackActive            (true)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -116,10 +117,16 @@ bool FileReader::playbackIsActive()
     return playbackActive == true;
 }
 
-int64 FileReader::getCurrentNumSamples()
+int64 FileReader::getCurrentNumTotalSamples()
 {
-    return currentNumSamples;
+    return currentNumTotalSamples;
 }
+
+int64 FileReader::getCurrentNumScrubbedSamples()
+{
+    return currentNumScrubbedSamples;
+}
+
 
 float FileReader::getCurrentSampleRate() const
 {
@@ -187,7 +194,7 @@ void FileReader::setEnabledState (bool t)
 
 bool FileReader::enable()
 {
-	timestamp = 0;
+	timestamp = startSample;
     loopCount = 0;
 
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
@@ -202,10 +209,10 @@ bool FileReader::enable()
 	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
-        // reset stream to beginning
-        input->seekTo (startSample);
-        currentSample = startSample;
-        readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
+    // reset stream to beginning
+    input->seekTo (startSample);
+    currentSample = startSample;
+    readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
 
 	// set the backbuffer so that on the next call to process() we start with bufferA and buffer
 	// cache window id = 0
@@ -307,13 +314,13 @@ void FileReader::setActiveRecording (int index)
 
     input->setActiveRecord (index);
 
-    currentNumChannels  = input->getActiveNumChannels();
-    currentNumSamples   = input->getActiveNumSamples();
-    currentSampleRate   = input->getActiveSampleRate();
+    currentNumChannels       = input->getActiveNumChannels();
+    currentNumTotalSamples   = input->getActiveNumSamples();
+    currentSampleRate        = input->getActiveSampleRate();
 
     currentSample   = 0;
     startSample     = 0;
-    stopSample      = currentNumSamples;
+    stopSample      = currentNumTotalSamples;
     bufferCacheWindow = 0;
     loopCount = 0;
 
@@ -322,12 +329,24 @@ void FileReader::setActiveRecording (int index)
         channelInfo.add (input->getChannelInfo (i));
     }
 
-    static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumSamples));
+    static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
 	input->seekTo(startSample);
 
    
 }
 
+void FileReader::setPlaybackStart(int64 timestamp)
+{
+    LOGD("Settings start sample: ", timestamp);
+    startSample = timestamp;
+}
+
+void FileReader::setPlaybackStop(int64 timestamp)
+{
+    LOGD("Settings stop sample: ", timestamp);
+    stopSample = timestamp;
+    currentNumScrubbedSamples = stopSample - startSample;
+}
 
 String FileReader::getFile() const
 {
@@ -352,12 +371,12 @@ void FileReader::updateSettings()
 
 int FileReader::getPlaybackStart() 
 {
-    return 0;
+    return startSample;
 }
 
 int FileReader::getPlaybackStop()
 {
-    return 1;
+    return stopSample;
 }
 
 EventInfo FileReader::getActiveEventInfo()
@@ -394,34 +413,32 @@ void FileReader::process (AudioSampleBuffer& buffer)
                                 i,
                                 samplesNeededPerBuffer);
     }
-    
+
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
 
-    int64 startTimestamp = timestamp;
     timestamp += samplesNeededPerBuffer;
-    int64 stopTimestamp = timestamp;
-
-    if (stopTimestamp == currentNumSamples || stopTimestamp % currentNumSamples < startTimestamp % currentNumSamples)
-    {
-        loopCount++;
-    }
 
     static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
 
-    //Find all events in the current process block
+
+    bufferCacheWindow += 1;
+    bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
+
+}
+
+void FileReader::addEventsInRange(int64 start, int64 stop)
+{
+    //Finds all events in the source file that occur between startTimestamp and stopTimestamp
     EventInfo events;
-    input->processEventData(events, startTimestamp, stopTimestamp);
+    input->processEventData(events, start, stop);
 
     for (int i = 0; i < events.channels.size(); i++) 
     { 
-        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(currentNumSamples) - startTimestamp;
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
         uint8 ttlData = events.channelStates[i] > 0 ? (1 << events.channels[i]) : 0;
         TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(0, event, absoluteCurrentTimestamp); 
     }
-
-    bufferCacheWindow += 1;
-    bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 
 }
 

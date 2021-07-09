@@ -74,9 +74,14 @@ public:
 	StringArray getSupportedExtensions() const;
 
     // FileScrubber methods
-    int64 getCurrentNumSamples();
+    int64 getCurrentNumTotalSamples();
+    int64 getCurrentNumScrubbedSamples();
     float getCurrentSampleRate() const;
+
+    void setPlaybackStart(int64 timestamp);
     int getPlaybackStart();
+
+    void setPlaybackStop(int64 timestamp);
     int getPlaybackStop();
 
     EventInfo getActiveEventInfo();
@@ -88,6 +93,7 @@ public:
 private:
     Array<const EventChannel*> moduleEventChannels;
     unsigned int count = 0;
+    void addEventsInRange(int64 start, int64 stop);
     
     void setActiveRecording (int index);
 
@@ -99,7 +105,8 @@ private:
     float currentSampleRate;
     int currentNumChannels;
     int64 currentSample;
-    int64 currentNumSamples;
+    int64 currentNumTotalSamples;
+    int64 currentNumScrubbedSamples;
     int64 startSample;
     int64 stopSample;
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer

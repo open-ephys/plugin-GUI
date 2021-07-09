@@ -63,7 +63,7 @@ void FullTimeline::paint(Graphics& g) {
 
     //Draw colored bars for each event
     EventInfo info = fileReader->getActiveEventInfo();
-    int64 totalSamples = fileReader->getCurrentNumSamples();
+    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
     for (int i = 0; i < info.timestamps.size(); i++) {
         
@@ -92,7 +92,7 @@ void FullTimeline::paint(Graphics& g) {
 void FullTimeline::setIntervalPosition(int min, int max) 
 {
 
-    int totalSamples = fileReader->getCurrentNumSamples();
+    int totalSamples = fileReader->getCurrentNumTotalSamples();
     float sampleRate = fileReader->getCurrentSampleRate();
 
     float totalTimeInSeconds = float(totalSamples) / sampleRate; 
@@ -124,14 +124,20 @@ void FullTimeline::mouseDrag(const MouseEvent & event) {
 }
 
 void FullTimeline::mouseUp(const MouseEvent& event) {
-
+    
     intervalIsSelected = false;
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+
+    if ( fileReader->playbackIsActive() )
+    {
+        fileReader->disable();
+        fileReader->enable();
+    }
 }
 
-int FullTimeline::getStartInterval() {
-
+int FullTimeline::getStartInterval() 
+{
     return intervalStartPosition;
-
 }
 
 int FullTimeline::getIntervalWidth() {
@@ -143,6 +149,7 @@ int FullTimeline::getIntervalWidth() {
 ZoomTimeline::ZoomTimeline(FileReader* fr) {
     fileReader = fr; 
     sliderWidth = 8;
+    widthInSeconds = 30;
 }
 
 ZoomTimeline::~ZoomTimeline() {}
@@ -154,6 +161,18 @@ void ZoomTimeline::updatePlaybackRegion(int min, int max) {
     //Default to min and max of the zoomed timeline for now
     leftSliderPosition = 0;
     rightSliderPosition = getWidth() - sliderWidth;
+
+}
+
+int ZoomTimeline::getStartInterval()
+{
+    return leftSliderPosition;
+}
+
+int ZoomTimeline::getIntervalDurationInSeconds()
+{
+    /* Get fraction of interval width and convert to nearest second */
+    return round ( float( rightSliderPosition + sliderWidth - leftSliderPosition) / getWidth() * widthInSeconds );
 
 }
 
@@ -182,9 +201,9 @@ void ZoomTimeline::paint(Graphics& g) {
 
     //Draw colored bars for each event
     EventInfo info = fileReader->getActiveEventInfo();
-    int64 totalSamples = fileReader->getCurrentNumSamples();
+    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
-    int intervalStartPos = static_cast<FileReaderEditor*>(fileReader->getEditor())->getTimelineZoomStartInterval();
+    int intervalStartPos = static_cast<FileReaderEditor*>(fileReader->getEditor())->getFullTimelineStartPosition();
 
     int startTimestamp = int(float(intervalStartPos) / float(getWidth()) * float(totalSamples)); 
     int stopTimestamp = startTimestamp + 30 * fileReader->getCurrentSampleRate();
@@ -275,7 +294,14 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     //TODO: Check if another key is being pressed instead of using mouse button for dragging
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
-    playbackRegionIsSelected = true;
+
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+    
+    if ( fileReader->playbackIsActive() )
+    {
+        fileReader->disable();
+        fileReader->enable();
+    }
 }
 
 PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback") {
@@ -418,9 +444,14 @@ FileReaderEditor::~FileReaderEditor()
 {
 }
 
-int FileReaderEditor::getTimelineZoomStartInterval() 
+int FileReaderEditor::getFullTimelineStartPosition() 
 {
     return fullTimeline->getStartInterval();
+}
+
+int FileReaderEditor::getZoomTimelineStartPosition()
+{
+    return zoomTimeline->getStartInterval();
 }
 
 void FileReaderEditor::updateZoomTimeLabels()
@@ -549,11 +580,25 @@ void FileReaderEditor::buttonEvent (Button* button)
     }
 
     if (button == scrubDrawerButton) {
+
         showScrubInterface(!scrubInterfaceVisible);
+
     } else if (button == playbackButton) {
+
         fileReader->togglePlayback();
+
     }
 
+}
+
+void FileReaderEditor::updatePlaybackTimes()
+{
+    int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
+    startTimestamp += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
+    fileReader->setPlaybackStart(startTimestamp);
+
+    int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+    fileReader->setPlaybackStop(stopTimestamp);
 }
 
 void FileReaderEditor::showScrubInterface(bool show)

@@ -89,12 +89,15 @@ public:
     ~ZoomTimeline();
 
     void updatePlaybackRegion(int min, int max);
+    int getStartInterval();
+    int getIntervalDurationInSeconds();
 
 private:
 
     FileReader* fileReader;
 
     int sliderWidth;
+    int widthInSeconds;
     float leftSliderPosition;
     float rightSliderPosition;
     float lastDragXPosition;
@@ -158,7 +161,9 @@ public:
     void updateScrubInterface(bool reset);
 
     void updateZoomTimeLabels();
-    int getTimelineZoomStartInterval();
+    int getFullTimelineStartPosition();
+    int getZoomTimelineStartPosition();
+    void updatePlaybackTimes();
 
 
 private:
