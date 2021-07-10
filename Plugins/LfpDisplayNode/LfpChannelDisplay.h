@@ -109,7 +109,7 @@ public:
     }
 
 	DataChannel::DataChannelTypes getType();
-    void updateType();
+    virtual void updateType(DataChannel::DataChannelTypes);
 
     float getDepth() { return depth; }
     int getGroup() { return group; }

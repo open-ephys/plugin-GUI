@@ -69,40 +69,41 @@ void LfpDisplayNode::updateSettings()
 
     for (int ch = 0; ch < getNumInputs(); ch++)
     {
-        uint32 id = getChannelSourceId(getDataChannel(ch));
+        const DataChannel* channel = getDataChannel(ch);
+
+        uint32 id = getChannelSourceId(channel);
 
         if (displayBufferMap.count(id) == 0)
         {
             String name = getSubprocessorName(ch);
 
-            
-            displayBuffers.add(new DisplayBuffer(id, name, getDataChannel(ch)->getSampleRate()));
+            displayBuffers.add(new DisplayBuffer(id, name, channel->getSampleRate()));
             displayBufferMap[id] = displayBuffers.getLast();
 
         }
         else {
-            displayBufferMap[id]->sampleRate = getDataChannel(ch)->getSampleRate();
+            displayBufferMap[id]->sampleRate = channel->getSampleRate();
         }
 
-        int depthId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
-        int groupId = getDataChannel(ch)->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
+        int depthId = channel->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
+        int groupId = channel->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
 
         float channelDepth = 0;
         float channelGroup = 0;
    
         if (depthId > -1)
         {
-            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(depthId);
+            const MetaDataValue* val = channel->getMetaDataValue(depthId);
             val->getValue(&channelDepth);
         }
 
         if (groupId > -1)
         {
-            const MetaDataValue* val = getDataChannel(ch)->getMetaDataValue(groupId);
+            const MetaDataValue* val = channel->getMetaDataValue(groupId);
             val->getValue(&channelGroup);
         }
 
-        displayBufferMap[id]->addChannel(getDataChannel(ch)->getName(), ch, channelGroup, channelDepth);
+        displayBufferMap[id]->addChannel(channel->getName(), ch, channel->getChannelType(), channelGroup, channelDepth);
     }
 
     Array<DisplayBuffer*> toDelete;

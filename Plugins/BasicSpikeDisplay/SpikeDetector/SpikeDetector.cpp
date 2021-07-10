@@ -461,8 +461,9 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                             std::cout << std::endl;
                             sampleIndex++;
                         }
-                        sampleIndex = peakIndex - (electrode->prePeakSamples + 1);
+                        
                         */
+                        sampleIndex -= (electrode->prePeakSamples + 1);
 
 						const SpikeChannel* spikeChan = getSpikeChannel(i);
 						SpikeEvent::SpikeBuffer spikeData(spikeChan);

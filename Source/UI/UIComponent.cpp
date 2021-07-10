@@ -584,7 +584,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			break;
 
 		case showHelp:
-			result.setInfo("Show help...", "Take me to the GUI wiki.", "General", 0);
+			result.setInfo("Show help...", "Launch the GUI's documentation website in a browser.", "General", 0);
 			result.setActive(true);
 			break;
 
@@ -753,7 +753,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case showHelp:
 			{
-				URL url = URL("https://open-ephys.atlassian.net/wiki/display/OEW/Open+Ephys+GUI");
+				URL url = URL("https://open-ephys.github.io/gui-docs/");
 				url.launchInDefaultBrowser();
 				break;
 			}

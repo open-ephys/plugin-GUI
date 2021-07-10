@@ -1011,12 +1011,12 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-        lfpDisplay->channels[i]->updateType();
+        lfpDisplay->channels[i]->updateType(displayBuffer->channelMetadata[i].type);
 
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
-        lfpDisplay->channelInfo[i]->updateType();
+        lfpDisplay->channelInfo[i]->updateType(displayBuffer->channelMetadata[i].type);
     }
         
     lfpDisplay->rebuildDrawableChannelsList();
@@ -1033,7 +1033,7 @@ void LfpDisplaySplitter::updateSettings()
 
     lfpDisplay->restoreViewPosition();
 
-   // lfpDisplay->refresh();
+    lfpDisplay->refresh();
 
    // std::cout << " done " << std::endl;
    // std::cout << "   " << std::endl;
