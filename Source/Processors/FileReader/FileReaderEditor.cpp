@@ -124,7 +124,7 @@ void FullTimeline::mouseDrag(const MouseEvent & event) {
 }
 
 void FullTimeline::mouseUp(const MouseEvent& event) {
-    
+
     intervalIsSelected = false;
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
 
@@ -240,6 +240,16 @@ void ZoomTimeline::paint(Graphics& g) {
     g.setOpacity(0.4f);
  
     g.fillRoundedRectangle(leftSliderPosition, 4, rightSliderPosition + sliderWidth - leftSliderPosition, this->getHeight(), 2);
+
+    g.setColour(Colour(50, 50, 50));
+    g.setFont(16);
+    g.drawText(
+        juce::String(getIntervalDurationInSeconds()),
+        ((leftSliderPosition + rightSliderPosition + sliderWidth) / 2) - 10,
+        0,
+        20,
+        this->getHeight() + tickHeight,
+        juce::Justification::centred);
 
 
 }
