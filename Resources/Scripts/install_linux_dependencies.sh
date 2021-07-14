@@ -8,5 +8,4 @@
 apt-get -y install build-essential
 
 # install Juce dependencies
-apt-get -y install freeglut3-dev libfreetype6-dev libxinerama-dev libxcursor-dev libasound2-dev libxrandr-dev libcurl4-openssl-dev
-
+apt-get -y install freeglut3-dev libfreetype6-dev libxinerama-dev libxcursor-dev libasound2-dev libxrandr-dev libcurl4-openssl-dev libwebkit2gtk-4.0-dev
