@@ -37,7 +37,7 @@ struct FlatRoundLookAndFeel    : public LookAndFeel_V3
         Path p;
         p.addEllipse (x + halfThickness, y + halfThickness, diameter - outlineThickness, diameter - outlineThickness);
 
-        const DropShadow ds (Colours::black, 1, Point<int> (0, 0));
+        const DropShadow ds (Colours::black, 1, juce::Point<int> (0, 0));
         ds.drawForPath (g, p);
 
         g.setColour (colour);

@@ -24,18 +24,18 @@
 #ifndef __PLUGINMGR__
 #define __PLUGINMGR__
 
+#include <list>
+#include <string>
+#include <sys/types.h>
+#include "../../../JuceLibraryCode/JuceHeader.h"
+#include "OpenEphysPlugin.h"
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #elif defined(__APPLE__)
 #include <CoreFoundation/CFBundle.h>
 #endif
-
-#include <list>
-#include <string>
-#include <sys/types.h>
-#include "../../../JuceLibraryCode/JuceHeader.h"
-#include "OpenEphysPlugin.h"
 
 struct LoadedLibInfo : public Plugin::LibraryInfo
 {

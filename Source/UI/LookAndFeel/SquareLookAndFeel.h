@@ -151,7 +151,7 @@ struct SquareLookAndFeel    : public FlatRoundLookAndFeel
 
         Path needle;
         Rectangle<float> r2 (r * 0.1f);
-        needle.addRectangle (r2.withPosition (Point<float> (r.getCentreX() - (r2.getWidth() / 2.0f), r.getY())));
+        needle.addRectangle (r2.withPosition (juce::Point<float> (r.getCentreX() - (r2.getWidth() / 2.0f), r.getY())));
 
         g.setColour (slider.findColour (Slider::rotarySliderOutlineColourId));
         g.fillPath (needle, AffineTransform::rotation (angle, r.getCentreX(), r.getCentreY()));
