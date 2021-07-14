@@ -1,7 +1,7 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.5.0)
 
-set(GUI_VERSION 0.5.4)
+set(GUI_VERSION 0.5.5)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
 set(GUI_VERSION_HEX "0x")
@@ -13,6 +13,7 @@ endforeach()
 string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
 set(CMAKE_OSX_SYSROOT "")
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
 message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")

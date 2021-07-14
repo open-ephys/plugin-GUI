@@ -41,7 +41,7 @@ It’s also possible to obtain the binaries as a .zip file for [Windows](https:/
 
 Detailed installation instructions can be found [here](https://open-ephys.github.io/gui-docs/User-Manual/Installing-the-GUI.html).
 
-To compile the GUI from source, follow the instructions on our wiki for [macOS](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491555/macOS), [Linux](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491546/Linux), or [Windows](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491621/Windows).
+To compile the GUI from source, follow the platform-specific instructions in the [Developer Guide](https://open-ephys.github.io/gui-docs/Developer-Guide/Compiling-the-GUI.html).
 
 ## Funding
 

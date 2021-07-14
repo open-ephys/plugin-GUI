@@ -22,9 +22,6 @@ jobs:
     - name: build
       run: |
         sudo apt update
-        sudo apt install gcc-8 g++-8
-        export CC=gcc-8
-        export CXX=g++-8
         cd Resources/Scripts
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..

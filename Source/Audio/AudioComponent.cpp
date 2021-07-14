@@ -336,7 +336,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
     }
     else
     {
-    LOGD("Buffer size out of range.");
+        LOGD("Buffer size out of range.");
     }
 
     deviceManager.setAudioDeviceSetup(setup, true);

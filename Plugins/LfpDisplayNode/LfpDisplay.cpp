@@ -590,8 +590,7 @@ bool LfpDisplay::getChannelsReversed()
 
 void LfpDisplay::setChannelsReversed(bool state)
 {
-    if (state == channelsReversed) return; // bail early, in case bookkeeping error
-    
+
     channelsReversed = state;
     
     if (getSingleChannelState()) return; // don't reverse if single channel
@@ -650,7 +649,6 @@ void LfpDisplay::setChannelsReversed(bool state)
 
 void LfpDisplay::orderChannelsByDepth(bool state)
 {
-    if (state == channelsOrderedByDepth) return; // bail early, in case bookkeeping error
 
     channelsOrderedByDepth = state;
 
@@ -723,6 +721,8 @@ void LfpDisplay::orderChannelsByDepth(bool state)
         }
         drawableChannels[i].channel->fullredraw = true;
     }
+
+    setColors();
 
     // necessary to overwrite lfpChannelBitmap's display
     resized();
@@ -1037,8 +1037,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
             channelInfo[i]->setHidden(true);
         }
     }
-    
-    // check if channels should be added to drawableChannels in reverse
+
     if (getChannelsReversed())
     {
         for (int i = channelsToDraw.size() - 1; i >= 0; --i)
@@ -1046,45 +1045,21 @@ void LfpDisplay::rebuildDrawableChannelsList()
             drawableChannels.add(channelsToDraw[i]);
         }
     }
-    else if(channelsOrderedByDepth)
-    {
-        std::vector<float> depths(channelsToDraw.size());
-
-        bool allSame = true;
-        float last = channelsToDraw[0].channel->getDepth();
-
-        for (int i = 0; i < channelsToDraw.size(); i++)
-        {
-            float d = channelsToDraw[i].channelInfo->getDepth();
-
-            if (d != last)
-                allSame = false;
-
-            depths[i] = d;
-            last = d;
-        }
-
-        if (!allSame)
-        {
-            std::vector<int> V(channelsToDraw.size());
-
-            std::iota(V.begin(), V.end(), 0); //Initializing
-            sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
-            
-            for (int i = 0; i < channelsToDraw.size(); i++)
-            {
-                drawableChannels.add(channelsToDraw[V[i]]);
-            }
-        }
-    }
-    else
-    {
+    else {
         for (int i = 0; i < channelsToDraw.size(); ++i)
         {
             drawableChannels.add(channelsToDraw[i]);
         }
     }
     
+    if (channelsOrderedByDepth)
+    {
+        orderChannelsByDepth(true);
+
+        if (getChannelsReversed())
+            setChannelsReversed(true);
+    }
+        
     // this guards against an exception where the editor sets the drawable samplerate
     // before the lfpDisplay is fully initialized
     if (getHeight() > 0 && getWidth() > 0)
@@ -1094,7 +1069,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     
     setColors();
 
-   // std::cout << "Finished standard channel rebuild" << std::endl;
+    //std::cout << "Finished standard channel rebuild" << std::endl;
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
