@@ -1,0 +1,93 @@
+/* CSS for the main interaction */
+.tabset > input[type="radio"] {
+  position: absolute;
+  left: -200vw;
+}
+
+.tabset .tab-panel {
+  display: none;
+}
+
+.tabset > input:first-child:checked ~ .tab-panels > .tab-panel:first-child,
+.tabset > input:nth-child(3):checked ~ .tab-panels > .tab-panel:nth-child(2),
+.tabset > input:nth-child(5):checked ~ .tab-panels > .tab-panel:nth-child(3),
+.tabset > input:nth-child(7):checked ~ .tab-panels > .tab-panel:nth-child(4),
+.tabset > input:nth-child(9):checked ~ .tab-panels > .tab-panel:nth-child(5),
+.tabset > input:nth-child(11):checked ~ .tab-panels > .tab-panel:nth-child(6) {
+  display: block;
+}
+
+/* Styling */
+body {
+  font: 16px/1.5em "Overpass", "Open Sans", Helvetica, sans-serif;
+  color: #c9c9c9;
+  background-color: #171717;
+  font-weight: 300;
+  max-width: 100%;
+}
+
+.tabset > label {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  padding: 2px 15px 10px;
+  border: 10px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tabset > label::after {
+  content: "";
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 3px;
+  background: #525252;
+}
+
+.tabset > label:hover::after,
+.tabset > input:focus + label::after {
+  background: #c2c2c2;
+  color: #adadad;
+}
+
+.tabset > input:checked + label::after {
+  background: #fbd034;
+  color: #333;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+a {
+  color: orange;
+}
+
+section {
+  padding-left: 10px;
+  padding-top: 20px;
+}
+
+body {
+  padding: 20px;
+}
+
+pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  font-size: 1em;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+strong {
+  color: white;
+}

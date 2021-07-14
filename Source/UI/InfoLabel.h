@@ -37,27 +37,18 @@
 
 */
 
-class InfoLabel : public Component
+class InfoLabel : public WebBrowserComponent
 
 {
 public:
     InfoLabel();
     ~InfoLabel();
 
-    /** Draws the InfoLabel.*/
-    void paint(Graphics& g);
-
 private:
 
-    /** The text displayed to the user.*/
-    String infoString;
-
-    /** Font used to draw the label.*/
-    Font labelFont;
-
-
+    bool pageAboutToLoad(const String & newURL);
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
-
 
 };
 
