@@ -543,6 +543,10 @@ public:
 		String identifier;
 	};
 
+    /** Handles a configuration message sent to this processor, while acquisition is not active.*/
+    virtual String handleConfigMessage(String msg);
+
+
 protected:
 	/** Used to set the timestamp for a given buffer, for a given source node. */
 	void setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, int subProcessorIdx = 0);
@@ -585,6 +589,9 @@ protected:
 
 	void addSpike(int channelIndex, const SpikeEvent* event, int sampleNum);
 	void addSpike(const SpikeChannel* channel, const SpikeEvent* event, int sampleNum);
+
+    /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.*/
+    void broadcastMessage(String msg);
 
 	/** Method to create the data channels pertaining to this processor, called automatically by update()*/
 	virtual void createDataChannels();

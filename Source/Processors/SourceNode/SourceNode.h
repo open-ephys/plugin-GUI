@@ -52,6 +52,12 @@ public:
 
     void process (AudioBuffer<float>& buffer) override;
 
+    void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
+
+    String handleConfigMessage(String msg) override;
+
+    void broadcastDataThreadMessage(String msg);
+
     void setParameter (int parameterIndex, float newValue) override;
 
     void getEventChannelNames (StringArray& names) override;

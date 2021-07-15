@@ -1002,7 +1002,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-    //std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+    std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -1017,6 +1017,7 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
         lfpDisplay->channelInfo[i]->updateType(displayBuffer->channelMetadata[i].type);
+
     }
         
     lfpDisplay->rebuildDrawableChannelsList();

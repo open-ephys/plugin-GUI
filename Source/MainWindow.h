@@ -62,7 +62,12 @@ public:
     /** Determines whether the last used configuration reloads upon startup. */
     bool shouldReloadOnStartup;
 
+    /** Determines whether the ProcessorGraph http server is enabled. */
+    bool shouldEnableHttpServer;
+
 	void shutDownGUI();
+
+    
 
 private:
 

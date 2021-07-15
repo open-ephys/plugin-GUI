@@ -90,6 +90,8 @@ void LfpDisplayNode::updateSettings()
 
         float channelDepth = 0;
         float channelGroup = 0;
+
+        //std::cout << id << " " << ch << " " << getDataChannel(ch)->getChannelType() << std::endl;
    
         if (depthId > -1)
         {
@@ -99,6 +101,7 @@ void LfpDisplayNode::updateSettings()
 
         if (groupId > -1)
         {
+
             const MetaDataValue* val = channel->getMetaDataValue(groupId);
             val->getValue(&channelGroup);
         }

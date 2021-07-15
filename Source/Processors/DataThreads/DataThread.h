@@ -139,6 +139,15 @@ public:
 
 	virtual String getChannelUnits(int chanIndex) const;
 
+    // ** Allows the DataThread plugin to respond to messages sent by other processors */
+    virtual void handleMessage(String msg) { }
+
+    // ** Allows the DataThread plugin to broadcast a message other processors */
+    void broadcastMessage(String msg);
+
+    // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
+    virtual String handleConfigMessage(String msg) { return "";  }
+
 protected:
     virtual void setDefaultChannelNames();
 

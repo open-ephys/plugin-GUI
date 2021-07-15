@@ -386,10 +386,34 @@ int SourceNode::getNumSubProcessors() const
 	return dataThread->getNumSubProcessors();
 }
 
-void SourceNode::process(AudioBuffer<float>& buffer)
+void SourceNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
+{
+
+    if (Event::getSourceID(event) > 900)
+    {
+
+        TextEventPtr textEvent = TextEvent::deserializeFromMessage(event, eventInfo);
+
+        dataThread->handleMessage(textEvent->getText());
+    }
+}
+
+String SourceNode::handleConfigMessage(String msg)
+{
+    return dataThread->handleConfigMessage(msg);
+}
+
+void SourceNode::broadcastDataThreadMessage(String msg)
+{
+    broadcastMessage(msg);
+}
+
+void SourceNode::process(AudioSampleBuffer& buffer)
 {
 	int nSubs = dataThread->getNumSubProcessors();
 	int copiedChannels = 0;
+
+    checkForEvents();
 
 	for (int sub = 0; sub < nSubs; sub++)
 	{

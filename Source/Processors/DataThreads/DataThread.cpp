@@ -146,5 +146,13 @@ void DataThread::resizeBuffers()
 
 String DataThread::getChannelUnits(int chanIndex) const
 {
+
 	return String();
+
+}
+
+void DataThread::broadcastMessage(String msg)
+{
+    sn->broadcastDataThreadMessage(msg);
+
 }

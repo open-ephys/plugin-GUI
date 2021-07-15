@@ -48,6 +48,9 @@ struct ProcessorDescription {
     int nodeId;
 };
 
+class ProcessorGraphHttpServer;
+
+
 /**
   Owns all processors and constructs the signal chain.
 
@@ -73,7 +76,11 @@ public:
                          GenericProcessor* sourceNode = nullptr,
                          GenericProcessor* destNode = nullptr,
                          bool signalChainIsLoading=false);
+
     std::unique_ptr<GenericProcessor> createProcessorFromDescription(ProcessorDescription& description);
+
+    void enableHttpServer();
+    void disableHttpServer();
     
     bool checkForNewRootNodes(GenericProcessor* processor,
                               bool processorBeingAdded = true,
@@ -105,6 +112,10 @@ public:
     MessageCenter* getMessageCenter();
     
     bool hasRecordNode();
+
+    void broadcastMessage(String msg);
+
+    String sendConfigMessage(GenericProcessor* processor, String msg);
 
     void updateConnections();
 
@@ -146,7 +157,7 @@ private:
     
     bool isLoadingSignalChain;
     
-
+    std::unique_ptr<ProcessorGraphHttpServer> http_server_thread;
 
     enum nodeIds
     {

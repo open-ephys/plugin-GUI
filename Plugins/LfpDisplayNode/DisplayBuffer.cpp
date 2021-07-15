@@ -70,6 +70,7 @@ namespace LfpViewer {
     {
         ChannelMetadata metadata = ChannelMetadata();
         metadata.name = name;
+        metadata.type = type;
         metadata.group = group;
         metadata.ypos = ypos;
         metadata.structure = structure;

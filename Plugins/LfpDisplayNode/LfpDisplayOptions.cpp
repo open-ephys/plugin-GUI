@@ -1427,9 +1427,17 @@ void LfpDisplayOptions::sliderEvent(Slider* sl) {}
 DataChannel::DataChannelTypes LfpDisplayOptions::getChannelType(int n)
 {
     if (n < processor->getNumInputs())
+    {
+        const DataChannel* chan = processor->getDataChannel(n);
+        std::cout << "Channel " << chan->getName() << " type: " << chan->getChannelType() << std::endl;
         return processor->getDataChannel(n)->getChannelType();
+    }
     else
+    {
+        std::cout << "Channel " << n << ", just returning default." << std::endl;
         return DataChannel::HEADSTAGE_CHANNEL;
+    }
+       
 }
 
 DataChannel::DataChannelTypes LfpDisplayOptions::getSelectedType()

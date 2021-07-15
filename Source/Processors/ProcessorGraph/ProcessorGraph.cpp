@@ -32,6 +32,7 @@
 #include "../AudioNode/AudioNode.h"
 #include "../RecordNode/RecordNode.h"
 #include "../MessageCenter/MessageCenter.h"
+#include "../MessageCenter/MessageCenterEditor.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
 #include "../../UI/UIComponent.h"
@@ -43,6 +44,8 @@
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
+#include "ProcessorGraphHttpServer.h"
+
 ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(false)
 {
 
@@ -53,11 +56,23 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(fals
                          44100.0, // sampleRate
                          1024);    // blockSize
 
+    http_server_thread = std::make_unique<ProcessorGraphHttpServer>(this);
 }
 
 ProcessorGraph::~ProcessorGraph()
 {
+    if (http_server_thread) {
+        http_server_thread->stop();
+    }
+}
 
+
+void ProcessorGraph::enableHttpServer() {
+    http_server_thread->start();
+}
+
+void ProcessorGraph::disableHttpServer() {
+    http_server_thread->stop();
 }
 
 void ProcessorGraph::createDefaultNodes()
@@ -463,6 +478,8 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         //updateViews(processor);
         return;
     }
+
+    getMessageCenter()->addSpecialProcessorChannels();
         
     GenericProcessor* processorToUpdate = processor;
     
@@ -720,6 +737,15 @@ LOGD("Channel:", currentChannel, "Parameter:", parameterNameForXML, "Intended Va
     }
 }*/
 
+void ProcessorGraph::broadcastMessage(String msg)
+{
+    AccessClass::getMessageCenter()->broadcastMessage(msg);
+}
+
+String ProcessorGraph::sendConfigMessage(GenericProcessor* p, String msg)
+{
+    return p->handleConfigMessage(msg);
+}
 
 void ProcessorGraph::restoreParameters()
 {
@@ -921,7 +947,7 @@ void ProcessorGraph::updateConnections()
                 //TODO: This is will be removed when probe based audio node added. 
                 connectProcessorToAudioNode(source);
 
-                if (source->isRecordNode())
+                if (source->isSource())
                     connectProcessorToMessageCenter(source);
 
                 // find the next dest that's not a merger or splitter
@@ -1025,7 +1051,7 @@ void ProcessorGraph::updateConnections()
     }
 
     //OwnedArray<EventChannel> extraChannels;
-    getMessageCenter()->addSpecialProcessorChannels();
+//getMessageCenter()->addSpecialProcessorChannels();
 	
 	getAudioNode()->updatePlaybackBuffer();
 
@@ -1157,6 +1183,8 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
     cd.channelIndex = midiChannelIndex;
 
     addConnection(Connection(cs, cd));
+
+    std::cout << "Connecting " << source->getNodeId() << " to message center" << std::endl;
 
 }
 
