@@ -127,7 +127,7 @@ public:
     
 private:
     
-    XmlElement* settings;
+    std::unique_ptr<XmlElement> settings;
 
     EditorViewport* editorViewport;
 
@@ -137,7 +137,7 @@ class LoadSignalChain : public UndoableAction
 {
     
 public:
-    LoadSignalChain(EditorViewport*, XmlElement* newSettings);
+    LoadSignalChain(EditorViewport*, std::unique_ptr<XmlElement>& newSettings);
  
     ~LoadSignalChain();
     
@@ -148,8 +148,8 @@ public:
     
 private:
     
-    XmlElement* oldSettings;
-    XmlElement* newSettings;
+    std::unique_ptr<XmlElement> oldSettings;
+    std::unique_ptr<XmlElement> newSettings;
     
     String error;
 

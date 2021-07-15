@@ -347,7 +347,7 @@ String FileReader::handleConfigMessage(String msg)
     return "File Reader received config: " + msg;
 }
 
-void FileReader::process (AudioSampleBuffer& buffer)
+void FileReader::process (AudioBuffer<float>& buffer)
 {
 
     checkForEvents();
@@ -381,12 +381,12 @@ void FileReader::process (AudioSampleBuffer& buffer)
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 
-    if (count > 80000)
-    {
-        broadcastMessage("FILE READER MESSAGE.");
-        std::cout << "File reader adding message." << std::endl;
-        count = 0;
-    }
+   // if (count > 80000)
+    //{
+    //    broadcastMessage("FILE READER MESSAGE.");
+    //    std::cout << "File reader adding message." << std::endl;
+     //   count = 0;
+    //}
 }
 
 

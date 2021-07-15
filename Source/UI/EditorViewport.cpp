@@ -1338,7 +1338,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     currentFile = fileToUse;
     
-    XmlElement* xml = createSettingsXml();
+    std::unique_ptr<XmlElement> xml = createSettingsXml();
 
     if (! xml->writeToFile(currentFile, String()))
         error = "Couldn't write to file ";
@@ -1354,13 +1354,11 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
             (*xmlText) = "Couldn't create configuration xml";
     }
 
-    delete xml;
-
     return error;
     
 }
     
-XmlElement* EditorViewport::createSettingsXml()
+std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
 {
     
     Array<GenericProcessor*> splitPoints;
@@ -1371,7 +1369,8 @@ XmlElement* EditorViewport::createSettingsXml()
 
     int saveOrder = 0;
     
-    XmlElement* xml = new XmlElement("SETTINGS");
+    std::unique_ptr<XmlElement> xml = std::unique_ptr<XmlElement>(new XmlElement("SETTINGS"));
+    //std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>(xml_ptr);
 
     XmlElement* info = xml->createNewChildElement("INFO");
 
@@ -1479,9 +1478,9 @@ XmlElement* EditorViewport::createSettingsXml()
         allProcessors.operator[](i)->saveOrder = -1;
     }
 
-    AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
-    AccessClass::getProcessorList()->saveStateToXml(xml);
-    AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
+    AccessClass::getControlPanel()->saveStateToXml(xml.get()); // save the control panel settings
+    AccessClass::getProcessorList()->saveStateToXml(xml.get());
+    AccessClass::getUIComponent()->saveStateToXml(xml.get());  // save the UI settings
 
     return xml;
     
@@ -1601,7 +1600,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     undoManager.beginNewTransaction();
     
-    LoadSignalChain* action = new LoadSignalChain(this, xml.get());
+    LoadSignalChain* action = new LoadSignalChain(this, xml);
     undoManager.perform(action);
     
     return "Loaded signal chain.";

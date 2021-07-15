@@ -134,7 +134,7 @@ public:
 	const String saveState(File filename, String& xmlText);
     
     /** Save the current configuration as an XML file. Reference wrapper*/
-    XmlElement* createSettingsXml();
+    std::unique_ptr<XmlElement> createSettingsXml();
 
     /** Load a saved configuration from an XML file. */
     const String loadState(File filename);

@@ -273,7 +273,6 @@ ClearSignalChain::ClearSignalChain(EditorViewport* editorViewport_)
  
 ClearSignalChain::~ClearSignalChain()
 {
-    delete settings;
 }
     
 bool ClearSignalChain::perform()
@@ -287,17 +286,17 @@ bool ClearSignalChain::perform()
 bool ClearSignalChain::undo()
 {
     LOGDD("Undoing clear signal chain.");
-    editorViewport->loadStateFromXml(settings);
+    editorViewport->loadStateFromXml(settings.get());
     
     return true;
 }
 
 
 
-LoadSignalChain::LoadSignalChain(EditorViewport* editorViewport_, XmlElement* newSettings_)
+LoadSignalChain::LoadSignalChain(EditorViewport* editorViewport_, std::unique_ptr<XmlElement>& newSettings_)
 {
     editorViewport = editorViewport_;
-    newSettings = newSettings_;
+    newSettings = std::move(newSettings_);
     
     oldSettings = editorViewport->createSettingsXml();
 }
@@ -305,14 +304,12 @@ LoadSignalChain::LoadSignalChain(EditorViewport* editorViewport_, XmlElement* ne
  
 LoadSignalChain::~LoadSignalChain()
 {
-    delete oldSettings;
-    delete newSettings;
 }
     
 bool LoadSignalChain::perform()
 {
     LOGDD("Performing load signal chain.");
-    error = editorViewport->loadStateFromXml(newSettings);
+    error = editorViewport->loadStateFromXml(newSettings.get());
     
     return true;
 }
@@ -320,7 +317,7 @@ bool LoadSignalChain::perform()
 bool LoadSignalChain::undo()
 {
     LOGDD("Undoing load signal chain.");
-    error = editorViewport->loadStateFromXml(oldSettings);
+    error = editorViewport->loadStateFromXml(oldSettings.get());
     
     return true;
 }

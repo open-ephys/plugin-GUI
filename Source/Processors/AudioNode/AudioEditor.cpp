@@ -134,6 +134,8 @@ AudioEditor::AudioEditor (AudioNode* owner)
 
 AudioEditor::~AudioEditor()
 {
+    noiseGateSlider->setLookAndFeel(nullptr);
+    volumeSlider->setLookAndFeel(nullptr);
 }
 
 

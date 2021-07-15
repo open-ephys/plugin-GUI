@@ -60,7 +60,7 @@ channelSelector(0)
 */
 GenericEditor::~GenericEditor()
 {
-    deleteAllChildren();
+    //deleteAllChildren();
 }
 
 void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
