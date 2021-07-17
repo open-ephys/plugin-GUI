@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <PluginInfo.h>
-#include "SerialInput.h"
+#include "CommonAverageRef.h"
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
@@ -37,7 +37,7 @@ using namespace Plugin;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "Serial Input";
+	info->name = "Common Average Reference";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -48,9 +48,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
 		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
-		info->processor.name = "Serial Port";
-		info->processor.type = Plugin::SourceProcessor;
-		info->processor.creator = &(Plugin::createProcessor<SerialInput>);
+		info->processor.name = "Common Avg Ref";
+		info->processor.type = Plugin::FilterProcessor;
+		info->processor.creator = &(Plugin::createProcessor<CommonAverageRef>);
 		break;
 	default:
 		return -1;

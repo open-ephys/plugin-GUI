@@ -6,8 +6,10 @@ include(../PluginRules.cmake)
 
 #add sources, not including OpenEphysLib.cpp
 add_sources(${PLUGIN_NAME}
-	Rectifier.cpp
-	Rectifier.h
+	CommonAverageRef.cpp
+	CommonAverageRef.h
+	CommonAverageRefEditor.cpp
+	CommonAverageRefEditor.h
 	)
 	
 #optional: create IDE groups
