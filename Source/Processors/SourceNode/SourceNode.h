@@ -48,7 +48,7 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void setEnabledState (bool newState) override;
+    //void setEnabledState (bool newState) override;
 
     void process (AudioBuffer<float>& buffer) override;
 

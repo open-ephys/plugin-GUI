@@ -120,7 +120,7 @@ void GenericProcessor::setParameter(int parameterIndex, float newValue)
 }
 
 
-ContinuousChannel* GenericProcessor::getNextChannel(bool increment)
+int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
@@ -130,9 +130,9 @@ ContinuousChannel* GenericProcessor::getNextChannel(bool increment)
 		nextAvailableChannel++;
 
 	if (chan < getNumInputs())
-		return continuousChannels[chan];
+		return chan;
 	else
-		return nullptr;
+		return -1;
 }
 
 

@@ -2,8 +2,10 @@
 
 #add files in this folder
 add_sources(open-ephys 
-	Events.cpp
-	Events.h
+	Event.cpp
+	Event.h
+	Spike.cpp
+	Spike.h
 )
 
 #add nested directories

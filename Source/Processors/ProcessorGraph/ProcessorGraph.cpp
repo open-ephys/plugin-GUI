@@ -95,7 +95,7 @@ void ProcessorGraph::createDefaultNodes()
 
 }
 
-void ProcessorGraph::updatePointers()
+void ProcessorGraph::updateBufferSize()
 {
     getAudioNode()->updateBufferSize();
 }
@@ -242,7 +242,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
                 }
             }
             
-			if (addedProc->isGeneratesTimestamps())
+			if (addedProc->generatesTimestamps())
 			{ // If there are no source processors and we add one,
               //  set it as default for global timestamps and sample rates
 				m_validTimestampSources.add(addedProc);
@@ -496,8 +496,10 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
                 processor->loadFromXml();
                 processor->update();
             }
+
+            // Now, processors should set 'isEnabled' in their updateSettings() method
             
-            if (processor->getSourceNode() != nullptr)
+            /*if (processor->getSourceNode() != nullptr)
             {
                 if (processor->isMerger())
                 {
@@ -513,7 +515,7 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
                     processor->setEnabledState(processor->isEnabledState());
                 else
                     processor->setEnabledState(false);
-            }
+            }*/
                 
                 
             if (processor->isSplitter())
@@ -875,7 +877,7 @@ void ProcessorGraph::clearConnections()
 
     }
 
-    for (auto& recordNode : getRecordNodes())
+    /*for (auto& recordNode : getRecordNodes())
     {
         NodeAndChannel src, dest;
 
@@ -886,7 +888,7 @@ void ProcessorGraph::clearConnections()
         dest.channelIndex = midiChannelIndex;
 
         addConnection(Connection(src, dest));
-    }
+    }*/
 
 }
 
@@ -942,10 +944,10 @@ void ProcessorGraph::updateConnections()
             LOGDD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
-            if (source->isReady())
+            if (source->isEnabled)
             {
                 //TODO: This is will be removed when probe based audio node added. 
-                connectProcessorToAudioNode(source);
+                //connectProcessorToAudioNode(source);
 
                 if (source->isSource())
                     connectProcessorToMessageCenter(source);
@@ -985,7 +987,7 @@ void ProcessorGraph::updateConnections()
 
                 if (dest != nullptr)
                 {
-                    if (dest->isReady())
+                    if (dest->isEnabled)
                     {
                         sourceMap[dest].add(conn);
                     }
@@ -1069,7 +1071,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     if (source == nullptr || dest == nullptr)
         return;
 
-    LOGD("     Connecting ", source->getName(), " ", source->getNodeId()); //" channel ";);
+    LOGD("     Connecting ", source->getName(), " ", source->getNodeId());
     LOGD("              to ", dest->getName(), " ", dest->getNodeId());
 
     NodeAndChannel cs, cd;
@@ -1352,7 +1354,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 				{
 					GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
 					//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
-					if (p && p->isSource() && p->isGeneratesTimestamps())
+					if (p && p->isSource() && p->generatesTimestamps())
 					{
 						newProc = p;
 					}
@@ -1392,11 +1394,12 @@ bool ProcessorGraph::enableProcessors()
         if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-            allClear = p->isReady();
+
+            allClear = p->isEnabled;
 
             if (!allClear)
             {
-                LOGD(p->getName(), " said it's not OK.");
+                LOGD(p->getName(), " is not ready to start acquisition.");
                 //	sendActionMessage("Could not initialize acquisition.");
                 AccessClass::getUIComponent()->disableCallbacks();
                 return false;
@@ -1413,8 +1416,7 @@ bool ProcessorGraph::enableProcessors()
         if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
-            p->enableEditor();
-            p->enableProcessor();
+            p->startAcquisition();
         }
     }
 
@@ -1424,12 +1426,14 @@ bool ProcessorGraph::enableProcessors()
     {
         node->updateRecordChannelIndexes();
     }
-	getAudioNode()->updateRecordChannelIndexes();
+	//getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
 	m_startSoftTimestamp = Time::getHighResolutionTicks();
+
 	if (m_timestampWindow)
 		m_timestampWindow->setAcquisitionState(true);
+    
     return true;
 }
 
@@ -1448,8 +1452,7 @@ bool ProcessorGraph::disableProcessors()
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             LOGD("Disabling ", p->getName());
 			if (node->nodeID != NodeID(MESSAGE_CENTER_ID))
-				p->disableEditor();
-            allClear = p->disableProcessor();
+				allClear = p->stopAcquisition();
 
             if (!allClear)
             {
@@ -1459,10 +1462,8 @@ bool ProcessorGraph::disableProcessors()
         }
     }
 
-    //AccessClass::getEditorViewport()->signalChainCanBeEdited(true);
 	if (m_timestampWindow)
 		m_timestampWindow->setAcquisitionState(false);
-    //	sendActionMessage("Acquisition ended.");
 
     return true;
 }
@@ -1473,11 +1474,12 @@ void ProcessorGraph::setRecordState(bool isRecording)
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
+
         if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
-            p->setRecording(isRecording);
+            p->startRecording();
         }
     }
 
@@ -1519,7 +1521,7 @@ MessageCenter* ProcessorGraph::getMessageCenter()
 }
 
 
-void ProcessorGraph::setTimestampSource(int sourceIndex, int subIdx)
+/*void ProcessorGraph::setTimestampSource(int sourceIndex, int subIdx)
 {
 	m_timestampSource = m_validTimestampSources[sourceIndex];
 	if (m_timestampSource)
@@ -1583,4 +1585,4 @@ uint32 ProcessorGraph::getGlobalTimestampSourceFullId() const
 void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
 {
 	m_timestampWindow = window;
-}
+}*/

@@ -78,7 +78,7 @@ namespace CoreServices
 		getEditorViewport()->makeEditorVisible(ed);
 	}
 
-	juce::int64 getGlobalTimestamp()
+	/*juce::int64 getGlobalTimestamp()
 	{
 		return getProcessorGraph()->getGlobalTimestamp(false);
 	}
@@ -88,19 +88,19 @@ namespace CoreServices
 		return getProcessorGraph()->getGlobalTimestampSourceFullId();
 	}
 
-	juce::int64 getSoftwareTimestamp()
-	{
-		return getProcessorGraph()->getGlobalTimestamp(true);
-	}
-
 	float getGlobalSampleRate()
 	{
 		return getProcessorGraph()->getGlobalSampleRate(false);
+	}*/
+
+	juce::int64 getSoftwareTimestamp()
+	{
+		return Time::currentTimeMillis();
 	}
 
 	float getSoftwareSampleRate()
 	{
-		return getProcessorGraph()->getGlobalSampleRate(true);
+		return 1000.0f;
 	}
 
 	void setRecordingDirectory(String dir)

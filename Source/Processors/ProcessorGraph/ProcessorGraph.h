@@ -69,74 +69,124 @@ class ProcessorGraph    : public AudioProcessorGraph
                         , public ChangeListener
 {
 public:
+
+    /* IDs for default processors*/
+    enum nodeIds
+    {
+        AUDIO_NODE_ID = 901,
+        OUTPUT_NODE_ID = 902,
+        MESSAGE_CENTER_ID = 904
+    };
+
+    /* Constructor*/
     ProcessorGraph();
+
+    /* Destructor */
     ~ProcessorGraph();
 
+    /* Creates a new processor.*/
     GenericProcessor* createProcessor(ProcessorDescription& description,
                          GenericProcessor* sourceNode = nullptr,
                          GenericProcessor* destNode = nullptr,
                          bool signalChainIsLoading=false);
 
+    /* Determines which processor to create, based on the description provided*/
     std::unique_ptr<GenericProcessor> createProcessorFromDescription(ProcessorDescription& description);
 
+    /* Starts the HTTP server for interacting with the GUI. */
     void enableHttpServer();
+
+    /* Stops the HTTP server for interacting with the GUI. */
     void disableHttpServer();
     
+    /* Checks whether an action has create the need for new 'root' processors (first in signal chain)*/
     bool checkForNewRootNodes(GenericProcessor* processor,
                               bool processorBeingAdded = true,
                               bool processorBeingMoved = false);
     
+    /* Moves a processor to a new location in the signal chain. */
     void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
                        bool moveDownstream = true);
 
+    /* Remove a processor from the signal chain*/
     void removeProcessor(GenericProcessor* processor);
+
+    /* Returns pointers to all of the processors in the signal chain*/
     Array<GenericProcessor*> getListOfProcessors();
     
+    /* Finds a processor based on its ID*/
     GenericProcessor* getProcessorWithNodeId(int nodeId);
     
+    /* Returns all of the 'root nodes' (first processors in signal chain)*/
     Array<GenericProcessor*> getRootNodes() {return rootNodes;}
     
+    /* Returns a list of processor editors that are currently visible*/
     Array<GenericEditor*> getVisibleEditors(GenericProcessor* processor);
 
-    
+    /* Updates the settings of all processors downstream of the specified processor*/
     void updateSettings(GenericProcessor* processor, bool signalChainIsLoading = false);
+
+    /* Updates the views (EditorViewport and GraphView) of all processors downstream of the specified processor*/
     void updateViews(GenericProcessor* processor);
+
+    /* Clears the signal chain.*/
     void clearSignalChain();
+
+    /* Removes the specified processors.*/
     void deleteNodes(Array<GenericProcessor*> nodesToDelete);
 
+    /* Calls startAcquisition() for all processors*/
     bool enableProcessors();
+
+    /* Calls stopAcquisition() for all processors*/
     bool disableProcessors();
 
+    /* Returns a list of all RecordNodes in the signal chain*/
     Array<RecordNode*> getRecordNodes();
+
+    /* Returns a pointer to the AudioNode processor*/
     AudioNode* getAudioNode();
+
+    /* Returns a pointer to the MessageCenter processor*/
     MessageCenter* getMessageCenter();
     
+    /* Returns true if the signal chain has ast least one RecordNode*/
     bool hasRecordNode();
 
+    /* Broadcasts a message to all processors during acquisition*/
     void broadcastMessage(String msg);
 
+    /* Sends a configuration message to a particular processor, while acquisition is paused*/
     String sendConfigMessage(GenericProcessor* processor, String msg);
 
+    /* Updates the connections in the signal chain*/
     void updateConnections();
 
+    /* Returns true if there's an equivalent processor in the signal chain*/
     bool processorWithSameNameExists(const String& name);
 
+    /* Respond to a change event*/
     void changeListenerCallback(ChangeBroadcaster* source);
 
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
     
-    //void loadParametersFromXml(GenericProcessor*);
+    /* Updates the buffer size used for the process() callbacks*/
+    void updateBufferSize();
 
-    void updatePointers();
-
+    /* Turns recording on (true) and off (false)*/
     void setRecordState(bool);
 
+    /* Applies new colors to processors in the signal chain*/
     void refreshColors();
 
+    /* Creates the nodes that exist in every signal chain (AudioNode, MessageCenter) */
     void createDefaultNodes();
 
-	void setTimestampSource(int sourceIndex, int subIdx);
+    /* Makes a particular branch of the signal chain visible, without updating any settings */
+    void viewSignalChain(int index);
+
+	/*void setTimestampSource(int sourceIndex, int subIdx);
 
 	void getTimestampSources(Array<const GenericProcessor*>& validSources, int& selectedSource, int& selectedSubIdx) const;
 
@@ -148,30 +198,23 @@ public:
 
 	uint32 getGlobalTimestampSourceFullId() const;
 
-	void setTimestampWindow(TimestampSourceSelectionWindow* window);
+	void setTimestampWindow(TimestampSourceSelectionWindow* window);*/
     
-    void viewSignalChain(int index);
-
 private:
-    int currentNodeId;
-    
-    bool isLoadingSignalChain;
-    
-    std::unique_ptr<ProcessorGraphHttpServer> http_server_thread;
 
-    enum nodeIds
-    {
-        RECORD_NODE_ID = 900,
-        AUDIO_NODE_ID = 901,
-        OUTPUT_NODE_ID = 902,
-        MESSAGE_CENTER_ID = 904
-    };
-
+    /* Disconnect all processors*/
     void clearConnections();
 
-    void connectProcessors(GenericProcessor* source, GenericProcessor* dest,
-        bool connectContinuous, bool connectEvents);
+    /* Connect a source processor and a destination processor*/
+    void connectProcessors(GenericProcessor* source, 
+        GenericProcessor* dest,
+        bool connectContinuous, 
+        bool connectEvents);
+
+    /* Connect a processor to the AudioNode*/
     void connectProcessorToAudioNode(GenericProcessor* source);
+
+    /* Connect a processor to the MessageCenter*/
     void connectProcessorToMessageCenter(GenericProcessor* source);
 
 	int64 m_startSoftTimestamp{ 0 };
@@ -181,6 +224,12 @@ private:
 	WeakReference<TimestampSourceSelectionWindow> m_timestampWindow;
     
     Array<GenericProcessor*> rootNodes;
+
+    int currentNodeId;
+
+    bool isLoadingSignalChain;
+
+    std::unique_ptr<ProcessorGraphHttpServer> http_server_thread;
 
 };
 

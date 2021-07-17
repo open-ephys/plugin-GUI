@@ -97,6 +97,7 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
 	friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
     friend class MessageCenter;
+    friend class ProcessorGraph;
 public:
     /** Constructor (sets the processor's name). */
     GenericProcessor (const String& name_);
@@ -178,7 +179,7 @@ public:
     // --------------------------------------------
 
     /** Returns the next available continuous channel (and increments the channel if the input is set to 'true'). */
-    virtual ContinuousChannel* getNextChannel(bool increment);
+    virtual int getNextChannel(bool increment);
 
     /** Resets all inter-processor connections prior to the start of data acquisition.*/
     virtual void resetConnections();

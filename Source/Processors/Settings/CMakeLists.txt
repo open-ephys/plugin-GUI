@@ -2,20 +2,22 @@
 
 #add files in this folder
 add_sources(open-ephys 
+	ConfigurationObject.h
+	ConfigurationObject.cpp
+	ContinuousChannel.h
+	ContinuousChannel.cpp
+	DataStream.h
+	DataStream.cpp
+	DeviceInfo.h
+	DeviceInfo.cpp
+	EventChannel.h
+	EventChannel.cpp
 	InfoObject.h
 	InfoObject.cpp
 	Metadata.h
 	Metadata.cpp
 	ProcessorInfo.h
 	ProcessorInfo.cpp
-	StreamInfo.h
-	StreamInfo.cpp
-	DeviceInfo.h
-	DeviceInfo.cpp
-	ContinuousChannel.h
-	ContinuousChannel.cpp
-	EventChannel.h
-	EventChannel.cpp
 	SpikeChannel.h
 	SpikeChannel.cpp
 )
