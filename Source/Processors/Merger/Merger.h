@@ -54,13 +54,13 @@ public:
     /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
     void process(AudioSampleBuffer& buffer) override {}
 
-    bool isMerger() const override
-    {
-        return true;
-    }
-
     void switchIO(int) override;
     void switchIO() override;
+
+    bool checkStream(StreamInfo* stream);
+
+    void addStream(StreamInfo* stream);
+
     int switchToSourceNode(GenericProcessor* sn);
     void setMergerSourceNode(GenericProcessor* sn) override;
     GenericProcessor* getSourceNode(int);

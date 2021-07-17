@@ -30,7 +30,7 @@
 #include "UI/EditorViewport.h"
 #include "UI/ControlPanel.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
-#include "Processors/Events/Events.h"
+#include "Processors/Events/Event.h"
 
 
 using namespace AccessClass;

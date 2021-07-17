@@ -63,32 +63,26 @@ public:
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
 
-    /** If messageCenter event channel is not present in EventChannelArray, add it*/
-	void connectToMessageCenter();
-
-    /** Need to remove message center event channel after recording*/
-    void disconnectMessageCenter();
-
 	void updateRecordChannelIndexes();
 
 	AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override { return true; }
 
-	void addSpecialProcessorChannels(Array<EventChannel*>& channels);
-
 	void updateSubprocessorMap();
-	void setMasterSubprocessor(int srcIdx, int subProcIdx);
-	bool isMasterSubprocessor(int srcIdx, int subProcIdx);
-	void setSyncChannel(int srcIdx, int subProcIdx, int channel);
-	int getSyncChannel(int srcIdx, int subProcIdx);
+	
+	void setPrimaryDataStream(uint32 streamId);
+	bool isPrimaryDataStream(uint32 streamId);
+
+	void setSyncBit(EventChannel* channel, int bit);
+	int getSyncBit(EventChannel* channel);
 
 	void updateSettings() override;
-    bool enable() override;
-	bool disable() override;
-	int getNumSubProcessors() const override;
 
-	void prepareToPlay(double sampleRate, int estimatedSamplesPerBlock);
+    bool startAcquisition() override;
+	bool stopAcquisition() override;
+
 	void startRecording() override;
+	void stopRecording() override;
 
 	String generateDirectoryName();
 	void createNewDirectory();
@@ -102,8 +96,6 @@ public:
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 
 	void process(AudioBuffer<float>& buffer) override;
-
-	void stopRecording() override;
 
 	void setParameter(int parameterIndex, float newValue) override;
 
@@ -144,10 +136,6 @@ public:
 	std::vector<int> startRecChannels;
 
     bool isSyncReady;
-
-    //TODO: Need to validate these new methods
-    /** Deprecated*/
-	void addInputChannel(const GenericProcessor* sourceNode, int chan);
 
     /** Must be called by a spike recording source on the "enable" method
     */
@@ -236,8 +224,6 @@ private:
 
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
-
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

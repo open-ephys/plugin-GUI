@@ -50,33 +50,28 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
+
     String handleConfigMessage(String msg) override;
 
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
 
-    bool hasEditor()                const  override { return true; }
-    bool isGeneratesTimestamps()    const  override { return true; }
-    bool isReady()                  override;
-
-    int getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int)        const override;
+    bool generatesTimestamps()    const  override { return true; }
 
     float getDefaultSampleRate()        const override;
-    float getBitVolts (const DataChannel* chan)   const override;
 
     void updateSettings() override;
 
-    void setEnabledState (bool t)  override;
-	bool enable() override;
-	bool disable() override;
+	bool startAcquisition() override;
+	bool stopAcquisition() override;
 
     String getFile() const;
     bool setFile (String fullpath);
 
     bool isFileSupported          (const String& filename) const;
     bool isFileExtensionSupported (const String& ext) const;
-    void createEventChannels() override;
+
 	StringArray getSupportedExtensions() const;
 
 private:

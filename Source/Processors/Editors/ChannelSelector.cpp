@@ -654,7 +654,7 @@ void ChannelSelector::buttonClicked(Button* button)
             // get audio node, and inform it of the change
             GenericEditor* editor = (GenericEditor*)getParentComponent();
 
-            const DataChannel* ch = editor->getChannel(b->getChannel() - 1);
+            const ContinuousChannel* ch = editor->getContinuousChannel(b->getChannel() - 1);
             //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
             bool status = b->getToggleState();
 

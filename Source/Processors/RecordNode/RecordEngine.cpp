@@ -49,7 +49,7 @@ void RecordEngine::registerRecordNode(RecordNode* node)
 void RecordEngine::registerProcessor(const GenericProcessor* processor) {
 }
 
-void RecordEngine::addDataChannel(int index, const DataChannel* chan) {}
+void RecordEngine::addContinuousChannel(int index, const ContinuousChannel* chan) {}
 
 void RecordEngine::addEventChannel(int index, const EventChannel* chan) {}
 
@@ -59,19 +59,19 @@ void RecordEngine::startChannelBlock(bool lastBlock) {}
 
 void RecordEngine::endChannelBlock(bool lastBlock) {}
 
-const DataChannel* RecordEngine::getDataChannel(int index) const
+const ContinuousChannel* RecordEngine::getContinuousChannel(int index) const
 {
-	return recordNode->getDataChannel(index);
+	return recordNode->continuousChannels[index];
 }
 
 const EventChannel* RecordEngine::getEventChannel(int index) const
 {
-	return recordNode->getEventChannel(index);
+	return recordNode->eventChannels[index];
 }
 
 const SpikeChannel* RecordEngine::getSpikeChannel(int index) const
 {
-	return recordNode->getSpikeChannel(index);
+	return recordNode->spikeChannels[index];
 }
 
 String RecordEngine::generateDateString() const

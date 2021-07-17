@@ -98,16 +98,16 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Sets the current channel (in advance of a parameter change). */
-    void setChannel(const DataChannel* ch);
+    void setChannel(const ContinuousChannel* ch);
 
     /** Used to turn audio monitoring on and off for individual channels. */
-    void setChannelStatus(const DataChannel* ch, bool status);
+    void setChannelStatus(const ContinuousChannel* ch, bool status);
 
     /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
     /** Resets the connections prior to a new round of data acquisition. */
-    void enableCurrentChannel(bool) override;
+    //void enableCurrentChannel(bool) override;
 
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
     void addInputChannel(GenericProcessor* source, int chan);
@@ -124,7 +124,7 @@ public:
 
     void updateFilter(int i);
 
-	bool enable() override;
+	bool startAcquisition() override;
 
 	//Called by ProcessorGraph
 	void updateRecordChannelIndexes();

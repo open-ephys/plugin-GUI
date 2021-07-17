@@ -63,9 +63,8 @@ public:
 
     const EventChannel* getMessageChannel();
 
-
-    bool enable() override;
-    bool disable() override;
+    bool startAcquisition() override;
+    bool stopAcquisition() override;
 
     void startRecording() override
     {

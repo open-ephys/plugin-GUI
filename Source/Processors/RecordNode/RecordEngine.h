@@ -118,12 +118,12 @@ public:
 	virtual void registerProcessor(const GenericProcessor* processor);
 
 	/** Called after registerProcessor, once for each output channel of the processor */
-	virtual void addDataChannel(int index, const DataChannel* chan);
+	virtual void addContinuousChannel(int index, const ContinuousChannel* chan);
 
 	/** Called after registerProcessor, once for each output channel of the processor */
 	virtual void addEventChannel(int index, const EventChannel* chan);
 
-	/** Called when acquisition starts once for each processor that might record spikes */
+	/** Called when acquisition starts once for each processor that might generate spikes */
 	virtual void registerSpikeSource(const GenericProcessor* processor);
 
 	/** Called after registerSpikesource, once for each channel group */
@@ -164,7 +164,7 @@ protected:
 	RecordNode* recordNode;
 
 	/** Gets the specified channel from the channel array stored in RecordNode */
-	const DataChannel* getDataChannel(int index) const;
+	const ContinuousChannel* getContinuousChannel(int index) const;
 
 	/** Gets the specified event channel from the channel array stored in RecordNode */
 	const EventChannel* getEventChannel(int index) const;

@@ -41,26 +41,13 @@ GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEd
     : AudioProcessorEditor(owner),
     desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
     drawerButton(0), drawerWidth(170),
-    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(false), isCollapsed(false), tNum(-1)
+    drawerOpen(false), channelSelector(0), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
 }
 
-
-/*GenericEditor::GenericEditor (GenericProcessor* owner)
-: AudioProcessorEditor (owner), isSelected(false),
-desiredWidth(150), tNum(-1), isEnabled(true),
-accumulator(0.0), isFading(false), drawerButton(0),
-channelSelector(0)
-
-{
-    bool useDefaultParameterEditors=true;
-    constructorInitialize(owner, useDefaultParameterEditors);
-}
-*/
 GenericEditor::~GenericEditor()
 {
-    //deleteAllChildren();
 }
 
 void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
@@ -71,8 +58,6 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     nodeId = owner->getNodeId();
 
-    //MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    //Typeface::Ptr typeface = new CustomTypeface(mis);
     titleFont = Font ("Default", 14, Font::bold);
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
@@ -109,8 +94,6 @@ LOGDD("Adding drawer button.");
     addParameterEditors(useDefaultParameterEditors);
 
     backgroundColor = Colour(10,10,10);
-
-    //fadeIn();
 
 }
 
@@ -151,7 +134,7 @@ LOGDD("Adding parameter editors.");
 
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
-            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterObject (i), titleFont);
+            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterByIndex (i), titleFont);
             p->setChannelSelector (channelSelector);
 
             if (p->hasCustomBounds())
@@ -268,33 +251,6 @@ void GenericEditor::deselect()
     //setWantsKeyboardFocus(false);
 }
 
-void GenericEditor::enable()
-{
-    isEnabled = true;
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
-    //p->setEnabledState (true);
-}
-
-void GenericEditor::disable()
-{
-    isEnabled = false;
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
-    //p->setEnabledState (false);
-}
-
-bool GenericEditor::getEnabledState()
-{
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
-    return p->isEnabledState();
-}
-
-void GenericEditor::setEnabledState(bool t)
-{
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
-    p->setEnabledState(t);
-    isEnabled = p->isEnabledState();
-}
-
 void GenericEditor::setDesiredWidth (int width)
 {
     desiredWidth = width;
@@ -303,21 +259,16 @@ void GenericEditor::setDesiredWidth (int width)
 
 void GenericEditor::startRecording()
 {
-//now are disabled on acquisition
-  //  if (channelSelector != 0)
-  //      channelSelector->inactivateRecButtons();
 }
 
 void GenericEditor::stopRecording()
 {
-  //  if (channelSelector != 0)
-  //      channelSelector->activateRecButtons();
 }
 
 void GenericEditor::editorStartAcquisition()
 {
 	startAcquisition();
-LOGDD("GenericEditor received message to start acquisition.");
+    LOGDD("GenericEditor received message to start acquisition.");
 
 	if (channelSelector != 0)
 	{
@@ -358,9 +309,6 @@ void GenericEditor::editorStopAcquisition()
     acquisitionIsActive = false;
 
 }
-
-void GenericEditor::startAcquisition() {}
-void GenericEditor::stopAcquisition() {}
 
 void GenericEditor::fadeIn()
 {
@@ -458,12 +406,12 @@ void GenericEditor::timerCallback()
 void GenericEditor::buttonClicked(Button* button)
 {
 
-LOGDD("Button clicked.");
+    LOGDD("Button clicked.");
 
     checkDrawerButton(button);
 
     buttonEvent(button); // needed to inform subclasses of
-    // button event
+                         // button event
 }
 
 
@@ -509,8 +457,9 @@ void GenericEditor::sliderValueChanged(Slider* slider)
     sliderEvent(slider);
 }
 
-void GenericEditor::update()
+void GenericEditor::update(bool isEnabled_)
 {
+    isEnabled = isEnabled_;
 
 LOGDD("Editor for ");
 
@@ -534,11 +483,6 @@ LOGDD(p->getName(), " updating settings.");
     {
         channelSelector->setNumChannels(numChannels);
 
-        for (int i = 0; i < numChannels; i++)
-        {
-            //LOGDD(p->channels[i]->getRecordState());
-            channelSelector->setRecordStatus(i, p->getDataChannel(i)->getRecordState());
-        }
     }
 
     if (numChannels == 0)
@@ -553,9 +497,10 @@ LOGDD(p->getName(), " updating settings.");
     }
 
     updateVisualizer(); // does nothing unless this method
-    // has been implemented
+                        // has been implemented
     
     EditorViewport* ev = AccessClass::getEditorViewport();
+
     if(!ev->loadingConfig)
     {
         File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
@@ -564,9 +509,9 @@ LOGDD(p->getName(), " updating settings.");
 
 }
 
-const DataChannel* GenericEditor::getChannel(int chan) const
+const ContinuousChannel* GenericEditor::getContinuousChannel(int chan) const
 {
-    return getProcessor()->getDataChannel(chan);
+    return getProcessor()->getContinuousChannel(chan);
 
 }
 
@@ -1172,7 +1117,7 @@ void GenericEditor::switchSource() { }
 
 GenericProcessor* GenericEditor::getProcessor() const
 {
-    return (GenericProcessor*)getAudioProcessor();
+    return (GenericProcessor*) getAudioProcessor();
 }
 
 void GenericEditor::switchDest() { }
@@ -1191,7 +1136,7 @@ void GenericEditor::editorWasClicked() {}
 
 Colour GenericEditor::getBackgroundColor()
 {
-    if (getProcessor()->isEnabledState())
+    if (isEnabled)
         return backgroundColor;
     else
         return Colours::grey;

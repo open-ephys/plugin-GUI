@@ -25,24 +25,16 @@
 #include "../../Utils/Utils.h"
 
 
-DataThread::DataThread (SourceNode* s)
-    : Thread     ("Data Thread")
+DataThread::DataThread (SourceNode* s_)
+    : Thread     ("Data Thread"),
+      sn(s_)
 {
-    sn = s;
     setPriority (10);
-
-	int nSub = getNumSubProcessors();
-	for (int i = 0; i < nSub; i++)
-	{
-		ttlEventWords.add(0);
-		timestamps.add(0);
-	}
 }
 
 
 DataThread::~DataThread()
 {
-    //deleteAndZero(dataBuffer);
 }
 
 
@@ -63,96 +55,19 @@ void DataThread::run()
 }
 
 
-DataBuffer* DataThread::getBufferAddress(int subProcessor) const
+DataBuffer* DataThread::getBufferAddress(int streamIdx) const
 {
-
-	return sourceBuffers[subProcessor];
+	return sourceBuffers[streamIdx];
 }
 
-
-void DataThread::getChannelInfo (Array<ChannelCustomInfo>& infoArray) const
-{
-    infoArray.clear();
-    infoArray.addArray (channelInfo);
-}
-
-
-void DataThread::updateChannels()
-{
-	ttlEventWords.clear();
-	timestamps.clear();
-	int nSub = getNumSubProcessors();
-
-	for (int i = 0; i < nSub; i++)
-	{
-		ttlEventWords.add(0);
-		timestamps.add(0);
-	}
-
-    if (foundInputSource() && usesCustomNames())
-    {
-        channelInfo.resize (sn->getTotalDataChannels());
-        setDefaultChannelNames();
-
-        for (int i = 0; i < channelInfo.size(); ++i)
-        {
-			sn->setChannelInfo(i, channelInfo[i].name, channelInfo[i].gain);
-        }
-    }
-}
-
-
-void DataThread::setOutputHigh() {}
-void DataThread::setOutputLow() {}
-
-unsigned int DataThread::getNumSubProcessors() const { return 1; }
-
-int DataThread::getNumTTLOutputs(int subproc) const { return 0; }
-
-void DataThread::getEventChannelNames (StringArray& names) const { }
-
-bool DataThread::isReady() { return true; }
-
-
-int DataThread::modifyChannelName (int channel, String newName)
-{
-    return -1;
-}
-
-int DataThread::modifyChannelGain (int channel, float gain)
-{
-    return -1;
-}
-
-bool DataThread::usesCustomNames() const
-{
-    return false;
-}
-
-void DataThread::setDefaultChannelNames()
-{
-}
 
 std::unique_ptr<GenericEditor> DataThread::createEditor (SourceNode*)
 {
     return nullptr;
 }
 
-void DataThread::createExtraEvents(Array<EventChannel*>&)
-{}
-
-void DataThread::resizeBuffers()
-{}
-
-String DataThread::getChannelUnits(int chanIndex) const
-{
-
-	return String();
-
-}
 
 void DataThread::broadcastMessage(String msg)
 {
     sn->broadcastDataThreadMessage(msg);
-
 }

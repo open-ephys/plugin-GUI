@@ -96,13 +96,13 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
 
 }
 
-bool MessageCenter::enable()
+bool MessageCenter::startAcquisition()
 {
     messageCenterEditor->startAcquisition();
     return true;
 }
 
-bool MessageCenter::disable()
+bool MessageCenter::stopAcquisition()
 {
     messageCenterEditor->stopAcquisition();
     return true;
@@ -123,7 +123,6 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
     if (newEventAvailable)
     {
-        //int numBytes = 0;
 
         String eventString = messageCenterEditor->getOutgoingMessage();
 
@@ -136,6 +135,5 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
         newEventAvailable = false;
     }
-
 
 }

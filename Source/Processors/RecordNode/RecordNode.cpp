@@ -84,82 +84,6 @@ void RecordNode::updateBlockSize(int newBlockSize)
 	LOGD("Updated Record Node buffer size to: ", newBlockSize);
 }
 
-void RecordNode::connectToMessageCenter()
-{
-
-	/*const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
-
-	if (!isConnectedToMessageCenter)
-	{
-		eventChannelArray.add(new EventChannel(*messageChannel));
-	
-		isConnectedToMessageCenter = true;
-
-		LOGD("Record node ", getNodeId(), " connected to Message Center");
-	}*/
-
-}
-
-
-void RecordNode::disconnectMessageCenter()
-{
-
-	/*const EventChannel* origin = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
-
-	for (auto eventChannel : eventChannelArray)
-	{
-
-		if (eventChannel->getSourceNodeID() > 900)
-		{
-			eventChannelArray.removeObject(eventChannel);
-		}
-
-		isConnectedToMessageCenter = false;
-
-		LOGD("Record node ", getNodeId(), " disconnected from Message Center");
-	}*/
-
-}
-
-void RecordNode::addInputChannel(const GenericProcessor* sourceNode, int chan)
-{
-	// not getting called
-
-	if (chan != AccessClass::getProcessorGraph()->midiChannelIndex)
-	{
-		int channelIndex = getNextChannel(false);
-
-		const DataChannel* orig = sourceNode->getDataChannel(chan);
-		DataChannel* newChannel = new DataChannel(*orig);
-		newChannel->setRecordState(orig->getRecordState());
-		dataChannelArray.add(newChannel);
-		recordEngine->addDataChannel(channelIndex, dataChannelArray[channelIndex]);
-
-	}
-	else
-	{
-		for (int n = 0; n < sourceNode->getTotalEventChannels(); n++)
-		{
-			const EventChannel* orig = sourceNode->getEventChannel(n);
-			//only add to the record node the events originating from this processor, to avoid duplicates
-			if (orig->getSourceNodeID() == sourceNode->getNodeId())
-				eventChannelArray.add(new EventChannel(*orig));
-
-		}
-
-	}
-
-}
-
-void RecordNode::addSpecialProcessorChannels(Array<EventChannel*>& channels)
-{
-
-	eventChannelArray.addArray(channels);
-	settings.numInputs = dataChannelArray.size();
-	setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 1024);
-
-}
-
 void RecordNode::setEngine(int index)
 {
 	availableEngines = getAvailableRecordEngines();
@@ -301,12 +225,6 @@ AudioProcessorEditor* RecordNode::createEditor()
 	return editor.get();
 }
 
-// Juce method, not used
-void RecordNode::prepareToPlay(double sampleRate, int estimatedSamplesPerBlock)
-{
-	/* This gets called right when the play button is pressed*/
-}
-
 // called by RecordEngine when saving the signal chain
 const String &RecordNode::getLastSettingsXml() const
 {
@@ -332,7 +250,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 void RecordNode::updateRecordChannelIndexes()
 {
 	//Keep the nodeIDs of the original processor from each channel comes from
-	updateChannelIndexes(false);
+	updateChannelIndices(false);
 }
 
 // Called when deleting FifoMonitor
@@ -354,10 +272,10 @@ void RecordNode::updateSubprocessorMap()
 	int originalChannelCount = numChannels;
     int ch = 0;
 
-    while (ch < dataChannelArray.size()) 
+    while (ch < continuousChannels.size()) 
     {
         
-        DataChannel* chan = dataChannelArray[ch];
+        ContinuousChannel* chan = continuousChannels[ch];
         int sourceID = chan->getSourceNodeID();
         int subProcIdx = chan->getSubProcessorIdx();
 
@@ -411,11 +329,11 @@ void RecordNode::updateSubprocessorMap()
 			int count = 0;
 			int originalSize = dataChannelStates[sourceID][subProcIdx].size();
 
-			for (int i = 0; i < dataChannelArray.size(); i++)
+			for (int i = 0; i < continuousChannels.size(); i++)
 			{
 
 				//std::cout << "Channel " << i << ": " << dataChannelArray[i]->getSourceNodeID() << "." << dataChannelArray[i]->getSubProcessorIdx() << std::endl;
-				if (dataChannelArray[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
+				if (continuousChannels[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
 				{
 					dataChannelOrder[ch + count] = count;
 					count++;
@@ -450,8 +368,6 @@ void RecordNode::updateSubprocessorMap()
 			//std::cout << " Channel " << ch << " record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
 		}
 
-		
-        
     }
 
     //Remove any stale processors
@@ -483,11 +399,11 @@ void RecordNode::updateSubprocessorMap()
     syncChannelMap.clear();
     syncOrderMap.clear();
 
-	LOGDD("Record Node: ", getNodeId(), " has ", eventChannelArray.size(), " event channels");
-    for (int ch = 0; ch < eventChannelArray.size(); ch++)
+	LOGDD("Record Node: ", getNodeId(), " has ", eventChannels.size(), " event channels");
+    for (int ch = 0; ch < eventChannels.size(); ch++)
     {
 
-        EventChannel* chan = eventChannelArray[ch];
+        EventChannel* chan = eventChannels[ch];
         int sourceID = chan->getSourceNodeID();
         int subProcID = chan->getSubProcessorIdx();
 
@@ -505,15 +421,15 @@ void RecordNode::updateSubprocessorMap()
 
 // called by GenericProcessor, RecordNodeEditor, SourceProcessorInfo,
 // TimestampSourceSelectionComponent
-int RecordNode::getNumSubProcessors() const
-{
-	return numSubprocessors;
-}
+//int RecordNode::getNumSubProcessors() const
+//{
+//	return numSubprocessors;
+//}
 
 // called by RecordNodeEditor (when loading), SyncControlButton
-void RecordNode::setMasterSubprocessor(int srcIndex, int subProcIdx)
+void RecordNode::setMainDataStream(uint32 streamId)
 {
-	synchronizer->setMasterSubprocessor(srcIndex, subProcIdx);
+	synchronizer->setMainDataStream(streamId);
 }
 
 // called by RecordNodeEditor (when loading), SyncControlButton
@@ -545,7 +461,7 @@ void RecordNode::updateSettings()
 }
 
 // called by GenericProcessor::enableProcessor
-bool RecordNode::enable()
+bool RecordNode::startAcquisition()
 {
 
 	//connectToMessageCenter();
@@ -577,7 +493,7 @@ bool RecordNode::enable()
 
 }
 
-bool RecordNode::disable()
+bool RecordNode::stopAcquisition()
 {
 	//disconnectMessageCenter();
 	return true;
@@ -589,7 +505,7 @@ void RecordNode::startRecording()
 
 	channelMap.clear();
 	ftsChannelMap.clear();
-	int totChans = dataChannelArray.size();
+	int totChans = continuousChannels.size();
 	OwnedArray<RecordProcessorInfo> procInfo;
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
@@ -605,7 +521,7 @@ void RecordNode::startRecording()
 	for (int ch = 0; ch < totChans; ++ch)
 	{
 
-		DataChannel* chan = dataChannelArray[ch];
+		ContinuousChannel* chan = continuousChannels[ch];
 		int srcIndex = chan->getSourceNodeID();
 		int subIndex = chan->getSubProcessorIdx();
 
@@ -659,8 +575,6 @@ void RecordNode::startRecording()
 	recordThread->setFirstBlockFlag(false);
 
 	hasRecorded = true;
-
-	
 
 	/* Set write properties */
 	setFirstBlock = false;

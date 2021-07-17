@@ -98,11 +98,12 @@ void SourceNode::resizeBuffers()
 	inputBuffers.clear();
 	eventCodeBuffers.clear();
 	eventStates.clear();
+
 	if (dataThread != nullptr)
 	{
 		dataThread->resizeBuffers();
-		int numSubProcs = dataThread->getNumSubProcessors();
-		for (int i = 0; i < numSubProcs; i++)
+
+		for (int i = 0; i < sourceStreams.size(); i++)
 		{
 			inputBuffers.add(dataThread->getBufferAddress(i));
 			eventCodeBuffers.add(new MemoryBlock(10000*sizeof(uint64)));
@@ -118,26 +119,18 @@ void SourceNode::requestChainUpdate()
 }
 
 
-void SourceNode::getEventChannelNames (StringArray& names)
-{
-    if (dataThread != 0)
-        dataThread->getEventChannelNames(names);
-}
-
-
 void SourceNode::updateSettings()
 {
 	if (dataThread)
 	{
-		dataThread->updateChannels();
-		resizeBuffers();
-		int nChans = dataChannelArray.size();
-		for (int i = 0; i < nChans; i++)
-		{
-			String unit = dataThread->getChannelUnits(i);
-			if (unit.isNotEmpty())
-				dataChannelArray[i]->setDataUnits(unit);
-		}
+		dataThread->updateSettings(&continuousChannels,
+            &eventChannels,
+            &spikeChannels,
+            &sourceStreams,
+            &devices,
+            &configurationObjects);
+		
+        resizeBuffers();
 	}
 }
 
@@ -178,26 +171,6 @@ float SourceNode::getDefaultSampleRate() const
         return 44100.0;
 }
 
-int SourceNode::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int sub) const
-{
-	if (dataThread)
-		return dataThread->getNumDataOutputs(type, sub);
-	else return 0;
-}
-
-float SourceNode::getBitVolts (const DataChannel* chan) const
-{
-    if (dataThread != 0)
-        return dataThread->getBitVolts (chan);
-    else
-        return 1.0f;
-}
-
-void SourceNode::setChannelInfo(int channel, String name, float bitVolts)
-{
-	dataChannelArray[channel]->setName(name);
-	dataChannelArray[channel]->setBitVolts(bitVolts);
-}
 
 void SourceNode::createEventChannels()
 {

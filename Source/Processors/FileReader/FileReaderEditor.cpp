@@ -59,7 +59,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaul
 
     desiredWidth = 180;
 
-    setEnabledState (false);
+    //setEnabledState (false);
 }
 
 
@@ -77,7 +77,7 @@ void FileReaderEditor::setFile (String file)
     {
         fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
 
-        setEnabledState (true);
+        //setEnabledState (true);
     }
     else
     {
@@ -85,6 +85,7 @@ void FileReaderEditor::setFile (String file)
     }
 
     CoreServices::updateSignalChain (this);
+
     repaint();
 }
 
@@ -207,7 +208,9 @@ void FileReaderEditor::clearEditor()
     currentTime->setTimeMilliseconds    (0, 0);
     currentTime->setTimeMilliseconds    (1, 0);
 
-    setEnabledState (false);
+    CoreServices::updateSignalChain(this);
+
+    //setEnabledState (false);
 }
 
 

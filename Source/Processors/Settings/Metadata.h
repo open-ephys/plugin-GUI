@@ -28,21 +28,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 
 class GenericProcessor;
-class MetaDataEvent;
+class MetadataEvent;
 
 /**
 Metadata Objects
 Any extra info a processor wants to define that can't fit inside the standard fields can be defined as metadata.
-A metadata value can be of any type of the listed in MetaDataTypes and with any dimension. For example,
+A metadata value can be of any type of the listed in MetadataTypes and with any dimension. For example,
 a metadata value of type INTEGER and size 3 would be an array of 3 integers. For strings, simply set
 a type of CHAR and a value equal to the maximum length of the string plus one, for the null char.
 */
 
-class PLUGIN_API MetaDataDescriptor
+class PLUGIN_API MetadataDescriptor
 	: public ReferenceCountedObject
 {
 public:
-	enum MetaDataTypes
+	enum MetadataTypes
 	{
 		CHAR,
 		INT8,
@@ -58,7 +58,7 @@ public:
 	};
 
 	/**
-	MetaData descriptor constructor
+	Metadata descriptor constructor
 	@param type The primitive type this metadata field will hold
 	@param length The length of the data. 1 for single value or mroe for arrays.
 	@param name The human-readable name of this metadata field
@@ -67,13 +67,13 @@ public:
 
 	name and humanDescription will be saved in most data formats for latter reference
 	*/
-	MetaDataDescriptor(MetaDataTypes type, unsigned int length, String name, String description, String identifier);
-	~MetaDataDescriptor();
-	MetaDataDescriptor(const MetaDataDescriptor& other);
-	MetaDataDescriptor& operator=(const MetaDataDescriptor& other);
+	MetadataDescriptor(MetadataTypes type, unsigned int length, String name, String description, String identifier);
+	~MetadataDescriptor();
+	MetadataDescriptor(const MetadataDescriptor& other);
+	MetadataDescriptor& operator=(const MetadataDescriptor& other);
 
 	/** Gets the primitive type of this field */
-	MetaDataTypes getType() const;
+	MetadataTypes getType() const;
 	/** Gets the number of elements in this field */
 	unsigned int getLength() const;
 	/** Gets the total data in bytes for this field */
@@ -86,61 +86,61 @@ public:
 	String getIdentifier() const;
 
 	/** Returns true if both descriptors have the same type, length and identifier */
-	bool isEqual(const MetaDataDescriptor& other) const;
+	bool isEqual(const MetadataDescriptor& other) const;
 	/** Returns true if both descriptors have the same type, length and identifier */
-	bool operator==(const MetaDataDescriptor& other) const;
+	bool operator==(const MetadataDescriptor& other) const;
 	/** Returns true if both descriptors have the same type and length, regardless of the identifier */
-	bool isSimilar(const MetaDataDescriptor& other) const;
+	bool isSimilar(const MetadataDescriptor& other) const;
 
-	static size_t getTypeSize(MetaDataTypes type);
+	static size_t getTypeSize(MetadataTypes type);
 private:
-	MetaDataDescriptor() = delete;
+	MetadataDescriptor() = delete;
 	String m_name;
 	String m_identifier;
 	String m_description;
-	MetaDataTypes m_type;
+	MetadataTypes m_type;
 	unsigned int m_length;
 
-	JUCE_LEAK_DETECTOR(MetaDataDescriptor);
+	JUCE_LEAK_DETECTOR(MetadataDescriptor);
 };
 
-class PLUGIN_API MetaDataValue
+class PLUGIN_API MetadataValue
 	: public ReferenceCountedObject
 {
-	friend MetaDataEvent; //The Serialize method must access the raw data pointer.
+	friend MetadataEvent; //The Serialize method must access the raw data pointer.
 public:
-	MetaDataValue(MetaDataDescriptor::MetaDataTypes type, unsigned int length);
-	MetaDataValue(const MetaDataDescriptor& desc);
+	MetadataValue(MetadataDescriptor::MetadataTypes type, unsigned int length);
+	MetadataValue(const MetadataDescriptor& desc);
 	//To be able to set value at object creation
-	MetaDataValue(MetaDataDescriptor::MetaDataTypes type, unsigned int length, const void* data);
-	MetaDataValue(const MetaDataDescriptor& desc, const void* data);
+	MetadataValue(MetadataDescriptor::MetadataTypes type, unsigned int length, const void* data);
+	MetadataValue(const MetadataDescriptor& desc, const void* data);
 
-	bool isOfType(const MetaDataDescriptor& desc) const;
-	bool isOfType(const MetaDataDescriptor* desc) const;
+	bool isOfType(const MetadataDescriptor& desc) const;
+	bool isOfType(const MetadataDescriptor* desc) const;
 
-	MetaDataDescriptor::MetaDataTypes getDataType() const;
+	MetadataDescriptor::MetadataTypes getDataType() const;
 	unsigned int getDataLength() const;
 	size_t getDataSize() const;
 
-	MetaDataValue(const MetaDataValue&);
-	MetaDataValue& operator= (const MetaDataValue&);
+	MetadataValue(const MetadataValue&);
+	MetadataValue& operator= (const MetadataValue&);
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-	MetaDataValue& operator= (MetaDataValue&&);
+	MetadataValue& operator= (MetadataValue&&);
 #endif
-	~MetaDataValue();
+	~MetadataValue();
 
 	//Get-set for strings
 	void setValue(const String& data);
 	void getValue(String& data) const;
 
-	//Get-set for single-size types. Defined only for the types present on MetaDataTypes
+	//Get-set for single-size types. Defined only for the types present on MetadataTypes
 	template <typename T>
 	void setValue(T data);
 
 	template <typename T>
 	void getValue(T& data) const;
 
-	//Get set for arrays, both in raw form and in juce array form. Defined only for the types present on MetaDataTypes
+	//Get set for arrays, both in raw form and in juce array form. Defined only for the types present on MetadataTypes
 	template <typename T>
 	void setValue(const T* data);
 
@@ -159,99 +159,99 @@ public:
 	const void* getRawValuePointer() const;
 
 private:
-	MetaDataValue() = delete;
+	MetadataValue() = delete;
 	void setValue(const void* data);
 	void allocSpace();
-	static size_t getSize(MetaDataDescriptor::MetaDataTypes type, unsigned int length);
+	static size_t getSize(MetadataDescriptor::MetadataTypes type, unsigned int length);
 	HeapBlock<char> m_data;
-	MetaDataDescriptor::MetaDataTypes m_type;
+	MetadataDescriptor::MetadataTypes m_type;
 	unsigned int m_length;
 	size_t m_size;
 
-	JUCE_LEAK_DETECTOR(MetaDataValue);
+	JUCE_LEAK_DETECTOR(MetadataValue);
 };
 
-typedef ReferenceCountedArray<MetaDataDescriptor,CriticalSection> MetaDataDescriptorArray;
-typedef ReferenceCountedArray<MetaDataValue,CriticalSection> MetaDataValueArray;
-typedef ReferenceCountedObjectPtr<MetaDataDescriptor> MetaDataDescriptorPtr;
-typedef ReferenceCountedObjectPtr<MetaDataValue> MetaDataValuePtr;
+typedef ReferenceCountedArray<MetadataDescriptor,CriticalSection> MetadataDescriptorArray;
+typedef ReferenceCountedArray<MetadataValue,CriticalSection> MetadataValueArray;
+typedef ReferenceCountedObjectPtr<MetadataDescriptor> MetadataDescriptorPtr;
+typedef ReferenceCountedObjectPtr<MetadataValue> MetadataValuePtr;
 
 //Inherited for all info objects that have metadata
-class PLUGIN_API MetaDataInfoObject
+class PLUGIN_API MetadataObject
 {
 protected:
-	MetaDataInfoObject();
+	MetadataObject();
 public:
-    virtual ~MetaDataInfoObject();
-	void addMetaData(MetaDataDescriptor* desc, MetaDataValue* val);
-	void addMetaData(const MetaDataDescriptor& desc, const MetaDataValue& val);
-	const MetaDataDescriptor* getMetaDataDescriptor(int index) const;
-	const MetaDataValue* getMetaDataValue(int index) const;
-	int findMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String()) const;
-	const int getMetaDataCount() const;
-	bool hasSameMetadata(const MetaDataInfoObject& other) const;
-	bool hasSimilarMetadata(const MetaDataInfoObject& other) const;
+    virtual ~MetadataObject();
+	void addMetadata(MetadataDescriptor* desc, MetadataValue* val);
+	void addMetadata(const MetadataDescriptor& desc, const MetadataValue& val);
+	const MetadataDescriptor* getMetadataDescriptor(int index) const;
+	const MetadataValue* getMetadataValue(int index) const;
+	int findMetadata(MetadataDescriptor::MetadataTypes type, unsigned int length, String identifier = String()) const;
+	const int getMetadataCount() const;
+	bool hasSameMetadata(const MetadataObject& other) const;
+	bool hasSimilarMetadata(const MetadataObject& other) const;
 protected:
-	MetaDataDescriptorArray m_metaDataDescriptorArray;
-	MetaDataValueArray m_metaDataValueArray;
+	MetadataDescriptorArray m_metadataDescriptorArray;
+	MetadataValueArray m_metadataValueArray;
 private:
-	bool checkMetaDataCoincidence(const MetaDataInfoObject& other, bool similar) const;
+	bool checkMetadataCoincidence(const MetadataObject& other, bool similar) const;
 };
 
-class PLUGIN_API MetaDataEventLock
+class PLUGIN_API MetadataEventLock
 {
 	//GenericProcessor will set this to true when copying channels in the update method so no other processor but the one which
-	//created the object can call addEventMetaData. This is done this way because since the events themselves are created by the
+	//created the object can call addEventMetadata. This is done this way because since the events themselves are created by the
 	//source processot and not modified, changing the metadata information will cause errors when trying to decode the data embedded
 	//in the event itself.
 	friend class GenericProcessor;
 protected:
-	bool eventMetaDataLock{ false };
-	MetaDataEventLock();
+	bool eventMetadataLock{ false };
+	MetadataEventLock();
 };
 
 //Special class for event and spike info objects, whose events can hold extra metadata
-class PLUGIN_API MetaDataEventObject : public MetaDataEventLock
+class PLUGIN_API MetadataEventObject : public MetadataEventLock
 {
 public:
-    virtual ~MetaDataEventObject();
+    virtual ~MetadataEventObject();
 	//This method will only work when creating the info object, but not for those copied down the chain
-	void addEventMetaData(MetaDataDescriptor* desc);
-	void addEventMetaData(const MetaDataDescriptor& desc);
-	const MetaDataDescriptor* getEventMetaDataDescriptor(int index) const;
-	int findEventMetaData(MetaDataDescriptor::MetaDataTypes type, unsigned int length, String identifier = String()) const;
-	size_t getTotalEventMetaDataSize() const;
-	int getEventMetaDataCount() const;
+	void addEventMetadata(MetadataDescriptor* desc);
+	void addEventMetadata(const MetadataDescriptor& desc);
+	const MetadataDescriptor* getEventMetadataDescriptor(int index) const;
+	int findEventMetadata(MetadataDescriptor::MetadataTypes type, unsigned int length, String identifier = String()) const;
+	size_t getTotalEventMetadataSize() const;
+	int getEventMetadataCount() const;
 	//gets the largest metadata size, which can be useful to reserve buffers in advance
-	size_t getMaxEventMetaDataSize() const;
-	bool hasSameEventMetadata(const MetaDataEventObject& other) const;
-	bool hasSimilarEventMetadata(const MetaDataEventObject& other) const;
+	size_t getMaxEventMetadataSize() const;
+	bool hasSameEventMetadata(const MetadataEventObject& other) const;
+	bool hasSimilarEventMetadata(const MetadataEventObject& other) const;
 protected:
-	MetaDataDescriptorArray m_eventMetaDataDescriptorArray;
-	MetaDataEventObject();
+	MetadataDescriptorArray m_eventMetadataDescriptorArray;
+	MetadataEventObject();
 	size_t m_totalSize{ 0 };
 	size_t m_maxSize{ 0 };
 private:
-	bool checkMetaDataCoincidence(const MetaDataEventObject& other, bool similar) const;
+	bool checkMetadataCoincidence(const MetadataEventObject& other, bool similar) const;
 };
 
 //And the base from which event objects can hold their metadata before serializing
-class PLUGIN_API MetaDataEvent
+class PLUGIN_API MetadataEvent
 {
 public:
-    virtual ~MetaDataEvent();
+    virtual ~MetadataEvent();
 	int getMetadataValueCount() const;
-	const MetaDataValue* getMetaDataValue(int index) const;
+	const MetadataValue* getMetadataValue(int index) const;
 protected:
-	void serializeMetaData(void* dstBuffer) const;
-	bool deserializeMetaData(const MetaDataEventObject* info, const void* srcBuffer, int size);
-	MetaDataEvent();
-	MetaDataValueArray m_metaDataValues;
+	void serializeMetadata(void* dstBuffer) const;
+	bool deserializeMetadata(const MetadataEventObject* info, const void* srcBuffer, int size);
+	MetadataEvent();
+	MetadataValueArray m_metaDataValues;
 };
 
 //Helper function to compare identifier strings
 bool compareIdentifierStrings(const String& identifier, const String& compareWith);
 
-typedef MetaDataDescriptor::MetaDataTypes BaseType;
+typedef MetadataDescriptor::MetadataTypes BaseType;
 
 #endif

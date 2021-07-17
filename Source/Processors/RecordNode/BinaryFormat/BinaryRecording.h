@@ -43,9 +43,9 @@ private:
 		std::unique_ptr<NpyFile> extraFile;
     };
 
-    std::unique_ptr<NpyFile> createEventMetadataFile(const MetaDataEventObject* channel, String fileName, DynamicObject* jsonObject);
-	void createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonObject);
-    void writeEventMetaData(const MetaDataEvent* event, NpyFile* file);
+    std::unique_ptr<NpyFile> createEventMetadataFile(const MetadataEventObject* channel, String fileName, DynamicObject* jsonObject);
+	void createChannelMetadata(const MetadataObject* channel, DynamicObject* jsonObject);
+    void writeEventMetadata(const MetadataEvent* event, NpyFile* file);
     void increaseEventCounts(EventRecording* rec);
 
     bool m_saveTTLWords{ true };
@@ -64,7 +64,7 @@ private:
 	OwnedArray<EventRecording> m_spikeFiles;
 
 	static String jsonTypeValue(BaseType type);
-	static String getProcessorString(const InfoObjectCommon* channelInfo);
+	static String getProcessorString(const InfoObject* channelInfo);
 	
 	OwnedArray<NpyFile> m_dataTimestampFiles;
 	OwnedArray<NpyFile> m_dataFloatTimestampFiles;

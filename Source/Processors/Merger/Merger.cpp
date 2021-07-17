@@ -184,53 +184,25 @@ GenericProcessor* Merger::getSourceNode(int path)
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
-    if (sendContinuousForSource(sn))
+    for (int streamIdx = 0; streamIdx < sn->getNumStreams(); streamIdx++)
     {
-        settings.numInputs += sn->getNumOutputs();
+        const DataStream* stream = sn->getStream(streamIdx);
 
-        for (int i = 0; i < sn->getTotalDataChannels(); i++)
-        {
-            const DataChannel* sourceChan = sn->getDataChannel(i);
-            DataChannel* ch = new DataChannel(*sourceChan);
-            dataChannelArray.add(ch);
-        
-        }
+        if (checkStream(stream))
+            copyDataStreamSettings(stream);
     }
 
-    if (sendEventsForSource(sn))
+    for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
     {
-        for (int i = 0; i < sn->getTotalEventChannels(); i++)
-        {
-            const EventChannel* sourceChan = sn->getEventChannel(i);
-            EventChannel* ch = new EventChannel(*sourceChan);
-            eventChannelArray.add(ch);
-        }
-		for (int i = 0; i < sn->getTotalSpikeChannels(); i++)
-		{
-			const SpikeChannel* sourceChan = sn->getSpikeChannel(i);
-			SpikeChannel* ch = new SpikeChannel(*sourceChan);
-			spikeChannelArray.add(ch);
-		}
+        const ConfigurationObject* sourceChan = sn->getConfigurationObject(i);
+        ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
+        configurationObjects.add(ch);
     }
-	for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
-	{
-		const ConfigurationObject* sourceChan = sn->getConfigurationObject(i);
-		ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
-		configurationObjectArray.add(ch);
-	}
-
-    settings.originalSource = sn->settings.originalSource;
-
-    settings.numOutputs = settings.numInputs;
-
 }
+
 
 void Merger::updateSettings()
 {
-
-    // default is to get everything from sourceNodeA,
-    // but this might not be ideal
-    clearSettings();
     
     isEnabled = true;
 
@@ -253,12 +225,6 @@ void Merger::updateSettings()
         mergeEventsB = true;
         mergeContinuousB = true;
     }
-
-    if (sourceNodeA == 0 && sourceNodeB == 0)
-    {
-		settings.numOutputs = getNumOutputs();
-    }
-
 
     LOGD("Number of merger outputs: ", getNumInputs());
 

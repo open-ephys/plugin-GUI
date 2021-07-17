@@ -60,28 +60,20 @@ public:
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    void getEventChannelNames (StringArray& names) override;
-
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
     void loadCustomParametersFromXml()                          override;
 
-	int getNumSubProcessors() const override;
-
     float getSampleRate(int subProcessorIdx = 0)        const override;
     float getDefaultSampleRate() const override;
-
-    float getBitVolts (const DataChannel* chan) const override;
 
     void requestChainUpdate();
 
 	bool hasEditor() const override;
 
-	bool isGeneratesTimestamps() const override;
+	bool generatesTimestamps() const override;
 
-    bool enable()   override;
-    bool disable()  override;
-
-    bool isReady() override;
+    bool startAcquisition()   override;
+    bool stopAcquisition()  override;
 
     bool isSourcePresent() const;
 
@@ -93,11 +85,7 @@ public:
 
     bool tryEnablingEditor();
 
-	void setChannelInfo(int channel, String name, float bitVolts);
-protected:
-	int getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessorIdx = 0) const override;
-
-	void createEventChannels() override;
+	//void setChannelInfo(int channel, String name, float bitVolts);
 
 private:
     void timerCallback() override;

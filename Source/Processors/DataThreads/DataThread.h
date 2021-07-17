@@ -30,21 +30,6 @@
 
 class SourceNode;
 
-struct PLUGIN_API ChannelCustomInfo
-{
-    ChannelCustomInfo()
-        : name      ("")
-        , gain      (0.f)
-        , modified  (false)
-    {
-    }
-
-    String name;
-    float gain;
-    bool modified;
-};
-
-
 /**
     Abstract base class for a data input thread owned by the SourceNode.
 
@@ -62,24 +47,13 @@ public:
     DataThread (SourceNode* sn);
     ~DataThread();
 
-    /** Calls 'updateBuffer()' continuously while the thread is being run.*/
-    void run() override;
-
-    /** Returns the address of the DataBuffer that the input source will fill.*/
-    DataBuffer* getBufferAddress(int subProcessor) const;
-
-	/** Called when the chain updates, to add, remove or resize the sourceBuffers' DataBuffers as needed*/
-	virtual void resizeBuffers();
+    // ---------------------
+    // PURE VIRTUAL METHODS
+    // ---------------------
 
     /** Fills the DataBuffer with incoming data. This is the most important
-    method for each DataThread.*/
+        method for each DataThread.*/
     virtual bool updateBuffer() = 0;
-
-    /** Experimental method used for testing data sources that can deliver outputs.*/
-    virtual void setOutputHigh();
-
-    /** Experimental method used for testing data sources that can deliver outputs.*/
-    virtual void setOutputLow();
 
     /** Returns true if the data source is connected, false otherwise.*/
     virtual bool foundInputSource() = 0;
@@ -90,78 +64,46 @@ public:
     /** Stops data transfer.*/
     virtual bool stopAcquisition() = 0;
 
-    /** Returns the number of continuous headstage channels the data source can provide.*/
-    virtual int getNumDataOutputs(DataChannel::DataChannelTypes type, int subProcessorIdx) const = 0;
+    /* Passes the processor's info objects to DataThread, to allow them to be configured */
+    virtual void updateSettings(OwnedArray<ContinuousChannel>* continuousChannels,
+        OwnedArray<EventChannel>* eventChannels,
+        OwnedArray<SpikeChannel>* spikeChannels,
+        OwnedArray<DataStream>* sourceStreams,
+        OwnedArray<DeviceInfo>* devices,
+        OwnedArray<ConfigurationObject>* configurationObjects) = 0;
 
-	/** Returns the number of TTL channels that each subprocessor generates*/
-	virtual int getNumTTLOutputs(int subProcessorIdx) const = 0;
+    // ---------------------
+    // VIRTUAL METHODS
+    // ---------------------
 
-    /** Returns the sample rate of the data source.*/
-    virtual float getSampleRate(int subProcessorIdx) const = 0;
-
-	/** Returns the number of virtual subprocessors this source can generate */
-	virtual unsigned int getNumSubProcessors() const;
-
-	/** Called to create extra event channels, apart from the default TTL ones*/
-	virtual void createExtraEvents(Array<EventChannel*>& events);
-
-    /** Returns the volts per bit of the data source.*/
-    virtual float getBitVolts (const DataChannel* chan) const = 0;
-
-    /** Notifies if the device is ready for acquisition */
-    virtual bool isReady();
-
-    virtual int modifyChannelName (int channel, String newName);
-
-    virtual int modifyChannelGain (int channel, float gain);
-
-    /*  virtual void getChannelsInfo(StringArray &Names, Array<ChannelType> &type, Array<int> &stream, Array<int> &originalChannelNumber, Array<float> &gains)
-      {
-      }*/
-
-    virtual void getEventChannelNames (StringArray& names) const;
-
-    virtual bool usesCustomNames() const;
-
-    /** Changes the names of channels, if the thread needs custom names. */
-    void updateChannels();
-
-    /** Returns a pointer to the data input device, in case other processors
-    need to communicate with it.*/
-  //  virtual void* getDevice();
-
-    void getChannelInfo (Array<ChannelCustomInfo>& infoArray) const;
+    /** Called when the chain updates, to add, remove or resize the sourceBuffers' DataBuffers as needed*/
+    virtual void resizeBuffers() { }
 
     /** Create the DataThread custom editor, if any*/
-    virtual std::unique_ptr<GenericEditor> createEditor (SourceNode* sn);
-
-	void createTTLChannels();
-
-	virtual String getChannelUnits(int chanIndex) const;
+    virtual std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
 
     // ** Allows the DataThread plugin to respond to messages sent by other processors */
     virtual void handleMessage(String msg) { }
 
+    // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
+    virtual String handleConfigMessage(String msg) { return ""; }
+
+    /** Calls 'updateBuffer()' continuously while the thread is being run.*/
+    void run() override;
+
+    /** Returns the address of the DataBuffer that the input source will fill.*/
+    DataBuffer* getBufferAddress(int streamIdx) const;
+
+protected:
+
     // ** Allows the DataThread plugin to broadcast a message other processors */
     void broadcastMessage(String msg);
 
-    // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
-    virtual String handleConfigMessage(String msg) { return "";  }
-
-protected:
-    virtual void setDefaultChannelNames();
-
     SourceNode* sn;
 
-    Array<uint64> ttlEventWords;
-    Array<int64> timestamps;
-
-    Array<ChannelCustomInfo> channelInfo;
 	OwnedArray<DataBuffer> sourceBuffers;
 
 private:
-    Time timer;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataThread);
 };

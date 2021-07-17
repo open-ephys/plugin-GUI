@@ -30,7 +30,7 @@ AudioNode::AudioNode()
 {
 
     // settings.numInputs = 4096;
-    settings.numOutputs = 2;
+    //settings.numOutputs = 2;
 
     //updatePlaybackBuffer();
 
@@ -57,18 +57,18 @@ AudioProcessorEditor* AudioNode::createEditor()
 
 void AudioNode::resetConnections()
 {
-    settings.numInputs = 2; // "dummy" inputs that are actually just outputs
+    //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
     nextAvailableChannel = 2; // start connections at channel 2
-    wasConnected = false;
+    //wasConnected = false;
 
-    dataChannelArray.clear();
+    continuousChannels.clear();
 
     updatePlaybackBuffer();
 }
 
 void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
 {
-    settings.numInputs += sourceNode->getNumOutputs();
+    //settings.numInputs += sourceNode->getNumOutputs();
     updatePlaybackBuffer();
 }
 
@@ -79,7 +79,7 @@ void AudioNode::updateBufferSize()
 
 }
 
-void AudioNode::setChannel(const DataChannel* ch)
+void AudioNode::setChannel(const ContinuousChannel* ch)
 {
 
 	int channelNum;
@@ -107,7 +107,7 @@ void AudioNode::setChannelStatus(const DataChannel* chan, bool status)
 
 }
 
-void AudioNode::enableCurrentChannel(bool state)
+/*void AudioNode::enableCurrentChannel(bool state)
 {
 
     if (state)
@@ -118,7 +118,7 @@ void AudioNode::enableCurrentChannel(bool state)
     {
         setParameter(-100, 0.0f);
     }
-}
+}*/
 
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)

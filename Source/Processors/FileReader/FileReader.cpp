@@ -30,6 +30,8 @@
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
 
+#include "../Settings/DeviceInfo.h"
+#include "../Settings/DataStream.h"
 
 FileReader::FileReader()
     : GenericProcessor ("File Reader")
@@ -49,7 +51,7 @@ FileReader::FileReader()
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
-    setEnabledState (false);
+    //setEnabledState (false);
 
 	//Load pluIn file Sources
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
@@ -79,8 +81,17 @@ FileReader::FileReader()
 		{
 			supportedExtensions.set(extensions[j].toLowerCase(), i + numFileSources + 1);
 		}
-
 	}
+
+    DeviceInfo::Settings settings {
+        "File Reader",
+        "description",
+        "identifier",
+        "00000x003",
+        "Open Ephys"
+    };
+
+    devices.add(new DeviceInfo(settings));
 }
 
 
@@ -98,37 +109,6 @@ AudioProcessorEditor* FileReader::createEditor()
     return editor.get();
 }
 
-void FileReader::createEventChannels()
-{
-    //editor = new FileReaderEditor (this, true);
-
-    //return editor;
-
-    /*eventChannel = new EventChannel(EventChannel::TEXT,
-        1,
-        512,
-        CoreServices::getGlobalSampleRate(),
-        this,
-        0);
-
-    eventChannel->setName("File Reader Messages");
-    eventChannel->setDescription("Messages from the File Reader");
-    eventChannelArray.add(new EventChannel(*eventChannel));*/
-}
-
-bool FileReader::isReady()
-{
-    if (! input)
-    {
-        //CoreServices::sendStatusMessage ("No file selected in File Reader.");
-        return false;
-    }
-    else
-    {
-        return input->isReady();
-    }
-}
-
 
 float FileReader::getDefaultSampleRate() const
 {
@@ -139,33 +119,17 @@ float FileReader::getDefaultSampleRate() const
 }
 
 
-int FileReader::getDefaultNumDataOutputs(DataChannel::DataChannelTypes type, int subproc) const
-{
-    if (subproc != 0) return 0;
-    if (type != DataChannel::HEADSTAGE_CHANNEL) return 0;
-    if (input)
-        return currentNumChannels;
-    else
-        return 16;
-}
-
-
-float FileReader::getBitVolts (const DataChannel* chan) const
-{
-    if (input)
-        return chan->getBitVolts();
-    else
-        return 0.05f;
-}
-
-
-void FileReader::setEnabledState (bool t)
+/*void FileReader::setEnabledState (bool t)
 {
     isEnabled = t;
-}
+}*/
 
-bool FileReader::enable()
+bool FileReader::startAcquisition()
 {
+
+    if (!isEnabled)
+        return false;
+
 	timestamp = 0;
     count = 0;
 
@@ -194,10 +158,10 @@ bool FileReader::enable()
 
 	startThread(); // start async file reader thread
 
-	return isEnabled;
+	return true;
 }
 
-bool FileReader::disable()
+bool FileReader::stopAcquisition()
 {
 	stopThread(100);
 	return true;
@@ -320,10 +284,28 @@ void FileReader::updateSettings()
 {
      if (!input) return;
 
-     for (int i=0; i < currentNumChannels; i++)
+     DataStream::Settings settings{
+         "name",
+         "description",
+         "identifier",
+         getDefaultSampleRate(),
+         processorInfo.get()
+     };
+
+     sourceStreams.add(new DataStream(settings));
+
+     for (int i = 0; i < currentNumChannels; i++)
      {
-         dataChannelArray[i]->setBitVolts(channelInfo[i].bitVolts);
-         dataChannelArray[i]->setName(channelInfo[i].name);
+         ContinuousChannel::Settings settings{
+             ContinuousChannel::Type::ELECTRODE,
+             "CH" + String(i + 1),
+             "description",
+             getBitVolts(),
+             sourceStreams.getLast()
+         };
+         
+         continuousChannels.add(new ContinuousChannel(settings));
+         sourceStreams.getLast()->addChannel(continuousChannels.getLast());
      }
 
 }
@@ -333,7 +315,7 @@ void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
     //std::cout << "File reader received event." << std::endl;
 
-    if (Event::getSourceID(event) > 900)
+    if (Event::getSourceId(event) > 900)
     {
 
         TextEventPtr textEvent = TextEvent::deserializeFromMessage(event, eventInfo);

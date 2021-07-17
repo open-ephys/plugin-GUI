@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../../UI/Utils/TiledButtonGroupManager.h"
-#include "../Channel/InfoObjects.h"
+#include "../Settings/InfoObject.h"
 
 #include <stdio.h>
 

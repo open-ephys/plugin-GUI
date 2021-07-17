@@ -28,7 +28,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../Channel/InfoObjects.h"
+
+#include "../Settings/InfoObject.h"
 
 #include <stdio.h>
 
@@ -109,18 +110,6 @@ public:
     /** Returns an editor's selection state.*/
     bool getSelectionState();
 
-    /** Used to enable an editor's processor.*/
-    void enable();
-
-    /** Used to disable an editor's processor.*/
-    void disable();
-
-    /** Returns whether or not the editor's processor is enabled (i.e., whether it's able to handle data.*/
-    bool getEnabledState();
-
-    /** Used to enable or disable an editor's processor.*/
-    void setEnabledState(bool);
-
     /** Used to set desired width of editor. */
     void setDesiredWidth (int width);
 
@@ -134,13 +123,13 @@ public:
     void editorStartAcquisition();
 
 	/** Called just prior to the start of acquisition, to allow custom commands. */
-	virtual void startAcquisition();
+	virtual void startAcquisition() { }
 
     /** Called after the end of acquisition.*/
     void editorStopAcquisition();
 
 	/** Called after the end of acquisition, to allow custom commands .*/
-	virtual void stopAcquisition();
+	virtual void stopAcquisition() { }
 
     /** Returns the name of the editor.*/
     String getName();
@@ -231,7 +220,7 @@ public:
     void refreshColors();
 
     /** Called when an editor's processor updates its settings (mainly to update channel count).*/
-    void update();
+    void update(bool isEnabled);
 
     /** Allows other UI elements to use background color of editor. */
     Colour getBackgroundColor();
@@ -255,7 +244,7 @@ public:
     Array<ParameterEditor*> parameterEditors;
 
     /** Returns the Channel object for a given continuous channel number. */
-    const DataChannel* getChannel (int chan) const;
+    const ContinuousChannel* getContinuousChannel (int chan) const;
 
     /** Returns the Channel object for a given event channel number. */
     const EventChannel* getEventChannel (int chan) const;

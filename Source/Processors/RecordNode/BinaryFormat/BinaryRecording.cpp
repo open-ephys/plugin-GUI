@@ -19,7 +19,7 @@ String BinaryRecording::getEngineID() const
 	return "RAWBINARY";
 }
 
-String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
+String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 {
 	String fName = (channelInfo->getSourceName().replaceCharacter(' ', '_') + "-" +
 		String(channelInfo->getSourceNodeID()));
@@ -38,7 +38,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
     m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
 
-    Array<const DataChannel*> indexedDataChannels;
+    Array<const ContinuousChannel*> indexedContinuousChannels;
     Array<unsigned int> indexedChannelCount;
     Array<var> jsonContinuousfiles;
     Array<var> jsonChannels;
@@ -55,7 +55,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         {
             int recordedChan = pInfo.recordedChannels[chan];
             int realChan = getRealChannel(recordedChan);
-            const DataChannel* channelInfo = getDataChannel(realChan);
+            const ContinuousChannel* channelInfo = getContinuousChannel(realChan);
             int sourceId = channelInfo->getSourceNodeID();
             int sourceSubIdx = channelInfo->getSubProcessorIdx();
 
