@@ -82,7 +82,7 @@ void AudioNode::updateBufferSize()
 void AudioNode::setChannel(const ContinuousChannel* ch)
 {
 
-	int channelNum;
+	/*int channelNum;
 
 	try 
 	{
@@ -95,15 +95,15 @@ void AudioNode::setChannel(const ContinuousChannel* ch)
 
     LOGD("Audio node setting channel to ", channelNum);
 
-    setCurrentChannel(channelNum);
+    setCurrentChannel(channelNum);*/
 }
 
-void AudioNode::setChannelStatus(const DataChannel* chan, bool status)
+void AudioNode::setChannelStatus(const ContinuousChannel* chan, bool status)
 {
 
-    setChannel(chan);
+    //setChannel(chan);
 
-    enableCurrentChannel(status);
+    //enableCurrentChannel(status);
 
 }
 
@@ -123,13 +123,13 @@ void AudioNode::setChannelStatus(const DataChannel* chan, bool status)
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
-    int channelIndex = getNextChannel(false);
+    /*int channelIndex = getNextChannel(false);
 
     auto dataChannel = sourceNode->getDataChannel(chan);
     auto dataChannelCopy = new DataChannel(*dataChannel);
     dataChannelCopy->setMonitored(dataChannel->isMonitored());
     
-    dataChannelArray.add(dataChannelCopy);
+    dataChannelArray.add(dataChannelCopy);*/
 
 }
 
@@ -157,13 +157,13 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     else if (parameterIndex == 100)
     {
 
-		dataChannelArray[currentChannel]->setMonitored(true);
+		//dataChannelArray[currentChannel]->setMonitored(true);
 
     }
     else if (parameterIndex == -100)
     {
 
-		dataChannelArray[currentChannel]->setMonitored(false);
+		//dataChannelArray[currentChannel]->setMonitored(false);
     }
 
 }
@@ -172,7 +172,7 @@ void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
 
 
-    LOGDD("Processor sample rate: ", getSampleRate());
+    //LOGDD("Processor sample rate: ", getSampleRate());
     LOGDD("Audio card sample rate: ", sampleRate_);
     LOGDD("Samples per block: ", estimatedSamplesPerBlock);
 	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
@@ -195,7 +195,7 @@ void AudioNode::recreateBuffers()
     bufferB.clear();
     bufferSwap.clear();
 
-    for (int i = 0; i < dataChannelArray.size(); i++)
+    /*for (int i = 0; i < dataChannelArray.size(); i++)
     {
         // processor sample rate divided by sound card sample rate
         numSamplesExpected.add((int)(dataChannelArray[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
@@ -212,13 +212,13 @@ void AudioNode::recreateBuffers()
         bufferB.add(new AudioBuffer<float>(1,10000));
         bufferSwap.add(false);
 
-    }
+    }*/
 
 //    tempBuffer->setSize(getNumInputs(), 4096);
     tempBuffer->setSize(1, 4096);
 }
 
-bool AudioNode::enable()
+bool AudioNode::startAcquisition()
 {
 	recreateBuffers();
 	return true;
@@ -259,7 +259,7 @@ void AudioNode::process(AudioBuffer<float>& buffer)
         AudioBuffer<float>* overflowBuffer;
         AudioBuffer<float>* backupBuffer;
 
-        int nInputs = dataChannelArray.size();
+       /* int nInputs = dataChannelArray.size();
         if (nInputs > 0) // we have some channels
         {
 
@@ -485,12 +485,12 @@ void AudioNode::process(AudioBuffer<float>& buffer)
                            0,// sourceSampleOffset
                            valuesNeeded,        // number of samples
                            1.0);      // gain to apply to source
-        }
+        }*/
     }
 }
 
 
-void AudioNode::updateRecordChannelIndexes()
+/*void AudioNode::updateRecordChannelIndexes()
 {
 	//Keep the nodeIDs of the original processor from each channel comes from
 	updateChannelIndexes(false);
@@ -502,7 +502,7 @@ void AudioNode::updateRecordChannelIndexes()
 		DataChannel* ch = dataChannelArray[i];
 		audioDataChannelMap[ch->getCurrentNodeID()][ch->getCurrentNodeChannelIdx()] = i;
 	}
-}
+}*/
 
 // ==========================================================
 

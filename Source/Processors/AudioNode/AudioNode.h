@@ -127,7 +127,7 @@ public:
 	bool startAcquisition() override;
 
 	//Called by ProcessorGraph
-	void updateRecordChannelIndexes();
+	//void updateRecordChannelIndexes();
 
     // expand # of inputs for each connected processor
     void registerProcessor(const GenericProcessor* sourceNode);
