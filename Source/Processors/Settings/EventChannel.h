@@ -94,6 +94,8 @@ public:
 		String description;
 		String identifier;
 
+		int maxTTLBits = 8;
+
 		BinaryDataType customDataType = BINARY_BASE_VALUE;
 		int customDataLength = 0;
 
@@ -122,6 +124,9 @@ public:
 
 	/** Gets the size of the event payload in bytes*/
 	size_t getDataSize() const;
+
+	/** Gets the size of the event payload in bytes*/
+	int getMaxTTLBits() const;
 
 	/** Gets the size in bytes of an element depending of the type*/
 	static size_t getBinaryDataTypeSize(BinaryDataType type);
@@ -166,6 +171,7 @@ private:
 	BinaryDataType m_binaryDataType;
 	size_t m_dataSize;
 	unsigned int m_length;
+	unsigned int m_maxTTLBits;
 
 	//bool checkEqual(const InfoObject& other, bool similar) const override;
 	//const EventTimestampOrigin m_timestampOrigin;

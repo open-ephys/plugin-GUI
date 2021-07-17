@@ -32,10 +32,10 @@ private:
 };
 
 
-class Subprocessor
+class Stream
 {
 public:
-    Subprocessor(float expectedSampleRate);
+    Stream(float expectedSampleRate);
 
     void reset();
 
@@ -50,21 +50,21 @@ public:
     bool isSynchronized;
 
     bool receivedEventInWindow;
-    bool receivedMasterTimeInWindow;
+    bool receivedPrimaryTimeInWindow;
 
-    float masterIntervalSec;
+    float primaryIntervalSec;
 
     int tempSampleNum;
     float tempMasterTime;
 
-    float startSampleMasterTime = -1.0f;
-    float lastSampleMasterTime = -1.0f;
+    float startSamplePrimaryTime = -1.0f;
+    float lastSamplePrimaryTime = -1.0f;
 
     float sampleRateTolerance;
 
     void addEvent(int sampleNumber);
 
-    void setMasterTime(float time);
+    void setPrimaryTime(float time);
     void openSyncWindow();
     void closeSyncWindow();
 };
@@ -86,10 +86,12 @@ public:
     
     void reset();
 
-    void addSubprocessor(int sourceID, int subProcIdx, float expectedSampleRate);
-    void setMasterSubprocessor(int sourceID, int subProcIdx);
+    void addDataStream(int sourceID, int subProcIdx, float expectedSampleRate);
+    void setPrimaryDataStream(int sourceID, int subProcIdx);
+
     void setSyncChannel(int sourceID, int subProcIdx, int ttlChannel);
     int getSyncChannel(int sourceID, int subProcIdx);
+
     bool isSubprocessorSynced(int sourceID, int subProcIdx);
     SyncStatus getStatus(int sourceID, int subProcIdx);
 
@@ -97,14 +99,14 @@ public:
 
     double convertTimestamp(int sourceID, int subProcID, int sampleNumber);
 
-    std::map<int, std::map<int, Subprocessor*>> subprocessors;
+    std::map<int, std::map<int, Stream*>> streams;
 
     RecordNode* node;
 
-    int masterProcessor = -1;
-    int masterSubprocessor = -1;
+    int primaryProcessor = -1;
+    int primaryStreamId = -1;
 
-    bool isAvailable() { return masterProcessor > 0; };
+    bool isAvailable() { return primaryProcessor > 0; };
 
 private:
 
@@ -117,7 +119,8 @@ private:
 
     bool firstMasterSync;
 
-    OwnedArray<Subprocessor> subprocessorArray;
+    OwnedArray<Stream> streamArray;
+
     OwnedArray<FloatTimestampBuffer> ftsBuffer;
 
     void openSyncWindow();

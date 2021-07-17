@@ -70,7 +70,7 @@ PLUGIN_API float getGlobalSampleRate();
 
 /** Gets the full id of the node generating global timestamps.
 Returns 0 if timestamps are provided by the software high resolution timer */
-PLUGIN_API uint32 getGlobalTimestampSourceFullId();
+//PLUGIN_API uint32 getGlobalTimestampSourceFullId();
 
 /** Gets the software timestamp based on a high resolution timer aligned to the start of each processing block */
 PLUGIN_API juce::int64 getSoftwareTimestamp();

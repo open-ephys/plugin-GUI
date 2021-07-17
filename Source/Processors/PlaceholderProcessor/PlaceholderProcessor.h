@@ -38,9 +38,7 @@ public:
 
     bool hasEditor() const override;
 
-    bool isSource() const override;
-    bool isSink()   const override;
-    bool isReady()  override;
+    bool startAcquisition() override;
 
     void process (AudioSampleBuffer& continuousBuffer) override;
 
@@ -50,9 +48,6 @@ private:
     const String m_libName;
 
     const int m_libVersion;
-
-    const bool m_isSourceProcessor;
-    const bool m_isSinkProcessor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaceholderProcessor);
 };

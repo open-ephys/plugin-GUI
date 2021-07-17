@@ -27,6 +27,8 @@
 #include "../../AccessClass.h"
 #include "../../Utils/Utils.h"
 
+#include "../Events/Event.h"
+
 #define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
@@ -53,22 +55,23 @@ MessageCenter::~MessageCenter()
 void MessageCenter::addSpecialProcessorChannels() 
 {
 
-    if (eventChannel == nullptr)
+    if (eventChannels.size() == 0)
     {
         
         clearSettings();
 
-        eventChannel = new EventChannel(EventChannel::TEXT, 
-                                            1, 
-                                            MAX_MSG_LENGTH, 
-                                            CoreServices::getGlobalSampleRate(), 
-                                            this, 0);
+        EventChannel::Settings settings{
+            EventChannel::Type::TEXT,
+            "Messages",
+            "Broadcasts messages from the MessageCenter",
+            "messagecenter.events"
+        };
 
-        eventChannel->setName("GUI Messages");
-        eventChannel->setDescription("Messages from the GUI Message Center");
-        eventChannelArray.add(new EventChannel(*eventChannel));
+        eventChannel = new EventChannel(settings);
 
-        updateChannelIndexes();
+        eventChannels.add(eventChannel);
+
+        updateChannelIndexMaps();
     }
 }
 
@@ -83,7 +86,10 @@ AudioProcessorEditor* MessageCenter::createEditor()
 
 const EventChannel* MessageCenter::getMessageChannel()
 {
-    return getEventChannel(0);
+    if (eventChannels.size() > 0)
+        return eventChannels[0];
+    else
+        return nullptr;
 }
 
 void MessageCenter::setParameter(int parameterIndex, float newValue)
@@ -128,8 +134,9 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
 
-		TextEventPtr event = TextEvent::createTextEvent(getEventChannel(0), CoreServices::getGlobalTimestamp(), eventString);
-		addEvent(getEventChannel(0), event, 0);
+		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0], CoreServices::getGlobalTimestamp(), eventString);
+
+		addEvent(eventChannels[0], event, 0);
 
         LOGD("Message Center added ", eventString);
 

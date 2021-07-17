@@ -4,6 +4,8 @@
 add_sources(open-ephys 
 	GenericProcessor.cpp
 	GenericProcessor.h
+	GenericProcessorBase.cpp
+	GenericProcessorBase.h
 )
 
 #add nested directories

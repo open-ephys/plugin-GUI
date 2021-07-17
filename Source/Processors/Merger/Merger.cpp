@@ -28,6 +28,7 @@
 #include "../../AccessClass.h"
 #include "../../Utils/Utils.h"
 
+#include "../Settings/ConfigurationObject.h"
 
 Merger::Merger()
     : GenericProcessor("Merger"),
@@ -184,12 +185,12 @@ GenericProcessor* Merger::getSourceNode(int path)
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
-    for (int streamIdx = 0; streamIdx < sn->getNumStreams(); streamIdx++)
+    for (int streamIdx = 0; streamIdx < sn->getNumDataStreams(); streamIdx++)
     {
-        const DataStream* stream = sn->getStream(streamIdx);
+        const DataStream* stream = sn->getDataStream(streamIdx);
 
-        if (checkStream(stream))
-            copyDataStreamSettings(stream);
+        //if (checkStream(stream))
+        copyDataStreamSettings(stream);
     }
 
     for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)

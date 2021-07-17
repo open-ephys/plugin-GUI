@@ -186,19 +186,19 @@ public:
     /* Makes a particular branch of the signal chain visible, without updating any settings */
     void viewSignalChain(int index);
 
-	/*void setTimestampSource(int sourceIndex, int subIdx);
+	void setTimestampSource(int sourceIndex, int streamId);
 
 	void getTimestampSources(Array<const GenericProcessor*>& validSources, int& selectedSource, int& selectedSubIdx) const;
 
 	void getTimestampSources(int& selectedSource, int& selectedSubIdx) const;
 
-	int64 getGlobalTimestamp(bool softwareOnly) const;
+    int64 getGlobalTimestamp(bool softwareOnly) const;
 
-	float getGlobalSampleRate(bool softwareOnly) const;
+    float getGlobalSampleRate(bool softwareOnly) const;
 
-	uint32 getGlobalTimestampSourceFullId() const;
+	//uint32 getGlobalTimestampSourceFullId() const;
 
-	void setTimestampWindow(TimestampSourceSelectionWindow* window);*/
+	//void setTimestampWindow(TimestampSourceSelectionWindow* window);*/
     
 private:
 
@@ -219,7 +219,7 @@ private:
 
 	int64 m_startSoftTimestamp{ 0 };
 	const GenericProcessor* m_timestampSource{ nullptr };
-	int m_timestampSourceSubIdx;
+	int m_timestampSourceStreamId;
 	Array<const GenericProcessor*> m_validTimestampSources;
 	WeakReference<TimestampSourceSelectionWindow> m_timestampWindow;
     

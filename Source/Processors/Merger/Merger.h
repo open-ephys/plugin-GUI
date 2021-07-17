@@ -57,9 +57,7 @@ public:
     void switchIO(int) override;
     void switchIO() override;
 
-    bool checkStream(StreamInfo* stream);
-
-    void addStream(StreamInfo* stream);
+    bool checkStream(DataStream* stream);
 
     int switchToSourceNode(GenericProcessor* sn);
     void setMergerSourceNode(GenericProcessor* sn) override;

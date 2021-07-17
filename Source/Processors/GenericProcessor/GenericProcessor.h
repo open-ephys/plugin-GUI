@@ -417,14 +417,14 @@ protected:
 	Set respondToSpikes to true if the processor should also search for spikes*/
 	virtual int checkForEvents(bool respondToSpikes = false);
 
-	/** Makes it easier for processors to respond to incoming events, such as TTLs. Called by checkForEvents(). */
-	virtual void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0);
+	/** Makes it easier for processors to respond to incoming events, such as TTLs. Called if checkForEvents() returns true. */
+	virtual void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0);
 
-	/** Makes it easier for processors to respond to incoming spikes. Called by checkForEvents(). */
-	virtual void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition = 0);
+	/** Makes it easier for processors to respond to incoming spikes. Called if checkForEvents(true) returns true. */
+	virtual void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition = 0);
 
 	/** Responds to TIMESTAMP_SYNC_TEXT system events, in case a processor needs to listen to them (useful for the record node) */
-	virtual void handleTimestampSyncTexts(const MidiMessage& event);
+	virtual void handleTimestampSyncTexts(const EventPacket& event);
 
 	/** Returns the default number of datachannels outputs for a specific type and a specific subprocessor
 	Called by createDataChannels(). It is not needed to implement if createDataChannels() is overriden */
@@ -482,7 +482,7 @@ protected:
     Array<DataStream*> streams;
 
     /** Copies DataStream settings from a source processor*/
-    void copyDataStreamSettings(DataStream*);
+    void copyDataStreamSettings(const DataStream*);
 
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();

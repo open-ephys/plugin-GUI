@@ -30,9 +30,15 @@ PlaceholderProcessor::PlaceholderProcessor (String pName, String lName, int lVer
     , m_processorName       (pName)
     , m_libName             (lName)
     , m_libVersion          (lVer)
-    , m_isSourceProcessor   (pSource)
-    , m_isSinkProcessor     (pSink)
 {
+
+    if (pSource)
+         setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SOURCE);
+    else if (pSink)
+        setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SINK);
+    else
+        setProcessorType(PluginProcessorType::PROCESSOR_TYPE_FILTER);
+
 }
 
 
@@ -58,20 +64,7 @@ void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer)
 {
 }
 
-
-bool PlaceholderProcessor::isSource() const
-{
-    return m_isSourceProcessor;
-}
-
-
-bool PlaceholderProcessor::isSink() const
-{
-    return m_isSinkProcessor;
-}
-
-
-bool PlaceholderProcessor::isReady()
+bool PlaceholderProcessor::startAcqusition()
 {
     CoreServices::sendStatusMessage ("Cannot acquire with placeholder nodes");
     return false; //This processor never allows processing

@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EventChannel::EventChannel(Settings settings) :
 	InfoObject(InfoObject::Type::EVENT_CHANNEL),
-	m_type(settings.type)
+	m_type(settings.type), m_maxTTLBits(settings.maxTTLBits)
 {
 	setName(settings.name);
 	setDescription(settings.description);
@@ -38,6 +38,8 @@ EventChannel::EventChannel(Settings settings) :
 	{
 		// 1 byte for the bit number
 		// 1 byte for the status
+		jassert(m_maxTTLBits <= 256);
+
 		m_length = 2; 
 		m_dataSize = 2;
 		m_binaryDataType = UINT8_ARRAY;
@@ -83,6 +85,12 @@ size_t EventChannel::getDataSize() const
 {
 	return m_dataSize;
 }
+
+int EventChannel::getMaxTTLBits() const
+{
+	return m_maxTTLBits;
+}
+
 
 
 size_t EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType type)

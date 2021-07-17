@@ -70,8 +70,8 @@ public:
 
 	void updateSubprocessorMap();
 	
-	void setPrimaryDataStream(uint32 streamId);
-	bool isPrimaryDataStream(uint32 streamId);
+	void setPrimaryDataStream(uint16 streamId);
+	bool isPrimaryDataStream(uint16 streamId);
 
 	void setSyncBit(EventChannel* channel, int bit);
 	int getSyncBit(EventChannel* channel);

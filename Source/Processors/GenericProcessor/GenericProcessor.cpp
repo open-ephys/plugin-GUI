@@ -915,14 +915,11 @@ void GenericProcessor::stopRecording()  { }
 
 void GenericProcessor::updateSettings() { }
 
-void GenericProcessor::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) {
+void GenericProcessor::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) {}
 
-	std::cout << nodeId << " generic handleEvent" << std::endl;
-}
+void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition) {}
 
-void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) {}
-
-void GenericProcessor::handleTimestampSyncTexts(const MidiMessage& event) {};
+void GenericProcessor::handleTimestampSyncTexts(const EventPacket& packet) {};
 
 /*void GenericProcessor::setEnabledState(bool t)
 {

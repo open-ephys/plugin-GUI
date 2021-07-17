@@ -250,7 +250,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 void RecordNode::updateRecordChannelIndexes()
 {
 	//Keep the nodeIDs of the original processor from each channel comes from
-	updateChannelIndices(false);
+	updateChannelIndexMaps();
 }
 
 // Called when deleting FifoMonitor
@@ -276,10 +276,10 @@ void RecordNode::updateSubprocessorMap()
     {
         
         ContinuousChannel* chan = continuousChannels[ch];
-        int sourceID = chan->getSourceNodeID();
-        int subProcIdx = chan->getSubProcessorIdx();
+        int sourceID = chan->getSourceNodeId();
+        int streamId = chan->getStreamId();
 
-        if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != subProcIdx)
+        if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != streamId)
         {
 
 			//Check if this (src,sub) combo has already been seen and show warning
@@ -297,19 +297,19 @@ void RecordNode::updateSubprocessorMap()
         }
         
         //Add any new sources
-        if (!dataChannelStates.count(sourceID) || !dataChannelStates[sourceID].count(subProcIdx))
+        if (!dataChannelStates.count(sourceID) || !dataChannelStates[sourceID].count(streamId))
         {
             int orderInSubprocessor = 0;
-            synchronizer->addSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx(), chan->getSampleRate());
+            synchronizer->addSubprocessor(chan->getSourceNodeId(), chan->getStreamId(), chan->getSampleRate());
 
             if (synchronizer->masterProcessor < 0)
             {
-                synchronizer->setMasterSubprocessor(chan->getSourceNodeID(), chan->getSubProcessorIdx());
+                synchronizer->setMasterSubprocessor(chan->getSourceNodeId(), chan->getStreamId());
             }
-            while (ch < dataChannelArray.size() && dataChannelArray[ch]->getSubProcessorIdx() == subProcIdx
-            	& dataChannelArray[ch]->getSourceNodeID() == sourceID)
+            while (ch < continuousChannels.size() && continuousChannels[ch]->getStreamId() == streamId
+            	& continuousChannels[ch]->getSourceNodeId() == sourceID)
             {
-                dataChannelStates[sourceID][dataChannelArray[ch]->getSubProcessorIdx()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+                dataChannelStates[sourceID][continuousChannels[ch]->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
                 dataChannelOrder[ch] = orderInSubprocessor++;
 
 				//std::cout << " Channel " << ch << ", " << " order: " << dataChannelOrder[ch] << ", record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
@@ -327,13 +327,13 @@ void RecordNode::updateSubprocessorMap()
 		{
 			// check if channel count has changed for existing source
 			int count = 0;
-			int originalSize = dataChannelStates[sourceID][subProcIdx].size();
+			int originalSize = dataChannelStates[sourceID][streamId].size();
 
 			for (int i = 0; i < continuousChannels.size(); i++)
 			{
 
 				//std::cout << "Channel " << i << ": " << dataChannelArray[i]->getSourceNodeID() << "." << dataChannelArray[i]->getSubProcessorIdx() << std::endl;
-				if (continuousChannels[i]->getSourceNodeID() == sourceID && dataChannelArray[i]->getSubProcessorIdx() == subProcIdx)
+				if (continuousChannels[i]->getSourceNodeId() == sourceID && continuousChannels[i]->getStreamId() == streamId)
 				{
 					dataChannelOrder[ch + count] = count;
 					count++;
@@ -345,15 +345,15 @@ void RecordNode::updateSubprocessorMap()
 			{
 				for (int i = 0; i < count - originalSize; i++)
 				{
-					dataChannelStates[sourceID][subProcIdx].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+					dataChannelStates[sourceID][streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
 					
 				}
 			} //else if less, remove n channels from dataChannelStates
-			else if (count < dataChannelStates[sourceID][subProcIdx].size())
+			else if (count < dataChannelStates[sourceID][streamId].size())
 			{
 				for (int i = 0; i < originalSize - count; i++)
 				{
-					dataChannelStates[sourceID][subProcIdx].pop_back();
+					dataChannelStates[sourceID][streamId].pop_back();
 				}
 			}
 			else
@@ -404,16 +404,17 @@ void RecordNode::updateSubprocessorMap()
     {
 
         EventChannel* chan = eventChannels[ch];
-        int sourceID = chan->getSourceNodeID();
-        int subProcID = chan->getSubProcessorIdx();
+        int sourceID = chan->getSourceNodeId();
+        int streamId = chan->getStreamId();
 
-        eventMap[sourceID][subProcID] = chan->getNumChannels();
+		// WHAT IS THIS USED FOR?
+		eventMap[sourceID][streamId] = 256; // chan->getNumChannels();
 
-        if (dataChannelStates[sourceID][subProcID].size() && !syncChannelMap[sourceID][subProcID])
+        if (dataChannelStates[sourceID][streamId].size() && !syncChannelMap[sourceID][streamId])
         {
-            syncOrderMap[sourceID][subProcID] = ch;
-            syncChannelMap[sourceID][subProcID] = 0;
-            synchronizer->setSyncChannel(chan->getSourceNodeID(), chan->getSubProcessorIdx(), ch);
+            syncOrderMap[sourceID][streamId] = ch;
+            syncChannelMap[sourceID][streamId] = 0;
+            synchronizer->setSyncChannel(chan->getSourceNodeId(), chan->getStreamId(), ch);
         }
 
     }
@@ -427,29 +428,32 @@ void RecordNode::updateSubprocessorMap()
 //}
 
 // called by RecordNodeEditor (when loading), SyncControlButton
-void RecordNode::setMainDataStream(uint32 streamId)
+void RecordNode::setPrimaryDataStream(uint16 streamId)
 {
-	synchronizer->setMainDataStream(streamId);
+	synchronizer->setPrimaryDataStream(streamId);
 }
 
 // called by RecordNodeEditor (when loading), SyncControlButton
-void RecordNode::setSyncChannel(int srcIndex, int subProcIdx, int channel)
+void RecordNode::setSyncBit(EventChannel* channel, int bit)
 {
-	syncChannelMap[srcIndex][subProcIdx] = channel;
-	synchronizer->setSyncChannel(srcIndex, subProcIdx, syncOrderMap[srcIndex][subProcIdx]+channel);
+	int sourceNodeId = channel->getSourceNodeId();
+	int streamId = channel->getStreamId();
+
+	syncChannelMap[sourceNodeId][streamId] = bit;
+	synchronizer->setSyncChannel(sourceNodeId, streamId, channel);
 }
 
 // called by SyncControlButton
-int RecordNode::getSyncChannel(int srcIndex, int subProcIdx)
+int RecordNode::getSyncBit(EventChannel* channel
 {
 	return syncChannelMap[srcIndex][subProcIdx];
 	//return synchronizer->getSyncChannel(srcIndex, subProcIdx);
 }
 
 // called by SyncControlButton
-bool RecordNode::isMasterSubprocessor(int srcIndex, int subProcIdx)
+bool RecordNode::isPrimaryDataStream(int srcIndex, int streamId)
 {
-	return (srcIndex == synchronizer->masterProcessor && subProcIdx == synchronizer->masterSubprocessor);
+	return (srcIndex == synchronizer->primaryProcessor && streamId == synchronizer->primaryStreamId);
 }
 
 // called by GenericProcessor::update()
@@ -522,10 +526,10 @@ void RecordNode::startRecording()
 	{
 
 		ContinuousChannel* chan = continuousChannels[ch];
-		int srcIndex = chan->getSourceNodeID();
-		int subIndex = chan->getSubProcessorIdx();
+		int srcIndex = chan->getSourceNodeId();
+		int streamId = chan->getStreamId();
 
-		LOGDD("Channel: ", ch, " Source Node: ", srcIndex, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
+		LOGDD("Channel: ", ch, " Source Node: ", streamId, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
 
 		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
 		{

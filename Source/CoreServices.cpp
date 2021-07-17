@@ -78,20 +78,20 @@ namespace CoreServices
 		getEditorViewport()->makeEditorVisible(ed);
 	}
 
-	/*juce::int64 getGlobalTimestamp()
+	juce::int64 getGlobalTimestamp()
 	{
-		return getProcessorGraph()->getGlobalTimestamp(false);
+		return getProcessorGraph()->getGlobalTimestamp();
 	}
 
-	juce::uint32 getGlobalTimestampSourceFullId()
-	{
-		return getProcessorGraph()->getGlobalTimestampSourceFullId();
-	}
+	//juce::uint32 getGlobalTimestampSourceFullId()
+	//{
+	//	return getProcessorGraph()->getGlobalTimestampSourceFullId();
+	//}
 
 	float getGlobalSampleRate()
 	{
-		return getProcessorGraph()->getGlobalSampleRate(false);
-	}*/
+		return getProcessorGraph()->getGlobalSampleRate();
+	}
 
 	juce::int64 getSoftwareTimestamp()
 	{

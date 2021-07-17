@@ -33,6 +33,8 @@
 #include "../Settings/DeviceInfo.h"
 #include "../Settings/DataStream.h"
 
+#include "../Events/Event.h"
+
 FileReader::FileReader()
     : GenericProcessor ("File Reader")
     , Thread ("filereader_Async_Reader")
@@ -300,7 +302,7 @@ void FileReader::updateSettings()
              ContinuousChannel::Type::ELECTRODE,
              "CH" + String(i + 1),
              "description",
-             getBitVolts(),
+             0.195f, // BITVOLTS VALUE
              sourceStreams.getLast()
          };
          
@@ -315,10 +317,10 @@ void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
     //std::cout << "File reader received event." << std::endl;
 
-    if (Event::getSourceId(event) > 900)
+    if (Event::getProcessorId(event) > 900)
     {
 
-        TextEventPtr textEvent = TextEvent::deserializeFromMessage(event, eventInfo);
+        TextEventPtr textEvent = TextEvent::deserialize(event, eventInfo);
 
         std::cout << "File Reader received: " << textEvent->getText() << std::endl;
     }
@@ -354,7 +356,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
                                    samplesNeededPerBuffer);
     }
     
-    setTimestampAndSamples(timestamp, samplesNeededPerBuffer);
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, sourceStreams[0]->getStreamId());
 	timestamp += samplesNeededPerBuffer;
     count += samplesNeededPerBuffer;
 

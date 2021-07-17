@@ -59,8 +59,8 @@ public:
 
 private:
 	String getFileName(int channelIndex);
-	void openFile(File rootFolder, const InfoObjectCommon* ch, int channelIndex);
-	String generateHeader(const InfoObjectCommon* ch);
+	void openFile(File rootFolder, const InfoObject* ch, int channelIndex);
+	String generateHeader(const InfoObject* ch);
 	void writeContinuousBuffer(const float* data, int nSamples, int channel);
 	void writeTimestampAndSampleCount(FILE* file, int channel);
 	void writeRecordMarker(FILE* file);

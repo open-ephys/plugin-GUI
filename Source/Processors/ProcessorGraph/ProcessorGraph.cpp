@@ -249,7 +249,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 				if (m_timestampSource == nullptr)
 				{
 					m_timestampSource = addedProc;
-					m_timestampSourceSubIdx = 0;
+					m_timestampSourceStreamId = 0;
 				}
 				if (m_timestampWindow)
 					m_timestampWindow->updateProcessorList();
@@ -814,7 +814,6 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
         if (nodeId != OUTPUT_NODE_ID &&
             nodeId != AUDIO_NODE_ID &&
-            nodeId != RECORD_NODE_ID &&
             nodeId != MESSAGE_CENTER_ID)
         {
             GenericProcessor* p =(GenericProcessor*) node->getProcessor();
@@ -851,7 +850,7 @@ void ProcessorGraph::clearConnections()
         if (nodeId != OUTPUT_NODE_ID)
         {
 
-            if (nodeId != RECORD_NODE_ID && nodeId != AUDIO_NODE_ID)
+            if (nodeId != AUDIO_NODE_ID)
             {
                 disconnectNode(node->nodeID);
             }
@@ -1361,7 +1360,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 				}
 			}
 			m_timestampSource = newProc;
-			m_timestampSourceSubIdx = 0;
+			m_timestampSourceStreamId = 0;
 		}
 		if (m_timestampWindow)
 			m_timestampWindow->updateProcessorList();
@@ -1521,16 +1520,17 @@ MessageCenter* ProcessorGraph::getMessageCenter()
 }
 
 
-/*void ProcessorGraph::setTimestampSource(int sourceIndex, int subIdx)
+void ProcessorGraph::setTimestampSource(int sourceIndex, int streamId)
 {
 	m_timestampSource = m_validTimestampSources[sourceIndex];
+
 	if (m_timestampSource)
 	{
-		m_timestampSourceSubIdx = subIdx;
+        m_timestampSourceStreamId = streamId;
 	}
 	else
 	{
-		m_timestampSourceSubIdx = 0;
+        m_timestampSourceStreamId = 0;
 	}
 }
 
@@ -1546,7 +1546,8 @@ void ProcessorGraph::getTimestampSources(int& selectedSource, int& selectedSubId
 		selectedSource = m_validTimestampSources.indexOf(m_timestampSource);
 	else
 		selectedSource = -1;
-	selectedSubId = m_timestampSourceSubIdx;
+
+	selectedSubId = m_timestampSourceStreamId;
 }
 
 int64 ProcessorGraph::getGlobalTimestamp(bool softwareOnly) const
@@ -1558,7 +1559,7 @@ int64 ProcessorGraph::getGlobalTimestamp(bool softwareOnly) const
 	else
 	{
 		return static_cast<int64>((Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - m_timestampSource->getLastProcessedsoftwareTime())
-			* m_timestampSource->getSampleRate(m_timestampSourceSubIdx)) + m_timestampSource->getSourceTimestamp(m_timestampSource->getNodeId(), m_timestampSourceSubIdx));
+			* m_timestampSource->getSampleRate(m_timestampSourceStreamId)) + m_timestampSource->getSourceTimestamp(m_timestampSourceStreamId));
 	}
 }
 
@@ -1570,11 +1571,11 @@ float ProcessorGraph::getGlobalSampleRate(bool softwareOnly) const
 	}
 	else
 	{
-		return m_timestampSource->getSampleRate(m_timestampSourceSubIdx);
+		return m_timestampSource->getSampleRate(m_timestampSourceStreamId);
 	}
 }
 
-uint32 ProcessorGraph::getGlobalTimestampSourceFullId() const
+/*uint32 ProcessorGraph::getGlobalTimestampSourceFullId() const
 {
 	if (!m_timestampSource)
 		return 0;
