@@ -300,7 +300,7 @@ protected:
     void addParameterEditors (bool useStandard);
 
     /** A pointer to the editor's ChannelSelector. */
-    ChannelSelector* channelSelector;
+    ScopedPointer<ChannelSelector> channelSelector;
 
 
 private:

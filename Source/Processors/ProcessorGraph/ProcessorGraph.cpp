@@ -1327,9 +1327,6 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     NodeID nodeId = NodeID(processor->getNodeId());
 
-    disconnectNode(nodeId);
-    removeNode(nodeId);
-
 	if (processor->isSource())
 	{
 		m_validTimestampSources.removeAllInstancesOf(processor);
@@ -1359,6 +1356,9 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 	}
 
     checkForNewRootNodes(processor, false, false);
+
+    disconnectNode(nodeId);
+    removeNode(nodeId);
 }
 
 bool ProcessorGraph::enableProcessors()

@@ -305,7 +305,10 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                                           int selectedTab)
 {
     for (auto editor : editorArray)
+    {
         editor->setVisible(false);
+    }
+        
     
     editorArray.clear();
     
@@ -1791,14 +1794,19 @@ void EditorViewport::deleteSelectedProcessors()
 
     Array<GenericEditor*> editors = Array(editorArray);
     
+    int index = 0;
+
     for (auto editor : editors)
     {
         std::cout << "Editor name: " << editor->getName() << std::endl;
         if (editor->getSelectionState())
         {
+            editorArray.remove(index);
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
             undoManager.perform(action);
         }
+
+        index++;
     }
 
 }

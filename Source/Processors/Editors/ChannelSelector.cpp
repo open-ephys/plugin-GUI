@@ -61,7 +61,7 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     allButton->addListener(this);
     addAndMakeVisible(allButton);
 
-    noneButton = new EditorButton("none", titleFont);
+    noneButton =  new EditorButton("none", titleFont);
     noneButton->addListener(this);
     addAndMakeVisible(noneButton);
 
@@ -103,9 +103,15 @@ ChannelSelector::~ChannelSelector()
     // We will remove it after getting rid of the ugly calling of deleteAllChildren() method.
     // We should really use some RAII technuiqes to avoid calling this method.
     // TODO: refactor the code to follow RAII best principles and to avoid using raw pointers after merge with priyanjitdey94
-    //removeChildComponent (&parameterButtonsManager);
+    removeChildComponent (&parameterButtonsManager);
 
-    //removeChildComponent (&parameterSlicerChannelSelector);
+    removeChildComponent (&parameterSlicerChannelSelector);
+
+    removeChildComponent(paramsButton);
+
+    removeChildComponent(allButton);
+
+    removeChildComponent(noneButton);
 
     deleteAllChildren();
 }
