@@ -358,12 +358,6 @@ uint8 TTLEvent::getBit(const EventPacket& packet)
 	return *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE);
 }
 
-
-const void* TTLEvent::getTTLWordPointer() const
-{
-	return m_data.getData();
-}
-
 void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 {
 	char* buffer = static_cast<char*>(dstBuffer);

@@ -215,30 +215,30 @@ void Synchronizer::reset()
     }
 }
 
-void Synchronizer::addDataStream(int sourceID, int subProcIndex, float expectedSampleRate)
+void Synchronizer::addDataStream(int streamId, float expectedSampleRate)
 {
 	streamArray.add(new Stream(expectedSampleRate));
-	streams[sourceID][subProcIndex] = streamArray.getLast();
+	streams[0][0] = streamArray.getLast(); // FIXME
 }
 
-void Synchronizer::setPrimaryDataStream(int sourceID, int subProcIndex)
+void Synchronizer::setPrimaryDataStream(int streamId)
 {
-	primaryProcessorId = sourceID;
-	primaryStreamId = subProcIndex;
+	primaryProcessorId = 0;// sourceID; FIXME
+	primaryStreamId = 0; // subProcIndex;
 	reset();
 }
 
-void Synchronizer::setSyncChannel(int sourceID, int subProcIdx, int ttlChannel)
+void Synchronizer::setSyncBit(uint16 streamId, int ttlChannel)
 {
 	//LOGD("Set sync channel: {", sourceID, ",", subProcIdx, "}->", ttlChannel);
-	streams[sourceID][subProcIdx]->syncChannel = ttlChannel;
+	streams[0][0]->syncChannel = ttlChannel;
 	reset();
 }
 
-int Synchronizer::getSyncChannel(int sourceID, int subProcIdx)
+int Synchronizer::getSyncBit(uint16 streamId)
 {
 	//LOGD("Get sync channel: {", sourceID, ",", subProcIdx, "}->", subprocessors[sourceID][subProcIdx]->syncChannel);
-	return streams[sourceID][subProcIdx]->syncChannel;
+	return streams[0][0]->syncChannel;
 }
 
 void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sampleNumber)

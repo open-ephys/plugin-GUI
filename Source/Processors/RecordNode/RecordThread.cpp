@@ -191,15 +191,15 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
 		const MidiMessage& event = events[ev]->getData();
-		if (SystemEvent::getBaseType(event) == SYSTEM_EVENT)
+		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
-
-			uint16 sourceID = SystemEvent::getSourceID(event);
-			uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
-			int64 timestamp = SystemEvent::getTimestamp(event);
-			m_engine->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
-				recordNode->getSourceTimestamp(sourceID, subProcIdx),
-				SystemEvent::getSyncText(event));
+			//FIXME
+			//uint16 sourceID = SystemEvent::getSourceID(event);
+			//uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
+			//int64 timestamp = SystemEvent::getTimestamp(event);
+			//m_engine->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
+			//	recordNode->getSourceTimestamp(sourceID, subProcIdx),
+			//	SystemEvent::getSyncText(event));
 		}
 		else
 			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());
@@ -263,12 +263,13 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 		const EventPacket& packet = events[ev]->getData();
 		if (SystemEvent::getBaseType(packet) == SystemEvent::SYSTEM_EVENT)
 		{
-			uint16 sourceId = SystemEvent::getProcessorId(packet);
-			uint16 streamId = SystemEvent::getStreamId(packet);
-			int64 timestamp = SystemEvent::getTimestamp(packet);
-			m_engine->writeTimestampSyncText(sourceId, streamId, timestamp,
-				recordNode->getSourceTimestamp(sourceId, streamId),
-				SystemEvent::getSyncText(packet));
+			// FIXME
+			//uint16 sourceId = SystemEvent::getProcessorId(packet);
+			//uint16 streamId = SystemEvent::getStreamId(packet);
+			//int64 timestamp = SystemEvent::getTimestamp(packet);
+			//m_engine->writeTimestampSyncText(sourceId, streamId, timestamp,
+			//	recordNode->getSourceTimestamp(sourceId, streamId),
+			//	SystemEvent::getSyncText(packet));
 		}
 		else
 			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());

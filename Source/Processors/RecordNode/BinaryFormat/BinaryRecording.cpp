@@ -26,8 +26,9 @@ String BinaryRecording::getEngineID() const
 
 String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 {
-	String fName = (channelInfo->processorChain[0]->getName().replaceCharacter(' ', '_') + "-" +
-		String(channelInfo->getSourceNodeId()));
+	//String fName = (channelInfo->processorChain[0]->getName().replaceCharacter(' ', '_') + "-" +
+	//	String(channelInfo->getSourceNodeId()));
+    String fName = "filename"; // FIXME
     fName += "." + String(channelInfo->getStreamId());
 	fName += File::getSeparatorString();
 	return fName;
@@ -64,7 +65,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             int sourceId = channelInfo->getSourceNodeId();
             int sourceSubIdx = channelInfo->getStreamId();
 
-            int nInfoArrays = indexedDataChannels.size();
+            int nInfoArrays = 0; // indexedDataChannels.size(); FIXME
 
             bool found = false;
             DynamicObject::Ptr jsonChan = new DynamicObject();
@@ -76,12 +77,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             jsonChan->setProperty("history", channelInfo->getHistoryString());
             jsonChan->setProperty("bit_volts", channelInfo->getBitVolts());
             jsonChan->setProperty("units", channelInfo->getUnits());
-            jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
-            jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
+           // jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
+           // jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
             createChannelMetadata(channelInfo, jsonChan);
             for (int i = lastId; i < nInfoArrays; i++)
             {
-                if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
+               /* if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
                 {
                     unsigned int count = indexedChannelCount[i];
                     m_channelIndexes.set(recordedChan, count);
@@ -90,7 +91,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                     jsonChannels.getReference(i).append(var(jsonChan));
                     found = true;
                     break;
-                }
+                }*/
             }
             if (!found)
             {
@@ -107,7 +108,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 m_fileIndexes.set(recordedChan, nInfoArrays);
                 m_channelIndexes.set(recordedChan, 0);
                 indexedChannelCount.add(1);
-                indexedDataChannels.add(channelInfo);
+                //indexedDataChannels.add(channelInfo);
 
                 Array<var> jsonChanArray;
                 jsonChanArray.add(var(jsonChan));
@@ -123,7 +124,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 jsonContinuousfiles.add(var(jsonFile));
             }
         }
-        lastId = indexedDataChannels.size();
+        lastId = 0; // indexedDataChannels.size();
     }
 
     int nFiles = continuousFileNames.size();
@@ -183,7 +184,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             break;
         }
 
-        eventName += "_" + String(chan->getSourceIndex() + 1) + File::getSeparatorString();
+        // FIXME eventName += "_" + String(chan->getSourceIndex() + 1) + File::getSeparatorString();
 
         ScopedPointer<EventRecording> rec = new EventRecording();
 
@@ -202,7 +203,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonChannel->setProperty("identifier", chan->getIdentifier());
         jsonChannel->setProperty("sample_rate", chan->stream->getSampleRate());
         jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
-        jsonChannel->setProperty("num_channels", (int) chan->stream->getNumChannels());
+        //jsonChannel->setProperty("num_channels", (int) chan->stream->getNumChannels());
         jsonChannel->setProperty("source_processor", chan->getSourceNodeName());
         createChannelMetadata(chan, jsonChannel);
 
@@ -268,7 +269,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             indexedChannels.add(1);
             ScopedPointer<EventRecording> rec = new EventRecording();
 
-            uint32 procID = GenericProcessor::getProcessorFullId(ch->getSourceNodeID(), ch->getSubProcessorIdx());
+            uint32 procID = 0; // FIXME GenericProcessor::getProcessorFullId(ch->getSourceNodeID(), ch->getSubProcessorIdx());
             int groupIndex = ++groupMap[procID];
 
             String spikeName = getProcessorString(ch) + "spike_group_" + String(groupIndex) + File::getSeparatorString();
@@ -627,8 +628,8 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
 		int16 data = (ttl->getBit() + 1) * (ttl->getState() ? 1 : -1);
 		rec->mainFile->writeData(&data, sizeof(int16));
-		if (rec->extraFile)
-			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+		//if (rec->extraFile)
+		//	rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
 	}
 	else
 	{

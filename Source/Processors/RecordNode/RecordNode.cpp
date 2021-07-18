@@ -9,6 +9,7 @@
 #include "../../AccessClass.h"
 
 #include "../Events/Spike.h"
+#include "../Settings/DataStream.h"
 
 using namespace std::chrono;
 
@@ -270,24 +271,25 @@ void RecordNode::setPrimaryDataStream(uint16 streamId)
 // called by RecordNodeEditor (when loading), SyncControlButton
 void RecordNode::setSyncBit(uint16 streamId, int bit)
 {
-	int sourceNodeId = channel->getSourceNodeId();
-	int streamId = channel->getStreamId();
+	int sourceNodeId = 0; // channel->getSourceNodeId(); FIXME
+	int streamId = 0; // channel->getStreamId(); FIXME
 
 	syncChannelMap[sourceNodeId][streamId] = bit;
-	synchronizer->setSyncChannel(sourceNodeId, streamId, channel);
+	synchronizer->setSyncBit(streamId, bit);
 }
 
 // called by SyncControlButton
-int RecordNode::getSyncBit(EventChannel* channel
+int RecordNode::getSyncBit(uint16 streamId)
 {
-	return syncChannelMap[srcIndex][subProcIdx];
-	//return synchronizer->getSyncChannel(srcIndex, subProcIdx);
+		//return syncChannelMap[srcIndex][subProcIdx];
+		//return synchronizer->getSyncChannel(srcIndex, subProcIdx);
+		return 0; //FIXME
 }
 
 // called by SyncControlButton
-bool RecordNode::isPrimaryDataStream(int srcIndex, int streamId)
+bool RecordNode::isPrimaryDataStream(uint16 streamId)
 {
-	return (srcIndex == synchronizer->primaryProcessor && streamId == synchronizer->primaryStreamId);
+	return (streamId == synchronizer->primaryStreamId);
 }
 
 // called by GenericProcessor::update()
@@ -315,7 +317,8 @@ void RecordNode::updateSettings()
 		{
 
 			//Check if this (src,sub) combo has already been seen and show warning
-			if (!inputs.empty() && !inputs[sourceID].empty() && std::find(inputs[sourceID].begin(), inputs[sourceID].end(), subProcIdx) != inputs[sourceID].end())
+			if (!inputs.empty() && !inputs[sourceID].empty() 
+				&& std::find(inputs[sourceID].begin(), inputs[sourceID].end(), streamId) != inputs[sourceID].end())
 			{
 				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
 					"WARNING!", "Detected input channels re-mapped from different subprocessors. Please correct the channel mapping or else the RecordNode will crash!");
@@ -323,8 +326,8 @@ void RecordNode::updateSettings()
 			}
 
 			//Found a new subprocessor
-			inputs[sourceID].push_back(subProcIdx);
-			fifoUsage[sourceID][subProcIdx] = 0.0f;
+			inputs[sourceID].push_back(streamId);
+			fifoUsage[sourceID][streamId] = 0.0f;
 			updatedNumSubprocessors++;
 		}
 
@@ -332,11 +335,11 @@ void RecordNode::updateSettings()
 		if (!dataChannelStates.count(sourceID) || !dataChannelStates[sourceID].count(streamId))
 		{
 			int orderInSubprocessor = 0;
-			synchronizer->addDataStream(chan->getSourceNodeId(), chan->getStreamId(), chan->getSampleRate());
+			synchronizer->addDataStream(chan->getStreamId(), chan->getSampleRate());
 
 			if (synchronizer->primaryProcessorId < 0)
 			{
-				synchronizer->addDataStream(chan->getSourceNodeId(), chan->getStreamId());
+				synchronizer->addDataStream(chan->getStreamId(), chan->stream->getSampleRate());
 			}
 			while (ch < continuousChannels.size() && continuousChannels[ch]->getStreamId() == streamId
 				& continuousChannels[ch]->getSourceNodeId() == sourceID)
@@ -353,7 +356,7 @@ void RecordNode::updateSettings()
 			}
 			refreshEditor = true;
 
-			LOGDD("RecordNode found ", orderInSubprocessor, " channels in ", sourceID, ".", subProcIdx);
+			//LOGDD("RecordNode found ", orderInSubprocessor, " channels in ", sourceID, ".", subProcIdx);
 		}
 		else
 		{
@@ -393,7 +396,7 @@ void RecordNode::updateSettings()
 				//else do nothing
 			}
 
-			LOGDD("RecordNode found ", count, " channels in ", sourceID, ".", subProcIdx);
+			//LOGDD("RecordNode found ", count, " channels in ", sourceID, ".", subProcIdx);
 
 			ch += count;
 
@@ -446,7 +449,7 @@ void RecordNode::updateSettings()
 		{
 			syncOrderMap[sourceID][streamId] = ch;
 			syncChannelMap[sourceID][streamId] = 0;
-			synchronizer->setSyncChannel(chan->getSourceNodeId(), chan->getStreamId(), ch);
+			synchronizer->setSyncBit(chan->getStreamId(), ch);
 		}
 
 	}
@@ -515,12 +518,12 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeId();
 		int streamId = chan->getStreamId();
 
-		LOGDD("Channel: ", ch, " Source Node: ", streamId, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
+		//LOGDD("Channel: ", ch, " Source Node: ", streamId, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
 
-		if (dataChannelStates[srcIndex][subIndex][dataChannelOrder[ch]])
+		if (dataChannelStates[srcIndex][streamId][dataChannelOrder[ch]])
 		{
 
-			int chanOrderInProcessor = subIndex * dataChannelStates[srcIndex][subIndex].size() + dataChannelOrder[ch];
+			int chanOrderInProcessor = streamId * dataChannelStates[srcIndex][streamId].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
 			//LOGD("  RECORD!");
@@ -596,7 +599,7 @@ void RecordNode::startRecording()
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 
-		LOGD("Num event channels: ", eventChannelArray.size());
+		//LOGD("Num event channels: ", eventChannelArray.size());
 
 		recordThread->startThread();
 		isRecording = true;
@@ -647,11 +650,11 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 	{
 		// flags whether or not to write events
 
-		int64 timestamp = Event::getTimestamp(event);
-		uint64 eventChan = event.getChannel();
+		int64 timestamp = Event::getTimestamp(packet);
+		uint64 eventChan = packet.getChannel();
 		int eventIndex;
 
-		if (eventInfo)
+		/*if (eventInfo) FIXME
 			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
 		else
 			eventIndex = -1;
@@ -660,7 +663,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
 
 		if (isRecording)
-			eventQueue->addEvent(event, timestamp, eventIndex);
+			eventQueue->addEvent(event, timestamp, eventIndex);*/
 
 	}
 
@@ -812,12 +815,13 @@ void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectro
 	//if (isRecording && shouldRecord)
 	if (true)
 	{
-		int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), 
-			spikeElectrode->getSourceNodeID(), 
-			spikeElectrode->getSubProcessorIdx());
+		// FIXME
+		//int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), 
+		//	spikeElectrode->getSourceNodeID(), 
+		//	spikeElectrode->getSubProcessorIdx());
 		
-		if (electrodeIndex >= 0)
-			spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
+		//if (electrodeIndex >= 0)
+		//	spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
 	}
 }
 

@@ -329,10 +329,13 @@ public:
 
 	/* Gets the bit on which the change occurred.*/
 	uint8 getBit() const;
-	
-	/* Gets a pointer to the TTL word */
-	const void* getTTLWordPointer() const;
 
+	/* Get the event state from an EventPacket object */
+	static bool getState(const EventPacket& packet);
+
+	/* Get the event bit from an EventPacket object */
+	static uint8 getBit(const EventPacket& packet);
+	
 	/* Create a standard TTL event*/
 	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 
 		juce::int64 timestamp, 
@@ -348,12 +351,6 @@ public:
 
 	/* Deserialize a TTL event from an EventPacket object */
 	static TTLEventPtr deserialize(const EventPacket& packet, const EventChannel* channelInfo);
-
-	/* Get the event state from an EventPacket object */
-	static bool getState(const EventPacket& packet);
-
-	/* Get the event bit from an EventPacket object */
-	static uint8 getBit(const EventPacket& packet);
 
 private:
 	/* Prevent the creation of an empty event*/

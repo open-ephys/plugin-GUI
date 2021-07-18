@@ -513,7 +513,6 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 							);
 					}
 				}
-					
 
 			}
 			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT 

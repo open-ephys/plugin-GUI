@@ -53,13 +53,13 @@ public:
     void setParameter (int parameterIndex, float newValue) override;
 
     /** Convenient interface for responding to incoming events. */
-    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
+    void handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int sampleNum) override;
 
     /** Called immediately prior to the start of data acquisition. */
-    bool enable() override;
+    bool startAcquisition() override;
 
     /** Called immediately after the end of data acquisition. */
-    bool disable() override;
+    bool startAcquisition() override;
 
     /** Creates the ArduinoOutputEditor. */
     AudioProcessorEditor* createEditor() override;

@@ -86,11 +86,11 @@ public:
     
     void reset();
 
-    void addDataStream(int sourceID, int subProcIdx, float expectedSampleRate);
-    void setPrimaryDataStream(int sourceID, int subProcIdx);
+    void addDataStream(int streamId, float expectedSampleRate);
+    void setPrimaryDataStream(int streamId);
 
-    void setSyncChannel(int sourceID, int subProcIdx, int ttlChannel);
-    int getSyncChannel(int sourceID, int subProcIdx);
+    void setSyncBit(uint16 streamId, int bit);
+    int getSyncBit(uint16 streamId);
 
     bool isSubprocessorSynced(int sourceID, int subProcIdx);
     SyncStatus getStatus(int sourceID, int subProcIdx);
