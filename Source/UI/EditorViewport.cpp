@@ -1794,19 +1794,15 @@ void EditorViewport::deleteSelectedProcessors()
 
     Array<GenericEditor*> editors = Array(editorArray);
     
-    int index = 0;
-
     for (auto editor : editors)
     {
         std::cout << "Editor name: " << editor->getName() << std::endl;
         if (editor->getSelectionState())
         {
-            editorArray.remove(index);
+            editorArray.remove(editorArray.indexOf(editor));
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
             undoManager.perform(action);
         }
-
-        index++;
     }
 
 }
