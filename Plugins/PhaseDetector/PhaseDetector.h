@@ -49,7 +49,7 @@ public:
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    bool enable() override;
+    bool startAcquisition() override;
 
     void updateSettings() override;
 
@@ -58,7 +58,7 @@ public:
 
 
 private:
-    void handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int sampleNum) override;
+    void handleEvent (const EventChannel* channelInfo, const EventPacket& packet, int sampleNum) override;
 
     void estimateFrequency();
 

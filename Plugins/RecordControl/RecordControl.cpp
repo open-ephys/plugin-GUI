@@ -66,7 +66,7 @@ void RecordControl::setParameter (int parameterIndex, float newValue)
 }
 
 
-bool RecordControl::enable()
+bool RecordControl::startAcquisition()
 {
     return true;
 }
@@ -78,13 +78,16 @@ void RecordControl::process (AudioSampleBuffer& buffer)
 }
 
 
-void RecordControl::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int)
+void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int)
 {
 	if (triggerEvent < 0) return;
-    if (eventInfo->getChannelType() == EventChannel::TTL && eventInfo == eventChannelArray[triggerEvent])
+
+    if (Event::getEventType(packet) == EventChannel::TTL 
+        && eventInfo == eventChannelArray[triggerEvent])
     {
-		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
-		if (ttl->getChannel() == triggerChannel)
+        TTLEventPtr ttl = TTLEvent::deserialize (packet, eventInfo);
+
+		if (ttl->getBit() == triggerChannel)
 		{
 			int eventId = ttl->getState() ? 1 : 0;
 			int edge = triggerEdge == RISING ? 1 : 0;

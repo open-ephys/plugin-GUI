@@ -238,13 +238,11 @@ public:
     void updateSettings() override;
 
     /** Called prior to start of acquisition. */
-    bool enable() override;
+    bool startAcquisition() override;
 
     /** Called after acquisition is finished. */
-    bool disable() override;
+    bool stopAcquisition() override;
 
-
-    bool isReady() override;
     /** Creates the SpikeSorterEditor. */
     AudioProcessorEditor* createEditor() override;
 
@@ -436,7 +434,7 @@ private:
 
     Time timer;
 
-    void addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
+    void addWaveformToSpikeObject(Spike::Buffer& s,
                                   int& peakIndex,
                                   int& electrodeNumber,
                                   int& currentChannel);

@@ -636,14 +636,6 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
             destNode->setSourceNode(sourceNode);
         }
         
-        //i//f (rootNodes.indexOf(processor) > -1)
-        //{
-        //    if (destNode != nullptr && !destNode->isMerger())
-         //       rootNodes.set(rootNodes.indexOf(processor), destNode);
-         //   else
-        //        rootNodes.remove(rootNodes.indexOf(processor));
-        //}
-        
         removeProcessor(processor);
     }
     
@@ -1352,7 +1344,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 				if (getNode(i)->nodeID != NodeID(OUTPUT_NODE_ID))
 				{
 					GenericProcessor* p = dynamic_cast<GenericProcessor*>(getNode(i)->getProcessor());
-					//GenericProcessor* p = static_cast<GenericProcessor*>(getNode(i)->getProcessor());
+
 					if (p && p->isSource() && p->generatesTimestamps())
 					{
 						newProc = p;

@@ -198,11 +198,11 @@ void SpikeSorter::updateSettings()
     {
 		Electrode* elec = electrodes[i];
 		unsigned int nChans = elec->numChannels;
-		Array<const DataChannel*> chans;
+		Array<const ContinuousChannel*> chans;
 		for (int c = 0; c < nChans; c++)
 		{
 
-			const DataChannel* ch = getDataChannel(elec->channels[c]);
+			const ContinuousChannel* ch = continuousChannels[elec->channels[c]];
 			if (!ch)
 			{
 				//not enough channels for the electrodes
@@ -214,9 +214,9 @@ void SpikeSorter::updateSettings()
 
 		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
 		spk->setNumSamples(elec->prePeakSamples, elec->postPeakSamples);
-		spk->addEventMetaData(new MetaDataDescriptor(MetaDataDescriptor::UINT8, 3, "Color", "Color of the spike", "graphics.color"));
+		spk->addEventMetadata(new MetadataDescriptor(MetadataDescriptor::UINT8, 3, "Color", "Color of the spike", "graphics.color"));
 
-        spikeChannelArray.add(spk);
+        spikeChannels.add(spk);
     }
 	sorterReady = true;
     mut.exit();
@@ -460,7 +460,10 @@ bool SpikeSorter::addElectrode(int nChans, String name, double Depth)
         chans[k] = firstChan + k;
 
     Electrode* newElectrode = new Electrode(++uniqueID, &uniqueIDgenerator, &computingThread, name, nChans, chans, getDefaultThreshold(),
-		numPreSamples, numPostSamples, getSampleRate(), dataChannelArray[chans[0]]->getSourceNodeID(), dataChannelArray[chans[0]]->getSubProcessorIdx());
+		numPreSamples, numPostSamples, 
+        continuousChannels[chans[0]]->getSampleRate(),
+        continuousChannels[chans[0]]->getSourceNodeId(), 
+        continuousChannels[chans[0]]->getStreamId());
 
     newElectrode->depthOffsetMM = Depth;
     String log = "Added electrode (ID "+ String(uniqueID)+") with " + String(nChans) + " channels." ;
@@ -659,7 +662,7 @@ void SpikeSorter::setParameter(int parameterIndex, float newValue)
 }
 
 
-bool SpikeSorter::enable()
+bool SpikeSorter::startAcquisition()
 {
 
     useOverflowBuffer.clear();
@@ -681,13 +684,7 @@ bool SpikeSorter::enable()
 }
 
 
-bool SpikeSorter::isReady()
-{
-    return true;
-}
-
-
-bool SpikeSorter::disable()
+bool SpikeSorter::stopAcquisition()
 {
     mut.enter();
     for (int n = 0; n < electrodes.size(); n++)
@@ -708,7 +705,7 @@ Electrode* SpikeSorter::getActiveElectrode()
 }
 
 
-void SpikeSorter::addWaveformToSpikeObject(SpikeEvent::SpikeBuffer& s,
+void SpikeSorter::addWaveformToSpikeObject(Spike::Buffer& s,
                                            int& peakIndex,
                                            int& electrodeNumber,
                                            int& currentChannel)
@@ -849,7 +846,7 @@ void SpikeSorter::clearRunningStatForSelectedElectrode()
     electrodes[currentElectrode]->runningStats[0].Clear();
 }
 
-void SpikeSorter::process(AudioSampleBuffer& buffer)
+void SpikeSorter::process(AudioBuffer<float>& buffer)
 {
 
     //printf("Entering Spike Detector::process\n");
@@ -868,7 +865,7 @@ void SpikeSorter::process(AudioSampleBuffer& buffer)
         //  std::cout << "ELECTRODE " << i << std::endl;
 
         electrode = electrodes[i];
-		spikeChan = spikeChannelArray[i];
+		spikeChan = spikeChannels[i];
 
         // refresh buffer index for this electrode
         sampleIndex = electrode->lastBufferIndex - 1; // subtract 1 to account for
@@ -935,7 +932,7 @@ void SpikeSorter::process(AudioSampleBuffer& buffer)
                         sampleIndex -= (electrode->prePeakSamples+1);
 
 						const SpikeChannel* spikeChan = getSpikeChannel(i);
-						SpikeEvent::SpikeBuffer spikeData(spikeChan);
+						Spike::Buffer spikeData(spikeChan);
 						Array<float> thresholds;
 						for (int channel = 0; channel < electrode->numChannels; ++channel)
 						{
@@ -983,9 +980,14 @@ void SpikeSorter::process(AudioSampleBuffer& buffer)
 							electrode->spikePlot->processSpikeObject(sorterSpike);
                         }
 
-						MetaDataValueArray md;
-						md.add(new MetaDataValue(MetaDataDescriptor::UINT8, 3, sorterSpike->color));
-						SpikeEventPtr newSpike = SpikeEvent::createSpikeEvent(spikeChan, timestamp, thresholds, spikeData, sorterSpike->sortedId, md);
+						MetadataValueArray md;
+						md.add(new MetadataValue(MetadataDescriptor::UINT8, 3, sorterSpike->color));
+						SpikePtr newSpike = Spike::createSpike(spikeChan,
+                            timestamp, 
+                            thresholds, 
+                            spikeData, 
+                            sorterSpike->sortedId, 
+                            md);
 
                         addSpike(spikeChan, newSpike, peakIndex);
                         //prevSpike = newSpike;

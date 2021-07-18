@@ -55,24 +55,18 @@ MessageCenter::~MessageCenter()
 void MessageCenter::addSpecialProcessorChannels() 
 {
 
-    if (eventChannels.size() == 0)
-    {
-        
-        clearSettings();
+    clearSettings();
 
-        EventChannel::Settings settings{
-            EventChannel::Type::TEXT,
-            "Messages",
-            "Broadcasts messages from the MessageCenter",
-            "messagecenter.events"
-        };
+    EventChannel::Settings settings{
+        EventChannel::Type::TEXT,
+        "Messages",
+        "Broadcasts messages from the MessageCenter",
+        "messagecenter.events"
+    };
 
-        eventChannel = new EventChannel(settings);
+    eventChannels.add(new EventChannel(settings));
 
-        eventChannels.add(eventChannel);
-
-        updateChannelIndexMaps();
-    }
+    updateChannelIndexMaps();
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()

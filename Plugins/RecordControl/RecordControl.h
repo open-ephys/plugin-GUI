@@ -43,9 +43,9 @@ public:
     void process (AudioSampleBuffer& buffer) override;
 
     void setParameter (int parameterIndex, float newValue) override;
-    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int) override;
+    void handleEvent (const EventChannel* eventInfo, const EventPacket& event, int) override;
 
-    bool enable() override;
+    bool startAcquisition() override;
 
 private:
     std::atomic<int> triggerEvent;

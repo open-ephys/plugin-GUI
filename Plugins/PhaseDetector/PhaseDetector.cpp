@@ -142,8 +142,11 @@ void PhaseDetector::updateSettings()
 	{
 		if (getNumInputs() != lastNumInputs)
 			modules.getReference(i).inputChan = -1;
-		const DataChannel* in = getDataChannel(modules[i].inputChan);
+
+		const ContinuousChannel* in = continuousChannels[modules[i].inputChan];
+
 		EventChannel *ev;
+
 		if (in)
 			ev = new EventChannel(EventChannel::TTL, 8, 1, in, this);
 		else
@@ -162,15 +165,15 @@ void PhaseDetector::updateSettings()
 		default: typeDesc = "No phase selected"; break;
 		}
 		ev->setIdentifier(identifier);
-		MetaDataDescriptor md(MetaDataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
-		MetaDataValue mv(md);
+		MetadataDescriptor md(MetadataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
+		MetadataValue mv(md);
 		mv.setValue(typeDesc);
 		ev->addMetaData(md, mv);
 		if (in)
 		{
-			md = MetaDataDescriptor(MetaDataDescriptor::UINT16, 3, "Source Channel",
+			md = MetadataDescriptor(MetadataDescriptor::UINT16, 3, "Source Channel",
 				"Index at its source, Source processor ID and Sub Processor index of the channel that triggers this event", "source.channel.identifier.full");
-			mv = MetaDataValue(md);
+			mv = MetadataValue(md);
 			uint16 sourceInfo[3];
 			sourceInfo[0] = in->getSourceIndex();
 			sourceInfo[1] = in->getSourceNodeID();
@@ -178,14 +181,14 @@ void PhaseDetector::updateSettings()
 			mv.setValue(static_cast<const uint16*>(sourceInfo));
 			ev->addMetaData(md, mv);
 		}
-		eventChannelArray.add(ev);
+		eventChannels.add(ev);
 		moduleEventChannels.add(ev);
 	}
 	lastNumInputs = getNumInputs();
 }
 
 
-bool PhaseDetector::enable()
+bool PhaseDetector::startAcquisition()
 {
     return true;
 }
@@ -200,11 +203,11 @@ void PhaseDetector::handleEvent (const EventChannel* channelInfo, const MidiMess
 
     if (Event::getEventType(event)  == EventChannel::TTL)
     {
-		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, channelInfo);
+		TTLEventPtr ttl = TTLEvent::deserialize(event, channelInfo);
 
         // int eventNodeId = *(dataptr+1);
 		const int eventId = ttl->getState() ? 1 : 0;
-		const int eventChannel = ttl->getChannel();
+		const int eventChannel = ttl->getBit();
 
         for (int i = 0; i < modules.size(); ++i)
         {
@@ -246,8 +249,12 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                 {
                     if (module.type == PEAK)
                     {
-						uint8 ttlData = 1 << module.outputChan;
-						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+
+                        TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m],
+                            getTimestamp(module.inputChan) + i,
+                            module.outputChan,
+                            true);
+
 						addEvent(moduleEventChannels[m], event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
@@ -261,8 +268,12 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                 {
                     if (module.type == FALLING_ZERO)
                     {
-						uint8 ttlData = 1 << module.outputChan;
-						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+	
+                        TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m],
+                            getTimestamp(module.inputChan) + i,
+                            module.outputChan,
+                            true);
+
 						addEvent(moduleEventChannels[m], event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
@@ -274,8 +285,12 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                 {
                     if (module.type == TROUGH)
                     {
-						uint8 ttlData = 1 << module.outputChan;
-						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
+
+						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], 
+                            getTimestamp(module.inputChan) + i, 
+                            module.outputChan, 
+                            true);
+
 						addEvent(moduleEventChannels[m], event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
@@ -290,8 +305,13 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                     if (module.type == RISING_ZERO)
                     {
 						uint8 ttlData = 1 << module.outputChan;
-						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
-						addEvent(moduleEventChannels[m], event, i);
+
+                        TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m],
+                            getTimestamp(module.inputChan) + i,
+                            module.outputChan,
+                            true);
+                        
+                        addEvent(moduleEventChannels[m], event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -306,8 +326,13 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                     if (module.samplesSinceTrigger > 1000)
                     {
 						uint8 ttlData = 0;
-						TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m], getTimestamp(module.inputChan) + i, &ttlData, sizeof(uint8), module.outputChan);
-						addEvent(moduleEventChannels[m], event, i);
+						
+                        TTLEventPtr event = TTLEvent::createTTLEvent(moduleEventChannels[m],
+                            getTimestamp(module.inputChan) + i,
+                            module.outputChan,
+                            false);
+
+                        addEvent(moduleEventChannels[m], event, i);
                         module.wasTriggered = false;
                     }
                     else

@@ -107,7 +107,7 @@ ChannelSelector::~ChannelSelector()
 
     //removeChildComponent (&parameterSlicerChannelSelector);
 
-    //deleteAllChildren();
+    deleteAllChildren();
 }
 
 void ChannelSelector::paint(Graphics& g)
