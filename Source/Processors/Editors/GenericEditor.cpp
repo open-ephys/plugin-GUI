@@ -41,7 +41,7 @@
 GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors = true)
     : AudioProcessorEditor(owner),
     desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
-    drawerButton(0), drawerWidth(170),
+    drawerWidth(170),
     drawerOpen(false), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
     constructorInitialize(owner, useDefaultParameterEditors);
@@ -54,8 +54,8 @@ GenericEditor::~GenericEditor()
 void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
 {
 
-    name = getAudioProcessor()->getName();
-    displayName = name;
+   name = getAudioProcessor()->getName();
+   displayName = name;
 
     nodeId = owner->getNodeId();
 
@@ -63,20 +63,20 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
     {
-LOGDD("Adding drawer button.");
+        LOGDD("Adding drawer button.");
 
-        drawerButton = new DrawerButton("name");
+        drawerButton = std::make_unique<DrawerButton>("name");
         drawerButton->addListener(this);
-        addAndMakeVisible(drawerButton);
+        addAndMakeVisible(drawerButton.get());
 
-        if (!owner->isSink())
+       if (!owner->isSink())
         {
             channelSelector = new ChannelSelector (true, titleFont);
         }
-        else
-        {
-            channelSelector = new ChannelSelector (false, titleFont);
-        }
+       else
+       {
+           channelSelector = new ChannelSelector (false, titleFont);
+       }
 
         addChildComponent(channelSelector);
         channelSelector->setVisible(false);
@@ -421,7 +421,7 @@ void GenericEditor::buttonClicked(Button* button)
 
 bool GenericEditor::checkDrawerButton(Button* button)
 {
-    if (button == drawerButton)
+    if (button == drawerButton.get())
     {
         if (drawerButton->getToggleState())
         {
@@ -471,7 +471,7 @@ void GenericEditor::update(bool isEnabled_)
 
     updateSettings();
 
-    int monitorWidth = ttlMonitor->updateSettings(p->getEventChannels());
+    //int monitorWidth = ttlMonitor->updateSettings(p->getEventChannels());
 
     int numChannels;
     if (!p->isSink())
@@ -491,12 +491,12 @@ void GenericEditor::update(bool isEnabled_)
 
     if (numChannels == 0)
     {
-        if (drawerButton != 0)
+        if (drawerButton != nullptr)
             drawerButton->setVisible(false);
     }
     else
     {
-        if (drawerButton != 0)
+        if (drawerButton != nullptr)
             drawerButton->setVisible(true);
     }
 

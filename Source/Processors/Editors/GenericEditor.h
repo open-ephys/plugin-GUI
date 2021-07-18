@@ -287,7 +287,7 @@ public:
 
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
-    DrawerButton* drawerButton;
+    std::unique_ptr<DrawerButton> drawerButton;
 
     /** Determines the width of the ChannelSelector drawer when opened. */
     int drawerWidth;
