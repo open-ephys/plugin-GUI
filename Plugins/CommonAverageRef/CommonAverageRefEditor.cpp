@@ -21,15 +21,15 @@
 
 */
 
-#include "CAREditor.h"
-#include "CAR.h"
+#include "CommonAverageRefEditor.h"
+#include "CommonAverageRef.h"
 #include "../../Source/Processors/Parameter/ParameterEditor.h"
 
 
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
+CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
     : GenericEditor (parentProcessor, useDefaultParameterEditors)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
     , m_channelSelectorButtonManager (new LinearButtonGroupManager)
@@ -71,7 +71,7 @@ CAREditor::CAREditor (GenericProcessor* parentProcessor, bool useDefaultParamete
 }
 
 
-void CAREditor::paint (Graphics& g)
+void CommonAverageRefEditor::paint (Graphics& g)
 {
     GenericEditor::paint (g);
 
@@ -90,7 +90,7 @@ void CAREditor::paint (Graphics& g)
 }
 
 
-void CAREditor::resized()
+void CommonAverageRefEditor::resized()
 {
     m_channelSelectorButtonManager->setBounds (110, 50, 150, 36);
 
@@ -100,21 +100,21 @@ void CAREditor::resized()
 }
 
 
-void CAREditor::buttonClicked (Button* buttonThatWasClicked)
+void CommonAverageRefEditor::buttonClicked (Button* buttonThatWasClicked)
 {
     const String buttonName = buttonThatWasClicked->getName().toLowerCase();
 
     // "Reference channels" button clicked
     if (buttonName.startsWith ("reference"))
     {
-        channelSelector->setActiveChannels (static_cast<CAR*> (getProcessor())->getReferenceChannels());
+        channelSelector->setActiveChannels (static_cast<CommonAverageRef*> (getProcessor())->getReferenceChannels());
 
         m_currentChannelsView = REFERENCE_CHANNELS;
     }
     // "Affected channels" button clicked
     else if (buttonName.startsWith ("affected"))
     {
-        channelSelector->setActiveChannels (static_cast<CAR*> (getProcessor())->getAffectedChannels());
+        channelSelector->setActiveChannels (static_cast<CommonAverageRef*> (getProcessor())->getAffectedChannels());
 
         m_currentChannelsView = AFFECTED_CHANNELS;
     }
@@ -123,9 +123,9 @@ void CAREditor::buttonClicked (Button* buttonThatWasClicked)
 }
 
 
-void CAREditor::channelChanged (int channel, bool newState)
+void CommonAverageRefEditor::channelChanged (int channel, bool newState)
 {
-    auto processor = static_cast<CAR*> (getProcessor());
+    auto processor = static_cast<CommonAverageRef*> (getProcessor());
     if (m_currentChannelsView == REFERENCE_CHANNELS)
     {
         processor->setReferenceChannelState (channel, newState);
@@ -137,26 +137,26 @@ void CAREditor::channelChanged (int channel, bool newState)
 }
 
 
-void CAREditor::sliderEvent (Slider* sliderWhichValueHasChanged)
+void CommonAverageRefEditor::sliderEvent (Slider* sliderWhichValueHasChanged)
 {
-    auto processor = static_cast<CAR*> (getProcessor());
+    auto processor = static_cast<CommonAverageRef*> (getProcessor());
 
     processor->setGainLevel ( (float)sliderWhichValueHasChanged->getValue());
 }
 
-void CAREditor::saveCustomParameters(XmlElement* xml)
+void CommonAverageRefEditor::saveCustomParameters(XmlElement* xml)
 {
-    auto processor = static_cast<CAR*> (getProcessor());
+    auto processor = static_cast<CommonAverageRef*> (getProcessor());
 
-    xml->setAttribute("Type", "CAREditor");
+    xml->setAttribute("Type", "CommonAverageRefEditor");
 
     XmlElement* paramValues = xml->createNewChildElement("VALUES");
     paramValues->setAttribute("gainLevel", processor->getGainLevel());
 }
 
-void CAREditor::loadCustomParameters(XmlElement* xml)
+void CommonAverageRefEditor::loadCustomParameters(XmlElement* xml)
 {
-    auto processor = static_cast<CAR*> (getProcessor());
+    auto processor = static_cast<CommonAverageRef*> (getProcessor());
 
     forEachXmlChildElementWithTagName(*xml, xmlNode, "VALUES")
     {

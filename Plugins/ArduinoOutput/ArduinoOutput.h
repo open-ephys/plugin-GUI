@@ -29,9 +29,7 @@
 #include "serial/ofArduino.h"
 
 
-
 /**
-    *UNDER CONSTRUCTION*
 
     Provides a serial interface to an Arduino board.
 
@@ -59,7 +57,7 @@ public:
     bool startAcquisition() override;
 
     /** Called immediately after the end of data acquisition. */
-    bool startAcquisition() override;
+    bool stopAcquisition() override;
 
     /** Creates the ArduinoOutputEditor. */
     AudioProcessorEditor* createEditor() override;

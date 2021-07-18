@@ -206,11 +206,11 @@ bool FilterNode::getBypassStatusForChannel (int chan) const
 
 void FilterNode::setFilterParameters (double lowCut, double highCut, int chan)
 {
-    if (dataChannelArray.size() - 1 < chan)
+    if (continuousChannels.size() - 1 < chan)
         return;
 
     Dsp::Params params;
-    params[0] = dataChannelArray[chan]->getSampleRate(); // sample rate
+    params[0] = continuousChannels[chan]->getSampleRate(); // sample rate
     params[1] = 2;                          // order
     params[2] = (highCut + lowCut) / 2;     // center frequency
     params[3] = highCut - lowCut;           // bandwidth
@@ -272,10 +272,10 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 
 void FilterNode::setApplyOnADC (bool state)
 {
-    for (int n = 0; n < dataChannelArray.size(); ++n)
+    for (int n = 0; n < continuousChannels.size(); ++n)
     {
-        if (dataChannelArray[n]->getChannelType() == DataChannel::ADC_CHANNEL
-            || dataChannelArray[n]->getChannelType() == DataChannel::AUX_CHANNEL)
+        if (continuousChannels[n]->getChannelType() == ContinuousChannel::Type::ADC
+            || continuousChannels[n]->getChannelType() == ContinuousChannel::Type::AUX)
         {
             setCurrentChannel (n);
 
@@ -288,9 +288,11 @@ void FilterNode::setApplyOnADC (bool state)
 }
 
 
-void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int channelNumber, InfoObjectCommon::InfoObjectType channelType)
+void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel)
 {
-    if (channelType == InfoObjectCommon::DATA_CHANNEL
+    int channelNumber = channel->getGlobalIndex();
+
+    if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL
         && channelNumber > -1
         && channelNumber < highCuts.size())
     {
@@ -304,11 +306,11 @@ void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int c
 }
 
 
-void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObjectCommon::InfoObjectType channelType)
+void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type channelType)
 {
     int channelNum = channelInfo->getIntAttribute ("number");
 
-    if (channelType == InfoObjectCommon::DATA_CHANNEL)
+    if (channelType == InfoObject::Type::CONTINUOUS_CHANNEL)
     {
         // restore high and low cut text in case they were changed by channelChanged
         static_cast<FilterEditor*>(getEditor())->resetToSavedText();

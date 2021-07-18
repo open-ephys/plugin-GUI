@@ -69,7 +69,7 @@ void LfpDisplayNode::updateSettings()
 
     for (int ch = 0; ch < getNumInputs(); ch++)
     {
-        const DataChannel* channel = getDataChannel(ch);
+        const ContinuousChannel* channel = continuousChannels[ch];
 
         uint32 id = getChannelSourceId(channel);
 
@@ -212,7 +212,7 @@ Array<DisplayBuffer*> LfpDisplayNode::getDisplayBuffers()
 }
 
 
-bool LfpDisplayNode::enable()
+bool LfpDisplayNode::startAcquisition()
 {
 
 
@@ -224,7 +224,7 @@ bool LfpDisplayNode::enable()
 }
 
 
-bool LfpDisplayNode::disable()
+bool LfpDisplayNode::stopAcquisition()
 {
     LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
     editor->disable();
@@ -243,11 +243,11 @@ void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessag
 {
     if (Event::getEventType(event) == EventChannel::TTL)
     {
-        TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
+        TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
         
         //int eventNodeId = *(dataptr+1);
         const int eventId = ttl->getState() ? 1 : 0;
-        const int eventChannel = ttl->getChannel();
+        const int eventChannel = ttl->getBit();
         const int eventTime = samplePosition;
 
         // find sample rate of event channel

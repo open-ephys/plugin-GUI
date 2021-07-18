@@ -47,8 +47,6 @@ public:
 
     void setParameter (int parameterIndex, float newValue) override;
 
-    bool hasEditor() const override { return true; }
-
     void updateSettings() override;
 
 

@@ -59,10 +59,10 @@ public:
 
     void updateSettings() override;
 
-    bool enable()   override;
-    bool disable()  override;
+    bool startAcquisition()   override;
+    bool stopAcquisition()  override;
 
-    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int samplePosition = 0) override;
+    void handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0) override;
 
     //std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress(int bufferIndex) const 
     //{ 

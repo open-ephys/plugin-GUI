@@ -26,10 +26,13 @@
 
 #include <JuceHeader.h>
 
+#include "../PluginManager/PluginClass.h"
+
+
 /**
     Base class for GenericProcessor - implements some required Juce Methods
 */
-class  GenericProcessorBase   : public AudioProcessor
+class PLUGIN_API GenericProcessorBase : public AudioProcessor
 {
 public:
     /** Constructor (sets the processor's name). */

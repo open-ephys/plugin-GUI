@@ -23,11 +23,11 @@
 
 #include <stdio.h>
 
-#include "CAR.h"
-#include "CAREditor.h"
+#include "CommonAverageRef.h"
+#include "CommonAverageRefEditor.h"
 
 
-CAR::CAR()
+CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
@@ -36,32 +36,32 @@ CAR::CAR()
 }
 
 
-CAR::~CAR()
+CommonAverageRef::~CommonAverageRef()
 {
 }
 
 
-AudioProcessorEditor* CAR::createEditor()
+AudioProcessorEditor* CommonAverageRef::createEditor()
 {
-    editor = std::make_unique<CAREditor> (this, true);
+    editor = std::make_unique<CommonAverageRefEditor> (this, true);
     return editor.get();
 }
 
 
-float CAR::getGainLevel()
+float CommonAverageRef::getGainLevel()
 {
     m_gainLevel.updateTarget();
     return m_gainLevel.getNextValue();
 }
 
 
-void CAR::setGainLevel (float newGain)
+void CommonAverageRef::setGainLevel (float newGain)
 {
     m_gainLevel.setValue (newGain);
 }
 
 
-void CAR::process (AudioSampleBuffer& buffer)
+void CommonAverageRef::process (AudioSampleBuffer& buffer)
 {
     const int numSamples            = buffer.getNumSamples();
     const int numReferenceChannels  = m_referenceChannels.size();
@@ -105,7 +105,7 @@ void CAR::process (AudioSampleBuffer& buffer)
 }
 
 
-void CAR::setReferenceChannels (const Array<int>& newReferenceChannels)
+void CommonAverageRef::setReferenceChannels (const Array<int>& newReferenceChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
@@ -113,7 +113,7 @@ void CAR::setReferenceChannels (const Array<int>& newReferenceChannels)
 }
 
 
-void CAR::setAffectedChannels (const Array<int>& newAffectedChannels)
+void CommonAverageRef::setAffectedChannels (const Array<int>& newAffectedChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
@@ -121,7 +121,7 @@ void CAR::setAffectedChannels (const Array<int>& newAffectedChannels)
 }
 
 
-void CAR::setReferenceChannelState (int channel, bool newState)
+void CommonAverageRef::setReferenceChannelState (int channel, bool newState)
 {
     if (! newState)
         m_referenceChannels.removeFirstMatchingValue (channel);
@@ -130,7 +130,7 @@ void CAR::setReferenceChannelState (int channel, bool newState)
 }
 
 
-void CAR::setAffectedChannelState (int channel, bool newState)
+void CommonAverageRef::setAffectedChannelState (int channel, bool newState)
 {
     if (! newState)
         m_affectedChannels.removeFirstMatchingValue (channel);
@@ -138,10 +138,10 @@ void CAR::setAffectedChannelState (int channel, bool newState)
         m_affectedChannels.addIfNotAlreadyThere (channel);
 }
 
-void CAR::saveCustomChannelParametersToXml(XmlElement* channelElement,
-    int channelNumber, InfoObjectCommon::InfoObjectType channelType)
+void CommonAverageRef::saveCustomChannelParametersToXml(XmlElement* channelElement,
+    int channelNumber, InfoObject::Type channelType)
 {
-    if (channelType == InfoObjectCommon::DATA_CHANNEL)
+    if (channelType == InfoObject::Type::CONTINUOUS_CHANNEL)
     {
         XmlElement* groupState = channelElement->createNewChildElement("GROUPSTATE");
         
@@ -155,10 +155,10 @@ void CAR::saveCustomChannelParametersToXml(XmlElement* channelElement,
     }
 }
 
-void CAR::loadCustomChannelParametersFromXml(XmlElement* channelElement,
-    InfoObjectCommon::InfoObjectType channelType)
+void CommonAverageRef::loadCustomChannelParametersFromXml(XmlElement* channelElement,
+    InfoObject::Type channelType)
 {
-    if (channelType == InfoObjectCommon::DATA_CHANNEL)
+    if (channelType == InfoObject::Type::CONTINUOUS_CHANNEL)
     {
         int channelNumber = channelElement->getIntAttribute("number");
 

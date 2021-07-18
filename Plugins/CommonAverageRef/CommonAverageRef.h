@@ -39,14 +39,14 @@
     neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
     discussion
 */
-class CAR : public GenericProcessor
+class CommonAverageRef : public GenericProcessor
 {
 public:
     /** The class constructor, used to initialize any members. */
-    CAR();
+    CommonAverageRef();
 
     /** The class destructor, used to deallocate memory */
-    ~CAR();
+    ~CommonAverageRef();
 
     /** Defines the functionality of the processor.
 
@@ -82,9 +82,9 @@ public:
 
     /** Saving/loading channel parameters */
     void saveCustomChannelParametersToXml(XmlElement* channelElement,
-        int channelNumber, InfoObjectCommon::InfoObjectType channelType);
+        int channelNumber, InfoObject::Type channelType);
     void loadCustomChannelParametersFromXml(XmlElement* channelElement,
-        InfoObjectCommon::InfoObjectType channelType);
+        InfoObject::Type channelType);
 
 private:
     LinearSmoothedValueAtomic<float> m_gainLevel;
@@ -107,7 +107,7 @@ private:
     Array<int> m_affectedChannels;
 
     // ==================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CAR);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CommonAverageRef);
 };
 
 

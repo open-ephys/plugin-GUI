@@ -70,31 +70,23 @@ void ChannelMappingNode::updateSettings()
 
     if (editorIsConfigured)
     {
-        OwnedArray<DataChannel> oldChannels;
-        oldChannels.swapWith (dataChannelArray);
-        dataChannelArray.clear();
+        OwnedArray<ContinuousChannel> oldChannels;
+        oldChannels.swapWith (continuousChannels);
+        continuousChannels.clear();
         Array<bool> recordStates;
-
-        settings.numOutputs = 0;
 
         for (int i = 0; i < getNumInputs(); ++i)
         {
             if ( (enabledChannelArray[channelArray[i]])
                  && (channelArray[i] < oldChannels.size()))
             {
-				DataChannel* oldChan = oldChannels[channelArray[i]];
+				ContinuousChannel* oldChan = oldChannels[channelArray[i]];
 				oldChannels.set(channelArray[i], nullptr, false);
-                dataChannelArray.add     (oldChan);
-                recordStates.add (oldChan->getRecordState());
-                settings.numOutputs++;
+                continuousChannels.add     (oldChan);
             }
         }
 
         oldChannels.clear();
-        for (int i = 0; i < settings.numOutputs; ++i)
-        {
-            dataChannelArray[i]->setRecordState (recordStates[i]);
-        }
     }
 }
 
@@ -133,9 +125,7 @@ void ChannelMappingNode::process (AudioSampleBuffer& buffer)
     // use copy constructor to set the data to refer to
     channelBuffer = buffer;
 
-   // buffer.clear();
-
-    while (j < settings.numOutputs)
+    while (j < getNumOutputs())
     {
         realChan = channelArray[i];
         if ((realChan < channelBuffer.getNumChannels())

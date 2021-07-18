@@ -21,8 +21,8 @@
 
 */
 
-#ifndef CAR_EDITOR_H_INCLUDED
-#define CAR_EDITOR_H_INCLUDED
+#ifndef CommonAverageRef_EDITOR_H_INCLUDED
+#define CommonAverageRef_EDITOR_H_INCLUDED
 
 
 #include <EditorHeaders.h>
@@ -34,14 +34,14 @@ class ParameterSlider;
 
 
 /**
-   User interface for CAR Processor.
+   User interface for CommonAverageRef Processor.
 
-   @see CAR
+   @see CommonAverageRef
 */
-class CAREditor : public GenericEditor
+class CommonAverageRefEditor : public GenericEditor
 {
 public:
-    CAREditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors);
+    CommonAverageRefEditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors);
 
     // Component methods
     // =========================================================
@@ -78,8 +78,8 @@ private:
     SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
     // =========================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CAREditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CommonAverageRefEditor)
 };
 
 
-#endif  // CAR_H_INCLUDED
+#endif  // CommonAverageRef_H_INCLUDED
