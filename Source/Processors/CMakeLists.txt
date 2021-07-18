@@ -1,4 +1,4 @@
-#Open Ephys GUI direcroty-specific file
+#Open Ephys GUI directory-specific file
 
 #add files in this folder
 

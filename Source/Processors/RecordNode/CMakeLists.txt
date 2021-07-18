@@ -1,4 +1,4 @@
-#Open Ephys GUI direcroty-specific file
+#Open Ephys GUI directory-specific file
 set_property(TARGET open-ephys PROPERTY CXX_STANDARD 17)
 
 #add files in this folder
