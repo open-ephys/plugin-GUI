@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
-class ChannelSelectorRegion;
+//class ChannelSelectorRegion;
 class ChannelSelectorButton;
 class EditorButton;
 class ChannelSelectorBox;
@@ -253,7 +253,7 @@ private:
 
     bool acquisitionIsActive;
 
-    ScopedPointer<ChannelSelectorRegion> channelSelectorRegion;
+   // ScopedPointer<ChannelSelectorRegion> channelSelectorRegion;
 
 };
 

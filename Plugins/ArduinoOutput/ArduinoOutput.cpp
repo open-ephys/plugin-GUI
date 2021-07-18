@@ -98,15 +98,15 @@ void ArduinoOutput::setDevice (String devName)
 }
 
 
-void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
+void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const EventPacket& event, int sampleNum)
 {
     if (Event::getEventType(event) == EventChannel::TTL)
     {
-		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
+		TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
 
         //int eventNodeId = *(dataptr+1);
         const int eventId         = ttl->getState() ? 1: 0;
-        const int eventChannel    = ttl->getChannel();
+        const int eventChannel    = ttl->getBit();
 
         // std::cout << "Received event from " << eventNodeId
         //           << " on channel " << eventChannel
@@ -181,7 +181,7 @@ void ArduinoOutput::setGateChannel (int chan)
 }
 
 
-bool ArduinoOutput::enable()
+bool ArduinoOutput::startAcquisition()
 {
     acquisitionIsActive = true;
 
@@ -189,7 +189,7 @@ bool ArduinoOutput::enable()
 }
 
 
-bool ArduinoOutput::disable()
+bool ArduinoOutput::stopAcquisition()
 {
     arduino.sendDigital (outputChannel, ARD_LOW);
     acquisitionIsActive = false;

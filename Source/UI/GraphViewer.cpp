@@ -367,7 +367,7 @@ String GraphNode::getInfoString()
 {
     GenericProcessor* processor = (GenericProcessor*) editor->getProcessor();
     
-    int ch1 = processor->getTotalDataChannels();
+    int ch1 = processor->getTotalContinuousChannels();
     int ch2 = processor->getTotalEventChannels();
     int ch3 = processor->getTotalSpikeChannels();
     

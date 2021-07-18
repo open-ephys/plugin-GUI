@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ContinuousChannel.h"
+#include "DataStream.h"
 
 ContinuousChannel::ContinuousChannel(ContinuousChannel::Settings settings) :
 	InfoObject(InfoObject::Type::CONTINUOUS_CHANNEL),
@@ -45,6 +46,11 @@ void ContinuousChannel::setBitVolts(float bitVolts)
 float ContinuousChannel::getBitVolts() const
 {
 	return m_bitVolts;
+}
+
+float ContinuousChannel::getSampleRate() const
+{
+	return stream->getSampleRate();
 }
 
 void ContinuousChannel::setUnits(String unit)

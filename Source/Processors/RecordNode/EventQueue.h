@@ -28,6 +28,8 @@
 
 #include <vector>
 
+#include "../Events/Spike.h"
+
 template <class MsgContainer>
 class AsyncEventMessage :
 	public ReferenceCountedObject

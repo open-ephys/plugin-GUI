@@ -249,7 +249,7 @@ public:
     //virtual bool isEnabled() const;
 
     /** Indicates whether a source node is connected to a processor (used for mergers).*/
-    virtual bool stillHasSource() const;
+    virtual bool stillHasSource() const { return true; }
 
     // --------------------------------------------
     //     BUFFER AND PARAMETER ACCESS
@@ -352,7 +352,7 @@ public:
 
 	const ConfigurationObject* getConfigurationObject(int index) const;
 
-	int getTotalDataChannels() const;
+	int getTotalContinuousChannels() const;
 	
 	int getTotalEventChannels() const;
 
@@ -433,7 +433,7 @@ protected:
 
 	/** Returns the default number of datachannels outputs for a specific type and a specific subprocessor
 	Called by createDataChannels(). It is not needed to implement if createDataChannels() is overriden */
-	virtual int getDefaultNumDataOutputs(ContinuousChannel::Type type, int subProcessorIdx = 0) const;
+	//virtual int getDefaultNumDataOutputs(ContinuousChannel::Type type, int subProcessorIdx = 0) const;
 
 	/** Returns info about the default events a specific subprocessor generates.
 	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */

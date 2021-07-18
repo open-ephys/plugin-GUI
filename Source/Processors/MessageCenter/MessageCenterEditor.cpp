@@ -22,6 +22,7 @@
 */
 
 #include "MessageCenterEditor.h"
+#include "../Editors/GenericEditor.h"
 
 MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),

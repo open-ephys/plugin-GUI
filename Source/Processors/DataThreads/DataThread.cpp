@@ -24,6 +24,7 @@
 #include "../SourceNode/SourceNode.h"
 #include "../../Utils/Utils.h"
 
+#include "../Editors/GenericEditor.h"
 
 DataThread::DataThread (SourceNode* s_)
     : Thread     ("Data Thread"),

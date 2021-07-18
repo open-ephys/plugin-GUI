@@ -630,6 +630,12 @@ const ConfigurationObject* GenericProcessor::getConfigurationObject(int index) c
 	return configurationObjects[index];
 }
 
+int GenericProcessor::getTotalContinuousChannels() const
+{
+	return continuousChannels.size();
+}
+
+
 int GenericProcessor::getTotalEventChannels() const
 {
 	return eventChannels.size();
@@ -886,6 +892,11 @@ bool GenericProcessor::isMerger()        const  { return getProcessorType() == P
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
 bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == PROCESSOR_TYPE_RECORD_NODE; }
 
+PluginProcessorType GenericProcessor::getProcessorType() const
+{
+	return m_processorType;
+}
+
 int GenericProcessor::getNumInputs() const  
 { 
 	if (sourceNode != nullptr)
@@ -969,6 +980,11 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
 	sampleRate(44100)
 {}
 
+int64 GenericProcessor::getLastProcessedsoftwareTime() const
+{
+	return m_lastProcessTime;
+}
+
 /*uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
 {
 	return (uint32(sid) << 16) + subid;
@@ -984,10 +1000,7 @@ uint16 GenericProcessor::getSubProcessorFromFullId(uint32 fid)
 	return (fid & 0x0000FFFF);
 }
 
-int64 GenericProcessor::getLastProcessedsoftwareTime() const
-{
-	return m_lastProcessTime;
-}
+
 
 void ChannelCreationIndices::clearChannelCreationCounts()
 {

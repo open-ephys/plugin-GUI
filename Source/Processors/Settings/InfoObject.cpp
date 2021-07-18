@@ -148,10 +148,21 @@ int InfoObject::getSourceNodeId() const
 	return m_sourceNodeId;
 }
 
+String InfoObject::getSourceNodeName() const
+{
+	return m_sourceNodeName;
+}
+
+String InfoObject::getNodeName() const
+{
+	return m_nodeName;
+}
+
+
 int InfoObject::getStreamId() const
 {
 	if (stream != nullptr)
-		return stream->streamId;
+		return stream->getSampleRate();
 	else
 		return -1;
 }

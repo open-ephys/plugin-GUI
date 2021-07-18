@@ -272,7 +272,6 @@ void RecordNode::setPrimaryDataStream(uint16 streamId)
 void RecordNode::setSyncBit(uint16 streamId, int bit)
 {
 	int sourceNodeId = 0; // channel->getSourceNodeId(); FIXME
-	int streamId = 0; // channel->getStreamId(); FIXME
 
 	syncChannelMap[sourceNodeId][streamId] = bit;
 	synchronizer->setSyncBit(streamId, bit);
