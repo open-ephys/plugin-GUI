@@ -164,18 +164,6 @@ EngineConfigComponent::EngineConfigComponent(RecordEngineManager* man, int heigh
         parameters.add(par);
     }
 
-	recordThreadToggleButton = new ToggleButton();
-
-	recordThreadToggleButton->setToggleState(CoreServices::RecordNode::getRecordThreadStatus(), dontSendNotification);
-	recordThreadToggleButton->setBounds(10, 10 + 40 * (i + 1), 100, 20);
-	recordThreadToggleButton->addListener(this);
-	addAndMakeVisible(recordThreadToggleButton);
-
-	recordThreadToggleLabel = new Label();
-	recordThreadToggleLabel->setText("Is record thread enabled?", NotificationType::dontSendNotification);
-	recordThreadToggleLabel->setBounds(30, 10 + 40 * (i + 1), 240, 20);
-	addAndMakeVisible(recordThreadToggleLabel);
-
 	height = 10 + 40 * (i + 1) + 30;
 
     if (hasString)
@@ -193,40 +181,6 @@ EngineConfigComponent::~EngineConfigComponent()
 void EngineConfigComponent::buttonClicked(Button* b)
 {
 
-	if (!CoreServices::getRecordingStatus())
-	{
-		if (b->getToggleState() == false)
-		{
-		
-			int response = AlertWindow::showOkCancelBox(AlertWindow::AlertIconType::WarningIcon,
-				"Disable record thread?",
-				"Are you sure you want to disable the record thread? You'll need to have a processor capable of recording data on its own.",
-				"Yes", "No");
-
-			if (response == 1)
-            {
-                for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
-                {   
-                    node->setParameter(3,0.0);
-                }
-            }
-			else
-				b->setToggleState(true, juce::NotificationType::dontSendNotification);
-
-
-		}
-		else 
-        {
-			for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
-            {   
-                node->setParameter(3,0.0);
-            }
-		}
-		
-	}
-	else {
-		CoreServices::sendStatusMessage("Cannot toggle record thread status while recording is active.");
-	}
 }
 
 void EngineConfigComponent::saveParameters()

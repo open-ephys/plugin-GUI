@@ -151,23 +151,8 @@ public:
     /** get the total number of channels. */
     int getNumChannels();
 
-    /** Return whether a particular channel should be recording. */
-    bool getRecordStatus(int chan);
-
-    /** Return whether a particular channel should be monitored. */
-    bool getAudioStatus(int chan);
-
     /** Return whether a particular channel is selected for editing parameters. */
     bool getParamStatus(int chan);
-
-    /** Set whether a particular channel should be recording. */
-    void setRecordStatus(int, bool);
-
-    /** Set whether a particular channel should be monitored. */
-    void setAudioStatus(int, bool);
-
-    /** Sets all audio monitors to 'false' */
-    void clearAudio();
 
     /** Set whether a particular channel is selected for editing parameters. */
     void setParamStatus(int, bool);
@@ -187,12 +172,6 @@ public:
     /** Activates all the ChannelSelectorButtons under the "param" tab.*/
     void activateButtons();
 
-    /** Inactivates all the ChannelSelectorButtons under the "rec" tab.*/
-    void inactivateRecButtons();
-
-    /** Activates all the ChannelSelectorButtons under the "rec" tab.*/
-    void activateRecButtons();
-
     /** Refreshes Parameter Colors on change*/
     void refreshParameterColors();
 
@@ -210,11 +189,10 @@ public:
     bool eventsOnly;
 
 private:
-    EditorButton* audioButton;
-    EditorButton* recordButton;
-    EditorButton* paramsButton;
-    EditorButton* allButton;
-    EditorButton* noneButton;
+  
+    ScopedPointer<EditorButton> paramsButton;
+    ScopedPointer<EditorButton> allButton;
+    ScopedPointer<EditorButton> noneButton;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     will be updated when a parameter is changed.
@@ -222,20 +200,6 @@ private:
     */
     TiledButtonGroupManager parameterButtonsManager;
     SlicerChannelSelectorComponent parameterSlicerChannelSelector;
-
-    /** An array of ChannelSelectorButtons used to select the channels that
-    are sent to the audio monitor.
-    audioBox: TextBox where user input is taken for audio tab
-    */
-    TiledButtonGroupManager audioButtonsManager;
-    SlicerChannelSelectorComponent audioSlicerChannelSelector;
-
-    /** An array of ChannelSelectorButtons used to select the channels that
-    will be written to disk when the record button is pressed.
-    recordBox: TextBox where user input is taken for record tab
-    */
-    TiledButtonGroupManager recordButtonsManager;
-    SlicerChannelSelectorComponent recordSlicerChannelSelector;
 
     bool paramsToggled;
     bool paramsActive;
@@ -289,7 +253,7 @@ private:
 
     bool acquisitionIsActive;
 
-    ChannelSelectorRegion* channelSelectorRegion;
+    ScopedPointer<ChannelSelectorRegion> channelSelectorRegion;
 
 };
 
@@ -344,15 +308,12 @@ public:
 
     int getType();
     int getChannel();
-    //Channel* getChannel() {return ch;}
     void setActive(bool t);
     void setChannel(int n);
     void setChannel(int n, int d);
 
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    //Channel* ch;
 
     int type;
     int num;

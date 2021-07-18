@@ -40,7 +40,6 @@ class RecordThread : public Thread
 {
 public:
 	RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEngine>& engine);
-	//RecordThread(const OwnedArray<RecordEngine>& engines);
 	~RecordThread();
 	void setFileComponents(File rootFolder, int experimentNumber, int recordingNumber);
 	void setChannelMap(const Array<int>& channels);
@@ -56,8 +55,18 @@ public:
 	int64 samplesWritten;
 
 private:
-	void writeData(const AudioSampleBuffer& buffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
-	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const SynchronizedTimestampBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock = false);
+	void writeData(const AudioSampleBuffer& buffer, 
+		int maxSamples, 
+		int maxEvents, 
+		int maxSpikes, 
+		bool lastBlock = false);
+
+	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, 
+		const SynchronizedTimestampBuffer& ftsBuffer, 
+		int maxSamples, 
+		int maxEvents, 
+		int maxSpikes, 
+		bool lastBlock = false);
 
 	//const OwnedArray<RecordEngine>& m_engineArray;
 	const ScopedPointer<RecordEngine>& m_engine;

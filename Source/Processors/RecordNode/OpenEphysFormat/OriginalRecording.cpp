@@ -22,8 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OriginalRecording.h"
-//#include "../../AccessClass.h"
-//#include "../../Audio/AudioComponent.h"
+
+#include "../../Settings/InfoObject.h"
+#include "../../Settings/ContinuousChannel.h"
+#include "../../Settings/EventChannel.h"
+#include "../../Settings/SpikeChannel.h"
+#include "../../Settings/DataStream.h"
+
+#include "../../Events/Event.h"
+#include "../../Events/Spike.h"
 
 OriginalRecording::OriginalRecording() : separateFiles(false),
 recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000),
@@ -99,7 +106,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 
 	for (int i = 0; i < nChannels; i++)
 	{
-		const DataChannel* ch = getDataChannel(getRealChannel(i));
+		const ContinuousChannel* ch = getContinuousChannel(getRealChannel(i));
 		openFile(rootFolder, ch, getRealChannel(i));
 		blockIndex.add(0);
 		samplesSinceLastTimestamp.add(0);
@@ -115,7 +122,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 
 }
 
-void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, int channelIndex)
+void OriginalRecording::openFile(File rootFolder, const InfoObject* ch, int channelIndex)
 {
 	FILE* chFile;
 	bool isEvent;
@@ -124,7 +131,7 @@ void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, in
 
 	recordPath = fullPath;
 
-	isEvent = (ch->getInfoObjectType() == InfoObjectCommon::EVENT_CHANNEL) ? true : false;
+	isEvent = (ch->getType() == InfoObject::Type::EVENT_CHANNEL) ? true : false;
 	if (isEvent)
 	{
 		if (experimentNumber > 1)
@@ -175,19 +182,21 @@ void OriginalRecording::openFile(File rootFolder, const InfoObjectCommon* ch, in
 	else
 	{
 		fileArray.add(chFile);
-		if (ch->getCurrentNodeID() != lastProcId)
+
+		if (ch->getNodeId() != lastProcId)
 		{
-			lastProcId = ch->getCurrentNodeID();
+			lastProcId = ch->getNodeId();
 			ProcInfo* p = new ProcInfo();
-			p->id = ch->getCurrentNodeID();
-			p->sampleRate = ch->getSampleRate();
+			p->id = ch->getNodeId();
+			p->sampleRate = ch->stream->getSampleRate();
 			processorArray.add(p);
 		}
+
 		ChannelInfo* c = new ChannelInfo();
 		c->filename = fileName;
 		c->name = ch->getName();
 		c->startPos = ftell(chFile);
-		c->bitVolts = dynamic_cast<const DataChannel*>(ch)->getBitVolts();
+		c->bitVolts = dynamic_cast<const ContinuousChannel*>(ch)->getBitVolts();
 		processorArray.getLast()->channels.add(c);
 	}
 	diskWriteLock.exit();
@@ -265,12 +274,13 @@ void OriginalRecording::openMessageFile(File rootFolder)
 String OriginalRecording::getFileName(int channelIndex)
 {
 	String filename;
-	const DataChannel* ch = getDataChannel(channelIndex);
+
+	const ContinuousChannel* ch = getContinuousChannel(channelIndex);
     
-	filename += String(static_cast<int>(ch->getSourceNodeID()));
+	filename += String(static_cast<int>(ch->getSourceNodeId()));
 	filename += "_";
 	if (renameFiles)
-		filename += renamedPrefix + String(getDataChannel(channelIndex)->getCurrentNodeChannelIdx() + 1);
+		filename += renamedPrefix + String(getContinuousChannel(channelIndex)->getLocalIndex() + 1);
 	else
 		filename += ch->getName();
 
@@ -289,7 +299,7 @@ String OriginalRecording::getFileName(int channelIndex)
 	return filename;
 }
 
-String OriginalRecording::generateHeader(const InfoObjectCommon* ch)
+String OriginalRecording::generateHeader(const InfoObject* ch)
 {
 
 	String header = "header.format = 'Open Ephys Data Format'; \n";
@@ -299,7 +309,7 @@ String OriginalRecording::generateHeader(const InfoObjectCommon* ch)
 	header += String(HEADER_SIZE);
 	header += ";\n";
 
-	if (ch->getInfoObjectType() == InfoObjectCommon::EVENT_CHANNEL)
+	if (ch->getType() == InfoObject::Type::EVENT_CHANNEL)
 	{
 		header += "header.description = 'each record contains one 64-bit timestamp, one 16-bit sample position, one uint8 event type, one uint8 processor ID, one uint8 event ID, one uint8 event channel, and one uint16 recordingNumber'; \n";
 
@@ -330,9 +340,9 @@ String OriginalRecording::generateHeader(const InfoObjectCommon* ch)
 
 	header += "header.sampleRate = ";
 	if (ch == nullptr)
-		header += String(getDataChannel(0)->getSampleRate());
+		header += String(getContinuousChannel(0)->stream->getSampleRate());
 	else
-		header += String(ch->getSampleRate());
+		header += String(ch->stream->getSampleRate());
 	header += ";\n";
 	header += "header.blockLength = ";
 	header += BLOCK_LENGTH;
@@ -341,7 +351,7 @@ String OriginalRecording::generateHeader(const InfoObjectCommon* ch)
 	//header += AccessClass::getAudioComponent()->getBufferSize();
 	header += ";\n";
 	header += "header.bitVolts = ";
-	header += (ch->getInfoObjectType() == InfoObjectCommon::DATA_CHANNEL) ? String(dynamic_cast<const DataChannel*>(ch)->getBitVolts()) : "1";
+	header += (ch->getType() == InfoObject::Type::CONTINUOUS_CHANNEL) ? String(dynamic_cast<const ContinuousChannel*>(ch)->getBitVolts()) : "1";
 	header += ";\n";
 
 	header = header.paddedRight(' ', HEADER_SIZE);
@@ -377,7 +387,7 @@ String OriginalRecording::generateSpikeHeader(const SpikeChannel* elec)
 	header += ";\n";
 
 	header += "header.sampleRate = ";
-	header += String(elec->getSampleRate());
+	header += String(elec->stream->getSampleRate());
 	header += ";\n";
     
     header += "header.samplesPerSpike = ";
@@ -396,18 +406,18 @@ void OriginalRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	writeTTLEvent(eventIndex, event);
 	if (Event::getEventType(event) == EventChannel::TEXT)
 	{
-		TextEventPtr ev = TextEvent::deserializeFromMessage(event, getEventChannel(eventIndex));
+		TextEventPtr ev = TextEvent::deserialize(event, getEventChannel(eventIndex));
 		if (ev == nullptr) return;
-		writeMessage(ev->getText(), ev->getSourceID(), ev->getChannel(), ev->getTimestamp());
+		writeMessage(ev->getText(), ev->getProcessorId(), ev->getTimestamp());
 	}
 }
 
 void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
 {
-	writeMessage(text, sourceID, 255, timestamp);
+	writeMessage(text, sourceID, timestamp);
 }
 
-void OriginalRecording::writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp)
+void OriginalRecording::writeMessage(String message, uint16 processorID,  int64 timestamp)
 {
 	if (messageFile == nullptr)
 		return;
@@ -425,7 +435,7 @@ void OriginalRecording::writeMessage(String message, uint16 processorID, uint16 
 
 }
 
-void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
+void OriginalRecording::writeTTLEvent(int eventIndex, const EventPacket& packet)
 {
 	// find file and write samples to disk
 	LOGDD("Received event!");
@@ -437,16 +447,15 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const MidiMessage& event)
 	//With the new external recording thread, this field has no sense.
 	int16 samplePos = 0;
 
-	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
+	EventPtr ev = Event::deserialize(packet, getEventChannel(eventIndex));
 	if (!ev) return;
 	*reinterpret_cast<int64*>(data) = ev->getTimestamp();
 	*reinterpret_cast<int16*>(data + 8) = samplePos;
 	*(data + 10) = static_cast<uint8>(ev->getEventType());
-	*(data + 11) = static_cast<uint8>(ev->getSourceID());
+	*(data + 11) = static_cast<uint8>(ev->getProcessorId());
 	*(data + 12) = (ev->getEventType() == EventChannel::TTL) ? (dynamic_cast<TTLEvent*>(ev.get())->getState() ? 1 : 0) : 0;
-	*(data + 13) = static_cast<uint8>(ev->getChannel());
+	*(data + 13) = (ev->getEventType() == EventChannel::TTL) ? (dynamic_cast<TTLEvent*>(ev.get())->getBit() ? 1 : 0) : 0;
 	*reinterpret_cast<uint16*>(data + 14) = recordingNumber;
-
 
 	diskWriteLock.enter();
 
@@ -514,7 +523,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
 		return;
 
 	// scale the data back into the range of int16
-	float scaleFactor = float(0x7fff) * getDataChannel(getRealChannel(writeChannel))->getBitVolts();
+	float scaleFactor = float(0x7fff) * getContinuousChannel(getRealChannel(writeChannel))->getBitVolts();
 
 	for (int n = 0; n < nSamples; n++)
 	{
@@ -642,7 +651,7 @@ void OriginalRecording::closeFiles()
 //     this->timestamp = timestamp;
 // }
 
-void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
+void OriginalRecording::writeSpike(int electrodeIndex, const Spike* spike)
 {
 	LOGDD("Electrode index: ", electrodeIndex);
 
@@ -668,7 +677,7 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	*(spikeBuffer.getData()) = static_cast<char>(channel->getChannelType());
 	*reinterpret_cast<int64*>(spikeBuffer.getData() + 1) = spike->getTimestamp();
 	*reinterpret_cast<int64*>(spikeBuffer.getData() + 9) = 0; //Legacy unused value
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getSourceID();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getProcessorId();
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 19) = numChannels;
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 21) = chanSamples;
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 23) = spike->getSortedID();
@@ -676,7 +685,7 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 27) = 0; //Legacy unused value
 	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
 	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->stream->getSampleRate();
 
 	LOGDD("Allocated memory");
 
@@ -711,7 +720,7 @@ void OriginalRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	fwrite(spikeBuffer, 1, totalBytes, spikeFileArray[electrodeIndex]);
 
-	fwrite(&recordingNumber,                         // ptr
+	fwrite(&recordingNumber,             // ptr
 		2,                               // size of each element
 		1,                               // count
 		spikeFileArray[electrodeIndex]); // ptr to FILE object

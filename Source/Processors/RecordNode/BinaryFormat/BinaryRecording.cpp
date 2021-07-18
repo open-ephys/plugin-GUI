@@ -1,5 +1,10 @@
 #include "BinaryRecording.h"
 
+#include "../../Settings/InfoObject.h"
+#include "../../Settings/DataStream.h"
+
+#include "../../Events/Spike.h"
+
 #define TIC std::chrono::high_resolution_clock::now()
 
 #define MAX_BUFFER_SIZE 40960
@@ -21,9 +26,9 @@ String BinaryRecording::getEngineID() const
 
 String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 {
-	String fName = (channelInfo->getSourceName().replaceCharacter(' ', '_') + "-" +
-		String(channelInfo->getSourceNodeID()));
-    fName += "." + String(channelInfo->getSubProcessorIdx());
+	String fName = (channelInfo->processorChain[0]->getName().replaceCharacter(' ', '_') + "-" +
+		String(channelInfo->getSourceNodeId()));
+    fName += "." + String(channelInfo->getStreamId());
 	fName += File::getSeparatorString();
 	return fName;
 }
@@ -56,8 +61,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             int recordedChan = pInfo.recordedChannels[chan];
             int realChan = getRealChannel(recordedChan);
             const ContinuousChannel* channelInfo = getContinuousChannel(realChan);
-            int sourceId = channelInfo->getSourceNodeID();
-            int sourceSubIdx = channelInfo->getSubProcessorIdx();
+            int sourceId = channelInfo->getSourceNodeId();
+            int sourceSubIdx = channelInfo->getStreamId();
 
             int nInfoArrays = indexedDataChannels.size();
 
@@ -68,12 +73,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             jsonChan->setProperty("channel_name", channelInfo->getName());
             jsonChan->setProperty("description", channelInfo->getDescription());
             jsonChan->setProperty("identifier", channelInfo->getIdentifier());
-            jsonChan->setProperty("history", channelInfo->getHistoricString());
+            jsonChan->setProperty("history", channelInfo->getHistoryString());
             jsonChan->setProperty("bit_volts", channelInfo->getBitVolts());
-            jsonChan->setProperty("units", channelInfo->getDataUnits());
+            jsonChan->setProperty("units", channelInfo->getUnits());
             jsonChan->setProperty("source_processor_index", channelInfo->getSourceIndex());
             jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
-            createChannelMetaData(channelInfo, jsonChan);
+            createChannelMetadata(channelInfo, jsonChan);
             for (int i = lastId; i < nInfoArrays; i++)
             {
                 if (sourceId == indexedDataChannels[i]->getSourceNodeID() && sourceSubIdx == indexedDataChannels[i]->getSubProcessorIdx())
@@ -110,11 +115,11 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 DynamicObject::Ptr jsonFile = new DynamicObject();
                 jsonFile->setProperty("folder_name", datPath.replace(File::getSeparatorString(), "/")); //to make it more system agnostic, replace separator with only one slash
                 jsonFile->setProperty("sample_rate", channelInfo->getSampleRate());
-                jsonFile->setProperty("source_processor_name", channelInfo->getSourceName());
-                jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeID());
-                jsonFile->setProperty("source_processor_sub_idx", channelInfo->getSubProcessorIdx());
-                jsonFile->setProperty("recorded_processor", channelInfo->getCurrentNodeName());
-                jsonFile->setProperty("recorded_processor_id", channelInfo->getCurrentNodeID());
+                jsonFile->setProperty("source_processor_name", channelInfo->getSourceNodeName());
+                jsonFile->setProperty("source_processor_id", channelInfo->getSourceNodeId());
+                jsonFile->setProperty("source_processor_sub_idx", channelInfo->getStreamId());
+                jsonFile->setProperty("recorded_processor", channelInfo->getNodeName());
+                jsonFile->setProperty("recorded_processor_id", channelInfo->getNodeId());
                 jsonContinuousfiles.add(var(jsonFile));
             }
         }
@@ -156,7 +161,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         NpyType type;
         String dataFileName;
 
-        switch (chan->getChannelType())
+        switch (chan->getType())
         {
         case EventChannel::TEXT:
             LOGDD("Got TEXT channel");
@@ -173,17 +178,19 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         default:
             LOGDD("Got BINARY group");
             eventName += "BINARY_group";
-            type = NpyType(chan->getEquivalentMetaDataType(), chan->getLength());
+            type = NpyType(chan->getEquivalentMetadataType(), chan->getLength());
             dataFileName = "data_array";
             break;
         }
+
         eventName += "_" + String(chan->getSourceIndex() + 1) + File::getSeparatorString();
+
         ScopedPointer<EventRecording> rec = new EventRecording();
 
         rec->mainFile = std::make_unique<NpyFile>(eventPath + eventName + dataFileName + ".npy", type);
         rec->timestampFile = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::INT64, 1));
         rec->channelFile = std::make_unique<NpyFile>(eventPath + eventName + "channels.npy", NpyType(BaseType::UINT16, 1));
-        if (chan->getChannelType() == EventChannel::TTL && m_saveTTLWords)
+        if (chan->getType() == EventChannel::TTL && m_saveTTLWords)
         {
             rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
         }
@@ -193,11 +200,11 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonChannel->setProperty("channel_name", chan->getName());
         jsonChannel->setProperty("description", chan->getDescription());
         jsonChannel->setProperty("identifier", chan->getIdentifier());
-        jsonChannel->setProperty("sample_rate", chan->getSampleRate());
+        jsonChannel->setProperty("sample_rate", chan->stream->getSampleRate());
         jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
-        jsonChannel->setProperty("num_channels", (int)chan->getNumChannels());
-        jsonChannel->setProperty("source_processor", chan->getSourceName());
-        createChannelMetaData(chan, jsonChannel);
+        jsonChannel->setProperty("num_channels", (int) chan->stream->getNumChannels());
+        jsonChannel->setProperty("source_processor", chan->getSourceNodeName());
+        createChannelMetadata(chan, jsonChannel);
 
         rec->metaDataFile = createEventMetadataFile(chan, eventPath + eventName + "metadata.npy", jsonChannel);
         m_eventFiles.add(rec.release());
@@ -225,15 +232,14 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         Array<var> jsonChannelInfo;
         for (int i = 0; i < numSpikeChannels; i++)
         {
-            SourceChannelInfo sourceInfo = ch->getSourceChannelInfo()[i];
             DynamicObject::Ptr jsonSpikeChInfo = new DynamicObject();
-            jsonSpikeChInfo->setProperty("source_processor_id", sourceInfo.processorID);
-            jsonSpikeChInfo->setProperty("source_processor_sub_idx", sourceInfo.subProcessorID);
-            jsonSpikeChInfo->setProperty("source_processor_channel", sourceInfo.channelIDX);
+            jsonSpikeChInfo->setProperty("source_processor_id", ch->getSourceNodeId());
+            jsonSpikeChInfo->setProperty("source_processor_stream_id", ch->getStreamId());
+            jsonSpikeChInfo->setProperty("source_processor_channel", ch->getLocalIndex());
             jsonChannelInfo.add(var(jsonSpikeChInfo));
         }
         jsonChannel->setProperty("source_channel_info", jsonChannelInfo);
-        createChannelMetaData(ch, jsonChannel);
+        createChannelMetadata(ch, jsonChannel);
 
         int nIndexed = indexedSpikes.size();
         bool found = false;
@@ -241,7 +247,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         {
             const SpikeChannel* ich = indexedSpikes[i];
             //identical channels (same data and metadata) from the same processor go to the same file
-            if (ch->getSourceNodeID() == ich->getSourceNodeID() && ch->getSubProcessorIdx() == ich->getSubProcessorIdx() && *ch == *ich)
+            if (ch->getSourceNodeId() == ich->getSourceNodeId() && ch->getStreamId() == ich->getStreamId() && *ch == *ich)
             {
                 found = true;
                 m_spikeFileIndexes.set(sp, i);
@@ -279,8 +285,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             DynamicObject::Ptr jsonFile = new DynamicObject();
 
             jsonFile->setProperty("folder_name", spikeName.replace(File::getSeparatorString(),"/"));
-            jsonFile->setProperty("sample_rate", ch->getSampleRate());
-            jsonFile->setProperty("source_processor", ch->getSourceName());
+            jsonFile->setProperty("sample_rate", ch->stream->getSampleRate());
+            jsonFile->setProperty("source_processor", ch->getSourceNodeName());
             jsonFile->setProperty("num_channels", (int)numSpikeChannels);
             jsonFile->setProperty("pre_peak_samples", (int)ch->getPrePeakSamples());
             jsonFile->setProperty("post_peak_samples", (int)ch->getPostPeakSamples());
@@ -323,16 +329,16 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
 }
 
-std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile(const MetaDataEventObject* channel, String filename, DynamicObject* jsonFile)
+std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile(const MetadataEventObject* channel, String filename, DynamicObject* jsonFile)
 {
-    int nMetaData = channel->getEventMetaDataCount();
-    if (nMetaData < 1) return nullptr;
+    int nMetadata = channel->getEventMetadataCount();
+    if (nMetadata < 1) return nullptr;
 
     Array<NpyType> types;
-    Array<var> jsonMetaData;
-    for (int i = 0; i < nMetaData; i++)
+    Array<var> jsonMetadata;
+    for (int i = 0; i < nMetadata; i++)
     {
-        const MetaDataDescriptor* md = channel->getEventMetaDataDescriptor(i);
+        const MetadataDescriptor* md = channel->getEventMetadataDescriptor(i);
         types.add(NpyType(md->getName(), md->getType(), md->getLength()));
         DynamicObject::Ptr jsonValues = new DynamicObject();
         jsonValues->setProperty("name", md->getName());
@@ -340,10 +346,10 @@ std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile(const MetaData
         jsonValues->setProperty("identifier", md->getIdentifier());
         jsonValues->setProperty("type", jsonTypeValue(md->getType()));
         jsonValues->setProperty("length", (int)md->getLength());
-        jsonMetaData.add(var(jsonValues));
+        jsonMetadata.add(var(jsonValues));
     }
     if (jsonFile)
-        jsonFile->setProperty("event_metadata", jsonMetaData);
+        jsonFile->setProperty("event_metadata", jsonMetadata);
     return std::make_unique<NpyFile>(filename, types);
 }
 
@@ -388,18 +394,18 @@ String BinaryRecording::jsonTypeValue(BaseType type)
 	}
 }
 
-void BinaryRecording::createChannelMetaData(const MetaDataInfoObject* channel, DynamicObject* jsonFile)
+void BinaryRecording::createChannelMetadata(const MetadataObject* channel, DynamicObject* jsonFile)
 {
-	int nMetaData = channel->getMetaDataCount();
-	if (nMetaData < 1) return;
+	int nMetadata = channel->getMetadataCount();
+	if (nMetadata < 1) return;
 
-	Array<var> jsonMetaData;
-	for (int i = 0; i < nMetaData; i++)
+	Array<var> jsonMetadata;
+	for (int i = 0; i < nMetadata; i++)
 	{
-		const MetaDataDescriptor* md = channel->getMetaDataDescriptor(i);
-		const MetaDataValue* mv = channel->getMetaDataValue(i);
+		const MetadataDescriptor* md = channel->getMetadataDescriptor(i);
+		const MetadataValue* mv = channel->getMetadataValue(i);
 		DynamicObject::Ptr jsonValues = new DynamicObject();
-		MetaDataDescriptor::MetaDataTypes type = md->getType();
+		MetadataDescriptor::MetadataTypes type = md->getType();
 		unsigned int length = md->getLength();
 		jsonValues->setProperty("name", md->getName());
 		jsonValues->setProperty("description", md->getDescription());
@@ -407,7 +413,7 @@ void BinaryRecording::createChannelMetaData(const MetaDataInfoObject* channel, D
 		jsonValues->setProperty("type", jsonTypeValue(type));
 		jsonValues->setProperty("length", (int)length);
 		var val;
-		if (type == MetaDataDescriptor::CHAR)
+		if (type == MetadataDescriptor::CHAR)
 		{
 			String tmp;
 			mv->getValue(tmp);
@@ -418,36 +424,36 @@ void BinaryRecording::createChannelMetaData(const MetaDataInfoObject* channel, D
 			const void* buf = mv->getRawValuePointer();
 			switch (type)
 			{
-			case MetaDataDescriptor::INT8:
+			case MetadataDescriptor::INT8:
 				dataToVar<int, int8>(val, buf, length);
 				break;
-			case MetaDataDescriptor::UINT8:
+			case MetadataDescriptor::UINT8:
 				dataToVar<int, uint8>(val, buf, length);
 				break;
-			case MetaDataDescriptor::INT16:
+			case MetadataDescriptor::INT16:
 				dataToVar<int, int16>(val, buf, length);
 				break;
-			case MetaDataDescriptor::UINT16:
+			case MetadataDescriptor::UINT16:
 				dataToVar<int, uint16>(val, buf, length);
 				break;
-			case MetaDataDescriptor::INT32:
+			case MetadataDescriptor::INT32:
 				dataToVar<int, int32>(val, buf, length);
 				break;
 				//A full uint32 doesn't fit in a regular int, so we increase size
-			case MetaDataDescriptor::UINT32:
+			case MetadataDescriptor::UINT32:
 				dataToVar<int64, uint8>(val, buf, length);
 				break;
-			case MetaDataDescriptor::INT64:
+			case MetadataDescriptor::INT64:
 				dataToVar<int64, int64>(val, buf, length);
 				break;
 				//This might overrun and end negative if the uint64 is really big, but there is no way to store a full uint64 in a var
-			case MetaDataDescriptor::UINT64:
+			case MetadataDescriptor::UINT64:
 				dataToVar<int64, uint64>(val, buf, length);
 				break;
-			case MetaDataDescriptor::FLOAT:
+			case MetadataDescriptor::FLOAT:
 				dataToVar<float, float>(val, buf, length);
 				break;
-			case MetaDataDescriptor::DOUBLE:
+			case MetadataDescriptor::DOUBLE:
 				dataToVar<double, double>(val, buf, length);
 				break;
 			default:
@@ -455,9 +461,9 @@ void BinaryRecording::createChannelMetaData(const MetaDataInfoObject* channel, D
 			}
 		}
 		jsonValues->setProperty("value", val);
-		jsonMetaData.add(var(jsonValues));
+		jsonMetadata.add(var(jsonValues));
 	}
-	jsonFile->setProperty("channel_metadata", jsonMetaData);
+	jsonFile->setProperty("channel_metadata", jsonMetadata);
 }
 
 void BinaryRecording::closeFiles()
@@ -485,13 +491,13 @@ void BinaryRecording::resetChannels()
 	m_startTS.clear();
 }
 
-void BinaryRecording::writeEventMetaData(const MetaDataEvent* event, NpyFile* file)
+void BinaryRecording::writeEventMetadata(const MetadataEvent* event, NpyFile* file)
 {
     if (!file || !event) return;
-    int nMetaData = event->getMetadataValueCount();
-    for (int i = 0; i < nMetaData; i++)
+    int nMetadata = event->getMetadataValueCount();
+    for (int i = 0; i < nMetadata; i++)
     {
-        const MetaDataValue* val = event->getMetaDataValue(i);
+        const MetadataValue* val = event->getMetadataValue(i);
         file->writeData(val->getRawValuePointer(), val->getDataSize());
     }
 }
@@ -522,7 +528,7 @@ void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, c
 	}
 
     /* Convert signal from float to int w/ bitVolts scaling */
-	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
+	double multFactor = 1 / (float(0x7fff) * getContinuousChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), dataBuffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
@@ -573,7 +579,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 	}
 
     /* Convert signal from float to int w/ bitVolts scaling */
-	double multFactor = 1 / (float(0x7fff) * getDataChannel(realChannel)->getBitVolts());
+	double multFactor = 1 / (float(0x7fff) * getContinuousChannel(realChannel)->getBitVolts());
 	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
 	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
 
@@ -606,20 +612,20 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 {
 
-	EventPtr ev = Event::deserializeFromMessage(event, getEventChannel(eventIndex));
+	EventPtr ev = Event::deserialize(event, getEventChannel(eventIndex));
 	EventRecording* rec = m_eventFiles[eventIndex];
 	if (!rec) return;
 	const EventChannel* info = getEventChannel(eventIndex);
 	int64 ts = ev->getTimestamp();
 	rec->timestampFile->writeData(&ts, sizeof(int64));
 
-	uint16 chan = ev->getChannel() + 1;
-	rec->channelFile->writeData(&chan, sizeof(uint16));
+	//uint16 chan = ev->getBit() + 1;
+	//rec->channelFile->writeData(&chan, sizeof(uint16));
 
 	if (ev->getEventType() == EventChannel::TTL)
 	{
 		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
-		int16 data = (ttl->getChannel() + 1) * (ttl->getState() ? 1 : -1);
+		int16 data = (ttl->getBit() + 1) * (ttl->getState() ? 1 : -1);
 		rec->mainFile->writeData(&data, sizeof(int16));
 		if (rec->extraFile)
 			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
@@ -629,7 +635,7 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
-	writeEventMetaData(ev.get(), rec->metaDataFile.get());
+	writeEventMetadata(ev.get(), rec->metaDataFile.get());
 	increaseEventCounts(rec);
 	
 }
@@ -638,7 +644,7 @@ void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
 {
 }
 
-void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
+void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 {
 
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
@@ -670,7 +676,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const SpikeEvent* spike)
 
 	uint16 sortedID = spike->getSortedID();
 	rec->extraFile->writeData(&sortedID, sizeof(uint16));
-	writeEventMetaData(spike, rec->metaDataFile.get());
+	writeEventMetadata(spike, rec->metaDataFile.get());
 
 	increaseEventCounts(rec);
 	

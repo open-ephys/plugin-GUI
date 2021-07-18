@@ -91,10 +91,13 @@ void TimestampSourceSelectionComponent::updateProcessorList()
 
 	int nProcessors = processors.size();
 	int n = 1;
+
 	for (int i = 0; i < nProcessors; i++)
 	{
 		const GenericProcessor* p = processors.getUnchecked(i);
-		int numSubs = p->getNumSubProcessors();
+		
+		int numSubs = p->getNumDataStreams();
+
 		for (int j = 0; j < numSubs; j++)
 		{
 			String text = (numSubs > 1) ? p->getName() + "(" + String(j + 1) + ")" : p->getName();
@@ -108,6 +111,7 @@ void TimestampSourceSelectionComponent::updateProcessorList()
 				selected = n;
 		}
 	}
+
 	m_selector->setSelectedId(selected, dontSendNotification);
 }
 

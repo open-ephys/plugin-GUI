@@ -49,10 +49,10 @@ public:
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
 	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
-	void writeEvent(int eventIndex, const MidiMessage& event) override;
+	void writeEvent(int eventIndex, const EventPacket& packet) override;
 	void resetChannels() override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
-	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
+	void writeSpike(int electrodeIndex, const Spike* spike) override;
 	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text) override;
 
 	static RecordEngineManager* getEngineManager();
@@ -69,8 +69,8 @@ private:
 	String generateSpikeHeader(const SpikeChannel* elec);
 
 	void openMessageFile(File rootFolder);
-	void writeTTLEvent(int eventIndex, const MidiMessage& event);
-	void writeMessage(String message, uint16 processorID, uint16 channel, int64 timestamp);
+	void writeTTLEvent(int eventIndex, const EventPacket& packet);
+	void writeMessage(String message, uint16 processorID, int64 timestamp);
 
 	void writeXml();
 

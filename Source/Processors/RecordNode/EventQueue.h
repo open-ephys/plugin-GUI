@@ -25,7 +25,7 @@
 #define EVENTQUEUE_H_INCLUDED
 
 #include <JuceHeader.h>
-//#include <Events.h>
+
 #include <vector>
 
 template <class MsgContainer>
@@ -132,10 +132,10 @@ private:
 };
 //NOTE: Events are sent as midimessages while spikes as spike objects due to the difference on how they are passed to the record node.
 //Once the probe system is implemented, this will be normalized
-typedef EventQueue<MidiMessage> EventMsgQueue;
-typedef EventQueue<SpikeEvent> SpikeMsgQueue;
-typedef ReferenceCountedObjectPtr<AsyncEventMessage<MidiMessage>> EventMessagePtr;
-typedef ReferenceCountedObjectPtr<AsyncEventMessage<SpikeEvent>> SpikeMessagePtr;
+typedef EventQueue<EventPacket> EventMsgQueue;
+typedef EventQueue<Spike> SpikeMsgQueue;
+typedef ReferenceCountedObjectPtr<AsyncEventMessage<EventPacket>> EventMessagePtr;
+typedef ReferenceCountedObjectPtr<AsyncEventMessage<Spike>> SpikeMessagePtr;
 
 #endif  // EVENTQUEUE_H_INCLUDED
 

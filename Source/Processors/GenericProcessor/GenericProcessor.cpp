@@ -502,7 +502,18 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 				const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
 
 				if (eventChannel != nullptr)
+				{
 					handleEvent(eventChannel, message, samplePosition);
+
+					if (eventChannel->getType() == EventChannel::Type::TTL)
+					{
+						getEditor()->setTTLState(sourceStreamId,
+								TTLEvent::getBit(message),
+								TTLEvent::getState(message)
+							);
+					}
+				}
+					
 
 			}
 			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT 
@@ -583,6 +594,18 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 
 }
 
+Array<const EventChannel*> GenericProcessor::getEventChannels()
+{
+	Array<const EventChannel*> channels;
+
+	for (int i = 0; i < eventChannels.size(); i++)
+	{
+		channels.add(eventChannels[i]);
+	}
+
+	return channels;
+}
+
 const ContinuousChannel* GenericProcessor::getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
 	return continuousChannelMap.at(processorId).at(streamId).at(localIndex);
@@ -598,7 +621,7 @@ const SpikeChannel* GenericProcessor::getSpikeChannel(uint16 processorId, uint16
 	return spikeChannelMap.at(processorId).at(streamId).at(localIndex);
 }
 
-const DataStream* GenericProcessor::getDataStream(uint16 streamId) const
+DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 {
 	return dataStreamMap.at(streamId);
 }

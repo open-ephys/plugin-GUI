@@ -55,7 +55,7 @@ public:
     float primaryIntervalSec;
 
     int tempSampleNum;
-    float tempMasterTime;
+    float tempPrimaryTime;
 
     float startSamplePrimaryTime = -1.0f;
     float lastSamplePrimaryTime = -1.0f;
@@ -103,10 +103,10 @@ public:
 
     RecordNode* node;
 
-    int primaryProcessor = -1;
+    int primaryProcessorId = -1;
     int primaryStreamId = -1;
 
-    bool isAvailable() { return primaryProcessor > 0; };
+    bool isAvailable() { return primaryProcessorId > 0; };
 
 private:
 

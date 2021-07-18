@@ -49,7 +49,7 @@ void DataThread::run()
             LOGD("Aquisition error...stopping thread.");
             signalThreadShouldExit();
             LOGD("Notifying source node to stop acqusition.");
-            sn->acquisitionStopped();
+            sn->connectionLost();
         }
     }
 }

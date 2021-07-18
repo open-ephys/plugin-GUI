@@ -187,7 +187,7 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 
     for (int streamIdx = 0; streamIdx < sn->getNumDataStreams(); streamIdx++)
     {
-        const DataStream* stream = sn->getDataStream(streamIdx);
+        DataStream* stream = sn->getDataStream(streamIdx);
 
         //if (checkStream(stream))
         copyDataStreamSettings(stream);

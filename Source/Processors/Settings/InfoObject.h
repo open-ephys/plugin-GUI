@@ -141,6 +141,9 @@ public:
 	int getNodeId() const;
 	void setNodeId(int nodeId);
 
+	String getNodeName() const;
+	String getSourceNodeName() const;
+
 	int getSourceNodeId() const;
 
 	int getStreamId() const;
@@ -165,6 +168,8 @@ private:
 	int m_global_index;
 	int m_nodeId;
 	
+	String m_nodeName;
+	String m_sourceNodeName;
 };
 
 

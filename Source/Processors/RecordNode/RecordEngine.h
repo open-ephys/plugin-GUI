@@ -130,7 +130,7 @@ public:
 	virtual void addSpikeElectrode(int index, const SpikeChannel* elec) = 0;
 
 	/** Write a spike to disk */
-	virtual void writeSpike(int electrodeIndex, const SpikeEvent* spike) = 0;
+	virtual void writeSpike(int electrodeIndex, const Spike* spike) = 0;
 
 	/** Called when a new acquisition starts, to clean all channel data before registering the processors */
 	virtual void resetChannels();

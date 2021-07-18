@@ -71,12 +71,12 @@ private :
 class SyncControlButton : public Button, public Timer, public ComponentListener
 {
 public:
-	SyncControlButton(RecordNode* node, const String& name, int srcIndex, int subProcIdx);
+	SyncControlButton(RecordNode* node, const String& name, int processorId, int streamId);
 	~SyncControlButton();
 
-	int srcIndex;
-	int subProcIdx;
-	bool isMaster;
+	int processorId;
+	int streamId;
+	bool isPrimary;
 
 	void mouseUp(const MouseEvent &event) override;
 

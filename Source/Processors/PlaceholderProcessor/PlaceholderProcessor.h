@@ -42,6 +42,7 @@ public:
 
     void process (AudioSampleBuffer& continuousBuffer) override;
 
+    void updateSettings() override;
 
 private:
     const String m_processorName;

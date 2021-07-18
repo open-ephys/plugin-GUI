@@ -25,6 +25,7 @@
 
 #include "../Parameter/ParameterEditor.h"
 #include "ChannelSelector.h"
+#include "TTLMonitor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"
 #include "../../UI/ProcessorList.h"
@@ -86,6 +87,8 @@ LOGDD("Adding drawer button.");
     {
         isSplitOrMerge=true;
     }
+
+    ttlMonitor = new TTLMonitor();
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
                                         Colour(185, 185, 185), 0.0f, 120.0f, false);
@@ -200,6 +203,9 @@ void GenericEditor::resized()
 
         if (channelSelector != 0)
             channelSelector->setBounds (desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
+
+        if (ttlMonitor != 0)
+            ttlMonitor->setBounds(desiredWidth - 40, 30, ttlMonitor->getWidth(), getHeight() - 45);
     }
 }
 
@@ -273,7 +279,6 @@ void GenericEditor::editorStartAcquisition()
 	if (channelSelector != 0)
 	{
 		channelSelector->startAcquisition();
-		channelSelector->inactivateRecButtons();
 	}
 
     for (int n = 0; n < parameterEditors.size(); n++)
@@ -295,7 +300,6 @@ void GenericEditor::editorStopAcquisition()
 	if (channelSelector != 0)
 	{
 		channelSelector->stopAcquisition();
-		channelSelector->activateRecButtons();
 	}
 
     for (int n = 0; n < parameterEditors.size(); n++)
@@ -461,13 +465,13 @@ void GenericEditor::update(bool isEnabled_)
 {
     isEnabled = isEnabled_;
 
-LOGDD("Editor for ");
+    GenericProcessor* p = (GenericProcessor*) getProcessor();
 
-    GenericProcessor* p = (GenericProcessor*)getProcessor();
-
-LOGDD(p->getName(), " updating settings.");
+    LOGDD("Editor for ", p->getName(), " updating settings.");
 
     updateSettings();
+
+    int monitorWidth = ttlMonitor->updateSettings(p->getEventChannels());
 
     int numChannels;
     if (!p->isSink())
@@ -509,22 +513,6 @@ LOGDD(p->getName(), " updating settings.");
 
 }
 
-const ContinuousChannel* GenericEditor::getContinuousChannel(int chan) const
-{
-    return getProcessor()->getContinuousChannel(chan);
-
-}
-
-const EventChannel* GenericEditor::getEventChannel(int chan) const
-{
-    return getProcessor()->getEventChannel(chan);
-}
-
-const SpikeChannel* GenericEditor::getSpikeChannel(int chan) const
-{
-	return getProcessor()->getSpikeChannel(chan);
-}
-
 Array<int> GenericEditor::getActiveChannels()
 {
     if (!isSplitOrMerge)
@@ -539,55 +527,13 @@ Array<int> GenericEditor::getActiveChannels()
     }
 }
 
-bool GenericEditor::getRecordStatus(int chan)
-{
-    if (!isSplitOrMerge)
-    {
-        return channelSelector->getRecordStatus(chan);
-    }
-    else
-    {
-        return false;
-    }
-}
-
-Array<bool> GenericEditor::getRecordStatusArray()
-{
-
-    Array<bool> recordStatuses;
-    recordStatuses.resize(getProcessor()->getNumOutputs());
-
-    for (int i = 0; i < getProcessor()->getNumOutputs(); i++)
-    {
-        if (channelSelector != nullptr)
-            recordStatuses.set(i,channelSelector->getRecordStatus(i));
-        else
-            recordStatuses.set(i,false);
-    }
-
-    return recordStatuses;
-
-}
-
-bool GenericEditor::getAudioStatus(int chan)
-{
-    if (!isSplitOrMerge)
-    {
-        return channelSelector->getAudioStatus(chan);
-    }
-    else
-    {
-        return false;
-    }
-}
-
 void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
 {
     if (!isSplitOrMerge)
     {
         *p = channelSelector->getParamStatus(chan);
-        *r = channelSelector->getRecordStatus(chan);
-        *a = channelSelector->getAudioStatus(chan);
+        *r = false;
+        *a = false;
     }
     else
     {
@@ -602,9 +548,12 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
     if (!isSplitOrMerge)
     {
         channelSelector->setParamStatus(chan, p);
-        channelSelector->setRecordStatus(chan, r);
-        channelSelector->setAudioStatus(chan, a);
     }
+}
+
+void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
+{
+    ttlMonitor->setState(streamId, bit, state);
 }
 
 bool GenericEditor::getCollapsedState()

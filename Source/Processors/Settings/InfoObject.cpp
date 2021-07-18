@@ -159,9 +159,15 @@ int InfoObject::getStreamId() const
 
 void InfoObject::addProcessor(ProcessorInfoObject* processor)
 {
+
+	if (processorChain.size() == 0)
+		m_sourceNodeName = processor->getName();
+
 	processorChain.add(processor);
 	addToHistoryString(processor->getName());
 	setNodeId(processor->getNodeId());
+
+	m_nodeName = processor->getName();
 }
 
 /*bool InfoObject::isEqual(const InfoObject& other) const

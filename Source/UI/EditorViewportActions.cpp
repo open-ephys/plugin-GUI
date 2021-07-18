@@ -383,15 +383,15 @@ bool LoadPluginSettings::perform()
         {
             if (xmlNode->hasTagName("CHANNEL"))
             {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::DATA_CHANNEL);
+                processor->loadChannelParametersFromXml(xmlNode, InfoObject::CONTINUOUS_CHANNEL);
             }
             else if (xmlNode->hasTagName("EVENTCHANNEL"))
             {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::EVENT_CHANNEL);
+                processor->loadChannelParametersFromXml(xmlNode, InfoObject::EVENT_CHANNEL);
             }
             else if (xmlNode->hasTagName("SPIKECHANNEL"))
             {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
+                processor->loadChannelParametersFromXml(xmlNode, InfoObject::SPIKE_CHANNEL);
             }
         }
         
@@ -428,15 +428,15 @@ bool LoadPluginSettings::undo()
     {
         if (xmlNode->hasTagName("CHANNEL"))
         {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::DATA_CHANNEL);
+            processor->loadChannelParametersFromXml(xmlNode, InfoObject::CONTINUOUS_CHANNEL);
         }
         else if (xmlNode->hasTagName("EVENTCHANNEL"))
         {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::EVENT_CHANNEL);
+            processor->loadChannelParametersFromXml(xmlNode, InfoObject::EVENT_CHANNEL);
         }
         else if (xmlNode->hasTagName("SPIKECHANNEL"))
         {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObjectCommon::SPIKE_CHANNEL);
+            processor->loadChannelParametersFromXml(xmlNode, InfoObject::SPIKE_CHANNEL);
         }
     }
     

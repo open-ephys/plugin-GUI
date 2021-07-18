@@ -38,6 +38,8 @@
 #include "../Settings/EventChannel.h"
 #include "../Settings/SpikeChannel.h"
 
+#include "../Events/Event.h"
+
 #include <time.h>
 #include <stdio.h>
 #include <map>
@@ -55,27 +57,9 @@ class ConfigurationObject;
 class ProcessorInfoObject;
 class DeviceInfo;
 
-class Event;
 class Spike;
 
 using namespace Plugin;
-
-/*class ChannelCreationIndices
-{
-public:
-	friend class ContinuousChannel;
-	friend class EventChannel;
-	friend class SpikeChannel;
-	friend class GenericProcessor;
-private:
-	void clearChannelCreationCounts();
-	int dataChannelCount{ 0 };
-	std::unordered_map<ContinuousChannel::Type, int, std::hash<int>> continuousChannelTypeCount;
-	int eventChannelCount{ 0 };
-	std::unordered_map<EventChannel::Type, int, std::hash<int>> eventChannelTypeCount;
-	int spikeChannelCount{ 0 };
-	std::unordered_map<SpikeChannel::Type, int, std::hash<int>> spikeChannelTypeCount;
-};*/
 
 namespace AccessClass
 {
@@ -98,6 +82,8 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
     friend class RecordEngine;
     friend class MessageCenter;
     friend class ProcessorGraph;
+    friend class GenericEditor;
+
 public:
     /** Constructor (sets the processor's name). */
     GenericProcessor (const String& name_);
@@ -286,6 +272,9 @@ public:
     /** Returns a pointer to the processor's internal event buffer, if it exists. */
     virtual MidiBuffer* getEventBuffer() const;
 
+    /** Returns an array of this processor's event channels*/
+    Array<const EventChannel*> getEventChannels();
+
     int nextAvailableChannel;
 
     /** Variable used to orchestrate saving the ProcessorGraph. */
@@ -320,6 +309,22 @@ public:
     /** Load generic parameters for each channel (called by all processors). */
     void loadChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
 
+    // --------------------------------------------
+   //     SAVING + LOADING SETTINGS
+   // --------------------------------------------
+
+   /** Saving custom settings to XML. */
+    virtual void saveCustomParametersToXml(XmlElement* parentElement);
+
+    /** Saving custom settings for each channel. */
+    virtual void saveCustomChannelParametersToXml(XmlElement* channelElement, InfoObject* channel);
+
+    /** Load custom settings from XML*/
+    virtual void loadCustomParametersFromXml();
+
+    /** Load custom parameters for each channel. */
+    virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
+
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
 
@@ -343,7 +348,7 @@ public:
 
 	const SpikeChannel* getSpikeChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
-    const DataStream* getDataStream(uint16 streamId) const;
+    DataStream* getDataStream(uint16 streamId) const;
 
 	const ConfigurationObject* getConfigurationObject(int index) const;
 
@@ -482,7 +487,7 @@ protected:
     Array<DataStream*> streams;
 
     /** Copies DataStream settings from a source processor*/
-    void copyDataStreamSettings(const DataStream*);
+    void copyDataStreamSettings(DataStream*);
 
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();
@@ -492,22 +497,6 @@ protected:
 
     /** Holds info about available devices.*/
     OwnedArray<DeviceInfo> devices;
-
-    // --------------------------------------------
-    //     SAVING + LOADING SETTINGS
-    // --------------------------------------------
-
-    /** Saving custom settings to XML. */
-    virtual void saveCustomParametersToXml(XmlElement* parentElement);
-
-    /** Saving custom settings for each channel. */
-    virtual void saveCustomChannelParametersToXml(XmlElement* channelElement, InfoObject* channel);
-
-    /** Load custom settings from XML*/
-    virtual void loadCustomParametersFromXml();
-
-    /** Load custom parameters for each channel. */
-    virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
 
     /** When set to false, this disables the sending of sample counts through the event buffer (used by Mergers and Splitters). */
     bool sendSampleCount;

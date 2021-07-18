@@ -25,8 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "../../AccessClass.h"
-#include "../RecordNode/RecordNode.h"
-#include "../AudioNode/AudioNode.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../UI/GraphViewer.h"
 #include "../../Utils/ListSliceParser.h"
@@ -44,24 +42,9 @@ static const int DURATION_ANIMATION_COLLAPSE_MS = 200;
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     eventsOnly(false)
     , parameterSlicerChannelSelector (Channels::PARAM_CHANNELS,  "Parameter slicer channel selector component")
-    , audioSlicerChannelSelector     (Channels::AUDIO_CHANNELS,  "Audio slicer channel selector component")
-    , recordSlicerChannelSelector    (Channels::RECORD_CHANNELS, "Record slicer channel selector component")
     , paramsToggled(true), paramsActive(true), recActive(true), radioStatus(false), isNotSink(createButtons)
     , moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
 {
-    audioButton = new EditorButton("AUDIO", titleFont);
-    audioButton->addListener(this);
-    addAndMakeVisible(audioButton);
-    if (!createButtons)
-        audioButton->setState(false);
-
-    /*
-    recordButton = new EditorButton("REC", titleFont);
-    recordButton->addListener(this);
-    addAndMakeVisible(recordButton);
-    if (!createButtons)
-        recordButton->setState(false);
-    */
 
     paramsButton = new EditorButton("PARAM", titleFont);
     paramsButton->addListener(this);
@@ -84,47 +67,28 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 
     // Buttons managers
     // ====================================================================
-    addAndMakeVisible (audioButtonsManager);
-    //addAndMakeVisible (recordButtonsManager);
     addAndMakeVisible (parameterButtonsManager);
 
     // Enable fast mode selection for buttons
-    audioButtonsManager.setFastSelectionModeEnabled     (true);
-    recordButtonsManager.setFastSelectionModeEnabled    (true);
     parameterButtonsManager.setFastSelectionModeEnabled (true);
 
-    audioButtonsManager.setMinPaddingBetweenButtons     (0);
-    recordButtonsManager.setMinPaddingBetweenButtons    (0);
     parameterButtonsManager.setMinPaddingBetweenButtons (0);
-
-    audioButtonsManager.setColour       (ButtonGroupManager::outlineColourId, Colour (0x0));
-    recordButtonsManager.setColour      (ButtonGroupManager::outlineColourId, Colour (0x0));
     parameterButtonsManager.setColour   (ButtonGroupManager::outlineColourId, Colour (0x0));
 
     // Register listeners for buttons
-    audioButtonsManager.setButtonListener      (this);
-    recordButtonsManager.setButtonListener     (this);
     parameterButtonsManager.setButtonListener  (this);
     // ====================================================================
 
     // Slicer channels selectors
     // ====================================================================
-    audioSlicerChannelSelector.setListener      (this);
-    recordSlicerChannelSelector.setListener     (this);
     parameterSlicerChannelSelector.setListener  (this);
 
     // Set just initial y for each slicer
     const int slicerChannelSelectorY = 10;
-    audioSlicerChannelSelector.setBounds        (audioSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
-    recordSlicerChannelSelector.setBounds       (recordSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
     parameterSlicerChannelSelector.setBounds    (parameterSlicerChannelSelector.getBounds().withY (slicerChannelSelectorY));
 
-    addAndMakeVisible (audioSlicerChannelSelector);
-    addAndMakeVisible (recordSlicerChannelSelector);
     addAndMakeVisible (parameterSlicerChannelSelector);
 
-    audioSlicerChannelSelector.toBack();
-    recordSlicerChannelSelector.toBack();
     parameterSlicerChannelSelector.toBack();
     // ====================================================================
 
@@ -139,15 +103,11 @@ ChannelSelector::~ChannelSelector()
     // We will remove it after getting rid of the ugly calling of deleteAllChildren() method.
     // We should really use some RAII technuiqes to avoid calling this method.
     // TODO: refactor the code to follow RAII best principles and to avoid using raw pointers after merge with priyanjitdey94
-    removeChildComponent (&audioButtonsManager);
-    removeChildComponent (&recordButtonsManager);
-    removeChildComponent (&parameterButtonsManager);
+    //removeChildComponent (&parameterButtonsManager);
 
-    removeChildComponent (&audioSlicerChannelSelector);
-    removeChildComponent (&recordSlicerChannelSelector);
-    removeChildComponent (&parameterSlicerChannelSelector);
+    //removeChildComponent (&parameterSlicerChannelSelector);
 
-    deleteAllChildren();
+    //deleteAllChildren();
 }
 
 void ChannelSelector::paint(Graphics& g)
@@ -199,12 +159,6 @@ LOGDD(difference, " buttons needed.");
     {
         int num = ( (GenericEditor*)getParentComponent())->getChannelDisplayNumber (n);
         static_cast<ChannelSelectorButton*> (parameterButtonsManager.getButtonAt  (n))->setChannel (n + 1, num + 1);
-
-        if (isNotSink)
-        {
-            static_cast<ChannelSelectorButton*> (recordButtonsManager.getButtonAt (n))->setChannel (n + 1, num + 1);
-            static_cast<ChannelSelectorButton*> (audioButtonsManager.getButtonAt  (n))->setChannel (n + 1, num + 1);
-        }
     }
 
     refreshButtonBoundaries();
@@ -234,8 +188,6 @@ void ChannelSelector::refreshButtonBoundaries()
     const int columnWidth   = getDesiredWidth() / (numColumnsGreaterThan100 + 1) + 1;
     const int rowHeight     = 14;
 
-    audioButtonsManager.setButtonSize      (columnWidth, rowHeight);
-    recordButtonsManager.setButtonSize     (columnWidth, rowHeight);
     parameterButtonsManager.setButtonSize  (columnWidth, rowHeight);
 
     const int xLoc = offsetLR + 3;
@@ -244,14 +196,7 @@ void ChannelSelector::refreshButtonBoundaries()
     parameterSlicerChannelSelector.setBounds (slicerSelectorBounds
                                               .withY (parameterSlicerChannelSelector.getY())
                                               .withHeight (parameterSlicerChannelSelector.getHeight()));
-    slicerSelectorBounds.translate (- getDesiredWidth(), 0);
-    recordSlicerChannelSelector.setBounds (slicerSelectorBounds
-                                           .withY (recordSlicerChannelSelector.getY())
-                                           .withHeight (recordSlicerChannelSelector.getHeight()));
-    slicerSelectorBounds.translate (- getDesiredWidth(), 0);
-    audioSlicerChannelSelector.setBounds (slicerSelectorBounds
-                                          .withY (audioSlicerChannelSelector.getY())
-                                          .withHeight (audioSlicerChannelSelector.getHeight()));
+
 
     // Set bounds for buttons managers
     // ===================================================================================================
@@ -267,26 +212,11 @@ void ChannelSelector::refreshButtonBoundaries()
                                          parameterButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : parameterButtonsManager.getY(),
                                          buttonsManagerWidth,
                                          getHeight() - parameterButtonsManager.getY() - tabButtonHeight);
-    buttonsManagerX -= getDesiredWidth();
-    recordButtonsManager.setBounds      (buttonsManagerX,
-                                         recordButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : recordButtonsManager.getY(),
-                                         buttonsManagerWidth,
-                                         getHeight() - recordButtonsManager.getY() - tabButtonHeight);
-    buttonsManagerX -= getDesiredWidth();
-    audioButtonsManager.setBounds       (buttonsManagerX,
-                                         audioButtonsManager.getHeight() == 0 ? defaultButtonsManagerY : audioButtonsManager.getY(),
-                                         buttonsManagerWidth,
-                                         getHeight() - audioButtonsManager.getY() - tabButtonHeight);
+
     // ===================================================================================================
 
-    /*
-      audio,record and param tabs
-    */
-    //const int tabButtonWidth = getWidth() / 3;
     const int tabButtonWidth = getWidth() / 2;
 
-    audioButton->setBounds  (0, 0, tabButtonWidth, tabButtonHeight);
-    //recordButton->setBounds (tabButtonWidth, 0, tabButtonWidth, tabButtonHeight);
     paramsButton->setBounds (tabButtonWidth, 0, tabButtonWidth, tabButtonHeight);
 
     /*
@@ -341,14 +271,6 @@ void ChannelSelector::addButton()
     if (!paramsActive)
         b->setActive(false);
 
-    if (isNotSink)
-    {
-        ChannelSelectorButton* br = new ChannelSelectorButton(size + 1, RECORD, titleFont);
-        recordButtonsManager.addButton (br);
-
-        ChannelSelectorButton* ba = new ChannelSelectorButton(size + 1, AUDIO, titleFont);
-        audioButtonsManager.addButton (ba);
-    }
 }
 
 void ChannelSelector::removeButton()
@@ -356,12 +278,6 @@ void ChannelSelector::removeButton()
     int size = parameterButtonsManager.getNumButtons();
 
     parameterButtonsManager.removeButton (size - 1);
-
-    if (isNotSink)
-    {
-        recordButtonsManager.removeButton (size - 1);
-        audioButtonsManager.removeButton  (size - 1);
-    }
 }
 
 Array<int> ChannelSelector::getActiveChannels()
@@ -430,31 +346,6 @@ void ChannelSelector::activateButtons()
     }
 }
 
-void ChannelSelector::inactivateRecButtons()
-{
-    recActive = false;
-
-    const int numButtons = recordButtonsManager.getNumButtons();
-    for (int i = 0; i < numButtons; ++i)
-    {
-        const auto& button = static_cast<ChannelSelectorButton*> (recordButtonsManager.getButtonAt (i));
-        button->setActive (false);
-        button->repaint();
-    }
-}
-
-void ChannelSelector::activateRecButtons()
-{
-    recActive = true;
-
-    const int numButtons = recordButtonsManager.getNumButtons();
-    for (int i = 0; i < numButtons; ++i)
-    {
-        const auto& button = static_cast<ChannelSelectorButton*> (recordButtonsManager.getButtonAt (i));
-        button->setActive (true);
-        button->repaint();
-    }
-}
 
 void ChannelSelector::refreshParameterColors()
 {
@@ -501,45 +392,11 @@ bool ChannelSelector::getParamStatus(int chan)
         return false;
 }
 
-bool ChannelSelector::getRecordStatus(int chan)
-{
-    if (chan >= 0 && chan < recordButtonsManager.getNumButtons())
-        return recordButtonsManager.getButtonAt (chan)->getToggleState();
-    else
-        return false;
-}
-
-bool ChannelSelector::getAudioStatus(int chan)
-{
-    if (chan >= 0 && chan < audioButtonsManager.getNumButtons())
-        return audioButtonsManager.getButtonAt (chan)->getToggleState();
-    else
-        return false;
-}
 
 void ChannelSelector::setParamStatus(int chan, bool b)
 {
     if (chan >= 0 && chan < parameterButtonsManager.getNumButtons())
         parameterButtonsManager.getButtonAt (chan)->setToggleState(b, sendNotification);
-}
-
-void ChannelSelector::setRecordStatus(int chan, bool b)
-{
-    if (chan >= 0 && chan < recordButtonsManager.getNumButtons())
-        recordButtonsManager.getButtonAt (chan)->setToggleState(b, sendNotification);
-}
-
-void ChannelSelector::setAudioStatus(int chan, bool b)
-{
-    if (chan >= 0 && chan < audioButtonsManager.getNumButtons())
-        audioButtonsManager.getButtonAt (chan)->setToggleState (b, sendNotification);
-}
-
-void ChannelSelector::clearAudio()
-{
-    const int numButtons = audioButtonsManager.getNumButtons();
-    for (int chan = 0; chan < numButtons; ++chan)
-        audioButtonsManager.getButtonAt (chan)->setToggleState (false, sendNotification);
 }
 
 int ChannelSelector::getDesiredWidth()
@@ -558,162 +415,43 @@ void ChannelSelector::buttonClicked(Button* button)
         startTimer(20);
         return;
     }
-    else if (button == audioButton)
-    {
-        // make sure audio buttons are visible
-
-        if (audioButton->getState())
-        {
-            allButton->setState(false);
-
-            desiredOffset = audioOffset;
-            startTimer(20);
-        }
-        else
-        {
-            paramsButton->setToggleState(true, dontSendNotification);
-        }
-        return;
-    }
-    else if (button == recordButton)
-    {
-        // make sure record buttons are visible;
-        if (recordButton->getState())
-        {
-            allButton->setState(true);
-            desiredOffset = recordOffset;
-            startTimer(20);
-        }
-        else
-        {
-            paramsButton->setToggleState(true, dontSendNotification);
-        }
-        return;
-    }
     else if (button == allButton)
     {
-        // select all active buttons
-        if (offsetLR == recordOffset)
+       
+        for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
         {
-            for (int i = 0; i < recordButtonsManager.getNumButtons(); ++i)
-            {
-                recordButtonsManager.getButtonAt (i)->setToggleState (true, sendNotification);
-            }
-
+            parameterButtonsManager.getButtonAt (i)->setToggleState (true, sendNotification);
         }
-        else if (offsetLR == parameterOffset)
-        {
-            for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
-            {
-                parameterButtonsManager.getButtonAt (i)->setToggleState (true, sendNotification);
-            }
-        }
-        else if (offsetLR == audioOffset)
-        {
-            // do nothing--> button is disabled
-        }
+       
     }
     else if (button == noneButton)
     {
-        // deselect all active buttons
-        if (offsetLR == recordOffset)
+        for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
         {
-            for (int i = 0; i < recordButtonsManager.getNumButtons(); ++i)
-            {
-                recordButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
-            }
+            parameterButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
         }
-        else if (offsetLR == parameterOffset)
-        {
-            for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
-            {
-                parameterButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
-            }
             
-            if (radioStatus) // if radio buttons are active
-            {
-                // send a message to parent
-                GenericEditor* editor = (GenericEditor*) getParentComponent();
-                editor->channelChanged (-1, false);
-            }
-        }
-        else if (offsetLR == audioOffset)
+        if (radioStatus) // if radio buttons are active
         {
-            for (int i = 0; i < audioButtonsManager.getNumButtons(); ++i)
-            {
-                audioButtonsManager.getButtonAt (i)->setToggleState (false, sendNotification);
-            }
+            // send a message to parent
+            GenericEditor* editor = (GenericEditor*) getParentComponent();
+            editor->channelChanged (-1, false);
         }
+       
     }
     else
     {
         ChannelSelectorButton* b = (ChannelSelectorButton*)button;
 
-        if (b->getType() == AUDIO)
+        GenericEditor* editor = (GenericEditor*) getParentComponent();
+        editor->channelChanged (b->getChannel() - 1, b->getToggleState());
+
+        // do nothing
+        if (radioStatus) // if radio buttons are active
         {
-            // get audio node, and inform it of the change
-            GenericEditor* editor = (GenericEditor*)getParentComponent();
-
-            const ContinuousChannel* ch = editor->getContinuousChannel(b->getChannel() - 1);
-            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-            bool status = b->getToggleState();
-
-//LOGDD("Requesting audio monitor for channel ", ch->nodeIndex + 1);
-            
-            // change parameter directly on editor
-            //     This is another of those ugly things that will go away once the
-            //     probe audio system is implemented, but is needed to maintain compatibility
-            //     between the older recording system and the newer channel objects.
-            const_cast<DataChannel*>(ch)->setMonitored(status);
-
-            
-            if (acquisitionIsActive) // use setParameter to change audio node's copy of parameter safely, if running
-            {
-                AccessClass::getProcessorGraph()->
-                getAudioNode()->setChannelStatus(ch, status);
-            }
-        }
-        else if (b->getType() == RECORD)
-        {
-			
-            // get record node, and inform it of the change
-            GenericEditor* editor = (GenericEditor*)getParentComponent();
-
-            const DataChannel* ch = editor->getChannel(b->getChannel() - 1);
-            //int channelNum = editor->getStartChannel() + b->getChannel() - 1;
-            bool status = b->getToggleState();
-
-            if (acquisitionIsActive) // use setParameter to change parameter safely
-            {
-                               
-                // disable toggling when acquisition is active
-                b->setToggleState(const_cast<DataChannel*>(ch)->getRecordState(), dontSendNotification);
-            }
-            else     // change parameter directly
-            {
-LOGDD("Setting record status for channel ", b->getChannel());
-
-				//This is another of those ugly things that will go away once the
-				//probe recording system is implemented, but is needed to maintain compatibility
-				//between the older recording system and the newer channel objects.
-                const_cast<DataChannel*>(ch)->setRecordState(status);
-            }
-
-            AccessClass::getGraphViewer()->repaint();
-
-        }
-        else // parameter type
-        {
+            // send a message to parent
             GenericEditor* editor = (GenericEditor*) getParentComponent();
-            editor->channelChanged (b->getChannel() - 1, b->getToggleState());
-
-            // do nothing
-            if (radioStatus) // if radio buttons are active
-            {
-                // send a message to parent
-                GenericEditor* editor = (GenericEditor*) getParentComponent();
-                editor->channelChanged (b->getChannel(), b->getToggleState());
-            }
+            editor->channelChanged (b->getChannel(), b->getToggleState());
         }
 
     }
@@ -727,17 +465,11 @@ void ChannelSelector::changeChannelsSelectionButtonClicked (SlicerChannelSelecto
 {
     const Channels::ChannelsType channelsType = sender->getChannelsType();
 
-    TiledButtonGroupManager* buttonsManager = nullptr;
-    if (channelsType == Channels::AUDIO_CHANNELS)
-        buttonsManager = &audioButtonsManager;
-    else if (channelsType == Channels::RECORD_CHANNELS)
-        buttonsManager = &recordButtonsManager;
-    else if (channelsType == Channels::PARAM_CHANNELS)
-        buttonsManager = &parameterButtonsManager;
+    TiledButtonGroupManager* buttonsManager = &parameterButtonsManager;
 
     jassert (buttonsManager != nullptr);
 
-    Array<int> getBoxList = ListSliceParser::parseStringIntoRange (sender->getText(), audioButtonsManager.getNumButtons());
+    Array<int> getBoxList = ListSliceParser::parseStringIntoRange (sender->getText(), buttonsManager->getNumButtons());
     if (getBoxList.size() < 3)
         return;
 
@@ -760,13 +492,7 @@ void ChannelSelector::channelSelectorCollapsedStateChanged (SlicerChannelSelecto
 {
     const Channels::ChannelsType channelsType = sender->getChannelsType();
 
-    TiledButtonGroupManager* buttonsManager = nullptr;
-    if (channelsType == Channels::AUDIO_CHANNELS)
-        buttonsManager = &audioButtonsManager;
-    else if (channelsType == Channels::RECORD_CHANNELS)
-        buttonsManager = &recordButtonsManager;
-    else if (channelsType == Channels::PARAM_CHANNELS)
-        buttonsManager = &parameterButtonsManager;
+    TiledButtonGroupManager* buttonsManager = &parameterButtonsManager;
 
     jassert (buttonsManager != nullptr);
 

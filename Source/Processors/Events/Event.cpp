@@ -336,9 +336,28 @@ TTLEvent::~TTLEvent() {}
 
 bool TTLEvent::getState() const
 {
-	uint8 state = m_data[1];
-	return (state & 1);
+	uint8 state_byte = m_data[1];
+
+	return state_byte == 1;
 }
+
+bool TTLEvent::getState(const EventPacket& packet)
+{
+	uint8 state_byte = *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE + 1);
+
+	return state_byte == 1;
+}
+
+uint8 TTLEvent::getBit() const
+{
+	return m_data[0];
+}
+
+uint8 TTLEvent::getBit(const EventPacket& packet)
+{
+	return *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE);
+}
+
 
 const void* TTLEvent::getTTLWordPointer() const
 {
@@ -634,7 +653,7 @@ EventChannel::BinaryDataType BinaryEvent::getType()
 	if (std::is_same<float, T>::value) return EventChannel::FLOAT_ARRAY;
 	if (std::is_same<double, T>::value) return EventChannel::DOUBLE_ARRAY;
 
-	return EventChannel::INVALID;
+	return EventChannel::BINARY_BASE_VALUE;
 }
 
 void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const

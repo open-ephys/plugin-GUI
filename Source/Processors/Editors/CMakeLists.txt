@@ -12,6 +12,8 @@ add_sources(open-ephys
 	ImageIcon.h
 	VisualizerEditor.cpp
 	VisualizerEditor.h
+	TTLMonitor.cpp
+	TTLMonitor.h
 )
 
 #add nested directories

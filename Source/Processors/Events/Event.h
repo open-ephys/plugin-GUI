@@ -326,6 +326,9 @@ public:
 
 	/* Gets the bit state true ='1/ON/HIGH' false = '0/OFF/LOW'*/
 	bool getState() const;
+
+	/* Gets the bit on which the change occurred.*/
+	uint8 getBit() const;
 	
 	/* Gets a pointer to the TTL word */
 	const void* getTTLWordPointer() const;
@@ -345,6 +348,12 @@ public:
 
 	/* Deserialize a TTL event from an EventPacket object */
 	static TTLEventPtr deserialize(const EventPacket& packet, const EventChannel* channelInfo);
+
+	/* Get the event state from an EventPacket object */
+	static bool getState(const EventPacket& packet);
+
+	/* Get the event bit from an EventPacket object */
+	static uint8 getBit(const EventPacket& packet);
 
 private:
 	/* Prevent the creation of an empty event*/

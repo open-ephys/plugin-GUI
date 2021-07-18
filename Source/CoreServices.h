@@ -114,7 +114,6 @@ PLUGIN_API void createNewrecordingDir();
 PLUGIN_API File getRecordingPath();
 PLUGIN_API int getRecordingNumber();
 PLUGIN_API int getExperimentNumber();
-PLUGIN_API bool getRecordThreadStatus();
 
 /* Spike related methods. See record engine documentation */
 

@@ -192,13 +192,15 @@ public:
 
 	void getTimestampSources(int& selectedSource, int& selectedSubIdx) const;
 
-    int64 getGlobalTimestamp(bool softwareOnly) const;
+    int64 getGlobalTimestamp() const;
 
-    float getGlobalSampleRate(bool softwareOnly) const;
+    float getGlobalSampleRate() const;
+
+    void setTimestampWindow(TimestampSourceSelectionWindow* window);
 
 	//uint32 getGlobalTimestampSourceFullId() const;
 
-	//void setTimestampWindow(TimestampSourceSelectionWindow* window);*/
+	
     
 private:
 

@@ -103,7 +103,7 @@ LOGD("Created plugin manager");
 	getProcessorList()->fillItemList();
 	controlPanel->updateChildComponents();
 
-	processorGraph->updatePointers(); // needs to happen after processorGraph gets the right pointers
+	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
 
 #if JUCE_MAC
 	MenuBarModel::setMacMainMenu(this);

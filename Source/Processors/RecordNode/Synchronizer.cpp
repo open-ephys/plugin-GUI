@@ -86,56 +86,46 @@ int FloatTimestampBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* tim
 	
 }
 
-Subprocessor::Subprocessor(float expectedSampleRate_)
+Stream::Stream(float expectedSampleRate_)
 {
 	expectedSampleRate = expectedSampleRate_;
 	actualSampleRate = -1.0f;
 
-	startSample = -1;
-	lastSample = -1;
-
-	startSampleMasterTime = -1.0f;
-	lastSampleMasterTime = -1.0f;
-
-	syncChannel = -1;
-
-	isSynchronized = false;
-	receivedEventInWindow = false;
-	receivedMasterTimeInWindow = false;
-
 	sampleRateTolerance = 0.01;
+
+	reset();
 }
 
-void Subprocessor::reset()
+void Stream::reset()
 {
 
-	startSampleMasterTime = -1.0f;
-	lastSampleMasterTime = -1.0f;
+	startSamplePrimaryTime = -1.0f;
+	lastSamplePrimaryTime = -1.0f;
 
 	actualSampleRate = -1.0f;
 	startSample = -1;
 	lastSample = -1;
 
 	receivedEventInWindow = false;
-	receivedMasterTimeInWindow = false;
+	receivedPrimaryTimeInWindow = false;
 	isSynchronized = false;
 
 }
 
-void Subprocessor::setMasterTime(float masterTimeSec_)
+void Stream::setPrimaryTime(float masterTimeSec_)
 {
-	if (!receivedMasterTimeInWindow)
+	if (!receivedPrimaryTimeInWindow)
 	{
-		tempMasterTime = masterTimeSec_;
-		receivedMasterTimeInWindow = true;
+		tempPrimaryTime = masterTimeSec_;
+		receivedPrimaryTimeInWindow = true;
 	}
 	else { // multiple events, something could be wrong
-		receivedMasterTimeInWindow = false;
+		receivedPrimaryTimeInWindow = false;
 	}
 
 }
 
-void Subprocessor::addEvent(int sampleNumber)
+void Stream::addEvent(int sampleNumber)
 {
 	if (!receivedEventInWindow)
 	{
@@ -148,21 +138,21 @@ void Subprocessor::addEvent(int sampleNumber)
 
 }
 
-void Subprocessor::closeSyncWindow()
+void Stream::closeSyncWindow()
 {
-	if (receivedEventInWindow && receivedMasterTimeInWindow)
+	if (receivedEventInWindow && receivedPrimaryTimeInWindow)
 	{
 		if (startSample < 0)
 		{
 			startSample = tempSampleNum;
-			startSampleMasterTime = tempMasterTime;
+			startSamplePrimaryTime = tempPrimaryTime;
 		}
 		else {
 
 			lastSample = tempSampleNum;
-			lastSampleMasterTime = tempMasterTime;
+			lastSamplePrimaryTime = tempPrimaryTime;
 
-			double tempSampleRate = (lastSample - startSample) / (lastSampleMasterTime - startSampleMasterTime);
+			double tempSampleRate = (lastSample - startSample) / (lastSamplePrimaryTime - startSamplePrimaryTime);
 
 			if (actualSampleRate < 0.0f)
 			{
@@ -180,7 +170,7 @@ void Subprocessor::closeSyncWindow()
 				}
 				else { // reset the clock
 					startSample = tempSampleNum;
-					startSampleMasterTime = tempMasterTime;
+					startSamplePrimaryTime = tempPrimaryTime;
 					isSynchronized = false;
 				}
 			}
@@ -190,7 +180,7 @@ void Subprocessor::closeSyncWindow()
 	LOGDD("Subprocessor closed sync window.");
 
 	receivedEventInWindow = false;
-	receivedMasterTimeInWindow = false;
+	receivedPrimaryTimeInWindow = false;
 }
 
 // =======================================================
@@ -215,46 +205,46 @@ void Synchronizer::reset()
     firstMasterSync = true;
 	eventCount = 0;
     
-    std::map<int, std::map<int, Subprocessor*>>::iterator it;
-    std::map<int, Subprocessor*>::iterator ptr;
+    std::map<int, std::map<int, Stream*>>::iterator it;
+    std::map<int, Stream*>::iterator ptr;
     
-    for (it = subprocessors.begin(); it != subprocessors.end(); it++) {
+    for (it = streams.begin(); it != streams.end(); it++) {
         for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
             ptr->second->reset();
         }
     }
 }
 
-void Synchronizer::addSubprocessor(int sourceID, int subProcIndex, float expectedSampleRate)
+void Synchronizer::addDataStream(int sourceID, int subProcIndex, float expectedSampleRate)
 {
-	subprocessorArray.add(new Subprocessor(expectedSampleRate));
-	subprocessors[sourceID][subProcIndex] = subprocessorArray.getLast();
+	streamArray.add(new Stream(expectedSampleRate));
+	streams[sourceID][subProcIndex] = streamArray.getLast();
 }
 
-void Synchronizer::setMasterSubprocessor(int sourceID, int subProcIndex)
+void Synchronizer::setPrimaryDataStream(int sourceID, int subProcIndex)
 {
-	masterProcessor = sourceID;
-	masterSubprocessor = subProcIndex;
+	primaryProcessorId = sourceID;
+	primaryStreamId = subProcIndex;
 	reset();
 }
 
 void Synchronizer::setSyncChannel(int sourceID, int subProcIdx, int ttlChannel)
 {
 	//LOGD("Set sync channel: {", sourceID, ",", subProcIdx, "}->", ttlChannel);
-	subprocessors[sourceID][subProcIdx]->syncChannel = ttlChannel;
+	streams[sourceID][subProcIdx]->syncChannel = ttlChannel;
 	reset();
 }
 
 int Synchronizer::getSyncChannel(int sourceID, int subProcIdx)
 {
 	//LOGD("Get sync channel: {", sourceID, ",", subProcIdx, "}->", subprocessors[sourceID][subProcIdx]->syncChannel);
-	return subprocessors[sourceID][subProcIdx]->syncChannel;
+	return streams[sourceID][subProcIdx]->syncChannel;
 }
 
 void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sampleNumber)
 {
 
-	if (subprocessors[sourceID][subProcIdx]->syncChannel == ttlChannel)
+	if (streams[sourceID][subProcIdx]->syncChannel == ttlChannel)
 	{
 		
 		if (!syncWindowIsOpen)
@@ -262,9 +252,9 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 			openSyncWindow();
 		}
 
-		subprocessors[sourceID][subProcIdx]->addEvent(sampleNumber);
+		streams[sourceID][subProcIdx]->addEvent(sampleNumber);
 
-		if (sourceID == masterProcessor && subProcIdx == masterSubprocessor)
+		if (sourceID == primaryProcessorId && subProcIdx == primaryStreamId)
 		{
 
 			//LOGD("Got event on master!");
@@ -273,7 +263,7 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 
 			if (!firstMasterSync)
 			{
-				masterTimeSec = (sampleNumber - subprocessors[sourceID][subProcIdx]->startSample) / subprocessors[sourceID][subProcIdx]->expectedSampleRate;
+				masterTimeSec = (sampleNumber - streams[sourceID][subProcIdx]->startSample) / streams[sourceID][subProcIdx]->expectedSampleRate;
 			}
 			else
 			{
@@ -281,14 +271,14 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 				firstMasterSync = false;
 			}
 
-			std::map<int, std::map<int, Subprocessor*>>::iterator it;
-			std::map<int, Subprocessor*>::iterator ptr;
+			std::map<int, std::map<int, Stream*>>::iterator it;
+			std::map<int, Stream*>::iterator ptr;
 
-			for (it = subprocessors.begin(); it != subprocessors.end(); it++) 
+			for (it = streams.begin(); it != streams.end(); it++)
 			{
 				for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) 
 				{
-					ptr->second->setMasterTime(masterTimeSec);
+					ptr->second->setPrimaryTime(masterTimeSec);
 				}
 			}
 
@@ -305,11 +295,11 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 double Synchronizer::convertTimestamp(int sourceID, int subProcID, int sampleNumber)
 {
 
-	if (subprocessors[sourceID][subProcID]->isSynchronized)
+	if (streams[sourceID][subProcID]->isSynchronized)
 	{
-		return (double)(sampleNumber - subprocessors[sourceID][subProcID]->startSample) /
-			subprocessors[sourceID][subProcID]->actualSampleRate +
-			subprocessors[sourceID][subProcID]->startSampleMasterTime;
+		return (double)(sampleNumber - streams[sourceID][subProcID]->startSample) /
+			streams[sourceID][subProcID]->actualSampleRate +
+			streams[sourceID][subProcID]->startSamplePrimaryTime;
 	}
 	else {
 		return (double)-1.0;
@@ -325,7 +315,7 @@ void Synchronizer::openSyncWindow()
 
 bool Synchronizer::isSubprocessorSynced(int id, int idx)
 {
-	return subprocessors[id][idx]->isSynchronized;
+	return streams[id][idx]->isSynchronized;
 }
 
 SyncStatus Synchronizer::getStatus(int id, int idx)
@@ -350,10 +340,10 @@ void Synchronizer::hiResTimerCallback()
 
 	syncWindowIsOpen = false;
 
-	std::map<int, std::map<int, Subprocessor*>>::iterator it;
-	std::map<int, Subprocessor*>::iterator ptr;
+	std::map<int, std::map<int, Stream*>>::iterator it;
+	std::map<int, Stream*>::iterator ptr;
 
-	for (it = subprocessors.begin(); it != subprocessors.end(); it++) {
+	for (it = streams.begin(); it != streams.end(); it++) {
 		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
 			ptr->second->closeSyncWindow();
 		}

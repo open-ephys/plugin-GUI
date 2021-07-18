@@ -16,8 +16,6 @@
 #include "Synchronizer.h"
 #include "../../Utils/Utils.h"
 
-//#include "taskflow/taskflow.hpp"
-
 #define WRITE_BLOCK_LENGTH		1024
 #define DATA_BUFFER_NBLOCKS		300
 #define EVENT_BUFFER_NEVENTS	512
@@ -28,19 +26,36 @@
 #define MAX_BUFFER_SIZE			40960
 #define CHANNELS_PER_THREAD		384
 
+
+/**
+	Class used internally by the RecordNode to count the number of incoming events
+	Primarily useful for debugging purposes
+*/
 class EventMonitor
 {
 public:
 
+	/* Constructor */
 	EventMonitor();
+
+	/* Destructor */
 	~EventMonitor();
 
-	int receivedEvents;
-
+	/* Print information about incoming events.*/
 	void displayStatus();
+
+	/* Counts the total number of events received. */
+	int receivedEvents;
 
 };
 
+/**
+	A specialized processor that saves data from the signal chain
+
+	Sends data to RecordEngines, which handle the file creation / disk writing
+
+	@see: RecordThread, RecordEngine
+*/
 class RecordNode : public GenericProcessor, public FilenameComponentListener
 {
 
@@ -55,41 +70,53 @@ public:
      */
 	RecordNode();
     
-    /** Destructor
-            - Doesn't need to delete anything manually
-     */
+    /** Destructor */
 	~RecordNode();
 
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
 
-	void updateRecordChannelIndexes();
-
+	/** Creates a custom editor */
 	AudioProcessorEditor* createEditor() override;
-	bool hasEditor() const override { return true; }
 
-	void updateSubprocessorMap();
-	
+	/* Updates the RecordNode settings*/
+	void updateSettings() override;
+
+	/* Called at start of acquisition; configures the associated RecordEngine*/
+	bool startAcquisition() override;
+
+	/* Called at end of acquisition */
+	bool stopAcquisition() override;
+
+	/* Called at start of recording; launches the RecordThread*/
+	void startRecording() override;
+
+	/* Called at end of recording; stops the RecordThread*/
+	void stopRecording() override;
+
+	/* Generates the name for the new recording directory*/
+	String generateDirectoryName();
+
+	/* Creates a new recording directory*/
+	void createNewDirectory();
+
+	/* Callback for responding to changes in data-directory-related settings*/
+	void filenameComponentChanged(FilenameComponent*);
+
+	/* Generates a date string to be used in the directory name*/
+	String generateDateString() const;
+
+	/* Returns the "experiment" count (number of times that acquisition was stopped and re-started)*/
+	int getExperimentNumber() const;
+
+	/* Returns the "recording" count (number of times that recording was stopped and re-started)*/
+	int getRecordingNumber() const;
+
 	void setPrimaryDataStream(uint16 streamId);
 	bool isPrimaryDataStream(uint16 streamId);
 
-	void setSyncBit(EventChannel* channel, int bit);
-	int getSyncBit(EventChannel* channel);
-
-	void updateSettings() override;
-
-    bool startAcquisition() override;
-	bool stopAcquisition() override;
-
-	void startRecording() override;
-	void stopRecording() override;
-
-	String generateDirectoryName();
-	void createNewDirectory();
-    void filenameComponentChanged(FilenameComponent *);
-    String generateDateString() const;
-	int getExperimentNumber() const;
-	int getRecordingNumber() const;
+	void setSyncBit(uint16 streamId, int bit);
+	int getSyncBit(uint16 streamId);
 
 	void updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> enabled);
 
@@ -107,38 +134,10 @@ public:
 	void setDataDirectory(File);
 	File getDataDirectory();
 
-	ScopedPointer<RecordThread> recordThread;
-	ScopedPointer<RecordEngine> recordEngine;
-	std::vector<RecordEngineManager*> availableEngines;	
-
-    ScopedPointer<Synchronizer> synchronizer;
-
-	int64 samplesWritten;
-	String lastSettingsText;
-
-	int numSubprocessors;
-
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 
-	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
-	std::map<int, int> dataChannelOrder;
-
-	std::map<int, std::map<int, int>> eventMap;
-	std::map<int, std::map<int, int>> syncChannelMap;
-	std::map<int, std::map<int, int>> syncOrderMap;
-
-	std::map<int, std::map<int, float>> fifoUsage;
-
-	Array<int> channelMap; //Map from record channel index to source channel index
-	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
-	std::vector<std::vector<int>> subProcessorMap;
-	std::vector<int> startRecChannels;
-
-    bool isSyncReady;
-
-    /** Must be called by a spike recording source on the "enable" method
-    */
+    /** Must be called by a spike recording source on the "enable" method */
     void registerSpikeSource(const GenericProcessor *processor);
 
     /** Registers an electrode group for spike recording
@@ -149,11 +148,7 @@ public:
 
     /** Called by a spike recording source to write a spike to file
     */
-    void writeSpike(const SpikeEvent *spike, const SpikeChannel *spikeElectrode);
-
-    bool getRecordThreadStatus() { return shouldRecord; };
-
-    bool newDirectoryNeeded;
+    void writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode);
 
     /** Called by the ControlPanel to determine the amount of space
         left in the current dataDirectory.
@@ -162,23 +157,59 @@ public:
 
 	void registerProcessor(const GenericProcessor* sourceNode);
 
-    /** Adds a Record Engine to use
-    */
+    /** Adds a Record Engine to use */
     void registerRecordEngine(RecordEngine *engine);
 
-    /** Clears the list of active Record Engines
-    */
+    /** Clears the list of active Record Engines*/
     void clearRecordEngines();
 
 	bool recordEvents;
 	bool recordSpikes;
 
+	bool newDirectoryNeeded;
+
+	ScopedPointer<RecordThread> recordThread;
+	ScopedPointer<RecordEngine> recordEngine;
+	std::vector<RecordEngineManager*> availableEngines;
+
+	ScopedPointer<Synchronizer> synchronizer;
+
+	int64 samplesWritten;
+	String lastSettingsText;
+
+	int numDataStreams;
+
+	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
+	std::map<int, int> dataChannelOrder;
+
+	std::map<int, std::map<int, int>> eventMap;
+	std::map<int, std::map<int, int>> syncChannelMap;
+	std::map<int, std::map<int, int>> syncOrderMap;
+
+	std::map<int, std::map<int, float>> fifoUsage;
+
 	ScopedPointer<EventMonitor> eventMonitor;
+
+	Array<int> channelMap; //Map from record channel index to source channel index
+	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
+	std::vector<std::vector<int>> subProcessorMap;
+	std::vector<int> startRecChannels;
+
+	bool isSyncReady;
 
 private:
 
-	bool isConnectedToMessageCenter;
-	Array<int64> msgCenterMessages;
+	/** Forwards events to the EventQueue */
+	void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) override;
+
+	/** Writes incoming spikes to disk */
+	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition) override;
+
+	/** Handles incoming timestamp sync messages */
+	virtual void handleTimestampSyncTexts(const EventPacket& packet);
+
+	/**RecordEngines loaded**/
+	OwnedArray<RecordEngine> engineArray;
 
 	bool useSynchronizer; 
 
@@ -215,15 +246,6 @@ private:
 	float scaleFactor;
 	HeapBlock<float> scaledBuffer;  
 	HeapBlock<int16> intBuffer;
-
-	/** Cycle through the event buffer, looking for data to save */
-	void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition) override;
-	void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) override;
-
-	virtual void handleTimestampSyncTexts(const MidiMessage& event);
-
-    /**RecordEngines loaded**/
-    OwnedArray<RecordEngine> engineArray;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
 

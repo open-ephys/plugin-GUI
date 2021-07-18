@@ -23,9 +23,9 @@ public:
 	void resetChannels() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
 	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
-	void writeEvent(int eventIndex, const MidiMessage& event) override;
+	void writeEvent(int eventIndex, const EventPacket& packet) override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
-	void writeSpike(int electrodeIndex, const SpikeEvent* spike) override;
+	void writeSpike(int electrodeIndex, const Spike* spike) override;
 	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text) override;
 	void setParameter(EngineParameter& parameter) override;
 

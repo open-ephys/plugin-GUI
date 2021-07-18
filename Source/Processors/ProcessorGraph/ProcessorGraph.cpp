@@ -1421,10 +1421,10 @@ bool ProcessorGraph::enableProcessors()
 
 	//Update special channels indexes, at the end
 	//To change, as many other things, when the probe system is implemented
-    for (auto& node : getRecordNodes())
-    {
-        node->updateRecordChannelIndexes();
-    }
+   //for (auto& node : getRecordNodes())
+   // {
+   //     node->updateRecordChannelIndexes();
+  //  }
 	//getAudioNode()->updateRecordChannelIndexes();
 
     //	sendActionMessage("Acquisition started.");
@@ -1550,11 +1550,11 @@ void ProcessorGraph::getTimestampSources(int& selectedSource, int& selectedSubId
 	selectedSubId = m_timestampSourceStreamId;
 }
 
-int64 ProcessorGraph::getGlobalTimestamp(bool softwareOnly) const
+int64 ProcessorGraph::getGlobalTimestamp() const
 {
-	if (softwareOnly || !m_timestampSource)
+	if (!m_timestampSource)
 	{
-		return (Time::getHighResolutionTicks() - m_startSoftTimestamp);
+        return CoreServices::getSoftwareTimestamp();
 	}
 	else
 	{
@@ -1563,11 +1563,11 @@ int64 ProcessorGraph::getGlobalTimestamp(bool softwareOnly) const
 	}
 }
 
-float ProcessorGraph::getGlobalSampleRate(bool softwareOnly) const
+float ProcessorGraph::getGlobalSampleRate() const
 {
-	if (softwareOnly || !m_timestampSource)
+	if (!m_timestampSource)
 	{
-		return Time::getHighResolutionTicksPerSecond();
+		return CoreServices::getSoftwareSampleRate();
 	}
 	else
 	{
@@ -1575,15 +1575,17 @@ float ProcessorGraph::getGlobalSampleRate(bool softwareOnly) const
 	}
 }
 
+void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
+{
+    m_timestampWindow = window;
+}
+
+
 /*uint32 ProcessorGraph::getGlobalTimestampSourceFullId() const
 {
 	if (!m_timestampSource)
 		return 0;
 
 	return GenericProcessor::getProcessorFullId(m_timestampSource->getNodeId(), m_timestampSourceSubIdx);
-}
-
-void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
-{
-	m_timestampWindow = window;
 }*/
+

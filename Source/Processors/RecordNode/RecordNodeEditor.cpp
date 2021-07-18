@@ -137,26 +137,28 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
 
 	//Save channel states:
-	for (auto srcID : extract_keys(recordNode->dataChannelStates))
+	for (auto processorId : extract_keys(recordNode->dataChannelStates))
 	{
 
-		for (auto subIdx : extract_keys(recordNode->dataChannelStates[srcID]))
+		for (auto streamId : extract_keys(recordNode->dataChannelStates[processorId]))
 		{
 
-			if (recordNode->dataChannelStates[srcID][subIdx].size() > 0)
+			if (recordNode->dataChannelStates[processorId][streamId].size() > 0)
 			{
-				XmlElement* subProcNode = xmlNode->createNewChildElement("SUBPROCESSOR");
+				XmlElement* subProcNode = xmlNode->createNewChildElement("DATASTREAM");
 
-				subProcNode->setAttribute("src_id", srcID);
-				subProcNode->setAttribute("sub_idx", subIdx);
-				subProcNode->setAttribute("isMaster", recordNode->synchronizer->masterProcessor == srcID && recordNode->synchronizer->masterSubprocessor == subIdx);
-				subProcNode->setAttribute("syncChannel", recordNode->syncChannelMap[srcID][subIdx]);
+				subProcNode->setAttribute("processor_id", processorId);
+				subProcNode->setAttribute("stream_id", streamId);
+				subProcNode->setAttribute("isPrimary", 
+					recordNode->synchronizer->primaryProcessorId == processorId 
+					&& recordNode->synchronizer->primaryStreamId == streamId);
+				subProcNode->setAttribute("sync_bit", recordNode->syncChannelMap[processorId][streamId]);
 
 				XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
 
-				for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+				for (int ch = 0; ch < recordNode->dataChannelStates[processorId][streamId].size(); ch++)
 				{
-					recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[srcID][subIdx][ch]);
+					recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[processorId][streamId][ch]);
 				}
 
 			}
@@ -188,24 +190,25 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 				if (subNode->hasTagName("SUBPROCESSOR"))
 				{
 
-					int srcID = subNode->getIntAttribute("src_id");
-					int subIdx = subNode->getIntAttribute("sub_idx");
+					int processorId = subNode->getIntAttribute("processor_id");
+					int streamId = subNode->getIntAttribute("stream_id");
 
-					if (recordNode->dataChannelStates[srcID][subIdx].size())
+					if (recordNode->dataChannelStates[processorId][streamId].size())
 					{
 
 						if (subNode->getBoolAttribute("isMaster"))
 						{
-							recordNode->setMasterSubprocessor(srcID, subIdx);
+							recordNode->setPrimaryDataStream(streamId);
 						}
-						recordNode->setSyncChannel(srcID, subIdx, subNode->getIntAttribute("syncChannel"));
+
+						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_bit"));
 
 						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
 
-						for (int ch = 0; ch < recordNode->dataChannelStates[srcID][subIdx].size(); ch++)
+						for (int ch = 0; ch < recordNode->dataChannelStates[processorId][streamId].size(); ch++)
 						{
 							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
-							recordNode->dataChannelStates[srcID][subIdx][ch] = recordStates->getIntAttribute("CH" + String(ch));
+							recordNode->dataChannelStates[processorId][streamId][ch] = recordStates->getIntAttribute("CH" + String(ch));
 						}
 
 					}
@@ -267,7 +270,7 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 void RecordNodeEditor::updateSubprocessorFifos()
 {
-	if (recordNode->getNumSubProcessors() != subProcMonitors.size())
+	if (recordNode->getNumDataStreams() != subProcMonitors.size())
 	{
 
 		subProcLabels.clear();
@@ -415,7 +418,7 @@ void RecordNodeEditor::showSubprocessorFifos(bool show)
 	subprocessorsVisible = show;
 
 	if (show)
-		numSubprocessors = recordNode->getNumSubProcessors();
+		numSubprocessors = recordNode->getNumDataStreams();
 
 	int dX = 20 * (numSubprocessors + 1);
 	dX = show ? dX : -dX;
@@ -497,12 +500,14 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int _srcIdx, int _subProcIdx) : Button(name) 
+SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int pId, int sId) 
+	: Button(name),
+	  processorId(pId),
+	  streamId(sId),
+	  node(_node)
 {
-	srcIndex = _srcIdx;
-	subProcIdx = _subProcIdx;
-	node = _node;
-	isMaster = node->isMasterSubprocessor(srcIndex, subProcIdx);
+
+	isPrimary = node->isPrimaryDataStream(streamId);
     startTimer(100);
 }
 
@@ -520,16 +525,16 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
 	if (syncChannelSelector->isMaster)
 	{
-		LOGD("Set master: {", srcIndex, ",", subProcIdx, "}");
-		node->setMasterSubprocessor(srcIndex, subProcIdx);
-		isMaster = true;
+		LOGD("Set primary: {", processorId, ",", streamId, "}");
+		node->setPrimaryDataStream(streamId);
+		isPrimary = true;
 	}
 
 	for (int i = 0; i < syncChannelSelector->buttons.size(); i++)
 	{
 		if (syncChannelSelector->buttons[i]->getToggleState())
 		{
-			node->setSyncChannel(srcIndex, subProcIdx, i);
+			node->setSyncBit(streamId, i);
 			break;
 		}
 
@@ -548,10 +553,10 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		for (int i = 0; i < 8; i++)
 			channelStates.push_back(false);
 
-		int nEvents = node->eventMap[srcIndex][subProcIdx];
-		int syncChannel = node->getSyncChannel(srcIndex,subProcIdx);
+		int nEvents = node->eventMap[processorId][streamId];
+		int syncBit = node->getSyncBit(streamId);
 		
-		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents,syncChannel,node->isMasterSubprocessor(srcIndex, subProcIdx));
+		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncBit, node->isPrimaryDataStream(streamId));
 
 		CallOutBox& myBox
 			= CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
@@ -571,10 +576,10 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 	g.setColour(Colour(110,110,110));
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	if (srcIndex > 0 && CoreServices::getAcquisitionStatus())
+	if (processorId > 0 && CoreServices::getAcquisitionStatus())
 	{
 
-		switch(node->synchronizer->getStatus(srcIndex, subProcIdx)) {
+		switch(node->synchronizer->getStatus(processorId, streamId)) {
                 
             case SyncStatus::OFF :
             {
@@ -628,7 +633,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	if (node->isMasterSubprocessor(srcIndex, subProcIdx))
+	if (node->isPrimaryDataStream(streamId))
 	{
 		g.setColour(Colour(255,255,255));
 		g.setFont(Font(10));

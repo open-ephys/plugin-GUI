@@ -52,6 +52,10 @@ bool PlaceholderProcessor::hasEditor() const
     return true;
 }
 
+void PlaceholderProcessor::updateSettings()
+{
+    isEnabled = false;
+}
 
 AudioProcessorEditor* PlaceholderProcessor::createEditor()
 {
@@ -64,7 +68,7 @@ void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer)
 {
 }
 
-bool PlaceholderProcessor::startAcqusition()
+bool PlaceholderProcessor::startAcquisition()
 {
     CoreServices::sendStatusMessage ("Cannot acquire with placeholder nodes");
     return false; //This processor never allows processing

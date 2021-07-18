@@ -39,7 +39,7 @@ class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
 class ChannelSelector;
-
+class TTLMonitor;
 
 
 /**
@@ -207,12 +207,6 @@ public:
     /** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
     bool checkDrawerButton (Button* button);
 
-    /** Returns the record status of a given channel from the ChannelSelector.*/
-    bool getRecordStatus (int chan);
-
-    /** Returns the audio monitoring status of a given channel from the ChannelSelector.*/
-    bool getAudioStatus (int chan);
-
     /** Selects all the channels in the input array.*/
     void selectChannels (Array<int>);
 
@@ -242,14 +236,6 @@ public:
 
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     Array<ParameterEditor*> parameterEditors;
-
-    /** Returns the Channel object for a given continuous channel number. */
-    const ContinuousChannel* getContinuousChannel (int chan) const;
-
-    /** Returns the Channel object for a given event channel number. */
-    const EventChannel* getEventChannel (int chan) const;
-
-	const SpikeChannel* getSpikeChannel(int chan) const;
 
     /** Stores the font used to display the editor's name. */
     Font titleFont;
@@ -296,9 +282,8 @@ public:
     /** Returns the editors a splitter or merger is connected to */
     virtual Array<GenericEditor*> getConnectedEditors();
 
-    /** Returns an array of record statuses for all channels. Used by GraphNode */
-    Array<bool> getRecordStatusArray();
-
+    /** Changes the state of the TTLMonitor */
+    void setTTLState(uint16 streamId, int bit, bool state);
 
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
@@ -327,6 +312,8 @@ private:
 
     /** Stores the editor's background gradient. */
     ColourGradient backgroundGradient;
+
+    ScopedPointer<TTLMonitor> ttlMonitor;
 
     bool isSelected;
     bool isEnabled;

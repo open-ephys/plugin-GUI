@@ -195,7 +195,7 @@ namespace CoreServices
 			return experimentNumber;
 		}
 
-		bool getRecordThreadStatus()
+		/*bool getRecordThreadStatus()
 		{
 			
 			for (auto* node : getProcessorGraph()->getRecordNodes())
@@ -205,7 +205,7 @@ namespace CoreServices
 			}
 
 			return false;
-		}
+		}*/
 
 		/*
 		void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan)
