@@ -65,9 +65,8 @@ public:
     /** Determines whether the ProcessorGraph http server is enabled. */
     bool shouldEnableHttpServer;
 
+    /** Ends the process() callbacks and disables all processors.*/
 	void shutDownGUI();
-
-    
 
 private:
 
@@ -84,12 +83,10 @@ private:
     bool compareConfigFiles(File file1, File file2);
 
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
-    ScopedPointer<AudioComponent> audioComponent;
+    std::unique_ptr<AudioComponent> audioComponent;
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
-    ScopedPointer<ProcessorGraph> processorGraph;
-
-
+    std::unique_ptr<ProcessorGraph> processorGraph;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 

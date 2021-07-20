@@ -82,9 +82,9 @@ public:
                 return;
             }
 
-            if (desired_data_parent_dir != CoreServices::getRecordingDirectory().getFullPathName()) {
+            if (desired_data_parent_dir != CoreServices::getDefaultRecordingDirectory().getFullPathName()) {
                 const MessageManagerLock mmLock;
-                CoreServices::setRecordingDirectory(desired_data_parent_dir);
+                CoreServices::setDefaultRecordingDirectory(desired_data_parent_dir);
             }
 
             if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus()) {
@@ -357,7 +357,7 @@ private:
             (*ret)["mode"] = "IDLE";
         }
 
-        (*ret)["data_parent_dir"] = CoreServices::getRecordingDirectory().getFullPathName().toStdString();
+        (*ret)["data_parent_dir"] = CoreServices::getDefaultRecordingDirectory().getFullPathName().toStdString();
 
         auto current_data_dir = getCurrentDataDir(graph);
         if (current_data_dir.isEmpty()) {

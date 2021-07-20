@@ -22,8 +22,6 @@ add_sources(open-ephys
 	PluginInstaller.h
 	ProcessorList.cpp
 	ProcessorList.h
-	SignalChainManager.cpp
-	SignalChainManager.h
 	TimestampSourceSelection.cpp
 	TimestampSourceSelection.h
 	UIComponent.cpp

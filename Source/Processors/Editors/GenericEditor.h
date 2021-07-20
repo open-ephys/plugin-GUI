@@ -219,6 +219,9 @@ public:
     /** Allows other UI elements to use background color of editor. */
     Colour getBackgroundColor();
 
+    /** Changes the background color of this editor. */
+    void setBackgroundColor(Colour colour);
+
     /** Allows other elements to use background gradient of editor. */
     ColourGradient getBackgroundGradient();
 

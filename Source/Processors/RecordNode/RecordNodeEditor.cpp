@@ -60,8 +60,8 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(engineSelectLabel);
 	*/
 
-	dataPathLabel = new Label(CoreServices::getRecordingDirectory().getFullPathName());
-	dataPathLabel->setText(CoreServices::getRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
+	dataPathLabel = new Label(CoreServices::getDefaultRecordingDirectory().getFullPathName());
+	dataPathLabel->setText(CoreServices::getDefaultRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
 	dataPathLabel->setTooltip(dataPathLabel->getText());
 	dataPathLabel->setBounds(42,35,72,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
@@ -83,7 +83,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	{
 		engineSelectCombo->addItem(engines[i]->getName(), i + 1);
 	}
-	engineSelectCombo->setSelectedId(CoreServices::getSelectedRecordEngineIdx());
+	engineSelectCombo->setSelectedId(CoreServices::getDefaultRecordEngineIdx());
 	engineSelectCombo->addListener(this);
 	addAndMakeVisible(engineSelectCombo);
 

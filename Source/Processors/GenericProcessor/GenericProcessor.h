@@ -452,7 +452,8 @@ protected:
     /** Add an event on the specified EventChannel */
 	void addEvent(const EventChannel* channel, const Event* event, int sampleNum);
 
-    /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.*/
+    /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
+    If recording is active, this message will be recorded*/
     void broadcastMessage(String msg);
 
     /** Add a spike by SpikeChannel index */

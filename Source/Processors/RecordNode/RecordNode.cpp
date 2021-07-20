@@ -64,9 +64,9 @@ RecordNode::RecordNode()
 	isSyncReady = true;
 
 	/* New record nodes default to the record engine currently selected in the Control Panel */
-	setEngine(CoreServices::getSelectedRecordEngineIdx() - 1);
+	setEngine(CoreServices::getDefaultRecordEngineIdx() - 1);
 
-	dataDirectory = CoreServices::getRecordingDirectory();
+	dataDirectory = CoreServices::getDefaultRecordingDirectory();
 
 	recordThread = new RecordThread(this, recordEngine);
 
@@ -90,6 +90,17 @@ void RecordNode::setEngine(int index)
 {
 	availableEngines = getAvailableRecordEngines();
 	recordEngine = availableEngines[index]->instantiateEngine();
+}
+
+void RecordNode::setEngine(String id)
+{
+	availableEngines = getAvailableRecordEngines();
+
+	for (auto engine : availableEngines)
+	{
+		if (engine->getID().compare(id) == 0)
+			recordEngine = engine->instantiateEngine();
+	}
 }
 
 std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
@@ -491,7 +502,7 @@ bool RecordNode::stopAcquisition()
 	return true;
 }
 
-// called by GenericProcessor::setRecording()
+// called by GenericProcessor::setRecording() and CoreServices::setRecordingStatus()
 void RecordNode::startRecording()
 {
 
@@ -613,21 +624,34 @@ void RecordNode::startRecording()
 	else
 		isRecording = false;
 
+	getEditor()->setBackgroundColor(Colour(255, 0, 0)); // ensure that it's red
+
 }
 
-// called by GenericProcessor::setRecording()
+// called by GenericProcessor::setRecording() and CoreServices::setRecordingStatus()
 void RecordNode::stopRecording()
 {
 
 	isRecording = false;
+
 	if (recordThread->isThreadRunning())
 	{
 		recordThread->signalThreadShouldExit();
-		recordThread->waitForThreadToExit(2000); //2000
+		recordThread->waitForThreadToExit(2000);
 	}
 
 	eventMonitor->displayStatus();
 
+	if (CoreServices::getRecordingStatus())
+		getEditor()->setBackgroundColor(Colour(128, 41, 41)); // turn it brown if it's not recording while recording is active
+	else
+		getEditor()->setBackgroundColor(Colour(255, 0, 0));
+
+}
+
+bool RecordNode::getRecordingStatus() const
+{
+	return isRecording;
 }
 
 void RecordNode::setRecordEvents(bool recordEvents)
@@ -836,6 +860,11 @@ void RecordNode::filenameComponentChanged(FilenameComponent *fnc)
 float RecordNode::getFreeSpace() const
 {
 	return 1.0f - float(dataDirectory.getBytesFreeOnVolume()) / float(dataDirectory.getVolumeTotalSize());
+}
+
+float RecordNode::getFreeSpaceKilobytes() const
+{
+	return dataDirectory.getBytesFreeOnVolume() / 1024.0f;
 }
 
 // not called?

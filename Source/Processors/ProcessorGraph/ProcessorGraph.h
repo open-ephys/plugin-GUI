@@ -196,6 +196,8 @@ public:
 
     float getGlobalSampleRate() const;
 
+    String getGlobalTimestampSource() const;
+
     void setTimestampWindow(TimestampSourceSelectionWindow* window);
 
 	//uint32 getGlobalTimestampSourceFullId() const;

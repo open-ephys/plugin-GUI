@@ -153,7 +153,7 @@ void PhaseDetector::updateSettings()
 			ev = new EventChannel(EventChannel::TTL, 8, 1, -1, this);
 
 		ev->setName("Phase detector output " + String(i + 1));
-		ev->setDescription("Triggers when the input signal mets a given phase condition");
+		ev->setDescription("Triggers when the input signal meets a given phase condition");
 		String identifier = "dataderived.phase.";
 		String typeDesc;
 		switch (modules[i].type)

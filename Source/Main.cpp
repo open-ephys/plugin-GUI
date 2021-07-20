@@ -31,8 +31,6 @@
 #include <stdio.h>
 #include <fstream>
 
-//------------------------------------------------------------------
-
 /**
 
   Launches the application and creates the CustomLookAndFeelClass.
@@ -44,16 +42,14 @@
 
 */
 
-
 class OpenEphysApplication : public JUCEApplication
 {
 public:
-    //==============================================================================
+
     OpenEphysApplication() {}
 
     ~OpenEphysApplication() {}
 
-    //==============================================================================
     void initialise(const String& commandLine)
     {
 
@@ -64,7 +60,7 @@ public:
         parameters.removeEmptyStrings();
 
 #ifdef WIN32
-        //glWinInit();
+
         if (AllocConsole())
         {
             freopen("CONOUT$", "w", stdout);
@@ -86,7 +82,6 @@ public:
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
 
-
         // signal chain to load
         if (!parameters.isEmpty())
         {
@@ -101,27 +96,27 @@ public:
 
     void shutdown() { }
 
-    //==============================================================================
     void systemRequestedQuit()
     {
         mainWindow->shutDownGUI();
-        //std::cout << "Quit requested" << std::endl;
         quit();
     }
 
-    //==============================================================================
     const String getApplicationName()
     {
         return "Open Ephys GUI";
     }
+
     const String getApplicationVersion()
     {
         return ProjectInfo::versionString;
     }
+
     bool moreThanOneInstanceAllowed()
     {
         return true;
     }
+
     void anotherInstanceStarted(const String& commandLine)
     {}
 

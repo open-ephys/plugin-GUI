@@ -129,10 +129,12 @@ public:
 	std::vector<RecordEngineManager*> getAvailableRecordEngines();
 
 	void setEngine(int selectedEngineIndex);
+	void setEngine(String engineId);
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
 	void setDataDirectory(File);
 	File getDataDirectory();
+	bool getRecordingStatus() const;
 
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
@@ -154,6 +156,11 @@ public:
         left in the current dataDirectory.
     */
     float getFreeSpace() const;
+
+	/** Called by CoreServices to determine the amount of space
+		in kilobytes in the current dataDirectory.
+	*/
+	float getFreeSpaceKilobytes() const;
 
 	void registerProcessor(const GenericProcessor* sourceNode);
 

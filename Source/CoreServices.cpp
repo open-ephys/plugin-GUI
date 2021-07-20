@@ -43,16 +43,6 @@ namespace CoreServices
 		getProcessorGraph()->updateSettings(source->getProcessor());
 	}
 
-	bool getRecordingStatus()
-	{
-		return getControlPanel()->recordButton->getToggleState();
-	}
-
-	void setRecordingStatus(bool enable)
-	{
-		getControlPanel()->setRecordState(enable);
-	}
-
 	bool getAcquisitionStatus()
 	{
 		return getControlPanel()->getAcquisitionState();
@@ -61,6 +51,16 @@ namespace CoreServices
 	void setAcquisitionStatus(bool enable)
 	{
 		getControlPanel()->setAcquisitionState(enable);
+	}
+
+	bool getRecordingStatus()
+	{
+		return getControlPanel()->recordButton->getToggleState();
+	}
+
+	void setRecordingStatus(bool enable)
+	{
+		getControlPanel()->setRecordState(enable);
 	}
 
 	void sendStatusMessage(const String& text)
@@ -83,10 +83,10 @@ namespace CoreServices
 		return getProcessorGraph()->getGlobalTimestamp();
 	}
 
-	//juce::uint32 getGlobalTimestampSourceFullId()
-	//{
-	//	return getProcessorGraph()->getGlobalTimestampSourceFullId();
-	//}
+	String getGlobalTimestampSource()
+	{
+		return getProcessorGraph()->getGlobalTimestampSource();
+	}
 
 	float getGlobalSampleRate()
 	{
@@ -103,32 +103,27 @@ namespace CoreServices
 		return 1000.0f;
 	}
 
-	void setRecordingDirectory(String dir)
+	void setDefaultRecordingDirectory(String dir)
 	{
 		getControlPanel()->setRecordingDirectory(dir);
-		//Updates path in all record nodes, only when programatically calling the method
-		for (auto* node : getProcessorGraph()->getRecordNodes())
-		{
-			static_cast<RecordNodeEditor*>(node->getEditor())->setDataDirectory(dir);
-		}
 	}
 
-	File getRecordingDirectory()
+	File getDefaultRecordingDirectory()
 	{
 		return getControlPanel()->getRecordingDirectory();
 	}
 
-	void createNewRecordingDir()
+	void createNewRecordingDirectory()
 	{
 		getControlPanel()->labelTextChanged(NULL);
 	}
 
-	void setPrependTextToRecordingDir(String text)
+	void setRecordingDirectoryPrependText(String text)
 	{
 		getControlPanel()->setPrependText(text);
 	}
 
-	void setAppendTextToRecordingDir(String text)
+	void setRecordingDirectoryAppendText(String text)
 	{
 		getControlPanel()->setAppendText(text);
 	}
@@ -138,17 +133,17 @@ namespace CoreServices
 		return getControlPanel()->getAvailableRecordEngines();
 	}
 
-	String getSelectedRecordEngineId()
+	String getDefaultRecordEngineId()
 	{
 		return getControlPanel()->getSelectedRecordEngineId();
 	}
 
-	bool setSelectedRecordEngineId(String id)
+	bool setDefaultRecordEngine(String id)
 	{
 		return getControlPanel()->setSelectedRecordEngineId(id);
 	}
 
-	int getSelectedRecordEngineIdx()
+	int getDefaultRecordEngineIdx()
 	{
 		return getControlPanel()->recordSelector->getSelectedId();
 	}
@@ -156,73 +151,121 @@ namespace CoreServices
 	namespace RecordNode
 	{
 
-		void createNewrecordingDir()
+		void setRecordingDirectory(String dir, int nodeId, bool applyToAll)
 		{
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
-				node->createNewDirectory();
+				if (node->getNodeId() == nodeId || applyToAll)
+					static_cast<RecordNodeEditor*>(node->getEditor())->setDataDirectory(dir);
 			}
 		}
 
-		//TODO: This needs to be well-defined...just testing for now P.K.
-		int getRecordingNumber()
+		File getRecordingDirectory(int nodeId)
+		{
+
+			File directory;
+
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					directory = node->getDataDirectory();
+			}
+
+			return directory;
+		}
+
+		float getFreeSpaceAvailable(int nodeId)
+		{
+
+			float freeSpace = -1.0f;
+
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					freeSpace = node->getFreeSpaceKilobytes();
+			}
+
+			return freeSpace;
+		}
+
+		void createNewRecordingDirectory(int nodeId)
+		{
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					node->createNewDirectory();
+			}
+		}
+
+		void setRecordEngine(String id, int nodeId, bool applyToAll)
+		{
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId || applyToAll)
+					node->setEngine(id);
+			}
+		}
+
+		int getRecordingNumber(int nodeId)
 		{
 			int lastRecordingNum = -1;
 
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
-				lastRecordingNum = node->getRecordingNumber();
+				if (node->getNodeId() == nodeId)
+					lastRecordingNum = node->getRecordingNumber();
 			}
 
 			return lastRecordingNum;
 		}
-		
-		File getRecordingPath()
-		{
-			return File();
-		}
 
-		int getExperimentNumber()
+		int getExperimentNumber(int nodeId)
 		{
 			
 			int experimentNumber = -1;
 
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
-				experimentNumber = node->getExperimentNumber();
+				if (node->getNodeId() == nodeId)
+					experimentNumber = node->getExperimentNumber();
 			}
 
 			return experimentNumber;
 		}
 
-		/*bool getRecordThreadStatus()
+		void setRecordingStatus(int nodeId, bool status)
 		{
-			
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
-				if (node->getRecordThreadStatus())
-					return true;
+				if (node->getNodeId() == nodeId)
+				{
+					if (status && !getRecordingStatus(nodeId))
+					{
+						node->startRecording();
+						return;
+					}
+
+					if (!status && getRecordingStatus(nodeId))
+					{
+						node->stopRecording();
+						return;
+					}
+				}
+			}
+		}
+
+		bool getRecordingStatus(int nodeId)
+		{
+			bool status = false;
+
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					status = node->getRecordingStatus();
 			}
 
-			return false;
-		}*/
-
-		/*
-		void writeSpike(const SpikeEvent* spike, const SpikeChannel* chan)
-		{
-			getProcessorGraph()->getRecordNode()->writeSpike(spike, chan);
+			return status;
 		}
-
-		void registerSpikeSource(GenericProcessor* processor)
-		{
-			getProcessorGraph()->getRecordNode()->registerSpikeSource(processor);
-		}
-
-		int addSpikeElectrode(const SpikeChannel* elec)
-		{
-			return getProcessorGraph()->getRecordNode()->addSpikeElectrode(elec);
-		}
-		*/
 
 	};
 

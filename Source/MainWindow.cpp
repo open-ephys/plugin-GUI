@@ -25,10 +25,9 @@
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
 #include <stdio.h>
-//-----------------------------------------------------------------------
 
 
-	MainWindow::MainWindow(const File& fileToLoad)
+MainWindow::MainWindow(const File& fileToLoad)
 : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
 		Colour(Colours::black),
 		DocumentWindow::allButtons)
@@ -43,17 +42,15 @@
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
 
-	processorGraph = new ProcessorGraph();
-	LOGD("");
-	LOGD("Created processor graph.");
-	LOGD("");
+	processorGraph = std::make_unique<ProcessorGraph>();
+	LOGDD("Created processor graph.");
 
-	audioComponent = new AudioComponent();
-	LOGD("Created audio component.");
+	audioComponent = std::make_unique<AudioComponent>();
+	LOGDD("Created audio component.");
 
-	audioComponent->connectToProcessorGraph(processorGraph);
+	audioComponent->connectToProcessorGraph(processorGraph.get());
 
-	setContentOwned(new UIComponent(this, processorGraph, audioComponent), true);
+	setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get()), true);
 
 	UIComponent* ui = (UIComponent*) getContentComponent();
 
@@ -84,7 +81,7 @@
 
 		if(lastConfig.existsAsFile())
 		{
-			LOGD("Comparing configs");
+			LOGDD("Comparing configs");
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
 				ui->getEditorViewport()->loadState(lastConfig);
@@ -123,9 +120,6 @@ MainWindow::~MainWindow()
 		processorGraph->disableProcessors();
 	}
     
-    
-        
-
 	saveWindowBounds();
 
 	audioComponent->disconnectProcessorGraph();
@@ -171,9 +165,9 @@ void MainWindow::shutDownGUI()
 
 void MainWindow::saveWindowBounds()
 {
-	LOGD("");
-	LOGD("Saving window bounds.");
-	LOGD("");
+	LOGDD("");
+	LOGDD("Saving window bounds.");
+	LOGDD("");
 
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
 
@@ -219,7 +213,7 @@ void MainWindow::loadWindowBounds()
 {
 
 	std::cout << std::endl;
-	LOGD("Loading window bounds.");
+	LOGDD("Loading window bounds.");
 	std::cout << std::endl;
 
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
@@ -230,7 +224,7 @@ void MainWindow::loadWindowBounds()
 	if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
 	{
 
-		LOGD("File not found.");
+		LOGDD("File not found.");
 		centreWithSize(800, 600);
 
 	}
@@ -286,7 +280,6 @@ void MainWindow::loadWindowBounds()
 		}
 
 	}
-	// return "Everything went ok.";
 }
 
 
@@ -300,7 +293,7 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 
 	if(rcXml == 0 || ! rcXml->hasTagName("SETTINGS"))
 	{
-		LOGD("Recovery config is inavlid. Loading lastConfig.xml");
+		LOGD("Recovery config is invalid. Loading lastConfig.xml");
 		return true;
 	}
 

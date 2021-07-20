@@ -1567,6 +1567,18 @@ float ProcessorGraph::getGlobalSampleRate() const
 	}
 }
 
+String ProcessorGraph::getGlobalTimestampSource() const
+{
+    if (!m_timestampSource)
+    {
+        return "Milliseconds since midnight Jan 1st 1970 UTC.";
+    }
+    else
+    {
+        return m_timestampSource->getName() + " - " + String(m_timestampSource->getNodeId());
+    }
+}
+
 void ProcessorGraph::setTimestampWindow(TimestampSourceSelectionWindow* window)
 {
     m_timestampWindow = window;

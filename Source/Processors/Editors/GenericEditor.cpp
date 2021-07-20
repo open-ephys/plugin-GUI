@@ -1091,6 +1091,14 @@ Colour GenericEditor::getBackgroundColor()
         return Colours::grey;
 }
 
+
+void GenericEditor::setBackgroundColor(Colour c)
+{
+    backgroundColor = c;
+
+    repaint();
+}
+
 ColourGradient GenericEditor::getBackgroundGradient()
 {
     return backgroundGradient;
