@@ -149,14 +149,14 @@ void RecordControlEditor::updateSettings()
 	for (int i = 0; i < nEvents; i++)
 	{
 		const EventChannel* event = processor->getEventChannel(i);
-		if (event->getChannelType() == EventChannel::TTL)
+		if (event->getType() == EventChannel::TTL)
 		{
 			s.eventIndex = i;
-			int nChans = event->getNumChannels();
+			int nChans = event->getMaxTTLBits();
 			for (int c = 0; c < nChans; c++)
 			{
 				s.channel = c;
-				name = event->getSourceName() + " (TTL" + String(c+1) + ")";
+				name = event->getSourceNodeName() + " (TTL" + String(c+1) + ")";
 				eventSourceArray.add(s);
 				availableChans->addItem(name, nextItem++);
 			}

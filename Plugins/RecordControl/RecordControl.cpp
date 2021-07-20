@@ -83,7 +83,7 @@ void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacke
 	if (triggerEvent < 0) return;
 
     if (Event::getEventType(packet) == EventChannel::TTL 
-        && eventInfo == eventChannelArray[triggerEvent])
+        && eventInfo == eventChannels[triggerEvent])
     {
         TTLEventPtr ttl = TTLEvent::deserialize (packet, eventInfo);
 
