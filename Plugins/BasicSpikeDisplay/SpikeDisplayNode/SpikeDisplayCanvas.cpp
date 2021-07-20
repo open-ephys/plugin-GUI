@@ -451,7 +451,7 @@ void SpikeDisplay::invertSpikes(bool shouldInvert_)
     //std::cout << "Invert spikes? " << shouldInvert_ << std::endl;
 }
 
-void SpikeDisplay::plotSpike(const SpikeEvent* spike, int electrodeNum)
+void SpikeDisplay::plotSpike(const Spike* spike, int electrodeNum)
 {
     spikePlots[electrodeNum]->processSpikeObject(spike);
 }
@@ -582,7 +582,7 @@ void SpikePlot::paint(Graphics& g)
 
 }
 
-void SpikePlot::processSpikeObject(const SpikeEvent* s)
+void SpikePlot::processSpikeObject(const Spike* s)
 {
     // std::cout << "ElectrodePlot::processSpikeObject()" << std::endl;
 
@@ -942,7 +942,7 @@ void WaveAxes::paint(Graphics& g)
 
 }
 
-void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
+void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 {
 	if (!s) return;
 
@@ -1044,7 +1044,7 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
 
 }
 
-bool WaveAxes::updateSpikeData(const SpikeEvent* s)
+bool WaveAxes::updateSpikeData(const Spike* s)
 {
     if (!gotFirstSpike)
     {
@@ -1054,7 +1054,7 @@ bool WaveAxes::updateSpikeData(const SpikeEvent* s)
     if (spikesReceivedSinceLastRedraw < bufferSize)
     {
 
-        SpikeEvent* newSpike = new SpikeEvent(*s);
+        Spike* newSpike = new Spike(*s);
 
         spikeIndex++;
         spikeIndex %= bufferSize;
@@ -1069,7 +1069,7 @@ bool WaveAxes::updateSpikeData(const SpikeEvent* s)
 
 }
 
-bool WaveAxes::checkThreshold(const SpikeEvent* s)
+bool WaveAxes::checkThreshold(const Spike* s)
 {
 	int nSamples = s->getChannelInfo()->getTotalSamples();
     int sampIdx = nSamples*type;
@@ -1269,7 +1269,7 @@ void ProjectionAxes::paint(Graphics& g)
                 0, imageDim-rangeY, rangeX, rangeY);
 }
 
-bool ProjectionAxes::updateSpikeData(const SpikeEvent* s)
+bool ProjectionAxes::updateSpikeData(const Spike* s)
 {
     if (!gotFirstSpike)
     {
@@ -1311,7 +1311,7 @@ void ProjectionAxes::updateProjectionImage(float x, float y, float gain, Colour 
 
 }
 
-void ProjectionAxes::calcWaveformPeakIdx(const SpikeEvent* s, int d1, int d2, int* idx1, int* idx2)
+void ProjectionAxes::calcWaveformPeakIdx(const Spike* s, int d1, int d2, int* idx1, int* idx2)
 {
 
     float max1 = -1*pow(2.0,15);
@@ -1408,7 +1408,7 @@ GenericAxes::~GenericAxes()
 
 }
 
-bool GenericAxes::updateSpikeData(const SpikeEvent* newSpike)
+bool GenericAxes::updateSpikeData(const Spike* newSpike)
 {
     if (!gotFirstSpike)
     {

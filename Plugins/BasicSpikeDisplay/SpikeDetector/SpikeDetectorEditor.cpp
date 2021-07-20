@@ -326,9 +326,9 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
     else if (button == electrodeEditorButtons[1])   // MONITOR
     {
 
-        Button* audioMonitorButton = electrodeEditorButtons[1];
+       /*Button* audioMonitorButton = electrodeEditorButtons[1];
 
-        channelSelector->clearAudio();
+        //channelSelector->clearAudio();
 
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
@@ -359,7 +359,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         else
         {
             audioMonitorButton->setToggleState(false, dontSendNotification);
-        }
+        }*/
 
         return;
     }

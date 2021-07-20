@@ -37,6 +37,7 @@
 #include "../Settings/ContinuousChannel.h"
 #include "../Settings/EventChannel.h"
 #include "../Settings/SpikeChannel.h"
+#include "../Settings/DataStream.h"
 
 #include "../Events/Event.h"
 

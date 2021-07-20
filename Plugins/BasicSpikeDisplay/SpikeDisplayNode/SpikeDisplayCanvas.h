@@ -141,7 +141,7 @@ public:
 
     void mouseDown(const MouseEvent& event);
 
-    void plotSpike(const SpikeEvent* spike, int electrodeNum);
+    void plotSpike(const Spike* spike, int electrodeNum);
 
     void invertSpikes(bool);
 
@@ -204,7 +204,7 @@ public:
     void select();
     void deselect();
 
-    void processSpikeObject(const SpikeEvent* s);
+    void processSpikeObject(const Spike* s);
 
     SpikeDisplayCanvas* canvas;
 
@@ -280,7 +280,7 @@ public:
 
     virtual ~GenericAxes();
 
-    virtual bool updateSpikeData(const SpikeEvent* s);
+    virtual bool updateSpikeData(const Spike* s);
 
     void setXLims(double xmin, double xmax);
     void getXLims(double* xmin, double* xmax);
@@ -324,12 +324,12 @@ public:
     WaveAxes(int channel);
     ~WaveAxes() {}
 
-    bool updateSpikeData(const SpikeEvent* s);
-    bool checkThreshold(const SpikeEvent* spike);
+    bool updateSpikeData(const Spike* s);
+    bool checkThreshold(const Spike* spike);
 
     void paint(Graphics& g);
 
-    void plotSpike(const SpikeEvent* s, Graphics& g);
+    void plotSpike(const Spike* s, Graphics& g);
 
     void clear();
 
@@ -378,7 +378,7 @@ private:
 
     Font font;
 
-   OwnedArray<SpikeEvent> spikeBuffer;
+   OwnedArray<Spike> spikeBuffer;
 
     int spikeIndex;
     int bufferSize;
@@ -411,7 +411,7 @@ public:
     ProjectionAxes(int projectionNum);
     ~ProjectionAxes() {}
 
-    bool updateSpikeData(const SpikeEvent* s);
+    bool updateSpikeData(const Spike* s);
 
     void paint(Graphics& g);
 
@@ -425,7 +425,7 @@ private:
 
     void updateProjectionImage(float, float, float, Colour);
 
-    void calcWaveformPeakIdx(const SpikeEvent*, int, int, int*, int*);
+    void calcWaveformPeakIdx(const Spike*, int, int, int*, int*);
 
     int ampDim1, ampDim2;
 

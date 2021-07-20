@@ -31,7 +31,6 @@ SpikeDisplayNode::SpikeDisplayNode()
     : GenericProcessor  ("Spike Viewer")
     , displayBufferSize (5)
     ,  redrawRequested  (false)
-    , isRecording       (false)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 }
@@ -54,13 +53,14 @@ void SpikeDisplayNode::updateSettings()
     //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
 
     electrodes.clear();
-	for (int i = 0; i < spikeChannelArray.size(); ++i)
+
+	for (int i = 0; i < spikeChannels.size(); ++i)
 	{
 
 		Electrode* elec = new Electrode();
-		elec->numChannels = spikeChannelArray[i]->getNumChannels();
-		elec->bitVolts = spikeChannelArray[i]->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
-		elec->name = spikeChannelArray[i]->getName();
+		elec->numChannels = spikeChannels[i]->getNumChannels();
+		elec->bitVolts = spikeChannels[i]->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
+		elec->name = spikeChannels[i]->getName();
 		elec->currentSpikeIndex = 0;
 		elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
@@ -76,16 +76,14 @@ void SpikeDisplayNode::updateSettings()
 }
 
 
-bool SpikeDisplayNode::enable()
+bool SpikeDisplayNode::startAcquisition()
 {
     std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
 
-	//CoreServices::RecordNode::registerSpikeSource(this);
-	for (int i = 0; i < spikeChannelArray.size(); i ++)
+	for (int i = 0; i < spikeChannels.size(); i ++)
 	{
 		Electrode* elec = electrodes[i];
-		//elec->recordIndex = CoreServices::RecordNode::addSpikeElectrode(spikeChannelArray[i]);
 	}
 
     editor->enable();
@@ -93,7 +91,7 @@ bool SpikeDisplayNode::enable()
 }
 
 
-bool SpikeDisplayNode::disable()
+bool SpikeDisplayNode::stopAcquisition()
 {
     std::cout << "SpikeDisplayNode disabled!" << std::endl;
 
@@ -169,15 +167,7 @@ void SpikeDisplayNode::setParameter (int param, float val)
 {
     //std::cout<<"SpikeDisplayNode got Param:"<< param<< " with value:"<<val<<std::endl;
 
-    if (param == 0) // stop recording
-    {
-        isRecording = false;
-    }
-    else if (param == 1)   // start recording
-    {
-        isRecording = true;
-    }
-    else if (param == 2)   // redraw
+    if (param == 2)   // redraw
     {
         redrawRequested = true;
     }
@@ -218,12 +208,12 @@ void SpikeDisplayNode::process (AudioSampleBuffer& buffer)
 }
 
 
-void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition)
+void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
 {
-	SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
+	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
 	if (!newSpike) return;
 
-	int electrodeNum = getSpikeChannelIndex(newSpike);
+	int electrodeNum = newSpike->getChannelIndex();
 
 	Electrode* e = electrodes[electrodeNum];
 	// std::cout << electrodeNum << std::endl;
@@ -258,9 +248,9 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const MidiMess
 }
 
 
-bool SpikeDisplayNode::checkThreshold (int chan, float thresh, SpikeEvent* s)
+bool SpikeDisplayNode::checkThreshold (int chan, float thresh, Spike* s)
 {
-	int nSamples = getSpikeChannel(getSpikeChannelIndex(s))->getTotalSamples();
+	int nSamples = getSpikeChannel(s->getChannelIndex())->getTotalSamples();
 
     for (int i = 0; i < nSamples-1; ++i)
     {

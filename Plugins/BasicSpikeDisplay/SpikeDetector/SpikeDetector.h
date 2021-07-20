@@ -67,13 +67,11 @@ public:
     /** Called whenever the signal chain is altered. */
     void updateSettings() override;
 
-	void createSpikeChannels() override;
-
     /** Called prior to start of acquisition. */
-    bool enable() override;
+    bool startAcquisition() override;
 
     /** Called after acquisition is finished. */
-    bool disable() override;
+    bool stopAcquisition() override;
 
     /** Creates the SpikeDetectorEditor. */
     AudioProcessorEditor* createEditor() override;
@@ -152,7 +150,7 @@ private:
     float getCurrentSample (int& chan);
     bool samplesAvailable (int nSamples);
 
-      void addWaveformToSpikeObject (SpikeEvent::SpikeBuffer& s,
+      void addWaveformToSpikeObject (Spike::Buffer& s,
                                    int& peakIndex,
                                    int& electrodeNumber,
                                    int& currentChannel);

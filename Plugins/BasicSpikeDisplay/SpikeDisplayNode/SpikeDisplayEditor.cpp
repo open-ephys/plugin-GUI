@@ -185,7 +185,7 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 void SpikeDisplayEditor::startRecording()
 {
 
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas;
 
     sdc->startRecording();
 
@@ -194,7 +194,7 @@ void SpikeDisplayEditor::startRecording()
 void SpikeDisplayEditor::stopRecording()
 {
 
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas;
 
     sdc->stopRecording();
 

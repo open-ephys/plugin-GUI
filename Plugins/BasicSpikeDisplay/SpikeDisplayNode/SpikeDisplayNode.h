@@ -32,8 +32,7 @@ class SpikePlot;
 
 
 /**
-  Takes in MidiEvents and extracts SpikeObjects from the MidiEvent buffers.
-  Those Events are then held in a queue until they are pulled by the SpikeDisplayCanvas.
+  Looks for incoming Spike events and draws them to the SpikeDisplayCanvas.
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
 */
@@ -53,8 +52,8 @@ public:
 
     void updateSettings() override;
 
-    bool enable()   override;
-    bool disable()  override;
+    bool startAcquisition()   override;
+    bool stopAcquisition()  override;
 
     void startRecording()   override;
     void stopRecording()    override;
@@ -66,7 +65,7 @@ public:
     void addSpikePlotForElectrode (SpikePlot* sp, int i);
     void removeSpikePlots();
 
-    bool checkThreshold (int, float, SpikeEvent*);
+    bool checkThreshold (int, float, Spike*);
 
 
 private:
@@ -81,7 +80,7 @@ private:
         Array<float> displayThresholds;
         Array<float> detectorThresholds;
 
-        OwnedArray<SpikeEvent> mostRecentSpikes;
+        OwnedArray<Spike> mostRecentSpikes;
 
 		float bitVolts;
 
@@ -92,19 +91,6 @@ private:
 
     int displayBufferSize;
     bool redrawRequested;
-
-    // members for recording
-    bool isRecording;
-    //   bool signalFilesShouldClose;
-    //   RecordNode* recordNode;
-    //   String baseDirectory;
-    //   File dataDirectory;
-    //   uint8_t* spikeBuffer;
-    //   SpikeObject currentSpike;
-
-    //   uint16 recordingNumber;
-
-    //    CriticalSection* diskWriteLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
 };
