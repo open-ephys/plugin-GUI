@@ -71,42 +71,21 @@ void LfpDisplayNode::updateSettings()
     {
         const ContinuousChannel* channel = continuousChannels[ch];
 
-        uint32 id = getChannelSourceId(channel);
+        uint16 streamId = channel->getStreamId();
 
-        if (displayBufferMap.count(id) == 0)
+        if (displayBufferMap.count(streamId) == 0)
         {
-            String name = getSubprocessorName(ch);
+            String name = channel->getSourceNodeName();
 
-            displayBuffers.add(new DisplayBuffer(id, name, channel->getSampleRate()));
-            displayBufferMap[id] = displayBuffers.getLast();
+            displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
+            displayBufferMap[streamId] = displayBuffers.getLast();
 
         }
         else {
-            displayBufferMap[id]->sampleRate = channel->getSampleRate();
+            displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
         }
 
-        int depthId = channel->findMetaData(MetaDataDescriptor::FLOAT, 1, "depth-value");
-        int groupId = channel->findMetaData(MetaDataDescriptor::INT32, 1, "channel-group");
-
-        float channelDepth = 0;
-        float channelGroup = 0;
-
-        //std::cout << id << " " << ch << " " << getDataChannel(ch)->getChannelType() << std::endl;
-   
-        if (depthId > -1)
-        {
-            const MetaDataValue* val = channel->getMetaDataValue(depthId);
-            val->getValue(&channelDepth);
-        }
-
-        if (groupId > -1)
-        {
-
-            const MetaDataValue* val = channel->getMetaDataValue(groupId);
-            val->getValue(&channelGroup);
-        }
-
-        displayBufferMap[id]->addChannel(channel->getName(), ch, channel->getChannelType(), channelGroup, channelDepth);
+        displayBufferMap[streamId]->addChannel(channel->getName(), ch, channel->getChannelType(), 0.0f, 0.0f);
     }
 
     Array<DisplayBuffer*> toDelete;
@@ -150,48 +129,23 @@ void LfpDisplayNode::setSplitDisplays(Array<LfpDisplaySplitter*> splits)
     splitDisplays = splits;
 }
 
-uint32 LfpDisplayNode::getEventSourceId(const EventChannel* event)
+uint16 LfpDisplayNode::getEventSourceId(const EventChannel* event)
 {
-    return getProcessorFullId(event->getTimestampOriginProcessor(), event->getTimestampOriginSubProcessor());
+    return event->getStreamId();
 }
 
-uint32 LfpDisplayNode::getChannelSourceId(const InfoObjectCommon* chan)
+uint16 LfpDisplayNode::getChannelSourceId(const InfoObject* chan)
 {
-    return getProcessorFullId(chan->getSourceNodeID(), chan->getSubProcessorIdx());
+    return chan->getStreamId();
 }
 
 String LfpDisplayNode::getSubprocessorName(int channel)
 {
 
-	if (getTotalDataChannels() != 0)
+	if (getNumOutputs() != 0)
 	{
-        const DataChannel* ch = getDataChannel(channel);
 
-        int subprocessorNameId = ch->findMetaData(MetaDataDescriptor::CHAR, 64, "subprocessor-name");
-
-        String name;
-
-        if (subprocessorNameId > -1)
-        {
-           
-            const MetaDataValue* val = ch->getMetaDataValue(subprocessorNameId);
-            String stringValue;
-            val->getValue(stringValue);
-
-            name = ch->getSourceName() + " " + stringValue;
-
-           // std::cout << "Sb name: " << name << std::endl;
-        }
-        else {
-
-            uint16 sourceNodeId = ch->getSourceNodeID();
-            uint16 subProcessorIdx = ch->getSubProcessorIdx();
-            uint32 subProcFullId = GenericProcessor::getProcessorFullId(sourceNodeId, subProcessorIdx);
-
-            name = ch->getSourceName() + " " + String(sourceNodeId) + "/" + String(subProcessorIdx);
-        }
-
-        return name;
+        return continuousChannels[channel]->getSourceNodeName();
     }
     else {
         return " ";
@@ -349,7 +303,7 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
 
     for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
     {
-        uint32 subProcId = getChannelSourceId(getDataChannel(chan));
+        uint16 subProcId = getChannelSourceId(continuousChannels[chan]);
 
         const int nSamples = getNumSamples(chan);
 

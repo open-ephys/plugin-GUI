@@ -469,7 +469,7 @@ void LfpDisplay::refresh()
     //std::cout << "REFRESH" << std::endl;
 }
 
-void LfpDisplay::setRange(float r, DataChannel::DataChannelTypes type)
+void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
 {
     range[type] = r;
     
@@ -490,7 +490,7 @@ int LfpDisplay::getRange()
     return getRange(options->getSelectedType());
 }
 
-int LfpDisplay::getRange(DataChannel::DataChannelTypes type)
+int LfpDisplay::getRange(ContinuousChannel::Type type)
 {
     for (int i=0; i < numChans; i++)
     {
@@ -661,7 +661,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     bool allSame = true;
     float last = drawableChannels[0].channelInfo->getDepth();
 
-    std::cout << "Depths: " << std::endl;
+   // std::cout << "Depths: " << std::endl;
     if (channelsOrderedByDepth)
     {
 
@@ -694,7 +694,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
             
     }
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
     
     std::vector<int> V(numChannels);
 
@@ -702,7 +702,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
 
     // reverse channels that are currently in drawableChannels
-    std::cout << "New order: " << std::endl;
+   //std::cout << "New order: " << std::endl;
     juce::Array<LfpChannelTrack> orderedDrawableChannels;
     
     for (int i = 0; i < drawableChannels.size(); i++)
@@ -714,7 +714,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
         orderedDrawableChannels.add(drawableChannels[V[i]]);
     }
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
     
     drawableChannels = orderedDrawableChannels;
 
@@ -904,7 +904,7 @@ void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)
     }
     else
     {
-        std::cout << "Single channel off" << std::endl;
+       // std::cout << "Single channel off" << std::endl;
 
         drawableChannels[0].channelInfo->setSingleChannelState(false);
 

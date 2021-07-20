@@ -244,7 +244,7 @@ void AudioNode::updateFilter(int i)
 
 void AudioNode::process(AudioBuffer<float>& buffer)
 {
-    float gain;
+    /*float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
     LOGDD("Buffer size: ", buffer.getNumChannels());
@@ -485,8 +485,8 @@ void AudioNode::process(AudioBuffer<float>& buffer)
                            0,// sourceSampleOffset
                            valuesNeeded,        // number of samples
                            1.0);      // gain to apply to source
-        }*/
-    }
+        }
+    }*/
 }
 
 

@@ -114,17 +114,17 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaul
 
 void VisualizerEditor::initializeSelectors()
 {
-    windowSelector = new SelectorButton ("window");
+    windowSelector = std::make_unique<SelectorButton> ("window");
     windowSelector->setBounds (desiredWidth - 40, 7, 14, 10);
     windowSelector->setToggleState (false, dontSendNotification);
     windowSelector->addListener (this);
-    addAndMakeVisible (windowSelector);
+    addAndMakeVisible (windowSelector.get());
 
-    tabSelector = new SelectorButton ("tab");
+    tabSelector = std::make_unique<SelectorButton> ("tab");
     tabSelector->setToggleState (false, dontSendNotification);
     tabSelector->setBounds (desiredWidth - 20, 7, 15, 10);
     tabSelector->addListener (this);
-    addAndMakeVisible(tabSelector);
+    addAndMakeVisible(tabSelector.get());
 }
 
 
@@ -137,7 +137,9 @@ VisualizerEditor::~VisualizerEditor()
     if (dataWindow != nullptr)
         dataWindow->removeListener (this);
 
-    deleteAllChildren();
+    //deleteAllChildren();
+
+    delete canvas;
 }
 
 
@@ -157,7 +159,7 @@ void VisualizerEditor::buttonEvent (Button* button) {}
 void VisualizerEditor::enable()
 {
     LOGD("   Enabling VisualizerEditor");
-    if (canvas != 0)
+    if (canvas != nullptr)
         canvas->beginAnimation();
 
     isPlaying = true;
@@ -166,7 +168,7 @@ void VisualizerEditor::enable()
 
 void VisualizerEditor::disable()
 {
-    if (canvas != 0)
+    if (canvas != nullptr)
         canvas->endAnimation();
 
     isPlaying = false;
@@ -175,7 +177,7 @@ void VisualizerEditor::disable()
 
 void VisualizerEditor::updateVisualizer()
 {
-    if (canvas != 0)
+    if (canvas != nullptr)
         canvas->update();
 }
 
@@ -218,7 +220,7 @@ void VisualizerEditor::buttonClicked (Button* button)
             canvas->beginAnimation();
     }
 
-    if (button == windowSelector)
+    if (button == windowSelector.get())
     {
         if (tabSelector->getToggleState() && windowSelector->getToggleState())
         {
@@ -254,7 +256,7 @@ void VisualizerEditor::buttonClicked (Button* button)
             }
         }
     }
-    else if (button == tabSelector)
+    else if (button == tabSelector.get())
     {
         if (tabSelector->getToggleState() && tabIndex < 0)
         {
@@ -360,7 +362,7 @@ void VisualizerEditor::loadCustomParameters (XmlElement* xml)
 
 void VisualizerEditor::makeNewWindow()
 {
-    dataWindow = new DataWindow (windowSelector, tabText);
+    dataWindow = std::make_unique<DataWindow> (windowSelector.get(), tabText);
 }
 
 

@@ -89,12 +89,12 @@ public:
     void saveParameters(XmlElement* xml);
     void loadParameters(XmlElement* xml);
 
-	DataChannel::DataChannelTypes getChannelType(int n);
-	DataChannel::DataChannelTypes getSelectedType();
-    String getTypeName(DataChannel::DataChannelTypes type);
-	int getRangeStep(DataChannel::DataChannelTypes type);
+	ContinuousChannel::Type getChannelType(int n);
+    ContinuousChannel::Type getSelectedType();
+    String getTypeName(ContinuousChannel::Type type);
+	int getRangeStep(ContinuousChannel::Type type);
 
-	void setSelectedType(DataChannel::DataChannelTypes type, bool toggleButton = true);
+	void setSelectedType(ContinuousChannel::Type type, bool toggleButton = true);
 
     int selectedSpread;
     String selectedSpreadValue;
@@ -191,7 +191,7 @@ private:
     StringArray channelDisplaySkipOptions;
     StringArray sectionTitles;
     
-	DataChannel::DataChannelTypes selectedChannelType;
+	ContinuousChannel::Type selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
     float rangeGain[CHANNEL_TYPES];

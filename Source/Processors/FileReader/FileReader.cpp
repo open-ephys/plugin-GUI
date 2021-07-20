@@ -291,8 +291,8 @@ void FileReader::updateSettings()
     }
 
      DataStream::Settings settings{
-         "name",
-         "description",
+         "File Reader Stream",
+         "A description of the File Reader Stream",
          "identifier",
          getDefaultSampleRate(),
          processorInfo.get()

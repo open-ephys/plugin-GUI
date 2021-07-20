@@ -249,14 +249,14 @@ public:
     /** Respond to user's subprocessor selection */
     void comboBoxChanged(ComboBox *cb);
 
-	DataChannel::DataChannelTypes selectedChannelType;
+	ContinuousChannel::Type selectedChannelType;
 
     ScopedPointer<ComboBox> subprocessorSelection;
 
-    ScopedPointer<LfpViewport> viewport;
-    ScopedPointer<LfpTimescale> timescale;
-    ScopedPointer<LfpDisplay> lfpDisplay;
-    ScopedPointer<LfpDisplayOptions> options;
+    std::unique_ptr<LfpViewport> viewport;
+    std::unique_ptr<LfpTimescale> timescale;
+    std::unique_ptr<LfpDisplay> lfpDisplay;
+    std::unique_ptr<LfpDisplayOptions> options;
 
     void setTriggerChannel(int);
     void setAveraging(bool);

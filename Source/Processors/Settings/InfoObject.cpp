@@ -100,6 +100,8 @@ const Uuid NamedObject::getUniqueId() const
 InfoObject::InfoObject(InfoObject::Type type)
 	:	m_type(type), m_local_index(0), m_sourceNodeId(-1), stream(nullptr)
 {
+	if (m_type == Type::DATASTREAM_INFO)
+		stream = (DataStream*) this;
 }
 
 InfoObject::~InfoObject()
@@ -162,7 +164,7 @@ String InfoObject::getNodeName() const
 int InfoObject::getStreamId() const
 {
 	if (stream != nullptr)
-		return stream->getSampleRate();
+		return stream->streamId;
 	else
 		return -1;
 }

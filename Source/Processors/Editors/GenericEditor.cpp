@@ -71,14 +71,14 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
        if (!owner->isSink())
         {
-            channelSelector = new ChannelSelector (true, titleFont);
+            channelSelector = std::make_unique<ChannelSelector> (true, titleFont);
         }
        else
        {
-           channelSelector = new ChannelSelector (false, titleFont);
+           channelSelector = std::make_unique<ChannelSelector> (false, titleFont);
        }
 
-        addChildComponent(channelSelector);
+        addChildComponent(channelSelector.get());
         channelSelector->setVisible(false);
 
         isSplitOrMerge=false;
@@ -88,7 +88,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         isSplitOrMerge=true;
     }
 
-    ttlMonitor = new TTLMonitor();
+    ttlMonitor = std::make_unique<TTLMonitor>();
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
                                         Colour(185, 185, 185), 0.0f, 120.0f, false);
@@ -138,7 +138,7 @@ LOGDD("Adding parameter editors.");
         for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
             ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterByIndex (i), titleFont);
-            p->setChannelSelector (channelSelector);
+            p->setChannelSelector (channelSelector.get());
 
             if (p->hasCustomBounds())
             {
@@ -276,11 +276,11 @@ void GenericEditor::editorStartAcquisition()
 	startAcquisition();
     LOGDD("GenericEditor received message to start acquisition.");
 
-	if (channelSelector != 0)
-	{
-		channelSelector->startAcquisition();
-	}
-
+	//if (channelSelector != 0)
+	//{
+	//	channelSelector->startAcquisition();
+	//}
+//
     for (int n = 0; n < parameterEditors.size(); n++)
     {
 
@@ -297,10 +297,10 @@ void GenericEditor::editorStopAcquisition()
 {
 	stopAcquisition();
 
-	if (channelSelector != 0)
-	{
-		channelSelector->stopAcquisition();
-	}
+	//if (channelSelector != 0)
+	//{
+	//	channelSelector->stopAcquisition();
+	//}
 
     for (int n = 0; n < parameterEditors.size(); n++)
     {
@@ -553,7 +553,7 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
-    ttlMonitor->setState(streamId, bit, state);
+    //ttlMonitor->setState(streamId, bit, state);
 }
 
 bool GenericEditor::getCollapsedState()

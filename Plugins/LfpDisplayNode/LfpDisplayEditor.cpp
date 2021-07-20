@@ -94,39 +94,39 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefault
 
 	defaultSubprocessor = 0;
 
-    layoutLabel = new Label("layout", "Layout:");
-    addAndMakeVisible(layoutLabel);
+    layoutLabel = std::make_unique<Label>("layout", "Layout:");
+    addAndMakeVisible(layoutLabel.get());
     
-    singleDisplay = new LayoutButton("single");
+    singleDisplay = std::make_unique<LayoutButton>("single");
     singleDisplay->setToggleState(true, dontSendNotification);
     singleDisplay->setRadioGroupId(201, dontSendNotification);
     singleDisplay->addListener(this);
-    addAndMakeVisible(singleDisplay);
+    addAndMakeVisible(singleDisplay.get());
     selectedLayout = SplitLayouts::SINGLE;
 
-    twoVertDisplay = new LayoutButton("two-vertical");
+    twoVertDisplay = std::make_unique<LayoutButton>("two-vertical");
     twoVertDisplay->setToggleState(false, dontSendNotification);
     twoVertDisplay->setRadioGroupId(201, dontSendNotification);
     twoVertDisplay->addListener(this);
-    addAndMakeVisible(twoVertDisplay);
+    addAndMakeVisible(twoVertDisplay.get());
 
-    threeVertDisplay = new LayoutButton("three-vertical");
+    threeVertDisplay = std::make_unique<LayoutButton>("three-vertical");
     threeVertDisplay->setToggleState(false, dontSendNotification);
     threeVertDisplay->setRadioGroupId(201, dontSendNotification);
     threeVertDisplay->addListener(this);
-    addAndMakeVisible(threeVertDisplay);
+    addAndMakeVisible(threeVertDisplay.get());
 
-    twoHoriDisplay = new LayoutButton("two-horizontal");
+    twoHoriDisplay = std::make_unique<LayoutButton>("two-horizontal");
     twoHoriDisplay->setToggleState(false, dontSendNotification);
     twoHoriDisplay->setRadioGroupId(201, dontSendNotification);
     twoHoriDisplay->addListener(this);
-    addAndMakeVisible(twoHoriDisplay);
+    addAndMakeVisible(twoHoriDisplay.get());
 
-    threeHoriDisplay = new LayoutButton("three-horizontal");
+    threeHoriDisplay = std::make_unique<LayoutButton>("three-horizontal");
     threeHoriDisplay->setToggleState(false, dontSendNotification);
     threeHoriDisplay->setRadioGroupId(201, dontSendNotification);
     threeHoriDisplay->addListener(this);
-    addAndMakeVisible(threeHoriDisplay);
+    addAndMakeVisible(threeHoriDisplay.get());
 
     syncButton = new UtilityButton("SYNC DISPLAYS", Font("Default", 13.0f, Font::plain)),
     syncButton->addListener(this);
@@ -149,27 +149,26 @@ void LfpDisplayEditor::stopAcquisition()
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-    canvas = new LfpDisplayCanvas(lfpProcessor, selectedLayout);
-    return canvas;
+    return new LfpDisplayCanvas(lfpProcessor, selectedLayout);
 }
 
 void LfpDisplayEditor::buttonClicked(Button* button)
 {
-    if (button == singleDisplay)
+    if (button == singleDisplay.get())
         selectedLayout = SplitLayouts::SINGLE;
-    else if (button == twoVertDisplay)
+    else if (button == twoVertDisplay.get())
         selectedLayout = SplitLayouts::TWO_VERT;
-    else if (button == threeVertDisplay)
+    else if (button == threeVertDisplay.get())
         selectedLayout = SplitLayouts::THREE_VERT;
-    else if (button == twoHoriDisplay)
+    else if (button == twoHoriDisplay.get())
         selectedLayout = SplitLayouts::TWO_HORZ;
-    else if (button == threeHoriDisplay)
+    else if (button == threeHoriDisplay.get())
         selectedLayout = SplitLayouts::THREE_HORZ;
     else if (button == syncButton)
     {
         if (canvas != nullptr)
         {
-            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas.get();
+            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas;
             c->syncDisplays();
         }
             
@@ -178,7 +177,7 @@ void LfpDisplayEditor::buttonClicked(Button* button)
         VisualizerEditor::buttonClicked(button);
     
     if(button->getRadioGroupId() == 201 && canvas != nullptr)
-        static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
+        static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
 
 }
 
@@ -216,7 +215,7 @@ void LfpDisplayEditor::removeBufferForDisplay(int splitID)
 {
     if (canvas != nullptr)
     {
-        LfpDisplayCanvas* cv = (LfpDisplayCanvas*) canvas.get();
+        LfpDisplayCanvas* cv = (LfpDisplayCanvas*) canvas;
 
         cv->removeBufferForDisplay(splitID);
     }
@@ -242,7 +241,7 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 		{
 			std::cout << "Loading saved layout: " << xmlNode->getIntAttribute("SelectedLayout") << std::endl;
 			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
-            static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
+            static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
 
             if (selectedLayout == SplitLayouts::SINGLE)
                 singleDisplay->setToggleState(true, dontSendNotification);

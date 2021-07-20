@@ -71,11 +71,11 @@ public:
     void mouseDown(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
-	void setRange(float range, DataChannel::DataChannelTypes type);
+	void setRange(float range, ContinuousChannel::Type type);
     
     //Withouth parameters returns selected type
     int getRange();
-	int getRange(DataChannel::DataChannelTypes type);
+	int getRange(ContinuousChannel::Type type);
 
     void setChannelHeight(int r, bool resetSingle = true);
     int getChannelHeight();

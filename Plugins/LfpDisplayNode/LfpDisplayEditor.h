@@ -92,12 +92,12 @@ private:
 
 	int defaultSubprocessor;
 
-    ScopedPointer<Label> layoutLabel;
-    ScopedPointer<LayoutButton> singleDisplay;
-    ScopedPointer<LayoutButton> twoVertDisplay;
-    ScopedPointer<LayoutButton> threeVertDisplay;
-    ScopedPointer<LayoutButton> twoHoriDisplay;
-    ScopedPointer<LayoutButton> threeHoriDisplay;
+    std::unique_ptr<Label> layoutLabel;
+    std::unique_ptr<LayoutButton> singleDisplay;
+    std::unique_ptr<LayoutButton> twoVertDisplay;
+    std::unique_ptr<LayoutButton> threeVertDisplay;
+    std::unique_ptr<LayoutButton> twoHoriDisplay;
+    std::unique_ptr<LayoutButton> threeHoriDisplay;
 
     SplitLayouts selectedLayout;
 

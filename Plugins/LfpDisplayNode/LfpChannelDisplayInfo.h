@@ -54,7 +54,7 @@ public:
     void resized();
 
     void setEnabledState(bool);
-    void updateType(DataChannel::DataChannelTypes) override;
+    void updateType(ContinuousChannel::Type) override;
 
     void updateXY(float, float);
 

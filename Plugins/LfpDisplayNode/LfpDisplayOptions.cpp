@@ -51,7 +51,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
       lfpDisplay(lfpDisplay_),
       timescale(timescale_),
       processor(processor_),
-      selectedChannelType(DataChannel::HEADSTAGE_CHANNEL),
+      selectedChannelType(ContinuousChannel::Type::ELECTRODE),
       labelFont("Default", 13.0f, Font::plain),
       labelColour(100, 100, 100),
       medianOffsetOnForSpikeRaster(false)
@@ -105,21 +105,21 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(spreadSelection);
 
     // Voltage range
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("25");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("50");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("100");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("250");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("400");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("500");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("750");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("1000");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("2000");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("5000");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("10000");
-    voltageRanges[DataChannel::HEADSTAGE_CHANNEL].add("15000");
-    selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] = 4;
-    rangeGain[DataChannel::HEADSTAGE_CHANNEL] = 1; //uV
-    rangeSteps[DataChannel::HEADSTAGE_CHANNEL] = 10;
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("25");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("50");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("100");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("250");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("400");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("500");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("750");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("1000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("2000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("5000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("10000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("15000");
+    selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] = 4;
+    rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
+    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 10;
     rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
     typeNames.add("DATA");
 
@@ -135,18 +135,18 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeButtons.add(tbut);
 
     //Ranges for AUX/accelerometer data
-    voltageRanges[DataChannel::AUX_CHANNEL].add("25");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("50");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("100");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("250");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("400");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("500");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("750");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("1000");
-    voltageRanges[DataChannel::AUX_CHANNEL].add("2000");
-    selectedVoltageRange[DataChannel::AUX_CHANNEL] = 9;
-    rangeGain[DataChannel::AUX_CHANNEL] = 0.001f; //mV
-    rangeSteps[DataChannel::AUX_CHANNEL] = 10;
+    voltageRanges[ContinuousChannel::Type::AUX].add("25");
+    voltageRanges[ContinuousChannel::Type::AUX].add("50");
+    voltageRanges[ContinuousChannel::Type::AUX].add("100");
+    voltageRanges[ContinuousChannel::Type::AUX].add("250");
+    voltageRanges[ContinuousChannel::Type::AUX].add("400");
+    voltageRanges[ContinuousChannel::Type::AUX].add("500");
+    voltageRanges[ContinuousChannel::Type::AUX].add("750");
+    voltageRanges[ContinuousChannel::Type::AUX].add("1000");
+    voltageRanges[ContinuousChannel::Type::AUX].add("2000");
+    selectedVoltageRange[ContinuousChannel::Type::AUX] = 9;
+    rangeGain[ContinuousChannel::Type::AUX] = 0.001f; //mV
+    rangeSteps[ContinuousChannel::Type::AUX] = 10;
     rangeUnits.add("mV");
     typeNames.add("AUX");
 
@@ -161,17 +161,17 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeButtons.add(tbut);
 
     //Ranges for ADC data
-    voltageRanges[DataChannel::ADC_CHANNEL].add("0.01");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("0.05");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("0.1");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("0.5");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("1.0");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("2.0");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("5.0");
-    voltageRanges[DataChannel::ADC_CHANNEL].add("10.0");
-    selectedVoltageRange[DataChannel::ADC_CHANNEL] = 8;
-    rangeGain[DataChannel::ADC_CHANNEL] = 1; //V
-    rangeSteps[DataChannel::ADC_CHANNEL] = 0.1; //in V
+    voltageRanges[ContinuousChannel::Type::ADC].add("0.01");
+    voltageRanges[ContinuousChannel::Type::ADC].add("0.05");
+    voltageRanges[ContinuousChannel::Type::ADC].add("0.1");
+    voltageRanges[ContinuousChannel::Type::ADC].add("0.5");
+    voltageRanges[ContinuousChannel::Type::ADC].add("1.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("2.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("5.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("10.0");
+    selectedVoltageRange[ContinuousChannel::Type::ADC] = 8;
+    rangeGain[ContinuousChannel::Type::ADC] = 1; //V
+    rangeSteps[ContinuousChannel::Type::ADC] = 0.1; //in V
     rangeUnits.add("V");
     typeNames.add("ADC");
 
@@ -185,13 +185,13 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
-    selectedVoltageRangeValues[DataChannel::HEADSTAGE_CHANNEL] = voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1];
-    selectedVoltageRangeValues[DataChannel::AUX_CHANNEL] = voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1];
-    selectedVoltageRangeValues[DataChannel::ADC_CHANNEL] = voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1];
+    selectedVoltageRangeValues[ContinuousChannel::Type::ELECTRODE] = voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1];
+    selectedVoltageRangeValues[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1];
+    selectedVoltageRangeValues[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1];
 
     rangeSelection = new ComboBox("Voltage range");
-    rangeSelection->addItemList(voltageRanges[DataChannel::HEADSTAGE_CHANNEL], 1);
-    rangeSelection->setSelectedId(selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL], sendNotification);
+    rangeSelection->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
+    rangeSelection->setSelectedId(selectedVoltageRange[ContinuousChannel::Type::ELECTRODE], sendNotification);
     rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
     addAndMakeVisible(rangeSelection);
@@ -511,14 +511,17 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
  //Ranges for neural data
     
 
-    lfpDisplay->setRange(voltageRanges[DataChannel::HEADSTAGE_CHANNEL][selectedVoltageRange[DataChannel::HEADSTAGE_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::HEADSTAGE_CHANNEL]
-        , DataChannel::HEADSTAGE_CHANNEL);
-    lfpDisplay->setRange(voltageRanges[DataChannel::ADC_CHANNEL][selectedVoltageRange[DataChannel::ADC_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::ADC_CHANNEL]
-        , DataChannel::ADC_CHANNEL);
-    lfpDisplay->setRange(voltageRanges[DataChannel::AUX_CHANNEL][selectedVoltageRange[DataChannel::AUX_CHANNEL] - 1].getFloatValue()*rangeGain[DataChannel::AUX_CHANNEL]
-        , DataChannel::AUX_CHANNEL);
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
+        *rangeGain[ContinuousChannel::Type::ELECTRODE]
+        , ContinuousChannel::Type::ELECTRODE);
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1].getFloatValue()
+        *rangeGain[ContinuousChannel::Type::AUX]
+        , ContinuousChannel::Type::ADC);
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1].getFloatValue()
+        *rangeGain[ContinuousChannel::Type::AUX]
+        , ContinuousChannel::Type::AUX);
 
-    canvasSplit->options = this;
+    //canvasSplit->options = this;
     
 }
 
@@ -1074,7 +1077,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
             }
         } 
 
-        setSelectedType((DataChannel::DataChannelTypes) idx, false);
+        setSelectedType((ContinuousChannel::Type) idx, false);
     }
 
 }
@@ -1424,28 +1427,28 @@ void LfpDisplayOptions::sliderValueChanged(Slider* sl)
 
 void LfpDisplayOptions::sliderEvent(Slider* sl) {}
 
-DataChannel::DataChannelTypes LfpDisplayOptions::getChannelType(int n)
+ContinuousChannel::Type LfpDisplayOptions::getChannelType(int n)
 {
     if (n < processor->getNumInputs())
     {
-        const DataChannel* chan = processor->getDataChannel(n);
+        const ContinuousChannel* chan = processor->getContinuousChannel(n);
         std::cout << "Channel " << chan->getName() << " type: " << chan->getChannelType() << std::endl;
-        return processor->getDataChannel(n)->getChannelType();
+        return processor->getContinuousChannel(n)->getChannelType();
     }
     else
     {
         std::cout << "Channel " << n << ", just returning default." << std::endl;
-        return DataChannel::HEADSTAGE_CHANNEL;
+        return ContinuousChannel::Type::ELECTRODE;
     }
        
 }
 
-DataChannel::DataChannelTypes LfpDisplayOptions::getSelectedType()
+ContinuousChannel::Type LfpDisplayOptions::getSelectedType()
 {
     return selectedChannelType;
 }
 
-void LfpDisplayOptions::setSelectedType(DataChannel::DataChannelTypes type, bool toggleButton)
+void LfpDisplayOptions::setSelectedType(ContinuousChannel::Type type, bool toggleButton)
 {
     if (selectedChannelType == type)
         return; //Nothing to do here
@@ -1465,12 +1468,12 @@ void LfpDisplayOptions::setSelectedType(DataChannel::DataChannelTypes type, bool
         typeButtons[type]->setToggleState(true,dontSendNotification);
 }
 
-String LfpDisplayOptions::getTypeName(DataChannel::DataChannelTypes type)
+String LfpDisplayOptions::getTypeName(ContinuousChannel::Type type)
 {
     return typeNames[type];
 }
 
-int LfpDisplayOptions::getRangeStep(DataChannel::DataChannelTypes type)
+int LfpDisplayOptions::getRangeStep(ContinuousChannel::Type type)
 {
     return rangeSteps[type];
 }
@@ -1585,9 +1588,9 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             selectedVoltageRange[1] = voltageRanges[1].indexOf(ranges[1])+1;
             selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
             rangeSelection->setText(ranges[0]);
-            lfpDisplay->setRange(ranges[0].getFloatValue() * rangeGain[0], DataChannel::HEADSTAGE_CHANNEL);
-            lfpDisplay->setRange(ranges[1].getFloatValue() * rangeGain[1], DataChannel::AUX_CHANNEL);
-            lfpDisplay->setRange(ranges[2].getFloatValue() * rangeGain[2], DataChannel::ADC_CHANNEL);
+            lfpDisplay->setRange(ranges[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
+            lfpDisplay->setRange(ranges[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
+            lfpDisplay->setRange(ranges[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
 
             // TIMEBASE
             timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);

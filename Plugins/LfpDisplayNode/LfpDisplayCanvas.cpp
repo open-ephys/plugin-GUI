@@ -65,7 +65,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
         //    displaySplits[i]->lfpDisplay, 
         //    processor));
 
-        addChildComponent(displaySplits[i]->options);
+        addChildComponent(displaySplits[i]->options.get());
         displaySplits[i]->options->setAlwaysOnTop(true);
 
         if (i == 0)
@@ -754,27 +754,27 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     isSelected = false;
 
-    viewport = new LfpViewport(this);
-    lfpDisplay = new LfpDisplay(this, viewport);
-    timescale = new LfpTimescale(this, lfpDisplay);
-    options = new LfpDisplayOptions(canvas, this, timescale, lfpDisplay, node);
+    viewport = std::make_unique<LfpViewport>(this);
+    lfpDisplay = std::make_unique <LfpDisplay>(this, viewport.get());
+    timescale = std::make_unique < LfpTimescale>(this, lfpDisplay.get());
+    options = std::make_unique<LfpDisplayOptions>(canvas, this, timescale.get(), lfpDisplay.get(), node);
 
     subprocessorSelection = new ComboBox("Subprocessor selection");
     subprocessorSelection->addListener(this);
 
-    lfpDisplay->options = options;
+    lfpDisplay->options = options.get();
 
     timescale->setTimebase(timebase);
 
-    viewport->setViewedComponent(lfpDisplay, false);
+    viewport->setViewedComponent(lfpDisplay.get(), false);
     viewport->setScrollBarsShown(true, false);
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
     //isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
 
-    addAndMakeVisible(viewport);
-    addAndMakeVisible(timescale);
+    addAndMakeVisible(viewport.get());
+    addAndMakeVisible(timescale.get());
     addAndMakeVisible(subprocessorSelection);
 
     nChans = 0;
@@ -1002,7 +1002,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-    std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
+    //std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -1556,7 +1556,7 @@ int LfpDisplaySplitter::getNumChannelsVisible()
 
 int LfpDisplaySplitter::getChannelSubprocessorIdx(int channel)
 {
-    return processor->getDataChannel(channel)->getSubProcessorIdx();
+    return processor->getContinuousChannel(channel)->getStreamId();
 }
 
 /*std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)

@@ -41,7 +41,7 @@ class PLUGIN_API Visualizer : public Component,
 {
 public:
 	Visualizer();
-	~Visualizer();
+	virtual ~Visualizer();
 
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() = 0;

@@ -690,55 +690,29 @@ int GenericProcessor::getTotalConfigurationObjects() const
 	return configurationObjects.size();
 }
 
-/*int GenericProcessor::getContinuousChannelIndex(int channelIdx, uint32 streamId) const
+const ContinuousChannel* GenericProcessor::getContinuousChannel(int globalIndex) const
 {
-	try
-	{
-		return continuousChannelMap.at(streamId).at(channelIdx);
-	}
-	catch (...)
-	{
-		return -1;
-	}
+	if (globalIndex < continuousChannels.size())
+		return continuousChannels[globalIndex];
+	else
+		return nullptr;
 }
 
-int GenericProcessor::getEventChannelIndex(int channelIdx, int processorID, int subProcessorIdx) const
+const SpikeChannel* GenericProcessor::getSpikeChannel(int globalIndex) const
 {
-	uint32 sourceID = getProcessorFullId(processorID, subProcessorIdx);
-	try
-	{
-		return eventChannelMap.at(sourceID).at(channelIdx);
-	}
-	catch (...)
-	{
-		return -1;
-	}
-}*/
-
-/*int GenericProcessor::getEventChannelIndex(const Event* event) const
-{
-	return getEventChannelIndex(event->getSourceIndex(), event->getSourceID(), event->getSubProcessorIdx());
+	if (globalIndex < spikeChannels.size())
+		return spikeChannels[globalIndex];
+	else
+		return nullptr;
 }
 
-int GenericProcessor::getSpikeChannelIndex(int channelIdx, int processorID, int subProcessorIdx) const
+const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 {
-	uint32 sourceID = getProcessorFullId(processorID, subProcessorIdx);
-	try
-	{
-		return spikeChannelMap.at(sourceID).at(channelIdx);
-	}
-	catch (...)
-	{
-		return -1;
-	}
+	if (globalIndex < eventChannels.size())
+		return eventChannels[globalIndex];
+	else
+		return nullptr;
 }
-
-int GenericProcessor::getSpikeChannelIndex(const SpikeEvent* event) const
-{
-	return getSpikeChannelIndex(event->getSourceIndex(), event->getSourceID(), event->getSubProcessorIdx());
-}*/
-
-
 /////// ---- LOADING AND SAVING ---- //////////
 
 

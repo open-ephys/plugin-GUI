@@ -87,13 +87,13 @@ void LfpChannelDisplay::resized()
     //lfpChannelBitmap = Image(Image::ARGB, getWidth(), getHeight(), false);
 }
 
-void LfpChannelDisplay::updateType(DataChannel::DataChannelTypes type_)
+void LfpChannelDisplay::updateType(ContinuousChannel::Type type_)
 {
     type = type_;
     typeStr = options->getTypeName(type);
 }
 
-void LfpChannelDisplay::setType(DataChannel::DataChannelTypes type_)
+void LfpChannelDisplay::setType(ContinuousChannel::Type type_)
 {
     type = type_;
     typeStr = options->getTypeName(type);
@@ -547,7 +547,7 @@ void LfpChannelDisplay::setDepth(float depth_)
 }
 
 
-DataChannel::DataChannelTypes LfpChannelDisplay::getType()
+ContinuousChannel::Type LfpChannelDisplay::getType()
 {
     return type;
 }

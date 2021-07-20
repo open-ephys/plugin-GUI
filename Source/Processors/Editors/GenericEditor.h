@@ -303,7 +303,7 @@ protected:
     void addParameterEditors (bool useStandard);
 
     /** A pointer to the editor's ChannelSelector. */
-    ScopedPointer<ChannelSelector> channelSelector;
+    std::unique_ptr<ChannelSelector> channelSelector;
 
 
 private:
@@ -316,7 +316,7 @@ private:
     /** Stores the editor's background gradient. */
     ColourGradient backgroundGradient;
 
-    ScopedPointer<TTLMonitor> ttlMonitor;
+    std::unique_ptr<TTLMonitor> ttlMonitor;
 
     bool isSelected;
     bool isEnabled;

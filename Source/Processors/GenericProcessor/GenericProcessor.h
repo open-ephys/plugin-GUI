@@ -334,15 +334,11 @@ public:
     //     ACCESSING CHANNEL INFO OBJECTS
     // --------------------------------------------
 
-	//int getContinuousChannelIndex(int channelIdx, uint16 streamId) const;
+    const ContinuousChannel* getContinuousChannel(int globalIndex) const;
 
-	//int getEventChannelIndex(int channelIdx, uint16 streamId) const;
+    const EventChannel* getEventChannel(int globalIndex) const;
 
-	//int getEventChannelIndex(const Event*) const;
-
-	//int getSpikeChannelIndex(int channelIdx, uint16 streamId) const;
-
-	//int getSpikeChannelIndex(const Spike*) const;
+    const SpikeChannel* getSpikeChannel(int globalIndex) const;
 
 	const ContinuousChannel* getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
 

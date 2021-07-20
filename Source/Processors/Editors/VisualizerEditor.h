@@ -122,8 +122,8 @@ public:
     virtual void saveVisualizerParameters (XmlElement* xml);
     virtual void loadVisualizerParameters (XmlElement* xml);
 
-    ScopedPointer<DataWindow> dataWindow;
-    ScopedPointer<Visualizer> canvas;
+    std::unique_ptr<DataWindow> dataWindow;
+    Visualizer* canvas;
 
     String tabText;
 
@@ -193,8 +193,8 @@ protected:
     bool isPlaying; /**< Acquisition status flag */
 
     // So that we can override buttonClick. That's not possible if these are private.
-    SelectorButton* windowSelector;
-    SelectorButton* tabSelector;
+    std::unique_ptr<SelectorButton> windowSelector;
+    std::unique_ptr<SelectorButton> tabSelector;
     int tabIndex;
 
 

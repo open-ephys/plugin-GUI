@@ -114,7 +114,7 @@ bool MessageCenter::stopAcquisition()
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
-    if (needsToSendTimestampMessage)
+    /*if (needsToSendTimestampMessage)
     {
 		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 		HeapBlock<char> data;
@@ -139,6 +139,6 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
         LOGD("Message Center added ", eventString);
 
         newEventAvailable = false;
-    }
+    }*/
 
 }

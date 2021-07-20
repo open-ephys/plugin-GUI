@@ -108,10 +108,10 @@ public:
         return isHidden;
     }
 
-	DataChannel::DataChannelTypes getType();
-    virtual void updateType(DataChannel::DataChannelTypes);
+    ContinuousChannel::Type getType();
+    virtual void updateType(ContinuousChannel::Type);
 
-    void setType(DataChannel::DataChannelTypes);
+    void setType(ContinuousChannel::Type);
 
     float getDepth() { return depth; }
     int getGroup() { return group; }
@@ -149,7 +149,7 @@ protected:
     bool canBeInverted;
     bool drawMethod;
 
-	DataChannel::DataChannelTypes type;
+    ContinuousChannel::Type type;
     String typeStr;
     
 };

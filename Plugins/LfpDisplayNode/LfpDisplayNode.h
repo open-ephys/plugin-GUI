@@ -78,7 +78,7 @@ public:
     String getSubprocessorName(int ch); // { return subprocessorNames[sn]; }
 
     Array<DisplayBuffer*> getDisplayBuffers();
-    std::map<uint32, DisplayBuffer*> displayBufferMap;
+    std::map<uint16, DisplayBuffer*> displayBufferMap;
 
     void setSplitDisplays(Array<LfpDisplaySplitter*>);
 
@@ -141,8 +141,8 @@ private:
     //std::map<uint32, float> subprocessorSampleRate;
 
 
-    static uint32 getEventSourceId(const EventChannel* event);
-    static uint32 getChannelSourceId(const InfoObjectCommon* chan);
+    static uint16 getEventSourceId(const EventChannel* event);
+    static uint16 getChannelSourceId(const InfoObject* chan);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
 };

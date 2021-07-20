@@ -66,7 +66,7 @@ namespace LfpViewer {
         isNeeded = false;
     }
 
-    void DisplayBuffer::addChannel(String name, int channelNum, DataChannel::DataChannelTypes type, int group, float ypos, String structure)
+    void DisplayBuffer::addChannel(String name, int channelNum, ContinuousChannel::Type type, int group, float ypos, String structure)
     {
         ChannelMetadata metadata = ChannelMetadata();
         metadata.name = name;
