@@ -48,6 +48,13 @@ DataStream::~DataStream()
 	nextId--;
 }
 
+void DataStream::clearChannels()
+{
+	continuousChannels.clear();
+	eventChannels.clear();
+	spikeChannels.clear();
+}
+
 void DataStream::addChannel(InfoObject* channel)
 {
 	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)

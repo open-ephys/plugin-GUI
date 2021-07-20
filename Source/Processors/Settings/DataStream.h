@@ -61,6 +61,8 @@ public:
 	ProcessorInfoObject* source;
 	uint16 streamId;
 
+	void clearChannels();
+
 	void addChannel(InfoObject* channel);
 
 	Array<ContinuousChannel*> getContinuousChannels();

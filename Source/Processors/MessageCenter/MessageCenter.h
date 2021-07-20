@@ -63,6 +63,8 @@ public:
 
     const EventChannel* getMessageChannel();
 
+    //DataStream* getMessageDataStream();
+
     bool startAcquisition() override;
     bool stopAcquisition() override;
 

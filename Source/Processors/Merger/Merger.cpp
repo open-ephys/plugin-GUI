@@ -70,10 +70,6 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
         sourceNodeB = sn;
     }
 
-    //if (sn != nullptr)
-    //{
-    //    sn->setDestNode(this);
-    //}
 }
 
 void Merger::switchIO(int sourceNum)
@@ -189,8 +185,8 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
     {
         DataStream* stream = sn->getDataStream(streamIdx);
 
-        //if (checkStream(stream))
-        copyDataStreamSettings(stream);
+        if (checkStream(stream))
+            copyDataStreamSettings(stream);
     }
 
     for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
@@ -199,6 +195,11 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
         ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
         configurationObjects.add(ch);
     }
+}
+
+bool Merger::checkStream(DataStream* stream)
+{
+    return true;
 }
 
 

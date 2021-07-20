@@ -348,6 +348,8 @@ public:
 
 	const EventChannel* getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
+    const EventChannel* getMessageChannel() const;
+
 	const SpikeChannel* getSpikeChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
     DataStream* getDataStream(uint16 streamId) const;

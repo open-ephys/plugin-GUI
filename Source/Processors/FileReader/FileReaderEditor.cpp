@@ -172,6 +172,7 @@ void FileReaderEditor::setTotalTime (unsigned int ms)
 
 void FileReaderEditor::setCurrentTime (unsigned int ms)
 {
+    const MessageManagerLock mmLock;
     currentTime->setTimeMilliseconds (0, ms);
 }
 

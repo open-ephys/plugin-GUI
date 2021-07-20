@@ -215,49 +215,56 @@ void GenericProcessor::update()
 
 	processorInfo.reset();
 	processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
-    
-    if (!isMerger() && !isSplitter())
-    {
-        if (sourceNode != nullptr) 
-        {
-			// copy settings from source node
+   
+	if (sourceNode != nullptr)
+	{
+		// copy settings from source node
+		const EventChannel* messageChannel = sourceNode->getMessageChannel();
 
-			//eventChannels.add(new EventChannel(sourceNode->getMessageChannel()));
+		if (messageChannel != nullptr)
+		{
+			eventChannels.add(new EventChannel(*messageChannel));
+			eventChannels.getLast()->addProcessor(processorInfo.get());
+		}
+
+		if (!isMerger() && !isSplitter())
+		{
 
 			Array<DataStream*> streamsToCopy;
 
 			if (sourceNode->isSplitter())
 			{
-				Splitter* splitter = (Splitter*) sourceNode;
+				Splitter* splitter = (Splitter*)sourceNode;
 				streamsToCopy = splitter->getStreamsForDestNode(this);
 			}
 			else {
 				streamsToCopy = sourceNode->streams;
 			}
 
-            for (auto stream : streamsToCopy)
-            {
+			for (auto stream : streamsToCopy)
+			{
 				copyDataStreamSettings(stream);
-            }
+			}
 
-            for (auto configurationObject : sourceNode->configurationObjects)
-            {
-                configurationObjects.add(new ConfigurationObject(*configurationObject));
-            }
+			for (auto configurationObject : sourceNode->configurationObjects)
+			{
+				configurationObjects.add(new ConfigurationObject(*configurationObject));
+			}
 
 			isEnabled = sourceNode->isEnabled;
-        }
-        else
-        {
-			// connect first processor in signal chain to message center
+		}
+	}
+	else
+	{
+		// connect first processor in signal chain to message center
 
-			const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+		const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
-			eventChannels.add(new EventChannel(*messageChannel));
+		eventChannels.add(new EventChannel(*messageChannel));
+		eventChannels.getLast()->addProcessor(processorInfo.get());
 
-			std::cout << getNodeId() << " connected to Message Center" << std::endl;
-        }
-    }
+		std::cout << getNodeId() << " connected to Message Center" << std::endl;
+	}
 
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
@@ -632,6 +639,19 @@ const ContinuousChannel* GenericProcessor::getContinuousChannel(uint16 processor
 const EventChannel* GenericProcessor::getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
 	return eventChannelMap.at(processorId).at(streamId).at(localIndex); 
+}
+
+const EventChannel* GenericProcessor::getMessageChannel() const
+{
+	for (auto eventChannel : eventChannels)
+	{
+		std::cout << "Event channel source node id: " << eventChannel->getSourceNodeId() << std::endl;
+
+		if (eventChannel->getSourceNodeId() == 904)
+			return eventChannel;
+	}
+
+	return nullptr;
 }
 
 const SpikeChannel* GenericProcessor::getSpikeChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
