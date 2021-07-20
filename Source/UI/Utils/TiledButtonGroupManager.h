@@ -40,6 +40,7 @@ class PLUGIN_API TiledButtonGroupManager : public ButtonGroupManager
 {
 public:
     TiledButtonGroupManager();
+    ~TiledButtonGroupManager();
 
     // Component methods
     // ===========================================================

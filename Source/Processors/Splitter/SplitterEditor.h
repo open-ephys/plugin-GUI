@@ -40,16 +40,19 @@ class SplitterEditor : public GenericEditor
 {
 public:
     SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+
     virtual ~SplitterEditor();
 
     void buttonEvent(Button* button);
 
     void switchDest(int);
+
     void switchDest();
 
     void switchIO(int i);
 
     int getPathForEditor(GenericEditor* editor);
+
     Array<GenericEditor*> getConnectedEditors();
 
 

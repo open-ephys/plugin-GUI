@@ -26,9 +26,12 @@
 
 #include "../../UI/EditorViewport.h"
 
+#include "../Settings/ConfigurationObject.h"
+#include "../Settings/DataStream.h"
+
 Splitter::Splitter()
     : GenericProcessor("Splitter"),
-      destNodeA(0), destNodeB(0), activePath(0)
+      destNodeA(nullptr), destNodeB(nullptr), activePath(0)
 {
     setProcessorType(PROCESSOR_TYPE_SPLITTER);
     sendSampleCount = false;
@@ -42,10 +45,55 @@ Splitter::~Splitter()
 AudioProcessorEditor* Splitter::createEditor()
 {
     editor = std::make_unique<SplitterEditor>(this, true);
-    //tEditor(editor);
 
-    LOGDD("Creating editor.");
+    LOGDD("Creating Splitter editor.");
     return editor.get();
+}
+
+void Splitter::updateSettings()
+{
+
+    streamsForPathA.clear();
+    streamsForPathB.clear();
+
+    isEnabled = false;
+
+    if (sourceNode != nullptr)
+    {
+        // copy settings from source node
+
+        Array<DataStream*>* streamsToCopy;
+
+        if (sourceNode->isSplitter())
+        {
+            Splitter* splitter = (Splitter*)sourceNode;
+            streamsToCopy = &splitter->getStreamsForDestNode(this);
+        }
+        else {
+            streamsToCopy = &sourceNode->streams;
+        }
+
+        for (auto stream : *streamsToCopy)
+        {
+            if (checkStream(stream, OUTPUT_A))
+                streamsForPathA.add(stream);
+
+            if (checkStream(stream, OUTPUT_B))
+                streamsForPathB.add(stream);
+        }
+
+        for (auto configurationObject : sourceNode->configurationObjects)
+        {
+            configurationObjects.add(new ConfigurationObject(*configurationObject));
+        }
+
+        isEnabled = sourceNode->isEnabled;
+    }
+}
+
+bool Splitter::checkStream(DataStream* stream, Splitter::Output output)
+{
+    return true;
 }
 
 void Splitter::setPathToProcessor(GenericProcessor* p)
@@ -96,9 +144,6 @@ void Splitter::switchIO(int destNum)
         destNode = destNodeB;
         LOGDD("Dest node: ", getDestNode(1));
     }
-
-    // getEditorViewport()->makeEditorVisible(getEditor(), false);
-
 }
 
 void Splitter::switchIO()
@@ -131,5 +176,20 @@ GenericProcessor* Splitter::getDestNode(int path)
         return destNodeA;
     } else {
         return destNodeB;
+    }
+}
+
+Array<DataStream*> Splitter::getStreamsForDestNode(GenericProcessor* node)
+{
+    if (node == destNodeA)
+        return streamsForPathA;
+
+    else if (node == destNodeB)
+        return streamsForPathB;
+
+    else
+    {
+        Array<DataStream*> a;
+        return a;
     }
 }

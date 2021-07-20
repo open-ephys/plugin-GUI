@@ -83,6 +83,8 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
     friend class MessageCenter;
     friend class ProcessorGraph;
     friend class GenericEditor;
+    friend class Splitter;
+    friend class Merger;
 
 public:
     /** Constructor (sets the processor's name). */

@@ -31,6 +31,8 @@
 #include "../Settings/ConfigurationObject.h"
 #include "../Settings/DeviceInfo.h"
 
+#include "../Splitter/Splitter.h"
+
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
@@ -181,10 +183,14 @@ void GenericProcessor::copyDataStreamSettings(DataStream* stream)
 {
 	streams.add(stream); // pointer to original source
 
+	std::cout << "Copying stream: " << stream->getName() << " " << stream->getStreamId() << std::endl;
+
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
 		continuousChannels.getLast()->addProcessor(processorInfo.get());
+
+		std::cout << "Copying " << continuousChannel->getNodeName() << " " << continuousChannel->getName() << std::endl;
 	}
 
 	for (auto eventChannel : stream->getEventChannels())
@@ -216,7 +222,20 @@ void GenericProcessor::update()
         {
 			// copy settings from source node
 
-            for (auto stream : sourceNode->streams)
+			//eventChannels.add(new EventChannel(sourceNode->getMessageChannel()));
+
+			Array<DataStream*> streamsToCopy;
+
+			if (sourceNode->isSplitter())
+			{
+				Splitter* splitter = (Splitter*) sourceNode;
+				streamsToCopy = splitter->getStreamsForDestNode(this);
+			}
+			else {
+				streamsToCopy = sourceNode->streams;
+			}
+
+            for (auto stream : streamsToCopy)
             {
 				copyDataStreamSettings(stream);
             }

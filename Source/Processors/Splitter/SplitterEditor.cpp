@@ -26,32 +26,6 @@
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
 
-// PipelineSelectorButton::PipelineSelectorButton()
-// 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
-// {
-// 	DrawablePath normal, over, down;
-
-// 	    Path p;
-//         p.addTriangle (0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
-//         normal.setPath (p);
-//         normal.setFill (Colours::lightgrey);
-//         normal.setStrokeThickness (0.0f);
-
-//         over.setPath (p);
-//         over.setFill (Colours::black);
-//         over.setStrokeFill (Colours::black);
-//         over.setStrokeThickness (5.0f);
-
-//         setImages (&normal, &over, &over);
-//         setBackgroundColours(Colours::darkgrey, Colours::purple);
-//         setClickingTogglesState (true);
-//         setTooltip ("Toggle a state.");
-
-// }
-
-// PipelineSelectorButton::~PipelineSelectorButton()
-// {
-// }
 
 SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : GenericEditor(parentNode, useDefaultParameterEditors)

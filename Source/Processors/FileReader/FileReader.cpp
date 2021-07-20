@@ -284,7 +284,11 @@ String FileReader::getFile() const
 
 void FileReader::updateSettings()
 {
-     if (!input) return;
+    if (!input)
+    {
+        isEnabled = false;
+        return;
+    }
 
      DataStream::Settings settings{
          "name",
@@ -295,6 +299,7 @@ void FileReader::updateSettings()
      };
 
      sourceStreams.add(new DataStream(settings));
+     streams.add(sourceStreams.getLast());
 
      for (int i = 0; i < currentNumChannels; i++)
      {
@@ -309,6 +314,8 @@ void FileReader::updateSettings()
          continuousChannels.add(new ContinuousChannel(settings));
          sourceStreams.getLast()->addChannel(continuousChannels.getLast());
      }
+
+     isEnabled = true;
 
 }
 

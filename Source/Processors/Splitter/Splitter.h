@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 
+class DataStream;
 
 /**
 
@@ -47,33 +48,63 @@ class Splitter : public GenericProcessor
 {
 public:
 
+    /** Available splitter output paths */
+    enum Output {
+
+        OUTPUT_A,
+        OUTPUT_B
+
+    };
+
+    /** Constructor*/
     Splitter();
+
+    /** Destructor */
     ~Splitter();
 
+    /** Create the Splitter's custom editor */
     AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Splitters are not part of the ProcessorGraph. */
     void process(AudioSampleBuffer& buffer) override {}
 
-    bool isSplitter()
-    {
-        return true;
-    }
+    /** Selects which streams are sent down each path. */
+    void updateSettings() override;
 
-    void switchIO(int);
+    /** Set the currently displayed path (0 or 1) */
+    void switchIO(int output);
+
+    /** Get the currently displayed path (0 or 1) */
+    int getPath();
+
+    /** Switch the currently displayed path */
     void switchIO();
+    
+    /** Set the destination processor for the currently displayed path*/
     void setSplitterDestNode(GenericProcessor* dn);
+
+    /** Return the destination processor for a particular path (0 or 1)*/
     GenericProcessor* getDestNode(int);
 
-    void setPathToProcessor(GenericProcessor* processor);
+    /** Return the streams to be sent to the selected destination node*/
+    Array<DataStream*> getStreamsForDestNode(GenericProcessor* destNode);
 
-    int getPath();
+    /** Checks whether or not a particular stream should be sent down a particular path */
+    bool checkStream(DataStream* stream, Output output);
+    
+    /** Display the path that leads to a particular processor*/
+    void setPathToProcessor(GenericProcessor* processor);
 
 private:
 
     GenericProcessor* destNodeA;
+
     GenericProcessor* destNodeB;
+    
     int activePath;
+
+    Array<DataStream*> streamsForPathA;
+    Array<DataStream*> streamsForPathB;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Splitter);
 

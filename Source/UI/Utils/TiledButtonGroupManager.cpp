@@ -43,6 +43,11 @@ TiledButtonGroupManager::TiledButtonGroupManager()
     setButtonsLookAndFeel (m_materialButtonsLookAndFeel);
 }
 
+TiledButtonGroupManager::~TiledButtonGroupManager()
+{
+    setButtonsLookAndFeel(nullptr);
+}
+
 
 void TiledButtonGroupManager::resized()
 {
