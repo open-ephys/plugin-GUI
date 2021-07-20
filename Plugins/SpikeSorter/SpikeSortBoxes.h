@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SPIKESORTBOXES_H
 #define __SPIKESORTBOXES_H
 
+#include <ProcessorHeaders.h>
+
 #include "SpikeSorterEditor.h"
 #include <algorithm>    // std::sort
 #include <list>
@@ -34,7 +36,7 @@ class SorterSpikeContainer : public ReferenceCountedObject
 {
 public:
 	//This invalidates the original SpikeEventPtr, so be careful
-	SorterSpikeContainer(const SpikeChannel* channel, SpikeEvent::SpikeBuffer& data, int64 timestamp);
+	SorterSpikeContainer(const SpikeChannel* channel, Spike::Buffer& data, int64 timestamp);
 	SorterSpikeContainer() = delete;
 
 	const float* getData() const;

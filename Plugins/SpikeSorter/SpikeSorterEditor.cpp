@@ -138,10 +138,10 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     addAndMakeVisible(thresholdLabel);
 
     // create a custom channel selector
-    deleteAndZero(channelSelector);
+    channelSelector.reset();
 
-    channelSelector = new ChannelSelector(true, font);
-    addChildComponent(channelSelector);
+    channelSelector = std::make_unique< ChannelSelector>(true, font);
+    addChildComponent(channelSelector.get());
     channelSelector->setVisible(false);
 
     channelSelector->activateButtons();
@@ -475,7 +475,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
     else if (button == audioMonitorButton)
     {
 
-        channelSelector->clearAudio();
+        /*channelSelector->clearAudio();
 
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
 
@@ -501,7 +501,7 @@ void SpikeSorterEditor::buttonEvent(Button* button)
             int channelNum = e->channels[i];
             channelSelector->setAudioStatus(channelNum, audioMonitorButton->getToggleState());
 
-        }
+        }*/
 
     }
 

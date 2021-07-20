@@ -180,16 +180,20 @@ void SpikeSorter::updateSettings()
     mut.enter();
 	sorterReady = false;
     int numChannels = getNumInputs();
+
 	if (numChannels > 0)
 	{
 		overflowBuffer.setSize(getNumInputs(), overflowBufferSize);
 		overflowBuffer.clear();
-	}
+    }
+    else {
+        return;
+    }
 
     if (channelBuffers != nullptr)
         delete channelBuffers;
 
-    double SamplingRate = getSampleRate();;
+    double SamplingRate = continuousChannels[0]->getSampleRate();
     double ContinuousBufferLengthSec = 5;
     channelBuffers = new ContinuousCircularBuffer(numChannels,SamplingRate,1, ContinuousBufferLengthSec);
 
@@ -212,11 +216,21 @@ void SpikeSorter::updateSettings()
 
 		}
 
-		SpikeChannel* spk = new SpikeChannel(SpikeChannel::typeFromNumChannels(nChans), this, chans);
-		spk->setNumSamples(elec->prePeakSamples, elec->postPeakSamples);
-		spk->addEventMetadata(new MetadataDescriptor(MetadataDescriptor::UINT8, 3, "Color", "Color of the spike", "graphics.color"));
+        SpikeChannel::Settings settings{
+
+           SpikeChannel::typeFromNumChannels(nChans),
+           "Electrode",
+           "Description",
+           elec->prePeakSamples,
+           elec->postPeakSamples,
+           chans
+        };
+
+        SpikeChannel* spk = new SpikeChannel(settings);
 
         spikeChannels.add(spk);
+
+        chans[0]->stream->addChannel(spk);
     }
 	sorterReady = true;
     mut.exit();
@@ -851,7 +865,6 @@ void SpikeSorter::process(AudioBuffer<float>& buffer)
 
     //printf("Entering Spike Detector::process\n");
     mut.enter();
-    uint16_t samplingFrequencyHz = getSampleRate();//buffer.getSamplingFrequency();
     // cycle through electrodes
     Electrode* electrode;
     dataBuffer = &buffer;
@@ -985,9 +998,9 @@ void SpikeSorter::process(AudioBuffer<float>& buffer)
 						SpikePtr newSpike = Spike::createSpike(spikeChan,
                             timestamp, 
                             thresholds, 
-                            spikeData, 
-                            sorterSpike->sortedId, 
-                            md);
+                            spikeData,
+                            md,
+                            sorterSpike->sortedId);
 
                         addSpike(spikeChan, newSpike, peakIndex);
                         //prevSpike = newSpike;
@@ -1309,16 +1322,26 @@ void SpikeSorter::loadCustomParametersFromXml()
 
                         int sourceNodeId = 102010; // some number
 
-                        Electrode* newElectrode = new Electrode(electrodeID, &uniqueIDgenerator,&computingThread, electrodeName, channelsPerElectrode, channels,getDefaultThreshold(),
-                                                                numPreSamples,numPostSamples, getSampleRate(), sourceNodeId,0);
+                        Electrode* newElectrode = new Electrode(electrodeID, 
+                            &uniqueIDgenerator,
+                            &computingThread, 
+                            electrodeName, 
+                            channelsPerElectrode, 
+                            channels,getDefaultThreshold(),
+                            numPreSamples,
+                            numPostSamples, 
+                            continuousChannels[0]->getSampleRate(), 
+                            sourceNodeId,
+                            0);
+
                         for (int k=0; k<channelsPerElectrode; k++)
                         {
                             newElectrode->thresholds[k] = thres[k];
                             newElectrode->isActive[k] = isActive[k];
                         }
-			delete[] channels;
-			delete[] thres;
-			delete[] isActive;
+			            delete[] channels;
+			            delete[] thres;
+			            delete[] isActive;
 
                         newElectrode->advancerID = advancerID;
                         newElectrode->depthOffsetMM = depthOffsetMM;
