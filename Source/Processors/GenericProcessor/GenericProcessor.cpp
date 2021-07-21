@@ -200,18 +200,22 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
 
-		std::cout << "Copying continuous channel: " << std::endl;
+		/*std::cout << "Copying continuous channel: " << std::endl;
 		std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
 		std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
 		std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
 		std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
 		std::cout << "  Name: " << continuousChannel->getName() << std::endl;
 		std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;
+		std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;*/
+
+		//std::cout << "Input channel: " << continuousChannel->getUniqueId().toString() << std::endl;
 
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
 		continuousChannels.getLast()->addProcessor(processorInfo.get());
 		dataStreams.getLast()->addChannel(continuousChannels.getLast());
+
+		//std::cout << "Output channel: " << continuousChannels.getLast()->getUniqueId().toString() << std::endl;
 
 		//std::cout << "Copying " << continuousChannel->getNodeName() << " " << continuousChannel->getName() << std::endl;
 	}
@@ -663,6 +667,20 @@ Array< const DataStream*> GenericProcessor::getStreamsForDestNode(GenericProcess
 const ContinuousChannel* GenericProcessor::getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
 	return continuousChannelMap.at(processorId).at(streamId).at(localIndex);
+}
+
+int GenericProcessor::getIndexOfMatchingChannel(const ContinuousChannel* channel) const
+{
+
+	for (int index = 0; index < continuousChannels.size(); index++)
+	{
+		if (*continuousChannels[index] == *channel) // check for matching Uuid
+		{
+			return index;
+		}	
+	}
+
+	return -1;
 }
 
 const EventChannel* GenericProcessor::getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const

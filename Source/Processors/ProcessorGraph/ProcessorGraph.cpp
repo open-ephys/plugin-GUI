@@ -1077,9 +1077,16 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
             LOGDD(chan, " ");
 
             cs.channelIndex = chan;
-            cd.channelIndex = dest->getNextChannel(true);
+            //cd.channelIndex = dest->getNextChannel(true);
 
-            addConnection(Connection(cs, cd));
+            cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
+
+            if (cd.channelIndex > -1)
+            {
+                //std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
+                addConnection(Connection(cs, cd));
+            }
+                 
         }
     }
 

@@ -338,6 +338,8 @@ public:
 
     const ContinuousChannel* getContinuousChannel(int globalIndex) const;
 
+    int getIndexOfMatchingChannel(const ContinuousChannel* channel) const;
+
     const EventChannel* getEventChannel(int globalIndex) const;
 
     const SpikeChannel* getSpikeChannel(int globalIndex) const;
