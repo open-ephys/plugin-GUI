@@ -14,6 +14,8 @@ add_sources(open-ephys
 	VisualizerEditor.h
 	TTLMonitor.cpp
 	TTLMonitor.h
+	StreamSelectorButton.cpp
+	StreamSelectorButton.h
 )
 
 #add nested directories
