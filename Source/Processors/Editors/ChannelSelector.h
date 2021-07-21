@@ -31,33 +31,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 
-//class ChannelSelectorRegion;
 class ChannelSelectorButton;
 class EditorButton;
 class ChannelSelectorBox;
 class ShowAlertMessage;
 
-namespace Channels
-{
-enum ChannelsType
-{
-    AUDIO_CHANNELS = 0
-    , RECORD_CHANNELS
-    , PARAM_CHANNELS
-};
-}
 
 /**
-    A class that is used for selecting subset of channels by providing range in TextEditor component
-    and clicking apppropriate button (either add or remove given range of channels).
+    A class that is used for selecting subset of channels by providing a range string
+    (e.g. 5:10) in a TextEditor component and clicking the apppropriate button 
+    to either select or deselect a given range of channels.
 */
 class SlicerChannelSelectorComponent    : public Component
                                         , public Button::Listener
                                         , public KeyListener
 {
 public:
-    SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
-                                    const String& componentName = String());
+    SlicerChannelSelectorComponent (const String& componentName = String());
 
     class Listener
     {
@@ -80,9 +70,6 @@ public:
     /** Returns the conetent of the channel selector text editor */
     String getText() const;
 
-    /** Returns the type of the channels on which the component affects */
-    Channels::ChannelsType getChannelsType() const;
-
     /** Either collapse or show full component */
     void setCollapsed (bool isCollapsed);
 
@@ -93,22 +80,21 @@ public:
     static const int MAX_HEIGHT = 45;
 
 private:
-    Channels::ChannelsType m_channelsType;
 
     bool m_isCollapsed;
 
     const Image m_dropdownArrowImage;
     const Image m_dropdownArrowImageCollapsed;
 
-    /** Stores a pointer to the button listner which will handle clicks
+    /** Stores a pointer to the button listener which will handle clicks
         of control buttons (e.g. "Select/Deselect" channels buttons) */
     Listener* m_controlsButtonListener;
 
-    ScopedPointer<TextEditor> m_channelSelectorTextEditor;
+    std::unique_ptr<TextEditor> m_channelSelectorTextEditor;
 
-    ScopedPointer<Button>   m_selectChannelsButton;
-    ScopedPointer<Button>   m_deselectChannelsButton;
-    ScopedPointer<ImageButton> m_showComponentButton;
+    std::unique_ptr<Button>   m_selectChannelsButton;
+    std::unique_ptr<Button>   m_deselectChannelsButton;
+    std::unique_ptr<ImageButton> m_showComponentButton;
 
     // ====================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SlicerChannelSelectorComponent)
@@ -118,8 +104,7 @@ private:
 /**
 Automatically creates an interactive editor for selecting channels.
 
-Contains tabs for "Params", "Audio", and "Record", which allow
-channels to be selected for different purposes.
+Contains tabs for channels in each available sub-processor
 
 @see GenericEditor
 
@@ -145,8 +130,8 @@ public:
     /** Set the selected channels. */
     void setActiveChannels(Array<int>);
 
-    /** Set the total number of channels. */
-    void setNumChannels(int);
+    /** Set the total number of channels for a particular stream. */
+    void setNumChannels(int numChannels, uint16 streamId);
 
     /** get the total number of channels. */
     int getNumChannels();
@@ -181,7 +166,6 @@ public:
     void setRadioStatus(bool);
 
     void paramButtonsToggledByDefault(bool t);
-    //void paramButtonsActiveByDefault(bool t) {paramsActive = t;}
 
     /** Used to scroll channels */
     void shiftChannelsVertical(float amount);
@@ -190,9 +174,11 @@ public:
 
 private:
   
-    ScopedPointer<EditorButton> paramsButton;
-    ScopedPointer<EditorButton> allButton;
-    ScopedPointer<EditorButton> noneButton;
+    std::unique_ptr<EditorButton> titleButton;
+    std::unique_ptr<EditorButton> forwardButton;
+    std::unique_ptr<EditorButton> backButton;
+    std::unique_ptr<EditorButton> allButton;
+    std::unique_ptr<EditorButton> noneButton;
 
     /** An array of ChannelSelectorButtons used to select the channels that
     will be updated when a parameter is changed.
@@ -203,7 +189,6 @@ private:
 
     bool paramsToggled;
     bool paramsActive;
-    bool recActive;
     bool radioStatus;
 
     bool isNotSink;
@@ -218,8 +203,6 @@ private:
     int overallHeight;
 
     int parameterOffset;
-    int audioOffset;
-    int recordOffset;
 
     int desiredOffset;
 
@@ -248,8 +231,6 @@ private:
     // =================================================================================================
 
     Font& titleFont;
-
-    enum { AUDIO, RECORD, PARAMETER };
 
     bool acquisitionIsActive;
 
@@ -303,10 +284,10 @@ A button within the ChannelSelector representing an individual channel.
 class ChannelSelectorButton : public Button
 {
 public:
-    ChannelSelectorButton(int num, int type, Font& f);
+    ChannelSelectorButton(int num, uint16 streamId, Font& f);
     ~ChannelSelectorButton();
 
-    int getType();
+    uint16 getStreamId();
     int getChannel();
     void setActive(bool t);
     void setChannel(int n);
@@ -315,8 +296,8 @@ public:
 private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
-    int type;
     int num;
+    uint16 streamId;
     int displayNum;
     Font buttonFont;
     bool isActive;

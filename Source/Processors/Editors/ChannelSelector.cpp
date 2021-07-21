@@ -41,29 +41,42 @@ static const int DURATION_ANIMATION_COLLAPSE_MS = 200;
 
 ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     eventsOnly(false)
-    , parameterSlicerChannelSelector (Channels::PARAM_CHANNELS,  "Parameter slicer channel selector component")
-    , paramsToggled(true), paramsActive(true), recActive(true), radioStatus(false), isNotSink(createButtons)
-    , moveRight(false), moveLeft(false), offsetLR(0), offsetUD(0), desiredOffset(0), titleFont(titleFont_), acquisitionIsActive(false)
+    , parameterSlicerChannelSelector ("Parameter slicer channel selector component")
+    , paramsToggled(true)
+    , paramsActive(true)
+    , radioStatus(false)
+    , isNotSink(createButtons)
+    , moveRight(false)
+    , moveLeft(false)
+    , offsetLR(0)
+    , offsetUD(0)
+    , desiredOffset(0)
+    , titleFont(titleFont_)
+    , acquisitionIsActive(false)
 {
 
-    paramsButton = new EditorButton("PARAM", titleFont);
-    paramsButton->addListener(this);
-    addAndMakeVisible(paramsButton);
+    titleButton = std::make_unique<EditorButton>("TITLE", titleFont);
+    addAndMakeVisible(titleButton.get());
+    titleButton->setToggleState(true, dontSendNotification);
 
-    paramsButton->setToggleState(true, dontSendNotification);
+    forwardButton = std::make_unique<EditorButton>(">", titleFont);
+    forwardButton->addListener(this);
+    addAndMakeVisible(forwardButton.get());
+
+    backButton = std::make_unique<EditorButton>("<", titleFont);
+    backButton->addListener(this);
+    addAndMakeVisible(backButton.get());
+
+    allButton = std::make_unique<EditorButton>("all", titleFont);
+    allButton->addListener(this);
+    addAndMakeVisible(allButton.get());
+
+    noneButton = std::make_unique<EditorButton>("none", titleFont);
+    noneButton->addListener(this);
+    addAndMakeVisible(noneButton.get());
 
     // set button layout parameters
-    parameterOffset = 0;
-    recordOffset = getDesiredWidth();
-    audioOffset = getDesiredWidth() * 2;
-
-    allButton = new EditorButton("all", titleFont);
-    allButton->addListener(this);
-    addAndMakeVisible(allButton);
-
-    noneButton =  new EditorButton("none", titleFont);
-    noneButton->addListener(this);
-    addAndMakeVisible(noneButton);
+    parameterOffset = getDesiredWidth();
 
     // Buttons managers
     // ====================================================================
@@ -71,7 +84,6 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
 
     // Enable fast mode selection for buttons
     parameterButtonsManager.setFastSelectionModeEnabled (true);
-
     parameterButtonsManager.setMinPaddingBetweenButtons (0);
     parameterButtonsManager.setColour   (ButtonGroupManager::outlineColourId, Colour (0x0));
 
@@ -92,29 +104,17 @@ ChannelSelector::ChannelSelector(bool createButtons, Font& titleFont_) :
     parameterSlicerChannelSelector.toBack();
     // ====================================================================
 
+    titleButton->toFront(false);
+    forwardButton->toFront(false);
+    backButton->toFront(false);
+
+
 
     numColumnsLessThan100 = 8;
     numColumnsGreaterThan100 = 6;
 }
 
-ChannelSelector::~ChannelSelector()
-{
-    // Just a temporary workaround as we don't want to delete these buttons managers by hands.
-    // We will remove it after getting rid of the ugly calling of deleteAllChildren() method.
-    // We should really use some RAII technuiqes to avoid calling this method.
-    // TODO: refactor the code to follow RAII best principles and to avoid using raw pointers after merge with priyanjitdey94
-    removeChildComponent (&parameterButtonsManager);
-
-    removeChildComponent (&parameterSlicerChannelSelector);
-
-    removeChildComponent(paramsButton);
-
-    removeChildComponent(allButton);
-
-    removeChildComponent(noneButton);
-
-    deleteAllChildren();
-}
+ChannelSelector::~ChannelSelector() { }
 
 void ChannelSelector::paint(Graphics& g)
 {
@@ -138,7 +138,7 @@ void ChannelSelector::paint(Graphics& g)
 }
 
 
-void ChannelSelector::setNumChannels(int numChans)
+void ChannelSelector::setNumChannels(int numChans, uint16 streamId)
 {
     int difference = numChans - parameterButtonsManager.getNumButtons();
 
@@ -221,9 +221,14 @@ void ChannelSelector::refreshButtonBoundaries()
 
     // ===================================================================================================
 
-    const int tabButtonWidth = getWidth() / 2;
+    /* 
+      Top row buttons
+     */
+    const int tabButtonSize = getWidth() / 6;
 
-    paramsButton->setBounds (tabButtonWidth, 0, tabButtonWidth, tabButtonHeight);
+    titleButton->setBounds (tabButtonSize, 0, tabButtonSize*4, tabButtonHeight);
+    forwardButton->setBounds(tabButtonSize *5, 0, tabButtonSize, tabButtonHeight);
+    backButton->setBounds(0, 0, tabButtonSize, tabButtonHeight);
 
     /*
       All and None buttons
@@ -266,7 +271,7 @@ void ChannelSelector::addButton()
 {
     const int size = parameterButtonsManager.getNumButtons();
 
-    ChannelSelectorButton* b = new ChannelSelectorButton (size + 1, PARAMETER, titleFont);
+    ChannelSelectorButton* b = new ChannelSelectorButton (size + 1, 0, titleFont);
     parameterButtonsManager.addButton (b);
 
     if (paramsToggled)
@@ -412,16 +417,8 @@ int ChannelSelector::getDesiredWidth()
 
 void ChannelSelector::buttonClicked(Button* button)
 {
-    //checkChannelSelectors();
-    if (button == paramsButton)
-    {
-        // make sure param buttons are visible
-        allButton->setState(true);
-        desiredOffset = parameterOffset;
-        startTimer(20);
-        return;
-    }
-    else if (button == allButton)
+
+    if (button == allButton.get())
     {
        
         for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
@@ -430,7 +427,7 @@ void ChannelSelector::buttonClicked(Button* button)
         }
        
     }
-    else if (button == noneButton)
+    else if (button == noneButton.get())
     {
         for (int i = 0; i < parameterButtonsManager.getNumButtons(); ++i)
         {
@@ -469,7 +466,6 @@ void ChannelSelector::changeChannelsSelectionButtonClicked (SlicerChannelSelecto
                                                             Button* buttonThatWasClicked,
                                                             bool isSelect)
 {
-    const Channels::ChannelsType channelsType = sender->getChannelsType();
 
     TiledButtonGroupManager* buttonsManager = &parameterButtonsManager;
 
@@ -496,7 +492,6 @@ void ChannelSelector::changeChannelsSelectionButtonClicked (SlicerChannelSelecto
 void ChannelSelector::channelSelectorCollapsedStateChanged (SlicerChannelSelectorComponent* sender,
                                                             bool isCollapsed)
 {
-    const Channels::ChannelsType channelsType = sender->getChannelsType();
 
     TiledButtonGroupManager* buttonsManager = &parameterButtonsManager;
 
@@ -525,7 +520,7 @@ EditorButton::EditorButton(const String& name, const Font& f) : Button(name)
 
     buttonFont = f;
 
-    buttonFont.setHeight(10);
+    buttonFont.setHeight(14);
 
     if (!getName().equalsIgnoreCase("all") && !getName().equalsIgnoreCase("none"))
     {
@@ -576,7 +571,7 @@ void EditorButton::resized()
     float width = (float)getWidth();
     float height = (float)getHeight();
 
-    if (getName().equalsIgnoreCase("AUDIO"))
+    if (getName().equalsIgnoreCase("<"))
     {
         //outlinePath.startNewSubPath(0, height);
         outlinePath.lineTo(0, 0);//radius);
@@ -592,7 +587,7 @@ void EditorButton::resized()
         outlinePath.closeSubPath();
 
     }
-    else if (getName().equalsIgnoreCase("PARAM"))
+    else if (getName().equalsIgnoreCase("TITLE"))
     {
         //outlinePath.startNewSubPath(0, 0);
 
@@ -610,7 +605,7 @@ void EditorButton::resized()
 
 
     }
-    else if (getName().equalsIgnoreCase("REC"))
+    else if (getName().equalsIgnoreCase(">"))
     {
 
         outlinePath.addRectangle(0, 0, getWidth(), getHeight());
@@ -715,24 +710,25 @@ void EditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 }
 
 
-ChannelSelectorButton::ChannelSelectorButton(int num_, int type_, Font& f) : Button("name")
+ChannelSelectorButton::ChannelSelectorButton(int num_, uint16 streamId_, Font& f) 
+    : Button("name"),
+      num(num_),
+      streamId(streamId_),
+      buttonFont(f),
+      displayNum(num_),
+      isActive(true)
 {
-    isActive = true;
-    num = num_;
-    displayNum = num_;
-    type = type_;
 
     setClickingTogglesState(true);
 
-    buttonFont = f;
     buttonFont.setHeight (11);
 }
 
 ChannelSelectorButton::~ChannelSelectorButton() {}
 
-int ChannelSelectorButton::getType()
+uint16 ChannelSelectorButton::getStreamId()
 {
-    return type;
+    return streamId;
 }
 
 int ChannelSelectorButton::getChannel()
@@ -787,43 +783,41 @@ void ChannelSelectorButton::setActive(bool t)
 }
 
 
-SlicerChannelSelectorComponent::SlicerChannelSelectorComponent (Channels::ChannelsType channelsType,
-                                                                const String& componentName)
-    : m_channelsType                (channelsType)
-    , m_isCollapsed                 (true)
+SlicerChannelSelectorComponent::SlicerChannelSelectorComponent (const String& componentName)
+    : m_isCollapsed                 (true)
     , m_dropdownArrowImage          (ImageCache::getFromMemory (BinaryData::dropdown_arrow_rotated_png,
                                                                 BinaryData::dropdown_arrow_rotated_pngSize))
     , m_dropdownArrowImageCollapsed (ImageCache::getFromMemory (BinaryData::dropdown_arrow_png,
                                                                 BinaryData::dropdown_arrow_pngSize))
 
 {
-    m_channelSelectorTextEditor = new TextEditor;
+    m_channelSelectorTextEditor = std::make_unique<TextEditor>();
     m_channelSelectorTextEditor->setMultiLine (false, true);
     m_channelSelectorTextEditor->setReturnKeyStartsNewLine (false);
     m_channelSelectorTextEditor->setTabKeyUsedAsCharacter (false);
     m_channelSelectorTextEditor->setTooltip ("General Format: [a:b:c]->to select all channels from a to c at intervals of b");
     m_channelSelectorTextEditor->addKeyListener (this);
-    addAndMakeVisible (m_channelSelectorTextEditor);
+    addAndMakeVisible (m_channelSelectorTextEditor.get());
 
-    m_selectChannelsButton = new EditorButton ("+", FONT_DEFAULT);
+    m_selectChannelsButton = std::make_unique<EditorButton> ("+", FONT_DEFAULT);
     m_selectChannelsButton->setComponentID ("Select channels button");
     m_selectChannelsButton->setClickingTogglesState (false);
     m_selectChannelsButton->addListener (this);
-    addAndMakeVisible (m_selectChannelsButton);
+    addAndMakeVisible (m_selectChannelsButton.get());
 
-    m_deselectChannelsButton = new EditorButton ("-", FONT_DEFAULT);
+    m_deselectChannelsButton = std::make_unique < EditorButton >("-", FONT_DEFAULT);
     m_deselectChannelsButton->setComponentID ("Deselect channels button");
     m_deselectChannelsButton->setClickingTogglesState (false);
     m_deselectChannelsButton->addListener (this);
-    addAndMakeVisible (m_deselectChannelsButton);
+    addAndMakeVisible (m_deselectChannelsButton.get());
 
-    m_showComponentButton = new ImageButton;
+    m_showComponentButton = std::make_unique < ImageButton>();
     m_showComponentButton->setImages (false, true, true,
                                       m_dropdownArrowImageCollapsed, 1.f, Colours::white,
                                       Image(), 0.8f,  Colours::blue.withAlpha (0.5f),
                                       Image(), 1.f, Colours::white);
     m_showComponentButton->addListener (this);
-    addAndMakeVisible (m_showComponentButton);
+    addAndMakeVisible (m_showComponentButton.get());
 
     addKeyListener (this);
 
@@ -866,15 +860,15 @@ void SlicerChannelSelectorComponent::resized()
 
 void SlicerChannelSelectorComponent::buttonClicked (Button* buttonThatWasClicked)
 {
-    if (buttonThatWasClicked == m_showComponentButton)
+    if (buttonThatWasClicked == m_showComponentButton.get())
     {
         setCollapsed (! m_isCollapsed);
     }
-    else if (buttonThatWasClicked == m_selectChannelsButton)
+    else if (buttonThatWasClicked == m_selectChannelsButton.get())
     {
         m_controlsButtonListener->changeChannelsSelectionButtonClicked (this, buttonThatWasClicked, true);
     }
-    else if (buttonThatWasClicked == m_deselectChannelsButton)
+    else if (buttonThatWasClicked == m_deselectChannelsButton.get())
     {
         m_controlsButtonListener->changeChannelsSelectionButtonClicked (this, buttonThatWasClicked, false);
     }
@@ -929,12 +923,6 @@ void SlicerChannelSelectorComponent::setCollapsed (bool isCollapsed)
 String SlicerChannelSelectorComponent::getText() const
 {
     return m_channelSelectorTextEditor->getText();
-}
-
-
-Channels::ChannelsType SlicerChannelSelectorComponent::getChannelsType() const
-{
-    return m_channelsType;
 }
 
 
