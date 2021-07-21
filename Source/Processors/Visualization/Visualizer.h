@@ -29,7 +29,10 @@
 
 /**
 
-  Abstract base class for displaying data.
+  Abstract base class for displaying data in a tab or window.
+
+  Can also be used to create a larger settings interface 
+  than is possible inside a plugin's editor.
 
   @see LfpDisplayCanvas, SpikeDisplayCanvas
 
@@ -40,13 +43,17 @@ class PLUGIN_API Visualizer : public Component,
 
 {
 public:
+
+    /** Constructor */
 	Visualizer();
+
+    /** Destructor */
 	virtual ~Visualizer();
 
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() = 0;
 
-    /** Called when parameters of underlying data processor are changed.*/
+    /** Called when parameters of the underlying data processor are changed.*/
     virtual void update() = 0;
 
     /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
@@ -64,18 +71,17 @@ public:
     /** Called by an editor to initiate a parameter change.*/
     virtual void setParameter(int, int, int, float) = 0;
 
-    /** Starts the timer callbacks. */
+    /** Starts the animation. */
 	void startCallbacks();
 
-    /** Stops the timer callbacks. */
+    /** Stops the animation. */
 	void stopCallbacks();
 
-    /** Called whenever the timer is triggered. */
+    /** Calls refresh(). */
 	void timerCallback();
 
     /** Refresh rate in Hz. */
     float refreshRate;
-
 
     /** Saves parameters as XML */
 	virtual void saveVisualizerParameters(XmlElement* xml);

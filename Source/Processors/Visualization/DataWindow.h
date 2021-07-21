@@ -37,9 +37,14 @@
 class DataWindow : public DocumentWindow
 {
 public:
+
+    /** Constructor */
     DataWindow(Button* button, String name);
+
+    /** Destructor */
     ~DataWindow();
     
+    /** Called when window close button is pressed. */
     void closeButtonPressed();
     
     class Listener

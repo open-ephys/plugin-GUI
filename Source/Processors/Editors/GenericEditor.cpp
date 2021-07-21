@@ -54,8 +54,8 @@ GenericEditor::~GenericEditor()
 void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
 {
 
-   name = getAudioProcessor()->getName();
-   displayName = name;
+    name = getAudioProcessor()->getName();
+    displayName = name;
 
     nodeId = owner->getNodeId();
 
@@ -485,7 +485,7 @@ void GenericEditor::update(bool isEnabled_)
 
     if (channelSelector != 0)
     {
-        channelSelector->setNumChannels(numChannels);
+        channelSelector->setNumChannels(numChannels, 0);
 
     }
 

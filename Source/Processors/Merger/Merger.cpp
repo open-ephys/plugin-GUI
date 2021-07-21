@@ -181,10 +181,8 @@ GenericProcessor* Merger::getSourceNode(int path)
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
-    for (int streamIdx = 0; streamIdx < sn->getNumDataStreams(); streamIdx++)
+    for (auto stream : sn->streams)
     {
-        DataStream* stream = sn->getDataStream(streamIdx);
-
         if (checkStream(stream))
             copyDataStreamSettings(stream);
     }

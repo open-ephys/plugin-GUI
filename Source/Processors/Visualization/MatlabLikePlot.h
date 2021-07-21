@@ -38,7 +38,8 @@
 
 #ifndef MIN
 #define MIN(x,y)((x)<(y))?(x):(y)
-#endif 
+#endif
+
 /* A plotting class that you can derive from. Handles all basic pan-zoom, tick marks, tick labels
 You only need to implement the drawing of the actual curves in the given range*/
 /************************/
@@ -223,6 +224,5 @@ private:
 	ScopedPointer<DrawComponent> drawComponent;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MatlabLikePlot);
 };
-/************************/
 
 #endif

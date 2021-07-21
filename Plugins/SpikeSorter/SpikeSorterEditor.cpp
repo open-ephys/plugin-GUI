@@ -147,25 +147,6 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     channelSelector->activateButtons();
     channelSelector->setRadioStatus(true);
     channelSelector->paramButtonsToggledByDefault(false);
-    //	updateAdvancerList();
-
- /*   dacAssignmentLabel= new Label("DAC output","DAC output");
-    dacAssignmentLabel->setFont(Font("Default", 10, Font::plain));
-    dacAssignmentLabel->setEditable(false);
-    dacAssignmentLabel->setBounds(210,115,80,20);
-    dacAssignmentLabel->setColour(Label::textColourId, Colours::grey);
-    addAndMakeVisible(dacAssignmentLabel);
-
-    dacCombo = new ComboBox("DAC Assignment");
-    dacCombo->addListener(this);
-    dacCombo->setBounds(205,100,70,18);
-    dacCombo->addItem("-",1);
-    for (int k=0; k<8; k++)
-    {
-        dacCombo->addItem("DAC"+String(k+1),k+2);
-    }
-    dacCombo->setSelectedId(1);
-    addAndMakeVisible(dacCombo);*/
 
 }
 
@@ -174,8 +155,7 @@ Visualizer* SpikeSorterEditor::createNewCanvas()
 
     SpikeSorter* processor = (SpikeSorter*) getProcessor();
     spikeSorterCanvas = new SpikeSorterCanvas(processor);
-    //ActionListener* listener = (ActionListener*) SpikeSorterCanvas;
-    //getUIComponent()->registerAnimatedComponent(listener);
+
     return spikeSorterCanvas;
 }
 
@@ -205,7 +185,7 @@ void SpikeSorterEditor::sliderEvent(Slider* slider)
 
     if (electrodeNum > -1)
     {
-        // new
+
         SpikeSorter* processor = (SpikeSorter*) getProcessor();
         if (processor->getEditAllState()){
             int numElectrodes = processor->getNumElectrodes();
@@ -217,19 +197,10 @@ void SpikeSorterEditor::sliderEvent(Slider* slider)
             }
         }
         else{
-        processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),
+            processor->setChannelThreshold(electrodeList->getSelectedItemIndex(),
                                        electrodeNum,
                                        slider->getValue());
         }
-
-
-     /*   //Array<int> dacChannels = processor->getDACassignments;
-        int dacChannel = dacCombo->getSelectedId()-2;
-        if (dacChannel >= 0)
-        {
-            // update dac threshold.
-            processor->updateDACthreshold(dacChannel, slider->getValue());
-        }*/
 
     }
     repaint();
@@ -270,23 +241,6 @@ void SpikeSorterEditor::buttonEvent(Button* button)
             thresholdSlider->setValue(processor->getChannelThreshold(electrodeList->getSelectedItemIndex(),
                                                                      electrodeButtons.indexOf((ElectrodeButton*) button)));
 
-
-        /*    if (processor->getAutoDacAssignmentStatus())
-            {
-                processor->assignDACtoChannel(0, channelNum);
-                processor->assignDACtoChannel(1, channelNum);
-            }
-            Array<int> dacAssignmentToChannels = processor->getDACassignments();
-            // search for channel[0]. If found, set the combo box accordingly...
-            dacCombo->setSelectedId(1, sendNotification);
-            for (int i=0; i<dacAssignmentToChannels.size(); i++)
-            {
-                if (dacAssignmentToChannels[i] == channelNum)
-                {
-                    dacCombo->setSelectedId(i+2, sendNotification);
-                    break;
-                }
-            }*/
 
         }
     }

@@ -290,6 +290,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	continuousChannelMap.clear();
 	eventChannelMap.clear();
 	spikeChannelMap.clear();
+	dataStreamMap.clear();
 
 	for (int i = 0; i < continuousChannels.size(); i++)
 	{
@@ -323,6 +324,15 @@ void GenericProcessor::updateChannelIndexMaps()
 
 		spikeChannelMap[processorId][streamId][localIndex] = chan;
 	}
+
+	for (int i = 0; i < streams.size(); i++)
+	{
+		DataStream* stream = streams[i];
+
+		uint16 streamId = stream->getStreamId();
+
+		dataStreamMap[streamId] = stream;
+	}
 	
 }
 
@@ -331,33 +341,6 @@ String GenericProcessor::handleConfigMessage(String msg)
 	return "";
 }
 
-
-/*void GenericProcessor::createEventChannels()
-{
-	int nSub = getNumSubProcessors();
-	for (int sub = 0; sub < nSub; sub++)
-	{
-		Array<DefaultEventInfo> events;
-		getDefaultEventInfo(events, sub);
-		int nChans = events.size();
-		for (int i = 0; i < nChans; i++)
-		{
-			const DefaultEventInfo& info = events[i];
-			if (info.type != EventChannel::INVALID && info.nChannels > 0 && info.length > 0)
-			{
-				EventChannel* chan = new EventChannel(info.type, info.nChannels, info.length, info.sampleRate, this, sub);
-				chan->m_nodeID = nodeId;
-				if (info.name.isNotEmpty())
-					chan->setName(info.name);
-				if (info.description.isNotEmpty())
-					chan->setDescription(info.description);
-				if (info.identifier.isNotEmpty())
-					chan->setIdentifier(info.identifier);
-				eventChannelArray.add(chan);
-			}
-		}
-	}
-}*/
 
 void GenericProcessor::getDefaultEventInfo(Array<DefaultEventInfo>& events, int subproc) const
 {

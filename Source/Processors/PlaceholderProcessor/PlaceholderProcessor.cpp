@@ -25,16 +25,20 @@
 #include "PlaceholderProcessorEditor.h"
 
 
-PlaceholderProcessor::PlaceholderProcessor (String pName, String lName, int lVer, bool pSource, bool pSink) 
-    : GenericProcessor      (pName)
-    , m_processorName       (pName)
-    , m_libName             (lName)
-    , m_libVersion          (lVer)
+PlaceholderProcessor::PlaceholderProcessor (String pluginName, 
+    String libraryName, 
+    int libraryVersion, 
+    bool isSource,
+    bool isSink) 
+    : GenericProcessor      (pluginName)
+    , m_processorName       (pluginName)
+    , m_libName             (libraryName)
+    , m_libVersion          (libraryVersion)
 {
 
-    if (pSource)
+    if (isSource)
          setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SOURCE);
-    else if (pSink)
+    else if (isSink)
         setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SINK);
     else
         setProcessorType(PluginProcessorType::PROCESSOR_TYPE_FILTER);
@@ -46,11 +50,6 @@ PlaceholderProcessor::~PlaceholderProcessor()
 {
 }
 
-
-bool PlaceholderProcessor::hasEditor() const
-{
-    return true;
-}
 
 void PlaceholderProcessor::updateSettings()
 {
@@ -64,12 +63,8 @@ AudioProcessorEditor* PlaceholderProcessor::createEditor()
 }
 
 
-void PlaceholderProcessor::process (AudioSampleBuffer& continuousBuffer)
-{
-}
-
 bool PlaceholderProcessor::startAcquisition()
 {
-    CoreServices::sendStatusMessage ("Cannot acquire with placeholder nodes");
-    return false; //This processor never allows processing
+    CoreServices::sendStatusMessage ("Cannot acquire data with placeholder plugin.");
+    return false; // prevents acquisition from starting
 }

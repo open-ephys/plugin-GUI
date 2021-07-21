@@ -27,21 +27,36 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
+/** 
+* Creates an empty processor in cases where a requested plugin cannot be found.
+* 
+* Data acquisition cannot begin while a PlaceholderProcessor is in the signal chain.
 
+*/
 class PlaceholderProcessor : public GenericProcessor
 {
 public:
-    PlaceholderProcessor (String pName, String lName, int lVer, bool pSource, bool pSink);
+
+    /** Constructor*/
+    PlaceholderProcessor (String pluginName, 
+        String libraryName, 
+        int libraryVersion, 
+        bool isSource, 
+        bool isSink);
+
+    /** Destructor*/
     ~PlaceholderProcessor();
 
+    /** Creates a placeholder editor.*/
     AudioProcessorEditor* createEditor() override;
 
-    bool hasEditor() const override;
-
+    /** Returns false, to prevent acquisition from starting.*/
     bool startAcquisition() override;
 
-    void process (AudioSampleBuffer& continuousBuffer) override;
+    /** Empty method */
+    void process (AudioSampleBuffer& continuousBuffer) override { }
 
+    /** Set isEnabled to 'false'*/
     void updateSettings() override;
 
 private:

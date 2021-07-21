@@ -88,6 +88,10 @@ public:
     // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
     virtual String handleConfigMessage(String msg) { return ""; }
 
+    // ---------------------
+    // NON-VIRTUAL METHODS
+    // ---------------------
+
     /** Calls 'updateBuffer()' continuously while the thread is being run.*/
     void run() override;
 
@@ -96,7 +100,7 @@ public:
 
 protected:
 
-    // ** Allows the DataThread plugin to broadcast a message other processors */
+    // ** Allows the DataThread to broadcast a message other plugins */
     void broadcastMessage(String msg);
 
     SourceNode* sn;
