@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * The EventChannel class is part of the Open Ephys Plugin API
 *
 */
-class PLUGIN_API EventChannel : public InfoObject, public MetadataEventObject
+class PLUGIN_API EventChannel : public ChannelInfoObject, public MetadataEventObject
 {
 public:
 
@@ -94,6 +94,8 @@ public:
 		String description;
 		String identifier;
 
+		DataStream* stream;
+
 		int maxTTLBits = 8;
 
 		BinaryDataType customDataType = BINARY_BASE_VALUE;
@@ -137,6 +139,12 @@ public:
 	/** Handy method to get an equivalent metadata value type for the main event data*/
 	BaseType getEquivalentMetadataType() const;
 
+	/** Sets the label for a particular bit (for TTL events)*/
+	void setBitLabel(int bit, String label);
+
+	/** Sets the label for a particular bit (for TTL events)*/
+	String getBitLabel(int bit) const;
+
 	/** Returns which kind of origin the timestamps for these events have */
 	//EventTimestampOrigin getTimestampOrigin() const;
 
@@ -173,10 +181,7 @@ private:
 	unsigned int m_length;
 	unsigned int m_maxTTLBits;
 
-	//bool checkEqual(const InfoObject& other, bool similar) const override;
-	//const EventTimestampOrigin m_timestampOrigin;
-//const uint16 m_timestampOriginProcessor;
-//const uint16 m_timestampOriginSubProcessor;
+	Array<String> bitLabels;
 
 	JUCE_LEAK_DETECTOR(EventChannel);
 };

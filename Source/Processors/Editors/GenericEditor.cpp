@@ -38,20 +38,20 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
-GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors = true)
+GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
     : AudioProcessorEditor(owner),
     desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
     drawerWidth(170),
     drawerOpen(false), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
 {
-    constructorInitialize(owner, useDefaultParameterEditors);
+    constructorInitialize(owner, useDefaultParameterEditors, showDrawerButton);
 }
 
 GenericEditor::~GenericEditor()
 {
 }
 
-void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors)
+void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
 {
 
     name = getAudioProcessor()->getName();
@@ -61,7 +61,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
 
     titleFont = Font ("Default", 14, Font::bold);
 
-    if (!owner->isMerger() && !owner->isSplitter() && !owner->isUtility())
+    if (showDrawerButton)
     {
         LOGDD("Adding drawer button.");
 
@@ -69,23 +69,12 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         drawerButton->addListener(this);
         addAndMakeVisible(drawerButton.get());
 
-       if (!owner->isSink())
+       if (!owner->isMerger() && !owner->isSplitter())
         {
             channelSelector = std::make_unique<ChannelSelector> (true, titleFont);
-        }
-       else
-       {
-           channelSelector = std::make_unique<ChannelSelector> (false, titleFont);
-       }
-
-        addChildComponent(channelSelector.get());
-        channelSelector->setVisible(false);
-
-        isSplitOrMerge=false;
-    }
-    else
-    {
-        isSplitOrMerge=true;
+            addChildComponent(channelSelector.get());
+            channelSelector->setVisible(false);
+       } 
     }
 
     ttlMonitor = std::make_unique<TTLMonitor>();
@@ -426,10 +415,12 @@ bool GenericEditor::checkDrawerButton(Button* button)
         if (drawerButton->getToggleState())
         {
 
-            channelSelector->setVisible(true);
-
-            drawerWidth = channelSelector->getDesiredWidth() + 20;
-
+            if (channelSelector != nullptr)
+            {
+                channelSelector->setVisible(true);
+                drawerWidth = channelSelector->getDesiredWidth() + 20;
+            }
+            
             desiredWidth += drawerWidth;
             drawerOpen = true;
 
@@ -437,15 +428,16 @@ bool GenericEditor::checkDrawerButton(Button* button)
         else
         {
 
-            channelSelector->setVisible(false);
-
+            if (channelSelector != nullptr)
+            {
+                channelSelector->setVisible(false);
+            }
+            
             desiredWidth -= drawerWidth;
             drawerOpen = false;
         }
 
         AccessClass::getEditorViewport()->refreshEditors();
-
-        deselect();
 
         return true;
     }
@@ -515,7 +507,7 @@ void GenericEditor::update(bool isEnabled_)
 
 Array<int> GenericEditor::getActiveChannels()
 {
-    if (!isSplitOrMerge)
+    if (channelSelector != nullptr)
     {
         Array<int> a = channelSelector->getActiveChannels();
         return a;
@@ -529,7 +521,7 @@ Array<int> GenericEditor::getActiveChannels()
 
 void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
 {
-    if (!isSplitOrMerge)
+    if (channelSelector != nullptr)
     {
         *p = channelSelector->getParamStatus(chan);
         *r = false;
@@ -545,7 +537,7 @@ void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a
 
 void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 {
-    if (!isSplitOrMerge)
+    if (channelSelector != nullptr)
     {
         channelSelector->setParamStatus(chan, p);
     }

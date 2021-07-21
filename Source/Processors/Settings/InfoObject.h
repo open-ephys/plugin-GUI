@@ -36,9 +36,11 @@ class DataStream;
 class PLUGIN_API HistoryObject
 {
 protected:
+	/** Constructor */
 	HistoryObject();
 
 public:
+	/** Destructor */
     virtual ~HistoryObject();
 
 	/** Returns the history string */
@@ -51,7 +53,11 @@ private:
 	String m_historyString;
 };
 
-
+/** Base class for the GUI's info objects
+* 
+* Stores a name, description, identifier, and a unique 128-bit ID
+* 
+*/
 class PLUGIN_API NamedObject
 {
 public:
@@ -96,32 +102,64 @@ private:
 
 };
 
-/** Common class for all info objects */
+/** 
+* Holds information about some element of the GUI's signal chain.
+*
+* Inherits from:
+*  - NamedObject (stores a name, description, identifier, and unique ID)
+*  - MetadataObject (allows this object to be tagged with arbitrary metadata fields)
+*  - HistoryObject (stores a string of all the processors this object has passed through)
+* 
+* InfoObjects are used to represent continuous channels, event channels,
+* spike channels, processors, data streams, devices, and other information 
+* about plugins.
+* 
+*/
 class PLUGIN_API InfoObject :
-	public NamedObject, public MetadataObject, public HistoryObject
+	public NamedObject, 
+	public MetadataObject, 
+	public HistoryObject
 {
 
 public:
+	/** Destructor */
     virtual ~InfoObject();
 
+	/** InfoObject::Type*/
 	enum Type
 	{
+		// A channel that's sampled at regular intervals
 		CONTINUOUS_CHANNEL,
+
+		// A channel that sends events at arbitrary times
 		EVENT_CHANNEL,
+
+		// A channel that sends spike events
 		SPIKE_CHANNEL,
+
+		// An object that stores plugin metadata
 		CONFIGURATION_OBJECT,
+
+		// Represents information about a plugin
 		PROCESSOR_INFO,
+
+		// A collection of synchronously sampled continuous channels
 		DATASTREAM_INFO,
+
+		// A hardware device that generates data
 		DEVICE_INFO,
+
 		INVALID = 100
 	};
 
+	/** Each InfoObject can be associated with a "group"*/
 	struct Group
 	{
 		String name = "default";
 		int number = 0;
 	};
 
+	/** Each InfoObject can be associated with a coordinate in space*/
 	struct Position
 	{
 		float x = 0;
@@ -130,47 +168,73 @@ public:
 		String description = "unknown";
 	};
 
+	/** Returns the type of the InfoObject*/
 	const Type getType() const;
 
+	/** Returns the index of the InfoObject within a DataStream*/
 	int getLocalIndex() const;
+
+	/** Sets the index of the InfoObject within a DataStream*/
 	void setLocalIndex(int idx);
 
+	/** Returns the index of the InfoObject within a processor*/
 	int getGlobalIndex() const;
+
+	/** Sets the index of the InfoObject within a processor*/
 	void setGlobalIndex(int idx);
 
+	/** Returns the ID of the processor this InfoObject belongs to.*/
 	int getNodeId() const;
+
+	/** Sets the ID of the processor this InfoObject belongs to.*/
 	void setNodeId(int nodeId);
 
+	/** Returns the name of the processor this InfoObject belongs to.*/
 	String getNodeName() const;
-	String getSourceNodeName() const;
 
+	/** Returns the ID of the processor that created this InfoObject.*/
 	int getSourceNodeId() const;
 
-	int getStreamId() const;
+	/** Returns the name of the processor that created this InfoObject.*/
+	String getSourceNodeName() const;
 	
+	/** Indicates that this InfoObject is passing through a new processor.*/
 	void addProcessor(ProcessorInfoObject*);
 
 	Array<ProcessorInfoObject*> processorChain;
 
-	DataStream* stream;
 	Group group;
 	Position position;
 
 protected:
+	/** Constructor*/
 	InfoObject(Type type);
 
 private:
 
-	int m_sourceNodeId;
-
 	const Type m_type;
+	
 	int m_local_index;
 	int m_global_index;
+
 	int m_nodeId;
-	
 	String m_nodeName;
+
+	int m_sourceNodeId;
 	String m_sourceNodeName;
 };
 
+class ChannelInfoObject :
+	public InfoObject
+{
+public :
+	ChannelInfoObject(InfoObject::Type type, DataStream* stream);
+	virtual ~ChannelInfoObject();
 
+	float getSampleRate() const;
+	uint16 getStreamId() const;
+
+protected:
+	DataStream* stream;
+};
 #endif

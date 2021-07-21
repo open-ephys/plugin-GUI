@@ -98,10 +98,11 @@ const Uuid NamedObject::getUniqueId() const
 
 //InfoObjectCommon
 InfoObject::InfoObject(InfoObject::Type type)
-	:	m_type(type), m_local_index(0), m_sourceNodeId(-1), stream(nullptr)
+	:	m_type(type),
+		m_local_index(-1),
+		m_global_index(-1),
+		m_sourceNodeId(-1)
 {
-	if (m_type == Type::DATASTREAM_INFO)
-		stream = (DataStream*) this;
 }
 
 InfoObject::~InfoObject()
@@ -161,15 +162,6 @@ String InfoObject::getNodeName() const
 }
 
 
-int InfoObject::getStreamId() const
-{
-	if (stream != nullptr)
-		return stream->streamId;
-	else
-		return -1;
-}
-
-
 void InfoObject::addProcessor(ProcessorInfoObject* processor)
 {
 
@@ -182,6 +174,29 @@ void InfoObject::addProcessor(ProcessorInfoObject* processor)
 
 	m_nodeName = processor->getName();
 }
+
+ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)
+	: InfoObject(type),
+	stream(dataStream)
+{
+	stream->addChannel(this); // sets local index
+}
+
+ChannelInfoObject::~ChannelInfoObject()
+{
+
+}
+
+float ChannelInfoObject::getSampleRate() const
+{
+	return stream->getSampleRate();
+}
+
+uint16 ChannelInfoObject::getStreamId() const
+{
+	return stream->getStreamId();
+}
+
 
 /*bool InfoObject::isEqual(const InfoObject& other) const
 {

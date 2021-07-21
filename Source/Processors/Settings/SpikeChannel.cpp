@@ -26,24 +26,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../GenericProcessor/GenericProcessor.h"
 
 SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
-	: InfoObject(InfoObject::Type::SPIKE_CHANNEL),
-	m_type(settings.type) 
+	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, settings.stream),
+	m_type(settings.type),
+	m_numPreSamples(settings.prePeakSamples),
+	m_numPostSamples(settings.postPeakSamples)
 {
-	/*int n = sourceChannels.size();
-	jassert(n == getNumChannels(type));
+	setName(settings.name);
+	setDescription(settings.description);
+	setIdentifier(settings.identifier);
 
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < settings.sourceChannels.size(); i++)
 	{
-		SourceChannelInfo info;
-		const DataChannel* chan = sourceChannels[i];
-		info.processorID = chan->getSourceNodeID();
-		info.subProcessorID = chan->getSubProcessorIdx();
-		info.channelIDX = chan->getSourceIndex();
-		m_sourceInfo.add(info);
-		m_channelBitVolts.add(chan->getBitVolts());
-	}*/
+		m_channelInfo.add(settings.sourceChannels[i]);
+	}
 
-	//setDefaultNameAndDescription();
+	jassert(m_channelInfo.size() == getNumChannels(m_type));
+
 }
 
 SpikeChannel::~SpikeChannel() { }

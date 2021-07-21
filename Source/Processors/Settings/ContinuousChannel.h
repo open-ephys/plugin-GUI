@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class DataStream;
 
 class PLUGIN_API ContinuousChannel
-	: public InfoObject
+	: public ChannelInfoObject
 {
 public:
 
@@ -61,6 +61,7 @@ public:
 
 		String name;
 		String description;
+		String identifier;
 		
 		float bitVolts;
 
@@ -86,9 +87,6 @@ public:
 
 	/** Returns the bitVolts value for this channel. */
 	float getBitVolts() const;
-
-	/** Returns the sample rate for this channel. */
-	float getSampleRate() const;
 
 	/** Sets the unit string */
 	void setUnits(String unit);

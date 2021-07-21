@@ -35,6 +35,37 @@ class ContinuousChannel;
 class EventChannel;
 class SpikeChannel;
 
+/**
+* Holds information about a DataStream, a synchronously 
+* sampled block of channels.
+* 
+* A DataStream must have:
+*  - At least one continuous channel
+*  - The same sample rate for all continuous channels
+*  - A guarantee that all channels will have the same number of
+*    samples on each processing block
+* 
+* Every Source processor must have at least one DataStream,
+* and can optionally have multiple DataStreams, if it receives
+* data from multiple asynchronous devices.
+* 
+* Filter processors can add event channels and spike channels
+* to a DataStream, to indicate where their timestamps originate.
+* They can also add, rearrange, or remove continuous channels.
+* 
+* Every ContinuousChannel, EventChannel, and SpikeChannel object
+* must be associated with one and only one DataStream.
+* 
+* Each stream has a unique 16-bit ID that is used to find
+* its associated timestamps and sample counts. DataStream IDs
+* are not meant to be seen by the user, and are re-generated
+* each time the GUI is launched.
+* 
+* A stream will be identifiable to the user based on its name
+* and source node ID (100, 101, etc.). If a processor has multiple
+* streams, each stream should be given a unique name.
+* 
+*/
 class PLUGIN_API DataStream :
 	public InfoObject
 {
@@ -49,33 +80,49 @@ public:
 		String identifier;
 
 		float sample_rate;
-
-		ProcessorInfoObject* source;
 	};
 
+	/** Constructor */
 	DataStream(Settings settings);
 
+	/** Destructor */
 	virtual ~DataStream();
 
-	DeviceInfo* device;
-	ProcessorInfoObject* source;
-	uint16 streamId;
-
+	/** Sets the channel counts to 0.
+	*   Used by processors that need to re-arrange or remove
+	*   channels within a DataStream.
+	*/
 	void clearChannels();
 
+	/** Adds a spike, continuous, or event channel to the DataStream. 
+	* Sets the channel's localIndex.
+	*/
 	void addChannel(InfoObject* channel);
-
-	Array<ContinuousChannel*> getContinuousChannels();
-	
-	Array<EventChannel*> getEventChannels();
-
-	Array<SpikeChannel*> getSpikeChannels();
 
 	/** Returns the sample rate for this stream. */
 	float getSampleRate() const;
 
-	/** Returns the number of channels in this stream. */
+	/** Returns the number of continuous channels in this stream. */
 	int getChannelCount() const;
+
+	/** Returns the unique ID for this stream*/
+	uint16 getStreamId() const;
+
+	/** Returns true if this DataStream has a device associated with it.*/
+	bool hasDevice() const;
+
+	/** Gets all of the continuous channels for this stream.*/
+	Array<ContinuousChannel*> getContinuousChannels() const;
+
+	/** Gets all of the event channels for this stream.*/
+	Array<EventChannel*> getEventChannels() const;
+
+	/** Gets all of the spike channels for this stream.*/
+	Array<SpikeChannel*> getSpikeChannels() const;
+
+	DeviceInfo* device;
+
+	
 
 private:
 
@@ -85,8 +132,7 @@ private:
 
 	float m_sample_rate;
 
-	int m_channel_count;
-
+	uint16 streamId;
 };
 
 #endif

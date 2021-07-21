@@ -62,18 +62,7 @@ void Splitter::updateSettings()
     {
         // copy settings from source node
 
-        Array<DataStream*>* streamsToCopy;
-
-        if (sourceNode->isSplitter())
-        {
-            Splitter* splitter = (Splitter*)sourceNode;
-            streamsToCopy = &splitter->getStreamsForDestNode(this);
-        }
-        else {
-            streamsToCopy = &sourceNode->streams;
-        }
-
-        for (auto stream : *streamsToCopy)
+        for (auto stream : sourceNode->getStreamsForDestNode(this))
         {
             if (checkStream(stream, OUTPUT_A))
                 streamsForPathA.add(stream);
@@ -91,7 +80,7 @@ void Splitter::updateSettings()
     }
 }
 
-bool Splitter::checkStream(DataStream* stream, Splitter::Output output)
+bool Splitter::checkStream(const DataStream* stream, Splitter::Output output)
 {
     return true;
 }
@@ -179,17 +168,20 @@ GenericProcessor* Splitter::getDestNode(int path)
     }
 }
 
-Array<DataStream*> Splitter::getStreamsForDestNode(GenericProcessor* node)
+Array<const DataStream*> Splitter::getStreamsForDestNode(GenericProcessor* node)
 {
+    Array<const DataStream*> outputStreams;
+
     if (node == destNodeA)
-        return streamsForPathA;
-
-    else if (node == destNodeB)
-        return streamsForPathB;
-
-    else
     {
-        Array<DataStream*> a;
-        return a;
+        for (auto stream : streamsForPathA)
+            outputStreams.add(stream);
     }
+    else if (node == destNodeB)
+    {
+        for (auto stream : streamsForPathB)
+            outputStreams.add(stream);
+    }
+
+    return outputStreams;
 }

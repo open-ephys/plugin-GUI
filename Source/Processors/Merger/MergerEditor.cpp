@@ -29,40 +29,16 @@
 #include "../../UI/GraphViewer.h"
 #include "../MessageCenter/MessageCenterEditor.h"
 
-// PipelineSelectorButton::PipelineSelectorButton()
-// 	: DrawableButton ("Selector", DrawableButton::ImageFitted)
-// {
-// 	DrawablePath normal, over, down;
-
-// 	    Path p;
-//         p.addTriangle (0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
-//         normal.setPath (p);
-//         normal.setFill (Colours::lightgrey);
-//         normal.setStrokeThickness (0.0f);
-
-//         over.setPath (p);
-//         over.setFill (Colours::black);
-//         over.setStrokeFill (Colours::black);
-//         over.setStrokeThickness (5.0f);
-
-//         setImages (&normal, &over, &over);
-//         setBackgroundColours(Colours::darkgrey, Colours::purple);
-//         setClickingTogglesState (true);
-//         setTooltip ("Toggle a state.");
-
-// }
-
-// PipelineSelectorButton::~PipelineSelectorButton()
-// {
-// }
+#include "../Editors/StreamSelectorButton.h"
+#include "../Settings/DataStream.h"
 
 MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 85;
+    desiredWidth = 300;
 
-    pipelineSelectorA = new ImageButton("Pipeline A");
+    pipelineSelectorA = std::make_unique<ImageButton>("Pipeline A");
 
     Image normalImageA = ImageCache::getFromMemory(BinaryData::MergerB01_png, BinaryData::MergerB01_pngSize);
     Image downImageA = ImageCache::getFromMemory(BinaryData::MergerA01_png, BinaryData::MergerA01_pngSize);
@@ -78,9 +54,9 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     pipelineSelectorA->addListener(this);
     pipelineSelectorA->setBounds(-10,25,95,50);
     pipelineSelectorA->setToggleState(true, dontSendNotification);
-    addAndMakeVisible(pipelineSelectorA);
+    addAndMakeVisible(pipelineSelectorA.get());
 
-    pipelineSelectorB = new ImageButton("Pipeline B");
+    pipelineSelectorB = std::make_unique<ImageButton>("Pipeline B");
 
     pipelineSelectorB->setImages(true, true, true,
                                  normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
@@ -90,25 +66,61 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     pipelineSelectorB->addListener(this);
     pipelineSelectorB->setBounds(-10,75,95,50);
     pipelineSelectorB->setToggleState(false, dontSendNotification);
-    addAndMakeVisible(pipelineSelectorB);
+    addAndMakeVisible(pipelineSelectorB.get());
+
+    viewport = std::make_unique<Viewport>();
+    addAndMakeVisible(viewport.get());
+    viewport->setBounds(100, 22, 140, 110);
+    viewport->setScrollBarsShown(true, false);
+    viewport->setScrollBarThickness(10);
+
+    streamButtonHolder = std::make_unique<StreamButtonHolder>();
+    viewport->setViewedComponent(streamButtonHolder.get(), false);
+
+    streamButtonHolder->setBounds(0, 0, 125, 0);
+    streamButtonHolder->setVisible(true);
+
+    
+    
+
+    drawerWidth = 150;
 
 }
 
 MergerEditor::~MergerEditor()
 {
-    deleteAllChildren();
+}
+
+void MergerEditor::startAcquisition()
+{
+    for (auto button : streamButtons)
+    {
+        button->setEnabled(false);
+    }
+}
+
+void MergerEditor::stopAcquisition()
+{
+    for (auto button : streamButtons)
+    {
+        button->setEnabled(true);
+    }
 }
 
 void MergerEditor::buttonEvent(Button* button)
 {
     
-    if (button == pipelineSelectorA)
+    if (button == pipelineSelectorA.get())
     {
         AccessClass::getEditorViewport()->switchIO(getProcessor(), 0);
     }
-    else if (button == pipelineSelectorB)
+    else if (button == pipelineSelectorB.get())
     {
         AccessClass::getEditorViewport()->switchIO(getProcessor(), 1);
+    }
+    else if (streamButtons.contains((StreamSelectorButton*) button))
+    {
+        CoreServices::updateSignalChain(this);
     }
 }
 
@@ -376,4 +388,42 @@ void MergerEditor::switchSource(int source)
         processor->switchIO(1);
 
     }
+}
+
+bool MergerEditor::checkStream(const DataStream* stream)
+{
+
+    std::cout << "Merger checking stream " << stream->getStreamId() << std::endl;
+
+    incomingStreams.add(stream->getStreamId());
+   
+    for (auto button : streamButtons)
+    {
+        if (button->getStreamId() == stream->getStreamId())
+            return button->getToggleState();
+    }
+
+    StreamSelectorButton* newButton = new StreamSelectorButton(stream);
+    std::cout << "Creating new stream button" << std::endl;
+
+    streamButtons.add(newButton);
+    newButton->addListener(this);
+
+    streamButtonHolder->add(newButton);
+
+
+}
+
+void MergerEditor::updateSettings()
+{
+    for (auto button : streamButtons)
+    {
+        if (!incomingStreams.contains(button->getStreamId()))
+        {
+            streamButtonHolder->remove(button);
+            streamButtons.removeObject(button);
+        }
+    }
+
+    incomingStreams.clear();
 }

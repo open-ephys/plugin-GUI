@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAX_MSG_LENGTH 512
 
 EventChannel::EventChannel(Settings settings) :
-	InfoObject(InfoObject::Type::EVENT_CHANNEL),
+	ChannelInfoObject(InfoObject::Type::EVENT_CHANNEL, settings.stream),
 	m_type(settings.type), m_maxTTLBits(settings.maxTTLBits)
 {
 	setName(settings.name);
@@ -57,6 +57,11 @@ EventChannel::EventChannel(Settings settings) :
 
 		m_length = settings.customDataLength;
 		m_dataSize = m_length * getBinaryDataTypeSize(settings.customDataType);
+	}
+
+	for (int i = 0; i < m_maxTTLBits; i++)
+	{
+		bitLabels.add("Line " + String(i + 1));
 	}
 }
 
@@ -91,7 +96,20 @@ int EventChannel::getMaxTTLBits() const
 	return m_maxTTLBits;
 }
 
+void EventChannel::setBitLabel(int bit, String label)
+{
+	if (bit < m_maxTTLBits)
+		bitLabels.set(bit, label);
+}
 
+String EventChannel::getBitLabel(int bit) const
+{
+	if (bit < m_maxTTLBits)
+		return bitLabels[bit];
+	else
+		return "Bit out of range";
+
+}
 
 size_t EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType type)
 {

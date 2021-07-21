@@ -31,10 +31,8 @@ uint16 DataStream::nextId = 10000;
 
 DataStream::DataStream(DataStream::Settings settings) 
 	: InfoObject(InfoObject::Type::DATASTREAM_INFO),
-	source(settings.source),
 	m_sample_rate(settings.sample_rate),
-	m_channel_count(0)
-
+	device(nullptr)
 {
 	setName(settings.name);
 	setDescription(settings.description);
@@ -45,38 +43,33 @@ DataStream::DataStream(DataStream::Settings settings)
 
 DataStream::~DataStream()
 {
-	nextId--;
 }
 
 void DataStream::clearChannels()
 {
 	continuousChannels.clear();
-	eventChannels.clear();
 	spikeChannels.clear();
+	eventChannels.clear();
 }
 
 void DataStream::addChannel(InfoObject* channel)
 {
 	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
 	{
-		continuousChannels.add((ContinuousChannel*) channel);
+		continuousChannels.add((ContinuousChannel*)channel);
 		continuousChannels.getLast()->setLocalIndex(continuousChannels.size() - 1);
-		continuousChannels.getLast()->stream = this;
-		m_channel_count++;
 	}
 
 	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
 	{
-		eventChannels.add((EventChannel*) channel);
+		eventChannels.add((EventChannel*)channel);
 		eventChannels.getLast()->setLocalIndex(eventChannels.size() - 1);
-		eventChannels.getLast()->stream = this;
 	}
-		
+
 	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
 	{
-		spikeChannels.add((SpikeChannel*) channel);
+		spikeChannels.add((SpikeChannel*)channel);
 		spikeChannels.getLast()->setLocalIndex(spikeChannels.size() - 1);
-		spikeChannels.getLast()->stream = this;
 	}
 		
 }
@@ -88,20 +81,33 @@ float DataStream::getSampleRate() const
 
 int DataStream::getChannelCount() const
 {
-	return m_channel_count;
+	return continuousChannels.size();
 }
 
-Array<ContinuousChannel*> DataStream::getContinuousChannels()
+uint16 DataStream::getStreamId() const
+{
+	return streamId;
+}
+
+bool DataStream::hasDevice() const
+{
+	if (device != nullptr)
+		return true;
+	else
+		return false;
+}
+
+Array<ContinuousChannel*> DataStream::getContinuousChannels() const
 {
 	return continuousChannels;
 }
 
-Array<EventChannel*> DataStream::getEventChannels()
+Array<EventChannel*> DataStream::getEventChannels() const
 {
 	return eventChannels;
 }
 
-Array<SpikeChannel*> DataStream::getSpikeChannels()
+Array<SpikeChannel*> DataStream::getSpikeChannels() const
 {
 	return spikeChannels;
 }

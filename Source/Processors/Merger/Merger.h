@@ -65,7 +65,7 @@ public:
     void addSettingsFromSourceNode(GenericProcessor* sn);
 
     /** Checks whether or not a particular stream should be sent to the Merger output */
-    bool checkStream(DataStream* stream);
+    bool checkStream(const DataStream* stream);
 
     /** Set the currently displayed path (0 or 1) */
     void switchIO(int) override;

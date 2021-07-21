@@ -31,7 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ContinuousChannel;
 
-class PLUGIN_API SpikeChannel : public InfoObject, public MetadataEventObject
+class PLUGIN_API SpikeChannel : 
+	public ChannelInfoObject, public MetadataEventObject
 {
 public:
 	enum Type
@@ -45,13 +46,17 @@ public:
 	struct Settings {
 
 		Type type;
+
 		String name;
 		String description;
+		String identifier;
 
-		int prePeakSamples;
-		int postPeakSamples;
+		DataStream* stream;
 
 		const Array<const ContinuousChannel*>& sourceChannels;
+
+		int prePeakSamples = 8;
+		int postPeakSamples = 32;
 	};
 
 	/** Default constructor 
@@ -102,8 +107,8 @@ private:
 
 	const Type m_type;
 	Array<const ContinuousChannel*> m_channelInfo;
-	unsigned int m_numPreSamples{ 8 };
-	unsigned int m_numPostSamples{ 32 };
+	unsigned int m_numPreSamples;
+	unsigned int m_numPostSamples;
 
 };
 

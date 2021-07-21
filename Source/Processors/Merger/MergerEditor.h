@@ -28,6 +28,10 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 
+class StreamSelectorButton;
+class StreamButtonHolder;
+class DataStream;
+
 /**
 
   User interface for the Merger utility.
@@ -47,8 +51,14 @@ public:
     /** Destructor*/
     virtual ~MergerEditor();
 
-    /** Called whenever the pathway selector button is pressed.*/
-    virtual void buttonEvent(Button* button);
+    /** Called whenever the pathway selector button or stream selector button is pressed.*/
+    void buttonEvent(Button* button);
+
+    /** Disables stream selector buttons*/
+    void startAcquisition();
+
+    /** Enables stream selector buttons*/
+    void stopAcquisition();
 
     /** Changes the active pathway to 0 or 1 */
     void switchSource(int);
@@ -68,13 +78,28 @@ public:
     /** Returns an array of the editors that feed into the merger*/
     Array<GenericEditor*> getConnectedEditors();
 
+    /** Checks whether a particular stream is selected. If 
+    * a stream selector button doesn't exist for this stream, it
+    * creates ones.
+    */
+    bool checkStream(const DataStream* stream);
+
+    /** Remove unused buttons */
+    void updateSettings() override;
+
 private:
     
     String getNameString(GenericProcessor*);
     Array<GenericProcessor*> getSelectableProcessors();
     
-    ImageButton* pipelineSelectorA;
-    ImageButton* pipelineSelectorB;
+    std::unique_ptr<ImageButton> pipelineSelectorA;
+    std::unique_ptr<ImageButton> pipelineSelectorB;
+
+    std::unique_ptr<StreamButtonHolder> streamButtonHolder;
+    std::unique_ptr<Viewport> viewport;
+
+    OwnedArray<StreamSelectorButton> streamButtons;
+    Array<uint16> incomingStreams;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MergerEditor);
 

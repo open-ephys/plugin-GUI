@@ -174,35 +174,80 @@ void GenericProcessor::clearSettings()
 	eventChannels.clear();
 	spikeChannels.clear();
 	configurationObjects.clear();
-	sourceStreams.clear();
-	streams.clear();
+	dataStreams.clear();
 
 }
 
-void GenericProcessor::copyDataStreamSettings(DataStream* stream)
+void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 {
-	streams.add(stream); // pointer to original source
 
-	std::cout << "Copying stream: " << stream->getName() << " " << stream->getStreamId() << std::endl;
+	std::cout << "Copying stream: " << std::endl;
+	std::cout << "  Source Node ID: " << stream->getSourceNodeId() << std::endl;
+	std::cout << "  Source Node Name: " << stream->getSourceNodeName() << std::endl;
+	std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
+	std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
+	std::cout << "  Name: " << stream->getName() << std::endl;
+	std::cout << "  ID: " << stream->getStreamId() << std::endl;
+	std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
+	std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
+	std::cout << "  " << std::endl;
 
+	dataStreams.add(new DataStream(*stream)); 
+
+	dataStreams.getLast()->clearChannels();
+	dataStreams.getLast()->addProcessor(processorInfo.get());
+	
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
+
+		std::cout << "Copying continuous channel: " << std::endl;
+		std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
+		std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
+		std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
+		std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
+		std::cout << "  Name: " << continuousChannel->getName() << std::endl;
+		std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
+		std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;
+
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
 		continuousChannels.getLast()->addProcessor(processorInfo.get());
+		dataStreams.getLast()->addChannel(continuousChannels.getLast());
 
-		std::cout << "Copying " << continuousChannel->getNodeName() << " " << continuousChannel->getName() << std::endl;
+		//std::cout << "Copying " << continuousChannel->getNodeName() << " " << continuousChannel->getName() << std::endl;
 	}
 
 	for (auto eventChannel : stream->getEventChannels())
 	{
+
+		std::cout << "Copying event channel: " << std::endl;
+		std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
+		std::cout << "  Source Node Name: " << eventChannel->getSourceNodeName() << std::endl;
+		std::cout << "  Last Node ID: " << eventChannel->getNodeId() << std::endl;
+		std::cout << "  Last Node Name: " << eventChannel->getNodeName() << std::endl;
+		std::cout << "  Name: " << eventChannel->getName() << std::endl;
+		std::cout << "  ID: " << eventChannel->getStreamId() << std::endl;
+		std::cout << "  Sample rate: " << eventChannel->getSampleRate() << std::endl;
+
 		eventChannels.add(new EventChannel(*eventChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
+		dataStreams.getLast()->addChannel(eventChannels.getLast());
 	}
 
 	for (auto spikeChannel : stream->getSpikeChannels())
 	{
+
+		std::cout << "Copying spike channel: " << std::endl;
+		std::cout << "  Source Node ID: " << spikeChannel->getSourceNodeId() << std::endl;
+		std::cout << "  Source Node Name: " << spikeChannel->getSourceNodeName() << std::endl;
+		std::cout << "  Last Node ID: " << spikeChannel->getNodeId() << std::endl;
+		std::cout << "  Last Node Name: " << spikeChannel->getNodeName() << std::endl;
+		std::cout << "  Name: " << spikeChannel->getName() << std::endl;
+		std::cout << "  ID: " << spikeChannel->getStreamId() << std::endl;
+		std::cout << "  Sample rate: " << spikeChannel->getSampleRate() << std::endl;
+
 		spikeChannels.add(new SpikeChannel(*spikeChannel));
 		spikeChannels.getLast()->addProcessor(processorInfo.get());
+		dataStreams.getLast()->addChannel(spikeChannels.getLast());
 	}
 }
 
@@ -230,18 +275,7 @@ void GenericProcessor::update()
 		if (!isMerger() && !isSplitter())
 		{
 
-			Array<DataStream*> streamsToCopy;
-
-			if (sourceNode->isSplitter())
-			{
-				Splitter* splitter = (Splitter*)sourceNode;
-				streamsToCopy = splitter->getStreamsForDestNode(this);
-			}
-			else {
-				streamsToCopy = sourceNode->streams;
-			}
-
-			for (auto stream : streamsToCopy)
+			for (auto stream : sourceNode->getStreamsForDestNode(this))
 			{
 				copyDataStreamSettings(stream);
 			}
@@ -325,9 +359,9 @@ void GenericProcessor::updateChannelIndexMaps()
 		spikeChannelMap[processorId][streamId][localIndex] = chan;
 	}
 
-	for (int i = 0; i < streams.size(); i++)
+	for (int i = 0; i < dataStreams.size(); i++)
 	{
-		DataStream* stream = streams[i];
+		DataStream* stream = dataStreams[i];
 
 		uint16 streamId = stream->getStreamId();
 
@@ -612,6 +646,18 @@ Array<const EventChannel*> GenericProcessor::getEventChannels()
 	}
 
 	return channels;
+}
+
+Array< const DataStream*> GenericProcessor::getStreamsForDestNode(GenericProcessor* p)
+{
+	Array<const DataStream*> streams;
+
+	for (int i = 0; i < dataStreams.size(); i++)
+	{
+		streams.add(dataStreams[i]);
+	}
+
+	return streams;
 }
 
 const ContinuousChannel* GenericProcessor::getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
@@ -911,7 +957,7 @@ int GenericProcessor::getNumOutputs() const
 
 int GenericProcessor::getNumOutputsForStream(int streamIdx) const
 {
-	return streams[streamIdx]->getChannelCount();
+	return dataStreams[streamIdx]->getChannelCount();
 }
 
 int GenericProcessor::getNodeId() const                     { return nodeId; }
@@ -922,7 +968,7 @@ float GenericProcessor::getSampleRate(int) const               { return getDefau
 GenericProcessor* GenericProcessor::getSourceNode() const { return sourceNode; }
 GenericProcessor* GenericProcessor::getDestNode()   const { return destNode; }
 
-int GenericProcessor::getNumDataStreams() const { return streams.size(); }
+int GenericProcessor::getNumDataStreams() const { return dataStreams.size(); }
 
 GenericEditor* GenericProcessor::getEditor() const { return editor.get(); }
 

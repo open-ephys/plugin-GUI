@@ -294,25 +294,26 @@ void FileReader::updateSettings()
          "File Reader Stream",
          "A description of the File Reader Stream",
          "identifier",
-         getDefaultSampleRate(),
-         processorInfo.get()
+         getDefaultSampleRate()
      };
 
-     sourceStreams.add(new DataStream(settings));
-     streams.add(sourceStreams.getLast());
+     dataStreams.add(new DataStream(settings));
+     dataStreams.getLast()->addProcessor(processorInfo.get());
 
-     for (int i = 0; i < currentNumChannels; i++)
+     for (int i = 0; i < 2; i++)
      {
-         ContinuousChannel::Settings settings{
+         ContinuousChannel::Settings settings2
+         {
              ContinuousChannel::Type::ELECTRODE,
              "CH" + String(i + 1),
              "description",
+             "filereader.stream",
              0.195f, // BITVOLTS VALUE
-             sourceStreams.getLast()
+             dataStreams.getLast()
          };
          
-         continuousChannels.add(new ContinuousChannel(settings));
-         sourceStreams.getLast()->addChannel(continuousChannels.getLast());
+         continuousChannels.add(new ContinuousChannel(settings2));
+         continuousChannels.getLast()->addProcessor(processorInfo.get());
      }
 
      isEnabled = true;
@@ -363,7 +364,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
                                    samplesNeededPerBuffer);
     }
     
-    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, sourceStreams[0]->getStreamId());
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, dataStreams[0]->getStreamId());
 	timestamp += samplesNeededPerBuffer;
     count += samplesNeededPerBuffer;
 

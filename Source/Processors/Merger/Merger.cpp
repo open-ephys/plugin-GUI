@@ -181,7 +181,7 @@ GenericProcessor* Merger::getSourceNode(int path)
 void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
 {
 
-    for (auto stream : sn->streams)
+    for (auto stream : sn->getStreamsForDestNode(this))
     {
         if (checkStream(stream))
             copyDataStreamSettings(stream);
@@ -195,9 +195,11 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
     }
 }
 
-bool Merger::checkStream(DataStream* stream)
+bool Merger::checkStream(const DataStream* stream)
 {
-    return true;
+    MergerEditor* ed = (MergerEditor*)getEditor();
+
+    return ed->checkStream(stream);
 }
 
 

@@ -60,7 +60,7 @@ class PLUGIN_API GenericEditor  : public AudioProcessorEditor
 public:
     /** Constructor. Loads fonts and creates default buttons.
         useDefaultParameter Editors false means custom parameter editors will be used.*/
-    GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors);
+    GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton = true);
 
     /** Destructor.*/
     virtual ~GenericEditor();
@@ -322,14 +322,11 @@ private:
     bool isEnabled;
     bool isCollapsed;
 
-    /**Used to determine if an editor is a splitter or Merger to avoid calling on ChannelSelector*/
-    bool isSplitOrMerge;
-
     int tNum;
     int originalWidth;
 
     /**initializing function Used to share constructor functions*/
-    void constructorInitialize (GenericProcessor* owner, bool useDefaultParameterEditors);
+    void constructorInitialize (GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton);
 
     String name;
     String displayName;

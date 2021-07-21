@@ -58,19 +58,34 @@ void MessageCenter::addSpecialProcessorChannels()
     processorInfo.reset();
     processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
 
-    clearSettings();
+    if (dataStreams.size() == 0)
+    {
+        DataStream::Settings settings{
+        "MessageCenter stream",
+        "Description",
+        "messagecenter.stream",
 
-    EventChannel::Settings settings{
-        EventChannel::Type::TEXT,
-        "Messages",
-        "Broadcasts messages from the MessageCenter",
-        "messagecenter.events"
-    };
+        1000.0f
+        };
 
-    eventChannels.add(new EventChannel(settings));
-    eventChannels.getLast()->addProcessor(processorInfo.get());
+        dataStreams.add(new DataStream(settings));
+        dataStreams.getLast()->addProcessor(processorInfo.get());
 
-    updateChannelIndexMaps();
+        EventChannel::Settings eventSettings{
+            EventChannel::Type::TEXT,
+            "Messages",
+            "Broadcasts messages from the MessageCenter",
+            "messagecenter.events",
+
+            dataStreams.getLast()
+        };
+
+        eventChannels.add(new EventChannel(eventSettings));
+        eventChannels.getLast()->addProcessor(processorInfo.get());
+
+        updateChannelIndexMaps();
+    }
+    
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()

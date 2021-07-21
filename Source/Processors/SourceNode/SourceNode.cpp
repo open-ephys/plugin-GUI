@@ -96,7 +96,7 @@ void SourceNode::resizeBuffers()
 	{
 		dataThread->resizeBuffers();
 
-		for (int i = 0; i < sourceStreams.size(); i++)
+		for (int i = 0; i < dataStreams.size(); i++)
 		{
 			inputBuffers.add(dataThread->getBufferAddress(i));
 			eventCodeBuffers.add(new MemoryBlock(10000*sizeof(uint64)));
@@ -119,17 +119,12 @@ void SourceNode::updateSettings()
 		dataThread->updateSettings(&continuousChannels,
             &eventChannels,
             &spikeChannels,
-            &sourceStreams,
+            &dataStreams,
             &devices,
             &configurationObjects);
 		
         resizeBuffers();
 
-        for (int i = 0; i < sourceStreams.size(); i++)
-        {
-            streams.add(sourceStreams[i]);
-            numStreams++;
-        }
 	}
 }
 
@@ -137,7 +132,7 @@ void SourceNode::updateSettings()
 float SourceNode::getSampleRate(int idx) const
 {
     if (dataThread != nullptr)
-        return streams[idx]->getSampleRate();
+        return dataStreams[idx]->getSampleRate();
     else
         return 44100.0;
 }
@@ -146,7 +141,7 @@ float SourceNode::getSampleRate(int idx) const
 float SourceNode::getDefaultSampleRate() const
 {
     if (dataThread != nullptr)
-        return streams[0]->getSampleRate();
+        return dataStreams[0]->getSampleRate();
     else
         return 44100.0;
 }
@@ -356,7 +351,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
 		copiedChannels += channelsToCopy;
 
-		setTimestampAndSamples(timestamp, nSamples, streams[streamIdx]->streamId);
+		setTimestampAndSamples(timestamp, nSamples, dataStreams[streamIdx]->getStreamId());
 
 		if (ttlChannels[streamIdx])
 		{

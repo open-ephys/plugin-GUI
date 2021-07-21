@@ -349,7 +349,7 @@ void RecordNode::updateSettings()
 
 			if (synchronizer->primaryProcessorId < 0)
 			{
-				synchronizer->addDataStream(chan->getStreamId(), chan->stream->getSampleRate());
+				synchronizer->addDataStream(chan->getStreamId(), chan->getSampleRate());
 			}
 			while (ch < continuousChannels.size() && continuousChannels[ch]->getStreamId() == streamId
 				& continuousChannels[ch]->getSourceNodeId() == sourceID)

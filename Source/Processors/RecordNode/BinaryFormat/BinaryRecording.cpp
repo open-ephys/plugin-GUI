@@ -29,7 +29,7 @@ String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 	//String fName = (channelInfo->processorChain[0]->getName().replaceCharacter(' ', '_') + "-" +
 	//	String(channelInfo->getSourceNodeId()));
     String fName = "filename"; // FIXME
-    fName += "." + String(channelInfo->getStreamId());
+    //fName += "." + String(channelInfo->getStreamId());
 	fName += File::getSeparatorString();
 	return fName;
 }
@@ -201,7 +201,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonChannel->setProperty("channel_name", chan->getName());
         jsonChannel->setProperty("description", chan->getDescription());
         jsonChannel->setProperty("identifier", chan->getIdentifier());
-        jsonChannel->setProperty("sample_rate", chan->stream->getSampleRate());
+        jsonChannel->setProperty("sample_rate", chan->getSampleRate());
         jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
         //jsonChannel->setProperty("num_channels", (int) chan->stream->getNumChannels());
         jsonChannel->setProperty("source_processor", chan->getSourceNodeName());
@@ -286,7 +286,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             DynamicObject::Ptr jsonFile = new DynamicObject();
 
             jsonFile->setProperty("folder_name", spikeName.replace(File::getSeparatorString(),"/"));
-            jsonFile->setProperty("sample_rate", ch->stream->getSampleRate());
+            jsonFile->setProperty("sample_rate", ch->getSampleRate());
             jsonFile->setProperty("source_processor", ch->getSourceNodeName());
             jsonFile->setProperty("num_channels", (int)numSpikeChannels);
             jsonFile->setProperty("pre_peak_samples", (int)ch->getPrePeakSamples());

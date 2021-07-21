@@ -122,7 +122,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 
 }
 
-void OriginalRecording::openFile(File rootFolder, const InfoObject* ch, int channelIndex)
+void OriginalRecording::openFile(File rootFolder, const ChannelInfoObject* ch, int channelIndex)
 {
 	FILE* chFile;
 	bool isEvent;
@@ -188,7 +188,7 @@ void OriginalRecording::openFile(File rootFolder, const InfoObject* ch, int chan
 			lastProcId = ch->getNodeId();
 			ProcInfo* p = new ProcInfo();
 			p->id = ch->getNodeId();
-			p->sampleRate = ch->stream->getSampleRate();
+			p->sampleRate = ch->getSampleRate();
 			processorArray.add(p);
 		}
 
@@ -299,7 +299,7 @@ String OriginalRecording::getFileName(int channelIndex)
 	return filename;
 }
 
-String OriginalRecording::generateHeader(const InfoObject* ch)
+String OriginalRecording::generateHeader(const ChannelInfoObject* ch)
 {
 
 	String header = "header.format = 'Open Ephys Data Format'; \n";
@@ -340,9 +340,9 @@ String OriginalRecording::generateHeader(const InfoObject* ch)
 
 	header += "header.sampleRate = ";
 	if (ch == nullptr)
-		header += String(getContinuousChannel(0)->stream->getSampleRate());
+		header += String(getContinuousChannel(0)->getSampleRate());
 	else
-		header += String(ch->stream->getSampleRate());
+		header += String(ch->getSampleRate());
 	header += ";\n";
 	header += "header.blockLength = ";
 	header += BLOCK_LENGTH;
@@ -387,7 +387,7 @@ String OriginalRecording::generateSpikeHeader(const SpikeChannel* elec)
 	header += ";\n";
 
 	header += "header.sampleRate = ";
-	header += String(elec->stream->getSampleRate());
+	header += String(elec->getSampleRate());
 	header += ";\n";
     
     header += "header.samplesPerSpike = ";
@@ -685,7 +685,7 @@ void OriginalRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 27) = 0; //Legacy unused value
 	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
 	zeromem(spikeBuffer.getData() + 32, 2 * sizeof(float));
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->stream->getSampleRate();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 40) = channel->getSampleRate();
 
 	LOGDD("Allocated memory");
 

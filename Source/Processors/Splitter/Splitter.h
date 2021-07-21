@@ -87,10 +87,10 @@ public:
     GenericProcessor* getDestNode(int);
 
     /** Return the streams to be sent to the selected destination node*/
-    Array<DataStream*> getStreamsForDestNode(GenericProcessor* destNode);
+    Array<const DataStream*> getStreamsForDestNode(GenericProcessor* destNode) override;
 
     /** Checks whether or not a particular stream should be sent down a particular path */
-    bool checkStream(DataStream* stream, Output output);
+    bool checkStream(const DataStream* stream, Output output);
     
     /** Display the path that leads to a particular processor*/
     void setPathToProcessor(GenericProcessor* processor);
@@ -103,8 +103,8 @@ private:
     
     int activePath;
 
-    Array<DataStream*> streamsForPathA;
-    Array<DataStream*> streamsForPathB;
+    Array<const DataStream*> streamsForPathA;
+    Array<const DataStream*> streamsForPathB;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Splitter);
 
