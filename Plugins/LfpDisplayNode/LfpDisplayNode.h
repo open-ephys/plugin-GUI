@@ -142,7 +142,7 @@ private:
 
 
     static uint16 getEventSourceId(const EventChannel* event);
-    static uint16 getChannelSourceId(const InfoObject* chan);
+    static uint16 getChannelSourceId(const ChannelInfoObject* chan);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayNode);
 };

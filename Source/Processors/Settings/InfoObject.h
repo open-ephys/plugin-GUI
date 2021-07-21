@@ -224,7 +224,7 @@ private:
 	String m_sourceNodeName;
 };
 
-class ChannelInfoObject :
+class PLUGIN_API ChannelInfoObject :
 	public InfoObject
 {
 public :

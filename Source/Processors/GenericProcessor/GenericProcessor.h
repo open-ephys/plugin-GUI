@@ -38,6 +38,7 @@
 #include "../Settings/EventChannel.h"
 #include "../Settings/SpikeChannel.h"
 #include "../Settings/DataStream.h"
+#include "../Settings/InfoObject.h"
 
 #include "../Events/Event.h"
 

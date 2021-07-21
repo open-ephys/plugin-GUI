@@ -134,7 +134,7 @@ uint16 LfpDisplayNode::getEventSourceId(const EventChannel* event)
     return event->getStreamId();
 }
 
-uint16 LfpDisplayNode::getChannelSourceId(const InfoObject* chan)
+uint16 LfpDisplayNode::getChannelSourceId(const ChannelInfoObject* chan)
 {
     return chan->getStreamId();
 }
