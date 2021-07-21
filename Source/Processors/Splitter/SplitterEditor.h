@@ -27,6 +27,10 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "Splitter.h"
+
+class StreamSelectorButton;
+class StreamButtonHolder;
 
 /**
 
@@ -53,13 +57,29 @@ public:
 
     int getPathForEditor(GenericEditor* editor);
 
+    bool checkStream(const DataStream* stream, Splitter::Output output);
+
+    void startCheck();
+
     Array<GenericEditor*> getConnectedEditors();
 
+    void updateSettings() override;
 
 private:
 
-    ImageButton* pipelineSelectorA;
-    ImageButton* pipelineSelectorB;
+    std::unique_ptr<ImageButton> pipelineSelectorA;
+    std::unique_ptr<ImageButton> pipelineSelectorB;
+
+    std::unique_ptr<StreamButtonHolder> streamButtonHolderA;
+    std::unique_ptr<Viewport> viewportA;
+
+    std::unique_ptr<StreamButtonHolder> streamButtonHolderB;
+    std::unique_ptr<Viewport> viewportB;
+
+    OwnedArray<StreamSelectorButton> streamButtonsA;
+    OwnedArray<StreamSelectorButton> streamButtonsB;
+
+    Array<uint16> incomingStreams;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
 

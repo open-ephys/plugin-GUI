@@ -22,18 +22,21 @@
 */
 
 #include "SplitterEditor.h"
-#include "Splitter.h"
+
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
+
+#include "../Editors/StreamSelectorButton.h"
+#include "../Settings/DataStream.h"
 
 
 SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 85;
+    desiredWidth = 300;
 
-    pipelineSelectorA = new ImageButton("Pipeline A");
+    pipelineSelectorA = std::make_unique<ImageButton>("Pipeline A");
 
     Image normalImageA = ImageCache::getFromMemory(BinaryData::PipelineB01_png, BinaryData::PipelineB01_pngSize);
     Image downImageA = ImageCache::getFromMemory(BinaryData::PipelineA01_png, BinaryData::PipelineA01_pngSize);
@@ -49,9 +52,9 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     pipelineSelectorA->addListener(this);
     pipelineSelectorA->setBounds(-10,25,95,50);
     pipelineSelectorA->setToggleState(true, dontSendNotification);
-    addAndMakeVisible(pipelineSelectorA);
+    addAndMakeVisible(pipelineSelectorA.get());
 
-    pipelineSelectorB = new ImageButton("Pipeline B");
+    pipelineSelectorB = std::make_unique<ImageButton>("Pipeline B");
 
     pipelineSelectorB->setImages(true, true, true,
                                  normalImageB, 1.0f, Colours::white.withAlpha(0.0f),
@@ -61,24 +64,53 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     pipelineSelectorB->addListener(this);
     pipelineSelectorB->setBounds(-10,75,95,50);
     pipelineSelectorB->setToggleState(false, dontSendNotification);
-    addAndMakeVisible(pipelineSelectorB);
+    addAndMakeVisible(pipelineSelectorB.get());
 
+    viewportA = std::make_unique<Viewport>();
+    addAndMakeVisible(viewportA.get());
+    viewportA->setBounds(100, 22, 140, 110);
+    viewportA->setScrollBarsShown(true, false);
+    viewportA->setScrollBarThickness(10);
+
+    streamButtonHolderA = std::make_unique<StreamButtonHolder>();
+    viewportA->setViewedComponent(streamButtonHolderA.get(), false);
+
+    streamButtonHolderA->setBounds(0, 0, 125, 0);
+    streamButtonHolderA->setVisible(true);
+
+    viewportB = std::make_unique<Viewport>();
+    addChildComponent(viewportB.get());
+    viewportB->setBounds(100, 22, 140, 110);
+    viewportB->setScrollBarsShown(true, false);
+    viewportB->setScrollBarThickness(10);
+
+    streamButtonHolderB = std::make_unique<StreamButtonHolder>();
+    viewportB->setViewedComponent(streamButtonHolderB.get(), false);
+
+    streamButtonHolderB->setBounds(0, 0, 125, 0);
+    streamButtonHolderB->setVisible(true);
+
+
+    drawerWidth = 150;
 }
 
 SplitterEditor::~SplitterEditor()
 {
-    deleteAllChildren();
 }
 
 void SplitterEditor::buttonEvent(Button* button)
 {
-    if (button == pipelineSelectorA)
+    if (button == pipelineSelectorA.get())
     {
         AccessClass::getEditorViewport()->switchIO(getProcessor(), 0);
     }
-    else if (button == pipelineSelectorB)
+    else if (button == pipelineSelectorB.get())
     {
         AccessClass::getEditorViewport()->switchIO(getProcessor(), 1);
+    } else if (streamButtonsA.contains((StreamSelectorButton*) button)
+        || streamButtonsB.contains((StreamSelectorButton*)button))
+    {
+        CoreServices::updateSignalChain(this);
     }
 }
 
@@ -88,14 +120,23 @@ void SplitterEditor::switchDest(int dest)
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
+        
+        viewportA->setVisible(true);
+        viewportB->setVisible(false);
+
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
+        
 
     }
     else if (dest == 1)
     {
         pipelineSelectorB->setToggleState(true, dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
+
+        viewportB->setVisible(true);
+        viewportA->setVisible(false);
+
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
 
@@ -166,11 +207,112 @@ void SplitterEditor::switchDest()
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
 
+        viewportA->setVisible(true);
+        viewportB->setVisible(false);
+
     }
     else if (path == 1)
     {
         pipelineSelectorB->setToggleState(true,dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
 
+        viewportA->setVisible(false);
+        viewportB->setVisible(true);
+
     }
+}
+
+void SplitterEditor::startCheck()
+{
+    incomingStreams.clear();
+}
+
+bool SplitterEditor::checkStream(const DataStream* stream, Splitter::Output output)
+{
+    std::cout << "Splitter checking stream " << stream->getStreamId() << " for output " << output << std::endl;
+
+    if (output == Splitter::Output::OUTPUT_A)
+        incomingStreams.add(stream->getStreamId());
+
+
+    // buttons already exist:
+    if (output == Splitter::Output::OUTPUT_A)
+    {
+        for (auto button : streamButtonsA)
+        {
+            if (button->getStreamId() == stream->getStreamId())
+                return button->getToggleState();
+        }
+    }
+    else {
+        for (auto button : streamButtonsB)
+        {
+            if (button->getStreamId() == stream->getStreamId())
+                return button->getToggleState();
+        }
+    }
+
+    // we need to create new buttons (only do it once per stream)
+    if (output == Splitter::Output::OUTPUT_A)
+    {
+
+        StreamSelectorButton* newButtonA = new StreamSelectorButton(stream);
+        std::cout << "Creating new stream button for output 0" << std::endl;
+
+        streamButtonsA.add(newButtonA);
+        newButtonA->addListener(this);
+        streamButtonHolderA->add(newButtonA);
+
+        StreamSelectorButton* newButtonB = new StreamSelectorButton(stream);
+        std::cout << "Creating new stream button for output 1" << std::endl;
+
+        streamButtonsB.add(newButtonB);
+        newButtonB->addListener(this);
+        streamButtonHolderB->add(newButtonB);
+    }
+
+}
+
+
+void SplitterEditor::updateSettings()
+{
+
+    std::cout << "Splitter editor updating settings" << std::endl;
+
+    for (auto streamId : incomingStreams)
+    {
+        std::cout << "  Found stream " << streamId << std::endl;
+    }
+
+    for (auto button : streamButtonsA)
+    {
+        std::cout << "BUTTON A STREAM " << button->getStreamId() << std::endl;
+
+        if (!incomingStreams.contains(button->getStreamId()))
+        {
+            std::cout << " ...NOT FOUND, REMOVING" << std::endl;
+            streamButtonHolderA->remove(button);
+            streamButtonsA.removeObject(button);
+        }
+        else {
+            std::cout << " It's ok, keeping" << std::endl;
+        }
+    }
+
+    for (auto button : streamButtonsB)
+    {
+        std::cout << "BUTTON B STREAM " << button->getStreamId() << std::endl;
+
+
+        if (!incomingStreams.contains(button->getStreamId()))
+        {
+            std::cout << " ...NOT FOUND, REMOVING" << std::endl;
+            streamButtonHolderB->remove(button);
+            streamButtonsB.removeObject(button);
+        }
+        else {
+            std::cout << " It's ok, keeping" << std::endl;
+        }
+    }
+
 }

@@ -56,11 +56,11 @@ void Splitter::updateSettings()
     streamsForPathA.clear();
     streamsForPathB.clear();
 
-    isEnabled = false;
-
     if (sourceNode != nullptr)
     {
-        // copy settings from source node
+        // figure out which streams to send
+        SplitterEditor* editor = (SplitterEditor*)getEditor();
+        editor->startCheck(); // clears the incomingStreams array
 
         for (auto stream : sourceNode->getStreamsForDestNode(this))
         {
@@ -70,19 +70,14 @@ void Splitter::updateSettings()
             if (checkStream(stream, OUTPUT_B))
                 streamsForPathB.add(stream);
         }
-
-        for (auto configurationObject : sourceNode->configurationObjects)
-        {
-            configurationObjects.add(new ConfigurationObject(*configurationObject));
-        }
-
-        isEnabled = sourceNode->isEnabled;
     }
 }
 
 bool Splitter::checkStream(const DataStream* stream, Splitter::Output output)
 {
-    return true;
+    SplitterEditor* ed = (SplitterEditor*)getEditor();
+
+    return ed->checkStream(stream, output);
 }
 
 void Splitter::setPathToProcessor(GenericProcessor* p)

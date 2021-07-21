@@ -80,9 +80,6 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     streamButtonHolder->setBounds(0, 0, 125, 0);
     streamButtonHolder->setVisible(true);
 
-    
-    
-
     drawerWidth = 150;
 
 }

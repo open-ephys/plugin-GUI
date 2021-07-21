@@ -272,7 +272,7 @@ void GenericProcessor::update()
 			eventChannels.getLast()->addProcessor(processorInfo.get());
 		}
 
-		if (!isMerger() && !isSplitter())
+		if (!isMerger())
 		{
 
 			for (auto stream : sourceNode->getStreamsForDestNode(this))
