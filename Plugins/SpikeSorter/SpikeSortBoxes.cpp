@@ -497,7 +497,7 @@ void RunningStats::resizeWaveform(int newlength)
 
 void RunningStats::update(SorterSpikePtr so)
 {
-    double ts = so->getTimestamp()/so->getChannel()->stream->getSampleRate();
+    double ts = so->getTimestamp()/so->getChannel()->getSampleRate();
     if (numSamples == 0)
     {
         LastSpikeTime = ts;
@@ -2210,7 +2210,7 @@ float spikeDataIndexToMicrovolts(SorterSpikePtr s, int index)
 
 float spikeTimeBinToMicrosecond(SorterSpikePtr s, int bin, int ch)
 {
-	float spikeTimeSpan = 1.0f / s->getChannel()->stream->getSampleRate() * s->getChannel()->getTotalSamples() * 1e6;
+	float spikeTimeSpan = 1.0f / s->getChannel()->getSampleRate() * s->getChannel()->getTotalSamples() * 1e6;
 	return float(bin) / (s->getChannel()->getTotalSamples() - 1) * spikeTimeSpan;
 }
 
@@ -2219,7 +2219,7 @@ int microSecondsToSpikeTimeBin(SorterSpikePtr s, float t, int ch)
 	// Lets say we have 32 samples per wave form
 
 	// t = 0 corresponds to the left most index.
-	float spikeTimeSpan = (1.0f / s->getChannel()->stream->getSampleRate() * s->getChannel()->getTotalSamples())*1e6;
+	float spikeTimeSpan = (1.0f / s->getChannel()->getSampleRate() * s->getChannel()->getTotalSamples())*1e6;
 	return MIN(s->getChannel()->getTotalSamples() - 1, MAX(0, t / spikeTimeSpan * (s->getChannel()->getTotalSamples() - 1)));
 }
 

@@ -221,16 +221,20 @@ void SpikeSorter::updateSettings()
            SpikeChannel::typeFromNumChannels(nChans),
            "Electrode",
            "Description",
+           "identifier",
+
+           getDataStream(chans[0]->getStreamId()),
+           chans,
+
            elec->prePeakSamples,
            elec->postPeakSamples,
-           chans
+           
         };
 
         SpikeChannel* spk = new SpikeChannel(settings);
-
+        spk->addProcessor(processorInfo.get());
         spikeChannels.add(spk);
 
-        chans[0]->stream->addChannel(spk);
     }
 	sorterReady = true;
     mut.exit();

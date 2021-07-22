@@ -117,13 +117,25 @@ void SourceNode::updateSettings()
 	if (dataThread)
 	{
 		dataThread->updateSettings(&continuousChannels,
-            &eventChannels,
+            &eventChannels, // must return 1 for every stream
             &spikeChannels,
             &dataStreams,
             &devices,
             &configurationObjects);
 		
         resizeBuffers();
+
+        for (int i = 0; i < continuousChannels.size(); i++)
+            continuousChannels[i]->addProcessor(processorInfo.get());
+
+        for (int i = 0; i < eventChannels.size(); i++)
+            eventChannels[i]->addProcessor(processorInfo.get());
+
+        for (int i = 0; i < spikeChannels.size(); i++)
+            spikeChannels[i]->addProcessor(processorInfo.get());
+
+        for (int i = 0; i < dataStreams.size(); i++)
+            dataStreams[i]->addProcessor(processorInfo.get());
 
 	}
 }
@@ -145,68 +157,6 @@ float SourceNode::getDefaultSampleRate() const
     else
         return 44100.0;
 }
-
-
-/*void SourceNode::createEventChannels()
-{
-	ttlChannels.clear();
-	if (dataThread)
-	{
-		//Create base TTL event channels
-		int nSubs = dataThread->getNumSubProcessors();
-		for (int i = 0; i < nSubs; i++)
-		{
-			int nChans = dataThread->getNumTTLOutputs(i);
-			nChans = jmin(nChans, 64); //Just 64 TTL channels per source for now
-			if (nChans > 0)
-			{
-				EventChannel* chan = new EventChannel(EventChannel::TTL, nChans, 0, dataThread->getSampleRate(i), this, i);
-				chan->setName(getName() + " source TTL events input");
-				chan->setDescription("TTL Events coming from the hardware source processor \"" + getName() + "\"");
-				chan->setIdentifier("sourceevent");
-				eventChannelArray.add(chan);
-				ttlChannels.add(chan);
-			}
-			else
-				ttlChannels.add(nullptr);
-		}
-		//Add other events that the source might create
-		Array<EventChannel*> events;
-		dataThread->createExtraEvents(events);
-		eventChannelArray.addArray(events);
-	}
-}*/
-
-/*void SourceNode::setEnabledState (bool newState)
-{
-    if (newState && ! dataThread->foundInputSource())
-    {
-        isEnabled = false;
-
-        if (editor != nullptr)
-            editor->disable();
-    }
-    else
-    {
-        isEnabled = newState;
-
-        if (editor != nullptr)
-        {
-            if (newState)
-                editor->enable();
-            else
-                editor->disable();
-        }
-        
-    }
-}*/
-
-
-/*void SourceNode::setParameter (int parameterIndex, float newValue)
-{
-    editor->updateParameterButtons (parameterIndex);
-    LOGDD("Got parameter change notification");
-}*/
 
 
 AudioProcessorEditor* SourceNode::createEditor()
@@ -353,9 +303,9 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
 		setTimestampAndSamples(timestamp, nSamples, dataStreams[streamIdx]->getStreamId());
 
-		if (ttlChannels[streamIdx])
+		if (eventChannels[streamIdx + 1])
 		{
-            int maxTTLBits = ttlChannels[streamIdx]->getMaxTTLBits();
+            int maxTTLBits = eventChannels[streamIdx+1]->getMaxTTLBits();
 
 			uint64 lastCode = eventStates[streamIdx];
 
@@ -371,12 +321,12 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 					{
 						if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
 						{
-							TTLEventPtr event = TTLEvent::createTTLEvent(ttlChannels[streamIdx], 
+							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx+1], 
                                 timestamp + sample,
                                 c, 
                                 (currentCode >> c) & 0x01);
 
-							addEvent(ttlChannels[streamIdx], event, sample);
+							addEvent(event, sample);
 						}
 					}
                     

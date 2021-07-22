@@ -646,7 +646,7 @@ void GenericProcessor::flipTTLBit(int sampleIndex, int bit)
 bool GenericProcessor::getTTLBit(int bit)
 {
 	if (bit < 0 || bit >= 8)
-		return;
+		return false;
 
 	return ttlBitStates[bit];
 }

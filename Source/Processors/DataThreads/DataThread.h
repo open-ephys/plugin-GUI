@@ -28,6 +28,12 @@
 #include "DataBuffer.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
+#include "../Settings/DataStream.h"
+#include "../Settings/EventChannel.h"
+#include "../Settings/ContinuousChannel.h"
+#include "../Settings/SpikeChannel.h"
+#include "../Settings/InfoObject.h"
+
 class SourceNode;
 
 /**
