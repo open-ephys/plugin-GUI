@@ -29,6 +29,65 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+class DataStream;
+
+
+
+/**
+ Represents a DataStream handled by a given processor.
+
+ @see GraphViewer, GraphNode
+*/
+
+class DataStreamInfo : public Component
+{
+public:
+
+    /** Constructor */
+    DataStreamInfo(const DataStream* stream);
+
+    /** Destructor */
+    ~DataStreamInfo();
+
+    /** Paint component */
+    void paint(Graphics& g);
+
+private:
+
+    const DataStream* stream;
+
+};
+
+/**
+ Represents a DataStream handled by a given processor.
+
+ @see GraphViewer, GraphNode
+*/
+
+class DataStreamButton : public Button
+{
+public:
+
+    /** Constructor */
+    DataStreamButton(Colour colour, const DataStream* stream, DataStreamInfo* info);
+
+    /** Destructor */
+    ~DataStreamButton();
+
+    /** Paint component */
+    void paintButton(Graphics& g, bool isHighlighted, bool isDown);
+
+    Component* getComponent() const { return (Component*)info; }
+
+private:
+
+    const DataStream* stream;
+    DataStreamInfo* info;
+    Path pathOpen;
+    Path pathClosed;
+    Colour colour;
+
+};
 
 /**
  Represents an individual processor/plugin in the GraphViewer.
@@ -36,7 +95,8 @@
  @see GraphViewer
 */
 
-class GraphNode : public Component
+class GraphNode : public Component,
+    public Button::Listener
 {
 public:
     
@@ -60,6 +120,9 @@ public:
     
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
+
+    /** To respond to clicks in the DataStreamPanel*/
+    void buttonClicked(Button* button);
     
     /** Returns location of component center point */
     juce::Point<float> getCenterPoint() const;
@@ -104,11 +167,13 @@ public:
     
 private:
     GenericEditor* editor;
+    GenericProcessor* processor;
     GraphViewer* gv;
     
-    
-    
     String getInfoString();
+
+    ConcertinaPanel dataStreamPanel;
+    Array<DataStreamButton*> dataStreamButtons;
     
     bool isMouseOver;
     int horzShift;
@@ -168,6 +233,7 @@ private:
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphViewer);
 };
+
 
 
 #endif  // __GRAPHVIEWER_H_4E971BF9__

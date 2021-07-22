@@ -356,6 +356,8 @@ public:
 
     virtual Array<const DataStream*> getStreamsForDestNode(GenericProcessor* processor);
 
+    Array<const DataStream*> getDataStreams() const;
+
 	const ConfigurationObject* getConfigurationObject(int index) const;
 
 	int getTotalContinuousChannels() const;

@@ -25,7 +25,9 @@
 #include "../Processors/Splitter/Splitter.h"
 #include "../Utils/Utils.h"
 
-const int NODE_WIDTH = 150;
+#include "../Processors/Settings/DataStream.h"
+
+const int NODE_WIDTH = 165;
 const int NODE_HEIGHT = 100;
 const int BORDER_SIZE = 20;
 
@@ -228,14 +230,129 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 
 /// ------------------------------------------------------
 
+
+DataStreamInfo::DataStreamInfo(const DataStream* stream_)
+    :  stream(stream_)
+{
+}
+
+DataStreamInfo::~DataStreamInfo()
+{
+
+}
+
+void DataStreamInfo::paint(Graphics& g)
+{
+    g.setColour(Colour(30, 30, 30));
+    g.drawRect(0, 0, getWidth(), getHeight(), 1);
+    g.setColour(Colours::white.withAlpha(0.5f));
+    g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
+   // g.setColour(Colour(30, 30, 30));
+    //g.drawLine(24, 0, 24, getHeight());
+
+    g.setColour(Colours::black);
+    g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
+    g.drawText("TTL Channels", 30, 20, getWidth() - 30, 20, Justification::left);
+    g.drawText("Spike Channels", 30, 40, getWidth() - 30, 20, Justification::left);
+
+    g.drawText(String(stream->getChannelCount()), 0, 0, 30, 20, Justification::centred);
+    g.drawText(String(stream->getEventChannels().size()), 0, 20, 30, 20, Justification::centred);
+    g.drawText(String(stream->getSpikeChannels().size()), 0, 40, 30, 20, Justification::centred);
+
+}
+
+
+DataStreamButton::DataStreamButton(Colour colour_, const DataStream* stream_, DataStreamInfo* info_)
+    : Button(stream_->getName())
+    , colour(colour_)
+    , stream(stream_)
+    , info(info_)
+{
+    setClickingTogglesState(true);
+    setToggleState(false, false);
+
+    pathOpen.addTriangle(5.0f, 4.0f, 8.5f, 11.0f, 12.0f, 4.0f);
+    pathOpen.applyTransform(AffineTransform::scale(1.2f));
+
+    pathClosed.addTriangle(5.0f, 4.0f, 5.0f, 11.0f, 12.0f, 7.5f);
+    pathClosed.applyTransform(AffineTransform::scale(1.2f));
+    
+}
+
+
+DataStreamButton::~DataStreamButton()
+{
+
+}
+
+void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
+{
+
+    g.setColour(Colour(30, 30, 30));
+    g.fillAll();
+
+    g.setColour(colour.withLightness(0.9f));
+    g.fillRect(1, 0, 24, getHeight() - 1);
+
+    g.setColour(colour);
+    g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
+
+    g.setColour(Colour(30, 30, 30));
+
+    if (getToggleState())
+        g.fillPath(pathOpen);
+    else
+        g.fillPath(pathClosed);
+
+    g.setColour(Colours::white);
+    g.drawText(stream->getName(), 30, 0, getWidth()-30, 20, Justification::left);
+
+}
+
+/// ------------------------------------------------------
+
 GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
 : editor        (ed)
+, processor     (ed->getProcessor())
 , gv            (g)
 , isMouseOver   (false)
 {
-    nodeId = ed->getProcessor()->getNodeId();
+    nodeId = processor->getNodeId();
     horzShift = 0;
     vertShift = 0;
+
+    
+    if (!processor->isMerger() && !processor->isSplitter())
+    {
+        for (auto stream : processor->getDataStreams())
+        {
+
+            DataStreamInfo* info = new DataStreamInfo(stream);
+            dataStreamPanel.addPanel(-1, info, true);
+
+            DataStreamButton* button = new DataStreamButton(editor->getBackgroundColor(), stream, info);
+            button->addListener(this);
+            dataStreamPanel.setCustomPanelHeader(info, button, true);
+            dataStreamPanel.setMaximumPanelSize(info, 60);
+
+            dataStreamButtons.add(button);
+
+            /*DataStreamInfo* info2 = new DataStreamInfo(stream);
+            dataStreamPanel.addPanel(-1, info2, true);
+
+            DataStreamButton* button2 = new DataStreamButton(editor->getBackgroundColor(), stream, info2);
+            button2->addListener(this);
+            dataStreamPanel.setCustomPanelHeader(info2, button2, true);
+            dataStreamPanel.setMaximumPanelSize(info2, 60);*/
+
+            //dataStreamButtons.add(button2);
+        }
+
+        addAndMakeVisible(dataStreamPanel);
+    }
+   
+    updateBoundaries();
+
 }
 
 
@@ -293,6 +410,20 @@ void GraphNode::mouseExit (const MouseEvent& m)
 void GraphNode::mouseDown (const MouseEvent& m)
 {
     editor->makeVisible();
+}
+
+void GraphNode::buttonClicked(Button* button)
+{
+
+    updateBoundaries();
+
+   
+    DataStreamButton* dsb = (DataStreamButton*)button;
+
+    if (button->getToggleState())
+        dataStreamPanel.setPanelSize(dsb->getComponent(), 60, false);
+    else
+        dataStreamPanel.setPanelSize(dsb->getComponent(), 0, false);
 }
 
 
@@ -357,10 +488,22 @@ juce::Point<float> GraphNode::getCenterPoint() const
 void GraphNode::updateBoundaries()
 {
 
+    int panelHeight = 0;
+
+    for (auto dsb : dataStreamButtons)
+    {
+        if (dsb->getToggleState())
+            panelHeight += 80;
+        else
+            panelHeight += 20;
+    }
+
+    dataStreamPanel.setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
+
     setBounds (BORDER_SIZE + getHorzShift() * NODE_WIDTH,
                BORDER_SIZE + getLevel() * NODE_HEIGHT,
                nodeWidth,
-               NODE_HEIGHT);
+               panelHeight + 20);
 }
 
 String GraphNode::getInfoString()
@@ -386,17 +529,20 @@ String GraphNode::getInfoString()
 
 void GraphNode::paint (Graphics& g)
 {
-    if (isMouseOver)
-    {
-        g.setColour (Colours::yellow);
-        g.fillRoundedRectangle (0, 0, getWidth()-23, NODE_HEIGHT-23, 4);
-    } else {
-        g.setColour (Colour(30,30,30));
-        g.fillRoundedRectangle (0, 0, getWidth()-23, NODE_HEIGHT-23, 4);
-    }
+    //if (isMouseOver)
+    //{
+    //    g.setColour (Colours::yellow);
+   // } else {
+   //     
+   // }
     
+    g.setColour(Colour(30, 30, 30));
+    g.fillRect(23, 0, getWidth() - 23, 20);
+    g.drawLine(8, 10, 28, 10);
+    g.setColour(editor->getBackgroundColor().withLightness(0.9));
+    g.fillRect(24, 1, 24, 18);
     g.setColour(editor->getBackgroundColor());
-    g.fillRoundedRectangle    (1, 1, getWidth()-25, NODE_HEIGHT-25, 3);
+    g.fillRect(48, 1, getWidth() - 49, 18);
     
     if (isMouseOver)
     {
@@ -417,10 +563,12 @@ void GraphNode::paint (Graphics& g)
         true));
     }
     g.fillEllipse (5.5, 5.5, 11, 11);
-    
-    g.setColour (Colours::white); // : editor->getBackgroundColor());
-    g.drawText (String(nodeId) + " " + getName(), 23, 1, getWidth() - 25, 20, Justification::left, true);
-    
+
     g.setColour (Colours::black); // : editor->getBackgroundColor());
-    g.drawFittedText (getInfoString(), 10, 25, getWidth() - 5, 70, Justification::left, true);
+    g.drawText (String(nodeId), 24, 0, 23, 20, Justification::centred, true);
+    g.setColour(Colours::white); // : editor->getBackgroundColor());
+    g.drawText(getName(), 52, 0, getWidth() - 52, 20, Justification::left, true);
+    
+   // g.setColour (Colours::black); // : editor->getBackgroundColor());
+    //g.drawFittedText (getInfoString(), 10, 25, getWidth() - 5, 70, Justification::left, true);
 }

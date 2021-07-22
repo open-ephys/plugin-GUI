@@ -664,6 +664,18 @@ Array< const DataStream*> GenericProcessor::getStreamsForDestNode(GenericProcess
 	return streams;
 }
 
+Array< const DataStream*> GenericProcessor::getDataStreams() const
+{
+	Array<const DataStream*> streams;
+
+	for (int i = 0; i < dataStreams.size(); i++)
+	{
+		streams.add(dataStreams[i]);
+	}
+
+	return streams;
+}
+
 const ContinuousChannel* GenericProcessor::getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
 	return continuousChannelMap.at(processorId).at(streamId).at(localIndex);
