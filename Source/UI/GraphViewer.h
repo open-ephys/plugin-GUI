@@ -162,6 +162,7 @@ public:
     
     /** Not currently used (consider deleting) */
     //void switchIO (int path);
+    void verticalShift(int pixels);
     
     void updateBoundaries();
     
@@ -169,7 +170,7 @@ private:
     GenericEditor* editor;
     GenericProcessor* processor;
     GraphViewer* gv;
-    
+
     String getInfoString();
 
     ConcertinaPanel dataStreamPanel;
@@ -181,6 +182,10 @@ private:
     int nodeWidth;
     
     int nodeId;
+
+    int previousHeight;
+
+    int verticalOffset;
 };
 
 /**

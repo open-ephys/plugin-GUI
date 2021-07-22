@@ -127,7 +127,7 @@ public:
     void updateSettings(GenericProcessor* processor, bool signalChainIsLoading = false);
 
     /* Updates the views (EditorViewport and GraphView) of all processors downstream of the specified processor*/
-    void updateViews(GenericProcessor* processor);
+    void updateViews(GenericProcessor* processor, bool updateGraphViewer = false);
 
     /* Clears the signal chain.*/
     void clearSignalChain();

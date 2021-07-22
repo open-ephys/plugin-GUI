@@ -533,13 +533,15 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         }
     }
     
-    updateViews(processorToUpdate);
+    updateViews(processorToUpdate, true);
     
 }
 
-void ProcessorGraph::updateViews(GenericProcessor* processor)
+void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphViewer)
 {
-    AccessClass::getGraphViewer()->updateNodes(rootNodes);
+
+    if (updateGraphViewer)
+        AccessClass::getGraphViewer()->updateNodes(rootNodes);
     
     int tabIndex;
     

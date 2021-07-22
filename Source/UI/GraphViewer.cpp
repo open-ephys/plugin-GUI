@@ -23,12 +23,13 @@
 
 #include "GraphViewer.h"
 #include "../Processors/Splitter/Splitter.h"
+#include "../Processors/Splitter/SplitterEditor.h"
 #include "../Utils/Utils.h"
 
 #include "../Processors/Settings/DataStream.h"
 
 const int NODE_WIDTH = 165;
-const int NODE_HEIGHT = 100;
+const int NODE_HEIGHT = 50;
 const int BORDER_SIZE = 20;
 
 
@@ -52,7 +53,7 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
     Array<Splitter*> splitters;
 
     int rootNum = -1;
-    
+
     for (auto processor : rootProcessors)
     {
         rootNum++;
@@ -119,6 +120,8 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     gn->updateBoundaries();
     
 }
+
+
 
 void GraphViewer::removeAllNodes()
 {
@@ -340,7 +343,13 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         addAndMakeVisible(dataStreamPanel);
     }
    
-    updateBoundaries();
+    setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
+        BORDER_SIZE + getLevel() * NODE_HEIGHT,
+        nodeWidth,
+        40);
+
+    previousHeight = 0;
+    verticalOffset = 0;
 
 }
 
@@ -407,13 +416,14 @@ void GraphNode::buttonClicked(Button* button)
 
     updateBoundaries();
 
-   
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
         dataStreamPanel.setPanelSize(dsb->getComponent(), 60, false);
     else
         dataStreamPanel.setPanelSize(dsb->getComponent(), 0, false);
+
+    gv->repaint();
 }
 
 
@@ -490,10 +500,63 @@ void GraphNode::updateBoundaries()
 
     dataStreamPanel.setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
 
-    setBounds (BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-               BORDER_SIZE + getLevel() * NODE_HEIGHT,
-               nodeWidth,
-               panelHeight + 20);
+    if (previousHeight > 0 && previousHeight != panelHeight)
+    {
+        setBounds(getX(), getY(), getWidth(),
+            panelHeight + 20);
+    }
+    else {
+        setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
+            BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
+            nodeWidth,
+            panelHeight + 20);
+    }
+    
+    
+
+    if (previousHeight > 0)
+    {
+        if (processor->destNode != nullptr)
+        {
+            gv->getNodeForEditor(processor->destNode->getEditor())->verticalShift(panelHeight - previousHeight);
+        }
+    }
+    
+
+    previousHeight = panelHeight;
+}
+
+void GraphNode::verticalShift(int pixels)
+{
+   
+
+    setBounds(getX(), getY() + pixels, getWidth(), getHeight());
+
+    if (!processor->isSplitter())
+    {
+        if (processor->destNode != nullptr)
+        {
+            GraphNode* node = gv->getNodeForEditor(processor->destNode->getEditor());
+            
+            if (node != nullptr)
+                node->verticalShift(pixels);
+        }
+            
+    }
+    else {
+        SplitterEditor* editor = (SplitterEditor*)processor->getEditor();
+
+        for (auto ed : editor->getConnectedEditors())
+        {
+            GraphNode* node = gv->getNodeForEditor(ed);
+            
+            if (node != nullptr)
+                node->verticalShift(pixels);
+        }
+
+    }
+
+    verticalOffset = pixels;
 }
 
 String GraphNode::getInfoString()
@@ -527,7 +590,7 @@ void GraphNode::paint (Graphics& g)
    // }
 
     Path linePath;
-    float x1 = 5;
+    float x1 = 8;
     float y1 = 11;
     float x2 = 40;
     float y2 = 11;
@@ -536,17 +599,19 @@ void GraphNode::paint (Graphics& g)
     linePath.lineTo(x2, y2);
 
     g.setColour(Colour(30, 30, 30));
-    PathStrokeType stroke3(3.5f);
-    g.strokePath(linePath, stroke3);
+    PathStrokeType stroke1(10.0f);
+    g.strokePath(linePath, stroke1);
 
-    g.setColour(Colours::grey);
-    PathStrokeType stroke2(2.0f);
+    g.setColour(Colour(90, 90, 90));
+    PathStrokeType stroke2(7.5f);
     g.strokePath(linePath, stroke2);
+
+    g.setColour(Colour(150, 150, 150));
+    PathStrokeType stroke3(4.5f);
+    g.strokePath(linePath, stroke3);
     
     g.setColour(Colour(30, 30, 30));
     g.fillRect(23, 0, getWidth() - 23, 20);
-
-    
 
     g.setColour(Colours::lightgrey);
     g.fillRect(24, 1, 24, 18);
