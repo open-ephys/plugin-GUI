@@ -61,9 +61,9 @@ void AudioNode::resetConnections()
     nextAvailableChannel = 2; // start connections at channel 2
     //wasConnected = false;
 
-    continuousChannels.clear();
+    //continuousChannels.clear();
 
-    updatePlaybackBuffer();
+   // updatePlaybackBuffer();
 }
 
 void AudioNode::registerProcessor(const GenericProcessor* sourceNode)

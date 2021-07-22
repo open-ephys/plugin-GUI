@@ -245,36 +245,35 @@ void DataStreamInfo::paint(Graphics& g)
 {
     g.setColour(Colour(30, 30, 30));
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
-    g.setColour(Colours::white.withAlpha(0.5f));
+    g.setColour(Colours::white.withAlpha(0.3f));
     g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
-   // g.setColour(Colour(30, 30, 30));
-    //g.drawLine(24, 0, 24, getHeight());
+    g.fillRect(1, 0, 24, getHeight() - 1);
 
     g.setColour(Colours::black);
     g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText("TTL Channels", 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText("Spike Channels", 30, 40, getWidth() - 30, 20, Justification::left);
 
-    g.drawText(String(stream->getChannelCount()), 0, 0, 30, 20, Justification::centred);
-    g.drawText(String(stream->getEventChannels().size()), 0, 20, 30, 20, Justification::centred);
-    g.drawText(String(stream->getSpikeChannels().size()), 0, 40, 30, 20, Justification::centred);
+    g.drawText(String(stream->getChannelCount()), 0, 0, 25, 20, Justification::centred);
+    g.drawText(String(stream->getEventChannels().size()), 0, 20, 25, 20, Justification::centred);
+    g.drawText(String(stream->getSpikeChannels().size()), 0, 40, 25, 20, Justification::centred);
 
 }
 
 
 DataStreamButton::DataStreamButton(Colour colour_, const DataStream* stream_, DataStreamInfo* info_)
     : Button(stream_->getName())
-    , colour(colour_)
+    , colour(colour_.withAlpha(0.5f))
     , stream(stream_)
     , info(info_)
 {
     setClickingTogglesState(true);
     setToggleState(false, false);
 
-    pathOpen.addTriangle(5.0f, 4.0f, 8.5f, 11.0f, 12.0f, 4.0f);
+    pathOpen.addTriangle(7.0f, 5.0f, 10.5f, 12.0f, 14.0f, 5.0f);
     pathOpen.applyTransform(AffineTransform::scale(1.2f));
 
-    pathClosed.addTriangle(5.0f, 4.0f, 5.0f, 11.0f, 12.0f, 7.5f);
+    pathClosed.addTriangle(8.0f, 4.0f, 8.0f, 11.0f, 15.0f, 7.5f);
     pathClosed.applyTransform(AffineTransform::scale(1.2f));
     
 }
@@ -291,7 +290,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(Colour(30, 30, 30));
     g.fillAll();
 
-    g.setColour(colour.withLightness(0.9f));
+    g.setColour(Colours::lightgrey);
     g.fillRect(1, 0, 24, getHeight() - 1);
 
     g.setColour(colour);
@@ -336,16 +335,6 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
             dataStreamPanel.setMaximumPanelSize(info, 60);
 
             dataStreamButtons.add(button);
-
-            /*DataStreamInfo* info2 = new DataStreamInfo(stream);
-            dataStreamPanel.addPanel(-1, info2, true);
-
-            DataStreamButton* button2 = new DataStreamButton(editor->getBackgroundColor(), stream, info2);
-            button2->addListener(this);
-            dataStreamPanel.setCustomPanelHeader(info2, button2, true);
-            dataStreamPanel.setMaximumPanelSize(info2, 60);*/
-
-            //dataStreamButtons.add(button2);
         }
 
         addAndMakeVisible(dataStreamPanel);
@@ -393,7 +382,8 @@ void GraphNode::setWidth(int width)
 
 void GraphNode::mouseEnter (const MouseEvent& m)
 {
-    isMouseOver = true;
+    if (m.getEventRelativeTo(this).y < 20)
+        isMouseOver = true;
     
     repaint();
 }
@@ -535,11 +525,30 @@ void GraphNode::paint (Graphics& g)
    // } else {
    //     
    // }
+
+    Path linePath;
+    float x1 = 5;
+    float y1 = 11;
+    float x2 = 40;
+    float y2 = 11;
+
+    linePath.startNewSubPath(x1, y1);
+    linePath.lineTo(x2, y2);
+
+    g.setColour(Colour(30, 30, 30));
+    PathStrokeType stroke3(3.5f);
+    g.strokePath(linePath, stroke3);
+
+    g.setColour(Colours::grey);
+    PathStrokeType stroke2(2.0f);
+    g.strokePath(linePath, stroke2);
     
     g.setColour(Colour(30, 30, 30));
     g.fillRect(23, 0, getWidth() - 23, 20);
-    g.drawLine(8, 10, 28, 10);
-    g.setColour(editor->getBackgroundColor().withLightness(0.9));
+
+    
+
+    g.setColour(Colours::lightgrey);
     g.fillRect(24, 1, 24, 18);
     g.setColour(editor->getBackgroundColor());
     g.fillRect(48, 1, getWidth() - 49, 18);
