@@ -54,6 +54,7 @@ GenericProcessor::GenericProcessor(const String& name)
 	, currentChannel(-1)
 	, editor(nullptr)
 	, parametersAsXml(nullptr)
+	, ttlEventChannel(nullptr)
 	, sendSampleCount(true)
 	, m_processorType(PROCESSOR_TYPE_UTILITY)
 	, m_name(name)
@@ -590,17 +591,64 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 	return -1;
 }
 
-void GenericProcessor::addEvent(int channelIndex, const Event* event, int sampleNum)
+void GenericProcessor::addEvent(const Event* event, int sampleNum)
 {
-	addEvent(eventChannels[channelIndex], event, sampleNum);
-}
-
-void GenericProcessor::addEvent(const EventChannel* channel, const Event* event, int sampleNum)
-{
-	size_t size = channel->getDataSize() + channel->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 	HeapBlock<char> buffer(size);
 	event->serialize(buffer, size);
 	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
+}
+
+void GenericProcessor::addTTLChannel(String name)
+{
+	if (dataStreams.size() == 0)
+		return;
+
+	if (ttlEventChannel != nullptr)
+	{
+		EventChannel::Settings settings{
+			EventChannel::Type::TTL,
+			name,
+			"Default TTL event channel",
+			"ttl.events",
+			dataStreams[0]
+		};
+
+		eventChannels.add(new EventChannel(settings));
+		ttlEventChannel = eventChannels.getLast();
+
+		ttlBitStates.clear();
+
+		for (int i = 0; i < 8; i++)
+			ttlBitStates.add(false);
+	}
+	else {
+		jassert(false); // cannot add a second default TTL channel
+	}
+}
+
+
+void GenericProcessor::flipTTLBit(int sampleIndex, int bit)
+{
+	if (bit < 0 || bit >= 8)
+		return;
+
+	bool currentState = ttlBitStates[bit];
+	ttlBitStates.set(bit, !currentState);
+
+	int64 timestamp = timestamps[ttlEventChannel->getStreamId()] + sampleIndex;
+
+	TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, bit, !currentState);
+
+	addEvent(eventPtr, sampleIndex);
+}
+
+bool GenericProcessor::getTTLBit(int bit)
+{
+	if (bit < 0 || bit >= 8)
+		return;
+
+	return ttlBitStates[bit];
 }
 
 void GenericProcessor::broadcastMessage(String msg)

@@ -453,12 +453,18 @@ protected:
     // --------------------------------------------
     //     ADDING SPIKES AND EVENTS
     // --------------------------------------------
-    
-    /** Add an event by EventChannel index */
-	void addEvent(int channelIndex, const Event* event, int sampleNum);
 
-    /** Add an event on the specified EventChannel */
-	void addEvent(const EventChannel* channel, const Event* event, int sampleNum);
+    /** Create a simple TTL event channel with 8 bits - must be called during updateSettings() */
+    void addTTLChannel(String name);
+
+    /** Must be called during the process() method */
+    void flipTTLBit(int sampleIndex, int bit);
+
+    /** Must be called during the process() method */
+    bool getTTLBit(int bit);
+
+    /** Add an Event to the processing buffer */
+	void addEvent(const Event* event, int sampleNum);
 
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
     If recording is active, this message will be recorded*/
@@ -575,6 +581,9 @@ private:
     SpikeChannelIndexMap spikeChannelMap;
 
     DataStreamMap dataStreamMap;
+
+    EventChannel* ttlEventChannel;
+    Array<bool> ttlBitStates;
 
     bool wasConnected;
 
