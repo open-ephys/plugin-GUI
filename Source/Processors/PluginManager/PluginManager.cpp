@@ -194,12 +194,12 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	HINSTANCE handle;
 	handle = LoadLibrary(processorLocCString);
 #elif defined(__APPLE__)
-    CFURLRef bundleURL = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
-                                                                 reinterpret_cast<const UInt8 *>(processorLocCString),
+    CF::CFURLRef bundleURL = CF::CFURLCreateFromFileSystemRepresentation(CF::kCFAllocatorDefault,
+                                                                 reinterpret_cast<const CF::UInt8 *>(processorLocCString),
                                                                  strlen(processorLocCString),
                                                                  true);
     assert(bundleURL);
-    CFBundleRef handle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
+    CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
     CFRelease(bundleURL);
 #else
 	// Clear errors

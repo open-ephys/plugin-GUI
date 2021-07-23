@@ -259,7 +259,7 @@ void AudioNode::process(AudioBuffer<float>& buffer)
         AudioBuffer<float>* overflowBuffer;
         AudioBuffer<float>* backupBuffer;
 
-       /* int nInputs = dataChannelArray.size();
+        int nInputs = dataChannelArray.size();
         if (nInputs > 0) // we have some channels
         {
 

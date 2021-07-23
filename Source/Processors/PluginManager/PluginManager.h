@@ -34,7 +34,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #elif defined(__APPLE__)
+namespace CF {
 #include <CoreFoundation/CFBundle.h>
+}
 #endif
 
 struct LoadedLibInfo : public Plugin::LibraryInfo
@@ -42,7 +44,7 @@ struct LoadedLibInfo : public Plugin::LibraryInfo
 #ifdef WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
-    CFBundleRef handle;
+    CF::CFBundleRef handle;
 #else
 	void* handle;
 #endif

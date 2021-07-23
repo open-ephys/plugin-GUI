@@ -81,7 +81,7 @@ TTLMonitor::~TTLMonitor()
 int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
 {
     
-    displays.clear();
+    //displays.clear();
     deleteAllChildren();
 
     int xloc = 0;
@@ -97,7 +97,7 @@ int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
                 TTLBitDisplay* display =
                     new TTLBitDisplay(colours[bit % colours.size()],
                         name);
-                displays[eventChannel->getStreamId()][bit] = display;
+                //displays[eventChannel->getStreamId()][bit] = display;
                 display->setBounds(xloc, yloc, 10, 10);
                 yloc += 10;
 
@@ -123,5 +123,5 @@ int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
 
 void TTLMonitor::setState(uint16 streamId, int bit, bool state)
 {
-    displays[streamId][bit]->setState(state);
+    //displays[streamId][bit]->setState(state);
 }
