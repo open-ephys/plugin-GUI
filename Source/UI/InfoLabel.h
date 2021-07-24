@@ -29,7 +29,25 @@
 
 /**
 
-  Displays general instructions about how to use the application.
+  Makes it possible to switch between different tabs
+  within the "Info" panel.
+
+*/
+class InfoLabelTabButton : public Button
+{
+public:
+    /** Constructor*/
+    InfoLabelTabButton(const String& name);
+
+private:
+
+    /** Custom button rendering function*/
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+};
+
+/**
+
+  Displays info about the GUI.
 
   Inhabits a tab in the DataViewport.
 
@@ -37,24 +55,51 @@
 
 */
 
-class InfoLabel : public Component
+class InfoLabel : public Component,
+    public Button::Listener
 
 {
 public:
+    /** Constructor */
     InfoLabel();
+
+    /** Destructor */
     ~InfoLabel();
 
-    /** Draws the InfoLabel.*/
+    /** Fills the background and draws a logo.*/
     void paint(Graphics& g);
+
+    /** Resizes text field*/
+    void resized();
+
+    /** Called when tab buttons are pressed.*/
+    void buttonClicked(Button* button);
 
 private:
 
-    /** The text displayed to the user.*/
-    String infoString;
+    /** Sets the "about" text*/
+    void setAboutText();
 
-    /** Font used to draw the label.*/
-    Font labelFont;
+    /** Sets the "authors" text*/
+    void setAuthorsText();
 
+    /** Sets the license text*/
+    void setLicenseText();
+
+    void mouseMove(const MouseEvent& mouse);
+
+    void mouseUp(const MouseEvent& mouse);
+
+    std::unique_ptr<TextEditor> textEditor;
+    OwnedArray<InfoLabelTabButton> tabButtons;
+
+    struct Hyperlink
+    {
+        String url;
+        Range<int> position;
+    } hyperlink;
+
+    Array<Hyperlink> hyperlinks;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
 
