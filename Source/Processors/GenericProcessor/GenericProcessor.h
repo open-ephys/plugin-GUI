@@ -61,6 +61,8 @@ class DeviceInfo;
 
 class Spike;
 
+class LatencyMeter;
+
 using namespace Plugin;
 
 namespace AccessClass
@@ -370,7 +372,7 @@ public:
 
     PluginProcessorType getProcessorType() const;
 
-	juce::int64 getLastProcessedsoftwareTime() const;
+	//juce::int64 getLastProcessedsoftwareTime() const;
 
 	//static uint32 getProcessorFullId(uint16 processorId, uint16 streamIdx);
 
@@ -528,8 +530,11 @@ private:
     /** Map between stream IDs and buffer timestamps. */
 	std::map<uint16, juce::int64> timestamps;
 
-    /** Last software timestamp. */
-	juce::int64 m_lastProcessTime;
+    /** Map between stream IDs and start time of process callbacks. */
+    std::map<uint16, juce::int64> processStartTimes;
+
+    /** First software timestamp of process() callback. */
+	juce::int64 m_initialProcessTime;
 
     /** Built-in method for creating continuous channels. */
 	void createDataChannelsByType(ContinuousChannel::Type type);
@@ -587,9 +592,25 @@ private:
 
     bool wasConnected;
 
-    int delayCounter;
+    std::unique_ptr<LatencyMeter> latencyMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
+};
+
+class LatencyMeter
+{
+public:
+    LatencyMeter(GenericProcessor* processor);
+
+    void setLatestLatency(std::map<uint16, juce::int64>& processStartTimes);
+
+    void update(Array<const DataStream*>);
+
+private:
+    int counter;
+
+    std::map<uint16, Array<int>> latencies;
+    GenericProcessor* processor;
 };
 
 

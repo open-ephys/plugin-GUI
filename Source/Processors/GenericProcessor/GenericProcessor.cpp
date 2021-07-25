@@ -59,10 +59,9 @@ GenericProcessor::GenericProcessor(const String& name)
 	, m_processorType(PROCESSOR_TYPE_UTILITY)
 	, m_name(name)
 	, m_paramsWereLoaded(false)
-	, delayCounter(0)
 
 {
-	m_lastProcessTime = Time::getHighResolutionTicks();
+	latencyMeter = std::make_unique<LatencyMeter>(this);
 }
 
 
@@ -74,6 +73,8 @@ GenericProcessor::~GenericProcessor()
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
 	editor = std::make_unique<GenericEditor>(this, true);
+
+	
 
 	return editor.get();
 }
@@ -178,6 +179,10 @@ void GenericProcessor::clearSettings()
 	spikeChannels.clear();
 	configurationObjects.clear();
 	dataStreams.clear();
+
+	timestamps.clear();
+	numSamples.clear();
+	processStartTimes.clear();
 
 }
 
@@ -375,6 +380,7 @@ void GenericProcessor::updateChannelIndexMaps()
 		dataStreamMap[streamId] = stream;
 	}
 	
+	latencyMeter->update(getDataStreams());
 }
 
 String GenericProcessor::handleConfigMessage(String msg)
@@ -456,13 +462,14 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 		streamId, 
 		timestamp, 
 		nSamples,
-		m_lastProcessTime);
+		m_initialProcessTime);
 
 	eventBuffer.addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
 	timestamps[streamId] = timestamp;
 	numSamples[streamId] = nSamples;
+	processStartTimes[streamId] = m_initialProcessTime;
 
 	if (m_needsToSendTimestampMessages[streamId] && nSamples > 0)
 	{
@@ -511,22 +518,11 @@ int GenericProcessor::processEventBuffer()
 
 				juce::int64 timestamp = *reinterpret_cast<const juce::int64*>(dataptr + 8);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 16);
+				juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
 				
 				numSamples[sourceStreamId] = nSamples;
 				timestamps[sourceStreamId] = timestamp;
-
-				
-
-				if (delayCounter > 10)
-				{
-					delayCounter = 0;
-					juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
-					std::cout << nodeId << " : " << float(Time::getHighResolutionTicks() - initialTicks) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
-				}
-				else
-				{
-					delayCounter++;
-				}
+				processStartTimes[sourceStreamId] = initialTicks;
 					
 			}
 			//else {
@@ -702,7 +698,7 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 {
 
 	if (isSource())
-		m_lastProcessTime = Time::getHighResolutionTicks();
+		m_initialProcessTime = Time::getHighResolutionTicks();
 
 	m_currentMidiBuffer = &eventBuffer;
 
@@ -710,6 +706,7 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 
 	process(buffer);
 
+	latencyMeter->setLatestLatency(processStartTimes);
 }
 
 Array<const EventChannel*> GenericProcessor::getEventChannels()
@@ -1124,34 +1121,67 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
 	sampleRate(44100)
 {}
 
-int64 GenericProcessor::getLastProcessedsoftwareTime() const
+
+LatencyMeter::LatencyMeter(GenericProcessor* processor_)
+	: processor(processor_),
+	counter(0)
 {
-	return m_lastProcessTime;
+
 }
 
-/*uint32 GenericProcessor::getProcessorFullId(uint16 sid, uint16 subid)
+void LatencyMeter::update(Array<const DataStream*>dataStreams)
 {
-	return (uint32(sid) << 16) + subid;
+	latencies.clear();
+
+	for (auto dataStream : dataStreams)
+		latencies[dataStream->getStreamId()].insertMultiple(0, 0, 5);
+
 }
 
-uint16 GenericProcessor::getNodeIdFromFullId(uint32 fid)
+void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes)
 {
-	return (fid & 0xFFFF0000 ) >> 16;
+
+	if (counter % 10 == 0) // update latency estimate every 10 blocks
+	{
+
+		std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
+
+		int64 currentTime = Time::getHighResolutionTicks();
+
+		while (it != processStartTimes.end())
+		{
+			latencies[it->first].set(counter % 5, currentTime - it->second);
+			it++;
+		}
+
+		if (counter % 50 == 0)
+		{
+
+			std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
+
+			while (it != processStartTimes.end())
+			{
+				float totalLatency = 0.0f;
+
+				for (int i = 0; i < 10; i++)
+					totalLatency += float(latencies[it->first][i]);
+
+				totalLatency = totalLatency / 5.0f
+					/ float(Time::getHighResolutionTicksPerSecond())
+					* 1000.0f;
+
+				std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
+
+				it++;
+
+				//processor->getEditor()->setMeanLatencyMs(it->first, 
+					//);
+			}
+			
+		}
+			
+	}
+
+	counter++;
+
 }
-
-uint16 GenericProcessor::getSubProcessorFromFullId(uint32 fid)
-{
-	return (fid & 0x0000FFFF);
-}
-
-
-
-void ChannelCreationIndices::clearChannelCreationCounts()
-{
-	dataChannelCount = 0;
-	dataChannelTypeCount.clear();
-	eventChannelCount = 0;
-	eventChannelTypeCount.clear();
-	spikeChannelCount = 0;
-	spikeChannelTypeCount.clear();
-}*/

@@ -1559,8 +1559,8 @@ int64 ProcessorGraph::getGlobalTimestamp() const
 	}
 	else
 	{
-		return static_cast<int64>((Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - m_timestampSource->getLastProcessedsoftwareTime())
-			* m_timestampSource->getSampleRate(m_timestampSourceStreamId)) + m_timestampSource->getSourceTimestamp(m_timestampSourceStreamId));
+		//return static_cast<int64>((Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - m_timestampSource->getLastProcessedsoftwareTime())
+		//	* m_timestampSource->getSampleRate(m_timestampSourceStreamId)) + m_timestampSource->getSourceTimestamp(m_timestampSourceStreamId));
 	}
 }
 
