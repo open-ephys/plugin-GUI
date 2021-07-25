@@ -127,7 +127,7 @@ void InfoLabel::resized()
     if (tabButtons.getFirst()->getToggleState())
     {
         viewedComponent->setBounds(0, 0, getWidth() - 40, textEditor->getTextHeight() + 340);
-        textEditor->setBounds(0, 260, getWidth() - 60, textEditor->getTextHeight() + 20);
+        textEditor->setBounds(0, 280, getWidth() - 60, textEditor->getTextHeight() + 20);
     }
         
     else
@@ -139,7 +139,7 @@ void InfoLabel::resized()
     color_logo->setBounds(0, 0, 288, 144);
 
     for (int i = 0; i < tabButtons.size(); i++)
-         tabButtons[i]->setBounds(20 + 130 * i, 20, 90, 40);
+         tabButtons[i]->setBounds(40 + 130 * i, 20, 90, 40);
 
     if (tabButtons.getFirst()->getToggleState())
         color_logo->setVisible(true);
@@ -255,7 +255,7 @@ void InfoLabel::setAboutText()
     textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
     textEditor->insertTextAtCaret("Any publications based on data collected with this software should "
         "cite the following article: \n\n"
-        "Open Ephys : an open-source, plugin-based platform for "
+        "   Open Ephys : an open-source, plugin-based platform for "
         "multichannel electrophysiology.\n\n"
 
         "Citations remain essential for measuring the impact of scientific "
@@ -268,7 +268,7 @@ void InfoLabel::setAboutText()
     textEditor->insertTextAtCaret("For questions, email ");
 
     textEditor->setFont(Font("Fira Code", 16, Font::plain));
-    textEditor->insertTextAtCaret("info@open-ephys.org");
+    textEditor->insertTextAtCaret("support@open-ephys.org");
 
     textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
     textEditor->insertTextAtCaret(" or post an issue at ");
@@ -300,14 +300,14 @@ void InfoLabel::setAboutText()
     hyperlinks.add(hyperlink);
 
     hyperlink.url = "https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea/meta";
-    hyperlink.position.setStart(992);
-    hyperlink.position.setEnd(1077);
+    hyperlink.position.setStart(995);
+    hyperlink.position.setEnd(1080);
 
     hyperlinks.add(hyperlink);
 
     hyperlink.url = "https://github.com/open-ephys/plugin-GUI/issues";
-    hyperlink.position.setStart(1319);
-    hyperlink.position.setEnd(1357);
+    hyperlink.position.setStart(1325);
+    hyperlink.position.setEnd(1363);
 
     hyperlinks.add(hyperlink);
 }
