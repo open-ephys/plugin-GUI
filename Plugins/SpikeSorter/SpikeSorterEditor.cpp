@@ -35,11 +35,11 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
 {
     tabText = "Spike Detector";
 
-	int silksize;
-	const char* silk = CoreServices::getApplicationResource("silkscreenserialized", silksize);
-    MemoryInputStream mis(silk, silksize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
+	//int silksize;
+	//const char* silk = CoreServices::getApplicationResource("silkscreenserialized", silksize);
+    //MemoryInputStream mis(silk, silksize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    //font = Font(typeface);
 
     desiredWidth = 300;
 
@@ -111,7 +111,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     audioMonitorButton->setClickingTogglesState(true);
     addAndMakeVisible(audioMonitorButton);
 
-    removeElectrodeButton = new UtilityButton("-",font);
+    removeElectrodeButton = new UtilityButton("-", Font("Small Text", 12, Font::plain));
     removeElectrodeButton->addListener(this);
     removeElectrodeButton->setBounds(15,45,14,14);
     addAndMakeVisible(removeElectrodeButton);
@@ -122,7 +122,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     configButton->setBounds(10,65,60,15);
     addAndMakeVisible(configButton);
 
-    thresholdSlider = new ThresholdSlider(font);
+    thresholdSlider = new ThresholdSlider(Font("Small Text", 12, Font::plain));
     thresholdSlider->setBounds(210,25,65,65);
     addAndMakeVisible(thresholdSlider);
     thresholdSlider->addListener(this);
@@ -131,8 +131,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     thresholdSlider->setValues(v);
 
     thresholdLabel = new Label("Name","Threshold");
-    font.setHeight(10);
-    thresholdLabel->setFont(font);
+    thresholdLabel->setFont(Font("Small Text", 12, Font::plain));
     thresholdLabel->setBounds(208, 85, 95, 15);
     thresholdLabel->setColour(Label::textColourId, Colours::grey);
     addAndMakeVisible(thresholdLabel);
@@ -140,7 +139,7 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     // create a custom channel selector
     channelSelector.reset();
 
-    channelSelector = std::make_unique< ChannelSelector>(true, font);
+    channelSelector = std::make_unique< ChannelSelector>(true, Font("Small Text", 12, Font::plain));
     addChildComponent(channelSelector.get());
     channelSelector->setVisible(false);
 

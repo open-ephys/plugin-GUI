@@ -32,10 +32,10 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
 
 {
 	int silksize;
-	const char* silk = CoreServices::getApplicationResource("silkscreenserialized", silksize);
-    MemoryInputStream mis(silk, silksize, false);
-    Typeface::Ptr typeface = new CustomTypeface(mis);
-    font = Font(typeface);
+	//const char* silk = CoreServices::getApplicationResource("silkscreenserialized", silksize);
+   // MemoryInputStream mis(silk, silksize, false);
+    //Typeface::Ptr typeface = new CustomTypeface(mis);
+    //font = Font(typeface);
 
     desiredWidth = 300;
 
@@ -86,25 +86,25 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     plusButton->setBounds(15,42,14,14);
     addAndMakeVisible(plusButton);
 
-    ElectrodeEditorButton* e1 = new ElectrodeEditorButton("EDIT",font);
+    ElectrodeEditorButton* e1 = new ElectrodeEditorButton("EDIT", Font("Small Text", 10, Font::FontStyleFlags::plain));
     e1->addListener(this);
     addAndMakeVisible(e1);
     e1->setBounds(15,110,40,10);
     electrodeEditorButtons.add(e1);
 
-    ElectrodeEditorButton* e2 = new ElectrodeEditorButton("MONITOR",font);
+    ElectrodeEditorButton* e2 = new ElectrodeEditorButton("MONITOR", Font("Small Text", 10, Font::FontStyleFlags::plain));
     e2->addListener(this);
     addAndMakeVisible(e2);
     e2->setBounds(55,110,70,10);
     electrodeEditorButtons.add(e2);
 
-    ElectrodeEditorButton* e3 = new ElectrodeEditorButton("DELETE",font);
+    ElectrodeEditorButton* e3 = new ElectrodeEditorButton("DELETE", Font("Small Text", 10, Font::FontStyleFlags::plain));;
     e3->addListener(this);
     addAndMakeVisible(e3);
     e3->setBounds(130,110,70,10);
     electrodeEditorButtons.add(e3);
 
-    thresholdSlider = new ThresholdSlider(font);
+    thresholdSlider = new ThresholdSlider(Font("Small Text", 10, Font::FontStyleFlags::plain));
     thresholdSlider->setBounds(200,35,75,75);
     addAndMakeVisible(thresholdSlider);
     thresholdSlider->addListener(this);
@@ -113,8 +113,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     thresholdSlider->setValues(v);
 
     thresholdLabel = new Label("Name","Threshold");
-    font.setHeight(10);
-    thresholdLabel->setFont(font);
+    thresholdLabel->setFont(Font("Small Text", 10, Font::FontStyleFlags::plain));
     thresholdLabel->setBounds(202, 105, 95, 15);
     thresholdLabel->setColour(Label::textColourId, Colours::grey);
     addAndMakeVisible(thresholdLabel);

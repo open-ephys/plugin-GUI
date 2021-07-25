@@ -138,8 +138,10 @@ void PhaseDetector::setParameter (int parameterIndex, float newValue)
 void PhaseDetector::updateSettings()
 {
 	moduleEventChannels.clear();
+
 	for (int i = 0; i < modules.size(); i++)
 	{
+
 		if (getNumInputs() != lastNumInputs)
 			modules.getReference(i).inputChan = -1;
 
@@ -147,14 +149,18 @@ void PhaseDetector::updateSettings()
 
 		EventChannel *ev;
 
-		if (in)
-			ev = new EventChannel(EventChannel::TTL, 8, 1, in, this);
-		else
-			ev = new EventChannel(EventChannel::TTL, 8, 1, -1, this);
+        EventChannel::Settings settings{
+            EventChannel::Type::TTL,
+            "Phase detector output " + String(i + 1),
+            "Triggers when the input signal meets a given phase condition",
+            "dataderived.phase",
+            getDataStream(in->getStreamId())
 
-		ev->setName("Phase detector output " + String(i + 1));
-		ev->setDescription("Triggers when the input signal meets a given phase condition");
-		String identifier = "dataderived.phase.";
+        };
+
+        ev = new EventChannel(settings);
+
+		String identifier = "";
 		String typeDesc;
 		switch (modules[i].type)
 		{
@@ -168,18 +174,18 @@ void PhaseDetector::updateSettings()
 		MetadataDescriptor md(MetadataDescriptor::CHAR, 34, "Phase Type", "Description of the phase condition", "channelInfo.extra");
 		MetadataValue mv(md);
 		mv.setValue(typeDesc);
-		ev->addMetaData(md, mv);
+		ev->addMetadata(md, mv);
 		if (in)
 		{
 			md = MetadataDescriptor(MetadataDescriptor::UINT16, 3, "Source Channel",
 				"Index at its source, Source processor ID and Sub Processor index of the channel that triggers this event", "source.channel.identifier.full");
 			mv = MetadataValue(md);
 			uint16 sourceInfo[3];
-			sourceInfo[0] = in->getSourceIndex();
-			sourceInfo[1] = in->getSourceNodeID();
-			sourceInfo[2] = in->getSubProcessorIdx();
+			sourceInfo[0] = in->getSourceNodeId();
+			sourceInfo[1] = in->getStreamId();
+			sourceInfo[2] = in->getLocalIndex();
 			mv.setValue(static_cast<const uint16*>(sourceInfo));
-			ev->addMetaData(md, mv);
+			ev->addMetadata(md, mv);
 		}
 		eventChannels.add(ev);
 		moduleEventChannels.add(ev);
@@ -255,7 +261,7 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                             module.outputChan,
                             true);
 
-						addEvent(moduleEventChannels[m], event, i);
+						addEvent(event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -274,7 +280,7 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                             module.outputChan,
                             true);
 
-						addEvent(moduleEventChannels[m], event, i);
+						addEvent(event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -291,7 +297,7 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                             module.outputChan, 
                             true);
 
-						addEvent(moduleEventChannels[m], event, i);
+						addEvent(event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -311,7 +317,7 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                             module.outputChan,
                             true);
                         
-                        addEvent(moduleEventChannels[m], event, i);
+                        addEvent(event, i);
                         module.samplesSinceTrigger = 0;
                         module.wasTriggered = true;
                     }
@@ -332,7 +338,7 @@ void PhaseDetector::process (AudioSampleBuffer& buffer)
                             module.outputChan,
                             false);
 
-                        addEvent(moduleEventChannels[m], event, i);
+                        addEvent(event, i);
                         module.wasTriggered = false;
                     }
                     else
