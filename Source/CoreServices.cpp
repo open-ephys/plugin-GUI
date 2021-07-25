@@ -269,10 +269,10 @@ namespace CoreServices
 
 	};
 
-	const char* getApplicationResource(const char* name, int& size)
-	{
-		return BinaryData::getNamedResource(name, size);
-	}
+	//const char* getApplicationResource(const char* name, int& size)
+	//{
+	//	return BinaryData::getNamedResource(name, size);
+	//}
 
 	File getDefaultUserSaveDirectory()
 	{

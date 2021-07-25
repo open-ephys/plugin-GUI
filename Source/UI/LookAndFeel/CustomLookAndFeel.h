@@ -177,7 +177,9 @@ private:
     firasansExtraLight,
     firasansRegular,
     firasansSemiBold,
-    firasansExtraBold;
+    firasansExtraBold,
+    firaCode,
+    nimbusSans;
 
     Font getCommonMenuFont();
 };

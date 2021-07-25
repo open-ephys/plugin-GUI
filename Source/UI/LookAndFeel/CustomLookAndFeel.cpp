@@ -27,26 +27,26 @@
 CustomLookAndFeel::CustomLookAndFeel() :
     // third argument to MIS means don't copy the binary data to make a new stream
     cpmonoExtraLightStream(BinaryData::cpmonoextralightserialized,
-                           BinaryData::cpmonoextralightserializedSize,
-                           false),
+        BinaryData::cpmonoextralightserializedSize,
+        false),
     cpmonoLightStream(BinaryData::cpmonolightserialized,
-                      BinaryData::cpmonolightserializedSize,
-                      false),
+        BinaryData::cpmonolightserializedSize,
+        false),
     cpmonoPlainStream(BinaryData::cpmonoplainserialized,
-                      BinaryData::cpmonoplainserializedSize,
-                      false),
+        BinaryData::cpmonoplainserializedSize,
+        false),
     cpmonoBoldStream(BinaryData::cpmonoboldserialized,
-                     BinaryData::cpmonoboldserializedSize,
-                     false),
+        BinaryData::cpmonoboldserializedSize,
+        false),
     cpmonoBlackStream(BinaryData::cpmonoblackserialized,
-                      BinaryData::cpmonoblackserializedSize,
-                      false),
+        BinaryData::cpmonoblackserializedSize,
+        false),
     misoRegularStream(BinaryData::misoserialized,
-                      BinaryData::misoserializedSize,
-                      false),
+        BinaryData::misoserializedSize,
+        false),
     silkscreenStream(BinaryData::silkscreenserialized,
-                     BinaryData::silkscreenserializedSize,
-                     false),
+        BinaryData::silkscreenserializedSize,
+        false),
     // heap allocation is necessary here, because otherwise the typefaces are
     // deleted too soon (there's a singleton typefacecache that holds references
     // to them whenever they're used).
@@ -57,14 +57,20 @@ CustomLookAndFeel::CustomLookAndFeel() :
     cpmonoBlack(new CustomTypeface(cpmonoBlackStream)),
     misoRegular(new CustomTypeface(misoRegularStream)),
     silkscreen(new CustomTypeface(silkscreenStream)),
-    firasansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf, 
-                                                         BinaryData::FiraSansExtraLight_ttfSize)),
-    firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf, 
-                                                      BinaryData::FiraSansRegular_ttfSize)),
-    firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf, 
-                                                       BinaryData::FiraSansSemiBold_ttfSize)),
-    firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf, 
-                                                        BinaryData::FiraSansExtraBold_ttfSize))
+    firasansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf,
+        BinaryData::FiraSansExtraLight_ttfSize)),
+    firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf,
+        BinaryData::FiraSansRegular_ttfSize)),
+    firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf,
+        BinaryData::FiraSansSemiBold_ttfSize)),
+    firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf,
+        BinaryData::FiraSansExtraBold_ttfSize)),
+
+    firaCode(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeRegular_ttf,
+        BinaryData::FiraCodeRegular_ttfSize)),
+
+    nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
+        BinaryData::NimbusSans_otfSize))
 
 {
 
@@ -154,6 +160,14 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     else if (typefaceName.equalsIgnoreCase("FiraSans Extra Bold"))
     {
         return firasansExtraBold;
+    }
+    else if (typefaceName.equalsIgnoreCase("Fira Code"))
+    {
+        return firaCode;
+    }
+    else if (typefaceName.equalsIgnoreCase("Nimbus Sans"))
+    {
+        return nimbusSans;
     }
     else   // default
     {

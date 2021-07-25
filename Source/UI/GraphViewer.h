@@ -235,6 +235,8 @@ private:
     String currentVersionText;
     
     OwnedArray<GraphNode> availableNodes;
+
+    Image bw_logo;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphViewer);
 };

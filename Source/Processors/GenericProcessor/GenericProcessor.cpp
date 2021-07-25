@@ -1174,8 +1174,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 
 				it++;
 
-				//processor->getEditor()->setMeanLatencyMs(it->first, 
-					//);
+				//processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
 			}
 			
 		}

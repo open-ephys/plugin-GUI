@@ -45,6 +45,7 @@ private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 };
 
+
 /**
 
   Displays info about the GUI.
@@ -100,6 +101,11 @@ private:
     } hyperlink;
 
     Array<Hyperlink> hyperlinks;
+
+    std::unique_ptr<Drawable> color_logo;
+    std::unique_ptr<Viewport> viewport;
+    std::unique_ptr<Component> viewedComponent;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
 

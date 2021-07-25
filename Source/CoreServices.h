@@ -160,7 +160,7 @@ PLUGIN_API bool getRecordingStatus(int nodeId);
 };
 
 /** Returns data for an application resource (stored in BinaryData object) */
-PLUGIN_API const char* getApplicationResource(const char* name, int& size);
+//PLUGIN_API const char* getApplicationResource(const char* name, int& size);
     
 /** Gets the default directory for user-initiated file saving/loading */
 PLUGIN_API File getDefaultUserSaveDirectory();

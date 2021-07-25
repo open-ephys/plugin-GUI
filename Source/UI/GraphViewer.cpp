@@ -37,6 +37,8 @@ GraphViewer::GraphViewer()
 {
     JUCEApplication* app = JUCEApplication::getInstance();
     currentVersionText = "GUI version " + app->getApplicationVersion();
+
+    bw_logo = ImageCache::getFromMemory(BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
     
     rootNum = 0;
 }
@@ -164,15 +166,17 @@ GraphNode* GraphViewer::getNodeForEditor (GenericEditor* editor) const
 void GraphViewer::paint (Graphics& g)
 {
     g.fillAll (Colours::darkgrey);
-    
+    g.setOpacity(0.6f);
+    g.drawImageAt(bw_logo, getWidth()-165, getHeight()-105);
     g.setFont (Font("Paragraph",  50, Font::plain));
     
+    g.setOpacity(1.0f);
     g.setColour (Colours::grey);
     
-    g.drawFittedText ("open ephys", 40, 40, getWidth()-50, getHeight()-60, Justification::bottomRight, 100);
+    //g.drawFittedText ("open ephys", 40, 40, getWidth()-50, getHeight()-60, Justification::bottomRight, 100);
     
     g.setFont (Font("Small Text", 14, Font::plain));
-    g.drawFittedText (currentVersionText, 40, 40, getWidth()-50, getHeight()-45, Justification::bottomRight, 100);
+    g.drawFittedText (currentVersionText, 40, 40, getWidth()-55, getHeight()-50, Justification::bottomRight, 100);
     
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
