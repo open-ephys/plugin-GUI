@@ -201,7 +201,8 @@ public:
 		const GenericProcessor* proc, 
 		uint16 streamId, 
 		juce::int64 timestamp, 
-		uint32 nSamples);
+		uint32 nSamples,
+		juce::int64 processStartTime);
 		
 	/* Create a TIMESTAMP_SYNC_TEXT event */
 	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, 
@@ -215,6 +216,9 @@ public:
 
 	/* Get the sample count from an EventPacket object */
 	static uint32 getNumSamples(const EventPacket& msg);
+
+	/* Get the sample count from an EventPacket object */
+	static int64 getHiResTicks(const EventPacket& msg);
 	
 	/* Get the sync text from an EventPacket object */
 	static String getSyncText(const EventPacket& msg);

@@ -155,18 +155,20 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
 	const GenericProcessor* proc, 
 	uint16 streamId, 
 	juce::int64 timestamp, 
-	uint32 nSamples)
+	uint32 nSamples,
+	juce::int64 processStartTime)
 {
-	const int eventSize = 20;
+	const int eventSize = 28;
 	data.malloc(eventSize);
-	data[0] = SYSTEM_EVENT;
-	data[1] = TIMESTAMP_AND_SAMPLES;
-	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
-	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;
-	data[6] = 0;
-	data[7] = 0;
-	*reinterpret_cast<juce::int64*>(data.getData() + 8) = timestamp;
-	*reinterpret_cast<uint32*>(data.getData() + 16) = nSamples;
+	data[0] = SYSTEM_EVENT;													 // 1 byte
+	data[1] = TIMESTAMP_AND_SAMPLES;										 // 1 byte
+	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();		 // 2 bytes
+	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;				 // 2 bytes
+	data[6] = 0;															 // 1 byte 
+	data[7] = 0;															 // 1 byte
+	*reinterpret_cast<juce::int64*>(data.getData() + 8) = timestamp;		 // 8 bytes
+	*reinterpret_cast<uint32*>(data.getData() + 16) = nSamples;				 // 8 bytes
+	*reinterpret_cast<juce::int64*>(data.getData() + 20) = processStartTime; // 8 bytes
 	return eventSize;
 }
 
@@ -213,6 +215,14 @@ uint32 SystemEvent::getNumSamples(const EventPacket& packet)
 		return 0;
 
 	return *reinterpret_cast<const uint32*>(packet.getRawData() + 16);
+}
+
+int64 SystemEvent::getHiResTicks(const EventPacket& packet)
+{
+	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_AND_SAMPLES)
+		return 0;
+
+	return *reinterpret_cast<const int64*>(packet.getRawData() + 20);
 }
 
 String SystemEvent::getSyncText(const EventPacket& packet)

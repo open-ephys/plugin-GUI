@@ -587,6 +587,8 @@ private:
 
     bool wasConnected;
 
+    int delayCounter;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
 };
 

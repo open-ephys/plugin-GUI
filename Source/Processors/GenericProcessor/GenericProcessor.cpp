@@ -59,6 +59,8 @@ GenericProcessor::GenericProcessor(const String& name)
 	, m_processorType(PROCESSOR_TYPE_UTILITY)
 	, m_name(name)
 	, m_paramsWereLoaded(false)
+	, delayCounter(0)
+
 {
 	m_lastProcessTime = Time::getHighResolutionTicks();
 }
@@ -449,7 +451,12 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 	LOGDD("Setting timestamp to ", timestamp);
 
 	HeapBlock<char> data;
-	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, this, streamId, timestamp, nSamples);
+	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, 
+		this, 
+		streamId, 
+		timestamp, 
+		nSamples,
+		m_lastProcessTime);
 
 	eventBuffer.addEvent(data, dataSize, 0);
 
@@ -494,7 +501,7 @@ int GenericProcessor::processEventBuffer()
 
 		while (i.getNextEvent(dataptr, dataSize, samplePosition))
 		{
-			//TODO: remove the mask when the probe system is implemented
+
 			if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT 
 				&& static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::TIMESTAMP_AND_SAMPLES))
 			{
@@ -502,10 +509,25 @@ int GenericProcessor::processEventBuffer()
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
 				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
 
-				juce::uint64 timestamp = *reinterpret_cast<const juce::uint64*>(dataptr + 8);
+				juce::int64 timestamp = *reinterpret_cast<const juce::int64*>(dataptr + 8);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 16);
+				
 				numSamples[sourceStreamId] = nSamples;
 				timestamps[sourceStreamId] = timestamp;
+
+				
+
+				if (delayCounter > 10)
+				{
+					delayCounter = 0;
+					juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
+					std::cout << nodeId << " : " << float(Time::getHighResolutionTicks() - initialTicks) / float(Time::getHighResolutionTicksPerSecond()) << std::endl;
+				}
+				else
+				{
+					delayCounter++;
+				}
+					
 			}
 			//else {
 			//	std::cout << nodeId << " : " << " received event" << std::endl;
@@ -678,11 +700,13 @@ void GenericProcessor::addSpike(const SpikeChannel* channel, const Spike* spike,
 
 void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& eventBuffer)
 {
+
+	if (isSource())
+		m_lastProcessTime = Time::getHighResolutionTicks();
+
 	m_currentMidiBuffer = &eventBuffer;
 
 	processEventBuffer(); // extract buffer sizes and timestamps,
-
-	m_lastProcessTime = Time::getHighResolutionTicks();
 
 	process(buffer);
 
