@@ -165,7 +165,7 @@ GraphNode* GraphViewer::getNodeForEditor (GenericEditor* editor) const
 
 void GraphViewer::paint (Graphics& g)
 {
-    g.fillAll (Colours::darkgrey);
+    g.fillAll (Colour(20,20,20));
     g.setOpacity(0.6f);
     g.drawImageAt(bw_logo, getWidth()-165, getHeight()-105);
     g.setFont (Font("Paragraph",  50, Font::plain));
