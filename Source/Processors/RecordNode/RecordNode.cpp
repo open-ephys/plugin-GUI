@@ -116,7 +116,7 @@ void RecordNode::disconnectMessageCenter()
 
 		isConnectedToMessageCenter = false;
 
-		LOGD("Record node ", getNodeId(), " disconnected from Message Center");
+		LOGDD("Record node ", getNodeId(), " disconnected from Message Center");
 	}
 
 }
