@@ -288,7 +288,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
     checkForEvents();
 
-	for (int streamIdx = 0; streamIdx < numStreams; numStreams++)
+	for (int streamIdx = 0; streamIdx < inputBuffers.size(); streamIdx++)
 	{
 		int channelsToCopy = getNumOutputsForStream(streamIdx);
 		
