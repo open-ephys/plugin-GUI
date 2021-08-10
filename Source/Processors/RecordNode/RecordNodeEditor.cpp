@@ -44,7 +44,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
 	//addAndMakeVisible(masterLabel);
 
-	masterMonitor = new FifoMonitor(recordNode, -1, -1);
+	masterMonitor = new FifoMonitor(recordNode, -1);
 	masterMonitor->setBounds(18, 33, 15, 92);
 	addAndMakeVisible(masterMonitor);
 
@@ -137,33 +137,27 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
 
 	//Save channel states:
-	for (auto processorId : extract_keys(recordNode->dataChannelStates))
+	for (auto streamId : extract_keys(recordNode->dataChannelStates))
 	{
 
-		for (auto streamId : extract_keys(recordNode->dataChannelStates[processorId]))
+		if (recordNode->dataChannelStates[streamId].size() > 0)
 		{
+			XmlElement* stream = xmlNode->createNewChildElement("DATASTREAM");
 
-			if (recordNode->dataChannelStates[processorId][streamId].size() > 0)
+			stream->setAttribute("stream_id", streamId);
+			stream->setAttribute("isPrimary", 
+				recordNode->synchronizer->primaryStreamId == streamId);
+			stream->setAttribute("sync_bit", recordNode->syncChannelMap[streamId]);
+
+			XmlElement* recStateNode = stream->createNewChildElement("RECORDSTATE");
+
+			for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 			{
-				XmlElement* subProcNode = xmlNode->createNewChildElement("DATASTREAM");
-
-				subProcNode->setAttribute("processor_id", processorId);
-				subProcNode->setAttribute("stream_id", streamId);
-				subProcNode->setAttribute("isPrimary", 
-					recordNode->synchronizer->primaryProcessorId == processorId 
-					&& recordNode->synchronizer->primaryStreamId == streamId);
-				subProcNode->setAttribute("sync_bit", recordNode->syncChannelMap[processorId][streamId]);
-
-				XmlElement* recStateNode = subProcNode->createNewChildElement("RECORDSTATE");
-
-				for (int ch = 0; ch < recordNode->dataChannelStates[processorId][streamId].size(); ch++)
-				{
-					recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[processorId][streamId][ch]);
-				}
-
+				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[streamId][ch]);
 			}
 
 		}
+
 
 	}
 	
@@ -187,13 +181,12 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
-				if (subNode->hasTagName("SUBPROCESSOR"))
+				if (subNode->hasTagName("DATASTREAM"))
 				{
 
-					int processorId = subNode->getIntAttribute("processor_id");
 					int streamId = subNode->getIntAttribute("stream_id");
 
-					if (recordNode->dataChannelStates[processorId][streamId].size())
+					if (recordNode->dataChannelStates[streamId].size())
 					{
 
 						if (subNode->getBoolAttribute("isMaster"))
@@ -205,10 +198,10 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 
 						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
 
-						for (int ch = 0; ch < recordNode->dataChannelStates[processorId][streamId].size(); ch++)
+						for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 						{
 							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
-							recordNode->dataChannelStates[processorId][streamId][ch] = recordStates->getIntAttribute("CH" + String(ch));
+							recordNode->dataChannelStates[streamId][ch] = recordStates->getIntAttribute("CH" + String(ch));
 						}
 
 					}
@@ -277,43 +270,32 @@ void RecordNodeEditor::updateSubprocessorFifos()
 		subProcMonitors.clear();
 		subProcRecords.clear();
 
-		std::map<int, std::map<int, std::vector<bool>>>::iterator it;
-		std::map<int, std::vector<bool>>::iterator ptr;
+		int streamCount = 0;
 
-		int i = 0;
-		for (it = recordNode->dataChannelStates.begin(); it != recordNode->dataChannelStates.end(); it++) {
+		for (auto const& [streamId, channelStates] : recordNode->dataChannelStates)
+		{
 
-			for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
+			String name = "SP" + String(streamCount);
+			subProcLabels.add(new Label(name, name));
+			subProcLabels.getLast()->setBounds(13 + streamCount * 20, 24, 40, 20);
+			subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
+			addAndMakeVisible(subProcLabels.getLast());
+			subProcLabels.getLast()->setVisible(false);
 
-				if (recordNode->dataChannelStates[it->first][ptr->first].size())
-				{
+			subProcMonitors.add(new FifoMonitor(recordNode, streamId));
+			subProcMonitors.getLast()->setBounds(18 + streamCount * 20, 43, 15, 62);
+			addAndMakeVisible(subProcMonitors.getLast());
+			subProcMonitors.getLast()->setVisible(false);
 
-					String name = "SP" + String(i);
-					subProcLabels.add(new Label(name, name));
-					subProcLabels.getLast()->setBounds(13 + i * 20, 24, 40, 20);
-					subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-					addAndMakeVisible(subProcLabels.getLast());
-					subProcLabels.getLast()->setVisible(false);
+			subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
+			subProcRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
+			subProcRecords.getLast()->addListener(this);
+			addAndMakeVisible(subProcRecords.getLast());
+			subProcRecords.getLast()->setVisible(false);
 
-					subProcMonitors.add(new FifoMonitor(recordNode, it->first, ptr->first));
-					subProcMonitors.getLast()->setBounds(18 + i * 20, 43, 15, 62);
-					addAndMakeVisible(subProcMonitors.getLast());
-					subProcMonitors.getLast()->setVisible(false);
+			streamCount++;
 
-					subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(i), it->first, ptr->first));
-					subProcRecords.getLast()->setBounds(18 + i * 20, 110, 15, 15);
-					subProcRecords.getLast()->addListener(this);
-					addAndMakeVisible(subProcRecords.getLast());
-					subProcRecords.getLast()->setVisible(false);
-
-					i++;
-
-				}
-
-			}
 		}
-
-
 	} 
 }
 
@@ -500,10 +482,9 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, int pId, int sId) 
+SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint64 streamId) 
 	: Button(name),
-	  processorId(pId),
-	  streamId(sId),
+	  streamId(streamId),
 	  node(_node)
 {
 
@@ -525,7 +506,7 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
 	if (syncChannelSelector->isMaster)
 	{
-		LOGD("Set primary: {", processorId, ",", streamId, "}");
+		LOGD("Set primary: {", streamId, "}");
 		node->setPrimaryDataStream(streamId);
 		isPrimary = true;
 	}
@@ -549,11 +530,7 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 	if (!node->recordThread->isThreadRunning() && event.mods.isLeftButtonDown())
 	{
 
-		std::vector<bool> channelStates;
-		for (int i = 0; i < 8; i++)
-			channelStates.push_back(false);
-
-		int nEvents = node->eventMap[processorId][streamId];
+		int nEvents = node->getDataStream(streamId)->getEventChannels().size();
 		int syncBit = node->getSyncBit(streamId);
 		
 		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncBit, node->isPrimaryDataStream(streamId));
@@ -576,10 +553,10 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 	g.setColour(Colour(110,110,110));
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	if (processorId > 0 && CoreServices::getAcquisitionStatus())
+	if (streamId > 0 && CoreServices::getAcquisitionStatus())
 	{
 
-		switch(node->synchronizer->getStatus(processorId, streamId)) {
+		switch(node->synchronizer->getStatus(streamId)) {
                 
             case SyncStatus::OFF :
             {
@@ -674,7 +651,7 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, int srcID, int subID) : recordNode(node), srcID(srcID), subID(subID), fillPercentage(0.5)
+FifoMonitor::FifoMonitor(RecordNode* node, uint64 streamId) : recordNode(node), streamId(streamId), fillPercentage(0.5)
 {
 
 	startTimer(500);
@@ -688,10 +665,10 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	if (event.mods.isRightButtonDown())
 		return;
 
-	if (srcID < 0) //TODO: Master box was selected; show read-only channel selector
+	if (streamId < 0) //TODO: Master box was selected; show read-only channel selector
 		return;
 
-	channelStates = recordNode->dataChannelStates[srcID][subID];
+	channelStates = recordNode->dataChannelStates[streamId];
 	
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new RecordChannelSelector(channelStates, editable);
@@ -712,7 +689,7 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 	for (auto* btn : channelSelector->channelButtons)
 		channelStates.push_back(btn->getToggleState());
 
-	recordNode->updateChannelStates(srcID, subID, channelStates);
+	recordNode->updateChannelStates(streamId, channelStates);
 
 	component.removeComponentListener(this);
 }
@@ -720,14 +697,14 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 void FifoMonitor::timerCallback()
 {
 
-	if (srcID < 0) /* Disk space monitor */
+	if (streamId < 0) /* Disk space monitor */
 	{
 		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
 		setFillPercentage(1.0f - diskSpace);
 	}
 	else /* Subprocessor monitor */
 	{
-		setFillPercentage(recordNode->fifoUsage[srcID][subID]);
+		setFillPercentage(recordNode->fifoUsage[streamId]);
 	}
 
 }

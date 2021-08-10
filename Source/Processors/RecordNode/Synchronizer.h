@@ -86,27 +86,24 @@ public:
     
     void reset();
 
-    void addDataStream(int streamId, float expectedSampleRate);
-    void setPrimaryDataStream(int streamId);
+    void addDataStream(uint16 streamId, float expectedSampleRate);
+    void setPrimaryDataStream(uint16 streamId);
 
     void setSyncBit(uint16 streamId, int bit);
     int getSyncBit(uint16 streamId);
 
-    bool isSubprocessorSynced(int sourceID, int subProcIdx);
-    SyncStatus getStatus(int sourceID, int subProcIdx);
+    bool isStreamSynced(uint64 streamId);
+    SyncStatus getStatus(uint64 streamId);
 
-    void addEvent(int sourceID, int subProcessorID, int ttlChannel, int sampleNumber);
+    void addEvent(uint64 streamId, int ttlChannel, int sampleNumber);
 
-    double convertTimestamp(int sourceID, int subProcID, int sampleNumber);
-
-    std::map<int, std::map<int, Stream*>> streams;
+    double convertTimestamp(uint64 streamId, int sampleNumber);
 
     RecordNode* node;
 
-    int primaryProcessorId = -1;
     int primaryStreamId = -1;
 
-    bool isAvailable() { return primaryProcessorId > 0; };
+    bool isAvailable() { return primaryStreamId > 0; };
 
 private:
 
@@ -119,7 +116,7 @@ private:
 
     bool firstMasterSync;
 
-    OwnedArray<Stream> streamArray;
+    std::map<int,Stream*> streams;
 
     OwnedArray<FloatTimestampBuffer> ftsBuffer;
 

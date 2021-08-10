@@ -43,7 +43,7 @@ private:
 class FifoMonitor : public Component, public Timer, public ComponentListener
 {
 public:
-	FifoMonitor(RecordNode*, int, int);
+	FifoMonitor(RecordNode*, uint64);
 
 	void setFillPercentage(float percentage);
 
@@ -62,8 +62,7 @@ private :
 
 	float fillPercentage;
 	RecordNode *recordNode;
-	int srcID;
-	int subID;
+	int streamId;
 	Random random;
 	
 };
@@ -71,10 +70,9 @@ private :
 class SyncControlButton : public Button, public Timer, public ComponentListener
 {
 public:
-	SyncControlButton(RecordNode* node, const String& name, int processorId, int streamId);
+	SyncControlButton(RecordNode* node, const String& name, uint64 streamId);
 	~SyncControlButton();
 
-	int processorId;
 	int streamId;
 	bool isPrimary;
 

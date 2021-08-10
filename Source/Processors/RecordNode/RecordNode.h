@@ -118,7 +118,7 @@ public:
 	void setSyncBit(uint16 streamId, int bit);
 	int getSyncBit(uint16 streamId);
 
-	void updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> enabled);
+	void updateChannelStates(uint64 satreamId, std::vector<bool> enabled);
 
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 
@@ -186,14 +186,13 @@ public:
 
 	int numDataStreams;
 
-	std::map<int, std::map<int, std::vector<bool>>> dataChannelStates;
+	std::map<int, std::vector<bool>> dataChannelStates;
 	std::map<int, int> dataChannelOrder;
 
-	std::map<int, std::map<int, int>> eventMap;
-	std::map<int, std::map<int, int>> syncChannelMap;
-	std::map<int, std::map<int, int>> syncOrderMap;
+	std::map<int, int> syncChannelMap;
+	std::map<int, int> syncOrderMap;
 
-	std::map<int, std::map<int, float>> fifoUsage;
+	std::map<int, float> fifoUsage;
 
 	ScopedPointer<EventMonitor> eventMonitor;
 

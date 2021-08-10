@@ -260,9 +260,9 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 }
 
 // Called when deleting FifoMonitor
-void RecordNode::updateChannelStates(int srcIndex, int subProcIdx, std::vector<bool> channelStates)
+void RecordNode::updateChannelStates(uint64 streamId, std::vector<bool> channelStates)
 {
-	this->dataChannelStates[srcIndex][subProcIdx] = channelStates;
+	this->dataChannelStates[streamId] = channelStates;
 }
 
 
@@ -284,7 +284,7 @@ void RecordNode::setSyncBit(uint16 streamId, int bit)
 {
 	int sourceNodeId = 0; // channel->getSourceNodeId(); FIXME
 
-	syncChannelMap[sourceNodeId][streamId] = bit;
+	syncChannelMap[streamId] = bit;
 	synchronizer->setSyncBit(streamId, bit);
 }
 
@@ -305,8 +305,50 @@ bool RecordNode::isPrimaryDataStream(uint16 streamId)
 // called by GenericProcessor::update()
 void RecordNode::updateSettings()
 {
+	
+	bool refreshEditor = true;
 
+	for (auto stream : dataStreams)
+	{
+		LOGD("Found stream: (", stream->getStreamId(), ") ", stream->getName());
+
+		//Found a new data stream 
+		if (dataChannelStates[stream->getStreamId()].empty())
+		{
+
+			synchronizer->addDataStream(stream->getStreamId(), stream->getSampleRate());
+			fifoUsage[stream->getStreamId()] = 0.0f;
+
+			for (auto channel : stream->getContinuousChannels())
+				dataChannelStates[stream->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+
+		} 
+		//Found an existing data stream that has changed its number of channels
+		else if (dataChannelStates[stream->getStreamId()].size() != stream->getChannelCount()) 
+		{
+			dataChannelStates[stream->getStreamId()].clear();
+			for (auto channel : stream->getContinuousChannels())
+				dataChannelStates[stream->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+
+		}
+		//Found an existing data stream with same number of channels as last call to updateSettings
+		else 
+		{
+			refreshEditor = false;
+		}
+
+	}
+
+	
+	if (refreshEditor && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
+	{
+		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
+		static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
+	}
 	//std::cout << "UPDATE SUBPROCESSOR MAP" << std::endl;
+
+
+	/*OLD CODE
 
 	bool refreshEditor = false;
 
@@ -463,6 +505,7 @@ void RecordNode::updateSettings()
 		}
 
 	}
+	*/
 
 }
 
@@ -530,10 +573,10 @@ void RecordNode::startRecording()
 
 		//LOGDD("Channel: ", ch, " Source Node: ", streamId, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
 
-		if (dataChannelStates[srcIndex][streamId][dataChannelOrder[ch]])
+		if (dataChannelStates[streamId][dataChannelOrder[ch]])
 		{
 
-			int chanOrderInProcessor = streamId * dataChannelStates[srcIndex][streamId].size() + dataChannelOrder[ch];
+			int chanOrderInProcessor = streamId * dataChannelStates[streamId].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
 			//LOGD("  RECORD!");
@@ -727,8 +770,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 	{
 
 		ContinuousChannel* chan; 
-		int sourceID;
-		int subProcIdx;
+		uint64 streamId;
 
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
@@ -741,8 +783,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				numSamples = getNumSamples(channelMap[ch]);
 				timestamp = getTimestamp(channelMap[ch]);
 
-				sourceID = chan->getSourceNodeId();
-				subProcIdx = chan->getStreamId();
+				streamId = chan->getStreamId();
 
 			}
 
@@ -761,13 +802,13 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					
 					if (useSynchronizer)
 					{
-						double first = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp);
-						double second = synchronizer->convertTimestamp(sourceID, subProcIdx, timestamp + 1);
-						fifoUsage[sourceID][subProcIdx] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+						double first = synchronizer->convertTimestamp(streamId, timestamp);
+						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
+						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 					}
 					else
 					{
-						fifoUsage[sourceID][subProcIdx] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
+						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
 						samplesWritten+=numSamples;
 						continue;
 					}
