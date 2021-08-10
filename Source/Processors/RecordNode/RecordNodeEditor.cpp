@@ -189,7 +189,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 					if (recordNode->dataChannelStates[streamId].size())
 					{
 
-						if (subNode->getBoolAttribute("isMaster"))
+						if (subNode->getBoolAttribute("isPrimary"))
 						{
 							recordNode->setPrimaryDataStream(streamId);
 						}
@@ -287,6 +287,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 			addAndMakeVisible(subProcMonitors.getLast());
 			subProcMonitors.getLast()->setVisible(false);
 
+			LOGD("Adding sync control button for stream id: ", streamId);
 			subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
 			subProcRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
 			subProcRecords.getLast()->addListener(this);
@@ -489,6 +490,7 @@ SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint
 {
 
 	isPrimary = node->isPrimaryDataStream(streamId);
+	LOGD("Stream: ", streamId, " isPrimary: ", isPrimary);
     startTimer(100);
 }
 

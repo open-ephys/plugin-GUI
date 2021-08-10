@@ -186,6 +186,7 @@ public:
 
 	int numDataStreams;
 
+	std::map<int, std::vector<int>> dataStreamMap;
 	std::map<int, std::vector<bool>> dataChannelStates;
 	std::map<int, int> dataChannelOrder;
 

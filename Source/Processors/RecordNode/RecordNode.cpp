@@ -276,6 +276,7 @@ void RecordNode::updateChannelStates(uint64 streamId, std::vector<bool> channelS
 // called by RecordNodeEditor (when loading), SyncControlButton
 void RecordNode::setPrimaryDataStream(uint16 streamId)
 {
+	LOGD("Setting ", streamId, " as primary");
 	synchronizer->setPrimaryDataStream(streamId);
 }
 
@@ -305,50 +306,69 @@ bool RecordNode::isPrimaryDataStream(uint16 streamId)
 // called by GenericProcessor::update()
 void RecordNode::updateSettings()
 {
-	
-	bool refreshEditor = true;
+
+	std::vector<uint64> activeStreamIds;
+
+	int count = 0;
 
 	for (auto stream : dataStreams)
 	{
 		LOGD("Found stream: (", stream->getStreamId(), ") ", stream->getName());
+		activeStreamIds.push_back(stream->getStreamId());
 
-		//Found a new data stream 
 		if (dataChannelStates[stream->getStreamId()].empty())
 		{
 
+			//Configure a new data stream 
 			synchronizer->addDataStream(stream->getStreamId(), stream->getSampleRate());
 			fifoUsage[stream->getStreamId()] = 0.0f;
 
 			for (auto channel : stream->getContinuousChannels())
+			{
 				dataChannelStates[stream->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-
+				dataChannelOrder[count] = channel->getLocalIndex();
+				count++;
+			}
+			
 		} 
-		//Found an existing data stream that has changed its number of channels
-		else if (dataChannelStates[stream->getStreamId()].size() != stream->getChannelCount()) 
+		else
 		{
-			dataChannelStates[stream->getStreamId()].clear();
-			for (auto channel : stream->getContinuousChannels())
-				dataChannelStates[stream->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+			//Existing data stream has changed its number of input channels
+			if (dataChannelStates[stream->getStreamId()].size() != stream->getChannelCount())
+			{
+				dataChannelStates[stream->getStreamId()].clear();
+				for (auto channel : stream->getContinuousChannels())
+				{
+					dataChannelStates[stream->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
+					dataChannelOrder[count] = channel->getLocalIndex();
+					count++;
+				}
+			}
+			else 
+			{
+				count+=stream->getContinuousChannels().size();
+			}
 
-		}
-		//Found an existing data stream with same number of channels as last call to updateSettings
-		else 
-		{
-			refreshEditor = false;
 		}
 
 	}
 
+	// Remove any data streams that have been deleted
+	if (activeStreamIds.size() < dataChannelStates.size())
+		for (auto const& [id, states] : dataChannelStates)
+			if (!std::count(activeStreamIds.begin(), activeStreamIds.end(), id)) 
+				dataChannelStates.erase(id);
+
 	
-	if (refreshEditor && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
+	//Refresh editor if needed
+	if (static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
 	{
 		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
 		static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
-	//std::cout << "UPDATE SUBPROCESSOR MAP" << std::endl;
 
 
-	/*OLD CODE
+	/*OLD CODE STARTS HERE
 
 	bool refreshEditor = false;
 
@@ -465,7 +485,7 @@ void RecordNode::updateSettings()
 
 	std::map<int, std::map<int, std::vector<bool>>>::iterator it;
 	for (it = dataChannelStates.begin(); it != dataChannelStates.end(); it++)
-	{
+	{	
 		if (std::find(sources.begin(), sources.end(), it->first) == sources.end())
 			toErase.push_back(it->first);
 	}
@@ -556,13 +576,11 @@ void RecordNode::startRecording()
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
 	int lastProcessor = -1;
-	int lastSubProcessor = -1;
+	int lastStreamId = -1;
 	int procIndex = -1;
 	int chanSubIdx = 0;
 
-	int recordedProcessorIdx = -1;	
-
-	//LOGD("Record Node ", getNodeId(), ": Total channels: ", totChans, " Total event channels: ", getTotalEventChannels());
+	int recordedProcessorIdx = -1;
 
 	for (int ch = 0; ch < totChans; ++ch)
 	{
@@ -571,23 +589,19 @@ void RecordNode::startRecording()
 		int srcIndex = chan->getSourceNodeId();
 		int streamId = chan->getStreamId();
 
-		//LOGDD("Channel: ", ch, " Source Node: ", streamId, " Sub Index: ", subIndex, " Order: ", dataChannelOrder[ch]);
-
 		if (dataChannelStates[streamId][dataChannelOrder[ch]])
 		{
 
-			int chanOrderInProcessor = streamId * dataChannelStates[streamId].size() + dataChannelOrder[ch];
+			int channelIndexInSourceProcessor = streamId * dataChannelStates[streamId].size() + dataChannelOrder[ch];
 			channelMap.add(ch);
 
-			//LOGD("  RECORD!");
-
 			//TODO: This logic will not work after a channel mapper with channels mapped from different subprocessors!
-			if (chan->getSourceNodeId() != lastProcessor || chan->getStreamId() != lastSubProcessor)
+			if (chan->getSourceNodeId() != lastProcessor || chan->getStreamId() != lastStreamId)
 			{
 				recordedProcessorIdx++;
 				startRecChannels.push_back(ch);
 				lastProcessor = chan->getSourceNodeId();
-				lastSubProcessor = chan->getStreamId();
+				lastStreamId = chan->getStreamId();
 
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
 				pi->processorId = chan->getSourceNodeId();
@@ -596,7 +610,7 @@ void RecordNode::startRecording()
 
 			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 			chanProcessorMap.add(srcIndex);
-			chanOrderinProc.add(chanOrderInProcessor);
+			chanOrderinProc.add(channelIndexInSourceProcessor);
 			ftsChannelMap.add(recordedProcessorIdx);
 		}
 	}

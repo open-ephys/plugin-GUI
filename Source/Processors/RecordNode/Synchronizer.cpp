@@ -190,6 +190,7 @@ Synchronizer::Synchronizer(RecordNode* parentNode)
 	syncWindowLengthMs = 50;
 	syncWindowIsOpen = false;
 	firstMasterSync = true;
+	primaryStreamId = -1;
 	node = parentNode;
 }
 
