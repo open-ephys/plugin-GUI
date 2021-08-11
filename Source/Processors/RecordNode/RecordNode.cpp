@@ -307,7 +307,7 @@ bool RecordNode::isPrimaryDataStream(uint16 streamId)
 void RecordNode::updateSettings()
 {
 
-	std::vector<uint64> activeStreamIds;
+	activeStreamIds.clear();
 
 	int count = 0;
 
@@ -316,10 +316,11 @@ void RecordNode::updateSettings()
 		LOGD("Found stream: (", stream->getStreamId(), ") ", stream->getName());
 		activeStreamIds.push_back(stream->getStreamId());
 
+		//Check for new streams coming into record node
 		if (dataChannelStates[stream->getStreamId()].empty())
 		{
 
-			//Configure a new data stream 
+			//Register the new data stream 
 			synchronizer->addDataStream(stream->getStreamId(), stream->getSampleRate());
 			fifoUsage[stream->getStreamId()] = 0.0f;
 
@@ -333,7 +334,7 @@ void RecordNode::updateSettings()
 		} 
 		else
 		{
-			//Existing data stream has changed its number of input channels
+			//An existing data stream has changed its number of input channels
 			if (dataChannelStates[stream->getStreamId()].size() != stream->getChannelCount())
 			{
 				dataChannelStates[stream->getStreamId()].clear();
@@ -344,7 +345,7 @@ void RecordNode::updateSettings()
 					count++;
 				}
 			}
-			else 
+			else //Found existing data stream, only need to increment channel counter
 			{
 				count+=stream->getContinuousChannels().size();
 			}
@@ -353,19 +354,22 @@ void RecordNode::updateSettings()
 
 	}
 
-	// Remove any data streams that have been deleted
+	// Remove any previous data streams that are no longer coming into the Record Node
 	if (activeStreamIds.size() < dataChannelStates.size())
 		for (auto const& [id, states] : dataChannelStates)
 			if (!std::count(activeStreamIds.begin(), activeStreamIds.end(), id)) 
 				dataChannelStates.erase(id);
 
 	
-	//Refresh editor if needed
+	//Refresh editor as needed
 	if (static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
 	{
 		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
 		static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
+
+	for (auto const& [ch, order] : dataChannelOrder)
+		std::cout << "(" << ch << "," << order << ")" << std::endl;
 
 
 	/*OLD CODE STARTS HERE
@@ -569,6 +573,54 @@ bool RecordNode::stopAcquisition()
 void RecordNode::startRecording()
 {
 
+	Array<int> chanProcessorMap;
+	Array<int> chanOrderinProc;
+	OwnedArray<RecordProcessorInfo> procInfo;
+
+	int lastSourceNodeId = -1;
+
+	int channelIndexInRecordNode = 0;
+	int channelIndexInSourceProcessor = 0;
+
+	channelMap.clear();
+
+	for (auto stream : dataStreams)
+	{
+
+		RecordProcessorInfo* pi = new RecordProcessorInfo();
+		ContinuousChannel* firstChannel = stream->getContinuousChannels()[0];
+		pi->processorId = stream->getSourceNodeId();
+
+		std::cout << "Stream: " << stream->getStreamId() << " belongs to source: " <<  stream->getSourceNodeId() << std::endl;
+
+		if (stream->getSourceNodeId() != lastSourceNodeId)
+		{
+			channelIndexInSourceProcessor = 0;
+			lastSourceNodeId = stream->getSourceNodeId();
+		}
+
+		for (auto recordState : dataChannelStates[stream->getStreamId()])
+		{
+
+			if (recordState)
+			{
+				channelMap.add(channelIndexInRecordNode);
+				pi->recordedChannels.add(channelMap.size() - 1);
+				chanProcessorMap.add(stream->getSourceNodeId());
+				chanOrderinProc.add(channelIndexInSourceProcessor);
+				//ftsChannelMap.add(streamId); //Shouldn't be necessary anymore
+			}
+			channelIndexInRecordNode++;
+			channelIndexInSourceProcessor++;
+		}
+
+		procInfo.add(pi);
+
+	}
+
+
+	/* OLD CODE 
+
 	channelMap.clear();
 	ftsChannelMap.clear();
 	int totChans = continuousChannels.size();
@@ -579,6 +631,8 @@ void RecordNode::startRecording()
 	int lastStreamId = -1;
 	int procIndex = -1;
 	int chanSubIdx = 0;
+
+	int streamIdx = -1;
 
 	int recordedProcessorIdx = -1;
 
@@ -592,21 +646,23 @@ void RecordNode::startRecording()
 		if (dataChannelStates[streamId][dataChannelOrder[ch]])
 		{
 
-			int channelIndexInSourceProcessor = streamId * dataChannelStates[streamId].size() + dataChannelOrder[ch];
-			channelMap.add(ch);
-
 			//TODO: This logic will not work after a channel mapper with channels mapped from different subprocessors!
-			if (chan->getSourceNodeId() != lastProcessor || chan->getStreamId() != lastStreamId)
+			if (chan->getStreamId() != lastStreamId)
 			{
 				recordedProcessorIdx++;
 				startRecChannels.push_back(ch);
-				lastProcessor = chan->getSourceNodeId();
 				lastStreamId = chan->getStreamId();
 
 				RecordProcessorInfo* pi = new RecordProcessorInfo();
 				pi->processorId = chan->getSourceNodeId();
 				procInfo.add(pi);
+
+				streamIdx++;
 			}
+
+			//FIX: This assumes each data stream within a processor has the same number of channels
+			int channelIndexInSourceProcessor = streamIdx * dataChannelStates[streamId].size() + dataChannelOrder[ch];
+			channelMap.add(ch);
 
 			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
 			chanProcessorMap.add(srcIndex);
@@ -615,6 +671,8 @@ void RecordNode::startRecording()
 		}
 	}
 
+	*/
+
 	int numRecordedChannels = channelMap.size();
 	
 	validBlocks.clear();
@@ -622,12 +680,16 @@ void RecordNode::startRecording()
 
 	recordEngine->registerRecordNode(this);
 	//recordEngine->resetChannels();
+	std::cout << "channelMap size: " << channelMap.size() << std::endl;
+	std::cout << "chanProcessorMap size: " << chanProcessorMap.size() << std::endl;
+	std::cout << "chanOrderinProc size: " << chanOrderinProc.size() << std::endl;
+	std::cout << "procInfo size: " << procInfo.size() << std::endl;
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 	recordThread->setChannelMap(channelMap);
 	recordThread->setFTSChannelMap(ftsChannelMap);
 
 	dataQueue->setChannels(numRecordedChannels);
-	dataQueue->setFTSChannels(recordedProcessorIdx+1);
+	dataQueue->setFTSChannels(dataStreams.size());
 
 	eventQueue->reset();
 	spikeQueue->reset();
@@ -783,6 +845,79 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 	if (isRecording)
 	{
 
+		uint64 currentStreamId = -1;
+
+		//For each channel that is to be recorded 
+		for (int ch = 0; ch < channelMap.size(); ch++)
+		{
+
+			ContinuousChannel* chan = continuousChannels[channelMap[ch]];
+
+			uint64 streamId = ((ChannelInfoObject*)chan)->getStreamId();
+
+			//Check if the source stream has changed
+			if (streamId != currentStreamId)
+			{
+				numSamples = getNumSamples(channelMap[currentChannel]);
+				timestamp = getTimestamp(channelMap[currentChannel]);
+			}
+
+			bool shouldWrite = validBlocks[ch];
+			if (!shouldWrite && numSamples > 0)
+			{
+				shouldWrite = true;
+				validBlocks.set(ch, true);
+			}
+
+			if (shouldWrite && numSamples > 0)
+			{
+
+				if (streamId != currentStreamId)
+				{
+					
+					if (useSynchronizer)
+					{
+						double first = synchronizer->convertTimestamp(streamId, timestamp);
+						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
+						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+					}
+					else
+					{
+						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
+						samplesWritten+=numSamples;
+						continue;
+					}
+
+					currentStreamId = streamId;
+				}
+
+				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
+				samplesWritten+=numSamples;
+
+			}
+
+		}
+
+		if (!setFirstBlock)
+		{
+			bool shouldSetFlag = true;
+			for (int chan = 0; chan < channelMap.size(); ++chan)
+			{
+				if (!validBlocks[chan])
+				{
+					shouldSetFlag = false;
+					break;
+				}
+			}
+			if (shouldSetFlag)
+			{
+				recordThread->setFirstBlockFlag(true);
+				setFirstBlock = true;
+			}
+		}
+
+		/* OlD CODE
+
 		ContinuousChannel* chan; 
 		uint64 streamId;
 
@@ -854,6 +989,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				setFirstBlock = true;
 			}
 		}
+
+		*/
 
 	}
 

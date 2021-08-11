@@ -211,12 +211,18 @@ void Synchronizer::reset()
 
 }
 
+/*
+Adds a new data stream to the synchronizer
+If this is the first stream, set it as the primary stream
+Default the sync bit for this stream to the first ttlChannel in the stream 
+*/
 void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
 	if (primaryStreamId < 0)
 		primaryStreamId = streamId;
 
 	streams[streamId] = (new Stream(expectedSampleRate));
+	setSyncBit(streamId, 0);
 }
 
 void Synchronizer::setPrimaryDataStream(uint16 streamId)
