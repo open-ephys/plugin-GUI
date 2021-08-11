@@ -319,7 +319,8 @@ void GenericProcessor::update()
 	updateChannelIndexMaps();
 
 	m_needsToSendTimestampMessages.clear();
-	m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumDataStreams());
+	for (auto stream : getDataStreams())
+		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
 
 	// required for the ProcessorGraph to know the
 	// details of this processor:
@@ -478,7 +479,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 
 		eventBuffer.addEvent(data, dataSize, 0);
 
-		m_needsToSendTimestampMessages.set(streamId, false);
+		m_needsToSendTimestampMessages[streamId] = false;
 	}
 }
 

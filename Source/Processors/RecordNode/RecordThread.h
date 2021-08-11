@@ -46,6 +46,8 @@ public:
 	void setFTSChannelMap(const Array<int>& channels);
 	void setQueuePointers(DataQueue* data, EventMsgQueue* events, SpikeMsgQueue* spikes);
 
+	int getEventChannelIndexFromStreamId(int streamId);
+
 	void run() override;
 
 	void setFirstBlockFlag(bool state);

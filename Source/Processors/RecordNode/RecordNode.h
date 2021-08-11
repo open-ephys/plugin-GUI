@@ -240,9 +240,9 @@ private:
 	int numSamples;
 	int numChannels;
 
-	ScopedPointer<DataQueue> dataQueue;
-	ScopedPointer<EventMsgQueue> eventQueue;
-    ScopedPointer<SpikeMsgQueue> spikeQueue;
+	std::unique_ptr<DataQueue> dataQueue;
+	std::unique_ptr<EventMsgQueue> eventQueue;
+    std::unique_ptr<SpikeMsgQueue> spikeQueue;
 
     int spikeElectrodeIndex;
 

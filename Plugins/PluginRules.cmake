@@ -14,6 +14,9 @@ add_dependencies(${PLUGIN_NAME} open-ephys)
 target_include_directories(${PLUGIN_NAME} PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
 target_compile_features(${PLUGIN_NAME} PUBLIC cxx_auto_type cxx_generalized_initializers)
 
+#Use C++17 standard
+target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
+
 #Libraries and compiler options
 if(MSVC)
 	target_link_libraries(${PLUGIN_NAME} $<TARGET_FILE_DIR:open-ephys>/open-ephys.lib)

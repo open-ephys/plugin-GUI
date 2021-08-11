@@ -144,7 +144,7 @@ elseif(LINUX)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
-	target_compile_options(open-ephys PRIVATE -O3) #enable optimization for linux debug
+	target_compile_options(open-ephys PRIVATE -O0) #enable optimization for linux debug
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
 
 	set(DLLDIR ${RESOURCES_DIRECTORY}/DLLs/Linux)

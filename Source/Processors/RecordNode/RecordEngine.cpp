@@ -69,6 +69,11 @@ const EventChannel* RecordEngine::getEventChannel(int index) const
 	return recordNode->eventChannels[index];
 }
 
+const EventChannel* RecordEngine::getEventChannelFromStreamId(int streamId) const
+{
+	return recordNode->eventChannelMap.at(recordNode->getDataStream(streamId)->getSourceNodeId()).at(streamId).at(0);
+}
+
 const SpikeChannel* RecordEngine::getSpikeChannel(int index) const
 {
 	return recordNode->spikeChannels[index];

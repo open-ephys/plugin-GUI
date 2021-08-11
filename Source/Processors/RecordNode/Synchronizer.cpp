@@ -206,7 +206,7 @@ void Synchronizer::reset()
     firstMasterSync = true;
 	eventCount = 0;
     
-    for (auto const& [id, stream] : streams)
+    for (auto [id, stream] : streams)
 		stream->reset();
 
 }
@@ -233,7 +233,6 @@ void Synchronizer::setPrimaryDataStream(uint16 streamId)
 
 void Synchronizer::setSyncBit(uint16 streamId, int ttlChannel)
 {
-	//LOGD("Set sync channel: {", sourceID, ",", subProcIdx, "}->", ttlChannel);
 	streams[streamId]->syncChannel = ttlChannel;
 	reset();
 }
@@ -274,7 +273,7 @@ void Synchronizer::addEvent(uint64 streamId, int ttlChannel, int sampleNumber)
 				firstMasterSync = false;
 			}
 
-			for (auto const& [id, stream] : streams)
+			for (auto [id, stream] : streams)
 				stream->setPrimaryTime(masterTimeSec);
 
 			/*
@@ -335,6 +334,6 @@ void Synchronizer::hiResTimerCallback()
 
 	syncWindowIsOpen = false;
 
-	for (auto const& [id, stream] : streams)
+	for (auto [id, stream] : streams)
 		stream->closeSyncWindow();
 }

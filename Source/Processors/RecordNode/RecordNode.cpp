@@ -25,7 +25,7 @@ void EventMonitor::displayStatus()
 {
 
 	LOGD("-----------Event Monitor---------");
-	LOGD("Received events: ", receivedEvents);
+	LOGD("Received ", receivedEvents, " totalEvents.");
 	LOGD("---------------------------------");
 
 }
@@ -54,10 +54,9 @@ RecordNode::RecordNode()
 	adm.getAudioDeviceSetup(ads);
 	int bufferSize = ads.bufferSize;
 
-	//dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
-	dataQueue = new DataQueue(bufferSize, DATA_BUFFER_NBLOCKS);
-	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
-	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
+	dataQueue = std::make_unique<DataQueue>(bufferSize, DATA_BUFFER_NBLOCKS);
+	eventQueue = std::make_unique<EventMsgQueue>(EVENT_BUFFER_NEVENTS);
+	spikeQueue = std::make_unique<SpikeMsgQueue>(SPIKE_BUFFER_NSPIKES);
 
 	synchronizer = new Synchronizer(this);
 
@@ -82,8 +81,8 @@ RecordNode::~RecordNode()
 
 void RecordNode::updateBlockSize(int newBlockSize)
 {
-	dataQueue = new DataQueue(newBlockSize, DATA_BUFFER_NBLOCKS);
-	LOGD("Updated Record Node buffer size to: ", newBlockSize);
+	if (dataQueue->getBlockSize() != newBlockSize)
+		dataQueue = std::make_unique<DataQueue>(newBlockSize, DATA_BUFFER_NBLOCKS);
 }
 
 void RecordNode::setEngine(int index)
@@ -283,9 +282,6 @@ void RecordNode::setPrimaryDataStream(uint16 streamId)
 // called by RecordNodeEditor (when loading), SyncControlButton
 void RecordNode::setSyncBit(uint16 streamId, int bit)
 {
-	int sourceNodeId = 0; // channel->getSourceNodeId(); FIXME
-
-	syncChannelMap[streamId] = bit;
 	synchronizer->setSyncBit(streamId, bit);
 }
 
@@ -354,11 +350,16 @@ void RecordNode::updateSettings()
 
 	}
 
+	std::cout << "Record Node found " << eventChannels.size() << " event channels " << std::endl;
+
 	// Remove any previous data streams that are no longer coming into the Record Node
+	/* Temporarily remove for now */
+	/*
 	if (activeStreamIds.size() < dataChannelStates.size())
 		for (auto const& [id, states] : dataChannelStates)
 			if (!std::count(activeStreamIds.begin(), activeStreamIds.end(), id)) 
 				dataChannelStates.erase(id);
+	*/
 
 	
 	//Refresh editor as needed
@@ -591,8 +592,6 @@ void RecordNode::startRecording()
 		ContinuousChannel* firstChannel = stream->getContinuousChannels()[0];
 		pi->processorId = stream->getSourceNodeId();
 
-		std::cout << "Stream: " << stream->getStreamId() << " belongs to source: " <<  stream->getSourceNodeId() << std::endl;
-
 		if (stream->getSourceNodeId() != lastSourceNodeId)
 		{
 			channelIndexInSourceProcessor = 0;
@@ -679,7 +678,7 @@ void RecordNode::startRecording()
 	validBlocks.insertMultiple(0, false, getNumInputs());
 
 	recordEngine->registerRecordNode(this);
-	//recordEngine->resetChannels();
+	recordEngine->resetChannels();
 	std::cout << "channelMap size: " << channelMap.size() << std::endl;
 	std::cout << "chanProcessorMap size: " << chanProcessorMap.size() << std::endl;
 	std::cout << "chanOrderinProc size: " << chanOrderinProc.size() << std::endl;
@@ -693,7 +692,7 @@ void RecordNode::startRecording()
 
 	eventQueue->reset();
 	spikeQueue->reset();
-	recordThread->setQueuePointers(dataQueue, eventQueue, spikeQueue);
+	recordThread->setQueuePointers(dataQueue.get(), eventQueue.get(), spikeQueue.get());
 	recordThread->setFirstBlockFlag(false);
 
 	hasRecorded = true;
@@ -786,26 +785,35 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition)
 {
 
+	//Does not receive message events.:q
 	eventMonitor->receivedEvents++;
 
 	if (recordEvents) 
 	{
-		// flags whether or not to write events
 
+		//TODO: Test these two should be the same?
+		const int eventTime = samplePosition;
 		int64 timestamp = Event::getTimestamp(packet);
-		uint64 eventChan = packet.getChannel();
-		int eventIndex;
 
-		/*if (eventInfo) FIXME
-			eventIndex = getEventChannelIndex(Event::getSourceIndex(event), Event::getSourceID(event), Event::getSubProcessorIdx(event));
-		else
-			eventIndex = -1;
+		if (eventInfo != nullptr && eventInfo->getType() == EventChannel::TTL)
+		{
+			TTLEventPtr ttl = TTLEvent::deserialize(packet, eventInfo);
 
-		if (samplePosition >= 0 && dataChannelStates[Event::getSourceID(event)][Event::getSubProcessorIdx(event)].size())
-			synchronizer->addEvent(Event::getSourceID(event), Event::getSubProcessorIdx(event), eventIndex, timestamp);
+			if (samplePosition >= 0)
+				synchronizer->addEvent(Event::getStreamId(packet), ttl->getBit(), timestamp);
+		
+		}
 
 		if (isRecording)
-			eventQueue->addEvent(event, timestamp, eventIndex);*/
+		{
+			int streamId;
+			if (SystemEvent::getBaseType(packet) == EventBase::Type::SYSTEM_EVENT)
+				streamId = -1;
+			else
+				streamId = eventInfo->getStreamId();
+			
+			eventQueue->addEvent(packet, timestamp, streamId);
+		}
 
 	}
 
@@ -874,7 +882,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 				if (streamId != currentStreamId)
 				{
-					
+
 					if (useSynchronizer)
 					{
 						double first = synchronizer->convertTimestamp(streamId, timestamp);

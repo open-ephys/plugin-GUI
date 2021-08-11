@@ -134,6 +134,8 @@ void RecordThread::run()
 	
 	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
+
+	LOGD("############ CLOSING FILES ###############");
 	if (!closeEarly)
 	{
 		writeData(dataBuffer, -1, -1, -1, true);
@@ -193,16 +195,16 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 		const MidiMessage& event = events[ev]->getData();
 		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
-			//FIXME
-			//uint16 sourceID = SystemEvent::getSourceID(event);
-			//uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
-			//int64 timestamp = SystemEvent::getTimestamp(event);
-			//m_engine->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
-			//	recordNode->getSourceTimestamp(sourceID, subProcIdx),
-			//	SystemEvent::getSyncText(event));
+			String syncText = SystemEvent::getSyncText(event);
+			std::cout << "Writing sync text: " << syncText << std::endl;
+			m_engine->writeTimestampSyncText(SystemEvent::getStreamId(event), SystemEvent::getTimestamp(event), 0.0f, SystemEvent::getSyncText(event));
 		}
 		else
-			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());
+		{
+			int streamId = events[ev]->getExtra();
+			int eventIndex = getEventChannelIndexFromStreamId(streamId);
+			m_engine->writeEvent(eventIndex, event);
+		}
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
@@ -272,7 +274,13 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 			//	SystemEvent::getSyncText(packet));
 		}
 		else
-			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());
+		{
+			//Get the stream id the event originated from
+			int streamId = events[ev]->getExtra();
+			//Find the index of the event channl in eventChannels
+			int eventIndex = getEventChannelIndexFromStreamId(streamId);
+			m_engine->writeEvent(eventIndex, events[ev]->getData());
+		}
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
@@ -296,4 +304,17 @@ void RecordThread::forceCloseFiles()
 	//EVERY_ENGINE->closeFiles();
 	m_engine->closeFiles();
 	m_cleanExit = true;
+}
+
+//TODO: There should be a better way to associate an event channel w/ its stream
+int RecordThread::getEventChannelIndexFromStreamId(int streamId)
+{
+	int index = 0;
+	for (auto chan : recordNode->getEventChannels())
+	{
+		if (chan->getStreamId() == streamId)
+			return index;
+		index++;
+	}
+	return -1; //Should never reach here
 }

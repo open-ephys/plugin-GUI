@@ -450,12 +450,17 @@ TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel*
 
 	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
 	{
+
+		uint16 left = *reinterpret_cast<const uint16*>(buffer + 4);
+		uint16 right = channelInfo->getStreamId();
 		jassertfalse;
 		return nullptr;
 	}
 
 	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
 	{
+		uint16 left = *reinterpret_cast<const uint16*>(buffer + 6);
+		uint16 right = channelInfo->getLocalIndex();
 		jassertfalse;
 		return nullptr;
 	}

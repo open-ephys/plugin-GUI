@@ -139,7 +139,11 @@ SpikeSorterEditor::SpikeSorterEditor(GenericProcessor* parentNode, bool useDefau
     // create a custom channel selector
     channelSelector.reset();
 
-    channelSelector = std::make_unique< ChannelSelector>(true, Font("Small Text", 12, Font::plain));
+    //Visual Studio, it works fine because of a compiler extension enabled by default. But GCC will complain.
+    //channelSelector = std::make_unique< ChannelSelector>(true, Font("Small Text", 12, Font::plain));
+
+    Font channelSelectorFont = Font("Small Text", 12, Font::plain);
+    channelSelector = std::make_unique< ChannelSelector>(true, channelSelectorFont);
     addChildComponent(channelSelector.get());
     channelSelector->setVisible(false);
 

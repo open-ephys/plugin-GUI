@@ -484,7 +484,7 @@ void BinaryRecording::resetChannels()
 	m_spikeChannelIndexes.clear();
 	m_spikeFileIndexes.clear();
 	m_spikeFiles.clear();
-	m_syncTextFile = nullptr;
+	//m_syncTextFile = nullptr;
 
 	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
@@ -614,26 +614,38 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 {
 
-	EventPtr ev = Event::deserialize(event, getEventChannel(eventIndex));
+    const EventChannel* info = getEventChannel(eventIndex);
+
+	EventPtr ev = Event::deserialize(event, info);
 	EventRecording* rec = m_eventFiles[eventIndex];
 	if (!rec) return;
-	const EventChannel* info = getEventChannel(eventIndex);
-	int64 ts = ev->getTimestamp();
-	rec->timestampFile->writeData(&ts, sizeof(int64));
-
-	//uint16 chan = ev->getBit() + 1;
-	//rec->channelFile->writeData(&chan, sizeof(uint16));
 
 	if (ev->getEventType() == EventChannel::TTL)
 	{
-		TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
+
+        TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
+
+        int64 ts = ev->getTimestamp();
+        rec->timestampFile->writeData(&ts, sizeof(int64));
+
+        uint16 chan = ttl->getBit();;
+        rec->channelFile->writeData(&chan, sizeof(uint16));
+		
 		int16 data = (ttl->getBit() + 1) * (ttl->getState() ? 1 : -1);
 		rec->mainFile->writeData(&data, sizeof(int16));
-		//if (rec->extraFile)
-		//	rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+        /*
+		if (rec->extraFile)
+			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+        */
 	}
-	else
+	else if (ev->getEventType() == EventChannel::TEXT)
 	{
+
+        TextEvent* text = static_cast<TextEvent*>(ev.get());
+
+        int64 ts = text->getTimestamp();
+        rec->timestampFile->writeData(&ts, sizeof(int64));
+
 		rec->mainFile->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
@@ -684,11 +696,13 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	
 }
 
-void BinaryRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
+void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text)
 {
+    bool inHere = true;
 	if (!m_syncTextFile)
 		return;
 	m_syncTextFile->writeText(text + "\n", false, false, nullptr);
+    m_syncTextFile->flush();
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()

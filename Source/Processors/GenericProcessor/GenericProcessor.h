@@ -560,7 +560,7 @@ private:
 
     bool m_paramsWereLoaded;
 
-	Array<bool> m_needsToSendTimestampMessages;
+	std::map<int,bool> m_needsToSendTimestampMessages;
 
 	MidiBuffer* m_currentMidiBuffer;
 
