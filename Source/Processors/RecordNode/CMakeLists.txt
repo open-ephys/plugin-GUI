@@ -8,8 +8,6 @@ add_sources(open-ephys
 	EngineConfigWindow.cpp
 	EngineConfigWindow.h
 	EventQueue.h
-	RecordChannelSelector.h
-	RecordChannelSelector.cpp
 	RecordEngine.cpp
 	RecordEngine.h
 	RecordNode.cpp

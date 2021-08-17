@@ -694,7 +694,7 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	channelStates = recordNode->dataChannelStates[srcID][subID];
 	
 	bool editable = !recordNode->recordThread->isThreadRunning();
-    auto* channelSelector = new RecordChannelSelector(channelStates, editable);
+    auto* channelSelector = new PopupChannelSelector(channelStates, editable);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
@@ -706,7 +706,7 @@ void FifoMonitor::componentBeingDeleted(Component &component)
 {
 	/*Capture button channel states and send back to record node. */
 
-	auto* channelSelector = (RecordChannelSelector*)component.getChildComponent(0);
+	auto* channelSelector = (PopupChannelSelector*)component.getChildComponent(0);
 
 	channelStates.clear();
 	for (auto* btn : channelSelector->channelButtons)
