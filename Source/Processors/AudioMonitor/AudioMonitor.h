@@ -50,6 +50,8 @@ public:
 
     void updateSettings() override;
 
+    std::vector<bool> dataChannelStates;
+
 private:
 
 

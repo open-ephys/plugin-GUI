@@ -27,16 +27,32 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "../Editors/PopupChannelSelector.h"
+#include "AudioMonitor.h"
+
+class AudioMonitor;
+
+/**
+  Toggles audio output on and off.
+
+  @see AudioMonitor, AudioMonitorEditor
+
+*/
+class MonitorMuteButton : public ImageButton
+{
+public:
+    MonitorMuteButton();
+    ~MonitorMuteButton();
+};
+
 
 /**
 
   User interface for the "AudioMonitor" source node.
 
-  @see SourceNode, AudioMonitorThread
-
 */
 
-class AudioMonitorEditor  : public GenericEditor
+class AudioMonitorEditor : public GenericEditor, ComboBox::Listener
 {
 public:
     AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
@@ -44,13 +60,29 @@ public:
 
     void buttonEvent (Button* button) override;
 
+    void comboBoxChanged(ComboBox*); 
+
     void saveCustomParameters (XmlElement*) override;
     void loadCustomParameters (XmlElement*) override;
 
 	void startAcquisition() override;
 	void stopAcquisition()  override;
 
+    std::vector<bool> channelStates;
+
 private:
+
+    AudioMonitor* audioMonitor;
+    
+    std::unique_ptr<juce::Button> channelSelectButton;
+
+    std::unique_ptr<MonitorMuteButton> muteButton;
+
+    std::unique_ptr<juce::ComboBox> spikeChan;
+
+    OwnedArray<ChannelButton> channelButtons;
+
+    bool editable;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitorEditor);
 };

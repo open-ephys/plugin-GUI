@@ -50,6 +50,17 @@ AudioProcessorEditor* AudioMonitor::createEditor()
 void AudioMonitor::updateSettings()
 {
 
+	int ch = 0;
+
+	while (ch < continuousChannels.size())
+	{
+        dataChannelStates.push_back(true);
+
+        ch++;
+    }
+
+    // Set Number of outputs to be 2 more than inputs
+    continuousChannels.addCopiesOf(continuousChannels, 0, 2);
 }
 
 void AudioMonitor::process (AudioSampleBuffer& buffer)
