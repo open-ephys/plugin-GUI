@@ -49,8 +49,6 @@ public:
     bool hasEditor() const  override { return true; }
 
     void updateSettings() override;
-	bool enable() override;
-	bool disable() override;
 
 private:
 

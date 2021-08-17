@@ -27,9 +27,9 @@
 
 
 AudioMonitor::AudioMonitor()
-    : GenericProcessor ("File Reader")
+    : GenericProcessor ("Audio Monitor")
 {
-    setProcessorType (PROCESSOR_TYPE_UTILITY);
+    setProcessorType (PROCESSOR_TYPE_AUDIO_MONITOR);
 }
 
 
@@ -41,20 +41,11 @@ AudioMonitor::~AudioMonitor()
 
 AudioProcessorEditor* AudioMonitor::createEditor()
 {
-    editor = new AudioMonitorEditor (this, true);
+    editor = std::make_unique<AudioMonitorEditor>(this, true);
 
-    return editor;
+    return editor.get();
 }
 
-bool AudioMonitor::enable()
-{
-
-}
-
-bool AudioMonitor::disable()
-{
-
-}
 
 void AudioMonitor::updateSettings()
 {

@@ -1287,7 +1287,7 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* source, bool isStart
         name += "Sources/";
     else if (source->isSink())
         name += "Sinks/";
-    else if (source->isSplitter() || source->isMerger() || source->isUtility())
+    else if (source->isSplitter() || source->isMerger() || source->isAudioMonitor() || source->isUtility())
         name += "Utilities/";
     else
         name += "Filters/";

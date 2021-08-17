@@ -1030,6 +1030,7 @@ bool GenericProcessor::isSource()        const  { return getProcessorType() == P
 bool GenericProcessor::isSink()          const  { return getProcessorType() == PROCESSOR_TYPE_SINK; }
 bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER; }
 bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER; }
+bool GenericProcessor::isAudioMonitor()  const  { return getProcessorType() == PROCESSOR_TYPE_AUDIO_MONITOR; }
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
 bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == PROCESSOR_TYPE_RECORD_NODE; }
 

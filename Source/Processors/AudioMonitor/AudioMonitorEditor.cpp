@@ -30,7 +30,7 @@
 AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
 {
-
+    desiredWidth = 180;
 }
 
 

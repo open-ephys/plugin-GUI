@@ -31,12 +31,13 @@
 #include "../FileReader/FileReader.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
+#include "../AudioMonitor/AudioMonitor.h"
 #include "../RecordNode/RecordNode.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
 /** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 4
+#define BUILTIN_PROCESSORS 5
 
 namespace ProcessorManager
 {
@@ -66,6 +67,10 @@ namespace ProcessorManager
 			name = "Record Node";
 			type = FilterProcessor;
 			break;
+		case 4:
+			name = "Audio Monitor";
+			type = UtilityProcessor;
+			break;
 		default:
 			name = String();
 			type = -1;
@@ -93,6 +98,9 @@ namespace ProcessorManager
 			break;
 		case 3:
 			proc = new RecordNode();
+			break;
+		case 4:
+			proc = new AudioMonitor();
 			break;
 		default:
 			return nullptr;
