@@ -76,6 +76,8 @@ private:
     
     std::unique_ptr<juce::Button> channelSelectButton;
 
+    std::unique_ptr<juce::Label> selectedChansLabel;
+
     std::unique_ptr<MonitorMuteButton> muteButton;
 
     std::unique_ptr<juce::ComboBox> spikeChan;

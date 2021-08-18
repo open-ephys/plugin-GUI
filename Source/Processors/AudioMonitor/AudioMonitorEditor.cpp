@@ -52,15 +52,19 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDe
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
+    selectedChansLabel = std::make_unique<Label>("selected channels", "Channels:");
+    selectedChansLabel->setBounds(15, 35, 60, 20);
+    addAndMakeVisible(selectedChansLabel.get());
+    
     channelSelectButton = std::make_unique<UtilityButton>("C", Font ("Small Text", 14, Font::plain));
-    channelSelectButton->setBounds(20, 35, 20, 20);
+    channelSelectButton->setBounds(80, 35, 20, 20);
 	channelSelectButton->addListener(this);
 	addAndMakeVisible(channelSelectButton.get());
 
     muteButton = std::make_unique<MonitorMuteButton>();
     muteButton->addListener (this);
     muteButton->setToggleState (false, dontSendNotification);
-    muteButton->setBounds(120, 35, 20, 20);
+    muteButton->setBounds(130, 35, 20, 20);
     addAndMakeVisible (muteButton.get());
 
     spikeChan = std::make_unique<ComboBox>("Spike Channels");
@@ -94,7 +98,7 @@ void AudioMonitorEditor::buttonEvent (Button* button)
         auto* channelSelector = new PopupChannelSelector(channelStates, editable);
     
         CallOutBox& myBox
-            = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
+            = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), channelSelectButton->getScreenBounds(), nullptr);
 
         myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
         

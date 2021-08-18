@@ -51,6 +51,7 @@ void AudioMonitor::updateSettings()
 {
 
 	int ch = 0;
+    dataChannelStates.clear();
 
 	while (ch < continuousChannels.size())
 	{
