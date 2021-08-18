@@ -95,7 +95,7 @@ void AudioMonitorEditor::buttonEvent (Button* button)
     if (button == channelSelectButton.get())
     {
         channelStates = audioMonitor->dataChannelStates;
-        auto* channelSelector = new PopupChannelSelector(channelStates, editable);
+        auto* channelSelector = new PopupChannelSelector(channelStates, Colour(11, 178, 212), editable);
     
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), channelSelectButton->getScreenBounds(), nullptr);

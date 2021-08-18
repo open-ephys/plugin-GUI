@@ -58,14 +58,14 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
     if (isMouseOver)
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 65, 65));
+			g.setColour(parent->buttonColour.brighter());
 		else
 			g.setColour(Colour(210, 210, 210));
 	}
 	else 
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 0, 0));
+			g.setColour(parent->buttonColour);
 		else
 			g.setColour(Colour(110, 110, 110));
 	}
@@ -118,7 +118,7 @@ RangeEditor::~RangeEditor() {}
  * RECORD CHANNEL SELECTOR
 ***************************/
 
-PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, bool editable) 
+PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour_, bool editable) 
     : Component(), 
     nChannels(channelStates.size()),
     mouseDragged(false), 
@@ -126,6 +126,7 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, bool
     shiftKeyDown(false),
     firstButtonSelectedState(false),
     isDragging(false),
+    buttonColour(buttonColour_),
     editable(editable)
 {
 

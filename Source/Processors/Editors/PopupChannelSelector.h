@@ -72,7 +72,7 @@ private:
 class PLUGIN_API PopupChannelSelector : public Component, public Button::Listener, public TextEditor::Listener
 {
 public:
-	PopupChannelSelector(std::vector<bool> channelStates, bool editable);
+	PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour , bool editable);
 	~PopupChannelSelector();
 
 	void mouseMove(const MouseEvent &event);
@@ -88,6 +88,8 @@ public:
 	bool firstButtonSelectedState;
 
 	int nChannels;
+
+	Colour buttonColour;
 
 	OwnedArray<ChannelButton> channelButtons;
 

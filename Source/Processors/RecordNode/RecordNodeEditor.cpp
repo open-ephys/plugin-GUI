@@ -694,7 +694,7 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	channelStates = recordNode->dataChannelStates[srcID][subID];
 	
 	bool editable = !recordNode->recordThread->isThreadRunning();
-    auto* channelSelector = new PopupChannelSelector(channelStates, editable);
+    auto* channelSelector = new PopupChannelSelector(channelStates, Colour(255, 0, 0), editable);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
