@@ -1086,7 +1086,14 @@ void GenericProcessor::setSplitterDestNode(GenericProcessor* dn)  { }
 bool GenericProcessor::startAcquisition() { return true; }
 bool GenericProcessor::stopAcquisition() { return true; }
 
-void GenericProcessor::startRecording() { }
+void GenericProcessor::startRecording() {
+
+	m_needsToSendTimestampMessages.clear();
+	for (auto stream : getDataStreams())
+		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
+
+ }
+
 void GenericProcessor::stopRecording()  { }
 
 void GenericProcessor::updateSettings() { }
@@ -1172,7 +1179,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 					/ float(Time::getHighResolutionTicksPerSecond())
 					* 1000.0f;
 
-				std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
+				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
 				it++;
 
