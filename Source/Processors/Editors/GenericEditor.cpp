@@ -172,7 +172,7 @@ LOGDD(getName(), " refreshing colors.");
         backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
     else if (getProcessor()->isSink())
         backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
-    else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isUtility())
+    else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isAudioMonitor() || getProcessor()->isUtility())
         backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
     else if (getProcessor()->isRecordNode())
         backgroundColor = AccessClass::getProcessorList()->findColour(RECORD_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));

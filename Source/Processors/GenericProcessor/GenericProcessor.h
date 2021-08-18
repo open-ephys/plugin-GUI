@@ -218,6 +218,9 @@ public:
     /** Returns true if a processor is a merger, false otherwise.*/
     bool isMerger() const;
 
+     /** Returns true if a processor is a audio monitor, false otherwise.*/
+    bool isAudioMonitor() const;
+
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
     bool isUtility() const;
 

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __RECORDNODEEDITOR_H__
 #define __RECORDNODEEDITOR_H__
 
-#include "RecordChannelSelector.h"
+#include "../Editors/PopupChannelSelector.h"
 #include "SyncChannelSelector.h"
 #include "../../Utils/Utils.h"
 

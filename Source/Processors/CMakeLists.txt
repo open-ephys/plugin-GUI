@@ -4,6 +4,7 @@
 
 
 #add nested directories
+add_subdirectory(AudioMonitor)
 add_subdirectory(AudioNode)
 add_subdirectory(DataThreads)
 add_subdirectory(Dsp)

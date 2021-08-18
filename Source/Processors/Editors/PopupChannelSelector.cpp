@@ -1,8 +1,31 @@
-#include "RecordChannelSelector.h"
+/*
+------------------------------------------------------------------
+
+This file is part of the Open Ephys GUI
+Copyright (C) 2021 Open Ephys
+
+------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#include "PopupChannelSelector.h"
 #include <string>
 #include <vector>
 
-ChannelButton::ChannelButton(int _id, RecordChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
+ChannelButton::ChannelButton(int _id, PopupChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
     setClickingTogglesState(true);
 }
 
@@ -35,14 +58,14 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
     if (isMouseOver)
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 65, 65));
+			g.setColour(parent->buttonColour.brighter());
 		else
 			g.setColour(Colour(210, 210, 210));
 	}
 	else 
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 0, 0));
+			g.setColour(parent->buttonColour);
 		else
 			g.setColour(Colour(110, 110, 110));
 	}
@@ -95,7 +118,7 @@ RangeEditor::~RangeEditor() {}
  * RECORD CHANNEL SELECTOR
 ***************************/
 
-RecordChannelSelector::RecordChannelSelector(std::vector<bool> channelStates, bool editable) 
+PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour_, bool editable) 
     : Component(), 
     nChannels(channelStates.size()),
     mouseDragged(false), 
@@ -103,6 +126,7 @@ RecordChannelSelector::RecordChannelSelector(std::vector<bool> channelStates, bo
     shiftKeyDown(false),
     firstButtonSelectedState(false),
     isDragging(false),
+    buttonColour(buttonColour_),
     editable(editable)
 {
 
@@ -175,19 +199,19 @@ RecordChannelSelector::RecordChannelSelector(std::vector<bool> channelStates, bo
 
 }
 
-RecordChannelSelector::~RecordChannelSelector() {}
+PopupChannelSelector::~PopupChannelSelector() {}
 
-void RecordChannelSelector::mouseMove(const MouseEvent &event)
+void PopupChannelSelector::mouseMove(const MouseEvent &event)
 {
 
 };
-void RecordChannelSelector::mouseDown(const MouseEvent &event)
+void PopupChannelSelector::mouseDown(const MouseEvent &event)
 {
     if (editable)
         selectedButtons.clear();
 };
 
-void RecordChannelSelector::mouseDrag(const MouseEvent &event)
+void PopupChannelSelector::mouseDrag(const MouseEvent &event)
 {
 
     if (editable)
@@ -234,12 +258,12 @@ void RecordChannelSelector::mouseDrag(const MouseEvent &event)
         
 };
 
-void RecordChannelSelector::modifierKeysChanged(const ModifierKeys &modifiers)
+void PopupChannelSelector::modifierKeysChanged(const ModifierKeys &modifiers)
 {
     shiftKeyDown = modifiers.isShiftDown();
 }
 
-void RecordChannelSelector::mouseUp(const MouseEvent &event)
+void PopupChannelSelector::mouseUp(const MouseEvent &event)
 {
 
     if (!mouseDragged && editable)
@@ -256,7 +280,7 @@ void RecordChannelSelector::mouseUp(const MouseEvent &event)
     mouseDragged = false;
 }
 
-void RecordChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
+void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 {
 
     if (editable)
@@ -308,7 +332,7 @@ void RecordChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 
 }
 
-void RecordChannelSelector::buttonClicked(Button* button)
+void PopupChannelSelector::buttonClicked(Button* button)
 {
 
     if (editable)
@@ -345,7 +369,7 @@ void RecordChannelSelector::buttonClicked(Button* button)
     
 }
 
-void RecordChannelSelector::updateRangeString()
+void PopupChannelSelector::updateRangeString()
 {
     
     rangeString = "";
@@ -400,7 +424,7 @@ void RecordChannelSelector::updateRangeString()
     
 }
 
-int RecordChannelSelector::convertStringToInteger(String s)
+int PopupChannelSelector::convertStringToInteger(String s)
 {
     char ar[20];
     int i, k = 0;
@@ -421,7 +445,7 @@ int RecordChannelSelector::convertStringToInteger(String s)
     return k;
 }
 
-Array<int> RecordChannelSelector::parseStringIntoRange(int rangeValue)
+Array<int> PopupChannelSelector::parseStringIntoRange(int rangeValue)
 {
     String s = ",";
     s += rangeEditor->getText();

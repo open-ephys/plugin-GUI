@@ -1,15 +1,42 @@
+/*
+------------------------------------------------------------------
+
+This file is part of the Open Ephys GUI
+Copyright (C) 2021 Open Ephys
+
+------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#ifndef __POPUPCHANNELSELECTOR_H_E47DE5C__
+#define __POPUPCHANNELSELECTOR_H_E47DE5C__
+
+
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
 
-class RecordChannelSelector;
+class PopupChannelSelector;
 
 enum Select { ALL, NONE, RANGE };
 
 class ChannelButton : public Button	
 {
 public:
-	ChannelButton(int id, RecordChannelSelector* parent);
+	ChannelButton(int id, PopupChannelSelector* parent);
 	~ChannelButton();
     int getId() { return id; };
 private:
@@ -18,7 +45,7 @@ private:
 	void mouseUp(const MouseEvent &event);
 
 	int id; 
-	RecordChannelSelector* parent;
+	PopupChannelSelector* parent;
     int width;
     int height;
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
@@ -42,11 +69,11 @@ private:
 	//TODO:
 };
 
-class RecordChannelSelector : public Component, public Button::Listener, public TextEditor::Listener
+class PLUGIN_API PopupChannelSelector : public Component, public Button::Listener, public TextEditor::Listener
 {
 public:
-	RecordChannelSelector(std::vector<bool> channelStates, bool editable);
-	~RecordChannelSelector();
+	PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour , bool editable);
+	~PopupChannelSelector();
 
 	void mouseMove(const MouseEvent &event);
 	void mouseDown(const MouseEvent &event);
@@ -61,6 +88,8 @@ public:
 	bool firstButtonSelectedState;
 
 	int nChannels;
+
+	Colour buttonColour;
 
 	OwnedArray<ChannelButton> channelButtons;
 
@@ -82,3 +111,5 @@ private:
 	bool shiftKeyDown;
     
 };
+
+#endif  // __POPUPCHANNELSELECTOR_H_E47DE5C__
