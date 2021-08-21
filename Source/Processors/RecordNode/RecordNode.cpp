@@ -806,13 +806,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 
 		if (isRecording)
 		{
-			int streamId;
+			int eventIndex;
 			if (SystemEvent::getBaseType(packet) == EventBase::Type::SYSTEM_EVENT)
-				streamId = -1;
+				eventIndex = -1;
 			else
-				streamId = eventInfo->getStreamId();
+				eventIndex = getIndexOfMatchingChannel(eventInfo);
 			
-			eventQueue->addEvent(packet, timestamp, streamId);
+			eventQueue->addEvent(packet, timestamp, eventIndex);
 		}
 
 	}
@@ -822,6 +822,8 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 // only called if recordSpikes is true
 void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
 {
+
+	LOGD("Record node got spike!");
     
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
 
@@ -1035,16 +1037,17 @@ int RecordNode::addSpikeElectrode(const SpikeChannel *elec)
 // called in RecordNode::handleSpike
 void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode)
 {
-	//if (isRecording && shouldRecord)
+
 	if (true)
 	{
-		// FIXME
-		//int electrodeIndex = getSpikeChannelIndex(spikeElectrode->getSourceIndex(), 
-		//	spikeElectrode->getSourceNodeID(), 
-		//	spikeElectrode->getSubProcessorIdx());
+		int processorId = spike->getProcessorId();
+		int streamId = spike->getStreamId();
+		int idx = spike->getChannelIndex();
+
+		int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
 		
-		//if (electrodeIndex >= 0)
-		//	spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
+		if (electrodeIndex >= 0)
+			spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
 	}
 }
 

@@ -765,6 +765,34 @@ int GenericProcessor::getIndexOfMatchingChannel(const ContinuousChannel* channel
 	return -1;
 }
 
+int GenericProcessor::getIndexOfMatchingChannel(const EventChannel* channel) const
+{
+
+	for (int index = 0; index < eventChannels.size(); index++)
+	{
+		if (*eventChannels[index] == *channel) // check for matching Uuid
+		{
+			return index;
+		}
+	}
+
+	return -1;
+}
+
+int GenericProcessor::getIndexOfMatchingChannel(const SpikeChannel* channel) const
+{
+
+	for (int index = 0; index < spikeChannels.size(); index++)
+	{
+		if (*spikeChannels[index] == *channel) // check for matching Uuid
+		{
+			return index;
+		}
+	}
+
+	return -1;
+}
+
 const EventChannel* GenericProcessor::getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
 	return eventChannelMap.at(processorId).at(streamId).at(localIndex); 

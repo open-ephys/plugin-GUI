@@ -25,7 +25,7 @@ struct func_timer
 {
 	template <typename F, typename... Args>
 	static Time duration(F&& f, Args... args)
-	{
+	{	
 		auto start = Clock::now();
 		invoke(std::forward<F>(f), std::forward<Args>(args)...);
 		auto end = Clock::now();

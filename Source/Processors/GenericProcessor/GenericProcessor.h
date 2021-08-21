@@ -345,6 +345,10 @@ public:
 
     int getIndexOfMatchingChannel(const ContinuousChannel* channel) const;
 
+    int getIndexOfMatchingChannel(const EventChannel* channel) const;
+
+    int getIndexOfMatchingChannel(const SpikeChannel* channel) const;
+
     const EventChannel* getEventChannel(int globalIndex) const;
 
     const SpikeChannel* getSpikeChannel(int globalIndex) const;

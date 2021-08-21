@@ -201,8 +201,13 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 		}
 		else
 		{
-			int streamId = events[ev]->getExtra();
-			int eventIndex = getEventChannelIndexFromStreamId(streamId);
+			int processorId = EventBase::getProcessorId(event);
+			int streamId = EventBase::getStreamId(event);
+			int channelIdx = EventBase::getChannelIndex(event);
+
+			const EventChannel* chan = recordNode->getEventChannel(processorId, streamId, channelIdx);
+			int eventIndex = recordNode->getIndexOfMatchingChannel(chan);
+
 			m_engine->writeEvent(eventIndex, event);
 		}
 	}
@@ -214,7 +219,12 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	{
 		if (spikes[sp] != nullptr)
 		{
-			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+
+			const Spike& spike = spikes[sp]->getData();
+			const SpikeChannel* chan = spike.getChannelInfo();
+			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
 		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
@@ -242,44 +252,33 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 			}
 		}
 	}
-	/* TODO: Writing float timestamps
-	for (int chan = 0; chan < m_numFTSChannels; ++chan)
-	{
-		if (tsIdx[chan].size1 > 0)
-		{
-			m_engine->writeFloatTimestamps();
-		}
-	}
-	*/
+
 	m_dataQueue->stopRead();
 	//EVERY_ENGINE->endChannelBlock(lastBlock);
 	m_engine->endChannelBlock(lastBlock);
-
-	//LOGD("RecordThread::writeData:: write events...");
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
 
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
-		const EventPacket& packet = events[ev]->getData();
-		if (SystemEvent::getBaseType(packet) == SystemEvent::SYSTEM_EVENT)
+		const MidiMessage& event = events[ev]->getData();
+		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
-			// FIXME
-			//uint16 sourceId = SystemEvent::getProcessorId(packet);
-			//uint16 streamId = SystemEvent::getStreamId(packet);
-			//int64 timestamp = SystemEvent::getTimestamp(packet);
-			//m_engine->writeTimestampSyncText(sourceId, streamId, timestamp,
-			//	recordNode->getSourceTimestamp(sourceId, streamId),
-			//	SystemEvent::getSyncText(packet));
+			String syncText = SystemEvent::getSyncText(event);
+			std::cout << "Writing sync text: " << syncText << std::endl;
+			m_engine->writeTimestampSyncText(SystemEvent::getStreamId(event), SystemEvent::getTimestamp(event), 0.0f, SystemEvent::getSyncText(event));
 		}
 		else
 		{
-			//Get the stream id the event originated from
-			int streamId = events[ev]->getExtra();
-			//Find the index of the event channl in eventChannels
-			int eventIndex = getEventChannelIndexFromStreamId(streamId);
-			m_engine->writeEvent(eventIndex, events[ev]->getData());
+			int processorId = EventBase::getProcessorId(event);
+			int streamId = EventBase::getStreamId(event);
+			int channelIdx = EventBase::getChannelIndex(event);
+
+			const EventChannel* chan = recordNode->getEventChannel(processorId, streamId, channelIdx);
+			int eventIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeEvent(eventIndex, event);
 		}
 	}
 
@@ -290,8 +289,14 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	{
 		if (spikes[sp] != nullptr)
 		{
-			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+
+			const Spike& spike = spikes[sp]->getData();
+			const SpikeChannel* chan = spike.getChannelInfo();
+			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
+		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 
 }
@@ -304,17 +309,4 @@ void RecordThread::forceCloseFiles()
 	//EVERY_ENGINE->closeFiles();
 	m_engine->closeFiles();
 	m_cleanExit = true;
-}
-
-//TODO: There should be a better way to associate an event channel w/ its stream
-int RecordThread::getEventChannelIndexFromStreamId(int streamId)
-{
-	int index = 0;
-	for (auto chan : recordNode->getEventChannels())
-	{
-		if (chan->getStreamId() == streamId)
-			return index;
-		index++;
-	}
-	return -1; //Should never reach here
 }

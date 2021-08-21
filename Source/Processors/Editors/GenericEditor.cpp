@@ -65,19 +65,23 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     {
         LOGDD("Adding drawer button.");
 
+        /*
         drawerButton = std::make_unique<DrawerButton>("name");
         drawerButton->addListener(this);
         addAndMakeVisible(drawerButton.get());
+        */
 
        if (!owner->isMerger() && !owner->isSplitter())
         {
+            /*
             channelSelector = std::make_unique<ChannelSelector> (true, titleFont);
             addChildComponent(channelSelector.get());
             channelSelector->setVisible(false);
+            */
        } 
     }
 
-    ttlMonitor = std::make_unique<TTLMonitor>();
+   // ttlMonitor = std::make_unique<TTLMonitor>();
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
                                         Colour(185, 185, 185), 0.0f, 120.0f, false);

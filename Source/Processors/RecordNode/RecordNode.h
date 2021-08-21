@@ -204,6 +204,10 @@ public:
 
 	bool isSyncReady;
 
+	const int getEventChannelIndex(EventChannel*);
+	const int getSpikeChannelIndex(SpikeChannel*);
+
+
 private:
 
 	/** Forwards events to the EventQueue */
