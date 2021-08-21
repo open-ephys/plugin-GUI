@@ -39,7 +39,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
 
     desiredWidth = 300;
 
-    electrodeTypes = new ComboBox("Electrode Types");
+    electrodeTypes = std::make_unique<ComboBox>("Electrode Types");
 
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
@@ -54,69 +54,71 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useD
     electrodeTypes->addListener(this);
     electrodeTypes->setBounds(65,40,110,20);
     electrodeTypes->setSelectedId(2);
-    addAndMakeVisible(electrodeTypes);
+    addAndMakeVisible(electrodeTypes.get());
 
-    electrodeList = new ComboBox("Electrode List");
+    electrodeList = std::make_unique<ComboBox>("Electrode List");
     electrodeList->setEditableText(false);
     electrodeList->setJustificationType(Justification::centredLeft);
     electrodeList->addListener(this);
     electrodeList->setBounds(15,75,115,20);
-    addAndMakeVisible(electrodeList);
+    addAndMakeVisible(electrodeList.get());
 
-    numElectrodes = new Label("Number of Electrodes","1");
+    numElectrodes = std::make_unique<Label>("Number of Electrodes","1");
     numElectrodes->setEditable(true);
     numElectrodes->addListener(this);
     numElectrodes->setBounds(30,40,25,20);
     //labelTextChanged(numElectrodes);
-    addAndMakeVisible(numElectrodes);
+    addAndMakeVisible(numElectrodes.get());
 
-    upButton = new TriangleButton(1);
+    upButton = std::make_unique<TriangleButton>(1);
     upButton->addListener(this);
     upButton->setBounds(50,40,10,8);
-    addAndMakeVisible(upButton);
+    addAndMakeVisible(upButton.get());
 
-    downButton = new TriangleButton(2);
+    downButton = std::make_unique<TriangleButton>(2);
     downButton->addListener(this);
     downButton->setBounds(50,50,10,8);
-    addAndMakeVisible(downButton);
+    addAndMakeVisible(downButton.get());
 
-    plusButton = new UtilityButton("+", titleFont);
+    plusButton = std::make_unique<UtilityButton>("+", titleFont);
     plusButton->addListener(this);
     plusButton->setRadius(3.0f);
     plusButton->setBounds(15,42,14,14);
-    addAndMakeVisible(plusButton);
+    addAndMakeVisible(plusButton.get());
 
-    ElectrodeEditorButton* e1 = new ElectrodeEditorButton("EDIT", Font("Small Text", 10, Font::FontStyleFlags::plain));
+    editorFont = Font("Small Text", 10, Font::FontStyleFlags::plain); 
+
+    std::unique_ptr<ElectrodeEditorButton> e1 = std::make_unique<ElectrodeEditorButton>("EDIT", editorFont);
     e1->addListener(this);
-    addAndMakeVisible(e1);
+    addAndMakeVisible(e1.get());
     e1->setBounds(15,110,40,10);
-    electrodeEditorButtons.add(e1);
+    electrodeEditorButtons.push_back(std::move(e1));
 
-    ElectrodeEditorButton* e2 = new ElectrodeEditorButton("MONITOR", Font("Small Text", 10, Font::FontStyleFlags::plain));
+    std::unique_ptr<ElectrodeEditorButton> e2 = std::make_unique<ElectrodeEditorButton>("MONITOR", editorFont);
     e2->addListener(this);
-    addAndMakeVisible(e2);
+    addAndMakeVisible(e2.get());
     e2->setBounds(55,110,70,10);
-    electrodeEditorButtons.add(e2);
+    electrodeEditorButtons.push_back(std::move(e2));
 
-    ElectrodeEditorButton* e3 = new ElectrodeEditorButton("DELETE", Font("Small Text", 10, Font::FontStyleFlags::plain));;
+    std::unique_ptr<ElectrodeEditorButton> e3 = std::make_unique<ElectrodeEditorButton>("DELETE", editorFont);;
     e3->addListener(this);
-    addAndMakeVisible(e3);
+    addAndMakeVisible(e3.get());
     e3->setBounds(130,110,70,10);
-    electrodeEditorButtons.add(e3);
+    electrodeEditorButtons.push_back(std::move(e3));
 
-    thresholdSlider = new ThresholdSlider(Font("Small Text", 10, Font::FontStyleFlags::plain));
+    thresholdSlider = std::make_unique<ThresholdSlider>(editorFont);
     thresholdSlider->setBounds(200,35,75,75);
-    addAndMakeVisible(thresholdSlider);
+    addAndMakeVisible(thresholdSlider.get());
     thresholdSlider->addListener(this);
     thresholdSlider->setActive(false);
     Array<double> v;
     thresholdSlider->setValues(v);
 
-    thresholdLabel = new Label("Name","Threshold");
-    thresholdLabel->setFont(Font("Small Text", 10, Font::FontStyleFlags::plain));
+    thresholdLabel = std::make_unique<Label>("Name","Threshold");
+    thresholdLabel->setFont(editorFont);
     thresholdLabel->setBounds(202, 105, 95, 15);
     thresholdLabel->setColour(Label::textColourId, Colours::grey);
-    addAndMakeVisible(thresholdLabel);
+    addAndMakeVisible(thresholdLabel.get());
 
     // create a custom channel selector
     //deleteAndZero(channelSelector);
@@ -140,8 +142,6 @@ SpikeDetectorEditor::~SpikeDetectorEditor()
     {
         removeChildComponent(electrodeButtons[i]);
     }
-
-    deleteAllChildren();
 
 }
 
@@ -217,14 +217,14 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
     int num = numElectrodes->getText().getIntValue();
 
-    if (button == upButton)
+    if (button == upButton.get())
     {
         numElectrodes->setText(String(++num), sendNotification);
 
         return;
 
     }
-    else if (button == downButton)
+    else if (button == downButton.get())
     {
 
         if (num > 1)
@@ -233,7 +233,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         return;
 
     }
-    else if (button == plusButton)
+    else if (button == plusButton.get())
     {
         // std::cout << "Plus button pressed!" << std::endl;
         if (acquisitionIsActive)
@@ -276,7 +276,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         return;
 
     }
-    else if (button == electrodeEditorButtons[0])   // EDIT
+    else if (button == electrodeEditorButtons[0].get())   // EDIT
     {
 
         Array<int> activeChannels;
@@ -322,7 +322,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
         return;
 
     }
-    else if (button == electrodeEditorButtons[1])   // MONITOR
+    else if (button == electrodeEditorButtons[1].get())   // MONITOR
     {
 
        /*Button* audioMonitorButton = electrodeEditorButtons[1];
@@ -362,7 +362,7 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
         return;
     }
-    else if (button == electrodeEditorButtons[2])   // DELETE
+    else if (button == electrodeEditorButtons[2].get())   // DELETE
     {
         if (acquisitionIsActive)
         {
@@ -506,7 +506,7 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 void SpikeDetectorEditor::comboBoxChanged(ComboBox* comboBox)
 {
 
-    if (comboBox == electrodeList)
+    if (comboBox == electrodeList.get())
     {
         int ID = comboBox->getSelectedId();
 

@@ -70,25 +70,25 @@ private:
 
     void drawElectrodeButtons(int);
 
-    ComboBox* electrodeTypes;
-    ComboBox* electrodeList;
-    Label* numElectrodes;
-    Label* thresholdLabel;
-    TriangleButton* upButton;
-    TriangleButton* downButton;
-    UtilityButton* plusButton;
+    std::unique_ptr<ComboBox> electrodeTypes;
+    std::unique_ptr<ComboBox> electrodeList;
+    std::unique_ptr<Label> numElectrodes;
+    std::unique_ptr<Label> thresholdLabel;
+    std::unique_ptr<TriangleButton> upButton;
+    std::unique_ptr<TriangleButton> downButton;
+    std::unique_ptr<UtilityButton> plusButton;
 
-    ThresholdSlider* thresholdSlider;
+    std::unique_ptr<ThresholdSlider> thresholdSlider;
 
     OwnedArray<ElectrodeButton> electrodeButtons;
-    Array<ElectrodeEditorButton*> electrodeEditorButtons;
+    std::vector<std::unique_ptr<ElectrodeEditorButton>> electrodeEditorButtons;
 
     void editElectrode(int index, int chan, int newChan);
 
     int lastId;
     bool isPlural;
 
-    //Font font;
+    Font editorFont;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 
