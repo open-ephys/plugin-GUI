@@ -103,6 +103,12 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
 
 void FileReaderEditor::buttonEvent (Button* button)
 {
+    
+    String path = "/home/pavel/Projects/Allen/OpenEphys/plugin-GUI/Resources/DataFiles/structure.oebin";
+    setFile (path);
+
+    return;
+
     if (! acquisitionIsActive)
     {
         if (button == fileButton)

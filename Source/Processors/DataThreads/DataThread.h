@@ -32,6 +32,8 @@
 #include "../Settings/EventChannel.h"
 #include "../Settings/ContinuousChannel.h"
 #include "../Settings/SpikeChannel.h"
+#include "../Settings/ConfigurationObject.h"
+#include "../Settings/DeviceInfo.h"
 #include "../Settings/InfoObject.h"
 
 class SourceNode;

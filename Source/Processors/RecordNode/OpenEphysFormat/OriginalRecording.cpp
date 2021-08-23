@@ -412,9 +412,9 @@ void OriginalRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	}
 }
 
-void OriginalRecording::writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text)
+void OriginalRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, float, String text)
 {
-	writeMessage(text, sourceID, timestamp);
+	writeMessage(text, streamId, timestamp);
 }
 
 void OriginalRecording::writeMessage(String message, uint16 processorID,  int64 timestamp)

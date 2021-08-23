@@ -190,6 +190,7 @@ Synchronizer::Synchronizer(RecordNode* parentNode)
 	syncWindowLengthMs = 50;
 	syncWindowIsOpen = false;
 	firstMasterSync = true;
+	primaryStreamId = -1;
 	node = parentNode;
 }
 
@@ -205,46 +206,47 @@ void Synchronizer::reset()
     firstMasterSync = true;
 	eventCount = 0;
     
-    std::map<int, std::map<int, Stream*>>::iterator it;
-    std::map<int, Stream*>::iterator ptr;
-    
-    for (it = streams.begin(); it != streams.end(); it++) {
-        for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
-            ptr->second->reset();
-        }
-    }
+    for (auto [id, stream] : streams)
+		stream->reset();
+
 }
 
-void Synchronizer::addDataStream(int streamId, float expectedSampleRate)
+/*
+Adds a new data stream to the synchronizer
+If this is the first stream, set it as the primary stream
+Default the sync bit for this stream to the first ttlChannel in the stream 
+*/
+void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
-	streamArray.add(new Stream(expectedSampleRate));
-	streams[0][0] = streamArray.getLast(); // FIXME
+	if (primaryStreamId < 0)
+		primaryStreamId = streamId;
+
+	streams[streamId] = (new Stream(expectedSampleRate));
+	setSyncBit(streamId, 0);
 }
 
-void Synchronizer::setPrimaryDataStream(int streamId)
+void Synchronizer::setPrimaryDataStream(uint16 streamId)
 {
-	primaryProcessorId = 0;// sourceID; FIXME
-	primaryStreamId = 0; // subProcIndex;
+	primaryStreamId = streamId;
 	reset();
 }
 
 void Synchronizer::setSyncBit(uint16 streamId, int ttlChannel)
 {
-	//LOGD("Set sync channel: {", sourceID, ",", subProcIdx, "}->", ttlChannel);
-	streams[0][0]->syncChannel = ttlChannel;
+	streams[streamId]->syncChannel = ttlChannel;
 	reset();
 }
 
 int Synchronizer::getSyncBit(uint16 streamId)
 {
 	//LOGD("Get sync channel: {", sourceID, ",", subProcIdx, "}->", subprocessors[sourceID][subProcIdx]->syncChannel);
-	return streams[0][0]->syncChannel;
+	return streams[streamId]->syncChannel;
 }
 
-void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sampleNumber)
+void Synchronizer::addEvent(uint64 streamId, int ttlChannel, int sampleNumber)
 {
 
-	if (streams[sourceID][subProcIdx]->syncChannel == ttlChannel)
+	if (streams[streamId]->syncChannel == ttlChannel)
 	{
 		
 		if (!syncWindowIsOpen)
@@ -252,9 +254,9 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 			openSyncWindow();
 		}
 
-		streams[sourceID][subProcIdx]->addEvent(sampleNumber);
+		streams[streamId]->addEvent(sampleNumber);
 
-		if (sourceID == primaryProcessorId && subProcIdx == primaryStreamId)
+		if (streamId == primaryStreamId)
 		{
 
 			//LOGD("Got event on master!");
@@ -263,7 +265,7 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 
 			if (!firstMasterSync)
 			{
-				masterTimeSec = (sampleNumber - streams[sourceID][subProcIdx]->startSample) / streams[sourceID][subProcIdx]->expectedSampleRate;
+				masterTimeSec = (sampleNumber - streams[streamId]->startSample) / streams[streamId]->expectedSampleRate;
 			}
 			else
 			{
@@ -271,16 +273,8 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 				firstMasterSync = false;
 			}
 
-			std::map<int, std::map<int, Stream*>>::iterator it;
-			std::map<int, Stream*>::iterator ptr;
-
-			for (it = streams.begin(); it != streams.end(); it++)
-			{
-				for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) 
-				{
-					ptr->second->setPrimaryTime(masterTimeSec);
-				}
-			}
+			for (auto [id, stream] : streams)
+				stream->setPrimaryTime(masterTimeSec);
 
 			/*
 			if (eventCount % 10 == 0)
@@ -292,14 +286,14 @@ void Synchronizer::addEvent(int sourceID, int subProcIdx, int ttlChannel, int sa
 	}
 }
 
-double Synchronizer::convertTimestamp(int sourceID, int subProcID, int sampleNumber)
+double Synchronizer::convertTimestamp(uint64 streamId, int sampleNumber)
 {
 
-	if (streams[sourceID][subProcID]->isSynchronized)
+	if (streams[streamId]->isSynchronized)
 	{
-		return (double)(sampleNumber - streams[sourceID][subProcID]->startSample) /
-			streams[sourceID][subProcID]->actualSampleRate +
-			streams[sourceID][subProcID]->startSamplePrimaryTime;
+		return (double)(sampleNumber - streams[streamId]->startSample) /
+			streams[streamId]->actualSampleRate +
+			streams[streamId]->startSamplePrimaryTime;
 	}
 	else {
 		return (double)-1.0;
@@ -313,19 +307,19 @@ void Synchronizer::openSyncWindow()
 	syncWindowIsOpen = true;
 }
 
-bool Synchronizer::isSubprocessorSynced(int id, int idx)
+bool Synchronizer::isStreamSynced(uint64 streamId)
 {
-	return streams[id][idx]->isSynchronized;
+	return streams[streamId]->isSynchronized;
 }
 
-SyncStatus Synchronizer::getStatus(int id, int idx)
+SyncStatus Synchronizer::getStatus(uint64 streamId)
 {
 
 	//Deal with synchronization of spikes and events later...
-	if (id < 0)
+	if (streamId < 0)
 		return SyncStatus::OFF;
 
-	if (isSubprocessorSynced(id, idx))
+	if (isStreamSynced(streamId))
 		return SyncStatus::SYNCED;
 	else if (true)
 		return SyncStatus::SYNCING;
@@ -340,12 +334,6 @@ void Synchronizer::hiResTimerCallback()
 
 	syncWindowIsOpen = false;
 
-	std::map<int, std::map<int, Stream*>>::iterator it;
-	std::map<int, Stream*>::iterator ptr;
-
-	for (it = streams.begin(); it != streams.end(); it++) {
-		for (ptr = it->second.begin(); ptr != it->second.end(); ptr++) {
-			ptr->second->closeSyncWindow();
-		}
-	}
+	for (auto [id, stream] : streams)
+		stream->closeSyncWindow();
 }

@@ -26,7 +26,7 @@ public:
 	void writeEvent(int eventIndex, const EventPacket& packet) override;
 	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const Spike* spike) override;
-	void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float, String text) override;
+	void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sampleRate, String text) override;
 	void setParameter(EngineParameter& parameter) override;
 
 	static RecordEngineManager* getEngineManager();

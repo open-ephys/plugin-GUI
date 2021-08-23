@@ -134,6 +134,8 @@ void RecordThread::run()
 	
 	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
+
+	LOGD("############ CLOSING FILES ###############");
 	if (!closeEarly)
 	{
 		writeData(dataBuffer, -1, -1, -1, true);
@@ -193,16 +195,21 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 		const MidiMessage& event = events[ev]->getData();
 		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
-			//FIXME
-			//uint16 sourceID = SystemEvent::getSourceID(event);
-			//uint16 subProcIdx = SystemEvent::getSubProcessorIdx(event);
-			//int64 timestamp = SystemEvent::getTimestamp(event);
-			//m_engine->writeTimestampSyncText(sourceID, subProcIdx, timestamp,
-			//	recordNode->getSourceTimestamp(sourceID, subProcIdx),
-			//	SystemEvent::getSyncText(event));
+			String syncText = SystemEvent::getSyncText(event);
+			std::cout << "Writing sync text: " << syncText << std::endl;
+			m_engine->writeTimestampSyncText(SystemEvent::getStreamId(event), SystemEvent::getTimestamp(event), 0.0f, SystemEvent::getSyncText(event));
 		}
 		else
-			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());
+		{
+			int processorId = EventBase::getProcessorId(event);
+			int streamId = EventBase::getStreamId(event);
+			int channelIdx = EventBase::getChannelIndex(event);
+
+			const EventChannel* chan = recordNode->getEventChannel(processorId, streamId, channelIdx);
+			int eventIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeEvent(eventIndex, event);
+		}
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
@@ -212,7 +219,12 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	{
 		if (spikes[sp] != nullptr)
 		{
-			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+
+			const Spike& spike = spikes[sp]->getData();
+			const SpikeChannel* chan = spike.getChannelInfo();
+			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
 		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
@@ -240,39 +252,34 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 			}
 		}
 	}
-	/* TODO: Writing float timestamps
-	for (int chan = 0; chan < m_numFTSChannels; ++chan)
-	{
-		if (tsIdx[chan].size1 > 0)
-		{
-			m_engine->writeFloatTimestamps();
-		}
-	}
-	*/
+
 	m_dataQueue->stopRead();
 	//EVERY_ENGINE->endChannelBlock(lastBlock);
 	m_engine->endChannelBlock(lastBlock);
-
-	//LOGD("RecordThread::writeData:: write events...");
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
 
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
-		const EventPacket& packet = events[ev]->getData();
-		if (SystemEvent::getBaseType(packet) == SystemEvent::SYSTEM_EVENT)
+		const MidiMessage& event = events[ev]->getData();
+		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
-			// FIXME
-			//uint16 sourceId = SystemEvent::getProcessorId(packet);
-			//uint16 streamId = SystemEvent::getStreamId(packet);
-			//int64 timestamp = SystemEvent::getTimestamp(packet);
-			//m_engine->writeTimestampSyncText(sourceId, streamId, timestamp,
-			//	recordNode->getSourceTimestamp(sourceId, streamId),
-			//	SystemEvent::getSyncText(packet));
+			String syncText = SystemEvent::getSyncText(event);
+			std::cout << "Writing sync text: " << syncText << std::endl;
+			m_engine->writeTimestampSyncText(SystemEvent::getStreamId(event), SystemEvent::getTimestamp(event), 0.0f, SystemEvent::getSyncText(event));
 		}
 		else
-			m_engine->writeEvent(events[ev]->getExtra(), events[ev]->getData());
+		{
+			int processorId = EventBase::getProcessorId(event);
+			int streamId = EventBase::getStreamId(event);
+			int channelIdx = EventBase::getChannelIndex(event);
+
+			const EventChannel* chan = recordNode->getEventChannel(processorId, streamId, channelIdx);
+			int eventIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeEvent(eventIndex, event);
+		}
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
@@ -282,8 +289,14 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	{
 		if (spikes[sp] != nullptr)
 		{
-			m_engine->writeSpike(spikes[sp]->getExtra(), &spikes[sp]->getData());
+
+			const Spike& spike = spikes[sp]->getData();
+			const SpikeChannel* chan = spike.getChannelInfo();
+			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+
+			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
+		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 
 }

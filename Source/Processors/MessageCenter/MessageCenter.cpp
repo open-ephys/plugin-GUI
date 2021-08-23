@@ -129,10 +129,12 @@ bool MessageCenter::stopAcquisition()
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
-    /*if (needsToSendTimestampMessage)
+
+    if (needsToSendTimestampMessage)
     {
 		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 		HeapBlock<char> data;
+
 		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
 
 		eventBuffer.addEvent(data, dataSize, 0);
@@ -149,11 +151,11 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0], CoreServices::getGlobalTimestamp(), eventString);
 
-		addEvent(eventChannels[0], event, 0);
+		addEvent(event, CoreServices::getGlobalTimestamp());
 
         LOGD("Message Center added ", eventString);
 
         newEventAvailable = false;
-    }*/
+    }
 
 }

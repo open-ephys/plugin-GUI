@@ -110,7 +110,7 @@ void SpikeDetector::updateSettings()
             chans.add(ch);
         }
 
-        SpikeChannel::Settings settings{
+        SpikeChannel::Settings settings {
 
             SpikeChannel::typeFromNumChannels(nChans),
             "Electrode",

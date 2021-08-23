@@ -112,7 +112,7 @@ public:
 	virtual void writeEvent(int eventChannel, const MidiMessage& event) = 0;
 
 	/** Handle the timestamp sync text messages*/
-	virtual void writeTimestampSyncText(uint16 sourceID, uint16 sourceIdx, int64 timestamp, float sourceSampleRate, String text) = 0;
+	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
 	/** Called when acquisition starts once for each processor that might record continuous data */
 	virtual void registerProcessor(const GenericProcessor* processor);
@@ -168,6 +168,8 @@ protected:
 
 	/** Gets the specified event channel from the channel array stored in RecordNode */
 	const EventChannel* getEventChannel(int index) const;
+
+	const EventChannel* getEventChannelFromStreamId(int streamId) const;
 
 	/** Gets the specified channel group info structure from the array stored in RecordNode */
 	const SpikeChannel* getSpikeChannel(int index) const;

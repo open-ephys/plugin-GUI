@@ -319,7 +319,8 @@ void GenericProcessor::update()
 	updateChannelIndexMaps();
 
 	m_needsToSendTimestampMessages.clear();
-	m_needsToSendTimestampMessages.insertMultiple(-1, false, getNumDataStreams());
+	for (auto stream : getDataStreams())
+		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
 
 	// required for the ProcessorGraph to know the
 	// details of this processor:
@@ -478,7 +479,7 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 
 		eventBuffer.addEvent(data, dataSize, 0);
 
-		m_needsToSendTimestampMessages.set(streamId, false);
+		m_needsToSendTimestampMessages[streamId] = false;
 	}
 }
 
@@ -759,6 +760,34 @@ int GenericProcessor::getIndexOfMatchingChannel(const ContinuousChannel* channel
 		{
 			return index;
 		}	
+	}
+
+	return -1;
+}
+
+int GenericProcessor::getIndexOfMatchingChannel(const EventChannel* channel) const
+{
+
+	for (int index = 0; index < eventChannels.size(); index++)
+	{
+		if (*eventChannels[index] == *channel) // check for matching Uuid
+		{
+			return index;
+		}
+	}
+
+	return -1;
+}
+
+int GenericProcessor::getIndexOfMatchingChannel(const SpikeChannel* channel) const
+{
+
+	for (int index = 0; index < spikeChannels.size(); index++)
+	{
+		if (*spikeChannels[index] == *channel) // check for matching Uuid
+		{
+			return index;
+		}
 	}
 
 	return -1;
@@ -1085,7 +1114,14 @@ void GenericProcessor::setSplitterDestNode(GenericProcessor* dn)  { }
 bool GenericProcessor::startAcquisition() { return true; }
 bool GenericProcessor::stopAcquisition() { return true; }
 
-void GenericProcessor::startRecording() { }
+void GenericProcessor::startRecording() {
+
+	m_needsToSendTimestampMessages.clear();
+	for (auto stream : getDataStreams())
+		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
+
+ }
+
 void GenericProcessor::stopRecording()  { }
 
 void GenericProcessor::updateSettings() { }
@@ -1171,7 +1207,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 					/ float(Time::getHighResolutionTicksPerSecond())
 					* 1000.0f;
 
-				std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
+				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
 				it++;
 

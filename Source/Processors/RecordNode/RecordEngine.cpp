@@ -69,6 +69,7 @@ const EventChannel* RecordEngine::getEventChannel(int index) const
 	return recordNode->eventChannels[index];
 }
 
+
 const SpikeChannel* RecordEngine::getSpikeChannel(int index) const
 {
 	return recordNode->spikeChannels[index];

@@ -141,10 +141,14 @@ void SourceNode::updateSettings()
 }
 
 
-float SourceNode::getSampleRate(int idx) const
+float SourceNode::getSampleRate(int streamId) const
 {
     if (dataThread != nullptr)
-        return dataStreams[idx]->getSampleRate();
+    {
+        for (auto& stream : dataStreams)
+            if (stream->getStreamId() == streamId)
+                return stream->getSampleRate();
+    }
     else
         return 44100.0;
 }
@@ -288,7 +292,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
     checkForEvents();
 
-	for (int streamIdx = 0; streamIdx < numStreams; numStreams++)
+	for (int streamIdx = 0; streamIdx < inputBuffers.size(); streamIdx++)
 	{
 		int channelsToCopy = getNumOutputsForStream(streamIdx);
 		
