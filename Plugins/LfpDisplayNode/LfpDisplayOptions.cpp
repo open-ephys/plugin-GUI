@@ -1432,12 +1432,10 @@ ContinuousChannel::Type LfpDisplayOptions::getChannelType(int n)
     if (n < processor->getNumInputs())
     {
         const ContinuousChannel* chan = processor->getContinuousChannel(n);
-        std::cout << "Channel " << chan->getName() << " type: " << chan->getChannelType() << std::endl;
         return processor->getContinuousChannel(n)->getChannelType();
     }
     else
     {
-        std::cout << "Channel " << n << ", just returning default." << std::endl;
         return ContinuousChannel::Type::ELECTRODE;
     }
        
