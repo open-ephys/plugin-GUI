@@ -161,8 +161,8 @@ void FilterNode::updateSettings()
 
             shouldFilterChannel.add (true);
 
-            float newLowCut  = 0.f;
-            float newHighCut = 0.f;
+            auto newLowCut  = 0.0;
+            auto newHighCut = 0.0;
 
             if (oldlowCuts.size() > n)
             {
