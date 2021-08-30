@@ -34,6 +34,12 @@ struct RecordedChannelInfo
     float bitVolts;
 };
 
+struct EventInfo
+{
+    std::vector<int16> channels;
+    std::vector<int16> channelStates;
+    std::vector<int64> timestamps;
+};
 
 class PLUGIN_API FileSource
 {
@@ -65,25 +71,35 @@ public:
 
     virtual int readData (int16* buffer, int nSamples) = 0;
     virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples) = 0;
+    virtual void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) = 0;
     virtual void seekTo (int64 sample) = 0;
 
     virtual bool isReady();
 
+    int64 loopCount;
+
+    EventInfo getEventInfo();
+
 protected:
+
     struct RecordInfo
     {
         String name;
         Array<RecordedChannelInfo> channels;
         int64 numSamples;
         float sampleRate;
+        int64 startTimestamp;
     };
     Array<RecordInfo> infoArray;
+
+    //Store info per event source in EventInfo
+    Array<EventInfo> eventInfoArray;
+    //TODO: SpikeInfo
 
     bool fileOpened;
     int numRecords;
     Atomic<int> activeRecord;       // atomic to protect against threaded data race in FileReader
     String filename;
-
 
 private:
     virtual bool Open (File file) = 0;

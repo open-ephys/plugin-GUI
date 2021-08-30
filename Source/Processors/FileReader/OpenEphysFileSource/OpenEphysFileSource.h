@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2018 Open Ephys
+Copyright (C) 2021 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -21,19 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef BINARYFILESOURCE_H_INCLUDED
-#define BINARYFILESOURCE_H_INCLUDED
+#ifndef OPENEPHYSFILESOURCE_H_INCLUDED
+#define OPENEPHYSFILESOURCE_H_INCLUDED
 
 #include "../FileSource.h"
 #include "../../../Utils/Utils.h"
 
-namespace BinarySource
+namespace OpenEphysSource
 {
-	class BinaryFileSource : public FileSource
+
+	class OpenEphysFileSource : public FileSource
 	{
 	public:
-		BinaryFileSource();
-		~BinaryFileSource();
+		OpenEphysFileSource();
+		~OpenEphysFileSource();
 
 		int readData(int16* buffer, int nSamples) override;
 
@@ -44,24 +45,53 @@ namespace BinarySource
 
 		bool isReady() override;
 
-		int64 loopCount;
-
 	private:
 		bool Open(File file) override;
 		void fillRecordInfo() override;
 		void updateActiveRecord() override;
 
-		ScopedPointer<MemoryMappedFile> m_dataFile;
-		var m_jsonData;
-		Array<File> m_dataFileArray;
+		void loadEventData();
+
+		void readSamples(int16* buffer, int64 samplesToRead);
+
+		struct ChannelInfo
+        {
+			int id;
+            String name;
+            double bitVolts;
+			String filename;
+            long int startPos;
+        };
+
+		struct ProcInfo
+		{
+			int id;
+			float sampleRate;
+			std::vector<ChannelInfo> channels;
+			long int startPos; //Currently assumes all channels within a processor have the same startPos
+		};
+
+		struct Recording 
+		{
+			int id;
+			int sampleRate;
+			std::map<int, ProcInfo> processors;
+			int64 numSamples; 
+		};
+
+		OwnedArray<MemoryMappedFile> dataFiles;
+
+        std::map<int, Recording> recordings;
+		std::map<int, EventInfo> events;
 
 		File m_rootPath;
 		int64 m_samplePos;
 
-		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 128;
-		const unsigned int BYTES_PER_EVENT = 2;
+		int64 blockIdx;
+		int64 samplesLeftInBlock;
 
-		bool hasEventData;
+		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 1024;
+		const unsigned int BYTES_PER_EVENT = 16;
 		
 	};
 }

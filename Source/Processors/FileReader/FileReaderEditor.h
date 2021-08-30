@@ -27,8 +27,10 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
+#include "../../Utils/Utils.h"
 
 class FileReader;
+class FileReaderEditor;
 class DualTimeComponent;
 class FileSource;
 
@@ -39,6 +41,86 @@ class FileSource;
   @see SourceNode, FileReaderThread
 
 */
+
+class PlaybackButton : public Button
+{
+public:
+    PlaybackButton(FileReader*);
+
+    ~PlaybackButton();
+private:
+
+    FileReader* fileReader;
+    
+    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+};
+
+class FullTimeline : public Component
+{
+public:
+    FullTimeline(FileReader*);
+    ~FullTimeline();
+
+    void setIntervalPosition(int start, int width);
+
+    int getStartInterval();
+    int getIntervalWidth();
+
+private:
+
+    FileReader* fileReader;
+
+    int intervalStartPosition;
+    int intervalWidth;
+    bool intervalIsSelected;
+
+    void paint(Graphics& g);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+    void mouseUp(const MouseEvent& event);
+
+    bool leftSliderIsSelected;
+};
+
+class ZoomTimeline : public Component, MouseListener
+{
+public:
+    ZoomTimeline(FileReader*);
+    ~ZoomTimeline();
+
+    void updatePlaybackRegion(int min, int max);
+    int getStartInterval();
+    int getIntervalDurationInSeconds();
+
+private:
+
+    FileReader* fileReader;
+
+    int sliderWidth;
+    int widthInSeconds;
+    float leftSliderPosition;
+    float rightSliderPosition;
+    float lastDragXPosition;
+
+    void paint(Graphics& g);
+    void mouseDown(const MouseEvent& event);
+    void mouseDrag(const MouseEvent& event);
+    void mouseUp(const MouseEvent& event);
+
+    bool leftSliderIsSelected;
+    bool rightSliderIsSelected;
+    bool playbackRegionIsSelected;
+
+};
+
+class ScrubDrawerButton : public DrawerButton
+{
+public:
+	ScrubDrawerButton(const String& name);
+	~ScrubDrawerButton();
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+};
 
 class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
@@ -75,10 +157,19 @@ public:
     void comboBoxChanged (ComboBox* combo);
     void populateRecordings (FileSource* source);
 
+    void showScrubInterface(bool show);
+    void updateScrubInterface(bool reset);
+
+    void updateZoomTimeLabels();
+    int getFullTimelineStartPosition();
+    int getZoomTimelineStartPosition();
+    void updatePlaybackTimes();
+
 
 private:
     void clearEditor();
 
+    ScopedPointer<ScrubDrawerButton>    scrubDrawerButton;
 
     ScopedPointer<UtilityButton>        fileButton;
     ScopedPointer<Label>                fileNameLabel;
@@ -86,10 +177,22 @@ private:
     ScopedPointer<DualTimeComponent>    currentTime;
     ScopedPointer<DualTimeComponent>    timeLimits;
 
+    //ScrubbingInterface controls
+    ScopedPointer<Label>                zoomStartTimeLabel;
+    ScopedPointer<Label>                zoomMiddleTimeLabel;
+    ScopedPointer<Label>                zoomEndTimeLabel;
+    ScopedPointer<Label>                fullStartTimeLabel;
+    ScopedPointer<Label>                fullEndTimeLabel;
+    ScopedPointer<FullTimeline>         fullTimeline;
+    ScopedPointer<ZoomTimeline>         zoomTimeline;
+    ScopedPointer<PlaybackButton>       playbackButton;
+
     FileReader* fileReader;
     unsigned int recTotalTime;
 
     bool m_isFileDragAndDropActive;
+    bool scrubInterfaceVisible;
+    int scrubInterfaceWidth;
 
     File lastFilePath;
 

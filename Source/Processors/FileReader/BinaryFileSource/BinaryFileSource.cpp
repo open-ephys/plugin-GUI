@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BinarySource;
 
-BinaryFileSource::BinaryFileSource() : m_samplePos(0)
+BinaryFileSource::BinaryFileSource() : m_samplePos(0), hasEventData(false), loopCount(0)
 {}
 
 BinaryFileSource::~BinaryFileSource()
@@ -54,7 +54,12 @@ bool BinaryFileSource::Open(File file)
 		std::cout << "No continuous data found." << std::endl;
 		return false;
 	}
-		
+
+	var event = m_jsonData["events"];
+	if (!(event.isVoid() || event.size() <= 0))
+	{
+		hasEventData = true;
+	}
 
 	m_rootPath = file.getParentDirectory();
 
@@ -63,6 +68,9 @@ bool BinaryFileSource::Open(File file)
 
 void BinaryFileSource::fillRecordInfo()
 {
+
+	const int maxSensibleFileSize = 2 * 1024 * 1024; 
+
 	var continuousData = m_jsonData["continuous"];
 
 	//create identifiers to speed up stuff
@@ -97,6 +105,14 @@ void BinaryFileSource::fillRecordInfo()
 		info.name = folderName;
 		info.sampleRate = record[idSampleRate];
 		info.numSamples = numSamples;
+		
+		//Get start timestsamp to align any associated events with
+		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(folderName).getChildFile("timestamps.npy");
+		ScopedPointer<FileInputStream> tsDataStream = tsFile.createInputStream();
+		MemoryBlock tsData;
+		if (!(tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize))) continue;
+		int64* startTimestamp = (int64 *)tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES;
+		info.startTimestamp = startTimestamp[0];
 
 		for (int c = 0; c < numChannels; c++)
 		{
@@ -115,6 +131,91 @@ void BinaryFileSource::fillRecordInfo()
 		m_dataFileArray.add(dataFile);
 		
 	}
+
+	if (hasEventData)
+	{
+
+		var eventData = m_jsonData["events"];
+		
+		//create identifiers to speed up stuff
+		Identifier idFolder("folder_name");
+		Identifier idChannelName("channel_name");
+		Identifier idDescription("description");
+		Identifier idIdentifier("identifier");
+		Identifier idSampleRate("sample_rate");
+		Identifier idType("type");
+		Identifier idNumChannels("num_channels");
+		Identifier idChannels("channels");
+		Identifier idSourceProcessor("source_processor");
+
+		int numEventProcessors = eventData.size();
+
+		for (int i = 0; i < numEventProcessors; i++) 
+		{
+
+			var events = eventData[i];
+
+			String folderName = events[idFolder];
+			folderName = folderName.trimCharactersAtEnd("/");
+
+			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
+			std::unique_ptr<MemoryMappedFile> channelFileMap(new MemoryMappedFile(channelFile, MemoryMappedFile::readOnly)); 
+
+			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channel_states.npy");
+			std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly)); 
+
+			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("timestamps.npy");
+			std::unique_ptr<MemoryMappedFile> timestampsFileMap(new MemoryMappedFile(timestampsFile, MemoryMappedFile::readOnly)); 
+
+			int channelFileSize = channelFile.getSize(); 
+
+			int nEvents = (channelFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT; 
+		
+			EventInfo eventInfo;
+
+			for (int i = 0; i < nEvents; i++)
+			{
+				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
+				eventInfo.channels.push_back(*data);
+
+				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
+				eventInfo.channelStates.push_back(*data);
+
+				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
+				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp); //TODO: This 
+
+			}
+
+			if (nEvents)
+				eventInfoArray.add(eventInfo);
+
+		}
+	}
+
+}
+
+void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
+{
+
+	if (stop < start) //we've reached the end of the data file
+	{
+	}
+
+	auto info = eventInfoArray[getActiveRecord()];
+	{
+		int i = 0;
+		while (i < info.timestamps.size())
+		{
+			if (info.timestamps[i] >= start && info.timestamps[i] <= stop)
+			{
+				eventInfo.channels.push_back(info.channels[i] - 1);
+				eventInfo.channelStates.push_back((info.channelStates[i]));
+				eventInfo.timestamps.push_back(info.timestamps[i]);
+			}
+			i++;
+		}
+	}
+
 
 }
 

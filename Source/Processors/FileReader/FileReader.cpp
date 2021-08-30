@@ -29,6 +29,7 @@
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
+#include "OpenEphysFileSource/OpenEphysFileSource.h"
 
 #include "../Settings/DeviceInfo.h"
 #include "../Settings/DataStream.h"
@@ -38,18 +39,21 @@
 FileReader::FileReader()
     : GenericProcessor ("File Reader")
     , Thread ("filereader_Async_Reader")
-    , timestamp             (0)
-    , currentSampleRate     (0)
-    , currentNumChannels    (0)
-    , currentSample         (0)
-    , currentNumSamples     (0)
-    , startSample           (0)
-    , stopSample            (0)
-    , counter               (0)
-    , bufferCacheWindow     (0)
-    , m_shouldFillBackBuffer(false)
-	, m_bufferSize(1024)
-	, m_sysSampleRate(44100)
+    , timestamp                 (0) 
+    , currentSampleRate         (0)
+    , currentNumChannels        (0)
+    , currentSample             (0)
+    , currentNumTotalSamples    (0)
+    , currentNumScrubbedSamples (0)
+    , startSample               (0)
+    , stopSample                (0)
+    , loopCount                 (0)
+    , counter                   (0)
+    , bufferCacheWindow         (0)
+    , m_shouldFillBackBuffer    (false)
+	, m_bufferSize              (1024)
+	, m_sysSampleRate           (44100)
+    , playbackActive            (true)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -107,8 +111,64 @@ FileReader::~FileReader()
 AudioProcessorEditor* FileReader::createEditor()
 {
     editor = std::make_unique<FileReaderEditor>(this, true);
-
     return editor.get();
+}
+
+void FileReader::togglePlayback()
+{
+    playbackActive = !playbackActive;
+
+    if (!playbackActive) {
+        this->disable();
+    } else {
+        this->enable();
+    }
+}
+
+bool FileReader::playbackIsActive()
+{
+    return playbackActive == true;
+}
+
+int64 FileReader::getCurrentNumTotalSamples()
+{
+    return currentNumTotalSamples;
+}
+
+int64 FileReader::getCurrentNumScrubbedSamples()
+{
+    return currentNumScrubbedSamples;
+}
+
+
+float FileReader::getCurrentSampleRate() const
+{
+    return input->getActiveSampleRate();
+}
+
+void FileReader::createEventChannels()
+{
+
+    EventChannel* chan = new EventChannel(EventChannel::TTL, 8, 0, -1, this);
+    chan->setName(getName() + " source TTL events input");
+    chan->setDescription("TTL Events coming from the hardware source processor \"" + getName() + "\"");
+    chan->setIdentifier("sourceevent");
+    eventChannelArray.add(chan);
+
+}
+
+bool FileReader::isReady()
+{
+    if (! input)
+    {
+        //CoreServices::sendStatusMessage ("No file selected in File Reader.");
+        return false;
+    }
+    else
+    {
+        return input->isReady();
+    }
+>>>>>>> file-reader-upgrade
 }
 
 
@@ -132,8 +192,8 @@ bool FileReader::startAcquisition()
     if (!isEnabled)
         return false;
 
-	timestamp = 0;
-    count = 0;
+	timestamp = startSample;
+    loopCount = 0;
 
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
 	AudioDeviceManager::AudioDeviceSetup ads;
@@ -147,10 +207,10 @@ bool FileReader::startAcquisition()
 	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
-        // reset stream to beginning
-        input->seekTo (startSample);
-        currentSample = startSample;
-        readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
+    // reset stream to beginning
+    input->seekTo (startSample);
+    currentSample = startSample;
+    readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
 
 	// set the backbuffer so that on the next call to process() we start with bufferA and buffer
 	// cache window id = 0
@@ -252,26 +312,39 @@ void FileReader::setActiveRecording (int index)
 
     input->setActiveRecord (index);
 
-    currentNumChannels  = input->getActiveNumChannels();
-    currentNumSamples   = input->getActiveNumSamples();
-    currentSampleRate   = input->getActiveSampleRate();
+    currentNumChannels       = input->getActiveNumChannels();
+    currentNumTotalSamples   = input->getActiveNumSamples();
+    currentSampleRate        = input->getActiveSampleRate();
 
     currentSample   = 0;
     startSample     = 0;
-    stopSample      = currentNumSamples;
+    stopSample      = currentNumTotalSamples;
     bufferCacheWindow = 0;
+    loopCount = 0;
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
         channelInfo.add (input->getChannelInfo (i));
     }
 
-    static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumSamples));
+    static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
 	input->seekTo(startSample);
 
    
 }
 
+void FileReader::setPlaybackStart(int64 timestamp)
+{
+    LOGD("Settings start sample: ", timestamp);
+    startSample = timestamp;
+}
+
+void FileReader::setPlaybackStop(int64 timestamp)
+{
+    LOGD("Settings stop sample: ", timestamp);
+    stopSample = timestamp;
+    currentNumScrubbedSamples = stopSample - startSample;
+}
 
 String FileReader::getFile() const
 {
@@ -320,10 +393,24 @@ void FileReader::updateSettings()
 
 }
 
+int FileReader::getPlaybackStart() 
+{
+    return startSample;
+}
+
+int FileReader::getPlaybackStop()
+{
+    return stopSample;
+}
+
+EventInfo FileReader::getActiveEventInfo()
+{
+    EventInfo info = input->getEventInfo();
+    return info;
+}
+
 void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
 {
-
-    //std::cout << "File reader received event." << std::endl;
 
     if (Event::getProcessorId(event) > 900)
     {
@@ -344,7 +431,13 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     checkForEvents();
 
-    const int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    int samplesNeededPerBuffer;
+
+    if (!playbackActive)
+        samplesNeededPerBuffer = 0;
+    else
+        samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
@@ -359,26 +452,42 @@ void FileReader::process (AudioBuffer<float>& buffer)
     {
         // offset readBuffer index by current cache window count * buffer window size * num channels
         input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                   buffer.getWritePointer (i, 0),
-                                   i,
-                                   samplesNeededPerBuffer);
+                                buffer.getWritePointer (i, 0),
+                                i,
+                                samplesNeededPerBuffer);
     }
-    
-    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, dataStreams[0]->getStreamId());
+
+    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
 	timestamp += samplesNeededPerBuffer;
     count += samplesNeededPerBuffer;
 
-	static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
-    
+    timestamp += samplesNeededPerBuffer;
+
+    static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
+
+
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
 
-   // if (count > 80000)
-    //{
-    //    broadcastMessage("FILE READER MESSAGE.");
-    //    std::cout << "File reader adding message." << std::endl;
-     //   count = 0;
-    //}
+}
+
+void FileReader::addEventsInRange(int64 start, int64 stop)
+{
+
+    //Finds all events in the source file that occur between startTimestamp and stopTimestamp
+    EventInfo events;
+    input->processEventData(events, start, stop);
+
+    for (int i = 0; i < events.channels.size(); i++) 
+    { 
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
+        uint8 ttlBit = events.channels[i];
+        bool state = events.channelStates[i] > 0;
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], absoluteCurrentTimestamp, ttlBit, state);
+        //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
+        addEvent(event, absoluteCurrentTimestamp); 
+    }
+
 }
 
 
@@ -506,7 +615,7 @@ StringArray FileReader::getSupportedExtensions() const
 
 int FileReader::getNumBuiltInFileSources() const
 {
-	return 1;
+	return 2;
 }
 
 String FileReader::getBuiltInFileSourceExtensions(int index) const
@@ -515,6 +624,8 @@ String FileReader::getBuiltInFileSourceExtensions(int index) const
 	{
 	case 0: //Binary
 		return "oebin";
+    case 1: //OpenEphys 
+        return "openephys";
 	default:
 		return "";
 	}
@@ -526,6 +637,8 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	{
 	case 0:
 		return new BinarySource::BinaryFileSource();
+    case 1:
+        return new OpenEphysSource::OpenEphysFileSource();
 	default:
 		return nullptr;
 	}
