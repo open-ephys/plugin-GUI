@@ -58,6 +58,7 @@ public:
 
     bool getBypassStatusForChannel (int chan) const;
 
+    void setApplyOnElectrodesDefault (bool state);
     void setApplyOnADC (bool state);
 
 
@@ -70,6 +71,7 @@ private:
     OwnedArray<Dsp::Filter> filters;
     Array<bool> shouldFilterChannel;
 
+    bool applyOnElectrodes;
     bool applyOnADC;
 
     double defaultLowCut;

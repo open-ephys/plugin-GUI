@@ -189,6 +189,7 @@ void FilterEditor::buttonEvent(Button* button)
     else if (button == applyFilterOnChan)
     {
         FilterNode* fn = (FilterNode*) getProcessor();
+        fn->setApplyOnElectrodesDefault(button->getToggleState());
 
         Array<int> chans = getActiveChannels();
 

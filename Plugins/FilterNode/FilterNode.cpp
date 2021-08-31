@@ -23,14 +23,19 @@
 #include "FilterNode.h"
 #include "FilterEditor.h"
 
+constexpr bool isAdc (DataChannel::DataChannelTypes channelType)
+{
+    return channelType == DataChannel::ADC_CHANNEL || channelType == DataChannel::AUX_CHANNEL;
+}
 
 FilterNode::FilterNode()
     : GenericProcessor  ("Bandpass Filter")
+    , applyOnElectrodes (true)
+    , applyOnADC        (false)
     , defaultLowCut     (300.0f)
     , defaultHighCut    (6000.0f)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
-    applyOnADC = false;
 }
 
 
@@ -113,10 +118,9 @@ void FilterNode::updateSettings()
     int numfilt = filters.size();
     if (numInputs < 1024 && numInputs != numfilt)
     {
-        Array<double> oldlowCuts;
-        Array<double> oldhighCuts;
-        oldlowCuts = lowCuts;
-        oldhighCuts = highCuts;
+        auto oldShouldFilter = shouldFilterChannel;
+        auto oldlowCuts = lowCuts;
+        auto oldhighCuts = highCuts;
 
         filters.clear();
         lowCuts.clear();
@@ -131,33 +135,26 @@ void FilterNode::updateSettings()
                          1,                                     // number of channels (must be const)
                          Dsp::DirectFormII> (1));               // realization
 
+            // apply defaults, or current value
 
-            // restore defaults
-
-            shouldFilterChannel.add (true);
-
-            auto newLowCut  = 0.0;
-            auto newHighCut = 0.0;
+            auto shouldFilter = isAdc(dataChannelArray[n]->getChannelType()) ? applyOnADC : applyOnElectrodes;
+            auto newLowCut  = defaultLowCut;
+            auto newHighCut = defaultHighCut;
 
             if (oldlowCuts.size() > n)
             {
+                shouldFilter = oldShouldFilter[n];
                 newLowCut  = oldlowCuts[n];
                 newHighCut = oldhighCuts[n];
             }
-            else
-            {
-                newLowCut  = defaultLowCut;
-                newHighCut = defaultHighCut;
-            }
 
+            shouldFilterChannel.add (shouldFilter);
             lowCuts.add  (newLowCut);
             highCuts.add (newHighCut);
 
             setFilterParameters (newLowCut, newHighCut, n);
         }
     }
-
-    setApplyOnADC (applyOnADC);
 }
 
 
@@ -245,12 +242,18 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 }
 
 
+void FilterNode::setApplyOnElectrodesDefault (bool state)
+{
+    applyOnElectrodes = state;
+}
+
+
 void FilterNode::setApplyOnADC (bool state)
 {
+    applyOnADC = state;
     for (int n = 0; n < dataChannelArray.size(); ++n)
     {
-        if (dataChannelArray[n]->getChannelType() == DataChannel::ADC_CHANNEL
-            || dataChannelArray[n]->getChannelType() == DataChannel::AUX_CHANNEL)
+        if (isAdc(dataChannelArray[n]->getChannelType()))
         {
             setCurrentChannel (n);
 
