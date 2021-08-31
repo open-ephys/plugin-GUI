@@ -19,6 +19,12 @@
 
 // (You can add your own code in this section, and the Introjucer will not overwrite it)
 
+#ifdef _MSC_VER
+//class 'type1' needs to have dll-interface to be used by clients of class 'type2'
+//non-DLL-interface class 'class_1' used as base for DLL-interface class 'class_2'
+#pragma warning (disable : 4251 4275)
+#endif
+
 // [END_USER_CODE_SECTION]
 
 //==============================================================================
