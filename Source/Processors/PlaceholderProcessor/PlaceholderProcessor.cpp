@@ -33,6 +33,8 @@ PlaceholderProcessor::PlaceholderProcessor (String pName, String lName, int lVer
     , m_isSourceProcessor   (pSource)
     , m_isSinkProcessor     (pSink)
 {
+    // We're used to express 'no such processor' so disable by default.
+    isEnabled = false;
 }
 
 

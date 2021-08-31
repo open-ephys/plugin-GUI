@@ -39,7 +39,6 @@ PlaceholderProcessorEditor::PlaceholderProcessorEditor(GenericProcessor* parentN
 	addAndMakeVisible(nameLabel);
 
 	desiredWidth = 180;
-	setEnabledState(false);
 }
 
 PlaceholderProcessorEditor::~PlaceholderProcessorEditor()
