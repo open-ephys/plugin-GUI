@@ -178,10 +178,10 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
             addChildAndSetID(selectButtons.getLast(),"ALL");
 
             //Add Range Editor
-            rangeEditor = new RangeEditor("Range", Font("Small Text", 12, Font::plain));
+            rangeEditor = std::make_unique<RangeEditor>("Range", Font("Small Text", 12, Font::plain));
             rangeEditor->setBounds(0.75*width, height, 0.25*width, width / nColumns);
             rangeEditor->addListener(this);
-            addChildAndSetID(rangeEditor,"RANGE_EDITOR");
+            addChildAndSetID(rangeEditor.get(),"RANGE_EDITOR");
             
         }
 

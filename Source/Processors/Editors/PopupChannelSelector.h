@@ -101,7 +101,7 @@ private:
 	void updateRangeString();
 	void parseRangeString();
 	OwnedArray<SelectButton> selectButtons;
-	ScopedPointer<RangeEditor> rangeEditor;
+	std::unique_ptr<RangeEditor> rangeEditor;
 
 	String rangeString;
 	Array<int> channelStates;
