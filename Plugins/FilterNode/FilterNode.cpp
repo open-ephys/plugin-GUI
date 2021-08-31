@@ -20,7 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
 #include "FilterNode.h"
 #include "FilterEditor.h"
 
@@ -31,23 +30,6 @@ FilterNode::FilterNode()
     , defaultHighCut    (6000.0f)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
-
-    // // Deprecated "parameters" class // //
-    // Array<var> lowCutValues;
-    // lowCutValues.add(1.0f);
-    // lowCutValues.add(4.0f);
-    // lowCutValues.add(100.0f);
-    // lowCutValues.add(600.0f);
-
-    // parameters.add(Parameter("low cut",lowCutValues, 3, 0));
-
-    // Array<var> highCutValues;
-    // highCutValues.add(12.0f);
-    // highCutValues.add(3000.0f);
-    // highCutValues.add(6000.0f);
-    // highCutValues.add(9000.0f);
-
-    // parameters.add(Parameter("high cut",highCutValues, 2, 1));
     applyOnADC = false;
 }
 
@@ -127,12 +109,10 @@ AudioProcessorEditor* FilterNode::createEditor()
 
 void FilterNode::updateSettings()
 {
-    //int id = nodeId;
     int numInputs = getNumInputs();
     int numfilt = filters.size();
     if (numInputs < 1024 && numInputs != numfilt)
     {
-        // SO fixed this. I think values were never restored correctly because you cleared lowCuts.
         Array<double> oldlowCuts;
         Array<double> oldhighCuts;
         oldlowCuts = lowCuts;
@@ -151,11 +131,6 @@ void FilterNode::updateSettings()
                          1,                                     // number of channels (must be const)
                          Dsp::DirectFormII> (1));               // realization
 
-
-            //Parameter& p1 =  parameters.getReference(0);
-            //p1.setValue(600.0f, n);
-            //Parameter& p2 =  parameters.getReference(1);
-            //p2.setValue(6000.0f, n);
 
             // restore defaults
 
@@ -294,8 +269,6 @@ void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, int c
         && channelNumber > -1
         && channelNumber < highCuts.size())
     {
-        //std::cout << "Saving custom parameters for filter node." << std::endl;
-
         XmlElement* channelParams = channelInfo->createNewChildElement ("PARAMETERS");
         channelParams->setAttribute ("highcut",         highCuts[channelNumber]);
         channelParams->setAttribute ("lowcut",          lowCuts[channelNumber]);
