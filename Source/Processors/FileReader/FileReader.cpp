@@ -98,6 +98,7 @@ FileReader::FileReader()
     };
 
     devices.add(new DeviceInfo(settings));
+
 }
 
 
@@ -392,9 +393,11 @@ void FileReader::updateSettings()
         dataStreams.getLast()
     };
 
+    //FIXME: Should add an event channel for each event channel detected in the current file source
     events = new EventChannel(eventSettings);
     String id = "sourceevent";
     events->setIdentifier(id);
+    events->addProcessor(processorInfo.get());
     eventChannels.add(events);
 
     isEnabled = true;
@@ -466,10 +469,15 @@ void FileReader::process (AudioBuffer<float>& buffer)
     }
 
     setTimestampAndSamples(timestamp, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+
+    int64 start = timestamp;
+
 	timestamp += samplesNeededPerBuffer;
     count += samplesNeededPerBuffer;
 
-    timestamp += samplesNeededPerBuffer;
+    int64 stop = timestamp;
+
+    addEventsInRange(start, stop);
 
     static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
 
@@ -491,13 +499,13 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
         uint8 ttlBit = events.channels[i];
         bool state = events.channelStates[i] > 0;
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], absoluteCurrentTimestamp, ttlBit, state);
+        //FIXME: Needs to create event on the correct channel, not just index 1
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[1], events.timestamps[i], ttlBit, state);
         //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(event, absoluteCurrentTimestamp); 
     }
 
 }
-
 
 void FileReader::setParameter (int parameterIndex, float newValue)
 {
@@ -526,12 +534,10 @@ void FileReader::setParameter (int parameterIndex, float newValue)
     }
 }
 
-
 unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 {
     return (unsigned int) (1000.f * float (samples) / currentSampleRate);
 }
-
 
 int64 FileReader::millisecondsToSamples (unsigned int ms) const
 {
