@@ -118,11 +118,14 @@ void FileReader::togglePlayback()
 {
     playbackActive = !playbackActive;
 
+    //FIXME
+    /*
     if (!playbackActive) {
         this->disable();
     } else {
         this->enable();
     }
+    */
 }
 
 bool FileReader::playbackIsActive()
@@ -146,17 +149,7 @@ float FileReader::getCurrentSampleRate() const
     return input->getActiveSampleRate();
 }
 
-void FileReader::createEventChannels()
-{
-
-    EventChannel* chan = new EventChannel(EventChannel::TTL, 8, 0, -1, this);
-    chan->setName(getName() + " source TTL events input");
-    chan->setDescription("TTL Events coming from the hardware source processor \"" + getName() + "\"");
-    chan->setIdentifier("sourceevent");
-    eventChannelArray.add(chan);
-
-}
-
+/*
 bool FileReader::isReady()
 {
     if (! input)
@@ -168,8 +161,8 @@ bool FileReader::isReady()
     {
         return input->isReady();
     }
->>>>>>> file-reader-upgrade
 }
+*/
 
 
 float FileReader::getDefaultSampleRate() const
@@ -363,33 +356,48 @@ void FileReader::updateSettings()
         return;
     }
 
-     DataStream::Settings settings{
-         "File Reader Stream",
-         "A description of the File Reader Stream",
-         "identifier",
-         getDefaultSampleRate()
-     };
+    DataStream::Settings settings{
+        "File Reader Stream",
+        "A description of the File Reader Stream",
+        "identifier",
+        getDefaultSampleRate()
+    };
 
-     dataStreams.add(new DataStream(settings));
-     dataStreams.getLast()->addProcessor(processorInfo.get());
+    dataStreams.add(new DataStream(settings));
+    dataStreams.getLast()->addProcessor(processorInfo.get());
 
-     for (int i = 0; i < currentNumChannels; i++)
-     {
-         ContinuousChannel::Settings settings2
-         {
-             ContinuousChannel::Type::ELECTRODE,
-             "CH" + String(i + 1),
-             "description",
-             "filereader.stream",
-             0.195f, // BITVOLTS VALUE
-             dataStreams.getLast()
-         };
-         
-         continuousChannels.add(new ContinuousChannel(settings2));
-         continuousChannels.getLast()->addProcessor(processorInfo.get());
-     }
+    for (int i = 0; i < currentNumChannels; i++)
+    {
+        ContinuousChannel::Settings settings2
+        {
+            ContinuousChannel::Type::ELECTRODE,
+            "CH" + String(i + 1),
+            "description",
+            "filereader.stream",
+            0.195f, // BITVOLTS VALUE
+            dataStreams.getLast()
+        };
+        
+        continuousChannels.add(new ContinuousChannel(settings2));
+        continuousChannels.getLast()->addProcessor(processorInfo.get());
+    }
 
-     isEnabled = true;
+    EventChannel *events;
+
+    EventChannel::Settings eventSettings {
+        EventChannel::Type::TTL,
+        "All TTL events",
+        "All TTL events loaded for the current input data source",
+        "filereader.events",
+        dataStreams.getLast()
+    };
+
+    events = new EventChannel(eventSettings);
+    String id = "sourceevent";
+    events->setIdentifier(id);
+    eventChannels.add(events);
+
+    isEnabled = true;
 
 }
 

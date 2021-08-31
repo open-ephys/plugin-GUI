@@ -130,8 +130,10 @@ void FullTimeline::mouseUp(const MouseEvent& event) {
 
     if ( fileReader->playbackIsActive() )
     {
+        /* FIX ME
         fileReader->disable();
         fileReader->enable();
+        */
     }
 }
 
@@ -309,8 +311,10 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     
     if ( fileReader->playbackIsActive() )
     {
+        /* FIX ME
         fileReader->disable();
         fileReader->enable();
+        */
     }
 }
 

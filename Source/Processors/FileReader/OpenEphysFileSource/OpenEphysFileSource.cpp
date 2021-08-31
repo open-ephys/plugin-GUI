@@ -37,12 +37,11 @@ bool OpenEphysFileSource::Open(File file)
 {
 
     XmlDocument doc(file);
-    XmlElement* xml = doc.getDocumentElement();
+    std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
 
     if (xml == 0 || !xml->hasTagName("EXPERIMENT"))
     {
         LOGD("File not found!");
-        delete xml;
         return false;
     }
 
@@ -133,8 +132,6 @@ bool OpenEphysFileSource::Open(File file)
 		last.numSamples = (dataFile.getSize() - info.startPos) / 2070 * 1024;
 		recordings[recordings.size() - 1] = last;
 	}
-
-	delete(xml);
 
 	loadEventData();
 
