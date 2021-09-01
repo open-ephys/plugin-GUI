@@ -118,7 +118,7 @@ RangeEditor::~RangeEditor() {}
  * RECORD CHANNEL SELECTOR
 ***************************/
 
-PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour_, bool editable) 
+PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour_, bool editable, int maxSelectable_) 
     : Component(), 
     nChannels(channelStates.size()),
     mouseDragged(false), 
@@ -127,7 +127,8 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
     firstButtonSelectedState(false),
     isDragging(false),
     buttonColour(buttonColour_),
-    editable(editable)
+    editable(editable),
+    totalEnabled(0)
 {
 
     int width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -136,6 +137,14 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
     int nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
     int buttonSize = width / 16;
     int height = buttonSize * nRows;
+
+    maxSelectable = (maxSelectable_ == -1) ? nChannels : maxSelectable_;
+
+    for (auto val : channelStates)
+    {
+        if(val)
+            totalEnabled++;
+    }
 
 	for (int i = 0; i < nRows; i++)
 	{
@@ -245,15 +254,39 @@ void PopupChannelSelector::mouseDrag(const MouseEvent &event)
                 selectedButtons.add(button->getId());
 
                 if (shiftKeyDown) //toggle
-                    button->triggerClick();
+                {       
+                    if(button->getToggleState())
+                    {
+                        button->triggerClick();
+                        totalEnabled--;
+                    }
+                    else
+                    {
+                        if(totalEnabled < maxSelectable)
+                        {
+                            button->triggerClick();
+                            totalEnabled++;
+                        }
+                    }
+                }
                 else //Use state of the first selected button
                 {
-                    button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
+                    if(firstButtonSelectedState)
+                    {
+                        if(totalEnabled < maxSelectable)
+                        {
+                            button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
+                            totalEnabled++;
+                        }
+                    }
+                    else
+                    {
+                        button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
+                        totalEnabled--;
+                    }
                 }
-                
             }
         }
-
     }
         
 };
@@ -272,7 +305,20 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
         {
             if (button->getBounds().contains(startDragCoords))
             {
-                button->triggerClick();
+                if(button->getToggleState())
+                {
+                    button->triggerClick();
+                    totalEnabled--;
+                }
+                else
+                {
+                    if(totalEnabled < maxSelectable)
+                    {
+                        button->triggerClick();
+                        totalEnabled++;
+                    }
+                }
+
                 break;
             }
         }
@@ -353,6 +399,7 @@ void PopupChannelSelector::buttonClicked(Button* button)
             for (auto* btn : channelButtons)
                 btn->setToggleState(false, NotificationType::dontSendNotification);
             button->setToggleState(true, NotificationType::dontSendNotification);
+            totalEnabled = 0;
         }
         else if (button->getButtonText() == String("RANGE:"))
         {
