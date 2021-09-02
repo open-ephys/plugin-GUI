@@ -135,4 +135,39 @@ private:
 	uint16 streamId;
 };
 
+/** Template class that simplifies the process of
+    keeping track of settings for individual streams.
+
+	Plugins should add: 
+	
+		StreamSettings<CustomSettingsClass> settings
+
+	as a member, then call:
+
+		settings.update(getDataStreams());
+
+	in the updateSettings() method. This will automatically
+	remove unused settings objects, and add new ones
+	where necessary.
+
+	Then, settings for a particular stream can be 
+	accessed via:
+
+		settings[streamId]
+*/
+
+template <class T>
+class PLUGIN_API StreamSettings {
+
+	HashMap<uint16, T*> settingsMap;
+	OwnedArray<T> settingsArray;
+	Array<uint16> settingsStreamIds;
+
+public:
+	void update(Array<const DataStream*>);
+	
+	T* operator [](uint16 streamId);
+};
+
+
 #endif
