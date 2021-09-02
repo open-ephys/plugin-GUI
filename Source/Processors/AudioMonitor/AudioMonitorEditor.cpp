@@ -95,7 +95,9 @@ void AudioMonitorEditor::buttonEvent (Button* button)
     if (button == channelSelectButton.get())
     {
         channelStates = audioMonitor->dataChannelStates;
-        auto* channelSelector = new PopupChannelSelector(channelStates, Colour(11, 178, 212), editable);
+        auto* channelSelector = new PopupChannelSelector(this, channelStates);
+        channelSelector->setMaximumSelectableChannels(4);
+        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
     
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), channelSelectButton->getScreenBounds(), nullptr);
@@ -117,6 +119,27 @@ void AudioMonitorEditor::buttonEvent (Button* button)
             LOGD("Mute off.");
         }
     }
+}
+
+
+void AudioMonitorEditor::channelStateChanged(Array<int> activeChannels)
+{    
+    std::cout << "[Audio Monitor] Selected Channels: (";
+
+    for(int i = 0; i < channelStates.size(); i++)
+    {
+        if(activeChannels.contains(i))
+        {
+            std::cout << i << ", ";
+            channelStates.at(i) = true;
+        }
+        else
+            channelStates.at(i) = false;
+    }
+
+    std::cout << ")" << std::endl;
+
+    audioMonitor->dataChannelStates = channelStates;
 }
 
 void AudioMonitorEditor::comboBoxChanged(ComboBox* cb)

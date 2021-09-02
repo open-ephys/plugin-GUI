@@ -118,17 +118,17 @@ RangeEditor::~RangeEditor() {}
  * RECORD CHANNEL SELECTOR
 ***************************/
 
-PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, const Colour buttonColour_, bool editable, int maxSelectable_) 
+PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bool> channelStates) 
     : Component(), 
+    parentEditor(editor),
     nChannels(channelStates.size()),
     mouseDragged(false), 
     startDragCoords(0,0),
     shiftKeyDown(false),
     firstButtonSelectedState(false),
     isDragging(false),
-    buttonColour(buttonColour_),
-    editable(editable),
-    totalEnabled(0)
+    editable(true),
+    maxSelectable(-1)
 {
 
     int width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -138,13 +138,9 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
     int buttonSize = width / 16;
     int height = buttonSize * nRows;
 
-    maxSelectable = (maxSelectable_ == -1) ? nChannels : maxSelectable_;
+    maxSelectable = (maxSelectable == -1) ? nChannels : maxSelectable;
 
-    for (auto val : channelStates)
-    {
-        if(val)
-            totalEnabled++;
-    }
+    buttonColour = parentEditor->getBackgroundColor();
 
 	for (int i = 0; i < nRows; i++)
 	{
@@ -157,6 +153,9 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
                 channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
                 channelButtons.getLast()->addListener(this);
                 addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j+1));
+
+                if(channelStates[nColumns * i + j])
+                    activeChannels.add(nColumns*i+j+1);
             }
 			
 		}
@@ -210,15 +209,26 @@ PopupChannelSelector::PopupChannelSelector(std::vector<bool> channelStates, cons
 
 PopupChannelSelector::~PopupChannelSelector() {}
 
+void PopupChannelSelector::setMaximumSelectableChannels(int num)
+{
+    maxSelectable = num;
+}
+
+void PopupChannelSelector::setChannelButtonColour(Colour clr)
+{
+    buttonColour = clr;
+}
+
 void PopupChannelSelector::mouseMove(const MouseEvent &event)
 {
 
-};
+}
+
 void PopupChannelSelector::mouseDown(const MouseEvent &event)
 {
     if (editable)
         selectedButtons.clear();
-};
+}
 
 void PopupChannelSelector::mouseDrag(const MouseEvent &event)
 {
@@ -258,14 +268,14 @@ void PopupChannelSelector::mouseDrag(const MouseEvent &event)
                     if(button->getToggleState())
                     {
                         button->triggerClick();
-                        totalEnabled--;
+                        activeChannels.removeFirstMatchingValue(button->getId());
                     }
                     else
                     {
-                        if(totalEnabled < maxSelectable)
+                        if(activeChannels.size() < maxSelectable)
                         {
                             button->triggerClick();
-                            totalEnabled++;
+                            activeChannels.add(button->getId());
                         }
                     }
                 }
@@ -273,23 +283,23 @@ void PopupChannelSelector::mouseDrag(const MouseEvent &event)
                 {
                     if(firstButtonSelectedState)
                     {
-                        if(totalEnabled < maxSelectable)
+                        if(activeChannels.size() < maxSelectable)
                         {
                             button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
-                            totalEnabled++;
+                            activeChannels.add(button->getId());
                         }
                     }
                     else
                     {
                         button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
-                        totalEnabled--;
+                        activeChannels.removeFirstMatchingValue(button->getId());
                     }
                 }
             }
         }
     }
         
-};
+}
 
 void PopupChannelSelector::modifierKeysChanged(const ModifierKeys &modifiers)
 {
@@ -308,14 +318,14 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
                 if(button->getToggleState())
                 {
                     button->triggerClick();
-                    totalEnabled--;
+                    activeChannels.removeFirstMatchingValue(button->getId());
                 }
                 else
                 {
-                    if(totalEnabled < maxSelectable)
+                    if(activeChannels.size() < maxSelectable)
                     {
                         button->triggerClick();
-                        totalEnabled++;
+                        activeChannels.add(button->getId());
                     }
                 }
 
@@ -323,6 +333,7 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
             }
         }
     }
+    parentEditor->channelStateChanged(activeChannels);
     mouseDragged = false;
 }
 
@@ -389,17 +400,25 @@ void PopupChannelSelector::buttonClicked(Button* button)
         
         if (button->getButtonText() == String("ALL"))
         {
-            for (auto* btn : channelButtons)
-                btn->setToggleState(true, NotificationType::dontSendNotification);
-            button->setToggleState(true, NotificationType::dontSendNotification);
+            activeChannels.clear();
+
+            for (int i = 0; i < maxSelectable; i++)
+            {
+                channelButtons[i]->setToggleState(true, NotificationType::dontSendNotification);
+                activeChannels.add(channelButtons[i]->getId());
+            }
             
+            parentEditor->channelStateChanged(activeChannels);
+            button->setToggleState(true, NotificationType::dontSendNotification);   
         }
         else if (button->getButtonText() == String("NONE"))
         {
             for (auto* btn : channelButtons)
                 btn->setToggleState(false, NotificationType::dontSendNotification);
+            
             button->setToggleState(true, NotificationType::dontSendNotification);
-            totalEnabled = 0;
+            activeChannels.clear();
+            parentEditor->channelStateChanged(activeChannels);
         }
         else if (button->getButtonText() == String("RANGE:"))
         {

@@ -68,6 +68,8 @@ public:
 	void startAcquisition() override;
 	void stopAcquisition()  override;
 
+    void channelStateChanged(Array<int> activeChannels) override;
+
     std::vector<bool> channelStates;
 
 private:

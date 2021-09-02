@@ -1118,6 +1118,8 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
     return a;
 }
 
+void GenericEditor::channelStateChanged(Array<int> channelStates) {}
+
 
 /***************************/
 ColorButton::ColorButton(String label_, Font font_) :

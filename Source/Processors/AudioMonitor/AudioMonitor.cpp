@@ -55,7 +55,7 @@ void AudioMonitor::updateSettings()
 
 	while (ch < continuousChannels.size())
 	{
-        dataChannelStates.push_back(true);
+        dataChannelStates.push_back(false);
 
         ch++;
     }
