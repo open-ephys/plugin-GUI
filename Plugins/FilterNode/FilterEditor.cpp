@@ -129,7 +129,9 @@ void FilterEditor::labelTextChanged(Label* label)
         return;
     }
 
-    Array<int> chans = getActiveChannels();
+    Array<int> chans;
+    for (int i = 0; i < fn->getNumOutputs(); i++)
+        chans.add(i);
 
     // This needs to change, since there's not enough feedback about whether
     // or not individual channel settings were altered:
@@ -190,7 +192,9 @@ void FilterEditor::buttonEvent(Button* button)
     {
         FilterNode* fn = (FilterNode*) getProcessor();
 
-        Array<int> chans = getActiveChannels();
+        Array<int> chans;
+        for (int i = 0; i < fn->getNumOutputs(); i++)
+            chans.add(i);
 
         for (int n = 0; n < chans.size(); n++)
         {

@@ -919,12 +919,12 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, Inf
 		channelInfo->setAttribute("name", channel->getName());
 		channelInfo->setAttribute("number", channel->getGlobalIndex());
 
-		bool p, r, a;
+		//bool p, r, a;
 
-		getEditor()->getChannelSelectionState(channel->getGlobalIndex(), &p, &r, &a);
+		//getEditor()->getChannelSelectionState(channel->getGlobalIndex(), &p, &r, &a);
 
-		XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
-		selectionState->setAttribute("param", p);
+		//XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
+		//selectionState->setAttribute("param", p);
 		//selectionState->setAttribute("record", r);
 		//selectionState->setAttribute("audio", a);
 	}
@@ -1023,10 +1023,10 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 		{
 			if (subNode->hasTagName("SELECTIONSTATE"))
 			{
-				getEditor()->setChannelSelectionState(channelNum,
-					subNode->getBoolAttribute("param"),
-					subNode->getBoolAttribute("record"),
-					subNode->getBoolAttribute("audio"));
+				//getEditor()->setChannelSelectionState(channelNum,
+				//	subNode->getBoolAttribute("param"),
+				//	subNode->getBoolAttribute("record"),
+				//	subNode->getBoolAttribute("audio"));
 			}
 		}
 	}

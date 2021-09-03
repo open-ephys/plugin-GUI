@@ -25,7 +25,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../Editors/ChannelSelector.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "Parameter.h"
 #include <stdio.h>
@@ -111,7 +110,7 @@ public:
 
     void parameterLabelValueChanged (ParameterLabel* parameterLabel) override;
 
-    void setChannelSelector (ChannelSelector* channelSelector);
+    //void setChannelSelector (ChannelSelector* channelSelector);
 
     // for inactivation during acquisition:
     void setEnabled (bool isEnabled);
@@ -128,7 +127,7 @@ private:
 
     Parameter* m_parameter;
     GenericProcessor* m_processor;
-    ChannelSelector* m_channelSelector;
+    //ChannelSelector* m_channelSelector;
 
     OwnedArray<ParameterSlider>     m_sliderArray;
     OwnedArray<ParameterButton>     m_buttonArray;

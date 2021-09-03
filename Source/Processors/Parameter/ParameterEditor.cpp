@@ -207,10 +207,9 @@ void ParameterEditor::parentHierarchyChanged()
 }
 
 
-void ParameterEditor::setChannelSelector (ChannelSelector* channelSelector)
-{
-    m_channelSelector = channelSelector;
-}
+// ParameterEditor::setChannelSelector (ChannelSelector* channelSelector)
+//    m_channelSelector = channelSelector;
+//}
 
 
 void ParameterEditor::setEnabled (bool isEnabled)
@@ -260,7 +259,7 @@ void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
 
     if (b->isEnabled)
     {
-        Array<int> activeChannels = m_channelSelector->getActiveChannels();
+       /* Array<int> activeChannels = m_channelSelector->getActiveChannels();
         {
             for (int i = 0; i < activeChannels.size(); ++i)
             {
@@ -268,7 +267,7 @@ void ParameterEditor::buttonClicked (Button* buttonThatWasClicked)
                 m_processor->setParameter (buttonThatWasClicked->getComponentID().getIntValue(),
                                            buttonThatWasClicked->getButtonText().getFloatValue());
             }
-        }
+        }*/
     }
 }
 
@@ -279,7 +278,7 @@ void ParameterEditor::sliderValueChanged (Slider* sliderWhichValueHasChanged)
 
     if (s->isEnabled)
     {
-        Array<int> activeChannels = m_channelSelector->getActiveChannels();
+        /*Array<int> activeChannels = m_channelSelector->getActiveChannels();
         {
             for (int i = 0; i < activeChannels.size(); ++i)
             {
@@ -287,7 +286,7 @@ void ParameterEditor::sliderValueChanged (Slider* sliderWhichValueHasChanged)
                 m_processor->setParameter (sliderWhichValueHasChanged->getComponentID().getIntValue(),
                                            sliderWhichValueHasChanged->getValue());
             }
-        }
+        }*/
     }
 }
 
@@ -296,7 +295,7 @@ void ParameterEditor::parameterLabelValueChanged (ParameterLabel* parameterLabel
 {
     if (parameterLabelWhichValueHasChanged->isEnabled)
     {
-        Array<int> activeChannels = m_channelSelector->getActiveChannels();
+       /* Array<int> activeChannels = m_channelSelector->getActiveChannels();
         {
             for (int i = 0; i < activeChannels.size(); ++i)
             {
@@ -304,7 +303,7 @@ void ParameterEditor::parameterLabelValueChanged (ParameterLabel* parameterLabel
                 m_processor->setParameter (parameterLabelWhichValueHasChanged->getComponentID().getIntValue(),
                                            parameterLabelWhichValueHasChanged->getValue());
             }
-        }
+        }*/
     }
 }
 
@@ -634,7 +633,7 @@ void ParameterLabel::removeListener (Listener* listener)
 
 void ParameterEditor::updateChannelSelectionUI()
 {
-    const int numChannels = m_channelSelector->getNumChannels();
+    /*const int numChannels = m_channelSelector->getNumChannels();
     if (m_parameter->isBoolean())
     {
         m_checkboxArray[0]->setToggleState (m_parameter->getValue (m_processor->getCurrentChannel()), dontSendNotification);
@@ -662,7 +661,7 @@ void ParameterEditor::updateChannelSelectionUI()
                 {
                     if (m_channelSelector->getParamStatus (j))
                     {
-                        /* Set button as usedbyactive */
+                        // Set button as usedbyactive 
                         m_buttonArray[i]->colorState = 1;
                     }
                     else if (m_buttonArray[i]->colorState == 0)
@@ -675,7 +674,7 @@ void ParameterEditor::updateChannelSelectionUI()
 
             m_buttonArray[i]->repaint();
         }
-    }
+    }*/
 }
 
 

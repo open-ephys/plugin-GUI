@@ -73,11 +73,15 @@ public:
     void add(StreamSelectorButton* button);
     void remove(StreamSelectorButton* button);
 
+    int getDesiredWidth() { return 100; }
+
     void resized();
+
+    void clear();
 
 private:
 
-    Array<StreamSelectorButton*> buttons;
+    OwnedArray<StreamSelectorButton> buttons;
 
     int buttonHeight = 35;
     int buttonSpacing = 5;

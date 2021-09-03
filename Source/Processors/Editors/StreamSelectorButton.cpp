@@ -123,6 +123,11 @@ StreamButtonHolder::~StreamButtonHolder()
 
 }
 
+void StreamButtonHolder::clear()
+{
+    buttons.clear();
+}
+
 void StreamButtonHolder::add(StreamSelectorButton* button)
 {
     buttons.add(button);

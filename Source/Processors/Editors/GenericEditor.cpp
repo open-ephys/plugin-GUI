@@ -24,7 +24,7 @@
 #include "GenericEditor.h"
 
 #include "../Parameter/ParameterEditor.h"
-#include "ChannelSelector.h"
+#include "StreamSelectorButton.h"
 #include "TTLMonitor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"
@@ -65,19 +65,19 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
     {
         LOGDD("Adding drawer button.");
 
-        /*
+        
         drawerButton = std::make_unique<DrawerButton>("name");
         drawerButton->addListener(this);
         addAndMakeVisible(drawerButton.get());
-        */
+        
 
        if (!owner->isMerger() && !owner->isSplitter())
         {
-            /*
-            channelSelector = std::make_unique<ChannelSelector> (true, titleFont);
-            addChildComponent(channelSelector.get());
-            channelSelector->setVisible(false);
-            */
+            
+            streamButtonHolder = std::make_unique<StreamButtonHolder> ();
+            addChildComponent(streamButtonHolder.get());
+            streamButtonHolder->setVisible(false);
+            
        } 
     }
 
@@ -128,7 +128,7 @@ void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
 
 LOGDD("Adding parameter editors.");
 
-        for (int i = 0; i < getProcessor()->getNumParameters(); i++)
+        /*for (int i = 0; i < getProcessor()->getNumParameters(); i++)
         {
             ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterByIndex (i), titleFont);
             p->setChannelSelector (channelSelector.get());
@@ -150,7 +150,7 @@ LOGDD("Adding parameter editors.");
 
             addAndMakeVisible (p);
             parameterEditors.add (p);
-        }
+        }*/
     }
 }
 
@@ -194,8 +194,8 @@ void GenericEditor::resized()
         if (drawerButton != 0)
             drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
-        if (channelSelector != 0)
-            channelSelector->setBounds (desiredWidth - drawerWidth, 30, channelSelector->getDesiredWidth(), getHeight()-45);
+        if (streamButtonHolder != 0)
+            streamButtonHolder->setBounds (desiredWidth - drawerWidth, 30, streamButtonHolder->getDesiredWidth(), getHeight()-45);
 
         if (ttlMonitor != 0)
             ttlMonitor->setBounds(desiredWidth - 40, 30, ttlMonitor->getWidth(), getHeight() - 45);
@@ -419,10 +419,10 @@ bool GenericEditor::checkDrawerButton(Button* button)
         if (drawerButton->getToggleState())
         {
 
-            if (channelSelector != nullptr)
+            if (streamButtonHolder != nullptr)
             {
-                channelSelector->setVisible(true);
-                drawerWidth = channelSelector->getDesiredWidth() + 20;
+                streamButtonHolder->setVisible(true);
+                drawerWidth = streamButtonHolder->getDesiredWidth() + 20;
             }
             
             desiredWidth += drawerWidth;
@@ -432,9 +432,9 @@ bool GenericEditor::checkDrawerButton(Button* button)
         else
         {
 
-            if (channelSelector != nullptr)
+            if (streamButtonHolder != nullptr)
             {
-                channelSelector->setVisible(false);
+                streamButtonHolder->setVisible(false);
             }
             
             desiredWidth -= drawerWidth;
@@ -470,6 +470,7 @@ void GenericEditor::update(bool isEnabled_)
     //int monitorWidth = ttlMonitor->updateSettings(p->getEventChannels());
 
     int numChannels;
+
     if (!p->isSink())
     {
         numChannels = p->getNumOutputs();
@@ -479,10 +480,11 @@ void GenericEditor::update(bool isEnabled_)
         numChannels = p->getNumInputs();
     }
 
-    if (channelSelector != 0)
-    {
-        channelSelector->setNumChannels(numChannels, 0);
+    streamButtonHolder->clear();
 
+    for (auto stream : p->getDataStreams())
+    {
+        streamButtonHolder->add(new StreamSelectorButton(stream));
     }
 
     if (numChannels == 0)
@@ -509,7 +511,7 @@ void GenericEditor::update(bool isEnabled_)
 
 }
 
-Array<int> GenericEditor::getActiveChannels()
+/*Array<int> GenericEditor::getActiveChannels()
 {
     if (channelSelector != nullptr)
     {
@@ -545,7 +547,7 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
     {
         channelSelector->setParamStatus(chan, p);
     }
-}
+}*/
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
@@ -583,10 +585,10 @@ void GenericEditor::switchCollapsedState()
             c->setVisible(!isCollapsed);
         }
 
-        if (channelSelector != nullptr)
+        if (streamButtonHolder != nullptr)
         {
             if (!drawerOpen)
-                channelSelector->setVisible(false);
+                streamButtonHolder->setVisible(false);
         }
 
         collapsedStateChanged();
@@ -1104,7 +1106,7 @@ void GenericEditor::updateSettings() {}
 
 void GenericEditor::updateVisualizer() {}
 
-void GenericEditor::channelChanged (int channel, bool newState) {}
+//void GenericEditor::channelChanged (int channel, bool newState) {}
 
 void GenericEditor::saveCustomParameters(XmlElement* xml) { }
 

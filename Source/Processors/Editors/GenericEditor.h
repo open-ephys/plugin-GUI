@@ -38,7 +38,7 @@ class DrawerButton;
 class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
-class ChannelSelector;
+class StreamButtonHolder;
 class TTLMonitor;
 
 
@@ -231,12 +231,6 @@ public:
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
 
-    /** Used by SpikeDetectorEditor. */
-    virtual void channelChanged (int channel, bool newState);
-
-    /** Returns all selected channels from the ChannelSelector. */
-    Array<int> getActiveChannels();
-
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     Array<ParameterEditor*> parameterEditors;
 
@@ -246,11 +240,17 @@ public:
     /** True if data acquisition has begun. */
     bool acquisitionIsActive;
 
+    /** Used by SpikeDetectorEditor. */
+   // virtual void channelChanged (int channel, bool newState);
+
+    /** Returns all selected channels from the ChannelSelector. */
+    //Array<int> getActiveChannels();
+
     /** Returns param/audio/record selection state for a given channel */
-    void getChannelSelectionState (int chan, bool* p, bool* r, bool* a);
+   // void getChannelSelectionState (int chan, bool* p, bool* r, bool* a);
 
     /** Sets param/audio/record selection state for a given channel */
-    void setChannelSelectionState (int chan, bool p, bool r, bool a);
+    //void setChannelSelectionState (int chan, bool p, bool r, bool a);
 
     /** Writes editor state to xml */
     void saveEditorParameters (XmlElement* xml);
@@ -305,8 +305,8 @@ protected:
     // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors (bool useStandard);
 
-    /** A pointer to the editor's ChannelSelector. */
-    std::unique_ptr<ChannelSelector> channelSelector;
+    /** A pointer to the editor's StreamButtonHolder. */
+    std::unique_ptr<StreamButtonHolder> streamButtonHolder;
 
 
 private:
