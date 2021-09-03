@@ -79,6 +79,8 @@ public:
 
     void clear();
 
+    const DataStream* getCurrentStream();
+
 private:
 
     OwnedArray<StreamSelectorButton> buttons;

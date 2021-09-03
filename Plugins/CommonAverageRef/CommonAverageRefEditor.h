@@ -42,6 +42,7 @@ class CommonAverageRefEditor : public GenericEditor
 {
 public:
     CommonAverageRefEditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors);
+    ~CommonAverageRefEditor();
 
     // Component methods
     // =========================================================
@@ -50,13 +51,13 @@ public:
 
     // Button::Listener methods
     // ==========================================================
-    void buttonClicked (Button* buttonThatWasClicked) override;
+    void buttonEvent (Button* button) override;
 
     // GenericEditor methods
     // =========================================================
     /** This methods is called when any sliders that we are listen for change their values */
     void sliderEvent (Slider* sliderWhichValueHasChanged) override;
-    void channelChanged (int channel, bool newState) override;
+    void channelStateChanged(Array<int> selectedChannels) override;
 
     /** Saving/loading parameters */
     void saveCustomParameters(XmlElement* xml) override;

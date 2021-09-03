@@ -157,17 +157,71 @@ private:
 */
 
 template <class T>
-class PLUGIN_API StreamSettings {
+class StreamSettings
+{
 
+public:
+
+	StreamSettings<T>() { }
+
+	~StreamSettings<T>() { }
+
+	void update(Array<const DataStream*> streams)
+	{
+
+		Array<uint16> currentStreamIds;
+
+		for (auto stream : streams)
+		{
+			currentStreamIds.add(stream->getStreamId());
+
+			if (!settingsMap.contains(stream->getStreamId()))
+			{
+				settingsArray.add(new T());
+				settingsStreamIds.add(stream->getStreamId());
+				settingsMap.set(stream->getStreamId(), settingsArray.getLast());
+			}
+		}
+
+		Array<T*> settingsToDelete;
+		Array<uint16> streamIdsToDelete;
+
+		for (int i = 0; i < settingsArray.size(); i++)
+		{
+			if (!currentStreamIds.contains(settingsStreamIds[i]))
+			{
+				settingsToDelete.add(settingsArray[i]);
+				streamIdsToDelete.add(settingsStreamIds[i]);
+			}
+		}
+
+		for (auto settings : settingsToDelete)
+		{
+			settingsArray.removeObject(settings);
+		}
+
+		for (auto streamId : streamIdsToDelete)
+		{
+			settingsStreamIds.remove(streamId);
+			settingsMap.remove(streamId);
+		}
+	}
+	
+	T* operator [](uint16 streamId)
+	{
+		if (settingsMap.contains(streamId))
+			return settingsMap[streamId];
+
+		return nullptr;
+	}
+
+private:
 	HashMap<uint16, T*> settingsMap;
 	OwnedArray<T> settingsArray;
 	Array<uint16> settingsStreamIds;
-
-public:
-	void update(Array<const DataStream*>);
-	
-	T* operator [](uint16 streamId);
 };
+
+
 
 
 #endif

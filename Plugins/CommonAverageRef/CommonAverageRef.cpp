@@ -139,6 +139,19 @@ void CommonAverageRef::setAffectedChannels (uint16 streamId, const Array<int>& n
     settings[streamId]->m_affectedChannels = Array<int> (newAffectedChannels);
 }
 
+Array<int> CommonAverageRef::getReferenceChannels(uint16 streamId)
+{
+
+    return settings[streamId]->m_referenceChannels;
+}
+
+
+Array<int> CommonAverageRef::getAffectedChannels(uint16 streamId)
+{
+
+    return settings[streamId]->m_affectedChannels;
+}
+
 
 void CommonAverageRef::setReferenceChannelState (uint16 streamId, int channel, bool newState)
 {

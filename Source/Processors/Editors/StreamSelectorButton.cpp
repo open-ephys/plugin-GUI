@@ -123,6 +123,14 @@ StreamButtonHolder::~StreamButtonHolder()
 
 }
 
+const DataStream* StreamButtonHolder::getCurrentStream()
+{
+    if (buttons.size() > 0)
+        return buttons[0]->getStream();
+    else
+        return nullptr;
+}
+
 void StreamButtonHolder::clear()
 {
     buttons.clear();

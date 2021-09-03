@@ -42,7 +42,7 @@ public:
     CARSettings();
 
     /** Destructor */
-    ~CARSettings();
+    ~CARSettings() {}
 
     /** Gain level when applying reference (0.0 to 1.0) */
     LinearSmoothedValueAtomic<float> m_gainLevel;
@@ -103,10 +103,10 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Returns the indices of the reference channels for a particular data stream.*/
-    Array<int> getReferenceChannels(uint16 streamId) const; 
+    Array<int> getReferenceChannels(uint16 streamId); 
 
     /** Returns the indices of the affected channels for a particular data stream.*/
-    Array<int> getAffectedChannels(uint16 streamId)  const;
+    Array<int> getAffectedChannels(uint16 streamId);
 
     /** Sets the reference channels for a particular data stream.*/
     void setReferenceChannels (uint16 streamId, const Array<int>& newReferenceChannels);
