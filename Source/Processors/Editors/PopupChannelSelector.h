@@ -91,6 +91,8 @@ public:
 	void buttonClicked(Button *);
 	void modifierKeysChanged(const ModifierKeys& modifiers);
 
+	ChannelButton* getButtonForId(int btnId);
+
 	bool firstButtonSelectedState;
 	
 	juce::Point<int> startDragCoords;
