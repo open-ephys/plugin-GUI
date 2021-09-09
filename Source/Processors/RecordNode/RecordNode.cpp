@@ -868,8 +868,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			//Check if the source stream has changed
 			if (streamId != currentStreamId)
 			{
-				numSamples = getNumSamples(channelMap[currentChannel]);
-				timestamp = getTimestamp(channelMap[currentChannel]);
+				numSamples = getNumSamples(channelMap[ch]);
+				timestamp = getTimestamp(channelMap[ch]);
 			}
 
 			bool shouldWrite = validBlocks[ch];
