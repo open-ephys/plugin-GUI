@@ -25,6 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+
+/***************** 
+ * CHANNEL BUTTON
+******************/
 ChannelButton::ChannelButton(int _id, PopupChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
     setClickingTogglesState(true);
 }
@@ -78,6 +82,10 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 
 }
 
+/****************
+ * SELECT BUTTON
+*****************/
+
 SelectButton::SelectButton(const String& name) : Button(name) {
 	setClickingTogglesState(true);
 }
@@ -107,6 +115,11 @@ void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
+
+/*************** 
+ * RANGE EDITOR
+****************/
+
 RangeEditor::RangeEditor(const String& name, const Font& font) : TextEditor(name)
 {
     setFont(font);
@@ -115,7 +128,7 @@ RangeEditor::RangeEditor(const String& name, const Font& font) : TextEditor(name
 RangeEditor::~RangeEditor() {}
 
 /**************************
- * RECORD CHANNEL SELECTOR
+ * POPUP CHANNEL SELECTOR
 ***************************/
 
 PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bool> channelStates) 
@@ -150,11 +163,11 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
             {
                 channelButtons.add(new ChannelButton(nColumns*i+j+1, this));
                 channelButtons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
+                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j + 1], NotificationType::dontSendNotification);
                 channelButtons.getLast()->addListener(this);
                 addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j+1));
 
-                if(channelStates[nColumns * i + j])
+                if(channelStates[nColumns * i + j + 1])
                     activeChannels.add(nColumns*i+j+1);
             }
 			
@@ -219,6 +232,18 @@ void PopupChannelSelector::setChannelButtonColour(Colour clr)
     buttonColour = clr;
 }
 
+ChannelButton* PopupChannelSelector::getButtonForId(int btnId)
+{
+    for(auto button : channelButtons)
+    {
+        if(button->getId() == btnId)
+            return button;
+    }
+
+    return nullptr;
+}
+
+
 void PopupChannelSelector::mouseMove(const MouseEvent &event)
 {
 
@@ -272,22 +297,31 @@ void PopupChannelSelector::mouseDrag(const MouseEvent &event)
                     }
                     else
                     {
-                        if(activeChannels.size() < maxSelectable)
+                        button->triggerClick();
+
+                        if(activeChannels.size() == maxSelectable)
                         {
-                            button->triggerClick();
-                            activeChannels.add(button->getId());
+                            getButtonForId(activeChannels.getFirst())->triggerClick();
+                            activeChannels.remove(0);
                         }
+
+                        activeChannels.add(button->getId());
                     }
                 }
                 else //Use state of the first selected button
                 {
                     if(firstButtonSelectedState)
                     {
-                        if(activeChannels.size() < maxSelectable)
+                        button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
+
+                        if(activeChannels.size() == maxSelectable)
                         {
-                            button->setToggleState(firstButtonSelectedState, NotificationType::dontSendNotification);
-                            activeChannels.add(button->getId());
+                            
+                            getButtonForId(activeChannels.getFirst())->triggerClick();
+                            activeChannels.remove(0);
                         }
+
+                        activeChannels.add(button->getId());
                     }
                     else
                     {
@@ -322,11 +356,15 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
                 }
                 else
                 {
-                    if(activeChannels.size() < maxSelectable)
+                    button->triggerClick();
+
+                    if(activeChannels.size() == maxSelectable)
                     {
-                        button->triggerClick();
-                        activeChannels.add(button->getId());
+                        getButtonForId(activeChannels.getFirst())->triggerClick();
+                        activeChannels.remove(0);
                     }
+
+                    activeChannels.add(button->getId());
                 }
 
                 break;
