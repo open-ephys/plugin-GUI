@@ -163,11 +163,11 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
             {
                 channelButtons.add(new ChannelButton(nColumns*i+j+1, this));
                 channelButtons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j + 1], NotificationType::dontSendNotification);
+                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
                 channelButtons.getLast()->addListener(this);
                 addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j+1));
 
-                if(channelStates[nColumns * i + j + 1])
+                if(channelStates[nColumns * i + j])
                     activeChannels.add(nColumns*i+j+1);
             }
 			
@@ -380,7 +380,7 @@ void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 
     if (editable)
     {
-        channelStates = parseStringIntoRange(384);
+        channelStates = parseStringIntoRange(nChannels);
 
         if (channelStates.size() < 3)
             return;
@@ -458,9 +458,10 @@ void PopupChannelSelector::buttonClicked(Button* button)
             activeChannels.clear();
             parentEditor->channelStateChanged(activeChannels);
         }
-        else if (button->getButtonText() == String("RANGE:"))
+        else if (button->getButtonText() == String("RANGE"))
         {
             button->setToggleState(true, NotificationType::dontSendNotification);
+            this->textEditorReturnKeyPressed(*rangeEditor);
         }
         else //channel button was manually selected
         {

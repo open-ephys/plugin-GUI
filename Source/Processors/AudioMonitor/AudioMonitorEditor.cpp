@@ -128,7 +128,7 @@ void AudioMonitorEditor::channelStateChanged(Array<int> activeChannels)
 
     for(int i = 0; i < channelStates.size(); i++)
     {
-        if(activeChannels.contains(i))
+        if(activeChannels.contains(i+1))
         {
             std::cout << i << ", ";
             channelStates.at(i) = true;
