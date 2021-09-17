@@ -819,6 +819,11 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
 }
 
+int ProcessorGraph::getStreamIdxForChannel(Node& node, int channel)
+{
+    return 0;
+}
+
 GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)
 {
 
