@@ -29,6 +29,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../Dsp/Dsp.h"
 
 /**
   Reads data from a file.
@@ -50,10 +51,42 @@ public:
 
     void updateSettings() override;
 
+    void setChannelStatus(int chan, bool status);
+
+    /** Updates the audio buffer size*/
+	void updatePlaybackBuffer();
+
+    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
+
+    bool startAcquisition() override;
+
+    void updateFilter(int i);
+
     std::vector<bool> dataChannelStates;
 
 private:
+    void recreateBuffers();
 
+    OwnedArray<AudioSampleBuffer> bufferA;
+    OwnedArray<AudioSampleBuffer> bufferB;
+
+    Array<int> numSamplesExpected;
+
+    Array<int> samplesInBackupBuffer;
+    Array<int> samplesInOverflowBuffer;
+    Array<double> sourceBufferSampleRate;
+    double destBufferSampleRate;
+	int estimatedSamples;
+
+    Array<bool> bufferSwap;
+
+    // sample rate, timebase, and ratio info:
+    Array<double> ratio;
+
+    // major objects:
+    OwnedArray<Dsp::Filter> filters;
+
+    std::unique_ptr<AudioSampleBuffer> tempBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitor);
 };

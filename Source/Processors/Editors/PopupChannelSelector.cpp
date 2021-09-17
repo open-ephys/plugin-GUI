@@ -168,7 +168,9 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
                 addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j+1));
 
                 if(channelStates[nColumns * i + j])
-                    activeChannels.add(nColumns*i+j);
+
+                    activeChannels.add(nColumns*i+j+1);
+
             }
 			
 		}
@@ -380,36 +382,17 @@ void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 
     if (editable)
     {
-        channelStates = parseStringIntoRange(384);
+        channelStates = parseStringIntoRange(nChannels);
 
         if (channelStates.size() < 3)
             return;
 
-        for (auto* btn : channelButtons)
-            btn->setToggleState(false, NotificationType::dontSendNotification);
-
-        int i = 0;
-        while (i <= channelStates.size() - 3)
-        {
-            const int lim = channelStates[i+1];
-            const int comd = channelStates[i+2];
-            for (int fa = channelStates[i]; fa < lim; fa += comd)
-            {
-                channelButtons[i++]->setToggleState(true, NotificationType::dontSendNotification);
-            }
-            i+=3;
-        }
-
-        for (auto val : channelStates)
-        {
-            LOGDD(val, ",");
-        }
-        std::cout << std::endl;
+        activeChannels.clear();
 
         for (auto* btn : channelButtons)
             btn->setToggleState(false, NotificationType::dontSendNotification);
 
-        for (i = 0; i < channelStates.size(); i += 3)
+        for (int i = 0; i < channelStates.size(); i += 3)
         {
             int startIdx = channelStates[i];
             int endIdx = channelStates[i+1];
@@ -419,10 +402,21 @@ void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
             while (ch < endIdx)
             {
                 channelButtons[ch]->setToggleState(true, NotificationType::dontSendNotification);
+            
+                if(activeChannels.size() == maxSelectable)
+                {
+                    getButtonForId(activeChannels.getFirst())->triggerClick();
+                    activeChannels.remove(0);
+                }
+
+                activeChannels.add(channelButtons[ch]->getId());
+                
                 ch+=step;
             }
 
         }
+
+        parentEditor->channelStateChanged(activeChannels);
     }
 
 }
@@ -458,9 +452,10 @@ void PopupChannelSelector::buttonClicked(Button* button)
             activeChannels.clear();
             parentEditor->channelStateChanged(activeChannels);
         }
-        else if (button->getButtonText() == String("RANGE:"))
+        else if (button->getButtonText() == String("RANGE"))
         {
             button->setToggleState(true, NotificationType::dontSendNotification);
+            this->textEditorReturnKeyPressed(*rangeEditor);
         }
         else //channel button was manually selected
         {
