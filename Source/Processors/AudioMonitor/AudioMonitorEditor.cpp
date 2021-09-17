@@ -128,13 +128,17 @@ void AudioMonitorEditor::channelStateChanged(Array<int> activeChannels)
 
     for(int i = 0; i < channelStates.size(); i++)
     {
-        if(activeChannels.contains(i+1))
+        if(activeChannels.contains(i+1) && !channelStates.at(i))
         {
             std::cout << i+1 << ", ";
             channelStates.at(i) = true;
+            audioMonitor->setChannelStatus(i, true);
         }
-        else
+        else if(!activeChannels.contains(i+1) && channelStates.at(i))
+        {
             channelStates.at(i) = false;
+            audioMonitor->setChannelStatus(i, false);
+        }
     }
 
     std::cout << ")" << std::endl;

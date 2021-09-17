@@ -216,7 +216,7 @@ private:
         bool connectEvents);
 
     /* Connect a processor to the AudioNode*/
-    void connectProcessorToAudioNode(GenericProcessor* source);
+    void connectAudioMonitorToAudioNode(GenericProcessor* source);
 
     /* Connect a processor to the MessageCenter*/
     void connectProcessorToMessageCenter(GenericProcessor* source);

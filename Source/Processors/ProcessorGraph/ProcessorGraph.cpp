@@ -939,8 +939,8 @@ void ProcessorGraph::updateConnections()
 
             if (source->isEnabled)
             {
-                //TODO: This is will be removed when probe based audio node added. 
-                //connectProcessorToAudioNode(source);
+                if(source->isAudioMonitor())
+                    connectAudioMonitorToAudioNode(source);
 
                 if (source->isSource())
                     connectProcessorToMessageCenter(source);
@@ -1074,7 +1074,9 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     // 1. connect continuous channels
     if (connectContinuous)
     {
-        for (int chan = 0; chan < source->getNumOutputs(); chan++)
+        int totalOutputs = source->isAudioMonitor() ? (source->getNumOutputs() - 2) : source->getNumOutputs();
+        
+        for (int chan = 0; chan < totalOutputs; chan++)
         {
             LOGDD(chan, " ");
 
@@ -1115,7 +1117,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
 }
 
-void ProcessorGraph::connectProcessorToAudioNode(GenericProcessor* source)
+void ProcessorGraph::connectAudioMonitorToAudioNode(GenericProcessor* source)
 {
 
     /*
@@ -1125,14 +1127,15 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
         return;
     */
 
-    getAudioNode()->registerProcessor(source);
     //getRecordNode()->registerProcessor(source);
 
     NodeAndChannel cs, cd;
     cs.nodeID = NodeID(source->getNodeId()); //source
     cd.nodeID = NodeID(AUDIO_NODE_ID); // dest
 
-    for (int chan = 0; chan < source->getNumOutputs(); chan++)
+    int numOutputs = source->getNumOutputs();
+    
+    for (int chan = numOutputs; chan < numOutputs - 2; chan++)
     {
 
         getAudioNode()->addInputChannel(source, chan);
