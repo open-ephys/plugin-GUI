@@ -163,12 +163,12 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
             {
                 channelButtons.add(new ChannelButton(nColumns*i+j+1, this));
                 channelButtons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j + 1], NotificationType::dontSendNotification);
+                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
                 channelButtons.getLast()->addListener(this);
                 addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j+1));
 
-                if(channelStates[nColumns * i + j + 1])
-                    activeChannels.add(nColumns*i+j+1);
+                if(channelStates[nColumns * i + j])
+                    activeChannels.add(nColumns*i+j);
             }
 			
 		}
