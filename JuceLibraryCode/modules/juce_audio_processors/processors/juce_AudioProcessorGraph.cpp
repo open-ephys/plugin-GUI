@@ -358,10 +358,11 @@ struct RenderSequenceBuilder
 
         int64 start2 = Time::getHighResolutionTicks();
 
+        cachedConnections = graph.getConnections();
+
         for (int i = 0; i < orderedNodes.size(); ++i)
         {
             createRenderingOpsForNode (*orderedNodes.getUnchecked(i), i);
-            std::cout << "   Buffer count: " << audioBuffers.size() << std::endl;
             markAnyUnusedBuffersAsFree (audioBuffers, i);
             markAnyUnusedBuffersAsFree (midiBuffers, i);
         }
@@ -385,6 +386,18 @@ struct RenderSequenceBuilder
 
     AudioProcessorGraph& graph;
     RenderSequence& sequence;
+
+    /** Holds information about whether streams are needed later, to speed up rendering ops.
+
+        Custom member added for Open Ephys GUI.
+     */
+    Array<bool> streamIsNeededLater;
+
+    /** Holds information about whether streams are needed later, to speed up rendering ops.
+
+        Custom member added for Open Ephys GUI.
+     */
+    std::vector<AudioProcessorGraph::Connection> cachedConnections;
 
     Array<AudioProcessorGraph::Node*> orderedNodes;
 
@@ -430,7 +443,7 @@ struct RenderSequenceBuilder
     {
         int maxLatency = 0;
 
-        for (auto&& c : graph.getConnections())
+        for (auto&& c : cachedConnections)
             if (c.destination.nodeID == nodeID)
                 maxLatency = jmax (maxLatency, getNodeDelay (c.source.nodeID));
 
@@ -464,7 +477,7 @@ struct RenderSequenceBuilder
         if (sources.isEmpty())
         {
 
-            std::cout << "     No sources for this channel." << std::endl;
+            //std::cout << "     No sources for this channel." << std::endl;
 
             if (inputChan >= numOuts)
                 return readOnlyEmptyBufferIndex;
@@ -477,12 +490,12 @@ struct RenderSequenceBuilder
         // Handle an input from a single source..
         if (sources.size() == 1)
         {
-            std::cout << "     Single source for this channel." << std::endl;
+           // std::cout << "     Single source for this channel." << std::endl;
 
             // channel with a straightforward single input..
             auto src = sources.getUnchecked(0);
 
-            int bufIndex = getBufferContaining (src);
+            int bufIndex = getBufferContaining(src);
 
             if (bufIndex < 0)
             {
@@ -498,14 +511,14 @@ struct RenderSequenceBuilder
                 // so we need to use a copy of it..
                 auto newFreeBuffer = getFreeBuffer (audioBuffers);
                 sequence.addCopyChannelOp (bufIndex, newFreeBuffer);
-                std::cout << "      Buffer is needed later." << std::endl;
+                //std::cout << "      Buffer is needed later." << std::endl;
                 bufIndex = newFreeBuffer;
             }
 
-            auto nodeDelay = getNodeDelay (src.nodeID);
+           // auto nodeDelay = getNodeDelay (src.nodeID);
 
-            if (nodeDelay < maxLatency)
-                sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
+            //if (nodeDelay < maxLatency)
+             //   sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
 
             return bufIndex;
         }
@@ -525,10 +538,10 @@ struct RenderSequenceBuilder
                 reusableInputIndex = i;
                 bufIndex = sourceBufIndex;
 
-                auto nodeDelay = getNodeDelay (src.nodeID);
+                //auto nodeDelay = getNodeDelay (src.nodeID);
 
-                if (nodeDelay < maxLatency)
-                    sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
+                //if (nodeDelay < maxLatency)
+                //    sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
 
                 break;
             }
@@ -550,10 +563,10 @@ struct RenderSequenceBuilder
                 sequence.addCopyChannelOp (srcIndex, bufIndex);
 
             reusableInputIndex = 0;
-            auto nodeDelay = getNodeDelay (sources.getFirst().nodeID);
+            //auto nodeDelay = getNodeDelay (sources.getFirst().nodeID);
 
-            if (nodeDelay < maxLatency)
-                sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
+           // if (nodeDelay < maxLatency)
+             //   sequence.addDelayChannelOp (bufIndex, maxLatency - nodeDelay);
         }
 
         for (int i = 0; i < sources.size(); ++i)
@@ -684,33 +697,40 @@ struct RenderSequenceBuilder
     void createRenderingOpsForNode (AudioProcessorGraph::Node& node, const int ourRenderingIndex)
     {
 
+        std::cout << " " << "Creating rendering ops for " << node.getProcessor()->getName() << " (index " << ourRenderingIndex << ")" << std::endl;
+
+        int64 start = Time::getHighResolutionTicks();
+
 
         auto& processor = *node.getProcessor();
         auto numIns  = processor.getTotalNumInputChannels();
         auto numOuts = processor.getTotalNumOutputChannels();
         auto totalChans = jmax (numIns, numOuts);
 
-        std::cout << " " << "Creating rendering ops for " << processor.getName() << " (index " << ourRenderingIndex << ")" << std::endl;
-
-        int64 start = Time::getHighResolutionTicks();
-
         Array<int> audioChannelsToUse;
-        auto maxLatency = getInputLatencyForNode (node.nodeID);
+        //auto maxLatency = getInputLatencyForNode (node.nodeID);
+
+        double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+
+        std::cout << " " << "    Setup in " << interval * 1000 << " milliseconds" << std::endl;
+
+        start = Time::getHighResolutionTicks();
 
         // ideally -- 
         //  - loop through streams
         //  - check only channel 0
         //  - apply same settings to channel in stream
 
+        // clear once before checking inputs -- findBufferForInputAudioChannel calls isBufferNeededLater
+        streamIsNeededLater.clear();
+
         for (int inputChan = 0; inputChan < numIns; ++inputChan)
         {
-
-            int streamIdx = ProcessorGraph::getStreamIdxForChannel(node, inputChan);
-
-            std::cout << "   Input channel: " << inputChan << " , stream: " << streamIdx << std::endl;
+            //std::cout << "   Input channel: " << inputChan << " , stream: " << streamIdx << std::endl;
 
             // get a list of all the inputs to this node
-            auto index = findBufferForInputAudioChannel (node, inputChan, ourRenderingIndex, maxLatency);
+            auto index = findBufferForInputAudioChannel(node, inputChan, ourRenderingIndex, 0); // maxLatency);
+
             jassert (index >= 0);
 
             audioChannelsToUse.add (index);
@@ -722,32 +742,54 @@ struct RenderSequenceBuilder
                 
         }
 
+        interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+
+        std::cout << " " << "    Audio inputs in " << interval * 1000 << " milliseconds" << std::endl;
+
+        start = Time::getHighResolutionTicks();
 
         for (int outputChan = numIns; outputChan < numOuts; ++outputChan)
         {
+
+
             auto index = getFreeBuffer (audioBuffers);
             jassert (index != 0);
             audioChannelsToUse.add (index);
 
-            std::cout << "   Output channel " << outputChan << " buffer: " << index << std::endl;
+            //std::cout << "   Output channel " << outputChan << " buffer: " << index << std::endl;
 
             audioBuffers.getReference (index).channel = { node.nodeID, outputChan };
         }
 
-        auto midiBufferToUse = findBufferForInputMidiChannel (node, ourRenderingIndex);
+        interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+
+        std::cout << " " << "    Audio outputs in " << interval * 1000 << " milliseconds" << std::endl;
+
+        start = Time::getHighResolutionTicks();
+
+        auto midiBufferToUse = findBufferForInputMidiChannel(node, ourRenderingIndex);
 
         if (processor.producesMidi())
             midiBuffers.getReference (midiBufferToUse).channel = { node.nodeID, AudioProcessorGraph::midiChannelIndex };
 
-        delays.set (node.nodeID.uid, maxLatency + processor.getLatencySamples());
+        interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        if (numOuts == 0)
-            totalLatency = maxLatency;
+        std::cout << " " << "    Midi buffers in " << interval * 1000 << " milliseconds" << std::endl;
 
-        std::cout << "  Adding process op for " << totalChans << " channels." << std::endl;
+        start = Time::getHighResolutionTicks();
+
+        //delays.set (node.nodeID.uid, maxLatency + processor.getLatencySamples());
+
+        //interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+
+        //std::cout << " " << "    Delays in " << interval * 1000 << " milliseconds" << std::endl;
+
+        //if (numOuts == 0)
+        //    totalLatency = maxLatency;
+
         sequence.addProcessOp (node, audioChannelsToUse, totalChans, midiBufferToUse);
 
-        double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+        interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
         std::cout << " " << "Finished in " << interval * 1000 << " milliseconds" << std::endl;
     }
@@ -758,9 +800,13 @@ struct RenderSequenceBuilder
         Array<AudioProcessorGraph::NodeAndChannel> results;
         AudioProcessorGraph::NodeAndChannel nc { node.nodeID, inputChannelIndex };
 
-        for (auto&& c : graph.getConnections())
+        for (auto&& c : cachedConnections)
+        {
             if (c.destination == nc)
-                results.add (c.source);
+            {
+                results.add(c.source);
+            }
+        }    
 
         return results;
     }
@@ -771,7 +817,7 @@ struct RenderSequenceBuilder
             if (buffers.getReference (i).isFree())
                 return i;
 
-        std::cout << "    ---> Adding a new buffer." << std::endl;
+        //std::cout << "    ---> Adding a new buffer." << std::endl;
         buffers.add (AssignedBuffer::createFree());
         return buffers.size() - 1;
     }
@@ -795,36 +841,48 @@ struct RenderSequenceBuilder
     {
         std::cout << "   Marking unused buffers " << std::endl;
 
+        int64 start = Time::getHighResolutionTicks();
+
+        // clear again before looping through channels
+        streamIsNeededLater.clear();
+
         for (auto& b : buffers)
         {
             if (b.isAssigned() && !isBufferNeededLater(stepIndex, -1, b.channel))
             {
-                std::cout << "  Freeing " << b.channel.nodeID.uid << " : " << b.channel.channelIndex << std::endl;
+                //std::cout << "  Freeing " << b.channel.nodeID.uid << " : " << b.channel.channelIndex << std::endl;
                 b.setFree();
             }
         }
+
+        double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
+
+        std::cout << "   Took " << interval * 1000 << " milliseconds." << std::endl;
+
             
     }
 
     bool isBufferNeededLater (int stepIndexToSearchFrom,
                               int inputChannelOfIndexToIgnore,
-                              AudioProcessorGraph::NodeAndChannel output) const
+                              AudioProcessorGraph::NodeAndChannel output) 
     {
-        std::cout << "    isBufferNeededLater? "
+        /*std::cout << "    isBufferNeededLater? "
             << stepIndexToSearchFrom << " "
             << inputChannelOfIndexToIgnore << " output "
             << output.nodeID.uid << ":"
-            << output.channelIndex << std::endl;
+            << output.channelIndex << std::endl;*/
+
+       // return false;
 
         while (stepIndexToSearchFrom < orderedNodes.size())
         {
             auto* node = orderedNodes.getUnchecked (stepIndexToSearchFrom);
 
-            std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
+            //std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
 
             if (output.isMIDI())
             {
-                std::cout << "MIDI CHANNEL" << std::endl;
+                //std::cout << "MIDI CHANNEL" << std::endl;
 
                 if (inputChannelOfIndexToIgnore != AudioProcessorGraph::midiChannelIndex
                      && graph.isConnected ({ { output.nodeID, AudioProcessorGraph::midiChannelIndex },
@@ -833,26 +891,44 @@ struct RenderSequenceBuilder
             }
             else
             {
-                if (node->getProcessor()->getTotalNumInputChannels() == 0)
-                {
-                    std::cout << "          No inputs!" << std::endl;
-                }
-                else {
-                    std::cout << "        :::channels::: ";
-                }
+                //if (node->getProcessor()->getTotalNumInputChannels() == 0)
+                //{
+                    //std::cout << "          No inputs!" << std::endl;
+                //}
+                //else {
+                    //std::cout << "        :::channels::: ";
+                //}
 
                 for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
                 {
-                    std::cout << i << " ";
+                    //std::cout << i << " ";
+                    
+                    int streamIdx = ProcessorGraph::getStreamIdxForChannel(*node, i);
 
-                    if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
+                    if (streamIsNeededLater.size() > streamIdx)
                     {
-                        std::cout << " NEEDED!" << std::endl;
-                        return true;
+                        //std::cout << "     ----- Returning EXISTING value." << std::endl;
+                        return streamIsNeededLater[streamIdx];
+                    }
+                    else {
+                        
+
+                        if (i != inputChannelOfIndexToIgnore) 
+                        {
+                            //std::cout << "     +++++ Adding NEW value." << std::endl;
+
+                            if (graph.isConnected({ output, { node->nodeID, i } }))
+                            {
+                                //std::cout << "        NEEDED!" << std::endl;
+                                streamIsNeededLater.add(true);
+                                return true;
+                            }
+                            
+                        }
                     }
                 }
 
-                std::cout << std::endl;
+                //std::cout << std::endl;
                     
             }
 
@@ -860,7 +936,10 @@ struct RenderSequenceBuilder
             ++stepIndexToSearchFrom;
         }
 
+        //std::cout << "        NOT NEEDED!" << std::endl;
+        streamIsNeededLater.add(false);
         return false;
+
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RenderSequenceBuilder)
