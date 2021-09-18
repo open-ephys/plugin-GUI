@@ -32,12 +32,17 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton = std::make_unique<UtilityButton>("x", Font("Small Text", 10, Font::plain));
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
+    enableButton->setToggleState(true, false);
     addAndMakeVisible(enableButton.get());
 
-    infoString = stream->getName()
+    infoString = "Source: " + stream->getSourceNodeName()
         + "\n"
-        + "Channels: " + String(stream->getChannelCount())
-        ;
+        + String(stream->getChannelCount()) + " channels @ " +
+        String(stream->getSampleRate()) + " Hz";
+
+    delayMonitor = std::make_unique<DelayMonitor>();
+    addAndMakeVisible(delayMonitor.get());
+
 }
 
 StreamInfoView::~StreamInfoView() {}
@@ -74,7 +79,8 @@ void StreamInfoView::buttonClicked(Button* button)
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(40, 40, 100, 20);
+    enableButton->setBounds(3, 38, 15, 15);
+    delayMonitor->setBounds(38, 58, 60, 15);
 }
 
 void StreamInfoView::paint(Graphics& g)
@@ -85,12 +91,16 @@ void StreamInfoView::paint(Graphics& g)
     else
         g.setColour(Colours::grey);
 
-    g.drawMultiLineText(infoString, 5, 15, getWidth() - 5, Justification::left);
+    g.setFont(12);
+    g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
+    g.drawText("Enabled", 22, 40, 60, 12, Justification::left);
+
+    g.drawText("Delay:", 5, 60, 60, 12, Justification::left);
 
 }
 
 StreamSelector::StreamSelector() :
-    streamInfoViewWidth(80),
+    streamInfoViewWidth(120),
     streamInfoViewHeight(80)
 {
 
@@ -99,15 +109,19 @@ StreamSelector::StreamSelector() :
 
     leftScrollButton = std::make_unique<UtilityButton>("<", Font("Small Text", 10, Font::plain));
     leftScrollButton->addListener(this);
+    leftScrollButton->setCorners(true, false, true, false);
     leftScrollButton->setClickingTogglesState(false);
     addAndMakeVisible(leftScrollButton.get());
 
     rightScrollButton = std::make_unique<UtilityButton>(">", Font("Small Text", 10, Font::plain));
     rightScrollButton->addListener(this);
     rightScrollButton->setClickingTogglesState(false);
+    rightScrollButton->setCorners(false, true, false, true);
     addAndMakeVisible(rightScrollButton.get());
 
-    streamSelectorButton = std::make_unique<UtilityButton>("Stream", Font("Small Text", 10, Font::plain));
+    streamSelectorButton = std::make_unique<UtilityButton>("Stream",
+        Font("FiraSans", 10, Font::plain));
+    streamSelectorButton->setCorners(false, false, false, false);
     streamSelectorButton->addListener(this);
     streamSelectorButton->setClickingTogglesState(false);
     addAndMakeVisible(streamSelectorButton.get());
@@ -154,8 +168,14 @@ void StreamSelector::buttonClicked(Button* button)
 
 void StreamSelector::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
+    
+    g.setGradientFill(ColourGradient(
+        Colours::darkgrey, 0.0f, 0.0f,
+        Colours::darkgrey.withAlpha(0.25f), 0.0f, 30.0f, false));
+    g.fillRoundedRectangle(3, 24, getWidth() - 5, getHeight() - 26, 5.0f);
+
+    g.setColour(Colour(25, 25, 25));
+    g.drawRoundedRectangle(3, 24, getWidth() - 5, getHeight() - 26, 5.0f, 0.5f);
 }
 
 

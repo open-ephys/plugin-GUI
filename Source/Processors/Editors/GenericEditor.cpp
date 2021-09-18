@@ -81,8 +81,6 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
        } 
     }
 
-   // ttlMonitor = std::make_unique<TTLMonitor>();
-
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
                                         Colour(185, 185, 185), 0.0f, 120.0f, false);
     backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
@@ -195,7 +193,7 @@ void GenericEditor::resized()
             drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
         if (streamSelector != 0)
-            streamSelector->setBounds (desiredWidth - drawerWidth, 30, streamSelector->getDesiredWidth(), getHeight()-45);
+            streamSelector->setBounds (desiredWidth - drawerWidth, 25, streamSelector->getDesiredWidth(), getHeight()-35);
     }
 }
 

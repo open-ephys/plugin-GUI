@@ -24,16 +24,14 @@
 #include "DelayMonitor.h"
 
 
-DelayMonitor::DelayMonitor()
+DelayMonitor::DelayMonitor() : delay(0.0f)
 {
-    delay = 0.0f;
 }
 
 DelayMonitor::~DelayMonitor()
 {
 
 }
-
 
 void DelayMonitor::setDelay(float delayMs)
 {
@@ -44,5 +42,6 @@ void DelayMonitor::setDelay(float delayMs)
 
 void DelayMonitor::paint(Graphics& g)
 {
-    g.fillAll(Colours::purple);
+    g.setFont(12);
+    g.drawText(String(delay, 2) + " ms", 0, 0, 60, 15, Justification::left);
 }

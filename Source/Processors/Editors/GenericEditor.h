@@ -335,11 +335,12 @@ private:
 
 
 /**
-  Used to show and hide the ChannelSelector.
+  Used to show and hide the StreamSelector.
 
-  Appears on the right-hand size of all editors (except SplitterEditor and MergerEditor).
+  Appears on the right-hand size of all plugins that process
+  at least one DataStream (except RecordNodeEditor).
 
-  @see GenericEditor, ChannelSelector
+  @see GenericEditor, StreamSelector
 */
 class PLUGIN_API DrawerButton : public Button
 {

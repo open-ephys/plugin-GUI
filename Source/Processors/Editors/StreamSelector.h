@@ -86,7 +86,7 @@ public:
     void add(StreamInfoView*);
     void remove(StreamInfoView*);
 
-    int getDesiredWidth() { return 100; }
+    int getDesiredWidth() { return 140; }
 
     void resized();
 
