@@ -21,57 +21,70 @@
 
 */
 
-#ifndef __STREAMSELECTORBUTTON_H_BDCEE716__
-#define __STREAMSELECTORBUTTON_H_BDCEE716__
+#ifndef __STREAMSELECTOR_H_BDCEE716__
+#define __STREAMSELECTOR_H_BDCEE716__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+#include "GenericEditor.h"
+#include "TTLMonitor.h"
+#include "DelayMonitor.h"
+
 /**
 
-  Used to toggle data streams on and off
+  Used to apply plugin settings to different streams.
 
-  @see Merger, Splitter.
+  @see GenericEditor
 
 */
 
 class DataStream;
 
-
-class PLUGIN_API StreamSelectorButton : public Button
+class PLUGIN_API StreamInfoView : public Component,
+    public Button::Listener
 {
 public:
-    StreamSelectorButton(const DataStream* stream);
-    ~StreamSelectorButton();
+    StreamInfoView(const DataStream* stream, GenericEditor* editor);
+    ~StreamInfoView();
 
     uint16 getStreamId() const;
 
     const DataStream* getStream() { return stream; }
-    bool getSelectedState() const;
+
+    bool getEnabledState() const;
 
     void setEnabled(bool state);
 
-private:
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paint(Graphics& g);
+    void resized();
 
+    void buttonClicked(Button* button);
+
+private:
+   
     bool isEnabled;
-    bool isSelected;
 
     const DataStream* stream;
 
     String infoString;
 
-    ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
+    GenericEditor* editor;
+
+    std::unique_ptr<UtilityButton> enableButton;
+    std::unique_ptr<TTLMonitor> ttlMonitor;
+    std::unique_ptr<DelayMonitor> delayMonitor;
 };
 
-class PLUGIN_API StreamButtonHolder : public Component
+class PLUGIN_API StreamSelector : public Component,
+    public Button::Listener
 {
 public:
-    StreamButtonHolder();
-    ~StreamButtonHolder();
+    StreamSelector();
+    ~StreamSelector();
 
-    void add(StreamSelectorButton* button);
-    void remove(StreamSelectorButton* button);
+    void add(StreamInfoView*);
+    void remove(StreamInfoView*);
 
     int getDesiredWidth() { return 100; }
 
@@ -81,13 +94,26 @@ public:
 
     const DataStream* getCurrentStream();
 
+    bool isStreamEnabled(const DataStream* stream);
+
+    void paint(Graphics& g);
+
+    void buttonClicked(Button* button);
+
 private:
 
-    OwnedArray<StreamSelectorButton> buttons;
+    std::unique_ptr<Viewport> viewport;
 
-    int buttonHeight = 35;
-    int buttonSpacing = 5;
+    std::unique_ptr<UtilityButton> leftScrollButton;
+    std::unique_ptr<UtilityButton> rightScrollButton;
+    std::unique_ptr<UtilityButton> streamSelectorButton;
+
+    OwnedArray<StreamInfoView> streams;
+
+    int streamInfoViewWidth;
+    int streamInfoViewHeight;
+
 };
 
 
-#endif  // __STREAMSELECTORBUTTON_H_BDCEE716__
+#endif  // __STREAMSELECTOR_H_BDCEE716__

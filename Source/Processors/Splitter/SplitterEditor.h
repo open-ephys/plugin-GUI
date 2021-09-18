@@ -29,8 +29,8 @@
 #include "../Editors/GenericEditor.h"
 #include "Splitter.h"
 
-class StreamSelectorButton;
-class StreamButtonHolder;
+class StreamInfoView;
+class StreamSelector;
 
 /**
 
@@ -70,14 +70,8 @@ private:
     std::unique_ptr<ImageButton> pipelineSelectorA;
     std::unique_ptr<ImageButton> pipelineSelectorB;
 
-    std::unique_ptr<StreamButtonHolder> streamButtonHolderA;
-    std::unique_ptr<Viewport> viewportA;
-
-    std::unique_ptr<StreamButtonHolder> streamButtonHolderB;
-    std::unique_ptr<Viewport> viewportB;
-
-    OwnedArray<StreamSelectorButton> streamButtonsA;
-    OwnedArray<StreamSelectorButton> streamButtonsB;
+    std::unique_ptr<StreamSelector> streamSelectorA;
+    std::unique_ptr<StreamSelector> streamSelectorB;
 
     Array<uint16> incomingStreams;
 

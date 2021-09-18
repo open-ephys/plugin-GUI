@@ -78,12 +78,6 @@ public:
     /** Returns an array of the editors that feed into the merger*/
     Array<GenericEditor*> getConnectedEditors();
 
-    /** Checks whether a particular stream is selected. If 
-    * a stream selector button doesn't exist for this stream, it
-    * creates ones.
-    */
-    bool checkStream(const DataStream* stream);
-
     /** Remove unused buttons */
     void updateSettings() override;
 
@@ -95,11 +89,6 @@ private:
     std::unique_ptr<ImageButton> pipelineSelectorA;
     std::unique_ptr<ImageButton> pipelineSelectorB;
 
-    std::unique_ptr<StreamButtonHolder> streamButtonHolder;
-    std::unique_ptr<Viewport> viewport;
-
-    OwnedArray<StreamSelectorButton> streamButtons;
-    Array<uint16> incomingStreams;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MergerEditor);
 

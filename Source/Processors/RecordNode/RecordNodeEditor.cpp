@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../CoreServices.h"
 
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParameterEditors = true)
-	: GenericEditor(parentNode, useDefaultParameterEditors),
+	: GenericEditor(parentNode, useDefaultParameterEditors, false),
 	numSubprocessors(0), subprocessorsVisible(false)
 {
 

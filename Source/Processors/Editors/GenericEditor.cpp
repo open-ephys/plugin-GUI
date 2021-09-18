@@ -24,7 +24,7 @@
 #include "GenericEditor.h"
 
 #include "../Parameter/ParameterEditor.h"
-#include "StreamSelectorButton.h"
+#include "StreamSelector.h"
 #include "TTLMonitor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"
@@ -71,12 +71,12 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         addAndMakeVisible(drawerButton.get());
         
 
-       if (!owner->isMerger() && !owner->isSplitter())
+       if (!owner->isSplitter() && !owner->isRecordNode())
         {
             
-            streamButtonHolder = std::make_unique<StreamButtonHolder> ();
-            addChildComponent(streamButtonHolder.get());
-            streamButtonHolder->setVisible(false);
+            streamSelector = std::make_unique<StreamSelector> ();
+            addChildComponent(streamSelector.get());
+            streamSelector->setVisible(false);
             
        } 
     }
@@ -194,11 +194,8 @@ void GenericEditor::resized()
         if (drawerButton != 0)
             drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
-        if (streamButtonHolder != 0)
-            streamButtonHolder->setBounds (desiredWidth - drawerWidth, 30, streamButtonHolder->getDesiredWidth(), getHeight()-45);
-
-        if (ttlMonitor != 0)
-            ttlMonitor->setBounds(desiredWidth - 40, 30, ttlMonitor->getWidth(), getHeight() - 45);
+        if (streamSelector != 0)
+            streamSelector->setBounds (desiredWidth - drawerWidth, 30, streamSelector->getDesiredWidth(), getHeight()-45);
     }
 }
 
@@ -419,10 +416,10 @@ bool GenericEditor::checkDrawerButton(Button* button)
         if (drawerButton->getToggleState())
         {
 
-            if (streamButtonHolder != nullptr)
+            if (streamSelector != nullptr)
             {
-                streamButtonHolder->setVisible(true);
-                drawerWidth = streamButtonHolder->getDesiredWidth() + 20;
+                streamSelector->setVisible(true);
+                drawerWidth = streamSelector->getDesiredWidth() + 20;
             }
             
             desiredWidth += drawerWidth;
@@ -432,9 +429,9 @@ bool GenericEditor::checkDrawerButton(Button* button)
         else
         {
 
-            if (streamButtonHolder != nullptr)
+            if (streamSelector != nullptr)
             {
-                streamButtonHolder->setVisible(false);
+                streamSelector->setVisible(false);
             }
             
             desiredWidth -= drawerWidth;
@@ -480,24 +477,27 @@ void GenericEditor::update(bool isEnabled_)
         numChannels = p->getNumInputs();
     }
 
-    streamButtonHolder->clear();
-
-    for (auto stream : p->getDataStreams())
+    if (streamSelector != nullptr)
     {
-        streamButtonHolder->add(new StreamSelectorButton(stream));
-    }
+        streamSelector->clear();
 
-    if (numChannels == 0)
-    {
-        if (drawerButton != nullptr)
-            drawerButton->setVisible(false);
-    }
-    else
-    {
-        if (drawerButton != nullptr)
-            drawerButton->setVisible(true);
-    }
+        for (auto stream : p->getDataStreams())
+        {
+            streamSelector->add(new StreamInfoView(stream, this));
+        }
 
+        if (numChannels == 0)
+        {
+            if (drawerButton != nullptr)
+                drawerButton->setVisible(false);
+        }
+        else
+        {
+            if (drawerButton != nullptr)
+                drawerButton->setVisible(true);
+        }
+    }
+    
     updateVisualizer(); // does nothing unless this method
                         // has been implemented
     
@@ -585,10 +585,10 @@ void GenericEditor::switchCollapsedState()
             c->setVisible(!isCollapsed);
         }
 
-        if (streamButtonHolder != nullptr)
+        if (streamSelector != nullptr)
         {
             if (!drawerOpen)
-                streamButtonHolder->setVisible(false);
+                streamSelector->setVisible(false);
         }
 
         collapsedStateChanged();

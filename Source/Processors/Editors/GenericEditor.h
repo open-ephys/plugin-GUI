@@ -38,9 +38,7 @@ class DrawerButton;
 class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
-class StreamButtonHolder;
-class TTLMonitor;
-
+class StreamSelector;
 
 /**
     Base class for creating processor editors.
@@ -305,8 +303,8 @@ protected:
     // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors (bool useStandard);
 
-    /** A pointer to the editor's StreamButtonHolder. */
-    std::unique_ptr<StreamButtonHolder> streamButtonHolder;
+    /** A pointer to the editor's StreamSelector. */
+    std::unique_ptr<StreamSelector> streamSelector;
 
 
 private:
@@ -318,8 +316,6 @@ private:
 
     /** Stores the editor's background gradient. */
     ColourGradient backgroundGradient;
-
-    std::unique_ptr<TTLMonitor> ttlMonitor;
 
     bool isSelected;
     bool isEnabled;
