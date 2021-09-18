@@ -27,10 +27,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-#include "GenericEditor.h"
-#include "TTLMonitor.h"
-#include "DelayMonitor.h"
-
 /**
 
   Used to apply plugin settings to different streams.
@@ -40,6 +36,10 @@
 */
 
 class DataStream;
+class GenericEditor;
+class TTLMonitor;
+class DelayMonitor;
+class UtilityButton;
 
 class PLUGIN_API StreamInfoView : public Component,
     public Button::Listener
@@ -56,8 +56,15 @@ public:
 
     void setEnabled(bool state);
 
+    TTLMonitor* getTTLMonitor() { return ttlMonitor.get(); }
+    DelayMonitor* getDelayMonitor() { return delayMonitor.get(); }
+
     void paint(Graphics& g);
     void resized();
+
+    void startAcquisition();
+
+    void stopAcquisition();
 
     void buttonClicked(Button* button);
 
@@ -100,6 +107,14 @@ public:
 
     void buttonClicked(Button* button);
 
+    TTLMonitor* getTTLMonitor(const DataStream* stream);
+
+    DelayMonitor* getDelayMonitor(const DataStream* stream);
+
+    void startAcquisition();
+
+    void stopAcquisition();
+
 private:
 
     std::unique_ptr<Viewport> viewport;
@@ -109,6 +124,8 @@ private:
     std::unique_ptr<UtilityButton> streamSelectorButton;
 
     OwnedArray<StreamInfoView> streams;
+
+    StreamInfoView* getStreamInfoView(const DataStream* stream);
 
     int streamInfoViewWidth;
     int streamInfoViewHeight;

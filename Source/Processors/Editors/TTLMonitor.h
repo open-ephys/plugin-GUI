@@ -49,6 +49,8 @@ public:
 
     void paint(Graphics& g);
 
+    bool changedSinceLastRedraw;
+
 private:
 
     Colour colour;
@@ -63,21 +65,27 @@ private:
   @see GenericEditor, EventChannel.
 
 */
-class PLUGIN_API TTLMonitor : public Component
+class PLUGIN_API TTLMonitor : public Component,
+    public Timer
 {
 public:
     TTLMonitor();
 	~TTLMonitor();
 
-	int updateSettings(Array<const EventChannel*> eventChannels);
+	int updateSettings(Array<EventChannel*> eventChannels);
 
-    void setState(uint16 streamId, int bit, bool state);
+    void setState(int bit, bool state);
+
+    void startAcquisition();
+    void stopAcquisition();
+
+    void timerCallback();
 
 private:
 
     Array<Colour> colours; 
 
-    //std::unordered_set<uint16, std::unordered_set<int, TTLBitDisplay*>> displays;
+    OwnedArray<TTLBitDisplay> displays;
 };
 
 

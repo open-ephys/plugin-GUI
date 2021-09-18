@@ -39,6 +39,8 @@ class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
 class StreamSelector;
+class TTLMonitor;
+class DelayMonitor;
 
 /**
     Base class for creating processor editors.
@@ -289,6 +291,9 @@ public:
     /** Notify editor about channel selection changes in PopupChannelSelector */
     virtual void channelStateChanged(Array<int> channelStates);
 
+    /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
+    void setMeanLatencyMs(uint16 streamId, float latencyMs);
+
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
     std::unique_ptr<DrawerButton> drawerButton;
@@ -305,6 +310,8 @@ protected:
 
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelector> streamSelector;
+
+
 
 
 private:
@@ -329,6 +336,9 @@ private:
 
     String name;
     String displayName;
+
+    std::map<uint16, DelayMonitor*> delayMonitors;
+    std::map<uint16, TTLMonitor*> ttlMonitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 };

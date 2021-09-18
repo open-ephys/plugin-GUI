@@ -22,6 +22,9 @@
 */
 
 #include "StreamSelector.h"
+#include "DelayMonitor.h"
+#include "TTLMonitor.h"
+#include "GenericEditor.h"
 
 #include "../Settings/DataStream.h"
 
@@ -43,6 +46,9 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     delayMonitor = std::make_unique<DelayMonitor>();
     addAndMakeVisible(delayMonitor.get());
 
+    ttlMonitor = std::make_unique<TTLMonitor>();
+    addAndMakeVisible(ttlMonitor.get());
+
 }
 
 StreamInfoView::~StreamInfoView() {}
@@ -62,6 +68,18 @@ void StreamInfoView::setEnabled(bool state)
     isEnabled = state;
 
     repaint();
+}
+
+void StreamInfoView::startAcquisition()
+{
+    delayMonitor->startAcquisition();
+    ttlMonitor->startAcquisition();
+}
+
+void StreamInfoView::stopAcquisition()
+{
+    delayMonitor->stopAcquisition();
+    ttlMonitor->stopAcquisition();
 }
 
 void StreamInfoView::buttonClicked(Button* button)
@@ -132,6 +150,53 @@ StreamSelector::StreamSelector() :
 StreamSelector::~StreamSelector()
 {
 
+}
+
+StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
+{
+    for (auto stream : streams)
+    {
+        if (stream->getStreamId() == streamToCheck->getStreamId())
+            return stream;
+    }
+
+    return nullptr;
+}
+
+TTLMonitor* StreamSelector::getTTLMonitor(const DataStream* stream)
+{
+    StreamInfoView* siv = getStreamInfoView(stream);
+
+    if (siv != nullptr)
+        return siv->getTTLMonitor();
+    else
+        return nullptr;
+}
+
+DelayMonitor* StreamSelector::getDelayMonitor(const DataStream* stream)
+{
+    StreamInfoView* siv = getStreamInfoView(stream);
+
+    if (siv != nullptr)
+        return siv->getDelayMonitor();
+    else
+        return nullptr;
+}
+
+void StreamSelector::startAcquisition()
+{
+    for (auto stream : streams)
+    {
+        stream->startAcquisition();
+    }
+}
+
+void StreamSelector::stopAcquisition()
+{
+    for (auto stream : streams)
+    {
+        stream->stopAcquisition();
+    }
 }
 
 void StreamSelector::resized()

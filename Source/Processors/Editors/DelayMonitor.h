@@ -30,7 +30,8 @@
 class GenericEditor;
 
 
-class PLUGIN_API DelayMonitor : public Component
+class PLUGIN_API DelayMonitor : public Component,
+    public Timer
 {
 public:
     DelayMonitor();
@@ -39,6 +40,12 @@ public:
     void setDelay(float delayMs);
 
     void paint(Graphics& g);
+
+    void timerCallback();
+
+    void startAcquisition();
+
+    void stopAcquisition();
 
 private:
     

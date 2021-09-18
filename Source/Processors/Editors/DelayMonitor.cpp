@@ -36,7 +36,20 @@ DelayMonitor::~DelayMonitor()
 void DelayMonitor::setDelay(float delayMs)
 {
     delay = delayMs;
+}
 
+void DelayMonitor::startAcquisition()
+{
+    startTimer(500);
+}
+
+void DelayMonitor::stopAcquisition()
+{
+    stopTimer();
+}
+
+void DelayMonitor::timerCallback()
+{
     repaint();
 }
 

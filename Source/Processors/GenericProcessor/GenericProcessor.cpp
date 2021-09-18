@@ -1209,9 +1209,10 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 
 				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
+				processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
+
 				it++;
 
-				//processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
 			}
 			
 		}

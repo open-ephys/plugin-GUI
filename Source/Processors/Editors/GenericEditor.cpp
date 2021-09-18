@@ -25,6 +25,7 @@
 
 #include "../Parameter/ParameterEditor.h"
 #include "StreamSelector.h"
+#include "DelayMonitor.h"
 #include "TTLMonitor.h"
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"
@@ -264,11 +265,11 @@ void GenericEditor::editorStartAcquisition()
 	startAcquisition();
     LOGDD("GenericEditor received message to start acquisition.");
 
-	//if (channelSelector != 0)
-	//{
-	//	channelSelector->startAcquisition();
-	//}
-//
+	if (streamSelector != 0)
+	{
+		streamSelector->startAcquisition();
+	}
+
     for (int n = 0; n < parameterEditors.size(); n++)
     {
 
@@ -285,10 +286,10 @@ void GenericEditor::editorStopAcquisition()
 {
 	stopAcquisition();
 
-	//if (channelSelector != 0)
-	//{
-	//	channelSelector->stopAcquisition();
-	//}
+    if (streamSelector != 0)
+    {
+        streamSelector->stopAcquisition();
+    }
 
     for (int n = 0; n < parameterEditors.size(); n++)
     {
@@ -478,10 +479,17 @@ void GenericEditor::update(bool isEnabled_)
     if (streamSelector != nullptr)
     {
         streamSelector->clear();
+        delayMonitors.clear();
+        ttlMonitors.clear();
 
         for (auto stream : p->getDataStreams())
         {
             streamSelector->add(new StreamInfoView(stream, this));
+            delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
+            ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
+
+            streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
+
         }
 
         if (numChannels == 0)
@@ -549,7 +557,12 @@ void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
-    //ttlMonitor->setState(streamId, bit, state);
+    ttlMonitors[streamId]->setState(bit, state);
+}
+
+void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
+{
+    delayMonitors[streamId]->setDelay(latencyMs);
 }
 
 bool GenericEditor::getCollapsedState()
