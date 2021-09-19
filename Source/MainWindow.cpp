@@ -163,6 +163,23 @@ void MainWindow::shutDownGUI()
 	processorGraph->disableProcessors();
 }
 
+void MainWindow::handleCrash(void* input)
+{
+
+	AlertWindow::showMessageBox(AlertWindow::NoIcon,
+		"Open Ephys has stopped working",
+		"Something caused the GUI to crash. To help fix the problem, please email recoveryConfig.xml to support@open-ephys.org. "
+		"\n\nIf you have any other information about what happened just prior to the crash, please include that in your message.",
+		"Close"
+	);
+
+	//File file = CoreServices::getSavedStateDirectory().getChildFile("crash_report.txt");
+		
+	//String backtrace = SystemStats::getStackBacktrace();
+
+	//file.replaceWithText(backtrace);
+}
+
 void MainWindow::saveWindowBounds()
 {
 	LOGDD("");

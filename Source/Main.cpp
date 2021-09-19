@@ -79,6 +79,8 @@ public:
 
 #endif
 
+        SystemStats::setApplicationCrashHandler(handleCrash);
+
         customLookAndFeel = new CustomLookAndFeel();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
 
@@ -95,6 +97,11 @@ public:
     }
 
     void shutdown() { }
+
+    static void handleCrash(void* input)
+    {
+        MainWindow::handleCrash(input);
+    }
 
     void systemRequestedQuit()
     {
@@ -116,6 +123,8 @@ public:
     {
         return true;
     }
+
+    
 
     void anotherInstanceStarted(const String& commandLine)
     {}
