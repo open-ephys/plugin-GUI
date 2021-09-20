@@ -32,7 +32,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     isEnabled(true), stream(stream_), editor(editor_)
 {
 
-    enableButton = std::make_unique<UtilityButton>("x", Font("Small Text", 10, Font::plain));
+    enableButton = std::make_unique<StreamEnableButton>("x");
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
     enableButton->setToggleState(true, false);
@@ -48,6 +48,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
 
     ttlMonitor = std::make_unique<TTLMonitor>();
     addAndMakeVisible(ttlMonitor.get());
+
 
 }
 
@@ -119,31 +120,34 @@ void StreamInfoView::paint(Graphics& g)
 
 StreamSelector::StreamSelector() :
     streamInfoViewWidth(120),
-    streamInfoViewHeight(80)
+    streamInfoViewHeight(80),
+    scrollOffset(0),
+    viewedStreamIndex(0)
 {
 
     viewport = std::make_unique<Viewport>();
     addAndMakeVisible(viewport.get());
 
-    leftScrollButton = std::make_unique<UtilityButton>("<", Font("Small Text", 10, Font::plain));
+    viewedComponent = std::make_unique<Component>();
+    viewport->setViewedComponent(viewedComponent.get(), false);
+    viewport->setScrollBarsShown(false, false, false, false);
+
+    leftScrollButton = std::make_unique<StreamScrollButton>("<");
     leftScrollButton->addListener(this);
-    leftScrollButton->setCorners(true, false, true, false);
     leftScrollButton->setClickingTogglesState(false);
     addAndMakeVisible(leftScrollButton.get());
 
-    rightScrollButton = std::make_unique<UtilityButton>(">", Font("Small Text", 10, Font::plain));
+    rightScrollButton = std::make_unique<StreamScrollButton>(">");
     rightScrollButton->addListener(this);
     rightScrollButton->setClickingTogglesState(false);
-    rightScrollButton->setCorners(false, true, false, true);
     addAndMakeVisible(rightScrollButton.get());
 
-    streamSelectorButton = std::make_unique<UtilityButton>("Stream",
-        Font("FiraSans", 10, Font::plain));
-    streamSelectorButton->setCorners(false, false, false, false);
+    streamSelectorButton = std::make_unique<StreamNameButton>("Stream");
     streamSelectorButton->addListener(this);
     streamSelectorButton->setClickingTogglesState(false);
     addAndMakeVisible(streamSelectorButton.get());
 
+    scrollOffset.reset(4);
 }
 
 
@@ -202,6 +206,10 @@ void StreamSelector::stopAcquisition()
 void StreamSelector::resized()
 {
     viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 20);
+
+    streamInfoViewWidth = getWidth() - 10;
+
+    viewedComponent->setBounds(0, 0, streams.size() * streamInfoViewWidth, getHeight() - 20);
     
     leftScrollButton->setBounds(2, 2, 18, 18);
     rightScrollButton->setBounds(getWidth() - 20, 2, 18, 18);
@@ -213,6 +221,8 @@ void StreamSelector::resized()
     {
         streams[i]->setBounds(i * streamInfoViewWidth, 0, streamInfoViewWidth, streamInfoViewHeight);
     }
+
+    viewport->setViewPosition(scrollOffset.getCurrentValue(), 0);
 }
 
 void StreamSelector::buttonClicked(Button* button)
@@ -220,14 +230,60 @@ void StreamSelector::buttonClicked(Button* button)
     if (button == leftScrollButton.get())
     {
         std::cout << "Scroll left" << std::endl;
+
+        if (viewedStreamIndex != 0)
+        {
+            viewedStreamIndex -= 1;
+            scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
+            startTimer(50);
+
+            std::cout << "  Target value: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->repaint();
+        }
+
     }
     else if (button == rightScrollButton.get())
     {
         std::cout << "Scroll right" << std::endl;
+
+        if (viewedStreamIndex != streams.size() -1)
+        {
+            viewedStreamIndex += 1;
+            scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
+            startTimer(50);
+
+            std::cout << "  Target value: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->repaint();
+        }
     }
     else if (button == streamSelectorButton.get())
     {
         std::cout << "Select stream" << std::endl;
+
+        PopupMenu menu;
+
+        for (int i = 1; i <= streams.size(); i++)
+        {
+            menu.addItem(i, // index
+                streams[i-1]->getStream()->getName(), // message
+                true); // isSelectable
+        }
+     
+        const int result = menu.show(); // returns 0 if nothing is selected
+
+        if (result > 0)
+        {
+            viewedStreamIndex = result - 1;
+            scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
+            startTimer(50);
+
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->repaint();
+        }
     }
 }
 
@@ -260,7 +316,10 @@ void StreamSelector::clear()
 void StreamSelector::add(StreamInfoView* stream)
 {
     streams.add(stream);
-    viewport->addAndMakeVisible(stream);
+    viewedComponent->addAndMakeVisible(stream);
+
+    if (streams.size() == 1)
+        streamSelectorButton->setName(streams[0]->getStream()->getName());
 
     resized();
 }
@@ -270,8 +329,67 @@ void StreamSelector::remove(StreamInfoView* stream)
     if (streams.contains(stream))
         streams.remove(streams.indexOf(stream));
 
-    removeChildComponent(stream);
+    viewedComponent->removeChildComponent(stream);
 
     resized();
+}
+
+void StreamSelector::timerCallback()
+{
+
+    if (scrollOffset.getCurrentValue() == viewedStreamIndex * streamInfoViewWidth)
+        stopTimer();
+
+    float newOffset = scrollOffset.getNextValue();
+
+    viewport->setViewPosition(newOffset, 0);
+}
+
+
+
+StreamEnableButton::StreamEnableButton(const String& name) : 
+    Button(name), isEnabled(true)
+{
+}
+
+void StreamEnableButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if (getToggleState())
+        g.setColour(Colours::yellow);
+    else
+        g.setColour(Colours::darkgrey);
+
+    g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
+}
+
+
+StreamScrollButton::StreamScrollButton(const String& name) :
+    Button(name), isEnabled(true)
+{
+}
+
+void StreamScrollButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if (isEnabled)
+        g.setColour(Colours::black);
+    else
+        g.setColour(Colours::darkgrey);
+
+    g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
+}
+
+StreamNameButton::StreamNameButton(const String& name) :
+    Button(name), isEnabled(true)
+{
+}
+
+void StreamNameButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    if (isEnabled)
+        g.setColour(Colours::black);
+    else
+        g.setColour(Colours::darkgrey);
+
+    g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
 }
 

@@ -41,6 +41,10 @@ class TTLMonitor;
 class DelayMonitor;
 class UtilityButton;
 
+class StreamScrollButton;
+class StreamNameButton;
+class StreamEnableButton;
+
 class PLUGIN_API StreamInfoView : public Component,
     public Button::Listener
 {
@@ -78,12 +82,13 @@ private:
 
     GenericEditor* editor;
 
-    std::unique_ptr<UtilityButton> enableButton;
+    std::unique_ptr<StreamEnableButton> enableButton;
     std::unique_ptr<TTLMonitor> ttlMonitor;
     std::unique_ptr<DelayMonitor> delayMonitor;
 };
 
 class PLUGIN_API StreamSelector : public Component,
+    public Timer,
     public Button::Listener
 {
 public:
@@ -115,13 +120,16 @@ public:
 
     void stopAcquisition();
 
+    void timerCallback();
+
 private:
 
     std::unique_ptr<Viewport> viewport;
+    std::unique_ptr<Component> viewedComponent;
 
-    std::unique_ptr<UtilityButton> leftScrollButton;
-    std::unique_ptr<UtilityButton> rightScrollButton;
-    std::unique_ptr<UtilityButton> streamSelectorButton;
+    std::unique_ptr<StreamScrollButton> leftScrollButton;
+    std::unique_ptr<StreamScrollButton> rightScrollButton;
+    std::unique_ptr<StreamNameButton> streamSelectorButton;
 
     OwnedArray<StreamInfoView> streams;
 
@@ -130,7 +138,63 @@ private:
     int streamInfoViewWidth;
     int streamInfoViewHeight;
 
+    SmoothedValue<float, ValueSmoothingTypes::Linear> scrollOffset;
+
+    int viewedStreamIndex;
+
 };
 
+
+/**
+  Arrow buttons used to select different streams
+*/
+class StreamScrollButton : public Button
+{
+public:
+    StreamScrollButton(const String& name);
+    ~StreamScrollButton() { }
+
+    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_; }
+
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    bool isEnabled;
+};
+
+
+/**
+  Displays the name of the current stream
+*/
+class StreamNameButton : public Button
+{
+public:
+    StreamNameButton(const String& name);
+    ~StreamNameButton() { }
+
+    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_;  }
+
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    bool isEnabled;
+};
+
+/**
+  Displays the name of the current stream
+*/
+class StreamEnableButton : public Button
+{
+public:
+    StreamEnableButton(const String& name);
+    ~StreamEnableButton() { }
+
+    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_; }
+
+private:
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    bool isEnabled;
+};
 
 #endif  // __STREAMSELECTOR_H_BDCEE716__
