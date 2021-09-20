@@ -30,7 +30,7 @@
 CARSettings::CARSettings()
 {
     m_avgBuffer = AudioBuffer<float>(1, 10000); // 1-dimensional buffer to hold the avg
-    m_gainLevel.setValue(1.0f);
+    m_gainLevel.setValue(100.0f);
 }
 
 CommonAverageRef::CommonAverageRef()

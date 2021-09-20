@@ -180,7 +180,11 @@ void CommonAverageRefEditor::channelStateChanged (Array<int> selectedChannels)
 
 void CommonAverageRefEditor::selectedStreamHasChanged()
 {
-    std::cout << "Selected stream: " << getProcessor()->getDataStream(getCurrentStream())->getName() << std::endl;;
+    std::cout << "Selected stream: " << getProcessor()->getDataStream(getCurrentStream())->getName() << std::endl;
+
+
+
+    m_gainSlider->setValue(static_cast<CommonAverageRef*> (getProcessor())->getGainLevel(getCurrentStream()), dontSendNotification);
 }
 
 

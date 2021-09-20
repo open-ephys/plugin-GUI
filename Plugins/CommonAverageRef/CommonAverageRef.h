@@ -44,7 +44,7 @@ public:
     /** Destructor */
     ~CARSettings() {}
 
-    /** Gain level when applying reference (0.0 to 1.0) */
+    /** Gain level when applying reference (0 to 1.0) */
     LinearSmoothedValueAtomic<float> m_gainLevel;
 
     /** Buffer to hold average */
