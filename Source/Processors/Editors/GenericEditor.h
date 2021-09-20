@@ -240,18 +240,6 @@ public:
     /** True if data acquisition has begun. */
     bool acquisitionIsActive;
 
-    /** Used by SpikeDetectorEditor. */
-   // virtual void channelChanged (int channel, bool newState);
-
-    /** Returns all selected channels from the ChannelSelector. */
-    //Array<int> getActiveChannels();
-
-    /** Returns param/audio/record selection state for a given channel */
-   // void getChannelSelectionState (int chan, bool* p, bool* r, bool* a);
-
-    /** Sets param/audio/record selection state for a given channel */
-    //void setChannelSelectionState (int chan, bool p, bool r, bool a);
-
     /** Writes editor state to xml */
     void saveEditorParameters (XmlElement* xml);
 
@@ -291,6 +279,15 @@ public:
     /** Notify editor about channel selection changes in PopupChannelSelector */
     virtual void channelStateChanged(Array<int> channelStates);
 
+    /** Notify editor about changes in the StreamSelector */
+    void updateSelectedStream(uint16 streamId);
+
+    /** Get the ID of the stream that's currently selected.*/
+    uint16 getCurrentStream() { return selectedStream; }
+
+    /** Notifies editor that the selected stream has changed.*/
+    virtual void selectedStreamHasChanged();
+
     /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
     void setMeanLatencyMs(uint16 streamId, float latencyMs);
 
@@ -311,7 +308,7 @@ protected:
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelector> streamSelector;
 
-
+    uint16 selectedStream;
 
 
 private:

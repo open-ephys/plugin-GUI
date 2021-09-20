@@ -75,7 +75,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
        if (!owner->isSplitter() && !owner->isRecordNode())
         {
             
-            streamSelector = std::make_unique<StreamSelector> ();
+            streamSelector = std::make_unique<StreamSelector> (this);
             addChildComponent(streamSelector.get());
             streamSelector->setVisible(false);
             
@@ -481,6 +481,8 @@ void GenericEditor::update(bool isEnabled_)
         streamSelector->clear();
         delayMonitors.clear();
         ttlMonitors.clear();
+
+        selectedStream = p->getDataStreams().getFirst()->getStreamId();
 
         for (auto stream : p->getDataStreams())
         {
@@ -1133,6 +1135,12 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 
 void GenericEditor::channelStateChanged(Array<int> channelStates) {}
 
+void GenericEditor::updateSelectedStream(uint16 streamId) {
+    selectedStream = streamId;
+    selectedStreamHasChanged();
+}
+
+void GenericEditor::selectedStreamHasChanged() { }
 
 /***************************/
 ColorButton::ColorButton(String label_, Font font_) :

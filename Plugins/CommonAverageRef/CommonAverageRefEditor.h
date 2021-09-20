@@ -58,6 +58,7 @@ public:
     /** This methods is called when any sliders that we are listen for change their values */
     void sliderEvent (Slider* sliderWhichValueHasChanged) override;
     void channelStateChanged(Array<int> selectedChannels) override;
+    void selectedStreamHasChanged() override;
 
     /** Saving/loading parameters */
     void saveCustomParameters(XmlElement* xml) override;

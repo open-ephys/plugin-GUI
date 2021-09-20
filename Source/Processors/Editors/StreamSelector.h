@@ -92,7 +92,7 @@ class PLUGIN_API StreamSelector : public Component,
     public Button::Listener
 {
 public:
-    StreamSelector();
+    StreamSelector(GenericEditor* editor);
     ~StreamSelector();
 
     void add(StreamInfoView*);
@@ -141,6 +141,8 @@ private:
     SmoothedValue<float, ValueSmoothingTypes::Linear> scrollOffset;
 
     int viewedStreamIndex;
+
+    GenericEditor* editor;
 
 };
 

@@ -118,7 +118,8 @@ void StreamInfoView::paint(Graphics& g)
 
 }
 
-StreamSelector::StreamSelector() :
+StreamSelector::StreamSelector(GenericEditor* ed_) :
+    editor(ed_),
     streamInfoViewWidth(120),
     streamInfoViewHeight(80),
     scrollOffset(0),
@@ -227,6 +228,8 @@ void StreamSelector::resized()
 
 void StreamSelector::buttonClicked(Button* button)
 {
+    int currentlyViewedStream = viewedStreamIndex;
+
     if (button == leftScrollButton.get())
     {
         std::cout << "Scroll left" << std::endl;
@@ -285,6 +288,9 @@ void StreamSelector::buttonClicked(Button* button)
             streamSelectorButton->repaint();
         }
     }
+
+    if (currentlyViewedStream != viewedStreamIndex)
+        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
 }
 
 void StreamSelector::paint(Graphics& g)

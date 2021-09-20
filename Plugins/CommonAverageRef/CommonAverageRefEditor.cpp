@@ -112,11 +112,11 @@ void CommonAverageRefEditor::buttonEvent (Button* buttonThatWasClicked)
     if (buttonName.startsWith ("reference") && buttonThatWasClicked->getToggleState())
     {
 
-        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getReferenceChannels(streamButtonHolder->getCurrentStream()->getStreamId());
+        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getReferenceChannels(getCurrentStream());
 
         std::vector<bool> channelStates;
 
-        for (int i = 0; i < streamButtonHolder->getCurrentStream()->getChannelCount(); i++)
+        for (int i = 0; i < getProcessor()->getDataStream(getCurrentStream())->getChannelCount(); i++)
         {
             channelStates.push_back(selectedChannels.contains(i));
         }
@@ -138,11 +138,11 @@ void CommonAverageRefEditor::buttonEvent (Button* buttonThatWasClicked)
     else if (buttonName.startsWith ("affected") && buttonThatWasClicked->getToggleState())
     {
 
-        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getAffectedChannels(streamButtonHolder->getCurrentStream()->getStreamId());
+        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getAffectedChannels(getCurrentStream());
 
         std::vector<bool> channelStates;
 
-        for (int i = 0; i < streamButtonHolder->getCurrentStream()->getChannelCount(); i++)
+        for (int i = 0; i < getProcessor()->getDataStream(getCurrentStream())->getChannelCount(); i++)
         {
             channelStates.push_back(selectedChannels.contains(i));
         }
@@ -159,8 +159,6 @@ void CommonAverageRefEditor::buttonEvent (Button* buttonThatWasClicked)
         myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
         m_currentChannelsView = AFFECTED_CHANNELS;
     }
-
-    //GenericEditor::buttonClicked (buttonThatWasClicked);
 }
 
 
@@ -170,14 +168,19 @@ void CommonAverageRefEditor::channelStateChanged (Array<int> selectedChannels)
 
     if (m_currentChannelsView == REFERENCE_CHANNELS)
     {
-        processor->setReferenceChannels(streamButtonHolder->getCurrentStream()->getStreamId(),
+        processor->setReferenceChannels(getCurrentStream(),
             selectedChannels);
     }
     else
     {
-        processor->setAffectedChannels(streamButtonHolder->getCurrentStream()->getStreamId(),
+        processor->setAffectedChannels(getCurrentStream(),
             selectedChannels);
     }
+}
+
+void CommonAverageRefEditor::selectedStreamHasChanged()
+{
+    std::cout << "Selected stream: " << getProcessor()->getDataStream(getCurrentStream())->getName() << std::endl;;
 }
 
 
@@ -185,7 +188,7 @@ void CommonAverageRefEditor::sliderEvent (Slider* sliderWhichValueHasChanged)
 {
     auto processor = static_cast<CommonAverageRef*> (getProcessor());
 
-    processor->setGainLevel (streamButtonHolder->getCurrentStream()->getStreamId(),
+    processor->setGainLevel (getCurrentStream(),
         (float)sliderWhichValueHasChanged->getValue());
 }
 

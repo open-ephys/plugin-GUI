@@ -78,7 +78,7 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
     //Draw text string in middle of button
 	g.setColour(Colour(255,255,255));
 	g.setFont(10);
-	g.drawText (String(id), 0,0, getWidth(), getHeight(), Justification::centred); 
+	g.drawText (String(id+1), 0,0, getWidth(), getHeight(), Justification::centred); 
 
 }
 
@@ -161,7 +161,7 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
 		{
             if (nColumns*i+j < nChannels)
             {
-                channelButtons.add(new ChannelButton(nColumns*i+j+1, this));
+                channelButtons.add(new ChannelButton(nColumns*i+j, this));
                 channelButtons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
                 channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
                 channelButtons.getLast()->addListener(this);
@@ -169,7 +169,7 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
 
                 if(channelStates[nColumns * i + j])
 
-                    activeChannels.add(nColumns*i+j+1);
+                    activeChannels.add(nColumns*i+j);
 
             }
 			

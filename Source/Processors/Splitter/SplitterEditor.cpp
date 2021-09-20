@@ -66,11 +66,11 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     pipelineSelectorB->setToggleState(false, dontSendNotification);
     addAndMakeVisible(pipelineSelectorB.get());
 
-    streamSelectorA = std::make_unique<StreamSelector>();
+    streamSelectorA = std::make_unique<StreamSelector>(this);
     streamSelectorA->setBounds(100, 10, 100, 150);
     addAndMakeVisible(streamSelectorA.get());
 
-    streamSelectorB = std::make_unique<StreamSelector>();
+    streamSelectorB = std::make_unique<StreamSelector>(this);
     streamSelectorB->setBounds(100, 10, 100, 150);
     addChildComponent(streamSelectorB.get());
     streamSelectorB->setVisible(false);
