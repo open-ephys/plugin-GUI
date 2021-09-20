@@ -73,7 +73,7 @@ public:
     /** The class constructor, used to initialize any members. */
     CommonAverageRef();
 
-    /** The class destructor, used to deallocate memory */
+    /** The class destructor, used to deallocate memory. */
     ~CommonAverageRef();
 
     /** Defines the functionality of the processor.

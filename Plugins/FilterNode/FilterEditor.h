@@ -47,13 +47,14 @@ public:
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 
-    void saveCustomParameters(XmlElement* xml);
-    void loadCustomParameters(XmlElement* xml);
+    //void saveCustomParameters(XmlElement* xml);
+    //void loadCustomParameters(XmlElement* xml);
 
     void setDefaults(double lowCut, double highCut);
     void resetToSavedText();
 
-    void channelChanged (int chan, bool newState);
+    void channelStateChanged(Array<int> selectedChannels) override;
+    void selectedStreamHasChanged() override;
 
 private:
 
@@ -65,8 +66,8 @@ private:
 
     ScopedPointer<Label> highCutValue;
     ScopedPointer<Label> lowCutValue;
-    ScopedPointer<UtilityButton> applyFilterOnADC;
-    ScopedPointer<UtilityButton> applyFilterOnChan;
+
+    ScopedPointer<UtilityButton> channelSelectionButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 

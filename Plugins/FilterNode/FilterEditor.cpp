@@ -67,20 +67,12 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     highCutValue->setTooltip("Set the high cut for the selected channels");
     addAndMakeVisible(highCutValue);
 
-    applyFilterOnADC = new UtilityButton("+ADCs",Font("Default", 10, Font::plain));
-    applyFilterOnADC->addListener(this);
-    applyFilterOnADC->setBounds(90,70,40,18);
-    applyFilterOnADC->setClickingTogglesState(true);
-    applyFilterOnADC->setTooltip("When this button is off, ADC channels will not be filtered");
-    addAndMakeVisible(applyFilterOnADC);
-
-    applyFilterOnChan = new UtilityButton("+CH",Font("Default", 10, Font::plain));
-    applyFilterOnChan->addListener(this);
-    applyFilterOnChan->setBounds(95,95,30,18);
-    applyFilterOnChan->setClickingTogglesState(true);
-    applyFilterOnChan->setToggleState(true, dontSendNotification);
-    applyFilterOnChan->setTooltip("When this button is off, selected channels will not be filtered");
-    addAndMakeVisible(applyFilterOnChan);
+    channelSelectionButton = new UtilityButton("Channels", Font("Default", 10, Font::plain));
+    channelSelectionButton->addListener(this);
+    channelSelectionButton->setBounds(15,107,60,18);
+    channelSelectionButton->setClickingTogglesState(false);
+    channelSelectionButton->setTooltip("Select channels to filter within this stream");
+    addAndMakeVisible(channelSelectionButton);
 
 }
 
@@ -106,7 +98,7 @@ void FilterEditor::resetToSavedText()
 
 void FilterEditor::labelTextChanged(Label* label)
 {
-    FilterNode* fn = (FilterNode*) getProcessor();
+    FilterNode* proc = (FilterNode*) getProcessor();
 
     Value val = label->getTextValue();
     double requestedValue = double(val.getValue());
@@ -129,85 +121,83 @@ void FilterEditor::labelTextChanged(Label* label)
         return;
     }
 
-    Array<int> chans;
-    for (int i = 0; i < fn->getNumOutputs(); i++)
-        chans.add(i);
-
-    // This needs to change, since there's not enough feedback about whether
-    // or not individual channel settings were altered:
-
-    for (int n = 0; n < chans.size(); n++)
+    if (label == highCutValue)
     {
+        double minVal = proc->getLowCutValue(getCurrentStream());
 
-        if (label == highCutValue)
+        if (requestedValue > minVal)
         {
-            double minVal = fn->getLowCutValueForChannel(chans[n]);
-
-            if (requestedValue > minVal)
-            {
-                fn->setCurrentChannel(chans[n]);
-                fn->setParameter(1, requestedValue);
-            }
-
-            lastHighCutString = label->getText();
-
-        }
-        else
-        {
-            double maxVal = fn->getHighCutValueForChannel(chans[n]);
-
-            if (requestedValue < maxVal)
-            {
-                fn->setCurrentChannel(chans[n]);
-                fn->setParameter(0, requestedValue);
-            }
-
-            lastLowCutString = label->getText();
+            proc->setHighCutValue(getCurrentStream(), requestedValue);
         }
 
+        lastHighCutString = label->getText();
+
+    }
+    else
+    {
+        double maxVal = proc->getHighCutValue(getCurrentStream());
+
+        if (requestedValue < maxVal)
+        {
+            proc->setLowCutValue(getCurrentStream(), requestedValue);
+        }
+
+        lastLowCutString = label->getText();
     }
 
 }
 
-void FilterEditor::channelChanged (int channel, bool /*newState*/)
+void FilterEditor::channelStateChanged (Array<int> selectedChannels)
 {
-    FilterNode* fn = (FilterNode*) getProcessor();
+    auto processor = static_cast<FilterNode*> (getProcessor());
 
-    highCutValue->setText (String (fn->getHighCutValueForChannel (channel)), dontSendNotification);
-    lowCutValue->setText  (String (fn->getLowCutValueForChannel  (channel)), dontSendNotification);
-    applyFilterOnChan->setToggleState (fn->getBypassStatusForChannel (channel), dontSendNotification);
+    processor->setChannelMask(getCurrentStream(), selectedChannels);
 
 }
+
+void FilterEditor::selectedStreamHasChanged()
+{
+
+    auto processor = static_cast<FilterNode*> (getProcessor());
+
+    lastHighCutString = String(roundFloatToInt(processor->getHighCutValue(getCurrentStream())));
+    lastLowCutString = String(roundFloatToInt(processor->getLowCutValue(getCurrentStream())));
+
+    resetToSavedText();
+}
+
 
 void FilterEditor::buttonEvent(Button* button)
 {
 
-    if (button == applyFilterOnADC)
+    if (button == channelSelectionButton)
     {
-        FilterNode* fn = (FilterNode*) getProcessor();
-        fn->setApplyOnADC(applyFilterOnADC->getToggleState());
+        Array<bool> mask = static_cast<FilterNode*> (getProcessor())->getChannelMask(getCurrentStream());
 
-    }
-    else if (button == applyFilterOnChan)
-    {
-        FilterNode* fn = (FilterNode*) getProcessor();
+        std::vector<bool> channelStates;
 
-        Array<int> chans;
-        for (int i = 0; i < fn->getNumOutputs(); i++)
-            chans.add(i);
-
-        for (int n = 0; n < chans.size(); n++)
+        for (int i = 0; i < mask.size(); i++)
         {
-            float newValue = button->getToggleState() ? 1.0 : 0.0;
-
-            fn->setCurrentChannel(chans[n]);
-            fn->setParameter(2, newValue);
+            channelStates.push_back(mask[i]);
         }
+
+        auto* channelSelector = new PopupChannelSelector(this, channelStates);
+
+        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+                channelSelectionButton->getScreenBounds(),
+                nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+
     }
+
 }
 
 
-void FilterEditor::saveCustomParameters(XmlElement* xml)
+/*void FilterEditor::saveCustomParameters(XmlElement* xml)
 {
 
     xml->setAttribute("Type", "FilterEditor");
@@ -237,4 +227,4 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
     }
 
 
-}
+}*/
