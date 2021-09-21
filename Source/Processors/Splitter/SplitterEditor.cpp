@@ -34,7 +34,8 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 300;
+    desiredWidth = 100;
+
 
     pipelineSelectorA = std::make_unique<ImageButton>("Pipeline A");
 
@@ -67,15 +68,17 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultPara
     addAndMakeVisible(pipelineSelectorB.get());
 
     streamSelectorA = std::make_unique<StreamSelector>(this);
-    streamSelectorA->setBounds(100, 10, 100, 150);
+    streamSelectorA->setBounds(100, 25, streamSelectorA->getDesiredWidth(), 95);
     addAndMakeVisible(streamSelectorA.get());
 
     streamSelectorB = std::make_unique<StreamSelector>(this);
-    streamSelectorB->setBounds(100, 10, 100, 150);
+    streamSelectorB->setBounds(100, 25, streamSelectorB->getDesiredWidth(), 95);
     addChildComponent(streamSelectorB.get());
     streamSelectorB->setVisible(false);
 
-    drawerWidth = 150;
+    drawerWidth = streamSelectorA->getDesiredWidth() + 20;
+
+    
 }
 
 SplitterEditor::~SplitterEditor()
@@ -201,92 +204,50 @@ void SplitterEditor::switchDest()
     }
 }
 
-void SplitterEditor::startCheck()
-{
-    incomingStreams.clear();
-}
 
 bool SplitterEditor::checkStream(const DataStream* stream, Splitter::Output output)
 {
+
     std::cout << "Splitter checking stream " << stream->getStreamId() << " for output " << output << std::endl;
 
-    if (output == Splitter::Output::OUTPUT_A)
-        incomingStreams.add(stream->getStreamId());
-
-
     // buttons already exist:
-    /*if (output == Splitter::Output::OUTPUT_A)
+    if (output == Splitter::Output::OUTPUT_A)
     {
-        for (auto button : streamButtonsA)
-        {
-            if (button->getStreamId() == stream->getStreamId())
-                return button->getToggleState();
-        }
+        return streamSelectorA->checkStream(stream);
     }
     else {
-        for (auto button : streamButtonsB)
-        {
-            if (button->getStreamId() == stream->getStreamId())
-                return button->getToggleState();
-        }
+        return streamSelectorB->checkStream(stream);
     }
-
-    // we need to create new buttons (only do it once per stream)
-    if (output == Splitter::Output::OUTPUT_A)
-    {
-
-        std::cout << "Creating new stream info view for output 0" << std::endl;
-
-        streamSelectorA->add(new StreamInfoView(stream, this));
-
-        std::cout << "Creating new stream button for output 0" << std::endl;
-        streamSelectorB->add(new StreamInfoView(stream, this));
-    }*/
-
-    return true;
 
 }
 
+
+void SplitterEditor::selectedStreamIsEnabled(bool isEnabled)
+{
+
+    if (streamSelectorA->isVisible())
+        streamSelectorA->setStreamEnabledState(selectedStream, isEnabled);
+    else
+        streamSelectorB->setStreamEnabledState(selectedStream, isEnabled);
+
+    CoreServices::updateSignalChain(this);
+}
 
 void SplitterEditor::updateSettings()
 {
 
     std::cout << "Splitter editor updating settings" << std::endl;
 
-    for (auto streamId : incomingStreams)
+    streamSelectorA->clear();
+    streamSelectorB->clear();
+
+    for (auto stream : getProcessor()->getDataStreams())
     {
-        std::cout << "  Found stream " << streamId << std::endl;
+        streamSelectorA->add(new StreamInfoView(stream, this, streamSelectorA->checkStream(stream)));
+        streamSelectorB->add(new StreamInfoView(stream, this, streamSelectorB->checkStream(stream)));
     }
 
-    /*for (auto button : streamButtonsA)
-    {
-        std::cout << "BUTTON A STREAM " << button->getStreamId() << std::endl;
-
-        if (!incomingStreams.contains(button->getStreamId()))
-        {
-            std::cout << " ...NOT FOUND, REMOVING" << std::endl;
-            streamButtonHolderA->remove(button);
-            streamButtonsA.removeObject(button);
-        }
-        else {
-            std::cout << " It's ok, keeping" << std::endl;
-        }
-    }
-
-    for (auto button : streamButtonsB)
-    {
-        std::cout << "BUTTON B STREAM " << button->getStreamId() << std::endl;
-
-
-        if (!incomingStreams.contains(button->getStreamId()))
-        {
-            std::cout << " ...NOT FOUND, REMOVING" << std::endl;
-            streamButtonHolderB->remove(button);
-            streamButtonsB.removeObject(button);
-        }
-        else {
-            std::cout << " It's ok, keeping" << std::endl;
-        }
-    }*/
+    streamSelectorA->finishedUpdate();
+    streamSelectorB->finishedUpdate();
 
 }

@@ -59,9 +59,9 @@ public:
 
     bool checkStream(const DataStream* stream, Splitter::Output output);
 
-    void startCheck();
-
     Array<GenericEditor*> getConnectedEditors();
+
+    void selectedStreamIsEnabled(bool isEnabled) override;
 
     void updateSettings() override;
 
@@ -72,8 +72,6 @@ private:
 
     std::unique_ptr<StreamSelector> streamSelectorA;
     std::unique_ptr<StreamSelector> streamSelectorB;
-
-    Array<uint16> incomingStreams;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
 

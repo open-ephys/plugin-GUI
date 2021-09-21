@@ -189,16 +189,20 @@ void GenericProcessor::clearSettings()
 void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 {
 
-	std::cout << "Copying stream: " << std::endl;
-	std::cout << "  Source Node ID: " << stream->getSourceNodeId() << std::endl;
-	std::cout << "  Source Node Name: " << stream->getSourceNodeName() << std::endl;
-	std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
-	std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
-	std::cout << "  Name: " << stream->getName() << std::endl;
-	std::cout << "  ID: " << stream->getStreamId() << std::endl;
-	std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
-	std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
-	std::cout << "  " << std::endl;
+	if (false)
+	{
+		std::cout << "Copying stream: " << std::endl;
+		std::cout << "  Source Node ID: " << stream->getSourceNodeId() << std::endl;
+		std::cout << "  Source Node Name: " << stream->getSourceNodeName() << std::endl;
+		std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
+		std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
+		std::cout << "  Name: " << stream->getName() << std::endl;
+		std::cout << "  ID: " << stream->getStreamId() << std::endl;
+		std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
+		std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
+		std::cout << "  " << std::endl;
+	}
+	
 
 	dataStreams.add(new DataStream(*stream)); 
 
@@ -231,14 +235,17 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 	for (auto eventChannel : stream->getEventChannels())
 	{
 
-		std::cout << "Copying event channel: " << std::endl;
-		std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << eventChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << eventChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << eventChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << eventChannel->getName() << std::endl;
-		std::cout << "  ID: " << eventChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << eventChannel->getSampleRate() << std::endl;
+		if (false)
+		{
+			std::cout << "Copying event channel: " << std::endl;
+			std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
+			std::cout << "  Source Node Name: " << eventChannel->getSourceNodeName() << std::endl;
+			std::cout << "  Last Node ID: " << eventChannel->getNodeId() << std::endl;
+			std::cout << "  Last Node Name: " << eventChannel->getNodeName() << std::endl;
+			std::cout << "  Name: " << eventChannel->getName() << std::endl;
+			std::cout << "  ID: " << eventChannel->getStreamId() << std::endl;
+			std::cout << "  Sample rate: " << eventChannel->getSampleRate() << std::endl;
+		}
 
 		eventChannels.add(new EventChannel(*eventChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
@@ -315,6 +322,14 @@ void GenericProcessor::update()
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
 					  // setting isEnabled variable
+
+	std::cout << "Updated custom settings." << std::endl;
+
+	for (auto stream : getDataStreams())
+	{
+		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+
+	}
 
 	updateChannelIndexMaps();
 

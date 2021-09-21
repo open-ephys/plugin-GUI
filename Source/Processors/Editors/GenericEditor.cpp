@@ -457,13 +457,9 @@ void GenericEditor::update(bool isEnabled_)
 {
     isEnabled = isEnabled_;
 
-    GenericProcessor* p = (GenericProcessor*) getProcessor();
+    GenericProcessor* p = getProcessor();
 
     LOGDD("Editor for ", p->getName(), " updating settings.");
-
-    updateSettings();
-
-    //int monitorWidth = ttlMonitor->updateSettings(p->getEventChannels());
 
     int numChannels;
 
@@ -476,23 +472,28 @@ void GenericEditor::update(bool isEnabled_)
         numChannels = p->getNumInputs();
     }
 
+    if (p->getDataStreams().size() > 0)
+        selectedStream = p->getDataStreams().getFirst()->getStreamId();
+    else
+        selectedStream = -1;
+
     if (streamSelector != nullptr)
     {
         streamSelector->clear();
         delayMonitors.clear();
         ttlMonitors.clear();
 
-        selectedStream = p->getDataStreams().getFirst()->getStreamId();
-
         for (auto stream : p->getDataStreams())
         {
-            streamSelector->add(new StreamInfoView(stream, this));
+            streamSelector->add(new StreamInfoView(stream, this, streamSelector->checkStream(stream)));
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
 
             streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
 
         }
+
+        streamSelector->finishedUpdate();
 
         if (numChannels == 0)
         {
@@ -505,6 +506,8 @@ void GenericEditor::update(bool isEnabled_)
                 drawerButton->setVisible(true);
         }
     }
+
+    updateSettings(); // update custom settings
     
     updateVisualizer(); // does nothing unless this method
                         // has been implemented
@@ -1135,12 +1138,25 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 
 void GenericEditor::channelStateChanged(Array<int> channelStates) {}
 
-void GenericEditor::updateSelectedStream(uint16 streamId) {
+void GenericEditor::updateSelectedStream(uint16 streamId) 
+{
+
     selectedStream = streamId;
+    std::cout << "Selected stream: " << selectedStream << std::endl;
     selectedStreamHasChanged();
+
 }
 
 void GenericEditor::selectedStreamHasChanged() { }
+
+void GenericEditor::selectedStreamIsEnabled(bool isEnabled) 
+{
+    
+    if (streamSelector != nullptr)
+        streamSelector->setStreamEnabledState(selectedStream, isEnabled);
+
+    //CoreServices::updateSignalChain(this);
+}
 
 /***************************/
 ColorButton::ColorButton(String label_, Font font_) :

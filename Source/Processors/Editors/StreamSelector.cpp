@@ -28,9 +28,10 @@
 
 #include "../Settings/DataStream.h"
 
-StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_) :
-    isEnabled(true), stream(stream_), editor(editor_)
+StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
+    isEnabled(isEnabled_), stream(stream_), editor(editor_)
 {
+    std::cout << "Adding stream " << getStreamId() << " with " << stream->getChannelCount() << " channels " << std::endl;
 
     enableButton = std::make_unique<StreamEnableButton>("x");
     enableButton->addListener(this);
@@ -38,7 +39,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, false);
     addAndMakeVisible(enableButton.get());
 
-    infoString = "Source: " + stream->getSourceNodeName()
+    infoString = "ID: " + String(getStreamId()) //"Source: " + stream->getSourceNodeName()
         + "\n"
         + String(stream->getChannelCount()) + " channels @ " +
         String(stream->getSampleRate()) + " Hz";
@@ -68,6 +69,11 @@ void StreamInfoView::setEnabled(bool state)
 {
     isEnabled = state;
 
+    if (isEnabled)
+        enableButton->setButtonText("x");
+    else
+        enableButton->setButtonText(" ");
+
     repaint();
 }
 
@@ -88,11 +94,10 @@ void StreamInfoView::buttonClicked(Button* button)
     if (button == enableButton.get())
     {
         setEnabled(button->getToggleState());
-        
-        if (button->getToggleState())
-            button->setButtonText("x");
-        else
-            button->setButtonText(" ");
+
+        std::cout << "Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
+
+        //editor->selectedStreamIsEnabled(isEnabled);
     }
 }
 
@@ -168,6 +173,39 @@ StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToChec
     return nullptr;
 }
 
+bool StreamSelector::checkStream(const DataStream* streamToCheck)
+{
+    //StreamInfoView* siv = getStreamInfoView(streamToCheck);
+
+    std::map<uint16, bool>::iterator it = streamStates.begin();
+
+    std::cout << "STREAM STATES" << std::endl;
+    while (it != streamStates.end())
+    {
+        // Accessing KEY from element pointed by it.
+        uint16 streamId = it->first;
+        // Accessing VALUE from element pointed by it.
+        bool state = it->second;
+        std::cout << streamId << " :: " << state << std::endl;
+        // Increment the Iterator to point to next entry
+        it++;
+    }
+
+    if (streamStates.count(streamToCheck->getStreamId()) > 0)
+    {
+        std::cout << " Stream Selector returning " << streamStates[streamToCheck->getStreamId()] << std::endl;
+        return streamStates[streamToCheck->getStreamId()];
+    }
+        
+    else
+    {
+        std::cout << " Stream not found, returning 1." << std::endl;
+        return true;
+    }
+        
+        
+}
+
 TTLMonitor* StreamSelector::getTTLMonitor(const DataStream* stream)
 {
     StreamInfoView* siv = getStreamInfoView(stream);
@@ -204,6 +242,12 @@ void StreamSelector::stopAcquisition()
     }
 }
 
+void StreamSelector::setStreamEnabledState(uint16 streamId, bool isEnabled)
+{
+    std::cout << " !!!!!! Setting state for stream " << streamId << ":  " << isEnabled << std::endl;
+    streamStates[streamId] = isEnabled;
+}
+
 void StreamSelector::resized()
 {
     viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 20);
@@ -217,11 +261,15 @@ void StreamSelector::resized()
     streamSelectorButton->setBounds(20, 2, getWidth() - 40, 18);
 
     std::cout << "StreamSelector resized, num streams: " << streams.size() << std::endl;
+    std::cout << " Scroll offset: " << scrollOffset.getCurrentValue() << std::endl;
 
     for (int i = 0; i < streams.size(); i++)
     {
         streams[i]->setBounds(i * streamInfoViewWidth, 0, streamInfoViewWidth, streamInfoViewHeight);
     }
+
+    if (streams.size() > 0)
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
 
     viewport->setViewPosition(scrollOffset.getCurrentValue(), 0);
 }
@@ -250,6 +298,8 @@ void StreamSelector::buttonClicked(Button* button)
     else if (button == rightScrollButton.get())
     {
         std::cout << "Scroll right" << std::endl;
+
+        std::cout << "Total streams: " << getNumStreams() << std::endl;
 
         if (viewedStreamIndex != streams.size() -1)
         {
@@ -324,8 +374,20 @@ void StreamSelector::add(StreamInfoView* stream)
     streams.add(stream);
     viewedComponent->addAndMakeVisible(stream);
 
-    if (streams.size() == 1)
-        streamSelectorButton->setName(streams[0]->getStream()->getName());
+    //if (streams.size() == 1)
+    //    streamSelectorButton->setName(streams[0]->getStream()->getName());
+
+    setStreamEnabledState(stream->getStreamId(), stream->getEnabledState());
+
+    //resized();
+}
+
+void StreamSelector::finishedUpdate()
+{
+    if (viewedStreamIndex >= streams.size())
+    {
+        viewedStreamIndex = streams.size() - 1;
+    }
 
     resized();
 }

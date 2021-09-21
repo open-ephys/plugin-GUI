@@ -49,7 +49,7 @@ class PLUGIN_API StreamInfoView : public Component,
     public Button::Listener
 {
 public:
-    StreamInfoView(const DataStream* stream, GenericEditor* editor);
+    StreamInfoView(const DataStream* stream, GenericEditor* editor, bool isEnabled);
     ~StreamInfoView();
 
     uint16 getStreamId() const;
@@ -106,7 +106,7 @@ public:
 
     const DataStream* getCurrentStream();
 
-    bool isStreamEnabled(const DataStream* stream);
+    bool checkStream(const DataStream* stream);
 
     void paint(Graphics& g);
 
@@ -116,11 +116,19 @@ public:
 
     DelayMonitor* getDelayMonitor(const DataStream* stream);
 
+    StreamInfoView* getStreamInfoView(const DataStream* stream);
+
     void startAcquisition();
 
     void stopAcquisition();
 
     void timerCallback();
+
+    void finishedUpdate();
+
+    int getNumStreams() { return streams.size(); }
+
+    void setStreamEnabledState(uint16 streamId, bool isEnabled);
 
 private:
 
@@ -133,7 +141,7 @@ private:
 
     OwnedArray<StreamInfoView> streams;
 
-    StreamInfoView* getStreamInfoView(const DataStream* stream);
+    std::map<uint16, bool> streamStates;
 
     int streamInfoViewWidth;
     int streamInfoViewHeight;
