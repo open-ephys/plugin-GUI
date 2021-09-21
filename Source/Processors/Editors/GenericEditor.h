@@ -241,16 +241,16 @@ public:
     bool acquisitionIsActive;
 
     /** Writes editor state to xml */
-    void saveEditorParameters (XmlElement* xml);
+    void saveToXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    void loadEditorParameters (XmlElement* xml);
+    void loadFromXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void saveCustomParameters (XmlElement* xml);
+    virtual void saveCustomParametersToXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void loadCustomParameters (XmlElement* xml);
+    virtual void loadCustomParametersFromXml (XmlElement* xml);
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons (int parameterIndex = -1);

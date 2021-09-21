@@ -62,8 +62,8 @@ public:
 
     void comboBoxChanged(ComboBox*); 
 
-    void saveCustomParameters (XmlElement*) override;
-    void loadCustomParameters (XmlElement*) override;
+    void saveCustomParametersToXml (XmlElement*) override;
+    void loadCustomParametersFromXml (XmlElement*) override;
 
 	void startAcquisition() override;
 	void stopAcquisition()  override;

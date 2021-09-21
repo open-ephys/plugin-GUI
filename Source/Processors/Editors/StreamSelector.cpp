@@ -384,7 +384,7 @@ void StreamSelector::add(StreamInfoView* stream)
 
 void StreamSelector::finishedUpdate()
 {
-    if (viewedStreamIndex >= streams.size())
+    if (viewedStreamIndex >= streams.size() || viewedStreamIndex < 0)
     {
         viewedStreamIndex = streams.size() - 1;
     }

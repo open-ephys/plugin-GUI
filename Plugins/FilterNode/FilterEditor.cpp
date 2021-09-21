@@ -95,6 +95,12 @@ void FilterEditor::resetToSavedText()
     lowCutValue->setText(lastLowCutString, dontSendNotification);
 }
 
+void FilterEditor::updateSettings()
+{
+    if (selectedStream != 0)
+        selectedStreamHasChanged();
+}
+
 
 void FilterEditor::labelTextChanged(Label* label)
 {
@@ -225,6 +231,4 @@ void FilterEditor::loadCustomParameters(XmlElement* xml)
             applyFilterOnADC->setToggleState(xmlNode->getBoolAttribute("ApplyToADC",false), sendNotification);
         }
     }
-
-
 }*/

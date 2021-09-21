@@ -357,6 +357,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < continuousChannels.size(); i++)
 	{
 		ContinuousChannel* chan = continuousChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -368,6 +369,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < eventChannels.size(); i++)
 	{
 		EventChannel* chan = eventChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -379,6 +381,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < spikeChannels.size(); i++)
 	{
 		SpikeChannel* chan = spikeChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -915,8 +918,9 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
 	}
 
 	// Save editor parameters:
-	XmlElement* editorChildNode = parentElement->createNewChildElement("EDITOR");
-	getEditor()->saveEditorParameters(editorChildNode);
+	XmlElement* editorChildNodeXml = parentElement->createNewChildElement("EDITOR");
+
+	getEditor()->saveToXml(editorChildNodeXml);
 }
 
 
@@ -926,41 +930,32 @@ void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 
 void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, InfoObject* channel)
 {
-	XmlElement* channelInfo;
+	XmlElement* channelInfoXml;
 
 	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("CHANNEL");
-		channelInfo->setAttribute("name", channel->getName());
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
-
-		//bool p, r, a;
-
-		//getEditor()->getChannelSelectionState(channel->getGlobalIndex(), &p, &r, &a);
-
-		//XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
-		//selectionState->setAttribute("param", p);
-		//selectionState->setAttribute("record", r);
-		//selectionState->setAttribute("audio", a);
+		channelInfoXml = parentElement->createNewChildElement("CHANNEL");
+		channelInfoXml->setAttribute("name", channel->getName());
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 	}
 	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("EVENTCHANNEL");
-		channelInfo->setAttribute("name", channel->getName());
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
+		channelInfoXml = parentElement->createNewChildElement("EVENTCHANNEL");
+		channelInfoXml->setAttribute("name", channel->getName());
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 
 	}
 	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("SPIKECHANNEL");
-		channelInfo->setAttribute("name", String(channel->getName()));
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
+		channelInfoXml = parentElement->createNewChildElement("SPIKECHANNEL");
+		channelInfoXml->setAttribute("name", String(channel->getName()));
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 	}
 
-	saveCustomChannelParametersToXml(channelInfo, channel);
+	saveCustomChannelParametersToXml(channelInfoXml, channel);
 
 	// deprecated parameter configuration:
-	LOGDD("Creating Parameters");
+	//LOGDD("Creating Parameters");
 	// int maxsize = parameters.size();
 	// String parameterName;
 	// String parameterValue;
@@ -1002,7 +997,7 @@ void GenericProcessor::loadFromXml()
             {
                 if (xmlNode->hasTagName("EDITOR"))
                 {
-                    getEditor()->loadEditorParameters(xmlNode);
+                    getEditor()->loadFromXml(xmlNode);
                 }
             }
 
@@ -1051,6 +1046,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 
 
 void GenericProcessor::loadCustomParametersFromXml() { }
+
 void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type type) { }
 
 void GenericProcessor::setCurrentChannel(int chan)

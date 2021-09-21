@@ -202,7 +202,7 @@ public:
 
 	//uint32 getGlobalTimestampSourceFullId() const;
 
-    static int getStreamIdxForChannel(Node& node, int channel);
+    static int getStreamIdForChannel(Node& node, int channel);
     
 private:
 

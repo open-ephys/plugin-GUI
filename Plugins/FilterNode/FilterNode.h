@@ -68,6 +68,18 @@ public:
     /** Sets filter parameters for one channel*/
     void setFilterParameters(double lowCut, double highCut, int channel);
 
+    /** Saves parameters to XML*/
+    void toXml(XmlElement*);
+
+    /** Loads parameters from XML*/
+    void fromXml(XmlElement*);
+
+    /** Converts mask channels to string*/
+    String channelMaskToString(Array<bool> channelMask);
+
+    /** Converts string to mask channels*/
+    void channelMaskFromString(String);
+
 };
 
 /**
@@ -135,10 +147,10 @@ public:
     Array<bool> getChannelMask(uint16 streamId);
 
     /** Saving custom parameters*/
-    //void saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel) override;
+    void saveCustomParametersToXml(XmlElement* xml) override;
 
     /** Loading custom parameters*/
-    //void loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type channelType) override;
+    void loadCustomParametersFromXml() override;
 
 
 private:

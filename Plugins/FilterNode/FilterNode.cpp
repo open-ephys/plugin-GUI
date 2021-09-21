@@ -74,6 +74,51 @@ void BandpassFilterSettings::setFilterParameters(double lowCut, double highCut, 
     filters[channel]->setParams(params);
 }
 
+void BandpassFilterSettings::toXml(XmlElement* xml)
+{
+    xml->setAttribute("lowCut", lowCut);
+    xml->setAttribute("highCut", highCut);
+    xml->setAttribute("isEnabled", isEnabled);
+    xml->setAttribute("maskChannels", channelMaskToString(channelMask));
+}
+
+void BandpassFilterSettings::fromXml(XmlElement* xml)
+{
+    lowCut = xml->getDoubleAttribute("lowCut", lowCut);
+    highCut = xml->getDoubleAttribute("highCut", highCut);
+    isEnabled = xml->getBoolAttribute("isEnabled", isEnabled);
+    channelMaskFromString(xml->getStringAttribute("maskChannels", ""));
+}
+
+String BandpassFilterSettings::channelMaskToString(Array<bool> channelMask)
+{
+    String result = "";
+
+    for (int i = 0; i < channelMask.size(); i++)
+    {
+        if (!channelMask[i])
+            result += String(i + 1) + ",";
+    }
+
+    return result.substring(0, result.length()-1);
+}
+
+void BandpassFilterSettings::channelMaskFromString(String input)
+{
+
+    StringArray channels = StringArray::fromTokens(input, ",", "");
+
+    for (int i = 0; i < channels.size(); i++)
+    {
+        std::cout << channels[i] << std::endl;
+        int ch = channels[i].getIntValue() - 1;
+
+        if (ch < channelMask.size())
+            channelMask.set(ch, false);
+    }
+
+}
+
 FilterNode::FilterNode()
     : GenericProcessor  ("Bandpass Filter")
 {
@@ -294,43 +339,33 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 }
 
 
-/*void FilterNode::saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel)
+void FilterNode::saveCustomParametersToXml(XmlElement* xml)
 {
-    int channelNumber = channel->getGlobalIndex();
-
-    if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL
-        && channelNumber > -1
-        && channelNumber < highCuts.size())
+    for (auto stream : getDataStreams())
     {
-        //std::cout << "Saving custom parameters for filter node." << std::endl;
 
-        XmlElement* channelParams = channelInfo->createNewChildElement ("PARAMETERS");
-        channelParams->setAttribute ("highcut",         highCuts[channelNumber]);
-        channelParams->setAttribute ("lowcut",          lowCuts[channelNumber]);
-        channelParams->setAttribute ("shouldFilter",    shouldFilterChannel[channelNumber]);
+        XmlElement* streamParams = xml->createNewChildElement ("STREAM");
+
+        settings[stream->getStreamId()]->toXml(streamParams);
     }
 }
 
 
-void FilterNode::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type channelType)
+void FilterNode::loadCustomParametersFromXml()
 {
-    int channelNum = channelInfo->getIntAttribute ("number");
 
-    if (channelType == InfoObject::Type::CONTINUOUS_CHANNEL)
+    int streamIndex = 0;
+    Array<const DataStream*> availableStreams = getDataStreams();
+
+    forEachXmlChildElement (*parametersAsXml, streamParams)
     {
-        // restore high and low cut text in case they were changed by channelChanged
-        static_cast<FilterEditor*>(getEditor())->resetToSavedText();
-
-        forEachXmlChildElement (*channelInfo, subNode)
+        if (streamParams->hasTagName ("STREAM"))
         {
-            if (subNode->hasTagName ("PARAMETERS"))
+            if (availableStreams.size() > streamIndex)
             {
-                highCuts.set (channelNum, subNode->getDoubleAttribute ("highcut", defaultHighCut));
-                lowCuts.set  (channelNum, subNode->getDoubleAttribute ("lowcut",  defaultLowCut));
-                shouldFilterChannel.set (channelNum, subNode->getBoolAttribute ("shouldFilter", true));
-
-                setFilterParameters (lowCuts[channelNum], highCuts[channelNum], channelNum);
+                settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
         }
     }
-}*/
+
+}

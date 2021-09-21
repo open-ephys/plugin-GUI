@@ -163,13 +163,13 @@ void AudioMonitorEditor::stopAcquisition()
 }
 
 
-void AudioMonitorEditor::saveCustomParameters (XmlElement* xml)
+void AudioMonitorEditor::saveCustomParametersToXml (XmlElement* xml)
 {
 
 }
 
 
-void AudioMonitorEditor::loadCustomParameters (XmlElement* xml)
+void AudioMonitorEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
 
 }

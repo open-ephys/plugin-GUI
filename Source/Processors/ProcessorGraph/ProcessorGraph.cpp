@@ -819,9 +819,22 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
 }
 
-int ProcessorGraph::getStreamIdxForChannel(Node& node, int channel)
+int ProcessorGraph::getStreamIdForChannel(Node& node, int channel)
 {
-    return 0;
+
+    int nodeId = node.nodeID.uid;
+
+    if (nodeId != OUTPUT_NODE_ID &&
+        nodeId != AUDIO_NODE_ID &&
+        nodeId != MESSAGE_CENTER_ID)
+    {
+        GenericProcessor* p = (GenericProcessor*) node.getProcessor();
+        
+        return p->getContinuousChannel(channel)->getStreamId();
+    }
+    else {
+        return nodeId;
+    }
 }
 
 GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)

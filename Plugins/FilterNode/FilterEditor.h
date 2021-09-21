@@ -47,8 +47,7 @@ public:
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
 
-    //void saveCustomParameters(XmlElement* xml);
-    //void loadCustomParameters(XmlElement* xml);
+    void updateSettings() override;
 
     void setDefaults(double lowCut, double highCut);
     void resetToSavedText();

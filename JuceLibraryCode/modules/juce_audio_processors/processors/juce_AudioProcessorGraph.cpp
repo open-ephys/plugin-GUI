@@ -391,7 +391,7 @@ struct RenderSequenceBuilder
 
         Custom member added for Open Ephys GUI.
      */
-    Array<bool> streamIsNeededLater;
+    std::map<uint16, bool> streamIsNeededLater;
 
     /** Holds information about whether streams are needed later, to speed up rendering ops.
 
@@ -903,16 +903,15 @@ struct RenderSequenceBuilder
                 {
                     //std::cout << i << " ";
                     
-                    int streamIdx = ProcessorGraph::getStreamIdxForChannel(*node, i);
+                    int streamId = ProcessorGraph::getStreamIdForChannel(*node, i);
 
-                    if (streamIsNeededLater.size() > streamIdx)
+                    if (streamIsNeededLater.find(streamId) != streamIsNeededLater.end())
                     {
                         //std::cout << "     ----- Returning EXISTING value." << std::endl;
-                        return streamIsNeededLater[streamIdx];
+                        return streamIsNeededLater[streamId];
                     }
                     else {
-                        
-
+                       
                         if (i != inputChannelOfIndexToIgnore) 
                         {
                             //std::cout << "     +++++ Adding NEW value." << std::endl;
@@ -920,8 +919,12 @@ struct RenderSequenceBuilder
                             if (graph.isConnected({ output, { node->nodeID, i } }))
                             {
                                 //std::cout << "        NEEDED!" << std::endl;
-                                streamIsNeededLater.add(true);
+                                streamIsNeededLater[streamId] = true;
                                 return true;
+                            }
+                            else {
+                                streamIsNeededLater[streamId] = false;
+                                return false;
                             }
                             
                         }
@@ -937,7 +940,7 @@ struct RenderSequenceBuilder
         }
 
         //std::cout << "        NOT NEEDED!" << std::endl;
-        streamIsNeededLater.add(false);
+        
         return false;
 
     }

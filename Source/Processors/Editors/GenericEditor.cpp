@@ -475,7 +475,7 @@ void GenericEditor::update(bool isEnabled_)
     if (p->getDataStreams().size() > 0)
         selectedStream = p->getDataStreams().getFirst()->getStreamId();
     else
-        selectedStream = -1;
+        selectedStream = 0;
 
     if (streamSelector != nullptr)
     {
@@ -613,17 +613,17 @@ void GenericEditor::switchCollapsedState()
     }
 }
 
-void GenericEditor::saveEditorParameters(XmlElement* xml)
+void GenericEditor::saveToXml(XmlElement* xml)
 {
 
     xml->setAttribute("isCollapsed", isCollapsed);
     xml->setAttribute("displayName", displayName);
 
-    saveCustomParameters(xml);
+    saveCustomParametersToXml(xml);
 
 }
 
-void GenericEditor::loadEditorParameters(XmlElement* xml)
+void GenericEditor::loadFromXml(XmlElement* xml)
 {
 
     bool isCollapsed = xml->getBoolAttribute("isCollapsed", false);
@@ -635,7 +635,7 @@ void GenericEditor::loadEditorParameters(XmlElement* xml)
 
     displayName = xml->getStringAttribute("displayName", name);
 
-    loadCustomParameters(xml);
+    loadCustomParametersFromXml(xml);
 
 }
 
@@ -1124,9 +1124,9 @@ void GenericEditor::updateVisualizer() {}
 
 //void GenericEditor::channelChanged (int channel, bool newState) {}
 
-void GenericEditor::saveCustomParameters(XmlElement* xml) { }
+void GenericEditor::saveCustomParametersToXml(XmlElement* xml) { }
 
-void GenericEditor::loadCustomParameters(XmlElement* xml) { }
+void GenericEditor::loadCustomParametersFromXml(XmlElement* xml) { }
 
 void GenericEditor::collapsedStateChanged() {}
 

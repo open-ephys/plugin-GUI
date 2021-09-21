@@ -375,7 +375,7 @@ bool LoadPluginSettings::perform()
         {
             if (xmlNode->hasTagName("EDITOR"))
             {
-                processor->getEditor()->loadEditorParameters(xmlNode);
+                processor->getEditor()->loadCustomParametersFromXml(xmlNode);
             }
         }
 
@@ -420,7 +420,7 @@ bool LoadPluginSettings::undo()
     {
         if (xmlNode->hasTagName("EDITOR"))
         {
-            processor->getEditor()->loadEditorParameters(xmlNode);
+            processor->getEditor()->loadCustomParametersFromXml(xmlNode);
         }
     }
 

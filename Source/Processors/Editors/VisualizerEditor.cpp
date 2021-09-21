@@ -280,7 +280,7 @@ void VisualizerEditor::buttonClicked (Button* button)
 }
 
 
-void VisualizerEditor::saveCustomParameters (XmlElement* xml)
+void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 {
     xml->setAttribute ("Type", "Visualizer");
 
@@ -305,7 +305,7 @@ void VisualizerEditor::saveCustomParameters (XmlElement* xml)
 }
 
 
-void VisualizerEditor::loadCustomParameters (XmlElement* xml)
+void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
 
     bool canvasHidden = false;
