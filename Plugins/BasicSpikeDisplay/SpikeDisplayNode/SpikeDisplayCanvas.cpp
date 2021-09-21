@@ -157,22 +157,22 @@ void SpikeDisplayCanvas::processSpikeEvents()
 
 }
 
-bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
-{
+//bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
+//{
 
-    KeyPress c = KeyPress::createFromDescription("c");
+    //KeyPress c = KeyPress::createFromDescription("c");
 
-    if (key.isKeyCode(c.getKeyCode())) // C
-    {
-        spikeDisplay->clear();
+    //if (key.isKeyCode(c.getKeyCode())) // C
+    //{
+     //   spikeDisplay->clear();//
 
-        std::cout << "Clearing display" << std::endl;
-        return true;
-    }
+     //   std::cout << "Clearing display" << std::endl;
+     //   return true;
+    //}
 
-    return false;
+    //return false;
 
-}
+//}
 
 void SpikeDisplayCanvas::buttonClicked(Button* button)
 {
