@@ -504,6 +504,14 @@ void GraphNode::updateBoundaries()
 
     dataStreamPanel.setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
 
+    int yshift = BORDER_SIZE;
+
+    if (processor->sourceNode != nullptr)
+    {
+        yshift += gv->getNodeForEditor(processor->sourceNode->getEditor())->getBottom();
+    }
+
+
     if (previousHeight > 0 && previousHeight != panelHeight)
     {
         setBounds(getX(), getY(), getWidth(),
@@ -511,13 +519,12 @@ void GraphNode::updateBoundaries()
     }
     else {
         setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-            BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
+            yshift, //BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
             nodeWidth,
             panelHeight + 20);
     }
     
     
-
     if (previousHeight > 0)
     {
         if (processor->destNode != nullptr)
@@ -532,8 +539,8 @@ void GraphNode::updateBoundaries()
 
 void GraphNode::verticalShift(int pixels)
 {
-   
-
+    std::cout << "Node " << getName() << " shifting by " << pixels << " pixels " << std::endl;
+    
     setBounds(getX(), getY() + pixels, getWidth(), getHeight());
 
     if (!processor->isSplitter())
@@ -561,6 +568,7 @@ void GraphNode::verticalShift(int pixels)
     }
 
     verticalOffset = pixels;
+
 }
 
 String GraphNode::getInfoString()
