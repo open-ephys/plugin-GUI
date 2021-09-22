@@ -866,19 +866,20 @@ struct RenderSequenceBuilder
                               int inputChannelOfIndexToIgnore,
                               AudioProcessorGraph::NodeAndChannel output) 
     {
-        /*std::cout << "    isBufferNeededLater? "
+        std::cout << "    isBufferNeededLater? "
             << stepIndexToSearchFrom << " "
             << inputChannelOfIndexToIgnore << " output "
             << output.nodeID.uid << ":"
-            << output.channelIndex << std::endl;*/
+            << output.channelIndex << std::endl;
 
        // return false;
+        uint16 streamId;
 
         while (stepIndexToSearchFrom < orderedNodes.size())
         {
             auto* node = orderedNodes.getUnchecked (stepIndexToSearchFrom);
 
-            //std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
+            std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
 
             if (output.isMIDI())
             {
@@ -901,32 +902,30 @@ struct RenderSequenceBuilder
 
                 for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
                 {
-                    //std::cout << i << " ";
+                   
                     
-                    int streamId = ProcessorGraph::getStreamIdForChannel(*node, i);
+                    streamId = ProcessorGraph::getStreamIdForChannel(*node, i);
+
+                    std::cout << "Channel " << i << " streamId = " << streamId << std::endl;
 
                     if (streamIsNeededLater.find(streamId) != streamIsNeededLater.end())
                     {
-                        //std::cout << "     ----- Returning EXISTING value." << std::endl;
+                        std::cout << "     ----- Returning EXISTING value: " << streamIsNeededLater[streamId] << std::endl;
                         return streamIsNeededLater[streamId];
                     }
                     else {
                        
                         if (i != inputChannelOfIndexToIgnore) 
                         {
-                            //std::cout << "     +++++ Adding NEW value." << std::endl;
+                            
 
                             if (graph.isConnected({ output, { node->nodeID, i } }))
                             {
-                                //std::cout << "        NEEDED!" << std::endl;
+                                std::cout << "     +++++ Adding NEW value:" << 1 << std::endl;
                                 streamIsNeededLater[streamId] = true;
                                 return true;
                             }
-                            else {
-                                streamIsNeededLater[streamId] = false;
-                                return false;
-                            }
-                            
+
                         }
                     }
                 }
@@ -939,8 +938,8 @@ struct RenderSequenceBuilder
             ++stepIndexToSearchFrom;
         }
 
-        //std::cout << "        NOT NEEDED!" << std::endl;
-        
+        std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
+        streamIsNeededLater[streamId] = false;
         return false;
 
     }

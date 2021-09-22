@@ -244,6 +244,9 @@ void AudioNode::updateFilter(int i)
 
 void AudioNode::process(AudioBuffer<float>& buffer)
 {
+
+    buffer.clear();
+
     /*float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 

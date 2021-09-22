@@ -197,7 +197,7 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 		std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
 		std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
 		std::cout << "  Name: " << stream->getName() << std::endl;
-		std::cout << "  ID: " << stream->getStreamId() << std::endl;
+		std::cout << "  Stream ID: " << stream->getStreamId() << std::endl;
 		std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
 		std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
 		std::cout << "  " << std::endl;
@@ -985,36 +985,35 @@ void GenericProcessor::loadFromXml()
 
 	if (parametersAsXml != nullptr)
 	{
-        if (!m_paramsWereLoaded)
+       // if (!m_paramsWereLoaded)
+       // {
+		LOGD("Loading parameters for ", m_name);
+
+        // use parametersAsXml to restore state
+        loadCustomParametersFromXml();
+
+        // load editor parameters
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-			LOGD("Loading parameters for ", m_name);
-
-            // use parametersAsXml to restore state
-            loadCustomParametersFromXml();
-
-            // load editor parameters
-            forEachXmlChildElement(*parametersAsXml, xmlNode)
+            if (xmlNode->hasTagName("EDITOR"))
             {
-                if (xmlNode->hasTagName("EDITOR"))
-                {
-                    getEditor()->loadFromXml(xmlNode);
-                }
+                getEditor()->loadFromXml(xmlNode);
             }
+        }
 
-            forEachXmlChildElement(*parametersAsXml, xmlNode)
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        {
+            if (xmlNode->hasTagName("CHANNEL"))
             {
-                if (xmlNode->hasTagName("CHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::CONTINUOUS_CHANNEL);
-                }
-                else if (xmlNode->hasTagName("EVENTCHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::EVENT_CHANNEL);
-                }
-                else if (xmlNode->hasTagName("SPIKECHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::SPIKE_CHANNEL);
-                }
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::CONTINUOUS_CHANNEL);
+            }
+            else if (xmlNode->hasTagName("EVENTCHANNEL"))
+            {
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::EVENT_CHANNEL);
+            }
+            else if (xmlNode->hasTagName("SPIKECHANNEL"))
+            {
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::SPIKE_CHANNEL);
             }
         }
 	}

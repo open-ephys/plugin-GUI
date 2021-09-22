@@ -36,7 +36,7 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 300;
+    desiredWidth = 100;
 
     pipelineSelectorA = std::make_unique<ImageButton>("Pipeline A");
 

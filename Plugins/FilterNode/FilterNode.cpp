@@ -48,10 +48,13 @@ void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_)
             1,                                     // number of channels (must be const)
             Dsp::DirectFormII>(1));               // realization
 
-        channelMask.add(true);
+        if (channelMask.size() < n + 1)
+            channelMask.add(true);
 
         setFilterParameters(lowCut, highCut, n);
     }
+
+    std::cout << "Channel mask size: " << channelMask.size() << std::endl;
 
 }
 
@@ -92,6 +95,10 @@ void BandpassFilterSettings::fromXml(XmlElement* xml)
 
 String BandpassFilterSettings::channelMaskToString(Array<bool> channelMask)
 {
+
+    std::cout << " Channel mask to string..." << std::endl;
+    std::cout << " Channel mask size: " << channelMask.size() << std::endl;
+
     String result = "";
 
     for (int i = 0; i < channelMask.size(); i++)
@@ -105,8 +112,11 @@ String BandpassFilterSettings::channelMaskToString(Array<bool> channelMask)
 
 void BandpassFilterSettings::channelMaskFromString(String input)
 {
+    std::cout << "maskChannels input: " << input << std::endl;
 
     StringArray channels = StringArray::fromTokens(input, ",", "");
+
+    std::cout << "Found " << channels.size() << " tokens" << std::endl;
 
     for (int i = 0; i < channels.size(); i++)
     {
@@ -255,7 +265,7 @@ void FilterNode::setChannelMask(uint16 streamId, Array<int> channels)
 {
     currentStream = streamId;
 
-    for (int i = 0; i < getNumInputChannels(); i++)
+    for (int i = 0; i < getDataStream(currentStream)->getChannelCount(); i++)
     {
         currentChannel = i;
 
@@ -354,6 +364,7 @@ void FilterNode::saveCustomParametersToXml(XmlElement* xml)
 void FilterNode::loadCustomParametersFromXml()
 {
 
+    std::cout << "Filter node loading custom parameters" << std::endl;
     int streamIndex = 0;
     Array<const DataStream*> availableStreams = getDataStreams();
 
@@ -361,10 +372,18 @@ void FilterNode::loadCustomParametersFromXml()
     {
         if (streamParams->hasTagName ("STREAM"))
         {
+
+            std::cout << "STREAM " << streamIndex << std::endl;
             if (availableStreams.size() > streamIndex)
             {
+                std::cout << "FOUND IT!" << std::endl;
                 settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
+            else {
+                std::cout << "DID NOT FIND IT!" << std::endl;
+            }
+
+            streamIndex++;
         }
     }
 

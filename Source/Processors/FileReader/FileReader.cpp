@@ -300,7 +300,7 @@ void FileReader::updateSettings()
      dataStreams.add(new DataStream(settings));
      dataStreams.getLast()->addProcessor(processorInfo.get());
 
-     for (int i = 0; i < currentNumChannels; i++)
+     for (int i = 0; i < 4; i++) //currentNumChannels; i++)
      {
          ContinuousChannel::Settings settings2
          {
@@ -355,7 +355,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
         switchBuffer();
     }
     
-    for (int i = 0; i < currentNumChannels; ++i)
+    for (int i = 0; i < 4; i++) //currentNumChannels; ++i)
     {
         // offset readBuffer index by current cache window count * buffer window size * num channels
         input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),

@@ -491,32 +491,11 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         {
             processor->update();
             
-            if (signalChainIsLoading)
+            if (signalChainIsLoading && processor->getSourceNode() != nullptr)
             {
                 processor->loadFromXml();
                 processor->update();
             }
-
-            // Now, processors should set 'isEnabled' in their updateSettings() method
-            
-            /*if (processor->getSourceNode() != nullptr)
-            {
-                if (processor->isMerger())
-                {
-                    processor->setEnabledState(processor->isEnabled);
-                } else {
-                    processor->setEnabledState(processor->getSourceNode()->isEnabledState());
-                }
-            }
-                
-            else
-            {
-                if (processor->isSource())
-                    processor->setEnabledState(processor->isEnabledState());
-                else
-                    processor->setEnabledState(false);
-            }*/
-                
                 
             if (processor->isSplitter())
             {
