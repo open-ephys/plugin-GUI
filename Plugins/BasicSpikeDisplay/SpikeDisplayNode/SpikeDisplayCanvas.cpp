@@ -91,8 +91,11 @@ void SpikeDisplayCanvas::update()
     int nPlots = processor->getNumElectrodes();
     processor->removeSpikePlots();
 
+    //std::cout << "Adding new plots" << std::endl;
     if (nPlots != spikeDisplay->getNumPlots())
     {
+        
+        //std::cout << "  Different number detected" << std::endl;
         spikeDisplay->removePlots();
 
         for (int i = 0; i < nPlots; i++)
@@ -104,14 +107,16 @@ void SpikeDisplayCanvas::update()
     }
     else
     {
+        //std::cout << "Same number detected" << std::endl;
         for (int i = 0; i < nPlots; i++)
         {
             processor->addSpikePlotForElectrode(spikeDisplay->getSpikePlot(i), i);
         }
     }
 
+    //std::cout << "Resized" << std::endl;
     spikeDisplay->resized();
-    spikeDisplay->repaint();
+    
 }
 
 
@@ -934,10 +939,8 @@ void WaveAxes::paint(Graphics& g)
 
     }
 
-    
     plotSpike(spikeBuffer[spikeIndex], g);
-
-
+    
     spikesReceivedSinceLastRedraw = 0;
 
 }
@@ -960,8 +963,20 @@ void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
-    int sampIdx = nSamples*type; //spikeBuffer[0].nSamples * type; //
-
+    int sampIdx = nSamples*type; //spikeBuffer[0].nSamples * type;
+    
+    int dataSize =s->getChannelInfo()->getDataSize();
+    
+    // prevent crashes when acquisition is not active,
+    // or immediately after acquisition
+    if (((sampIdx + nSamples) > dataSize) ||
+        (nSamples < 0) ||
+        (dataSize > 500) ||
+        (dataSize < 0))
+    {
+        return;
+    }
+        
     int dSamples = 1;
 
     float x = 0.0f;
@@ -970,8 +985,6 @@ void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
 	for (int i = 0; i < nSamples - 1; i++)
 	{
 		//std::cout << s.data[sampIdx] << std::endl;
-
-
 
 		float s1, s2;
 
@@ -990,9 +1003,6 @@ void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
 			s1,
 			x + dx,
 			s2);
-
-
-
 
 		sampIdx += dSamples;
 		x += dx;
