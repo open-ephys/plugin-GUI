@@ -981,6 +981,19 @@ void EditorViewport::mouseUp(const MouseEvent& e)
 
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
+        
+        if (!getScreenBounds().contains(e.getScreenPosition()))
+        {
+            undoManager.beginNewTransaction();
+            
+             DeleteProcessor* action = new DeleteProcessor(
+                                                       editorArray           [indexOfMovingComponent]->getProcessor(),
+                                                           this);
+             
+             undoManager.perform(action);
+            
+            return;
+        }
 
         if (indexOfMovingComponent != insertionPoint)
         {
@@ -1735,12 +1748,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                             SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
                             editor->switchDest(1);
                             AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-
-                            /*std::cout << "Editor array: " << std::endl;
-                            for (auto ed : editorArray)
-                            {
-                                std::cout << " " << ed->getName() << std::endl;
-                            }*/
                             
                             splitPoints.remove(n);
                         }
@@ -1796,7 +1803,7 @@ void EditorViewport::deleteSelectedProcessors()
     
     for (auto editor : editors)
     {
-        std::cout << "Editor name: " << editor->getName() << std::endl;
+        //std::cout << "Editor name: " << editor->getName() << std::endl;
         if (editor->getSelectionState())
         {
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
