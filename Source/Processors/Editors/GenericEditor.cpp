@@ -422,9 +422,10 @@ bool GenericEditor::checkDrawerButton(Button* button)
             {
                 drawerWidth = streamSelector->getDesiredWidth() + 20;
             }
-            
+
             desiredWidth += drawerWidth;
             drawerOpen = true;
+
 
         }
         else
@@ -635,7 +636,14 @@ void GenericEditor::loadFromXml(XmlElement* xml)
         drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
 
         if (drawerOpen)
+        {
+            if (streamSelector != nullptr)
+                drawerWidth = streamSelector->getDesiredWidth() + 20;
+
             desiredWidth += drawerWidth;
+            drawerButton->setToggleState(true, false);
+        }
+            
     }
 
     displayName = xml->getStringAttribute("displayName", name);

@@ -304,11 +304,16 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                                           int numberOfTabs,
                                           int selectedTab)
 {
-    for (auto editor : editorArray)
+
+    if (visibleEditors.size() > 0)
     {
-        editor->setVisible(false);
+        for (auto editor : editorArray)
+        {
+            editor->setVisible(false);
+        }
+
     }
-        
+
     
     editorArray.clear();
     
