@@ -50,6 +50,7 @@ FileReader::FileReader()
     , m_shouldFillBackBuffer(false)
 	, m_bufferSize(1024)
 	, m_sysSampleRate(44100)
+    , gotNewFile (false)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -242,6 +243,8 @@ bool FileReader::setFile (String fullpath)
     static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
     setActiveRecording (0);
     
+    gotNewFile = true;
+
     return true;
 }
 
@@ -290,14 +293,23 @@ void FileReader::updateSettings()
         return;
     }
 
-     DataStream::Settings settings{
-         "File Reader Stream",
-         "A description of the File Reader Stream",
-         "identifier",
-         getDefaultSampleRate()
-     };
+    if (gotNewFile)
+    {
+        currentStream.reset();
 
-     dataStreams.add(new DataStream(settings));
+        DataStream::Settings settings{
+        "File Reader Stream",
+        "A description of the File Reader Stream",
+        "identifier",
+        getDefaultSampleRate()
+        };
+
+        currentStream = std::make_unique<DataStream>(settings);
+
+        gotNewFile = false;
+    }
+    
+     dataStreams.add(new DataStream(*currentStream.get()));
      dataStreams.getLast()->addProcessor(processorInfo.get());
 
      for (int i = 0; i < 4; i++) //currentNumChannels; i++)

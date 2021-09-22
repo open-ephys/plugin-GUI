@@ -478,13 +478,14 @@ void GenericEditor::update(bool isEnabled_)
 
     if (streamSelector != nullptr)
     {
-        streamSelector->clear();
+        streamSelector->beginUpdate();
+
         delayMonitors.clear();
         ttlMonitors.clear();
 
         for (auto stream : p->getDataStreams())
         {
-            streamSelector->add(new StreamInfoView(stream, this, streamSelector->checkStream(stream)));
+            streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
 
@@ -1165,13 +1166,14 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
 void GenericEditor::selectedStreamHasChanged() { }
 
-void GenericEditor::selectedStreamIsEnabled(bool isEnabled) 
+void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled) 
 {
     
     if (streamSelector != nullptr)
-        streamSelector->setStreamEnabledState(selectedStream, isEnabled);
+        streamSelector->setStreamEnabledState(streamId, isEnabled);
 
-    //CoreServices::updateSignalChain(this);
+    CoreServices::updateSignalChain(this);
+
 }
 
 /***************************/

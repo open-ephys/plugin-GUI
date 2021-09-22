@@ -66,11 +66,17 @@ public:
     void paint(Graphics& g);
     void resized();
 
+    void beginUpdate();
+    void update(const DataStream* stream);
+    void updateInfoString();
+
     void startAcquisition();
 
     void stopAcquisition();
 
     void buttonClicked(Button* button);
+
+    bool streamIsStillNeeded;
 
 private:
    
@@ -95,7 +101,7 @@ public:
     StreamSelector(GenericEditor* editor);
     ~StreamSelector();
 
-    void add(StreamInfoView*);
+    void add(const DataStream*);
     void remove(StreamInfoView*);
 
     int getDesiredWidth() { return 140; }
@@ -124,6 +130,7 @@ public:
 
     void timerCallback();
 
+    void beginUpdate();
     void finishedUpdate();
 
     int getNumStreams() { return streams.size(); }

@@ -222,13 +222,13 @@ bool SplitterEditor::checkStream(const DataStream* stream, Splitter::Output outp
 }
 
 
-void SplitterEditor::selectedStreamIsEnabled(bool isEnabled)
+void SplitterEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
 {
 
     if (streamSelectorA->isVisible())
-        streamSelectorA->setStreamEnabledState(selectedStream, isEnabled);
+        streamSelectorA->setStreamEnabledState(streamId, isEnabled);
     else
-        streamSelectorB->setStreamEnabledState(selectedStream, isEnabled);
+        streamSelectorB->setStreamEnabledState(streamId, isEnabled);
 
     CoreServices::updateSignalChain(this);
 }
@@ -238,13 +238,13 @@ void SplitterEditor::updateSettings()
 
     std::cout << "Splitter editor updating settings" << std::endl;
 
-    streamSelectorA->clear();
-    streamSelectorB->clear();
+    streamSelectorA->beginUpdate();
+    streamSelectorB->beginUpdate();
 
     for (auto stream : getProcessor()->getDataStreams())
     {
-        streamSelectorA->add(new StreamInfoView(stream, this, streamSelectorA->checkStream(stream)));
-        streamSelectorB->add(new StreamInfoView(stream, this, streamSelectorB->checkStream(stream)));
+        streamSelectorA->add(stream);
+        streamSelectorB->add(stream);
     }
 
     streamSelectorA->finishedUpdate();

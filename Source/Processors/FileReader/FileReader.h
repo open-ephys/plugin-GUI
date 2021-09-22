@@ -78,6 +78,10 @@ private:
     Array<const EventChannel*> moduleEventChannels;
     ScopedPointer<EventChannel> eventChannel;
     unsigned int count = 0;
+
+    std::unique_ptr<DataStream> currentStream;
+
+    bool gotNewFile;
     
     void setActiveRecording (int index);
 

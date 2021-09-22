@@ -289,7 +289,7 @@ public:
     virtual void selectedStreamHasChanged();
 
     /** Notifies editor that the selected stream has changed.*/
-    virtual void selectedStreamIsEnabled(bool enabledState);
+    virtual void streamEnabledStateChanged(uint16 streamId, bool enabledState);
 
     /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
     void setMeanLatencyMs(uint16 streamId, float latencyMs);

@@ -61,7 +61,7 @@ public:
 
     Array<GenericEditor*> getConnectedEditors();
 
-    void selectedStreamIsEnabled(bool isEnabled) override;
+    void streamEnabledStateChanged(uint16 streamId, bool isEnabled) override;
 
     void updateSettings() override;
 

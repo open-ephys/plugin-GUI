@@ -29,9 +29,11 @@
 #include "../Settings/DataStream.h"
 
 StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
-    isEnabled(isEnabled_), stream(stream_), editor(editor_)
+    isEnabled(isEnabled_), stream(stream_), editor(editor_), streamIsStillNeeded(true)
 {
     std::cout << "Adding stream " << getStreamId() << " with " << stream->getChannelCount() << " channels " << std::endl;
+
+    updateInfoString();
 
     enableButton = std::make_unique<StreamEnableButton>("x");
     enableButton->addListener(this);
@@ -39,18 +41,11 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, false);
     addAndMakeVisible(enableButton.get());
 
-    infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
-        + "\n"
-        + String(stream->getChannelCount()) + " channels @ " +
-        String(stream->getSampleRate()) + " Hz";
-
     delayMonitor = std::make_unique<DelayMonitor>();
     addAndMakeVisible(delayMonitor.get());
 
     ttlMonitor = std::make_unique<TTLMonitor>();
     addAndMakeVisible(ttlMonitor.get());
-
-
 }
 
 StreamInfoView::~StreamInfoView() {}
@@ -58,6 +53,15 @@ StreamInfoView::~StreamInfoView() {}
 uint16 StreamInfoView::getStreamId() const
 {
     return stream->getStreamId();
+}
+
+void StreamInfoView::updateInfoString()
+{
+    infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
+        + "\n"
+        + String(stream->getChannelCount()) + " channels @ " +
+        String(stream->getSampleRate()) + " Hz";
+
 }
 
 bool StreamInfoView::getEnabledState() const
@@ -74,7 +78,7 @@ void StreamInfoView::setEnabled(bool state)
     else
         enableButton->setButtonText(" ");
 
-    repaint();
+    enableButton->repaint();
 }
 
 void StreamInfoView::startAcquisition()
@@ -89,15 +93,30 @@ void StreamInfoView::stopAcquisition()
     ttlMonitor->stopAcquisition();
 }
 
+void StreamInfoView::beginUpdate()
+{
+    streamIsStillNeeded = false;
+}
+
+void StreamInfoView::update(const DataStream* newStream)
+{
+    streamIsStillNeeded = true;
+
+    stream = newStream;
+
+    updateInfoString();
+}
+
 void StreamInfoView::buttonClicked(Button* button)
 {
     if (button == enableButton.get())
     {
-        setEnabled(button->getToggleState());
+        setEnabled(!isEnabled);
+        enableButton->setToggleState(isEnabled, false);
 
-        std::cout << "Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
+        std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
 
-        //editor->selectedStreamIsEnabled(isEnabled);
+        editor->streamEnabledStateChanged(getStreamId(), isEnabled);
     }
 }
 
@@ -369,21 +388,60 @@ void StreamSelector::clear()
     streams.clear();
 }
 
-void StreamSelector::add(StreamInfoView* stream)
+void StreamSelector::add(const DataStream* stream)
 {
-    streams.add(stream);
-    viewedComponent->addAndMakeVisible(stream);
 
-    //if (streams.size() == 1)
-    //    streamSelectorButton->setName(streams[0]->getStream()->getName());
+    if (getStreamInfoView(stream) == nullptr)
+    {
+        streams.add(new StreamInfoView(stream, editor, checkStream(stream)));
+        viewedComponent->addAndMakeVisible(streams.getLast());
+    }
+    else
+    {
+        getStreamInfoView(stream)->update(stream);
+    }
+    
+    setStreamEnabledState(stream->getStreamId(), checkStream(stream));
 
-    setStreamEnabledState(stream->getStreamId(), stream->getEnabledState());
+}
 
-    //resized();
+void StreamSelector::beginUpdate()
+{
+
+    std::cout << "BEGIN UPDATE --- NUM STREAMS: " << streams.size() << std::endl;
+
+    for (auto stream : streams)
+    {
+        stream->beginUpdate();
+    }
 }
 
 void StreamSelector::finishedUpdate()
 {
+
+    std::cout << "END UPDATE --- NUM STREAMS: " << streams.size() << std::endl;
+
+    Array<StreamInfoView*> streamsToRemove;
+
+    for (auto stream : streams)
+    {
+        std::cout << "Checking viewer for stream " << stream->getStreamId() << std::endl;
+
+        if (!stream->streamIsStillNeeded)
+        {
+            streamsToRemove.add(stream);
+        }
+        else {
+            std::cout << " STILL NEEDED." << std::endl;
+        }
+
+    }
+
+    for (auto stream : streamsToRemove)
+    {
+        remove(stream);
+    }
+    
     if (viewedStreamIndex >= streams.size() || viewedStreamIndex < 0)
     {
         viewedStreamIndex = streams.size() - 1;
@@ -398,8 +456,6 @@ void StreamSelector::remove(StreamInfoView* stream)
         streams.remove(streams.indexOf(stream));
 
     viewedComponent->removeChildComponent(stream);
-
-    resized();
 }
 
 void StreamSelector::timerCallback()
