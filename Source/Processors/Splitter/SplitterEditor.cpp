@@ -199,4 +199,5 @@ void SplitterEditor::switchDest()
         pipelineSelectorA->setToggleState(false, dontSendNotification);
 
     }
+    
 }
