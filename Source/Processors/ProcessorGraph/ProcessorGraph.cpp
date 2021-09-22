@@ -538,16 +538,20 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
     if (processor != nullptr)
         LOGDD("Processor to view: ", processor->getName());
     
-    while (processor != nullptr)
+    for (int i = 0; i < 99; i++)
     {
+        if (processor == nullptr)
+            break;
+        
         rootProcessor = processor;
         processor = processor->getSourceNode();
+        
+        if (rootProcessor == processor)
+            break;
         
         if (rootProcessor != nullptr)
         {
             LOGDD("  Source: ", rootProcessor->getName());
-
-           
         }
 
         if (processor != nullptr)
@@ -561,13 +565,15 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
                 sp->switchDest(sp->getPathForEditor(ed));
             }
         }
-           
     }
     
     processor = rootProcessor;
 
-    while (processor != nullptr)
+    for (int i = 0; i < 99; i++)
     {
+        if (processor == nullptr)
+            break;
+        
         editorArray.add(processor->getEditor());
         
         LOGDD(" Adding ", processor->getName(), " to editor array.");
@@ -586,6 +592,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor)
         }
         
         processor = processor->getDestNode();
+        
     }
     
     AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,
