@@ -76,8 +76,7 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
         {
             
             streamSelector = std::make_unique<StreamSelector> (this);
-            addChildComponent(streamSelector.get());
-            streamSelector->setVisible(false);
+            addAndMakeVisible(streamSelector.get());
             
        } 
     }
@@ -193,8 +192,12 @@ void GenericEditor::resized()
         if (drawerButton != 0)
             drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
-        if (streamSelector != 0)
-            streamSelector->setBounds (desiredWidth - drawerWidth, 25, streamSelector->getDesiredWidth(), getHeight()-35);
+        if (streamSelector != 0 && drawerOpen)
+        {
+            streamSelector->setBounds(desiredWidth - drawerWidth, 25, streamSelector->getDesiredWidth(), getHeight() - 35);
+
+        }
+            
     }
 }
 
@@ -417,7 +420,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
             if (streamSelector != nullptr)
             {
-                streamSelector->setVisible(true);
                 drawerWidth = streamSelector->getDesiredWidth() + 20;
             }
             
@@ -427,12 +429,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
         }
         else
         {
-
-            if (streamSelector != nullptr)
-            {
-                streamSelector->setVisible(false);
-            }
-            
             desiredWidth -= drawerWidth;
             drawerOpen = false;
         }
@@ -601,11 +597,11 @@ void GenericEditor::switchCollapsedState()
             c->setVisible(!isCollapsed);
         }
 
-        if (streamSelector != nullptr)
-        {
-            if (!drawerOpen)
-                streamSelector->setVisible(false);
-        }
+       // if (streamSelector != nullptr)
+       // {
+        //    if (!drawerOpen)
+        //        streamSelector->setVisible(false);
+        //}
 
         collapsedStateChanged();
 
@@ -617,6 +613,7 @@ void GenericEditor::saveToXml(XmlElement* xml)
 {
 
     xml->setAttribute("isCollapsed", isCollapsed);
+    xml->setAttribute("isDrawerOpen", drawerOpen);
     xml->setAttribute("displayName", displayName);
 
     saveCustomParametersToXml(xml);
@@ -631,6 +628,14 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     if (isCollapsed)
     {
         switchCollapsedState();
+    }
+
+    if (!drawerOpen)
+    {
+        drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
+
+        if (drawerOpen)
+            desiredWidth += drawerWidth;
     }
 
     displayName = xml->getStringAttribute("displayName", name);
