@@ -39,7 +39,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, false);
     addAndMakeVisible(enableButton.get());
 
-    infoString = "ID: " + String(getStreamId()) //"Source: " + stream->getSourceNodeName()
+    infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
         + "\n"
         + String(stream->getChannelCount()) + " channels @ " +
         String(stream->getSampleRate()) + " Hz";

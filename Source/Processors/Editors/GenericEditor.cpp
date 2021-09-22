@@ -100,8 +100,10 @@ void GenericEditor::updateName()
 void GenericEditor::setDisplayName(const String& string)
 {
     displayName = string;
-    AccessClass::getGraphViewer()->repaint();
-    repaint();
+    
+    getProcessor()->updateDisplayName(displayName);
+
+    CoreServices::updateSignalChain(this);
 }
 
 String GenericEditor::getDisplayName()
@@ -647,6 +649,7 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     }
 
     displayName = xml->getStringAttribute("displayName", name);
+    getProcessor()->updateDisplayName(displayName);
 
     loadCustomParametersFromXml(xml);
 

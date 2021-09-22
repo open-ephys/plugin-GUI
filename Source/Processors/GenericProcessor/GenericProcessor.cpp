@@ -270,6 +270,11 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 	}
 }
 
+void GenericProcessor::updateDisplayName(String name)
+{
+	m_name = name;
+}
+
 
 void GenericProcessor::update()
 {

@@ -29,7 +29,7 @@ ProcessorInfoObject::ProcessorInfoObject(GenericProcessor* processor)
 	: InfoObject(InfoObject::Type::PROCESSOR_INFO)
 {
 	m_nodeId = processor->getNodeId();
-	m_name = processor->getName();
+	m_name = processor->getDisplayName();
 
 	if (processor->isSource())
 		m_type = "Source";

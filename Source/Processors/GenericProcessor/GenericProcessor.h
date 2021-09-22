@@ -379,6 +379,10 @@ public:
 
     PluginProcessorType getProcessorType() const;
 
+    String getDisplayName() { return m_name; }
+
+    void updateDisplayName(String name);
+
 	//juce::int64 getLastProcessedsoftwareTime() const;
 
 	//static uint32 getProcessorFullId(uint16 processorId, uint16 streamIdx);
@@ -560,7 +564,7 @@ private:
     PluginProcessorType m_processorType;
 
     /** The name of the processor.*/
-    const String m_name;
+    String m_name;
 
     /** For getInputChannelName() and getOutputChannelName() */
     static const String m_unusedNameString;
