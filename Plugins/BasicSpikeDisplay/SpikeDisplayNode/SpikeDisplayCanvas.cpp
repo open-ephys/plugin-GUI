@@ -968,11 +968,11 @@ void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
     int dataSize =s->getChannelInfo()->getDataSize();
     
     // prevent crashes when acquisition is not active,
-    // or immediately after acquisition
-    if (((sampIdx + nSamples) > dataSize) ||
-        (nSamples < 0) ||
-        (dataSize > 500) ||
-        (dataSize < 0))
+    // or immediately after acquisition starts
+    if (   (dataSize < 1)
+        || (dataSize > 500)
+        || (sampIdx + nSamples > dataSize)
+        || (nSamples < 0))
     {
         return;
     }
