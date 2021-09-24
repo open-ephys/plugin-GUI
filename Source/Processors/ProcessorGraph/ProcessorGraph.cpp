@@ -877,6 +877,7 @@ void ProcessorGraph::updateConnections()
     clearConnections(); // clear processor graph
 
     Array<GenericProcessor*> splitters;
+    Array<GenericProcessor*> splitters2;
     Array<int> splitterStates;
 
     // keep track of which splitter is currently being explored, in case there's another
@@ -1002,11 +1003,14 @@ void ProcessorGraph::updateConnections()
                 if (splitters.size() > 0)
                 {
                     activeSplitter = splitters.getLast();
+                    splitters2.insert(0, activeSplitter);
+            
                     splitters.removeLast();
                     activeSplitter->switchIO(1);
 
                     source = activeSplitter;
                     GenericProcessor* newSource;
+            
                     while (source->isSplitter() || source->isMerger())
                     {
                         newSource = source->getSourceNode();
@@ -1014,8 +1018,8 @@ void ProcessorGraph::updateConnections()
                         source = newSource;
                     }
             
-                    activeSplitter->switchIO(splitterStates.getLast());
-                    splitterStates.removeLast();
+                    //activeSplitter->switchIO(splitterStates.getLast());
+                    //splitterStates.removeLast();
                 }
                 else
                 {
@@ -1026,6 +1030,10 @@ void ProcessorGraph::updateConnections()
         } // end while source != 0
     } // end "tabs" for loop
         
+    for (int i = 0; i < splitters2.size(); i++)
+    {
+        splitters2[i]->switchIO(splitterStates[i]);
+    }
 
     // actually connect sources to each dest processor,
     // in correct order by merger topography
