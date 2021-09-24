@@ -717,7 +717,9 @@ void FifoMonitor::timerCallback()
 	if (srcID < 0) /* Disk space monitor */
 	{
 		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
-		setFillPercentage(1.0f - diskSpace);
+
+		if (diskSpace > 0)
+			setFillPercentage(1.0f - diskSpace);
 	}
 	else /* Subprocessor monitor */
 	{
