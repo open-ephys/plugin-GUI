@@ -27,7 +27,7 @@
 
 
 AudioMonitor::AudioMonitor()
-    : GenericProcessor ("Audio Monitor")
+    : GenericProcessor ("Audio Monitor"), isMuted(false)
 {
     setProcessorType (PROCESSOR_TYPE_AUDIO_MONITOR);
 
@@ -93,7 +93,27 @@ void AudioMonitor::setChannelStatus(int chan, bool status)
 
 void AudioMonitor::setParameter (int parameterIndex, float newValue)
 {
+    // change output to left channel, right channel, or both
+    if (parameterIndex == 1)
+    {
 
+    }
+    // Mute on/off
+    else if (parameterIndex == 2)
+    {
+        isMuted = (newValue == 0.0f) ? true : false;
+    }
+    else if (parameterIndex == 100)
+    {
+
+		dataChannelStates[currentChannel] = true;
+
+    }
+    else if (parameterIndex == -100)
+    {
+
+		dataChannelStates[currentChannel] = false;
+    }
 }
 
 
@@ -187,7 +207,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
     buffer.clear(0,0,buffer.getNumSamples());
     buffer.clear(1,0,buffer.getNumSamples());
 
-    if (1)
+    if (!isMuted)
     {
 
         AudioSampleBuffer* overflowBuffer;

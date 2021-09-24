@@ -78,6 +78,8 @@ private:
     double destBufferSampleRate;
 	int estimatedSamples;
 
+    bool isMuted;
+
     Array<bool> bufferSwap;
 
     // sample rate, timebase, and ratio info:
