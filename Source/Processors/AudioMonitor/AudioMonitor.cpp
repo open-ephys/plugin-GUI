@@ -27,7 +27,7 @@
 
 
 AudioMonitor::AudioMonitor()
-    : GenericProcessor ("Audio Monitor"), isMuted(false)
+    : GenericProcessor ("Audio Monitor"), isMuted(false), audioOutput(BOTH)
 {
     setProcessorType (PROCESSOR_TYPE_AUDIO_MONITOR);
 
@@ -63,7 +63,10 @@ void AudioMonitor::updateSettings()
     }
 
     // Set Number of outputs to be 2 more than inputs
-    continuousChannels.addCopiesOf(continuousChannels, 0, 2);
+    continuousChannels.insert(0, continuousChannels.getFirst());
+    continuousChannels.insert(0, continuousChannels.getFirst());
+
+    LOGD("********** Total Continuous Channels ", continuousChannels.size());
     updatePlaybackBuffer();
 }
 
@@ -96,13 +99,24 @@ void AudioMonitor::setParameter (int parameterIndex, float newValue)
     // change output to left channel, right channel, or both
     if (parameterIndex == 1)
     {
-
+        audioOutput = LEFT;
     }
-    // Mute on/off
     else if (parameterIndex == 2)
+    {
+        audioOutput = BOTH;
+    }
+    else if (parameterIndex == 3)
+    {
+        audioOutput = RIGHT;
+    }
+
+    // Mute on/off
+    else if (parameterIndex == 4)
     {
         isMuted = (newValue == 0.0f) ? true : false;
     }
+
+    //channel enable/disable
     else if (parameterIndex == 100)
     {
 
@@ -143,24 +157,24 @@ void AudioMonitor::recreateBuffers()
     bufferB.clear();
     bufferSwap.clear();
 
-    for (int i = 0; i < continuousChannels.size(); i++)
+    for (int i = 0; i < continuousChannels.size() - 2; i++)
     {
         if(dataChannelStates.at(i))
         {
             // processor sample rate divided by sound card sample rate
-            numSamplesExpected.add((int)(continuousChannels[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
-            samplesInBackupBuffer.add(0);
-            samplesInOverflowBuffer.add(0);
-            sourceBufferSampleRate.add(continuousChannels[i]->getSampleRate());
+            numSamplesExpected.emplace(i, (int)(continuousChannels[i+2]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
+            samplesInBackupBuffer.emplace(i, 0);
+            samplesInOverflowBuffer.emplace(i, 0);
+            sourceBufferSampleRate.emplace(i, continuousChannels[i+2]->getSampleRate());
 
-            filters.add(new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
+            filters.emplace(i, std::make_unique<Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1>> (1024));
 
-            ratio.add(float(numSamplesExpected[i])/float(estimatedSamples));
+            ratio.emplace(i, float(numSamplesExpected[i])/float(estimatedSamples));
             updateFilter(i);
 
-            bufferA.add(new AudioBuffer<float>(1,10000));
-            bufferB.add(new AudioBuffer<float>(1,10000));
-            bufferSwap.add(false);
+            bufferA.emplace(i, std::make_unique<AudioBuffer<float>>(1,10000));
+            bufferB.emplace(i, std::make_unique<AudioBuffer<float>>(1,10000));
+            bufferSwap.emplace(i, false);
         }
 
     }
@@ -229,23 +243,23 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
 
                     if (!bufferSwap[i])
                     {
-                        overflowBuffer = bufferA[i];
-                        backupBuffer = bufferB[i];
+                        overflowBuffer = bufferA[i].get();
+                        backupBuffer = bufferB[i].get();
 
-                        bufferSwap.set(i,true);
+                        bufferSwap[i] = true;
                     }
                     else
                     {
-                        overflowBuffer = bufferB[i];
-                        backupBuffer = bufferA[i];
+                        overflowBuffer = bufferB[i].get();
+                        backupBuffer = bufferA[i].get();
 
-                        bufferSwap.set(i,false);
+                        bufferSwap[i] = false;
                     }
 
                     backupBuffer->clear();
 
-                    samplesInOverflowBuffer.set(i,samplesInBackupBuffer[i]); // size of buffer after last round
-                    samplesInBackupBuffer.set(i,0);
+                    samplesInOverflowBuffer[i] = samplesInBackupBuffer[i]; // size of buffer after last round
+                    samplesInBackupBuffer[i] = 0;
 
                     int orphanedSamples = 0;
 
@@ -287,7 +301,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                                                  );
                         }
 
-                        samplesInBackupBuffer.set(i,leftoverSamples);
+                        samplesInBackupBuffer[i] = leftoverSamples;
                     }
 
                     // TODO: GAIN
@@ -341,7 +355,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                                               gain                          // gain to apply
                                              );
 
-                        samplesInBackupBuffer.set(i, samplesInBackupBuffer[i] + orphanedSamples);
+                        samplesInBackupBuffer[i] = samplesInBackupBuffer[i] + orphanedSamples;
 
                     }
 
@@ -418,16 +432,32 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
 
                     // now copy the channel into the output zone
 
-                    // buffer.addFrom(0,    // destChannel
-                    //                0,  // destSampleOffset
-                    //                buffer,     // source
-                    //                 i+2,    // sourceChannel
-                    //                 0,// sourceSampleOffset
-                    //                 valuesNeeded,        // number of samples
-                    //                 1.0);      // gain to apply to source
+                    buffer.addFrom(0,    // destChannel
+                                   0,  // destSampleOffset
+                                   buffer,     // source
+                                   i+2,    // sourceChannel
+                                   0,// sourceSampleOffset
+                                   valuesNeeded,        // number of samples
+                                   1.0);      // gain to apply to source
 
                 } // if channelPointers[i]->isMonitored
             } // end cycling through channels
+
+            if(audioOutput == BOTH || audioOutput == RIGHT)
+            {
+                // copy the signal into the right channel
+                buffer.addFrom(1,    // destChannel
+                            0,  // destSampleOffset
+                            buffer,     // source
+                            0,    // sourceChannel
+                            0,// sourceSampleOffset
+                            valuesNeeded,        // number of samples
+                            1.0);      // gain to apply to source
+                
+                // if Right only, clear left channel
+                if(audioOutput == RIGHT)
+                    buffer.clear(0,0,buffer.getNumSamples());
+            }
 
         }
     }

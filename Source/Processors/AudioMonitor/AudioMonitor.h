@@ -67,26 +67,30 @@ public:
 private:
     void recreateBuffers();
 
-    OwnedArray<AudioSampleBuffer> bufferA;
-    OwnedArray<AudioSampleBuffer> bufferB;
+    std::map<int, std::unique_ptr<AudioSampleBuffer>> bufferA;
+    std::map<int, std::unique_ptr<AudioSampleBuffer>> bufferB;
 
-    Array<int> numSamplesExpected;
+    std::map<int, int> numSamplesExpected;
 
-    Array<int> samplesInBackupBuffer;
-    Array<int> samplesInOverflowBuffer;
-    Array<double> sourceBufferSampleRate;
+    std::map<int, int> samplesInBackupBuffer;
+    std::map<int, int> samplesInOverflowBuffer;
+    std::map<int, double> sourceBufferSampleRate;
     double destBufferSampleRate;
 	int estimatedSamples;
 
     bool isMuted;
 
-    Array<bool> bufferSwap;
+    enum AudioOutputType {LEFT = 1, BOTH, RIGHT};
+
+    AudioOutputType audioOutput; 
+
+    std::map<int, bool> bufferSwap;
 
     // sample rate, timebase, and ratio info:
-    Array<double> ratio;
+    std::map<int, double> ratio;
 
     // major objects:
-    OwnedArray<Dsp::Filter> filters;
+    std::map<int, std::unique_ptr<Dsp::Filter>> filters;
 
     std::unique_ptr<AudioSampleBuffer> tempBuffer;
 

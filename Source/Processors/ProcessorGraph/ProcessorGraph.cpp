@@ -1074,9 +1074,9 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     // 1. connect continuous channels
     if (connectContinuous)
     {
-        int totalOutputs = source->isAudioMonitor() ? (source->getNumOutputs() - 2) : source->getNumOutputs();
+        int firstChannel = source->isAudioMonitor() ? 2 : 0;
         
-        for (int chan = 0; chan < totalOutputs; chan++)
+        for (int chan = firstChannel; chan < source->getNumOutputs(); chan++)
         {
             LOGDD(chan, " ");
 
@@ -1135,7 +1135,7 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
 
     int numOutputs = source->getNumOutputs();
     
-    for (int chan = numOutputs; chan < numOutputs - 2; chan++)
+    for (int chan = 0; chan < 2; chan++)
     {
 
         getAudioNode()->addInputChannel(source, chan);

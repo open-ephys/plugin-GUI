@@ -93,6 +93,7 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDe
 
     TextButton* bothButton  = new TextButton ("Both", "Output to both channels");
     bothButton->setClickingTogglesState (true);
+    bothButton->setToggleState(true, dontSendNotification);
     bothButton->setColour (TextButton::buttonColourId,     Colour (0x0));
     bothButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
     bothButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
@@ -117,6 +118,8 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDe
     outputChannelButtonManager->setColour (LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
     outputChannelButtonManager->setBounds (20, 70, 140, 20);
     addAndMakeVisible (outputChannelButtonManager.get());
+
+    outputChannelButtonManager->buttonClicked(bothButton);
 
     desiredWidth = 180;
 }
@@ -147,12 +150,12 @@ void AudioMonitorEditor::buttonEvent (Button* button)
     {
         if (muteButton->getToggleState())
         {
-            audioMonitor->setParameter (2, 0.0f);
+            audioMonitor->setParameter (4, 0.0f);
             LOGD("Mute on.");
         }
         else
         {
-            audioMonitor->setParameter (2, 100.0f);
+            audioMonitor->setParameter (4, 100.0f);
             LOGD("Mute off.");
         }
     }
@@ -165,16 +168,19 @@ void AudioMonitorEditor::buttonClicked (Button* buttonThatWasClicked)
 
     if (buttonName.startsWith ("left"))
     {
-        
+        audioMonitor->setParameter(1, 0.0f);
+        LOGD("Left channel only");
     }
     else if (buttonName.startsWith ("both"))
     {
-       
+        audioMonitor->setParameter(2, 0.0f);
+        LOGD("Both channels");
     }
 
     else if (buttonName.startsWith ("right"))
     {
-       
+        audioMonitor->setParameter(3, 0.0f);
+        LOGD("Right channel only");
     }
 
     GenericEditor::buttonClicked (buttonThatWasClicked);
