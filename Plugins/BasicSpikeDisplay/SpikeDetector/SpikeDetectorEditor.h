@@ -27,40 +27,7 @@
 
 #include <EditorHeaders.h>
 
-class TriangleButton;
-class UtilityButton;
-
-class SpikeDetectorEditor;
-
-class SpikeDetectorTableModel : public TableListBoxModel
-{
-
-public:
-
-    SpikeDetectorTableModel(SpikeDetectorEditor* editor);
-
-    enum Columns {
-        INDEX = 1,
-        NAME,
-        TYPE,
-        CHANNELS,
-        THRESHOLD,
-        WINDOW,
-        DELETE
-    };
-
-    void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
-
-    int getNumRows() override;
-
-    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected);
-
-    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected);
-
-private:
-
-    SpikeDetectorEditor* editor;
-};
+class PopupConfigurationWindow;
 
 /**
 
@@ -75,10 +42,7 @@ private:
 
 */
 
-class SpikeDetectorEditor : public GenericEditor,
-    public Label::Listener,
-    public ComboBox::Listener
-
+class SpikeDetectorEditor : public GenericEditor
 {
 public:
 
@@ -88,48 +52,23 @@ public:
     /** Destructor */
     virtual ~SpikeDetectorEditor();
 
-    /** Called when add electrode button is clicked */
+    /** Called when configure button is clicked */
     void buttonEvent(Button* button);
 
-    void labelTextChanged(Label* label);
-    void comboBoxChanged(ComboBox* comboBox);
-    void sliderEvent(Slider* slider);
+    /** Adds a spike channel with a given type */
+    void addSpikeChannel(SpikeChannel::Type type);
 
-    void channelChanged (int channel, bool newState) override;
+    /** Removes a spike channel by index*/
+    void removeSpikeChannel(int index);
 
-    bool addElectrode(int nChans, int electrodeID = 0);
-    void removeElectrode(int index);
-
-    void checkSettings();
-    void refreshElectrodeList();
+    /** Called by PopupChannelSelector*/
+    void channelStateChanged(Array<int> selectedChannels) override;
 
 private:
 
-    void drawElectrodeButtons(int);
+    std::unique_ptr<UtilityButton> configureButton;
 
-    ScopedPointer<ComboBox> electrodeTypes;
-    ScopedPointer<ComboBox> electrodeList;
-    ScopedPointer<Label> numElectrodes;
-    ScopedPointer<Label> thresholdLabel;
-    ScopedPointer<TriangleButton> upButton;
-    ScopedPointer<TriangleButton> downButton;
-    ScopedPointer<UtilityButton> plusButton;
-
-    ScopedPointer < ThresholdSlider> thresholdSlider;
-
-    OwnedArray<ElectrodeButton> electrodeButtons;
-    OwnedArray<ElectrodeEditorButton> electrodeEditorButtons;
-
-   // std::unique_ptr<TableHeaderComponent> tableHeader;
-    std::unique_ptr<SpikeDetectorTableModel> tableModel;
-    std::unique_ptr<TableListBox> electrodeTable;
-
-    void editElectrode(int index, int chan, int newChan);
-
-    int lastId;
-    bool isPlural;
-
-    //Font font;
+    PopupConfigurationWindow* currentConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 

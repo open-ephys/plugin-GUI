@@ -37,10 +37,22 @@ class PLUGIN_API SpikeChannel :
 public:
 	enum Type
 	{
-		SINGLE,
+		SINGLE = 1,
 		STEREOTRODE,
 		TETRODE,
 		INVALID = 100
+	};
+
+	enum ThresholdType
+	{
+		FIXED = 1,
+		STD,
+		DYNAMIC,
+		CUSTOM1,
+		CUSTOM2,
+		CUSTOM3,
+		CUSTOM4,
+		UNKNOWN = 100
 	};
 
 	struct Settings {
@@ -53,10 +65,17 @@ public:
 
 		DataStream* stream;
 
-		const Array<const ContinuousChannel*>& sourceChannels;
+		Array<const ContinuousChannel*>& sourceChannels;
 
-		int prePeakSamples = 8;
-		int postPeakSamples = 32;
+		ThresholdType thresholdType = FIXED;
+
+		float defaultThreshold = -50;
+
+		unsigned int numPrePeakSamples = 8;
+		unsigned int numPostPeakSamples = 32;
+
+		bool sendFullWaveform = true;
+
 	};
 
 	/** Default constructor 
@@ -71,7 +90,34 @@ public:
 	Type getChannelType() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
-	const Array<const ContinuousChannel*> getSourceChannels() const;
+	const Array<const ContinuousChannel*>& getSourceChannels() const;
+
+	/** Updates the source continuous channels for this spike channel */
+	void setSourceChannels(Array<const ContinuousChannel*>);
+
+	/* Get the channel threshold type (FIXED, STD, DYNAMIC, etc.) */
+	ThresholdType getThresholdType() const;
+
+	/* Set the channel threshold type (SINGLE, STEREOTRODE, TETRODE) */
+	void setThresholdType(ThresholdType);
+
+	/* Get the channel threshold value */
+	float getThreshold(int channelIndex) const;
+
+	/* Set the channel threshold value */
+	void setThreshold(int channelIndex, float threshold);
+
+	/** Returns true if this channel sends spike objects containing the full waveform */
+	bool sendsFullWaveform() const;
+
+	/* Sets whether the channel sends spike objects containing the full waveform, or just the peak */
+	void shouldSendFullWaveform(bool);
+
+	/** Returns true if a sub-channel is enabled for detecting spikes*/
+	bool getSourceChannelState(int channelIndex) const;
+
+	/* Sets whether a sub-channel is enabled for detecting spikes */
+	void setSourceChannelState(int channelIndex, bool state);
 
 	/** Sets the number of samples, pre and post peak */
 	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
@@ -105,10 +151,18 @@ public:
 
 private:
 
-	const Type m_type;
-	Array<const ContinuousChannel*> m_channelInfo;
-	unsigned int m_numPreSamples;
-	unsigned int m_numPostSamples;
+	const Type type;
+
+	ThresholdType thresholdType;
+
+	Array<const ContinuousChannel*> sourceChannels;
+	Array<bool> isSourceChannelEnabled;
+	Array<float> thresholds;
+
+	bool sendFullWaveform;
+
+	unsigned int numPreSamples;
+	unsigned int numPostSamples;
 
 };
 

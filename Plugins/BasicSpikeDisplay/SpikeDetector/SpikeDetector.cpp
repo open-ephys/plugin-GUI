@@ -24,48 +24,16 @@
 #include <stdio.h>
 #include "SpikeDetector.h"
 
+#include "SpikeDetectorEditor.h"
+
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor      ("Spike Detector")
     , overflowBuffer        (2, 100)
     , dataBuffer            (nullptr),
       overflowBufferSize    (100)
-    , currentElectrode      (-1)
-    , uniqueID              (0)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
-
-    //// the standard form:
-    electrodeTypes.add ("single electrode");
-    electrodeTypes.add ("stereotrode");
-    electrodeTypes.add ("tetrode");
-
-    //// the technically correct form (Greek cardinal prefixes):
-    // electrodeTypes.add("hentrode");
-    // electrodeTypes.add("duotrode");
-    // electrodeTypes.add("triode");
-    // electrodeTypes.add("tetrode");
-    // electrodeTypes.add("pentrode");
-    // electrodeTypes.add("hextrode");
-    // electrodeTypes.add("heptrode");
-    // electrodeTypes.add("octrode");
-    // electrodeTypes.add("enneatrode");
-    // electrodeTypes.add("decatrode");
-    // electrodeTypes.add("hendecatrode");
-    // electrodeTypes.add("dodecatrode");
-    // electrodeTypes.add("triskaidecatrode");
-    // electrodeTypes.add("tetrakaidecatrode");
-    // electrodeTypes.add("pentakaidecatrode");
-    // electrodeTypes.add("hexadecatrode");
-    // electrodeTypes.add("heptakaidecatrode");
-    // electrodeTypes.add("octakaidecatrode");
-    // electrodeTypes.add("enneakaidecatrode");
-    // electrodeTypes.add("icosatrode");
-
-    for (int i = 0; i < electrodeTypes.size() + 1; ++i)
-    {
-        electrodeCounter.add (0);
-    }
 
 }
 
@@ -90,120 +58,17 @@ void SpikeDetector::updateSettings()
 		overflowBuffer.clear();
 	}
 
-    for (int i = 0; i < electrodes.size(); ++i)
+    for (int i = 0; i < internalSpikeChannels.size(); ++i)
     {
-        SimpleElectrode* elec = electrodes[i];
-        
-        unsigned int nChans = elec->numChannels;
-
-        Array<const ContinuousChannel*> chans;
-        
-        for (int c = 0; c < nChans; c++)
-        {
-            const ContinuousChannel* ch = getContinuousChannel(elec->channels[c]);
-
-            if (!ch)
-            {
-                //not enough channels for the electrodes
-                return;
-            }
-            chans.add(ch);
-        }
-
-        SpikeChannel::Settings settings {
-
-            SpikeChannel::typeFromNumChannels(nChans),
-            "Electrode",
-            "Description",
-            "identifier",
-            getDataStream(chans[0]->getStreamId()),
-            chans,
-            elec->prePeakSamples,
-            elec->postPeakSamples,
-            
-        };
-
-        SpikeChannel* spk = new SpikeChannel(settings);
-
-        spk->addProcessor(processorInfo.get());
-        spikeChannels.add(spk);
-        
+        spikeChannels.add(new SpikeChannel(*internalSpikeChannels[i]));
     }
 
 }
 
 
-bool SpikeDetector::addElectrode (int nChans, int electrodeID)
+bool SpikeDetector::addSpikeChannel (SpikeChannel::Type type)
 {
 
-    int firstChan;
-
-    if (electrodes.size() == 0)
-    {
-        firstChan = 0;
-    }
-    else
-    {
-        SimpleElectrode* e = electrodes.getLast();
-        firstChan = *(e->channels + (e->numChannels - 1)) + 1;
-    }
-
-    if (firstChan + nChans > getNumInputs())
-    {
-        firstChan = 0; // make sure we don't overflow available channels
-    }
-
-    int currentVal = electrodeCounter[nChans];
-    electrodeCounter.set (nChans, ++currentVal);
-
-    String electrodeName;
-
-    // hard-coded for tetrode configuration
-    if (nChans < 3)
-        electrodeName = electrodeTypes[nChans - 1];
-    else
-        electrodeName = electrodeTypes[nChans - 2];
-
-    String newName = electrodeName.substring (0,1);
-    newName = newName.toUpperCase();
-    electrodeName = electrodeName.substring (1, electrodeName.length());
-    newName += electrodeName;
-    newName += " ";
-    newName += electrodeCounter[nChans];
-
-    SimpleElectrode* newElectrode = new SimpleElectrode;
-
-    newElectrode->name = newName;
-    newElectrode->numChannels = nChans;
-    newElectrode->prePeakSamples = 8;
-    newElectrode->postPeakSamples = 32;
-    newElectrode->thresholds.malloc (nChans);
-    newElectrode->isActive.malloc (nChans);
-    newElectrode->channels.malloc (nChans);
-    newElectrode->isMonitored = false;
-
-    for (int i = 0; i < nChans; ++i)
-    {
-        *(newElectrode->channels + i) = firstChan+i;
-        *(newElectrode->thresholds + i) = getDefaultThreshold();
-        *(newElectrode->isActive + i) = true;
-    }
-
-    if (electrodeID > 0) 
-    {
-        newElectrode->electrodeID = electrodeID;
-        uniqueID = std::max (uniqueID, electrodeID);
-    }
-    else
-    {
-        newElectrode->electrodeID = ++uniqueID;
-    }
-
-    resetElectrode (newElectrode);
-
-    electrodes.add (newElectrode);
-
-    currentElectrode = electrodes.size() - 1;
 
     return true;
 }
@@ -211,130 +76,36 @@ bool SpikeDetector::addElectrode (int nChans, int electrodeID)
 
 float SpikeDetector::getDefaultThreshold() const
 {
-    return 50.0f;
+    return -50.0f;
 }
 
 
-StringArray SpikeDetector::getElectrodeNames() const
-{
-    StringArray names;
-
-    for (int i = 0; i < electrodes.size(); ++i)
-    {
-        names.add (electrodes[i]->name);
-    }
-
-    return names;
-}
-
-
-void SpikeDetector::resetElectrode (SimpleElectrode* e)
-{
-    e->lastBufferIndex = 0;
-}
-
-
-bool SpikeDetector::removeElectrode (int index)
+bool SpikeDetector::removeSpikeChannel (int index)
 {
     // std::cout << "Spike detector removing electrode" << std::endl;
 
-    if (index > electrodes.size() || index < 0)
-        return false;
+    //if (index > electrodes.size() || index < 0)
+    //    return false;
 
-    electrodes.remove (index);
+    //electrodes.remove (index);
     return true;
 }
 
 
-void SpikeDetector::setElectrodeName (int index, String newName)
+Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {
-    electrodes[index - 1]->name = newName;
+    Array<SpikeChannel*> channels;
+
+    for (int i = 0; i < internalSpikeChannels.size(); i++)
+    {
+        if (internalSpikeChannels[i]->getStreamId() == streamId)
+            channels.add(internalSpikeChannels[i]);
+    }
+
+    return channels;
 }
 
 
-void SpikeDetector::setChannel (int electrodeIndex, int channelNum, int newChannel)
-{
-    std::cout << "Setting electrode " << electrodeIndex << " channel " << channelNum
-                << " to " << newChannel << std::endl;
-
-    *(electrodes[electrodeIndex]->channels + channelNum) = newChannel;
-}
-
-
-int SpikeDetector::getNumChannels (int index) const
-{
-    if (index < electrodes.size())
-        return electrodes[index]->numChannels;
-    else
-        return 0;
-}
-
-
-int SpikeDetector::getChannel (int index, int i) const
-{
-    return *(electrodes[index]->channels + i);
-}
-
-
-void SpikeDetector::getElectrodes (Array<SimpleElectrode*>& electrodeArray)
-{
-    electrodeArray.addArray (electrodes);
-}
-
-
-SimpleElectrode* SpikeDetector::setCurrentElectrodeIndex (int i)
-{
-    jassert (i >= 0 & i < electrodes.size());
-    currentElectrode = i;
-
-    return electrodes[i];
-}
-
-
-SimpleElectrode* SpikeDetector::getActiveElectrode() const
-{
-    if (electrodes.size() == 0)
-        return nullptr;
-
-    return electrodes[currentElectrode];
-}
-
-
-void SpikeDetector::setChannelActive (int electrodeIndex, int subChannel, bool active)
-{
-    currentElectrode = electrodeIndex;
-    currentChannelIndex = subChannel;
-
-    std::cout << "Setting channel active to " << active << std::endl;
-
-    if (active)
-        setParameter (98, 1);
-    else
-        setParameter (98, 0);
-}
-
-
-bool SpikeDetector::isChannelActive (int electrodeIndex, int i)
-{
-    return *(electrodes[electrodeIndex]->isActive + i);
-}
-
-
-void SpikeDetector::setChannelThreshold (int electrodeNum, int channelNum, float thresh)
-{
-    currentElectrode = electrodeNum;
-    currentChannelIndex = channelNum;
-
-    std::cout << "Setting electrode " << electrodeNum << " channel threshold " << channelNum << " to " << thresh << std::endl;
-
-    setParameter (99, thresh);
-}
-
-
-double SpikeDetector::getChannelThreshold(int electrodeNum, int channelNum) const
-{
-    return *(electrodes[electrodeNum]->thresholds + channelNum);
-}
 
 
 void SpikeDetector::setParameter (int parameterIndex, float newValue)
@@ -343,14 +114,14 @@ void SpikeDetector::setParameter (int parameterIndex, float newValue)
 
     if (parameterIndex == 99 && currentElectrode > -1)
     {
-        *(electrodes[currentElectrode]->thresholds + currentChannelIndex) = newValue;
+        //*(electrodes[currentElectrode]->thresholds + currentChannelIndex) = newValue;
     }
     else if (parameterIndex == 98 && currentElectrode > -1)
     {
-        if (newValue == 0.0f)
-            *(electrodes[currentElectrode]->isActive + currentChannelIndex) = false;
-        else
-            *(electrodes[currentElectrode]->isActive + currentChannelIndex) = true;
+       // if (newValue == 0.0f)
+       //     *(electrodes[currentElectrode]->isActive + currentChannelIndex) = false;
+       // else
+       //     *(electrodes[currentElectrode]->isActive + currentChannelIndex) = true;
     }
 }
 
@@ -361,7 +132,7 @@ bool SpikeDetector::startAcquisition()
 
     useOverflowBuffer.clear();
 
-    for (int i = 0; i < electrodes.size(); ++i)
+    for (int i = 0; i < internalSpikeChannels.size(); ++i)
         useOverflowBuffer.add (false);
 
     return true;
@@ -370,10 +141,10 @@ bool SpikeDetector::startAcquisition()
 
 bool SpikeDetector::stopAcquisition()
 {
-    for (int n = 0; n < electrodes.size(); ++n)
-    {
-        resetElectrode (electrodes[n]);
-    }
+    //for (int n = 0; n < electrodes.size(); ++n)
+    //{
+    //    resetElectrode (electrodes[n]);
+    //}
 
     return true;
 }
@@ -384,7 +155,7 @@ void SpikeDetector::addWaveformToSpikeObject (Spike::Buffer& s,
                                               int& electrodeNumber,
                                               int& currentChannel)
 {
-    int spikeLength = electrodes[electrodeNumber]->prePeakSamples
+    /*int spikeLength = electrodes[electrodeNumber]->prePeakSamples
                       + electrodes[electrodeNumber]->postPeakSamples;
 
 
@@ -412,7 +183,7 @@ void SpikeDetector::addWaveformToSpikeObject (Spike::Buffer& s,
         }
     }
 
-    sampleIndex -= spikeLength; // reset sample index
+    sampleIndex -= spikeLength; // reset sample index*/
 }
 
 
@@ -420,16 +191,16 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 {
 
     // cycle through electrodes
-    SimpleElectrode* electrode;
+    SpikeChannel* electrode;
     dataBuffer = &buffer;
 
     //std::cout << dataBuffer.getMagnitude(0,nSamples) << std::endl;
 
-    for (int i = 0; i < electrodes.size(); ++i)
+    /*for (int i = 0; i < internalSpikeChannels.size(); ++i)
     {
         //  std::cout << "ELECTRODE " << i << std::endl;
 
-        electrode = electrodes[i];
+        electrode = internalSpikeChannels[i];
 
         // refresh buffer index for this electrode
         sampleIndex = electrode->lastBufferIndex - 1; // subtract 1 to account for
@@ -464,22 +235,6 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
                         peakIndex = sampleIndex;
 
-                        /* DEBUG SPIPKE DATA */
-                        /*
-
-                        std::cout << "Peak detected @ " << sampleIndex << std::endl;
-
-                        sampleIndex -= (electrode->prePeakSamples + 1);
-                        for (int j = 0; j < electrode->prePeakSamples + electrode->postPeakSamples + 1; j++)
-                        {
-                            std::cout << getCurrentSample(currentChannel);
-                            if (sampleIndex == peakIndex)
-                                std::cout << "**PEAK**";
-                            std::cout << std::endl;
-                            sampleIndex++;
-                        }
-                        
-                        */
                         sampleIndex -= (electrode->prePeakSamples + 1);
 
 						const SpikeChannel* spikeChan = getSpikeChannel(i);
@@ -541,7 +296,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
         }
 
     // end cycle through electrodes
-    }
+    }*/
 }
 
 
@@ -595,22 +350,21 @@ bool SpikeDetector::samplesAvailable (int nSamples)
 
 void SpikeDetector::saveCustomParametersToXml (XmlElement* parentElement)
 {
-    for (int i = 0; i < electrodes.size(); ++i)
+    for (int i = 0; i < internalSpikeChannels.size(); ++i)
     {
-        XmlElement* electrodeNode = parentElement->createNewChildElement ("ELECTRODE");
-        electrodeNode->setAttribute ("name",             electrodes[i]->name);
-        electrodeNode->setAttribute ("numChannels",      electrodes[i]->numChannels);
-        electrodeNode->setAttribute ("prePeakSamples",   electrodes[i]->prePeakSamples);
-        electrodeNode->setAttribute ("postPeakSamples",  electrodes[i]->postPeakSamples);
-        electrodeNode->setAttribute ("electrodeID",      electrodes[i]->electrodeID);
+        XmlElement* electrodeNode = parentElement->createNewChildElement ("SPIKECHANNEL");
+        electrodeNode->setAttribute ("name",             internalSpikeChannels[i]->getName());
+        electrodeNode->setAttribute ("numChannels",      (int) internalSpikeChannels[i]->getNumChannels());
+        electrodeNode->setAttribute ("prePeakSamples",   (int) internalSpikeChannels[i]->getPrePeakSamples());
+        electrodeNode->setAttribute ("postPeakSamples",  (int) internalSpikeChannels[i]->getPrePeakSamples());
 
-        for (int j = 0; j < electrodes[i]->numChannels; ++j)
-        {
-            XmlElement* channelNode = electrodeNode->createNewChildElement ("SUBCHANNEL");
-            channelNode->setAttribute ("ch",        *(electrodes[i]->channels + j));
-            channelNode->setAttribute ("thresh",    *(electrodes[i]->thresholds + j));
-            channelNode->setAttribute ("isActive",  *(electrodes[i]->isActive + j));
-        }
+        //for (int j = 0; j < internalSpikeChannels[i]->getNumChannels(); ++j)
+        //{
+        //    XmlElement* channelNode = electrodeNode->createNewChildElement ("SUBCHANNEL");
+        ///    channelNode->setAttribute ("ch",        *(internalSpikeChannels[i]->channels + j));
+        //    channelNode->setAttribute ("thresh",    *(internalSpikeChannels[i]->thresholds + j));
+        //    channelNode->setAttribute ("isActive",  *(internalSpikeChannels[i]->isActive + j));
+       // }
     }
 }
 
@@ -621,7 +375,7 @@ void SpikeDetector::loadCustomParametersFromXml()
     {
         // use parametersAsXml to restore state
 
-        SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
+        /*(SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
 
         int electrodeIndex = -1;
 
@@ -659,7 +413,7 @@ void SpikeDetector::loadCustomParametersFromXml()
             }
         }
 
-        sde->checkSettings();
+        sde->checkSettings();*/
     }
 }
 

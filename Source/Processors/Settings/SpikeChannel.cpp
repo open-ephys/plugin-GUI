@@ -27,9 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, settings.stream),
-	m_type(settings.type),
-	m_numPreSamples(settings.prePeakSamples),
-	m_numPostSamples(settings.postPeakSamples)
+	type(settings.type),
+	thresholdType(settings.thresholdType),
+	sendFullWaveform(settings.sendFullWaveform),
+	numPreSamples(settings.numPrePeakSamples),
+	numPostSamples(settings.numPostPeakSamples)
 {
 	setName(settings.name);
 	setDescription(settings.description);
@@ -37,10 +39,12 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 
 	for (int i = 0; i < settings.sourceChannels.size(); i++)
 	{
-		m_channelInfo.add(settings.sourceChannels[i]);
+		sourceChannels.add(settings.sourceChannels[i]);
+		thresholds.add(settings.defaultThreshold);
+		isSourceChannelEnabled.add(true);
 	}
 
-	jassert(m_channelInfo.size() == getNumChannels(m_type));
+	jassert(sourceChannels.size() == getNumChannels(type));
 
 }
 
@@ -49,38 +53,112 @@ SpikeChannel::~SpikeChannel() { }
 
 SpikeChannel::Type SpikeChannel::getChannelType() const
 {
-	return m_type;
+	return type;
 }
 
-const Array<const ContinuousChannel*> SpikeChannel::getSourceChannels() const
+
+const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 {
-	return m_channelInfo;
+	return sourceChannels;
+}
+
+void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*> newChannels)
+{
+
+	jassert(newChannels.size() == sourceChannels.size());
+
+	sourceChannels.clear();
+
+	for (int i = 0; i < newChannels.size(); i++)
+	{
+		sourceChannels.add(newChannels[i]);
+	}
+}
+
+SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
+{
+	return thresholdType;
+}
+
+
+void SpikeChannel::setThresholdType(SpikeChannel::ThresholdType tType) 
+{
+	thresholdType = tType;
+}
+
+
+float SpikeChannel::getThreshold(int channelIndex) const
+{
+	if (channelIndex > -1 && channelIndex < thresholds.size())
+	{
+		return thresholds[channelIndex];
+	}
+	else {
+		return 0.0f;
+	}
+}
+
+void SpikeChannel::setThreshold(int channelIndex, float threshold)
+{
+	if (channelIndex > -1 && channelIndex < thresholds.size())
+	{
+		return thresholds.set(channelIndex, threshold);
+	}
+}
+
+bool SpikeChannel::sendsFullWaveform() const
+{
+	return sendFullWaveform;
+}
+
+void SpikeChannel::shouldSendFullWaveform(bool state)
+{
+	sendFullWaveform = state;
+}
+
+bool SpikeChannel::getSourceChannelState(int channelIndex) const
+{
+	if (channelIndex > -1 && channelIndex < isSourceChannelEnabled.size())
+	{
+		return isSourceChannelEnabled[channelIndex];
+	}
+	else {
+		return false;
+	}
+}
+
+void SpikeChannel::setSourceChannelState(int channelIndex, bool state)
+{
+	if (channelIndex > -1 && channelIndex < isSourceChannelEnabled.size())
+	{
+		return thresholds.set(channelIndex, state);
+	}
 }
 
 void SpikeChannel::setNumSamples(unsigned int preSamples, unsigned int postSamples)
 {
-	m_numPreSamples = preSamples;
-	m_numPostSamples = postSamples;
+	numPreSamples = preSamples;
+	numPostSamples = postSamples;
 }
 
 unsigned int SpikeChannel::getPrePeakSamples() const
 {
-	return m_numPreSamples;
+	return numPreSamples;
 }
 
 unsigned int SpikeChannel::getPostPeakSamples() const
 {
-	return m_numPostSamples;
+	return numPostSamples;
 }
 
 unsigned int SpikeChannel::getTotalSamples() const
 {
-	return m_numPostSamples + m_numPreSamples;
+	return numPostSamples + numPreSamples;
 }
 
 unsigned int SpikeChannel::getNumChannels() const
 {
-	return getNumChannels(m_type);
+	return getNumChannels(type);
 }
 
 unsigned int SpikeChannel::getNumChannels(SpikeChannel::Type type)
@@ -117,10 +195,10 @@ size_t SpikeChannel::getChannelDataSize() const
 
 float SpikeChannel::getChannelBitVolts(int index) const
 {
-	if (index < 0 || index >= m_channelInfo.size())
+	if (index < 0 || index >= sourceChannels.size())
 		return 1.0f;
 	else
-		return m_channelInfo[index]->getBitVolts();
+		return sourceChannels[index]->getBitVolts();
 }
 
 /*void SpikeChannel::setDefaultNameAndDescription()
