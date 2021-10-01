@@ -197,6 +197,10 @@ uint16 ChannelInfoObject::getStreamId() const
 	return stream->getStreamId();
 }
 
+String ChannelInfoObject::getStreamName() const
+{
+	return stream->getName();
+}
 
 /*bool InfoObject::isEqual(const InfoObject& other) const
 {

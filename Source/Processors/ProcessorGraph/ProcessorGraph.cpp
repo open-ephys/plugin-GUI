@@ -867,19 +867,6 @@ void ProcessorGraph::clearConnections()
 
     }
 
-    /*for (auto& recordNode : getRecordNodes())
-    {
-        NodeAndChannel src, dest;
-
-        src.nodeID = NodeID(MESSAGE_CENTER_ID);
-        src.channelIndex = midiChannelIndex;
-
-        dest.nodeID = NodeID(recordNode->getNodeId());
-        dest.channelIndex = midiChannelIndex;
-
-        addConnection(Connection(src, dest));
-    }*/
-
 }
 
 
@@ -923,7 +910,7 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-        LOGDD("Signal chain: ", n);
+        LOGD("Signal chain: ", n);
         std::cout << std::endl;
 
         //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
@@ -931,7 +918,7 @@ void ProcessorGraph::updateConnections()
 
         while (source != nullptr)// && destEditor->isEnabled())
         {
-            LOGDD("Source node: ", source->getName(), ".");
+            LOGD("Source node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if (source->isEnabled)
@@ -984,7 +971,7 @@ void ProcessorGraph::updateConnections()
                 }
                 else
                 {
-                    LOGDD("     No dest node.");
+                    LOGD("     No dest node.");
                 }
             }
 

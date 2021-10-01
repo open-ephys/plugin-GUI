@@ -117,18 +117,6 @@ public:
 	/** Called when acquisition starts once for each processor that might record continuous data */
 	virtual void registerProcessor(const GenericProcessor* processor);
 
-	/** Called after registerProcessor, once for each output channel of the processor */
-	virtual void addContinuousChannel(int index, const ContinuousChannel* chan);
-
-	/** Called after registerProcessor, once for each output channel of the processor */
-	virtual void addEventChannel(int index, const EventChannel* chan);
-
-	/** Called when acquisition starts once for each processor that might generate spikes */
-	virtual void registerSpikeSource(const GenericProcessor* processor);
-
-	/** Called after registerSpikesource, once for each channel group */
-	virtual void addSpikeElectrode(int index, const SpikeChannel* elec) = 0;
-
 	/** Write a spike to disk */
 	virtual void writeSpike(int electrodeIndex, const Spike* spike) = 0;
 

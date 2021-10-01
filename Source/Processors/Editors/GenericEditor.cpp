@@ -584,7 +584,17 @@ void GenericEditor::switchCollapsedState()
         if (isCollapsed)
         {
             // open it up
-            desiredWidth = originalWidth;
+
+            if (!drawerOpen)
+            {
+                desiredWidth = originalWidth;
+            }
+            else
+            {
+                desiredWidth = originalWidth + drawerWidth;
+                drawerButton->setToggleState(true, false);
+            }
+
             isCollapsed = false;
 
         }
@@ -638,7 +648,7 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     {
         drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
 
-        if (drawerOpen)
+        if (drawerOpen && !isCollapsed)
         {
             if (streamSelector != nullptr)
                 drawerWidth = streamSelector->getDesiredWidth() + 20;

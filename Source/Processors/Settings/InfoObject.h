@@ -233,6 +233,7 @@ public :
 
 	float getSampleRate() const;
 	uint16 getStreamId() const;
+	String getStreamName() const;
 
 protected:
 	DataStream* stream;

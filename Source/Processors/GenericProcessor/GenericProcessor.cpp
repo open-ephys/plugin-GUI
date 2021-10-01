@@ -299,10 +299,23 @@ void GenericProcessor::update()
 		if (!isMerger())
 		{
 
-			for (auto stream : sourceNode->getStreamsForDestNode(this))
+			if (sourceNode->isSplitter())
 			{
-				copyDataStreamSettings(stream);
+				Splitter* splitter = (Splitter*)sourceNode;
+
+				for (auto stream : splitter->getStreamsForDestNode(this))
+				{
+					copyDataStreamSettings(stream);
+				}
 			}
+			else {
+				for (auto stream : sourceNode->getStreamsForDestNode(this))
+				{
+					copyDataStreamSettings(stream);
+				}
+			}
+
+			
 
 			for (auto configurationObject : sourceNode->configurationObjects)
 			{
