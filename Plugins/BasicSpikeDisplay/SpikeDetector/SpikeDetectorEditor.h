@@ -30,7 +30,37 @@
 class TriangleButton;
 class UtilityButton;
 
+class SpikeDetectorEditor;
 
+class SpikeDetectorTableModel : public TableListBoxModel
+{
+
+public:
+
+    SpikeDetectorTableModel(SpikeDetectorEditor* editor);
+
+    enum Columns {
+        INDEX = 1,
+        NAME,
+        TYPE,
+        CHANNELS,
+        THRESHOLD,
+        WINDOW,
+        DELETE
+    };
+
+    void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
+
+    int getNumRows() override;
+
+    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected);
+
+    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected);
+
+private:
+
+    SpikeDetectorEditor* editor;
+};
 
 /**
 
@@ -51,9 +81,16 @@ class SpikeDetectorEditor : public GenericEditor,
 
 {
 public:
+
+    /** Constructor*/
     SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+
+    /** Destructor */
     virtual ~SpikeDetectorEditor();
+
+    /** Called when add electrode button is clicked */
     void buttonEvent(Button* button);
+
     void labelTextChanged(Label* label);
     void comboBoxChanged(ComboBox* comboBox);
     void sliderEvent(Slider* slider);
@@ -70,25 +107,29 @@ private:
 
     void drawElectrodeButtons(int);
 
-    std::unique_ptr<ComboBox> electrodeTypes;
-    std::unique_ptr<ComboBox> electrodeList;
-    std::unique_ptr<Label> numElectrodes;
-    std::unique_ptr<Label> thresholdLabel;
-    std::unique_ptr<TriangleButton> upButton;
-    std::unique_ptr<TriangleButton> downButton;
-    std::unique_ptr<UtilityButton> plusButton;
+    ScopedPointer<ComboBox> electrodeTypes;
+    ScopedPointer<ComboBox> electrodeList;
+    ScopedPointer<Label> numElectrodes;
+    ScopedPointer<Label> thresholdLabel;
+    ScopedPointer<TriangleButton> upButton;
+    ScopedPointer<TriangleButton> downButton;
+    ScopedPointer<UtilityButton> plusButton;
 
-    std::unique_ptr<ThresholdSlider> thresholdSlider;
+    ScopedPointer < ThresholdSlider> thresholdSlider;
 
     OwnedArray<ElectrodeButton> electrodeButtons;
-    std::vector<std::unique_ptr<ElectrodeEditorButton>> electrodeEditorButtons;
+    OwnedArray<ElectrodeEditorButton> electrodeEditorButtons;
+
+   // std::unique_ptr<TableHeaderComponent> tableHeader;
+    std::unique_ptr<SpikeDetectorTableModel> tableModel;
+    std::unique_ptr<TableListBox> electrodeTable;
 
     void editElectrode(int index, int chan, int newChan);
 
     int lastId;
     bool isPlural;
 
-    Font editorFont;
+    //Font font;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 
