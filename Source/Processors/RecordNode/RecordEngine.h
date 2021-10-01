@@ -172,15 +172,15 @@ protected:
 	int getRealChannel(int channel) const;
 
 	/** Gets the number of recorded channels */
-	int getNumRecordedChannels() const;
+	int getNumRecordedContinuousChannels() const;
 
 	/** Gets the number of recorded event channels
 	(right now all channels are recorded) */
-	int getNumRecordedEvents() const;
+	int getNumRecordedEventChannels() const;
 
 	/** Gets the number of recorded spike channels
 	(right now all channels are recorded) */
-	int getNumRecordedSpikes() const;
+	int getNumRecordedSpikeChannels() const;
 
 	/** Gets the processor info structure for a recorded processor
 	*/

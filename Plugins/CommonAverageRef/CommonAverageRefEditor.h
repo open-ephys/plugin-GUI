@@ -61,8 +61,8 @@ public:
     void selectedStreamHasChanged() override;
 
     /** Saving/loading parameters */
-    void saveCustomParameters(XmlElement* xml) override;
-    void loadCustomParameters(XmlElement* xml) override;
+    void saveCustomParametersToXml(XmlElement* xml) override;
+    void loadCustomParametersFromXml() override;
 
 private:
     enum ChannelsType

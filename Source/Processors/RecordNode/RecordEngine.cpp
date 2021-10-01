@@ -48,12 +48,6 @@ void RecordEngine::registerRecordNode(RecordNode* node)
 
 void RecordEngine::registerProcessor(const GenericProcessor* processor) {}
 
-void RecordEngine::addContinuousChannel(int index, const ContinuousChannel* chan) {}
-
-void RecordEngine::addEventChannel(int index, const EventChannel* chan) {}
-
-void RecordEngine::addSpikeElectrode(int index, const SpikeChannel* chan) {}
-
 void RecordEngine::startChannelBlock(bool lastBlock) {}
 
 void RecordEngine::endChannelBlock(bool lastBlock) {}

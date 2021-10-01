@@ -51,7 +51,6 @@ public:
 	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
 	void writeEvent(int eventIndex, const EventPacket& packet) override;
 	void resetChannels() override;
-	void addSpikeElectrode(int index, const SpikeChannel* elec) override;
 	void writeSpike(int electrodeIndex, const Spike* spike) override;
 	void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) override;
 
