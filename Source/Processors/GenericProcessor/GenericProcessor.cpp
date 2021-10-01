@@ -175,6 +175,7 @@ void GenericProcessor::clearSettings()
 	LOGDD("Generic processor clearing settings.");
 
 	continuousChannels.clear();
+	audioChannels.clear();
 	eventChannels.clear();
 	spikeChannels.clear();
 	configurationObjects.clear();
@@ -851,6 +852,14 @@ const ContinuousChannel* GenericProcessor::getContinuousChannel(int globalIndex)
 {
 	if (globalIndex < continuousChannels.size())
 		return continuousChannels[globalIndex];
+	else
+		return nullptr;
+}
+
+const ContinuousChannel* GenericProcessor::getAudioChannel(int index) const
+{
+	if (index < audioChannels.size())
+		return audioChannels[index];
 	else
 		return nullptr;
 }

@@ -1073,21 +1073,18 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
     // 1. connect continuous channels
     if (connectContinuous)
-    {
-        int firstChannel = source->isAudioMonitor() ? 2 : 0;
-        
-        for (int chan = firstChannel; chan < source->getNumOutputs(); chan++)
+    {        
+        for (int chan = 0; chan < source->getNumOutputs(); chan++)
         {
-            LOGDD(chan, " ");
 
-            cs.channelIndex = chan;
+            cs.channelIndex = source->isAudioMonitor() ? (chan + 2) : chan;
             //cd.channelIndex = dest->getNextChannel(true);
 
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
 
             if (cd.channelIndex > -1)
             {
-                //std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
+                std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
                 addConnection(Connection(cs, cd));
             }
                  
@@ -1141,7 +1138,7 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
         getAudioNode()->addInputChannel(source, chan);
 
         cs.channelIndex = chan;
-        cd.channelIndex = getAudioNode()->getNextChannel(true);
+        cd.channelIndex = chan;
 
         addConnection(Connection(cs, cd));
    
@@ -1169,6 +1166,8 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
     cs.channelIndex = midiChannelIndex;
     cd.channelIndex = midiChannelIndex;
     addConnection(Connection(cs, cd));
+
+    std::cout << "Connecting " << source->getNodeId() << " to Audio Node" << std::endl;
 
 
     //getRecordNode()->addInputChannel(source, midiChannelIndex);

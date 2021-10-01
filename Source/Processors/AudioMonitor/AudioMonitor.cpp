@@ -63,17 +63,26 @@ void AudioMonitor::updateSettings()
     }
 
     // Set Number of outputs to be 2 more than inputs
-    continuousChannels.insert(0, continuousChannels.getFirst());
-    continuousChannels.insert(0, continuousChannels.getFirst());
+    audioChannels.add(continuousChannels.getFirst());
+    audioChannels.add(continuousChannels.getFirst());
 
-    LOGD("********** Total Continuous Channels ", continuousChannels.size());
+    updatePlaybackBuffer();
+}
+
+
+void AudioMonitor::resetConnections()
+{
+    //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
+    // nextAvailableChannel = 2; // start connections at channel 2
+    //wasConnected = false;
+
     updatePlaybackBuffer();
 }
 
 
 void AudioMonitor::updatePlaybackBuffer()
 {
-	setPlayConfigDetails(getNumInputs(), 2, 44100.0, 128);
+	setPlayConfigDetails(getNumInputs(), getNumOutputs() + 2, 44100.0, 128);
 }
 
 
@@ -157,15 +166,15 @@ void AudioMonitor::recreateBuffers()
     bufferB.clear();
     bufferSwap.clear();
 
-    for (int i = 0; i < continuousChannels.size() - 2; i++)
+    for (int i = 0; i < continuousChannels.size(); i++)
     {
         if(dataChannelStates.at(i))
         {
             // processor sample rate divided by sound card sample rate
-            numSamplesExpected.emplace(i, (int)(continuousChannels[i+2]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
+            numSamplesExpected.emplace(i, (int)(continuousChannels[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
             samplesInBackupBuffer.emplace(i, 0);
             samplesInOverflowBuffer.emplace(i, 0);
-            sourceBufferSampleRate.emplace(i, continuousChannels[i+2]->getSampleRate());
+            sourceBufferSampleRate.emplace(i, continuousChannels[i]->getSampleRate());
 
             filters.emplace(i, std::make_unique<Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1>> (1024));
 
@@ -429,16 +438,6 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                         float* ptr = buffer.getWritePointer(0);
                         filters[i]->process(destBufferPos, &ptr);
                     }
-
-                    // now copy the channel into the output zone
-
-                    buffer.addFrom(0,    // destChannel
-                                   0,  // destSampleOffset
-                                   buffer,     // source
-                                   i+2,    // sourceChannel
-                                   0,// sourceSampleOffset
-                                   valuesNeeded,        // number of samples
-                                   1.0);      // gain to apply to source
 
                 } // if channelPointers[i]->isMonitored
             } // end cycling through channels

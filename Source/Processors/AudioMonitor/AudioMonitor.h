@@ -58,6 +58,9 @@ public:
 
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
 
+     /** Resets the connections prior to a new round of data acquisition. */
+    void resetConnections() override;
+
     bool startAcquisition() override;
 
     void updateFilter(int i);

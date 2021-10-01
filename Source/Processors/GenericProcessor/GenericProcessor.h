@@ -343,6 +343,8 @@ public:
 
     const ContinuousChannel* getContinuousChannel(int globalIndex) const;
 
+    const ContinuousChannel* getAudioChannel(int index) const;
+
     int getIndexOfMatchingChannel(const ContinuousChannel* channel) const;
 
     int getIndexOfMatchingChannel(const EventChannel* channel) const;
@@ -494,6 +496,9 @@ protected:
 
     /** Holds information about continuous channels handled by this processor */
     OwnedArray<ContinuousChannel> continuousChannels;
+
+    /** Holds information about audio channels handled by this processor */
+    OwnedArray<ContinuousChannel> audioChannels;
 
     /** Holds information about event channels handled by this processor */
     OwnedArray<EventChannel> eventChannels;
