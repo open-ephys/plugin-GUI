@@ -61,7 +61,7 @@ void AudioMonitor::updateSettings()
 
         ch++;
     }
-
+    
     // Set Number of outputs to be 2 more than inputs
     audioChannels.add(continuousChannels.getFirst());
     audioChannels.add(continuousChannels.getFirst());
@@ -72,9 +72,7 @@ void AudioMonitor::updateSettings()
 
 void AudioMonitor::resetConnections()
 {
-    //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
-    // nextAvailableChannel = 2; // start connections at channel 2
-    //wasConnected = false;
+    GenericProcessor::resetConnections();
 
     updatePlaybackBuffer();
 }

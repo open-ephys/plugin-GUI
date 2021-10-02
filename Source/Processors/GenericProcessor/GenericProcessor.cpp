@@ -175,7 +175,7 @@ void GenericProcessor::clearSettings()
 	LOGDD("Generic processor clearing settings.");
 
 	continuousChannels.clear();
-	audioChannels.clear();
+	audioChannels.clear(false);
 	eventChannels.clear();
 	spikeChannels.clear();
 	configurationObjects.clear();

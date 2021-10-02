@@ -93,7 +93,7 @@ private:
 
     std::unique_ptr<LinearButtonGroupManager> outputChannelButtonManager;
 
-    SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
+    std::shared_ptr<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
     bool editable;
 

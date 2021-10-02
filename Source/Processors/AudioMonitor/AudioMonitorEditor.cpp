@@ -112,7 +112,7 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDe
     outputChannelButtonManager->addButton (rightButton);
     outputChannelButtonManager->setRadioButtonMode (true);
     outputChannelButtonManager->setButtonListener (this);
-    outputChannelButtonManager->setButtonsLookAndFeel (m_materialButtonLookAndFeel);
+    outputChannelButtonManager->setButtonsLookAndFeel (m_materialButtonLookAndFeel.get());
     outputChannelButtonManager->setColour (ButtonGroupManager::backgroundColourId,   Colours::white);
     outputChannelButtonManager->setColour (ButtonGroupManager::outlineColourId,      Colour (0x0));
     outputChannelButtonManager->setColour (LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
