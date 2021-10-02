@@ -26,12 +26,148 @@
 
 #include "SpikeDetectorEditor.h"
 
+SpikeChannelSettings::SpikeChannelSettings(const SpikeChannel::Type type_) :
+    type(type_), expectedChannelCount(SpikeChannel::getNumChannels(type))
+{
+
+    sendFullWaveform = true;
+    prePeakSamples = 8;
+    postPeakSamples = 32;
+    thresholdType = SpikeChannelSettings::ThresholdType::FIXED;
+    
+    for (int i = 0; i < expectedChannelCount; i++)
+    {
+        thresholds.add(-50);
+    }
+
+}
+
+void SpikeChannelSettings::setChannelIndexes(
+    Array<int> localChannelIndexes_,
+    Array<int> globalChannelIndexes_,
+    int maxLocalChannel)
+{
+
+    jassert(localChannelIndexes_.size() == expectedChannelCount);
+
+    jassert(globalChannelIndexes_.size() == expectedChannelCount);
+
+    globalChannelIndexes = globalChannelIndexes_;
+    localChannelIndexes = localChannelIndexes_;
+
+    detectSpikesOnChannel.clear();
+
+    for (int i = 0; i < expectedChannelCount; i++)
+    {
+         detectSpikesOnChannel.add(localChannelIndexes[i] < maxLocalChannel);
+    }
+}
+
+void SpikeChannelSettings::toXml(XmlElement* xml)
+{
+    xml->setAttribute("type", type);
+
+    xml->setAttribute("name", name);
+    xml->setAttribute("description", description);
+
+    xml->setAttribute("prePeakSamples", (int) prePeakSamples);
+    xml->setAttribute("postPeakSamples", (int) postPeakSamples);
+
+    xml->setAttribute("sendFullWaveform", sendFullWaveform);
+
+    xml->setAttribute("thresholdType", thresholdType);
+
+    for (int j = 0; j < localChannelIndexes.size(); ++j)
+    {
+
+        XmlElement* channelNode = xml->createNewChildElement("SUBCHANNEL");
+
+        channelNode->setAttribute("localIndex", localChannelIndexes[j]);
+        channelNode->setAttribute("globalIndex", globalChannelIndexes[j]);
+        channelNode->setAttribute("detectSpikesOnChannel", detectSpikesOnChannel[j]);
+        channelNode->setAttribute("threshold", thresholds[j]);
+
+    }
+}
+
+void SpikeChannelSettings::fromXml(XmlElement* xml)
+{
+    name = xml->getStringAttribute("name");
+    description = xml->getStringAttribute("description");
+
+    prePeakSamples = xml->getIntAttribute("prePeakSamples", 8);
+    postPeakSamples = xml->getIntAttribute("postPeakSamples", 32);
+
+    sendFullWaveform = xml->getBoolAttribute("sendFullWaveform", true);
+
+    thresholdType = (ThresholdType) xml->getIntAttribute("thresholdType", ThresholdType::FIXED);
+
+    localChannelIndexes.clear();
+    globalChannelIndexes.clear();
+    thresholds.clear();
+    detectSpikesOnChannel.clear();
+
+    forEachXmlChildElement(*xml, subNode)
+    {
+        if (subNode->hasTagName("SUBCHANNEL"))
+        {
+
+            localChannelIndexes.add(subNode->getIntAttribute("localChannelIndex"));
+            globalChannelIndexes.add(subNode->getIntAttribute("globalChannelIndex"));
+            thresholds.add(subNode->getIntAttribute("threshold"));
+            detectSpikesOnChannel.add(subNode->getBoolAttribute("detectSpikesOnChannel"));
+        }
+    }
+}
+
+SpikeDetectorSettings::SpikeDetectorSettings()
+{
+    nextAvailableChannel = 0;
+    nextElectrodeIndex = 1;
+}
+
+SpikeDetectorSettings::~SpikeDetectorSettings()
+{
+
+}
+
+void SpikeDetectorSettings::toXml(XmlElement* xml)
+{
+    for (auto channel : spikeChannels)
+    {
+        XmlElement* node = xml->createNewChildElement("SPIKESOURCE");
+
+        channel->toXml(node);
+
+    }
+}
+
+void SpikeDetectorSettings::fromXml(XmlElement* xml)
+{
+
+    spikeChannels.clear();
+
+    forEachXmlChildElement(*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName("SPIKESOURCE"))
+        {
+            SpikeChannel::Type type = (SpikeChannel::Type) xmlNode->getIntAttribute("type", SpikeChannel::SINGLE);
+
+            SpikeChannelSettings* settings = new SpikeChannelSettings(type);
+
+            settings->fromXml(xmlNode);
+
+            spikeChannels.add(settings);
+        }
+    }
+}
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor      ("Spike Detector")
     , overflowBuffer        (2, 100)
     , dataBuffer            (nullptr),
-      overflowBufferSize    (100)
+      overflowBufferSize    (100),
+      nextAvailableChannel(0)
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
 
@@ -58,17 +194,90 @@ void SpikeDetector::updateSettings()
 		overflowBuffer.clear();
 	}
 
-    for (int i = 0; i < internalSpikeChannels.size(); ++i)
+    settings.update(getDataStreams());
+
+    for (auto stream : getDataStreams())
     {
-        spikeChannels.add(new SpikeChannel(*internalSpikeChannels[i]));
+        for (auto channel : settings[stream->getStreamId()]->spikeChannels)
+        {
+
+            Array<const ContinuousChannel*> sourceChannels;
+
+            for (int i = 0; i < channel->expectedChannelCount; i++)
+            {
+                sourceChannels.add(getContinuousChannel(channel->globalChannelIndexes[i]));
+            }
+
+            unsigned int numPrePeakSamples; 
+            unsigned int numPostPeakSamples;
+
+            if (channel->sendFullWaveform)
+            {
+                numPrePeakSamples = channel->prePeakSamples;
+                numPostPeakSamples = channel->postPeakSamples;
+            }
+            else {
+                numPrePeakSamples = 0;
+                numPostPeakSamples = 1;
+            }
+                
+            SpikeChannel::Settings settings
+            {
+                channel->type,
+
+                channel->name,
+                channel->description,
+                SpikeChannel::getIdentifierFromType(channel->type),
+
+                getDataStream(stream->getStreamId()),
+
+                sourceChannels,
+                
+                numPrePeakSamples,
+                numPostPeakSamples
+
+            };
+
+            spikeChannels.add(new SpikeChannel(settings));
+        }
     }
 
 }
 
 
-bool SpikeDetector::addSpikeChannel (SpikeChannel::Type type)
+bool SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 streamId)
 {
 
+    Array<const ContinuousChannel*> sourceChannels;
+
+    SpikeChannelSettings* channelSettings = new SpikeChannelSettings(type);
+
+    channelSettings->name = SpikeChannel::getDefaultChannelPrefix(type) + \
+        String(settings[streamId]->nextElectrodeIndex++);
+
+    DataStream* currentStream = getDataStream(streamId);
+
+    Array<int> localIndexes;
+    Array<int> globalIndexes;
+
+    for (int i = 0; i < channelSettings->expectedChannelCount; i++)
+    {
+
+        if (settings[streamId]->nextAvailableChannel < currentStream->getChannelCount())
+        {
+            globalIndexes.add(currentStream->getContinuousChannels()[settings[streamId]->nextAvailableChannel]->getGlobalIndex());
+        }
+        else {
+            globalIndexes.add(-1);
+        }
+        
+        localIndexes.add(settings[streamId]->nextAvailableChannel++);
+
+    }
+
+    channelSettings->setChannelIndexes(localIndexes, globalIndexes, currentStream->getChannelCount());
+
+    settings[streamId]->spikeChannels.add(channelSettings);
 
     return true;
 }
@@ -80,7 +289,7 @@ float SpikeDetector::getDefaultThreshold() const
 }
 
 
-bool SpikeDetector::removeSpikeChannel (int index)
+bool SpikeDetector::removeSpikeChannel (int index, uint16 streamId)
 {
     // std::cout << "Spike detector removing electrode" << std::endl;
 
@@ -92,14 +301,13 @@ bool SpikeDetector::removeSpikeChannel (int index)
 }
 
 
-Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
+Array<SpikeChannelSettings*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {
-    Array<SpikeChannel*> channels;
+    Array<SpikeChannelSettings*> channels;
 
-    for (int i = 0; i < internalSpikeChannels.size(); i++)
+    for (int i = 0; i < settings[streamId]->spikeChannels.size(); i++)
     {
-        if (internalSpikeChannels[i]->getStreamId() == streamId)
-            channels.add(internalSpikeChannels[i]);
+        channels.add(settings[streamId]->spikeChannels[i]);
     }
 
     return channels;
@@ -348,72 +556,44 @@ bool SpikeDetector::samplesAvailable (int nSamples)
 }
 
 
-void SpikeDetector::saveCustomParametersToXml (XmlElement* parentElement)
+void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 {
-    for (int i = 0; i < internalSpikeChannels.size(); ++i)
-    {
-        XmlElement* electrodeNode = parentElement->createNewChildElement ("SPIKECHANNEL");
-        electrodeNode->setAttribute ("name",             internalSpikeChannels[i]->getName());
-        electrodeNode->setAttribute ("numChannels",      (int) internalSpikeChannels[i]->getNumChannels());
-        electrodeNode->setAttribute ("prePeakSamples",   (int) internalSpikeChannels[i]->getPrePeakSamples());
-        electrodeNode->setAttribute ("postPeakSamples",  (int) internalSpikeChannels[i]->getPrePeakSamples());
 
-        //for (int j = 0; j < internalSpikeChannels[i]->getNumChannels(); ++j)
-        //{
-        //    XmlElement* channelNode = electrodeNode->createNewChildElement ("SUBCHANNEL");
-        ///    channelNode->setAttribute ("ch",        *(internalSpikeChannels[i]->channels + j));
-        //    channelNode->setAttribute ("thresh",    *(internalSpikeChannels[i]->thresholds + j));
-        //    channelNode->setAttribute ("isActive",  *(internalSpikeChannels[i]->isActive + j));
-       // }
+    for (auto stream : getDataStreams())
+    {
+
+        XmlElement* streamParams = xml->createNewChildElement("STREAM");
+
+        settings[stream->getStreamId()]->toXml(streamParams);
     }
+
 }
 
 
 void SpikeDetector::loadCustomParametersFromXml()
 {
-    if (parametersAsXml != nullptr) // prevent double-loading
+    int streamIndex = 0;
+
+    Array<const DataStream*> availableStreams = getDataStreams();
+
+    forEachXmlChildElement(*parametersAsXml, streamParams)
     {
-        // use parametersAsXml to restore state
-
-        /*(SpikeDetectorEditor* sde = (SpikeDetectorEditor*) getEditor();
-
-        int electrodeIndex = -1;
-
-        forEachXmlChildElement (*parametersAsXml, xmlNode)
+        if (streamParams->hasTagName("STREAM"))
         {
-            if (xmlNode->hasTagName ("ELECTRODE"))
+
+            std::cout << "STREAM " << streamIndex << std::endl;
+            if (availableStreams.size() > streamIndex)
             {
-                ++electrodeIndex;
-
-                std::cout << "ELECTRODE>>>" << std::endl;
-
-                const int channelsPerElectrode = xmlNode->getIntAttribute ("numChannels");
-                const int electrodeID          = xmlNode->getIntAttribute ("electrodeID");
-
-                sde->addElectrode (channelsPerElectrode, electrodeID);
-
-                setElectrodeName (electrodeIndex + 1, xmlNode->getStringAttribute ("name"));
-                sde->refreshElectrodeList();
-
-                int channelIndex = -1;
-
-                forEachXmlChildElement (*xmlNode, channelNode)
-                {
-                    if (channelNode->hasTagName ("SUBCHANNEL"))
-                    {
-                        ++channelIndex;
-
-                        std::cout << "Subchannel " << channelIndex << std::endl;
-
-                        setChannel          (electrodeIndex, channelIndex, channelNode->getIntAttribute ("ch"));
-                        setChannelThreshold (electrodeIndex, channelIndex, channelNode->getDoubleAttribute ("thresh"));
-                        setChannelActive    (electrodeIndex, channelIndex, channelNode->getBoolAttribute ("isActive"));
-                    }
-                }
+                std::cout << "FOUND IT!" << std::endl;
+                settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
-        }
+            else {
+                std::cout << "DID NOT FIND IT!" << std::endl;
+            }
 
-        sde->checkSettings();*/
+            streamIndex++;
+        }
     }
+
 }
 

@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, settings.stream),
 	type(settings.type),
-	thresholdType(settings.thresholdType),
-	sendFullWaveform(settings.sendFullWaveform),
 	numPreSamples(settings.numPrePeakSamples),
 	numPostSamples(settings.numPostPeakSamples)
 {
@@ -40,8 +38,6 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	for (int i = 0; i < settings.sourceChannels.size(); i++)
 	{
 		sourceChannels.add(settings.sourceChannels[i]);
-		thresholds.add(settings.defaultThreshold);
-		isSourceChannelEnabled.add(true);
 	}
 
 	jassert(sourceChannels.size() == getNumChannels(type));
@@ -62,7 +58,7 @@ const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 	return sourceChannels;
 }
 
-void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*> newChannels)
+/*void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*> newChannels)
 {
 
 	jassert(newChannels.size() == sourceChannels.size());
@@ -118,9 +114,9 @@ void SpikeChannel::shouldSendFullWaveform(bool state)
 
 bool SpikeChannel::getSourceChannelState(int channelIndex) const
 {
-	if (channelIndex > -1 && channelIndex < isSourceChannelEnabled.size())
+	if (channelIndex > -1 && channelIndex < detectSpikesOnChannel.size())
 	{
-		return isSourceChannelEnabled[channelIndex];
+		return detectSpikesOnChannel[channelIndex];
 	}
 	else {
 		return false;
@@ -129,7 +125,7 @@ bool SpikeChannel::getSourceChannelState(int channelIndex) const
 
 void SpikeChannel::setSourceChannelState(int channelIndex, bool state)
 {
-	if (channelIndex > -1 && channelIndex < isSourceChannelEnabled.size())
+	if (channelIndex > -1 && channelIndex < detectSpikesOnChannel.size())
 	{
 		return thresholds.set(channelIndex, state);
 	}
@@ -139,7 +135,7 @@ void SpikeChannel::setNumSamples(unsigned int preSamples, unsigned int postSampl
 {
 	numPreSamples = preSamples;
 	numPostSamples = postSamples;
-}
+}*/
 
 unsigned int SpikeChannel::getPrePeakSamples() const
 {
@@ -185,7 +181,7 @@ SpikeChannel::Type SpikeChannel::typeFromNumChannels(unsigned int nChannels)
 
 size_t SpikeChannel::getDataSize() const
 {
-	return getTotalSamples()*getNumChannels()*sizeof(float);
+	return getTotalSamples() * getNumChannels() * sizeof(float);
 }
 
 size_t SpikeChannel::getChannelDataSize() const
@@ -201,31 +197,52 @@ float SpikeChannel::getChannelBitVolts(int index) const
 		return sourceChannels[index]->getBitVolts();
 }
 
-/*void SpikeChannel::setDefaultNameAndDescription()
+
+String SpikeChannel::getDefaultChannelPrefix(SpikeChannel::Type channelType)
 {
-	String name;
-	String description;
-	switch (m_type)
+	switch (channelType)
 	{
-	case SINGLE: 
-		name = "SE ";
-		description = "Single electrode";
-		break;
-	case STEREOTRODE: 
-		name = "ST "; 
-		description = "Stereotrode";
-		break;
-	case TETRODE: 
-		name = "TT ";
-		description = "Tetrode";
-		break;
-	default: name = "INVALID "; break;
+	case SpikeChannel::Type::SINGLE:
+		return "SE";
+	case SpikeChannel::Type::STEREOTRODE:
+		return "ST";
+	case SpikeChannel::Type::TETRODE:
+		return "TT";
+	default:
+		return "SC";
 	}
-	name += String(" p") + String(getSourceNodeID()) + String(".") + String(getSubProcessorIdx()) + String(" n") + String(getSourceTypeIndex());
-	setName(name);
-	setDescription(description + " spike data source");
-	setIdentifier("spikesource");
-}*/
+}
+
+String SpikeChannel::getDescriptionFromType(SpikeChannel::Type channelType)
+{
+	switch (channelType)
+	{
+	case SpikeChannel::Type::SINGLE:
+		return "Single electrode";
+	case SpikeChannel::Type::STEREOTRODE:
+		return "Stereotrode";
+	case SpikeChannel::Type::TETRODE:
+		return "Tetrode";
+	default:
+		return "Unknown";
+	}
+}
+
+String SpikeChannel::getIdentifierFromType(SpikeChannel::Type channelType)
+{
+	switch (channelType)
+	{
+	case SpikeChannel::Type::SINGLE:
+		return "spikechannel.singleelectrode";
+	case SpikeChannel::Type::STEREOTRODE:
+		return "spikechannel.stereotrode";
+	case SpikeChannel::Type::TETRODE:
+		return "spikechannel.tetrode";
+	default:
+		return "spikechannel.unknown";
+	}
+}
+
 
 /*bool SpikeChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
 {

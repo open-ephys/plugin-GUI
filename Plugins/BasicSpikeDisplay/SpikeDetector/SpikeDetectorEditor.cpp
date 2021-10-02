@@ -69,21 +69,33 @@ void SpikeDetectorEditor::buttonEvent(Button* button)
 
 }
 
+void SpikeDetectorEditor::updateSettings()
+{
+    SpikeDetector* processor = (SpikeDetector*)getProcessor();
+
+    if (currentConfigWindow != nullptr)
+        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
+
+}
+
 void SpikeDetectorEditor::channelStateChanged(Array<int> selectedChannels)
 {
 
 
 }
 
-void SpikeDetectorEditor::addSpikeChannel(SpikeChannel::Type type)
+void SpikeDetectorEditor::addSpikeChannels(SpikeChannel::Type type, int count)
 {
-    std::cout << "Adding spike channel with " << SpikeChannel::getNumChannels(type) << " electrodes." << std::endl;
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-    if (processor->addSpikeChannel(type))
-    {
-        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
-    }
+    std::cout << "Adding " << count << " spike channels with " << SpikeChannel::getNumChannels(type) << " electrodes." << std::endl;
+
+    for (int i = 0; i < count; i++)
+        processor->addSpikeChannel(type, getCurrentStream());
+
+    currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
+
+    CoreServices::updateSignalChain(this);
 
 }
 
@@ -93,7 +105,7 @@ void SpikeDetectorEditor::removeSpikeChannel(int index)
     std::cout << "Deleting electrode number " << index << std::endl;
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
     
-    if (processor->removeSpikeChannel(index))
+    if (processor->removeSpikeChannel(index, getCurrentStream()))
     {
         currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
     }

@@ -55,8 +55,11 @@ public:
     /** Called when configure button is clicked */
     void buttonEvent(Button* button);
 
-    /** Adds a spike channel with a given type */
-    void addSpikeChannel(SpikeChannel::Type type);
+    /** Called when settings are updated*/
+    void updateSettings() override;
+
+    /** Adds spike channels with a given type */
+    void addSpikeChannels(SpikeChannel::Type type, int count);
 
     /** Removes a spike channel by index*/
     void removeSpikeChannel(int index);

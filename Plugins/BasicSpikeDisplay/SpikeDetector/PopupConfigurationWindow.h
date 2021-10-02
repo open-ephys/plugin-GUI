@@ -27,7 +27,14 @@
 
 #include <EditorHeaders.h>
 
+#include "SpikeDetector.h"
+
 class SpikeDetectorEditor;
+
+//class SpikeDetectorTableHeader : public TableHeaderComponent
+//{
+ //   SpikeDetector
+//}
 
 class SpikeDetectorTableModel : public TableListBoxModel
 {
@@ -41,14 +48,16 @@ public:
         NAME,
         TYPE,
         CHANNELS,
-        WAVEFORM_TYPE,
         THRESHOLD,
+        WAVEFORM,
         DELETE
     };
 
     void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
 
     int getNumRows() override;
+
+    void update(Array<SpikeChannelSettings*> spikeChannels);
 
     void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected);
 
@@ -57,25 +66,29 @@ public:
 private:
 
     SpikeDetectorEditor* editor;
+    Array<SpikeChannelSettings*> spikeChannels;
 };
 
 
 class PopupConfigurationWindow : public Component,
     public Label::Listener,
-    public Slider::Listener
+    public Slider::Listener,
+    public Button::Listener
 {
 
 public:
     
-    PopupConfigurationWindow(SpikeDetectorEditor* editor, Array<SpikeChannel*> spikeChannels);
+    PopupConfigurationWindow(SpikeDetectorEditor* editor, Array<SpikeChannelSettings*> spikeChannels);
 
     ~PopupConfigurationWindow();
 
-    void update(Array<SpikeChannel*> spikeChannels);
+    void update(Array<SpikeChannelSettings*> spikeChannels);
 
     void labelTextChanged(Label* label);
 
     void sliderValueChanged(Slider* slider);
+
+    void buttonClicked(Button* button);
 
     std::unique_ptr<UtilityButton> plusButton;
 

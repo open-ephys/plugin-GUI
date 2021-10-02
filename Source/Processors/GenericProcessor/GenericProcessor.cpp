@@ -337,6 +337,8 @@ void GenericProcessor::update()
 		std::cout << getNodeId() << " connected to Message Center" << std::endl;
 	}
 
+	updateChannelIndexMaps();
+
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
 					  // setting isEnabled variable

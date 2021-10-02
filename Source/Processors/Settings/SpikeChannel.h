@@ -43,18 +43,6 @@ public:
 		INVALID = 100
 	};
 
-	enum ThresholdType
-	{
-		FIXED = 1,
-		STD,
-		DYNAMIC,
-		CUSTOM1,
-		CUSTOM2,
-		CUSTOM3,
-		CUSTOM4,
-		UNKNOWN = 100
-	};
-
 	struct Settings {
 
 		Type type;
@@ -67,14 +55,8 @@ public:
 
 		Array<const ContinuousChannel*>& sourceChannels;
 
-		ThresholdType thresholdType = FIXED;
-
-		float defaultThreshold = -50;
-
 		unsigned int numPrePeakSamples = 8;
 		unsigned int numPostPeakSamples = 32;
-
-		bool sendFullWaveform = true;
 
 	};
 
@@ -91,36 +73,6 @@ public:
 
 	/** Returns an array with info about the channels from which the spikes originate */
 	const Array<const ContinuousChannel*>& getSourceChannels() const;
-
-	/** Updates the source continuous channels for this spike channel */
-	void setSourceChannels(Array<const ContinuousChannel*>);
-
-	/* Get the channel threshold type (FIXED, STD, DYNAMIC, etc.) */
-	ThresholdType getThresholdType() const;
-
-	/* Set the channel threshold type (SINGLE, STEREOTRODE, TETRODE) */
-	void setThresholdType(ThresholdType);
-
-	/* Get the channel threshold value */
-	float getThreshold(int channelIndex) const;
-
-	/* Set the channel threshold value */
-	void setThreshold(int channelIndex, float threshold);
-
-	/** Returns true if this channel sends spike objects containing the full waveform */
-	bool sendsFullWaveform() const;
-
-	/* Sets whether the channel sends spike objects containing the full waveform, or just the peak */
-	void shouldSendFullWaveform(bool);
-
-	/** Returns true if a sub-channel is enabled for detecting spikes*/
-	bool getSourceChannelState(int channelIndex) const;
-
-	/* Sets whether a sub-channel is enabled for detecting spikes */
-	void setSourceChannelState(int channelIndex, bool state);
-
-	/** Sets the number of samples, pre and post peak */
-	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
 
 	/** Gets the number of pre peak samples */
 	unsigned int getPrePeakSamples() const;
@@ -143,23 +95,34 @@ public:
 	/** Gets the size in bytes of one channel of the spike object*/
 	size_t getChannelDataSize() const;
 
+	// ====== STATIC METHODS ========= //
+
 	/** Gets the number of channels associated with a specific electrode type */
 	static unsigned int getNumChannels(Type type);
 
 	/** Gets the electrode type from a specific number of channels*/
 	static Type typeFromNumChannels(unsigned int nChannels);
 
+	/** Generates a default channel name to use*/
+	static String getDefaultChannelPrefix(Type channelType);
+
+	/** Generates a default channel name to use*/
+	static String getDescriptionFromType(Type channelType);
+
+	/** Generates a default channel name to use*/
+	static String getIdentifierFromType(Type channelType);
+
 private:
 
 	const Type type;
 
-	ThresholdType thresholdType;
+	//ThresholdType thresholdType;
 
 	Array<const ContinuousChannel*> sourceChannels;
-	Array<bool> isSourceChannelEnabled;
-	Array<float> thresholds;
+	//Array<bool> detectSpikesOnChannel;
+	//Array<float> thresholds;
 
-	bool sendFullWaveform;
+	//bool sendFullWaveform;
 
 	unsigned int numPreSamples;
 	unsigned int numPostSamples;
@@ -168,3 +131,35 @@ private:
 
 
 #endif
+
+
+/*
+/** Updates the source continuous channels for this spike channel */
+//void setSourceChannels(Array<const ContinuousChannel*>);
+
+/* Get the channel threshold type (FIXED, STD, DYNAMIC, etc.) */
+//ThresholdType getThresholdType() const;
+
+/* Set the channel threshold type (SINGLE, STEREOTRODE, TETRODE) */
+//void setThresholdType(ThresholdType);
+
+/* Get the channel threshold value */
+//float getThreshold(int channelIndex) const;
+
+/* Set the channel threshold value */
+//void setThreshold(int channelIndex, float threshold);
+
+/** Returns true if this channel sends spike objects containing the full waveform */
+//bool sendsFullWaveform() const;
+
+/* Sets whether the channel sends spike objects containing the full waveform, or just the peak */
+//void shouldSendFullWaveform(bool);
+
+/** Returns true if a sub-channel is enabled for detecting spikes*/
+//bool getSourceChannelState(int channelIndex) const;
+
+/* Sets whether a sub-channel is enabled for detecting spikes */
+//void setSourceChannelState(int channelIndex, bool state);
+
+/** Sets the number of samples, pre and post peak */
+//void setNumSamples(unsigned int preSamples, unsigned int postSamples); 
