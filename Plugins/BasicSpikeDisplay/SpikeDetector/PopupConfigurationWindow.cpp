@@ -26,15 +26,104 @@
 #include "SpikeDetectorEditor.h"
 #include <stdio.h>
 
-SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_)
-    : editor(editor_)
+
+void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
+{
+    owner->electrodeTable->selectRowsBasedOnModifierKeys(row, event.mods, false);
+
+    Label::mouseDown(event);
+}
+
+void EditableTextCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
+{
+    row = newRow;
+    columnId = newColumn;
+    setText(owner->getChannelName(row), dontSendNotification);
+}
+
+SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_,
+    PopupConfigurationWindow* owner_)
+    : editor(editor_), owner(owner_)
 {
 
 }
 
 void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const MouseEvent& event)
 {
-    std::cout << rowNumber << " " << columnId << std::endl;
+    std::cout << rowNumber << " " << columnId << " : selected " << std::endl;
+
+    if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
+    {
+        std::vector<bool> channelStates;
+
+        for (int i = 0; i < spikeChannels[rowNumber]->maxLocalChannel; i++)
+        {
+            channelStates.push_back(spikeChannels[rowNumber]->localChannelIndexes.contains(i));
+
+        }
+
+        std::cout << "Num channels: " << spikeChannels[rowNumber]->maxLocalChannel << std::endl;
+
+        auto* channelSelector = new PopupChannelSelector(editor, channelStates);
+        channelSelector->setMaximumSelectableChannels(spikeChannels[rowNumber]->expectedChannelCount);
+        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector), 
+                event.eventComponent->getScreenBounds(), 
+                nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+    }
+
+    //SparseSet<int> selectedRows = table->getSelectedRows();
+
+    //for (int i = 0; i < selectedRows.size(); i++)
+    //{
+    //    std::cout << selectedRows[i] << " ";
+    //}
+
+    //std::cout << std::endl;
+
+    if (event.mods.isRightButtonDown())
+        std::cout << "Right click!" << std::endl;
+}
+
+Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber, 
+    int columnId, 
+    bool isRowSelected,
+    Component* existingComponentToUpdate)
+{
+
+    //if (columnId == columnId == SpikeDetectorTableModel::Columns::NAME)  // [8]
+    //{
+    //    auto* selectionBox = static_cast<SelectionColumnCustomComponent*> (existingComponentToUpdate);
+
+    //    if (selectionBox == nullptr)
+    //        selectionBox = new SelectionColumnCustomComponent(*this);
+
+     //   selectionBox->setRowAndColumn(rowNumber, columnId);
+     //   return selectionBox;
+    //}
+
+    if (columnId == SpikeDetectorTableModel::Columns::NAME)
+    {
+        auto* textLabel = static_cast<EditableTextCustomComponent*> (existingComponentToUpdate);
+
+        if (textLabel == nullptr)
+        {
+            textLabel = new EditableTextCustomComponent(owner);
+            
+        }
+            
+        textLabel->addListener(owner);
+        textLabel->setRowAndColumn(rowNumber, columnId);
+        
+        return textLabel;
+    }
+
+    jassert(existingComponentToUpdate == nullptr);
+    return nullptr;
 }
 
 int SpikeDetectorTableModel::getNumRows()
@@ -49,13 +138,22 @@ void SpikeDetectorTableModel::update(Array<SpikeChannelSettings*> spikeChannels_
 
 void SpikeDetectorTableModel::paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
+    if (rowIsSelected)
+    {
+        if (rowNumber % 2 == 0)
+            g.fillAll(Colour(100, 100, 100));
+        else
+            g.fillAll(Colour(80, 80, 80));
+
+        return;
+    }
+
     if (rowNumber % 2 == 0)
         g.fillAll(Colour(50, 50, 50));
     else
         g.fillAll(Colour(30, 30, 30));
 
-    if (rowIsSelected)
-        g.fillAll(Colour(100, 100, 100));
+
 }
 
 void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected)
@@ -63,13 +161,13 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     if (columnId == SpikeDetectorTableModel::Columns::INDEX)
     {
         g.setColour(Colours::white);
-        g.drawText(String(rowNumber + 1), 0, 0, width, height, Justification::left);
+        g.drawText(String(rowNumber + 1), 4, 0, width, height, Justification::left);
     } 
     else if (columnId == SpikeDetectorTableModel::Columns::NAME)
     {
         g.setColour(Colours::white);
         //std::cout << "Drawing name column for row " << rowNumber << std::endl;
-        g.drawText(spikeChannels[rowNumber]->name, 0, 0, width, height, Justification::left);
+        g.drawText(spikeChannels[rowNumber]->name, 4, 0, width, height, Justification::left);
     } 
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
     {
@@ -96,12 +194,66 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
         }
         
     }
+    else if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
+    {
+        g.setColour(Colours::white);
+
+        String channelString = "[";
+
+        for (int i = 0; i < spikeChannels[rowNumber]->expectedChannelCount; i++)
+        {
+            channelString += String(spikeChannels[rowNumber]->localChannelIndexes[i]);
+            
+            if (i != spikeChannels[rowNumber]->expectedChannelCount - 1)
+                channelString += ", ";
+        }
+        
+        channelString += "]";
+           
+        g.drawText(channelString, 4, 4, width - 8, height - 8, Justification::centred);
+    } 
+    else if (columnId == SpikeDetectorTableModel::Columns::THRESHOLD)
+    {
+        switch (spikeChannels[rowNumber]->thresholdType)
+        {
+        case SpikeChannelSettings::ThresholdType::FIXED:
+            g.setColour(Colours::blue);
+            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.setColour(Colours::white);
+            g.drawText("FIXED", 4, 4, width - 8, height - 8, Justification::centred);
+            break;
+        case SpikeChannelSettings::ThresholdType::STD:
+            g.setColour(Colours::purple);
+            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.setColour(Colours::white);
+            g.drawText("STD", 4, 4, width - 8, height - 8, Justification::centred);
+            break;
+        case SpikeChannelSettings::ThresholdType::DYNAMIC:
+            g.setColour(Colours::green);
+            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.setColour(Colours::white);
+            g.drawText("DYNAMIC", 4, 4, width - 8, height - 8, Justification::centred);
+            break;
+        }
+    }
+    else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
+    {
+        g.setColour(Colours::white);
+        if (spikeChannels[rowNumber]->sendFullWaveform)
+        {
+            g.drawText("FULL", 4, 4, width - 8, height - 8, Justification::centred);
+        }
+        else {
+            g.drawText("PEAK ONLY", 4, 4, width - 8, height - 8, Justification::centred);
+        }
+    }
+
     else if (columnId == SpikeDetectorTableModel::Columns::DELETE)
     {
         g.setColour(Colours::red);
-        g.fillEllipse(6, 6, width - 12, height - 12);
+        g.fillEllipse(7, 7, width - 14, height - 14);
         g.setColour(Colours::white);
-        g.drawLine(8, height / 2, width - 10, height / 2, 3.0);
+        g.drawLine(9, height / 2, width - 9, height / 2, 3.0);
     }
 }
 
@@ -112,18 +264,18 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
 
     setSize(40, 40);
 
-    tableModel.reset(new SpikeDetectorTableModel(editor));
+    tableModel.reset(new SpikeDetectorTableModel(editor, this));
 
     electrodeTable = std::make_unique<TableListBox>("Electrode Table", tableModel.get());
     electrodeTable->setHeader(std::make_unique<TableHeaderComponent>());
 
-    electrodeTable->getHeader().addColumn("#", SpikeDetectorTableModel::Columns::INDEX, 30, 30, 30);
-    electrodeTable->getHeader().addColumn("Name", SpikeDetectorTableModel::Columns::NAME, 140, 140, 140);
-    electrodeTable->getHeader().addColumn("Type", SpikeDetectorTableModel::Columns::TYPE, 70, 70, 70);
-    electrodeTable->getHeader().addColumn("Channels", SpikeDetectorTableModel::Columns::CHANNELS, 100, 100, 100);
-    electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 100, 100, 100);
-    electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 50, 50, 50);
-    electrodeTable->getHeader().addColumn(" ", SpikeDetectorTableModel::Columns::DELETE, 30, 30, 30);
+    electrodeTable->getHeader().addColumn("#", SpikeDetectorTableModel::Columns::INDEX, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Name", SpikeDetectorTableModel::Columns::NAME, 140, 140, 140, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Type", SpikeDetectorTableModel::Columns::TYPE, 70, 70, 70, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Channels", SpikeDetectorTableModel::Columns::CHANNELS, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn(" ", SpikeDetectorTableModel::Columns::DELETE, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
 
     electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
     electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::highlightColourId, Colour(50, 240, 240));
@@ -151,6 +303,9 @@ PopupConfigurationWindow::~PopupConfigurationWindow()
 
 void PopupConfigurationWindow::update(Array<SpikeChannelSettings*> spikeChannels)
 {
+
+    spikeChannelsForCurrentStream = spikeChannels;
+
     if (spikeChannels.size() > 0)
     {
         electrodeTable->setVisible(true);
@@ -161,21 +316,33 @@ void PopupConfigurationWindow::update(Array<SpikeChannelSettings*> spikeChannels
 
         tableModel->update(spikeChannels);
 
-        setSize(530, (numRows + 1) * 30 + 45);
-        electrodeTable->setBounds(5, 5, 520, (numRows + 1) * 30);
+        int scrollBarWidth = 0;
+
+        if (spikeChannels.size() > maxRows)
+            scrollBarWidth += 20;
+
+        setSize(530 + scrollBarWidth, (numRows + 1) * 30 + 45);
+        electrodeTable->setBounds(5, 5, 520 + scrollBarWidth, (numRows + 1) * 30);
         plusButton->setBounds(5, getHeight() - 35, 30, 30);
+
+        electrodeTable->resized();
 
     }
     else {
         electrodeTable->setVisible(false);
     }
-        
     
+}
+
+String PopupConfigurationWindow::getChannelName(int row)
+{
+    return spikeChannelsForCurrentStream[row]->name;
 }
 
 void PopupConfigurationWindow::labelTextChanged(Label* label)
 {
-
+    EditableTextCustomComponent* l = (EditableTextCustomComponent*)label;
+    std::cout << "New name for electrode " << l->row << ": " << l->getText() << std::endl;
 }
 
 void PopupConfigurationWindow::sliderValueChanged(Slider* slider)

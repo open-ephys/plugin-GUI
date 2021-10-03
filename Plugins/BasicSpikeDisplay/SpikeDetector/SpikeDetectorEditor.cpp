@@ -80,7 +80,14 @@ void SpikeDetectorEditor::updateSettings()
 
 void SpikeDetectorEditor::channelStateChanged(Array<int> selectedChannels)
 {
+    std::cout << "New selected channels: ";
 
+    for (auto ch : selectedChannels)
+    {
+        std::cout << ch << ", ";
+    }
+
+    std::cout << std::endl;
 
 }
 

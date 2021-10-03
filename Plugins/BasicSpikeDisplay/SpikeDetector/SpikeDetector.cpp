@@ -40,6 +40,8 @@ SpikeChannelSettings::SpikeChannelSettings(const SpikeChannel::Type type_) :
         thresholds.add(-50);
     }
 
+    maxLocalChannel = 16;
+
 }
 
 void SpikeChannelSettings::setChannelIndexes(
@@ -275,7 +277,7 @@ bool SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 streamId)
 
     }
 
-    channelSettings->setChannelIndexes(localIndexes, globalIndexes, currentStream->getChannelCount());
+    channelSettings->setChannelIndexes(localIndexes, globalIndexes, 4); // currentStream->getChannelCount());
 
     settings[streamId]->spikeChannels.add(channelSettings);
 

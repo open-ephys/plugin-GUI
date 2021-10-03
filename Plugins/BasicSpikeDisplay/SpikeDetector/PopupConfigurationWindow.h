@@ -30,18 +30,40 @@
 #include "SpikeDetector.h"
 
 class SpikeDetectorEditor;
+class PopupConfigurationWindow;
 
 //class SpikeDetectorTableHeader : public TableHeaderComponent
 //{
  //   SpikeDetector
 //}
 
+class EditableTextCustomComponent : public juce::Label
+{
+public:
+    EditableTextCustomComponent(PopupConfigurationWindow* configWindow)
+        : owner(configWindow)
+    {
+        setEditable(false, true, false);
+    }
+
+    void mouseDown(const juce::MouseEvent& event) override;
+
+    void setRowAndColumn(const int newRow, const int newColumn);
+
+    int row;
+
+private:
+    PopupConfigurationWindow* owner;
+    int columnId;
+    juce::Colour textColour;
+};
+
 class SpikeDetectorTableModel : public TableListBoxModel
 {
 
 public:
 
-    SpikeDetectorTableModel(SpikeDetectorEditor* editor);
+    SpikeDetectorTableModel(SpikeDetectorEditor* editor, PopupConfigurationWindow* owner);
 
     enum Columns {
         INDEX = 1,
@@ -55,6 +77,11 @@ public:
 
     void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
 
+    Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected,
+        Component* existingComponentToUpdate) override;
+
+
+   
     int getNumRows() override;
 
     void update(Array<SpikeChannelSettings*> spikeChannels);
@@ -66,6 +93,7 @@ public:
 private:
 
     SpikeDetectorEditor* editor;
+    PopupConfigurationWindow* owner;
     Array<SpikeChannelSettings*> spikeChannels;
 };
 
@@ -84,6 +112,8 @@ public:
 
     void update(Array<SpikeChannelSettings*> spikeChannels);
 
+    String getChannelName(int row);
+
     void labelTextChanged(Label* label);
 
     void sliderValueChanged(Slider* slider);
@@ -100,6 +130,8 @@ public:
 
 private:
     SpikeDetectorEditor* editor;
+
+    Array<SpikeChannelSettings*> spikeChannelsForCurrentStream;
 };
 
 
