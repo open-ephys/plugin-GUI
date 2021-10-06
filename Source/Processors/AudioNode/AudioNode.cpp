@@ -58,7 +58,8 @@ void AudioNode::resetConnections()
     //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
     // nextAvailableChannel = 2; // start connections at channel 2
     //wasConnected = false;
-
+    GenericProcessor::resetConnections();
+    
     continuousChannels.clear();
 
     updatePlaybackBuffer();
@@ -81,10 +82,10 @@ void AudioNode::updateBufferSize()
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-    // auto sourceChannel = sourceNode->getAudioChannel(chan);
-    // auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
+    auto sourceChannel = sourceNode->getAudioChannel(chan);
+    auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
     
-    // continuousChannels.set(sourceChannelCopy);
+    continuousChannels.set(chan, sourceChannelCopy);
 
 }
 
@@ -125,21 +126,30 @@ void AudioNode::process(AudioBuffer<float>& buffer)
 
     if (1)
     {
-        // int nInputs = continuousChannels.size();
-        // if (nInputs > 0) // we have some channels
-        // {
 
-        //     // Simple implementation of a "noise gate" on audio output
-        //     expander.process(buffer.getWritePointer(0), // expand the left channel
-        //                      buffer.getNumSamples());
-            
-        //     expander.process(buffer.getWritePointer(1), // expand the right channel
-        //                      buffer.getNumSamples());
+        AudioSampleBuffer* overflowBuffer;
+        AudioSampleBuffer* backupBuffer;
 
-        //     gain = volume/(float(0x7fff) * continuousChannels[0]->getBitVolts());
+        int nInputs = buffer.getNumChannels();
+
+        if (nInputs > 0) // we have some channels
+        {
+
+            for (int i = 0; i < nInputs; i++) // cycle through them all
+            {
+                gain = volume/(float(0x7fff) * continuousChannels[i]->getBitVolts());
+
+                // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+                // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+
+                buffer.applyGain(i, 0, valuesNeeded, gain);
+
+                // Simple implementation of a "noise gate" on audio output
+                expander.process(buffer.getWritePointer(i), // expand the left/right channel
+                                 buffer.getNumSamples());
+            } // end cycling through channels
             
-        //     buffer.applyGain(gain);
-        // }
+        }
     }
 }
 

@@ -211,7 +211,6 @@ void AudioMonitor::updateFilter(int i)
 
 bool AudioMonitor::startAcquisition()
 {
-	recreateBuffers();
 	return true;
 }
 
@@ -221,12 +220,11 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
 
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
+    int totalBufferChannels = buffer.getNumChannels();
 
-    LOGDD("Buffer size: ", buffer.getNumChannels());
-
-    // clear the left and right channels
-    buffer.clear(0,0,buffer.getNumSamples());
-    buffer.clear(1,0,buffer.getNumSamples());
+    // clear the left and right channels (last two channels)
+    buffer.clear(totalBufferChannels - 2, 0, buffer.getNumSamples());
+    buffer.clear(totalBufferChannels - 1, 0, buffer.getNumSamples());
 
     if (!isMuted)
     {
@@ -335,7 +333,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                         tempBuffer->addFrom(0,       // destination channel
                                             samplesToCopyFromOverflowBuffer,           // destination start sample
                                             buffer,      // source
-                                            i+2,           // source channel (add 2 to account for output channels)
+                                            i,           // source channel
                                             0,           // source start sample
                                             samplesToCopyFromIncomingBuffer, //  number of samples
                                             gain       // gain to apply
@@ -356,7 +354,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                         backupBuffer->addFrom(0,                            // destination channel
                                               samplesInBackupBuffer[i],     // destination start sample
                                               buffer,                       // source
-                                              i+2,                          // source channel (add 2 to account for output channels)
+                                              i,                            // source channel 
                                               remainingSamples,             // source start sample
                                               orphanedSamples,              //  number of samples
                                               gain                          // gain to apply
@@ -397,7 +395,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
 
                         LOGDD("Copying sample ", sourceBufferPos);
 
-                        buffer.addFrom(0,    // destChannel
+                        buffer.addFrom(totalBufferChannels - 2,    // destChannel
                                        destBufferPos,  // destSampleOffset
                                        *tempBuffer,     // source
                                        //i,    // sourceChannel
@@ -406,7 +404,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                                        1,        // number of samples
                                        invAlpha*gain);      // gain to apply to source
 
-                        buffer.addFrom(0,    // destChannel
+                        buffer.addFrom(totalBufferChannels - 2,    // destChannel
                                        destBufferPos,   // destSampleOffset
                                        *tempBuffer,     // source
                                        //i,      // sourceChannel
@@ -416,7 +414,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                                        alpha*gain);       // gain to apply to source
 
                         // if (destBufferPos == 0)
-                        LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i+2,destBufferPos));
+                        LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i,destBufferPos));
 
                         subSampleOffset += ratio[i];
 
@@ -433,7 +431,7 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
                     if (ratio[i] < 0.99999)
                     {
                         // apply the filter after upsampling
-                        float* ptr = buffer.getWritePointer(0);
+                        float* ptr = buffer.getWritePointer(totalBufferChannels - 2);
                         filters[i]->process(destBufferPos, &ptr);
                     }
 
@@ -443,17 +441,17 @@ void AudioMonitor::process (AudioSampleBuffer& buffer)
             if(audioOutput == BOTH || audioOutput == RIGHT)
             {
                 // copy the signal into the right channel
-                buffer.addFrom(1,    // destChannel
+                buffer.addFrom(totalBufferChannels - 1,    // destChannel
                             0,  // destSampleOffset
                             buffer,     // source
-                            0,    // sourceChannel
+                            totalBufferChannels - 2,    // sourceChannel
                             0,// sourceSampleOffset
                             valuesNeeded,        // number of samples
                             1.0);      // gain to apply to source
                 
                 // if Right only, clear left channel
                 if(audioOutput == RIGHT)
-                    buffer.clear(0,0,buffer.getNumSamples());
+                    buffer.clear(totalBufferChannels - 2, 0, buffer.getNumSamples());
             }
 
         }

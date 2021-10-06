@@ -52,7 +52,7 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(fals
     // The ProcessorGraph will always have 0 inputs (all content is generated within graph)
     // but it will have N outputs, where N is the number of channels for the audio monitor
     setPlayConfigDetails(0, // number of inputs
-                         0, // number of outputs
+                         2, // number of outputs
                          44100.0, // sampleRate
                          1024);    // blockSize
 
@@ -1076,7 +1076,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
         for (int chan = 0; chan < source->getNumOutputs(); chan++)
         {
 
-            cs.channelIndex = source->isAudioMonitor() ? (chan + 2) : chan;
+            cs.channelIndex = chan;
             //cd.channelIndex = dest->getNextChannel(true);
 
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
@@ -1137,7 +1137,7 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
 
         getAudioNode()->addInputChannel(source, chan);
 
-        cs.channelIndex = chan;
+        cs.channelIndex = numOutputs + chan;
         cd.channelIndex = chan;
 
         addConnection(Connection(cs, cd));
@@ -1188,7 +1188,7 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 
     addConnection(Connection(cs, cd));
 
-    std::cout << "Connecting " << source->getNodeId() << " to message center" << std::endl;
+    std::cout << "Connecting " << source->getName() << source->getNodeId() << " to message center" << std::endl;
 
 }
 
