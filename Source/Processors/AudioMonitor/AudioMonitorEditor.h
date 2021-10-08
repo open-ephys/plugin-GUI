@@ -75,8 +75,6 @@ public:
 
     void channelStateChanged(Array<int> activeChannels) override;
 
-    std::vector<bool> channelStates;
-
 private:
 
     AudioMonitor* audioMonitor;

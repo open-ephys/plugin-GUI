@@ -134,7 +134,17 @@ void AudioMonitorEditor::buttonEvent (Button* button)
 {
     if (button == channelSelectButton.get())
     {
-        channelStates = audioMonitor->dataChannelStates;
+        std::vector<bool> channelStates;
+        Array<int> activeChannels = audioMonitor->getMonitoredChannels();
+
+        for (int i = 0; i < audioMonitor->getNumInputs(); i++)
+        {
+            if (activeChannels.contains(i))
+                channelStates.push_back(true);
+            else
+                channelStates.push_back(false);
+        }
+
         auto* channelSelector = new PopupChannelSelector(this, channelStates);
         channelSelector->setMaximumSelectableChannels(4);
         channelSelector->setChannelButtonColour(Colour(0, 174, 239));
@@ -191,24 +201,7 @@ void AudioMonitorEditor::channelStateChanged(Array<int> activeChannels)
 {    
     std::cout << "[Audio Monitor] Selected Channels: (";
 
-    for(int i = 0; i < channelStates.size(); i++)
-    {
-        if(activeChannels.contains(i+1) && !channelStates.at(i))
-        {
-            std::cout << i+1 << ", ";
-            channelStates.at(i) = true;
-            audioMonitor->setChannelStatus(i, true);
-        }
-        else if(!activeChannels.contains(i+1) && channelStates.at(i))
-        {
-            channelStates.at(i) = false;
-            audioMonitor->setChannelStatus(i, false);
-        }
-    }
-
-    std::cout << ")" << std::endl;
-
-    audioMonitor->dataChannelStates = channelStates;
+    audioMonitor->setMonitoredChannels(activeChannels);
 }
 
 void AudioMonitorEditor::comboBoxChanged(ComboBox* cb)

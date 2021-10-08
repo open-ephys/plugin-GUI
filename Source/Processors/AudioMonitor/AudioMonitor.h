@@ -31,6 +31,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Dsp/Dsp.h"
 
+#define MAX_CHANNELS 4
+
 /**
   Reads data from a file.
 
@@ -42,7 +44,8 @@ public:
     AudioMonitor();
     ~AudioMonitor();
 
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
+    
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
@@ -50,8 +53,6 @@ public:
     bool hasEditor() const  override { return true; }
 
     void updateSettings() override;
-
-    void setChannelStatus(int chan, bool status);
 
     /** Updates the audio buffer size*/
 	void updatePlaybackBuffer();
@@ -64,14 +65,19 @@ public:
     bool startAcquisition() override;
 
     void updateFilter(int i);
+    
+    void setMonitoredChannels(Array<int> activeChannels);
+    Array<int> getMonitoredChannels();
 
     std::vector<bool> dataChannelStates;
 
 private:
     void recreateBuffers();
+    
+    Array<int> activeChannels;
 
-    std::map<int, std::unique_ptr<AudioSampleBuffer>> bufferA;
-    std::map<int, std::unique_ptr<AudioSampleBuffer>> bufferB;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
 
     std::map<int, int> numSamplesExpected;
 
@@ -93,9 +99,9 @@ private:
     std::map<int, double> ratio;
 
     // major objects:
-    std::map<int, std::unique_ptr<Dsp::Filter>> filters;
+    OwnedArray<Dsp::Filter> filters;
 
-    std::unique_ptr<AudioSampleBuffer> tempBuffer;
+    std::unique_ptr<AudioBuffer<float>> tempBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitor);
 };

@@ -1135,7 +1135,7 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
     for (int chan = 0; chan < 2; chan++)
     {
 
-        getAudioNode()->addInputChannel(source, chan);
+        //getAudioNode()->addInputChannel(source, chan);
 
         cs.channelIndex = numOutputs + chan;
         cd.channelIndex = chan;

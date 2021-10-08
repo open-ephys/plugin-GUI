@@ -82,10 +82,10 @@ void AudioNode::updateBufferSize()
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
 
-    auto sourceChannel = sourceNode->getAudioChannel(chan);
-    auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
+    //auto sourceChannel = sourceNode->getAudioChannel(chan);
+    //auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
     
-    continuousChannels.set(chan, sourceChannelCopy);
+    //continuousChannels.set(chan, sourceChannelCopy);
 
 }
 
@@ -122,34 +122,25 @@ void AudioNode::process(AudioBuffer<float>& buffer)
     float gain;
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
-    LOGDD("Buffer size: ", buffer.getNumChannels());
+    int nInputs = buffer.getNumChannels();
 
-    if (1)
+    if (nInputs > 0) // we have some channels
     {
 
-        AudioSampleBuffer* overflowBuffer;
-        AudioSampleBuffer* backupBuffer;
-
-        int nInputs = buffer.getNumChannels();
-
-        if (nInputs > 0) // we have some channels
+        for (int i = 0; i < nInputs; i++) // cycle through them all
         {
+            gain = volume/(float(0x7fff) * 0.2);
 
-            for (int i = 0; i < nInputs; i++) // cycle through them all
-            {
-                gain = volume/(float(0x7fff) * continuousChannels[i]->getBitVolts());
+            // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+            // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
-                // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
-                // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+            buffer.applyGain(i, 0, valuesNeeded, gain);
 
-                buffer.applyGain(i, 0, valuesNeeded, gain);
-
-                // Simple implementation of a "noise gate" on audio output
-                expander.process(buffer.getWritePointer(i), // expand the left/right channel
-                                 buffer.getNumSamples());
-            } // end cycling through channels
-            
-        }
+            // Simple implementation of a "noise gate" on audio output
+            expander.process(buffer.getWritePointer(i), // expand the left/right channel
+                             buffer.getNumSamples());
+        } // end cycling through channels
+        
     }
 }
 
