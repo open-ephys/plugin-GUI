@@ -37,8 +37,6 @@ AudioNode::AudioNode()
     //nextAvailableChannel = 2; // keep first two channels empty
     resetConnections();
 
-    tempBuffer = new AudioBuffer<float>(16, 1024);
-
 }
 
 
@@ -58,12 +56,13 @@ AudioProcessorEditor* AudioNode::createEditor()
 void AudioNode::resetConnections()
 {
     //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
-    nextAvailableChannel = 2; // start connections at channel 2
+    // nextAvailableChannel = 2; // start connections at channel 2
     //wasConnected = false;
+    GenericProcessor::resetConnections();
+    
+    continuousChannels.clear();
 
-    //continuousChannels.clear();
-
-   // updatePlaybackBuffer();
+    updatePlaybackBuffer();
 }
 
 void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
@@ -79,57 +78,14 @@ void AudioNode::updateBufferSize()
 
 }
 
-void AudioNode::setChannel(const ContinuousChannel* ch)
-{
-
-	/*int channelNum;
-
-	try 
-	{
-		channelNum = audioDataChannelMap.at(ch->getCurrentNodeID()).at(ch->getCurrentNodeChannelIdx());
-	}
-	catch (...)
-	{
-		channelNum = -1;
-	}
-
-    LOGD("Audio node setting channel to ", channelNum);
-
-    setCurrentChannel(channelNum);*/
-}
-
-void AudioNode::setChannelStatus(const ContinuousChannel* chan, bool status)
-{
-
-    //setChannel(chan);
-
-    //enableCurrentChannel(status);
-
-}
-
-/*void AudioNode::enableCurrentChannel(bool state)
-{
-
-    if (state)
-    {
-        setParameter(100, 0.0f);
-    }
-    else
-    {
-        setParameter(-100, 0.0f);
-    }
-}*/
-
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
-    /*int channelIndex = getNextChannel(false);
 
-    auto dataChannel = sourceNode->getDataChannel(chan);
-    auto dataChannelCopy = new DataChannel(*dataChannel);
-    dataChannelCopy->setMonitored(dataChannel->isMonitored());
+    //auto sourceChannel = sourceNode->getAudioChannel(chan);
+    //auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
     
-    dataChannelArray.add(dataChannelCopy);*/
+    //continuousChannels.set(chan, sourceChannelCopy);
 
 }
 
@@ -154,360 +110,42 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
         expander.setThreshold(newValue); // in microVolts
 
     }
-    else if (parameterIndex == 100)
-    {
-
-		//dataChannelArray[currentChannel]->setMonitored(true);
-
-    }
-    else if (parameterIndex == -100)
-    {
-
-		//dataChannelArray[currentChannel]->setMonitored(false);
-    }
-
-}
-
-void AudioNode::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
-{
-
-
-    //LOGDD("Processor sample rate: ", getSampleRate());
-    LOGDD("Audio card sample rate: ", sampleRate_);
-    LOGDD("Samples per block: ", estimatedSamplesPerBlock);
-	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
-	{
-		destBufferSampleRate = sampleRate_;
-		estimatedSamples = estimatedSamplesPerBlock;
-		recreateBuffers();
-	}
-
-}
-
-void AudioNode::recreateBuffers()
-{
-	numSamplesExpected.clear();
-    samplesInBackupBuffer.clear();
-    samplesInOverflowBuffer.clear();
-    ratio.clear();
-    filters.clear();
-    bufferA.clear();
-    bufferB.clear();
-    bufferSwap.clear();
-
-    /*for (int i = 0; i < dataChannelArray.size(); i++)
-    {
-        // processor sample rate divided by sound card sample rate
-        numSamplesExpected.add((int)(dataChannelArray[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
-        samplesInBackupBuffer.add(0);
-        samplesInOverflowBuffer.add(0);
-        sourceBufferSampleRate.add(dataChannelArray[i]->getSampleRate());
-
-        filters.add(new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
-
-        ratio.add(float(numSamplesExpected[i])/float(estimatedSamples));
-        updateFilter(i);
-
-        bufferA.add(new AudioBuffer<float>(1,10000));
-        bufferB.add(new AudioBuffer<float>(1,10000));
-        bufferSwap.add(false);
-
-    }*/
-
-//    tempBuffer->setSize(getNumInputs(), 4096);
-    tempBuffer->setSize(1, 4096);
 }
 
 bool AudioNode::startAcquisition()
 {
-	recreateBuffers();
 	return true;
-}
-
-void AudioNode::updateFilter(int i)
-{
-
-    double cutoffFreq = (ratio[i] > 1.0) ? 2 * destBufferSampleRate  // downsample
-                        : destBufferSampleRate / 2; // upsample
-
-    double sampleFreq = (ratio[i] > 1.0) ? sourceBufferSampleRate[i] // downsample
-                        : destBufferSampleRate;  // upsample
-
-    Dsp::Params params;
-    params[0] = sampleFreq; // sample rate
-    params[1] = cutoffFreq; // cutoff frequency
-    params[2] = 1.25; //Q //
-
-    filters[i]->setParams(params);
-
 }
 
 void AudioNode::process(AudioBuffer<float>& buffer)
 {
 
-    buffer.clear();
-
-    /*float gain;
+    float gain;
+    
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
 
-    LOGDD("Buffer size: ", buffer.getNumChannels());
+    int nInputs = buffer.getNumChannels();
 
-    // clear the left and right channels
-    buffer.clear(0,0,buffer.getNumSamples());
-    buffer.clear(1,0,buffer.getNumSamples());
-
-    if (1)
+    if (nInputs > 0) // we have some channels
     {
 
-        AudioBuffer<float>* overflowBuffer;
-        AudioBuffer<float>* backupBuffer;
-
-        int nInputs = dataChannelArray.size();
-        if (nInputs > 0) // we have some channels
+        for (int i = 0; i < nInputs; i++) // cycle through them all
         {
+            gain = volume/(float(0x7fff) * 0.2);
 
-//            tempBuffer->clear();
+            // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+            // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
-            for (int i = 0; i < nInputs; i++) // cycle through them all
-            {
-
-                if (dataChannelArray[i]->isMonitored())
-                {
-                    tempBuffer->clear();
-                    LOGDD("Processing channel ", i);
-
-                    if (!bufferSwap[i])
-                    {
-                        overflowBuffer = bufferA[i];
-                        backupBuffer = bufferB[i];
-
-                        bufferSwap.set(i,true);
-                    }
-                    else
-                    {
-                        overflowBuffer = bufferB[i];
-                        backupBuffer = bufferA[i];
-
-                        bufferSwap.set(i,false);
-                    }
-
-                    backupBuffer->clear();
-
-                    samplesInOverflowBuffer.set(i,samplesInBackupBuffer[i]); // size of buffer after last round
-                    samplesInBackupBuffer.set(i,0);
-
-                    int orphanedSamples = 0;
-
-                    // 1. copy overflow buffer
-
-                    int samplesToCopyFromOverflowBuffer =
-                        ((samplesInOverflowBuffer[i] <= numSamplesExpected[i]) ?
-                         samplesInOverflowBuffer[i] :
-                         numSamplesExpected[i]);
-
-                    LOGDD("Copying ", samplesToCopyFromOverflowBuffer, " samples from overflow buffer of ", samplesInOverflowBuffer[i], " samples.");
-
-                    if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
-                    {
-
-                        tempBuffer->addFrom(0,    // destination channel
-                                            0,                // destination start sample
-                                            *overflowBuffer,  // source
-                                            0,                // source channel
-                                            0,                // source start sample
-                                            samplesToCopyFromOverflowBuffer,    // number of samples
-                                            1.0f              // gain to apply
-                                           );
-
-                        int leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
-
-                        LOGDD("Samples remaining in overflow buffer: ", leftoverSamples);
-
-                        if (leftoverSamples > 0) // move remaining samples to the backup buffer
-                        {
-
-                            backupBuffer->addFrom(0, // destination channel
-                                                  0,                     // destination start sample
-                                                  *overflowBuffer,       // source
-                                                  0,                     // source channel
-                                                  samplesToCopyFromOverflowBuffer,         // source start sample
-                                                  leftoverSamples,       // number of samples
-                                                  1.0f                   // gain to apply
-                                                 );
-                        }
-
-                        samplesInBackupBuffer.set(i,leftoverSamples);
-                    }
-
-                    gain = volume/(float(0x7fff) * dataChannelArray[i]->getBitVolts());
-                    // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
-                    // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
-
-                    int remainingSamples = numSamplesExpected[i] - samplesToCopyFromOverflowBuffer;
-
-                    int samplesAvailable = getNumSourceSamples(dataChannelArray[i]->getSourceNodeID(), dataChannelArray[i]->getSubProcessorIdx());
-
-                    int samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
-                                                           remainingSamples :
-                                                           samplesAvailable);
-
-                    LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
-
-
-                    if (samplesToCopyFromIncomingBuffer > 0)
-                    {
-
-                        //tempBuffer->addFrom(i,       // destination channel
-                        tempBuffer->addFrom(0,       // destination channel
-                                            samplesToCopyFromOverflowBuffer,           // destination start sample
-                                            buffer,      // source
-                                            i+2,           // source channel (add 2 to account for output channels)
-                                            0,           // source start sample
-                                            samplesToCopyFromIncomingBuffer, //  number of samples
-                                            gain       // gain to apply
-                                           );
-
-                        //if (destBufferPos == 0)
-                      //  LOGDD("Temp buffer 0 value: ", *tempBuffer->getReadPointer(i,0));
-
-                    }
-
-                    orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
-
-                    LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
-
-                    if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
-                    {
-
-                        backupBuffer->addFrom(0,                            // destination channel
-                                              samplesInBackupBuffer[i],     // destination start sample
-                                              buffer,                       // source
-                                              i+2,                          // source channel (add 2 to account for output channels)
-                                              remainingSamples,             // source start sample
-                                              orphanedSamples,              //  number of samples
-                                              gain                          // gain to apply
-                                             );
-
-                        samplesInBackupBuffer.set(i, samplesInBackupBuffer[i] + orphanedSamples);
-
-                    }
-
-                    // now that our tempBuffer is ready, we can filter it and copy it into the
-                    // original buffer
-
-                    LOGDD("Ratio = ", ratio[i], ", gain = ", gain);
-                    LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
-
-                    if (ratio[i] > 1.00001)
-                    {
-                        // pre-apply filter before downsampling
-                        float* ptr = tempBuffer->getWritePointer(i);
-                        filters[i]->process(numSamplesExpected[i], &ptr);
-                    }
-
-                    // initialize variables
-                    int sourceBufferPos = 0;
-                    int sourceBufferSize = numSamplesExpected[i];
-                    float subSampleOffset = 0.0;
-                    int nextPos = (sourceBufferPos + 1) % sourceBufferSize;
-
-                    int destBufferPos;
-
-                    // code modified from "juce_ResamplingAudioSource.cpp":
-
-                    for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
-                    {
-                        float gain = 1.0;
-                        float alpha = (float) subSampleOffset;
-                        float invAlpha = 1.0f - alpha;
-
-                        LOGDD("Copying sample ", sourceBufferPos);
-
-                        buffer.addFrom(0,    // destChannel
-                                       destBufferPos,  // destSampleOffset
-                                       *tempBuffer,     // source
-                                       //i,    // sourceChannel
-                                       0,       // sourceChannel
-                                       sourceBufferPos,// sourceSampleOffset
-                                       1,        // number of samples
-                                       invAlpha*gain);      // gain to apply to source
-
-                        buffer.addFrom(0,    // destChannel
-                                       destBufferPos,   // destSampleOffset
-                                       *tempBuffer,     // source
-                                       //i,      // sourceChannel
-                                       0,      // sourceChannel
-                                       nextPos,      // sourceSampleOffset
-                                       1,        // number of samples
-                                       alpha*gain);       // gain to apply to source
-
-                        // if (destBufferPos == 0)
-                        LOGDD("Output buffer 0 value: ", *buffer.getReadPointer(i+2,destBufferPos));
-
-                        subSampleOffset += ratio[i];
-
-                        while (subSampleOffset >= 1.0)
-                        {
-                            if (++sourceBufferPos >= sourceBufferSize)
-                                sourceBufferPos = 0;
-
-                            nextPos = (sourceBufferPos + 1) % sourceBufferSize;
-                            subSampleOffset -= 1.0;
-                        }
-                    }
-
-                    if (ratio[i] < 0.99999)
-                    {
-                        // apply the filter after upsampling
-                        float* ptr = buffer.getWritePointer(0);
-                        filters[i]->process(destBufferPos, &ptr);
-                    }
-
-                    // now copy the channel into the output zone
-
-                    // buffer.addFrom(0,    // destChannel
-                    //                0,  // destSampleOffset
-                    //                buffer,     // source
-                    //                 i+2,    // sourceChannel
-                    //                 0,// sourceSampleOffset
-                    //                 valuesNeeded,        // number of samples
-                    //                 1.0);      // gain to apply to source
-
-                } // if channelPointers[i]->isMonitored
-            } // end cycling through channels
+            buffer.applyGain(i, 0, valuesNeeded, gain);
 
             // Simple implementation of a "noise gate" on audio output
-            expander.process(buffer.getWritePointer(0), // expand the left channel
+            expander.process(buffer.getWritePointer(i), // expand the left/right channel
                              buffer.getNumSamples());
-
-            // copy the signal into the right channel (no stereo audio yet!)
-            buffer.addFrom(1,    // destChannel
-                           0,  // destSampleOffset
-                           buffer,     // source
-                           0,    // sourceChannel
-                           0,// sourceSampleOffset
-                           valuesNeeded,        // number of samples
-                           1.0);      // gain to apply to source
-        }
-    }*/
+        } // end cycling through channels
+        
+    }
 }
 
-
-/*void AudioNode::updateRecordChannelIndexes()
-{
-	//Keep the nodeIDs of the original processor from each channel comes from
-	updateChannelIndexes(false);
-	//and update the internal map
-	audioDataChannelMap.clear();
-	unsigned int nChans = dataChannelArray.size();
-	for (int i = 0; i < nChans; i++)
-	{
-		DataChannel* ch = dataChannelArray[i];
-		audioDataChannelMap[ch->getCurrentNodeID()][ch->getCurrentNodeChannelIdx()] = i;
-	}
-}*/
-
-// ==========================================================
 
 Expander::Expander()
 {

@@ -31,6 +31,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Dsp/Dsp.h"
 
+#define MAX_CHANNELS 4
+
 /**
   Reads data from a file.
 
@@ -42,7 +44,8 @@ public:
     AudioMonitor();
     ~AudioMonitor();
 
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
+    
     void setParameter (int parameterIndex, float newValue) override;
 
     AudioProcessorEditor* createEditor() override;
@@ -51,42 +54,54 @@ public:
 
     void updateSettings() override;
 
-    void setChannelStatus(int chan, bool status);
-
     /** Updates the audio buffer size*/
 	void updatePlaybackBuffer();
 
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
 
+     /** Resets the connections prior to a new round of data acquisition. */
+    void resetConnections() override;
+
     bool startAcquisition() override;
 
     void updateFilter(int i);
+    
+    void setMonitoredChannels(Array<int> activeChannels);
+    Array<int> getMonitoredChannels();
 
     std::vector<bool> dataChannelStates;
 
 private:
     void recreateBuffers();
+    
+    Array<int> activeChannels;
 
-    OwnedArray<AudioSampleBuffer> bufferA;
-    OwnedArray<AudioSampleBuffer> bufferB;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
 
-    Array<int> numSamplesExpected;
+    std::map<int, int> numSamplesExpected;
 
-    Array<int> samplesInBackupBuffer;
-    Array<int> samplesInOverflowBuffer;
-    Array<double> sourceBufferSampleRate;
+    std::map<int, int> samplesInBackupBuffer;
+    std::map<int, int> samplesInOverflowBuffer;
+    std::map<int, double> sourceBufferSampleRate;
     double destBufferSampleRate;
 	int estimatedSamples;
 
-    Array<bool> bufferSwap;
+    bool isMuted;
+
+    enum AudioOutputType {LEFT = 1, BOTH, RIGHT};
+
+    AudioOutputType audioOutput; 
+
+    std::map<int, bool> bufferSwap;
 
     // sample rate, timebase, and ratio info:
-    Array<double> ratio;
+    std::map<int, double> ratio;
 
     // major objects:
     OwnedArray<Dsp::Filter> filters;
 
-    std::unique_ptr<AudioSampleBuffer> tempBuffer;
+    std::unique_ptr<AudioBuffer<float>> tempBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitor);
 };

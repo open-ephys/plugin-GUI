@@ -1032,7 +1032,6 @@ void ProcessorGraph::updateConnections()
     //OwnedArray<EventChannel> extraChannels;
 //getMessageCenter()->addSpecialProcessorChannels();
 	
-	getAudioNode()->updatePlaybackBuffer();
 
     /*
     for (auto& recordNode : getRecordNodes())
@@ -1057,21 +1056,19 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 
     // 1. connect continuous channels
     if (connectContinuous)
-    {
-        int totalOutputs = source->isAudioMonitor() ? (source->getNumOutputs() - 2) : source->getNumOutputs();
-        
-        for (int chan = 0; chan < totalOutputs; chan++)
+    {        
+        for (int chan = 0; chan < source->getNumOutputs(); chan++)
         {
-            LOGDD(chan, " ");
 
             cs.channelIndex = chan;
             //cd.channelIndex = dest->getNextChannel(true);
 
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
 
+            std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
+
             if (cd.channelIndex > -1)
             {
-                //std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
                 addConnection(Connection(cs, cd));
             }
                  
@@ -1119,13 +1116,13 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
 
     int numOutputs = source->getNumOutputs();
     
-    for (int chan = numOutputs; chan < numOutputs - 2; chan++)
+    for (int chan = 0; chan < 2; chan++)
     {
 
-        getAudioNode()->addInputChannel(source, chan);
+        //getAudioNode()->addInputChannel(source, chan);
 
-        cs.channelIndex = chan;
-        cd.channelIndex = getAudioNode()->getNextChannel(true);
+        cs.channelIndex = numOutputs + chan;
+        cd.channelIndex = chan;
 
         addConnection(Connection(cs, cd));
    
@@ -1154,7 +1151,9 @@ LOGD("#########SKIPPING CONNECT TO RECORD NODE");
     cd.channelIndex = midiChannelIndex;
     addConnection(Connection(cs, cd));
 
+    std::cout << "Connecting " << source->getNodeId() << " to Audio Node" << std::endl;
 
+    getAudioNode()->updatePlaybackBuffer();
     //getRecordNode()->addInputChannel(source, midiChannelIndex);
 
 }
@@ -1173,7 +1172,7 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 
     addConnection(Connection(cs, cd));
 
-    std::cout << "Connecting " << source->getNodeId() << " to message center" << std::endl;
+    std::cout << "Connecting " << source->getName() << source->getNodeId() << " to message center" << std::endl;
 
 }
 
