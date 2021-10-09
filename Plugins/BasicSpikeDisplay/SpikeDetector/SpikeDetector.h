@@ -89,6 +89,18 @@ public:
     /** Total number of channels for this electrode type*/
     const int expectedChannelCount;
 
+    /** Holds the current sample index for this electrode*/
+    int currentSampleIndex;
+
+    /** Determines whether this electrode should use the overflow buffer*/
+    bool useOverflowBuffer;
+
+    /** Pointer to the SpikeChannel object for this electrode*/
+    SpikeChannel* spikeChannel;
+
+    /** Restores sampleIndex / overflow buffer settings after ending acquisition*/
+    void reset();
+
     /** Saves parameters to XML*/
     void toXml(XmlElement*);
 
@@ -186,35 +198,24 @@ private:
     /** Extra samples are placed in this buffer to allow seamless
     transitions between callbacks. */
     AudioSampleBuffer overflowBuffer;
-
-    /** Pointer to a continuous buffer. */
-    AudioSampleBuffer* dataBuffer;
     // =====================================================================
 
     float getDefaultThreshold() const;
 
-    float getNextSample (int& chan);
-    float getCurrentSample (int& chan);
-    bool samplesAvailable (int nSamples);
+    float getSample(int& globalChannelIndex, int& sampleIndex, AudioBuffer<float>& buffer);
+
+    //float getNextSample (int& chan);
+    //float getCurrentSample (int& chan);
+    //bool samplesAvailable (int nSamples);
 
     void addWaveformToSpikeObject (Spike::Buffer& s,
                                    int& peakIndex,
                                    int& electrodeNumber,
                                    int& currentChannel);
 
-    OwnedArray<SpikeChannel> internalSpikeChannels;
-
-    int overflowBufferSize;
-    int sampleIndex;
-
-    Array<int> electrodeCounter;
-
-    Array<bool> useOverflowBuffer;
-
+    uint16 currentStream;
     int currentElectrode;
     int currentChannelIndex;
-
-    int nextAvailableChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };
