@@ -117,7 +117,7 @@ MainWindow::~MainWindow()
 	if (audioComponent->callbacksAreActive())
 	{
 		audioComponent->endCallbacks();
-		processorGraph->disableProcessors();
+		processorGraph->stopAcquisition();
 	}
     
 	saveWindowBounds();
@@ -160,7 +160,7 @@ void MainWindow::shutDownGUI()
 		audioComponent->endCallbacks();
 	}
 
-	processorGraph->disableProcessors();
+	processorGraph->stopAcquisition();
 }
 
 void MainWindow::handleCrash(void* input)

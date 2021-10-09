@@ -380,6 +380,7 @@ public:
     //==============================================================================
     const String getName() const override;
     void prepareToPlay (double, int) override;
+    void buildRenderingSequence(); // switch to public method for Open Ephys GUI
     void releaseResources() override;
     void processBlock (AudioBuffer<float>&,  MidiBuffer&) override;
     void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
@@ -440,7 +441,7 @@ private:
     void unprepare();
     void handleAsyncUpdate() override;
     void clearRenderingSequence();
-    void buildRenderingSequence();
+
     bool anyNodesNeedPreparing() const noexcept;
     bool isConnected (Node* src, int sourceChannel, Node* dest, int destChannel) const noexcept;
     bool isAnInputTo (Node& src, Node& dst, int recursionCheck) const noexcept;

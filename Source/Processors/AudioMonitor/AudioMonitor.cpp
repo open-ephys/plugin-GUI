@@ -76,7 +76,7 @@ void AudioMonitor::resetConnections()
 
 void AudioMonitor::updatePlaybackBuffer()
 {
-	setPlayConfigDetails(getNumInputs(), getNumOutputs() + 2, 44100.0, 128);
+	setPlayConfigDetails(getNumInputs(), getNumOutputs() + 2, 48000.0, 128);
 }
 
 Array<int> AudioMonitor::getMonitoredChannels()
@@ -133,9 +133,9 @@ void AudioMonitor::setParameter (int parameterIndex, float newValue)
 
 void AudioMonitor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
-    //LOGDD("Processor sample rate: ", getSampleRate());
-    LOGDD("Audio card sample rate: ", sampleRate_);
-    LOGDD("Samples per block: ", estimatedSamplesPerBlock);
+    //("Processor sample rate: ", getSampleRate());
+    LOGD("Audio card sample rate: ", sampleRate_);
+    LOGD("Samples per block: ", estimatedSamplesPerBlock);
     
 	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
 	{
@@ -159,6 +159,7 @@ void AudioMonitor::recreateBuffers()
         numSamplesExpected.emplace(i, (int)(continuousChannels[i]->getSampleRate()/destBufferSampleRate*float(estimatedSamples)) + 1);
         sourceBufferSampleRate.emplace(i, continuousChannels[i]->getSampleRate());
         ratio.emplace(i, float(numSamplesExpected[i])/float(estimatedSamples));
+        std::cout << "Ratio " << i << ": " << ratio[i] << std::endl;
     }
 
     samplesInBackupBuffer.clear();
@@ -264,6 +265,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
             samplesInOverflowBuffer[i] = samplesInBackupBuffer[i]; // size of buffer after last round
             samplesInBackupBuffer[i] = 0;
 
+           // LOGD("Overflow samples: ", samplesInOverflowBuffer[i]);
+
             int orphanedSamples = 0;
 
             // 1. copy overflow buffer
@@ -272,6 +275,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 ((samplesInOverflowBuffer[i] <= numSamplesExpected[channelIndex]) ?
                  samplesInOverflowBuffer[i] :
                  numSamplesExpected[channelIndex]);
+
+           // LOGD("Number of samples to copy: ", samplesToCopyFromOverflowBuffer);
 
             if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
             {
@@ -303,6 +308,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 samplesInBackupBuffer[i] = leftoverSamples;
             }
 
+            //LOGD("Leftover samples: ", samplesInBackupBuffer[i]);
+
             // TODO: GAIN
             //gain = volume/(float(0x7fff) * dataChannelArray[i]->getBitVolts());
             gain = 1.0;
@@ -311,14 +318,16 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
             int remainingSamples = numSamplesExpected[channelIndex] - samplesToCopyFromOverflowBuffer;
 
-            int samplesAvailable = getNumSourceSamples(continuousChannels[channelIndex]->getStreamId());
+            // NEED TO UPDATE THIS!!!
+            int samplesAvailable = getNumSourceSamples(continuousChannels[0]->getStreamId());
 
             int samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
                                                    remainingSamples :
                                                    samplesAvailable);
 
-            LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
+            //LOGDD("Copying ", samplesToCopyFromIncomingBuffer, " samples from incoming buffer of ", samplesAvailable, " samples.");
 
+            //LOGD("Incoming samples: ", samplesAvailable);
 
             if (samplesToCopyFromIncomingBuffer > 0)
             {
@@ -336,7 +345,9 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
             orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
 
-            LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
+            //LOGD("Orphaned samples: ", orphanedSamples);
+
+            //LOGDD("Samples remaining in incoming buffer: ", orphanedSamples);
 
             if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
             {
@@ -357,8 +368,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
             // now that our tempBuffer is ready, we can filter it and copy it into the
             // original buffer
 
-            //LOGDD("Ratio = ", ratio[i], ", gain = ", gain);
-            //LOGDD("Values needed = ", valuesNeeded, ", channel = ", i);
+           // LOGD("Ratio = ", ratio[channelIndex], ", gain = ", gain);
+           // LOGD("Values needed = ", valuesNeeded, ", channel = ", channelIndex);
             
             float* ptr = tempBuffer->getWritePointer(0);
             filters[i]->process(numSamplesExpected[channelIndex], &ptr);
@@ -398,7 +409,6 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 buffer.addFrom(targetChannel,    // destChannel
                                destBufferPos,  // destSampleOffset
                                *tempBuffer,     // source
-                               //i,    // sourceChannel
                                0,       // sourceChannel
                                sourceBufferPos,// sourceSampleOffset
                                1,        // number of samples
@@ -407,7 +417,6 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 buffer.addFrom(targetChannel,    // destChannel
                                destBufferPos,   // destSampleOffset
                                *tempBuffer,     // source
-                               //i,      // sourceChannel
                                0,      // sourceChannel
                                nextPos,      // sourceSampleOffset
                                1,        // number of samples

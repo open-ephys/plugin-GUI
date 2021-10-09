@@ -881,36 +881,44 @@ struct RenderSequenceBuilder
 
             std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
 
-            if (output.isMIDI())
+            if (output.isMIDI()) // midi channel
             {
                 //std::cout << "MIDI CHANNEL" << std::endl;
 
                 if (inputChannelOfIndexToIgnore != AudioProcessorGraph::midiChannelIndex
-                     && graph.isConnected ({ { output.nodeID, AudioProcessorGraph::midiChannelIndex },
-                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
+                    && graph.isConnected({ { output.nodeID, AudioProcessorGraph::midiChannelIndex },
+                                            { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
+                {
+                    std::cout << "         --> MIDI CH: TRUE" << std::endl;
                     return true;
+                }
+                    
             }
-            else
+            else // audio channel
             {
-                //if (node->getProcessor()->getTotalNumInputChannels() == 0)
-                //{
-                    //std::cout << "          No inputs!" << std::endl;
-                //}
-                //else {
-                    //std::cout << "        :::channels::: ";
-                //}
+                std::cout << "         Total inputs: " << node->getProcessor()->getTotalNumInputChannels() << " " << std::endl;
 
+                for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
+                {
+                    if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
+                    {
+                        std::cout << "         --> CH " << i << ": TRUE" << std::endl;
+                        return true;
+                    }
+                }
+
+                /*
                 for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
                 {
                    
                     
                     streamId = ProcessorGraph::getStreamIdForChannel(*node, i);
 
-                    std::cout << "Channel " << i << " streamId = " << streamId << std::endl;
+                    std::cout << "          Channel " << i << " streamId = " << streamId << std::endl;
 
                     if (streamIsNeededLater.find(streamId) != streamIsNeededLater.end())
                     {
-                        std::cout << "     ----- Returning EXISTING value: " << streamIsNeededLater[streamId] << std::endl;
+                        std::cout << "        ----- Returning EXISTING value: " << streamIsNeededLater[streamId] << std::endl;
                         return streamIsNeededLater[streamId];
                     }
                     else {
@@ -928,9 +936,7 @@ struct RenderSequenceBuilder
 
                         }
                     }
-                }
-
-                //std::cout << std::endl;
+                }*/
                     
             }
 
@@ -938,8 +944,9 @@ struct RenderSequenceBuilder
             ++stepIndexToSearchFrom;
         }
 
-        std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
-        streamIsNeededLater[streamId] = false;
+        //std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
+        //streamIsNeededLater[streamId] = false;
+        std::cout << "         ---> FALSE" << std::endl;
         return false;
 
     }
@@ -1403,16 +1410,18 @@ void AudioProcessorGraph::buildRenderingSequence()
 {
     // DOUBLE BUFFERS NOT NEEDED -- remove for now
 
+    clearRenderingSequence();
+
     auto newSequenceF = std::make_unique<RenderSequenceFloat>();
     //auto newSequenceD = std::make_unique<RenderSequenceDouble>();
 
-    RenderSequenceBuilder<RenderSequenceFloat>  builderF (*this, *newSequenceF);
+    RenderSequenceBuilder<RenderSequenceFloat>  builderF(*this, *newSequenceF);
     //RenderSequenceBuilder<RenderSequenceDouble> builderD (*this, *newSequenceD);
 
-    const ScopedLock sl (getCallbackLock());
+    const ScopedLock sl(getCallbackLock());
 
     const auto currentBlockSize = getBlockSize();
-    newSequenceF->prepareBuffers (currentBlockSize);
+    newSequenceF->prepareBuffers(currentBlockSize);
     //newSequenceD->prepareBuffers (currentBlockSize);
 
     if (anyNodesNeedPreparing())
@@ -1421,17 +1430,19 @@ void AudioProcessorGraph::buildRenderingSequence()
         //renderSequenceDouble.reset();
 
         for (auto* node : nodes)
-            node->prepare (getSampleRate(), currentBlockSize, this, getProcessingPrecision());
+            node->prepare(getSampleRate(), currentBlockSize, this, getProcessingPrecision());
     }
 
     isPrepared = 1;
 
-    std::swap (renderSequenceFloat,  newSequenceF);
+    std::swap(renderSequenceFloat, newSequenceF);
     //std::swap (renderSequenceDouble, newSequenceD);
+
 }
 
 void AudioProcessorGraph::handleAsyncUpdate()
 {
+    //isPrepared = 1;
     buildRenderingSequence();
 }
 
@@ -1458,8 +1469,6 @@ void AudioProcessorGraph::prepareToPlay (double sampleRate, int estimatedSamples
             prepareSettings = newPrepareSettings;
         }
     }
-
-    clearRenderingSequence();
 
     updateOnMessageThread (*this);
 }

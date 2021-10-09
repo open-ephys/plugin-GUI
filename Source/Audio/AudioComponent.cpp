@@ -179,36 +179,15 @@ void AudioComponent::beginCallbacks()
     if (!isPlaying)
     {
 
-        //const MessageManagerLock mmLock;
-        // MessageManagerLock mml (Thread::getCurrentThread());
-
-        // if (mml.lockWasGained())
-        // {
-        //LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
-        // } else {
-        //LOGDD("AUDIO COMPONENT COULDN'T GET THE LOCK...RETURNING.");
-        //     return;
-        // }
-
-        //     MessageManager* mm = MessageManager::getInstance();
-
-        //     if (mm->isThisTheMessageThread())
-        //LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
-        //     else
-        //LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
-
-
-
         restartDevice();
 
         int64 ms = Time::getCurrentTime().toMilliseconds();
 
         while (Time::getCurrentTime().toMilliseconds() - ms < 100)
         {
-            // pause to let things finish up
+            // pause to let device initialize
 
         }
-
 
         LOGD("Adding audio callback.");
         deviceManager.addAudioCallback(graphPlayer);
@@ -218,14 +197,6 @@ void AudioComponent::beginCallbacks()
     {
         LOGD("beginCallbacks was called while acquisition was active.");
     }
-
-    //int64 ms = Time::getCurrentTime().toMilliseconds();
-
-    //while(Time::getCurrentTime().toMilliseconds() - ms < 100)
-    //{
-    // pause to let things finish up
-
-    // }
 
 }
 
@@ -238,7 +209,7 @@ void AudioComponent::endCallbacks()
 
     if (mml.lockWasGained())
     {
-        LOGDD("AUDIO COMPONENT GOT THAT LOCK!");
+        LOGDD("AUDIO COMPONENT GOT LOCK!");
     }
 
     MessageManager* mm = MessageManager::getInstance();

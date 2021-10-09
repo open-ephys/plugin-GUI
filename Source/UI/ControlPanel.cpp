@@ -117,6 +117,8 @@ void CPUMeter::updateCPU(float usage)
 {
     lastCpu = cpu;
     cpu = usage;
+
+    repaint();
 }
 
 void CPUMeter::paint(Graphics& g)
@@ -157,6 +159,8 @@ DiskSpaceMeter::~DiskSpaceMeter()
 void DiskSpaceMeter::updateDiskSpace(float percent)
 {
     diskFree = percent;
+
+    repaint();
 }
 
 void DiskSpaceMeter::paint(Graphics& g)
@@ -463,10 +467,9 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addChildComponent(appendText);
     appendText->setTooltip("Append to name of data directory");
 
-    //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-    //diskMeter->repaint();
-    //refreshMeters();
-    startTimer(10);
+    refreshMeters();
+
+    startTimer(60000); // update disk space every minute
 
     setWantsKeyboardFocus(true);
 
@@ -521,6 +524,57 @@ void ControlPanel::setAcquisitionState(bool state)
 	playButton->setToggleState(state, sendNotification);
 }
 
+void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
+{
+    if (graph->isReady()) // check that all processors are enabled
+    {
+        if (recordEngines[recordSelector->getSelectedId() - 1]->isWindowOpen())
+            recordEngines[recordSelector->getSelectedId() - 1]->toggleConfigWindow();
+
+        graph->updateConnections();
+        graph->startAcquisition();
+
+        if (recordingShouldAlsoStart)
+        {
+            startRecording();
+            playButton->setToggleState(true, dontSendNotification);
+        }
+
+        audio->beginCallbacks(); // renders audiolaunches acquisition
+
+        masterClock->start(); // starts the clock
+        audioEditor->disable();
+
+        stopTimer();
+        startTimer(250); // refresh every 250 ms
+
+        recordSelector->setEnabled(false); // why is this outside the "if" statement?
+        recordOptionsButton->setEnabled(false);
+
+    }
+}
+
+void ControlPanel::stopAcquisition()
+{
+    if (recordButton->getToggleState())
+    {
+        stopRecording();
+    }
+
+    audio->endCallbacks();
+    graph->stopAcquisition();
+
+    refreshMeters();
+
+    masterClock->stop();
+    audioEditor->enable();
+
+    stopTimer();
+    startTimer(60000); // back to refresh every minute
+    
+    recordSelector->setEnabled(true);
+    recordOptionsButton->setEnabled(true);
+}
 
 void ControlPanel::updateChildComponents()
 {
@@ -869,40 +923,11 @@ void ControlPanel::buttonClicked(Button* button)
         if (playButton->getToggleState())
         {
 
-            if (graph->enableProcessors()) // start the processor graph
-            {
-                if (recordEngines[recordSelector->getSelectedId()-1]->isWindowOpen())
-                    recordEngines[recordSelector->getSelectedId()-1]->toggleConfigWindow();
-
-                audio->beginCallbacks(); // launches acquisition
-                masterClock->start(); // starts the clock
-                audioEditor->disable();
-
-                stopTimer();
-                startTimer(250); // refresh every 250 ms
-
-            }
-            recordSelector->setEnabled(false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled(false);
+            startAcquisition();
         }
         else
         {
-
-            if (recordButton->getToggleState())
-            {
-                stopRecording();
-            }
-
-            audio->endCallbacks();
-            graph->disableProcessors();
-            refreshMeters();
-            masterClock->stop();
-            stopTimer();
-            startTimer(60000); // back to refresh every minute
-            audioEditor->enable();
-            recordSelector->setEnabled(true);
-            recordOptionsButton->setEnabled(true);
-
+            stopAcquisition();
         }
 
         return;
@@ -915,7 +940,7 @@ void ControlPanel::buttonClicked(Button* button)
             
             if (!graph->hasRecordNode())
             {
-                CoreServices::sendStatusMessage("Please insert at least one Record Node to start recording!");
+                CoreServices::sendStatusMessage("Insert at least one Record Node to start recording.");
                 recordButton->setToggleState(false, dontSendNotification);
                 return;
             }
@@ -926,26 +951,7 @@ void ControlPanel::buttonClicked(Button* button)
             }
             else
             {
-                if (graph->enableProcessors()) // start the processor graph
-                {
-                    if (recordEngines[recordSelector->getSelectedId()-1]->isWindowOpen())
-                        recordEngines[recordSelector->getSelectedId()-1]->toggleConfigWindow();
-					
-					startRecording();
-                    masterClock->start();
-					audio->beginCallbacks();
-                    audioEditor->disable();
-
-                    stopTimer();
-                    startTimer(250); // refresh every 250 ms
-
-                    
-
-                    playButton->setToggleState(true, dontSendNotification);
-                    recordSelector->setEnabled(false);
-                    recordOptionsButton->setEnabled(false);
-
-                }
+                startAcquisition(true);
             }
         }
         else
@@ -1007,7 +1013,7 @@ void ControlPanel::disableCallbacks()
         LOGD("Stopping audio.");
         audio->endCallbacks();
         LOGD("Disabling processors.");
-        graph->disableProcessors();
+        graph->stopAcquisition();
         LOGD("Updating control panel.");
         refreshMeters();
         stopTimer();
@@ -1023,26 +1029,9 @@ void ControlPanel::disableCallbacks()
 
 }
 
-// void ControlPanel::actionListenerCallback(const String & msg)
-// {
-// 	LOGDD("Message Received");
-// 	if (playButton->getToggleState()) {
-// 		cpuMeter->updateCPU(audio->deviceManager.getCpuUsage());
-// 	}
-
-// 	cpuMeter->repaint();
-
-// 	diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-// 	diskMeter->repaint();
-
-
-// }
-
 void ControlPanel::timerCallback()
 {
-    LOGDD("Message Received.");
     refreshMeters();
-
 }
 
 void ControlPanel::refreshMeters()
@@ -1056,12 +1045,11 @@ void ControlPanel::refreshMeters()
         cpuMeter->updateCPU(0.0f);
     }
 
-    cpuMeter->repaint();
-
     masterClock->repaint();
 
-    //diskMeter->updateDiskSpace(graph->getRecordNode()->getFreeSpace());
-    diskMeter->repaint();
+    File currentDirectory = filenameComponent->getCurrentFile();
+
+    diskMeter->updateDiskSpace(1.0f - float(currentDirectory.getBytesFreeOnVolume()) / float(currentDirectory.getVolumeTotalSize()));
 
     if (initialize)
     {

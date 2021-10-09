@@ -26,15 +26,10 @@
 #include "AudioNode.h"
 
 AudioNode::AudioNode()
-    : GenericProcessor("Audio Node"), audioEditor(nullptr), volume(0.00001f), noiseGateLevel(0.0f)
+    : GenericProcessor("Audio Node"), audioEditor(nullptr), volume(0.00001f), noiseGateLevel(0.0f),
+    connectedProcessors(0)
 {
 
-    // settings.numInputs = 4096;
-    //settings.numOutputs = 2;
-
-    //updatePlaybackBuffer();
-
-    //nextAvailableChannel = 2; // keep first two channels empty
     resetConnections();
 
 }
@@ -55,20 +50,15 @@ AudioProcessorEditor* AudioNode::createEditor()
 
 void AudioNode::resetConnections()
 {
-    //settings.numInputs = 2; // "dummy" inputs that are actually just outputs
-    // nextAvailableChannel = 2; // start connections at channel 2
-    //wasConnected = false;
-    GenericProcessor::resetConnections();
-    
-    continuousChannels.clear();
 
+    connectedProcessors = 0;
+    
     updatePlaybackBuffer();
 }
 
 void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
 {
-    //settings.numInputs += sourceNode->getNumOutputs();
-    updatePlaybackBuffer();
+    connectedProcessors++;
 }
 
 void AudioNode::updateBufferSize()
@@ -81,7 +71,7 @@ void AudioNode::updateBufferSize()
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
-
+    nextAvailableChannel++;
     //auto sourceChannel = sourceNode->getAudioChannel(chan);
     //auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
     
@@ -91,7 +81,7 @@ void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 
 void AudioNode::updatePlaybackBuffer()
 {
-	setPlayConfigDetails(getNumInputs(), 2, 44100.0, 128);
+	setPlayConfigDetails(2, 2, 44100.0, 128);
 }
 
 void AudioNode::setParameter(int parameterIndex, float newValue)
@@ -120,30 +110,37 @@ bool AudioNode::startAcquisition()
 void AudioNode::process(AudioBuffer<float>& buffer)
 {
 
-    float gain;
-    
-    int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
-
-    int nInputs = buffer.getNumChannels();
-
-    if (nInputs > 0) // we have some channels
+    if (connectedProcessors > 0)
     {
+        float gain;
 
-        for (int i = 0; i < nInputs; i++) // cycle through them all
+        int valuesNeeded = buffer.getNumSamples(); // samples needed to fill out the buffer
+
+        int nInputs = buffer.getNumChannels();
+
+        if (nInputs > 0) // we have some channels
         {
-            gain = volume/(float(0x7fff) * 0.2);
 
-            // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
-            // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+            for (int i = 0; i < nInputs; i++) // cycle through them all
+            {
+                gain = volume / (float(0x7fff) * 0.2);
 
-            buffer.applyGain(i, 0, valuesNeeded, gain);
+                // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
+                // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 
-            // Simple implementation of a "noise gate" on audio output
-            expander.process(buffer.getWritePointer(i), // expand the left/right channel
-                             buffer.getNumSamples());
-        } // end cycling through channels
-        
+                buffer.applyGain(i, 0, valuesNeeded, gain);
+
+                // Simple implementation of a "noise gate" on audio output
+                expander.process(buffer.getWritePointer(i), // expand the left/right channel
+                    buffer.getNumSamples());
+            } // end cycling through channels
+
+        }
     }
+    else {
+        buffer.clear();
+    }
+    
 }
 
 

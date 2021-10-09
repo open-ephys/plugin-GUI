@@ -67,14 +67,16 @@ GenericProcessor::GenericProcessor(const String& name)
 
 GenericProcessor::~GenericProcessor()
 {
+	if (editor != nullptr)
+	{
+		editor.reset();
+	}
 }
 
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
 	editor = std::make_unique<GenericEditor>(this, true);
-
-	
 
 	return editor.get();
 }
