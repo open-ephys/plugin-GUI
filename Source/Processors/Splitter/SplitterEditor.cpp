@@ -202,6 +202,7 @@ void SplitterEditor::switchDest()
         streamSelectorB->setVisible(true);
 
     }
+    
 }
 
 

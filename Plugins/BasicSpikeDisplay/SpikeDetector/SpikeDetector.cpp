@@ -294,7 +294,7 @@ float SpikeDetector::getDefaultThreshold() const
 
 bool SpikeDetector::removeSpikeChannel (int index, uint16 streamId)
 {
-    
+ 
     settings[streamId]->spikeChannels.remove(index);
 
     return true;

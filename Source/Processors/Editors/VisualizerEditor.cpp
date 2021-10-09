@@ -302,6 +302,13 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
     {
         canvas->saveVisualizerParameters (xml);
     }
+    else
+    {
+        tabSelector->setToggleState(true, sendNotification);
+        canvas->saveVisualizerParameters(xml);
+        tabSelector->setToggleState(false, sendNotification);
+    }
+
 }
 
 

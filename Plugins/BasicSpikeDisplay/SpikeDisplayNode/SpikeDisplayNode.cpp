@@ -50,13 +50,11 @@ AudioProcessorEditor* SpikeDisplayNode::createEditor()
 
 void SpikeDisplayNode::updateSettings()
 {
-    //std::cout << "Setting num inputs on SpikeDisplayNode to " << getNumInputs() << std::endl;
-
     electrodes.clear();
 
 	for (int i = 0; i < spikeChannels.size(); ++i)
 	{
-
+        
 		Electrode* elec = new Electrode();
 		elec->numChannels = spikeChannels[i]->getNumChannels();
 		elec->bitVolts = spikeChannels[i]->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
@@ -78,7 +76,6 @@ void SpikeDisplayNode::updateSettings()
 
 bool SpikeDisplayNode::startAcquisition()
 {
-    std::cout << "SpikeDisplayNode::enable()" << std::endl;
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
 
 	for (int i = 0; i < spikeChannels.size(); i ++)
@@ -93,7 +90,6 @@ bool SpikeDisplayNode::startAcquisition()
 
 bool SpikeDisplayNode::stopAcquisition()
 {
-    std::cout << "SpikeDisplayNode disabled!" << std::endl;
 
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
     editor->disable();

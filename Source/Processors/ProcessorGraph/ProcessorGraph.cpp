@@ -136,7 +136,18 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         if (!processor->isSource())
         {
             processor->setSourceNode(newSource);
-            newSource->setDestNode(processor);
+            
+            if (newSource->isSplitter())
+            {
+                Splitter* splitter = (Splitter*) newSource;
+                splitter->setSplitterDestNode(processor);
+            }
+            else
+            {
+                newSource->setDestNode(processor);
+            }
+                
+            
         } else {
             processor->setSourceNode(nullptr);
             newSource->setDestNode(nullptr);
@@ -535,16 +546,20 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
     if (processor != nullptr)
         LOGDD("Processor to view: ", processor->getName());
     
-    while (processor != nullptr)
+    for (int i = 0; i < 99; i++)
     {
+        if (processor == nullptr)
+            break;
+        
         rootProcessor = processor;
         processor = processor->getSourceNode();
+        
+        if (rootProcessor == processor)
+            break;
         
         if (rootProcessor != nullptr)
         {
             LOGDD("  Source: ", rootProcessor->getName());
-
-           
         }
 
         if (processor != nullptr)
@@ -554,17 +569,19 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
                 SplitterEditor* sp = (SplitterEditor*)processor->getEditor();
                 GenericEditor* ed = rootProcessor->getEditor();
 
-                LOGDD("  Switching splitter to view: ", ed->getName())
+                LOGD("---> Switching splitter to view: ", ed->getName())
                 sp->switchDest(sp->getPathForEditor(ed));
             }
         }
-           
     }
     
     processor = rootProcessor;
 
-    while (processor != nullptr)
+    for (int i = 0; i < 99; i++)
     {
+        if (processor == nullptr)
+            break;
+        
         editorArray.add(processor->getEditor());
         
         LOGDD(" Adding ", processor->getName(), " to editor array.");
@@ -583,6 +600,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         }
         
         processor = processor->getDestNode();
+        
     }
     
     AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,
@@ -876,6 +894,8 @@ void ProcessorGraph::updateConnections()
     clearConnections(); // clear processor graph
 
     Array<GenericProcessor*> splitters;
+    Array<GenericProcessor*> splitters2;
+    Array<int> splitterStates;
 
     // keep track of which splitter is currently being explored, in case there's another
     // splitter between the one being explored and its source.
@@ -943,6 +963,10 @@ void ProcessorGraph::updateConnections()
                     {
                         // add to stack of splitters to explore
                         splitters.add(dest);
+                        
+                        Splitter* splitter = (Splitter*) dest;
+                        splitterStates.add(splitter->getPath());
+            
                         dest->switchIO(0); // go down first path
                     }
                     else if (dest->isMerger())
@@ -996,17 +1020,23 @@ void ProcessorGraph::updateConnections()
                 if (splitters.size() > 0)
                 {
                     activeSplitter = splitters.getLast();
+                    splitters2.insert(0, activeSplitter);
+            
                     splitters.removeLast();
                     activeSplitter->switchIO(1);
 
                     source = activeSplitter;
                     GenericProcessor* newSource;
+            
                     while (source->isSplitter() || source->isMerger())
                     {
                         newSource = source->getSourceNode();
                         newSource->setPathToProcessor(source);
                         source = newSource;
                     }
+            
+                    //activeSplitter->switchIO(splitterStates.getLast());
+                    //splitterStates.removeLast();
                 }
                 else
                 {
@@ -1016,6 +1046,11 @@ void ProcessorGraph::updateConnections()
 
         } // end while source != 0
     } // end "tabs" for loop
+        
+    for (int i = 0; i < splitters2.size(); i++)
+    {
+        splitters2[i]->switchIO(splitterStates[i]);
+    }
 
     // actually connect sources to each dest processor,
     // in correct order by merger topography

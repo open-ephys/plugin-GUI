@@ -162,10 +162,14 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
 void GenericProcessor::setDestNode(GenericProcessor* dn)
 {
 	
-    if (this->isSplitter())
+    if (isSplitter())
+    {
         setSplitterDestNode(dn);
+    }
     else
+    {
         destNode = dn;
+    }
 
 }
 
