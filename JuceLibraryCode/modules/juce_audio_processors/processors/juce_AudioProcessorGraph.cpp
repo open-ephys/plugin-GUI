@@ -363,7 +363,11 @@ struct RenderSequenceBuilder
         for (int i = 0; i < orderedNodes.size(); ++i)
         {
             createRenderingOpsForNode (*orderedNodes.getUnchecked(i), i);
+
+            std::cout << " * Marking unused audio buffers." << std::endl;
             markAnyUnusedBuffersAsFree (audioBuffers, i);
+
+            std::cout << " * Marking unused midi buffers." << std::endl;
             markAnyUnusedBuffersAsFree (midiBuffers, i);
         }
 
@@ -697,7 +701,7 @@ struct RenderSequenceBuilder
     void createRenderingOpsForNode (AudioProcessorGraph::Node& node, const int ourRenderingIndex)
     {
 
-        std::cout << " " << "Creating rendering ops for " << node.getProcessor()->getName() << " (index " << ourRenderingIndex << ")" << std::endl;
+        std::cout << "Creating rendering ops for " << node.getProcessor()->getName() << " (index " << ourRenderingIndex << ")" << std::endl;
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -839,7 +843,6 @@ struct RenderSequenceBuilder
 
     void markAnyUnusedBuffersAsFree (Array<AssignedBuffer>& buffers, const int stepIndex)
     {
-        std::cout << "   Marking unused buffers " << std::endl;
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -867,10 +870,20 @@ struct RenderSequenceBuilder
                               AudioProcessorGraph::NodeAndChannel output) 
     {
         std::cout << "    isBufferNeededLater? "
-            << stepIndexToSearchFrom << " "
-            << inputChannelOfIndexToIgnore << " output "
+            << "Rendering index: " << stepIndexToSearchFrom << ", "
+            << "Channel to ignore: " << inputChannelOfIndexToIgnore << ", Output to check: "
             << output.nodeID.uid << ":"
             << output.channelIndex << std::endl;
+
+        bool prediction = ProcessorGraph::isBufferNeededLater(orderedNodes.getUnchecked(stepIndexToSearchFrom)->nodeID.uid, 
+            inputChannelOfIndexToIgnore,
+            output.nodeID.uid,
+            output.channelIndex);
+
+        if (prediction)
+            std::cout << "PREDICTION: TRUE" << std::endl;
+        else
+            std::cout << "PREDICTION: FALSE" << std::endl;
 
        // return false;
         uint16 streamId;
@@ -890,6 +903,7 @@ struct RenderSequenceBuilder
                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
                 {
                     std::cout << "         --> MIDI CH: TRUE" << std::endl;
+                    jassert(prediction);
                     return true;
                 }
                     
@@ -903,6 +917,7 @@ struct RenderSequenceBuilder
                     if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
                     {
                         std::cout << "         --> CH " << i << ": TRUE" << std::endl;
+                        jassert(prediction);
                         return true;
                     }
                 }
@@ -947,6 +962,7 @@ struct RenderSequenceBuilder
         //std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
         //streamIsNeededLater[streamId] = false;
         std::cout << "         ---> FALSE" << std::endl;
+        jassert(!prediction);
         return false;
 
     }

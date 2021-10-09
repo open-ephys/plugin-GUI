@@ -206,6 +206,8 @@ public:
 	//uint32 getGlobalTimestampSourceFullId() const;
 
     static int getStreamIdForChannel(Node& node, int channel);
+
+    static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex);
     
 private:
 

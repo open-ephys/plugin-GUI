@@ -816,6 +816,190 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
 }
 
+bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
+    int inputIndex,
+    int outputNodeId,
+    int outputIndex)
+
+{
+    std::cout << inputNodeId << ":" << inputIndex << " --> " << outputNodeId << ":" << outputIndex << std::endl;
+
+    GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
+    GenericProcessor* outputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(outputNodeId);
+
+
+    if (inputNodeId == AUDIO_NODE_ID)
+    {
+        if (outputIndex == midiChannelIndex)
+        {
+            if (outputNodeId < AUDIO_NODE_ID)
+            {
+                if (outputProcessor->getDestNode() != nullptr)
+                {
+                    return true;
+                        
+                }
+                else {
+                    return false;
+                }
+            }
+            else
+                 return false;
+        }
+            
+        else {
+            if (outputNodeId < AUDIO_NODE_ID)
+            {
+                if (inputIndex == -1)
+                    return true;
+                else
+                    return false;
+            }
+            else
+            {
+                return true;
+            }
+                
+        }
+            
+    }
+    else if (inputNodeId == OUTPUT_NODE_ID)
+    {
+        if (outputNodeId == AUDIO_NODE_ID)
+            return true;
+        else
+        {
+            if (outputNodeId < AUDIO_NODE_ID)
+            {
+                if (outputProcessor->getDestNode() != nullptr)
+                {
+
+                    return true;
+                    //if (outputProcessor->getDestNode()->isSplitter())
+                    //{
+                    //    if (outputProcessor->isAudioMonitor() 
+                    //        && outputIndex >= outputProcessor->getNumInputChannels()
+                    //        && outputIndex != midiChannelIndex)
+                    //        return false;
+                    //    else
+                    //        return true;
+                    //}
+                        
+                   // else
+                   // {
+                   //     return false;
+                   // }
+                       
+                }
+                else {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+            
+    }
+    else if (inputNodeId == MESSAGE_CENTER_ID)
+    {
+        if (outputIndex == midiChannelIndex)
+            return true;
+        else
+            return false;
+    }
+    else {
+        
+        if (outputNodeId == MESSAGE_CENTER_ID)
+        {
+            if (inputProcessor->getDestNode()->isMerger())
+            {
+                Merger* merger = (Merger*)inputProcessor->getDestNode();
+
+                if (merger->getSourceNode(0) == inputProcessor)
+                {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+
+                if (inputProcessor->isMerger())
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        if (inputIndex == -1)
+        {
+
+            if (outputProcessor->isMerger() || outputProcessor->isSplitter())
+                return false;
+
+            if (outputProcessor->isAudioMonitor())
+            {
+                if (outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex)
+                    return true;
+            }
+                
+            if (outputProcessor->getDestNode() == nullptr)
+                return false;
+            else
+            {
+                if (outputProcessor->getDestNode()->isSplitter())
+                {
+                    Splitter* splitter = (Splitter*)outputProcessor->getDestNode();
+
+                    if (splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr)
+                        return false;
+                }
+
+                return true;
+            }
+        }
+        else {
+
+            if (outputProcessor->getDestNode() != nullptr)
+            {
+                if (!outputProcessor->getDestNode()->isSplitter())
+                {
+                    return false;
+                }
+                else
+                {
+                    Splitter* splitter = (Splitter*)outputProcessor->getDestNode();
+
+                    //std::cout << "DESTNODE0: " << splitter->getDestNode(0)->getNodeId() << std::endl;
+                    //std::cout << "DESTNODE1: " << splitter->getDestNode(1)->getNodeId() << std::endl;
+
+                    if (splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr)
+                        return false;
+
+                    if (splitter->getDestNode(0) == inputProcessor)
+                        return true;
+                    else
+                        return false;
+                }
+                    
+            }
+
+            if (inputProcessor->getDestNode() == nullptr)
+                return false;
+
+            if (outputProcessor->isAudioMonitor())
+            {
+                if (outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex)
+                    return false;
+            }
+
+        }
+    }
+
+    return true;
+}
+
 int ProcessorGraph::getStreamIdForChannel(Node& node, int channel)
 {
 
@@ -836,6 +1020,11 @@ int ProcessorGraph::getStreamIdForChannel(Node& node, int channel)
 
 GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)
 {
+
+    if (nodeId == AUDIO_NODE_ID)
+        return getAudioNode();
+    else if (nodeId == MESSAGE_CENTER_ID)
+        return getMessageCenter();
 
     for (auto processor : getListOfProcessors())
     {
