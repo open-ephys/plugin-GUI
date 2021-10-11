@@ -903,7 +903,7 @@ struct RenderSequenceBuilder
                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
                 {
                     std::cout << "         --> MIDI CH: TRUE" << std::endl;
-                    jassert(prediction);
+                    //jassert(prediction);
                     return true;
                 }
                     
@@ -917,7 +917,7 @@ struct RenderSequenceBuilder
                     if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
                     {
                         std::cout << "         --> CH " << i << ": TRUE" << std::endl;
-                        jassert(prediction);
+                        //jassert(prediction);
                         return true;
                     }
                 }
@@ -962,7 +962,7 @@ struct RenderSequenceBuilder
         //std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
         //streamIsNeededLater[streamId] = false;
         std::cout << "         ---> FALSE" << std::endl;
-        jassert(!prediction);
+        //jassert(!prediction);
         return false;
 
     }
