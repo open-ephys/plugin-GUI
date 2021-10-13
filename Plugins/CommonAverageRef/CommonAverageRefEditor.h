@@ -62,7 +62,7 @@ public:
 
     /** Saving/loading parameters */
     void saveCustomParametersToXml(XmlElement* xml) override;
-    void loadCustomParametersFromXml() override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
 private:
     enum ChannelsType

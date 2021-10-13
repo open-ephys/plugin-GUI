@@ -10,6 +10,7 @@ add_sources(${PLUGIN_NAME}
 	ChannelMappingNode.h
 	ChannelMappingEditor.cpp
 	ChannelMappingEditor.h
+	PrbFormat.h
 	)
 	
 #optional: create IDE groups
