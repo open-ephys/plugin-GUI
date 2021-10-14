@@ -121,12 +121,12 @@ void Splitter::switchIO(int destNum)
     if (destNum == 0)
     {
         destNode = destNodeA;
-        LOGDD("Dest node: ", getDestNode(0));
+        LOGDD("   Dest node: ", getDestNode(0));
     }
     else
     {
         destNode = destNodeB;
-        LOGDD("Dest node: ", getDestNode(1));
+        LOGDD("   Dest node: ", getDestNode(1));
     }
 }
 

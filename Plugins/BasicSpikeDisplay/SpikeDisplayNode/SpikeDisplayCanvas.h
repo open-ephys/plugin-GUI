@@ -91,7 +91,7 @@ public:
 
     void resized();
 
-    bool keyPressed(const KeyPress& key);
+    //bool keyPressed(const KeyPress& key);
 
     void buttonClicked(Button* button);
 

@@ -959,7 +959,9 @@ void LfpDisplayOptions::setAveraging(bool state)
 
 void LfpDisplayOptions::setSortByDepth(bool state)
 {
-    lfpDisplay->orderChannelsByDepth(state);
+
+    if (canvasSplit->displayBuffer != nullptr)
+        lfpDisplay->orderChannelsByDepth(state);
 
     sortByDepthButton->setToggleState(state, dontSendNotification);
 
@@ -1572,7 +1574,8 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             else
                 canvasSplit->displayBuffer = processor->displayBufferMap[id];
 
-            canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
+            if (canvasSplit->displayBuffer != nullptr)
+                canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
 
             //std::cout << "Set to ID: " << canvasSplit->displayBuffer->id << std::endl;
             
@@ -1630,6 +1633,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             }
 
             // TOGGLE BUTTONS
+
             setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
             setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
             setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));

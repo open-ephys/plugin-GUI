@@ -325,7 +325,7 @@ void SpikeDetector::setChannelThreshold (int electrodeNum, int channelNum, float
     currentElectrode = electrodeNum;
     currentChannelIndex = channelNum;
 
-    std::cout << "Setting electrode " << electrodeNum << " channel threshold " << channelNum << " to " << thresh << std::endl;
+    //std::cout << "Setting electrode " << electrodeNum << " channel threshold " << channelNum << " to " //<< thresh << std::endl;
 
     setParameter (99, thresh);
 }

@@ -220,6 +220,7 @@ void SplitterEditor::switchDest()
         viewportB->setVisible(true);
 
     }
+    
 }
 
 void SplitterEditor::startCheck()
