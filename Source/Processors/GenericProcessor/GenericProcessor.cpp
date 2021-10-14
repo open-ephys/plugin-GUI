@@ -67,14 +67,16 @@ GenericProcessor::GenericProcessor(const String& name)
 
 GenericProcessor::~GenericProcessor()
 {
+	if (editor != nullptr)
+	{
+		editor.reset();
+	}
 }
 
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
 	editor = std::make_unique<GenericEditor>(this, true);
-
-	
 
 	return editor.get();
 }
@@ -193,16 +195,20 @@ void GenericProcessor::clearSettings()
 void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 {
 
-	std::cout << "Copying stream: " << std::endl;
-	std::cout << "  Source Node ID: " << stream->getSourceNodeId() << std::endl;
-	std::cout << "  Source Node Name: " << stream->getSourceNodeName() << std::endl;
-	std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
-	std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
-	std::cout << "  Name: " << stream->getName() << std::endl;
-	std::cout << "  ID: " << stream->getStreamId() << std::endl;
-	std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
-	std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
-	std::cout << "  " << std::endl;
+	if (false)
+	{
+		std::cout << "Copying stream: " << std::endl;
+		std::cout << "  Source Node ID: " << stream->getSourceNodeId() << std::endl;
+		std::cout << "  Source Node Name: " << stream->getSourceNodeName() << std::endl;
+		std::cout << "  Last Node ID: " << stream->getNodeId() << std::endl;
+		std::cout << "  Last Node Name: " << stream->getNodeName() << std::endl;
+		std::cout << "  Name: " << stream->getName() << std::endl;
+		std::cout << "  Stream ID: " << stream->getStreamId() << std::endl;
+		std::cout << "  Sample rate: " << stream->getSampleRate() << std::endl;
+		std::cout << "  Channel count: " << stream->getChannelCount() << std::endl;
+		std::cout << "  " << std::endl;
+	}
+	
 
 	dataStreams.add(new DataStream(*stream)); 
 
@@ -235,14 +241,17 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 	for (auto eventChannel : stream->getEventChannels())
 	{
 
-		std::cout << "Copying event channel: " << std::endl;
-		std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << eventChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << eventChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << eventChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << eventChannel->getName() << std::endl;
-		std::cout << "  ID: " << eventChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << eventChannel->getSampleRate() << std::endl;
+		if (false)
+		{
+			std::cout << "Copying event channel: " << std::endl;
+			std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
+			std::cout << "  Source Node Name: " << eventChannel->getSourceNodeName() << std::endl;
+			std::cout << "  Last Node ID: " << eventChannel->getNodeId() << std::endl;
+			std::cout << "  Last Node Name: " << eventChannel->getNodeName() << std::endl;
+			std::cout << "  Name: " << eventChannel->getName() << std::endl;
+			std::cout << "  ID: " << eventChannel->getStreamId() << std::endl;
+			std::cout << "  Sample rate: " << eventChannel->getSampleRate() << std::endl;
+		}
 
 		eventChannels.add(new EventChannel(*eventChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
@@ -265,6 +274,11 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 		spikeChannels.getLast()->addProcessor(processorInfo.get());
 		dataStreams.getLast()->addChannel(spikeChannels.getLast());
 	}
+}
+
+void GenericProcessor::updateDisplayName(String name)
+{
+	m_name = name;
 }
 
 
@@ -291,10 +305,23 @@ void GenericProcessor::update()
 		if (!isMerger())
 		{
 
-			for (auto stream : sourceNode->getStreamsForDestNode(this))
+			if (sourceNode->isSplitter())
 			{
-				copyDataStreamSettings(stream);
+				Splitter* splitter = (Splitter*)sourceNode;
+
+				for (auto stream : splitter->getStreamsForDestNode(this))
+				{
+					copyDataStreamSettings(stream);
+				}
 			}
+			else {
+				for (auto stream : sourceNode->getStreamsForDestNode(this))
+				{
+					copyDataStreamSettings(stream);
+				}
+			}
+
+			
 
 			for (auto configurationObject : sourceNode->configurationObjects)
 			{
@@ -316,9 +343,19 @@ void GenericProcessor::update()
 		std::cout << getNodeId() << " connected to Message Center" << std::endl;
 	}
 
+	updateChannelIndexMaps();
+
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
 					  // setting isEnabled variable
+
+	std::cout << "Updated custom settings." << std::endl;
+
+	for (auto stream : getDataStreams())
+	{
+		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+
+	}
 
 	updateChannelIndexMaps();
 
@@ -346,6 +383,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < continuousChannels.size(); i++)
 	{
 		ContinuousChannel* chan = continuousChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -357,6 +395,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < eventChannels.size(); i++)
 	{
 		EventChannel* chan = eventChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -368,6 +407,7 @@ void GenericProcessor::updateChannelIndexMaps()
 	for (int i = 0; i < spikeChannels.size(); i++)
 	{
 		SpikeChannel* chan = spikeChannels[i];
+		chan->setGlobalIndex(i);
 
 		uint16 processorId = chan->getSourceNodeId();
 		uint16 streamId = chan->getStreamId();
@@ -904,8 +944,9 @@ void GenericProcessor::saveToXml(XmlElement* parentElement)
 	}
 
 	// Save editor parameters:
-	XmlElement* editorChildNode = parentElement->createNewChildElement("EDITOR");
-	getEditor()->saveEditorParameters(editorChildNode);
+	XmlElement* editorChildNodeXml = parentElement->createNewChildElement("EDITOR");
+
+	getEditor()->saveToXml(editorChildNodeXml);
 }
 
 
@@ -915,41 +956,32 @@ void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 
 void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, InfoObject* channel)
 {
-	XmlElement* channelInfo;
+	XmlElement* channelInfoXml;
 
 	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("CHANNEL");
-		channelInfo->setAttribute("name", channel->getName());
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
-
-		bool p, r, a;
-
-		getEditor()->getChannelSelectionState(channel->getGlobalIndex(), &p, &r, &a);
-
-		XmlElement* selectionState = channelInfo->createNewChildElement("SELECTIONSTATE");
-		selectionState->setAttribute("param", p);
-		//selectionState->setAttribute("record", r);
-		//selectionState->setAttribute("audio", a);
+		channelInfoXml = parentElement->createNewChildElement("CHANNEL");
+		channelInfoXml->setAttribute("name", channel->getName());
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 	}
 	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("EVENTCHANNEL");
-		channelInfo->setAttribute("name", channel->getName());
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
+		channelInfoXml = parentElement->createNewChildElement("EVENTCHANNEL");
+		channelInfoXml->setAttribute("name", channel->getName());
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 
 	}
 	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
 	{
-		channelInfo = parentElement->createNewChildElement("SPIKECHANNEL");
-		channelInfo->setAttribute("name", String(channel->getName()));
-		channelInfo->setAttribute("number", channel->getGlobalIndex());
+		channelInfoXml = parentElement->createNewChildElement("SPIKECHANNEL");
+		channelInfoXml->setAttribute("name", String(channel->getName()));
+		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
 	}
 
-	saveCustomChannelParametersToXml(channelInfo, channel);
+	saveCustomChannelParametersToXml(channelInfoXml, channel);
 
 	// deprecated parameter configuration:
-	LOGDD("Creating Parameters");
+	//LOGDD("Creating Parameters");
 	// int maxsize = parameters.size();
 	// String parameterName;
 	// String parameterValue;
@@ -979,36 +1011,35 @@ void GenericProcessor::loadFromXml()
 
 	if (parametersAsXml != nullptr)
 	{
-        if (!m_paramsWereLoaded)
+       // if (!m_paramsWereLoaded)
+       // {
+		LOGD("Loading parameters for ", m_name);
+
+        // use parametersAsXml to restore state
+        loadCustomParametersFromXml();
+
+        // load editor parameters
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
-			LOGD("Loading parameters for ", m_name);
-
-            // use parametersAsXml to restore state
-            loadCustomParametersFromXml();
-
-            // load editor parameters
-            forEachXmlChildElement(*parametersAsXml, xmlNode)
+            if (xmlNode->hasTagName("EDITOR"))
             {
-                if (xmlNode->hasTagName("EDITOR"))
-                {
-                    getEditor()->loadEditorParameters(xmlNode);
-                }
+                getEditor()->loadFromXml(xmlNode);
             }
+        }
 
-            forEachXmlChildElement(*parametersAsXml, xmlNode)
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        {
+            if (xmlNode->hasTagName("CHANNEL"))
             {
-                if (xmlNode->hasTagName("CHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::CONTINUOUS_CHANNEL);
-                }
-                else if (xmlNode->hasTagName("EVENTCHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::EVENT_CHANNEL);
-                }
-                else if (xmlNode->hasTagName("SPIKECHANNEL"))
-                {
-                    loadChannelParametersFromXml(xmlNode, InfoObject::Type::SPIKE_CHANNEL);
-                }
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::CONTINUOUS_CHANNEL);
+            }
+            else if (xmlNode->hasTagName("EVENTCHANNEL"))
+            {
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::EVENT_CHANNEL);
+            }
+            else if (xmlNode->hasTagName("SPIKECHANNEL"))
+            {
+                loadChannelParametersFromXml(xmlNode, InfoObject::Type::SPIKE_CHANNEL);
             }
         }
 	}
@@ -1027,10 +1058,10 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 		{
 			if (subNode->hasTagName("SELECTIONSTATE"))
 			{
-				getEditor()->setChannelSelectionState(channelNum,
-					subNode->getBoolAttribute("param"),
-					subNode->getBoolAttribute("record"),
-					subNode->getBoolAttribute("audio"));
+				//getEditor()->setChannelSelectionState(channelNum,
+				//	subNode->getBoolAttribute("param"),
+				//	subNode->getBoolAttribute("record"),
+				//	subNode->getBoolAttribute("audio"));
 			}
 		}
 	}
@@ -1040,6 +1071,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 
 
 void GenericProcessor::loadCustomParametersFromXml() { }
+
 void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type type) { }
 
 void GenericProcessor::setCurrentChannel(int chan)
@@ -1213,9 +1245,10 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 
 				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
+				processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
+
 				it++;
 
-				//processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
 			}
 			
 		}

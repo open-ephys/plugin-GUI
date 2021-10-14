@@ -30,13 +30,13 @@
 AddProcessor::AddProcessor(ProcessorDescription description_,
                            GenericProcessor* sourceProcessor,
                            GenericProcessor* destProcessor,
-                           EditorViewport* editorViewport_)
+                           EditorViewport* editorViewport_,
+                           bool signalChainIsLoading_) :
+    description(description_),
+    editorViewport(editorViewport_),
+    signalChainIsLoading(signalChainIsLoading_)
 {
-    description = description_;
-    
     settings = nullptr;
-    
-    editorViewport = editorViewport_;
     
     nodeId = -1;
     
@@ -70,7 +70,7 @@ bool AddProcessor::perform()
     processor = AccessClass::getProcessorGraph()->createProcessor(description,
                                                       sourceProcessor,
                                                       destProcessor,
-                                                      false);
+                                                      signalChainIsLoading);
     
     nodeId = processor->getNodeId();
     
@@ -375,7 +375,7 @@ bool LoadPluginSettings::perform()
         {
             if (xmlNode->hasTagName("EDITOR"))
             {
-                processor->getEditor()->loadEditorParameters(xmlNode);
+                processor->getEditor()->loadCustomParametersFromXml(xmlNode);
             }
         }
 
@@ -420,7 +420,7 @@ bool LoadPluginSettings::undo()
     {
         if (xmlNode->hasTagName("EDITOR"))
         {
-            processor->getEditor()->loadEditorParameters(xmlNode);
+            processor->getEditor()->loadCustomParametersFromXml(xmlNode);
         }
     }
 

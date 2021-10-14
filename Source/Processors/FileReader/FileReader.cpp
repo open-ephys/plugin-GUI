@@ -36,8 +36,7 @@
 
 #include "../Events/Event.h"
 
-FileReader::FileReader()
-    : GenericProcessor ("File Reader")
+FileReader::FileReader() : GenericProcessor ("File Reader")
     , Thread ("filereader_Async_Reader")
     , timestamp                 (0) 
     , currentSampleRate         (0)
@@ -54,6 +53,7 @@ FileReader::FileReader()
 	, m_bufferSize              (1024)
 	, m_sysSampleRate           (44100)
     , playbackActive            (true)
+    , gotNewFile                (true)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
@@ -296,6 +296,8 @@ bool FileReader::setFile (String fullpath)
     static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
     setActiveRecording (0);
     
+    gotNewFile = true;
+
     return true;
 }
 
@@ -357,14 +359,28 @@ void FileReader::updateSettings()
         return;
     }
 
-    DataStream::Settings settings{
-        "File Reader Stream",
-        "A description of the File Reader Stream",
-        "identifier",
-        getDefaultSampleRate()
+    if (gotNewFile)
+    {
+
+        currentStream.reset();
+
+        DataStream::Settings settings{
+
+            "File Reader Stream",
+            "A description of the File Reader Stream",
+            "identifier",
+            getDefaultSampleRate()
+
+        };
+
+    
+        currentStream = std::make_unique<DataStream>(settings);
+
+        gotNewFile = false;
+
     };
 
-    dataStreams.add(new DataStream(settings));
+    dataStreams.add(new DataStream(*currentStream.get()));
     dataStreams.getLast()->addProcessor(processorInfo.get());
 
     for (int i = 0; i < currentNumChannels; i++)
@@ -459,7 +475,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
         switchBuffer();
     }
     
-    for (int i = 0; i < currentNumChannels; ++i)
+    for (int i = 0; i < 4; i++) //currentNumChannels; ++i)
     {
         // offset readBuffer index by current cache window count * buffer window size * num channels
         input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),

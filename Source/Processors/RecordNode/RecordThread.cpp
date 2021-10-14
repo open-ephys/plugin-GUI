@@ -30,12 +30,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EVERY_ENGINE m_engine;
 
 RecordThread::RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEngine>& engine) :
-Thread("Record Thread"),
-m_engine(engine),
-recordNode(parentNode),
-m_receivedFirstBlock(false),
-m_cleanExit(true),
-samplesWritten(0)
+	Thread("Record Thread"),
+	m_engine(engine),
+	recordNode(parentNode),
+	m_receivedFirstBlock(false),
+	m_cleanExit(true),
+	samplesWritten(0)
 {
 }
 
@@ -111,10 +111,8 @@ void RecordThread::run()
 		Array<int64> timestamps;
 		m_dataQueue->getTimestampsForBlock(0, timestamps);
 
-		//EVERY_ENGINE->updateTimestamps(timestamps);
 		m_engine->updateTimestamps(timestamps);
-		//EVERY_ENGINE->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
-		//LOGD(__FUNCTION__, " Opening files w/ experiment number: ", m_experimentNumber);
+
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
 

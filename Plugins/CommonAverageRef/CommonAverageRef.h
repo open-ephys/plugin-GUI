@@ -31,9 +31,37 @@
 
 #include <ProcessorHeaders.h>
 
+/** Holds settings for one stream's CAR*/
+
+class CARSettings
+{
+
+public: 
+
+    /** Constructor -- sets default values*/
+    CARSettings();
+
+    /** Destructor */
+    ~CARSettings() {}
+
+    /** Gain level when applying reference (0 to 1.0) */
+    LinearSmoothedValueAtomic<float> m_gainLevel;
+
+    /** Buffer to hold average */
+    AudioSampleBuffer m_avgBuffer;
+
+    /** Array of channels which will be used to calculate mean signal. */
+    Array<int> m_referenceChannels;
+
+    /** Array of channels that will be affected by adding/substracting of mean signal of reference channels */
+    Array<int> m_affectedChannels;
+
+};
+
+
 /**
-    This is a simple filter that subtracts the average of all other channels from 
-    each channel. The gain parameter allows you to subtract a percentage of the total avg.
+    This is a simple filter that subtracts the average of a subset of channels from 
+    another subset of channels. The gain parameter allows you to subtract a percentage of the total avg.
 
     See Ludwig et al. 2009 Using a common average reference to improve cortical
     neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
@@ -45,7 +73,7 @@ public:
     /** The class constructor, used to initialize any members. */
     CommonAverageRef();
 
-    /** The class destructor, used to deallocate memory */
+    /** The class destructor, used to deallocate memory. */
     ~CommonAverageRef();
 
     /** Defines the functionality of the processor.
@@ -62,35 +90,46 @@ public:
     */
     void process (AudioSampleBuffer& buffer) override;
 
+    /** Called when upstream settings are changed.*/
+    void updateSettings() override;
+
     /** Returns the current gain level that is set in the processor */
-    float getGainLevel();
+    float getGainLevel(uint16 streamId);
 
     /** Sets the new gain level that will be used in the processor */
-    void setGainLevel (float newGain);
+    void setGainLevel (uint16 streamId, float newGain);
 
     /** Creates the CAREditor. */
     AudioProcessorEditor* createEditor() override;
 
-    Array<int> getReferenceChannels() const     { return m_referenceChannels; }
-    Array<int> getAffectedChannels()  const     { return m_affectedChannels; }
+    /** Returns the indices of the reference channels for a particular data stream.*/
+    Array<int> getReferenceChannels(uint16 streamId); 
 
-    void setReferenceChannels (const Array<int>& newReferenceChannels);
-    void setAffectedChannels  (const Array<int>& newAffectedChannels);
+    /** Returns the indices of the affected channels for a particular data stream.*/
+    Array<int> getAffectedChannels(uint16 streamId);
 
-    void setReferenceChannelState (int channel, bool newState);
-    void setAffectedChannelState  (int channel, bool newState);
+    /** Sets the reference channels for a particular data stream.*/
+    void setReferenceChannels (uint16 streamId, const Array<int>& newReferenceChannels);
 
-    /** Saving/loading channel parameters */
-    void saveCustomChannelParametersToXml(XmlElement* channelElement,
-        int channelNumber, InfoObject::Type channelType);
-    void loadCustomChannelParametersFromXml(XmlElement* channelElement,
-        InfoObject::Type channelType);
+    /** Sets the affected channels for a particular data stream.*/
+    void setAffectedChannels  (uint16 streamId, const Array<int>& newAffectedChannels);
+
+    /** Sets the state of particular reference channel (on or off).*/
+    void setReferenceChannelState (uint16 streamId, int channel, bool newState);
+
+    /** Sets the state of particular affected channel (on or off).*/
+    void setAffectedChannelState  (uint16 streamId, int channel, bool newState);
+
+    /** Saving channel parameters */
+    //void saveCustomChannelParametersToXml(XmlElement* channelElement,
+    //    int channelNumber, InfoObject::Type channelType);
+
+    /** Loading channel parameters */
+    //void loadCustomChannelParametersFromXml(XmlElement* channelElement,
+    //    InfoObject::Type channelType);
 
 private:
-    LinearSmoothedValueAtomic<float> m_gainLevel;
-
-    AudioSampleBuffer m_avgBuffer;
-
+   
     /** We should add this for safety to prevent any app crashes or invalid data processing.
         Since we use m_referenceChannels and m_affectedChannels arrays in the process() function,
         which works in audioThread, we may stumble upon the situation when we start changing
@@ -100,11 +139,7 @@ private:
     */
     CriticalSection objectLock;
 
-    /** Array of channels which will be used to calculate mean signal. */
-    Array<int> m_referenceChannels;
-
-    /** Array of channels that will be affected by adding/substracting of mean signal of reference channels */
-    Array<int> m_affectedChannels;
+    StreamSettings<CARSettings> settings;
 
     // ==================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CommonAverageRef);

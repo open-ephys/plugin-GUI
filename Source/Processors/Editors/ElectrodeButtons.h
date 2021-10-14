@@ -29,49 +29,57 @@
 
 /**
 
-  Used to select individual electrodes within a multichannel electrode.
+  Each button represents one electrode, which can be enabled, disabled,
+  or reordered.
 
-  @see SpikeDetectorEditor.
+  @see ChannelMappingEditor
 
 */
-
-
 class PLUGIN_API ElectrodeButton : public Button
 {
 public:
+    /** Constructor*/
 	ElectrodeButton(int chan_);
+
+    /** Destructor*/
 	~ElectrodeButton();
 
+    /** Returns the channel number*/
 	int getChannelNum();
-    void setChannelNum(int i);
-    void setChannelNum(int i, bool changeButtonText);
 
+    /** Updates the channel number*/
+    void setChannelNum(int i);
 
 private:
+    /** Draws the button.*/
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
+    /** Holds the button's channel number (should be 1-based indexing)*/
     int chan;
 };
 
 /**
+  Utility button for setting the global state of ElectrodeButtons
 
-  Utility button for Editors.
-
-  @see SpikeDetectorEditor
+  @see ChannelMappingEditor
 
 */
 
 class PLUGIN_API ElectrodeEditorButton : public Button
 {
 public:
-	ElectrodeEditorButton(const String& name_, Font font_);
-	~ElectrodeEditorButton();
+    /** Constructor*/
+	ElectrodeEditorButton(const String& name_);
+	
+    /** Destructor*/
+    ~ElectrodeEditorButton();
 private:
+
+    /** Draws the button*/
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
 
+    /** Holds the button's name*/
     const String name;
-
-    Font font;
 
 };
 

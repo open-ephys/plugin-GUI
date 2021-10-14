@@ -111,3 +111,5 @@ Array<SpikeChannel*> DataStream::getSpikeChannels() const
 {
 	return spikeChannels;
 }
+
+

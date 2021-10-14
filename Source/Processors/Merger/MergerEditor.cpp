@@ -29,14 +29,14 @@
 #include "../../UI/GraphViewer.h"
 #include "../MessageCenter/MessageCenterEditor.h"
 
-#include "../Editors/StreamSelectorButton.h"
+#include "../Editors/StreamSelector.h"
 #include "../Settings/DataStream.h"
 
 MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
     : GenericEditor(parentNode, useDefaultParameterEditors)
 
 {
-    desiredWidth = 300;
+    desiredWidth = 100;
 
     pipelineSelectorA = std::make_unique<ImageButton>("Pipeline A");
 
@@ -68,20 +68,6 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParamete
     pipelineSelectorB->setToggleState(false, dontSendNotification);
     addAndMakeVisible(pipelineSelectorB.get());
 
-    viewport = std::make_unique<Viewport>();
-    addAndMakeVisible(viewport.get());
-    viewport->setBounds(100, 22, 140, 110);
-    viewport->setScrollBarsShown(true, false);
-    viewport->setScrollBarThickness(10);
-
-    streamButtonHolder = std::make_unique<StreamButtonHolder>();
-    viewport->setViewedComponent(streamButtonHolder.get(), false);
-
-    streamButtonHolder->setBounds(0, 0, 125, 0);
-    streamButtonHolder->setVisible(true);
-
-    drawerWidth = 150;
-
 }
 
 MergerEditor::~MergerEditor()
@@ -90,18 +76,12 @@ MergerEditor::~MergerEditor()
 
 void MergerEditor::startAcquisition()
 {
-    for (auto button : streamButtons)
-    {
-        button->setEnabled(false);
-    }
+
 }
 
 void MergerEditor::stopAcquisition()
 {
-    for (auto button : streamButtons)
-    {
-        button->setEnabled(true);
-    }
+
 }
 
 void MergerEditor::buttonEvent(Button* button)
@@ -114,10 +94,6 @@ void MergerEditor::buttonEvent(Button* button)
     else if (button == pipelineSelectorB.get())
     {
         AccessClass::getEditorViewport()->switchIO(getProcessor(), 1);
-    }
-    else if (streamButtons.contains((StreamSelectorButton*) button))
-    {
-        CoreServices::updateSignalChain(this);
     }
 }
 
@@ -387,7 +363,7 @@ void MergerEditor::switchSource(int source)
     }
 }
 
-bool MergerEditor::checkStream(const DataStream* stream)
+/*bool MergerEditor::checkStream(const DataStream* stream)
 {
 
     std::cout << "Merger checking stream " << stream->getStreamId() << std::endl;
@@ -409,11 +385,11 @@ bool MergerEditor::checkStream(const DataStream* stream)
     streamButtonHolder->add(newButton);
 
 
-}
+}*/
 
 void MergerEditor::updateSettings()
 {
-    for (auto button : streamButtons)
+    /*for (auto button : streamButtons)
     {
         if (!incomingStreams.contains(button->getStreamId()))
         {
@@ -422,5 +398,5 @@ void MergerEditor::updateSettings()
         }
     }
 
-    incomingStreams.clear();
+    incomingStreams.clear();*/
 }

@@ -135,11 +135,17 @@ public:
     /* Removes the specified processors.*/
     void deleteNodes(Array<GenericProcessor*> nodesToDelete);
 
+    /* Checks if all processors are enabled*/
+    bool isReady();
+
+    /* Creates connections in signal chain*/
+    void updateConnections();
+
     /* Calls startAcquisition() for all processors*/
-    bool enableProcessors();
+    void startAcquisition();
 
     /* Calls stopAcquisition() for all processors*/
-    bool disableProcessors();
+    void stopAcquisition();
 
     /* Returns a list of all RecordNodes in the signal chain*/
     Array<RecordNode*> getRecordNodes();
@@ -158,9 +164,6 @@ public:
 
     /* Sends a configuration message to a particular processor, while acquisition is paused*/
     String sendConfigMessage(GenericProcessor* processor, String msg);
-
-    /* Updates the connections in the signal chain*/
-    void updateConnections();
 
     /* Returns true if there's an equivalent processor in the signal chain*/
     bool processorWithSameNameExists(const String& name);
@@ -202,7 +205,9 @@ public:
 
 	//uint32 getGlobalTimestampSourceFullId() const;
 
-	
+    static int getStreamIdForChannel(Node& node, int channel);
+
+    static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex);
     
 private:
 
@@ -216,7 +221,7 @@ private:
         bool connectEvents);
 
     /* Connect a processor to the AudioNode*/
-    void connectProcessorToAudioNode(GenericProcessor* source);
+    void connectAudioMonitorToAudioNode(GenericProcessor* source);
 
     /* Connect a processor to the MessageCenter*/
     void connectProcessorToMessageCenter(GenericProcessor* source);

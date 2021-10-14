@@ -97,12 +97,6 @@ public:
     /** Creates the AudioEditor (located in the ControlPanel). */
     AudioProcessorEditor* createEditor() override;
 
-    /** Sets the current channel (in advance of a parameter change). */
-    void setChannel(const ContinuousChannel* ch);
-
-    /** Used to turn audio monitoring on and off for individual channels. */
-    void setChannelStatus(const ContinuousChannel* ch, bool status);
-
     /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
@@ -120,10 +114,6 @@ public:
 
     void updateBufferSize();
 
-    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
-
-    void updateFilter(int i);
-
 	bool startAcquisition() override;
 
 	//Called by ProcessorGraph
@@ -133,39 +123,15 @@ public:
     void registerProcessor(const GenericProcessor* sourceNode);
 
 private:
-	void recreateBuffers();
 
     Array<int> leftChan;
     Array<int> rightChan;
     float volume;
     float noiseGateLevel; // in microvolts
 
-    OwnedArray<AudioSampleBuffer> bufferA;
-    OwnedArray<AudioSampleBuffer> bufferB;
-
-    Array<int> numSamplesExpected;
-
-    Array<int> samplesInBackupBuffer;
-    Array<int> samplesInOverflowBuffer;
-    Array<double> sourceBufferSampleRate;
-    double destBufferSampleRate;
-	int estimatedSamples;
-
-    Array<bool> bufferSwap;
-
     Expander expander;
 
-    // sample rate, timebase, and ratio info:
-    Array<double> ratio;
-
-    // major objects:
-    OwnedArray<Dsp::Filter> filters;
-
-    // Temporary buffer for data
-    ScopedPointer<AudioSampleBuffer> tempBuffer;
-
-	//private map for datachannels with info relative to multiple processors
-	std::unordered_map<uint16, std::map<uint16, int>> audioDataChannelMap;
+    int connectedProcessors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
 

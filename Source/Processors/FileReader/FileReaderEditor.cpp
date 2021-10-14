@@ -822,7 +822,7 @@ void FileReaderEditor::stopAcquisition()
 }
 
 
-void FileReaderEditor::saveCustomParameters (XmlElement* xml)
+void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 {
     xml->setAttribute ("Type", "FileReader");
 
@@ -836,7 +836,7 @@ void FileReaderEditor::saveCustomParameters (XmlElement* xml)
 }
 
 
-void FileReaderEditor::loadCustomParameters (XmlElement* xml)
+void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
     forEachXmlChildElement (*xml, element)
     {

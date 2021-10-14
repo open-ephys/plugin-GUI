@@ -237,7 +237,7 @@ GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description,
         dest = editorArray[insertionPoint]->getProcessor();
     }
     
-    AddProcessor* action = new AddProcessor(description, source, dest, this);
+    AddProcessor* action = new AddProcessor(description, source, dest, this, loadingConfig);
     
     if (!loadingConfig)
     {
@@ -304,11 +304,16 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                                           int numberOfTabs,
                                           int selectedTab)
 {
-    for (auto editor : editorArray)
+
+    if (visibleEditors.size() > 0)
     {
-        editor->setVisible(false);
+        for (auto editor : editorArray)
+        {
+            editor->setVisible(false);
+        }
+
     }
-        
+
     
     editorArray.clear();
     
@@ -1759,17 +1764,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         {
             AccessClass::getAudioComponent()->loadStateFromXml(element);
         }
-		else if (element->hasTagName("RECORDING"))
-		{
-			bool recordThreadStatus = element->getBoolAttribute("isRecordThreadEnabled");
-
-            /*
-			if (recordThreadStatus)
-				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 1.0f);
-			else
-				AccessClass::getProcessorGraph()->getRecordNode()->setParameter(3, 0.0f);
-            */
-		}
 		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
 		{
 			int tsID = element->getIntAttribute("selected_index", -1);

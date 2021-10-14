@@ -38,9 +38,9 @@ class DrawerButton;
 class TriangleButton;
 class UtilityButton;
 class ParameterEditor;
-class ChannelSelector;
+class StreamSelector;
 class TTLMonitor;
-
+class DelayMonitor;
 
 /**
     Base class for creating processor editors.
@@ -231,12 +231,6 @@ public:
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
 
-    /** Used by SpikeDetectorEditor. */
-    virtual void channelChanged (int channel, bool newState);
-
-    /** Returns all selected channels from the ChannelSelector. */
-    Array<int> getActiveChannels();
-
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     Array<ParameterEditor*> parameterEditors;
 
@@ -246,23 +240,17 @@ public:
     /** True if data acquisition has begun. */
     bool acquisitionIsActive;
 
-    /** Returns param/audio/record selection state for a given channel */
-    void getChannelSelectionState (int chan, bool* p, bool* r, bool* a);
-
-    /** Sets param/audio/record selection state for a given channel */
-    void setChannelSelectionState (int chan, bool p, bool r, bool a);
+    /** Writes editor state to xml */
+    void saveToXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    void saveEditorParameters (XmlElement* xml);
+    void loadFromXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    void loadEditorParameters (XmlElement* xml);
+    virtual void saveCustomParametersToXml (XmlElement* xml);
 
     /** Writes editor state to xml */
-    virtual void saveCustomParameters (XmlElement* xml);
-
-    /** Writes editor state to xml */
-    virtual void loadCustomParameters (XmlElement* xml);
+    virtual void loadCustomParametersFromXml (XmlElement* xml);
 
     /** Syncs parametereditor colors with parameter values */
     void updateParameterButtons (int parameterIndex = -1);
@@ -288,6 +276,24 @@ public:
     /** Changes the state of the TTLMonitor */
     void setTTLState(uint16 streamId, int bit, bool state);
 
+    /** Notify editor about channel selection changes in PopupChannelSelector */
+    virtual void channelStateChanged(Array<int> channelStates);
+
+    /** Notify editor about changes in the StreamSelector */
+    void updateSelectedStream(uint16 streamId);
+
+    /** Get the ID of the stream that's currently selected.*/
+    uint16 getCurrentStream() { return selectedStream; }
+
+    /** Notifies editor that the selected stream has changed.*/
+    virtual void selectedStreamHasChanged();
+
+    /** Notifies editor that the selected stream has changed.*/
+    virtual void streamEnabledStateChanged(uint16 streamId, bool enabledState);
+
+    /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
+    void setMeanLatencyMs(uint16 streamId, float latencyMs);
+
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
     std::unique_ptr<DrawerButton> drawerButton;
@@ -302,8 +308,10 @@ protected:
     // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
     void addParameterEditors (bool useStandard);
 
-    /** A pointer to the editor's ChannelSelector. */
-    std::unique_ptr<ChannelSelector> channelSelector;
+    /** A pointer to the editor's StreamSelector. */
+    std::unique_ptr<StreamSelector> streamSelector;
+
+    uint16 selectedStream;
 
 
 private:
@@ -315,8 +323,6 @@ private:
 
     /** Stores the editor's background gradient. */
     ColourGradient backgroundGradient;
-
-    std::unique_ptr<TTLMonitor> ttlMonitor;
 
     bool isSelected;
     bool isEnabled;
@@ -331,16 +337,20 @@ private:
     String name;
     String displayName;
 
+    std::map<uint16, DelayMonitor*> delayMonitors;
+    std::map<uint16, TTLMonitor*> ttlMonitors;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 };
 
 
 /**
-  Used to show and hide the ChannelSelector.
+  Used to show and hide the StreamSelector.
 
-  Appears on the right-hand size of all editors (except SplitterEditor and MergerEditor).
+  Appears on the right-hand size of all plugins that process
+  at least one DataStream (except RecordNodeEditor).
 
-  @see GenericEditor, ChannelSelector
+  @see GenericEditor, StreamSelector
 */
 class PLUGIN_API DrawerButton : public Button
 {

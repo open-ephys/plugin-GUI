@@ -25,26 +25,118 @@
 #define __SPIKEDETECTOR_H_3F920F95__
 
 #include <ProcessorHeaders.h>
-#include "SpikeDetectorEditor.h"
 
-
-class SpikeDetectorEditor;
-
-struct SimpleElectrode
+/** Holds the local settings for one Spike Channel*/
+class SpikeChannelSettings
 {
+public:
+
+    enum ThresholdType
+    {
+        FIXED = 1,
+        STD,
+        DYNAMIC,
+        UNKNOWN = 100
+    };
+
+    /** Constructor -- sets default values*/
+    SpikeChannelSettings(const SpikeChannel::Type type);
+
+    /** Destructor */
+    ~SpikeChannelSettings() {}
+
+    /** Updates channel arrays*/
+    void setChannelIndexes(Array<int> localChannelIndexes,
+        Array<int> globalChannelIndexes,
+        int maxLocalChannel);
+
+    /** Channel name (editable)*/
     String name;
 
-    int numChannels;
-    int prePeakSamples, postPeakSamples;
-    int lastBufferIndex;
-    int electrodeID;
+    /** Channel description (editable)*/
+    String description;
 
-    bool isMonitored;
+    /** Channel type (can't be changed) */
+    const SpikeChannel::Type type;
 
-    HeapBlock<int> channels;
-    HeapBlock<double> thresholds;
-    HeapBlock<bool> isActive;
+    /** Index of each channel within a stream */
+    Array<int> localChannelIndexes;
+
+    /** Index of each channel within the processor */
+    Array<int> globalChannelIndexes;
+
+    /** Determines whether a particular channel is used for spike detection*/
+    Array<bool> detectSpikesOnChannel;
+
+    /** Determines the threshold type */
+    ThresholdType thresholdType;
+
+    /** Holds the thresholds for each channel*/
+    Array<float> thresholds;
+
+    /** Determines whether the channel sends the full waveform*/
+    bool sendFullWaveform;
+
+    /** Number of pre-peak samples if full waveform is sent*/
+    unsigned int prePeakSamples;
+
+    /** Number of post-peak samples if full waveform is sent*/
+    unsigned int postPeakSamples;
+
+    /** Used to determine channels available for selection*/
+    int maxLocalChannel;
+
+    /** Total number of channels for this electrode type*/
+    const int expectedChannelCount;
+
+    /** Holds the current sample index for this electrode*/
+    int currentSampleIndex;
+
+    /** Determines whether this electrode should use the overflow buffer*/
+    bool useOverflowBuffer;
+
+    /** Pointer to the SpikeChannel object for this electrode*/
+    SpikeChannel* spikeChannel;
+
+    /** Restores sampleIndex / overflow buffer settings after ending acquisition*/
+    void reset();
+
+    /** Saves parameters to XML*/
+    void toXml(XmlElement*);
+
+    /** Loads parameters from XML*/
+    void fromXml(XmlElement*);
+
+
 };
+
+/** Holds the settings for one stream*/
+class SpikeDetectorSettings
+{
+public:
+
+    /** Constructor*/
+    SpikeDetectorSettings();
+
+    /** Destructor*/
+    ~SpikeDetectorSettings();
+
+    /** Saves parameters to XML*/
+    void toXml(XmlElement*);
+
+    /** Loads parameters from XML*/
+    void fromXml(XmlElement*);
+
+    /** Array of settings objects, one for each spike channel in the stream.*/
+    OwnedArray<SpikeChannelSettings> spikeChannels;
+
+    /** Holds the next available channel index in this stream*/
+    int nextAvailableChannel;
+
+    /** Holds the next available electrode index in this stream*/
+    int nextElectrodeIndex;
+};
+
 
 
 /**
@@ -55,13 +147,17 @@ struct SimpleElectrode
 class SpikeDetector : public GenericProcessor
 {
 public:
+
+    /** Constructor*/
     SpikeDetector();
+
+    /** Destructor*/
     ~SpikeDetector();
 
     /** Processes an incoming continuous buffer and places new spikes into the event buffer. */
     void process (AudioSampleBuffer& buffer) override;
 
-    /** Used to alter parameters of data acquisition. */
+    /** Used to alter parameters during data acquisition. */
     void setParameter (int parameterIndex, float newValue) override;
 
     /** Called whenever the signal chain is altered. */
@@ -80,105 +176,46 @@ public:
     void loadCustomParametersFromXml()                          override;
 
 
-    // INTERNAL BUFFERS
-    // =====================================================================
-    /** Extra samples are placed in this buffer to allow seamless
-        transitions between callbacks. */
-    AudioSampleBuffer overflowBuffer;
-    // =====================================================================
-
-
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
-    /** Adds an electrode with n channels to be processed. */
-    bool addElectrode (int nChans, int electrodeID = 0);
+    /** Adds a spike channel of a given type; returns true if successful. */
+    bool addSpikeChannel (SpikeChannel::Type type, uint16 streamId);
 
-    /** Removes an electrode with a given index. */
-    bool removeElectrode (int index);
+    /** Removes a spike channel with a given index. */
+    bool removeSpikeChannel (int index, uint16 streamId);
     // =====================================================================
 
-
-    // EDIT AND QUERY ELECTRODE SETTINGS/
-    // =====================================================================
-    /** Returns the number of channels for a given electrode. */
-    int getNumChannels (int index) const;
-
-    /** Returns the continuous channel that maps to a given electrode channel. */
-    int getChannel (int index, int chan) const;
-
-    bool isChannelActive (int electrodeIndex, int channelNum);
-
-    /** Edits the mapping between input channels and electrode channels. */
-    void setChannel (int electrodeIndex, int channelNum, int newChannel);
-
-    /** Sets the name of a given electrode. */
-    void setElectrodeName (int index, String newName);
-
-    void setChannelActive (int electrodeIndex, int channelNum, bool active);
-    // =====================================================================
-
-
-    // RETURN STRING ARRAYS
-    // =====================================================================
-    /** Returns a StringArray containing the names of all electrodes */
-    StringArray getElectrodeNames() const;
-
-    // TODO: now it returns nothing. Need to double-check it.
-    /** Returns array of electrodes. */
-    void getElectrodes (Array<SimpleElectrode*>& electrodeArray);
-
-    /** Returns array of electrodes. */
-    SimpleElectrode* getActiveElectrode() const;
-
-    /** Sets the current electrode index */
-    SimpleElectrode* setCurrentElectrodeIndex (int);
-
-    /** Returns a list of possible electrode types (e.g., stereotrode, tetrode). */
-    StringArray electrodeTypes;
-    // =====================================================================
-
-    void setChannelThreshold (int electrodeNum, int channelNum, float threshold);
-
-    double getChannelThreshold (int electrodeNum, int channelNum) const;
-
+    /** Get channel array, for editing electrode settings*/
+    Array<SpikeChannelSettings*> getSpikeChannelsForStream(uint16 streamId);
 
 private:
 
+    StreamSettings<SpikeDetectorSettings> settings;
+
+
+    // INTERNAL BUFFERS
+    // =====================================================================
+    /** Extra samples are placed in this buffer to allow seamless
+    transitions between callbacks. */
+    AudioSampleBuffer overflowBuffer;
+    // =====================================================================
+
     float getDefaultThreshold() const;
 
-    float getNextSample (int& chan);
-    float getCurrentSample (int& chan);
-    bool samplesAvailable (int nSamples);
+    float getSample(int& globalChannelIndex, int& sampleIndex, AudioBuffer<float>& buffer);
 
-      void addWaveformToSpikeObject (Spike::Buffer& s,
+    //float getNextSample (int& chan);
+    //float getCurrentSample (int& chan);
+    //bool samplesAvailable (int nSamples);
+
+    void addWaveformToSpikeObject (Spike::Buffer& s,
                                    int& peakIndex,
                                    int& electrodeNumber,
                                    int& currentChannel);
 
-    void resetElectrode (SimpleElectrode*);
-
-    /** Pointer to a continuous buffer. */
-    AudioSampleBuffer* dataBuffer;
-
-    int overflowBufferSize;
-    int sampleIndex;
-
-    Array<int> electrodeCounter;
-
-    Array<bool> useOverflowBuffer;
-
+    uint16 currentStream;
     int currentElectrode;
     int currentChannelIndex;
-
-    OwnedArray<SimpleElectrode> electrodes;
-    int uniqueID;
-
-    // void createSpikeEvent(int& peakIndex,
-    // 					  int& electrodeNumber,
-    // 					  int& currentChannel,
-    // 					  MidiBuffer& eventBuffer);
-
-    uint16_t sampleRateForElectrode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

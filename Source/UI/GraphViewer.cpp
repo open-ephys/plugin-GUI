@@ -24,6 +24,7 @@
 #include "GraphViewer.h"
 #include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Splitter/SplitterEditor.h"
+#include "../Processors/Merger/Merger.h"
 #include "../Utils/Utils.h"
 
 #include "../Processors/Settings/DataStream.h"
@@ -504,6 +505,43 @@ void GraphNode::updateBoundaries()
 
     dataStreamPanel.setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
 
+    int yshift = BORDER_SIZE;
+
+    if (processor->sourceNode != nullptr && !processor->isMerger())
+    {
+        yshift += gv->getNodeForEditor(processor->sourceNode->getEditor())->getBottom();
+    }
+
+    if (processor->isMerger())
+    {
+        Merger* merger = (Merger*)processor;
+
+        int shift1 = 0;
+        int shift2 = 0;
+        int shift3 = 0;
+
+        if (merger->sourceNodeA != nullptr)
+        {
+            GraphNode* node = gv->getNodeForEditor(merger->sourceNodeA->getEditor());
+            if (node != nullptr)
+                shift1 = node->getBottom();
+        }
+            
+
+        //if (merger->sourceNodeB != nullptr)
+       // {
+        //    GraphNode* node = gv->getNodeForEditor(merger->sourceNodeB->getEditor());
+        //    if (node != nullptr)
+        //        shift2 = node->getBottom();
+        //}
+
+        //shift3 = shift1 > shift2 ? shift1 : shift2;
+
+        yshift += shift1;
+
+    }
+
+
     if (previousHeight > 0 && previousHeight != panelHeight)
     {
         setBounds(getX(), getY(), getWidth(),
@@ -511,13 +549,12 @@ void GraphNode::updateBoundaries()
     }
     else {
         setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-            BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
+            yshift, //BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
             nodeWidth,
             panelHeight + 20);
     }
     
     
-
     if (previousHeight > 0)
     {
         if (processor->destNode != nullptr)
@@ -532,8 +569,8 @@ void GraphNode::updateBoundaries()
 
 void GraphNode::verticalShift(int pixels)
 {
-   
-
+    std::cout << "Node " << getName() << " shifting by " << pixels << " pixels " << std::endl;
+    
     setBounds(getX(), getY() + pixels, getWidth(), getHeight());
 
     if (!processor->isSplitter())
@@ -561,6 +598,7 @@ void GraphNode::verticalShift(int pixels)
     }
 
     verticalOffset = pixels;
+
 }
 
 String GraphNode::getInfoString()

@@ -2,8 +2,6 @@
 
 #add files in this folder
 add_sources(open-ephys 
-	ChannelSelector.cpp
-	ChannelSelector.h
 	ElectrodeButtons.cpp
 	ElectrodeButtons.h
 	GenericEditor.cpp
@@ -14,8 +12,10 @@ add_sources(open-ephys
 	VisualizerEditor.h
 	TTLMonitor.cpp
 	TTLMonitor.h
-	StreamSelectorButton.cpp
-	StreamSelectorButton.h
+	DelayMonitor.cpp
+	DelayMonitor.h
+	StreamSelector.cpp
+	StreamSelector.h
 	PopupChannelSelector.cpp
 	PopupChannelSelector.h
 )

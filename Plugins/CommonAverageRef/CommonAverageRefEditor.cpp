@@ -65,11 +65,15 @@ CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcesso
     m_gainSlider->addListener (this);
     addAndMakeVisible (m_gainSlider);
 
-    channelSelector->paramButtonsToggledByDefault (false);
+    //channelSelector->paramButtonsToggledByDefault (false);
 
     setDesiredWidth (280);
 }
 
+CommonAverageRefEditor::~CommonAverageRefEditor()
+{
+    m_channelSelectorButtonManager->setButtonsLookAndFeel(nullptr);
+}
 
 void CommonAverageRefEditor::paint (Graphics& g)
 {
@@ -100,40 +104,87 @@ void CommonAverageRefEditor::resized()
 }
 
 
-void CommonAverageRefEditor::buttonClicked (Button* buttonThatWasClicked)
+void CommonAverageRefEditor::buttonEvent (Button* buttonThatWasClicked)
 {
     const String buttonName = buttonThatWasClicked->getName().toLowerCase();
 
     // "Reference channels" button clicked
-    if (buttonName.startsWith ("reference"))
+    if (buttonName.startsWith ("reference") && buttonThatWasClicked->getToggleState())
     {
-        channelSelector->setActiveChannels (static_cast<CommonAverageRef*> (getProcessor())->getReferenceChannels());
+
+        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getReferenceChannels(getCurrentStream());
+
+        std::vector<bool> channelStates;
+
+        for (int i = 0; i < getProcessor()->getDataStream(getCurrentStream())->getChannelCount(); i++)
+        {
+            channelStates.push_back(selectedChannels.contains(i));
+        }
+
+        auto* channelSelector = new PopupChannelSelector( this, channelStates);
+        //channelSelector->setMaximumSelectableChannels(4);
+        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector), 
+                buttonThatWasClicked->getScreenBounds(), 
+                nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 
         m_currentChannelsView = REFERENCE_CHANNELS;
     }
     // "Affected channels" button clicked
-    else if (buttonName.startsWith ("affected"))
+    else if (buttonName.startsWith ("affected") && buttonThatWasClicked->getToggleState())
     {
-        channelSelector->setActiveChannels (static_cast<CommonAverageRef*> (getProcessor())->getAffectedChannels());
 
+        Array<int> selectedChannels = static_cast<CommonAverageRef*> (getProcessor())->getAffectedChannels(getCurrentStream());
+
+        std::vector<bool> channelStates;
+
+        for (int i = 0; i < getProcessor()->getDataStream(getCurrentStream())->getChannelCount(); i++)
+        {
+            channelStates.push_back(selectedChannels.contains(i));
+        }
+
+        auto* channelSelector = new PopupChannelSelector(this, channelStates);
+        //channelSelector->setMaximumSelectableChannels(4);
+        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+
+       CallOutBox& myBox
+           = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+                buttonThatWasClicked->getScreenBounds(),
+                nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
         m_currentChannelsView = AFFECTED_CHANNELS;
     }
-
-    GenericEditor::buttonClicked (buttonThatWasClicked);
 }
 
 
-void CommonAverageRefEditor::channelChanged (int channel, bool newState)
+void CommonAverageRefEditor::channelStateChanged (Array<int> selectedChannels)
 {
     auto processor = static_cast<CommonAverageRef*> (getProcessor());
+
     if (m_currentChannelsView == REFERENCE_CHANNELS)
     {
-        processor->setReferenceChannelState (channel, newState);
+        processor->setReferenceChannels(getCurrentStream(),
+            selectedChannels);
     }
     else
     {
-        processor->setAffectedChannelState (channel, newState);
+        processor->setAffectedChannels(getCurrentStream(),
+            selectedChannels);
     }
+}
+
+void CommonAverageRefEditor::selectedStreamHasChanged()
+{
+    std::cout << "Selected stream: " << getProcessor()->getDataStream(getCurrentStream())->getName() << std::endl;
+
+
+
+    m_gainSlider->setValue(static_cast<CommonAverageRef*> (getProcessor())->getGainLevel(getCurrentStream()), dontSendNotification);
 }
 
 
@@ -141,7 +192,8 @@ void CommonAverageRefEditor::sliderEvent (Slider* sliderWhichValueHasChanged)
 {
     auto processor = static_cast<CommonAverageRef*> (getProcessor());
 
-    processor->setGainLevel ( (float)sliderWhichValueHasChanged->getValue());
+    processor->setGainLevel (getCurrentStream(),
+        (float)sliderWhichValueHasChanged->getValue());
 }
 
 void CommonAverageRefEditor::saveCustomParameters(XmlElement* xml)
@@ -150,8 +202,8 @@ void CommonAverageRefEditor::saveCustomParameters(XmlElement* xml)
 
     xml->setAttribute("Type", "CommonAverageRefEditor");
 
-    XmlElement* paramValues = xml->createNewChildElement("VALUES");
-    paramValues->setAttribute("gainLevel", processor->getGainLevel());
+   // XmlElement* paramValues = xml->createNewChildElement("VALUES");
+   // paramValues->setAttribute("gainLevel", processor->getGainLevel());
 }
 
 void CommonAverageRefEditor::loadCustomParameters(XmlElement* xml)
@@ -160,7 +212,7 @@ void CommonAverageRefEditor::loadCustomParameters(XmlElement* xml)
 
     forEachXmlChildElementWithTagName(*xml, xmlNode, "VALUES")
     {
-        double gain = xmlNode->getDoubleAttribute("gainLevel", m_gainSlider->getValue());
-        m_gainSlider->setValue(gain, sendNotificationSync);
+        //double gain = xmlNode->getDoubleAttribute("gainLevel", m_gainSlider->getValue());
+       // m_gainSlider->setValue(gain, sendNotificationSync);
     }
 }

@@ -280,20 +280,15 @@ class ControlPanel : public Component,
 
 {
 public:
+    /** Constructor */
     ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
+
+    /** Destructor */
     ~ControlPanel();
 
     /** Disables the callbacks of the ProcessorGraph (used to
         drive data acquisition).*/
     void disableCallbacks();
-
-    /** Returns a pointer to the AudioEditor.*/
-    /*
-    AccessClass* getAudioEditor()
-    {
-        return (AccessClass*) audioEditor;
-    }
-    */
 
     /** Sets whether or not the FilenameComponent is visible.*/
     void openState(bool isOpen);
@@ -310,6 +305,7 @@ public:
     /** Set recording directory and update FilenameComponent */
     void setRecordingDirectory(String path);
 
+    /** Returns the current global recording diretory*/
     File getRecordingDirectory();
 
     /** Return current acquisition state.*/
@@ -317,6 +313,12 @@ public:
 
     /** Used to manually turn recording on and off.*/
     void setAcquisitionState(bool state);
+
+    /** Called to start acquisition*/
+    void startAcquisition(bool startRecording = false);
+
+    /** Called to end acquisition */
+    void stopAcquisition();
 
     /** Returns a boolean that indicates whether or not the FilenameComponet
         is visible. */

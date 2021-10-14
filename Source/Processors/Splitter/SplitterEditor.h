@@ -29,8 +29,8 @@
 #include "../Editors/GenericEditor.h"
 #include "Splitter.h"
 
-class StreamSelectorButton;
-class StreamButtonHolder;
+class StreamInfoView;
+class StreamSelector;
 
 /**
 
@@ -59,9 +59,9 @@ public:
 
     bool checkStream(const DataStream* stream, Splitter::Output output);
 
-    void startCheck();
-
     Array<GenericEditor*> getConnectedEditors();
+
+    void streamEnabledStateChanged(uint16 streamId, bool isEnabled) override;
 
     void updateSettings() override;
 
@@ -70,16 +70,8 @@ private:
     std::unique_ptr<ImageButton> pipelineSelectorA;
     std::unique_ptr<ImageButton> pipelineSelectorB;
 
-    std::unique_ptr<StreamButtonHolder> streamButtonHolderA;
-    std::unique_ptr<Viewport> viewportA;
-
-    std::unique_ptr<StreamButtonHolder> streamButtonHolderB;
-    std::unique_ptr<Viewport> viewportB;
-
-    OwnedArray<StreamSelectorButton> streamButtonsA;
-    OwnedArray<StreamSelectorButton> streamButtonsB;
-
-    Array<uint16> incomingStreams;
+    std::unique_ptr<StreamSelector> streamSelectorA;
+    std::unique_ptr<StreamSelector> streamSelectorB;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
 

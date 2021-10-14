@@ -60,7 +60,6 @@ void Splitter::updateSettings()
     {
         // figure out which streams to send
         SplitterEditor* editor = (SplitterEditor*)getEditor();
-        editor->startCheck(); // clears the incomingStreams array
 
         for (auto stream : sourceNode->getStreamsForDestNode(this))
         {

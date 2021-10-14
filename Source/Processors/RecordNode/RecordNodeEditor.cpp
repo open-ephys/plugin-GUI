@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../CoreServices.h"
 
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParameterEditors = true)
-	: GenericEditor(parentNode, useDefaultParameterEditors),
+	: GenericEditor(parentNode, useDefaultParameterEditors, false),
 	numSubprocessors(0), subprocessorsVisible(false)
 {
 
@@ -674,7 +674,7 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	channelStates = recordNode->dataChannelStates[streamId];
 	
 	bool editable = !recordNode->recordThread->isThreadRunning();
-    auto* channelSelector = new PopupChannelSelector(channelStates, Colour(255, 0, 0), editable);
+    auto* channelSelector = new PopupChannelSelector(recordNode->getEditor(), channelStates);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);

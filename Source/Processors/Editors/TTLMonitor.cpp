@@ -28,7 +28,8 @@
 TTLBitDisplay::TTLBitDisplay(Colour colour_, String tooltipString_)
     : colour(colour_),
     tooltipString(tooltipString_),
-    state(false)
+    state(false),
+    changedSinceLastRedraw(true)
 { 
 }
 
@@ -45,7 +46,9 @@ String TTLBitDisplay::getTooltip()
 void TTLBitDisplay::setState(bool state_)
 {
     state = state_;
-    repaint();
+
+    changedSinceLastRedraw = true;
+
 }
 
 void TTLBitDisplay::paint(Graphics& g)
@@ -59,6 +62,8 @@ void TTLBitDisplay::paint(Graphics& g)
         g.setColour(Colours::darkgrey);
 
     g.fillRect(2, 2, getWidth()-4, getHeight()-4);
+
+    changedSinceLastRedraw = false;
 }
 
 TTLMonitor::TTLMonitor()
@@ -78,11 +83,10 @@ TTLMonitor::~TTLMonitor()
 
 }
 
-int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
+int TTLMonitor::updateSettings(Array<EventChannel*> eventChannels)
 {
     
-    //displays.clear();
-    deleteAllChildren();
+    displays.clear();
 
     int xloc = 0;
     int yloc = 0;
@@ -94,11 +98,10 @@ int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
             for (int bit = 0; bit < eventChannel->getMaxTTLBits(); bit++)
             {
                 String name = eventChannel->getSourceNodeName() + " Bit " + String(bit);
-                TTLBitDisplay* display =
-                    new TTLBitDisplay(colours[bit % colours.size()],
-                        name);
-                //displays[eventChannel->getStreamId()][bit] = display;
-                display->setBounds(xloc, yloc, 10, 10);
+
+                displays.add(new TTLBitDisplay(colours[bit % colours.size()],
+                        name));
+                displays.getLast()->setBounds(xloc, yloc, 10, 10);
                 yloc += 10;
 
                 if (yloc > 100)
@@ -121,7 +124,26 @@ int TTLMonitor::updateSettings(Array<const EventChannel*> eventChannels)
     return xloc;
 }
 
-void TTLMonitor::setState(uint16 streamId, int bit, bool state)
+void TTLMonitor::setState(int bit, bool state)
 {
-    //displays[streamId][bit]->setState(state);
+    displays[bit]->setState(state);
+}
+
+void TTLMonitor::timerCallback()
+{
+    for (auto display : displays)
+    {
+        if (display->changedSinceLastRedraw)
+            display->repaint();
+    }
+}
+
+void TTLMonitor::startAcquisition()
+{
+    startTimer(50);
+}
+
+void TTLMonitor::stopAcquisition()
+{
+    stopTimer();
 }

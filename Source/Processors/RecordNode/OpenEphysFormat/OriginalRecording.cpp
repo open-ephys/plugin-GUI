@@ -74,11 +74,6 @@ String OriginalRecording::getEngineID() const
 	return "OPENEPHYS";
 }
 
-void OriginalRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
-{
-	//spikeFileArray.add(nullptr); // deprecated
-}
-
 void OriginalRecording::resetChannels()
 {
 	fileArray.clear();
@@ -102,7 +97,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 
 	openMessageFile(rootFolder);
 
-	int nChannels = getNumRecordedChannels();
+	int nChannels = getNumRecordedContinuousChannels();
 
 	for (int i = 0; i < nChannels; i++)
 	{
@@ -112,7 +107,7 @@ void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int rec
 		samplesSinceLastTimestamp.add(0);
 	}
 
-	int nSpikes = getNumRecordedSpikes();
+	int nSpikes = getNumRecordedSpikeChannels();
 
 	for (int i = 0; i < nSpikes; i++)
 	{

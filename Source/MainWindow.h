@@ -68,6 +68,9 @@ public:
     /** Ends the process() callbacks and disables all processors.*/
 	void shutDownGUI();
 
+    /** Called when the GUI crashes unexpectedly.*/
+    static void handleCrash(void *);
+
 private:
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory

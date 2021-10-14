@@ -39,8 +39,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         + File::getSeparatorString() + "recording" + String(recordingNumber + 1) + File::getSeparatorString();
     String contPath = basepath + "continuous" + File::getSeparatorString();
 
-    m_channelIndexes.insertMultiple(0, 0, getNumRecordedChannels());
-    m_fileIndexes.insertMultiple(0, 0, getNumRecordedChannels());
+    m_channelIndexes.insertMultiple(0, 0, getNumRecordedContinuousChannels());
+    m_fileIndexes.insertMultiple(0, 0, getNumRecordedContinuousChannels());
 
     Array<const ContinuousChannel*> indexedContinuousChannels;
     Array<unsigned int> indexedChannelCount;
@@ -142,7 +142,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonFile->setProperty("channels", jsonChannels.getReference(i));
     }
 
-    int nChans = getNumRecordedChannels();
+    int nChans = getNumRecordedContinuousChannels();
     //Timestamps
     Array<uint32> procIDs;
     for (int i = 0; i < nChans; i++)
@@ -151,7 +151,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         m_startTS.add(getTimestamp(i));
     }
 
-    int nEvents = getNumRecordedEvents();
+    int nEvents = getNumRecordedEventChannels();
     String eventPath(basepath + "events" + File::getSeparatorString());
     Array<var> jsonEventFiles;
 
@@ -213,7 +213,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonEventFiles.add(var(jsonChannel));
     }
 
-    int nSpikes = getNumRecordedSpikes();
+    int nSpikes = getNumRecordedSpikeChannels();
 
     Array<const SpikeChannel*> indexedSpikes;
     Array<uint16> indexedChannels;
@@ -652,10 +652,6 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 	writeEventMetadata(ev.get(), rec->metaDataFile.get());
 	increaseEventCounts(rec);
 	
-}
-
-void BinaryRecording::addSpikeElectrode(int index, const SpikeChannel* elec)
-{
 }
 
 void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)

@@ -134,8 +134,8 @@ public:
 
     void buttonEvent (Button* button) override;
 
-    void saveCustomParameters (XmlElement*) override;
-    void loadCustomParameters (XmlElement*) override;
+    void saveCustomParametersToXml (XmlElement*) override;
+    void loadCustomParametersFromXml (XmlElement*) override;
 
     // FileDragAndDropTarget methods
     // ============================================

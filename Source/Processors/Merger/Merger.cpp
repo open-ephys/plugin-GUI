@@ -199,7 +199,7 @@ bool Merger::checkStream(const DataStream* stream)
 {
     MergerEditor* ed = (MergerEditor*)getEditor();
 
-    return ed->checkStream(stream);
+    return true; // ed->checkStream(stream);
 }
 
 

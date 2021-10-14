@@ -41,9 +41,13 @@ class ChannelMappingEditor : public GenericEditor,
 
 {
 public:
+    /** Constructor*/
     ChannelMappingEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+
+    /** Destructor*/
     virtual ~ChannelMappingEditor();
 
+    // Called when a custom button is clicked
     void buttonEvent(Button* button);
 
     void updateSettings();
@@ -53,22 +57,19 @@ public:
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
 
-    void channelChanged (int channel, bool newState) override;
+    void channelStateChanged (Array<int> selectedChannels) override;
 
+    /** Mouse actions */
     void mouseDrag(const MouseEvent& e);
-
     void mouseUp(const MouseEvent& e);
-
     void mouseDoubleClick(const MouseEvent& e);
 
     void collapsedStateChanged();
 
+    /** Called at start of acquisition*/
 	void startAcquisition();
 
-	int getChannelDisplayNumber(int chan) const override;
-
-    String writePrbFile(File filename);
-    String loadPrbFile(File filename);
+	//int getChannelDisplayNumber(int chan) const override;
 
 private:
 
@@ -76,6 +77,8 @@ private:
     void setChannelPosition(int position, int channel);
     void checkUnusedChannels();
     void setConfigured(bool state);
+
+    void newReferenceSelected();
 
     void refreshButtonLocations();
 
@@ -89,26 +92,27 @@ private:
     ScopedPointer<Viewport> electrodeButtonViewport;
     ScopedPointer<Component> electrodeButtonHolder;
 
-    Array<int> channelArray;
-    Array<int> referenceArray;
-    Array<int> referenceChannels;
-    Array<bool> enabledChannelArray;
-	Array<int> channelCountArray;
+    //Array<int> channelArray;
+    //Array<int> referenceArray;
+    //Array<int> referenceChannels;
+    //Array<bool> enabledChannelArray;
+	//Array<int> channelCountArray;
 
-    int previousChannelCount;
-    int selectedReference;
+    //int previousChannelCount;
+    //int selectedReference;
+
     bool reorderActive;
     int previousClickedChan;
     int previousShiftClickedChan;
     bool previousClickedState;
+
+    int selectedReferenceIndex;
 
     bool isDragging;
     int initialDraggedButton;
     int draggingChannel;
     int lastHoverButton;
     bool isConfigured;
-
-    ScopedPointer<DynamicObject> info;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingEditor);
 

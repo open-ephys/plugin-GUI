@@ -116,8 +116,8 @@ public:
 
     virtual void windowClosed();
 
-    void saveCustomParameters (XmlElement* xml) override;
-    void loadCustomParameters (XmlElement* xml) override;
+    void saveCustomParametersToXml (XmlElement* xml) override;
+    void loadCustomParametersFromXml (XmlElement* xml) override;
 
     virtual void saveVisualizerParameters (XmlElement* xml);
     virtual void loadVisualizerParameters (XmlElement* xml);

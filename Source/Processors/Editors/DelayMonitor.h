@@ -21,73 +21,38 @@
 
 */
 
-#ifndef __TTLMONITOR_H_BDCEE716__
-#define __TTLMONITOR_H_BDCEE716__
+#ifndef __DELAYMONITOR_H_BDCEE716__
+#define __DELAYMONITOR_H_BDCEE716__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-class EventChannel;
 class GenericEditor;
 
-/**
 
-  Used to display the status of a TTL bit.
-
-  @see GenericEditor, EventChannel.
-
-*/
-class PLUGIN_API TTLBitDisplay : public Component
-{
-public:
-    TTLBitDisplay(Colour colour, String tooltipString);
-    ~TTLBitDisplay();
-
-    String getTooltip();
-
-    void setState(bool state);
-
-    void paint(Graphics& g);
-
-    bool changedSinceLastRedraw;
-
-private:
-
-    Colour colour;
-    String tooltipString;
-    bool state;
-};
-
-/**
-  Used to display the status of TTL events within
-  a GenericEditor.
-
-  @see GenericEditor, EventChannel.
-
-*/
-class PLUGIN_API TTLMonitor : public Component,
+class PLUGIN_API DelayMonitor : public Component,
     public Timer
 {
 public:
-    TTLMonitor();
-	~TTLMonitor();
+    DelayMonitor();
+	~DelayMonitor();
 
-	int updateSettings(Array<EventChannel*> eventChannels);
+    void setDelay(float delayMs);
 
-    void setState(int bit, bool state);
-
-    void startAcquisition();
-    void stopAcquisition();
+    void paint(Graphics& g);
 
     void timerCallback();
 
+    void startAcquisition();
+
+    void stopAcquisition();
+
 private:
+    
 
-    Array<Colour> colours; 
-
-    OwnedArray<TTLBitDisplay> displays;
+    float delay;
 };
 
 
 
-#endif  // __TTLMONITOR_H_BDCEE716__
+#endif  // __DELAYMONITOR_H_BDCEE716__

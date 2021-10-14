@@ -28,6 +28,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
+#include "../../Source/UI/Utils/LinearButtonGroupManager.h"
+#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 #include "AudioMonitor.h"
 
 class AudioMonitor;
@@ -60,15 +62,18 @@ public:
 
     void buttonEvent (Button* button) override;
 
+    // Button::Listener method
+    void buttonClicked (Button* buttonThatWasClicked) override;
+
     void comboBoxChanged(ComboBox*); 
 
-    void saveCustomParameters (XmlElement*) override;
-    void loadCustomParameters (XmlElement*) override;
+    void saveCustomParametersToXml (XmlElement*) override;
+    void loadCustomParametersFromXml (XmlElement*) override;
 
 	void startAcquisition() override;
 	void stopAcquisition()  override;
 
-    std::vector<bool> channelStates;
+    void channelStateChanged(Array<int> activeChannels) override;
 
 private:
 
@@ -83,6 +88,10 @@ private:
     std::unique_ptr<juce::ComboBox> spikeChan;
 
     OwnedArray<ChannelButton> channelButtons;
+
+    std::unique_ptr<LinearButtonGroupManager> outputChannelButtonManager;
+
+    std::shared_ptr<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
     bool editable;
 

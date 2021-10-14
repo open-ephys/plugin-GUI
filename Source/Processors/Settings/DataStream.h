@@ -135,4 +135,93 @@ private:
 	uint16 streamId;
 };
 
+/** Template class that simplifies the process of
+    keeping track of settings for individual streams.
+
+	Plugins should add: 
+	
+		StreamSettings<CustomSettingsClass> settings
+
+	as a member, then call:
+
+		settings.update(getDataStreams());
+
+	in the updateSettings() method. This will automatically
+	remove unused settings objects, and add new ones
+	where necessary.
+
+	Then, settings for a particular stream can be 
+	accessed via:
+
+		settings[streamId]
+*/
+
+template <class T>
+class StreamSettings
+{
+
+public:
+
+	StreamSettings<T>() { }
+
+	~StreamSettings<T>() { }
+
+	void update(Array<const DataStream*> streams)
+	{
+
+		Array<uint16> currentStreamIds;
+
+		for (auto stream : streams)
+		{
+			currentStreamIds.add(stream->getStreamId());
+
+			if (!settingsMap.contains(stream->getStreamId()))
+			{
+				settingsArray.add(new T());
+				//settingsStreamIds.add(stream->getStreamId());
+				settingsMap.set(stream->getStreamId(), settingsArray.getLast());
+			}
+		}
+
+		//Array<T*> settingsToDelete;
+		//Array<uint16> streamIdsToDelete;
+
+		//for (int i = 0; i < settingsArray.size(); i++)
+		//{
+		//	if (!currentStreamIds.contains(settingsStreamIds[i]))
+		//	{
+		//		settingsToDelete.add(settingsArray[i]);
+		//		streamIdsToDelete.add(settingsStreamIds[i]);
+		//	}
+		//}
+
+		//for (auto settings : settingsToDelete)
+		//{
+		//	settingsArray.removeObject(settings);
+		//}
+
+		//for (auto streamId : streamIdsToDelete)
+		//{
+		//	settingsStreamIds.remove(streamId);
+		//	settingsMap.remove(streamId);
+		//}
+	}
+	
+	T* operator [](uint16 streamId)
+	{
+		if (settingsMap.contains(streamId))
+			return settingsMap[streamId];
+
+		return nullptr;
+	}
+
+private:
+	HashMap<uint16, T*> settingsMap;
+	OwnedArray<T> settingsArray;
+	//Array<uint16> settingsStreamIds;
+};
+
+
+
+
 #endif

@@ -24,8 +24,63 @@
 #define __FILTERNODE_H_CED428E__
 
 #include <ProcessorHeaders.h>
+
 #include <DspLib.h>
 
+
+/** Holds settings for one stream's filters*/
+
+class BandpassFilterSettings
+{
+
+public:
+
+    /** Constructor -- sets default values*/
+    BandpassFilterSettings();
+
+    /** Destructor */
+    ~BandpassFilterSettings() {}
+
+    /** High filter cutoff */
+    double highCut;
+
+    /** Low filter cutoff */
+    double lowCut;
+
+    /** Array of channels which will not be filtered. */
+    Array<bool> channelMask;
+
+    /** Determines whether this stream's filter is enabled.*/
+    bool isEnabled;
+
+    /** Holds the sample rate for this stream*/
+    float sampleRate;
+
+    /** Holds the filters for one stream*/
+    OwnedArray<Dsp::Filter> filters;
+
+    /** Creates new filters when input settings change*/
+    void createFilters(int numChannels, float sampleRate);
+
+    /** Updates filters when parameters change*/
+    void updateFilters();
+
+    /** Sets filter parameters for one channel*/
+    void setFilterParameters(double lowCut, double highCut, int channel);
+
+    /** Saves parameters to XML*/
+    void toXml(XmlElement*);
+
+    /** Loads parameters from XML*/
+    void fromXml(XmlElement*);
+
+    /** Converts mask channels to string*/
+    String channelMaskToString(Array<bool> channelMask);
+
+    /** Converts string to mask channels*/
+    void channelMaskFromString(String);
+
+};
 
 /**
     Filters data using a filter from the DSP library.
@@ -37,43 +92,75 @@
 class FilterNode : public GenericProcessor
 {
 public:
+
+    /** The class constructor, used to initialize any members. */
     FilterNode();
+
+    /** The class destructor, used to deallocate memory. */
     ~FilterNode();
 
+    /** Creates the FilterEditor. */
     AudioProcessorEditor* createEditor() override;
 
-    bool hasEditor() const override { return true; }
+    /** Defines the functionality of the processor.
 
+        The process method is called every time a new data buffer is available.
+
+        Processors can either use this method to add new data, manipulate existing
+        data, or send data to an external target (such as a display or other hardware).
+
+        Continuous signals arrive in the "buffer" variable, event data (such as TTLs
+        and spikes) is contained in the "events" variable, and "nSamples" holds the
+        number of continous samples in the current buffer (which may differ from the
+        size of the buffer).
+    */
     void process (AudioSampleBuffer& buffer) override;
 
+    /** Used to update parameters while the process() loop is running*/
     void setParameter (int parameterIndex, float newValue) override;
 
+    /** Called when upstream settings are changed.*/
     void updateSettings() override;
 
-    void saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel) override;
-    void loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type channelType)  override;
+    /** Returns the low cutoff for a particular stream*/
+    double getLowCutValue  (uint16 streamId) ;
 
-    double getLowCutValueForChannel  (int chan) const;
-    double getHighCutValueForChannel (int chan) const;
+    /** Sets the low cutoff for a particular stream*/
+    void setLowCutValue(uint16 streamId, double value);
 
-    bool getBypassStatusForChannel (int chan) const;
+    /** Returns the high cutoff for a particular stream*/
+    double getHighCutValue(uint16 streamId) ;
 
-    void setApplyOnADC (bool state);
+    /** Sets the high cutoff for a particular stream*/
+    void setHighCutValue(uint16 streamId, double value);
+
+    /** Sets whether or not the filters for a particular stream are enabled*/
+    void setEnabledState(uint16 streamId, bool isEnabled);
+
+    /** Sets whether or not the filters for a particular stream are enabled*/
+    bool getEnabledState(uint16 streamId);
+
+    /** Sets whether or not the filters for a particular stream are enabled*/
+    void setChannelMask(uint16 streamId, Array<int> channels);
+
+    /** Sets whether or not the filters for a particular stream are enabled*/
+    Array<bool> getChannelMask(uint16 streamId);
+
+    /** Saving custom parameters*/
+    void saveCustomParametersToXml(XmlElement* xml) override;
+
+    /** Loading custom parameters*/
+    void loadCustomParametersFromXml() override;
 
 
 private:
+
+    StreamSettings<BandpassFilterSettings> settings;
+
     void setFilterParameters (double, double, int);
 
-    Array<double> lowCuts;
-    Array<double> highCuts;
-
-    OwnedArray<Dsp::Filter> filters;
-    Array<bool> shouldFilterChannel;
-
-    bool applyOnADC;
-
-    double defaultLowCut;
-    double defaultHighCut;
+    uint16 currentStream;
+    int currentChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 };

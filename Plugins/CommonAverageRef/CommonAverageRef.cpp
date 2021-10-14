@@ -27,12 +27,16 @@
 #include "CommonAverageRefEditor.h"
 
 
+CARSettings::CARSettings()
+{
+    m_avgBuffer = AudioBuffer<float>(1, 10000); // 1-dimensional buffer to hold the avg
+    m_gainLevel.setValue(100.0f);
+}
+
 CommonAverageRef::CommonAverageRef()
-    : GenericProcessor ("Common Avg Ref") //, threshold(200.0), state(true)
+    : GenericProcessor ("Common Avg Ref") 
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
-
-    m_avgBuffer = AudioSampleBuffer (1, 10000); // 1-dimensional buffer to hold the avg
 }
 
 
@@ -48,97 +52,132 @@ AudioProcessorEditor* CommonAverageRef::createEditor()
 }
 
 
-float CommonAverageRef::getGainLevel()
+void CommonAverageRef::updateSettings()
 {
-    m_gainLevel.updateTarget();
-    return m_gainLevel.getNextValue();
+    settings.update(getDataStreams());
+    
+}
+
+float CommonAverageRef::getGainLevel(uint16 streamId)
+{
+    settings[streamId]->m_gainLevel.updateTarget();
+
+    return settings[streamId]->m_gainLevel.getNextValue();
 }
 
 
-void CommonAverageRef::setGainLevel (float newGain)
+void CommonAverageRef::setGainLevel (uint16 streamId, float newGain)
 {
-    m_gainLevel.setValue (newGain);
+    settings[streamId]->m_gainLevel.setValue (newGain);
 }
 
 
 void CommonAverageRef::process (AudioSampleBuffer& buffer)
 {
-    const int numSamples            = buffer.getNumSamples();
-    const int numReferenceChannels  = m_referenceChannels.size();
-    const int numAffectedChannels   = m_affectedChannels.size();
 
-    // There are no sense to do any processing if either number of reference or affected channels is zero.
-    if (! numReferenceChannels
-        || ! numAffectedChannels)
+    for (auto stream : getDataStreams())
     {
-        return;
+        CARSettings* settings_ = settings[stream->getStreamId()];
+
+        const int numSamples = getNumSourceSamples(stream->getStreamId());
+        const int numReferenceChannels = settings_->m_referenceChannels.size();
+        const int numAffectedChannels = settings_->m_affectedChannels.size();
+
+        // There is no need to do any processing if either number of reference or affected channels is zero.
+        if (!numReferenceChannels
+            || !numAffectedChannels)
+        {
+            return;
+        }
+
+        settings_->m_avgBuffer.clear();
+
+        for (int i = 0; i < numReferenceChannels; ++i)
+        {
+            settings_->m_avgBuffer.addFrom(0,       // destChannel
+                0,                                  // destStartSample
+                buffer,                             // source
+                settings_->m_referenceChannels[i],  // sourceChannel
+                0,                                  // sourceStartSample
+                numSamples,                         // numSamples
+                1.0f);                              // gain to apply
+        }
+
+        settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
+
+        settings_->m_gainLevel.updateTarget();
+        const float gain = -1.0f * settings_->m_gainLevel.getNextValue() / 100.f;
+
+        for (int i = 0; i < numAffectedChannels; ++i)
+        {
+            buffer.addFrom(settings_->m_affectedChannels[i],  // destChannel
+                0,                                            // destStartSample
+                settings_->m_avgBuffer,                       // source
+                0,                                            // sourceChannel
+                0,                                            // sourceStartSample
+                numSamples,                                   // numSamples
+                gain);                                        // gain to apply
+        }
     }
 
-    m_avgBuffer.clear();
-
-    for (int i = 0; i < numReferenceChannels; ++i)
-    {
-        m_avgBuffer.addFrom (0,                         // destChannel
-                             0,                         // destStartSample
-                             buffer,                    // source
-                             m_referenceChannels[i],    // sourceChannel
-                             0,                         // sourceStartSample
-                             numSamples,                // numSamples
-                             1.0f);                     // gain to apply
-    }
-
-    m_avgBuffer.applyGain (1.0f / float (numReferenceChannels));
-
-    m_gainLevel.updateTarget();
-    const float gain = -1.0f * m_gainLevel.getNextValue() / 100.f;
-
-    for (int i = 0; i < numAffectedChannels; ++i)
-    {
-        buffer.addFrom (m_affectedChannels[i],  // destChannel
-                        0,                      // destStartSample
-                        m_avgBuffer,            // source
-                        0,                      // sourceChannel
-                        0,                      // sourceStartSample
-                        numSamples,             // numSamples
-                        gain);                  // gain to apply
-    }
+   
 }
 
 
-void CommonAverageRef::setReferenceChannels (const Array<int>& newReferenceChannels)
+void CommonAverageRef::setReferenceChannels (uint16 streamId, const Array<int>& newReferenceChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
-    m_referenceChannels = Array<int> (newReferenceChannels);
+    settings[streamId]->m_referenceChannels = Array<int> (newReferenceChannels);
 }
 
 
-void CommonAverageRef::setAffectedChannels (const Array<int>& newAffectedChannels)
+void CommonAverageRef::setAffectedChannels (uint16 streamId, const Array<int>& newAffectedChannels)
 {
     const ScopedLock myScopedLock (objectLock);
 
-    m_affectedChannels = Array<int> (newAffectedChannels);
+    settings[streamId]->m_affectedChannels = Array<int> (newAffectedChannels);
 }
 
-
-void CommonAverageRef::setReferenceChannelState (int channel, bool newState)
+Array<int> CommonAverageRef::getReferenceChannels(uint16 streamId)
 {
-    if (! newState)
-        m_referenceChannels.removeFirstMatchingValue (channel);
-    else
-        m_referenceChannels.addIfNotAlreadyThere (channel);
+
+    return settings[streamId]->m_referenceChannels;
 }
 
 
-void CommonAverageRef::setAffectedChannelState (int channel, bool newState)
+Array<int> CommonAverageRef::getAffectedChannels(uint16 streamId)
 {
-    if (! newState)
-        m_affectedChannels.removeFirstMatchingValue (channel);
-    else
-        m_affectedChannels.addIfNotAlreadyThere (channel);
+
+    return settings[streamId]->m_affectedChannels;
 }
 
-void CommonAverageRef::saveCustomChannelParametersToXml(XmlElement* channelElement,
+
+void CommonAverageRef::setReferenceChannelState (uint16 streamId, int channel, bool newState)
+{
+
+    const ScopedLock myScopedLock(objectLock);
+
+    if (! newState)
+        settings[streamId]->m_referenceChannels.removeFirstMatchingValue (channel);
+    else
+        settings[streamId]->m_referenceChannels.addIfNotAlreadyThere (channel);
+}
+
+
+void CommonAverageRef::setAffectedChannelState (uint16 streamId, int channel, bool newState)
+{
+
+    const ScopedLock myScopedLock(objectLock);
+
+    if (! newState)
+        settings[streamId]->m_affectedChannels.removeFirstMatchingValue (channel);
+    else
+        settings[streamId]->m_affectedChannels.addIfNotAlreadyThere (channel);
+}
+
+
+/*void CommonAverageRef::saveCustomChannelParametersToXml(XmlElement* channelElement,
     int channelNumber, InfoObject::Type channelType)
 {
     if (channelType == InfoObject::Type::CONTINUOUS_CHANNEL)
@@ -177,4 +216,4 @@ void CommonAverageRef::loadCustomChannelParametersFromXml(XmlElement* channelEle
             }
         }
     }
-}
+}*/

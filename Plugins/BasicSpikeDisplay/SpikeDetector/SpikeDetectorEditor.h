@@ -27,10 +27,7 @@
 
 #include <EditorHeaders.h>
 
-class TriangleButton;
-class UtilityButton;
-
-
+class PopupConfigurationWindow;
 
 /**
 
@@ -45,50 +42,36 @@ class UtilityButton;
 
 */
 
-class SpikeDetectorEditor : public GenericEditor,
-    public Label::Listener,
-    public ComboBox::Listener
-
+class SpikeDetectorEditor : public GenericEditor
 {
 public:
+
+    /** Constructor*/
     SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+
+    /** Destructor */
     virtual ~SpikeDetectorEditor();
+
+    /** Called when configure button is clicked */
     void buttonEvent(Button* button);
-    void labelTextChanged(Label* label);
-    void comboBoxChanged(ComboBox* comboBox);
-    void sliderEvent(Slider* slider);
 
-    void channelChanged (int channel, bool newState) override;
+    /** Called when settings are updated*/
+    void updateSettings() override;
 
-    bool addElectrode(int nChans, int electrodeID = 0);
-    void removeElectrode(int index);
+    /** Adds spike channels with a given type */
+    void addSpikeChannels(SpikeChannel::Type type, int count);
 
-    void checkSettings();
-    void refreshElectrodeList();
+    /** Removes a spike channel by index*/
+    void removeSpikeChannel(int index);
+
+    /** Called by PopupChannelSelector*/
+    void channelStateChanged(Array<int> selectedChannels) override;
 
 private:
 
-    void drawElectrodeButtons(int);
+    std::unique_ptr<UtilityButton> configureButton;
 
-    std::unique_ptr<ComboBox> electrodeTypes;
-    std::unique_ptr<ComboBox> electrodeList;
-    std::unique_ptr<Label> numElectrodes;
-    std::unique_ptr<Label> thresholdLabel;
-    std::unique_ptr<TriangleButton> upButton;
-    std::unique_ptr<TriangleButton> downButton;
-    std::unique_ptr<UtilityButton> plusButton;
-
-    std::unique_ptr<ThresholdSlider> thresholdSlider;
-
-    OwnedArray<ElectrodeButton> electrodeButtons;
-    std::vector<std::unique_ptr<ElectrodeEditorButton>> electrodeEditorButtons;
-
-    void editElectrode(int index, int chan, int newChan);
-
-    int lastId;
-    bool isPlural;
-
-    Font editorFont;
+    PopupConfigurationWindow* currentConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 

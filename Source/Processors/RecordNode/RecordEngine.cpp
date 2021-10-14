@@ -46,14 +46,7 @@ void RecordEngine::registerRecordNode(RecordNode* node)
 	recordNode = node;
 }
 
-void RecordEngine::registerProcessor(const GenericProcessor* processor) {
-}
-
-void RecordEngine::addContinuousChannel(int index, const ContinuousChannel* chan) {}
-
-void RecordEngine::addEventChannel(int index, const EventChannel* chan) {}
-
-void RecordEngine::addSpikeElectrode(int index, const SpikeChannel* chan) {}
+void RecordEngine::registerProcessor(const GenericProcessor* processor) {}
 
 void RecordEngine::startChannelBlock(bool lastBlock) {}
 
@@ -106,7 +99,7 @@ int RecordEngine::getRealChannel(int channel) const
 	return channelMap[channel];
 }
 
-int RecordEngine::getNumRecordedChannels() const
+int RecordEngine::getNumRecordedContinuousChannels() const
 {
 	return channelMap.size();
 }
@@ -116,18 +109,15 @@ int RecordEngine::getNumRecordedProcessors() const
 	return recordProcessors.size();
 }
 
-int RecordEngine::getNumRecordedEvents() const
+int RecordEngine::getNumRecordedEventChannels() const
 {
 	return recordNode->getTotalEventChannels();
 }
 
-int RecordEngine::getNumRecordedSpikes() const
+int RecordEngine::getNumRecordedSpikeChannels() const
 {
 	return recordNode->getTotalSpikeChannels();
 }
-
-void RecordEngine::registerSpikeSource(const GenericProcessor* processor) {}
-
 
 const RecordProcessorInfo& RecordEngine::getProcessorInfo(int processor) const
 {

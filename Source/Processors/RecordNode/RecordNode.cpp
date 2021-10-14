@@ -926,82 +926,6 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			}
 		}
 
-		/* OlD CODE
-
-		ContinuousChannel* chan; 
-		uint64 streamId;
-
-		for (int ch = 0; ch < channelMap.size(); ch++)
-		{
-
-			if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
-			{
-
-				chan = continuousChannels[ch];
-
-				numSamples = getNumSamples(channelMap[ch]);
-				timestamp = getTimestamp(channelMap[ch]);
-
-				streamId = chan->getStreamId();
-
-			}
-
-			bool shouldWrite = validBlocks[ch];
-			if (!shouldWrite && numSamples > 0)
-			{
-				shouldWrite = true;
-				validBlocks.set(ch, true);
-			}
-			
-			if (shouldWrite && numSamples > 0)
-			{
-
-				if (isFirstChannelInRecordedSubprocessor(channelMap[ch]))
-				{
-					
-					if (useSynchronizer)
-					{
-						double first = synchronizer->convertTimestamp(streamId, timestamp);
-						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
-						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
-					}
-					else
-					{
-						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-						samplesWritten+=numSamples;
-						continue;
-					}
-					
-
-				}
-
-				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-				samplesWritten+=numSamples;
-
-			}
-
-		}
-
-		if (!setFirstBlock)
-		{
-			bool shouldSetFlag = true;
-			for (int chan = 0; chan < channelMap.size(); ++chan)
-			{
-				if (!validBlocks[chan])
-				{
-					shouldSetFlag = false;
-					break;
-				}
-			}
-			if (shouldSetFlag)
-			{
-				recordThread->setFirstBlockFlag(true);
-				setFirstBlock = true;
-			}
-		}
-
-		*/
-
 	}
 
 }
@@ -1018,20 +942,6 @@ void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
 	//settings.numInputs += sourceNode->getNumOutputs();
 	//setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
 	recordEngine->registerProcessor(sourceNode);
-}
-
-// not called
-void RecordNode::registerSpikeSource(const GenericProcessor *processor)
-{
-	recordEngine->registerSpikeSource(processor);
-}
-
-// not called
-int RecordNode::addSpikeElectrode(const SpikeChannel *elec)
-{
-	//spikeChannelArray.add(new SpikeChannel(*elec));
-	recordEngine->addSpikeElectrode(spikeElectrodeIndex, elec);
-	return spikeElectrodeIndex++;
 }
 
 // called in RecordNode::handleSpike

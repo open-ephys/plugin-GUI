@@ -37,7 +37,7 @@ class PLUGIN_API SpikeChannel :
 public:
 	enum Type
 	{
-		SINGLE,
+		SINGLE = 1,
 		STEREOTRODE,
 		TETRODE,
 		INVALID = 100
@@ -53,10 +53,11 @@ public:
 
 		DataStream* stream;
 
-		const Array<const ContinuousChannel*>& sourceChannels;
+		Array<const ContinuousChannel*>& sourceChannels;
 
-		int prePeakSamples = 8;
-		int postPeakSamples = 32;
+		unsigned int numPrePeakSamples = 8;
+		unsigned int numPostPeakSamples = 32;
+
 	};
 
 	/** Default constructor 
@@ -71,10 +72,7 @@ public:
 	Type getChannelType() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
-	const Array<const ContinuousChannel*> getSourceChannels() const;
-
-	/** Sets the number of samples, pre and post peak */
-	void setNumSamples(unsigned int preSamples, unsigned int postSamples);
+	const Array<const ContinuousChannel*>& getSourceChannels() const;
 
 	/** Gets the number of pre peak samples */
 	unsigned int getPrePeakSamples() const;
@@ -97,20 +95,71 @@ public:
 	/** Gets the size in bytes of one channel of the spike object*/
 	size_t getChannelDataSize() const;
 
+	// ====== STATIC METHODS ========= //
+
 	/** Gets the number of channels associated with a specific electrode type */
 	static unsigned int getNumChannels(Type type);
 
 	/** Gets the electrode type from a specific number of channels*/
 	static Type typeFromNumChannels(unsigned int nChannels);
 
+	/** Generates a default channel name to use*/
+	static String getDefaultChannelPrefix(Type channelType);
+
+	/** Generates a default channel name to use*/
+	static String getDescriptionFromType(Type channelType);
+
+	/** Generates a default channel name to use*/
+	static String getIdentifierFromType(Type channelType);
+
 private:
 
-	const Type m_type;
-	Array<const ContinuousChannel*> m_channelInfo;
-	unsigned int m_numPreSamples;
-	unsigned int m_numPostSamples;
+	const Type type;
+
+	//ThresholdType thresholdType;
+
+	Array<const ContinuousChannel*> sourceChannels;
+	//Array<bool> detectSpikesOnChannel;
+	//Array<float> thresholds;
+
+	//bool sendFullWaveform;
+
+	unsigned int numPreSamples;
+	unsigned int numPostSamples;
 
 };
 
 
 #endif
+
+
+/*
+/** Updates the source continuous channels for this spike channel */
+//void setSourceChannels(Array<const ContinuousChannel*>);
+
+/* Get the channel threshold type (FIXED, STD, DYNAMIC, etc.) */
+//ThresholdType getThresholdType() const;
+
+/* Set the channel threshold type (SINGLE, STEREOTRODE, TETRODE) */
+//void setThresholdType(ThresholdType);
+
+/* Get the channel threshold value */
+//float getThreshold(int channelIndex) const;
+
+/* Set the channel threshold value */
+//void setThreshold(int channelIndex, float threshold);
+
+/** Returns true if this channel sends spike objects containing the full waveform */
+//bool sendsFullWaveform() const;
+
+/* Sets whether the channel sends spike objects containing the full waveform, or just the peak */
+//void shouldSendFullWaveform(bool);
+
+/** Returns true if a sub-channel is enabled for detecting spikes*/
+//bool getSourceChannelState(int channelIndex) const;
+
+/* Sets whether a sub-channel is enabled for detecting spikes */
+//void setSourceChannelState(int channelIndex, bool state);
+
+/** Sets the number of samples, pre and post peak */
+//void setNumSamples(unsigned int preSamples, unsigned int postSamples); 

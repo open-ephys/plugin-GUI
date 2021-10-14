@@ -34,7 +34,8 @@ public:
     AddProcessor(ProcessorDescription description,
                  GenericProcessor* source,
                  GenericProcessor* dest,
-                 EditorViewport*);
+                 EditorViewport*,
+                 bool signalChainIsLoading = false);
  
     ~AddProcessor();
     
@@ -49,6 +50,8 @@ private:
 
     int sourceNodeId;
     int destNodeId;
+
+    bool signalChainIsLoading;
     
     int nodeId;
     
