@@ -312,7 +312,7 @@ void FileReader::updateSettings()
      dataStreams.add(new DataStream(*currentStream.get()));
      dataStreams.getLast()->addProcessor(processorInfo.get());
 
-     for (int i = 0; i < 4; i++) //currentNumChannels; i++)
+     for (int i = 0; i < 8; i++) //currentNumChannels; i++)
      {
          ContinuousChannel::Settings settings2
          {

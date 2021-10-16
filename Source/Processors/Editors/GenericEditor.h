@@ -228,6 +228,12 @@ public:
     /** Called by the update() method to allow the editor to update its custom settings.*/
     virtual void updateSettings();
 
+    /** Called when the editor needs to update the view of its parameters.*/
+    void updateView();
+
+    /** Called when the editor needs to update the view of its parameters.*/
+    virtual void updateCustomView();
+
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
 
@@ -251,9 +257,6 @@ public:
 
     /** Writes editor state to xml */
     virtual void loadCustomParametersFromXml (XmlElement* xml);
-
-    /** Syncs parametereditor colors with parameter values */
-    void updateParameterButtons (int parameterIndex = -1);
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
@@ -304,9 +307,8 @@ protected:
     /** Saves the open/closed state of the ChannelSelector drawer. */
     bool drawerOpen;
 
-    /** Can be overridden to customize the layout of ParameterEditors. */
-    // Ideally this would be virtual, but since it's run in the construct and because virtual functions don't get overriden in the constructor, it's not.
-    void addParameterEditors (bool useStandard);
+    /** Adds the default editor for a parameter of a given name. */
+    void addParameterEditor (const String& name, int xPos, int yPos);
 
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelector> streamSelector;

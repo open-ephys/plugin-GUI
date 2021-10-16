@@ -134,6 +134,9 @@ FilterNode::FilterNode()
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
 
+    addIntParameter("high_cut", "Filter high cut", 6000, 1, 15000, false);
+    addIntParameter("low_cut", "Filter low cut", 300, 1, 15000, false);
+
 }
 
 
@@ -281,7 +284,20 @@ Array<bool> FilterNode::getChannelMask(uint16 streamId)
     return settings[streamId]->channelMask;
 }
 
+void FilterNode::parameterValueChanged(Parameter* param)
+{
+    currentStream = param->getStreamId();
 
+    std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
+
+    if (param->getName().equalsIgnoreCase("high_cut"))
+        setParameter(1, param->getValue());
+    else if (param->getName().equalsIgnoreCase("low_cut"))
+        setParameter(0, param->getValue());
+
+    getEditor()->updateView();
+
+}
 
 void FilterNode::setParameter (int parameterIndex, float newValue)
 {

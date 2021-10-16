@@ -119,6 +119,9 @@ public:
     /** Used to update parameters while the process() loop is running*/
     void setParameter (int parameterIndex, float newValue) override;
 
+    /** Called whenever a parameter value is changed*/
+    void parameterValueChanged(Parameter* param) override;
+
     /** Called when upstream settings are changed.*/
     void updateSettings() override;
 

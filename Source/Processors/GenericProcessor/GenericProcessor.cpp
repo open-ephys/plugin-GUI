@@ -92,39 +92,63 @@ void GenericProcessor::setNodeId(int id)
 	}
 }
 
-
-Parameter* GenericProcessor::getParameterByName(String name)
+Parameter* GenericProcessor::getParameter(uint16 streamId, const String name)
 {
-	const int numParameters = getNumParameters();
-	// doesn't work
-	for (int i = 0; i < numParameters; ++i)
-	{
-		const auto parameter = parameters[i];
-		const String parameterName = parameter->getName();
 
-		if (parameterName.compare(name) == 0) // fails at this point
-			return parameter;//parameters.getReference(i);
+	std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
+
+	// no checking, so it's fast; but take care to provide a valid stream / name
+	return parameterMap[streamId][name];
+
+}
+
+Parameter* GenericProcessor::getParameter(const String name)
+{
+	for (auto param : availableParameters)
+	{
+		if (param->getName().equalsIgnoreCase(name))
+			return param;
 	}
 
-	Parameter* nullParam = new Parameter("VOID", false, -1);
-
-	return nullParam;
+	return nullptr;
 }
 
 
-Parameter* GenericProcessor::getParameterByIndex(int parameterIndex) const
+void GenericProcessor::addBooleanParameter(const String& name,
+	const String& description,
+	bool defaultValue,
+	bool deactivateDuringAcquisition)
 {
-	return parameters[parameterIndex];
+
+	availableParameters.add(new BooleanParameter(this, 0, name, description, defaultValue, deactivateDuringAcquisition));
+	
+	//parameterMap.set(name, parameters.getLast());
+
 }
 
+void GenericProcessor::addIntParameter(const String& name,
+	const String& description,
+	int defaultValue,
+	int minValue,
+	int maxValue,
+	bool deactivateDuringAcquisition)
+{
+
+	availableParameters.add(
+		new IntParameter(this, 
+			0, 
+			name, 
+			description, 
+			defaultValue, 
+			minValue, 
+			maxValue, 
+			deactivateDuringAcquisition));
+
+}
 
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
 {
-	editor->updateParameterButtons(parameterIndex);
-	LOGD("Setting parameter");
 
-	if (currentChannel >= 0)
-		parameters[parameterIndex]->setValue(newValue, currentChannel);
 }
 
 
@@ -335,15 +359,62 @@ void GenericProcessor::update()
 	{
 		// connect first processor in signal chain to message center
 
-		const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+		//const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
-		eventChannels.add(new EventChannel(*messageChannel));
-		eventChannels.getLast()->addProcessor(processorInfo.get());
+		//eventChannels.add(new EventChannel(*messageChannel));
+		//eventChannels.getLast()->addProcessor(processorInfo.get());
 
-		std::cout << getNodeId() << " connected to Message Center" << std::endl;
+		//std::cout << getNodeId() << " connected to Message Center" << std::endl;
 	}
 
 	updateChannelIndexMaps();
+
+	for (auto stream : getDataStreams())
+	{
+		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+
+		if (parameterMap.find(stream->getStreamId()) == parameterMap.end())
+		{
+
+			parameterMap[stream->getStreamId()] = std::map<String, Parameter*>();
+
+			for (auto param : availableParameters)
+			{
+				if (param->getType() == Parameter::BOOLEAN_PARAM)
+				{
+					BooleanParameter* p = (BooleanParameter*) param;
+					parameters.add(new BooleanParameter(
+						this,
+						stream->getStreamId(),
+						p->getName(),
+						p->getDescription(),
+						p->getBoolValue(),
+						p->shouldDeactivateDuringAcquisition()
+					));
+				} 
+				else if (param->getType() == Parameter::INT_PARAM)
+				{
+					IntParameter* p = (IntParameter*)param;
+					parameters.add(new IntParameter(
+						this,
+						stream->getStreamId(),
+						p->getName(),
+						p->getDescription(),
+						p->getIntValue(),
+						p->getMinValue(),
+						p->getMaxValue(),
+						p->shouldDeactivateDuringAcquisition()
+					));
+				}
+
+				parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+
+			}
+
+		}
+
+	}
+
 
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
@@ -351,11 +422,6 @@ void GenericProcessor::update()
 
 	std::cout << "Updated custom settings." << std::endl;
 
-	for (auto stream : getDataStreams())
-	{
-		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
-
-	}
 
 	updateChannelIndexMaps();
 
@@ -917,36 +983,21 @@ const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 /////// ---- LOADING AND SAVING ---- //////////
 
 
-void GenericProcessor::saveToXml(XmlElement* parentElement)
+void GenericProcessor::saveToXml(XmlElement* xml)
 {
-	parentElement->setAttribute("NodeId", nodeId);
+	xml->setAttribute("NodeId", nodeId);
 
-	saveCustomParametersToXml(parentElement);
-
-	// loop through the channels
-
-	for (int i = 0; i < continuousChannels.size(); ++i)
+	for (auto stream : getDataStreams())
 	{
-		if (!isSplitter() && !isMerger())
-			saveChannelParametersToXml(parentElement, continuousChannels[i]);
+		XmlElement* streamParams = xml->createNewChildElement("STREAMZ");
+
+		for (auto param : availableParameters)
+			parameterMap[stream->getStreamId()][param->getName()]->toXml(streamParams);
 	}
 
-	for (int i = 0; i < eventChannels.size(); ++i)
-	{
-		if (!isSplitter() && !isMerger())
-			saveChannelParametersToXml(parentElement, eventChannels[i]);
-	}
+	saveCustomParametersToXml(xml);
 
-	for (int i = 0; i < spikeChannels.size(); ++i)
-	{
-		if (!isSplitter() && !isMerger())
-			saveChannelParametersToXml(parentElement, spikeChannels[i]);
-	}
-
-	// Save editor parameters:
-	XmlElement* editorChildNodeXml = parentElement->createNewChildElement("EDITOR");
-
-	getEditor()->saveToXml(editorChildNodeXml);
+	getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
 }
 
 
@@ -1015,8 +1066,32 @@ void GenericProcessor::loadFromXml()
        // {
 		LOGD("Loading parameters for ", m_name);
 
+		int streamIndex = 0;
+		Array<const DataStream*> availableStreams = getDataStreams();
+
+		forEachXmlChildElement(*parametersAsXml, streamParams)
+		{
+			if (streamParams->hasTagName("STREAMZ"))
+			{
+
+				if (availableStreams.size() > streamIndex)
+				{
+					std::cout << "FOUND IT!" << std::endl;
+					for (auto param : availableParameters)
+						parameterMap[availableStreams[streamIndex]->getStreamId()][param->getName()]->fromXml(streamParams);
+				}
+				else {
+					std::cout << "DID NOT FIND IT!" << std::endl;
+				}
+
+				streamIndex++;
+			}
+		}
+
+
         // use parametersAsXml to restore state
         loadCustomParametersFromXml();
+
 
         // load editor parameters
         forEachXmlChildElement(*parametersAsXml, xmlNode)

@@ -22,10 +22,141 @@
 
 
 #include "Parameter.h"
-#include "ParameterHelpers.h"
+#include "ParameterEditor.h"
+
+//#include "ParameterHelpers.h"
+
+String Parameter::getParameterTypeString() const
+{
+    if (m_parameterType == Parameter::BOOLEAN_PARAM)
+        return "Boolean";
+    else if (m_parameterType == Parameter::INT_PARAM)
+        return "Integer";
+    else if (m_parameterType == Parameter::CATEGORICAL_PARAM)
+        return "Categorical";
+    else if (m_parameterType == Parameter::FLOAT_PARAM)
+        return "Float";
+    else if (m_parameterType == Parameter::SELECTED_CHANNELS_PARAM)
+        return "Selected Channels";
+
+    // This should never happen
+    jassertfalse;
+    return String();
+}
+
+BooleanParameter::BooleanParameter(GenericProcessor* processor,
+    uint16 streamId, 
+    const String& name,
+    const String& description,
+    bool defaultValue_,
+    bool deactivateDuringAcquisition) 
+    : Parameter(processor, streamId,
+                ParameterType::BOOLEAN_PARAM,
+                name,
+                description,
+                defaultValue_,
+                deactivateDuringAcquisition)
+{
+
+}
+
+void BooleanParameter::setValue(var newValue)
+{
+    if (newValue.isBool())
+    {
+        currentValue = newValue;
+    }
+
+    processor->parameterValueChanged(this);
+}
+
+bool BooleanParameter::getBoolValue()
+{
+    return (bool)currentValue;
+}
+
+void BooleanParameter::toXml(XmlElement* xml) 
+{
+    xml->setAttribute(getName(), (bool) currentValue);
+}
+
+void BooleanParameter::fromXml(XmlElement* xml)
+{
+    setValue(xml->getBoolAttribute(getName(), defaultValue));
+}
+
+BooleanParameterEditor* BooleanParameter::createEditor(BooleanParameter* param)
+{
+    return new BooleanParameterEditor(param);
+}
+
+IntParameter::IntParameter(GenericProcessor* processor,
+    uint16 streamId, 
+    const String& name,
+    const String& description,
+    int defaultValue_,
+    int minValue_,
+    int maxValue_,
+    bool deactivateDuringAcquisition)
+    : Parameter(processor,
+        streamId,
+        ParameterType::INT_PARAM,
+        name,
+        description,
+        defaultValue_,
+        deactivateDuringAcquisition),
+    maxValue(maxValue_),
+    minValue(minValue_)
+{
+
+}
+
+void IntParameter::setValue(var newValue)
+{
+    if (newValue.isInt())
+    {
+        int value = (int)newValue;
+
+        std::cout << "val: " << value << std::endl;
+        std::cout << "minvalue: " << minValue << std::endl;
+        std::cout << "maxvalue: " << maxValue << std::endl;
+        std::cout << "streamId: " << streamId << std::endl;
+
+        if (value < minValue)
+            currentValue = var(minValue);
+        else if (value > maxValue)
+            currentValue = var(maxValue);
+        else
+            currentValue = var(value);
+
+        std::cout << "newvalue: " << (int)currentValue << std::endl;
+    }
+
+    processor->parameterValueChanged(this);
+}
+
+int IntParameter::getIntValue()
+{
+    return int(currentValue);
+}
+
+void IntParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (int) currentValue);
+}
+
+void IntParameter::fromXml(XmlElement* xml)
+{
+    setValue(xml->getIntAttribute(getName(), defaultValue));
+}
+
+IntParameterEditor* IntParameter::createEditor(IntParameter* param)
+{
+    return new IntParameterEditor(param);
+}
 
 
-Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
+/*Parameter::Parameter (const String& name, bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
     , m_nameValueObject                 (name)
@@ -300,7 +431,7 @@ bool Parameter::setValue(const var& val, int chan) {
         if (!val.isString()) {
             return false;
         }
-    }*/
+    }
     else {
         // Unhandled type?
         jassertfalse;
@@ -532,6 +663,6 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
     parameter->setDescription (description);
 
     return parameter;
-}
+}*/
 
 

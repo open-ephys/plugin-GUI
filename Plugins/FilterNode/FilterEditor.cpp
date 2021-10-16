@@ -35,7 +35,10 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     lastLowCutString = " ";
     lastHighCutString = " ";
 
-    highCutLabel = new Label("high cut label", "High cut:");
+    addParameterEditor("low_cut", 10, 25);
+    addParameterEditor("high_cut", 10, 65);
+
+    /*highCutLabel = new Label("high cut label", "High cut:");
     highCutLabel->setBounds(10,65,80,20);
     highCutLabel->setFont(Font("Small Text", 12, Font::plain));
     highCutLabel->setColour(Label::textColourId, Colours::darkgrey);
@@ -65,7 +68,7 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
     highCutValue->setEditable(true);
     highCutValue->addListener(this);
     highCutValue->setTooltip("Set the high cut for the selected channels");
-    addAndMakeVisible(highCutValue);
+    addAndMakeVisible(highCutValue);*/
 
     channelSelectionButton = new UtilityButton("Channels", Font("Default", 10, Font::plain));
     channelSelectionButton->addListener(this);
@@ -91,8 +94,8 @@ void FilterEditor::setDefaults(double lowCut, double highCut)
 
 void FilterEditor::resetToSavedText()
 {
-    highCutValue->setText(lastHighCutString, dontSendNotification);
-    lowCutValue->setText(lastLowCutString, dontSendNotification);
+   // highCutValue->setText(lastHighCutString, dontSendNotification);
+    //lowCutValue->setText(lastLowCutString, dontSendNotification);
 }
 
 void FilterEditor::updateSettings()

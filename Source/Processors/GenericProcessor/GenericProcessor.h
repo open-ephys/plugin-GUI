@@ -261,19 +261,33 @@ public:
     virtual bool stillHasSource() const { return true; }
 
     // --------------------------------------------
-    //     BUFFER AND PARAMETER ACCESS
+    //     PARAMETERS
     // --------------------------------------------
 
-    /** Returns the parameter for a given name.
-        It should be const method ideally, but because JUCE's getNumParameters()
-        is non-const method, we can't do this one const.*/
-    Parameter* getParameterByName(String parameterName);
+    /** Adds a boolean parameter, which will later be accessed by name*/
+    void addBooleanParameter(const String& name,
+        const String& description,
+        bool defaultValue,
+        bool deactivateDuringAcquisition = false);
 
-    /** Returns the parameter for a given index.*/
-    Parameter* getParameterByIndex(int parameterIndex) const;
+    /** Adds an integer parameter, which will later be accessed by name*/
+    void addIntParameter(const String& name,
+        const String& description,
+        int defaultValue,
+        int minValue,
+        int maxValue,
+        bool deactivateDuringAcquisition = false);
 
-    /** An array of parameters that the user can modify.*/
-    OwnedArray<Parameter> parameters;
+    /** Returns the actual parameter for a given name.*/
+    Parameter* getParameter(const uint16 streamId, const String parameterName);
+
+    /** Returns the default parameter object for a given name.*/
+    Parameter* getParameter(const String parameterName);
+
+    /** Called when a parameter value is updated*/
+    virtual void parameterValueChanged(Parameter*) { }
+
+    // BUFFER ACCESS
 
     /** Returns a pointer to the processor's internal continuous buffer, if it exists. */
     virtual AudioBuffer<float>* getContinuousBuffer() const;
@@ -528,6 +542,15 @@ protected:
 
     /** Pointer to the processor's editor. */
     std::unique_ptr<GenericEditor> editor;
+
+    /** An array of default parameters for this processor.*/
+    OwnedArray<Parameter> availableParameters;
+
+    /** An array of parameters for each stream that the user can modify.*/
+    OwnedArray<Parameter> parameters;
+
+    /** Used to quickly access parameters by name*/
+    std::map<uint16, std::map<String, Parameter*>> parameterMap;
 
 
 private:
