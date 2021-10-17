@@ -114,7 +114,7 @@ int GenericEditor::getChannelDisplayNumber(int chan) const
 	return chan;
 }
 
-void GenericEditor::addParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addDefaultParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
     Parameter* param = getProcessor()->getParameter(parameterName);
@@ -142,6 +142,16 @@ void GenericEditor::addParameterEditor(const String& parameterName, int xPos_, i
 
     ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
 }
+
+
+void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
+{
+
+    parameterEditors.add(ed);
+    addAndMakeVisible(ed);
+    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
+}
+
 
 
 void GenericEditor::refreshColors()
@@ -1123,8 +1133,6 @@ void GenericEditor::updateView()
 void GenericEditor::updateCustomView() {}
 
 void GenericEditor::updateVisualizer() {}
-
-//void GenericEditor::channelChanged (int channel, bool newState) {}
 
 void GenericEditor::saveCustomParametersToXml(XmlElement* xml) { }
 

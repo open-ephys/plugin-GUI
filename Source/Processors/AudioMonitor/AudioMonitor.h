@@ -46,11 +46,7 @@ public:
 
     void process (AudioBuffer<float>& buffer) override;
     
-    void setParameter (int parameterIndex, float newValue) override;
-
     AudioProcessorEditor* createEditor() override;
-
-    bool hasEditor() const  override { return true; }
 
     void updateSettings() override;
 
@@ -66,15 +62,15 @@ public:
 
     void updateFilter(int i);
     
-    void setMonitoredChannels(Array<int> activeChannels);
-    Array<int> getMonitoredChannels();
+    //void setMonitoredChannels(Array<int> activeChannels);
+    //Array<int> getMonitoredChannels();
 
-    std::vector<bool> dataChannelStates;
+    //std::vector<bool> dataChannelStates;
 
 private:
     void recreateBuffers();
     
-    Array<int> activeChannels;
+    //Array<int> activeChannels;
 
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
@@ -87,11 +83,11 @@ private:
     double destBufferSampleRate;
 	int estimatedSamples;
 
-    bool isMuted;
+    //bool isMuted;
 
-    enum AudioOutputType {LEFT = 1, BOTH, RIGHT};
+    //enum AudioOutputType {LEFT = 1, BOTH, RIGHT};
 
-    AudioOutputType audioOutput; 
+    //AudioOutputType audioOutput; 
 
     std::map<int, bool> bufferSwap;
 

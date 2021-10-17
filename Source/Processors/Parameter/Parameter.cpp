@@ -49,13 +49,15 @@ BooleanParameter::BooleanParameter(GenericProcessor* processor,
     const String& name,
     const String& description,
     bool defaultValue_,
-    bool deactivateDuringAcquisition) 
+    bool deactivateDuringAcquisition,
+    bool isGlobal) 
     : Parameter(processor, streamId,
                 ParameterType::BOOLEAN_PARAM,
                 name,
                 description,
                 defaultValue_,
-                deactivateDuringAcquisition)
+                deactivateDuringAcquisition,
+                isGlobal)
 {
 
 }
@@ -90,6 +92,72 @@ BooleanParameterEditor* BooleanParameter::createEditor(BooleanParameter* param)
     return new BooleanParameterEditor(param);
 }
 
+CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
+    uint16 streamId,
+    const String& name,
+    const String& description,
+    StringArray categories,
+    int defaultIndex,
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
+    : Parameter(processor, streamId,
+        ParameterType::BOOLEAN_PARAM,
+        name,
+        description,
+        defaultIndex,
+        deactivateDuringAcquisition,
+        isGlobal)
+{
+
+}
+
+void CategoricalParameter::setNextValue(var newValue_)
+{
+    if (newValue_.isInt())
+    {
+        newValue = newValue_;
+    }
+
+    processor->parameterChangeRequest(this);
+}
+
+int CategoricalParameter::getSelectedIndex()
+{
+    return (int)currentValue;
+}
+
+String CategoricalParameter::getSelectedString()
+{
+    return categories[currentValue];
+}
+
+
+const StringArray& CategoricalParameter::getCategories()
+{
+    return categories;
+}
+
+
+void CategoricalParameter::setCategories(StringArray categories_)
+{
+    categories = categories_;
+}
+
+void CategoricalParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (int)currentValue);
+}
+
+void CategoricalParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getIntAttribute(getName(), defaultValue);
+}
+
+CategoricalParameterEditor* CategoricalParameter::createEditor(CategoricalParameter* param)
+{
+    return new CategoricalParameterEditor(param);
+}
+
 IntParameter::IntParameter(GenericProcessor* processor,
     uint16 streamId, 
     const String& name,
@@ -97,14 +165,16 @@ IntParameter::IntParameter(GenericProcessor* processor,
     int defaultValue_,
     int minValue_,
     int maxValue_,
-    bool deactivateDuringAcquisition)
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
     : Parameter(processor,
         streamId,
         ParameterType::INT_PARAM,
         name,
         description,
         defaultValue_,
-        deactivateDuringAcquisition),
+        deactivateDuringAcquisition,
+        isGlobal),
     maxValue(maxValue_),
     minValue(minValue_)
 {
@@ -161,14 +231,16 @@ SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor
     const String& description,
     Array<var> defaultValue_,
     int maxSelectableChannels_,
-    bool deactivateDuringAcquisition)
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
     : Parameter(processor_,
         streamId,
         ParameterType::SELECTED_CHANNELS_PARAM,
         name,
         description,
         defaultValue_,
-        deactivateDuringAcquisition),
+        deactivateDuringAcquisition,
+        isGlobal),
     maxSelectableChannels(maxSelectableChannels_),
     channelCount(0)
 {

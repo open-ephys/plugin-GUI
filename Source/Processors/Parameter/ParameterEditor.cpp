@@ -22,7 +22,7 @@
 
 #include "ParameterEditor.h"
 
-IntParameterEditor::IntParameterEditor(IntParameter* param)
+IntParameterEditor::IntParameterEditor(IntParameter* param) : ParameterEditor(param)
 {
     name = new Label("Parameter name", param->getName());
     name->setFont(Font("Small Text", 12, Font::plain));
@@ -69,7 +69,7 @@ void IntParameterEditor::resized()
 }
 
 
-BooleanParameterEditor::BooleanParameterEditor(BooleanParameter* param)
+BooleanParameterEditor::BooleanParameterEditor(BooleanParameter* param) : ParameterEditor(param)
 {
     name = new Label("Parameter name", param->getName());
     name->setFont(Font("Small Text", 12, Font::plain));
@@ -104,7 +104,58 @@ void BooleanParameterEditor::resized()
     value->setBounds(0, 22, 60, 18);
 }
 
-SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(SelectedChannelsParameter* param)
+
+CategoricalParameterEditor::CategoricalParameterEditor(CategoricalParameter* param) : ParameterEditor(param)
+{
+
+    name = new Label("Parameter name", param->getName());
+    name->setFont(Font("Small Text", 12, Font::plain));
+    name->setColour(Label::textColourId, Colours::darkgrey);
+    addAndMakeVisible(name);
+
+    comboBox = new ComboBox(param->getName());
+    comboBox->addListener(this);
+    comboBox->setTooltip(param->getDescription());
+
+    const StringArray& categories = param->getCategories();
+
+    for (int i = 0; i < categories.size(); i++)
+        comboBox->addItem(categories[i], i + 1);
+    addAndMakeVisible(comboBox);
+
+    setBounds(0, 0, 80, 42);
+}
+
+
+void CategoricalParameterEditor::comboBoxChanged(ComboBox* comboBox)
+{
+    param->setNextValue(comboBox->getSelectedId() - 1);
+}
+
+void CategoricalParameterEditor::updateView()
+{
+
+    comboBox->clear();
+
+    CategoricalParameter* p = (CategoricalParameter*)param;
+
+    const StringArray& categories = p->getCategories();
+
+    for (int i = 0; i < categories.size(); i++)
+        comboBox->addItem(categories[i], i + 1);
+
+    comboBox->setSelectedId(p->getSelectedIndex(), dontSendNotification);
+}
+
+void CategoricalParameterEditor::resized()
+{
+
+    name->setBounds(0, 0, 80, 20);
+    comboBox->setBounds(0, 22, 80, 18);
+}
+
+
+SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(SelectedChannelsParameter* param) : ParameterEditor(param)
 {
 
     button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));

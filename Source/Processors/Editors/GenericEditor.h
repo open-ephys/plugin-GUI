@@ -305,7 +305,10 @@ protected:
     bool drawerOpen;
 
     /** Adds the default editor for a parameter of a given name. */
-    void addParameterEditor (const String& name, int xPos, int yPos);
+    void addDefaultParameterEditor (const String& name, int xPos, int yPos);
+
+    /** Adds a custom editor for a parameter of a given name. */
+    void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);
 
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelector> streamSelector;

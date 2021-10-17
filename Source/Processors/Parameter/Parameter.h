@@ -32,6 +32,7 @@ class ParameterEditor;
 class BooleanParameterEditor;
 class IntParameterEditor;
 class SelectedChannelsParameterEditor;
+class CategoricalParameterEditor;
 
 /**
     Class for holding user-definable processor parameters.
@@ -46,16 +47,9 @@ class SelectedChannelsParameterEditor;
 */
 
 
-class PLUGIN_API Parameter //: private Value::Listener
+class PLUGIN_API Parameter
 {
 public:
-    //class Listener
-   // {
-   //// public:
-    //    virtual ~Listener() {}
-
-    //    virtual void parameterValueChanged(String parameterName) = 0;
-    //};
 
     enum ParameterType
     {
@@ -73,7 +67,8 @@ public:
         const String& name_,
         const String& description_,
         var defaultValue_,
-        bool deactivateDuringAcquisition_ = false) 
+        bool deactivateDuringAcquisition_ = false,
+        bool isGlobal_ = false) 
       : processor(processor_),
         streamId(streamId_),
         m_parameterType(type_),
@@ -82,7 +77,8 @@ public:
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
         newValue(defaultValue_),
-        m_deactivateDuringAcquisition(deactivateDuringAcquisition_)
+        m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
+        m_isGlobal(isGlobal_)
     {
 
     }
@@ -123,6 +119,9 @@ public:
         currentValue = newValue;
     }
 
+    /** Determines whether this parameter is global, or unique for individual data streams*/
+    bool isGlobal() { return m_isGlobal;  }
+
     /** Returns a string describing this parameter's type*/
     String getParameterTypeString() const;
 
@@ -148,8 +147,8 @@ private:
     String m_description;
 
     bool m_deactivateDuringAcquisition;
+    bool m_isGlobal;
 
-   // ListenerList<Listener> m_listeners;
 };
 
 
@@ -162,7 +161,8 @@ public:
         const String& name,
         const String& description,
         bool defaultValue,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
     /** Stages a value, to be changed by the processor*/
     virtual void setNextValue(var newValue);
@@ -181,6 +181,49 @@ public:
 
 };
 
+class PLUGIN_API CategoricalParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    CategoricalParameter(GenericProcessor* processor,
+        uint16 streamId,
+        const String& name,
+        const String& description,
+        StringArray categories,
+        int defaultIndex,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
+
+    /** Stages a value, to be changed by the processor*/
+    virtual void setNextValue(var newValue);
+
+    /** Gets the index as an integer*/
+    int getSelectedIndex();
+
+    /** Gets the index as an integer*/
+    String getSelectedString();
+
+    /** Updates the categories*/
+    void setCategories(StringArray categories);
+
+    /** Updates the categories*/
+    const StringArray& getCategories();
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+    /** Creates an editor for this parameter*/
+    static CategoricalParameterEditor* createEditor(CategoricalParameter* param);
+
+private:
+
+    StringArray categories;
+
+};
+
 class PLUGIN_API IntParameter : public Parameter
 {
 public:
@@ -192,7 +235,8 @@ public:
         int defaultValue,
         int minValue = 0,
         int maxValue = 100,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
     /** Sets the current value*/
     virtual void setNextValue(var newValue) override;
@@ -228,7 +272,8 @@ public:
         const String& description,
         Array<var> defaultValue,
         int maxSelectableChannels = INT_MAX,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
     /** Sets the current value*/
     virtual void setNextValue(var newValue) override;

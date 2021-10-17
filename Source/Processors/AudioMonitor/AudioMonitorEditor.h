@@ -28,6 +28,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
+#include "../Parameter/ParameterEditor.h"
 #include "../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 #include "AudioMonitor.h"
@@ -40,60 +41,73 @@ class AudioMonitor;
   @see AudioMonitor, AudioMonitorEditor
 
 */
-class MonitorMuteButton : public ImageButton
+class MonitorMuteButton : public ParameterEditor,
+    public Button::Listener
 {
 public:
-    MonitorMuteButton();
-    ~MonitorMuteButton();
+    MonitorMuteButton(Parameter* param);
+    ~MonitorMuteButton() { }
+
+    void buttonClicked(Button* label);
+
+    virtual void updateView() override;
+
+    virtual void resized();
+
+private:
+    ScopedPointer<ImageButton> muteButton;
 };
 
 
 /**
+  Toggles Left / Right / Both audio output
 
-  User interface for the "AudioMonitor" source node.
+  @see AudioMonitor, AudioMonitorEditor
+
+*/
+class AudioOutputSelector : public ParameterEditor,
+    public Button::Listener
+{
+public:
+    AudioOutputSelector(Parameter* param);
+    ~AudioOutputSelector() { }
+
+    void buttonClicked(Button* label);
+
+    virtual void updateView() override;
+
+    virtual void resized();
+
+private:
+    std::unique_ptr<LinearButtonGroupManager> outputChannelButtonManager;
+    TextButton* leftButton;
+    TextButton* rightButton;
+    TextButton* bothButton;
+
+    std::shared_ptr<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
+
+};
+
+/**
+
+  User interface for the "AudioMonitor" node.
 
 */
 
-class AudioMonitorEditor : public GenericEditor, ComboBox::Listener, PopupChannelSelector::Listener
+class AudioMonitorEditor : public GenericEditor
 {
 public:
+    /** Constructor */
     AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    virtual ~AudioMonitorEditor();
-
-    void buttonEvent (Button* button) override;
-
-    // Button::Listener method
-    void buttonClicked (Button* buttonThatWasClicked) override;
-
-    void comboBoxChanged(ComboBox*); 
-
-    void saveCustomParametersToXml (XmlElement*) override;
-    void loadCustomParametersFromXml (XmlElement*) override;
-
-	void startAcquisition() override;
-	void stopAcquisition()  override;
-
-    void channelStateChanged(Array<int> activeChannels) override;
+    
+    /** Destructor */
+    virtual ~AudioMonitorEditor() { }
 
 private:
 
     AudioMonitor* audioMonitor;
     
-    std::unique_ptr<juce::Button> channelSelectButton;
-
-    std::unique_ptr<juce::Label> selectedChansLabel;
-
-    std::unique_ptr<MonitorMuteButton> muteButton;
-
-    std::unique_ptr<juce::ComboBox> spikeChan;
-
-    OwnedArray<ChannelButton> channelButtons;
-
-    std::unique_ptr<LinearButtonGroupManager> outputChannelButtonManager;
-
-    std::shared_ptr<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
-
-    bool editable;
+    std::unique_ptr<juce::ComboBox> spikeChan; // to replace with ParameterEditor
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitorEditor);
 };

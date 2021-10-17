@@ -96,7 +96,7 @@ void GenericProcessor::setNodeId(int id)
 	}
 }
 
-Parameter* GenericProcessor::getParameter(uint16 streamId, const String name)
+Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
 {
 
 	std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
@@ -106,7 +106,18 @@ Parameter* GenericProcessor::getParameter(uint16 streamId, const String name)
 
 }
 
-var GenericProcessor::getParameterValue(uint16 streamId, const String name)
+Parameter* GenericProcessor::getGlobalParameter(const String& name)
+{
+	return globalParameterMap[name];
+}
+
+var GenericProcessor::getGlobalParameterValue(const String& name)
+{
+	return globalParameterMap[name]->getValue();
+}
+
+
+var GenericProcessor::getParameterValue(uint16 streamId, const String& name)
 {
 
 	// no checking, so it's fast; but take care to provide a valid stream / name
@@ -114,7 +125,7 @@ var GenericProcessor::getParameterValue(uint16 streamId, const String name)
 
 }
 
-Parameter* GenericProcessor::getParameter(const String name)
+Parameter* GenericProcessor::getParameter(const String& name)
 {
 	for (auto param : availableParameters)
 	{
@@ -126,7 +137,7 @@ Parameter* GenericProcessor::getParameter(const String name)
 }
 
 
-int GenericProcessor::getParameterIndex(const String name)
+int GenericProcessor::getParameterIndex(const String& name)
 {
 	for (int i = 0; i < availableParameters.size(); i++)
 	{
@@ -140,12 +151,54 @@ int GenericProcessor::getParameterIndex(const String name)
 void GenericProcessor::addBooleanParameter(const String& name,
 	const String& description,
 	bool defaultValue,
-	bool deactivateDuringAcquisition)
+	bool deactivateDuringAcquisition,
+	bool isGlobal)
 {
 
-	availableParameters.add(new BooleanParameter(this, 0, name, description, defaultValue, deactivateDuringAcquisition));
+	BooleanParameter* p = new BooleanParameter(
+		this, 
+		0, 
+		name, 
+		description, 
+		defaultValue, 
+		deactivateDuringAcquisition, 
+		isGlobal);
+
+	availableParameters.add(p);
+
+	if (isGlobal)
+	{
+		globalParameters.add(p);
+		globalParameterMap[p->getName()] = p;
+	}
+
+}
+
+void GenericProcessor::addCategoricalParameter(const String& name,
+	const String& description,
+	StringArray categories,
+	int defaultIndex,
+	bool deactivateDuringAcquisition,
+	bool isGlobal)
+{
+
+	CategoricalParameter* p = new CategoricalParameter(
+		this, 
+		0, 
+		name, 
+		description, 
+		categories, 
+		defaultIndex, 
+		deactivateDuringAcquisition,
+		isGlobal);
+
+	availableParameters.add(p);
 	
-	//parameterMap.set(name, parameters.getLast());
+	if (isGlobal)
+	{
+		globalParameters.add(p);
+		globalParameterMap[p->getName()] = p;
+	}
 
 }
 
@@ -154,10 +207,11 @@ void GenericProcessor::addIntParameter(const String& name,
 	int defaultValue,
 	int minValue,
 	int maxValue,
-	bool deactivateDuringAcquisition)
+	bool deactivateDuringAcquisition,
+	bool isGlobal)
 {
 
-	availableParameters.add(
+	IntParameter* p = 
 		new IntParameter(this, 
 			0, 
 			name, 
@@ -165,27 +219,45 @@ void GenericProcessor::addIntParameter(const String& name,
 			defaultValue, 
 			minValue, 
 			maxValue, 
-			deactivateDuringAcquisition));
+			deactivateDuringAcquisition,
+			isGlobal);
+
+	availableParameters.add(p);
+
+	if (isGlobal)
+	{
+		globalParameters.add(p);
+		globalParameterMap[p->getName()] = p;
+	}
 
 }
 
 void GenericProcessor::addSelectedChannelsParameter(const String& name,
 	const String& description,
 	int maxSelectedChannels,
-	bool deactivateDuringAcquisition)
+	bool deactivateDuringAcquisition,
+	bool isGlobal)
 {
 
 	Array<var> defaultValue;
 
-	availableParameters.add(
+	SelectedChannelsParameter* p =
 		new SelectedChannelsParameter(this,
 			0,
 			name,
 			description,
 			defaultValue,
 			maxSelectedChannels,
-			deactivateDuringAcquisition)
-	);
+			deactivateDuringAcquisition,
+			isGlobal);
+
+	availableParameters.add(p);
+
+	if (isGlobal)
+	{
+		globalParameters.add(p);
+		globalParameterMap[p->getName()] = p;
+	}
 }
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)
@@ -436,53 +508,108 @@ void GenericProcessor::update()
 			{
 				if (param->getType() == Parameter::BOOLEAN_PARAM)
 				{
-					BooleanParameter* p = (BooleanParameter*)param;
-					parameters.add(new BooleanParameter(
-						this,
-						stream->getStreamId(),
-						p->getName(),
-						p->getDescription(),
-						p->getBoolValue(),
-						p->shouldDeactivateDuringAcquisition()
-					));
+					if (!param->isGlobal())
+					{
+						BooleanParameter* p = (BooleanParameter*)param;
+						parameters.add(new BooleanParameter(
+							this,
+							stream->getStreamId(),
+							p->getName(),
+							p->getDescription(),
+							p->getBoolValue(),
+							p->shouldDeactivateDuringAcquisition(),
+							p->isGlobal()
+						));
 
-					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					}
+					else {
+						parameterMap[stream->getStreamId()][param->getName()] = param;
+					}
+
 				}
 				else if (param->getType() == Parameter::INT_PARAM)
 				{
-					IntParameter* p = (IntParameter*)param;
-					parameters.add(new IntParameter(
-						this,
-						stream->getStreamId(),
-						p->getName(),
-						p->getDescription(),
-						p->getIntValue(),
-						p->getMinValue(),
-						p->getMaxValue(),
-						p->shouldDeactivateDuringAcquisition()
-					));
 
-					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					if (!param->isGlobal())
+					{
+						IntParameter* p = (IntParameter*)param;
+						parameters.add(new IntParameter(
+							this,
+							stream->getStreamId(),
+							p->getName(),
+							p->getDescription(),
+							p->getIntValue(),
+							p->getMinValue(),
+							p->getMaxValue(),
+							p->shouldDeactivateDuringAcquisition(),
+							p->isGlobal()
+						));
+
+						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					}
+					else {
+						parameterMap[stream->getStreamId()][param->getName()] = param;
+					}
+					
+				}
+				else if (param->getType() == Parameter::CATEGORICAL_PARAM)
+				{
+
+					if (!param->isGlobal())
+					{
+						CategoricalParameter* p = (CategoricalParameter*)param;
+						parameters.add(new CategoricalParameter(
+							this,
+							stream->getStreamId(),
+							p->getName(),
+							p->getDescription(),
+							p->getCategories(),
+							p->getSelectedIndex(),
+							p->shouldDeactivateDuringAcquisition(),
+							p->isGlobal()
+						));
+
+						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					}
+					else {
+						parameterMap[stream->getStreamId()][param->getName()] = param;
+					}
+
 				}
 				else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
 				{
-					SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
 
-					SelectedChannelsParameter* newParam = new SelectedChannelsParameter(
-						this,
-						stream->getStreamId(),
-						p->getName(),
-						p->getDescription(),
-						p->getValue(),
-						p->getMaxSelectableChannels(),
-						p->shouldDeactivateDuringAcquisition()
-					);
+					if (!param->isGlobal())
+					{
+						SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
 
-					newParam->setChannelCount(stream->getChannelCount());
+						SelectedChannelsParameter* newParam = new SelectedChannelsParameter(
+							this,
+							stream->getStreamId(),
+							p->getName(),
+							p->getDescription(),
+							p->getValue(),
+							p->getMaxSelectableChannels(),
+							p->shouldDeactivateDuringAcquisition(),
+							p->isGlobal()
+						);
 
-					parameters.add(newParam);
+						newParam->setChannelCount(stream->getChannelCount());
 
-					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+						parameters.add(newParam);
+
+						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+
+					}
+					else {
+
+						SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+						p->setChannelCount(getNumOutputs());
+
+						parameterMap[stream->getStreamId()][param->getName()] = param;
+					}
+
 				}
 
 			}
@@ -494,7 +621,11 @@ void GenericProcessor::update()
 				if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
 				{
 					SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(stream->getStreamId(), param->getName());
-					p->setChannelCount(stream->getChannelCount());
+
+					if (!param->isGlobal())
+						p->setChannelCount(stream->getChannelCount());
+					else
+						p->setChannelCount(getNumOutputs());
 				}
 			}
 		}

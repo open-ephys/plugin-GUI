@@ -38,7 +38,8 @@ class ParameterEditor : public Component
 {
 public:
 
-    ParameterEditor() { }
+    ParameterEditor(Parameter* param_) : param(param_) { }
+
     virtual ~ParameterEditor() { }
 
     virtual void updateView() = 0;
@@ -76,6 +77,24 @@ public:
 private:
     ScopedPointer<Label> name;
     ScopedPointer<Label> value;
+};
+
+class PLUGIN_API CategoricalParameterEditor : public ParameterEditor,
+    public ComboBox::Listener
+{
+public:
+    CategoricalParameterEditor(CategoricalParameter* param);
+    virtual ~CategoricalParameterEditor() { }
+
+    void comboBoxChanged(ComboBox* comboBox);
+
+    virtual void updateView() override;
+
+    virtual void resized();
+
+private:
+    ScopedPointer<Label> name;
+    ScopedPointer<ComboBox> comboBox;
 };
 
 

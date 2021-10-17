@@ -32,9 +32,9 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParamete
 {
     desiredWidth = 150;
 
-    addParameterEditor("low_cut", 10, 25);
-    addParameterEditor("high_cut", 10, 65);
-    addParameterEditor("channels_to_filter", 80, 65);
+    addDefaultParameterEditor("low_cut", 10, 25);
+    addDefaultParameterEditor("high_cut", 10, 65);
+    addDefaultParameterEditor("channels_to_filter", 80, 65);
 
 }
 

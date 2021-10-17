@@ -268,7 +268,8 @@ public:
     void addBooleanParameter(const String& name,
         const String& description,
         bool defaultValue,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
     /** Adds an integer parameter, which will later be accessed by name*/
     void addIntParameter(const String& name,
@@ -276,25 +277,41 @@ public:
         int defaultValue,
         int minValue,
         int maxValue,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
-    /** Adds an integer parameter, which will later be accessed by name*/
+    /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(const String& name,
         const String& description,
         int maxSelectedChannels = INT_MAX,
-        bool deactivateDuringAcquisition = false);
+        bool deactivateDuringAcquisition = false, 
+        bool isGlobal = false);
+
+    /** Adds a categorical parameter, which will later be accessed by name*/
+    void addCategoricalParameter(const String& name,
+        const String& description,
+        StringArray categories,
+        int defaultIndex,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
+
+    /** Returns a pointer to a Parameter object for a given name*/
+    Parameter* getParameter(const uint16 streamId, const String& parameterName);
 
     /** Returns a pointer to a Parameter object for a given name.*/
-    Parameter* getParameter(const uint16 streamId, const String parameterName);
+    Parameter* getParameter(const String& parameterName);
 
-    /** Returns a pointer to a Parameter object for a given name.*/
-    Parameter* getParameter(const String parameterName);
-
-    /** Returns the actual value for a parameter for a given name.*/
-    var getParameterValue(const uint16 streamId, const String parameterName);
+    /** Returns the actual value for a parameter for a given name*/
+    var getParameterValue(const uint16 streamId, const String& parameterName);
 
     /** Returns the index of the parameter for a given name.*/
-    int getParameterIndex(const String parameterName);
+    int getParameterIndex(const String& parameterName);
+
+    /** Returns a global parameter*/
+    Parameter* getGlobalParameter(const String& parameterName);
+
+    /** Returns a global parameter value*/
+    var getGlobalParameterValue(const String& parameterName);
 
     /** Initiates parameter value update */
     void parameterChangeRequest(Parameter*);
@@ -561,11 +578,17 @@ protected:
     /** An array of default parameters for this processor.*/
     OwnedArray<Parameter> availableParameters;
 
+    /** An array of global parameters for this processor.*/
+    Array<Parameter*> globalParameters;
+
     /** An array of parameters for each stream that the user can modify.*/
     OwnedArray<Parameter> parameters;
 
     /** Used to quickly access parameters by name*/
     std::map<uint16, std::map<String, Parameter*>> parameterMap;
+
+    /** Used to quickly access parameters by name*/
+     std::map<String, Parameter*> globalParameterMap;
 
 
 private:
