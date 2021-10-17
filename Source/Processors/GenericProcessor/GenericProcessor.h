@@ -114,7 +114,7 @@ public:
     /** Allows parameters to change while acquisition is active. If the user wants
     to change ANY variables that are used within the process() method, this must
     be done through setParameter(). */
-    virtual void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue);
 
     // --------------------------------------------
     //    QUERYING INFO ABOUT THIS PROCESSOR
@@ -278,11 +278,26 @@ public:
         int maxValue,
         bool deactivateDuringAcquisition = false);
 
-    /** Returns the actual parameter for a given name.*/
+    /** Adds an integer parameter, which will later be accessed by name*/
+    void addSelectedChannelsParameter(const String& name,
+        const String& description,
+        int maxSelectedChannels = INT_MAX,
+        bool deactivateDuringAcquisition = false);
+
+    /** Returns a pointer to a Parameter object for a given name.*/
     Parameter* getParameter(const uint16 streamId, const String parameterName);
 
-    /** Returns the default parameter object for a given name.*/
+    /** Returns a pointer to a Parameter object for a given name.*/
     Parameter* getParameter(const String parameterName);
+
+    /** Returns the actual value for a parameter for a given name.*/
+    var getParameterValue(const uint16 streamId, const String parameterName);
+
+    /** Returns the index of the parameter for a given name.*/
+    int getParameterIndex(const String parameterName);
+
+    /** Initiates parameter value update */
+    void parameterChangeRequest(Parameter*);
 
     /** Called when a parameter value is updated*/
     virtual void parameterValueChanged(Parameter*) { }
@@ -620,6 +635,8 @@ private:
     SpikeChannelIndexMap spikeChannelMap;
 
     DataStreamMap dataStreamMap;
+
+    Parameter* currentParameter;
 
     EventChannel* ttlEventChannel;
     Array<bool> ttlBitStates;

@@ -98,8 +98,12 @@ private:
     void timerCallback();
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-\
-class RecordNodeEditor : public GenericEditor, ComboBox::Listener, Label::Listener
+
+class RecordNodeEditor : 
+	public GenericEditor, 
+		   ComboBox::Listener, 
+	       Label::Listener,
+		   PopupChannelSelector::Listener
 {
 public:
 
@@ -113,7 +117,9 @@ public:
 
 	int getSelectedEngineIdx();
     
-    bool subprocessorsVisible;
+	bool subprocessorsVisible;
+
+	void channelStateChanged(Array<int> selectedChannels) { }
 
 	void timerCallback() override;
 	void comboBoxChanged(ComboBox*); 

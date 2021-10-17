@@ -21,15 +21,89 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef __POPUPCHANNELSELECTOR_H_E47DE5C__
-#define __POPUPCHANNELSELECTOR_H_E47DE5C__
-
+#ifndef ___POPUPCHANNELSELECTOR_H_E47DE5C__
+#define ___POPUPCHANNELSELECTOR_H_E47DE5C__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
 
-class PopupChannelSelector;
+class RangeEditor;
+class SelectButton;
+class ChannelButton;
+
+/**
+Automatically creates an interactive pop-up editor for selecting channels.
+@see GenericEditor
+
+*/
+class PopupChannelSelector :
+	public Component,
+	public Button::Listener,
+	public TextEditor::Listener
+{
+public:
+
+	class Listener
+	{
+	public:
+		virtual ~Listener() { }
+		virtual void channelStateChanged(Array<int> selectedChannels) = 0;
+	};
+
+	PopupChannelSelector(Listener* listener, std::vector<bool> channelStates);
+	~PopupChannelSelector();
+
+	void setMaximumSelectableChannels(int num);
+
+	void setChannelButtonColour(Colour c);
+
+	void mouseMove(const MouseEvent& event);
+	void mouseDown(const MouseEvent& event);
+	void mouseDrag(const MouseEvent& event);
+	void mouseUp(const MouseEvent& event);
+	void buttonClicked(Button*);
+	void modifierKeysChanged(const ModifierKeys& modifiers);
+
+	ChannelButton* getButtonForId(int btnId);
+
+	bool firstButtonSelectedState;
+
+	juce::Point<int> startDragCoords;
+
+	Colour buttonColour;
+
+	OwnedArray<ChannelButton> channelButtons;
+
+private:
+	Listener* listener;
+
+	int convertStringToInteger(String s);
+	Array<int> parseStringIntoRange(int rangeValue);
+
+	void textEditorReturnKeyPressed(TextEditor&);
+	void updateRangeString();
+	void parseRangeString();
+
+	OwnedArray<SelectButton> selectButtons;
+	std::unique_ptr<RangeEditor> rangeEditor;
+
+	bool editable;
+	bool isDragging;
+	bool mouseDragged;
+	bool shiftKeyDown;
+
+	juce::Rectangle<int> dragBox;
+
+	int nChannels;
+	int maxSelectable;
+
+	String rangeString;
+
+	Array<int> channelStates;
+	Array<int> selectedButtons;
+	Array<int> activeChannels;
+};
+
 
 enum Select { ALL, NONE, RANGE };
 
@@ -66,69 +140,8 @@ public:
 	RangeEditor(const String& name, const Font& font);
 	~RangeEditor();
 private:
-	//TODO:
+	;
 };
 
-/**
-Automatically creates an interactive pop-up editor for selecting channels.
-@see GenericEditor
 
-*/
-class PLUGIN_API PopupChannelSelector : public Component, public Button::Listener, public TextEditor::Listener
-{
-public:
-	PopupChannelSelector(GenericEditor* editor, std::vector<bool> channelStates);
-	~PopupChannelSelector();
-
-	void setMaximumSelectableChannels(int num);
-
-	void setChannelButtonColour(Colour c);
-	
-	void mouseMove(const MouseEvent &event);
-	void mouseDown(const MouseEvent &event);
-	void mouseDrag(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
-	void buttonClicked(Button *);
-	void modifierKeysChanged(const ModifierKeys& modifiers);
-
-	ChannelButton* getButtonForId(int btnId);
-
-	bool firstButtonSelectedState;
-	
-	juce::Point<int> startDragCoords;
-
-	Colour buttonColour;
-
-	OwnedArray<ChannelButton> channelButtons;
-
-private:
-	GenericEditor* parentEditor;
-	
-	int convertStringToInteger(String s);
-	Array<int> parseStringIntoRange(int rangeValue);
-
-	void textEditorReturnKeyPressed(TextEditor &);
-	void updateRangeString();
-	void parseRangeString();
-
-	OwnedArray<SelectButton> selectButtons;
-	std::unique_ptr<RangeEditor> rangeEditor;
-
-	bool editable;
-	bool isDragging;
-	bool mouseDragged;
-	bool shiftKeyDown;
-
-	juce::Rectangle<int> dragBox;
-
-	int nChannels;
-	int maxSelectable;
-
-	String rangeString;
-
-	Array<int> channelStates;
-	Array<int> selectedButtons;
-	Array<int> activeChannels;
-};
-
-#endif  // __POPUPCHANNELSELECTOR_H_E47DE5C__
+#endif  // ___POPUPCHANNELSELECTOR_H_E47DE5C__

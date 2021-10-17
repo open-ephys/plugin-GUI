@@ -31,6 +31,7 @@
 class ParameterEditor;
 class BooleanParameterEditor;
 class IntParameterEditor;
+class SelectedChannelsParameterEditor;
 
 /**
     Class for holding user-definable processor parameters.
@@ -80,6 +81,7 @@ public:
         m_description(description_),
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
+        newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_)
     {
 
@@ -108,11 +110,17 @@ public:
     }
 
     /** Sets the parameter value*/
-    virtual void setValue(var newValue) = 0;
+    virtual void setNextValue(var newValue) = 0;
 
     /** Returns the parameter value*/
     var getValue() {
         return currentValue;
+    }
+
+    /** Updates parameter value (called by GenericProcessor::setParameter)*/
+    void updateValue()
+    {
+        currentValue = newValue;
     }
 
     /** Returns a string describing this parameter's type*/
@@ -129,6 +137,7 @@ protected:
     GenericProcessor* processor;
     uint16 streamId;
 
+    var newValue;
     var currentValue;
     var defaultValue;
 
@@ -155,8 +164,8 @@ public:
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
 
-    /** Sets the parameter value*/
-    virtual void setValue(var newValue);
+    /** Stages a value, to be changed by the processor*/
+    virtual void setNextValue(var newValue);
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
@@ -186,7 +195,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setValue(var newValue) override;
+    virtual void setNextValue(var newValue) override;
 
     /** Gets the value as an integer*/
     int getIntValue();
@@ -209,6 +218,57 @@ private:
     int minValue;
 };
 
+class PLUGIN_API SelectedChannelsParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    SelectedChannelsParameter(GenericProcessor* processor,
+        uint16 streamId,
+        const String& name,
+        const String& description,
+        Array<var> defaultValue,
+        int maxSelectableChannels = INT_MAX,
+        bool deactivateDuringAcquisition = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as an integer*/
+    Array<int> getArrayValue();
+
+    /** Returns the max selectable channels*/
+    int getMaxSelectableChannels() {
+        return maxSelectableChannels;
+    }
+    
+    /** Returns a vector of channel selection states (true or false)*/
+    std::vector<bool> getChannelStates();
+
+    /** Sets the total number of available channels in this stream*/
+    void setChannelCount(int count) { channelCount = count; }
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+    /** Creates an editor for this parameter*/
+    static SelectedChannelsParameterEditor* createEditor(SelectedChannelsParameter* param);
+
+private:
+
+    String selectedChannelsToString();
+
+    Array<var> parseSelectedString(const String& input);
+
+    String maskChannelsToString();
+
+    Array<var> parseMaskString(const String& input);
+
+    int maxSelectableChannels;
+    int channelCount;
+};
 
     /** Returns the default value of a parameter (can be boolean, int, or float).*/
     //var getDefaultValue() const noexcept;

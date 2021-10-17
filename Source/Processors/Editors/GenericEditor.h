@@ -279,9 +279,6 @@ public:
     /** Changes the state of the TTLMonitor */
     void setTTLState(uint16 streamId, int bit, bool state);
 
-    /** Notify editor about channel selection changes in PopupChannelSelector */
-    virtual void channelStateChanged(Array<int> channelStates);
-
     /** Notify editor about changes in the StreamSelector */
     void updateSelectedStream(uint16 streamId);
 

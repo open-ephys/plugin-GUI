@@ -25,13 +25,14 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../Editors/GenericEditor.h"
+
+#include "../Editors/PopupChannelSelector.h"
+
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "Parameter.h"
 #include <stdio.h>
 
-class ParameterButton;
-class ParameterSlider;
-class ParameterCheckbox;
 
 class ParameterEditor : public Component
 {
@@ -94,6 +95,26 @@ public:
 private:
     ScopedPointer<Label> name;
     ScopedPointer<ToggleButton> value;
+};
+
+class PLUGIN_API SelectedChannelsParameterEditor : public ParameterEditor,
+    public Button::Listener,
+    public PopupChannelSelector::Listener
+{
+public:
+    SelectedChannelsParameterEditor(SelectedChannelsParameter* param);
+    virtual ~SelectedChannelsParameterEditor() { }
+
+    void buttonClicked(Button* label);
+
+    virtual void updateView() override;
+
+    void channelStateChanged(Array<int> selectedChannels);
+
+    virtual void resized();
+
+private:
+    std::unique_ptr<UtilityButton> button;
 };
 
 

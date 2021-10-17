@@ -36,22 +36,7 @@ class BandpassFilterSettings
 public:
 
     /** Constructor -- sets default values*/
-    BandpassFilterSettings();
-
-    /** Destructor */
-    ~BandpassFilterSettings() {}
-
-    /** High filter cutoff */
-    double highCut;
-
-    /** Low filter cutoff */
-    double lowCut;
-
-    /** Array of channels which will not be filtered. */
-    Array<bool> channelMask;
-
-    /** Determines whether this stream's filter is enabled.*/
-    bool isEnabled;
+    BandpassFilterSettings() { }
 
     /** Holds the sample rate for this stream*/
     float sampleRate;
@@ -60,25 +45,13 @@ public:
     OwnedArray<Dsp::Filter> filters;
 
     /** Creates new filters when input settings change*/
-    void createFilters(int numChannels, float sampleRate);
+    void createFilters(int numChannels, float sampleRate, double lowCut, double highCut);
 
     /** Updates filters when parameters change*/
-    void updateFilters();
+    void updateFilters(double lowCut, double highCut);
 
     /** Sets filter parameters for one channel*/
     void setFilterParameters(double lowCut, double highCut, int channel);
-
-    /** Saves parameters to XML*/
-    void toXml(XmlElement*);
-
-    /** Loads parameters from XML*/
-    void fromXml(XmlElement*);
-
-    /** Converts mask channels to string*/
-    String channelMaskToString(Array<bool> channelMask);
-
-    /** Converts string to mask channels*/
-    void channelMaskFromString(String);
 
 };
 
@@ -114,47 +87,13 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
     */
-    void process (AudioSampleBuffer& buffer) override;
+    void process(AudioSampleBuffer& buffer) override;
 
-    /** Used to update parameters while the process() loop is running*/
-    void setParameter (int parameterIndex, float newValue) override;
-
-    /** Called whenever a parameter value is changed*/
+    /** Called whenever a parameter's value is changed (called by GenericProcessor::setParameter())*/
     void parameterValueChanged(Parameter* param) override;
 
     /** Called when upstream settings are changed.*/
     void updateSettings() override;
-
-    /** Returns the low cutoff for a particular stream*/
-    double getLowCutValue  (uint16 streamId) ;
-
-    /** Sets the low cutoff for a particular stream*/
-    void setLowCutValue(uint16 streamId, double value);
-
-    /** Returns the high cutoff for a particular stream*/
-    double getHighCutValue(uint16 streamId) ;
-
-    /** Sets the high cutoff for a particular stream*/
-    void setHighCutValue(uint16 streamId, double value);
-
-    /** Sets whether or not the filters for a particular stream are enabled*/
-    void setEnabledState(uint16 streamId, bool isEnabled);
-
-    /** Sets whether or not the filters for a particular stream are enabled*/
-    bool getEnabledState(uint16 streamId);
-
-    /** Sets whether or not the filters for a particular stream are enabled*/
-    void setChannelMask(uint16 streamId, Array<int> channels);
-
-    /** Sets whether or not the filters for a particular stream are enabled*/
-    Array<bool> getChannelMask(uint16 streamId);
-
-    /** Saving custom parameters*/
-    void saveCustomParametersToXml(XmlElement* xml) override;
-
-    /** Loading custom parameters*/
-    void loadCustomParametersFromXml() override;
-
 
 private:
 

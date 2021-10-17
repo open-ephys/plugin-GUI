@@ -22,7 +22,6 @@
 
 #include "ParameterEditor.h"
 
-
 IntParameterEditor::IntParameterEditor(IntParameter* param)
 {
     name = new Label("Parameter name", param->getName());
@@ -46,7 +45,7 @@ void IntParameterEditor::labelTextChanged(Label* label)
 {
     std::cout << "Label text: " << label->getText() << std::endl;
 
-    param->setValue(label->getText().getIntValue());
+    param->setNextValue(label->getText().getIntValue());
 }
 
 void IntParameterEditor::updateView()
@@ -89,7 +88,7 @@ BooleanParameterEditor::BooleanParameterEditor(BooleanParameter* param)
 
 void BooleanParameterEditor::buttonClicked(Button* button)
 {
-    param->setValue(button->getToggleState());
+    param->setNextValue(button->getToggleState());
 }
 
 void BooleanParameterEditor::updateView()
@@ -103,4 +102,53 @@ void BooleanParameterEditor::resized()
 
     name->setBounds(0, 0, 80, 20);
     value->setBounds(0, 22, 60, 18);
+}
+
+SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(SelectedChannelsParameter* param)
+{
+
+    button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));
+    button->addListener(this);
+    button->setClickingTogglesState(false);
+    button->setTooltip("Select channels to filter within this stream");
+    addAndMakeVisible(button.get());
+
+    setBounds(0, 0, 80, 42);
+}
+
+void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
+{
+    Array<var> newArray;
+
+    for (int i = 0; i < newChannels.size(); i++)
+        newArray.add(newChannels[i]);
+    
+    param->setNextValue(newArray);
+
+}
+
+void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
+{
+
+    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+
+    auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
+
+    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+            button->getScreenBounds(),
+            nullptr);
+
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+}
+
+void SelectedChannelsParameterEditor::updateView()
+{
+}
+
+void SelectedChannelsParameterEditor::resized()
+{
+    button->setBounds(0, 0, 80, 20);
 }

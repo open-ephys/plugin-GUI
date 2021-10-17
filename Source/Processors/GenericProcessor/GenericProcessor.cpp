@@ -62,6 +62,10 @@ GenericProcessor::GenericProcessor(const String& name)
 
 {
 	latencyMeter = std::make_unique<LatencyMeter>(this);
+
+	//addBooleanParameter("enable_stream",
+	//	"Determines whether or not processing is enabled for a particular stream",
+	//	true, true);
 }
 
 
@@ -102,6 +106,14 @@ Parameter* GenericProcessor::getParameter(uint16 streamId, const String name)
 
 }
 
+var GenericProcessor::getParameterValue(uint16 streamId, const String name)
+{
+
+	// no checking, so it's fast; but take care to provide a valid stream / name
+	return parameterMap[streamId][name]->getValue();
+
+}
+
 Parameter* GenericProcessor::getParameter(const String name)
 {
 	for (auto param : availableParameters)
@@ -113,6 +125,17 @@ Parameter* GenericProcessor::getParameter(const String name)
 	return nullptr;
 }
 
+
+int GenericProcessor::getParameterIndex(const String name)
+{
+	for (int i = 0; i < availableParameters.size(); i++)
+	{
+		if (availableParameters[i]->getName().equalsIgnoreCase(name))
+			return i;
+	}
+
+	return -1;
+}
 
 void GenericProcessor::addBooleanParameter(const String& name,
 	const String& description,
@@ -146,9 +169,42 @@ void GenericProcessor::addIntParameter(const String& name,
 
 }
 
-void GenericProcessor::setParameter(int parameterIndex, float newValue)
+void GenericProcessor::addSelectedChannelsParameter(const String& name,
+	const String& description,
+	int maxSelectedChannels,
+	bool deactivateDuringAcquisition)
 {
 
+	Array<var> defaultValue;
+
+	availableParameters.add(
+		new SelectedChannelsParameter(this,
+			0,
+			name,
+			description,
+			defaultValue,
+			maxSelectedChannels,
+			deactivateDuringAcquisition)
+	);
+}
+
+void GenericProcessor::parameterChangeRequest(Parameter* param)
+{
+	currentParameter = param;
+
+	setParameter(-1, 0.0f);
+
+	getEditor()->updateView();
+}
+
+void GenericProcessor::setParameter(int parameterIndex, float newValue)
+{
+	if (currentParameter != nullptr)
+	{
+		currentParameter->updateValue();
+		parameterValueChanged(currentParameter);
+	}
+	
 }
 
 
@@ -345,8 +401,6 @@ void GenericProcessor::update()
 				}
 			}
 
-			
-
 			for (auto configurationObject : sourceNode->configurationObjects)
 			{
 				configurationObjects.add(new ConfigurationObject(*configurationObject));
@@ -382,7 +436,7 @@ void GenericProcessor::update()
 			{
 				if (param->getType() == Parameter::BOOLEAN_PARAM)
 				{
-					BooleanParameter* p = (BooleanParameter*) param;
+					BooleanParameter* p = (BooleanParameter*)param;
 					parameters.add(new BooleanParameter(
 						this,
 						stream->getStreamId(),
@@ -391,7 +445,9 @@ void GenericProcessor::update()
 						p->getBoolValue(),
 						p->shouldDeactivateDuringAcquisition()
 					));
-				} 
+
+					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+				}
 				else if (param->getType() == Parameter::INT_PARAM)
 				{
 					IntParameter* p = (IntParameter*)param;
@@ -405,12 +461,42 @@ void GenericProcessor::update()
 						p->getMaxValue(),
 						p->shouldDeactivateDuringAcquisition()
 					));
-				}
 
-				parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+				}
+				else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+				{
+					SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+
+					SelectedChannelsParameter* newParam = new SelectedChannelsParameter(
+						this,
+						stream->getStreamId(),
+						p->getName(),
+						p->getDescription(),
+						p->getValue(),
+						p->getMaxSelectableChannels(),
+						p->shouldDeactivateDuringAcquisition()
+					);
+
+					newParam->setChannelCount(stream->getChannelCount());
+
+					parameters.add(newParam);
+
+					parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+				}
 
 			}
 
+		}
+		else {
+			for (auto param : availableParameters)
+			{
+				if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+				{
+					SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(stream->getStreamId(), param->getName());
+					p->setChannelCount(stream->getChannelCount());
+				}
+			}
 		}
 
 	}

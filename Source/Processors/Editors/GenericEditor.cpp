@@ -85,8 +85,6 @@ void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefau
                                         Colour(185, 185, 185), 0.0f, 120.0f, false);
     backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
 
-    //addParameterEditors(useDefaultParameterEditors);
-
     backgroundColor = Colour(10,10,10);
 
 }
@@ -116,27 +114,33 @@ int GenericEditor::getChannelDisplayNumber(int chan) const
 	return chan;
 }
 
-void GenericEditor::addParameterEditor(const String& parameterName, int xPos, int yPos)
+void GenericEditor::addParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
     Parameter* param = getProcessor()->getParameter(parameterName);
 
     if (param->getType() == Parameter::BOOLEAN_PARAM)
     {
-        parameterEditors.add(BooleanParameter::createEditor((BooleanParameter*) param));
-    } 
+        parameterEditors.add(BooleanParameter::createEditor((BooleanParameter*)param));
+    }
     else if (param->getType() == Parameter::INT_PARAM)
     {
-        parameterEditors.add(IntParameter::createEditor((IntParameter*) param));
+        parameterEditors.add(IntParameter::createEditor((IntParameter*)param));
+    }
+    else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+    {
+        parameterEditors.add(SelectedChannelsParameter::createEditor((SelectedChannelsParameter*)param));
     }
 
     ParameterEditor* ed = parameterEditors.getLast();
     addAndMakeVisible(ed);
     ed->setParameter(param);
 
+    std::cout << "Parameter name: " << param->getName() << std::endl;
     std::cout << "Editor width: " << ed->getWidth() << ", editor height: " << ed->getHeight() << std::endl;
+    std::cout << "Editor xpos: " << xPos_ << ", editor ypos: " << yPos_ << std::endl;
 
-    ed->setBounds(xPos, yPos, ed->getWidth(), ed->getHeight());
+    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
 }
 
 
@@ -1133,8 +1137,6 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
     Array<GenericEditor*> a;
     return a;
 }
-
-void GenericEditor::channelStateChanged(Array<int> channelStates) {}
 
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {

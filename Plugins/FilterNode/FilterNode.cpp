@@ -25,15 +25,7 @@
 #include "FilterNode.h"
 #include "FilterEditor.h"
 
-BandpassFilterSettings::BandpassFilterSettings()
-{
-    lowCut = 300.0f;
-    highCut = 6000.0f;
-
-    isEnabled = true;
-}
-
-void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_)
+void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_, double lowCut, double highCut)
 {
 
     sampleRate = sampleRate_;
@@ -48,17 +40,12 @@ void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_)
             1,                                     // number of channels (must be const)
             Dsp::DirectFormII>(1));               // realization
 
-        if (channelMask.size() < n + 1)
-            channelMask.add(true);
-
-        setFilterParameters(lowCut, highCut, n);
     }
 
-    std::cout << "Channel mask size: " << channelMask.size() << std::endl;
-
+    updateFilters(lowCut, highCut);
 }
 
-void BandpassFilterSettings::updateFilters()
+void BandpassFilterSettings::updateFilters(double lowCut, double highCut)
 {
     for (int n = 0; n < filters.size(); n++)
     {
@@ -77,57 +64,6 @@ void BandpassFilterSettings::setFilterParameters(double lowCut, double highCut, 
     filters[channel]->setParams(params);
 }
 
-void BandpassFilterSettings::toXml(XmlElement* xml)
-{
-    xml->setAttribute("lowCut", lowCut);
-    xml->setAttribute("highCut", highCut);
-    xml->setAttribute("isEnabled", isEnabled);
-    xml->setAttribute("maskChannels", channelMaskToString(channelMask));
-}
-
-void BandpassFilterSettings::fromXml(XmlElement* xml)
-{
-    lowCut = xml->getDoubleAttribute("lowCut", lowCut);
-    highCut = xml->getDoubleAttribute("highCut", highCut);
-    isEnabled = xml->getBoolAttribute("isEnabled", isEnabled);
-    channelMaskFromString(xml->getStringAttribute("maskChannels", ""));
-}
-
-String BandpassFilterSettings::channelMaskToString(Array<bool> channelMask)
-{
-
-    std::cout << " Channel mask to string..." << std::endl;
-    std::cout << " Channel mask size: " << channelMask.size() << std::endl;
-
-    String result = "";
-
-    for (int i = 0; i < channelMask.size(); i++)
-    {
-        if (!channelMask[i])
-            result += String(i + 1) + ",";
-    }
-
-    return result.substring(0, result.length()-1);
-}
-
-void BandpassFilterSettings::channelMaskFromString(String input)
-{
-    std::cout << "maskChannels input: " << input << std::endl;
-
-    StringArray channels = StringArray::fromTokens(input, ",", "");
-
-    std::cout << "Found " << channels.size() << " tokens" << std::endl;
-
-    for (int i = 0; i < channels.size(); i++)
-    {
-        std::cout << channels[i] << std::endl;
-        int ch = channels[i].getIntValue() - 1;
-
-        if (ch < channelMask.size())
-            channelMask.set(ch, false);
-    }
-
-}
 
 FilterNode::FilterNode()
     : GenericProcessor  ("Bandpass Filter")
@@ -136,6 +72,7 @@ FilterNode::FilterNode()
 
     addIntParameter("high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter("low_cut", "Filter low cut", 300, 1, 15000, false);
+    addSelectedChannelsParameter("channels_to_filter", "Channels to filter for this stream");
 
 }
 
@@ -148,9 +85,6 @@ FilterNode::~FilterNode()
 AudioProcessorEditor* FilterNode::createEditor()
 {
     editor = std::make_unique<FilterEditor> (this, true);
-
-    FilterEditor* ed = (FilterEditor*) getEditor();
-    ed->setDefaults (300.0f, 6000.0f);
 
     return editor.get();
 }
@@ -215,74 +149,19 @@ AudioProcessorEditor* FilterNode::createEditor()
 
 void FilterNode::updateSettings()
 {
-
     settings.update(getDataStreams());
 
     for (auto stream : getDataStreams())
     {
-        settings[stream->getStreamId()]->createFilters(stream->getChannelCount(), stream->getSampleRate());
+        settings[stream->getStreamId()]->createFilters(
+            stream->getChannelCount(), 
+            stream->getSampleRate(),
+            getParameterValue(stream->getStreamId(), "low_cut"),
+            getParameterValue(stream->getStreamId(), "high_cut")
+        );
     }
 }
 
-
-double FilterNode::getLowCutValue(uint16 streamId) 
-{
-    return settings[streamId]->lowCut;
-}
-
-void FilterNode::setLowCutValue(uint16 streamId, double value)
-{
-    currentStream = streamId;
-
-    setParameter(0, value);
-}
-
-double FilterNode::getHighCutValue(uint16 streamId)
-{
-    return settings[streamId]->highCut;
-}
-
-void FilterNode::setHighCutValue(uint16 streamId, double value)
-{
-    currentStream = streamId;
-
-    setParameter(1, value);
-}
-
-void FilterNode::setEnabledState(uint16 streamId, bool isEnabled)
-{
-    currentStream = streamId;
-
-    if (isEnabled)
-        setParameter(2, 1.0f);
-    else
-        setParameter(2, 0.0f);
-}
-
-bool FilterNode::getEnabledState(uint16 streamId)
-{
-    return settings[streamId]->isEnabled;
-}
-
-void FilterNode::setChannelMask(uint16 streamId, Array<int> channels)
-{
-    currentStream = streamId;
-
-    for (int i = 0; i < getDataStream(currentStream)->getChannelCount(); i++)
-    {
-        currentChannel = i;
-
-        if (channels.contains(i))
-            setParameter(3, 1.0f);
-        else
-            setParameter(3, 0.0f);
-    }
-}
-
-Array<bool> FilterNode::getChannelMask(uint16 streamId)
-{
-    return settings[streamId]->channelMask;
-}
 
 void FilterNode::parameterValueChanged(Parameter* param)
 {
@@ -290,54 +169,12 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
     std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
-    if (param->getName().equalsIgnoreCase("high_cut"))
-        setParameter(1, param->getValue());
-    else if (param->getName().equalsIgnoreCase("low_cut"))
-        setParameter(0, param->getValue());
-
-    getEditor()->updateView();
-
-}
-
-void FilterNode::setParameter (int parameterIndex, float newValue)
-{
-    if (parameterIndex == 0) // change low cut for current stream
+    if (param->getName().equalsIgnoreCase("low_cut") || param->getName().equalsIgnoreCase("low_cut"))
     {
-        if (newValue <= 0.01 || newValue >= 10000.0f)
-            return;
-
-        settings[currentStream]->lowCut = newValue;
-
-        settings[currentStream]->updateFilters();
-    }
-    else if (parameterIndex == 1) // change high cut for current stream
-    {
-        if (newValue <= 0.01 || newValue >= 10000.0f)
-            return;
-
-        settings[currentStream]->highCut = newValue;
-
-        settings[currentStream]->updateFilters();
-
-    }
-    else if (parameterIndex == 2) // filter is enabled
-
-    {
-        if (newValue == 1.0f)
-            settings[currentStream]->isEnabled = true;
-        else
-            settings[currentStream]->isEnabled = false;
-    }
-    else     // change channel bypass state
-    {
-        if (newValue == 0)
-        {
-            settings[currentStream]->channelMask.set(currentChannel, false);
-        }
-        else
-        {
-            settings[currentStream]->channelMask.set(currentChannel, true);
-        }
+        settings[currentStream]->updateFilters(
+            getParameterValue(currentStream, "low_cut"),
+            getParameterValue(currentStream, "high_cut")
+            );
     }
 }
 
@@ -346,61 +183,23 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 {
     for (auto stream : getDataStreams())
     {
-        BandpassFilterSettings* settings_ = settings[stream->getStreamId()];
 
-        for (int n = 0; n < stream->getChannelCount(); ++n)
+        if (getParameterValue(stream->getStreamId(), "stream_enabled"))
         {
-            if (settings_->channelMask[n])
+            BandpassFilterSettings* settings_ = settings[stream->getStreamId()];
+
+            for (int i = 0; i < getParameterValue(stream->getStreamId(), "channels_to_filter").getArray()->size(); i++)
             {
-                int globalIndex = stream->getContinuousChannels()[n]->getGlobalIndex();
+
+                int localIndex = getParameterValue(stream->getStreamId(), "channels_to_filter")[i];
+
+                int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
                 float* ptr = buffer.getWritePointer(globalIndex);
 
-                settings_->filters[n]->process(getNumSamples(globalIndex), &ptr);
+                settings_->filters[localIndex]->process(getNumSamples(globalIndex), &ptr);
             }
         }
     }
-
-    
 }
 
-
-void FilterNode::saveCustomParametersToXml(XmlElement* xml)
-{
-    for (auto stream : getDataStreams())
-    {
-
-        XmlElement* streamParams = xml->createNewChildElement ("STREAM");
-
-        settings[stream->getStreamId()]->toXml(streamParams);
-    }
-}
-
-
-void FilterNode::loadCustomParametersFromXml()
-{
-
-    std::cout << "Filter node loading custom parameters" << std::endl;
-    int streamIndex = 0;
-    Array<const DataStream*> availableStreams = getDataStreams();
-
-    forEachXmlChildElement (*parametersAsXml, streamParams)
-    {
-        if (streamParams->hasTagName ("STREAM"))
-        {
-
-            std::cout << "STREAM " << streamIndex << std::endl;
-            if (availableStreams.size() > streamIndex)
-            {
-                std::cout << "FOUND IT!" << std::endl;
-                settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
-            }
-            else {
-                std::cout << "DID NOT FIND IT!" << std::endl;
-            }
-
-            streamIndex++;
-        }
-    }
-
-}

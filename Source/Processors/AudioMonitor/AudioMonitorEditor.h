@@ -54,7 +54,7 @@ public:
 
 */
 
-class AudioMonitorEditor : public GenericEditor, ComboBox::Listener
+class AudioMonitorEditor : public GenericEditor, ComboBox::Listener, PopupChannelSelector::Listener
 {
 public:
     AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
