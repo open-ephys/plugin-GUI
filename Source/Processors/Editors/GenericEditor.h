@@ -238,7 +238,7 @@ public:
     virtual void updateVisualizer();
 
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
-    Array<ParameterEditor*> parameterEditors;
+    OwnedArray<ParameterEditor> parameterEditors;
 
     /** Stores the font used to display the editor's name. */
     Font titleFont;

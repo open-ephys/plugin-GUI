@@ -38,6 +38,7 @@ class ParameterEditor : public Component
 public:
 
     ParameterEditor() { }
+    virtual ~ParameterEditor() { }
 
     virtual void updateView() = 0;
 
@@ -63,7 +64,7 @@ class PLUGIN_API IntParameterEditor : public ParameterEditor,
 {
 public:
     IntParameterEditor(IntParameter* param);
-    ~IntParameterEditor() { }
+    virtual ~IntParameterEditor() { }
 
     void labelTextChanged(Label* label);
 
@@ -82,7 +83,7 @@ class PLUGIN_API BooleanParameterEditor : public ParameterEditor,
 {
 public:
     BooleanParameterEditor(BooleanParameter* param);
-    ~BooleanParameterEditor() { }
+    virtual ~BooleanParameterEditor() { }
 
     void buttonClicked(Button* label);
 
