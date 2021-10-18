@@ -26,6 +26,8 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "StreamSelector.h"
+#include "../Parameter/ParameterEditor.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
@@ -37,15 +39,13 @@ class GenericProcessor;
 class DrawerButton;
 class TriangleButton;
 class UtilityButton;
-class ParameterEditor;
-class StreamSelector;
 class TTLMonitor;
 class DelayMonitor;
 
 /**
     Base class for creating processor editors.
 
-    If a processor doesn't havesign an editor defined, a GenericEditor will be used.
+    If a processor doesn't have an editor defined, a GenericEditor will be used.
 
     Classes derived from this class must place their controls as child components.
     They shouldn't try to re-draw any aspects of their background.
@@ -53,17 +53,14 @@ class DelayMonitor;
     @see GenericProcessor, EditorViewport
 */
 class PLUGIN_API GenericEditor  : public AudioProcessorEditor
-                                , public Timer
-                                , public Button::Listener
-                                , public Slider::Listener
 {
 public:
-    /** Constructor. Loads fonts and creates default buttons.
-        useDefaultParameter Editors false means custom parameter editors will be used.*/
-    GenericEditor (GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton = true);
+
+    /** Constructor. */
+    GenericEditor (GenericProcessor* owner);
 
     /** Destructor.*/
-    virtual ~GenericEditor();
+    virtual ~GenericEditor() { }
 
     /*
     ========================================================================
@@ -77,15 +74,8 @@ public:
     /** Called whenever a key is pressed and the editor has keyboard focus.*/
     bool keyPressed (const KeyPress& key) override;
 
-    /** Handles button clicks for all editors. Deals with clicks on the editor's
-        title bar and channel selector drawer. */
-    virtual void buttonClicked (Button* buttonThatWasClicked) override;
-
     /** Called when the boundaries of the editor are updated. */
     virtual void resized() override;
-
-    /** Handles slider events for all editors. */
-    virtual void sliderValueChanged (Slider* sliderWhichValueHasChanged) override;
 
     // =====================================================================
     // =====================================================================
@@ -166,15 +156,6 @@ public:
 
     /** Returns the processor associated with an editor.*/
     GenericProcessor* getProcessor() const;
-
-    /** Causes the editor to fade in when it first appears in the EditorViewport. */
-    void fadeIn();
-
-    /** Indicates whether or not the editor is in the processof fading in. */
-    bool isFading;
-
-    /** Used to control the speed at which the editor fades in. */
-    float accumulator;
 
     /** Required for SplitterEditor only.*/
     virtual void switchDest();
@@ -313,12 +294,22 @@ protected:
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelector> streamSelector;
 
+    /** Holds the value of the stream that's currently visible*/
     uint16 selectedStream;
 
 
 private:
-    /** Used for fading in the editor. */
-    virtual void timerCallback() override;
+
+    class ButtonResponder : public Button::Listener
+    {
+    public:
+        ButtonResponder(GenericEditor* editor_) : editor(editor_) { }
+        void buttonClicked(Button* button);
+    private:
+        GenericEditor* editor;
+    };
+
+    ButtonResponder drawerButtonListener;
 
     /** Stores the editor's background color. */
     Colour backgroundColor;
@@ -332,9 +323,6 @@ private:
 
     int tNum;
     int originalWidth;
-
-    /**initializing function Used to share constructor functions*/
-    void constructorInitialize (GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton);
 
     String name;
     String displayName;

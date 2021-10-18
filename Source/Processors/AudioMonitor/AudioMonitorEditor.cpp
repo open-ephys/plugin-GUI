@@ -160,8 +160,8 @@ void AudioOutputSelector::resized()
     outputChannelButtonManager->setBounds(0, 0, 140, 20);
 }
 
-AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
-    : GenericEditor (parentNode, useDefaultParameterEditors)
+AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     

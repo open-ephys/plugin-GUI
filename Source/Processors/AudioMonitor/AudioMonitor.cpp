@@ -57,7 +57,7 @@ AudioMonitor::~AudioMonitor()
 
 AudioProcessorEditor* AudioMonitor::createEditor()
 {
-    editor = std::make_unique<AudioMonitorEditor>(this, true);
+    editor = std::make_unique<AudioMonitorEditor>(this);
 
     return editor.get();
 }

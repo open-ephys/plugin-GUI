@@ -30,8 +30,8 @@
 #include "../Settings/DataStream.h"
 
 
-SplitterEditor::SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+SplitterEditor::SplitterEditor(GenericProcessor* parentNode)
+    : GenericEditor(parentNode)
 
 {
     desiredWidth = 100;
@@ -85,7 +85,7 @@ SplitterEditor::~SplitterEditor()
 {
 }
 
-void SplitterEditor::buttonEvent(Button* button)
+void SplitterEditor::buttonClicked(Button* button)
 {
     if (button == pipelineSelectorA.get())
     {

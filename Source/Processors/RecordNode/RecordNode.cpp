@@ -233,7 +233,7 @@ int RecordNode::getRecordingNumber() const
 // called by ProcessorGraph::createNewProcessor
 AudioProcessorEditor* RecordNode::createEditor()
 {
-	editor = std::make_unique<RecordNodeEditor>(this, true);
+	editor = std::make_unique<RecordNodeEditor>(this);
 	return editor.get();
 }
 

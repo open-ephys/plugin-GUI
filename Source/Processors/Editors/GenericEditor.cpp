@@ -39,54 +39,40 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
-GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
-    : AudioProcessorEditor(owner),
-    desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
+GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(owner),
+    desiredWidth(150),
+    acquisitionIsActive(false),
     drawerWidth(170),
-    drawerOpen(false), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
+    drawerOpen(false), 
+    isSelected(false), 
+    isEnabled(true), 
+    isCollapsed(false), 
+    tNum(-1),
+    drawerButtonListener(this)
 {
-    constructorInitialize(owner, useDefaultParameterEditors, showDrawerButton);
-}
-
-GenericEditor::~GenericEditor()
-{
-}
-
-void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
-{
-
+    
     name = getAudioProcessor()->getName();
     displayName = name;
 
     nodeId = owner->getNodeId();
 
-    titleFont = Font ("Default", 14, Font::bold);
+    titleFont = Font("Default", 14, Font::bold);
 
-    if (showDrawerButton)
+    drawerButton = std::make_unique<DrawerButton>("name");
+    drawerButton->addListener(&drawerButtonListener);
+    addAndMakeVisible(drawerButton.get());
+
+    if (!owner->isSplitter())
     {
-        LOGDD("Adding drawer button.");
-
-        
-        drawerButton = std::make_unique<DrawerButton>("name");
-        drawerButton->addListener(this);
-        addAndMakeVisible(drawerButton.get());
-        
-
-       if (!owner->isSplitter())
-        {
-            
-            streamSelector = std::make_unique<StreamSelector> (this);
-            addAndMakeVisible(streamSelector.get());
-            
-       } 
+        streamSelector = std::make_unique<StreamSelector>(this);
+        addAndMakeVisible(streamSelector.get());
     }
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
-                                        Colour(185, 185, 185), 0.0f, 120.0f, false);
+        Colour(185, 185, 185), 0.0f, 120.0f, false);
     backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
 
-    backgroundColor = Colour(10,10,10);
-
+    backgroundColor = Colour(10, 10, 10);
 }
 
 void GenericEditor::updateName()
@@ -217,8 +203,6 @@ void GenericEditor::select()
 {
     isSelected = true;
     repaint();
-    //setWantsKeyboardFocus(true);
-    //grabKeyboardFocus();
 
     editorWasClicked();
 }
@@ -302,13 +286,6 @@ void GenericEditor::editorStopAcquisition()
     }
 
     acquisitionIsActive = false;
-
-}
-
-void GenericEditor::fadeIn()
-{
-    isFading = true;
-    startTimer(10);
 }
 
 void GenericEditor::paint(Graphics& g)
@@ -376,37 +353,12 @@ void GenericEditor::paint(Graphics& g)
     // draw highlight box
     g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
-    if (isFading)
-    {
-        g.setColour(Colours::black.withAlpha((float)(10.0-accumulator)/10.0f));
-        if (getWidth() > 0 && getHeight() > 0)
-            g.fillAll();
-    }
-
 }
 
-void GenericEditor::timerCallback()
+void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 {
-    accumulator++;
-
-    repaint();
-
-    if (accumulator > 10.0)
-    {
-        stopTimer();
-        isFading = false;
-    }
-}
-
-void GenericEditor::buttonClicked(Button* button)
-{
-
-    LOGDD("Button clicked.");
-
-    checkDrawerButton(button);
-
-    buttonEvent(button); // needed to inform subclasses of
-                         // button event
+    LOGDD("Drawer button clicked.");
+    editor->checkDrawerButton(button);
 }
 
 
@@ -442,11 +394,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
         return false;
     }
 
-}
-
-void GenericEditor::sliderValueChanged(Slider* slider)
-{
-    sliderEvent(slider);
 }
 
 void GenericEditor::update(bool isEnabled_)
@@ -521,44 +468,6 @@ void GenericEditor::update(bool isEnabled_)
 
 }
 
-/*Array<int> GenericEditor::getActiveChannels()
-{
-    if (channelSelector != nullptr)
-    {
-        Array<int> a = channelSelector->getActiveChannels();
-        return a;
-    }
-    else
-    {
-        Array<int> a;
-        return a;
-    }
-}
-
-void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
-{
-    if (channelSelector != nullptr)
-    {
-        *p = channelSelector->getParamStatus(chan);
-        *r = false;
-        *a = false;
-    }
-    else
-    {
-        *p = false;
-        *r = false;
-        *a = false;
-    }
-}
-
-void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
-{
-    if (channelSelector != nullptr)
-    {
-        channelSelector->setParamStatus(chan, p);
-    }
-}*/
-
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
     ttlMonitors[streamId]->setState(bit, state);
@@ -609,12 +518,6 @@ void GenericEditor::switchCollapsedState()
             Component* c = getChildComponent(i);
             c->setVisible(!isCollapsed);
         }
-
-       // if (streamSelector != nullptr)
-       // {
-        //    if (!drawerOpen)
-        //        streamSelector->setVisible(false);
-        //}
 
         collapsedStateChanged();
 

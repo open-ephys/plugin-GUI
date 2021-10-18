@@ -140,7 +140,7 @@ ChannelMappingNode::~ChannelMappingNode()
 
 AudioProcessorEditor* ChannelMappingNode::createEditor()
 {
-    editor = std::make_unique<ChannelMappingEditor> (this, true);
+    editor = std::make_unique<ChannelMappingEditor> (this);
 
     return editor.get();
 }

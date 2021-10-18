@@ -40,14 +40,15 @@ class StreamSelector;
 
 */
 
-class SplitterEditor : public GenericEditor
+class SplitterEditor : public GenericEditor,
+    public Button::Listener
 {
 public:
-    SplitterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    SplitterEditor(GenericProcessor* parentNode);
 
     virtual ~SplitterEditor();
 
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
 
     void switchDest(int);
 

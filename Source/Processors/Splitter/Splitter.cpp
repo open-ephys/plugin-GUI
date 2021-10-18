@@ -44,7 +44,7 @@ Splitter::~Splitter()
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-    editor = std::make_unique<SplitterEditor>(this, true);
+    editor = std::make_unique<SplitterEditor>(this);
 
     LOGDD("Creating Splitter editor.");
     return editor.get();

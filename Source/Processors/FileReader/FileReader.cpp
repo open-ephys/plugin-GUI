@@ -107,7 +107,7 @@ FileReader::~FileReader()
 
 AudioProcessorEditor* FileReader::createEditor()
 {
-    editor = std::make_unique<FileReaderEditor>(this, true);
+    editor = std::make_unique<FileReaderEditor>(this);
 
     return editor.get();
 }

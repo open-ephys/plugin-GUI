@@ -178,7 +178,7 @@ AudioProcessorEditor* SourceNode::createEditor()
 
     if (editor == nullptr)
     {
-        editor = std::make_unique<SourceNodeEditor> (this, true);
+        editor = std::make_unique<SourceNodeEditor> (this);
     }
 
     return editor.get();

@@ -80,7 +80,7 @@ GenericProcessor::~GenericProcessor()
 
 AudioProcessorEditor* GenericProcessor::createEditor()
 {
-	editor = std::make_unique<GenericEditor>(this, true);
+	editor = std::make_unique<GenericEditor>(this);
 
 	return editor.get();
 }

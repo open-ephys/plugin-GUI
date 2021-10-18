@@ -98,7 +98,7 @@ class AudioMonitorEditor : public GenericEditor
 {
 public:
     /** Constructor */
-    AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    AudioMonitorEditor (GenericProcessor* parentNode);
     
     /** Destructor */
     virtual ~AudioMonitorEditor() { }

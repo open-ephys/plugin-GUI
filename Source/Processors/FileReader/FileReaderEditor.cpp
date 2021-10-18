@@ -27,8 +27,8 @@
 
 #include <stdio.h>
 
-FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
-    : GenericEditor (parentNode, useDefaultParameterEditors)
+FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
     , fileReader   (static_cast<FileReader*> (parentNode))
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
@@ -101,7 +101,7 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
 }
 
 
-void FileReaderEditor::buttonEvent (Button* button)
+void FileReaderEditor::buttonClicked (Button* button)
 {
 
     if (! acquisitionIsActive)

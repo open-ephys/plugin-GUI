@@ -41,7 +41,7 @@ class ParameterSlider;
 class CommonAverageRefEditor : public GenericEditor
 {
 public:
-    CommonAverageRefEditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors);
+    CommonAverageRefEditor (GenericProcessor* parentProcessor);
     ~CommonAverageRefEditor();
 
     // Component methods

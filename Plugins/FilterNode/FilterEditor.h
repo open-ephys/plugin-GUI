@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,10 +24,7 @@
 #ifndef __FILTEREDITOR_H_969BDB5__
 #define __FILTEREDITOR_H_969BDB5__
 
-
 #include <EditorHeaders.h>
-
-class FilterViewport;
 
 /**
 
@@ -40,9 +37,12 @@ class FilterViewport;
 class FilterEditor : public GenericEditor
 {
 public:
-    FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+
+    /** Constructor */
+    FilterEditor(GenericProcessor* parentNode);
     
-    virtual ~FilterEditor();
+    /** Destructor */
+    virtual ~FilterEditor() { }
 
 private:
 

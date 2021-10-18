@@ -84,7 +84,7 @@ FilterNode::~FilterNode()
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
-    editor = std::make_unique<FilterEditor> (this, true);
+    editor = std::make_unique<FilterEditor> (this);
 
     return editor.get();
 }
@@ -186,7 +186,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 
         if (getParameterValue(stream->getStreamId(), "stream_enabled"))
         {
-            BandpassFilterSettings* settings_ = settings[stream->getStreamId()];
+            BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
             for (int i = 0; i < getParameterValue(stream->getStreamId(), "channels_to_filter").getArray()->size(); i++)
             {
@@ -197,7 +197,8 @@ void FilterNode::process (AudioSampleBuffer& buffer)
 
                 float* ptr = buffer.getWritePointer(globalIndex);
 
-                settings_->filters[localIndex]->process(getNumSamples(globalIndex), &ptr);
+                streamSettings->filters[localIndex]->process(getNumSamples(globalIndex), &ptr);
+
             }
         }
     }

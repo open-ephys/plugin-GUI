@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -22,23 +22,13 @@
 */
 
 #include "FilterEditor.h"
-#include "FilterNode.h"
-#include <stdio.h>
 
-
-FilterEditor::FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
-
+FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentNode)
 {
     desiredWidth = 150;
 
     addDefaultParameterEditor("low_cut", 10, 25);
     addDefaultParameterEditor("high_cut", 10, 65);
     addDefaultParameterEditor("channels_to_filter", 80, 65);
-
-}
-
-FilterEditor::~FilterEditor()
-{
 
 }

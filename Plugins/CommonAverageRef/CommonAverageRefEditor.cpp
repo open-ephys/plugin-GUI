@@ -29,8 +29,8 @@
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcessor, bool useDefaultParameterEditors)
-    : GenericEditor (parentProcessor, useDefaultParameterEditors)
+CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcessor)
+    : GenericEditor (parentProcessor)
     , m_currentChannelsView          (REFERENCE_CHANNELS)
     , m_channelSelectorButtonManager (new LinearButtonGroupManager)
     , m_gainSlider                   (new ParameterSlider (0.0, 100.0, 100.0, Font("Default", 13.f, Font::plain)))
