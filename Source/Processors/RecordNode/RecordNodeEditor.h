@@ -98,12 +98,18 @@ private:
     void timerCallback();
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-\
-class RecordNodeEditor : public GenericEditor, ComboBox::Listener, Label::Listener
+
+class RecordNodeEditor : 
+	public GenericEditor, 
+		   ComboBox::Listener, 
+	       Label::Listener,
+		   Button::Listener,
+		   PopupChannelSelector::Listener,
+		   Timer
 {
 public:
 
-	RecordNodeEditor(RecordNode* parentNode, bool useDefaultParameterEditors);
+	RecordNodeEditor(RecordNode* parentNode);
 	virtual ~RecordNodeEditor();
 
 	void collapsedStateChanged() override;
@@ -113,7 +119,9 @@ public:
 
 	int getSelectedEngineIdx();
     
-    bool subprocessorsVisible;
+	bool subprocessorsVisible;
+
+	void channelStateChanged(Array<int> selectedChannels) { }
 
 	void timerCallback() override;
 	void comboBoxChanged(ComboBox*); 
@@ -122,7 +130,7 @@ public:
 	void saveCustomParameters(XmlElement* xml);
 	void loadCustomParameters(XmlElement* xml);
     
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
 	ScopedPointer<ComboBox> engineSelectCombo;

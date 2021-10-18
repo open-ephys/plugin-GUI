@@ -233,7 +233,7 @@ int RecordNode::getRecordingNumber() const
 // called by ProcessorGraph::createNewProcessor
 AudioProcessorEditor* RecordNode::createEditor()
 {
-	editor = std::make_unique<RecordNodeEditor>(this, true);
+	editor = std::make_unique<RecordNodeEditor>(this);
 	return editor.get();
 }
 
@@ -248,13 +248,13 @@ const String &RecordNode::getLastSettingsXml() const
 // - EngineConfigComponent (3, 0.0f) -- used to disable record thread (deprecated?)
 void RecordNode::setParameter(int parameterIndex, float newValue)
 {
-	editor->updateParameterButtons(parameterIndex);
+	//editor->updateParameterButtons(parameterIndex);
 
-	if (currentChannel >= 0)
-	{
-		Parameter* p = parameters[parameterIndex];
-		p->setValue(newValue, currentChannel);
-	}
+	//if (currentChannel >= 0)
+	//{
+	//	Parameter* p = parameters[parameterIndex];
+	//	p->setValue(newValue, currentChannel);
+	//}
 
 }
 

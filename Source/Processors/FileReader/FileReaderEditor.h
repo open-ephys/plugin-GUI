@@ -125,14 +125,15 @@ private:
 class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
                         , public ComboBox::Listener
+                        , public Button::Listener
 {
 public:
-    FileReaderEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    FileReaderEditor (GenericProcessor* parentNode);
     virtual ~FileReaderEditor();
 
     void paintOverChildren (Graphics& g) override;
 
-    void buttonEvent (Button* button) override;
+    void buttonClicked (Button* button) override;
 
     void saveCustomParametersToXml (XmlElement*) override;
     void loadCustomParametersFromXml (XmlElement*) override;

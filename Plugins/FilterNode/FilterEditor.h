@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2021 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,10 +24,7 @@
 #ifndef __FILTEREDITOR_H_969BDB5__
 #define __FILTEREDITOR_H_969BDB5__
 
-
 #include <EditorHeaders.h>
-
-class FilterViewport;
 
 /**
 
@@ -37,36 +34,17 @@ class FilterViewport;
 
 */
 
-class FilterEditor : public GenericEditor,
-    public Label::Listener
+class FilterEditor : public GenericEditor
 {
 public:
-    FilterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    virtual ~FilterEditor();
 
-    void buttonEvent(Button* button);
-    void labelTextChanged(Label* label);
-
-    void updateSettings() override;
-
-    void setDefaults(double lowCut, double highCut);
-    void resetToSavedText();
-
-    void channelStateChanged(Array<int> selectedChannels) override;
-    void selectedStreamHasChanged() override;
+    /** Constructor */
+    FilterEditor(GenericProcessor* parentNode);
+    
+    /** Destructor */
+    virtual ~FilterEditor() { }
 
 private:
-
-    String lastHighCutString;
-    String lastLowCutString;
-
-    ScopedPointer<Label> highCutLabel;
-    ScopedPointer<Label> lowCutLabel;
-
-    ScopedPointer<Label> highCutValue;
-    ScopedPointer<Label> lowCutValue;
-
-    ScopedPointer<UtilityButton> channelSelectionButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FilterEditor);
 

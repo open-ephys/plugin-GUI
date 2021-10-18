@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+#include "../../Utils/Utils.h"
 
 /***************** 
  * CHANNEL BUTTON
@@ -131,9 +132,8 @@ RangeEditor::~RangeEditor() {}
  * POPUP CHANNEL SELECTOR
 ***************************/
 
-PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bool> channelStates) 
-    : Component(), 
-    parentEditor(editor),
+PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
+    : listener(listener_),
     nChannels(channelStates.size()),
     mouseDragged(false), 
     startDragCoords(0,0),
@@ -153,7 +153,7 @@ PopupChannelSelector::PopupChannelSelector(GenericEditor* editor, std::vector<bo
 
     maxSelectable = (maxSelectable == -1) ? nChannels : maxSelectable;
 
-    buttonColour = parentEditor->getBackgroundColor();
+    buttonColour = Colours::azure;
 
 	for (int i = 0; i < nRows; i++)
 	{
@@ -373,7 +373,7 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
             }
         }
     }
-    parentEditor->channelStateChanged(activeChannels);
+    listener->channelStateChanged(activeChannels);
     mouseDragged = false;
 }
 
@@ -416,7 +416,7 @@ void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 
         }
 
-        parentEditor->channelStateChanged(activeChannels);
+        listener->channelStateChanged(activeChannels);
     }
 
 }
@@ -440,7 +440,7 @@ void PopupChannelSelector::buttonClicked(Button* button)
                 activeChannels.add(channelButtons[i]->getId());
             }
             
-            parentEditor->channelStateChanged(activeChannels);
+            listener->channelStateChanged(activeChannels);
             button->setToggleState(true, NotificationType::dontSendNotification);   
         }
         else if (button->getButtonText() == String("NONE"))
@@ -450,7 +450,7 @@ void PopupChannelSelector::buttonClicked(Button* button)
             
             button->setToggleState(true, NotificationType::dontSendNotification);
             activeChannels.clear();
-            parentEditor->channelStateChanged(activeChannels);
+            listener->channelStateChanged(activeChannels);
         }
         else if (button->getButtonText() == String("RANGE"))
         {

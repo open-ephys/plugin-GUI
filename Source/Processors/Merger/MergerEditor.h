@@ -40,19 +40,20 @@ class DataStream;
 
 */
 
-class MergerEditor : public GenericEditor
+class MergerEditor : public GenericEditor,
+    public Button::Listener
 
 {
 public:
     
     /** Constructor*/
-    MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    MergerEditor(GenericProcessor* parentNode);
     
     /** Destructor*/
     virtual ~MergerEditor();
 
     /** Called whenever the pathway selector button or stream selector button is pressed.*/
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
 
     /** Disables stream selector buttons*/
     void startAcquisition();

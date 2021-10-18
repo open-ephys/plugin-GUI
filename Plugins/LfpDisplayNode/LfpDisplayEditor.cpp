@@ -83,8 +83,8 @@ void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 }
 
 
-LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : VisualizerEditor(parentNode, useDefaultParameterEditors)
+LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
+    : VisualizerEditor(parentNode)
 , hasNoInputs(true)
 {
     lfpProcessor = (LfpDisplayNode*) parentNode;
@@ -173,18 +173,9 @@ void LfpDisplayEditor::buttonClicked(Button* button)
         }
             
     }
-    else
-        VisualizerEditor::buttonClicked(button);
     
-    if(button->getRadioGroupId() == 201 && canvas != nullptr)
+    if (button->getRadioGroupId() == 201 && canvas != nullptr)
         static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
-
-}
-
-// not really being used (yet)...
-void LfpDisplayEditor::buttonEvent(Button* button)
-{
-
 
 }
 

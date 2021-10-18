@@ -111,7 +111,7 @@ FileReader::~FileReader()
 
 AudioProcessorEditor* FileReader::createEditor()
 {
-    editor = std::make_unique<FileReaderEditor>(this, true);
+    editor = std::make_unique<FileReaderEditor>(this);
     return editor.get();
 }
 
@@ -401,6 +401,7 @@ void FileReader::updateSettings()
         continuousChannels.getLast()->addProcessor(processorInfo.get());
     }
 
+<<<<<<< HEAD
     EventChannel *events;
 
     EventChannel::Settings eventSettings {
@@ -417,6 +418,23 @@ void FileReader::updateSettings()
     events->setIdentifier(id);
     events->addProcessor(processorInfo.get());
     eventChannels.add(events);
+=======
+     for (int i = 0; i < 8; i++) //currentNumChannels; i++)
+     {
+         ContinuousChannel::Settings settings2
+         {
+             ContinuousChannel::Type::ELECTRODE,
+             "CH" + String(i + 1),
+             "description",
+             "filereader.stream",
+             0.195f, // BITVOLTS VALUE
+             dataStreams.getLast()
+         };
+         
+         continuousChannels.add(new ContinuousChannel(settings2));
+         continuousChannels.getLast()->addProcessor(processorInfo.get());
+     }
+>>>>>>> development-juce6
 
     isEnabled = true;
 

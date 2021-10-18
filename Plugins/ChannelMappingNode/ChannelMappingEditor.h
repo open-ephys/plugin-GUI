@@ -42,7 +42,7 @@ class ChannelMappingEditor : public GenericEditor,
 {
 public:
     /** Constructor*/
-    ChannelMappingEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    ChannelMappingEditor(GenericProcessor* parentNode);
 
     /** Destructor*/
     virtual ~ChannelMappingEditor();

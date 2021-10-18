@@ -174,7 +174,7 @@ public:
                     return;
                 }
 
-                auto parameter = find_parameter(processor, req.matches[2]);
+                /*auto parameter = find_parameter(processor, req.matches[2]);
                 if (parameter == nullptr) {
                     res.status = 404;
                     return;
@@ -182,7 +182,7 @@ public:
 
                 json ret;
                 parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
+                res.set_content(ret.dump(), "application/json");*/
             });
 
         svr_->Put("/api/processors/([0-9]+)/config", [this](const httplib::Request& req, httplib::Response& res) {
@@ -224,7 +224,7 @@ public:
                     return;
                 }
 
-                auto parameter = find_parameter(processor, req.matches[2]);
+                /*auto parameter = find_parameter(processor, req.matches[2]);
                 if (parameter == nullptr) {
                     res.status = 404;
                     return;
@@ -266,7 +266,7 @@ public:
                     return;
                 }
 
-                var original_val = parameter->getValue(channel);
+                /*var original_val = parameter->getValue(channel);
                 bool did_set = parameter->setValue(val, channel);
                 if (!did_set) {
                     std::stringstream ss;
@@ -283,7 +283,7 @@ public:
 
                 json ret;
                 parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
+                res.set_content(ret.dump(), "application/json");*/
             });
 
         std::cout << "Beginning HTTP server on port " << PORT << std::endl;
@@ -372,7 +372,7 @@ private:
         (*parameter_json)["name"] = parameter->getName().toStdString();
         (*parameter_json)["type"] = parameter->getParameterTypeString().toStdString();
 
-        std::vector<json> values_json;
+        /*std::vector<json> values_json;
         for (int chidx = 0; chidx < parameter->getNumChannels(); chidx++) {
             json value_json;
             value_json["channel"] = chidx;
@@ -401,15 +401,15 @@ private:
 
             values_json.push_back(value_json);
         }
-        (*parameter_json)["values"] = values_json;
+        (*parameter_json)["values"] = values_json;*/
     }
 
     inline static void parameters_to_json(GenericProcessor* processor, std::vector<json>* parameters_json) {
-        for (const auto& parameter : processor->parameters) {
-            json parameter_json;
-            parameter_to_json(parameter, &parameter_json);
-            parameters_json->push_back(parameter_json);
-        }
+        //for (const auto& parameter : processor->parameters) {
+        //    json parameter_json;
+        //    parameter_to_json(parameter, &parameter_json);
+        //    parameters_json->push_back(parameter_json);
+        //}
     }
 
     inline static void processor_to_json(GenericProcessor* processor, json* processor_json) {
@@ -442,13 +442,14 @@ private:
         return nullptr;
     }
 
-    static inline Parameter* find_parameter(GenericProcessor* processor, const std::string& parameter_name) {
+    /*static inline Parameter* find_parameter(GenericProcessor* processor, const std::string& parameter_name) 
+    {
         Parameter* parameter = processor->getParameterByName(juce::String(parameter_name));
         if (parameter->getName().compare(parameter_name) != 0) {
             return nullptr;
         }
         return parameter;
-    }
+    }*/
 };
 
 #endif  // __PROCESSORGRAPH_H_124F8B50__

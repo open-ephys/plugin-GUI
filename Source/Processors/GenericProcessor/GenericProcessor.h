@@ -114,7 +114,7 @@ public:
     /** Allows parameters to change while acquisition is active. If the user wants
     to change ANY variables that are used within the process() method, this must
     be done through setParameter(). */
-    virtual void setParameter(int parameterIndex, float newValue);
+    void setParameter(int parameterIndex, float newValue);
 
     // --------------------------------------------
     //    QUERYING INFO ABOUT THIS PROCESSOR
@@ -261,19 +261,65 @@ public:
     virtual bool stillHasSource() const { return true; }
 
     // --------------------------------------------
-    //     BUFFER AND PARAMETER ACCESS
+    //     PARAMETERS
     // --------------------------------------------
 
-    /** Returns the parameter for a given name.
-        It should be const method ideally, but because JUCE's getNumParameters()
-        is non-const method, we can't do this one const.*/
-    Parameter* getParameterByName(String parameterName);
+    /** Adds a boolean parameter, which will later be accessed by name*/
+    void addBooleanParameter(const String& name,
+        const String& description,
+        bool defaultValue,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
-    /** Returns the parameter for a given index.*/
-    Parameter* getParameterByIndex(int parameterIndex) const;
+    /** Adds an integer parameter, which will later be accessed by name*/
+    void addIntParameter(const String& name,
+        const String& description,
+        int defaultValue,
+        int minValue,
+        int maxValue,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
 
-    /** An array of parameters that the user can modify.*/
-    OwnedArray<Parameter> parameters;
+    /** Adds a selected channels parameter, which will later be accessed by name*/
+    void addSelectedChannelsParameter(const String& name,
+        const String& description,
+        int maxSelectedChannels = INT_MAX,
+        bool deactivateDuringAcquisition = false, 
+        bool isGlobal = false);
+
+    /** Adds a categorical parameter, which will later be accessed by name*/
+    void addCategoricalParameter(const String& name,
+        const String& description,
+        StringArray categories,
+        int defaultIndex,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
+
+    /** Returns a pointer to a Parameter object for a given name*/
+    Parameter* getParameter(const uint16 streamId, const String& parameterName);
+
+    /** Returns a pointer to a Parameter object for a given name.*/
+    Parameter* getParameter(const String& parameterName);
+
+    /** Returns the actual value for a parameter for a given name*/
+    var getParameterValue(const uint16 streamId, const String& parameterName);
+
+    /** Returns the index of the parameter for a given name.*/
+    int getParameterIndex(const String& parameterName);
+
+    /** Returns a global parameter*/
+    Parameter* getGlobalParameter(const String& parameterName);
+
+    /** Returns a global parameter value*/
+    var getGlobalParameterValue(const String& parameterName);
+
+    /** Initiates parameter value update */
+    void parameterChangeRequest(Parameter*);
+
+    /** Called when a parameter value is updated*/
+    virtual void parameterValueChanged(Parameter*) { }
+
+    // BUFFER ACCESS
 
     /** Returns a pointer to the processor's internal continuous buffer, if it exists. */
     virtual AudioBuffer<float>* getContinuousBuffer() const;
@@ -529,6 +575,21 @@ protected:
     /** Pointer to the processor's editor. */
     std::unique_ptr<GenericEditor> editor;
 
+    /** An array of default parameters for this processor.*/
+    OwnedArray<Parameter> availableParameters;
+
+    /** An array of global parameters for this processor.*/
+    Array<Parameter*> globalParameters;
+
+    /** An array of parameters for each stream that the user can modify.*/
+    OwnedArray<Parameter> parameters;
+
+    /** Used to quickly access parameters by name*/
+    std::map<uint16, std::map<String, Parameter*>> parameterMap;
+
+    /** Used to quickly access parameters by name*/
+     std::map<String, Parameter*> globalParameterMap;
+
 
 private:
 
@@ -597,6 +658,8 @@ private:
     SpikeChannelIndexMap spikeChannelMap;
 
     DataStreamMap dataStreamMap;
+
+    Parameter* currentParameter;
 
     EventChannel* ttlEventChannel;
     Array<bool> ttlBitStates;

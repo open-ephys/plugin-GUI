@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 
-ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
+    : GenericEditor(parentNode)
 
 {
     desiredWidth = 350;

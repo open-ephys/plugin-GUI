@@ -22,10 +22,351 @@
 
 
 #include "Parameter.h"
-#include "ParameterHelpers.h"
+#include "ParameterEditor.h"
+
+//#include "ParameterHelpers.h"
+
+String Parameter::getParameterTypeString() const
+{
+    if (m_parameterType == Parameter::BOOLEAN_PARAM)
+        return "Boolean";
+    else if (m_parameterType == Parameter::INT_PARAM)
+        return "Integer";
+    else if (m_parameterType == Parameter::CATEGORICAL_PARAM)
+        return "Categorical";
+    else if (m_parameterType == Parameter::FLOAT_PARAM)
+        return "Float";
+    else if (m_parameterType == Parameter::SELECTED_CHANNELS_PARAM)
+        return "Selected Channels";
+
+    // This should never happen
+    jassertfalse;
+    return String();
+}
+
+BooleanParameter::BooleanParameter(GenericProcessor* processor,
+    uint16 streamId, 
+    const String& name,
+    const String& description,
+    bool defaultValue_,
+    bool deactivateDuringAcquisition,
+    bool isGlobal) 
+    : Parameter(processor, streamId,
+                ParameterType::BOOLEAN_PARAM,
+                name,
+                description,
+                defaultValue_,
+                deactivateDuringAcquisition,
+                isGlobal)
+{
+
+}
+
+void BooleanParameter::setNextValue(var newValue_)
+{
+    if (newValue_.isBool())
+    {
+        newValue = newValue_;
+    }
+
+    processor->parameterChangeRequest(this);
+}
+
+bool BooleanParameter::getBoolValue()
+{
+    return (bool)currentValue;
+}
+
+void BooleanParameter::toXml(XmlElement* xml) 
+{
+    xml->setAttribute(getName(), (bool) currentValue);
+}
+
+void BooleanParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getBoolAttribute(getName(), defaultValue);
+}
+
+BooleanParameterEditor* BooleanParameter::createEditor(BooleanParameter* param)
+{
+    return new BooleanParameterEditor(param);
+}
+
+CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
+    uint16 streamId,
+    const String& name,
+    const String& description,
+    StringArray categories,
+    int defaultIndex,
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
+    : Parameter(processor, streamId,
+        ParameterType::BOOLEAN_PARAM,
+        name,
+        description,
+        defaultIndex,
+        deactivateDuringAcquisition,
+        isGlobal)
+{
+
+}
+
+void CategoricalParameter::setNextValue(var newValue_)
+{
+    if (newValue_.isInt())
+    {
+        newValue = newValue_;
+    }
+
+    processor->parameterChangeRequest(this);
+}
+
+int CategoricalParameter::getSelectedIndex()
+{
+    return (int)currentValue;
+}
+
+String CategoricalParameter::getSelectedString()
+{
+    return categories[currentValue];
+}
 
 
-Parameter::Parameter (const String& name, bool defaultValue, int ID, bool deactivateDuringAcquisition)
+const StringArray& CategoricalParameter::getCategories()
+{
+    return categories;
+}
+
+
+void CategoricalParameter::setCategories(StringArray categories_)
+{
+    categories = categories_;
+}
+
+void CategoricalParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (int)currentValue);
+}
+
+void CategoricalParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getIntAttribute(getName(), defaultValue);
+}
+
+CategoricalParameterEditor* CategoricalParameter::createEditor(CategoricalParameter* param)
+{
+    return new CategoricalParameterEditor(param);
+}
+
+IntParameter::IntParameter(GenericProcessor* processor,
+    uint16 streamId, 
+    const String& name,
+    const String& description,
+    int defaultValue_,
+    int minValue_,
+    int maxValue_,
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
+    : Parameter(processor,
+        streamId,
+        ParameterType::INT_PARAM,
+        name,
+        description,
+        defaultValue_,
+        deactivateDuringAcquisition,
+        isGlobal),
+    maxValue(maxValue_),
+    minValue(minValue_)
+{
+
+}
+
+void IntParameter::setNextValue(var newValue_)
+{
+    if (newValue_.isInt())
+    {
+        int value = (int) newValue_;
+
+        std::cout << "val: " << value << std::endl;
+        std::cout << "minvalue: " << minValue << std::endl;
+        std::cout << "maxvalue: " << maxValue << std::endl;
+        std::cout << "streamId: " << streamId << std::endl;
+
+        if (value < minValue)
+            newValue = minValue;
+        else if (value > maxValue)
+            newValue = maxValue;
+        else
+            newValue = value;
+
+        std::cout << "newvalue: " << (int)newValue << std::endl;
+    }
+
+    processor->parameterChangeRequest(this);
+}
+
+int IntParameter::getIntValue()
+{
+    return int(currentValue);
+}
+
+void IntParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (int) currentValue);
+}
+
+void IntParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getIntAttribute(getName(), defaultValue);
+}
+
+IntParameterEditor* IntParameter::createEditor(IntParameter* param)
+{
+    return new IntParameterEditor(param);
+}
+
+SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor_,
+    uint16 streamId,
+    const String& name,
+    const String& description,
+    Array<var> defaultValue_,
+    int maxSelectableChannels_,
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
+    : Parameter(processor_,
+        streamId,
+        ParameterType::SELECTED_CHANNELS_PARAM,
+        name,
+        description,
+        defaultValue_,
+        deactivateDuringAcquisition,
+        isGlobal),
+    maxSelectableChannels(maxSelectableChannels_),
+    channelCount(0)
+{
+}
+
+void SelectedChannelsParameter::setNextValue(var newValue_)
+{
+    if (newValue_.getArray()->size() < maxSelectableChannels)
+        newValue = newValue_;
+
+    processor->parameterChangeRequest(this);
+}
+
+std::vector<bool> SelectedChannelsParameter::getChannelStates()
+{
+    std::vector<bool> states;
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (currentValue.getArray()->contains(i))
+            states.push_back(true);
+        else
+            states.push_back(false);
+    }
+
+    return states;
+}
+
+
+
+/** Gets the value as an integer*/
+Array<int> SelectedChannelsParameter::getArrayValue()
+{
+    Array<int> out;
+
+    for (int i = 0; i < currentValue.getArray()->size(); i++)
+    {
+        out.add(currentValue[i]);
+    }
+
+    return out;
+}
+
+void SelectedChannelsParameter::toXml(XmlElement* xml)
+{
+    if (maxSelectableChannels < channelCount)
+        xml->setAttribute("selectedChannels", selectedChannelsToString());
+    else
+        xml->setAttribute("maskChannels", maskChannelsToString());
+}
+
+void SelectedChannelsParameter::fromXml(XmlElement* xml)
+{
+    if (xml->hasAttribute("selectedChannels"))
+        currentValue = parseSelectedString(xml->getStringAttribute("selectedChannels", ""));
+    else if (xml->hasAttribute("maskChannels"))
+        currentValue = parseMaskString(xml->getStringAttribute("maskChannels", ""));
+}
+
+String SelectedChannelsParameter::maskChannelsToString()
+{
+
+    String result = "";
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (!currentValue.getArray()->contains(var(i)))
+            result += String(i + 1) + ",";
+    }
+
+    return result.substring(0, result.length() - 1);
+}
+
+String SelectedChannelsParameter::selectedChannelsToString()
+{
+
+    String result = "";
+
+    for (int i = 0; i < currentValue.getArray()->size(); i++)
+    {
+        result += String(int(currentValue[i]) + 1) + ",";
+    }
+
+    return result.substring(0, result.length() - 1);
+}
+
+Array<var> SelectedChannelsParameter::parseMaskString(const String& input)
+{
+
+    Array<var> maskChannels = parseSelectedString(input);
+
+    Array<var> selectedChannels;
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (!maskChannels.contains(var(i)))
+            selectedChannels.add(i);
+    }
+
+    return selectedChannels;
+}
+
+Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
+{
+
+    StringArray channels = StringArray::fromTokens(input, ",", "");
+
+    Array<var> selectedChannels;
+
+    for (int i = 0; i < channels.size(); i++)
+    {
+        int ch = channels[i].getIntValue() - 1;
+
+        selectedChannels.add(ch);
+    }
+
+    return selectedChannels;
+}
+
+SelectedChannelsParameterEditor* SelectedChannelsParameter::createEditor(SelectedChannelsParameter* param)
+{
+    return new SelectedChannelsParameterEditor(param);
+}
+
+
+/*Parameter::Parameter (const String& name, bool deactivateDuringAcquisition)
     : shouldDeactivateDuringAcquisition (deactivateDuringAcquisition)
     , m_parameterType                   (PARAMETER_TYPE_BOOLEAN)
     , m_nameValueObject                 (name)
@@ -300,7 +641,7 @@ bool Parameter::setValue(const var& val, int chan) {
         if (!val.isString()) {
             return false;
         }
-    }*/
+    }
     else {
         // Unhandled type?
         jassertfalse;
@@ -532,6 +873,6 @@ Parameter* Parameter::createParameterFromValueTree (ValueTree parameterValueTree
     parameter->setDescription (description);
 
     return parameter;
-}
+}*/
 
 

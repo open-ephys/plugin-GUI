@@ -53,17 +53,15 @@ private:
 
 */
 
-class LfpDisplayEditor : public VisualizerEditor
+class LfpDisplayEditor : public VisualizerEditor,
+    public Button::Listener
 {
 public:
-    LfpDisplayEditor(GenericProcessor*, bool useDefaultParameterEditors);
+    LfpDisplayEditor(GenericProcessor*);
     ~LfpDisplayEditor();
 
     // Override VisualEditor behavior to add support for Layout switching
     void buttonClicked(Button* button) override;
-    
-    // not really being used (yet) ...
-    void buttonEvent(Button* button);
 
     /** Called by the base class VisualizerEditor to display the canvas
         when the user chooses to display one

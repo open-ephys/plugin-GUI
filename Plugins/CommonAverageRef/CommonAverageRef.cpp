@@ -47,7 +47,7 @@ CommonAverageRef::~CommonAverageRef()
 
 AudioProcessorEditor* CommonAverageRef::createEditor()
 {
-    editor = std::make_unique<CommonAverageRefEditor> (this, true);
+    editor = std::make_unique<CommonAverageRefEditor> (this);
     return editor.get();
 }
 

@@ -32,8 +32,8 @@
 #include "../Editors/StreamSelector.h"
 #include "../Settings/DataStream.h"
 
-MergerEditor::MergerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : GenericEditor(parentNode, useDefaultParameterEditors)
+MergerEditor::MergerEditor(GenericProcessor* parentNode)
+    : GenericEditor(parentNode)
 
 {
     desiredWidth = 100;
@@ -84,7 +84,7 @@ void MergerEditor::stopAcquisition()
 
 }
 
-void MergerEditor::buttonEvent(Button* button)
+void MergerEditor::buttonClicked(Button* button)
 {
     
     if (button == pipelineSelectorA.get())

@@ -39,56 +39,40 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
-GenericEditor::GenericEditor(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
-    : AudioProcessorEditor(owner),
-    desiredWidth(150), isFading(false), accumulator(0.0), acquisitionIsActive(false),
+GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(owner),
+    desiredWidth(150),
+    acquisitionIsActive(false),
     drawerWidth(170),
-    drawerOpen(false), isSelected(false), isEnabled(true), isCollapsed(false), tNum(-1)
+    drawerOpen(false), 
+    isSelected(false), 
+    isEnabled(true), 
+    isCollapsed(false), 
+    tNum(-1),
+    drawerButtonListener(this)
 {
-    constructorInitialize(owner, useDefaultParameterEditors, showDrawerButton);
-}
-
-GenericEditor::~GenericEditor()
-{
-}
-
-void GenericEditor::constructorInitialize(GenericProcessor* owner, bool useDefaultParameterEditors, bool showDrawerButton)
-{
-
+    
     name = getAudioProcessor()->getName();
     displayName = name;
 
     nodeId = owner->getNodeId();
 
-    titleFont = Font ("Default", 14, Font::bold);
+    titleFont = Font("Default", 14, Font::bold);
 
-    if (showDrawerButton)
+    drawerButton = std::make_unique<DrawerButton>("name");
+    drawerButton->addListener(&drawerButtonListener);
+    addAndMakeVisible(drawerButton.get());
+
+    if (!owner->isSplitter())
     {
-        LOGDD("Adding drawer button.");
-
-        
-        drawerButton = std::make_unique<DrawerButton>("name");
-        drawerButton->addListener(this);
-        addAndMakeVisible(drawerButton.get());
-        
-
-       if (!owner->isSplitter())
-        {
-            
-            streamSelector = std::make_unique<StreamSelector> (this);
-            addAndMakeVisible(streamSelector.get());
-            
-       } 
+        streamSelector = std::make_unique<StreamSelector>(this);
+        addAndMakeVisible(streamSelector.get());
     }
 
     backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
-                                        Colour(185, 185, 185), 0.0f, 120.0f, false);
+        Colour(185, 185, 185), 0.0f, 120.0f, false);
     backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
 
-    addParameterEditors(useDefaultParameterEditors);
-
-    backgroundColor = Colour(10,10,10);
-
+    backgroundColor = Colour(10, 10, 10);
 }
 
 void GenericEditor::updateName()
@@ -116,44 +100,43 @@ int GenericEditor::getChannelDisplayNumber(int chan) const
 	return chan;
 }
 
-void GenericEditor::addParameterEditors(bool useDefaultParameterEditors=true)
+void GenericEditor::addDefaultParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
-    if (useDefaultParameterEditors)
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    if (param->getType() == Parameter::BOOLEAN_PARAM)
     {
-        const int xPosInitial = 2;
-        const int yPosIntiial = 23;
-
-        int xPos = 15;
-        int yPos = 30;
-
-LOGDD("Adding parameter editors.");
-
-        /*for (int i = 0; i < getProcessor()->getNumParameters(); i++)
-        {
-            ParameterEditor* p = new ParameterEditor(getProcessor(), getProcessor()->getParameterByIndex (i), titleFont);
-            p->setChannelSelector (channelSelector.get());
-
-            if (p->hasCustomBounds())
-            {
-                p->setBounds (p->getDesiredBounds().translated (xPosInitial, yPosIntiial));
-            }
-            else
-            {
-                const int dWidth  = p->desiredWidth;
-                const int dHeight = p->desiredHeight;
-
-                p->setBounds (xPos, yPos, dWidth, dHeight);
-
-                yPos += dHeight;
-                yPos += 10;
-            }
-
-            addAndMakeVisible (p);
-            parameterEditors.add (p);
-        }*/
+        parameterEditors.add(BooleanParameter::createEditor((BooleanParameter*)param));
     }
+    else if (param->getType() == Parameter::INT_PARAM)
+    {
+        parameterEditors.add(IntParameter::createEditor((IntParameter*)param));
+    }
+    else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+    {
+        parameterEditors.add(SelectedChannelsParameter::createEditor((SelectedChannelsParameter*)param));
+    }
+
+    ParameterEditor* ed = parameterEditors.getLast();
+    addAndMakeVisible(ed);
+    ed->setParameter(param);
+
+    std::cout << "Parameter name: " << param->getName() << std::endl;
+    std::cout << "Editor width: " << ed->getWidth() << ", editor height: " << ed->getHeight() << std::endl;
+    std::cout << "Editor xpos: " << xPos_ << ", editor ypos: " << yPos_ << std::endl;
+
+    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
 }
 
+
+void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
+{
+
+    parameterEditors.add(ed);
+    addAndMakeVisible(ed);
+    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
+}
 
 
 
@@ -220,8 +203,6 @@ void GenericEditor::select()
 {
     isSelected = true;
     repaint();
-    //setWantsKeyboardFocus(true);
-    //grabKeyboardFocus();
 
     editorWasClicked();
 }
@@ -278,7 +259,7 @@ void GenericEditor::editorStartAcquisition()
     for (int n = 0; n < parameterEditors.size(); n++)
     {
 
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition)
+        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
             parameterEditors[n]->setEnabled(false);
 
     }
@@ -299,19 +280,12 @@ void GenericEditor::editorStopAcquisition()
     for (int n = 0; n < parameterEditors.size(); n++)
     {
 
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition)
+        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
             parameterEditors[n]->setEnabled(true);
 
     }
 
     acquisitionIsActive = false;
-
-}
-
-void GenericEditor::fadeIn()
-{
-    isFading = true;
-    startTimer(10);
 }
 
 void GenericEditor::paint(Graphics& g)
@@ -379,37 +353,12 @@ void GenericEditor::paint(Graphics& g)
     // draw highlight box
     g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
-    if (isFading)
-    {
-        g.setColour(Colours::black.withAlpha((float)(10.0-accumulator)/10.0f));
-        if (getWidth() > 0 && getHeight() > 0)
-            g.fillAll();
-    }
-
 }
 
-void GenericEditor::timerCallback()
+void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 {
-    accumulator++;
-
-    repaint();
-
-    if (accumulator > 10.0)
-    {
-        stopTimer();
-        isFading = false;
-    }
-}
-
-void GenericEditor::buttonClicked(Button* button)
-{
-
-    LOGDD("Button clicked.");
-
-    checkDrawerButton(button);
-
-    buttonEvent(button); // needed to inform subclasses of
-                         // button event
+    LOGDD("Drawer button clicked.");
+    editor->checkDrawerButton(button);
 }
 
 
@@ -445,11 +394,6 @@ bool GenericEditor::checkDrawerButton(Button* button)
         return false;
     }
 
-}
-
-void GenericEditor::sliderValueChanged(Slider* slider)
-{
-    sliderEvent(slider);
 }
 
 void GenericEditor::update(bool isEnabled_)
@@ -508,6 +452,8 @@ void GenericEditor::update(bool isEnabled_)
     }
 
     updateSettings(); // update custom settings
+
+    updateSelectedStream(getCurrentStream());
     
     updateVisualizer(); // does nothing unless this method
                         // has been implemented
@@ -521,44 +467,6 @@ void GenericEditor::update(bool isEnabled_)
     }
 
 }
-
-/*Array<int> GenericEditor::getActiveChannels()
-{
-    if (channelSelector != nullptr)
-    {
-        Array<int> a = channelSelector->getActiveChannels();
-        return a;
-    }
-    else
-    {
-        Array<int> a;
-        return a;
-    }
-}
-
-void GenericEditor::getChannelSelectionState(int chan, bool* p, bool* r, bool* a)
-{
-    if (channelSelector != nullptr)
-    {
-        *p = channelSelector->getParamStatus(chan);
-        *r = false;
-        *a = false;
-    }
-    else
-    {
-        *p = false;
-        *r = false;
-        *a = false;
-    }
-}
-
-void GenericEditor::setChannelSelectionState(int chan, bool p, bool r, bool a)
-{
-    if (channelSelector != nullptr)
-    {
-        channelSelector->setParamStatus(chan, p);
-    }
-}*/
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
@@ -610,12 +518,6 @@ void GenericEditor::switchCollapsedState()
             Component* c = getChildComponent(i);
             c->setVisible(!isCollapsed);
         }
-
-       // if (streamSelector != nullptr)
-       // {
-        //    if (!drawerOpen)
-        //        streamSelector->setVisible(false);
-        //}
 
         collapsedStateChanged();
 
@@ -1062,30 +964,6 @@ SaveButton::~SaveButton()
 }
 
 
-void GenericEditor::updateParameterButtons(int parameterIndex)
-{
-    if (parameterEditors.size() == 0)
-    {
-        //Checks if there is a parameter editor, and stops a bug if there isn't.
-LOGDD("No parameterEditors");
-    }
-    else
-    {
-        if (parameterIndex == -1)
-        {
-            for (int i = 0; i < parameterEditors.size(); ++i)
-            {
-                parameterEditors[i]->updateChannelSelectionUI();
-            }
-        }
-        else
-        {
-            parameterEditors[parameterIndex]->updateChannelSelectionUI();
-        }
-LOGDD("updateParameterButtons");
-    }
-}
-
 String GenericEditor::getName()
 {
     return name;
@@ -1147,9 +1025,17 @@ ColourGradient GenericEditor::getBackgroundGradient()
 
 void GenericEditor::updateSettings() {}
 
-void GenericEditor::updateVisualizer() {}
+void GenericEditor::updateView()
+{
+    for (auto ed : parameterEditors)
+    {
+        ed->updateView();
+    }
+}
 
-//void GenericEditor::channelChanged (int channel, bool newState) {}
+void GenericEditor::updateCustomView() {}
+
+void GenericEditor::updateVisualizer() {}
 
 void GenericEditor::saveCustomParametersToXml(XmlElement* xml) { }
 
@@ -1163,13 +1049,18 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
     return a;
 }
 
-void GenericEditor::channelStateChanged(Array<int> channelStates) {}
-
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {
 
     selectedStream = streamId;
     std::cout << "Selected stream: " << selectedStream << std::endl;
+
+    for (auto ed : parameterEditors)
+    {
+        ed->setParameter(getProcessor()->getParameter(selectedStream, ed->getParameterName()));
+        ed->updateView();
+    }
+
     selectedStreamHasChanged();
 
 }
@@ -1182,7 +1073,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
     if (streamSelector != nullptr)
         streamSelector->setStreamEnabledState(streamId, isEnabled);
 
-    CoreServices::updateSignalChain(this);
+    //CoreServices::updateSignalChain(this);
 
 }
 

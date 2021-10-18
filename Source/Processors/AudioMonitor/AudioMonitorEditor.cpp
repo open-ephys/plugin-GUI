@@ -26,48 +26,152 @@
 static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 
-MonitorMuteButton::MonitorMuteButton()
-    : ImageButton ("MuteButton")
+MonitorMuteButton::MonitorMuteButton(Parameter* param) : ParameterEditor(param)
 {
+
+    muteButton = new ImageButton("Mute Button");
+
     Image offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
     Image onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
 
-    setImages (false, true, true,
+    muteButton->setImages (false, true, true,
                offimage, 1.0f, Colours::black,
                offimage, 1.0f, Colours::black.withAlpha (0.0f),
                onimage,  1.0f, Colours::darkgrey);
 
-    setClickingTogglesState (true);
+    muteButton->setClickingTogglesState (true);
 
-    setTooltip ("Mute audio");
+    muteButton->setTooltip ("Mute audio");
+
+    muteButton->addListener(this);
+    muteButton->setToggleState(false, false);
+
+    addAndMakeVisible(muteButton);
+
+    setBounds(0, 0, 20, 20);
 }
 
-
-MonitorMuteButton::~MonitorMuteButton()
+void MonitorMuteButton::buttonClicked(Button*)
 {
+    param->setNextValue(muteButton->getToggleState());
+}
+
+void MonitorMuteButton::updateView()
+{
+    if (param != nullptr)
+        muteButton->setToggleState(param->getValue(), dontSendNotification);
+}
+
+void MonitorMuteButton::resized()
+{
+
+    muteButton->setBounds(0, 0, 20, 20);
 }
 
 
-AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
-    : GenericEditor (parentNode, useDefaultParameterEditors),
-      editable(true)
+AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(param)
+{
+
+    leftButton = new TextButton("Left", "Output to left channel only");
+    leftButton->setClickingTogglesState(true);
+    leftButton->setToggleState(false, dontSendNotification);
+    leftButton->setColour(TextButton::buttonColourId, Colour(0x0));
+    leftButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
+    leftButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
+    leftButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
+    bothButton = new TextButton("Both", "Output to both channels");
+    bothButton->setClickingTogglesState(true);
+    bothButton->setToggleState(true, dontSendNotification);
+    bothButton->setColour(TextButton::buttonColourId, Colour(0x0));
+    bothButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
+    bothButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
+    bothButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
+    rightButton = new TextButton("Right", "Output to right channel only");
+    rightButton->setClickingTogglesState(true);
+    rightButton->setToggleState(false, dontSendNotification);
+    rightButton->setColour(TextButton::buttonColourId, Colour(0x0));
+    rightButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
+    rightButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
+    rightButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
+    outputChannelButtonManager = std::make_unique<LinearButtonGroupManager>();
+    outputChannelButtonManager->addButton(leftButton);
+    outputChannelButtonManager->addButton(bothButton);
+    outputChannelButtonManager->addButton(rightButton);
+    outputChannelButtonManager->setRadioButtonMode(true);
+    outputChannelButtonManager->setButtonListener(this);
+    outputChannelButtonManager->setButtonsLookAndFeel(m_materialButtonLookAndFeel.get());
+    outputChannelButtonManager->setColour(ButtonGroupManager::backgroundColourId, Colours::white);
+    outputChannelButtonManager->setColour(ButtonGroupManager::outlineColourId, Colour(0x0));
+    outputChannelButtonManager->setColour(LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
+    addAndMakeVisible(outputChannelButtonManager.get());
+
+    setBounds(0, 0, 140, 20);
+}
+
+
+void AudioOutputSelector::buttonClicked(Button* buttonThatWasClicked)
+{
+
+    const String buttonName = buttonThatWasClicked->getName().toLowerCase();
+
+    if (buttonName.startsWith("left"))
+    {
+        param->setNextValue(0);
+        LOGD("Left channel only");
+    }
+    else if (buttonName.startsWith("both"))
+    {
+        param->setNextValue(2);
+        LOGD("Both channels");
+    }
+
+    else if (buttonName.startsWith("right"))
+    {
+        param->setNextValue(1);
+        LOGD("Right channel only");
+    }
+}
+
+void AudioOutputSelector::updateView()
+{
+    if (param != nullptr)
+    {
+
+        if (int(param->getValue()) == 0)
+        {
+            leftButton->setToggleState(true, dontSendNotification);
+        }
+        else if (int(param->getValue()) == 1)
+        {
+            rightButton->setToggleState(true, dontSendNotification);
+        }
+        else {
+            bothButton->setToggleState(true, dontSendNotification);
+        }
+    }
+       
+}
+
+void AudioOutputSelector::resized()
+{
+    outputChannelButtonManager->setBounds(0, 0, 140, 20);
+}
+
+AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
-    selectedChansLabel = std::make_unique<Label>("selected channels", "Channels:");
-    selectedChansLabel->setBounds(15, 35, 60, 20);
-    addAndMakeVisible(selectedChansLabel.get());
-    
-    channelSelectButton = std::make_unique<UtilityButton>("C", Font ("Small Text", 14, Font::plain));
-    channelSelectButton->setBounds(80, 35, 20, 20);
-	channelSelectButton->addListener(this);
-	addAndMakeVisible(channelSelectButton.get());
+    addDefaultParameterEditor("selected_channels", 10, 35);
 
-    muteButton = std::make_unique<MonitorMuteButton>();
-    muteButton->addListener (this);
-    muteButton->setToggleState (false, dontSendNotification);
-    muteButton->setBounds(130, 35, 20, 20);
-    addAndMakeVisible (muteButton.get());
+    Parameter* muteParam = parentNode->getGlobalParameter("mute_audio");
+    addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);
+
+    Parameter* outputParam = parentNode->getGlobalParameter("audio_output");
+    addCustomParameterEditor(new AudioOutputSelector(outputParam), 20, 65);
 
     spikeChan = std::make_unique<ComboBox>("Spike Channels");
     spikeChan->setBounds(20, 100, 140, 20);
@@ -80,154 +184,8 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode, bool useDe
     spikeChan->setTextWhenNoChoicesAvailable("No spike channels");
     spikeChan->setTextWhenNothingSelected("Select a Spike Channel");
 
-	spikeChan->addListener(this);
+	//spikeChan->addListener(this);
 	addAndMakeVisible(spikeChan.get());
 
-    TextButton* leftButton = new TextButton ("Left", "Output to left channel only");
-    leftButton->setClickingTogglesState (true);
-    leftButton->setToggleState (true, dontSendNotification);
-    leftButton->setColour (TextButton::buttonColourId,     Colour (0x0));
-    leftButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
-    leftButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
-    leftButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
-    TextButton* bothButton  = new TextButton ("Both", "Output to both channels");
-    bothButton->setClickingTogglesState (true);
-    bothButton->setToggleState(true, dontSendNotification);
-    bothButton->setColour (TextButton::buttonColourId,     Colour (0x0));
-    bothButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
-    bothButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
-    bothButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
-    TextButton* rightButton  = new TextButton ("Right", "Output to right channel only");
-    rightButton->setClickingTogglesState (true);
-    rightButton->setColour (TextButton::buttonColourId,     Colour (0x0));
-    rightButton->setColour (TextButton::buttonOnColourId,   Colour (0x0));
-    rightButton->setColour (TextButton::textColourOffId,    COLOUR_PRIMARY);
-    rightButton->setColour (TextButton::textColourOnId,     COLOUR_ACCENT);
-
-    outputChannelButtonManager = std::make_unique<LinearButtonGroupManager>();
-    outputChannelButtonManager->addButton (leftButton);
-    outputChannelButtonManager->addButton (bothButton);
-    outputChannelButtonManager->addButton (rightButton);
-    outputChannelButtonManager->setRadioButtonMode (true);
-    outputChannelButtonManager->setButtonListener (this);
-    outputChannelButtonManager->setButtonsLookAndFeel (m_materialButtonLookAndFeel.get());
-    outputChannelButtonManager->setColour (ButtonGroupManager::backgroundColourId,   Colours::white);
-    outputChannelButtonManager->setColour (ButtonGroupManager::outlineColourId,      Colour (0x0));
-    outputChannelButtonManager->setColour (LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
-    outputChannelButtonManager->setBounds (20, 70, 140, 20);
-    addAndMakeVisible (outputChannelButtonManager.get());
-
-    outputChannelButtonManager->buttonClicked(bothButton);
-
     desiredWidth = 180;
-}
-
-
-AudioMonitorEditor::~AudioMonitorEditor()
-{
-}
-
-
-void AudioMonitorEditor::buttonEvent (Button* button)
-{
-    if (button == channelSelectButton.get())
-    {
-        std::vector<bool> channelStates;
-        Array<int> activeChannels = audioMonitor->getMonitoredChannels();
-
-        for (int i = 0; i < audioMonitor->getNumInputs(); i++)
-        {
-            if (activeChannels.contains(i))
-                channelStates.push_back(true);
-            else
-                channelStates.push_back(false);
-        }
-
-        auto* channelSelector = new PopupChannelSelector(this, channelStates);
-        channelSelector->setMaximumSelectableChannels(4);
-        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
-    
-        CallOutBox& myBox
-            = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), channelSelectButton->getScreenBounds(), nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
-        
-    }
-
-    else if (button == muteButton.get())
-    {
-        if (muteButton->getToggleState())
-        {
-            audioMonitor->setParameter (4, 0.0f);
-            LOGD("Mute on.");
-        }
-        else
-        {
-            audioMonitor->setParameter (4, 100.0f);
-            LOGD("Mute off.");
-        }
-    }
-}
-
-
-void AudioMonitorEditor::buttonClicked (Button* buttonThatWasClicked)
-{
-    const String buttonName = buttonThatWasClicked->getName().toLowerCase();
-
-    if (buttonName.startsWith ("left"))
-    {
-        audioMonitor->setParameter(1, 0.0f);
-        LOGD("Left channel only");
-    }
-    else if (buttonName.startsWith ("both"))
-    {
-        audioMonitor->setParameter(2, 0.0f);
-        LOGD("Both channels");
-    }
-
-    else if (buttonName.startsWith ("right"))
-    {
-        audioMonitor->setParameter(3, 0.0f);
-        LOGD("Right channel only");
-    }
-
-    GenericEditor::buttonClicked (buttonThatWasClicked);
-}
-
-
-void AudioMonitorEditor::channelStateChanged(Array<int> activeChannels)
-{    
-    std::cout << "[Audio Monitor] Selected Channels: (";
-
-    audioMonitor->setMonitoredChannels(activeChannels);
-}
-
-void AudioMonitorEditor::comboBoxChanged(ComboBox* cb)
-{
-
-}
-
-void AudioMonitorEditor::startAcquisition()
-{
-    editable = false;
-}
-
-
-void AudioMonitorEditor::stopAcquisition()
-{
-    editable = true;
-}
-
-
-void AudioMonitorEditor::saveCustomParametersToXml (XmlElement* xml)
-{
-
-}
-
-
-void AudioMonitorEditor::loadCustomParametersFromXml (XmlElement* xml)
-{
-
 }

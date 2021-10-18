@@ -86,13 +86,14 @@ bool SelectorButton::isOpenTabButton() const
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, bool useDefaultParameterEditors)
-    : GenericEditor (parentNode, useDefaultParameterEditors)
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
+    : GenericEditor (parentNode)
     , dataWindow    (nullptr)
     , canvas        (nullptr)
     , tabText       ("Tab")
     , isPlaying     (false)
     , tabIndex      (-1)
+    , dataWindowButtonListener(this)
 {
     desiredWidth = width;
 
@@ -100,12 +101,13 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width, boo
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, bool useDefaultParameterEditors)
-    : GenericEditor (parentNode, useDefaultParameterEditors)
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
     , dataWindow    (nullptr)
     , canvas        (nullptr)
     , isPlaying     (false)
     , tabIndex      (-1)
+    , dataWindowButtonListener(this)
 {
     desiredWidth = 180;
     initializeSelectors();
@@ -117,13 +119,13 @@ void VisualizerEditor::initializeSelectors()
     windowSelector = std::make_unique<SelectorButton> ("window");
     windowSelector->setBounds (desiredWidth - 40, 7, 14, 10);
     windowSelector->setToggleState (false, dontSendNotification);
-    windowSelector->addListener (this);
+    windowSelector->addListener (&dataWindowButtonListener);
     addAndMakeVisible (windowSelector.get());
 
     tabSelector = std::make_unique<SelectorButton> ("tab");
     tabSelector->setToggleState (false, dontSendNotification);
     tabSelector->setBounds (desiredWidth - 20, 7, 15, 10);
-    tabSelector->addListener (this);
+    tabSelector->addListener (&dataWindowButtonListener);
     addAndMakeVisible(tabSelector.get());
 }
 
@@ -137,8 +139,6 @@ VisualizerEditor::~VisualizerEditor()
     if (dataWindow != nullptr)
         dataWindow->removeListener (this);
 
-    //deleteAllChildren();
-
     delete canvas;
 }
 
@@ -150,10 +150,6 @@ void VisualizerEditor::resized()
     windowSelector->setBounds   (desiredWidth - 40, 7, 14, 10);
     tabSelector->setBounds      (desiredWidth - 20, 7, 15, 10);
 }
-
-
-// All additional buttons inside the VisualizerEditor should use this instead of buttonClicked()
-void VisualizerEditor::buttonEvent (Button* button) {}
 
 
 void VisualizerEditor::enable()
@@ -197,86 +193,78 @@ void VisualizerEditor::editorWasClicked()
 }
 
 
-// This method is used to open the visualizer in a tab or window; do not use for sub-classes of VisualizerEditor
-// Use VisualizerEditor::buttonEvent instead
-void VisualizerEditor::buttonClicked (Button* button)
+void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
 {
 
-    // To handle default buttons, like the Channel Selector Drawer.
-    GenericEditor::buttonClicked (button);
-
     // Handle the buttons to open the canvas in a tab or window
-    if (canvas == nullptr)
+    if (editor->canvas == nullptr)
     {
-        canvas = createNewCanvas();
+        editor->canvas = editor->createNewCanvas();
         //TODO: Temporary hack to prevent canvas-less interface from crashing GUI on button clicks...
-        if (canvas == nullptr)
+        if (editor->canvas == nullptr)
         {
             return;
         }
-        canvas->update();
+        editor->canvas->update();
 
-        if (isPlaying)
-            canvas->beginAnimation();
+        if (editor->isPlaying)
+            editor->canvas->beginAnimation();
     }
 
-    if (button == windowSelector.get())
+    if (button == editor->windowSelector.get())
     {
-        if (tabSelector->getToggleState() && windowSelector->getToggleState())
+        if (editor->tabSelector->getToggleState() && editor->windowSelector->getToggleState())
         {
-            tabSelector->setToggleState (false, dontSendNotification);
+            editor->tabSelector->setToggleState (false, dontSendNotification);
             // AccessClass::getDataViewport()->destroyTab(tabIndex);
             // tabIndex = -1;
-            removeTab (tabIndex);
+            editor->removeTab (editor->tabIndex);
         }
 
-        if (dataWindow == nullptr) // have we created a window already?
+        if (editor->dataWindow == nullptr) // have we created a window already?
         {
-            makeNewWindow();
+            editor->makeNewWindow();
 
-            dataWindow->setContentNonOwned (canvas, false);
-            dataWindow->setVisible (true);
-            // enable windowClosed() callback
-            dataWindow->addListener (this);
-            //canvas->refreshState();
+            editor->dataWindow->setContentNonOwned (editor->canvas, false);
+            editor->dataWindow->setVisible (true);
+            editor->dataWindow->addListener (editor);
         }
         else
         {
-            dataWindow->setVisible (windowSelector->getToggleState());
+            editor->dataWindow->setVisible (editor->windowSelector->getToggleState());
 
-            if (windowSelector->getToggleState())
+            if (editor->windowSelector->getToggleState())
             {
-                dataWindow->setContentNonOwned (canvas, false);
-                canvas->setBounds (0, 0, canvas->getParentWidth(), canvas->getParentHeight());
+                editor->dataWindow->setContentNonOwned (editor->canvas, false);
+                editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
                 //  canvas->refreshState();
             }
             else
             {
-                dataWindow->setContentNonOwned (0, false);
+                editor->dataWindow->setContentNonOwned (0, false);
             }
         }
     }
-    else if (button == tabSelector.get())
+    else if (button == editor->tabSelector.get())
     {
-        if (tabSelector->getToggleState() && tabIndex < 0)
+        if (editor->tabSelector->getToggleState() && editor->tabIndex < 0)
         {
-            if (windowSelector->getToggleState())
+            if (editor->windowSelector->getToggleState())
             {
-                dataWindow->setContentNonOwned (0, false);
-                windowSelector->setToggleState (false, dontSendNotification);
-                dataWindow->setVisible (false);
+                editor->dataWindow->setContentNonOwned (0, false);
+                editor->windowSelector->setToggleState (false, dontSendNotification);
+                editor->dataWindow->setVisible (false);
             }
 
             // tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
-            addTab (tabText, canvas);
+            editor->addTab (editor->tabText, editor->canvas);
         }
-        else if (! tabSelector->getToggleState() && tabIndex > -1)
+        else if (!editor->tabSelector->getToggleState() && editor->tabIndex > -1)
         {
-            removeTab (tabIndex);
+            editor->removeTab (editor->tabIndex);
         }
     }
 
- 
 }
 
 

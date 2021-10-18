@@ -84,24 +84,12 @@ public:
 
         @see GenericEditor
     */
-    VisualizerEditor (GenericProcessor* processor, int desired_width, bool useDefaultParameterEditors = true);
+    VisualizerEditor (GenericProcessor* processor, int desired_width);
 
-    VisualizerEditor (GenericProcessor* processor, bool useDefaultParameterEditors = true);
+    VisualizerEditor (GenericProcessor* processor);
     ~VisualizerEditor();
 
     void resized() override;
-
-    /**
-        @brief      This method handles the button evnets which open visualizer in a tab or window.
-        @warning    Do not override this function unless you call ``VisualizerEditor::buttonClicked``
-                    somewhere!
-    */
-    void buttonClicked (Button* button) override;
-
-    /**
-        @brief      All additional buttons that you create _for the editor_ should be handled here.
-    */
-    virtual void buttonEvent (Button* button) override;
 
     /**
         @brief      Creates a new canvas. This is like a factory method and must be defined in your sub-class.
@@ -199,6 +187,18 @@ protected:
 
 
 private:
+
+    class ButtonResponder : public Button::Listener
+    {
+    public:
+        ButtonResponder(VisualizerEditor* editor_) : editor(editor_) { }
+        void buttonClicked(Button* button);
+    private:
+        VisualizerEditor* editor;
+    };
+
+    ButtonResponder dataWindowButtonListener;
+
     void initializeSelectors();
 
     // Some constants

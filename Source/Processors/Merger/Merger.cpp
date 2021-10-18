@@ -47,7 +47,7 @@ Merger::~Merger()
 
 AudioProcessorEditor* Merger::createEditor()
 {
-    editor = std::make_unique<MergerEditor>(this, true);
+    editor = std::make_unique<MergerEditor>(this);
     //tEditor(editor);
 
     LOGDD("Creating editor.");
