@@ -618,10 +618,13 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 					if (eventChannel->getType() == EventChannel::Type::TTL)
 					{
+						/* FIXME: Crashes for any sources that generate TTL events */
+						/*
 						getEditor()->setTTLState(sourceStreamId,
 								TTLEvent::getBit(message),
 								TTLEvent::getState(message)
 							);
+						*/
 					}
 				}
 

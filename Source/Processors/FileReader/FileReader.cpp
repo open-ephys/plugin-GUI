@@ -117,21 +117,23 @@ AudioProcessorEditor* FileReader::createEditor()
 
 void FileReader::togglePlayback()
 {
+
     playbackActive = !playbackActive;
 
-    //FIXME
-    /*
-    if (!playbackActive) {
-        this->disable();
-    } else {
-        this->enable();
+    if (!playbackActive) 
+    {
+        stopAcquisition();
+    } 
+    else 
+    {
+        startAcquisition();
     }
-    */
+
 }
 
 bool FileReader::playbackIsActive()
 {
-    return playbackActive == true;
+    return playbackActive;
 }
 
 int64 FileReader::getCurrentNumTotalSamples()
@@ -353,6 +355,7 @@ String FileReader::getFile() const
 
 void FileReader::updateSettings()
 {
+
     if (!input)
     {
         isEnabled = false;
@@ -373,7 +376,6 @@ void FileReader::updateSettings()
 
         };
 
-    
         currentStream = std::make_unique<DataStream>(settings);
 
         gotNewFile = false;
@@ -383,7 +385,7 @@ void FileReader::updateSettings()
     dataStreams.add(new DataStream(*currentStream.get()));
     dataStreams.getLast()->addProcessor(processorInfo.get());
 
-    for (int i = 0; i < currentNumChannels; i++)
+    for (int i = 0; i < 4; i++) //currentNumChannels; i++)
     {
         ContinuousChannel::Settings settings2
         {
@@ -460,6 +462,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     int samplesNeededPerBuffer;
 
+    /* Pressing pause in the FileReader stop data streaming */
     if (!playbackActive)
         samplesNeededPerBuffer = 0;
     else
@@ -618,6 +621,12 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
             // reset stream to beginning
             input->seekTo (startSample);
             currentSample = startSample;
+
+            if (!loopPlayback)
+            {
+                static_cast<FileReaderEditor*> (getEditor())->togglePlayback();
+            }
+
         }
         else // else read the block needed
         {

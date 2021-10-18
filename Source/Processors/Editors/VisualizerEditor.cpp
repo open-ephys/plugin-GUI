@@ -305,7 +305,9 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
     else
     {
         tabSelector->setToggleState(true, sendNotification);
-        canvas->saveVisualizerParameters(xml);
+        // FIXME: Above statement will create canvas only if it is defined in the derived class 
+        if (canvas != nullptr)
+            canvas->saveVisualizerParameters(xml);
         tabSelector->setToggleState(false, sendNotification);
     }
 

@@ -91,6 +91,8 @@ public:
     void togglePlayback();
     bool playbackIsActive();
 
+    bool loopPlayback;
+
 private:
     Array<const EventChannel*> moduleEventChannels;
     ScopedPointer<EventChannel> eventChannel;

@@ -102,7 +102,6 @@ void FullTimeline::setIntervalPosition(int min, int max)
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
 }
 
-
 void FullTimeline::mouseDown(const MouseEvent& event) {
 
     if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth) {
@@ -126,15 +125,19 @@ void FullTimeline::mouseDrag(const MouseEvent & event) {
 void FullTimeline::mouseUp(const MouseEvent& event) {
 
     intervalIsSelected = false;
+
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
 
     if ( fileReader->playbackIsActive() )
     {
-        /* FIX ME
-        fileReader->disable();
-        fileReader->enable();
-        */
+        fileReader->stopAcquisition();
+        fileReader->startAcquisition();
     }
+    else
+    {
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->togglePlayback();
+    }
+    
 }
 
 int FullTimeline::getStartInterval() 
@@ -311,11 +314,14 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     
     if ( fileReader->playbackIsActive() )
     {
-        /* FIX ME
-        fileReader->disable();
-        fileReader->enable();
-        */
+        fileReader->stopAcquisition();
+        fileReader->startAcquisition();
     }
+    else
+    {
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->togglePlayback();
+    }
+    
 }
 
 PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback") {
@@ -606,6 +612,12 @@ void FileReaderEditor::buttonEvent (Button* button)
 
 }
 
+void FileReaderEditor::togglePlayback()
+{
+    fileReader->loopPlayback = false;
+    playbackButton->triggerClick();
+}
+
 void FileReaderEditor::updatePlaybackTimes()
 {
     int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
@@ -614,6 +626,7 @@ void FileReaderEditor::updatePlaybackTimes()
 
     int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
     fileReader->setPlaybackStop(stopTimestamp);
+
 }
 
 void FileReaderEditor::showScrubInterface(bool show)

@@ -165,6 +165,7 @@ public:
     int getZoomTimelineStartPosition();
     void updatePlaybackTimes();
 
+    void togglePlayback();
 
 private:
     void clearEditor();

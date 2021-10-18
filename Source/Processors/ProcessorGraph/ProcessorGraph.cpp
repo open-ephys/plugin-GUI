@@ -1552,6 +1552,8 @@ bool ProcessorGraph::isReady()
             }
         }
     }
+
+    return true;
 }
 
 void ProcessorGraph::startAcquisition()

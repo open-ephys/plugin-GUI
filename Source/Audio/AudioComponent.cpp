@@ -225,6 +225,7 @@ void AudioComponent::endCallbacks()
 
 
     LOGD("Removing audio callback.");
+    // FIXME: Can hang here when stopping acquisition/recording
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
