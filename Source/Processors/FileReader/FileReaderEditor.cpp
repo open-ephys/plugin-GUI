@@ -390,7 +390,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     scrubDrawerButton = new ScrubDrawerButton("ScrubDrawer");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
 	scrubDrawerButton->addListener(this);
-	addAndMakeVisible(scrubDrawerButton);
+	addChildComponent(scrubDrawerButton);
 
     zoomStartTimeLabel = new Label("ZoomStartTime", "00:00");
     zoomStartTimeLabel->setBounds(10,30,40,10);
@@ -529,6 +529,12 @@ void FileReaderEditor::setFile (String file)
     if (fileReader->setFile (fileToRead.getFullPathName()))
     {
         fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
+
+        //Only enable scrubber interface for data files 30 seconds or longer
+        if (fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() >= 30.0f)
+            scrubDrawerButton->setVisible(true);
+        else
+            scrubDrawerButton->setVisible(true);
 
         //setEnabledState (true);
     }

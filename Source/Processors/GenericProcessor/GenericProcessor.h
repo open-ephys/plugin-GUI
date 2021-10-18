@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <map>
 #include <unordered_map>
+#include <limits>
 
 class EditorViewport;
 class DataViewport;
@@ -283,7 +284,7 @@ public:
     /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(const String& name,
         const String& description,
-        int maxSelectedChannels = INT_MAX,
+        int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false, 
         bool isGlobal = false);
 

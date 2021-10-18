@@ -83,7 +83,7 @@ public:
 
     }
 
-    virtual Parameter::~Parameter() { }
+    virtual ~Parameter() { }
 
     /** Returns the name of the parameter.*/
     String getName() const noexcept { return m_name; }
@@ -271,7 +271,7 @@ public:
         const String& name,
         const String& description,
         Array<var> defaultValue,
-        int maxSelectableChannels = INT_MAX,
+        int maxSelectableChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false,
         bool isGlobal = false);
 

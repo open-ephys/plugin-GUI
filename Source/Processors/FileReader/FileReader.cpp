@@ -385,7 +385,7 @@ void FileReader::updateSettings()
     dataStreams.add(new DataStream(*currentStream.get()));
     dataStreams.getLast()->addProcessor(processorInfo.get());
 
-    for (int i = 0; i < 4; i++) //currentNumChannels; i++)
+    for (int i = 0; i < 8; i++) //currentNumChannels; i++)
     {
         ContinuousChannel::Settings settings2
         {
@@ -401,7 +401,6 @@ void FileReader::updateSettings()
         continuousChannels.getLast()->addProcessor(processorInfo.get());
     }
 
-<<<<<<< HEAD
     EventChannel *events;
 
     EventChannel::Settings eventSettings {
@@ -418,23 +417,6 @@ void FileReader::updateSettings()
     events->setIdentifier(id);
     events->addProcessor(processorInfo.get());
     eventChannels.add(events);
-=======
-     for (int i = 0; i < 8; i++) //currentNumChannels; i++)
-     {
-         ContinuousChannel::Settings settings2
-         {
-             ContinuousChannel::Type::ELECTRODE,
-             "CH" + String(i + 1),
-             "description",
-             "filereader.stream",
-             0.195f, // BITVOLTS VALUE
-             dataStreams.getLast()
-         };
-         
-         continuousChannels.add(new ContinuousChannel(settings2));
-         continuousChannels.getLast()->addProcessor(processorInfo.get());
-     }
->>>>>>> development-juce6
 
     isEnabled = true;
 
@@ -537,7 +519,7 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
         uint8 ttlBit = events.channels[i];
         bool state = events.channelStates[i] > 0;
         //FIXME: Needs to create event on the correct channel, not just index 1
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[1], events.timestamps[i], ttlBit, state);
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
         //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(event, absoluteCurrentTimestamp); 
     }
