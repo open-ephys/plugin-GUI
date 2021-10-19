@@ -54,6 +54,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 	, m_sysSampleRate           (44100)
     , playbackActive            (true)
     , gotNewFile                (true)
+    , loopPlayback              (true)
 {
     setProcessorType (PROCESSOR_TYPE_SOURCE);
 
