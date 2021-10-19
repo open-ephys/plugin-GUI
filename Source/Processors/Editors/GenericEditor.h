@@ -25,22 +25,18 @@
 #define __GENERICEDITOR_H_DD406E71__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor/GenericProcessor.h"
-#include "StreamSelector.h"
-#include "../Parameter/ParameterEditor.h"
-#include "../../CoreServices.h"
+
 #include "../PluginManager/OpenEphysPlugin.h"
 
-#include "../Settings/InfoObject.h"
-
-#include <stdio.h>
+#include "../Parameter/ParameterEditor.h"
+#include "StreamSelector.h"
+#include "DelayMonitor.h"
+#include "TTLMonitor.h"
 
 class GenericProcessor;
 class DrawerButton;
 class TriangleButton;
 class UtilityButton;
-class TTLMonitor;
-class DelayMonitor;
 
 /**
     Base class for creating processor editors.
@@ -285,8 +281,20 @@ protected:
     /** Saves the open/closed state of the ChannelSelector drawer. */
     bool drawerOpen;
 
-    /** Adds the default editor for a parameter of a given name. */
-    void addDefaultParameterEditor (const String& name, int xPos, int yPos);
+    /** Adds a text box editor for a parameter of a given name. */
+    void addTextBoxParameterEditor (const String& name, int xPos, int yPos);
+
+    /** Adds a check box editor for a parameter of a given name. */
+    void addCheckBoxParameterEditor(const String& name, int xPos, int yPos);
+
+    /** Adds a slider editor for a parameter of a given name. */
+    void addSliderParameterEditor(const String& name, int xPos, int yPos);
+
+    /** Adds a combo box editor for a parameter of a given name. */
+    void addComboBoxParameterEditor(const String& name, int xPos, int yPos);
+
+    /** Adds a selected channels editor for a parameter of a given name. */
+    void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);

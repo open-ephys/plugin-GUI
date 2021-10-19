@@ -24,11 +24,6 @@
 #ifndef CAR_H_INCLUDED
 #define CAR_H_INCLUDED
 
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 #include <ProcessorHeaders.h>
 
 /** Holds settings for one stream's CAR*/
@@ -44,17 +39,8 @@ public:
     /** Destructor */
     ~CARSettings() {}
 
-    /** Gain level when applying reference (0 to 1.0) */
-    LinearSmoothedValueAtomic<float> m_gainLevel;
-
     /** Buffer to hold average */
     AudioSampleBuffer m_avgBuffer;
-
-    /** Array of channels which will be used to calculate mean signal. */
-    Array<int> m_referenceChannels;
-
-    /** Array of channels that will be affected by adding/substracting of mean signal of reference channels */
-    Array<int> m_affectedChannels;
 
 };
 
@@ -102,42 +88,7 @@ public:
     /** Creates the CAREditor. */
     AudioProcessorEditor* createEditor() override;
 
-    /** Returns the indices of the reference channels for a particular data stream.*/
-    Array<int> getReferenceChannels(uint16 streamId); 
-
-    /** Returns the indices of the affected channels for a particular data stream.*/
-    Array<int> getAffectedChannels(uint16 streamId);
-
-    /** Sets the reference channels for a particular data stream.*/
-    void setReferenceChannels (uint16 streamId, const Array<int>& newReferenceChannels);
-
-    /** Sets the affected channels for a particular data stream.*/
-    void setAffectedChannels  (uint16 streamId, const Array<int>& newAffectedChannels);
-
-    /** Sets the state of particular reference channel (on or off).*/
-    void setReferenceChannelState (uint16 streamId, int channel, bool newState);
-
-    /** Sets the state of particular affected channel (on or off).*/
-    void setAffectedChannelState  (uint16 streamId, int channel, bool newState);
-
-    /** Saving channel parameters */
-    //void saveCustomChannelParametersToXml(XmlElement* channelElement,
-    //    int channelNumber, InfoObject::Type channelType);
-
-    /** Loading channel parameters */
-    //void loadCustomChannelParametersFromXml(XmlElement* channelElement,
-    //    InfoObject::Type channelType);
-
 private:
-   
-    /** We should add this for safety to prevent any app crashes or invalid data processing.
-        Since we use m_referenceChannels and m_affectedChannels arrays in the process() function,
-        which works in audioThread, we may stumble upon the situation when we start changing
-        either reference or affected channels by copying array and in the middle of copying process
-        we will be interrupted by audioThread. So it most probably will lead to app crash or
-        processing incorrect channels.
-    */
-    CriticalSection objectLock;
 
     StreamSettings<CARSettings> settings;
 

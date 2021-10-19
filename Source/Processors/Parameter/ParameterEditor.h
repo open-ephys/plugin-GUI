@@ -24,16 +24,17 @@
 #define __PARAMETEREDITOR_H_44537DA9__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../GenericProcessor/GenericProcessor.h"
-#include "../Editors/GenericEditor.h"
 
+#include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
 
-#include "../PluginManager/OpenEphysPlugin.h"
-#include "Parameter.h"
-#include <stdio.h>
+class UtilityButton;
 
+/** 
+    Base class for ParameterEditors
 
+    All custom ParameterEditors must inherit from this class.
+*/
 class ParameterEditor : public Component
 {
 public:
@@ -61,12 +62,18 @@ protected:
     Parameter* param;
 };
 
-class PLUGIN_API IntParameterEditor : public ParameterEditor,
+/** 
+    Allows parameters to be changed via text box.
+
+    Only valid for IntParameter and FloatParameter
+
+*/
+class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
     public Label::Listener
 {
 public:
-    IntParameterEditor(IntParameter* param);
-    virtual ~IntParameterEditor() { }
+    TextBoxParameterEditor(Parameter* param);
+    virtual ~TextBoxParameterEditor() { }
 
     void labelTextChanged(Label* label);
 
@@ -75,35 +82,23 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> name;
-    ScopedPointer<Label> value;
-};
-
-class PLUGIN_API CategoricalParameterEditor : public ParameterEditor,
-    public ComboBox::Listener
-{
-public:
-    CategoricalParameterEditor(CategoricalParameter* param);
-    virtual ~CategoricalParameterEditor() { }
-
-    void comboBoxChanged(ComboBox* comboBox);
-
-    virtual void updateView() override;
-
-    virtual void resized();
-
-private:
-    ScopedPointer<Label> name;
-    ScopedPointer<ComboBox> comboBox;
+    ScopedPointer<Label> parameterNameLabel;
+    ScopedPointer<Label> valueTextBox;
 };
 
 
-class PLUGIN_API BooleanParameterEditor : public ParameterEditor,
+/**
+    Allows parameters to be changed via a check box.
+
+    Only valid for BooleanParameter
+
+*/
+class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
     public Button::Listener
 {
 public:
-    BooleanParameterEditor(BooleanParameter* param);
-    virtual ~BooleanParameterEditor() { }
+    CheckBoxParameterEditor(Parameter* param);
+    virtual ~CheckBoxParameterEditor() { }
 
     void buttonClicked(Button* label);
 
@@ -112,16 +107,76 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> name;
-    ScopedPointer<ToggleButton> value;
+    ScopedPointer<Label> parameterNameLabel;
+    ScopedPointer<ToggleButton> valueCheckBox;
 };
 
+
+/**
+    Allows parameters to be changed via combo box.
+
+    Only valid for BooleanParameter, IntParameter, and CategoricalParameter
+
+*/
+class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
+    public ComboBox::Listener
+{
+public:
+    ComboBoxParameterEditor(Parameter* param);
+    virtual ~ComboBoxParameterEditor() { }
+
+    void comboBoxChanged(ComboBox* comboBox);
+
+    virtual void updateView() override;
+
+    virtual void resized();
+
+private:
+    ScopedPointer<Label> parameterNameLabel;
+    ScopedPointer<ComboBox> valueComboBox;
+
+    int offset;
+};
+
+
+
+/**
+    Allows parameters to be changed via a slider
+
+    Only valid for IntParameter and FloatParameter
+
+*/
+class PLUGIN_API SliderParameterEditor : public ParameterEditor,
+    public Slider::Listener
+{
+public:
+    SliderParameterEditor(Parameter* param);
+    virtual ~SliderParameterEditor() { }
+
+    void sliderValueChanged(Slider* slider);
+
+    virtual void updateView() override;
+
+    virtual void resized();
+
+private:
+    ScopedPointer<Label> parameterNameLabel;
+    ScopedPointer<Slider> valueSlider;
+};
+
+/**
+    Creates a special editor for a SelectedChannelsParameter
+
+    Displays all of the channels in the currently active DataStream,
+    and makes it possible to select them by clicking.
+
+*/
 class PLUGIN_API SelectedChannelsParameterEditor : public ParameterEditor,
     public Button::Listener,
     public PopupChannelSelector::Listener
 {
 public:
-    SelectedChannelsParameterEditor(SelectedChannelsParameter* param);
+    SelectedChannelsParameterEditor(Parameter* param);
     virtual ~SelectedChannelsParameterEditor() { }
 
     void buttonClicked(Button* label);
