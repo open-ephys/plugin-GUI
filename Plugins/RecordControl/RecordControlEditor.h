@@ -34,27 +34,16 @@
 
 */
 
-class RecordControlEditor : public GenericEditor,
-    public ComboBox::Listener
+class RecordControlEditor : public GenericEditor
 {
 public:
-    RecordControlEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    ~RecordControlEditor();
-    void comboBoxChanged(ComboBox* comboBox);
-    void updateSettings();
-    void loadCustomParameters(XmlElement*);
-    void saveCustomParameters(XmlElement*);
+    /** Constructor*/
+    RecordControlEditor(GenericProcessor* parentNode);
+
+    /** Destructor*/
+    ~RecordControlEditor() { }
 
 private:
-	struct EventSources
-	{
-		unsigned int eventIndex;
-		unsigned int channel;
-	};
-
-	Array<EventSources> eventSourceArray;
-    ScopedPointer<ComboBox> availableChans, triggerMode, triggerPol;
-    ScopedPointer<Label> chanSel, triggerLabel, polLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControlEditor);
 

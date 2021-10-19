@@ -29,14 +29,14 @@
 
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor      ("Arduino Output")
-    , outputChannel         (13)
-    , inputChannel          (-1)
-    , gateChannel           (-1)
-    , state                 (true)
-    , acquisitionIsActive   (false)
+    , gateIsOpen            (true)
     , deviceSelected        (false)
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
+
+    addIntParameter("output_pin", "The Arduino pin to use", 13, 0, 13, false, true);
+    addIntParameter("input_bit", "The TTL bit for triggering output", 1, 1, 16);
+    addIntParameter("gate_bit", "The TTL bit for gating the output", 0, 0, 16);
 }
 
 
@@ -49,150 +49,63 @@ ArduinoOutput::~ArduinoOutput()
 
 AudioProcessorEditor* ArduinoOutput::createEditor()
 {
-    editor = std::make_unique<ArduinoOutputEditor>(this, true);
+    editor = std::make_unique<ArduinoOutputEditor>(this);
     return editor.get();
 }
 
 
 void ArduinoOutput::setDevice (String devName)
 {
-    if (! acquisitionIsActive)
+    if (devName.length() == 0)
+        return;
+
+    Time timer;
+
+    arduino.connect (devName.toStdString());
+
+    if (arduino.isArduinoReady())
     {
-        Time timer;
+        uint32 currentTime = timer.getMillisecondCounter();
 
-        arduino.connect (devName.toStdString());
+        arduino.sendProtocolVersionRequest();
+        timer.waitForMillisecondCounter (currentTime + 2000);
+        arduino.update();
+        arduino.sendFirmwareVersionRequest();
 
-        if (arduino.isArduinoReady())
-        {
-            uint32 currentTime = timer.getMillisecondCounter();
+        timer.waitForMillisecondCounter (currentTime + 4000);
+        arduino.update();
 
-            arduino.sendProtocolVersionRequest();
-            timer.waitForMillisecondCounter (currentTime + 2000);
-            arduino.update();
-            arduino.sendFirmwareVersionRequest();
+        std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
+                    << "." << arduino.getMinorFirmwareVersion() << std::endl;
+    }
 
-            timer.waitForMillisecondCounter (currentTime + 4000);
-            arduino.update();
+    if (arduino.isInitialized())
+    {
+        std::cout << "Arduino is initialized." << std::endl;
+        arduino.sendDigitalPinMode ((int) getParameterValue(dataStreams[0]->getStreamId(), "output_pin"), ARD_OUTPUT);
+        CoreServices::sendStatusMessage (("Arduino initialized at " + devName));
+        deviceSelected = true;
+        deviceString = devName;
 
-            std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
-                      << "." << arduino.getMinorFirmwareVersion() << std::endl;
-        }
-
-        if (arduino.isInitialized())
-        {
-            std::cout << "Arduino is initialized." << std::endl;
-            arduino.sendDigitalPinMode (outputChannel, ARD_OUTPUT);
-            CoreServices::sendStatusMessage (("Arduino initialized at" + devName));
-            deviceSelected = true;
-        }
-        else
-        {
-            std::cout << "Arduino is NOT initialized." << std::endl;
-            CoreServices::sendStatusMessage (("Arduino could not be initialized at" + devName));
-        }
+        // need to inform Editor about the change
     }
     else
     {
-        CoreServices::sendStatusMessage ("Cannot change device while acquisition is active.");
+        std::cout << "Arduino is NOT initialized." << std::endl;
+        CoreServices::sendStatusMessage (("Arduino could not be initialized at " + devName));
     }
 }
 
 
-void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const EventPacket& event, int sampleNum)
+void ArduinoOutput::updateSettings()
 {
-    if (Event::getEventType(event) == EventChannel::TTL)
-    {
-		TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
-
-        //int eventNodeId = *(dataptr+1);
-        const int eventId         = ttl->getState() ? 1: 0;
-        const int eventChannel    = ttl->getBit();
-
-        // std::cout << "Received event from " << eventNodeId
-        //           << " on channel " << eventChannel
-        //           << " with value " << eventId << std::endl;
-
-        if (eventChannel == gateChannel)
-        {
-            if (eventId == 1)
-                state = true;
-            else
-                state = false;
-        }
-
-        if (state)
-        {
-            if (inputChannel == -1 || eventChannel == inputChannel)
-            {
-                if (eventId == 0)
-                {
-                    arduino.sendDigital (outputChannel, ARD_LOW);
-                }
-                else
-                {
-                    arduino.sendDigital (outputChannel, ARD_HIGH);
-                }
-            }
-        }
-    }
-}
-
-
-void ArduinoOutput::setParameter (int parameterIndex, float newValue)
-{
-    // make sure current output channel is off:
-    arduino.sendDigital(outputChannel, ARD_LOW);
-
-    if (parameterIndex == 0)
-    {
-        outputChannel = (int) newValue;
-    }
-    else if (parameterIndex == 1)
-    {
-        inputChannel = (int) newValue;
-    }
-    else if (parameterIndex == 2)
-    {
-        gateChannel = (int) newValue;
-
-        if (gateChannel == -1)
-            state = true;
-        else
-            state = false;
-    }
-}
-
-
-void ArduinoOutput::setOutputChannel (int chan)
-{
-    setParameter (0, chan);
-}
-
-
-void ArduinoOutput::setInputChannel (int chan)
-{
-    setParameter (1, chan - 1);
-}
-
-
-void ArduinoOutput::setGateChannel (int chan)
-{
-    setParameter (2, chan - 1);
-}
-
-
-bool ArduinoOutput::startAcquisition()
-{
-    acquisitionIsActive = true;
-
-    return deviceSelected;
+    isEnabled = deviceSelected;
 }
 
 
 bool ArduinoOutput::stopAcquisition()
 {
-    arduino.sendDigital (outputChannel, ARD_LOW);
-    acquisitionIsActive = false;
+    arduino.sendDigital ((int)getParameterValue(dataStreams[0]->getStreamId(), "output_pin"), ARD_LOW);
 
     return true;
 }
@@ -201,4 +114,55 @@ bool ArduinoOutput::stopAcquisition()
 void ArduinoOutput::process (AudioSampleBuffer& buffer)
 {
     checkForEvents ();
+}
+
+
+void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket& event, int sampleNum)
+{
+    if (Event::getEventType(event) == EventChannel::TTL)
+    {
+        TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
+
+        const int eventBit = ttl->getBit() + 1;
+        const uint16 eventStream = ttl->getStreamId();
+
+        if (eventBit == int(getParameter(eventStream, "gate_bit")))
+        {
+            if (ttl->getState())
+                gateIsOpen = true;
+            else
+                gateIsOpen = false;
+        }
+
+        if (gateIsOpen)
+        {
+            if (eventBit == int(getParameter(eventStream, "input_bit")))
+            {
+
+                if (ttl->getState())
+                {
+                    arduino.sendDigital(
+                        int(getParameter(eventStream, "output_channel")), 
+                        ARD_LOW);
+                }
+                else
+                {
+                    arduino.sendDigital(
+                        int(getParameter(eventStream, "output_channel")),
+                        ARD_HIGH);
+                }
+            }
+        }
+    }
+}
+
+
+void ArduinoOutput::saveCustomParametersToXml(XmlElement* parentElement)
+{
+    parentElement->setAttribute("device", deviceString);
+}
+
+void ArduinoOutput::loadCustomParametersFromXml()
+{
+    setDevice(parametersAsXml->getStringAttribute("device", ""));
 }

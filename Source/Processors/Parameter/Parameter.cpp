@@ -89,17 +89,18 @@ CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
     uint16 streamId,
     const String& name,
     const String& description,
-    StringArray categories,
+    StringArray categories_,
     int defaultIndex,
     bool deactivateDuringAcquisition,
     bool isGlobal)
     : Parameter(processor, streamId,
-        ParameterType::BOOLEAN_PARAM,
+        ParameterType::CATEGORICAL_PARAM,
         name,
         description,
         defaultIndex,
         deactivateDuringAcquisition,
-        isGlobal)
+        isGlobal),
+    categories(categories_)
 {
 
 }
@@ -221,7 +222,7 @@ FloatParameter::FloatParameter(GenericProcessor* processor,
     bool isGlobal)
     : Parameter(processor,
         streamId,
-        ParameterType::INT_PARAM,
+        ParameterType::FLOAT_PARAM,
         name,
         description,
         defaultValue_,

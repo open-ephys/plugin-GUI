@@ -29,8 +29,6 @@
 #include "ArduinoOutput.h"
 #include <SerialLib.h>
 
-class ImageIcon;
-
 /**
 
   User interface for the ArduinoOutput processor.
@@ -40,38 +38,28 @@ class ImageIcon;
 */
 
 class ArduinoOutputEditor : public GenericEditor,
-                            public ComboBox::Listener
+                            public ComboBox::Listener//,
+                           // public Timer
 
 {
 public:
-    ArduinoOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    /** Constructor*/
+    ArduinoOutputEditor(GenericProcessor* parentNode);
+
+    /** Destructor*/
     virtual ~ArduinoOutputEditor();
 
-    void receivedEvent();
-
-    ImageIcon* icon;
-
+    /** Called when selected device is changed.*/
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
-
-    ArduinoOutput* arduino;
-
-    ofSerial serial;
 
 private:
 
-   // ScopedPointer<UtilityButton> triggerButton;
-    ScopedPointer<ComboBox> inputChannelSelector;
-    ScopedPointer<ComboBox> outputChannelSelector;
-    ScopedPointer<ComboBox> gateChannelSelector;
-    ScopedPointer<ComboBox> deviceSelector;
+    ofSerial serial;
 
-    void timerCallback();
+    ScopedPointer<ComboBox> deviceSelector;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutputEditor);
 
 };
-
-
-
 
 #endif  // __ARDUINOOUTPUTEDITOR_H_28EB4CC9__

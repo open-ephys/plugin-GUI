@@ -126,10 +126,36 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
     valueComboBox = new ComboBox(param->getName());
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
-
     addAndMakeVisible(valueComboBox);
 
-    updateView();
+    if (param->getType() == Parameter::CATEGORICAL_PARAM)
+    {
+        CategoricalParameter* p = (CategoricalParameter*)param;
+
+        offset = 1;
+
+        const StringArray& categories = p->getCategories();
+
+        for (int i = 0; i < categories.size(); i++)
+        {
+            valueComboBox->addItem(categories[i], i + offset);
+        }
+
+        valueComboBox->setSelectedId(p->getSelectedIndex() + offset, dontSendNotification);
+
+    }
+    else {
+        IntParameter* p = (IntParameter*)param;
+
+        offset = -(p->getMinValue()) + 1;
+
+        for (int i = p->getMinValue(); i <= p->getMaxValue(); i++)
+        {
+            valueComboBox->addItem(String(i), i + offset);
+        }
+
+        valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
+    }
 
     setBounds(0, 0, 80, 42);
 }
@@ -142,31 +168,19 @@ void ComboBoxParameterEditor::comboBoxChanged(ComboBox* comboBox)
 
 void ComboBoxParameterEditor::updateView()
 {
-    valueComboBox->clear();
-
     if (param->getType() == Parameter::CATEGORICAL_PARAM)
     {
         CategoricalParameter* p = (CategoricalParameter*)param;
 
-        const StringArray& categories = p->getCategories();
+        valueComboBox->setSelectedId(p->getSelectedIndex() + offset, dontSendNotification);
 
-        for (int i = 0; i < categories.size(); i++)
-            valueComboBox->addItem(categories[i], i + 1);
-
-        valueComboBox->setSelectedId(p->getSelectedIndex(), dontSendNotification);
-
-        offset = 1;
     }
     else {
         IntParameter* p = (IntParameter*)param;
 
-        offset = -(p->getMinValue()) + 1;
-
-        for (int i = p->getMinValue(); i <= p->getMaxValue(); i++)
-            valueComboBox->addItem(String(i), i + offset);
-
-        valueComboBox->setSelectedId(p->getIntValue() - offset, dontSendNotification);
+        valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
     }
+
 }
 
 void ComboBoxParameterEditor::resized()
