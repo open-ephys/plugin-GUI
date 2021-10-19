@@ -28,12 +28,6 @@
 
 #include <stdio.h>
 
-class ParameterEditor;
-class BooleanParameterEditor;
-class IntParameterEditor;
-class SelectedChannelsParameterEditor;
-class CategoricalParameterEditor;
-
 /**
     Class for holding user-definable processor parameters.
 
@@ -176,9 +170,6 @@ public:
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) override;
 
-    /** Creates an editor for this parameter*/
-    static BooleanParameterEditor* createEditor(BooleanParameter* param);
-
 };
 
 class PLUGIN_API CategoricalParameter : public Parameter
@@ -214,9 +205,6 @@ public:
 
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) override;
-
-    /** Creates an editor for this parameter*/
-    static CategoricalParameterEditor* createEditor(CategoricalParameter* param);
 
 private:
 
@@ -254,12 +242,48 @@ public:
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) override;
 
-    /** Creates an editor for this parameter*/
-    static IntParameterEditor* createEditor(IntParameter* param);
-
 private:
     int maxValue;
     int minValue;
+};
+
+class PLUGIN_API FloatParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    FloatParameter(GenericProcessor* processor,
+        uint16 streamId,
+        const String& name,
+        const String& description,
+        float defaultValue,
+        float minValue = 0.f,
+        float maxValue = 100.f,
+        float stepSize = 1.f,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as an integer*/
+    float getFloatValue();
+
+    float getMinValue() { return minValue; }
+
+    float getMaxValue() { return maxValue; }
+
+    float getStepSize() { return stepSize; }
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+private:
+    float maxValue;
+    float minValue;
+    float stepSize;
 };
 
 class PLUGIN_API SelectedChannelsParameter : public Parameter
@@ -297,9 +321,6 @@ public:
 
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) override;
-
-    /** Creates an editor for this parameter*/
-    static SelectedChannelsParameterEditor* createEditor(SelectedChannelsParameter* param);
 
 private:
 

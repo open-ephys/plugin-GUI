@@ -21,82 +21,55 @@
 */
 
 
-#include <stdio.h>
 #include "RecordControl.h"
-
 
 RecordControl::RecordControl()
     : GenericProcessor  ("Record Control")
-    , triggerChannel    (0)
 {
     setProcessorType (PROCESSOR_TYPE_UTILITY);
-}
 
+    addCategoricalParameter("trigger_type",
+        "Determines whether recording state is set or toggled by an incoming event",
+        { "Edge set", "Edge toggle" },
+        0, false, true);
 
-RecordControl::~RecordControl()
-{
+    addCategoricalParameter("edge",
+        "Determines whether recording state is changed by rising or falling events",
+        { "Rising", "Falling" },
+        0, false, true);
+
+    addIntParameter("trigger_bit", "The TTL bit that triggers a change in recording state",
+        1, 1, 16, false, false);
 }
 
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
-    editor = std::make_unique<RecordControlEditor> (this, true);
+    editor = std::make_unique<RecordControlEditor> (this);
     return editor.get();
-}
-
-
-void RecordControl::setParameter (int parameterIndex, float newValue)
-{
-    if (parameterIndex == 0)
-    {
-		triggerEvent = static_cast<int>(newValue);
-    }
-	else if (parameterIndex == 1)
-	{
-		triggerChannel = static_cast<int>(newValue);
-	}
-    else if (parameterIndex == 2)
-    {
-        triggerType = (Types)((int)newValue - 1);
-    }
-    else if (parameterIndex == 3)
-    {
-        triggerEdge = (Edges)((int)newValue - 1);
-    }
-}
-
-
-bool RecordControl::startAcquisition()
-{
-    return true;
 }
 
 
 void RecordControl::process (AudioSampleBuffer& buffer)
 {
-    checkForEvents ();
+    checkForEvents();
 }
 
 
 void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int)
 {
-	if (triggerEvent < 0) return;
 
-    if (Event::getEventType(packet) == EventChannel::TTL 
-        && eventInfo == eventChannels[triggerEvent])
+    if (Event::getEventType(packet) == EventChannel::TTL)
     {
         TTLEventPtr ttl = TTLEvent::deserialize (packet, eventInfo);
 
-		if (ttl->getBit() == triggerChannel)
+        uint16 streamId = ttl->getStreamId();
+
+		if (ttl->getBit() == ( int(getParameterValue(streamId, "Trigger Bit")) - 1))
 		{
-			int eventId = ttl->getState() ? 1 : 0;
-			int edge = triggerEdge == RISING ? 1 : 0;
-
-			const MessageManagerLock mmLock;
-
-			if (triggerType == SET)
+			if (int(getParameterValue(streamId, "Trigger Type")) == 0)
 			{
-				if (eventId == edge)
+				if (ttl->getState() == bool(getParameterValue(streamId, "Edge")))
 				{
 					CoreServices::setRecordingStatus(true);
 				}
@@ -105,7 +78,7 @@ void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacke
 					CoreServices::setRecordingStatus(false);
 				}
 			}
-			else if (triggerType == TOGGLE && eventId == edge)
+			else
 			{
 				CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
 			}

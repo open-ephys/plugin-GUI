@@ -232,6 +232,39 @@ void GenericProcessor::addIntParameter(const String& name,
 
 }
 
+
+void GenericProcessor::addFloatParameter(const String& name,
+	const String& description,
+	float defaultValue,
+	float minValue,
+	float maxValue,
+	float stepSize,
+	bool deactivateDuringAcquisition,
+	bool isGlobal)
+{
+
+	FloatParameter* p =
+		new FloatParameter(this,
+			0,
+			name,
+			description,
+			defaultValue,
+			minValue,
+			maxValue,
+			stepSize,
+			deactivateDuringAcquisition,
+			isGlobal);
+
+	availableParameters.add(p);
+
+	if (isGlobal)
+	{
+		globalParameters.add(p);
+		globalParameterMap[p->getName()] = p;
+	}
+
+}
+
 void GenericProcessor::addSelectedChannelsParameter(const String& name,
 	const String& description,
 	int maxSelectedChannels,
@@ -552,6 +585,33 @@ void GenericProcessor::update()
 						parameterMap[stream->getStreamId()][param->getName()] = param;
 					}
 					
+				}
+
+				else if (param->getType() == Parameter::FLOAT_PARAM)
+				{
+
+					if (!param->isGlobal())
+					{
+						FloatParameter* p = (FloatParameter*)param;
+						parameters.add(new FloatParameter(
+							this,
+							stream->getStreamId(),
+							p->getName(),
+							p->getDescription(),
+							p->getFloatValue(),
+							p->getMinValue(),
+							p->getMaxValue(),
+							p->getStepSize(),
+							p->shouldDeactivateDuringAcquisition(),
+							p->isGlobal()
+						));
+
+						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+					}
+					else {
+						parameterMap[stream->getStreamId()][param->getName()] = param;
+					}
+
 				}
 				else if (param->getType() == Parameter::CATEGORICAL_PARAM)
 				{

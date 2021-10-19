@@ -23,16 +23,16 @@
 
 #include "GenericEditor.h"
 
-#include "../Parameter/ParameterEditor.h"
-#include "StreamSelector.h"
-#include "DelayMonitor.h"
-#include "TTLMonitor.h"
+#include "../../CoreServices.h"
+#include "../GenericProcessor/GenericProcessor.h"
+
 #include "../ProcessorGraph/ProcessorGraph.h"
 #include "../RecordNode/RecordNode.h"
 #include "../../UI/ProcessorList.h"
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
 #include "../../UI/GraphViewer.h"
+#include "../Settings/InfoObject.h"
 
 #include <math.h>
 
@@ -100,39 +100,52 @@ int GenericEditor::getChannelDisplayNumber(int chan) const
 	return chan;
 }
 
-void GenericEditor::addDefaultParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addTextBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
     Parameter* param = getProcessor()->getParameter(parameterName);
 
-    if (param->getType() == Parameter::BOOLEAN_PARAM)
-    {
-        parameterEditors.add(BooleanParameter::createEditor((BooleanParameter*)param));
-    }
-    else if (param->getType() == Parameter::INT_PARAM)
-    {
-        parameterEditors.add(IntParameter::createEditor((IntParameter*)param));
-    }
-    else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-    {
-        parameterEditors.add(SelectedChannelsParameter::createEditor((SelectedChannelsParameter*)param));
-    }
+    addCustomParameterEditor(new TextBoxParameterEditor(param), xPos_, yPos_);
+}
 
-    ParameterEditor* ed = parameterEditors.getLast();
-    addAndMakeVisible(ed);
-    ed->setParameter(param);
+void GenericEditor::addCheckBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
 
-    std::cout << "Parameter name: " << param->getName() << std::endl;
-    std::cout << "Editor width: " << ed->getWidth() << ", editor height: " << ed->getHeight() << std::endl;
-    std::cout << "Editor xpos: " << xPos_ << ", editor ypos: " << yPos_ << std::endl;
+    Parameter* param = getProcessor()->getParameter(parameterName);
 
-    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
+    addCustomParameterEditor(new CheckBoxParameterEditor(param), xPos_, yPos_);
+}
+
+
+void GenericEditor::addSliderParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new SliderParameterEditor(param), xPos_, yPos_);
+}
+
+
+void GenericEditor::addComboBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new ComboBoxParameterEditor(param), xPos_, yPos_);
+}
+
+
+void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new SelectedChannelsParameterEditor(param), xPos_, yPos_);
 }
 
 
 void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
 {
-
     parameterEditors.add(ed);
     addAndMakeVisible(ed);
     ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());

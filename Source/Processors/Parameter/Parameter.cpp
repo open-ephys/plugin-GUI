@@ -22,9 +22,7 @@
 
 
 #include "Parameter.h"
-#include "ParameterEditor.h"
-
-//#include "ParameterHelpers.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 String Parameter::getParameterTypeString() const
 {
@@ -87,26 +85,22 @@ void BooleanParameter::fromXml(XmlElement* xml)
     currentValue = xml->getBoolAttribute(getName(), defaultValue);
 }
 
-BooleanParameterEditor* BooleanParameter::createEditor(BooleanParameter* param)
-{
-    return new BooleanParameterEditor(param);
-}
-
 CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
     uint16 streamId,
     const String& name,
     const String& description,
-    StringArray categories,
+    StringArray categories_,
     int defaultIndex,
     bool deactivateDuringAcquisition,
     bool isGlobal)
     : Parameter(processor, streamId,
-        ParameterType::BOOLEAN_PARAM,
+        ParameterType::CATEGORICAL_PARAM,
         name,
         description,
         defaultIndex,
         deactivateDuringAcquisition,
-        isGlobal)
+        isGlobal),
+    categories(categories_)
 {
 
 }
@@ -151,11 +145,6 @@ void CategoricalParameter::toXml(XmlElement* xml)
 void CategoricalParameter::fromXml(XmlElement* xml)
 {
     currentValue = xml->getIntAttribute(getName(), defaultValue);
-}
-
-CategoricalParameterEditor* CategoricalParameter::createEditor(CategoricalParameter* param)
-{
-    return new CategoricalParameterEditor(param);
 }
 
 IntParameter::IntParameter(GenericProcessor* processor,
@@ -220,9 +209,69 @@ void IntParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
-IntParameterEditor* IntParameter::createEditor(IntParameter* param)
+
+FloatParameter::FloatParameter(GenericProcessor* processor,
+    uint16 streamId,
+    const String& name,
+    const String& description,
+    float defaultValue_,
+    float minValue_,
+    float maxValue_,
+    float stepSize_,
+    bool deactivateDuringAcquisition,
+    bool isGlobal)
+    : Parameter(processor,
+        streamId,
+        ParameterType::FLOAT_PARAM,
+        name,
+        description,
+        defaultValue_,
+        deactivateDuringAcquisition,
+        isGlobal),
+    maxValue(maxValue_),
+    minValue(minValue_),
+    stepSize(stepSize_)
 {
-    return new IntParameterEditor(param);
+
+}
+
+void FloatParameter::setNextValue(var newValue_)
+{
+    if (newValue_.isDouble())
+    {
+        int value = (float) newValue_;
+
+        std::cout << "val: " << value << std::endl;
+        std::cout << "minvalue: " << minValue << std::endl;
+        std::cout << "maxvalue: " << maxValue << std::endl;
+        std::cout << "streamId: " << streamId << std::endl;
+
+        if (value < minValue)
+            newValue = minValue;
+        else if (value > maxValue)
+            newValue = maxValue;
+        else
+            newValue = value;
+
+        std::cout << "newvalue: " << (float)newValue << std::endl;
+    }
+
+    processor->parameterChangeRequest(this);
+}
+
+float FloatParameter::getFloatValue()
+{
+    return float(currentValue);
+}
+
+void FloatParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (float)currentValue);
+}
+
+void FloatParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getDoubleAttribute(getName(), defaultValue);
 }
 
 SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor_,
@@ -270,8 +319,6 @@ std::vector<bool> SelectedChannelsParameter::getChannelStates()
 }
 
 
-
-/** Gets the value as an integer*/
 Array<int> SelectedChannelsParameter::getArrayValue()
 {
     Array<int> out;
@@ -358,11 +405,6 @@ Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
     }
 
     return selectedChannels;
-}
-
-SelectedChannelsParameterEditor* SelectedChannelsParameter::createEditor(SelectedChannelsParameter* param)
-{
-    return new SelectedChannelsParameterEditor(param);
 }
 
 

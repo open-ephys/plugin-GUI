@@ -165,7 +165,7 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
-    addDefaultParameterEditor("selected_channels", 10, 35);
+    addSelectedChannelsParameterEditor("selected_channels", 10, 35);
 
     Parameter* muteParam = parentNode->getGlobalParameter("mute_audio");
     addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);

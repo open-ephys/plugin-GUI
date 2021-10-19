@@ -281,6 +281,16 @@ public:
         bool deactivateDuringAcquisition = false,
         bool isGlobal = false);
 
+    /** Adds an float parameter, which will later be accessed by name*/
+    void addFloatParameter(const String& name,
+        const String& description,
+        float defaultValue,
+        float minValue,
+        float maxValue,
+        float stepSize,
+        bool deactivateDuringAcquisition = false,
+        bool isGlobal = false);
+
     /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(const String& name,
         const String& description,

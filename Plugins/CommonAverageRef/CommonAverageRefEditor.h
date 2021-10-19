@@ -24,14 +24,7 @@
 #ifndef CommonAverageRef_EDITOR_H_INCLUDED
 #define CommonAverageRef_EDITOR_H_INCLUDED
 
-
 #include <EditorHeaders.h>
-#include <UIUtilitiesHeaders.h>
-#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
-
-class MaterialButtonLookAndFeel;
-class ParameterSlider;
-
 
 /**
    User interface for CommonAverageRef Processor.
@@ -41,43 +34,13 @@ class ParameterSlider;
 class CommonAverageRefEditor : public GenericEditor
 {
 public:
+    /** Constructor*/
     CommonAverageRefEditor (GenericProcessor* parentProcessor);
-    ~CommonAverageRefEditor();
 
-    // Component methods
-    // =========================================================
-    void paint (Graphics& g) override;
-    void resized()           override;
-
-    // Button::Listener methods
-    // ==========================================================
-    void buttonEvent (Button* button) override;
-
-    // GenericEditor methods
-    // =========================================================
-    /** This methods is called when any sliders that we are listen for change their values */
-    void sliderEvent (Slider* sliderWhichValueHasChanged) override;
-    void channelStateChanged(Array<int> selectedChannels) override;
-    void selectedStreamHasChanged() override;
-
-    /** Saving/loading parameters */
-    void saveCustomParametersToXml(XmlElement* xml) override;
-    void loadCustomParametersFromXml(XmlElement* xml) override;
+    /** Destructor*/
+    ~CommonAverageRefEditor() { }
 
 private:
-    enum ChannelsType
-    {
-        REFERENCE_CHANNELS = 0,
-        AFFECTED_CHANNELS
-    };
-
-    ChannelsType m_currentChannelsView;
-
-    ScopedPointer<LinearButtonGroupManager> m_channelSelectorButtonManager;
-    ScopedPointer<ParameterSlider>          m_gainSlider;
-
-    // LookAndFeel
-    SharedResourcePointer<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
     // =========================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CommonAverageRefEditor)
