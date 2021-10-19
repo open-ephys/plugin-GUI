@@ -62,20 +62,25 @@ void FullTimeline::paint(Graphics& g) {
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
     //Draw colored bars for each event
-    EventInfo info = fileReader->getActiveEventInfo();
+    Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
-    for (int i = 0; i < info.timestamps.size(); i++) {
-        
-        int64 ts = info.timestamps[i];
-        int16 state = info.channelStates[i];
+    for (auto info : eventInfo)
+    {
 
-        if (state == 1)
-        {
-            float timelinePos = ts / float(totalSamples) * getWidth();
-            g.setColour(Colour(224, 185, 36));
-            g.setOpacity(1.0f);
-            g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
+        for (int i = 0; i < info.timestamps.size(); i++) {
+        
+            int64 ts = info.timestamps[i];
+            int16 state = info.channelStates[i];
+
+            if (state == 1)
+            {
+                float timelinePos = ts / float(totalSamples) * getWidth();
+                g.setColour(static_cast<FileReaderEditor*>(fileReader->getEditor())->channelColours[info.channels[i]]);
+                g.setOpacity(1.0f);
+                g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
+
+            }
 
         }
 
@@ -97,7 +102,6 @@ void FullTimeline::setIntervalPosition(int min, int max)
 
     float totalTimeInSeconds = float(totalSamples) / sampleRate; 
 
-    //TODO: Check bounds here
     intervalStartPosition = min;
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
 }
@@ -205,7 +209,7 @@ void ZoomTimeline::paint(Graphics& g) {
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
     //Draw colored bars for each event
-    EventInfo info = fileReader->getActiveEventInfo();
+    Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
     int intervalStartPos = static_cast<FileReaderEditor*>(fileReader->getEditor())->getFullTimelineStartPosition();
@@ -213,17 +217,22 @@ void ZoomTimeline::paint(Graphics& g) {
     int startTimestamp = int(float(intervalStartPos) / float(getWidth()) * float(totalSamples)); 
     int stopTimestamp = startTimestamp + 30 * fileReader->getCurrentSampleRate();
 
-    for (int i = 0; i < info.timestamps.size(); i++) {
-        
-        int64 ts = info.timestamps[i];
-        int16 state = info.channelStates[i];
+    for (auto info : eventInfo) 
+    {
 
-        if (ts >= startTimestamp && ts <= stopTimestamp)
+        for (int i = 0; i < info.timestamps.size(); i++) 
         {
-            float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
-            g.setColour(Colour(224, 185, 36)); // test yellow color
-            g.setOpacity(1.0f);
-            g.fillRect(int(timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
+            
+            int64 ts = info.timestamps[i];
+            int16 state = info.channelStates[i];
+
+            if (ts >= startTimestamp && ts <= stopTimestamp)
+            {
+                float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
+                g.setColour(static_cast<FileReaderEditor*>(fileReader->getEditor())->channelColours[info.channels[i]]);
+                g.setOpacity(1.0f);
+                g.fillRect(int(timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
+            }
 
         }
 
@@ -451,6 +460,24 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     timeLimits = new DualTimeComponent (this,true);
     timeLimits->setBounds (20, 105, 175, 20);
     addAndMakeVisible (timeLimits);
+
+    //hand-built palette (used for event channels)
+    channelColours.add(Colour(224, 185, 36));
+    channelColours.add(Colour(214, 210, 182));
+    channelColours.add(Colour(243, 119, 33));
+    channelColours.add(Colour(186, 157, 168));
+    channelColours.add(Colour(237, 37, 36));
+    channelColours.add(Colour(179, 122, 79));
+    channelColours.add(Colour(217, 46, 171));
+    channelColours.add(Colour(217, 139, 196));
+    channelColours.add(Colour(101, 31, 255));
+    channelColours.add(Colour(141, 111, 181));
+    channelColours.add(Colour(48, 117, 255));
+    channelColours.add(Colour(184, 198, 224));
+    channelColours.add(Colour(116, 227, 156));
+    channelColours.add(Colour(150, 158, 155));
+    channelColours.add(Colour(82, 173, 0));
+    channelColours.add(Colour(125, 99, 32));
 
     desiredWidth = 200;
 

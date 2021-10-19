@@ -433,10 +433,9 @@ int FileReader::getPlaybackStop()
     return stopSample;
 }
 
-EventInfo FileReader::getActiveEventInfo()
+Array<EventInfo> FileReader::getActiveEventInfo()
 {
-    EventInfo info = input->getEventInfo();
-    return info;
+    return input->getEventInfo();
 }
 
 void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)

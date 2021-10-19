@@ -168,6 +168,8 @@ public:
 
     void togglePlayback();
 
+    Array<Colour> channelColours;
+
 private:
     void clearEditor();
 

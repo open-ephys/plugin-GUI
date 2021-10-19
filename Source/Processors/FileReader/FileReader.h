@@ -85,7 +85,7 @@ public:
     void setPlaybackStop(int64 timestamp);
     int getPlaybackStop();
 
-    EventInfo getActiveEventInfo();
+    Array<EventInfo> getActiveEventInfo();
 
     /** Toggles playback on/off */
     void togglePlayback();

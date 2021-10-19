@@ -91,9 +91,9 @@ int FileSource::getActiveRecord() const
     return activeRecord.get();
 }
 
-EventInfo FileSource::getEventInfo()
+Array<EventInfo> FileSource::getEventInfo()
 {
-    return eventInfoArray[0];
+    return eventInfoArray;
 }
 
 

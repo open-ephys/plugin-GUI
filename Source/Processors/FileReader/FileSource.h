@@ -78,7 +78,7 @@ public:
 
     int64 loopCount;
 
-    EventInfo getEventInfo();
+    Array<EventInfo> getEventInfo();
 
 protected:
 
