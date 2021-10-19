@@ -334,13 +334,13 @@ void FileReader::setActiveRecording (int index)
 
 void FileReader::setPlaybackStart(int64 timestamp)
 {
-    LOGD("Settings start sample: ", timestamp);
+    //LOGD("Settings start sample: ", timestamp);
     startSample = timestamp;
 }
 
 void FileReader::setPlaybackStop(int64 timestamp)
 {
-    LOGD("Settings stop sample: ", timestamp);
+    //LOGD("Settings stop sample: ", timestamp);
     stopSample = timestamp;
     currentNumScrubbedSamples = stopSample - startSample;
 }

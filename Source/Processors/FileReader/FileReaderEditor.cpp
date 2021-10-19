@@ -530,6 +530,18 @@ void FileReaderEditor::updateZoomTimeLabels()
         
         String timeString;
         
+        if (secFrac == 60)
+        {
+            secFrac = 0;
+            minFrac += 1;
+        }
+
+        if (minFrac == 60) 
+        {
+            minFrac = 0;
+            hourFrac += 1;
+        }
+
         if (hourFrac > 0)
             timeString += String(hourFrac).paddedLeft ('0', 2) + ":";
 
@@ -541,6 +553,7 @@ void FileReaderEditor::updateZoomTimeLabels()
             zoomMiddleTimeLabel->setText(timeString, juce::sendNotificationAsync);
         else
             zoomEndTimeLabel->setText(timeString, juce::sendNotificationAsync);
+
 
     }
 
@@ -775,6 +788,18 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
         if (msFrac > 0.5)
             secFrac += 1;
+
+        if (secFrac == 60)
+        {
+            secFrac = 0;
+            minFrac += 1;
+        }
+
+        if (minFrac == 60) 
+        {
+            minFrac = 0;
+            hourFrac += 1;
+        }
         
         String fullTime = String(hourFrac).paddedLeft ('0', 2) + ":" 
                         + String (minFrac).paddedLeft ('0', 2) + ":" 
