@@ -39,93 +39,45 @@ class ElectrodeButton;
 
 */
 
-class PhaseDetectorEditor : public GenericEditor,
-    public ComboBox::Listener
+class PhaseDetectorEditor : public GenericEditor
 {
 public:
-    PhaseDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    /** Constructor*/
+    PhaseDetectorEditor(GenericProcessor* parentNode);
 
-    virtual ~PhaseDetectorEditor();
-
-    void buttonEvent(Button* button);
-
-    void comboBoxChanged(ComboBox* c);
-
-    void updateSettings();
-
-    void saveCustomParameters(XmlElement* xml);
-    void loadCustomParameters(XmlElement* xml);
-
-	void startAcquisition() override;
-	void stopAcquisition() override;
+    /** Destructor*/
+    virtual ~PhaseDetectorEditor() { }
 
 private:
-
-    ScopedPointer<ComboBox> detectorSelector;
-
-    ScopedPointer<UtilityButton> plusButton;
-
-    void addDetector();
-
-    // ScopedPointer<ComboBox> inputChannelSelectionBox;
-    // ScopedPointer<ComboBox> outputChannelSelectionBox;
-
-    // ScopedPointer<Label> intputChannelLabel;
-    // ScopedPointer<Label> outputChannelLabel;
-
-    OwnedArray<DetectorInterface> interfaces;
-
-    int previousChannelCount;
-
-    Array<Colour> backgroundColours;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetectorEditor);
 
 };
 
-class DetectorInterface : public Component,
-    public ComboBox::Listener,
+class DetectorInterface : public ParameterEditor,
     public Button::Listener
 {
 public:
-    DetectorInterface(PhaseDetector*, Colour, int);
-    ~DetectorInterface();
+    /** Constructor*/
+    DetectorInterface(Parameter* param);
 
+    /** Destructor */
+    ~DetectorInterface() { }
+
+    /** Renders the interface*/
     void paint(Graphics& g);
 
-    void comboBoxChanged(ComboBox*);
+    /** Respond to button presses*/
     void buttonClicked(Button*);
 
-    void updateChannels(int);
-
-    void setPhase(int);
-    void setInputChan(int);
-    void setOutputChan(int);
-    void setGateChan(int);
-
-    int getPhase();
-    int getInputChan();
-    int getOutputChan();
-    int getGateChan();
-
-	void setEnableStatus(bool status);
+    /** Updates the view*/
+    void updateView();
 
 private:
 
-    Colour backgroundColour;
-
     Path sineWave;
-    Font font;
-
-    int idNum;
-
-    PhaseDetector* processor;
 
     OwnedArray<ElectrodeButton> phaseButtons;
-
-    ScopedPointer<ComboBox> inputSelector;
-    ScopedPointer<ComboBox> gateSelector;
-    ScopedPointer<ComboBox> outputSelector;
 
 };
 
