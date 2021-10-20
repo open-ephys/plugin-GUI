@@ -165,11 +165,9 @@ ZoomTimeline::~ZoomTimeline() {}
 
 void ZoomTimeline::updatePlaybackRegion(int min, int max) {
 
-    //TODO: Input will be start/stop time -- convert those to pixel coords here
-    //Only called when loading saved config or loading in new file
-    //Default to min and max of the zoomed timeline for now
+    //Default zoom slider region to first 10s
     leftSliderPosition = 0;
-    rightSliderPosition = getWidth() - sliderWidth;
+    rightSliderPosition = ( getWidth() - sliderWidth )  / 3.0f;
 
 }
 
