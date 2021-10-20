@@ -279,10 +279,19 @@ void ZoomTimeline::mouseDown(const MouseEvent& event) {
 
 void ZoomTimeline::mouseDrag(const MouseEvent & event) {
 
+    float regionWidth = rightSliderPosition - leftSliderPosition;
+
     if (leftSliderIsSelected) {
 
         if (event.x > sliderWidth / 2 && event.x < rightSliderPosition - sliderWidth / 2)
+        {
+
             leftSliderPosition = event.x - sliderWidth / 2;
+
+            if (rightSliderPosition < getWidth() - sliderWidth)
+
+                rightSliderPosition = leftSliderPosition + regionWidth;
+        }
 
     } else if (rightSliderIsSelected) {
 
@@ -292,8 +301,6 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event) {
     } else if (playbackRegionIsSelected) {
     
         if (leftSliderPosition >= 0 && rightSliderPosition <= getWidth() - sliderWidth) {
-
-            float regionWidth = rightSliderPosition - leftSliderPosition;
 
             if (event.x >= regionWidth / 2 + sliderWidth && event.x <= getWidth() - regionWidth / 2) {
 
