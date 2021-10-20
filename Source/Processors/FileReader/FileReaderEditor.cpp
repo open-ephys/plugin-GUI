@@ -571,12 +571,12 @@ void FileReaderEditor::setFile (String file)
         fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
 
         //Only enable scrubber interface for data files 30 seconds or longer
-        if (fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() >= 30.0f)
-            scrubDrawerButton->setVisible(true);
-        else
-            scrubDrawerButton->setVisible(true);
+        scrubDrawerButton->setVisible(false);
+        if ( scrubInterfaceVisible )
+            showScrubInterface(false);
 
-        //setEnabledState (true);
+        if (fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() > 30.0f)
+            scrubDrawerButton->setVisible(true);
     }
     else
     {
