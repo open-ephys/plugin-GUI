@@ -401,7 +401,7 @@ void LfpDisplay::refresh()
             //std::cout << "Clearing " << 0 << " to " << fillto << std::endl;
         }
         else {
-            ; // no change, do nothing
+            return; // no change, do nothing
         }
         
     }

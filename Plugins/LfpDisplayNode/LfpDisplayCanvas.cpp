@@ -1115,7 +1115,7 @@ void LfpDisplaySplitter::syncDisplay()
     for (int channel = 0; channel <= nChans; channel++)
     {
         screenBufferIndex.set(channel, 0);
-
+        lastScreenBufferIndex.set(channel, 0);
 
     }
 
