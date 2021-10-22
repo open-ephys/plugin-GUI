@@ -941,14 +941,10 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
 		m_currentMidiBuffer = &temporaryEventBuffer;
 
-		MidiBuffer::Iterator i(*originalEventBuffer);
-		MidiMessage message(0xf4);
+		for (const auto meta : *originalEventBuffer) {
 
-		int samplePosition = 0;
-		i.setNextSamplePosition(samplePosition);
+			const auto message = meta.getMessage();
 
-		while (i.getNextEvent(message, samplePosition))
-		{
 			uint16 sourceProcessorId = EventBase::getProcessorId(message);
 			uint16 sourceStreamId = EventBase::getStreamId(message);
 			uint16 sourceChannelIdx = EventBase::getChannelIndex(message);
@@ -959,7 +955,7 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 				if (eventChannel != nullptr)
 				{
-					handleEvent(eventChannel, message, samplePosition);
+					handleEvent(eventChannel, message, meta.samplePosition);
 
 					if (eventChannel->getType() == EventChannel::Type::TTL)
 					{
@@ -984,7 +980,7 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 				const SpikeChannel* spikeChannel = getSpikeChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
 
 				if (spikeChannel != nullptr)
-					handleSpike(spikeChannel, message, samplePosition);
+					handleSpike(spikeChannel, message, meta.samplePosition);
 			}
 		}
 		// Restore the original buffer pointer and, if some new events have 
@@ -994,9 +990,6 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 		if (temporaryEventBuffer.getNumEvents() > 0)
 		{
 			m_currentMidiBuffer->addEvents(temporaryEventBuffer, 0, -1, 0);
-			//std::cout << nodeId << " added " << temporaryEventBuffer.getNumEvents() << " events." << std::endl;
-		
-			temporaryEventBuffer.clear();
 		}
 			
 		return 0;
