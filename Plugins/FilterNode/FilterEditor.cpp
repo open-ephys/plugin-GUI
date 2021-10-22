@@ -27,8 +27,8 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
 {
     desiredWidth = 150;
 
-    addTextBoxParameterEditor("low_cut", 10, 25);
-    addTextBoxParameterEditor("high_cut", 10, 65);
-    addSelectedChannelsParameterEditor("channels_to_filter", 80, 65);
+    addTextBoxParameterEditor("low_cut", 10, 22);
+    addTextBoxParameterEditor("high_cut", 10, 62);
+    addSelectedChannelsParameterEditor("channels_to_filter", 10, 108);
 
 }

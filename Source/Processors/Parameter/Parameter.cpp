@@ -172,24 +172,24 @@ IntParameter::IntParameter(GenericProcessor* processor,
 
 void IntParameter::setNextValue(var newValue_)
 {
-    if (newValue_.isInt())
-    {
-        int value = (int) newValue_;
+    //if (newValue_.isInt())
+    //{
+    int value = (int) newValue_;
 
-        std::cout << "val: " << value << std::endl;
-        std::cout << "minvalue: " << minValue << std::endl;
-        std::cout << "maxvalue: " << maxValue << std::endl;
-        std::cout << "streamId: " << streamId << std::endl;
+    std::cout << "val: " << value << std::endl;
+    std::cout << "minvalue: " << minValue << std::endl;
+    std::cout << "maxvalue: " << maxValue << std::endl;
+    std::cout << "streamId: " << streamId << std::endl;
 
-        if (value < minValue)
-            newValue = minValue;
-        else if (value > maxValue)
-            newValue = maxValue;
-        else
-            newValue = value;
+    if (value < minValue)
+        newValue = minValue;
+    else if (value > maxValue)
+        newValue = maxValue;
+    else
+        newValue = value;
 
-        std::cout << "newvalue: " << (int)newValue << std::endl;
-    }
+    std::cout << "newvalue: " << value << std::endl;
+    //}
 
     processor->parameterChangeRequest(this);
 }
