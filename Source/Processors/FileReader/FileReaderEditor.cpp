@@ -128,10 +128,13 @@ void FullTimeline::mouseDrag(const MouseEvent & event) {
 
 void FullTimeline::mouseUp(const MouseEvent& event) {
 
+    //TODO: Check if another key is being pressed instead of using mouse button for dragging
     intervalIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
 
+    fileReader->loopPlayback = false;
+    
     if ( fileReader->playbackIsActive() )
     {
         fileReader->stopAcquisition();
@@ -139,7 +142,8 @@ void FullTimeline::mouseUp(const MouseEvent& event) {
     }
     else
     {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->togglePlayback();
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
+        fileReader->startAcquisition();
     }
     
 }
@@ -325,6 +329,8 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     rightSliderIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+
+    fileReader->loopPlayback = false;
     
     if ( fileReader->playbackIsActive() )
     {
@@ -333,7 +339,8 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     }
     else
     {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->togglePlayback();
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
+        fileReader->startAcquisition();
     }
     
 }
@@ -490,7 +497,6 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 
 }
 
-
 FileReaderEditor::~FileReaderEditor()
 {
 }
@@ -593,7 +599,6 @@ void FileReaderEditor::setFile (String file)
     repaint();
 }
 
-
 void FileReaderEditor::paintOverChildren (Graphics& g)
 {
     // Draw a frame around component if files are drag&dropping now
@@ -661,12 +666,6 @@ void FileReaderEditor::buttonClicked (Button* button)
 
     }
 
-}
-
-void FileReaderEditor::togglePlayback()
-{
-    fileReader->loopPlayback = false;
-    playbackButton->triggerClick();
 }
 
 void FileReaderEditor::updatePlaybackTimes()

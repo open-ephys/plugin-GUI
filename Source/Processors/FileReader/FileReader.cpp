@@ -336,6 +336,7 @@ void FileReader::setPlaybackStart(int64 timestamp)
 {
     //LOGD("Settings start sample: ", timestamp);
     startSample = timestamp;
+    this->timestamp = timestamp;
 }
 
 void FileReader::setPlaybackStop(int64 timestamp)
@@ -460,13 +461,17 @@ void FileReader::process(AudioBuffer<float>& buffer)
 
     checkForEvents();
 
-    int samplesNeededPerBuffer;
+    int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
-    // Pressing pause in the FileReader stop data streaming //
-    if (!playbackActive)
+    if (!loopPlayback && timestamp + samplesNeededPerBuffer > stopSample)
+    {
+        samplesNeededPerBuffer = stopSample - timestamp;
+        playbackActive = false;
+    }
+    else if (!playbackActive)
+    {
         samplesNeededPerBuffer = 0;
-    else
-        samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    }
     
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
@@ -497,9 +502,6 @@ void FileReader::process(AudioBuffer<float>& buffer)
     int64 stop = timestamp;
 
     addEventsInRange(start, stop);
-
-    //static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
-
 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
@@ -622,11 +624,6 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
             input->seekTo (startSample);
             currentSample = startSample;
 
-            if (!loopPlayback)
-            {
-                static_cast<FileReaderEditor*> (getEditor())->togglePlayback();
-            }
-
         }
         else // else read the block needed
         {
@@ -636,6 +633,7 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         }
         
         samplesRead += samplesToRead;
+
     }
 }
 

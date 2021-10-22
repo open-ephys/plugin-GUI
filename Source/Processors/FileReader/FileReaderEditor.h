@@ -170,6 +170,8 @@ public:
 
     Array<Colour> channelColours;
 
+    ScopedPointer<PlaybackButton>       playbackButton;
+
 private:
     void clearEditor();
 
@@ -189,7 +191,6 @@ private:
     ScopedPointer<Label>                fullEndTimeLabel;
     ScopedPointer<FullTimeline>         fullTimeline;
     ScopedPointer<ZoomTimeline>         zoomTimeline;
-    ScopedPointer<PlaybackButton>       playbackButton;
 
     FileReader* fileReader;
     unsigned int recTotalTime;
