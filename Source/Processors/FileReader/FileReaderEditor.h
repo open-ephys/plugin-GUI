@@ -42,15 +42,20 @@ class FileSource;
 
 */
 
-class PlaybackButton : public Button
+class PlaybackButton : public Button, public Timer
 {
 public:
     PlaybackButton(FileReader*);
 
     ~PlaybackButton();
+
+    void timerCallback() override;
+    
 private:
 
     FileReader* fileReader;
+
+    bool isActive;
     
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 };

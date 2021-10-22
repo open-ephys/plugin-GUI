@@ -345,12 +345,22 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     
 }
 
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback") {
+PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer() {
 
     fileReader = fr;
+
+    isActive = true;
+
 }
 
 PlaybackButton::~PlaybackButton() {}
+
+void PlaybackButton::timerCallback()
+{
+    isActive = false;
+    repaint();
+    stopTimer();
+}
 
 void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) {
 
@@ -663,6 +673,8 @@ void FileReaderEditor::buttonClicked (Button* button)
     } else if (button == playbackButton) {
 
         fileReader->togglePlayback();
+        if (fileReader->playbackIsActive())
+            playbackButton->startTimer(zoomTimeline->getIntervalDurationInSeconds()*1000 + 100);
 
     }
 
