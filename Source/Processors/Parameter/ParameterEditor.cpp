@@ -275,13 +275,14 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
     auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
 
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             button->getScreenBounds(),
             nullptr);
 
-    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+    //myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
 void SelectedChannelsParameterEditor::updateView()

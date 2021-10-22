@@ -107,10 +107,9 @@ CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
 
 void CategoricalParameter::setNextValue(var newValue_)
 {
-    if (newValue_.isInt())
-    {
-        newValue = newValue_;
-    }
+    newValue = (int) newValue_;
+    
+    std::cout << "Next categorical param value: " << int(newValue) << std::endl;
 
     processor->parameterChangeRequest(this);
 }

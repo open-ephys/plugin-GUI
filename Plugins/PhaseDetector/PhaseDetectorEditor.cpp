@@ -35,12 +35,12 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
 {
     desiredWidth = 220;
 
-    addSelectedChannelsParameterEditor("input_channel", 0, 20);
-    addComboBoxParameterEditor("output_bit", 0, 50);
-    addComboBoxParameterEditor("gate_bit", 0, 80);
+    addSelectedChannelsParameterEditor("input_channel", 120, 105);
+    addComboBoxParameterEditor("output_bit", 15, 30);
+    addComboBoxParameterEditor("gate_bit", 15, 80);
 
-    Parameter* param = getProcessor()->getParameter(0, "phase");
-    addCustomParameterEditor(new DetectorInterface(param), 100, 10);
+    Parameter* param = getProcessor()->getParameter("phase");
+    addCustomParameterEditor(new DetectorInterface(param), 110, 25);
 
 }
 
@@ -66,30 +66,46 @@ DetectorInterface::DetectorInterface(Parameter* param) : ParameterEditor(param)
         double theta = PI/2+phase*PI/2;
 
         phaseButton->setBounds(theta*12+1.0f, -sin(theta)*20 + 31, 8, 8);
-        phaseButton->setToggleState(false, dontSendNotification);
+
         phaseButton->setRadioGroupId(12);
+
+        if (phase == 0)
+            phaseButton->setToggleState(true, dontSendNotification);
+        else
+            phaseButton->setToggleState(false, dontSendNotification);
+        
         phaseButton->addListener(this);
         phaseButtons.add(phaseButton);
         addAndMakeVisible(phaseButton);
     }
 
-    setBounds(0, 0, 80, 80);
+    setBounds(0, 0, 120, 65);
 }
 
 void DetectorInterface::buttonClicked(Button* b)
 {
 
-    ElectrodeButton* pb = (ElectrodeButton*) b;
+    if (b->getState())
+    {
+        ElectrodeButton* pb = (ElectrodeButton*)b;
 
-    int i = phaseButtons.indexOf(pb);
+        int i = phaseButtons.indexOf(pb);
 
-    param->setNextValue(i);
-
+        param->setNextValue(i);
+    }
+ 
 }
 
 void DetectorInterface::updateView()
 {
-    phaseButtons[(int)param->getValue()]->setToggleState(true, dontSendNotification);
+    for (int i = 0; i < 4; i++)
+    {
+        if (i == (int)param->getValue())
+            phaseButtons[i]->setToggleState(true, dontSendNotification);
+        else
+            phaseButtons[i]->setToggleState(false, dontSendNotification);
+    }
+    
 }
 
 

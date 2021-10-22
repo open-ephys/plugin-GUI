@@ -46,10 +46,15 @@ TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
         outputBit,
         state);
 
+   // std::cout << outputBit << std::endl;
+
     if (state)
     {
         samplesSinceTrigger = 0;
         wasTriggered = true;
+    }
+    else {
+        wasTriggered = false;
     }
 
     return event;
@@ -65,9 +70,10 @@ PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
     addCategoricalParameter("phase",
         "The phase for triggering the output",
         { "PEAK",
+         "FALLING ZERO-CROSSING",
          "TROUGH",
-         "RISING ZERO-CROSSING",
-         "FALLING ZERO-CROSSING" },
+         "RISING ZERO-CROSSING"
+          },
         0);
 }
 
@@ -107,6 +113,11 @@ void PhaseDetector::updateSettings()
 
 	for (auto stream : getDataStreams())
 	{
+        // update "settings" objects
+        parameterValueChanged(getParameter(stream->getStreamId(), "phase"));
+        parameterValueChanged(getParameter(stream->getStreamId(), "input_channel"));
+        parameterValueChanged(getParameter(stream->getStreamId(), "output_bit"));
+        parameterValueChanged(getParameter(stream->getStreamId(), "gate_bit"));
 
         EventChannel::Settings s{
             EventChannel::Type::TTL,
@@ -118,7 +129,7 @@ void PhaseDetector::updateSettings()
         };
 
 		eventChannels.add(new EventChannel(s));
-		
+        eventChannels.getLast()->addProcessor(processorInfo.get());
         settings[stream->getStreamId()]->eventChannel = eventChannels.getLast();
 	}
 }
@@ -130,7 +141,7 @@ void PhaseDetector::handleEvent (const EventChannel* channelInfo, const MidiMess
 
     if (Event::getEventType(event)  == EventChannel::TTL)
     {
-		TTLEventPtr ttl = TTLEvent::deserialize(event, channelInfo);
+	    TTLEventPtr ttl = TTLEvent::deserialize(event, channelInfo);
 
         uint16 eventStream = ttl->getStreamId();
 		const int eventBit = ttl->getBit();
@@ -160,7 +171,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
             && module->triggerChannel >= 0
             && module->triggerChannel < buffer.getNumChannels())
         {
-            for (int i = 0; i < getNumSamples (module->triggerChannel); ++i)
+            for (int i = 0; i < getNumSourceSamples(stream->getStreamId()); ++i)
             {
                 const float sample = *buffer.getReadPointer (module->triggerChannel, i);
 
@@ -170,11 +181,13 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                 {
                     if (module->detectorType == PEAK)
                     {
-                        addEvent(
-                            module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true),
-                            i);
+                        TTLEventPtr ptr = module->createEvent(
+                            getTimestamp(module->triggerChannel) + i,
+                            true);
+                        
+                        addEvent(ptr, i);
+                        
+                        //LOGD("PEAK");
                     }
 
                     module->currentPhase = FALLING_POS;
@@ -185,12 +198,14 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                 {
                     if (module->detectorType == FALLING_ZERO)
                     {
-	
-                        addEvent(
-                            module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true),
-                            i);
+
+                        TTLEventPtr ptr = module->createEvent(
+                            getTimestamp(module->triggerChannel) + i,
+                            true);
+
+                        addEvent(ptr, i);
+
+                        //("FALLING ZERO");
                     }
 
                     module->currentPhase = FALLING_NEG;
@@ -202,11 +217,13 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                     if (module->detectorType == TROUGH)
                     {
 
-                        addEvent(
-                            module->createEvent(
-                                getTimestamp(module->triggerChannel) + i, 
-                                true), 
-                            i);
+                        TTLEventPtr ptr = module->createEvent(
+                            getTimestamp(module->triggerChannel) + i,
+                            true);
+
+                        addEvent(ptr, i);
+
+                        //LOGD("TROUGH");
                     }
 
                     module->currentPhase = RISING_NEG;
@@ -217,11 +234,13 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                 {
                     if (module->detectorType == RISING_ZERO)
                     {
-                        addEvent(
-                            module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true),
-                            i);
+                        TTLEventPtr ptr = module->createEvent(
+                            getTimestamp(module->triggerChannel) + i,
+                            true);
+
+                        addEvent(ptr, i);
+
+                        //LOGD("RISING ZERO");
                     }
 
                     module->currentPhase = RISING_POS;
@@ -233,11 +252,13 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                 {
                     if (module->samplesSinceTrigger > 1000)
                     {
-                        addEvent(
-                            module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                false),
-                            i);
+                        TTLEventPtr ptr = module->createEvent(
+                            getTimestamp(module->triggerChannel) + i,
+                            false);
+
+                        addEvent(ptr, i);
+
+                        //LOGD("TURNING OFF");
                     }
                     else
                     {

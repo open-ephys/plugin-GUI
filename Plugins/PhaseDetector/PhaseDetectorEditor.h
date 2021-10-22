@@ -55,7 +55,7 @@ private:
 };
 
 class DetectorInterface : public ParameterEditor,
-    public Button::Listener
+                          public Button::Listener
 {
 public:
     /** Constructor*/

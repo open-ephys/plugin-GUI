@@ -133,6 +133,8 @@ Parameter* GenericProcessor::getParameter(const String& name)
 			return param;
 	}
 
+	std::cout << "Could not find parameter named " << name << std::endl;
+
 	return nullptr;
 }
 
@@ -985,7 +987,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 					handleSpike(spikeChannel, message, samplePosition);
 			}
 		}
-		//Restore the original buffer pointer and, if some new event has been added here, copy it to the original buffer
+		// Restore the original buffer pointer and, if some new events have 
+		// been added here, copy them to the original buffer
 		m_currentMidiBuffer = originalEventBuffer;
 
 		if (temporaryEventBuffer.getNumEvents() > 0)
@@ -1003,8 +1006,11 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 void GenericProcessor::addEvent(const Event* event, int sampleNum)
 {
 	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+	
 	HeapBlock<char> buffer(size);
+
 	event->serialize(buffer, size);
+
 	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
 }
 

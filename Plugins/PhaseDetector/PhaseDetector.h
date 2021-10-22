@@ -33,7 +33,7 @@ enum PhaseType
 
 enum DetectorType
 {
-    PEAK = 0, TROUGH, RISING_ZERO, FALLING_ZERO
+    PEAK = 0, FALLING_ZERO, TROUGH, RISING_ZERO
 };
 
 /** Holds settings for one stream's phase detector*/
