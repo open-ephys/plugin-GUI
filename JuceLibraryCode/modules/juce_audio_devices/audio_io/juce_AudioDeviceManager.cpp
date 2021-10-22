@@ -793,14 +793,20 @@ void AudioDeviceManager::removeAudioCallback (AudioIODeviceCallback* callbackToR
         bool needsDeinitialising = currentAudioDevice != nullptr;
 
         {
+            //std::cout << "Requesting audio callback lock" << std::endl;
             const ScopedLock sl (audioCallbackLock);
 
             needsDeinitialising = needsDeinitialising && callbacks.contains (callbackToRemove);
+            //std::cout << "Removing matching value" << std::endl;
             callbacks.removeFirstMatchingValue (callbackToRemove);
         }
 
         if (needsDeinitialising)
+        {
+            //std::cout << "Sending device stop message" << std::endl;
             callbackToRemove->audioDeviceStopped();
+        }
+            
     }
 }
 
@@ -817,6 +823,7 @@ void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelDat
 
     if (callbacks.size() > 0)
     {
+
         AudioProcessLoadMeasurer::ScopedTimer timer (loadMeasurer);
 
         tempBuffer.setSize (jmax (1, numOutputChannels), jmax (1, numSamples), false, false, true);

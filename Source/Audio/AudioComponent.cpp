@@ -23,6 +23,8 @@
 
 
 #include "AudioComponent.h"
+#include "../AccessClass.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include <stdio.h>
 
 
@@ -170,7 +172,7 @@ void AudioComponent::restartDevice()
 void AudioComponent::stopDevice()
 {
 
-    //deviceManager.closeAudioDevice();
+    deviceManager.closeAudioDevice();
 }
 
 void AudioComponent::beginCallbacks()
@@ -203,41 +205,98 @@ void AudioComponent::beginCallbacks()
 void AudioComponent::endCallbacks()
 {
 
+
+
+   /* int64 ms = Time::getCurrentTime().toMilliseconds();
+
+    while (Time::getCurrentTime().toMilliseconds() - ms < 250)
+    {
+        //pause to let things finish up
+
+    }
+
     const MessageManagerLock mmLock; // add a lock to prevent crashes
 
-    MessageManagerLock mml (Thread::getCurrentThread());
+    MessageManagerLock mml(Thread::getCurrentThread());
 
-    if (mml.lockWasGained())
+     if (mml.lockWasGained())
+      {
+         LOGD("AUDIO COMPONENT GOT MM LOCK!");
+       }
+      else {
+         LOGD("AUDIO COMPONENT FAILED TO GET MM LOCK!");
+      }
+
+    CriticalSection& audioCallbackLock = deviceManager.getAudioCallbackLock();
+
+    if (!audioCallbackLock.tryEnter())
     {
-        LOGDD("AUDIO COMPONENT GOT LOCK!");
+        LOGD("---> Failed to enter audio callback lock");
+
+        //int64 ms = Time::getCurrentTime().toMilliseconds();
+
+         //while (Time::getCurrentTime().toMilliseconds() - ms < 250)
+         //{
+              // pause to let things finish up
+//
+         // }
+
+       // endCallbacks();
+       // return;
+    }
+    else {
+        LOGD("---> Got audio callback lock.");
     }
 
-    MessageManager* mm = MessageManager::getInstance();
-
-    if (mm->isThisTheMessageThread())
-    {
-        LOGDD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
-    }
-    else
-    {
-        LOGDD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
-    }
-
+    audioCallbackLock.exit();*/
 
     LOGD("Removing audio callback.");
-    // FIXME: Can hang here when stopping acquisition/recording
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
+    LOGD("Stopping device.");
     stopDevice();
 
-    int64 ms = Time::getCurrentTime().toMilliseconds();
+    //const MessageManagerLock mmLock; // add a lock to prevent crashes
 
-    while (Time::getCurrentTime().toMilliseconds() - ms < 50)
+   // 
+
+    //if (mml.lockWasGained())
+    //{
+    //    LOGD("AUDIO COMPONENT GOT LOCK!");
+   // }
+   /// else {
+    //    endCallbacks();
+   // }
+
+   /* MessageManager* mm = MessageManager::getInstance();
+
+    if (mm->isThisTheMessageThread())
     {
-        // pause to let things finish up
-
+        LOGD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
     }
+    else
+    {
+        LOGD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
+    }*/
+
+
+    
+    // FIXME: Can hang here when stopping acquisition/recording
+    // -- seems to be related to ProcessorGraphHttpServer class
+
+   // AccessClass::getProcessorGraph()->disableHttpServer();
+
+    //
+    //
+
+
+
+    
+
+   // 
+
+    //AccessClass::getProcessorGraph()->enableHttpServer();
 
 
 }

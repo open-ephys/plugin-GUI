@@ -911,25 +911,29 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
         
         if (outputNodeId == MESSAGE_CENTER_ID)
         {
-            if (inputProcessor->getDestNode()->isMerger())
+            if (inputProcessor->getDestNode() != nullptr)
             {
-                Merger* merger = (Merger*)inputProcessor->getDestNode();
-
-                if (merger->getSourceNode(0) == inputProcessor)
+                if (inputProcessor->getDestNode()->isMerger())
                 {
-                    return true;
+                    Merger* merger = (Merger*)inputProcessor->getDestNode();
+
+                    if (merger->getSourceNode(0) == inputProcessor)
+                    {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
                 }
                 else {
-                    return false;
+
+                    if (inputProcessor->isMerger())
+                        return true;
+                    else
+                        return false;
                 }
             }
-            else {
-
-                if (inputProcessor->isMerger())
-                    return true;
-                else
-                    return false;
-            }
+            
         }
 
         if (inputIndex == -1)
@@ -1568,6 +1572,11 @@ void ProcessorGraph::startAcquisition()
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             p->startAcquisition();
+
+            if (p->getEditor() != nullptr)
+            {
+                p->getEditor()->editorStartAcquisition();
+            }
         }
     }
 
@@ -1596,8 +1605,13 @@ void ProcessorGraph::stopAcquisition()
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
             LOGD("Disabling ", p->getName());
 
-			if (node->nodeID != NodeID(MESSAGE_CENTER_ID))
-				allClear = p->stopAcquisition();
+            if (p->getEditor() != nullptr)
+            {                
+                p->getEditor()->editorStopAcquisition();
+            }
+
+            allClear = p->stopAcquisition();
+				
 
         }
     }

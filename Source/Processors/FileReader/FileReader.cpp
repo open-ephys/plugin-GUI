@@ -222,7 +222,7 @@ bool FileReader::startAcquisition()
 
 bool FileReader::stopAcquisition()
 {
-	stopThread(100);
+	stopThread(500);
 	return true;
 }
 
@@ -455,14 +455,14 @@ String FileReader::handleConfigMessage(String msg)
     return "File Reader received config: " + msg;
 }
 
-void FileReader::process (AudioBuffer<float>& buffer)
+void FileReader::process(AudioBuffer<float>& buffer)
 {
 
     checkForEvents();
 
     int samplesNeededPerBuffer;
 
-    /* Pressing pause in the FileReader stop data streaming */
+    // Pressing pause in the FileReader stop data streaming //
     if (!playbackActive)
         samplesNeededPerBuffer = 0;
     else
@@ -498,7 +498,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     addEventsInRange(start, stop);
 
-    static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
+    //static_cast<FileReaderEditor*> (getEditor())->setCurrentTime(samplesToMilliseconds(startSample + timestamp % (stopSample - startSample)));
 
 
     bufferCacheWindow += 1;

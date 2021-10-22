@@ -43,13 +43,13 @@ PlayButton::PlayButton()
     Path p;
     p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
     normal.setPath(p);
-    normal.setFill(Colours::lightgrey);
+    normal.setFill(Colours::grey);
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
     over.setFill(Colours::black);
+    over.setStrokeThickness(2.0f);
     over.setStrokeFill(Colours::black);
-    over.setStrokeThickness(5.0f);
 
     down.setPath(p);
     down.setFill(Colours::pink);
@@ -57,11 +57,10 @@ PlayButton::PlayButton()
     down.setStrokeThickness(5.0f);
 
     setImages(&normal, &over, &over);
-    // setBackgroundColours(Colours::darkgrey, Colours::yellow);
+    setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
+    setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop acquisition");
-
-
 }
 
 PlayButton::~PlayButton()
@@ -77,7 +76,7 @@ RecordButton::RecordButton()
     Path p;
     p.addEllipse(0.0,0.0,20.0,20.0);
     normal.setPath(p);
-    normal.setFill(Colours::lightgrey);
+    normal.setFill(Colours::grey);
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
@@ -86,7 +85,8 @@ RecordButton::RecordButton()
     over.setStrokeThickness(5.0f);
 
     setImages(&normal, &over, &over);
-    //setBackgroundColours(Colours::darkgrey, Colours::red);
+    setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
+    setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop writing to disk");
 }
@@ -534,13 +534,15 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
         graph->updateConnections();
         graph->startAcquisition();
 
+        playButton->getNormalImage()->replaceColour(Colours::grey, Colours::yellow);
+
         if (recordingShouldAlsoStart)
         {
             startRecording();
             playButton->setToggleState(true, dontSendNotification);
         }
 
-        audio->beginCallbacks(); // renders audiolaunches acquisition
+        audio->beginCallbacks(); // starts acquisition callbacks
 
         masterClock->start(); // starts the clock
         audioEditor->disable();
@@ -561,8 +563,11 @@ void ControlPanel::stopAcquisition()
         stopRecording();
     }
 
-    audio->endCallbacks();
     graph->stopAcquisition();
+
+    audio->endCallbacks();
+    
+    playButton->getNormalImage()->replaceColour(Colours::yellow, Colours::grey);
 
     refreshMeters();
 
@@ -1010,10 +1015,12 @@ void ControlPanel::disableCallbacks()
 
     if (audio->callbacksAreActive())
     {
+        graph->stopAcquisition();
+
         LOGD("Stopping audio.");
         audio->endCallbacks();
         LOGD("Disabling processors.");
-        graph->stopAcquisition();
+        
         LOGD("Updating control panel.");
         refreshMeters();
         stopTimer();
