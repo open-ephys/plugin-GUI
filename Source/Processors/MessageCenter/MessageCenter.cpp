@@ -55,7 +55,7 @@ MessageCenter::~MessageCenter()
 
 void MessageCenter::addSpecialProcessorChannels() 
 {
-   /* processorInfo.reset();
+    processorInfo.reset();
     processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
 
     if (dataStreams.size() == 0)
@@ -84,7 +84,7 @@ void MessageCenter::addSpecialProcessorChannels()
         eventChannels.getLast()->addProcessor(processorInfo.get());
 
         updateChannelIndexMaps();
-    }*/
+    }
     
 }
 

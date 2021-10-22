@@ -1538,7 +1538,7 @@ bool ProcessorGraph::isReady()
     }
 
     LOGD("Checking that all processors are enabled...");
-
+    
     for (int i = 0; i < getNumNodes(); i++)
     {
 
@@ -1564,6 +1564,7 @@ void ProcessorGraph::startAcquisition()
 {
 
     LOGD("ProcessorGraph starting acquisition...");
+
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);

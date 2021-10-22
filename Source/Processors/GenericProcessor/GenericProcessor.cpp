@@ -520,12 +520,12 @@ void GenericProcessor::update()
 	{
 		// connect first processor in signal chain to message center
 
-		//const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+		const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
 
-		//eventChannels.add(new EventChannel(*messageChannel));
-		//eventChannels.getLast()->addProcessor(processorInfo.get());
+		eventChannels.add(new EventChannel(*messageChannel));
+		eventChannels.getLast()->addProcessor(processorInfo.get());
 
-		//std::cout << getNodeId() << " connected to Message Center" << std::endl;
+		std::cout << getNodeId() << " connected to Message Center" << std::endl;
 	}
 
 	updateChannelIndexMaps();
