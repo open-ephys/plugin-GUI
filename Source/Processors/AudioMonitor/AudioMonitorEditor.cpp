@@ -167,10 +167,10 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
     
     addSelectedChannelsParameterEditor("selected_channels", 10, 35);
 
-    Parameter* muteParam = parentNode->getGlobalParameter("mute_audio");
+    Parameter* muteParam = parentNode->getParameter("mute_audio");
     addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);
 
-    Parameter* outputParam = parentNode->getGlobalParameter("audio_output");
+    Parameter* outputParam = parentNode->getParameter("audio_output");
     addCustomParameterEditor(new AudioOutputSelector(outputParam), 20, 65);
 
     spikeChan = std::make_unique<ComboBox>("Spike Channels");

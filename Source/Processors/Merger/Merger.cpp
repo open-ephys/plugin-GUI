@@ -251,7 +251,7 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
     mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
-void Merger::loadCustomParametersFromXml()
+void Merger::loadCustomParametersFromXml(XmlElement* xml)
 {
     
 }

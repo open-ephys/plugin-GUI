@@ -70,7 +70,7 @@ public:
     FilterNode();
 
     /** The class destructor, used to deallocate memory. */
-    ~FilterNode();
+    virtual ~FilterNode() { }
 
     /** Creates the FilterEditor. */
     AudioProcessorEditor* createEditor() override;
@@ -100,9 +100,6 @@ private:
     StreamSettings<BandpassFilterSettings> settings;
 
     void setFilterParameters (double, double, int);
-
-    uint16 currentStream;
-    int currentChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 };

@@ -49,30 +49,38 @@ public:
     {
         BOOLEAN_PARAM = 1,
         CATEGORICAL_PARAM,
+        STRING_PARAM,
         FLOAT_PARAM,
         INT_PARAM,
         SELECTED_CHANNELS_PARAM
     };
+    
+    enum ParameterScope
+    {
+        GLOBAL_SCOPE = 1,
+        STREAM_SCOPE,
+        EVENT_CHANNEL_SCOPE,
+        CONTINUOUS_CHANNEL_SCOPE,
+        SPIKE_CHANNEL_SCOPE
+    };
 
     /** Parameter constructor.*/
     Parameter(GenericProcessor* processor_,
-        uint16 streamId_,
         ParameterType type_,
+        ParameterScope scope_,
         const String& name_,
         const String& description_,
         var defaultValue_,
-        bool deactivateDuringAcquisition_ = false,
-        bool isGlobal_ = false) 
+        bool deactivateDuringAcquisition_ = false)
       : processor(processor_),
-        streamId(streamId_),
         m_parameterType(type_),
+        m_parameterScope(scope_),
         m_name(name_),
         m_description(description_),
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
         newValue(defaultValue_),
-        m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
-        m_isGlobal(isGlobal_)
+        m_deactivateDuringAcquisition(deactivateDuringAcquisition_)
     {
 
     }
@@ -87,6 +95,9 @@ public:
 
     /** Returns the type of the parameter. */
     ParameterType getType() const noexcept { return m_parameterType; }
+    
+    /** Returns the scope of the parameter. */
+    ParameterScope getScope() const noexcept { return m_parameterScope; }
 
     /** Returns the streamId for this parameter*/
     uint16 getStreamId() { return streamId; }
@@ -114,7 +125,7 @@ public:
     }
 
     /** Determines whether this parameter is global, or unique for individual data streams*/
-    bool isGlobal() { return m_isGlobal;  }
+    //bool isGlobal() { return m_isGlobal;  }
 
     /** Returns a string describing this parameter's type*/
     String getParameterTypeString() const;
@@ -124,6 +135,9 @@ public:
 
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) = 0;
+    
+    /** Returns the value as a string**/
+    virtual String getValueAsString() = 0;
 
 protected:
 
@@ -137,11 +151,11 @@ protected:
 private:
 
     ParameterType m_parameterType;
+    ParameterScope m_parameterScope;
     String m_name;
     String m_description;
 
     bool m_deactivateDuringAcquisition;
-    bool m_isGlobal;
 
 };
 
@@ -151,18 +165,20 @@ class PLUGIN_API BooleanParameter : public Parameter
 public:
     /** Parameter constructor.*/
     BooleanParameter(GenericProcessor* processor,
-        uint16 streamId,
+        ParameterScope scope,
         const String& name,
         const String& description,
         bool defaultValue,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
     virtual void setNextValue(var newValue);
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -177,13 +193,12 @@ class PLUGIN_API CategoricalParameter : public Parameter
 public:
     /** Parameter constructor.*/
     CategoricalParameter(GenericProcessor* processor,
-        uint16 streamId,
+        ParameterScope scope,
         const String& name,
         const String& description,
         StringArray categories,
         int defaultIndex,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
     virtual void setNextValue(var newValue);
@@ -193,6 +208,9 @@ public:
 
     /** Gets the index as an integer*/
     String getSelectedString();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
 
     /** Updates the categories*/
     void setCategories(StringArray categories);
@@ -217,20 +235,22 @@ class PLUGIN_API IntParameter : public Parameter
 public:
     /** Parameter constructor.*/
     IntParameter(GenericProcessor* processor,
-        uint16 streamId, 
+        ParameterScope scope,
         const String& name,
         const String& description,
         int defaultValue,
         int minValue = 0,
         int maxValue = 100,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
     virtual void setNextValue(var newValue) override;
 
     /** Gets the value as an integer*/
     int getIntValue();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
 
     int getMinValue() { return minValue; }
 
@@ -247,26 +267,56 @@ private:
     int minValue;
 };
 
+
+class PLUGIN_API StringParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    StringParameter(GenericProcessor* processor,
+        ParameterScope scope,
+        const String& name,
+        const String& description,
+        String defaultValue,
+        bool deactivateDuringAcquisition = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as an integer*/
+    String getStringValue();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+};
+
 class PLUGIN_API FloatParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
     FloatParameter(GenericProcessor* processor,
-        uint16 streamId,
+        ParameterScope scope,
         const String& name,
         const String& description,
         float defaultValue,
         float minValue = 0.f,
         float maxValue = 100.f,
         float stepSize = 1.f,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
     virtual void setNextValue(var newValue) override;
 
     /** Gets the value as an integer*/
     float getFloatValue();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
 
     float getMinValue() { return minValue; }
 
@@ -291,13 +341,12 @@ class PLUGIN_API SelectedChannelsParameter : public Parameter
 public:
     /** Parameter constructor.*/
     SelectedChannelsParameter(GenericProcessor* processor,
-        uint16 streamId,
+        ParameterScope scope,
         const String& name,
         const String& description,
         Array<var> defaultValue,
         int maxSelectableChannels = std::numeric_limits<int>::max(),
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
     virtual void setNextValue(var newValue) override;
@@ -312,6 +361,9 @@ public:
     
     /** Returns a vector of channel selection states (true or false)*/
     std::vector<bool> getChannelStates();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
 
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count) { channelCount = count; }

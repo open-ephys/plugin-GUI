@@ -1522,7 +1522,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     //disconnectNode(nodeId);
     Node::Ptr node = removeNode(nodeId);
-    node.reset();
+    //node.reset();
 }
 
 bool ProcessorGraph::isReady()

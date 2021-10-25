@@ -365,35 +365,7 @@ bool LoadPluginSettings::perform()
         LOGDD("Setting parameters");
         processor->parametersAsXml = newSettings;
         LOGDD("Loading parameters");
-        processor->loadCustomParametersFromXml();
-
-        // need to replicate internals of loadFromXml(), because this can't be called twice for the
-        // the same processor
-        
-        // load editor parameters
-        forEachXmlChildElement(*newSettings, xmlNode)
-        {
-            if (xmlNode->hasTagName("EDITOR"))
-            {
-                processor->getEditor()->loadCustomParametersFromXml(xmlNode);
-            }
-        }
-
-        forEachXmlChildElement(*newSettings, xmlNode)
-        {
-            if (xmlNode->hasTagName("CHANNEL"))
-            {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObject::CONTINUOUS_CHANNEL);
-            }
-            else if (xmlNode->hasTagName("EVENTCHANNEL"))
-            {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObject::EVENT_CHANNEL);
-            }
-            else if (xmlNode->hasTagName("SPIKECHANNEL"))
-            {
-                processor->loadChannelParametersFromXml(xmlNode, InfoObject::SPIKE_CHANNEL);
-            }
-        }
+        processor->loadFromXml();
         
         AccessClass::getProcessorGraph()->updateViews(processor);
         
@@ -413,32 +385,7 @@ bool LoadPluginSettings::undo()
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
     
     processor->parametersAsXml = oldSettings;
-    processor->loadCustomParametersFromXml();
-
-    // load editor parameters
-    forEachXmlChildElement(*oldSettings, xmlNode)
-    {
-        if (xmlNode->hasTagName("EDITOR"))
-        {
-            processor->getEditor()->loadCustomParametersFromXml(xmlNode);
-        }
-    }
-
-    forEachXmlChildElement(*oldSettings, xmlNode)
-    {
-        if (xmlNode->hasTagName("CHANNEL"))
-        {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObject::CONTINUOUS_CHANNEL);
-        }
-        else if (xmlNode->hasTagName("EVENTCHANNEL"))
-        {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObject::EVENT_CHANNEL);
-        }
-        else if (xmlNode->hasTagName("SPIKECHANNEL"))
-        {
-            processor->loadChannelParametersFromXml(xmlNode, InfoObject::SPIKE_CHANNEL);
-        }
-    }
+    processor->loadFromXml();
     
     AccessClass::getProcessorGraph()->updateViews(processor);
     

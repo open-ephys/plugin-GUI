@@ -43,19 +43,18 @@ String Parameter::getParameterTypeString() const
 }
 
 BooleanParameter::BooleanParameter(GenericProcessor* processor,
-    uint16 streamId, 
+    ParameterScope scope,
     const String& name,
     const String& description,
-    bool defaultValue_,
-    bool deactivateDuringAcquisition,
-    bool isGlobal) 
-    : Parameter(processor, streamId,
+    bool defaultValue,
+    bool deactivateDuringAcquisition)
+    : Parameter(processor,
                 ParameterType::BOOLEAN_PARAM,
+                scope,
                 name,
                 description,
-                defaultValue_,
-                deactivateDuringAcquisition,
-                isGlobal)
+                defaultValue,
+                deactivateDuringAcquisition)
 {
 
 }
@@ -75,6 +74,16 @@ bool BooleanParameter::getBoolValue()
     return (bool)currentValue;
 }
 
+String BooleanParameter::getValueAsString()
+{
+    if ((bool) currentValue)
+    {
+        return "true";
+    } else {
+        return "false";
+    }
+}
+
 void BooleanParameter::toXml(XmlElement* xml) 
 {
     xml->setAttribute(getName(), (bool) currentValue);
@@ -86,20 +95,19 @@ void BooleanParameter::fromXml(XmlElement* xml)
 }
 
 CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
-    uint16 streamId,
+    ParameterScope scope,
     const String& name,
     const String& description,
     StringArray categories_,
     int defaultIndex,
-    bool deactivateDuringAcquisition,
-    bool isGlobal)
-    : Parameter(processor, streamId,
+    bool deactivateDuringAcquisition)
+    : Parameter(processor,
         ParameterType::CATEGORICAL_PARAM,
+        scope,
         name,
         description,
         defaultIndex,
-        deactivateDuringAcquisition,
-        isGlobal),
+        deactivateDuringAcquisition),
     categories(categories_)
 {
 
@@ -124,6 +132,10 @@ String CategoricalParameter::getSelectedString()
     return categories[currentValue];
 }
 
+String CategoricalParameter::getValueAsString()
+{
+    return getSelectedString();
+}
 
 const StringArray& CategoricalParameter::getCategories()
 {
@@ -147,22 +159,20 @@ void CategoricalParameter::fromXml(XmlElement* xml)
 }
 
 IntParameter::IntParameter(GenericProcessor* processor,
-    uint16 streamId, 
+    ParameterScope scope,
     const String& name,
     const String& description,
     int defaultValue_,
     int minValue_,
     int maxValue_,
-    bool deactivateDuringAcquisition,
-    bool isGlobal)
+    bool deactivateDuringAcquisition)
     : Parameter(processor,
-        streamId,
         ParameterType::INT_PARAM,
+        scope,
         name,
         description,
         defaultValue_,
-        deactivateDuringAcquisition,
-        isGlobal),
+        deactivateDuringAcquisition),
     maxValue(maxValue_),
     minValue(minValue_)
 {
@@ -198,6 +208,11 @@ int IntParameter::getIntValue()
     return int(currentValue);
 }
 
+String IntParameter::getValueAsString()
+{
+    return String(getIntValue());
+}
+
 void IntParameter::toXml(XmlElement* xml)
 {
     xml->setAttribute(getName(), (int) currentValue);
@@ -208,25 +223,67 @@ void IntParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
+StringParameter::StringParameter(GenericProcessor* processor,
+    ParameterScope scope,
+    const String& name,
+    const String& description,
+    String defaultValue_,
+    bool deactivateDuringAcquisition)
+    : Parameter(processor,
+        ParameterType::INT_PARAM,
+        scope,
+        name,
+        description,
+        defaultValue_,
+        deactivateDuringAcquisition)
+{
+
+}
+
+void StringParameter::setNextValue(var newValue_)
+{
+    newValue = (String) newValue_;
+
+    processor->parameterChangeRequest(this);
+}
+
+String StringParameter::getStringValue()
+{
+    return String(currentValue);
+}
+
+String StringParameter::getValueAsString()
+{
+    return getStringValue();
+}
+
+void StringParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (String) currentValue);
+}
+
+void StringParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getStringAttribute(getName(), defaultValue);
+}
+
 
 FloatParameter::FloatParameter(GenericProcessor* processor,
-    uint16 streamId,
+    ParameterScope scope,
     const String& name,
     const String& description,
     float defaultValue_,
     float minValue_,
     float maxValue_,
     float stepSize_,
-    bool deactivateDuringAcquisition,
-    bool isGlobal)
+    bool deactivateDuringAcquisition)
     : Parameter(processor,
-        streamId,
         ParameterType::FLOAT_PARAM,
+        scope,
         name,
         description,
         defaultValue_,
-        deactivateDuringAcquisition,
-        isGlobal),
+        deactivateDuringAcquisition),
     maxValue(maxValue_),
     minValue(minValue_),
     stepSize(stepSize_)
@@ -263,6 +320,11 @@ float FloatParameter::getFloatValue()
     return float(currentValue);
 }
 
+String FloatParameter::getValueAsString()
+{
+    return String(getFloatValue());
+}
+
 void FloatParameter::toXml(XmlElement* xml)
 {
     xml->setAttribute(getName(), (float)currentValue);
@@ -274,21 +336,19 @@ void FloatParameter::fromXml(XmlElement* xml)
 }
 
 SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor_,
-    uint16 streamId,
+    ParameterScope scope,
     const String& name,
     const String& description,
     Array<var> defaultValue_,
     int maxSelectableChannels_,
-    bool deactivateDuringAcquisition,
-    bool isGlobal)
+    bool deactivateDuringAcquisition)
     : Parameter(processor_,
-        streamId,
         ParameterType::SELECTED_CHANNELS_PARAM,
+        scope,
         name,
         description,
         defaultValue_,
-        deactivateDuringAcquisition,
-        isGlobal),
+        deactivateDuringAcquisition),
     maxSelectableChannels(maxSelectableChannels_),
     channelCount(0)
 {
@@ -328,6 +388,14 @@ Array<int> SelectedChannelsParameter::getArrayValue()
     }
 
     return out;
+}
+
+String SelectedChannelsParameter::getValueAsString()
+{
+    if (maxSelectableChannels < channelCount)
+        return selectedChannelsToString();
+    else
+        return maskChannelsToString();
 }
 
 void SelectedChannelsParameter::toXml(XmlElement* xml)

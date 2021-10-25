@@ -70,17 +70,11 @@ FilterNode::FilterNode()
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
 
-    addIntParameter("high_cut", "Filter high cut", 6000, 1, 15000, false);
-    addIntParameter("low_cut", "Filter low cut", 300, 1, 15000, false);
-    addSelectedChannelsParameter("channels_to_filter", "Channels to filter for this stream");
+    addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
+    addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,"channels_to_filter", "Channels to filter for this stream");
 
 }
-
-
-FilterNode::~FilterNode()
-{
-}
-
 
 AudioProcessorEditor* FilterNode::createEditor()
 {
@@ -156,8 +150,8 @@ void FilterNode::updateSettings()
         settings[stream->getStreamId()]->createFilters(
             stream->getChannelCount(), 
             stream->getSampleRate(),
-            getParameterValue(stream->getStreamId(), "low_cut"),
-            getParameterValue(stream->getStreamId(), "high_cut")
+            getParameter(stream->getStreamId(), "low_cut")->getValue(),
+            getParameter(stream->getStreamId(), "high_cut")->getValue()
         );
     }
 }
@@ -165,15 +159,15 @@ void FilterNode::updateSettings()
 
 void FilterNode::parameterValueChanged(Parameter* param)
 {
-    currentStream = param->getStreamId();
+    uint16 currentStream = param->getStreamId();
 
     std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
     if (param->getName().equalsIgnoreCase("low_cut") || param->getName().equalsIgnoreCase("low_cut"))
     {
         settings[currentStream]->updateFilters(
-            getParameterValue(currentStream, "low_cut"),
-            getParameterValue(currentStream, "high_cut")
+            getParameter(currentStream, "low_cut")->getValue(),
+            getParameter(currentStream, "high_cut")->getValue()
             );
     }
 }
@@ -188,10 +182,10 @@ void FilterNode::process (AudioSampleBuffer& buffer)
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
-            for (int i = 0; i < getParameterValue(stream->getStreamId(), "channels_to_filter").getArray()->size(); i++)
+            for (int i = 0; i < getParameter(stream->getStreamId(), "channels_to_filter")->getValue().getArray()->size(); i++)
             {
 
-                int localIndex = getParameterValue(stream->getStreamId(), "channels_to_filter")[i];
+                int localIndex = getParameter(stream->getStreamId(), "channels_to_filter")->getValue()[i];
 
                 int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 

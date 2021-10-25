@@ -27,21 +27,22 @@
 TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEditor(param)
 {
     jassert(param->getType() == Parameter::FLOAT_PARAM
-        || param->getType() == Parameter::INT_PARAM);
+        || param->getType() == Parameter::INT_PARAM
+        || param->getType() == Parameter::STRING_PARAM);
 
-    parameterNameLabel = new Label("Parameter name", param->getName());
+    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
     parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel);
+    addAndMakeVisible(parameterNameLabel.get());
 
-    valueTextBox = new Label("Parameter value", String(int(param->getValue())));
+    valueTextBox = std::make_unique<Label>("Parameter value", String(int(param->getValue())));
     valueTextBox->setFont(Font("Default", 15, Font::plain));
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
     valueTextBox->setEditable(true);
     valueTextBox->addListener(this);
     valueTextBox->setTooltip(param->getDescription());
-    addAndMakeVisible(valueTextBox);
+    addAndMakeVisible(valueTextBox.get());
 
     setBounds(0, 0, 80, 42);
 }
@@ -55,21 +56,23 @@ void TextBoxParameterEditor::labelTextChanged(Label* label)
 
 void TextBoxParameterEditor::updateView()
 {
+    
     if (param != nullptr)
     {
         std::cout << "Updating view: " << std::endl;
         std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
         std::cout << "Value: " << int(param->getValue()) << std::endl;
-        std::cout << "streamId: " << param->getStreamId() << std::endl;
 
+        
         valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
     }
+
 }
 
 void TextBoxParameterEditor::resized()
 {
     parameterNameLabel->setBounds(0, 0, 80, 20);
-    valueTextBox->setBounds(0, 22, 60, 18);
+    valueTextBox->setBounds(0, 22, getWidth(), 18);
 }
 
 
@@ -78,16 +81,16 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
-    parameterNameLabel = new Label("Parameter name", param->getName());
+    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
     parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel);
+    addAndMakeVisible(parameterNameLabel.get());
 
-    valueCheckBox = new ToggleButton("Parameter value");
+    valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
     valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
     valueCheckBox->addListener(this);
     valueCheckBox->setTooltip(param->getDescription());
-    addAndMakeVisible(valueCheckBox);
+    addAndMakeVisible(valueCheckBox.get());
 
     setBounds(0, 0, 80, 42);
 
@@ -102,6 +105,8 @@ void CheckBoxParameterEditor::updateView()
 {
     if (param != nullptr)
         valueCheckBox->setToggleState(param->getValue(), dontSendNotification);
+    
+    repaint();
 }
 
 void CheckBoxParameterEditor::resized()
@@ -118,15 +123,15 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    parameterNameLabel = new Label("Parameter name", param->getName());
+    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
     parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel);
+    addAndMakeVisible(parameterNameLabel.get());
 
-    valueComboBox = new ComboBox(param->getName());
+    valueComboBox = std::make_unique<ComboBox>(param->getName());
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
-    addAndMakeVisible(valueComboBox);
+    addAndMakeVisible(valueComboBox.get());
 
     if (param->getType() == Parameter::CATEGORICAL_PARAM)
     {
@@ -180,6 +185,8 @@ void ComboBoxParameterEditor::updateView()
 
         valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
     }
+    
+    repaint();
 
 }
 
@@ -197,15 +204,15 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    parameterNameLabel = new Label("Parameter name", param->getName());
+    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
     parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel);
+    addAndMakeVisible(parameterNameLabel.get());
 
-    valueSlider = new Slider("Parameter value");
+    valueSlider = std::make_unique<Slider>("Parameter value");
     valueSlider->addListener(this);
     valueSlider->setTooltip(param->getDescription());
-    addAndMakeVisible(valueSlider);
+    addAndMakeVisible(valueSlider.get());
 
     if (param->getType() == Parameter::FLOAT_PARAM)
     {
@@ -234,6 +241,8 @@ void SliderParameterEditor::updateView()
 {
     if (param != nullptr)
         valueSlider->setValue(param->getValue(), dontSendNotification);
+    
+    repaint();
 }
 
 void SliderParameterEditor::resized()

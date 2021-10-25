@@ -364,24 +364,22 @@ void SourceNode::saveCustomParametersToXml (XmlElement* parentElement)
 }
 
 
-void SourceNode::loadCustomParametersFromXml()
+void SourceNode::loadCustomParametersFromXml(XmlElement* xml)
 {
-    if (parametersAsXml != nullptr)
-    {
-        // use parametersAsXml to restore state
-        forEachXmlChildElement (*parametersAsXml, xmlNode)
-        {
-            if (xmlNode->hasTagName ("CHANNEL_INFO"))
-            {
-                forEachXmlChildElementWithTagName (*xmlNode, chan, "CHANNEL")
-                {
-                    const int number = chan->getIntAttribute ("number");
-                    const float gain = chan->getDoubleAttribute ("gain");
-                    String name = chan->getStringAttribute ("name");
 
-                   // dataThread->modifyChannelGain (number, gain);
-                   // dataThread->modifyChannelName (number, name);
-                }
+    // use parametersAsXml to restore state
+    forEachXmlChildElement (*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName ("CHANNEL_INFO"))
+        {
+            forEachXmlChildElementWithTagName (*xmlNode, chan, "CHANNEL")
+            {
+                const int number = chan->getIntAttribute ("number");
+                const float gain = chan->getDoubleAttribute ("gain");
+                String name = chan->getStringAttribute ("name");
+
+               // dataThread->modifyChannelGain (number, gain);
+               // dataThread->modifyChannelName (number, name);
             }
         }
     }

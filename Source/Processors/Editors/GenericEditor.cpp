@@ -1040,6 +1040,9 @@ void GenericEditor::updateSettings() {}
 
 void GenericEditor::updateView()
 {
+
+    const MessageManagerLock mml;
+    
     for (auto ed : parameterEditors)
     {
         ed->updateView();
@@ -1070,7 +1073,18 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
     for (auto ed : parameterEditors)
     {
-        ed->setParameter(getProcessor()->getParameter(selectedStream, ed->getParameterName()));
+        const String parameterName = ed->getParameterName();
+        
+        Parameter* param = getProcessor()->getParameter(parameterName);
+        
+        if (param->getScope() == Parameter::GLOBAL_SCOPE)
+        {
+            ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
+        }
+        else if (param->getScope() == Parameter::STREAM_SCOPE)
+        {
+            ed->setParameter(getProcessor()->getParameter(streamId, ed->getParameterName()));
+        }
         ed->updateView();
     }
 

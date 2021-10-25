@@ -36,14 +36,22 @@ using json = nlohmann::json;
 
 /**
  * HTTP server thread for controlling Processor Parameters via an HTTP API. This starts an HTTP server on port 37497
- * (== "EPHYS" on a phone keypad) and allows remote mainpulation of parameters of processors currently in the graph.
+ * (== "EPHYS" on a phone keypad) and allows remote manipulation of parameters of processors currently in the graph.
  *
  * The API is "RESTful", such that the resource URLs are:
+ * - GET /api/status
+ * - PUT /api/status
+ * - PUT /api/message
  * - GET /api/processors
  * - GET /api/processors/<processor_id>
  * - GET /api/processors/<processor_id>/parameters
  * - GET /api/processors/<processor_id>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/parameters/<parameter_name>
+ * - GET /api/processors/<processor_id>/streams/<stream_index>
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
+ * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
+ * - PUT /api/processors/<processor_id>/config
  *
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
@@ -174,7 +182,7 @@ public:
                     return;
                 }
 
-                /*auto parameter = find_parameter(processor, req.matches[2]);
+                auto parameter = find_parameter(processor, req.matches[2]);
                 if (parameter == nullptr) {
                     res.status = 404;
                     return;
@@ -182,9 +190,75 @@ public:
 
                 json ret;
                 parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");*/
+                res.set_content(ret.dump(), "application/json");
             });
 
+        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+))",
+            [this](const httplib::Request& req, httplib::Response& res) {
+                auto processor = find_processor(req.matches[1]);
+                if (processor == nullptr) {
+                    res.status = 404;
+                    return;
+                }
+
+                auto stream = find_stream(processor, req.matches[2]);
+                if (stream == nullptr) {
+                    res.status = 404;
+                    return;
+                }
+
+                json ret;
+                stream_to_json(processor, stream, &ret);
+                res.set_content(ret.dump(), "application/json");
+            });
+        
+        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters)",
+        [this](const httplib::Request& req, httplib::Response& res) {
+            auto processor = find_processor(req.matches[1]);
+            if (processor == nullptr) {
+                res.status = 404;
+                return;
+            }
+
+            auto stream = find_stream(processor, req.matches[2]);
+            if (stream == nullptr) {
+                res.status = 404;
+                return;
+            }
+
+            json ret;
+            
+            std::vector<json> parameters_json;
+            parameters_to_json(processor, stream->getStreamId(), &parameters_json);
+            ret["parameters"] = parameters_json;
+            res.set_content(ret.dump(), "application/json");
+        });
+        
+        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+        [this](const httplib::Request& req, httplib::Response& res) {
+            auto processor = find_processor(req.matches[1]);
+            if (processor == nullptr) {
+                res.status = 404;
+                return;
+            }
+
+            auto stream = find_stream(processor, req.matches[2]);
+            if (stream == nullptr) {
+                res.status = 404;
+                return;
+            }
+
+            auto parameter = find_parameter(processor, stream->getStreamId(), req.matches[3]);
+            if (parameter == nullptr) {
+               res.status = 404;
+               return;
+             }
+
+             json ret;
+             parameter_to_json(parameter, &ret);
+             res.set_content(ret.dump(), "application/json");
+        });
+        
         svr_->Put("/api/processors/([0-9]+)/config", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
             std::cout << "Received PUT request" << std::endl;
@@ -224,10 +298,13 @@ public:
                     return;
                 }
 
-                /*auto parameter = find_parameter(processor, req.matches[2]);
+                auto parameter = find_parameter(processor, req.matches[2]);
+            
                 if (parameter == nullptr) {
                     res.status = 404;
                     return;
+                } else {
+                    std::cout << "Found parameter: " << parameter->getName() << std::endl;
                 }
 
                 json request_json;
@@ -235,22 +312,24 @@ public:
                     request_json = json::parse(req.body);
                 }
                 catch (json::exception& e) {
+                    std::cout << "Failed to parse request body." << std::endl;
                     res.set_content(e.what(), "text/plain");
                     res.status = 400;
                     return;
                 }
 
-                if (!request_json.contains("channel") || !request_json.contains("value")) {
-                    res.set_content("Request must contain channel and value.", "text/plain");
+                if (!request_json.contains("value")) {
+                    std::cout << "No 'value' element found." << std::endl;
+                    res.set_content("Request must contain value.", "text/plain");
                     res.status = 400;
                     return;
+                } else {
+                    std::cout << "Found a value." << std::endl;
                 }
-
-                int channel;
+            
                 var val;
 
                 try {
-                    channel = request_json["channel"];
                     auto value = request_json["value"];
                     val = json_to_var(value);
                 }
@@ -259,32 +338,95 @@ public:
                     res.status = 400;
                     return;
                 }
-
+            
+               std::cout << "Got value: " << String(val) << std::endl;
+ 
                 if (val.isUndefined()) {
                     res.set_content("Request value could not be converted.", "text/plain");
                     res.status = 400;
                     return;
                 }
 
-                /*var original_val = parameter->getValue(channel);
-                bool did_set = parameter->setValue(val, channel);
-                if (!did_set) {
-                    std::stringstream ss;
-                    ss << "Failed to set parameter value " << val.toString();
-                    res.set_content(ss.str(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
-
-                if (original_val != val) {
-                    Value original_value(original_val);
-                    parameter->valueChanged(original_value);
-                }
+                parameter->setNextValue(val);
 
                 json ret;
                 parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");*/
+                res.set_content(ret.dump(), "application/json");
             });
+        
+    
+        svr_->Put(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+                   [this](const httplib::Request& req, httplib::Response& res) {
+                       auto processor = find_processor(req.matches[1]);
+                       if (processor == nullptr) {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto stream = find_stream(processor, req.matches[2]);
+                   
+                       if (stream == nullptr) {
+                           res.status = 404;
+                           return;
+                       } else {
+                           std::cout << "Found stream: " << stream->getName() << std::endl;
+                       }
+            
+                        auto parameter = find_parameter(processor, stream->getStreamId(), req.matches[3]);
+                    
+                        if (parameter == nullptr) {
+                            res.status = 404;
+                            return;
+                        } else {
+                            std::cout << "Found parameter: " << parameter->getName() << std::endl;
+                        }
+
+                       json request_json;
+                       try {
+                           request_json = json::parse(req.body);
+                       }
+                       catch (json::exception& e) {
+                           std::cout << "Failed to parse request body." << std::endl;
+                           res.set_content(e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+
+                       if (!request_json.contains("value")) {
+                           std::cout << "No 'value' element found." << std::endl;
+                           res.set_content("Request must contain value.", "text/plain");
+                           res.status = 400;
+                           return;
+                       } else {
+                           std::cout << "Found a value." << std::endl;
+                       }
+                   
+                       var val;
+
+                       try {
+                           auto value = request_json["value"];
+                           val = json_to_var(value);
+                       }
+                       catch (json::exception& e) {
+                           res.set_content(e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+                   
+                      std::cout << "Got value: " << String(val) << std::endl;
+        
+                       if (val.isUndefined()) {
+                           res.set_content("Request value could not be converted.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+
+                       parameter->setNextValue(val);
+
+                       json ret;
+                       parameter_to_json(parameter, &ret);
+                       res.set_content(ret.dump(), "application/json");
+                   });
 
         std::cout << "Beginning HTTP server on port " << PORT << std::endl;
         svr_->listen("0.0.0.0", PORT);
@@ -368,57 +510,61 @@ private:
         }
     }
 
-    inline static void parameter_to_json(Parameter* parameter, json* parameter_json) {
+    inline static void parameter_to_json(Parameter* parameter, json* parameter_json)
+    {
         (*parameter_json)["name"] = parameter->getName().toStdString();
         (*parameter_json)["type"] = parameter->getParameterTypeString().toStdString();
-
-        /*std::vector<json> values_json;
-        for (int chidx = 0; chidx < parameter->getNumChannels(); chidx++) {
-            json value_json;
-            value_json["channel"] = chidx;
-            const var& val = parameter->getValue(chidx);
-            if (val.isBool()) {
-                value_json["value"] = val.operator bool();
-            }
-            else if (val.isDouble()) {
-                value_json["value"] = val.operator double();
-            }
-            else if (val.isInt()) {
-                value_json["value"] = val.operator int();
-            }
-            else if (val.isString()) {
-                value_json["value"] = val.toString().toStdString();
-            }
-            else if (val.isArray()) {
-                auto val_array = val.getArray();
-                for (const auto& val_element : *val_array) {
-                    value_json["value"].push_back(val_element.operator double());
-                }
-            }
-            else {
-                value_json["value"] = "UNKNOWN";
-            }
-
-            values_json.push_back(value_json);
-        }
-        (*parameter_json)["values"] = values_json;*/
+        (*parameter_json)["value"] = parameter->getValueAsString().toStdString();
     }
 
     inline static void parameters_to_json(GenericProcessor* processor, std::vector<json>* parameters_json) {
-        //for (const auto& parameter : processor->parameters) {
-        //    json parameter_json;
-        //    parameter_to_json(parameter, &parameter_json);
-        //    parameters_json->push_back(parameter_json);
-        //}
+        for (const auto& parameter : processor->getParameters()) {
+            json parameter_json;
+            parameter_to_json(parameter, &parameter_json);
+            parameters_json->push_back(parameter_json);
+        }
+    }
+    
+    inline static void parameters_to_json(GenericProcessor* processor, uint16 streamId, std::vector<json>* parameters_json) {
+        for (const auto& parameter : processor->getParameters(streamId)) {
+            json parameter_json;
+            parameter_to_json(parameter, &parameter_json);
+            parameters_json->push_back(parameter_json);
+        }
+    }
+    
+    inline static void stream_to_json(GenericProcessor* processor, const DataStream* stream, json* stream_json)
+    {
+        (*stream_json)["name"] = stream->getName().toStdString();
+        (*stream_json)["source_id"] = stream->getSourceNodeId();
+        (*stream_json)["sample_rate"] = stream->getSampleRate();
+        (*stream_json)["channel_count"] = stream->getChannelCount();
+        
+        std::vector<json> parameters_json;
+        parameters_to_json(processor, stream->getStreamId(), &parameters_json);
+        (*stream_json)["parameters"] = parameters_json;
+    
     }
 
-    inline static void processor_to_json(GenericProcessor* processor, json* processor_json) {
+    inline static void processor_to_json(GenericProcessor* processor, json* processor_json)
+    {
         (*processor_json)["id"] = processor->getNodeId();
         (*processor_json)["name"] = processor->getName().toStdString();
 
         std::vector<json> parameters_json;
         parameters_to_json(processor, &parameters_json);
         (*processor_json)["parameters"] = parameters_json;
+        
+        std::vector<json> streams_json;
+        
+        for (auto stream : processor->getDataStreams())
+        {
+            json stream_json;
+            stream_to_json(processor, stream, &stream_json);
+            streams_json.push_back(stream_json);
+        }
+        
+        (*processor_json)["streams"] = streams_json;
 
         if (processor->getSourceNode() == nullptr) {
             (*processor_json)["predecessor"] = json::value_t::null;
@@ -441,15 +587,42 @@ private:
 
         return nullptr;
     }
-
-    /*static inline Parameter* find_parameter(GenericProcessor* processor, const std::string& parameter_name) 
-    {
-        Parameter* parameter = processor->getParameterByName(juce::String(parameter_name));
-        if (parameter->getName().compare(parameter_name) != 0) {
+    
+    inline const DataStream* find_stream(GenericProcessor* p, const std::string& id_string) {
+        int stream_index = juce::String(id_string).getIntValue();
+        
+        if (stream_index < 0)
             return nullptr;
+
+        if (p->getDataStreams().size() > stream_index)
+            return p->getDataStreams()[stream_index];
+
+        return nullptr;
+    }
+
+    static inline Parameter* find_parameter(GenericProcessor* processor, const std::string& parameter_name)
+    {
+        Parameter* parameter = processor->getParameter(juce::String(parameter_name));
+        
+        if (parameter != nullptr)
+        {
+            return parameter;
         }
-        return parameter;
-    }*/
+        
+        return nullptr;
+    }
+    
+    static inline Parameter* find_parameter(GenericProcessor* processor, uint16 streamId, const std::string& parameter_name)
+    {
+        Parameter* parameter = processor->getParameter(streamId, juce::String(parameter_name));
+        
+        if (parameter != nullptr)
+        {
+            return parameter;
+        }
+        
+        return nullptr;
+    }
 };
 
 #endif  // __PROCESSORGRAPH_H_124F8B50__

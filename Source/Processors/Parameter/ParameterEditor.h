@@ -82,8 +82,8 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> parameterNameLabel;
-    ScopedPointer<Label> valueTextBox;
+    std::unique_ptr<Label> parameterNameLabel;
+    std::unique_ptr<Label> valueTextBox;
 };
 
 
@@ -107,8 +107,8 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> parameterNameLabel;
-    ScopedPointer<ToggleButton> valueCheckBox;
+    std::unique_ptr<Label> parameterNameLabel;
+    std::unique_ptr<ToggleButton> valueCheckBox;
 };
 
 
@@ -132,8 +132,8 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> parameterNameLabel;
-    ScopedPointer<ComboBox> valueComboBox;
+    std::unique_ptr<Label> parameterNameLabel;
+    std::unique_ptr<ComboBox> valueComboBox;
 
     int offset;
 };
@@ -160,8 +160,8 @@ public:
     virtual void resized();
 
 private:
-    ScopedPointer<Label> parameterNameLabel;
-    ScopedPointer<Slider> valueSlider;
+    std::unique_ptr<Label> parameterNameLabel;
+    std::unique_ptr<Slider> valueSlider;
 };
 
 /**
