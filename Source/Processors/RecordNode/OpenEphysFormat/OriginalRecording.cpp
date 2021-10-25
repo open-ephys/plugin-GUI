@@ -163,7 +163,7 @@ void OriginalRecording::openFile(File rootFolder, const ChannelInfoObject* ch, i
 
 		LOGD("Wrote header.");
 
-		LOGDD("Block index: ", blockIndex);
+		//LOGDD("Block index: ", blockIndex);
 
 	}
 	else
