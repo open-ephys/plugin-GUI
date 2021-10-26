@@ -191,7 +191,7 @@ void AudioComponent::beginCallbacks()
 
         }
 
-        LOGD("Adding audio callback.");
+        LOGC("Adding audio callback.");
         deviceManager.addAudioCallback(graphPlayer);
         isPlaying = true;
     }

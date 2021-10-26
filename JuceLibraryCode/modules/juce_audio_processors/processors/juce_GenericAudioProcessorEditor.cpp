@@ -135,6 +135,8 @@ private:
             getParameter().beginChangeGesture();
             getParameter().setValueNotifyingHost (button.getToggleState() ? 1.0f : 0.0f);
             getParameter().endChangeGesture();
+
+            
         }
     }
 

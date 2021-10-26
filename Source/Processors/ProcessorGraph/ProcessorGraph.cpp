@@ -822,7 +822,7 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
     int outputIndex)
 
 {
-    std::cout << inputNodeId << ":" << inputIndex << " --> " << outputNodeId << ":" << outputIndex << std::endl;
+    LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
 
     GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
     GenericProcessor* outputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(outputNodeId);
@@ -1123,14 +1123,14 @@ void ProcessorGraph::updateConnections()
 
     for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
     {
-        std::cout << std::endl;
-        LOGD("Connecting signal chain: ", n);
+
+        LOGG("\nConnecting signal chain: ", n);
 
         GenericProcessor* source = rootNodes[n];
 
         while (source != nullptr)
         {
-            LOGD("  Node: ", source->getName(), ".");
+            LOGG("  Node: ", source->getName(), ".");
             GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
 
             if(source->isAudioMonitor())
@@ -1182,7 +1182,7 @@ void ProcessorGraph::updateConnections()
             }
             else
             {
-                LOGD("     No dest node.");
+                LOGG("     No dest node.");
             }
 
             source->wasConnected = true;
@@ -1255,7 +1255,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
     if (source == nullptr || dest == nullptr)
         return;
 
-    LOGD("Connecting ", source->getName(), " ", source->getNodeId(), " to ", dest->getName(), " ", dest->getNodeId());
+    LOGG("Connecting ", source->getName(), " ", source->getNodeId(), " to ", dest->getName(), " ", dest->getNodeId());
 
     NodeAndChannel cs, cd;
     cs.nodeID = NodeID(source->getNodeId()); //source
@@ -1270,7 +1270,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
             cs.channelIndex = chan;
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
 
-            std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
+            LOGG("  Source channel: ",", Dest Channel: ", cd.channelIndex);
 
             if (cd.channelIndex > -1)
             {
@@ -1305,7 +1305,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
 void ProcessorGraph::connectAudioMonitorToAudioNode(GenericProcessor* source)
 {
 
-    std::cout << "Connecting Audio Monitor " << source->getNodeId() << " to Audio Node" << std::endl;
+    LOGG("Connecting Audio Monitor ", source->getNodeId(), " to Audio Node");
 
     NodeAndChannel cs, cd;
     cs.nodeID = NodeID(source->getNodeId()); //source
@@ -1319,7 +1319,7 @@ void ProcessorGraph::connectAudioMonitorToAudioNode(GenericProcessor* source)
         cs.channelIndex = numOutputs + chan;
         cd.channelIndex = chan;
 
-        std::cout << "  Source channel: " << cs.channelIndex << ", Dest Channel: " << cd.channelIndex << std::endl;
+        LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
 
         addConnection(Connection(cs, cd));
     }

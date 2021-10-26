@@ -25,6 +25,8 @@
 
 #include "../Source/Processors/ProcessorGraph/ProcessorGraph.h"
 
+#include "../Source/Utils/Utils.h"
+
 namespace juce
 {
 
@@ -342,7 +344,7 @@ struct RenderSequenceBuilder
         : graph (g), sequence (s)
     {
 
-        std::cout << "Creating rendering sequence for graph" << std::endl;
+        LOGG("Creating rendering sequence for graph");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -350,9 +352,9 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << "Created ordered nodes list in " << interval * 1000 << " milliseconds." << std::endl;
+        LOGG("Created ordered nodes list in ", interval * 1000, " milliseconds.");
 
-        std::cout << "  Creating buffer 0" << std::endl;
+        LOGG("  Creating buffer 0");
         audioBuffers.add (AssignedBuffer::createReadOnlyEmpty()); // first buffer is read-only zeros
         midiBuffers .add (AssignedBuffer::createReadOnlyEmpty());
 
@@ -364,16 +366,16 @@ struct RenderSequenceBuilder
         {
             createRenderingOpsForNode (*orderedNodes.getUnchecked(i), i);
 
-            std::cout << " * Marking unused audio buffers." << std::endl;
+            LOGG(" * Marking unused audio buffers.");
             markAnyUnusedBuffersAsFree (audioBuffers, i);
 
-            std::cout << " * Marking unused midi buffers." << std::endl;
+            LOGG(" * Marking unused midi buffers.");
             markAnyUnusedBuffersAsFree (midiBuffers, i);
         }
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start2);
 
-        std::cout << "Created rendering ops in " << interval * 1000 << " milliseconds." << std::endl;
+        LOGG("Created rendering ops in ", interval * 1000, " milliseconds.");
 
         graph.setLatencySamples (totalLatency);
 
@@ -382,7 +384,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << "Finished building rendering sequence in " << interval * 1000 << " milliseconds." << std::endl;
+        LOGG("Finished building rendering sequence in ", interval * 1000, " milliseconds.");
     }
 
     //==============================================================================
@@ -701,7 +703,7 @@ struct RenderSequenceBuilder
     void createRenderingOpsForNode (AudioProcessorGraph::Node& node, const int ourRenderingIndex)
     {
 
-        std::cout << "Creating rendering ops for " << node.getProcessor()->getName() << " (index " << ourRenderingIndex << ")" << std::endl;
+        LOGG("Creating rendering ops for ", node.getProcessor()->getName(), " (index ", ourRenderingIndex, ")");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -716,7 +718,7 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << " " << "    Setup in " << interval * 1000 << " milliseconds" << std::endl;
+        LOGG(" ", "    Setup in ", interval * 1000, " milliseconds");
 
         start = Time::getHighResolutionTicks();
 
@@ -748,7 +750,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << " " << "    Audio inputs in " << interval * 1000 << " milliseconds" << std::endl;
+        LOGG(" ", "    Audio inputs in ", interval * 1000, " milliseconds");
 
         start = Time::getHighResolutionTicks();
 
@@ -767,7 +769,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << " " << "    Audio outputs in " << interval * 1000 << " milliseconds" << std::endl;
+        LOGG(" ", "    Audio outputs in ", interval * 1000, " milliseconds");
 
         start = Time::getHighResolutionTicks();
 
@@ -778,7 +780,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << " " << "    Midi buffers in " << interval * 1000 << " milliseconds" << std::endl;
+        LOGG(" ", "    Midi buffers in ", interval * 1000, " milliseconds");
 
         start = Time::getHighResolutionTicks();
 
@@ -795,7 +797,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << " " << "Finished in " << interval * 1000 << " milliseconds" << std::endl;
+        LOGG(" ", "Finished in ", interval * 1000, " milliseconds");
     }
 
     //==============================================================================
@@ -860,7 +862,7 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        std::cout << "   Took " << interval * 1000 << " milliseconds." << std::endl;
+        LOGG("   Took ", interval * 1000, " milliseconds.");
 
             
     }
@@ -869,21 +871,18 @@ struct RenderSequenceBuilder
                               int inputChannelOfIndexToIgnore,
                               AudioProcessorGraph::NodeAndChannel output) 
     {
-        std::cout << "    isBufferNeededLater? "
-            << "Rendering index: " << stepIndexToSearchFrom << ", "
-            << "Channel to ignore: " << inputChannelOfIndexToIgnore << ", Output to check: "
-            << output.nodeID.uid << ":"
-            << output.channelIndex << std::endl;
+        LOGG("    isBufferNeededLater? ",
+            "Rendering index: ", stepIndexToSearchFrom, ", ",
+            "Channel to ignore: ", inputChannelOfIndexToIgnore, ", Output to check: ",
+            output.nodeID.uid, ":",
+            output.channelIndex);
 
         bool prediction = ProcessorGraph::isBufferNeededLater(orderedNodes.getUnchecked(stepIndexToSearchFrom)->nodeID.uid, 
             inputChannelOfIndexToIgnore,
             output.nodeID.uid,
             output.channelIndex);
 
-        if (prediction)
-            std::cout << "PREDICTION: TRUE" << std::endl;
-        else
-            std::cout << "PREDICTION: FALSE" << std::endl;
+        LOGG("PREDICTION: ", prediction ? "TRUE" : "FALSE");
 
        // return false;
         uint16 streamId;
@@ -892,7 +891,7 @@ struct RenderSequenceBuilder
         {
             auto* node = orderedNodes.getUnchecked (stepIndexToSearchFrom);
 
-            std::cout << "        Checking " << node->getProcessor()->getName() << " " << std::endl;
+            LOGG("        Checking ", node->getProcessor()->getName(), " ");
 
             if (output.isMIDI()) // midi channel
             {
@@ -902,7 +901,7 @@ struct RenderSequenceBuilder
                     && graph.isConnected({ { output.nodeID, AudioProcessorGraph::midiChannelIndex },
                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
                 {
-                    std::cout << "         --> MIDI CH: TRUE" << std::endl;
+                    LOGG("         --> MIDI CH: TRUE");
                     //jassert(prediction);
                     return true;
                 }
@@ -910,13 +909,13 @@ struct RenderSequenceBuilder
             }
             else // audio channel
             {
-                std::cout << "         Total inputs: " << node->getProcessor()->getTotalNumInputChannels() << " " << std::endl;
+                LOGG("         Total inputs: ", node->getProcessor()->getTotalNumInputChannels(), " ");
 
                 for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
                 {
                     if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
                     {
-                        std::cout << "         --> CH " << i << ": TRUE" << std::endl;
+                        LOGG("         --> CH ", i, ": TRUE");
                         //jassert(prediction);
                         return true;
                     }
@@ -961,7 +960,7 @@ struct RenderSequenceBuilder
 
         //std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
         //streamIsNeededLater[streamId] = false;
-        std::cout << "         ---> FALSE" << std::endl;
+        LOGG("         ---> FALSE");
         //jassert(!prediction);
         return false;
 
