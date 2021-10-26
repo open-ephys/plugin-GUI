@@ -23,6 +23,7 @@
 
 #include "FilterEditor.h"
 
+
 FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentNode)
 {
     desiredWidth = 150;
@@ -31,4 +32,9 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
     addTextBoxParameterEditor("high_cut", 10, 62);
     addSelectedChannelsParameterEditor("channels_to_filter", 10, 108);
 
+}
+
+FilterEditor::~FilterEditor()
+{
+    
 }

@@ -26,8 +26,6 @@
 #include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
 
-#include <stdio.h>
-
 /**
     Class for holding user-definable processor parameters.
 
@@ -40,6 +38,9 @@
     @see GenericProcessor, GenericEditor
 */
 
+class SpikeChannel;
+class ContinuousChannel;
+class EventChannel;
 
 class PLUGIN_API Parameter
 {
@@ -99,11 +100,29 @@ public:
     /** Returns the scope of the parameter. */
     ParameterScope getScope() const noexcept { return m_parameterScope; }
 
-    /** Returns the streamId for this parameter*/
+    /** Returns the streamId for this parameter (if available)*/
     uint16 getStreamId() { return streamId; }
 
     /** Sets the streamId for this parameter*/
     void setStreamId(uint16 streamId_) { streamId = streamId_;  }
+    
+    /** Returns the SpikeChannel for this parameter (if available)*/
+    SpikeChannel* getSpikeChannel() { return spikeChannel; }
+
+    /** Sets the SpikeChannel for this parameter*/
+    void setSpikeChannel(SpikeChannel* spikeChannel_) { spikeChannel = spikeChannel_;  }
+    
+    /** Returns the EventChannel for this parameter (if available)*/
+    EventChannel* getEventChannel() { return eventChannel; }
+
+    /** Sets the EventChannel for this parameter*/
+    void setEventChannel(EventChannel* eventChannel_) { eventChannel = eventChannel_;  }
+    
+    /** Returns the ContinuousChannel for this parameter (if available)*/
+    ContinuousChannel* getContinuousChannel() { return continuousChannel; }
+
+    /** Sets the ContinuousChannel for this parameter*/
+    void setContinuousChannel(ContinuousChannel* continuousChannel_) { continuousChannel = continuousChannel_;  }
 
     /** Determines whether the parameter's editor is accessible after acquisition starts*/
     bool shouldDeactivateDuringAcquisition() {
@@ -124,9 +143,6 @@ public:
         currentValue = newValue;
     }
 
-    /** Determines whether this parameter is global, or unique for individual data streams*/
-    //bool isGlobal() { return m_isGlobal;  }
-
     /** Returns a string describing this parameter's type*/
     String getParameterTypeString() const;
 
@@ -142,7 +158,11 @@ public:
 protected:
 
     GenericProcessor* processor;
+    
     uint16 streamId;
+    SpikeChannel* spikeChannel;
+    EventChannel* eventChannel;
+    ContinuousChannel* continuousChannel;
 
     var newValue;
     var currentValue;

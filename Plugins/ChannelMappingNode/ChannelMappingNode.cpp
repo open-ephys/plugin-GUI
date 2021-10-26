@@ -132,12 +132,6 @@ ChannelMappingNode::ChannelMappingNode()
 
 }
 
-
-ChannelMappingNode::~ChannelMappingNode()
-{
-}
-
-
 AudioProcessorEditor* ChannelMappingNode::createEditor()
 {
     editor = std::make_unique<ChannelMappingEditor> (this);
@@ -215,6 +209,20 @@ void ChannelMappingNode::setReferenceIndex(uint16 streamId, int channelNum, int 
 Array<int> ChannelMappingNode::getChannelOrder(uint16 streamId)
 {
     return settings[streamId]->channelOrder;
+}
+
+String ChannelMappingNode::loadStreamSettings(uint16 streamId, File& file)
+{
+    settings[streamId]->fromJson(file);
+    
+    return ("Loaded stream settings.");
+}
+
+String ChannelMappingNode::writeStreamSettings(uint16 streamId, File& file)
+{
+    settings[streamId]->toJson(file);
+    
+    return ("Wrote stream settings.");
 }
 
 
@@ -339,14 +347,14 @@ void ChannelMappingNode::saveCustomParametersToXml(XmlElement* xml)
 }
 
 
-void ChannelMappingNode::loadCustomParametersFromXml()
+void ChannelMappingNode::loadCustomParametersFromXml(XmlElement* xml)
 {
 
     std::cout << "Filter node loading custom parameters" << std::endl;
     int streamIndex = 0;
     Array<const DataStream*> availableStreams = getDataStreams();
 
-    forEachXmlChildElement(*parametersAsXml, streamParams)
+    forEachXmlChildElement(*xml, streamParams)
     {
         if (streamParams->hasTagName("STREAM"))
         {

@@ -140,6 +140,7 @@ bool DeleteProcessor::perform()
     
     AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
     
+    
     return true;
 }
 

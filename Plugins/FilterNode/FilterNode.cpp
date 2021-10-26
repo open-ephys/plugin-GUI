@@ -76,6 +76,11 @@ FilterNode::FilterNode()
 
 }
 
+FilterNode::~FilterNode()
+{
+    
+}
+
 AudioProcessorEditor* FilterNode::createEditor()
 {
     editor = std::make_unique<FilterEditor> (this);

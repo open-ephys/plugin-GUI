@@ -75,6 +75,11 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
     backgroundColor = Colour(10, 10, 10);
 }
 
+GenericEditor::~GenericEditor()
+{
+    
+}
+
 void GenericEditor::updateName()
 {
     nodeId = getProcessor()->getNodeId();
@@ -1070,6 +1075,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
     selectedStream = streamId;
     std::cout << "Selected stream: " << selectedStream << std::endl;
+    
+    if (streamId == 0)
+        return;
 
     for (auto ed : parameterEditors)
     {

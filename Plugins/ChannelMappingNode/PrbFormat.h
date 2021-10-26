@@ -34,7 +34,7 @@ public:
 
     static void write(File filename, ChannelMapSettings& settings)
     {
-        /*FileOutputStream outputStream(filename);
+        FileOutputStream outputStream(filename);
         outputStream.setPosition(0);
         outputStream.truncate();
 
@@ -42,28 +42,21 @@ public:
         std::unique_ptr<DynamicObject> nestedObj = std::make_unique<DynamicObject>();
 
         Array<var> arr;
-
+        Array<var> arr2;
+        Array<var> arr3;
+        
         for (int i = 0; i < settings.channelOrder.size(); i++)
         {
             arr.add(var(settings.channelOrder[i]));
+            arr2.add(var(settings.referenceIndex[i]));
+            arr3.add(var(settings.isEnabled[i]));
         }
+        
         nestedObj->setProperty("mapping", var(arr));
-
-        Array<var> arr2;
-        for (int i = 0; i < settings.referenceArray.size(); i++)
-        {
-            arr2.add(var(settings.referenceArray[settings.channelArray[i] - 1]));
-        }
         nestedObj->setProperty("reference", var(arr2));
-
-        Array<var> arr3;
-        for (int i = 0; i < settings.enabledChannelArray.size(); i++)
-        {
-            arr3.add(var(enabledChannelArray[settings.channelArray[i] - 1]));
-        }
         nestedObj->setProperty("enabled", var(arr3));
 
-        info->setProperty("0", nestedObj);
+        info->setProperty("0", nestedObj.get());
 
         DynamicObject* nestedObj2 = new DynamicObject();
         Array<var> arr4;
@@ -75,12 +68,12 @@ public:
 
         info->setProperty("refs", nestedObj2);
 
-        info->writeAsJSON(outputStream, 2, false, 3);*/
+        info->writeAsJSON(outputStream, 2, false, 3);
     }
 
     static void read(File filename, ChannelMapSettings& settings)
     {
-        /*FileInputStream inputStream(filename);
+        FileInputStream inputStream(filename);
 
         var json = JSON::parse(inputStream);
 
@@ -104,59 +97,29 @@ public:
 
         std::cout << "We found this many: " << map->size() << std::endl;
 
-        if (map->size() > previousChannelCount)
-            createElectrodeButtons(map->size(), false);
-
         for (int i = 0; i < map->size(); i++)
         {
             int ch = map->getUnchecked(i);
-            channelArray.set(i, ch);
+            settings.channelOrder.set(i, ch);
 
             int rf = ref->getUnchecked(i);
-            referenceArray.set(ch - 1, rf);
+            settings.referenceIndex.set(i, rf);
 
             bool en = enbl->getUnchecked(i);
-            enabledChannelArray.set(ch - 1, en);
-
-            electrodeButtons[i]->setChannelNum(ch);
-            electrodeButtons[i]->setEnabled(en);
-
-            getProcessor()->setCurrentChannel(i);
-            getProcessor()->setParameter(0, ch - 1);
-            getProcessor()->setCurrentChannel(ch - 1);
-            getProcessor()->setParameter(1, rf);
-            getProcessor()->setParameter(3, en ? 1 : 0);
+            settings.isEnabled.set(i, en);
         }
-        checkUnusedChannels();
-
+        
         var refChans = json[Identifier("refs")];
         var channels = refChans[Identifier("channels")];
         Array<var>* chans = channels.getArray();
 
+        settings.referenceChannels.clear();
+        
         for (int i = 0; i < chans->size(); i++)
         {
             int ch = chans->getUnchecked(i);
-            referenceChannels.set(i, ch);
-            getProcessor()->setCurrentChannel(ch);
-            getProcessor()->setParameter(2, i);
+            settings.referenceChannels.add(ch);
         }
-
-        referenceButtons[0]->setToggleState(true, sendNotificationSync);
-
-        for (int i = 0; i < electrodeButtons.size(); i++)
-        {
-            if (referenceArray[electrodeButtons[i]->getChannelNum() - 1] == 0)
-            {
-                electrodeButtons[i]->setToggleState(true, dontSendNotification);
-            }
-            else
-            {
-                electrodeButtons[i]->setToggleState(false, dontSendNotification);
-            }
-        }
-
-        setConfigured(true);
-        CoreServices::updateSignalChain(this);*/
     }
 };
 

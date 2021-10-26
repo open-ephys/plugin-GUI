@@ -482,6 +482,10 @@ public:
 
     /** Determines whether the processor's editor appears colored or grayed out*/
     bool isEnabled;
+    
+    
+    /** Pointer to the processor's editor. */
+    std::unique_ptr<GenericEditor> editor;
 
 protected:
 
@@ -600,9 +604,6 @@ protected:
 
     /** When set to false, this disables the sending of sample counts through the event buffer (used by Mergers and Splitters). */
     bool sendSampleCount;
-
-    /** Pointer to the processor's editor. */
-    std::unique_ptr<GenericEditor> editor;
 
     /** An array of default parameters for this processor.*/
     OwnedArray<Parameter> availableParameters;
