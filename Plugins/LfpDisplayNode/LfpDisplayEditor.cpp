@@ -230,7 +230,7 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 	{
 		if (xmlNode->hasTagName("VALUES"))
 		{
-			std::cout << "Loading saved layout: " << xmlNode->getIntAttribute("SelectedLayout") << std::endl;
+			LOGD("Loading saved layout: ", xmlNode->getIntAttribute("SelectedLayout"));
 			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
             static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
 

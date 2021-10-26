@@ -525,14 +525,14 @@ void GenericProcessor::update()
 		eventChannels.add(new EventChannel(*messageChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
 
-		std::cout << getNodeId() << " connected to Message Center" << std::endl;
+		LOGD(getNodeId(), " connected to Message Center");
 	}
 
 	updateChannelIndexMaps();
 
 	for (auto stream : getDataStreams())
 	{
-		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+		LOGD("Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
 
 		if (parameterMap.find(stream->getStreamId()) == parameterMap.end())
 		{
@@ -699,7 +699,7 @@ void GenericProcessor::update()
 					  // including creation of streams / channels and
 					  // setting isEnabled variable
 
-	std::cout << "Updated custom settings." << std::endl;
+	LOGD("Updated custom settings.");
 
 
 	updateChannelIndexMaps();
@@ -1193,7 +1193,7 @@ const EventChannel* GenericProcessor::getMessageChannel() const
 {
 	for (auto eventChannel : eventChannels)
 	{
-		std::cout << "Event channel source node id: " << eventChannel->getSourceNodeId() << std::endl;
+		LOGD("Event channel source node id: ", eventChannel->getSourceNodeId());
 
 		if (eventChannel->getSourceNodeId() == 904)
 			return eventChannel;
@@ -1357,12 +1357,12 @@ void GenericProcessor::loadFromXml()
 
 				if (availableStreams.size() > streamIndex)
 				{
-					std::cout << "FOUND IT!" << std::endl;
+					LOGD("FOUND IT!");
 					for (auto param : availableParameters)
 						parameterMap[availableStreams[streamIndex]->getStreamId()][param->getName()]->fromXml(streamParams);
 				}
 				else {
-					std::cout << "DID NOT FIND IT!" << std::endl;
+					LOGD("DID NOT FIND IT!");
 				}
 
 				streamIndex++;

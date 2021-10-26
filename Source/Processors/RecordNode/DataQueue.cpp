@@ -150,7 +150,7 @@ float DataQueue::writeSynchronizedTimestampChannel(double start, double step, in
 
 	if ((size1 + size2) < nSamples)
 	{
-		LOGD(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
+		LOGE(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
 	}
 
 	//LOGD("DataQueue::writeSynchronizedTimestampChannel: ", start);
@@ -187,7 +187,7 @@ float DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, i
 	if ((size1 + size2) < nSamples)
 	{ //TODO: turn this into a proper notification. Probably returning a bool.
 		//std::cerr << "Recording Data Queue Overflow" << std::endl;
-		LOGD(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
+		LOGE(__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
 	}
 	m_buffer.copyFrom(destChannel,
 		index1,

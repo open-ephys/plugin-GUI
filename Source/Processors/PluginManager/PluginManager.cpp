@@ -167,7 +167,7 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
 		if (res < 0)
 		{
-			LOGD(" DLL Load FAILED");
+			LOGE(" DLL Load FAILED");
 		}
 		else
 		{

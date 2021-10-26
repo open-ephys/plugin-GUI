@@ -10,11 +10,6 @@
 #include <map>
 
 
-/*
-#define LOGD(...) \
-    OELogger::instance().LOGDebug(__func__, __FILE__, __LINE__, __VA_ARGS__);
-*/
-
 #define LOGA(...) \
     OELogger::instance().LOGFile("[open-ephys][action]", __VA_ARGS__);
 
@@ -22,7 +17,7 @@
     OELogger::instance().LOGFile("[open-ephys][buffer]", __VA_ARGS__);
 
 #define LOGC(...) \
-    OELogger::instance().LOGConsole("[open-ephys]", __VA_ARGS__);
+    OELogger::instance().LOGConsole("[open-ephys] ", __VA_ARGS__);
 
 #define LOGD(...) \
     OELogger::instance().LOGFile("[open-ephys][debug]", __VA_ARGS__);
@@ -31,7 +26,7 @@
     OELogger::instance().LOGFile("[open-ephys][ddebug]", __VA_ARGS__);
 
 #define LOGE(...) \
-    OELogger::instance().LOGError("[open-ephys]\t[*ERROR*]", __VA_ARGS__);
+    OELogger::instance().LOGError("[open-ephys] ***ERROR***", __VA_ARGS__);
 
 /* Thread-safe logger */
 class OELogger
@@ -72,7 +67,6 @@ public:
 	{
 		std::lock_guard<std::mutex> lock(mt);
 
-		std::cout << "\n\t";
 		(std::cout << ... << args);
 		std::cout << std::endl;
 

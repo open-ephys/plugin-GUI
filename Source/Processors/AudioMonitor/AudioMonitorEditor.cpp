@@ -120,7 +120,7 @@ void AudioOutputSelector::buttonClicked(Button* buttonThatWasClicked)
     if (buttonName.startsWith("left"))
     {
         param->setNextValue(0);
-        LOGD("Left channel only");
+        LOGD("AudioOutputSelectorLeft channel only");
     }
     else if (buttonName.startsWith("both"))
     {

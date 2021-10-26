@@ -600,21 +600,21 @@ void ControlPanel::updateRecordEngineList()
 	recordEngines.clear();
 	int id = 1;
 
-    LOGD("Num built in engines: ", RecordEngineManager::getNumOfBuiltInEngines());
+    LOGC("Num built in engines: ", RecordEngineManager::getNumOfBuiltInEngines());
 	for (int i = 0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
 	{
 		RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager(i);
 		recordSelector->addItem(rem->getName(), id++);
-        LOGD("Adding engine: ", rem->getName());
+        LOGC("Adding engine: ", rem->getName());
 		recordEngines.add(rem);
 	}
-    LOGD("Num plugin engines: ", AccessClass::getPluginManager()->getNumRecordEngines());
+    LOGC("Num plugin engines: ", AccessClass::getPluginManager()->getNumRecordEngines());
 	for (int i = 0; i < AccessClass::getPluginManager()->getNumRecordEngines(); i++)
 	{
 		Plugin::RecordEngineInfo info;
 		info = AccessClass::getPluginManager()->getRecordEngineInfo(i);
 		recordSelector->addItem(info.name, id++);
-        LOGD("Adding engine: ", info.name);
+        LOGC("Adding engine: ", info.name);
 		recordEngines.add(info.creator());
 	}
 
@@ -992,7 +992,7 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
     }
     else
     {
-        LOGD("Engine ComboBox: Bad ID");
+        LOGE("Engine ComboBox: Bad ID");
         combo->setSelectedId(1,dontSendNotification);
         re = recordEngines[0]->instantiateEngine();
     }

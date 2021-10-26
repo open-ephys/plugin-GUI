@@ -133,27 +133,15 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isMas
 
 SyncChannelSelector::~SyncChannelSelector() {}
 
-void SyncChannelSelector::mouseMove(const MouseEvent &event)
-{
+void SyncChannelSelector::mouseMove(const MouseEvent &event) {}
 
-};
+void SyncChannelSelector::mouseDown(const MouseEvent &event) {}
 
-void SyncChannelSelector::mouseDown(const MouseEvent &event)
-{
-
-    LOGD("Got mouse down event in parent");
-
-};
-
-
-void SyncChannelSelector::mouseUp(const MouseEvent &event)
-{
-    //TODO
-}
+void SyncChannelSelector::mouseUp(const MouseEvent &event) {}
 
 void SyncChannelSelector::buttonClicked(Button* button)
 {
-    //TODO
+
     if (button->getComponentID() == "SETMASTER")
     {
         setSize (width, buttonSize * nRows);

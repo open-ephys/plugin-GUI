@@ -351,7 +351,7 @@ String OriginalRecording::generateHeader(const ChannelInfoObject* ch)
 
 	header = header.paddedRight(' ', HEADER_SIZE);
 
-LOGDD(header);
+	//LOGDD(header);
 
 	return header;
 
@@ -391,7 +391,7 @@ String OriginalRecording::generateSpikeHeader(const SpikeChannel* elec)
 
 	header = header.paddedRight(' ', HEADER_SIZE);
 
-LOGDD(header);
+	//LOGDD(header);
 
 	return header;
 }
@@ -538,7 +538,7 @@ void OriginalRecording::writeContinuousBuffer(const float* data, int nSamples, i
 		nSamples,                         // count
 		fileArray[writeChannel]); // ptr to FILE object
 
-	LOGDD(writeChannel, " : ", nSamples, " : ", count);
+	LOGB(writeChannel, " : ", nSamples, " : ", count);
 
 	jassert(count == nSamples); // make sure all the data was written
 	(void)count;  // Suppress unused variable warning in release builds
