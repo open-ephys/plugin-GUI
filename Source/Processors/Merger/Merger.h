@@ -95,7 +95,7 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement) override;
 
     /** Loads Merger parameters from XML file*/
-    void loadCustomParametersFromXml() override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
     /** Returns true if the Merger transmits continuous data for a particular source node*/
     bool sendContinuousForSource(GenericProcessor* sn);

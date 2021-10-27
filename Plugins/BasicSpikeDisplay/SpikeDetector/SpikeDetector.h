@@ -31,14 +31,6 @@ class SpikeChannelSettings
 {
 public:
 
-    enum ThresholdType
-    {
-        FIXED = 1,
-        STD,
-        DYNAMIC,
-        UNKNOWN = 100
-    };
-
     /** Constructor -- sets default values*/
     SpikeChannelSettings(const SpikeChannel::Type type);
 
@@ -60,7 +52,7 @@ public:
     const SpikeChannel::Type type;
 
     /** Index of each channel within a stream */
-    Array<int> localChannelIndexes;
+    SelectedChannelsParameter localChannelIndexes;
 
     /** Index of each channel within the processor */
     Array<int> globalChannelIndexes;
@@ -69,25 +61,22 @@ public:
     Array<bool> detectSpikesOnChannel;
 
     /** Determines the threshold type */
-    ThresholdType thresholdType;
+    CategoricalParameter thresholdType;
 
     /** Holds the thresholds for each channel*/
-    Array<float> thresholds;
+    Array<FloatParameter> absoluteThresholds;
+    
+    /** Holds the thresholds for each channel*/
+    Array<FloatParameter> stdThresholds;
 
     /** Determines whether the channel sends the full waveform*/
-    bool sendFullWaveform;
+    BooleanParameter sendFullWaveform;
 
     /** Number of pre-peak samples if full waveform is sent*/
     unsigned int prePeakSamples;
 
     /** Number of post-peak samples if full waveform is sent*/
     unsigned int postPeakSamples;
-
-    /** Used to determine channels available for selection*/
-    int maxLocalChannel;
-
-    /** Total number of channels for this electrode type*/
-    const int expectedChannelCount;
 
     /** Holds the current sample index for this electrode*/
     int currentSampleIndex;
@@ -97,6 +86,9 @@ public:
 
     /** Pointer to the SpikeChannel object for this electrode*/
     SpikeChannel* spikeChannel;
+    
+    /** Total number of channels for this electrode type*/
+    const int numChannels;
 
     /** Restores sampleIndex / overflow buffer settings after ending acquisition*/
     void reset();
@@ -106,7 +98,6 @@ public:
 
     /** Loads parameters from XML*/
     void fromXml(XmlElement*);
-
 
 };
 
@@ -138,7 +129,6 @@ public:
 };
 
 
-
 /**
     Detects spikes in a continuous signal and outputs events containing the spike data.
 
@@ -155,16 +145,10 @@ public:
     ~SpikeDetector();
 
     /** Processes an incoming continuous buffer and places new spikes into the event buffer. */
-    void process (AudioSampleBuffer& buffer) override;
-
-    /** Used to alter parameters during data acquisition. */
-    void setParameter (int parameterIndex, float newValue) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Called whenever the signal chain is altered. */
     void updateSettings() override;
-
-    /** Called prior to start of acquisition. */
-    bool startAcquisition() override;
 
     /** Called after acquisition is finished. */
     bool stopAcquisition() override;
@@ -173,7 +157,7 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
-    void loadCustomParametersFromXml()                          override;
+    void loadCustomParametersFromXml(XmlElement* xml)           override;
 
 
     // CREATE AND DELETE ELECTRODES
@@ -192,12 +176,11 @@ private:
 
     StreamSettings<SpikeDetectorSettings> settings;
 
-
     // INTERNAL BUFFERS
     // =====================================================================
     /** Extra samples are placed in this buffer to allow seamless
     transitions between callbacks. */
-    AudioSampleBuffer overflowBuffer;
+    AudioBuffer<float> overflowBuffer;
     // =====================================================================
 
     float getDefaultThreshold() const;

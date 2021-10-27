@@ -48,9 +48,6 @@ Merger::~Merger()
 AudioProcessorEditor* Merger::createEditor()
 {
     editor = std::make_unique<MergerEditor>(this);
-    //tEditor(editor);
-
-    LOGDD("Creating editor.");
     return editor.get();
 }
 
@@ -251,7 +248,7 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
     mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
-void Merger::loadCustomParametersFromXml()
+void Merger::loadCustomParametersFromXml(XmlElement* xml)
 {
     
 }

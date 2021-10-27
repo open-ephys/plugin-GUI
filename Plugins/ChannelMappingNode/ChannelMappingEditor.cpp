@@ -90,41 +90,11 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
 
 }
 
-ChannelMappingEditor::~ChannelMappingEditor()
-{
-
-}
-
 void ChannelMappingEditor::updateSettings()
 {
 
     refreshButtonLocations();
 
-    /*if (isConfigured)
-    {
-        if (getProcessor()->getNumInputs() > previousChannelCount)
-        {
-            createElectrodeButtons(getProcessor()->getNumInputs(),false);
-            previousChannelCount = getProcessor()->getNumInputs();
-        }
-        if (!reorderActive)
-        {
-            checkUnusedChannels();
-        }
-
-    }
-    else if (getProcessor()->getNumInputs() != previousChannelCount)
-    {
-        createElectrodeButtons(getProcessor()->getNumInputs());
-        previousChannelCount = getProcessor()->getNumInputs();
-    }
-	channelCountArray.clearQuick();
-	int size = channelArray.size();
-	for (int i = 0; i < size; i++)
-	{
-		if (enabledChannelArray[channelArray[i]-1])
-			channelCountArray.add(channelArray[i]-1);
-	}*/
 }
 
 void ChannelMappingEditor::createElectrodeButtons(int numNeeded, bool clearPrevious)
@@ -269,7 +239,7 @@ void ChannelMappingEditor::newReferenceSelected()
     }
 }
 
-void ChannelMappingEditor::buttonEvent(Button* button)
+void ChannelMappingEditor::buttonClicked(Button* button)
 {
 
     ChannelMappingNode* processor = (ChannelMappingNode*) getProcessor();
@@ -367,6 +337,10 @@ void ChannelMappingEditor::buttonEvent(Button* button)
     }
     else if (referenceButtons.contains((ElectrodeButton*)button))
     {
+        
+        if (!button->getState())
+            return;
+        
         selectedReferenceIndex = referenceButtons.indexOf((ElectrodeButton*)button);
 
         newReferenceSelected();
@@ -392,8 +366,6 @@ void ChannelMappingEditor::buttonEvent(Button* button)
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
                 button->getScreenBounds(),
                 nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 
     }
     else if (electrodeButtons.contains((ElectrodeButton*)button))
@@ -542,8 +514,7 @@ void ChannelMappingEditor::buttonEvent(Button* button)
             if (fc.browseForFileToSave(true))
             {
                 File fileToSave = fc.getResult();
-               //std::cout << fileToSave.getFileName() << std::endl;
-               // CoreServices::sendStatusMessage(writePrbFile(fileToSave));
+                writePrbFile(fileToSave);
             }
         } else {
 			CoreServices::sendStatusMessage("Stop acquisition before saving the channel map.");
@@ -567,13 +538,28 @@ void ChannelMappingEditor::buttonEvent(Button* button)
                 if (reorderActive)
                     modifyButton->setToggleState(false,sendNotificationSync);
                 File fileToOpen = fc.getResult();
-                //std::cout << fileToOpen.getFileName() << std::endl;
-				//CoreServices::sendStatusMessage(loadPrbFile(fileToOpen));
+				loadPrbFile(fileToOpen);
             }
         } else {
 			CoreServices::sendStatusMessage("Stop acquisition before saving the channel map.");
         }
     }
+}
+
+String ChannelMappingEditor::writePrbFile(File& file)
+{
+    ChannelMappingNode* processor = (ChannelMappingNode*)getProcessor();
+
+    CoreServices::sendStatusMessage(processor->writeStreamSettings(getCurrentStream(), file));
+}
+
+String ChannelMappingEditor::loadPrbFile(File& file)
+{
+    ChannelMappingNode* processor = (ChannelMappingNode*)getProcessor();
+
+    CoreServices::sendStatusMessage(processor->loadStreamSettings(getCurrentStream(), file));
+    
+    CoreServices::updateSignalChain(this);
 }
 
 void ChannelMappingEditor::channelStateChanged(Array<int> selectedChannels)

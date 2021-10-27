@@ -75,6 +75,11 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
     backgroundColor = Colour(10, 10, 10);
 }
 
+GenericEditor::~GenericEditor()
+{
+    
+}
+
 void GenericEditor::updateName()
 {
     nodeId = getProcessor()->getNodeId();
@@ -1040,6 +1045,9 @@ void GenericEditor::updateSettings() {}
 
 void GenericEditor::updateView()
 {
+
+    const MessageManagerLock mml;
+    
     for (auto ed : parameterEditors)
     {
         ed->updateView();
@@ -1067,10 +1075,24 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
     selectedStream = streamId;
     LOGD("Selected stream: ", selectedStream);
+    
+    if (streamId == 0)
+        return;
 
     for (auto ed : parameterEditors)
     {
-        ed->setParameter(getProcessor()->getParameter(selectedStream, ed->getParameterName()));
+        const String parameterName = ed->getParameterName();
+        
+        Parameter* param = getProcessor()->getParameter(parameterName);
+        
+        if (param->getScope() == Parameter::GLOBAL_SCOPE)
+        {
+            ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
+        }
+        else if (param->getScope() == Parameter::STREAM_SCOPE)
+        {
+            ed->setParameter(getProcessor()->getParameter(streamId, ed->getParameterName()));
+        }
         ed->updateView();
     }
 

@@ -68,7 +68,7 @@ public:
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
 
     /* Loads custom parameters from the settings file*/
-    void loadCustomParametersFromXml()                          override;
+    void loadCustomParametersFromXml(XmlElement* element) override;
 
     /* Gets the sample rate for a particular subprocessor*/
     float getSampleRate(int subProcessorIdx = 0) const override;

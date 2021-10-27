@@ -1520,9 +1520,14 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     checkForNewRootNodes(processor, false, false);
 
-    //disconnectNode(nodeId);
+    // need this in order to prevent double-deletion of plugin editors
+    // (not entirely sure why)
+    std::unique_ptr<GenericEditor> editor;
+    editor.swap(processor->editor);
+
     Node::Ptr node = removeNode(nodeId);
     node.reset();
+
 }
 
 bool ProcessorGraph::isReady()

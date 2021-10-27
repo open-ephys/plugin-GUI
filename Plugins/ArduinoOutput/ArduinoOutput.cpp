@@ -34,9 +34,9 @@ ArduinoOutput::ArduinoOutput()
 {
     setProcessorType (PROCESSOR_TYPE_SINK);
 
-    addIntParameter("output_pin", "The Arduino pin to use", 13, 0, 13, false, true);
-    addIntParameter("input_bit", "The TTL bit for triggering output", 1, 1, 16);
-    addIntParameter("gate_bit", "The TTL bit for gating the output", 0, 0, 16);
+    addIntParameter(Parameter::GLOBAL_SCOPE, "output_pin", "The Arduino pin to use", 13, 0, 13);
+    addIntParameter(Parameter::STREAM_SCOPE, "input_bit", "The TTL bit for triggering output", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE, "gate_bit", "The TTL bit for gating the output", 0, 0, 16);
 }
 
 
@@ -82,7 +82,7 @@ void ArduinoOutput::setDevice (String devName)
     if (arduino.isInitialized())
     {
         std::cout << "Arduino is initialized." << std::endl;
-        arduino.sendDigitalPinMode ((int) getParameterValue(dataStreams[0]->getStreamId(), "output_pin"), ARD_OUTPUT);
+        arduino.sendDigitalPinMode ((int) getParameter("output_pin")->getValue(), ARD_OUTPUT);
         CoreServices::sendStatusMessage (("Arduino initialized at " + devName));
         deviceSelected = true;
         deviceString = devName;
@@ -105,7 +105,7 @@ void ArduinoOutput::updateSettings()
 
 bool ArduinoOutput::stopAcquisition()
 {
-    arduino.sendDigital ((int)getParameterValue(dataStreams[0]->getStreamId(), "output_pin"), ARD_LOW);
+    arduino.sendDigital ((int) getParameter("output_pin")->getValue(), ARD_LOW);
 
     return true;
 }
@@ -126,7 +126,7 @@ void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket
         const int eventBit = ttl->getBit() + 1;
         const uint16 eventStream = ttl->getStreamId();
 
-        if (eventBit == int(getParameter(eventStream, "gate_bit")))
+        if (eventBit == int(getParameter(eventStream, "gate_bit")->getValue()))
         {
             if (ttl->getState())
                 gateIsOpen = true;
@@ -136,19 +136,19 @@ void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket
 
         if (gateIsOpen)
         {
-            if (eventBit == int(getParameter(eventStream, "input_bit")))
+            if (eventBit == int(getParameter(eventStream, "input_bit")->getValue()))
             {
 
                 if (ttl->getState())
                 {
                     arduino.sendDigital(
-                        int(getParameter(eventStream, "output_channel")), 
+                        int(getParameter(eventStream, "output_channel")->getValue()),
                         ARD_LOW);
                 }
                 else
                 {
                     arduino.sendDigital(
-                        int(getParameter(eventStream, "output_channel")),
+                        int(getParameter(eventStream, "output_channel")->getValue()),
                         ARD_HIGH);
                 }
             }
@@ -162,7 +162,7 @@ void ArduinoOutput::saveCustomParametersToXml(XmlElement* parentElement)
     parentElement->setAttribute("device", deviceString);
 }
 
-void ArduinoOutput::loadCustomParametersFromXml()
+void ArduinoOutput::loadCustomParametersFromXml(XmlElement* xml)
 {
-    setDevice(parametersAsXml->getStringAttribute("device", ""));
+    setDevice(xml->getStringAttribute("device", ""));
 }

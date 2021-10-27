@@ -81,7 +81,7 @@ public:
     ChannelMappingNode();
 
     /** Destructor*/
-    ~ChannelMappingNode();
+    ~ChannelMappingNode() { }
 
     /** Creates the plugin's editor*/
     AudioProcessorEditor* createEditor() override;
@@ -123,7 +123,13 @@ public:
     void saveCustomParametersToXml(XmlElement* xml) override;
 
     /** Updates the reference index for a particular channel*/
-    void loadCustomParametersFromXml() override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
+    
+    /** Saves current settings to a Prb file*/
+    String loadStreamSettings(uint16 streamId, File& file);
+    
+    /** Reads current settings from a Prb file*/
+    String writeStreamSettings(uint16 streamId, File& file);
 
 private:
 

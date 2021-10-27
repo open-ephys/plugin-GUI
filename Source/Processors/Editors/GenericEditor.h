@@ -56,7 +56,7 @@ public:
     GenericEditor (GenericProcessor* owner);
 
     /** Destructor.*/
-    virtual ~GenericEditor() { }
+    virtual ~GenericEditor();
 
     /*
     ========================================================================

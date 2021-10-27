@@ -28,18 +28,24 @@ RecordControl::RecordControl()
 {
     setProcessorType (PROCESSOR_TYPE_UTILITY);
 
-    addCategoricalParameter("trigger_type",
-        "Determines whether recording state is set or toggled by an incoming event",
-        { "Edge set", "Edge toggle" },
-        0, false, true);
+    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+                            "trigger_type",
+                            "Determines whether recording state is set or toggled by an incoming event",
+                            { "Edge set", "Edge toggle" },
+                            0);
 
-    addCategoricalParameter("edge",
-        "Determines whether recording state is changed by rising or falling events",
-        { "Rising", "Falling" },
-        0, false, true);
+    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+                            "edge",
+                            "Determines whether recording state is changed by rising or falling events",
+                            { "Rising", "Falling" },
+                            0);
 
-    addIntParameter("trigger_bit", "The TTL bit that triggers a change in recording state",
-        1, 1, 16, false, false);
+    addIntParameter(Parameter::STREAM_SCOPE,
+                    "trigger_bit",
+                    "The TTL bit that triggers a change in recording state",
+                    1,
+                    1,
+                    16);
 }
 
 
@@ -65,11 +71,11 @@ void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacke
 
         uint16 streamId = ttl->getStreamId();
 
-		if (ttl->getBit() == ( int(getParameterValue(streamId, "Trigger Bit")) - 1))
+		if (ttl->getBit() == ( int(getParameter(streamId, "Trigger Bit")->getValue()) - 1))
 		{
-			if (int(getParameterValue(streamId, "Trigger Type")) == 0)
+			if (int(getParameter("Trigger Type")->getValue()) == 0)
 			{
-				if (ttl->getState() == bool(getParameterValue(streamId, "Edge")))
+				if (ttl->getState() == bool(getParameter("Edge")->getValue()))
 				{
 					CoreServices::setRecordingStatus(true);
 				}

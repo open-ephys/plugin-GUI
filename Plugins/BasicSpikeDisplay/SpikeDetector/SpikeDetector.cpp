@@ -315,32 +315,6 @@ Array<SpikeChannelSettings*> SpikeDetector::getSpikeChannelsForStream(uint16 str
 
 
 
-
-void SpikeDetector::setParameter (int parameterIndex, float newValue)
-{
-
-    if (parameterIndex == 99 && currentElectrode > -1)
-    {
-        // update threshold
-        //settings[currentStreamId]->spikeChannels[currentChannel]->thresholds[currentElectrode] = newValue;
-    }
-    else if (parameterIndex == 98 && currentElectrode > -1)
-    {
-       // 
-       // if (newValue == 0.0f)
-       //     *(electrodes[currentElectrode]->isActive + currentChannelIndex) = false;
-       // else
-       //     *(electrodes[currentElectrode]->isActive + currentChannelIndex) = true;
-    }
-}
-
-
-bool SpikeDetector::startAcquisition()
-{
-    return true;
-}
-
-
 bool SpikeDetector::stopAcquisition()
 {
     // cycle through streams
@@ -404,14 +378,16 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
     for (auto stream : getDataStreams())
     {
         const uint16 streamId = stream->getStreamId();
+        
+        const int nSamples = getNumSourceSamples(streamId);
 
         // cycle through electrodes
         for (auto electrode : settings[streamId]->spikeChannels)
         {
 
-            const int nSamples = getNumSourceSamples(streamId);
-            
             int sampleIndex = electrode->currentSampleIndex - 1;
+            
+            const SpikeChannel* spikeChannel = electrode->spikeChannel;
 
             // cycle through samples
             while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES / 2)
@@ -419,7 +395,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                 ++sampleIndex;
 
                 // cycle through channels
-                for (int ch = 0; ch < electrode->expectedNumChannels; ch++)
+                for (int ch = 0; ch < electrode->numChannels; ch++)
                 {
 
                     // check whether spike detection is active
@@ -542,25 +518,11 @@ float SpikeDetector::getSample (int& globalChannelIndex, int& sampleIndex, Audio
 }
 
 
-/*bool SpikeDetector::samplesAvailable (int nSamples)
-{
-    if (sampleIndex > nSamples - overflowBufferSize/2)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}*/
-
-
 void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 {
 
     for (auto stream : getDataStreams())
     {
-
         XmlElement* streamParams = xml->createNewChildElement("STREAM");
 
         settings[stream->getStreamId()]->toXml(streamParams);
@@ -591,6 +553,5 @@ void SpikeDetector::loadCustomParametersFromXml()
             streamIndex++;
         }
     }
-
 }
 

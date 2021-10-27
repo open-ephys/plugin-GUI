@@ -69,7 +69,7 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement) override;
 
     /** Loads the connected device*/
-    void loadCustomParametersFromXml() override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
 private:
     /** An open-frameworks Arduino object. */

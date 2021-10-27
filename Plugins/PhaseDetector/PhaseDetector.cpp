@@ -64,10 +64,11 @@ PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
     setProcessorType (PROCESSOR_TYPE_FILTER);
 
-    addSelectedChannelsParameter("input_channel", "The continuous channel to analyze", 1);
-    addIntParameter("output_bit", "The output TTL bit", 1, 1, 16);
-    addIntParameter("gate_bit", "The input TTL bit for gating the signal", 1, 1, 16);
-    addCategoricalParameter("phase",
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "input_channel", "The continuous channel to analyze", 1);
+    addIntParameter(Parameter::STREAM_SCOPE, "output_bit", "The output TTL bit", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE,"gate_bit", "The input TTL bit for gating the signal", 1, 1, 16);
+    addCategoricalParameter(Parameter::STREAM_SCOPE,
+        "phase",
         "The phase for triggering the output",
         { "PEAK",
          "FALLING ZERO-CROSSING",

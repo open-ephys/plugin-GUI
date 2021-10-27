@@ -37,7 +37,9 @@
 */
 
 class ChannelMappingEditor : public GenericEditor,
-    public DragAndDropContainer
+    public DragAndDropContainer,
+    public Button::Listener,
+    public PopupChannelSelector::Listener
 
 {
 public:
@@ -45,10 +47,10 @@ public:
     ChannelMappingEditor(GenericProcessor* parentNode);
 
     /** Destructor*/
-    virtual ~ChannelMappingEditor();
+    virtual ~ChannelMappingEditor() {}
 
     // Called when a custom button is clicked
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
 
     void updateSettings();
 
@@ -57,7 +59,7 @@ public:
     void saveCustomParameters(XmlElement* xml);
     void loadCustomParameters(XmlElement* xml);
 
-    void channelStateChanged (Array<int> selectedChannels) override;
+    void channelStateChanged (Array<int> selectedChannels);
 
     /** Mouse actions */
     void mouseDrag(const MouseEvent& e);
@@ -72,6 +74,9 @@ public:
 	//int getChannelDisplayNumber(int chan) const override;
 
 private:
+    
+    String loadPrbFile(File& file);
+    String writePrbFile(File& file);
 
     void setChannelReference(ElectrodeButton* button);
     void setChannelPosition(int position, int channel);
@@ -91,15 +96,6 @@ private:
     ScopedPointer<SaveButton> saveButton;
     ScopedPointer<Viewport> electrodeButtonViewport;
     ScopedPointer<Component> electrodeButtonHolder;
-
-    //Array<int> channelArray;
-    //Array<int> referenceArray;
-    //Array<int> referenceChannels;
-    //Array<bool> enabledChannelArray;
-	//Array<int> channelCountArray;
-
-    //int previousChannelCount;
-    //int selectedReference;
 
     bool reorderActive;
     int previousClickedChan;

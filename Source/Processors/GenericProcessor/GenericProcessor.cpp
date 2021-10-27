@@ -71,10 +71,6 @@ GenericProcessor::GenericProcessor(const String& name)
 
 GenericProcessor::~GenericProcessor()
 {
-	if (editor != nullptr)
-	{
-		editor.reset();
-	}
 }
 
 
@@ -96,34 +92,7 @@ void GenericProcessor::setNodeId(int id)
 	}
 }
 
-Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
-{
 
-	std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
-
-	// no checking, so it's fast; but take care to provide a valid stream / name
-	return parameterMap[streamId][name];
-
-}
-
-Parameter* GenericProcessor::getGlobalParameter(const String& name)
-{
-	return globalParameterMap[name];
-}
-
-var GenericProcessor::getGlobalParameterValue(const String& name)
-{
-	return globalParameterMap[name]->getValue();
-}
-
-
-var GenericProcessor::getParameterValue(uint16 streamId, const String& name)
-{
-
-	// no checking, so it's fast; but take care to provide a valid stream / name
-	return parameterMap[streamId][name]->getValue();
-
-}
 
 Parameter* GenericProcessor::getParameter(const String& name)
 {
@@ -138,159 +107,260 @@ Parameter* GenericProcessor::getParameter(const String& name)
 	return nullptr;
 }
 
-
-int GenericProcessor::getParameterIndex(const String& name)
+Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
 {
-	for (int i = 0; i < availableParameters.size(); i++)
-	{
-		if (availableParameters[i]->getName().equalsIgnoreCase(name))
-			return i;
-	}
 
-	return -1;
+    std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
+
+    // no checking, so it's fast; but take care to provide a valid stream / name
+    return streamParameterMap[streamId][name];
+
 }
 
-void GenericProcessor::addBooleanParameter(const String& name,
+Parameter* GenericProcessor::getParameter(EventChannel* eventChannel, const String& name)
+{
+    // no checking, so it's fast; but take care to provide a valid stream / name
+    return eventChannelParameterMap[eventChannel][name];
+
+}
+
+
+Parameter* GenericProcessor::getParameter(ContinuousChannel* continuousChannel, const String& name)
+{
+    // no checking, so it's fast; but take care to provide a valid stream / name
+    return continuousChannelParameterMap[continuousChannel][name];
+
+}
+
+
+Parameter* GenericProcessor::getParameter(SpikeChannel* spikeChannel, const String& name)
+{
+    // no checking, so it's fast; but take care to provide a valid stream / name
+    return spikeChannelParameterMap[spikeChannel][name];
+
+}
+
+Array<Parameter*> GenericProcessor::getParameters()
+{
+    Array<Parameter*> params;
+    
+    for (const auto & [key, value] : globalParameterMap)
+    {
+        params.add(value);
+    }
+    
+    return params;
+}
+
+Array<Parameter*> GenericProcessor::getParameters(uint16 streamId)
+{
+    Array<Parameter*> params;
+    
+    for (const auto & [key, value] : streamParameterMap[streamId])
+    {
+        params.add(value);
+    }
+    
+    return params;
+}
+
+
+Array<Parameter*> GenericProcessor::getParameters(EventChannel* eventChannel)
+{
+    Array<Parameter*> params;
+    
+    for (const auto & [key, value] : eventChannelParameterMap[eventChannel])
+    {
+        params.add(value);
+    }
+    
+    return params;
+}
+
+Array<Parameter*> GenericProcessor::getParameters(ContinuousChannel* continuousChannel)
+{
+    Array<Parameter*> params;
+    
+    for (const auto & [key, value] : continuousChannelParameterMap[continuousChannel])
+    {
+        params.add(value);
+    }
+    
+    return params;
+}
+
+Array<Parameter*> GenericProcessor::getParameters(SpikeChannel* spikeChannel)
+{
+    Array<Parameter*> params;
+    
+    for (const auto & [key, value] : spikeChannelParameterMap[spikeChannel])
+    {
+        params.add(value);
+    }
+    
+    return params;
+}
+
+
+
+void GenericProcessor::addBooleanParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
 	const String& description,
 	bool defaultValue,
-	bool deactivateDuringAcquisition,
-	bool isGlobal)
+	bool deactivateDuringAcquisition)
 {
 
 	BooleanParameter* p = new BooleanParameter(
 		this, 
-		0, 
+		scope,
 		name, 
 		description, 
 		defaultValue, 
-		deactivateDuringAcquisition, 
-		isGlobal);
+		deactivateDuringAcquisition);
 
 	availableParameters.add(p);
 
-	if (isGlobal)
+	if (scope == Parameter::GLOBAL_SCOPE)
 	{
-		globalParameters.add(p);
 		globalParameterMap[p->getName()] = p;
 	}
 
 }
 
-void GenericProcessor::addCategoricalParameter(const String& name,
+void GenericProcessor::addCategoricalParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
 	const String& description,
 	StringArray categories,
 	int defaultIndex,
-	bool deactivateDuringAcquisition,
-	bool isGlobal)
+	bool deactivateDuringAcquisition)
 {
 
 	CategoricalParameter* p = new CategoricalParameter(
 		this, 
-		0, 
+		scope,
 		name, 
 		description, 
 		categories, 
 		defaultIndex, 
-		deactivateDuringAcquisition,
-		isGlobal);
+		deactivateDuringAcquisition);
 
 	availableParameters.add(p);
 	
-	if (isGlobal)
+	if (scope == Parameter::GLOBAL_SCOPE)
 	{
-		globalParameters.add(p);
 		globalParameterMap[p->getName()] = p;
 	}
 
 }
 
-void GenericProcessor::addIntParameter(const String& name,
-	const String& description,
+void GenericProcessor::addIntParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
 	int defaultValue,
 	int minValue,
 	int maxValue,
-	bool deactivateDuringAcquisition,
-	bool isGlobal)
+	bool deactivateDuringAcquisition)
 {
 
 	IntParameter* p = 
 		new IntParameter(this, 
-			0, 
+			scope,
 			name, 
 			description, 
 			defaultValue, 
 			minValue, 
 			maxValue, 
-			deactivateDuringAcquisition,
-			isGlobal);
+			deactivateDuringAcquisition);
 
 	availableParameters.add(p);
 
-	if (isGlobal)
+	if (scope == Parameter::GLOBAL_SCOPE)
 	{
-		globalParameters.add(p);
 		globalParameterMap[p->getName()] = p;
 	}
 
 }
 
+void GenericProcessor::addStringParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
+    String defaultValue,
+    bool deactivateDuringAcquisition)
+{
+    StringParameter* p =
+        new StringParameter(this,
+            scope,
+            name,
+            description,
+            defaultValue,
+            deactivateDuringAcquisition);
 
-void GenericProcessor::addFloatParameter(const String& name,
-	const String& description,
+    availableParameters.add(p);
+
+    if (scope == Parameter::GLOBAL_SCOPE)
+    {
+        globalParameterMap[p->getName()] = p;
+    }
+}
+
+void GenericProcessor::addFloatParameter(
+	Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
 	float defaultValue,
 	float minValue,
 	float maxValue,
 	float stepSize,
-	bool deactivateDuringAcquisition,
-	bool isGlobal)
+	bool deactivateDuringAcquisition)
 {
 
 	FloatParameter* p =
 		new FloatParameter(this,
-			0,
+			scope,
 			name,
 			description,
 			defaultValue,
 			minValue,
 			maxValue,
 			stepSize,
-			deactivateDuringAcquisition,
-			isGlobal);
+			deactivateDuringAcquisition);
 
 	availableParameters.add(p);
 
-	if (isGlobal)
+	if (scope == Parameter::GLOBAL_SCOPE)
 	{
-		globalParameters.add(p);
 		globalParameterMap[p->getName()] = p;
 	}
 
 }
 
-void GenericProcessor::addSelectedChannelsParameter(const String& name,
-	const String& description,
+void GenericProcessor::addSelectedChannelsParameter(
+	Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
 	int maxSelectedChannels,
-	bool deactivateDuringAcquisition,
-	bool isGlobal)
+	bool deactivateDuringAcquisition)
 {
 
 	Array<var> defaultValue;
 
 	SelectedChannelsParameter* p =
 		new SelectedChannelsParameter(this,
-			0,
+			scope,
 			name,
 			description,
 			defaultValue,
 			maxSelectedChannels,
-			deactivateDuringAcquisition,
-			isGlobal);
+			deactivateDuringAcquisition);
 
 	availableParameters.add(p);
 
-	if (isGlobal)
+	if (scope == Parameter::GLOBAL_SCOPE)
 	{
-		globalParameters.add(p);
 		globalParameterMap[p->getName()] = p;
 	}
 }
@@ -530,168 +600,168 @@ void GenericProcessor::update()
 
 	updateChannelIndexMaps();
 
+    /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : getDataStreams())
 	{
 		LOGD("Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
 
-		if (parameterMap.find(stream->getStreamId()) == parameterMap.end())
+		if (streamParameterMap.find(stream->getStreamId()) == streamParameterMap.end())
 		{
 
-			parameterMap[stream->getStreamId()] = std::map<String, Parameter*>();
+			streamParameterMap[stream->getStreamId()] = std::map<String, Parameter*>();
 
 			for (auto param : availableParameters)
 			{
 				if (param->getType() == Parameter::BOOLEAN_PARAM)
 				{
-					if (!param->isGlobal())
+					if (param->getScope() == Parameter::STREAM_SCOPE)
 					{
 						BooleanParameter* p = (BooleanParameter*)param;
 						parameters.add(new BooleanParameter(
 							this,
-							stream->getStreamId(),
+							param->getScope(),
 							p->getName(),
 							p->getDescription(),
 							p->getBoolValue(),
-							p->shouldDeactivateDuringAcquisition(),
-							p->isGlobal()
+							p->shouldDeactivateDuringAcquisition()
 						));
 
-						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-					}
-					else {
-						parameterMap[stream->getStreamId()][param->getName()] = param;
+						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
 					}
 
 				}
 				else if (param->getType() == Parameter::INT_PARAM)
 				{
 
-					if (!param->isGlobal())
-					{
+					if (param->getScope() == Parameter::STREAM_SCOPE)
+                    {
 						IntParameter* p = (IntParameter*)param;
 						parameters.add(new IntParameter(
 							this,
-							stream->getStreamId(),
+							param->getScope(),
 							p->getName(),
 							p->getDescription(),
 							p->getIntValue(),
 							p->getMinValue(),
 							p->getMaxValue(),
-							p->shouldDeactivateDuringAcquisition(),
-							p->isGlobal()
+							p->shouldDeactivateDuringAcquisition()
 						));
 
-						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
 					}
-					else {
-						parameterMap[stream->getStreamId()][param->getName()] = param;
-					}
-					
 				}
+                else if (param->getType() == Parameter::STRING_PARAM)
+                {
 
+                    if (param->getScope() == Parameter::STREAM_SCOPE)
+                    {
+                        StringParameter* p = (StringParameter*)param;
+                        parameters.add(new StringParameter(
+                            this,
+                            param->getScope(),
+                            p->getName(),
+                            p->getDescription(),
+                            p->getStringValue(),
+                            p->shouldDeactivateDuringAcquisition()
+                        ));
+
+                        streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
+                    }
+                }
 				else if (param->getType() == Parameter::FLOAT_PARAM)
 				{
 
-					if (!param->isGlobal())
-					{
+					if (param->getScope() == Parameter::STREAM_SCOPE)
+                    {
 						FloatParameter* p = (FloatParameter*)param;
 						parameters.add(new FloatParameter(
 							this,
-							stream->getStreamId(),
+							param->getScope(),
 							p->getName(),
 							p->getDescription(),
 							p->getFloatValue(),
 							p->getMinValue(),
 							p->getMaxValue(),
 							p->getStepSize(),
-							p->shouldDeactivateDuringAcquisition(),
-							p->isGlobal()
+							p->shouldDeactivateDuringAcquisition()
 						));
 
-						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-					}
-					else {
-						parameterMap[stream->getStreamId()][param->getName()] = param;
+						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
 					}
 
 				}
 				else if (param->getType() == Parameter::CATEGORICAL_PARAM)
 				{
 
-					if (!param->isGlobal())
+					if (param->getScope() == Parameter::STREAM_SCOPE)
 					{
 						CategoricalParameter* p = (CategoricalParameter*)param;
 						parameters.add(new CategoricalParameter(
 							this,
-							stream->getStreamId(),
+							param->getScope(),
 							p->getName(),
 							p->getDescription(),
 							p->getCategories(),
 							p->getSelectedIndex(),
-							p->shouldDeactivateDuringAcquisition(),
-							p->isGlobal()
+							p->shouldDeactivateDuringAcquisition()
 						));
 
-						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-					}
-					else {
-						parameterMap[stream->getStreamId()][param->getName()] = param;
+						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
 					}
 
 				}
 				else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
 				{
 
-					if (!param->isGlobal())
-					{
+					if (param->getScope() == Parameter::STREAM_SCOPE)
+                    {
 						SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
 
 						SelectedChannelsParameter* newParam = new SelectedChannelsParameter(
 							this,
-							stream->getStreamId(),
+							param->getScope(),
 							p->getName(),
 							p->getDescription(),
 							p->getValue(),
 							p->getMaxSelectableChannels(),
-							p->shouldDeactivateDuringAcquisition(),
-							p->isGlobal()
+							p->shouldDeactivateDuringAcquisition()
 						);
 
 						newParam->setChannelCount(stream->getChannelCount());
 
 						parameters.add(newParam);
 
-						parameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
+                        parameters.getLast()->setStreamId(stream->getStreamId());
 
 					}
-					else {
-
-						SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-						p->setChannelCount(getNumOutputs());
-
-						parameterMap[stream->getStreamId()][param->getName()] = param;
-					}
-
 				}
-
 			}
-
 		}
 		else {
 			for (auto param : availableParameters)
 			{
 				if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
 				{
-					SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(stream->getStreamId(), param->getName());
-
-					if (!param->isGlobal())
-						p->setChannelCount(stream->getChannelCount());
+					if (param->getScope() == Parameter::STREAM_SCOPE)
+                    {
+                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(stream->getStreamId(), param->getName());
+                        p->setChannelCount(stream->getChannelCount());
+                    }
 					else
-						p->setChannelCount(getNumOutputs());
+                    {
+                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(param->getName());
+                        p->setChannelCount(getNumOutputs());
+                    }
+						
 				}
 			}
 		}
-
 	}
 
 
@@ -700,7 +770,6 @@ void GenericProcessor::update()
 					  // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
-
 
 	updateChannelIndexMaps();
 
@@ -1267,16 +1336,75 @@ const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 void GenericProcessor::saveToXml(XmlElement* xml)
 {
 	xml->setAttribute("NodeId", nodeId);
+    
+    XmlElement* paramsXml = xml->createNewChildElement("GLOBAL_PARAMETERS");
+    
+    for (auto param : getParameters())
+    {
+        param->toXml(paramsXml);
+    }
 
 	for (auto stream : getDataStreams())
 	{
-		XmlElement* streamParams = xml->createNewChildElement("STREAMZ");
+		XmlElement* streamXml = xml->createNewChildElement("STREAM");
+        
+        streamXml->setAttribute("name",stream->getName());
+        streamXml->setAttribute("description", stream->getDescription());
+        streamXml->setAttribute("sample_rate", stream->getSampleRate());
+        streamXml->setAttribute("channel_count", stream->getChannelCount());
 
-		for (auto param : availableParameters)
-			parameterMap[stream->getStreamId()][param->getName()]->toXml(streamParams);
+        XmlElement* streamParamsXml = xml->createNewChildElement("PARAMETERS");
+        
+		for (auto param : getParameters(stream->getStreamId()))
+			streamParameterMap[stream->getStreamId()][param->getName()]->toXml(streamParamsXml);
+        
+        for (auto eventChannel : stream->getEventChannels())
+        {
+            if (getParameters(eventChannel).size() > 0)
+            {
+                XmlElement* eventParamsXml = xml->createNewChildElement("EVENT_CHANNEL");
+                eventParamsXml->setAttribute("name",eventChannel->getName());
+                eventParamsXml->setAttribute("description", eventChannel->getDescription());
+                
+                for (auto param : getParameters(eventChannel))
+                {
+                    eventChannelParameterMap[eventChannel][param->getName()]->toXml(eventParamsXml);
+                }
+            }
+        }
+        
+        for (auto continuousChannel : stream->getContinuousChannels())
+        {
+            if (getParameters(continuousChannel).size() > 0)
+            {
+                XmlElement* continuousParamsXml = xml->createNewChildElement("CONTINUOUS_CHANNEL");
+                continuousParamsXml->setAttribute("name",continuousChannel->getName());
+                continuousParamsXml->setAttribute("description", continuousChannel->getDescription());
+                
+                for (auto param : getParameters(continuousChannel))
+                {
+                    continuousChannelParameterMap[continuousChannel][param->getName()]->toXml(continuousParamsXml);
+                }
+            }
+        }
+        
+        for (auto spikeChannel : stream->getSpikeChannels())
+        {
+            if (getParameters(spikeChannel).size() > 0)
+            {
+                XmlElement* spikeParamsXml = xml->createNewChildElement("SPIKE_CHANNEL");
+                spikeParamsXml->setAttribute("name",spikeChannel->getName());
+                spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
+                
+                for (auto param : getParameters(spikeChannel))
+                {
+                    spikeChannelParameterMap[spikeChannel][param->getName()]->toXml(spikeParamsXml);
+                }
+            }
+        }
 	}
 
-	saveCustomParametersToXml(xml);
+	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));
 
 	getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
 }
@@ -1311,26 +1439,6 @@ void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, Inf
 	}
 
 	saveCustomChannelParametersToXml(channelInfoXml, channel);
-
-	// deprecated parameter configuration:
-	//LOGDD("Creating Parameters");
-	// int maxsize = parameters.size();
-	// String parameterName;
-	// String parameterValue;
-	// XmlElement* parameterChildNode;
-
-	// // save any attributes that belong to "Parameter" objects
-	// for (int n = 0; n < maxsize; n++)
-	// {
-	//     parameterName = getParameterName(n);
-
-	//     parameterChildNode = channelParent->createNewChildElement("PARAMETER");
-	//     parameterChildNode->setAttribute("name", parameterName);
-
-	//     var parameterVar = getParameterVar(n, channelNumber-1);
-	//     parameterValue = parameterVar.toString();
-	//     parameterChildNode->addTextElement(parameterValue);
-	// }
 }
 
 void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel)
@@ -1350,16 +1458,29 @@ void GenericProcessor::loadFromXml()
 		int streamIndex = 0;
 		Array<const DataStream*> availableStreams = getDataStreams();
 
-		forEachXmlChildElement(*parametersAsXml, streamParams)
+		forEachXmlChildElement(*parametersAsXml, xmlNode)
 		{
-			if (streamParams->hasTagName("STREAMZ"))
+            if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
+            {
+                for (int i = 0; i < xmlNode->getNumAttributes(); i++)
+                    getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
+            }
+            
+			if (xmlNode->hasTagName("STREAM"))
 			{
-
 				if (availableStreams.size() > streamIndex)
 				{
 					LOGD("FOUND IT!");
-					for (auto param : availableParameters)
-						parameterMap[availableStreams[streamIndex]->getStreamId()][param->getName()]->fromXml(streamParams);
+                    
+                    forEachXmlChildElement(*xmlNode, streamParams)
+                    {
+                        if (streamParams->hasTagName("PARAMETERS"))
+                        {
+                            for (int i = 0; i < xmlNode->getNumAttributes(); i++)
+                                getParameter(availableStreams[streamIndex]->getStreamId(),
+                                         xmlNode->getAttributeName(i))->fromXml(xmlNode);
+                        }
+                    }
 				}
 				else {
 					LOGD("DID NOT FIND IT!");
@@ -1370,10 +1491,15 @@ void GenericProcessor::loadFromXml()
 		}
 
 
+        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        {
+            if (xmlNode->hasTagName("CUSTOM_PARAMETERS"))
+            {
+                loadCustomParametersFromXml(xmlNode);
+            }
+        }
         // use parametersAsXml to restore state
-        loadCustomParametersFromXml();
-
-
+        
         // load editor parameters
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
@@ -1426,7 +1552,7 @@ void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, Inf
 }
 
 
-void GenericProcessor::loadCustomParametersFromXml() { }
+void GenericProcessor::loadCustomParametersFromXml(XmlElement*) { }
 
 void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type type) { }
 

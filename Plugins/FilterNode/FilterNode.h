@@ -101,9 +101,6 @@ private:
 
     void setFilterParameters (double, double, int);
 
-    uint16 currentStream;
-    int currentChannel;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 };
 

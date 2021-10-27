@@ -81,7 +81,6 @@ namespace AccessClass
 */
 class PLUGIN_API GenericProcessor   : public GenericProcessorBase
                                     , public PluginClass
-									//, public ChannelCreationIndices
 {
 	friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
@@ -115,7 +114,7 @@ public:
     /** Allows parameters to change while acquisition is active. If the user wants
     to change ANY variables that are used within the process() method, this must
     be done through setParameter(). */
-    void setParameter(int parameterIndex, float newValue);
+    virtual void setParameter(int parameterIndex, float newValue);
 
     // --------------------------------------------
     //    QUERYING INFO ABOUT THIS PROCESSOR
@@ -266,68 +265,87 @@ public:
     // --------------------------------------------
 
     /** Adds a boolean parameter, which will later be accessed by name*/
-    void addBooleanParameter(const String& name,
+    void addBooleanParameter(Parameter::ParameterScope scope,
+        const String& name,
         const String& description,
         bool defaultValue,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Adds an integer parameter, which will later be accessed by name*/
-    void addIntParameter(const String& name,
+    void addIntParameter(Parameter::ParameterScope scope,
+        const String& name,
         const String& description,
         int defaultValue,
         int minValue,
         int maxValue,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
+    
+    /** Adds a string parameter, which will later be accessed by name*/
+    void addStringParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& description,
+        String defaultValue,
+        bool deactivateDuringAcquisition = false);
 
     /** Adds an float parameter, which will later be accessed by name*/
-    void addFloatParameter(const String& name,
+    void addFloatParameter(Parameter::ParameterScope scope,
+        const String& name,
         const String& description,
         float defaultValue,
         float minValue,
         float maxValue,
         float stepSize,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Adds a selected channels parameter, which will later be accessed by name*/
-    void addSelectedChannelsParameter(const String& name,
+    void addSelectedChannelsParameter(Parameter::ParameterScope scope,
+        const String& name,
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
-        bool deactivateDuringAcquisition = false, 
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
-    void addCategoricalParameter(const String& name,
+    void addCategoricalParameter(Parameter::ParameterScope scope,
+        const String& name,
         const String& description,
         StringArray categories,
         int defaultIndex,
-        bool deactivateDuringAcquisition = false,
-        bool isGlobal = false);
+        bool deactivateDuringAcquisition = false);
 
-    /** Returns a pointer to a Parameter object for a given name*/
+    /** Returns a pointer to a global Parameter*/
+    Parameter* getParameter(const String& parameterName);
+    
+    /** Returns a pointer to a Parameter object for a given stream (0 = no stream)*/
     Parameter* getParameter(const uint16 streamId, const String& parameterName);
 
-    /** Returns a pointer to a Parameter object for a given name.*/
-    Parameter* getParameter(const String& parameterName);
-
-    /** Returns the actual value for a parameter for a given name*/
-    var getParameterValue(const uint16 streamId, const String& parameterName);
-
-    /** Returns the index of the parameter for a given name.*/
-    int getParameterIndex(const String& parameterName);
-
-    /** Returns a global parameter*/
-    Parameter* getGlobalParameter(const String& parameterName);
-
-    /** Returns a global parameter value*/
-    var getGlobalParameterValue(const String& parameterName);
+    /** Returns a pointer to a Parameter object for a given event channel.*/
+    Parameter* getParameter(EventChannel* channelInfo, const String& parameterName);
+    
+    /** Returns a pointer to a Parameter object for a given continuous channel.*/
+    Parameter* getParameter(ContinuousChannel* channelInfo, const String& parameterName);
+    
+    /** Returns a pointer to a Parameter object for a given spike channel.*/
+    Parameter* getParameter(SpikeChannel* channelInfo, const String& parameterName);
+    
+    /** Returns a list of global parameters for this processor*/
+    Array<Parameter*> getParameters();
+    
+    /** Returns a list of parameters for a given stream within this processor*/
+    Array<Parameter*> getParameters(uint16 streamId);
+    
+    /** Returns a list of parameters for a given event channel within this processor*/
+    Array<Parameter*> getParameters(EventChannel* channelInfo);
+    
+    /** Returns a list of parameters for a given continuous channel within this processor*/
+    Array<Parameter*> getParameters(ContinuousChannel* channelInfo);
+    
+    /** Returns a list of parameters for a given spike channel within this processor*/
+    Array<Parameter*> getParameters(SpikeChannel* channelInfo);
 
     /** Initiates parameter value update */
     void parameterChangeRequest(Parameter*);
 
-    /** Called when a parameter value is updated*/
+    /** Called when a parameter value is updated, to allow plugin-specific responses*/
     virtual void parameterValueChanged(Parameter*) { }
 
     // BUFFER ACCESS
@@ -386,7 +404,7 @@ public:
     virtual void saveCustomChannelParametersToXml(XmlElement* channelElement, InfoObject* channel);
 
     /** Load custom settings from XML*/
-    virtual void loadCustomParametersFromXml();
+    virtual void loadCustomParametersFromXml(XmlElement* customParamsXml);
 
     /** Load custom parameters for each channel. */
     virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
@@ -464,6 +482,10 @@ public:
 
     /** Determines whether the processor's editor appears colored or grayed out*/
     bool isEnabled;
+    
+    
+    /** Pointer to the processor's editor. */
+    std::unique_ptr<GenericEditor> editor;
 
 protected:
 
@@ -583,23 +605,26 @@ protected:
     /** When set to false, this disables the sending of sample counts through the event buffer (used by Mergers and Splitters). */
     bool sendSampleCount;
 
-    /** Pointer to the processor's editor. */
-    std::unique_ptr<GenericEditor> editor;
-
     /** An array of default parameters for this processor.*/
     OwnedArray<Parameter> availableParameters;
 
-    /** An array of global parameters for this processor.*/
-    Array<Parameter*> globalParameters;
-
-    /** An array of parameters for each stream that the user can modify.*/
+    /** An array of parameters that the user can modify.*/
     OwnedArray<Parameter> parameters;
+    
+    /** Used to quickly access parameters by name*/
+    std::map<String, Parameter*> globalParameterMap;
 
     /** Used to quickly access parameters by name*/
-    std::map<uint16, std::map<String, Parameter*>> parameterMap;
-
+    std::map<uint16, std::map<String, Parameter*>> streamParameterMap;
+    
     /** Used to quickly access parameters by name*/
-     std::map<String, Parameter*> globalParameterMap;
+    std::map<EventChannel*, std::map<String, Parameter*>> eventChannelParameterMap;
+    
+    /** Used to quickly access parameters by name*/
+    std::map<ContinuousChannel*, std::map<String, Parameter*>> continuousChannelParameterMap;
+    
+    /** Used to quickly access parameters by name*/
+    std::map<SpikeChannel*, std::map<String, Parameter*>> spikeChannelParameterMap;
 
 
 private:

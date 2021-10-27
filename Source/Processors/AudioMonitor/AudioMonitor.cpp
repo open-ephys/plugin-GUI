@@ -33,9 +33,21 @@ AudioMonitor::AudioMonitor()
 
     tempBuffer = std::make_unique<AudioSampleBuffer>(16, 1024);
     
-    addBooleanParameter("mute_audio", "Mute audio for this Audio Monitor", false, false, true);
-    addCategoricalParameter("audio_output", "Select L/R or both", { "LEFT", "BOTH", "RIGHT" }, 1, false, true);
-    addSelectedChannelsParameter("selected_channels", "Channels to monitor", 4);
+    addBooleanParameter(Parameter::GLOBAL_SCOPE,
+                        String("mute_audio"),
+                        "Mute audio for this Audio Monitor",
+                        false);
+    
+    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+                            String("audio_output"),
+                            "Select L/R or both",
+                            { "LEFT", "BOTH", "RIGHT" },
+                            1);
+    
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+                                 String("selected_channels"),
+                                 "Channels to monitor",
+                                 4);
 
     for (int i = 0; i < MAX_CHANNELS; i++)
     {
@@ -236,7 +248,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
     buffer.clear(totalBufferChannels - 2, 0, buffer.getNumSamples());
     buffer.clear(totalBufferChannels - 1, 0, buffer.getNumSamples());
 
-    if (!getGlobalParameterValue("mute_audio"))
+    if (!getParameter("mute_audio")->getValue())
     {
 
         for (auto stream : getDataStreams())
@@ -245,7 +257,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
             AudioSampleBuffer* overflowBuffer;
             AudioSampleBuffer* backupBuffer;
 
-            Array<var> activeChannels = getParameterValue(stream->getStreamId(), "selected_channels");
+            Array<var> activeChannels = getParameter(stream->getStreamId(), "selected_channels")->getValue();
 
             for (int i = 0; i < activeChannels.size(); i++)
             {
@@ -402,7 +414,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
                 int targetChannel;
 
-                if (int(getGlobalParameterValue("audio_output")) == 0 || int(getGlobalParameterValue("audio_output")) == 2)
+                if (int(getParameter("audio_output")->getValue()) == 0 || int(getParameter("audio_output")->getValue()) == 2)
                     targetChannel = totalBufferChannels - 2;
                 else
                     targetChannel = totalBufferChannels - 1;
@@ -455,7 +467,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
             } // end cycling through channels
 
-            if (int(getGlobalParameterValue("audio_output")) == 2)
+            if (int(getParameter("audio_output")->getValue()) == 2)
             {
                 // copy the signal into the right channel
                 buffer.addFrom(totalBufferChannels - 1,    // destChannel
