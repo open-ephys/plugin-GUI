@@ -28,8 +28,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include "Metadata.h"
+#include "../Parameter/ParameterCollection.h"
+#include "../Parameter/Parameter.h"
 
 class ProcessorInfoObject;
+class ParameterCollection;
 class DataStream;
 
 /** This class creates a string that indicates all of the processors a channel has passed through */
@@ -124,7 +127,10 @@ class PLUGIN_API InfoObject :
 public:
 	/** Destructor */
     virtual ~InfoObject();
-
+    
+    /** Custom copy constructor -- set isLocal to false and don't copy parameters*/
+    InfoObject(const InfoObject& other);
+    
 	/** InfoObject::Type*/
 	enum Type
 	{
@@ -167,7 +173,19 @@ public:
 		float z = 0;
 		String description = "unknown";
 	};
-
+    
+    /*Bracket operator returns the value of a parameter*/
+    var operator [](String name) const {return parameters[name]->getValue();}
+    
+    /** Adds a parameter to this object**/
+    void addParameter(Parameter* p) { parameters.addParameter(p); }
+    
+    /** Returns a pointer to a parameter with a given name**/
+    Parameter* getParameter(String name) const { return parameters[name]; }
+    
+    /** Returns the number of parameters for this object*/
+    int numParameters() const { return parameters.size(); }
+    
 	/** Returns the type of the InfoObject*/
 	const Type getType() const;
 
@@ -200,6 +218,9 @@ public:
 	
 	/** Indicates that this InfoObject is passing through a new processor.*/
 	void addProcessor(ProcessorInfoObject*);
+    
+    /** Returns true if this object was created locally, or copied from an upstream processor.*/
+    bool isLocal() const;
 
 	Array<ProcessorInfoObject*> processorChain;
 
@@ -211,6 +232,8 @@ protected:
 	InfoObject(Type type);
 
 private:
+    
+    ParameterCollection parameters;
 
 	const Type m_type;
 	
@@ -222,6 +245,10 @@ private:
 
 	int m_sourceNodeId;
 	String m_sourceNodeName;
+    
+    bool m_isEnabled;
+    
+    bool m_isLocal;
 };
 
 class PLUGIN_API ChannelInfoObject :

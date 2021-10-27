@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataStream.h"
 #include "ProcessorInfo.h"
 
+
 HistoryObject::HistoryObject() { }
 
 HistoryObject::~HistoryObject() { }
@@ -101,12 +102,29 @@ InfoObject::InfoObject(InfoObject::Type type)
 	:	m_type(type),
 		m_local_index(-1),
 		m_global_index(-1),
-		m_sourceNodeId(-1)
+		m_sourceNodeId(-1),
+        m_isEnabled(true),
+        m_isLocal(true)
 {
 }
 
 InfoObject::~InfoObject()
 {}
+
+InfoObject::InfoObject(const InfoObject& other) :
+    m_type(other.m_type),
+    m_local_index(other.m_local_index),
+    m_global_index(other.m_global_index),
+    m_sourceNodeId(other.m_sourceNodeId),
+    m_nodeId(other.m_nodeId),
+    m_nodeName(other.m_nodeName),
+    m_isLocal(false),
+    m_isEnabled(other.m_isEnabled),
+    group(other.group),
+    position(other.position)
+{
+    
+}
 
 const InfoObject::Type InfoObject::getType() const
 {
@@ -173,6 +191,11 @@ void InfoObject::addProcessor(ProcessorInfoObject* processor)
 	setNodeId(processor->getNodeId());
 
 	m_nodeName = processor->getName();
+}
+
+bool InfoObject::isLocal() const
+{
+    return m_isLocal;
 }
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)

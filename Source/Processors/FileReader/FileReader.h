@@ -99,8 +99,6 @@ private:
     unsigned int count = 0;
     void addEventsInRange(int64 start, int64 stop);
 
-    std::unique_ptr<DataStream> currentStream;
-
     bool gotNewFile;
     
     void setActiveRecording (int index);

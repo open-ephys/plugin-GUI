@@ -83,7 +83,6 @@ public:
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_)
     {
-
     }
 
     virtual ~Parameter() { }
@@ -154,7 +153,7 @@ public:
     
     /** Returns the value as a string**/
     virtual String getValueAsString() = 0;
-
+    
 protected:
 
     GenericProcessor* processor;

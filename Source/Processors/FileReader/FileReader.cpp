@@ -367,8 +367,6 @@ void FileReader::updateSettings()
     if (gotNewFile)
     {
 
-        currentStream.reset();
-
         DataStream::Settings settings{
 
             "File Reader Stream",
@@ -377,48 +375,52 @@ void FileReader::updateSettings()
             getDefaultSampleRate()
 
         };
+        
+        dataStreams.add(new DataStream(settings));
+        dataStreams.getLast()->addProcessor(processorInfo.get());
 
-        currentStream = std::make_unique<DataStream>(settings);
+        
+        for (int i = 0; i < currentNumChannels; i++)
+        {
+            ContinuousChannel::Settings settings2
+            {
+                ContinuousChannel::Type::ELECTRODE,
+                "CH" + String(i + 1),
+                "description",
+                "filereader.stream",
+                0.195f, // BITVOLTS VALUE
+                dataStreams.getLast()
+            };
+            
+            continuousChannels.add(new ContinuousChannel(settings2));
+            continuousChannels.getLast()->addProcessor(processorInfo.get());
+        }
+
+        EventChannel *events;
+
+        EventChannel::Settings eventSettings {
+            EventChannel::Type::TTL,
+            "All TTL events",
+            "All TTL events loaded for the current input data source",
+            "filereader.events",
+            dataStreams.getLast()
+        };
+
+        //FIXME: Should add an event channel for each event channel detected in the current file source
+        events = new EventChannel(eventSettings);
+        String id = "sourceevent";
+        events->setIdentifier(id);
+        events->addProcessor(processorInfo.get());
+        eventChannels.add(events);
+        
 
         gotNewFile = false;
 
     };
 
-    dataStreams.add(new DataStream(*currentStream.get()));
-    dataStreams.getLast()->addProcessor(processorInfo.get());
+    
 
-    for (int i = 0; i < currentNumChannels; i++)
-    {
-        ContinuousChannel::Settings settings2
-        {
-            ContinuousChannel::Type::ELECTRODE,
-            "CH" + String(i + 1),
-            "description",
-            "filereader.stream",
-            0.195f, // BITVOLTS VALUE
-            dataStreams.getLast()
-        };
-        
-        continuousChannels.add(new ContinuousChannel(settings2));
-        continuousChannels.getLast()->addProcessor(processorInfo.get());
-    }
-
-    EventChannel *events;
-
-    EventChannel::Settings eventSettings {
-        EventChannel::Type::TTL,
-        "All TTL events",
-        "All TTL events loaded for the current input data source",
-        "filereader.events",
-        dataStreams.getLast()
-    };
-
-    //FIXME: Should add an event channel for each event channel detected in the current file source
-    events = new EventChannel(eventSettings);
-    String id = "sourceevent";
-    events->setIdentifier(id);
-    events->addProcessor(processorInfo.get());
-    eventChannels.add(events);
+    
 
     isEnabled = true;
 

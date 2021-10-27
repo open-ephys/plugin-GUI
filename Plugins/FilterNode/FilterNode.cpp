@@ -72,7 +72,7 @@ FilterNode::FilterNode()
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,"channels_to_filter", "Channels to filter for this stream");
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
 
 }
 
@@ -155,8 +155,8 @@ void FilterNode::updateSettings()
         settings[stream->getStreamId()]->createFilters(
             stream->getChannelCount(), 
             stream->getSampleRate(),
-            getParameter(stream->getStreamId(), "low_cut")->getValue(),
-            getParameter(stream->getStreamId(), "high_cut")->getValue()
+            (*stream)["low_cut"],
+            (*stream)["high_cut"]
         );
     }
 }
@@ -168,11 +168,12 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
     std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
-    if (param->getName().equalsIgnoreCase("low_cut") || param->getName().equalsIgnoreCase("low_cut"))
+    if (param->getName().equalsIgnoreCase("low_cut")
+     || param->getName().equalsIgnoreCase("high_cut"))
     {
         settings[currentStream]->updateFilters(
-            getParameter(currentStream, "low_cut")->getValue(),
-            getParameter(currentStream, "high_cut")->getValue()
+            (*getDataStream(currentStream))["low_cut"],
+            (*getDataStream(currentStream))["high_cut"]
             );
     }
 }
@@ -187,16 +188,13 @@ void FilterNode::process (AudioSampleBuffer& buffer)
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
-            for (int i = 0; i < getParameter(stream->getStreamId(), "channels_to_filter")->getValue().getArray()->size(); i++)
+            for (auto localChannelIndex : (*stream)["channels_to_filter"])
             {
+                int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 
-                int localIndex = getParameter(stream->getStreamId(), "channels_to_filter")->getValue()[i];
+                float* ptr = buffer.getWritePointer(globalChannelIndex);
 
-                int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
-
-                float* ptr = buffer.getWritePointer(globalIndex);
-
-                streamSettings->filters[localIndex]->process(getNumSamples(globalIndex), &ptr);
+                streamSettings->filters[localChannelIndex]->process(getNumSamples(globalChannelIndex), &ptr);
 
             }
         }

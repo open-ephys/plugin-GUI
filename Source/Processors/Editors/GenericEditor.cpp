@@ -1091,8 +1091,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
-            ed->setParameter(getProcessor()->getParameter(streamId, ed->getParameterName()));
+            ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
         }
+        
         ed->updateView();
     }
 

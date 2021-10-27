@@ -510,6 +510,11 @@ protected:
 
 	/** Used to set the timestamp for a given buffer, for a given DataStream. */
 	void setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, uint16 streamId);
+    
+    // --------------------------------------------
+    //     CHANNEL INDEXING
+    // --------------------------------------------
+    int getGlobalChannelIndex(uint16 streamId, int localIndex) const;
 
     // --------------------------------------------
     //     HANDLING EVENTS AND MESSAGES
@@ -626,7 +631,9 @@ protected:
     /** Used to quickly access parameters by name*/
     std::map<SpikeChannel*, std::map<String, Parameter*>> spikeChannelParameterMap;
 
-
+    /** Holds a pointer to the event channel for sending messages**/
+    std::unique_ptr<EventChannel> messageChannel;
+    
 private:
 
     /** Clears the settings arrays.*/

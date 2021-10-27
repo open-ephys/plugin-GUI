@@ -436,12 +436,42 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 void GenericProcessor::clearSettings()
 {
 	LOGDD("Generic processor clearing settings.");
+    
+    for (auto obj : continuousChannels)
+    {
+        if (!obj->isLocal())
+            continuousChannels.removeObject(obj);
+    }
 
-	continuousChannels.clear();
-	eventChannels.clear();
-	spikeChannels.clear();
-	configurationObjects.clear();
-	dataStreams.clear();
+    for (auto obj : eventChannels)
+    {
+        if (!obj->isLocal())
+            eventChannels.removeObject(obj);
+    }
+    
+    for (auto obj : spikeChannels)
+    {
+        if (!obj->isLocal())
+            spikeChannels.removeObject(obj);
+    }
+    
+    for (auto obj : configurationObjects)
+    {
+        if (!obj->isLocal())
+            configurationObjects.removeObject(obj);
+    }
+    
+    for (auto obj : dataStreams)
+    {
+        if (!obj->isLocal())
+            dataStreams.removeObject(obj);
+    }
+
+	//continuousChannels.clear();
+	//eventChannels.clear();
+	//spikeChannels.clear();
+	//configurationObjects.clear();
+	//dataStreams.clear();
 
 	timestamps.clear();
 	numSamples.clear();
@@ -551,13 +581,9 @@ void GenericProcessor::update()
 	if (sourceNode != nullptr)
 	{
 		// copy settings from source node
-		const EventChannel* messageChannel = sourceNode->getMessageChannel();
-
-		if (messageChannel != nullptr)
-		{
-			eventChannels.add(new EventChannel(*messageChannel));
-			eventChannels.getLast()->addProcessor(processorInfo.get());
-		}
+        messageChannel.reset();
+		messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
+        messageChannel->addProcessor(processorInfo.get());
 
 		if (!isMerger())
 		{
@@ -590,10 +616,9 @@ void GenericProcessor::update()
 	{
 		// connect first processor in signal chain to message center
 
-		const EventChannel* messageChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
-
-		eventChannels.add(new EventChannel(*messageChannel));
-		eventChannels.getLast()->addProcessor(processorInfo.get());
+        messageChannel.reset();
+		messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+        messageChannel->addProcessor(processorInfo.get());
 
 		std::cout << getNodeId() << " connected to Message Center" << std::endl;
 	}
@@ -601,169 +626,72 @@ void GenericProcessor::update()
 	updateChannelIndexMaps();
 
     /// UPDATE PARAMETERS FOR STREAMS
-	for (auto stream : getDataStreams())
+	for (auto stream : dataStreams)
 	{
 		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
-
-		if (streamParameterMap.find(stream->getStreamId()) == streamParameterMap.end())
-		{
-
-			streamParameterMap[stream->getStreamId()] = std::map<String, Parameter*>();
-
-			for (auto param : availableParameters)
-			{
-				if (param->getType() == Parameter::BOOLEAN_PARAM)
-				{
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-					{
-						BooleanParameter* p = (BooleanParameter*)param;
-						parameters.add(new BooleanParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getBoolValue(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-
-				}
-				else if (param->getType() == Parameter::INT_PARAM)
-				{
-
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-                    {
-						IntParameter* p = (IntParameter*)param;
-						parameters.add(new IntParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getIntValue(),
-							p->getMinValue(),
-							p->getMaxValue(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-				}
-                else if (param->getType() == Parameter::STRING_PARAM)
+        
+        if (stream->numParameters() == 0)
+        {
+            for (auto param : availableParameters)
+            {
+                if (param->getScope() == Parameter::STREAM_SCOPE)
                 {
-
-                    if (param->getScope() == Parameter::STREAM_SCOPE)
+                    if (param->getType() == Parameter::BOOLEAN_PARAM)
+                    {
+                        BooleanParameter* p = (BooleanParameter*)param;
+                        stream->addParameter(new BooleanParameter(*p));
+                        p->setStreamId(stream->getStreamId());
+                    }
+                    else if (param->getType() == Parameter::STRING_PARAM)
                     {
                         StringParameter* p = (StringParameter*)param;
-                        parameters.add(new StringParameter(
-                            this,
-                            param->getScope(),
-                            p->getName(),
-                            p->getDescription(),
-                            p->getStringValue(),
-                            p->shouldDeactivateDuringAcquisition()
-                        ));
-
-                        streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
+                        stream->addParameter(new StringParameter(*p));
+                        p->setStreamId(stream->getStreamId());
+                    }
+                    else if (param->getType() == Parameter::INT_PARAM)
+                    {
+                        IntParameter* p = (IntParameter*)param;
+                        stream->addParameter(new IntParameter(*p));
+                        p->setStreamId(stream->getStreamId());
+                    }
+                    else if (param->getType() == Parameter::FLOAT_PARAM)
+                    {
+                        StringParameter* p = (StringParameter*)param;
+                        stream->addParameter(new StringParameter(*p));
+                        p->setStreamId(stream->getStreamId());
+                    }
+                    else if (param->getType() == Parameter::CATEGORICAL_PARAM)
+                    {
+                        CategoricalParameter* p = (CategoricalParameter*)param;
+                        stream->addParameter(new CategoricalParameter(*p));
+                        p->setStreamId(stream->getStreamId());
+                    }
+                    else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                    {
+                        SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+                        stream->addParameter(new SelectedChannelsParameter(*p));
+                        p->setChannelCount(stream->getChannelCount());
+                        p->setStreamId(stream->getStreamId());
                     }
                 }
-				else if (param->getType() == Parameter::FLOAT_PARAM)
-				{
+            }
+        }
+        else
+        {
+            for (auto param : availableParameters)
+            {
+               if (param->getScope() == Parameter::STREAM_SCOPE)
+               {
 
-					if (param->getScope() == Parameter::STREAM_SCOPE)
+                    if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                     {
-						FloatParameter* p = (FloatParameter*)param;
-						parameters.add(new FloatParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getFloatValue(),
-							p->getMinValue(),
-							p->getMaxValue(),
-							p->getStepSize(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-
-				}
-				else if (param->getType() == Parameter::CATEGORICAL_PARAM)
-				{
-
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-					{
-						CategoricalParameter* p = (CategoricalParameter*)param;
-						parameters.add(new CategoricalParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getCategories(),
-							p->getSelectedIndex(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-
-				}
-				else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-				{
-
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-                    {
-						SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-
-						SelectedChannelsParameter* newParam = new SelectedChannelsParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getValue(),
-							p->getMaxSelectableChannels(),
-							p->shouldDeactivateDuringAcquisition()
-						);
-
-						newParam->setChannelCount(stream->getChannelCount());
-
-						parameters.add(newParam);
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-
-					}
-				}
-			}
-		}
-		else {
-			for (auto param : availableParameters)
-			{
-				if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-				{
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-                    {
-                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(stream->getStreamId(), param->getName());
+                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
                         p->setChannelCount(stream->getChannelCount());
                     }
-					else
-                    {
-                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) getParameter(param->getName());
-                        p->setChannelCount(getNumOutputs());
-                    }
-						
-				}
-			}
-		}
+               }
+            }
+        }
 	}
-
 
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
@@ -941,6 +869,10 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 	}
 }
 
+int GenericProcessor::getGlobalChannelIndex(uint16 streamId, int localIndex) const
+{
+    return getDataStream(streamId)->getContinuousChannels()[localIndex]->getGlobalIndex();
+}
 
 int GenericProcessor::processEventBuffer()
 {
@@ -1260,15 +1192,7 @@ const EventChannel* GenericProcessor::getEventChannel(uint16 processorId, uint16
 
 const EventChannel* GenericProcessor::getMessageChannel() const
 {
-	for (auto eventChannel : eventChannels)
-	{
-		std::cout << "Event channel source node id: " << eventChannel->getSourceNodeId() << std::endl;
-
-		if (eventChannel->getSourceNodeId() == 904)
-			return eventChannel;
-	}
-
-	return nullptr;
+    return messageChannel.get();
 }
 
 const SpikeChannel* GenericProcessor::getSpikeChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
