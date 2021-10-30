@@ -47,9 +47,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->type = Plugin::PROCESSOR;
 		info->processor.name = "Record Control";
-		info->processor.type = Plugin::UtilityProcessor;
+		info->processor.type = Plugin::Processor::UTILITY;
 		info->processor.creator = &(Plugin::createProcessor<RecordControl>);
 		break;
 	default:

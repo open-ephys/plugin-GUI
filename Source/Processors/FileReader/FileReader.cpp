@@ -56,8 +56,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , gotNewFile                (true)
     , loopPlayback              (true)
 {
-    setProcessorType (PROCESSOR_TYPE_SOURCE);
-
     //setEnabledState (false);
 
 	//Load pluIn file Sources

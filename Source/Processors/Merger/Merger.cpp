@@ -36,7 +36,6 @@ Merger::Merger()
       mergeEventsB(true), mergeContinuousB(true),
       sourceNodeA(nullptr), sourceNodeB(nullptr), activePath(0)
 {
-    setProcessorType(PROCESSOR_TYPE_MERGER);
     sendSampleCount = false;
 }
 

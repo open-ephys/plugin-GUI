@@ -28,20 +28,23 @@
 
 #include "../ProcessorGraph/ProcessorGraph.h"
 
-enum ProcessorClass
-{
-	BuiltInProcessor,
-    PluginProcessor,
-    DataThreadProcessor
-};
-
+/**
+ Creates processors (including built-in ones)
+ */
 namespace ProcessorManager
 {
-	int getNumProcessors(ProcessorClass pClass);
+
+    /** Returns the types of plugins that can generate processors*/
+    Array<Plugin::Type> getAvailablePluginTypes();
+
+    /** Returns the number of processors available for a given plugin type*/
+	int getNumProcessorsForPluginType(Plugin::Type type);
 	
-    void getProcessorNameAndType(ProcessorClass pClass, int index, String& name, int& type);
-        
-    std::unique_ptr<GenericProcessor> createProcessor(ProcessorDescription description);
+    /** Returns info about a plugin at a particular index*/
+    Plugin::Description getPluginDescription(Plugin::Type type, int index);
+
+    /** Creates a new processor from its description*/
+    std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description);
 };
 
 

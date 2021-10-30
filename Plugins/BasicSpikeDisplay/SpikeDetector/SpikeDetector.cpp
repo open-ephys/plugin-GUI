@@ -28,145 +28,6 @@
 
 #define OVERFLOW_BUFFER_SAMPLES 200
 
-SpikeChannelSettings::SpikeChannelSettings(const SpikeChannel::Type type_) :
-    type(type_), expectedChannelCount(SpikeChannel::getNumChannels(type)),
-    currentSampleIndex(0),
-    useOverflowBuffer(false)
-{
-
-    sendFullWaveform = true;
-    prePeakSamples = 8;
-    postPeakSamples = 32;
-    thresholdType = SpikeChannelSettings::ThresholdType::FIXED;
-    
-    for (int i = 0; i < expectedChannelCount; i++)
-    {
-        thresholds.add(-50);
-    }
-
-    maxLocalChannel = 16;
-
-}
-
-void SpikeChannelSettings::setChannelIndexes(
-    Array<int> localChannelIndexes_,
-    Array<int> globalChannelIndexes_,
-    int maxLocalChannel)
-{
-
-    jassert(localChannelIndexes_.size() == expectedChannelCount);
-
-    jassert(globalChannelIndexes_.size() == expectedChannelCount);
-
-    globalChannelIndexes = globalChannelIndexes_;
-    localChannelIndexes = localChannelIndexes_;
-
-    detectSpikesOnChannel.clear();
-
-    for (int i = 0; i < expectedChannelCount; i++)
-    {
-         detectSpikesOnChannel.add(localChannelIndexes[i] < maxLocalChannel);
-    }
-}
-
-void SpikeChannelSettings::toXml(XmlElement* xml)
-{
-    xml->setAttribute("type", type);
-
-    xml->setAttribute("name", name);
-    xml->setAttribute("description", description);
-
-    xml->setAttribute("prePeakSamples", (int) prePeakSamples);
-    xml->setAttribute("postPeakSamples", (int) postPeakSamples);
-
-    xml->setAttribute("sendFullWaveform", sendFullWaveform);
-
-    xml->setAttribute("thresholdType", thresholdType);
-
-    for (int j = 0; j < localChannelIndexes.size(); ++j)
-    {
-
-        XmlElement* channelNode = xml->createNewChildElement("SUBCHANNEL");
-
-        channelNode->setAttribute("localIndex", localChannelIndexes[j]);
-        channelNode->setAttribute("globalIndex", globalChannelIndexes[j]);
-        channelNode->setAttribute("detectSpikesOnChannel", detectSpikesOnChannel[j]);
-        channelNode->setAttribute("threshold", thresholds[j]);
-
-    }
-}
-
-void SpikeChannelSettings::fromXml(XmlElement* xml)
-{
-    name = xml->getStringAttribute("name");
-    description = xml->getStringAttribute("description");
-
-    prePeakSamples = xml->getIntAttribute("prePeakSamples", 8);
-    postPeakSamples = xml->getIntAttribute("postPeakSamples", 32);
-
-    sendFullWaveform = xml->getBoolAttribute("sendFullWaveform", true);
-
-    thresholdType = (ThresholdType) xml->getIntAttribute("thresholdType", ThresholdType::FIXED);
-
-    localChannelIndexes.clear();
-    globalChannelIndexes.clear();
-    thresholds.clear();
-    detectSpikesOnChannel.clear();
-
-    forEachXmlChildElement(*xml, subNode)
-    {
-        if (subNode->hasTagName("SUBCHANNEL"))
-        {
-
-            localChannelIndexes.add(subNode->getIntAttribute("localChannelIndex"));
-            globalChannelIndexes.add(subNode->getIntAttribute("globalChannelIndex"));
-            thresholds.add(subNode->getIntAttribute("threshold"));
-            detectSpikesOnChannel.add(subNode->getBoolAttribute("detectSpikesOnChannel"));
-        }
-    }
-}
-
-SpikeDetectorSettings::SpikeDetectorSettings()
-{
-    nextAvailableChannel = 0;
-    nextElectrodeIndex = 1;
-}
-
-SpikeDetectorSettings::~SpikeDetectorSettings()
-{
-
-}
-
-void SpikeDetectorSettings::toXml(XmlElement* xml)
-{
-    for (auto channel : spikeChannels)
-    {
-        XmlElement* node = xml->createNewChildElement("SPIKESOURCE");
-
-        channel->toXml(node);
-
-    }
-}
-
-void SpikeDetectorSettings::fromXml(XmlElement* xml)
-{
-
-    spikeChannels.clear();
-
-    forEachXmlChildElement(*xml, xmlNode)
-    {
-        if (xmlNode->hasTagName("SPIKESOURCE"))
-        {
-            SpikeChannel::Type type = (SpikeChannel::Type) xmlNode->getIntAttribute("type", SpikeChannel::SINGLE);
-
-            SpikeChannelSettings* settings = new SpikeChannelSettings(type);
-
-            settings->fromXml(xmlNode);
-
-            spikeChannels.add(settings);
-        }
-    }
-}
 
 SpikeDetector::SpikeDetector()
     : GenericProcessor      ("Spike Detector")
@@ -259,7 +120,7 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, Array<const Contin
         "a nice little channel",
         SpikeChannel::getIdentifierFromType(type),
 
-        sourceChannels[0]->getStreamId(),
+        getDataStream(sourceChannels[0]->getStreamId()),
 
         sourceChannels
 
@@ -285,9 +146,9 @@ void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 }
 
 
-Array<SpikeChannelSettings*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
+Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {
-    Array<SpikeChannelSettings*> channels;
+    Array<SpikeChannel*> channels;
 
     for (auto spikeChannel : spikeChannels)
     {
@@ -313,12 +174,11 @@ bool SpikeDetector::stopAcquisition()
 
 
 void SpikeDetector::addWaveformToSpikeObject (Spike::Buffer& s,
-                                              int& peakIndex,
-                                              uint16& streamId,
-                                              int& spikeChannelIndex,
-                                              int& continuousChannelIndex)
+                                            int& peakIndex,
+                                            int& electrodeNumber,
+                                            int& currentChannel)
 {
-    int spikeLength = settings[streamId]->prePeakSamples
+    /*int spikeLength = settings[streamId]->prePeakSamples
                       + settings[electrodeNumber]->postPeakSamples;
 
 
@@ -375,7 +235,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                 {
 
                     // check whether spike detection is active
-                    if (spikeChannel->detectSpikesOnChannel[ch])
+                    /*if (spikeChannel->detectSpikesOnChannel[ch])
                     {
                         int currentChannel = spikeChannel->globalChannelIndexes[ch];
 
@@ -423,7 +283,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                             
                             break; // quit channels "for" loop
                         }
-                    }
+                    }*/
                 } // cycle through channels
 
             } // while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES)
@@ -434,12 +294,12 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
             {
                 for (int j = 0; j < spikeChannel->getNumChannels(); ++j)
                 {
-                    overflowBuffer.copyFrom(spikeChannel->globalChannelIndex[j],
-                        0,
-                        buffer,
-                        spikeChannel->globalChannelIndex[j],
-                        nSamples - OVERFLOW_BUFFER_SAMPLES,
-                        OVERFLOW_BUFFER_SAMPLES);
+                    //overflowBuffer.copyFrom(spikeChannel->globalChannelIndex[j],
+                    //    0,
+                    //    buffer,
+                    //    spikeChannel->globalChannelIndex[j],
+                    //    nSamples - OVERFLOW_BUFFER_SAMPLES,
+                     //   OVERFLOW_BUFFER_SAMPLES);
                 }
 
                 spikeChannel->useOverflowBuffer = true;
@@ -475,19 +335,19 @@ float SpikeDetector::getSample (int& globalChannelIndex, int& sampleIndex, Audio
 void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 {
 
-    for (auto stream : getDataStreams())
+    /*for (auto stream : getDataStreams())
     {
         XmlElement* streamParams = xml->createNewChildElement("STREAM");
 
         settings[stream->getStreamId()]->toXml(streamParams);
-    }
+    }*/
 
 }
 
 
-void SpikeDetector::loadCustomParametersFromXml()
+void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 {
-    int streamIndex = 0;
+    /*int streamIndex = 0;
 
     Array<const DataStream*> availableStreams = getDataStreams();
 
@@ -506,6 +366,6 @@ void SpikeDetector::loadCustomParametersFromXml()
 
             streamIndex++;
         }
-    }
+    }*/
 }
 

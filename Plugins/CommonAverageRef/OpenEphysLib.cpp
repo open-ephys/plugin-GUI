@@ -47,9 +47,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->type = Plugin::PROCESSOR;
 		info->processor.name = "Common Avg Ref";
-		info->processor.type = Plugin::FilterProcessor;
+		info->processor.type = Plugin::Processor::FILTER;
 		info->processor.creator = &(Plugin::createProcessor<CommonAverageRef>);
 		break;
 	default:

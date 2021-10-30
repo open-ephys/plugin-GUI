@@ -30,6 +30,7 @@
 #include "ProcessorList.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "EditorViewportActions.h"
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 const int BORDER_SIZE = 6;
 const int TAB_SIZE = 30;
@@ -197,17 +198,15 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
     if (!CoreServices::getAcquisitionStatus())
     {
         Array<var>* descr = dragSourceDetails.description.getArray();
-        ProcessorDescription description;
+        
+        Plugin::Description description;
         
         description.fromProcessorList = descr->getUnchecked(0);
-        description.pluginName = descr->getUnchecked(1);
-        description.pluginType = descr->getUnchecked(2);
-        description.pluginIndex = descr->getUnchecked(3);
-        description.libName = descr->getUnchecked(4);
-        description.processorType = descr->getUnchecked(5);
+        description.name = descr->getUnchecked(1);
+        description.index = descr->getUnchecked(2);
+        description.type = (Plugin::Type) int(descr->getUnchecked(3));
+        description.processorType = (Plugin::Processor::Type) int(descr->getUnchecked(4));
         description.nodeId = 0;
-
-        message = "last filter dropped: " + description.pluginName;
 
         LOGD("Item dropped at insertion point ", insertionPoint);
         
@@ -222,7 +221,7 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
     }
 }
 
-GenericProcessor* EditorViewport::addProcessor(ProcessorDescription description, int insertionPt)
+GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, int insertionPt)
 {
     
     GenericProcessor* source = nullptr;
@@ -1306,12 +1305,12 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isSt
         xml->setAttribute("insertionPoint", 0);
     else
         xml->setAttribute("insertionPoint", 1);
-	xml->setAttribute("pluginName", processor->getPluginName());
-	xml->setAttribute("pluginType", (int)(processor->getPluginType()));
-	xml->setAttribute("pluginIndex", processor->getIndex());
+	xml->setAttribute("pluginName", processor->getName());
+	xml->setAttribute("type", (int)(processor->getPluginType()));
+	xml->setAttribute("index", processor->getIndex());
 	xml->setAttribute("libraryName", processor->getLibName());
     xml->setAttribute("libraryVersion", processor->getLibVersion());
-    xml->setAttribute("processorType", processor->getProcessorTypeString());
+    xml->setAttribute("processorType", (int) processor->getProcessorType());
 
     /**Saves individual processor parameters to XML */
     processor->saveToXml(xml);
@@ -1789,20 +1788,20 @@ void EditorViewport::deleteSelectedProcessors()
 
 }
 
-ProcessorDescription EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
+Plugin::Description EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
 {
-    ProcessorDescription description;
+    Plugin::Description description;
     
     description.fromProcessorList = false;
-    description.pluginName = settings->getStringAttribute("pluginName");
-    description.pluginType = settings->getIntAttribute("pluginType");
-    description.pluginIndex = settings->getIntAttribute("pluginIndex");
+    description.name = settings->getStringAttribute("pluginName");
+    description.type = (Plugin::Type) settings->getIntAttribute("type");
+    description.processorType = (Plugin::Processor::Type) settings->getIntAttribute("processorType");
+    description.index = settings->getIntAttribute("index");
     description.libName = settings->getStringAttribute("libraryName");
     description.libVersion = settings->getIntAttribute("libraryVersion");
-    description.processorType = settings->getStringAttribute("processorType");
     
     if (!ignoreNodeId)
-        description.nodeId = settings->getIntAttribute("NodeId");
+        description.nodeId = settings->getIntAttribute("nodeId");
     else
         description.nodeId = -1;
     
@@ -1828,7 +1827,7 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
         insertionPoint = insertionPt;
     }
     
-    ProcessorDescription description = getDescriptionFromXml(processor, ignoreNodeId);
+    Plugin::Description description = getDescriptionFromXml(processor, ignoreNodeId);
     
     GenericProcessor* p = addProcessor(description, insertionPoint);
     p->parametersAsXml = processor;

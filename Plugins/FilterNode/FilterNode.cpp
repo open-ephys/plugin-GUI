@@ -68,7 +68,6 @@ void BandpassFilterSettings::setFilterParameters(double lowCut, double highCut, 
 FilterNode::FilterNode()
     : GenericProcessor  ("Bandpass Filter")
 {
-    setProcessorType (PROCESSOR_TYPE_FILTER);
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);

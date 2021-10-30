@@ -35,8 +35,6 @@ CARSettings::CARSettings()
 CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") 
 {
-    setProcessorType (PROCESSOR_TYPE_FILTER);
-
     addSelectedChannelsParameter("affected_channels", "Channels from which the average is subtracted");
     addSelectedChannelsParameter("reference_channels", "Channels to use as the reference");
     addFloatParameter("gain_level", "Multiplier for reference value", 100.0f, 0.0f, 100.0f, 1.0f);

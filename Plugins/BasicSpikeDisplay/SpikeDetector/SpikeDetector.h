@@ -26,103 +26,6 @@
 
 #include <ProcessorHeaders.h>
 
-/** Holds the local settings for one Spike Channel*/
-class SpikeChannelSettings
-{
-public:
-
-    /** Constructor -- sets default values*/
-    SpikeChannelSettings(const SpikeChannel::Type type);
-
-    /** Destructor */
-    ~SpikeChannelSettings() {}
-
-    /** Updates channel arrays*/
-    void setChannelIndexes(Array<int> localChannelIndexes,
-        Array<int> globalChannelIndexes,
-        int maxLocalChannel);
-
-    /** Channel name (editable)*/
-    String name;
-
-    /** Channel description (editable)*/
-    String description;
-
-    /** Channel type (can't be changed) */
-    const SpikeChannel::Type type;
-
-    /** Index of each channel within a stream */
-    SelectedChannelsParameter localChannelIndexes;
-
-    /** Index of each channel within the processor */
-    Array<int> globalChannelIndexes;
-
-    /** Determines whether a particular channel is used for spike detection*/
-    Array<bool> detectSpikesOnChannel;
-
-    /** Determines the threshold type */
-    CategoricalParameter thresholdType;
-
-    /** Holds the thresholds for each channel*/
-    Array<FloatParameter> absoluteThresholds;
-    
-    /** Holds the thresholds for each channel*/
-    Array<FloatParameter> stdThresholds;
-
-    /** Determines whether the channel sends the full waveform*/
-    BooleanParameter sendFullWaveform;
-
-    /** Number of pre-peak samples if full waveform is sent*/
-    unsigned int prePeakSamples;
-
-    /** Number of post-peak samples if full waveform is sent*/
-    unsigned int postPeakSamples;
-
-    /** Pointer to the SpikeChannel object for this electrode*/
-    SpikeChannel* spikeChannel;
-    
-    /** Total number of channels for this electrode type*/
-    const int numChannels;
-
-    /** Restores sampleIndex / overflow buffer settings after ending acquisition*/
-    void reset();
-
-    /** Saves parameters to XML*/
-    void toXml(XmlElement*);
-
-    /** Loads parameters from XML*/
-    void fromXml(XmlElement*);
-
-};
-
-/** Holds the settings for one stream*/
-class SpikeDetectorSettings
-{
-public:
-
-    /** Constructor*/
-    SpikeDetectorSettings();
-
-    /** Destructor*/
-    ~SpikeDetectorSettings();
-
-    /** Saves parameters to XML*/
-    void toXml(XmlElement*);
-
-    /** Loads parameters from XML*/
-    void fromXml(XmlElement*);
-
-    /** Array of settings objects, one for each spike channel in the stream.*/
-    OwnedArray<SpikeChannelSettings> spikeChannels;
-
-    /** Holds the next available channel index in this stream*/
-    int nextAvailableChannel;
-
-    /** Holds the next available electrode index in this stream*/
-    int nextElectrodeIndex;
-};
-
-
 /**
     Detects spikes in a continuous signal and outputs events containing the spike data.
 
@@ -150,7 +53,10 @@ public:
     /** Creates the SpikeDetectorEditor. */
     AudioProcessorEditor* createEditor() override;
 
+    /** Saves custom parameters */
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
+    
+    /** Loads custom parameters*/
     void loadCustomParametersFromXml(XmlElement* xml)           override;
 
 
@@ -168,7 +74,7 @@ public:
 
 private:
 
-    StreamSettings<SpikeDetectorSettings> settings;
+    //StreamSettings<SpikeDetectorSettings> settings;
 
     // INTERNAL BUFFERS
     // =====================================================================
@@ -190,9 +96,9 @@ private:
                                    int& electrodeNumber,
                                    int& currentChannel);
 
-    uint16 currentStream;
-    int currentElectrode;
-    int currentChannelIndex;
+    //uint16 currentStream;
+    //int currentElectrode;
+    //int currentChannelIndex;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

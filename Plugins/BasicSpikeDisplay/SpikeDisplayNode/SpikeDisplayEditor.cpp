@@ -211,7 +211,7 @@ void SpikeDisplayEditor::stopRecording()
 
 // }
 
-void SpikeDisplayEditor::buttonEvent(Button* button)
+void SpikeDisplayEditor::buttonClicked(Button* button)
 {
     //std::cout<<"Got event from component:"<<button<<std::endl;
 

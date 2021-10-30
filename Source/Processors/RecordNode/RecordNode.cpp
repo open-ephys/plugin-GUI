@@ -42,7 +42,6 @@ RecordNode::RecordNode()
 	receivedSoftwareTime(false),
 	numDataStreams(0)
 {
-	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
 	//Get the current audio device's buffer size and use as data queue block size
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
@@ -362,7 +361,7 @@ void RecordNode::updateSettings()
 	if (static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
 	{
 		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
-		static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
+		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
 
 	for (auto const& [ch, order] : dataChannelOrder)

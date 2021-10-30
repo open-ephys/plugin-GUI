@@ -40,8 +40,7 @@ public:
     /** Constructor*/
     PlaceholderProcessor (String pluginName, 
         String libraryName, 
-        int libraryVersion, 
-        PluginProcessorType type);
+        int libraryVersion);
 
     /** Destructor*/
     ~PlaceholderProcessor();
@@ -53,13 +52,13 @@ public:
     bool startAcquisition() override;
 
     /** Empty method */
-    void process (AudioSampleBuffer& continuousBuffer) override { }
+    void process (AudioBuffer<float>& continuousBuffer) override { }
 
     /** Set isEnabled to 'false'*/
     void updateSettings() override;
 
 private:
-    const String m_processorName;
+
     const String m_libName;
 
     const int m_libVersion;

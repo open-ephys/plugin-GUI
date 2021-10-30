@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../AccessClass.h"
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 class ProcessorListItem;
 class UIComponent;
@@ -52,8 +53,11 @@ class ProcessorList : public Component,
 {
 public:
 
+    /** Constructor**/
     ProcessorList();
-    ~ProcessorList();
+    
+    /** Destructor*/
+    ~ProcessorList() {}
 
     /** Switches the open/closed state of the ProcessorList.*/
     void toggleState();
@@ -98,9 +102,9 @@ private:
 
     /** Draws the name of a single item within the ProcessorList.*/
     void drawItemName(Graphics& g, ProcessorListItem*);
-
+    
     /** Draws the open/close button.*/
-    void drawButton(Graphics& g, bool isOpen);
+    //void drawButton(Graphics& g, bool isOpen);
 
     /** Returns the ProcessorListItem that sits at a given y coordinate.*/
     ProcessorListItem* getListItemForYPos(int y);
@@ -126,7 +130,7 @@ private:
     void mouseDrag(const MouseEvent& e);
 
     /** The base item in the list.*/
-    ScopedPointer<ProcessorListItem> baseItem;
+    std::unique_ptr<ProcessorListItem> baseItem;
 
     Font listFontLight;
     Font listFontPlain;
@@ -151,8 +155,14 @@ private:
 class ProcessorListItem : public Component
 {
 public:
-    ProcessorListItem(const String& name, int pid = -1, int ptype = -1);
-    ~ProcessorListItem();
+    /** Constructor*/
+    ProcessorListItem(const String& name,
+                      int processorId = -1,
+                      Plugin::Type type = Plugin::INVALID,
+                      Plugin::Processor::Type processorType = Plugin::Processor::INVALID);
+    
+    /** Destructor*/
+    ~ProcessorListItem() { }
 
     /** Returns the number of sub-items for a given ProcessorListItem. */
     int getNumSubItems();
@@ -208,16 +218,17 @@ public:
     /** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
     int colorId;
 
-	const int processorId;
+	const int index;
 
-	const int processorType;
+    const Plugin::Type pluginType;
+    
+	const Plugin::Processor::Type processorType;
 private:
 
     bool selected;
     bool open;
     const String name;
     String parentName;
-	
 
     /** An array of all the sub-items (if any) that belong to this ProcessorListItem. */
     OwnedArray<ProcessorListItem> subItems;

@@ -31,16 +31,13 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
 {
-    setProcessorType (PROCESSOR_TYPE_SINK);
-
     for (int i = 0; i <= 3; i++)
     {
         triggerChannels.add(-1);
         latestTrigger.add(-1);
         latestCurrentTrigger.add(-1);
     }
-        
-
+    
 }
 
 

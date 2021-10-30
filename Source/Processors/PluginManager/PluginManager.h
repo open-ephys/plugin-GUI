@@ -59,6 +59,9 @@ struct LoadedPluginInfo : public T
 
 class GenericProcessor;
 
+/**
+Retrieves information about available plugins
+ */
 class PluginManager {
 
 public:
@@ -83,7 +86,7 @@ public:
 	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String()) const;
 	String getLibraryName(int index) const;
 	int getLibraryVersion(int index) const;
-	int getLibraryIndexFromPlugin(Plugin::PluginType type, int index);
+	int getLibraryIndexFromPlugin(Plugin::Type type, int index);
 
 private:
 	Array<LoadedLibInfo> libArray;
@@ -101,17 +104,6 @@ private:
 	static Plugin::DataThreadInfo getEmptyDatathreadInfo();
 	static Plugin::RecordEngineInfo getEmptyRecordengineInfo();
 	static Plugin::FileSourceInfo getEmptyFileSourceInfo();
-	/*Manager(void) {};
-	~Manager(void) {};
-	Manager(const Manager &) {};
-
-	
-	Manager &operator=(const Manager &) { return *getInstance(); };
-
-	
-	void removeListPlugin(PluginManager::Plugin *);
-	std::list<PluginManager::Plugin *> pluginList;
-	static Manager *instance;*/
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginManager);
 };

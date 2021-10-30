@@ -44,9 +44,13 @@ enum colorIds
 	AUDIO_COLOR = 807
 };
 
-	ProcessorList::ProcessorList()
-: isDragging(false), totalHeight(800), itemHeight(32), subItemHeight(22),
-	xBuffer(1), yBuffer(1)
+ProcessorList::ProcessorList() :
+    isDragging(false),
+    totalHeight(800),
+    itemHeight(32),
+    subItemHeight(22),
+	xBuffer(1),
+    yBuffer(1)
 {
 
 	listFontLight = Font("Default Light", 25, Font::plain);
@@ -65,23 +69,15 @@ enum colorIds
 	ProcessorListItem* sinks = new ProcessorListItem("Sinks");
 	ProcessorListItem* utilities = new ProcessorListItem("Utilities");
 	ProcessorListItem* record = new ProcessorListItem("Recording");
-	//TODO:
-	//ProcessorListItem* audio = new ProcessorListItem("Audio");
 
-
-
-	baseItem = new ProcessorListItem("Processors");
+	baseItem = std::make_unique<ProcessorListItem>("Processors");
 	baseItem->addSubItem(sources);
 	baseItem->addSubItem(filters);
 	baseItem->addSubItem(sinks);
 	baseItem->addSubItem(utilities);
 	baseItem->addSubItem(record);
-	//TODO:
-	//baseItem->addSubItem(audio);
 
-	// set parent names / colors
 	baseItem->setParentName("Processors");
-
 
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
 	{
@@ -94,10 +90,6 @@ enum colorIds
 	}
 }
 
-ProcessorList::~ProcessorList()
-{
-
-}
 
 void ProcessorList::resized()
 {
@@ -113,11 +105,7 @@ bool ProcessorList::isOpen()
 
 void ProcessorList::paint(Graphics& g)
 {
-
 	drawItems(g);
-
-	///drawButton(g, true);
-
 }
 
 
@@ -127,7 +115,7 @@ void ProcessorList::drawItems(Graphics& g)
 
 	category = baseItem->getName();
 
-	drawItem(g, baseItem);
+	drawItem(g, baseItem.get());
 
 	if (baseItem->isOpen())
 	{
@@ -147,6 +135,8 @@ void ProcessorList::drawItems(Graphics& g)
 							getSubItem(m)->
 							hasSubItems());
 					drawItem(g, baseItem->getSubItem(n)->getSubItem(m));
+                    
+                    totalHeight += itemHeight;
 
 				}
 			}
@@ -155,8 +145,6 @@ void ProcessorList::drawItems(Graphics& g)
 
 	if (isOpen())
 		setSize(getWidth(),totalHeight);
-
-	//resized();
 
 }
 
@@ -173,11 +161,6 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 		g.fillRect(1.0, 10.0, getWidth()-2, subItemHeight);
 
 	drawItemName(g,item);
-
-	if (item->hasSubItems())
-	{
-		drawButton(g, item->isOpen());
-	}
 }
 
 void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
@@ -195,9 +178,6 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 		if (item->isSelected())
 		{
 			g.drawText(">", 5, 5, getWidth()-9, itemHeight, Justification::left, false);
-			// glRasterPos2f(9.0/getWidth(),0.72);
-			// getFont(cpmono_plain)->FaceSize(15);
-			// getFont(cpmono_plain)->Render(">");
 		}
 
 		name = item->getName();
@@ -228,27 +208,6 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 
 }
 
-void ProcessorList::drawButton(Graphics& g, bool isOpen)
-{
-
-
-
-	// glColor4f(1.0f,1.0f,1.0f,1.0f);
-	// glLineWidth(1.0f);
-	// glBegin(GL_LINE_LOOP);
-
-	// if (isOpen)
-	// {
-	// 	glVertex2f(0.875,0.35);
-	// 	glVertex2f(0.9,0.65);
-	// } else {
-	// 	glVertex2f(0.925,0.65);
-	// 	glVertex2f(0.875,0.5);
-	// }
-	// glVertex2f(0.925,0.35);
-	// glEnd();
-
-}
 
 void ProcessorList::clearSelectionState()
 {
@@ -274,7 +233,7 @@ ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 
 	if (y < bottom)
 	{
-		return baseItem;
+		return baseItem.get();
 
 	}
 	else
@@ -327,12 +286,10 @@ void ProcessorList::setViewport(Graphics& g, bool hasSubItems)
 		height = subItemHeight;
 	}
 
-	g.setOrigin(0, yBuffer + height); //xBuffer, getHeight()-(totalHeight) - height + getScrollAmount());
-
+	g.setOrigin(0, yBuffer + height);
 
 	totalHeight += yBuffer + height;
 
-	//LOGDD(totalHeight);
 }
 
 int ProcessorList::getTotalHeight()
@@ -356,8 +313,6 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 	juce::Point<int> pos = e.getPosition();
 	int xcoord = pos.getX();
 	int ycoord = pos.getY();
-
-	//LOGDD(xcoord, " ", ycoord);
 
 	ProcessorListItem* listItem = getListItemForYPos(ycoord);
 
@@ -437,7 +392,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 			}
 		}
 
-		if (listItem == baseItem)
+		if (listItem == baseItem.get())
 		{
 			if (listItem->isOpen())
 			{
@@ -480,21 +435,13 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 			{
 				isDragging = true;
 
-				String b = listItem->getName();
-
-				const String dragDescription = b;
-
-				//LOGDD(dragDescription);
-
-				if (dragDescription.isNotEmpty())
+				if (listItem->getName().isNotEmpty())
 				{
 					DragAndDropContainer* const dragContainer
 						= DragAndDropContainer::findParentDragContainerFor(this);
 
 					if (dragContainer != 0)
 					{
-						//pos.setSize (pos.getWidth(), 10);
-
 						Image dragImage(Image::ARGB, 100, 15, true);
 
 						Graphics g(dragImage);
@@ -502,7 +449,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 						g.fillAll();
 						g.setColour(Colours::white);
 						g.setFont(14);
-						g.drawSingleLineText(listItem->getName(),10,12);//,75,15,Justification::centredRight,true);
+						g.drawSingleLineText(listItem->getName(),10,12);
 
 						dragImage.multiplyAllAlphas(0.6f);
 
@@ -510,10 +457,10 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 						Array<var> dragData;
 						dragData.add(true); // fromProcessorList
-						dragData.add(dragDescription); // processorName
-						dragData.add(listItem->processorType); // processorType
-						dragData.add(listItem->processorId);  // processorIndex
-						dragData.add(listItem->getParentName()); // libName
+						dragData.add(listItem->getName()); // pluginName
+                        dragData.add(listItem->index);  // processorIndex
+						dragData.add(listItem->pluginType); // pluginType
+                        dragData.add(listItem->processorType); // processorType
 
 						dragContainer->startDragging(dragData, this,
 								dragImage, true, &imageOffset);
@@ -643,45 +590,62 @@ void ProcessorList::setColours(Array<Colour> c)
 
 void ProcessorList::fillItemList()
 {
-	int num;
+
 	baseItem->getSubItem(0)->clearSubItems(); //Sources
 	baseItem->getSubItem(1)->clearSubItems(); //Filters
-	baseItem->getSubItem(2)->clearSubItems(); //sinks
+	baseItem->getSubItem(2)->clearSubItems(); //Sinks
 	baseItem->getSubItem(3)->clearSubItems(); //Utilities
 	baseItem->getSubItem(4)->clearSubItems(); //Record
-	//baseItem->getSubItem(5)->clearSubItems(); //Audio
-
-	for (int pClass = 0; pClass < 3; pClass++)
+    
+	for (auto pluginType : ProcessorManager::getAvailablePluginTypes())
 	{
-		num = ProcessorManager::getNumProcessors((ProcessorClass)pClass);
-		for (int i = 0; i < num; i++)
+        
+        std::cout << "PLUGIN TYPE: " << pluginType << std::endl;
+        
+		for (int i = 0; i < ProcessorManager::getNumProcessorsForPluginType(pluginType); i++)
 		{
-			String name;
-			int type = -1;
-			ProcessorManager::getProcessorNameAndType((ProcessorClass)pClass, i, name, type);
-			if (type > -1 && type < 4)
-			{
-				if (name == "Record Node")
-				{
-					baseItem->getSubItem(4)->addSubItem(new ProcessorListItem(name, i, pClass));
-				}
-				else
-				{
-					baseItem->getSubItem(type)->addSubItem(new ProcessorListItem(name, i, pClass));
-				}
 
-			}
+            Plugin::Description description = ProcessorManager::getPluginDescription(pluginType, i);
+            
+            ProcessorListItem* item = new ProcessorListItem(description.name,
+                                            i,
+                                            description.type,
+                                            description.processorType);
+            
+            if (description.processorType == Plugin::Processor::SOURCE)
+                
+                baseItem->getSubItem(0)->addSubItem(item);
+            
+            else if (description.processorType == Plugin::Processor::FILTER)
+                
+                baseItem->getSubItem(1)->addSubItem(item);
+            
+            else if (description.processorType == Plugin::Processor::SINK)
+                
+                baseItem->getSubItem(2)->addSubItem(item);
+            
+            else if (description.processorType == Plugin::Processor::UTILITY
+                     || description.processorType == Plugin::Processor::MERGER
+                     || description.processorType == Plugin::Processor::SPLITTER
+                     || description.processorType == Plugin::Processor::AUDIO_MONITOR)
+                
+                baseItem->getSubItem(3)->addSubItem(item);
+            
+            else if (description.processorType == Plugin::Processor::RECORD_NODE)
+                
+                baseItem->getSubItem(4)->addSubItem(item);
 		}
 	}
-
 
 	for (int n = 0; n < baseItem->getNumSubItems(); n++)
 	{
 		const String category = baseItem->getSubItem(n)->getName();
-		baseItem->getSubItem(n)->setParentName(category);
-		for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
+        
+        baseItem->getSubItem(n)->setParentName(category);
+		
+        for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
 		{
-			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);// = category;
+			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);
 		}
 	}
 
@@ -689,13 +653,19 @@ void ProcessorList::fillItemList()
 
 // ===================================================================
 
-	ProcessorListItem::ProcessorListItem(const String& name_, int pid, int ptype)
-		: processorId(pid), processorType(ptype), selected(false), open(true), name(name_)
+ProcessorListItem::ProcessorListItem(const String& name_,
+                                     int index_,
+                                     Plugin::Type pluginType_,
+                                     Plugin::Processor::Type processorType_):
+  index(index_),
+  pluginType(pluginType_),
+  processorType(processorType_),
+  selected(false),
+  open(true),
+  name(name_)
 {
 }
 
-ProcessorListItem::~ProcessorListItem()
-{ }
 
 bool ProcessorListItem::hasSubItems()
 {

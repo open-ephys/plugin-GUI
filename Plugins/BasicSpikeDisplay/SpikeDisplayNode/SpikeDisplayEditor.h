@@ -42,13 +42,14 @@ class UtilityButton;
 
 */
 
-class SpikeDisplayEditor : public VisualizerEditor
+class SpikeDisplayEditor : public VisualizerEditor,
+                           public Button::Listener
 {
 public:
     SpikeDisplayEditor(GenericProcessor*);
     ~SpikeDisplayEditor();
 
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
 
     void startRecording();
     void stopRecording();

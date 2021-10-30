@@ -92,7 +92,7 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
 
 public:
     /** Constructor (sets the processor's name). */
-    GenericProcessor (const String& name_);
+    GenericProcessor (const String& name);
 
     /** Destructor. */
     virtual ~GenericProcessor();
@@ -440,11 +440,11 @@ public:
 
 	int getTotalConfigurationObjects() const;
 
-    PluginProcessorType getProcessorType() const;
+    Plugin::Processor::Type getProcessorType() const;
     
     String getProcessorTypeString() const;
     
-    static PluginProcessorType typeFromString(String typeName);
+    static Plugin::Processor::Type typeFromString(String typeName);
 
     String getDisplayName() { return m_name; }
 
@@ -478,6 +478,10 @@ public:
     
     /** Pointer to the processor's editor. */
     std::unique_ptr<GenericEditor> editor;
+    
+    
+    /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
+    void setProcessorType (Plugin::Processor::Type processorType);
 
 protected:
 
@@ -536,8 +540,6 @@ protected:
 	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
 	virtual void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
 
-    /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
-    void setProcessorType (PluginProcessorType processorType);
 
     // --------------------------------------------
     //     ADDING SPIKES AND EVENTS
@@ -657,7 +659,7 @@ private:
     int processEventBuffer();
 
     /** The type of the processor. */
-    PluginProcessorType m_processorType;
+    Plugin::Processor::Type m_processorType;
 
     /** The name of the processor.*/
     String m_name;

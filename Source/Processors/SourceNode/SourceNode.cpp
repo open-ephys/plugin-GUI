@@ -40,7 +40,6 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     , ttlState              (0)
     , numStreams            (0)
 {
-    setProcessorType (PROCESSOR_TYPE_SOURCE);
 
     dataThread = dt (this);
 

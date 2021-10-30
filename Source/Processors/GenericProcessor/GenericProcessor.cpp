@@ -56,7 +56,6 @@ GenericProcessor::GenericProcessor(const String& name)
 	, parametersAsXml(nullptr)
 	, ttlEventChannel(nullptr)
 	, sendSampleCount(true)
-	, m_processorType(PROCESSOR_TYPE_UTILITY)
 	, m_name(name)
 	, m_paramsWereLoaded(false)
 
@@ -1352,7 +1351,7 @@ void GenericProcessor::loadFromXml()
                     getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
             }
             
-			if (xmlNode->hasTagName("STREAM"))
+			/*if (xmlNode->hasTagName("STREAM"))
 			{
 				if (availableStreams.size() > streamIndex)
 				{
@@ -1376,7 +1375,7 @@ void GenericProcessor::loadFromXml()
 				}
 
 				streamIndex++;
-			}
+			}*/
 		}
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
@@ -1407,7 +1406,7 @@ void GenericProcessor::setCurrentChannel(int chan)
 	currentChannel = chan;
 }
 
-void GenericProcessor::setProcessorType(PluginProcessorType processorType)
+void GenericProcessor::setProcessorType(Plugin::Processor::Type processorType)
 {
 	m_processorType = processorType;
 }
@@ -1416,16 +1415,16 @@ bool GenericProcessor::canSendSignalTo(GenericProcessor*) const { return true; }
 
 bool GenericProcessor::generatesTimestamps() const { return false; }
 
-bool GenericProcessor::isFilter()        const  { return getProcessorType() == PROCESSOR_TYPE_FILTER; }
-bool GenericProcessor::isSource()        const  { return getProcessorType() == PROCESSOR_TYPE_SOURCE; }
-bool GenericProcessor::isSink()          const  { return getProcessorType() == PROCESSOR_TYPE_SINK; }
-bool GenericProcessor::isSplitter()      const  { return getProcessorType() == PROCESSOR_TYPE_SPLITTER; }
-bool GenericProcessor::isMerger()        const  { return getProcessorType() == PROCESSOR_TYPE_MERGER; }
-bool GenericProcessor::isAudioMonitor()  const  { return getProcessorType() == PROCESSOR_TYPE_AUDIO_MONITOR; }
-bool GenericProcessor::isUtility()       const  { return getProcessorType() == PROCESSOR_TYPE_UTILITY; }
-bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == PROCESSOR_TYPE_RECORD_NODE; }
+bool GenericProcessor::isFilter()        const  { return getProcessorType() == Plugin::Processor::FILTER; }
+bool GenericProcessor::isSource()        const  { return getProcessorType() == Plugin::Processor::SOURCE; }
+bool GenericProcessor::isSink()          const  { return getProcessorType() == Plugin::Processor::SINK; }
+bool GenericProcessor::isSplitter()      const  { return getProcessorType() == Plugin::Processor::SPLITTER; }
+bool GenericProcessor::isMerger()        const  { return getProcessorType() == Plugin::Processor::MERGER; }
+bool GenericProcessor::isAudioMonitor()  const  { return getProcessorType() == Plugin::Processor::AUDIO_MONITOR; }
+bool GenericProcessor::isUtility()       const  { return getProcessorType() == Plugin::Processor::UTILITY; }
+bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == Plugin::Processor::RECORD_NODE; }
 
-PluginProcessorType GenericProcessor::getProcessorType() const
+Plugin::Processor::Type GenericProcessor::getProcessorType() const
 {
 	return m_processorType;
 }
@@ -1442,16 +1441,16 @@ String GenericProcessor::getProcessorTypeString() const
         return "Utility";
 }
 
-PluginProcessorType GenericProcessor::typeFromString(String typeName)
+Plugin::Processor::Type GenericProcessor::typeFromString(String typeName)
 {
     if (typeName.equalsIgnoreCase("Source"))
-        return PluginProcessorType::PROCESSOR_TYPE_SOURCE;
+        return Plugin::Processor::SOURCE;
     else if (typeName.equalsIgnoreCase("Filter"))
-        return PluginProcessorType::PROCESSOR_TYPE_FILTER;
+        return Plugin::Processor::FILTER;
     else if (typeName.equalsIgnoreCase("Sink"))
-        return PluginProcessorType::PROCESSOR_TYPE_SINK;
+        return Plugin::Processor::SINK;
     else if (typeName.equalsIgnoreCase("Utility"))
-        return PluginProcessorType::PROCESSOR_TYPE_UTILITY;
+        return Plugin::Processor::UTILITY;
 }
 
 int GenericProcessor::getNumInputs() const  

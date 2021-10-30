@@ -31,7 +31,7 @@ PluginClass::PluginClass()
 	libName = String();
 	pluginName = String();
 	libVersion = -1;
-    pluginType = Plugin::NOT_A_PLUGIN_TYPE;
+    pluginType = Plugin::INVALID;
 }
 
 PluginClass::~PluginClass()
@@ -39,7 +39,7 @@ PluginClass::~PluginClass()
 
 }
 
-void PluginClass::setPluginData(Plugin::PluginType type, int index)
+void PluginClass::setPluginData(Plugin::Type type, int index)
 {
     PluginManager* pm = AccessClass::getPluginManager();
     String name;
@@ -47,46 +47,45 @@ void PluginClass::setPluginData(Plugin::PluginType type, int index)
     pluginIndex = index;
     switch (type)
     {
-        case Plugin::PLUGIN_TYPE_PROCESSOR:
+        case Plugin::PROCESSOR:
         {
             Plugin::ProcessorInfo i = pm->getProcessorInfo(index);
             name = i.name;
             break;
         }
 
-        case Plugin::PLUGIN_TYPE_RECORD_ENGINE:
+        case Plugin::RECORD_ENGINE:
         {
             Plugin::RecordEngineInfo i = pm->getRecordEngineInfo(index);
             name = i.name;
             break;
         }
 
-        case Plugin::PLUGIN_TYPE_DATA_THREAD:
+        case Plugin::DATA_THREAD:
         {
             Plugin::DataThreadInfo i = pm->getDataThreadInfo(index);
             name = i.name;
             break;
         }
 
-        case Plugin::PLUGIN_TYPE_FILE_SOURCE:
+        case Plugin::FILE_SOURCE:
         {
             Plugin::FileSourceInfo i = pm->getFileSourceInfo(index);
             name = i.name;
             break;
         }
 
-        case Plugin::NOT_A_PLUGIN_TYPE:
+        case Plugin::INVALID:
         {
-            String pName;
-            int pType;
-            ProcessorManager::getProcessorNameAndType(BuiltInProcessor, index, pName, pType);
-            name = pName;
+            Plugin::Description description = ProcessorManager::getPluginDescription(Plugin::BUILT_IN, index);
+            name = description.name;
             break;
         }
 
         default:
             return;
     }
+    
     pluginName = name;
     libName = pm->getLibraryName(pm->getLibraryIndexFromPlugin(type, index));
     libVersion = pm->getLibraryVersion(pm->getLibraryIndexFromPlugin(type, index));
@@ -107,7 +106,7 @@ int PluginClass::getLibVersion() const
 	return libVersion;
 }
 
-Plugin::PluginType PluginClass::getPluginType() const
+Plugin::Type PluginClass::getPluginType() const
 {
 	return pluginType;
 }

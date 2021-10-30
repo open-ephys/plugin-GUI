@@ -175,7 +175,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         updateSettings(processor);
 }
 
-GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& description,
+GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& description,
                                       GenericProcessor* sourceNode,
                                       GenericProcessor* destNode,
                                       bool signalChainIsLoading)
@@ -183,7 +183,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 	std::unique_ptr<GenericProcessor> processor = nullptr;
     GenericProcessor* addedProc = nullptr;
     
-    LOGD("Creating processor with name: ", description.pluginName);
+    LOGD("Creating processor with name: ", description.name);
     
     if (sourceNode != nullptr)
         LOGDD("Source node: ", sourceNode->getName());
@@ -220,6 +220,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
         Node* n = addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
 
         addedProc = (GenericProcessor*)n->getProcessor();
+        
         GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
 
         editor->refreshColors();
@@ -301,11 +302,14 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
             return nullptr;
         }
         
+        String msg = "New " + addedProc->getName() + " created";
+        CoreServices::sendStatusMessage(msg);
+        
 	}
 	else
 	{
 		CoreServices::sendStatusMessage("Not a valid processor.");
-        
+        updateViews(nullptr);
         return nullptr;
 	}
     
@@ -1353,14 +1357,11 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 }
 
 
-std::unique_ptr<GenericProcessor> ProcessorGraph::createProcessorFromDescription(ProcessorDescription& description)
+std::unique_ptr<GenericProcessor> ProcessorGraph::createProcessorFromDescription(Plugin::Description& description)
 {
 	std::unique_ptr<GenericProcessor> processor = nullptr;
             
     processor = std::move(ProcessorManager::createProcessor(description));
-                          
-	String msg = "New " + description.pluginName + " created";
-	CoreServices::sendStatusMessage(msg);
 
     return processor;
 }

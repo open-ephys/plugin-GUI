@@ -29,7 +29,6 @@
 AudioMonitor::AudioMonitor()
     : GenericProcessor ("Audio Monitor") //, isMuted(false), audioOutput(BOTH)
 {
-    setProcessorType (PROCESSOR_TYPE_AUDIO_MONITOR);
 
     tempBuffer = std::make_unique<AudioSampleBuffer>(16, 1024);
     

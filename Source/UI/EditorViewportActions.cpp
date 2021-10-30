@@ -27,7 +27,7 @@
 #include "../Processors/Merger/Merger.h"
 #include "../Processors/Splitter/Splitter.h"
 
-AddProcessor::AddProcessor(ProcessorDescription description_,
+AddProcessor::AddProcessor(Plugin::Description description_,
                            GenericProcessor* sourceProcessor,
                            GenericProcessor* destProcessor,
                            EditorViewport* editorViewport_,
@@ -72,10 +72,9 @@ bool AddProcessor::perform()
                                                       destProcessor,
                                                       signalChainIsLoading);
     
-    nodeId = processor->getNodeId();
-    
     if (settings != nullptr && processor != nullptr)
     {
+        nodeId = processor->getNodeId();
         processor->parametersAsXml = settings;
         processor->loadFromXml();
     }
@@ -147,7 +146,7 @@ bool DeleteProcessor::perform()
 bool DeleteProcessor::undo()
 {
     LOGDD("Undoing delete processor.");
-    ProcessorDescription description = editorViewport->getDescriptionFromXml(settings, false);
+    Plugin::Description description = editorViewport->getDescriptionFromXml(settings, false);
 
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
     

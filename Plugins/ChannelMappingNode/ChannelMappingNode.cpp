@@ -128,8 +128,6 @@ ChannelMappingNode::ChannelMappingNode()
     : GenericProcessor  ("Channel Map")
 {
     
-    setProcessorType (PROCESSOR_TYPE_FILTER);
-
 }
 
 AudioProcessorEditor* ChannelMappingNode::createEditor()

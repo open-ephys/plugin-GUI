@@ -280,11 +280,11 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	Plugin::PluginInfo pInfo;
 	for (int i = 0; i < lib.numPlugins; i++)
 	{
-		if (piFunction(i, &pInfo)) //if somehow there are less plugins than stated, stop adding
+		if (piFunction(i, &pInfo)) //if somehow there are fewer plugins than stated, stop adding
 			break;
 		switch (pInfo.type)
 		{
-		case Plugin::PLUGIN_TYPE_PROCESSOR:
+		case Plugin::PROCESSOR:
 		{
 			LoadedPluginInfo<Plugin::ProcessorInfo> info;
 			info.creator = pInfo.processor.creator;
@@ -296,7 +296,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 				processorPlugins.add(info);
 			break;
 		}
-		case Plugin::PLUGIN_TYPE_RECORD_ENGINE:
+		case Plugin::RECORD_ENGINE:
 		{
 			LoadedPluginInfo<Plugin::RecordEngineInfo> info;
 			info.creator = pInfo.recordEngine.creator;
@@ -307,7 +307,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 				recordEnginePlugins.add(info);
 			break;
 		}
-		case Plugin::PLUGIN_TYPE_DATA_THREAD:
+		case Plugin::DATA_THREAD:
 		{
 			LoadedPluginInfo<Plugin::DataThreadInfo> info;
 			info.creator = pInfo.dataThread.creator;
@@ -318,7 +318,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 				dataThreadPlugins.add(info);
 			break;
 		}
-		case Plugin::PLUGIN_TYPE_FILE_SOURCE:
+		case Plugin::FILE_SOURCE:
 		{
 			LoadedPluginInfo<Plugin::FileSourceInfo> info;
 			info.creator = pInfo.fileSource.creator;
@@ -436,17 +436,17 @@ int PluginManager::getLibraryVersion(int index) const
 		return libArray[index].libVersion;
 }
 
-int PluginManager::getLibraryIndexFromPlugin (Plugin::PluginType type, int index)
+int PluginManager::getLibraryIndexFromPlugin (Plugin::Type type, int index)
 {
     switch (type)
     {
-        case Plugin::PLUGIN_TYPE_PROCESSOR:
+        case Plugin::PROCESSOR:
             return processorPlugins[index].libIndex;
-        case Plugin::PLUGIN_TYPE_RECORD_ENGINE:
+        case Plugin::RECORD_ENGINE:
             return recordEnginePlugins[index].libIndex;
-        case Plugin::PLUGIN_TYPE_DATA_THREAD:
+        case Plugin::DATA_THREAD:
             return dataThreadPlugins[index].libIndex;
-        case Plugin::PLUGIN_TYPE_FILE_SOURCE:
+        case Plugin::FILE_SOURCE:
             return fileSourcePlugins[index].libIndex;
         default:
             return -1;
@@ -458,7 +458,7 @@ Plugin::ProcessorInfo PluginManager::getEmptyProcessorInfo()
 	Plugin::ProcessorInfo i;
 	i.creator = nullptr;
 	i.name = nullptr;
-	i.type = Plugin::InvalidProcessor;
+	i.type = Plugin::Processor::INVALID;
 	return i;
 }
 

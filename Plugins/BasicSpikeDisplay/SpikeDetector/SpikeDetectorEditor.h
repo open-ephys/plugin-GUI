@@ -54,7 +54,7 @@ public:
     virtual ~SpikeDetectorEditor();
 
     /** Called when configure button is clicked */
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
 
     /** Called when settings are updated*/
     void updateSettings() override;

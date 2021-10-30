@@ -62,7 +62,6 @@ TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
 
 PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
-    setProcessorType (PROCESSOR_TYPE_FILTER);
 
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "input_channel", "The continuous channel to analyze", 1);
     addIntParameter(Parameter::STREAM_SCOPE, "output_bit", "The output TTL bit", 1, 1, 16);

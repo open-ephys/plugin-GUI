@@ -25,6 +25,7 @@
 #define __PROCESSORGRAPH_H_124F8B50__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #include "../../AccessClass.h"
 
@@ -35,17 +36,6 @@ class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
 class TimestampSourceSelectionWindow;
-
-struct ProcessorDescription {
-    bool fromProcessorList;
-    String pluginName;
-    int pluginType;
-    int pluginIndex;
-    String libName;
-    String processorType;
-    int libVersion;
-    int nodeId;
-};
 
 class ProcessorGraphHttpServer;
 
@@ -84,13 +74,13 @@ public:
     ~ProcessorGraph();
 
     /* Creates a new processor.*/
-    GenericProcessor* createProcessor(ProcessorDescription& description,
+    GenericProcessor* createProcessor(Plugin::Description& description,
                          GenericProcessor* sourceNode = nullptr,
                          GenericProcessor* destNode = nullptr,
                          bool signalChainIsLoading=false);
 
     /* Determines which processor to create, based on the description provided*/
-    std::unique_ptr<GenericProcessor> createProcessorFromDescription(ProcessorDescription& description);
+    std::unique_ptr<GenericProcessor> createProcessorFromDescription(Plugin::Description& description);
 
     /* Starts the HTTP server for interacting with the GUI. */
     void enableHttpServer();

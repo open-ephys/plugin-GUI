@@ -27,15 +27,11 @@
 
 PlaceholderProcessor::PlaceholderProcessor (String pluginName, 
     String libraryName, 
-    int libraryVersion, 
-    PluginProcessorType type)
+    int libraryVersion)
     : GenericProcessor      (pluginName)
-    , m_processorName       (pluginName)
     , m_libName             (libraryName)
     , m_libVersion          (libraryVersion)
 {
-
-    setProcessorType(type);
 
 }
 
@@ -52,7 +48,7 @@ void PlaceholderProcessor::updateSettings()
 
 AudioProcessorEditor* PlaceholderProcessor::createEditor()
 {
-    editor = std::make_unique<PlaceholderProcessorEditor> (this, m_processorName, m_libName, m_libVersion);
+    editor = std::make_unique<PlaceholderProcessorEditor> (this, getName(), m_libName, m_libVersion);
     return editor.get();
 }
 

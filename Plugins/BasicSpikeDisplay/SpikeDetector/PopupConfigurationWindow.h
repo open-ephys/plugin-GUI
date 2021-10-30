@@ -84,17 +84,17 @@ public:
    
     int getNumRows() override;
 
-    void update(Array<SpikeChannelSettings*> spikeChannels);
+    void update(Array<SpikeChannel*> spikeChannels);
 
-    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected);
+    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
-    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected);
+    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
 private:
 
     SpikeDetectorEditor* editor;
     PopupConfigurationWindow* owner;
-    Array<SpikeChannelSettings*> spikeChannels;
+    Array<SpikeChannel*> spikeChannels;
 };
 
 
@@ -106,11 +106,11 @@ class PopupConfigurationWindow : public Component,
 
 public:
     
-    PopupConfigurationWindow(SpikeDetectorEditor* editor, Array<SpikeChannelSettings*> spikeChannels);
+    PopupConfigurationWindow(SpikeDetectorEditor* editor, Array<SpikeChannel*> spikeChannels);
 
     ~PopupConfigurationWindow();
 
-    void update(Array<SpikeChannelSettings*> spikeChannels);
+    void update(Array<SpikeChannel*> spikeChannels);
 
     String getChannelName(int row);
 
@@ -131,7 +131,6 @@ public:
 private:
     SpikeDetectorEditor* editor;
 
-    Array<SpikeChannelSettings*> spikeChannelsForCurrentStream;
 };
 
 

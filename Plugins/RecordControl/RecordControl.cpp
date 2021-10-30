@@ -26,7 +26,6 @@
 RecordControl::RecordControl()
     : GenericProcessor  ("Record Control")
 {
-    setProcessorType (PROCESSOR_TYPE_UTILITY);
 
     addCategoricalParameter(Parameter::GLOBAL_SCOPE,
                             "trigger_type",

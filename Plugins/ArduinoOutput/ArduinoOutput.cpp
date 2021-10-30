@@ -32,8 +32,6 @@ ArduinoOutput::ArduinoOutput()
     , gateIsOpen            (true)
     , deviceSelected        (false)
 {
-    setProcessorType (PROCESSOR_TYPE_SINK);
-
     addIntParameter(Parameter::GLOBAL_SCOPE, "output_pin", "The Arduino pin to use", 13, 0, 13);
     addIntParameter(Parameter::STREAM_SCOPE, "input_bit", "The TTL bit for triggering output", 1, 1, 16);
     addIntParameter(Parameter::STREAM_SCOPE, "gate_bit", "The TTL bit for gating the output", 0, 0, 16);

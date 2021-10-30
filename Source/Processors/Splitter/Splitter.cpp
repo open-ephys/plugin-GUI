@@ -33,7 +33,6 @@ Splitter::Splitter()
     : GenericProcessor("Splitter"),
       destNodeA(nullptr), destNodeB(nullptr), activePath(0)
 {
-    setProcessorType(PROCESSOR_TYPE_SPLITTER);
     sendSampleCount = false;
 }
 

@@ -36,46 +36,59 @@
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
-/** Total number of builtin processors **/
-#define BUILTIN_PROCESSORS 5
+/** Total number of built-in processors **/
+#define BUILT_IN_PROCESSOR_COUNT 5
 
 namespace ProcessorManager
 {
-	using namespace Plugin;
+
+    Array<Plugin::Type> getAvailablePluginTypes()
+    {
+        return {Plugin::BUILT_IN,
+                Plugin::PROCESSOR,
+                Plugin::DATA_THREAD};
+    }
+
 	/** Built-in processor names **/
-	void getBuiltInProcessorNameAndType(int index, String& name, int& type)
+	Plugin::Description getBuiltInPluginDescription(int index)
 	{
+        Plugin::Description description;
+        
+        description.type = Plugin::BUILT_IN;
+        
 		switch (index)
 		{
 		case -1:
-			name = "Placeholder processor";
-			type = UtilityProcessor;
+			description.name = "Placeholder Processor";
+			description.processorType = Plugin::Processor::UTILITY;
 			break;
 		case 0:
-			name = "Merger";
-			type = UtilityProcessor;
+			description.name = "Merger";
+			description.processorType = Plugin::Processor::UTILITY;
 			break;
 		case 1:
-			name = "Splitter";
-			type = UtilityProcessor;
+			description.name = "Splitter";
+			description.processorType = Plugin::Processor::UTILITY;
 			break;
 		case 2:
-			name = "File Reader";
-			type = SourceProcessor;
+			description.name = "File Reader";
+			description.processorType = Plugin::Processor::SOURCE;
 			break;
 		case 3:
-			name = "Record Node";
-			type = FilterProcessor;
+			description.name = "Record Node";
+			description.processorType = Plugin::Processor::RECORD_NODE;
 			break;
 		case 4:
-			name = "Audio Monitor";
-			type = UtilityProcessor;
+			description.name = "Audio Monitor";
+			description.processorType = Plugin::Processor::UTILITY;
 			break;
 		default:
-			name = String();
-			type = -1;
+			description.name = String();
+			description.processorType = Plugin::Processor::INVALID;
 			break;
 		}
+        
+        return description;
 	}
 
 	/** Built-in constructors **/
@@ -85,41 +98,48 @@ namespace ProcessorManager
 		switch (index)
 		{
 		case -1:
-			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0, PluginProcessorType::PROCESSOR_TYPE_FILTER);
+			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0);
+            proc->setProcessorType(Plugin::Processor::INVALID);
 			break;
 		case 0:
 			proc = new Merger();
+            proc->setProcessorType(Plugin::Processor::MERGER);
 			break;
 		case 1:
 			proc = new Splitter();
+            proc->setProcessorType(Plugin::Processor::SPLITTER);
 			break;
 		case 2:
 			proc = new FileReader();
+            proc->setProcessorType(Plugin::Processor::SOURCE);
 			break;
 		case 3:
 			proc = new RecordNode();
+            proc->setProcessorType(Plugin::Processor::RECORD_NODE);
 			break;
 		case 4:
 			proc = new AudioMonitor();
+            proc->setProcessorType(Plugin::Processor::AUDIO_MONITOR);
 			break;
 		default:
 			return nullptr;
 		}
-		proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, index);
+		proc->setPluginData(Plugin::BUILT_IN, index);
+        
 		return std::unique_ptr<GenericProcessor>(proc);
 	}
 
-	int getNumProcessors(ProcessorClass pClass)
+	int getNumProcessorsForPluginType(Plugin::Type type)
 	{
-		switch (pClass)
+		switch (type)
 		{
-		case BuiltInProcessor:
-			return BUILTIN_PROCESSORS;
+        case Plugin::BUILT_IN:
+			return BUILT_IN_PROCESSOR_COUNT;
 			break;
-		case PluginProcessor:
+        case Plugin::PROCESSOR:
 			return AccessClass::getPluginManager()->getNumProcessors();
 			break;
-		case DataThreadProcessor:
+        case Plugin::DATA_THREAD:
 			return AccessClass::getPluginManager()->getNumDataThreads();
 		default:
 			return 0;
@@ -127,125 +147,146 @@ namespace ProcessorManager
 		}
 	}
 
-	void getProcessorNameAndType(ProcessorClass pClass, int index, String& name, int& type)
+	Plugin::Description getPluginDescription(Plugin::Type type,
+                                             int index)
 	{
-		switch (pClass)
+        
+        Plugin::Description description;
+        description.type = type;
+        
+		switch (type)
 		{
-		case BuiltInProcessor:
-			getBuiltInProcessorNameAndType(index, name, type);
-			break;
-		case PluginProcessor:
-			{
-				Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
-				name = info.name;
-				type = info.type;
-			}
-			break;
-		case DataThreadProcessor:
-		{
-			Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
-			name = info.name;
-			type = SourceProcessor;
-			break;
-		}
+        case Plugin::BUILT_IN:
+        {
+            description = getBuiltInPluginDescription(index);
+            break;
+        }
+        case Plugin::PROCESSOR:
+        {
+            Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
+            description.name = info.name;
+            description.processorType = info.type;
+            break;
+        }
+		case Plugin::DATA_THREAD:
+        {
+            Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
+            description.name = info.name;
+            description.processorType = Plugin::Processor::SOURCE;
+            break;
+        }
 		default:
-			name = String();
-			type = -1;
-			break;
+        {
+            description.name = String();
+            description.type = Plugin::INVALID;
+            break;
+        }
 		}
+        
+        return description;
 	}
 
-	std::unique_ptr<GenericProcessor> createProcessor(ProcessorDescription description)
+	std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description)
 	{
-        int index = description.pluginIndex;
         
+        std::cout << "DESCRIPTION: " << std::endl;
+        std::cout << "From processor list: " << description.fromProcessorList << std::endl;
+        std::cout << "Name: " << description.name << std::endl;
+        std::cout << "Index: " << description.index << std::endl;
+        std::cout << "Type: " << description.type << std::endl;
+        std::cout << "ProcessorType: " << description.processorType << std::endl;
+        std::cout << "NodeId: " << description.nodeId << std::endl;
+        std::cout << "LibName: " << description.libName << std::endl;
+        std::cout << "LibVersion: " << description.libVersion << std::endl;
+                
         if (description.fromProcessorList)
         {
-            ProcessorClass pClass = (ProcessorClass) description.pluginType;
-            
-            switch (pClass)
+            switch (description.type)
             {
-            case BuiltInProcessor:
+            case Plugin::BUILT_IN:
             {
-                return createBuiltInProcessor(index);
+                return createBuiltInProcessor(description.index);
             }
-            case PluginProcessor:
+            case Plugin::PROCESSOR:
             {
-                Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
+                Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(description.index);
                 GenericProcessor* proc = info.creator();
-                proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, index);
+                proc->setPluginData(Plugin::PROCESSOR, description.index);
+                proc->setProcessorType(description.processorType);
                 return std::unique_ptr<GenericProcessor>(proc);
             }
-            case DataThreadProcessor:
+            case Plugin::DATA_THREAD:
             {
-                Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
+                Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(description.index);
                 GenericProcessor* proc = new SourceNode(info.name, info.creator);
-                proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, index);
+                proc->setPluginData(Plugin::DATA_THREAD, description.index);
+                proc->setProcessorType(Plugin::Processor::SOURCE);
                 return std::unique_ptr<GenericProcessor>(proc);
             }
             default:
                 return nullptr;
+            }
                 
-        }
+        } // if (description.fromProcessorList)
             
-        Plugin::PluginType type = (Plugin::PluginType) description.pluginType;
-        String procName= description.pluginName;
-        String libName = description.libName;
-        int libVersion = description.libVersion;
-        
         PluginManager* pm = AccessClass::getPluginManager();
         
         GenericProcessor* proc = nullptr;
         
-        if (index > -1)
+        if (description.index > -1)
         {
-            if (type == Plugin::NOT_A_PLUGIN_TYPE)
+            if (description.type == Plugin::BUILT_IN)
             {
-                return createBuiltInProcessor(index);
+                return createBuiltInProcessor(description.index);
             }
-            else if (type == Plugin::PLUGIN_TYPE_PROCESSOR)
+            else if (description.type == Plugin::PROCESSOR)
             {
                 for (int i = 0; i < pm->getNumProcessors(); i++)
                 {
                     Plugin::ProcessorInfo info = pm->getProcessorInfo(i);
-                    if (procName.equalsIgnoreCase(info.name))
+                    
+                    if (description.name.equalsIgnoreCase(info.name))
                     {
-                        int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_PROCESSOR, i);
-                        if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
+                        int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PROCESSOR, i);
+                        
+                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex))
+                            && description.libVersion == pm->getLibraryVersion(libIndex))
                         {
                             proc = info.creator();
-                            proc->setPluginData(Plugin::PLUGIN_TYPE_PROCESSOR, i);
+                            proc->setPluginData(Plugin::PROCESSOR, i);
+                            proc->setProcessorType(description.processorType);
                             return std::unique_ptr<GenericProcessor>(proc);
                         }
                     }
                 }
             }
-            else if (type == Plugin::PLUGIN_TYPE_DATA_THREAD)
+            else if (description.type == Plugin::DATA_THREAD)
             {
                 for (int i = 0; i < pm->getNumDataThreads(); i++)
                 {
                     Plugin::DataThreadInfo info = pm->getDataThreadInfo(i);
-                    if (procName.equalsIgnoreCase(info.name))
+                    if (description.name.equalsIgnoreCase(info.name))
                     {
-                        int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
-                        if (libName.equalsIgnoreCase(pm->getLibraryName(libIndex)) && libVersion == pm->getLibraryVersion(libIndex))
+                        int libIndex = pm->getLibraryIndexFromPlugin(Plugin::DATA_THREAD, i);
+                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex))
+                            && description.libVersion == pm->getLibraryVersion(libIndex))
                         {
                             proc = new SourceNode(info.name, info.creator);
-                            proc->setPluginData(Plugin::PLUGIN_TYPE_DATA_THREAD, i);
+                            proc->setPluginData(Plugin::DATA_THREAD, i);
                             return std::unique_ptr<GenericProcessor>(proc);
                         }
                     }
                 }
             }
-        }
-        proc = new PlaceholderProcessor(procName,
-                                        libName,
-                                        libVersion,
-                                        GenericProcessor::typeFromString(description.processorType));
-        proc->setPluginData(Plugin::NOT_A_PLUGIN_TYPE, -1);
+        } // if (description.index > -1)
+            
+        proc = new PlaceholderProcessor(description.name,
+                                        description.libName,
+                                        description.libVersion);
+        proc->setPluginData(Plugin::INVALID, -1);
+        proc->setProcessorType(description.processorType);
         return std::unique_ptr<GenericProcessor>(proc);
 
-	}
-    }
+	} // createProcessor(Plugin::Description description)
+}; // namespace
 
-};

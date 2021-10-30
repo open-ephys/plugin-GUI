@@ -31,6 +31,8 @@
 #include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Merger/MergerEditor.h"
 
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
+
 #include "ControlPanel.h"
 #include "UIComponent.h"
 #include "DataViewport.h"
@@ -180,13 +182,13 @@ public:
     
     int getDesiredWidth();
     
-    GenericProcessor* addProcessor(ProcessorDescription desc, int insertionPt);
+    GenericProcessor* addProcessor(Plugin::Description desc, int insertionPt);
     
     void deleteSelectedProcessors();
     
     GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool ignoreNodeId);
     
-    ProcessorDescription getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+    Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
     
     void switchIO(GenericProcessor* processor, int path);
 

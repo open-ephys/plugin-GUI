@@ -56,7 +56,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
     {
         std::vector<bool> channelStates;
 
-        for (int i = 0; i < spikeChannels[rowNumber]->maxLocalChannel; i++)
+        /*for (int i = 0; i < spikeChannels[rowNumber]->maxLocalChannel; i++)
         {
             channelStates.push_back(spikeChannels[rowNumber]->localChannelIndexes.contains(i));
 
@@ -73,7 +73,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
                 event.eventComponent->getScreenBounds(), 
                 nullptr);
 
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);*/
     }
 
     //SparseSet<int> selectedRows = table->getSelectedRows();
@@ -116,7 +116,7 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
             
         }
             
-        textLabel->addListener(owner);
+        //textLabel->addListener(owner);
         textLabel->setRowAndColumn(rowNumber, columnId);
         
         return textLabel;
@@ -131,7 +131,7 @@ int SpikeDetectorTableModel::getNumRows()
     return spikeChannels.size();
 }
 
-void SpikeDetectorTableModel::update(Array<SpikeChannelSettings*> spikeChannels_)
+void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 {
     spikeChannels = spikeChannels_;
 }
@@ -167,11 +167,11 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     {
         g.setColour(Colours::white);
         //std::cout << "Drawing name column for row " << rowNumber << std::endl;
-        g.drawText(spikeChannels[rowNumber]->name, 4, 0, width, height, Justification::left);
+        g.drawText(spikeChannels[rowNumber]->getName(), 4, 0, width, height, Justification::left);
     } 
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
     {
-        switch (spikeChannels[rowNumber]->type)
+        switch (spikeChannels[rowNumber]->getChannelType())
         {
         case SpikeChannel::Type::SINGLE:
             g.setColour(Colours::blue);
@@ -200,12 +200,12 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
 
         String channelString = "[";
 
-        for (int i = 0; i < spikeChannels[rowNumber]->expectedChannelCount; i++)
+        for (int i = 0; i < spikeChannels[rowNumber]->getNumChannels(); i++)
         {
-            channelString += String(spikeChannels[rowNumber]->localChannelIndexes[i]);
+            //channelString += String(spikeChannels[rowNumber]->localChannelIndexes[i]);
             
-            if (i != spikeChannels[rowNumber]->expectedChannelCount - 1)
-                channelString += ", ";
+            //if (i != spikeChannels[rowNumber]->expectedChannelCount - 1)
+             //   channelString += ", ";
         }
         
         channelString += "]";
@@ -214,7 +214,7 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     } 
     else if (columnId == SpikeDetectorTableModel::Columns::THRESHOLD)
     {
-        switch (spikeChannels[rowNumber]->thresholdType)
+       /* switch (spikeChannels[rowNumber]->thresholdType)
         {
         case SpikeChannelSettings::ThresholdType::FIXED:
             g.setColour(Colours::blue);
@@ -234,18 +234,18 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
             g.setColour(Colours::white);
             g.drawText("DYNAMIC", 4, 4, width - 8, height - 8, Justification::centred);
             break;
-        }
+        }*/
     }
     else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
     {
-        g.setColour(Colours::white);
+        /*g.setColour(Colours::white);
         if (spikeChannels[rowNumber]->sendFullWaveform)
         {
             g.drawText("FULL", 4, 4, width - 8, height - 8, Justification::centred);
         }
         else {
             g.drawText("PEAK ONLY", 4, 4, width - 8, height - 8, Justification::centred);
-        }
+        }*/
     }
 
     else if (columnId == SpikeDetectorTableModel::Columns::DELETE)
@@ -258,7 +258,7 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
 }
 
 
-PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, Array<SpikeChannelSettings*> spikeChannels) : editor(editor_)
+PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, Array<SpikeChannel*> spikeChannels) : editor(editor_)
 {
     //tableHeader.reset(new TableHeaderComponent());
 
@@ -301,10 +301,8 @@ PopupConfigurationWindow::~PopupConfigurationWindow()
 }
 
 
-void PopupConfigurationWindow::update(Array<SpikeChannelSettings*> spikeChannels)
+void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 {
-
-    spikeChannelsForCurrentStream = spikeChannels;
 
     if (spikeChannels.size() > 0)
     {
@@ -336,7 +334,7 @@ void PopupConfigurationWindow::update(Array<SpikeChannelSettings*> spikeChannels
 
 String PopupConfigurationWindow::getChannelName(int row)
 {
-    return spikeChannelsForCurrentStream[row]->name;
+    return "NAME"; //spikeChannelsForCurrentStream[row]->name;
 }
 
 void PopupConfigurationWindow::labelTextChanged(Label* label)

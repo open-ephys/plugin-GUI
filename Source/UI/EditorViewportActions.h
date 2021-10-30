@@ -26,12 +26,11 @@
 
 #include "EditorViewport.h"
 
-
 class AddProcessor : public UndoableAction
 {
     
 public:
-    AddProcessor(ProcessorDescription description,
+    AddProcessor(Plugin::Description description,
                  GenericProcessor* source,
                  GenericProcessor* dest,
                  EditorViewport*,
@@ -55,7 +54,7 @@ private:
     
     int nodeId;
     
-    ProcessorDescription description;
+    Plugin::Description description;
 
     EditorViewport* editorViewport;
 
