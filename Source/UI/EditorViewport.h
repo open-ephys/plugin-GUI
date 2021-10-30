@@ -184,9 +184,9 @@ public:
     
     void deleteSelectedProcessors();
     
-    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool rhythmNodePatch, bool ignoreNodeId);
+    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool ignoreNodeId);
     
-    ProcessorDescription getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId, bool rhythmNodePatch);
+    ProcessorDescription getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
     
     void switchIO(GenericProcessor* processor, int path);
 

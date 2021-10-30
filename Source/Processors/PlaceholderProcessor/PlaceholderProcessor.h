@@ -41,8 +41,7 @@ public:
     PlaceholderProcessor (String pluginName, 
         String libraryName, 
         int libraryVersion, 
-        bool isSource, 
-        bool isSink);
+        PluginProcessorType type);
 
     /** Destructor*/
     ~PlaceholderProcessor();

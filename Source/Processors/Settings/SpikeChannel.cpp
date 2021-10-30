@@ -29,7 +29,10 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, settings.stream),
 	type(settings.type),
 	numPreSamples(settings.numPrePeakSamples),
-	numPostSamples(settings.numPostPeakSamples)
+	numPostSamples(settings.numPostPeakSamples),
+    currentSampleIndex(0),
+    lastBufferIndex(0),
+    useOverflowBuffer(false)
 {
 	setName(settings.name);
 	setDescription(settings.description);
@@ -58,7 +61,7 @@ const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 	return sourceChannels;
 }
 
-/*void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*> newChannels)
+void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannels)
 {
 
 	jassert(newChannels.size() == sourceChannels.size());
@@ -71,7 +74,14 @@ const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 	}
 }
 
-SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
+void SpikeChannel::reset()
+{
+    currentSampleIndex = 0;
+    lastBufferIndex = 0;
+    useOverflowBuffer = false;
+}
+
+/*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
 {
 	return thresholdType;
 }

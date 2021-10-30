@@ -1268,7 +1268,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
         param->toXml(paramsXml);
     }
 
-	for (auto stream : getDataStreams())
+	for (auto stream : dataStreams)
 	{
 		XmlElement* streamXml = xml->createNewChildElement("STREAM");
         
@@ -1277,53 +1277,47 @@ void GenericProcessor::saveToXml(XmlElement* xml)
         streamXml->setAttribute("sample_rate", stream->getSampleRate());
         streamXml->setAttribute("channel_count", stream->getChannelCount());
 
-        XmlElement* streamParamsXml = xml->createNewChildElement("PARAMETERS");
+        XmlElement* streamParamsXml = streamXml->createNewChildElement("PARAMETERS");
         
-		for (auto param : getParameters(stream->getStreamId()))
-			streamParameterMap[stream->getStreamId()][param->getName()]->toXml(streamParamsXml);
+		for (auto param : stream->getParameters())
+            param->toXml(streamParamsXml);
         
         for (auto eventChannel : stream->getEventChannels())
         {
-            if (getParameters(eventChannel).size() > 0)
+            if (eventChannel->numParameters() > 0)
             {
-                XmlElement* eventParamsXml = xml->createNewChildElement("EVENT_CHANNEL");
+                XmlElement* eventParamsXml = streamXml->createNewChildElement("EVENT_CHANNEL");
                 eventParamsXml->setAttribute("name",eventChannel->getName());
                 eventParamsXml->setAttribute("description", eventChannel->getDescription());
                 
-                for (auto param : getParameters(eventChannel))
-                {
-                    eventChannelParameterMap[eventChannel][param->getName()]->toXml(eventParamsXml);
-                }
+                for (auto param : eventChannel->getParameters())
+                    param->toXml(eventParamsXml);
             }
         }
         
         for (auto continuousChannel : stream->getContinuousChannels())
         {
-            if (getParameters(continuousChannel).size() > 0)
+            if (continuousChannel->numParameters() > 0)
             {
-                XmlElement* continuousParamsXml = xml->createNewChildElement("CONTINUOUS_CHANNEL");
+                XmlElement* continuousParamsXml = streamXml->createNewChildElement("CONTINUOUS_CHANNEL");
                 continuousParamsXml->setAttribute("name",continuousChannel->getName());
                 continuousParamsXml->setAttribute("description", continuousChannel->getDescription());
                 
-                for (auto param : getParameters(continuousChannel))
-                {
-                    continuousChannelParameterMap[continuousChannel][param->getName()]->toXml(continuousParamsXml);
-                }
+                for (auto param : continuousChannel->getParameters())
+                    param->toXml(continuousParamsXml);
             }
         }
         
         for (auto spikeChannel : stream->getSpikeChannels())
         {
-            if (getParameters(spikeChannel).size() > 0)
+            if (spikeChannel->numParameters() > 0)
             {
-                XmlElement* spikeParamsXml = xml->createNewChildElement("SPIKE_CHANNEL");
+                XmlElement* spikeParamsXml = streamXml->createNewChildElement("SPIKE_CHANNEL");
                 spikeParamsXml->setAttribute("name",spikeChannel->getName());
                 spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
                 
-                for (auto param : getParameters(spikeChannel))
-                {
-                    spikeChannelParameterMap[spikeChannel][param->getName()]->toXml(spikeParamsXml);
-                }
+                for (auto param : spikeChannel->getParameters())
+                    param->toXml(spikeParamsXml);
             }
         }
 	}
@@ -1337,38 +1331,6 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 {
 }
-
-void GenericProcessor::saveChannelParametersToXml(XmlElement* parentElement, InfoObject* channel)
-{
-	XmlElement* channelInfoXml;
-
-	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
-	{
-		channelInfoXml = parentElement->createNewChildElement("CHANNEL");
-		channelInfoXml->setAttribute("name", channel->getName());
-		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
-	}
-	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
-	{
-		channelInfoXml = parentElement->createNewChildElement("EVENTCHANNEL");
-		channelInfoXml->setAttribute("name", channel->getName());
-		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
-
-	}
-	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
-	{
-		channelInfoXml = parentElement->createNewChildElement("SPIKECHANNEL");
-		channelInfoXml->setAttribute("name", String(channel->getName()));
-		channelInfoXml->setAttribute("number", channel->getGlobalIndex());
-	}
-
-	saveCustomChannelParametersToXml(channelInfoXml, channel);
-}
-
-void GenericProcessor::saveCustomChannelParametersToXml(XmlElement* channelInfo, InfoObject* channel)
-{
-}
-
 
 void GenericProcessor::loadFromXml()
 {
@@ -1401,8 +1363,11 @@ void GenericProcessor::loadFromXml()
                         if (streamParams->hasTagName("PARAMETERS"))
                         {
                             for (int i = 0; i < xmlNode->getNumAttributes(); i++)
-                                getParameter(availableStreams[streamIndex]->getStreamId(),
-                                         xmlNode->getAttributeName(i))->fromXml(xmlNode);
+                            {
+                                Parameter* p = availableStreams[streamIndex]->getParameter(xmlNode->getAttributeName(i));
+                                if (p != nullptr)
+                                    p->fromXml(xmlNode);
+                            }
                         }
                     }
 				}
@@ -1414,7 +1379,6 @@ void GenericProcessor::loadFromXml()
 			}
 		}
 
-
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
             if (xmlNode->hasTagName("CUSTOM_PARAMETERS"))
@@ -1422,8 +1386,7 @@ void GenericProcessor::loadFromXml()
                 loadCustomParametersFromXml(xmlNode);
             }
         }
-        // use parametersAsXml to restore state
-        
+
         // load editor parameters
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
@@ -1432,65 +1395,22 @@ void GenericProcessor::loadFromXml()
                 getEditor()->loadFromXml(xmlNode);
             }
         }
-
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
-        {
-            if (xmlNode->hasTagName("CHANNEL"))
-            {
-                loadChannelParametersFromXml(xmlNode, InfoObject::Type::CONTINUOUS_CHANNEL);
-            }
-            else if (xmlNode->hasTagName("EVENTCHANNEL"))
-            {
-                loadChannelParametersFromXml(xmlNode, InfoObject::Type::EVENT_CHANNEL);
-            }
-            else if (xmlNode->hasTagName("SPIKECHANNEL"))
-            {
-                loadChannelParametersFromXml(xmlNode, InfoObject::Type::SPIKE_CHANNEL);
-            }
-        }
 	}
 
 	m_paramsWereLoaded = true;
 }
 
-
-void GenericProcessor::loadChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type type)
-{
-	int channelNum = channelInfo->getIntAttribute("number");
-
-	if (type == InfoObject::Type::CONTINUOUS_CHANNEL)
-	{
-		forEachXmlChildElement(*channelInfo, subNode)
-		{
-			if (subNode->hasTagName("SELECTIONSTATE"))
-			{
-				//getEditor()->setChannelSelectionState(channelNum,
-				//	subNode->getBoolAttribute("param"),
-				//	subNode->getBoolAttribute("record"),
-				//	subNode->getBoolAttribute("audio"));
-			}
-		}
-	}
-
-	loadCustomChannelParametersFromXml(channelInfo, type);
-}
-
-
 void GenericProcessor::loadCustomParametersFromXml(XmlElement*) { }
-
-void GenericProcessor::loadCustomChannelParametersFromXml(XmlElement* channelInfo, InfoObject::Type type) { }
 
 void GenericProcessor::setCurrentChannel(int chan)
 {
 	currentChannel = chan;
 }
 
-
 void GenericProcessor::setProcessorType(PluginProcessorType processorType)
 {
 	m_processorType = processorType;
 }
-
 
 bool GenericProcessor::canSendSignalTo(GenericProcessor*) const { return true; }
 
@@ -1508,6 +1428,30 @@ bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == P
 PluginProcessorType GenericProcessor::getProcessorType() const
 {
 	return m_processorType;
+}
+
+String GenericProcessor::getProcessorTypeString() const
+{
+    if (isSource())
+        return "Source";
+    else if (isSink())
+        return "Sink";
+    else if (isFilter())
+        return "Filter";
+    else
+        return "Utility";
+}
+
+PluginProcessorType GenericProcessor::typeFromString(String typeName)
+{
+    if (typeName.equalsIgnoreCase("Source"))
+        return PluginProcessorType::PROCESSOR_TYPE_SOURCE;
+    else if (typeName.equalsIgnoreCase("Filter"))
+        return PluginProcessorType::PROCESSOR_TYPE_FILTER;
+    else if (typeName.equalsIgnoreCase("Sink"))
+        return PluginProcessorType::PROCESSOR_TYPE_SINK;
+    else if (typeName.equalsIgnoreCase("Utility"))
+        return PluginProcessorType::PROCESSOR_TYPE_UTILITY;
 }
 
 int GenericProcessor::getNumInputs() const  

@@ -31,6 +31,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ContinuousChannel;
 
+class PLUGIN_API Thresholder
+{
+    Thresholder();
+    virtual ~Thresholder();
+    
+    virtual void setThreshold(int channel, float threshold) = 0;
+    
+    virtual float getThreshold(int channel) = 0;
+    
+    virtual bool checkSample(int channel, float sample) = 0;
+};
+
 class PLUGIN_API SpikeChannel : 
 	public ChannelInfoObject, public MetadataEventObject
 {
@@ -73,6 +85,9 @@ public:
 
 	/** Returns an array with info about the channels from which the spikes originate */
 	const Array<const ContinuousChannel*>& getSourceChannels() const;
+    
+    /** Returns an array with info about the channels from which the spikes originate */
+    void setSourceChannels(Array<const ContinuousChannel*>& sourceChannels);
 
 	/** Gets the number of pre peak samples */
 	unsigned int getPrePeakSamples() const;
@@ -111,18 +126,28 @@ public:
 
 	/** Generates a default channel name to use*/
 	static String getIdentifierFromType(Type channelType);
+    
+    /** Holds the current sample index for this electrode*/
+    int currentSampleIndex;
+    
+    /** Holds the current sample index for this electrode*/
+    int lastBufferIndex;
+
+    /** Determines whether this electrode should use the overflow buffer*/
+    bool useOverflowBuffer;
+    
+    /** Used to check whether a spike should be triggered*/
+    Thresholder* thresholder;
+    
+    /** Resets state after acquisition*/
+    void reset();
 
 private:
 
 	const Type type;
 
-	//ThresholdType thresholdType;
-
 	Array<const ContinuousChannel*> sourceChannels;
-	//Array<bool> detectSpikesOnChannel;
-	//Array<float> thresholds;
-
-	//bool sendFullWaveform;
+	Array<bool> detectSpikesOnChannel;
 
 	unsigned int numPreSamples;
 	unsigned int numPostSamples;

@@ -42,18 +42,19 @@ class PopupConfigurationWindow;
 
 */
 
-class SpikeDetectorEditor : public GenericEditor
+class SpikeDetectorEditor : public GenericEditor,
+                            public Button::Listener
 {
 public:
-
+    
     /** Constructor*/
-    SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
+    SpikeDetectorEditor(GenericProcessor* parentNode);
 
     /** Destructor */
     virtual ~SpikeDetectorEditor();
 
     /** Called when configure button is clicked */
-    void buttonEvent(Button* button);
+    void buttonClicked(Button* button);
 
     /** Called when settings are updated*/
     void updateSettings() override;
@@ -63,9 +64,6 @@ public:
 
     /** Removes a spike channel by index*/
     void removeSpikeChannel(int index);
-
-    /** Called by PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels) override;
 
 private:
 

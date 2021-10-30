@@ -387,12 +387,6 @@ public:
     /** Load generic settings from XML (called by all processors). */
     void loadFromXml();
 
-    /** Saving generic settings for each channel (called by all processors). */
-    void saveChannelParametersToXml(XmlElement* parentElement, InfoObject* channelObject);
-
-    /** Load generic parameters for each channel (called by all processors). */
-    void loadChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
-
     // --------------------------------------------
    //     SAVING + LOADING SETTINGS
    // --------------------------------------------
@@ -400,14 +394,8 @@ public:
    /** Saving custom settings to XML. */
     virtual void saveCustomParametersToXml(XmlElement* parentElement);
 
-    /** Saving custom settings for each channel. */
-    virtual void saveCustomChannelParametersToXml(XmlElement* channelElement, InfoObject* channel);
-
     /** Load custom settings from XML*/
     virtual void loadCustomParametersFromXml(XmlElement* customParamsXml);
-
-    /** Load custom parameters for each channel. */
-    virtual void loadCustomChannelParametersFromXml(XmlElement* channelElement, InfoObject::Type type);
 
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
@@ -453,6 +441,10 @@ public:
 	int getTotalConfigurationObjects() const;
 
     PluginProcessorType getProcessorType() const;
+    
+    String getProcessorTypeString() const;
+    
+    static PluginProcessorType typeFromString(String typeName);
 
     String getDisplayName() { return m_name; }
 

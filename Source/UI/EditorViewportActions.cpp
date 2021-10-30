@@ -147,7 +147,7 @@ bool DeleteProcessor::perform()
 bool DeleteProcessor::undo()
 {
     LOGDD("Undoing delete processor.");
-    ProcessorDescription description = editorViewport->getDescriptionFromXml(settings, false, false);
+    ProcessorDescription description = editorViewport->getDescriptionFromXml(settings, false);
 
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
     

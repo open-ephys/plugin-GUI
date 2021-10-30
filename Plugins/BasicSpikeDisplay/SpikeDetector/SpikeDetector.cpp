@@ -182,7 +182,7 @@ SpikeDetector::~SpikeDetector()
 
 AudioProcessorEditor* SpikeDetector::createEditor()
 {
-    editor = std::make_unique<SpikeDetectorEditor> (this, true);
+    editor = std::make_unique<SpikeDetectorEditor> (this);
     return editor.get();
 }
 
@@ -195,7 +195,7 @@ void SpikeDetector::updateSettings()
 		overflowBuffer.clear();
 	}
 
-    settings.update(getDataStreams());
+    /*settings.update(getDataStreams());
 
     for (auto stream : getDataStreams())
     {
@@ -243,46 +243,30 @@ void SpikeDetector::updateSettings()
 
             channel->spikeChannel = spikeChannels.getLast();
         }
-    }
+    }*/
 
 }
 
 
-bool SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 streamId)
+void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels)
 {
-
-    Array<const ContinuousChannel*> sourceChannels;
-
-    SpikeChannelSettings* channelSettings = new SpikeChannelSettings(type);
-
-    channelSettings->name = SpikeChannel::getDefaultChannelPrefix(type) + \
-        String(settings[streamId]->nextElectrodeIndex++);
-
-    DataStream* currentStream = getDataStream(streamId);
-
-    Array<int> localIndexes;
-    Array<int> globalIndexes;
-
-    for (int i = 0; i < channelSettings->expectedChannelCount; i++)
+    
+    SpikeChannel::Settings settings
     {
+        type,
 
-        if (settings[streamId]->nextAvailableChannel < currentStream->getChannelCount())
-        {
-            globalIndexes.add(currentStream->getContinuousChannels()[settings[streamId]->nextAvailableChannel]->getGlobalIndex());
-        }
-        else {
-            globalIndexes.add(-1);
-        }
-        
-        localIndexes.add(settings[streamId]->nextAvailableChannel++);
+        "BIGBOY",
+        "a nice little channel",
+        SpikeChannel::getIdentifierFromType(type),
 
-    }
+        sourceChannels[0]->getStreamId(),
 
-    channelSettings->setChannelIndexes(localIndexes, globalIndexes, 4); // currentStream->getChannelCount());
+        sourceChannels
 
-    settings[streamId]->spikeChannels.add(channelSettings);
+    };
+    
+    spikeChannels.add(new SpikeChannel(settings));
 
-    return true;
 }
 
 
@@ -292,11 +276,11 @@ float SpikeDetector::getDefaultThreshold() const
 }
 
 
-bool SpikeDetector::removeSpikeChannel (int index, uint16 streamId)
+void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
  
-    settings[streamId]->spikeChannels.remove(index);
-
+    spikeChannels.removeObject(spikeChannel);
+    
     return true;
 }
 
@@ -305,9 +289,10 @@ Array<SpikeChannelSettings*> SpikeDetector::getSpikeChannelsForStream(uint16 str
 {
     Array<SpikeChannelSettings*> channels;
 
-    for (int i = 0; i < settings[streamId]->spikeChannels.size(); i++)
+    for (auto spikeChannel : spikeChannels)
     {
-        channels.add(settings[streamId]->spikeChannels[i]);
+        if (spikeChannel->getStreamId() == streamId && spikeChannel->isLocal())
+            channels.add(spikeChannel);
     }
 
     return channels;
@@ -317,17 +302,10 @@ Array<SpikeChannelSettings*> SpikeDetector::getSpikeChannelsForStream(uint16 str
 
 bool SpikeDetector::stopAcquisition()
 {
-    // cycle through streams
-    for (auto stream : getDataStreams())
+    // cycle through channels
+    for (auto spikeChannel : spikeChannels)
     {
-        const uint16 streamId = stream->getStreamId();
-
-        // cycle through electrodes
-        for (auto electrode : settings[streamId]->spikeChannels)
-        {
-            electrode->reset();
-        }
-
+        spikeChannel->reset();
     }
 
     return true;
@@ -381,31 +359,29 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
         
         const int nSamples = getNumSourceSamples(streamId);
 
-        // cycle through electrodes
-        for (auto electrode : settings[streamId]->spikeChannels)
+        // cycle through SpikeChannels
+        for (auto spikeChannel : getSpikeChannelsForStream(streamId))
         {
 
-            int sampleIndex = electrode->currentSampleIndex - 1;
+            int sampleIndex = spikeChannel->currentSampleIndex - 1;
             
-            const SpikeChannel* spikeChannel = electrode->spikeChannel;
-
             // cycle through samples
             while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES / 2)
             {
                 ++sampleIndex;
 
                 // cycle through channels
-                for (int ch = 0; ch < electrode->numChannels; ch++)
+                for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
                 {
 
                     // check whether spike detection is active
-                    if (electrode->detectSpikesOnChannel[ch])
+                    if (spikeChannel->detectSpikesOnChannel[ch])
                     {
-                        int currentChannel = electrode->globalChannelIndexes[ch];
+                        int currentChannel = spikeChannel->globalChannelIndexes[ch];
 
                         float currentSample = getSample(currentChannel, sampleIndex, buffer);
 
-                        if (electrode->checkThreshold(currentSample))
+                        if (spikeChannel->thresholder->checkThreshold(ch, currentSample))
                         {
 
                             // find the peak
@@ -413,36 +389,37 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
                             while (getSample(currentChannel, sampleIndex, buffer) > 
                                    getSample(currentChannel, sampleIndex + 1, buffer)
-                                && sampleIndex < peakIndex + electrode->postPeakSamples)
+                                && sampleIndex < peakIndex + spikeChannel->postPeakSamples)
                             {
                                 ++sampleIndex;
                             }
 
                             peakIndex = sampleIndex;
 
-                            sampleIndex -= (electrode->prePeakSamples + 1);
+                            sampleIndex -= (spikeChannel->prePeakSamples + 1);
 
-                            Spike::Buffer spikeData(electrode->spikeChannel);
+                            Spike::Buffer spikeData(spikeChannel);
 
                             Array<float> thresholds;
-                            for (int channel = 0; channel < electrode->numChannels; ++channel)
+                            
+                            for (int channel = 0; channel < spikeChannel->getNumChannels(); ++channel)
                             {
                                 addWaveformToSpikeObject(spikeData,
                                     peakIndex,
                                     channel,
                                     channel);
 
-                                thresholds.add((int)*(electrodes->thresholds[channel]));
+                                thresholds.add((int)*(spikeChannel->threshold->getThreshold(channel));
                             }
 
                             int64 timestamp = getSourceTimestamp(streamId) + peakIndex;
 
-                            SpikePtr newSpike = Spike::createSpike(electrode->spikeChannel, timestamp, thresholds, spikeData, 0);
+                            SpikePtr newSpike = Spike::createSpike(spikeChannel, timestamp, thresholds, spikeData, 0);
 
-                            addSpike(electrode->spikeChannel, newSpike, peakIndex);
+                            addSpike(spikeChannel, newSpike, peakIndex);
 
                             // advance the sample index
-                            sampleIndex = peakIndex + electrode->postPeakSamples;
+                            sampleIndex = peakIndex + spikeChannel->postPeakSamples;
                             
                             break; // quit channels "for" loop
                         }
@@ -451,25 +428,25 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
             } // while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES)
         
-            electrode->lastBufferIndex = sampleIndex - nSamples; // should be negative
+            spikeChannel->lastBufferIndex = sampleIndex - nSamples; // should be negative
 
             if (nSamples > OVERFLOW_BUFFER_SAMPLES)
             {
-                for (int j = 0; j < electrode->expectedChannelCount; ++j)
+                for (int j = 0; j < spikeChannel->getNumChannels(); ++j)
                 {
-                    overflowBuffer.copyFrom(electrode->globalChannelIndex[j],
+                    overflowBuffer.copyFrom(spikeChannel->globalChannelIndex[j],
                         0,
                         buffer,
-                        electrode->globalChannelIndex[j],
+                        spikeChannel->globalChannelIndex[j],
                         nSamples - OVERFLOW_BUFFER_SAMPLES,
                         OVERFLOW_BUFFER_SAMPLES);
                 }
 
-                electrode->useOverflowBuffer = true;
+                spikeChannel->useOverflowBuffer = true;
             }
             else
             {
-                electrode->useOverflowBuffer = false;
+                spikeChannel->useOverflowBuffer = false;
             }
         
         } // electrode
@@ -477,29 +454,6 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
     } // streams
 
 }
-
-
-/*float SpikeDetector::getNextSample (int& chan)
-{
-    if (sampleIndex < 0)
-    {
-        const int ind = overflowBufferSize + sampleIndex;
-
-        if (ind < overflowBuffer.getNumSamples())
-            return *overflowBuffer.getWritePointer (chan, ind);
-        else
-            return 0;
-
-    }
-    else
-    {
-        if (sampleIndex < getNumSamples(chan))
-            return *dataBuffer->getWritePointer (chan, sampleIndex);
-        else
-            return 0;
-    }
-}*/
-
 
 float SpikeDetector::getSample (int& globalChannelIndex, int& sampleIndex, AudioBuffer<float>& buffer)
 {

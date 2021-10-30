@@ -200,13 +200,14 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         ProcessorDescription description;
         
         description.fromProcessorList = descr->getUnchecked(0);
-        description.processorName = descr->getUnchecked(1);
-        description.processorType = descr->getUnchecked(2);
-        description.processorIndex = descr->getUnchecked(3);
+        description.pluginName = descr->getUnchecked(1);
+        description.pluginType = descr->getUnchecked(2);
+        description.pluginIndex = descr->getUnchecked(3);
         description.libName = descr->getUnchecked(4);
+        description.processorType = descr->getUnchecked(5);
         description.nodeId = 0;
 
-        message = "last filter dropped: " + description.processorName;
+        message = "last filter dropped: " + description.pluginName;
 
         LOGD("Item dropped at insertion point ", insertionPoint);
         
@@ -641,7 +642,7 @@ void EditorViewport::paste()
             for (int i = 0; i < copyBuffer.size(); i++)
             {
                 newProcessors.add(createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
-                                                    insertionPoint++, false, true));
+                                                    insertionPoint++, true));
                 
             }
             
@@ -1294,44 +1295,27 @@ void SignalChainTabComponent::buttonClicked(Button* button)
 
 // LOADING AND SAVING
 
-XmlElement* EditorViewport::createNodeXml(GenericProcessor* source, bool isStartOfSignalChain)
+XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
 {
 
-    XmlElement* e = new XmlElement("PROCESSOR");
+    XmlElement* xml = new XmlElement("PROCESSOR");
 
-    String name = "";
-
-    if (source->isSource())
-        name += "Sources/";
-    else if (source->isSink())
-        name += "Sinks/";
-    else if (source->isSplitter() || source->isMerger() || source->isAudioMonitor() || source->isUtility())
-        name += "Utilities/";
-    else
-        name += "Filters/";
-
-    name += source->getEditor()->getName();
-
-LOGDD(name);
-
-    e->setAttribute("name", name);
+    xml->setAttribute("name", processor->getEditor()->getName());
     if (isStartOfSignalChain)
-        e->setAttribute("insertionPoint", 0);
+        xml->setAttribute("insertionPoint", 0);
     else
-        e->setAttribute("insertionPoint", 1);
-	e->setAttribute("pluginName", source->getPluginName());
-	e->setAttribute("pluginType", (int)(source->getPluginType()));
-	e->setAttribute("pluginIndex", source->getIndex());
-	e->setAttribute("libraryName", source->getLibName());
-	e->setAttribute("libraryVersion", source->getLibVersion());
-	e->setAttribute("isSource", source->isSource());
-	e->setAttribute("isSink", source->isSink());
+        xml->setAttribute("insertionPoint", 1);
+	xml->setAttribute("pluginName", processor->getPluginName());
+	xml->setAttribute("pluginType", (int)(processor->getPluginType()));
+	xml->setAttribute("pluginIndex", processor->getIndex());
+	xml->setAttribute("libraryName", processor->getLibName());
+    xml->setAttribute("libraryVersion", processor->getLibVersion());
+    xml->setAttribute("processorType", processor->getProcessorTypeString());
 
     /**Saves individual processor parameters to XML */
-    LOGDD("Create subnodes with parameters");
-    source->saveToXml(e);
+    processor->saveToXml(xml);
 
-    return e;
+    return xml;
 
 }
 
@@ -1634,7 +1618,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
     bool sameVersion = false;
 	bool pluginAPI = false;
-	bool rhythmNodePatch = false;
+
     String versionString;
 
     forEachXmlChildElement(*xml, element)
@@ -1648,10 +1632,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                     versionString = element2->getAllSubText();
 					StringArray tokens;
 					tokens.addTokens(versionString, ".", String());
-
-					//Patch to correctly load saved chains from before 0.4.4
-					if (tokens[0].getIntValue() == 0 && tokens[1].getIntValue() == 4 && tokens[2].getIntValue() < 4)
-						rhythmNodePatch = true;
 
                     if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
                         sameVersion = true;
@@ -1727,7 +1707,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
                     int insertionPt = processor->getIntAttribute("insertionPoint");
                     
-                    p = createProcessorAtInsertionPoint(processor, insertionPt, rhythmNodePatch, false);
+                    p = createProcessorAtInsertionPoint(processor, insertionPt, false);
                     p->loadOrder = loadOrder++;
                     
                     if (p->isSplitter()) //|| p->isMerger())
@@ -1808,45 +1788,28 @@ void EditorViewport::deleteSelectedProcessors()
 
 }
 
-ProcessorDescription EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId, bool rhythmNodePatch)
+ProcessorDescription EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
 {
     ProcessorDescription description;
     
     description.fromProcessorList = false;
-    description.processorName = settings->getStringAttribute("pluginName");
-    description.processorType = settings->getIntAttribute("pluginType");
-    description.processorIndex = settings->getIntAttribute("pluginIndex");
+    description.pluginName = settings->getStringAttribute("pluginName");
+    description.pluginType = settings->getIntAttribute("pluginType");
+    description.pluginIndex = settings->getIntAttribute("pluginIndex");
     description.libName = settings->getStringAttribute("libraryName");
     description.libVersion = settings->getIntAttribute("libraryVersion");
-    description.isSource = settings->getBoolAttribute("isSource");
-    description.isSink = settings->getBoolAttribute("isSink");
+    description.processorType = settings->getStringAttribute("processorType");
     
     if (!ignoreNodeId)
         description.nodeId = settings->getIntAttribute("NodeId");
     else
         description.nodeId = -1;
-
-    if (rhythmNodePatch) //old version, when rhythm was a plugin
-    {
-        if (description.processorType == -1) //if builtin
-        {
-            if (description.processorIndex == 0) //Rhythm node
-            {
-                description.processorType = 4; //DataThread
-                description.processorIndex = 1;
-                description.libName = "Rhythm FPGA";
-            }
-            else
-                description.processorIndex = description.processorIndex - 1; //arrange old nodes to its current index
-        }
-    }
     
     return description;
 }
 
 GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* processor,
                                                                   int insertionPt,
-                                                                  bool rhythmNodePatch,
                                                                   bool ignoreNodeId)
 {
     if (loadingConfig)
@@ -1864,7 +1827,7 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
         insertionPoint = insertionPt;
     }
     
-    ProcessorDescription description = getDescriptionFromXml(processor, ignoreNodeId, rhythmNodePatch);
+    ProcessorDescription description = getDescriptionFromXml(processor, ignoreNodeId);
     
     GenericProcessor* p = addProcessor(description, insertionPoint);
     p->parametersAsXml = processor;

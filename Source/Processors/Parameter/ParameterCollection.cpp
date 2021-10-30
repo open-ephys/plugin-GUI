@@ -32,3 +32,13 @@ void ParameterCollection::addParameter(Parameter* p)
     
     parameterMap[p->getName()] = p;
 }
+
+Array<Parameter*> ParameterCollection::getParameters()
+{
+    Array<Parameter*> params;
+    
+    for (auto param : parameters)
+        params.add(param);
+        
+    return params;
+}

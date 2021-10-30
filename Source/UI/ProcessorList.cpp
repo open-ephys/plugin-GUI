@@ -653,12 +653,12 @@ void ProcessorList::fillItemList()
 
 	for (int pClass = 0; pClass < 3; pClass++)
 	{
-		num = ProcessorManager::getNumProcessors((ProcessorClasses)pClass);
+		num = ProcessorManager::getNumProcessors((ProcessorClass)pClass);
 		for (int i = 0; i < num; i++)
 		{
 			String name;
 			int type = -1;
-			ProcessorManager::getProcessorNameAndType((ProcessorClasses)pClass, i, name, type);
+			ProcessorManager::getProcessorNameAndType((ProcessorClass)pClass, i, name, type);
 			if (type > -1 && type < 4)
 			{
 				if (name == "Record Node")

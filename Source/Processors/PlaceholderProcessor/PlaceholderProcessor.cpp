@@ -28,20 +28,14 @@
 PlaceholderProcessor::PlaceholderProcessor (String pluginName, 
     String libraryName, 
     int libraryVersion, 
-    bool isSource,
-    bool isSink) 
+    PluginProcessorType type)
     : GenericProcessor      (pluginName)
     , m_processorName       (pluginName)
     , m_libName             (libraryName)
     , m_libVersion          (libraryVersion)
 {
 
-    if (isSource)
-         setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SOURCE);
-    else if (isSink)
-        setProcessorType(PluginProcessorType::PROCESSOR_TYPE_SINK);
-    else
-        setProcessorType(PluginProcessorType::PROCESSOR_TYPE_FILTER);
+    setProcessorType(type);
 
 }
 

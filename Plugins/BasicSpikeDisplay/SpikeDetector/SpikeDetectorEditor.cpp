@@ -28,8 +28,8 @@
 #include <stdio.h>
 
 
-SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
-    : GenericEditor(parentNode, useDefaultParameterEditors),
+SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode)
+    : GenericEditor(parentNode),
     currentConfigWindow(nullptr)
 
 {

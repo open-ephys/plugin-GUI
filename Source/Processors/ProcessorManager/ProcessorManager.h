@@ -26,19 +26,22 @@
 
 #include "../PluginManager/OpenEphysPlugin.h"
 
-class GenericProcessor;
+#include "../ProcessorGraph/ProcessorGraph.h"
 
-enum ProcessorClasses
+enum ProcessorClass
 {
-	BuiltInProcessor, PluginProcessor, DataThreadProcessor
+	BuiltInProcessor,
+    PluginProcessor,
+    DataThreadProcessor
 };
 
 namespace ProcessorManager
 {
-	int getNumProcessors(ProcessorClasses pClass);
-	void getProcessorNameAndType(ProcessorClasses pClass, int index, String& name, int& type);
-	std::unique_ptr<GenericProcessor> createProcessor(ProcessorClasses pClass, int index);
-	std::unique_ptr<GenericProcessor> createProcessorFromPluginInfo(Plugin::PluginType type, int index, String procName, String libName, int libVersion, bool source = false, bool sink = false);
+	int getNumProcessors(ProcessorClass pClass);
+	
+    void getProcessorNameAndType(ProcessorClass pClass, int index, String& name, int& type);
+        
+    std::unique_ptr<GenericProcessor> createProcessor(ProcessorDescription description);
 };
 
 

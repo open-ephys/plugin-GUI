@@ -34,5 +34,10 @@ which should use VisualizerEditorHeaders.
 #include "../../Source/Processors/Editors/PopupChannelSelector.h"
 #include "../../Source/Processors/Parameter/ParameterEditor.h"
 
-
-
+#include "../../Source/Processors/Settings/SpikeChannel.h"
+#include "../../Source/Processors/Settings/EventChannel.h"
+#include "../../Source/Processors/Settings/ContinuousChannel.h"
+#include "../../Source/Processors/Settings/DataStream.h"
+#include "../../Source/Processors/Settings/DeviceInfo.h"
+#include "../../Source/Processors/Settings/Metadata.h"
+#include "../../Source/Processors/Settings/ProcessorInfo.h"

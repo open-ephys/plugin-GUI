@@ -46,6 +46,8 @@ public:
     
     void addParameter(Parameter*);
     
+    Array<Parameter*> getParameters();
+    
     Parameter* operator [](String name) const {return parameterMap.at(name) ;}
     
     Parameter*& operator [](String name) {return parameterMap[name];}

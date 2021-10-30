@@ -183,6 +183,9 @@ public:
     /** Returns a pointer to a parameter with a given name**/
     Parameter* getParameter(String name) const { return parameters[name]; }
     
+    /** Returns a pointer to a parameter with a given name**/
+    Array<Parameter*> getParameters() { return parameters.getParameters(); }
+    
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
     

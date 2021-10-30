@@ -183,7 +183,7 @@ GenericProcessor* ProcessorGraph::createProcessor(ProcessorDescription& descript
 	std::unique_ptr<GenericProcessor> processor = nullptr;
     GenericProcessor* addedProc = nullptr;
     
-    LOGD("Creating processor with name: ", description.processorName);
+    LOGD("Creating processor with name: ", description.pluginName);
     
     if (sourceNode != nullptr)
         LOGDD("Source node: ", sourceNode->getName());
@@ -1356,33 +1356,10 @@ void ProcessorGraph::connectProcessorToMessageCenter(GenericProcessor* source)
 std::unique_ptr<GenericProcessor> ProcessorGraph::createProcessorFromDescription(ProcessorDescription& description)
 {
 	std::unique_ptr<GenericProcessor> processor = nullptr;
-
-	if (description.fromProcessorList)
-	{
-
-        LOGD("Creating from description...");
-        LOGD(description.libName, "::", description.processorName, " (", \
-            description.processorType, "-", description.processorIndex,")");
-
-		processor = std::move(ProcessorManager::createProcessor((ProcessorClasses) description.processorType,
-                                                      description.processorIndex));
-	}
-	else
-	{
-        LOGD("Creating from plugin info...");
-        LOGD(description.libName, "(", description.libVersion, ")::", description.processorName);
-
-		processor = std::move(ProcessorManager::createProcessorFromPluginInfo((Plugin::PluginType)
-                                                                    description.processorType,
-                                                                    description.processorIndex,
-                                                                    description.processorName,
-                                                                    description.libName,
-                                                                    description.libVersion,
-                                                                    description.isSource,
-                                                                    description.isSink));
-	}
-
-	String msg = "New " + description.processorName + " created";
+            
+    processor = std::move(ProcessorManager::createProcessor(description));
+                          
+	String msg = "New " + description.pluginName + " created";
 	CoreServices::sendStatusMessage(msg);
 
     return processor;

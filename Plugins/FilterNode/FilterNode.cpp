@@ -188,7 +188,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
-            for (auto localChannelIndex : (*stream)["channels_to_filter"])
+            for (auto localChannelIndex : *((*stream)["channels_to_filter"].getArray()))
             {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 

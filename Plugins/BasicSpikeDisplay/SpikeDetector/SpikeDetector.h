@@ -78,12 +78,6 @@ public:
     /** Number of post-peak samples if full waveform is sent*/
     unsigned int postPeakSamples;
 
-    /** Holds the current sample index for this electrode*/
-    int currentSampleIndex;
-
-    /** Determines whether this electrode should use the overflow buffer*/
-    bool useOverflowBuffer;
-
     /** Pointer to the SpikeChannel object for this electrode*/
     SpikeChannel* spikeChannel;
     
@@ -162,15 +156,15 @@ public:
 
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
-    /** Adds a spike channel of a given type; returns true if successful. */
-    bool addSpikeChannel (SpikeChannel::Type type, uint16 streamId);
+    /** Adds a spike channel of a given type */
+    void addSpikeChannel (SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels);
 
-    /** Removes a spike channel with a given index. */
-    bool removeSpikeChannel (int index, uint16 streamId);
+    /** Removes a spike channel, based on a SpikeChannel pointer. */
+    void removeSpikeChannel (SpikeChannel*);
     // =====================================================================
 
-    /** Get channel array, for editing electrode settings*/
-    Array<SpikeChannelSettings*> getSpikeChannelsForStream(uint16 streamId);
+    /** Get array of local SpikeChannel objects for a given dataStream*/
+    Array<SpikeChannel*> getSpikeChannelsForStream(uint16 streamId);
 
 private:
 

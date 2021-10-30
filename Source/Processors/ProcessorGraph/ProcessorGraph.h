@@ -38,13 +38,12 @@ class TimestampSourceSelectionWindow;
 
 struct ProcessorDescription {
     bool fromProcessorList;
-    String processorName;
-    int processorType;
-    int processorIndex;
+    String pluginName;
+    int pluginType;
+    int pluginIndex;
     String libName;
+    String processorType;
     int libVersion;
-    bool isSource;
-    bool isSink;
     int nodeId;
 };
 
