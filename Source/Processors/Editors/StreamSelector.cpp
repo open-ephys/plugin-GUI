@@ -39,7 +39,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton = std::make_unique<StreamEnableButton>("x");
     enableButton->addListener(this);
     enableButton->setClickingTogglesState(true);
-    enableButton->setToggleState(true, false);
+    enableButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(enableButton.get());
 
     delayMonitor = std::make_unique<DelayMonitor>();
@@ -113,7 +113,7 @@ void StreamInfoView::buttonClicked(Button* button)
     if (button == enableButton.get())
     {
         setEnabled(!isEnabled);
-        enableButton->setToggleState(isEnabled, false);
+        enableButton->setToggleState(isEnabled, dontSendNotification);
 
         std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
 

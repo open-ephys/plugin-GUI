@@ -622,11 +622,6 @@ bool GenericEditor::isUtility()
     return getProcessor()->isUtility();
 }
 
-void GenericEditor::buttonEvent(Button* button)
-{
-
-}
-
 
 /////////////////////// BUTTONS ///////////////////////////////
 
@@ -1015,8 +1010,6 @@ int GenericEditor::getPathForEditor(GenericEditor* editor)
 {
     return -1;
 }
-
-void GenericEditor::sliderEvent(Slider* slider) {}
 
 void GenericEditor::editorWasClicked() {}
 

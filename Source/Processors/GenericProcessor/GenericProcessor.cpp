@@ -628,7 +628,6 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-<<<<<<< HEAD
 		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
         
         if (stream->numParameters() == 0)
@@ -636,58 +635,6 @@ void GenericProcessor::update()
             for (auto param : availableParameters)
             {
                 if (param->getScope() == Parameter::STREAM_SCOPE)
-=======
-		LOGD("Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
-
-		if (streamParameterMap.find(stream->getStreamId()) == streamParameterMap.end())
-		{
-
-			streamParameterMap[stream->getStreamId()] = std::map<String, Parameter*>();
-
-			for (auto param : availableParameters)
-			{
-				if (param->getType() == Parameter::BOOLEAN_PARAM)
-				{
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-					{
-						BooleanParameter* p = (BooleanParameter*)param;
-						parameters.add(new BooleanParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getBoolValue(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-
-				}
-				else if (param->getType() == Parameter::INT_PARAM)
-				{
-
-					if (param->getScope() == Parameter::STREAM_SCOPE)
-                    {
-						IntParameter* p = (IntParameter*)param;
-						parameters.add(new IntParameter(
-							this,
-							param->getScope(),
-							p->getName(),
-							p->getDescription(),
-							p->getIntValue(),
-							p->getMinValue(),
-							p->getMaxValue(),
-							p->shouldDeactivateDuringAcquisition()
-						));
-
-						streamParameterMap[stream->getStreamId()][param->getName()] = parameters.getLast();
-                        parameters.getLast()->setStreamId(stream->getStreamId());
-					}
-				}
-                else if (param->getType() == Parameter::STRING_PARAM)
->>>>>>> 183d6d0b04d7b9c3034513d71c45688f44156663
                 {
                     if (param->getType() == Parameter::BOOLEAN_PARAM)
                     {

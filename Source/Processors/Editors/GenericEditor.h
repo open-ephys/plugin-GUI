@@ -169,16 +169,8 @@ public:
     bool isMerger();
 
     bool isUtility();
-
-    /** Called by buttonClicked(). Deals with clicks on custom buttons. Subclasses of
-        GenericEditor should modify this method only.*/
-    virtual void buttonEvent (Button* button);
-
-    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
-        of GenericEditor should modify this method only.*/
-    virtual void sliderEvent (Slider* slider);
-
-    /** Required for opening displays in a VisualizerEditor. Hopefully will be deprecated soon.*/
+    
+    /** Used by VisualizerEditor to bring the editor's tab to the foreground.*/
     virtual void editorWasClicked();
 
     /** Checks to see if a button click occurred on the ChannelSelector drawer button.*/
