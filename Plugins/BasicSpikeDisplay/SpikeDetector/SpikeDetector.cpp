@@ -501,7 +501,7 @@ void SpikeDetector::loadCustomParametersFromXml()
                 settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
             else {
-                std::cout << "DID NOT FIND IT!" << std::endl;
+                LOGD("Did not find stream!");
             }
 
             streamIndex++;

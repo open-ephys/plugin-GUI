@@ -60,7 +60,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 void LfpDisplayNode::updateSettings()
 {
 
-    std::cout << "Setting num inputs on LfpDisplayNode to " << getNumInputs() << std::endl;
+    LOGD("Setting num inputs on LfpDisplayNode to ", getNumInputs());
 
     for (auto displayBuffer : displayBuffers)
     {

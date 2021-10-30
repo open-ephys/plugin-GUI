@@ -117,7 +117,7 @@ void LinearButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 
         const float numAnimationSteps = 10.f;
         m_animationStepX = (m_desiredButtonLineX - m_currentButtonLineX) / numAnimationSteps;
-LOGDD("== Calculation: Animation step: ", m_animationStepX);
+        //LOGDD("== Calculation: Animation step: ", m_animationStepX);
 
         startTimer (30);
     }
@@ -129,13 +129,13 @@ void LinearButtonGroupManager::timerCallback()
     // Move line which displays current selected button
     if (! areEqualValues (m_currentButtonLineX, m_desiredButtonLineX))
     {
-LOGDD("Current X: ", m_currentButtonLineX);
-LOGDD("Desiredd X: ", m_desiredButtonLineX);
+        //LOGDD("Current X: ", m_currentButtonLineX);
+        //LOGDD("Desiredd X: ", m_desiredButtonLineX);
         m_currentButtonLineX += m_animationStepX;
     }
     else
     {
-LOGDD("Timer stopped");
+        //LOGDD("Timer stopped");
         m_animationStepX = 0;
         stopTimer();
     }

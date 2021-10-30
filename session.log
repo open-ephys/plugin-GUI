@@ -1,0 +1,190 @@
+[open-ephys][ddebug]Created processor graph.
+[open-ephys][debug]Got audio device.
+[open-ephys][debug]Audio device name: Playback/recording through the PulseAudio sound server
+[open-ephys][debug]Audio device type: ALSA
+[open-ephys][debug]Audio output channels: 2
+[open-ephys][debug]Audio device sample rate: 44100
+[open-ephys][debug]Audio device buffer size: 1024
+[open-ephys][ddebug]Created audio component.
+[open-ephys][debug]Created message center.
+[open-ephys][debug]Created info label.
+[open-ephys][debug]Created graph viewer.
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 0
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 0
+[open-ephys][ddebug]Adding tab with index 1
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 1
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 1
+[open-ephys][ddebug]Adding tab with index 2
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 2
+[open-ephys][debug]Created data viewport.
+[open-ephys][debug]Created editor viewport.
+[open-ephys][debug]Created control panel.
+[open-ephys][debug]Created filter list.
+[open-ephys][debug]Created plugin manager
+[open-ephys][debug]Loading Plugin: SerialInput... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: BasicSpikeDisplay... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: FilterNode... 
+[open-ephys][debug]Loaded with 1 plugin
+[open-ephys][debug]Loading Plugin: ChannelMappingNode... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: RhythmNode... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: NWBFormat... 
+[open-ephys][debug]Loaded with 2 plugins
+[open-ephys][debug]Loading Plugin: IntanRecordingController... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: ArduinoOutput... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: CAR... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: PhaseDetector... 
+[open-ephys][debug]Loaded with 1 plugin
+[open-ephys][debug]Loading Plugin: LfpDisplayNode... 
+[open-ephys][debug]Loaded with 1 plugin
+[open-ephys][debug]Loading Plugin: CommonAverageRef... 
+[open-ephys][debug]Loaded with 1 plugin
+[open-ephys][debug]Loading Plugin: SpikeSorter... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: RecordControl... 
+[open-ephys][debug]Loaded with 1 plugin
+[open-ephys][debug]Loading Plugin: Rectifier... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: EvntTrigAvg... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: SourceSim... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: PulsePalOutput... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: MatlabInterface... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Loading Plugin: LfpDisplayNodeBeta... 
+[open-ephys][debug] DLL Load FAILED
+[open-ephys][debug]Num built in engines: 2
+[open-ephys][debug]Adding engine: Binary
+[open-ephys][debug]Adding engine: Open Ephys
+[open-ephys][debug]Num plugin engines: 1
+[open-ephys][debug]Adding engine: NWB2
+[open-ephys][ddebug]Loading window bounds.
+[open-ephys][ddebug]Comparing configs
+[open-ephys][ddebug]Performing load signal chain.
+[open-ephys][ddebug]0
+[open-ephys][ddebug]Performing add processor.
+[open-ephys][debug]Creating processor with name: File Reader
+[open-ephys][debug]Creating from plugin info...
+[open-ephys][debug](-1)::File Reader
+[open-ephys][ddebug]File Reader refreshing colors.
+[open-ephys][ddebug]Checking File Reader for new root node.
+[open-ephys][ddebug]  Has no source node.
+[open-ephys][ddebug]  Has no dest node; adding.
+[open-ephys][ddebug]Processor to view: File Reader
+[open-ephys][ddebug]  Source: File Reader
+[open-ephys][ddebug] Adding File Reader to editor array.
+[open-ephys][ddebug]0
+[open-ephys][ddebug]Performing add processor.
+[open-ephys][debug]Creating processor with name: LFP Viewer
+[open-ephys][ddebug]Source node: File Reader
+[open-ephys][debug]Creating from plugin info...
+[open-ephys][debug]LFP viewer(1)::LFP Viewer
+[open-ephys][ddebug]LFP Viewer refreshing colors.
+[open-ephys][ddebug]Checking LFP Viewer for new root node.
+[open-ephys][ddebug]Processor to view: LFP Viewer
+[open-ephys][ddebug]  Source: LFP Viewer
+[open-ephys][ddebug]  Source: File Reader
+[open-ephys][ddebug] Adding File Reader to editor array.
+[open-ephys][ddebug] Adding LFP Viewer to editor array.
+[open-ephys][ddebug]1
+[open-ephys][ddebug]Restoring parameters for each processor...
+[open-ephys][debug]Loading parameters for File Reader
+[open-ephys][debug]File Reader updating settings.
+[open-ephys][ddebug]Generic processor clearing settings.
+[open-ephys][ddebug]Editor for File Reader updating settings.
+[open-ephys][debug]LFP Viewer updating settings.
+[open-ephys][ddebug]Generic processor clearing settings.
+[open-ephys][ddebug]Editor for LFP Viewer updating settings.
+[open-ephys][debug]Loading parameters for LFP Viewer
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 2
+[open-ephys][ddebug]Adding tab with index 3
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 3
+[open-ephys][debug]LFP Viewer updating settings.
+[open-ephys][ddebug]Generic processor clearing settings.
+[open-ephys][ddebug]Editor for LFP Viewer updating settings.
+[open-ephys][ddebug]Processor to view: File Reader
+[open-ephys][ddebug]  Source: File Reader
+[open-ephys][ddebug] Adding File Reader to editor array.
+[open-ephys][ddebug] Adding LFP Viewer to editor array.
+[open-ephys][ddebug]1
+[open-ephys][ddebug]Processor to view: File Reader
+[open-ephys][ddebug]  Source: File Reader
+[open-ephys][ddebug] Adding File Reader to editor array.
+[open-ephys][ddebug] Adding LFP Viewer to editor array.
+[open-ephys][ddebug]1
+[open-ephys][ddebug]File Reader refreshing colors.
+[open-ephys][ddebug]LFP Viewer refreshing colors.
+[open-ephys][debug]Num engines: 3
+[open-ephys][ddebug]Got creator
+[open-ephys][ddebug]66
+[open-ephys][ddebug]89
+[open-ephys][ddebug]122
+[open-ephys][ddebug]145
+[open-ephys][ddebug]168
+[open-ephys][ddebug]191
+[open-ephys][ddebug]224
+[open-ephys][ddebug]247
+[open-ephys][ddebug]280
+[open-ephys][ddebug]303
+[open-ephys][ddebug]326
+[open-ephys][ddebug]349
+[open-ephys][ddebug]372
+[open-ephys][ddebug]405
+[open-ephys][ddebug]428
+[open-ephys][ddebug]66
+[open-ephys][ddebug]89
+[open-ephys][ddebug]122
+[open-ephys][ddebug]145
+[open-ephys][ddebug]168
+[open-ephys][ddebug]191
+[open-ephys][ddebug]224
+[open-ephys][ddebug]247
+[open-ephys][ddebug]280
+[open-ephys][ddebug]303
+[open-ephys][ddebug]326
+[open-ephys][ddebug]349
+[open-ephys][ddebug]372
+[open-ephys][ddebug]405
+[open-ephys][ddebug]428
+[open-ephys][debug]ProcessorGraph stopping acquisition...
+[open-ephys][debug]Disabling Audio Node
+[open-ephys][debug]Disabling Message Center
+[open-ephys][debug]Disabling File Reader
+[open-ephys][debug]Disabling LFP Viewer
+[open-ephys][ddebug]
+[open-ephys][ddebug]Saving window bounds.
+[open-ephys][ddebug]
+[open-ephys][debug]DISABLING DATAVIEWPORT CONNECTION
+[open-ephys][ddebug]Sources/File Reader
+[open-ephys][ddebug]Create subnodes with parameters
+[open-ephys][ddebug]  Moving forward along signal chain.
+[open-ephys][ddebug]Sinks/LFP Viewer
+[open-ephys][ddebug]Create subnodes with parameters
+[open-ephys][ddebug]  Moving forward along signal chain.
+[open-ephys][ddebug]  End of chain.
+[open-ephys][ddebug]Sources/File Reader
+[open-ephys][ddebug]Create subnodes with parameters
+[open-ephys][ddebug]  Moving forward along signal chain.
+[open-ephys][ddebug]Sinks/LFP Viewer
+[open-ephys][ddebug]Create subnodes with parameters
+[open-ephys][ddebug]  Moving forward along signal chain.
+[open-ephys][ddebug]  End of chain.
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 2
+[open-ephys][ddebug]CURRENT TAB CHANGED
+[open-ephys][ddebug]number of editors remaining: 2

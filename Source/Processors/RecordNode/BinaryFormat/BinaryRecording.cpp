@@ -99,7 +99,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 String datPath = getProcessorString(channelInfo);
                 continuousFileNames.add(contPath + datPath + "continuous.dat");
 
-                LOGDD("Creating file: ", contPath, datPath, "timestamps.npy");
+                LOGD("Creating file: ", contPath, datPath, "timestamps.npy");
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
 

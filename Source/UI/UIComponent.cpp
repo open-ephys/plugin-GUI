@@ -47,20 +47,20 @@
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	addActionListener(messageCenterEditor);
 	
-LOGD("Created message center.");
+	LOGD("Created message center.");
 
 	infoLabel = new InfoLabel();
-LOGD("Created info label.");
+	LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
-LOGD("Created graph viewer.");
+	LOGD("Created graph viewer.");
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
 	dataViewport->addTabToDataViewport("Info", infoLabel,0);
 	dataViewport->addTabToDataViewport("Graph", graphViewer,0);
 
-LOGD("Created data viewport.");
+	LOGD("Created data viewport.");
 
     signalChainTabComponent = new SignalChainTabComponent();
     addAndMakeVisible(signalChainTabComponent);
@@ -68,7 +68,7 @@ LOGD("Created data viewport.");
 	editorViewport = new EditorViewport(signalChainTabComponent);
 	//addAndMakeVisible(editorViewport);
     
-LOGD("Created editor viewport.");
+	LOGD("Created editor viewport.");
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
@@ -76,7 +76,7 @@ LOGD("Created editor viewport.");
 	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
     
-LOGD("Created control panel.");
+	LOGD("Created control panel.");
 
 	processorList = new ProcessorList();
 	processorListViewport.setViewedComponent(processorList,false);
@@ -89,10 +89,10 @@ LOGD("Created control panel.");
     
 	processorList->setVisible(true);
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
-LOGD("Created filter list.");
+	LOGD("Created filter list.");
 
 	pluginManager = new PluginManager();
-LOGD("Created plugin manager");
+	LOGD("Created plugin manager");
 
 	setBounds(0,0,500,400);
 

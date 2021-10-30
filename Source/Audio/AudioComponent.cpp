@@ -82,11 +82,11 @@ AudioComponent::AudioComponent() : isPlaying(false)
     }
 
 
-    LOGD("Got audio device.");
+    LOGC("Got audio device.");
 
     String devName = aIOd->getName();
 
-    LOGD("Audio device name: ", devName);
+    LOGC("Audio device name: ", devName);
 
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
@@ -101,16 +101,16 @@ AudioComponent::AudioComponent() : isPlaying(false)
     String msg = deviceManager.setAudioDeviceSetup(setup, false);
 
     String devType = deviceManager.getCurrentAudioDeviceType();
-    LOGD("Audio device type: ", devType);
+    LOGC("Audio device type: ", devType);
 
     float sr = setup.sampleRate;
     int buffSize = setup.bufferSize;
     String oDN = setup.outputDeviceName;
     BigInteger oC = setup.outputChannels;
 
-    LOGD("Audio output channels: ", oC.toInteger());
-    LOGD("Audio device sample rate: ", sr);
-    LOGD("Audio device buffer size: ", buffSize);
+    LOGC("Audio output channels: ", oC.toInteger());
+    LOGC("Audio device sample rate: ", sr);
+    LOGC("Audio device buffer size: ", buffSize);
 
     graphPlayer = new AudioProcessorPlayer();
 
@@ -191,13 +191,13 @@ void AudioComponent::beginCallbacks()
 
         }
 
-        LOGD("Adding audio callback.");
+        LOGC("Adding audio callback.");
         deviceManager.addAudioCallback(graphPlayer);
         isPlaying = true;
     }
     else
     {
-        LOGD("beginCallbacks was called while acquisition was active.");
+        LOGE("beginCallbacks was called while acquisition was active.");
     }
 
 }
@@ -250,11 +250,11 @@ void AudioComponent::endCallbacks()
 
     audioCallbackLock.exit();*/
 
-    LOGD("Removing audio callback.");
+    LOGC("Removing audio callback.");
     deviceManager.removeAudioCallback(graphPlayer);
     isPlaying = false;
 
-    LOGD("Stopping device.");
+    LOGC("Stopping device.");
     stopDevice();
 
     //const MessageManagerLock mmLock; // add a lock to prevent crashes
@@ -367,7 +367,7 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
     }
     else
     {
-        LOGD("Buffer size out of range.");
+        LOGE("Buffer size out of range.");
     }
 
     deviceManager.setAudioDeviceSetup(setup, true);

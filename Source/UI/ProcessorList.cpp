@@ -269,8 +269,8 @@ ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 {
 	int bottom = (yBuffer + itemHeight); // - getScrollAmount();
 
-LOGDD("Bottom: ", bottom);
-LOGDD("Y coordinate: ", y);
+	LOGDD("Bottom: ", bottom);
+	LOGDD("Y coordinate: ", y);
 
 	if (y < bottom)
 	{
@@ -332,7 +332,7 @@ void ProcessorList::setViewport(Graphics& g, bool hasSubItems)
 
 	totalHeight += yBuffer + height;
 
-LOGDD(totalHeight);
+	//LOGDD(totalHeight);
 }
 
 int ProcessorList::getTotalHeight()
@@ -357,13 +357,13 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 	int xcoord = pos.getX();
 	int ycoord = pos.getY();
 
-LOGDD(xcoord, " ", ycoord);
+	//LOGDD(xcoord, " ", ycoord);
 
 	ProcessorListItem* listItem = getListItemForYPos(ycoord);
 
 	if (listItem != 0)
 	{
-LOGDD("Selecting: ", listItem->getName());
+		//LOGDD("Selecting: ", listItem->getName());
 		if (!listItem->hasSubItems())
 		{
 			clearSelectionState();
@@ -373,7 +373,7 @@ LOGDD("Selecting: ", listItem->getName());
 	}
 	else
 	{
-LOGDD("No selection.");
+		//LOGDD("No selection.");
 	}
 
 	if (listItem != 0)
@@ -484,7 +484,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 
 				const String dragDescription = b;
 
-LOGDD(dragDescription);
+				//LOGDD(dragDescription);
 
 				if (dragDescription.isNotEmpty())
 				{

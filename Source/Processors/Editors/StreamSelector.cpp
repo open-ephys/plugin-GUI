@@ -32,7 +32,7 @@
 StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
     isEnabled(isEnabled_), stream(stream_), editor(editor_), streamIsStillNeeded(true)
 {
-    std::cout << "Adding stream " << getStreamId() << " with " << stream->getChannelCount() << " channels " << std::endl;
+    LOGD("Adding stream ", getStreamId(), " with ", stream->getChannelCount(), " channels ");
 
     updateInfoString();
 
@@ -199,27 +199,27 @@ bool StreamSelector::checkStream(const DataStream* streamToCheck)
 
     std::map<uint16, bool>::iterator it = streamStates.begin();
 
-    std::cout << "STREAM STATES" << std::endl;
+    LOGD("STREAM STATES");
     while (it != streamStates.end())
     {
         // Accessing KEY from element pointed by it.
         uint16 streamId = it->first;
         // Accessing VALUE from element pointed by it.
         bool state = it->second;
-        std::cout << streamId << " :: " << state << std::endl;
+        LOGD(streamId, " :: ", state);
         // Increment the Iterator to point to next entry
         it++;
     }
 
     if (streamStates.count(streamToCheck->getStreamId()) > 0)
     {
-        std::cout << " Stream Selector returning " << streamStates[streamToCheck->getStreamId()] << std::endl;
+        LOGD(" Stream Selector returning ", streamStates[streamToCheck->getStreamId()]);
         return streamStates[streamToCheck->getStreamId()];
     }
         
     else
     {
-        std::cout << " Stream not found, returning 1." << std::endl;
+        LOGD(" Stream not found, returning 1.");
         return true;
     }
         
@@ -264,7 +264,7 @@ void StreamSelector::stopAcquisition()
 
 void StreamSelector::setStreamEnabledState(uint16 streamId, bool isEnabled)
 {
-    std::cout << " !!!!!! Setting state for stream " << streamId << ":  " << isEnabled << std::endl;
+    LOGD("Setting state for stream ", streamId, ":  ", isEnabled);
     streamStates[streamId] = isEnabled;
 }
 
@@ -280,8 +280,8 @@ void StreamSelector::resized()
     rightScrollButton->setBounds(getWidth() - 20, 2, 18, 18);
     streamSelectorButton->setBounds(20, 2, getWidth() - 40, 18);
 
-    std::cout << "StreamSelector resized, num streams: " << streams.size() << std::endl;
-    std::cout << " Scroll offset: " << scrollOffset.getCurrentValue() << std::endl;
+    LOGD("StreamSelector resized, num streams: ", streams.size());
+    LOGD(" Scroll offset: ", scrollOffset.getCurrentValue());
 
     for (int i = 0; i < streams.size(); i++)
     {
@@ -300,7 +300,7 @@ void StreamSelector::buttonClicked(Button* button)
 
     if (button == leftScrollButton.get())
     {
-        std::cout << "Scroll left" << std::endl;
+        LOGDD("Scroll left");
 
         if (viewedStreamIndex != 0)
         {
@@ -308,7 +308,7 @@ void StreamSelector::buttonClicked(Button* button)
             scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
             startTimer(50);
 
-            std::cout << "  Target value: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+            LOGDD("  Target value: ", viewedStreamIndex * streamInfoViewWidth);
 
             streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
             streamSelectorButton->repaint();
@@ -317,9 +317,9 @@ void StreamSelector::buttonClicked(Button* button)
     }
     else if (button == rightScrollButton.get())
     {
-        std::cout << "Scroll right" << std::endl;
+        LOGDD("Scroll right");
 
-        std::cout << "Total streams: " << getNumStreams() << std::endl;
+        LOGDD("Total streams: ", getNumStreams());
 
         if (viewedStreamIndex != streams.size() -1)
         {
@@ -409,7 +409,7 @@ void StreamSelector::add(const DataStream* stream)
 void StreamSelector::beginUpdate()
 {
 
-    std::cout << "BEGIN UPDATE --- NUM STREAMS: " << streams.size() << std::endl;
+    LOGD("BEGIN UPDATE --- NUM STREAMS: ", streams.size());
 
     for (auto stream : streams)
     {
@@ -420,20 +420,20 @@ void StreamSelector::beginUpdate()
 void StreamSelector::finishedUpdate()
 {
 
-    std::cout << "END UPDATE --- NUM STREAMS: " << streams.size() << std::endl;
+    LOGD("END UPDATE --- NUM STREAMS: ", streams.size());
 
     Array<StreamInfoView*> streamsToRemove;
 
     for (auto stream : streams)
     {
-        std::cout << "Checking viewer for stream " << stream->getStreamId() << std::endl;
+        LOGD("Checking viewer for stream ");
 
         if (!stream->streamIsStillNeeded)
         {
             streamsToRemove.add(stream);
         }
         else {
-            std::cout << " STILL NEEDED." << std::endl;
+            LOGD(" STILL NEEDED.");
         }
 
     }

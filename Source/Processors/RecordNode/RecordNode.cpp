@@ -23,11 +23,7 @@ EventMonitor::~EventMonitor() {}
 
 void EventMonitor::displayStatus()
 {
-
-	LOGD("-----------Event Monitor---------");
 	LOGD("Received ", receivedEvents, " totalEvents.");
-	LOGD("---------------------------------");
-
 }
 
 RecordNode::RecordNode() 
@@ -219,14 +215,14 @@ String RecordNode::generateDateString() const
 // called by CoreServices
 int RecordNode::getExperimentNumber() const
 {
-	LOGD(__FUNCTION__, " = ", experimentNumber);
+	LOGD("Current experiment = ", experimentNumber);
 	return experimentNumber;
 }
 
 // called by CoreServices
 int RecordNode::getRecordingNumber() const
 {
-	LOGD(__FUNCTION__, " = ", recordingNumber);
+	LOGD("Current recording = ", recordingNumber);
 	return recordingNumber;
 }
 
@@ -823,13 +819,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
 {
 
-	LOGD("Record node got spike!");
+	//LOGD("Record node got spike!");
     
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
 
 	if (!newSpike) 
 	{
-		LOGD("Unable to deserialize spike event!");
+		LOGE("Unable to deserialize spike event!");
 		return;
 	}
 

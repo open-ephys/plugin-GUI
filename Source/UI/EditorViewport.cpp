@@ -348,7 +348,7 @@ void EditorViewport::refreshEditors()
 
     int lastBound = BORDER_SIZE;
 
-LOGDD(insertionPoint);
+    //LOGDD(insertionPoint);
 
     bool pastRightEdge = false;
 
@@ -1301,6 +1301,7 @@ XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isSt
     XmlElement* xml = new XmlElement("PROCESSOR");
 
     xml->setAttribute("name", processor->getEditor()->getName());
+
     if (isStartOfSignalChain)
         xml->setAttribute("insertionPoint", 0);
     else

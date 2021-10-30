@@ -133,7 +133,7 @@ void RecordThread::run()
 	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
 
-	LOGD("############ CLOSING FILES ###############");
+	LOGD("Binary Recording closing all files");
 	if (!closeEarly)
 	{
 		writeData(dataBuffer, -1, -1, -1, true);

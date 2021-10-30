@@ -359,14 +359,14 @@ void ChannelMappingNode::loadCustomParametersFromXml(XmlElement* xml)
         if (streamParams->hasTagName("STREAM"))
         {
 
-            std::cout << "STREAM " << streamIndex << std::endl;
+            LOGD("STREAM ", streamIndex);
             if (availableStreams.size() > streamIndex)
             {
-                std::cout << "FOUND IT!" << std::endl;
+                LOGD("FOUND IT!");
                 settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
             else {
-                std::cout << "DID NOT FIND IT!" << std::endl;
+                LOGD("DID NOT FIND IT!");
             }
 
             streamIndex++;

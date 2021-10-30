@@ -375,7 +375,7 @@ void GenericEditor::paint(Graphics& g)
 
 void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 {
-    LOGDD("Drawer button clicked.");
+    LOGA("Drawer button clicked.");
     editor->checkDrawerButton(button);
 }
 
@@ -1074,7 +1074,7 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 {
 
     selectedStream = streamId;
-    std::cout << "Selected stream: " << selectedStream << std::endl;
+    LOGD("Selected stream: ", selectedStream);
     
     if (streamId == 0)
         return;

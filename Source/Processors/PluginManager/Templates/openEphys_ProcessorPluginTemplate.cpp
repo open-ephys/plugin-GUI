@@ -73,7 +73,7 @@ void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 
     //threshold = newValue;
 
-LOGDD(float(p[0]));
+    //LOGDD(float(p[0]));
 }
 
 

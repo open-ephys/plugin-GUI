@@ -49,12 +49,12 @@ static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
 
 
 static void errorMsg(const char *file, int line, const char *msg) {
-    fprintf(stderr, "%s:%d: %s", file, line, msg);
     
 #ifdef WIN32
     DWORD ret = GetLastError();
     if (ret) {
-        fprintf(stderr, ": DLL Error 0x%x", ret);
+        #fprintf(stderr, ": DLL Error 0x%x", ret);
+		LOGE(msg, stderr, ": DLL Error 0x%x", ret);
     }
 #elif defined(__APPLE__)
     // Any additional error messages are logged directly by the system
@@ -62,11 +62,14 @@ static void errorMsg(const char *file, int line, const char *msg) {
 #else
     const char *error = dlerror();
     if (error) {
-        fprintf(stderr, ": %s", error);
+        //fprintf(stderr, ": %s", error);
+		std::string errorString(error);
+		int lastDelimIndex = errorString.find_last_of("/");
+		int sizeOfString = errorString.size();
+		LOGE(errorString.substr(lastDelimIndex + 1, sizeOfString));
     }
 #endif
     
-    fprintf(stderr, "\n");
 }
 
 #define ERROR_MSG(msg) errorMsg(__FILE__, __LINE__, msg)
@@ -164,11 +167,11 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
 		if (res < 0)
 		{
-			LOGD(" DLL Load FAILED");
+			LOGE(" DLL Load FAILED");
 		}
 		else
 		{
-			LOGDD("Loaded with ", res, " plugins");
+			LOGD("Loaded with ", res, " plugin", (res > 1 ? "s" : ""));
 		}
 	}
 }
