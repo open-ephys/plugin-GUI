@@ -48,15 +48,15 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->type = Plugin::PROCESSOR;
 		info->processor.name = "Spike Detector";
-		info->processor.type = Plugin::FilterProcessor;
+		info->processor.type = Plugin::Processor::FILTER;
 		info->processor.creator = &(Plugin::createProcessor<SpikeDetector>);
 		break;
 	case 1:
-		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->type = Plugin::PROCESSOR;
 		info->processor.name = "Spike Viewer";
-		info->processor.type = Plugin::SinkProcessor;
+		info->processor.type = Plugin::Processor::SINK;
 		info->processor.creator = &(Plugin::createProcessor<SpikeDisplayNode>);
 		break;
 	default:

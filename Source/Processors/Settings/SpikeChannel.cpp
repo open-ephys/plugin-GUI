@@ -71,7 +71,9 @@ void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannel
 	for (int i = 0; i < newChannels.size(); i++)
 	{
 		sourceChannels.add(newChannels[i]);
+        std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
 	}
+    
 }
 
 void SpikeChannel::reset()

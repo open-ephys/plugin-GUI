@@ -30,9 +30,10 @@
 
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor      ("Spike Detector")
+    : GenericProcessor ("Spike Detector")
 {
-    setProcessorType (PROCESSOR_TYPE_FILTER);
+    
+
 }
 
 
@@ -47,6 +48,49 @@ AudioProcessorEditor* SpikeDetector::createEditor()
     return editor.get();
 }
 
+void SpikeDetector::parameterValueChanged(Parameter* p)
+{
+    if (p->getName().equalsIgnoreCase("name"))
+        CoreServices::updateSignalChain(getEditor());
+    
+    else if (p->getName().equalsIgnoreCase("channels"))
+    {
+        
+        
+        SelectedChannelsParameter* param = (SelectedChannelsParameter*) p;
+        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        uint16 streamId = spikeChannel->getStreamId();
+        
+        std::cout << "Channels changed for spike channel " << spikeChannel->getName() << " on stream " << streamId << std::endl;
+        
+        Array<const ContinuousChannel*> arr;
+        
+        for (auto i : param->getArrayValue())
+        {
+            const ContinuousChannel* chan = getDataStream(streamId)->getContinuousChannels()[int(i)];
+            std::cout << " --> Adding channel " << i << " : " << chan->getName() << std::endl;
+            arr.add(chan);
+        }
+            
+        
+        p->getSpikeChannel()->setSourceChannels(arr);
+        CoreServices::updateSignalChain(getEditor());
+    } else if (p->getName().equalsIgnoreCase("waveform"))
+    {
+        
+        
+        SelectedChannelsParameter* param = (SelectedChannelsParameter*) p;
+        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        uint16 streamId = spikeChannel->getStreamId();
+        
+        std::cout << "Waveform type changed for spike channel " << spikeChannel->getName() << " on stream " << streamId << std::endl;
+        
+        // switch number of channels!!!
+        //p->getSpikeChannel()->setPrePostSamples(arr);
+        CoreServices::updateSignalChain(getEditor());
+    }
+        
+}
 
 void SpikeDetector::updateSettings()
 {
@@ -55,7 +99,74 @@ void SpikeDetector::updateSettings()
 		overflowBuffer.setSize(getNumInputs(), OVERFLOW_BUFFER_SAMPLES);
 		overflowBuffer.clear();
 	}
-
+    
+    if (spikeChannels.size() == 0 && continuousChannels.size() > 0)
+    {
+        for (int ch = 0; ch < 4; ch++)
+        {
+            std::cout << "Adding tetrode " << ch << std::endl;
+            
+            Array<const ContinuousChannel*> arr;
+            Array<var> channels;
+            int startChan = ch* 4;
+            for (int i= startChan; i < startChan+4; i++)
+            {
+                arr.add(continuousChannels[i]);
+                channels.add(i);
+            }
+                
+            
+            addSpikeChannel("Tetrode " + String(ch + 4), SpikeChannel::TETRODE, arr);
+            
+            spikeChannels.getLast()->addParameter(new StringParameter(this,
+                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
+                                                                      "name",
+                                                                      "the name of this spike channel",
+                                                                      "Tetrode " + String(ch + 4),
+                                                                      true));
+            
+            spikeChannels.getLast()->getParameter("name")->setSpikeChannel(spikeChannels.getLast());
+            
+            
+            
+            spikeChannels.getLast()->addParameter(new SelectedChannelsParameter(this,
+                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
+                                                                      "channels",
+                                                                      "the channels for this spike channel",
+                                                                      channels,
+                                                                      4,
+                                                                      true));
+            
+            spikeChannels.getLast()->getParameter("channels")->setSpikeChannel(spikeChannels.getLast());
+            SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannels.getLast()->getParameter("channels");
+            p->setChannelCount(continuousChannels.size());
+            
+            spikeChannels.getLast()->addParameter(new CategoricalParameter(this,
+                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
+                                                                      "waveform",
+                                                                      "the type of waveform to send",
+                                                                      {"FULL", "PEAK"},
+                                                                      0,
+                                                                      true));
+            
+            spikeChannels.getLast()->getParameter("waveform")->setSpikeChannel(spikeChannels.getLast());
+            
+            spikeChannels.getLast()->addParameter(new FloatParameter(this,
+                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
+                                                                      "threshold",
+                                                                      "the threshold for this channel",
+                                                                      -50.0f,
+                                                                      -250.0f,
+                                                                      0.0f,
+                                                                      5.0f,
+                                                                      false));
+            
+            spikeChannels.getLast()->getParameter("threshold")->setSpikeChannel(spikeChannels.getLast());
+        }
+        
+    } 
+    
+    
     /*settings.update(getDataStreams());
 
     for (auto stream : getDataStreams())
@@ -109,14 +220,14 @@ void SpikeDetector::updateSettings()
 }
 
 
-void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels)
+void SpikeDetector::addSpikeChannel (const String& name, SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels)
 {
     
     SpikeChannel::Settings settings
     {
         type,
 
-        "BIGBOY",
+        name,
         "a nice little channel",
         SpikeChannel::getIdentifierFromType(type),
 

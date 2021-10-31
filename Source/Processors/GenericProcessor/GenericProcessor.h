@@ -114,7 +114,7 @@ public:
     /** Allows parameters to change while acquisition is active. If the user wants
     to change ANY variables that are used within the process() method, this must
     be done through setParameter(). */
-    virtual void setParameter(int parameterIndex, float newValue);
+    virtual void setParameter(int parameterIndex, float newValue) override;
 
     // --------------------------------------------
     //    QUERYING INFO ABOUT THIS PROCESSOR

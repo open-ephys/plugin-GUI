@@ -32,12 +32,6 @@ SpikeDisplayNode::SpikeDisplayNode()
     , displayBufferSize (5)
     ,  redrawRequested  (false)
 {
-    setProcessorType (PROCESSOR_TYPE_SINK);
-}
-
-
-SpikeDisplayNode::~SpikeDisplayNode()
-{
 }
 
 

@@ -51,7 +51,7 @@ public:
     SpikeDetectorEditor(GenericProcessor* parentNode);
 
     /** Destructor */
-    virtual ~SpikeDetectorEditor();
+    virtual ~SpikeDetectorEditor() {}
 
     /** Called when configure button is clicked */
     void buttonClicked(Button* button) override;

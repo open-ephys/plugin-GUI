@@ -31,29 +31,94 @@
 
 class SpikeDetectorEditor;
 class PopupConfigurationWindow;
+class SpikeDetectorTableModel;
 
 //class SpikeDetectorTableHeader : public TableHeaderComponent
 //{
  //   SpikeDetector
 //}
 
-class EditableTextCustomComponent : public juce::Label
+class EditableTextCustomComponent : public juce::Label,
+    public Label::Listener
 {
 public:
-    EditableTextCustomComponent(PopupConfigurationWindow* configWindow)
-        : owner(configWindow)
+    EditableTextCustomComponent(StringParameter* name_)
+        : name(name_)
     {
         setEditable(false, true, false);
+        addListener(this);
     }
 
     void mouseDown(const juce::MouseEvent& event) override;
+    
+    void labelTextChanged(Label* label);
 
     void setRowAndColumn(const int newRow, const int newColumn);
 
     int row;
 
 private:
-    PopupConfigurationWindow* owner;
+    StringParameter* name;
+    int columnId;
+    juce::Colour textColour;
+};
+
+class ChannelSelectorCustomComponent : public juce::Label,
+public PopupChannelSelector::Listener
+{
+public:
+    ChannelSelectorCustomComponent(SelectedChannelsParameter* channels_)
+        : channels(channels_)
+    {
+        setEditable(false, false, false);
+    }
+
+    void mouseDown(const juce::MouseEvent& event) override;
+    
+    void channelStateChanged(Array<int> newChannels) override
+    {
+        Array<var> newArray;
+    
+        for (int i = 0; i < newChannels.size(); i++)
+        {
+            newArray.add(newChannels[i]);
+            std::cout << "Channel " << newChannels[i] << " selected" << std::endl;
+        }
+            
+        
+        channels->setNextValue(newArray);
+    
+    }
+    
+    void setRowAndColumn(const int newRow, const int newColumn);
+
+    int row;
+
+private:
+    SelectedChannelsParameter* channels;
+    int columnId;
+    juce::Colour textColour;
+};
+
+
+class WaveformSelectorCustomComponent : public Component
+{
+public:
+    WaveformSelectorCustomComponent(CategoricalParameter* waveformtype_)
+        : waveformtype(waveformtype_)
+    {
+    }
+
+    void mouseDown(const juce::MouseEvent& event) override;
+    
+    void paint(Graphics& g);
+    
+    void setRowAndColumn(const int newRow, const int newColumn);
+
+    int row;
+
+private:
+    CategoricalParameter* waveformtype;
     int columnId;
     juce::Colour textColour;
 };
@@ -80,26 +145,26 @@ public:
     Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected,
         Component* existingComponentToUpdate) override;
 
-
-   
     int getNumRows() override;
-
+    
     void update(Array<SpikeChannel*> spikeChannels);
 
     void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
     void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
+    Array<SpikeChannel*> spikeChannels;
+    TableListBox* table;
 private:
 
     SpikeDetectorEditor* editor;
+    
     PopupConfigurationWindow* owner;
-    Array<SpikeChannel*> spikeChannels;
+
 };
 
 
 class PopupConfigurationWindow : public Component,
-    public Label::Listener,
     public Slider::Listener,
     public Button::Listener
 {
@@ -112,9 +177,6 @@ public:
 
     void update(Array<SpikeChannel*> spikeChannels);
 
-    String getChannelName(int row);
-
-    void labelTextChanged(Label* label);
 
     void sliderValueChanged(Slider* slider);
 

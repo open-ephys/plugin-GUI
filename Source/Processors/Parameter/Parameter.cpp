@@ -356,8 +356,17 @@ SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor
 
 void SelectedChannelsParameter::setNextValue(var newValue_)
 {
-    if (newValue_.getArray()->size() < maxSelectableChannels)
+    std::cout << "Parameter received " << newValue_.getArray()->size() << " more channels" << std::endl;
+    
+    if (newValue_.getArray()->size() <= maxSelectableChannels)
+    {
+        std::cout << "Setting next value" << std::endl;
         newValue = newValue_;
+    } else {
+        std::cout << "Not setting next value" << std::endl;
+    }
+    
+    
 
     processor->parameterChangeRequest(this);
 }

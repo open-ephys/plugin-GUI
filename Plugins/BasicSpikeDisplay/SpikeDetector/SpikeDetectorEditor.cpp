@@ -43,12 +43,6 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode)
     addAndMakeVisible(configureButton.get());
 }
 
-SpikeDetectorEditor::~SpikeDetectorEditor()
-{
-
-
-}
-
 void SpikeDetectorEditor::buttonClicked(Button* button)
 {
 
@@ -56,8 +50,12 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
     {
 
         SpikeDetector* processor = (SpikeDetector*)getProcessor();
+        
+        Array<SpikeChannel*> spikeChannels = processor->getSpikeChannelsForStream(getCurrentStream());
+        std::cout << spikeChannels.size() << " spike channels found." << std::endl;
 
-        currentConfigWindow = new PopupConfigurationWindow(this, processor->getSpikeChannelsForStream(getCurrentStream()));
+        currentConfigWindow = new PopupConfigurationWindow(this,
+                                                           spikeChannels);
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow), 
@@ -72,6 +70,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
 void SpikeDetectorEditor::updateSettings()
 {
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
+
 
     if (currentConfigWindow != nullptr)
         currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));

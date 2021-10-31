@@ -46,6 +46,9 @@ public:
 
     /** Called whenever the signal chain is altered. */
     void updateSettings() override;
+    
+    /** Parameter changed */
+    void parameterValueChanged(Parameter* p) override;
 
     /** Called after acquisition is finished. */
     bool stopAcquisition() override;
@@ -63,7 +66,7 @@ public:
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
     /** Adds a spike channel of a given type */
-    void addSpikeChannel (SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels);
+    void addSpikeChannel (const String& name, SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels);
 
     /** Removes a spike channel, based on a SpikeChannel pointer. */
     void removeSpikeChannel (SpikeChannel*);

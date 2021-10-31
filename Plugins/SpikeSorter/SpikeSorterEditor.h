@@ -47,15 +47,13 @@ class SpikeSorterEditor : public VisualizerEditor,
 
 {
 public:
+    /** Constructor*/
     SpikeSorterEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
     virtual ~SpikeSorterEditor();
     void buttonEvent(Button* button);
     void labelTextChanged(Label* label);
     void comboBoxChanged(ComboBox* comboBox);
     void sliderEvent(Slider* slider);
-
-    void channelChanged (int chan, bool newState) override;
-
     Visualizer* createNewCanvas();
     void checkSettings();
     void setThresholdValue(int chan, double threshold);

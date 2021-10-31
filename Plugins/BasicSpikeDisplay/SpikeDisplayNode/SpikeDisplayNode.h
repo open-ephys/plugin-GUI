@@ -39,8 +39,11 @@ class SpikePlot;
 class SpikeDisplayNode :  public GenericProcessor
 {
 public:
+    /** Constructor*/
     SpikeDisplayNode();
-    ~SpikeDisplayNode();
+    
+    /** Destructor*/
+    ~SpikeDisplayNode() {}
 
     AudioProcessorEditor* createEditor() override;
 

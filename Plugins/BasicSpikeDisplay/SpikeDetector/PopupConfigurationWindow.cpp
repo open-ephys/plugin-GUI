@@ -29,7 +29,7 @@
 
 void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
 {
-    owner->electrodeTable->selectRowsBasedOnModifierKeys(row, event.mods, false);
+    //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
 
     Label::mouseDown(event);
 }
@@ -38,8 +38,75 @@ void EditableTextCustomComponent::setRowAndColumn(const int newRow, const int ne
 {
     row = newRow;
     columnId = newColumn;
-    setText(owner->getChannelName(row), dontSendNotification);
+    setText(name->getStringValue(), dontSendNotification);
 }
+
+void EditableTextCustomComponent::labelTextChanged(Label* label)
+{
+    name->setNextValue(label->getText());
+}
+
+
+void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
+{
+    auto* channelSelector = new PopupChannelSelector(this, channels->getChannelStates());
+    
+    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+            getScreenBounds(),
+            nullptr);
+}
+    
+void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
+{
+    
+    std::cout << "Setting row " << newRow << std::endl;
+    
+    Array<int> chans = channels->getArrayValue();
+    
+    String s = "[";
+    
+    for (auto chan : chans)
+    {
+        s += String(chan+1) + ",";
+    }
+    
+    s += "]";
+    
+    setText(s, dontSendNotification);
+}
+
+
+void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
+{
+    if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
+        waveformtype->setNextValue(1);
+    else
+        waveformtype->setNextValue(0);
+}
+    
+void WaveformSelectorCustomComponent::paint(Graphics& g)
+{
+ 
+    if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
+        g.setColour(Colours::green);
+    else
+        g.setColour(Colours::red);
+    
+    g.fillRoundedRectangle(6, 6, getWidth() - 12, getHeight() - 12, 4);
+    g.setColour(Colours::white);
+    g.drawText(waveformtype->getValueAsString(), 4, 4, getWidth()-8, getHeight()-8, Justification::centred);
+}
+    
+void WaveformSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
+{
+    repaint();
+}
+
+
 
 SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_,
     PopupConfigurationWindow* owner_)
@@ -51,37 +118,17 @@ SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_,
 void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const MouseEvent& event)
 {
     std::cout << rowNumber << " " << columnId << " : selected " << std::endl;
-
-    if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
-    {
-        std::vector<bool> channelStates;
-
-        /*for (int i = 0; i < spikeChannels[rowNumber]->maxLocalChannel; i++)
-        {
-            channelStates.push_back(spikeChannels[rowNumber]->localChannelIndexes.contains(i));
-
-        }
-
-        std::cout << "Num channels: " << spikeChannels[rowNumber]->maxLocalChannel << std::endl;
-
-        auto* channelSelector = new PopupChannelSelector(editor, channelStates);
-        channelSelector->setMaximumSelectableChannels(spikeChannels[rowNumber]->expectedChannelCount);
-        channelSelector->setChannelButtonColour(Colour(0, 174, 239));
-
-        CallOutBox& myBox
-            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector), 
-                event.eventComponent->getScreenBounds(), 
-                nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);*/
-    }
-
-    //SparseSet<int> selectedRows = table->getSelectedRows();
+    
+    SparseSet<int> selectedRows = table->getSelectedRows();
 
     //for (int i = 0; i < selectedRows.size(); i++)
     //{
     //    std::cout << selectedRows[i] << " ";
     //}
+    if (columnId == SpikeDetectorTableModel::Columns::DELETE)
+    {
+        std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
+    }
 
     //std::cout << std::endl;
 
@@ -112,14 +159,41 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
 
         if (textLabel == nullptr)
         {
-            textLabel = new EditableTextCustomComponent(owner);
+            textLabel = new EditableTextCustomComponent((StringParameter*) spikeChannels[rowNumber]->getParameter("name"));
             
         }
             
-        //textLabel->addListener(owner);
+        textLabel->setColour(Label::textColourId, Colours::white);
         textLabel->setRowAndColumn(rowNumber, columnId);
         
         return textLabel;
+    } else if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
+    {
+        auto* channelsLabel = static_cast<ChannelSelectorCustomComponent*> (existingComponentToUpdate);
+
+        if (channelsLabel == nullptr)
+        {
+            channelsLabel = new ChannelSelectorCustomComponent((SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("channels"));
+            
+        }
+
+        channelsLabel->setColour(Label::textColourId, Colours::white);
+        channelsLabel->setRowAndColumn(rowNumber, columnId);
+        
+        return channelsLabel;
+    } else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
+    {
+        auto* waveformButton = static_cast<WaveformSelectorCustomComponent*> (existingComponentToUpdate);
+
+        if (waveformButton == nullptr)
+        {
+            waveformButton = new WaveformSelectorCustomComponent((CategoricalParameter*) spikeChannels[rowNumber]->getParameter("waveform"));
+            
+        }
+
+        waveformButton->setRowAndColumn(rowNumber, columnId);
+        
+        return waveformButton;
     }
 
     jassert(existingComponentToUpdate == nullptr);
@@ -134,7 +208,10 @@ int SpikeDetectorTableModel::getNumRows()
 void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 {
     spikeChannels = spikeChannels_;
+    
+    table->updateContent();
 }
+
 
 void SpikeDetectorTableModel::paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
@@ -162,34 +239,28 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     {
         g.setColour(Colours::white);
         g.drawText(String(rowNumber + 1), 4, 0, width, height, Justification::left);
-    } 
-    else if (columnId == SpikeDetectorTableModel::Columns::NAME)
-    {
-        g.setColour(Colours::white);
-        //std::cout << "Drawing name column for row " << rowNumber << std::endl;
-        g.drawText(spikeChannels[rowNumber]->getName(), 4, 0, width, height, Justification::left);
-    } 
+    }
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
     {
         switch (spikeChannels[rowNumber]->getChannelType())
         {
         case SpikeChannel::Type::SINGLE:
             g.setColour(Colours::blue);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.fillRoundedRectangle(6, 6, width - 12, height - 12, 4);
             g.setColour(Colours::white);
-            g.drawText("SINGLE", 4, 4, width-8, height-8, Justification::centred);
+            g.drawText("SE", 4, 4, width-8, height-8, Justification::centred);
             break;
         case SpikeChannel::Type::STEREOTRODE:
             g.setColour(Colours::purple);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.fillRoundedRectangle(6, 6, width - 12, height - 12, 4);
             g.setColour(Colours::white);
-            g.drawText("STEREOTRODE", 4, 4, width - 8, height - 8, Justification::centred);
+            g.drawText("ST", 4, 4, width - 8, height - 8, Justification::centred);
             break;
         case SpikeChannel::Type::TETRODE:
             g.setColour(Colours::green);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
+            g.fillRoundedRectangle(6, 6, width - 12, height - 12, 4);
             g.setColour(Colours::white);
-            g.drawText("TETRODE", 4, 4, width - 8, height - 8, Justification::centred);
+            g.drawText("TT", 4, 4, width - 8, height - 8, Justification::centred);
             break;
         }
         
@@ -267,11 +338,12 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     tableModel.reset(new SpikeDetectorTableModel(editor, this));
 
     electrodeTable = std::make_unique<TableListBox>("Electrode Table", tableModel.get());
+    tableModel->table = electrodeTable.get();
     electrodeTable->setHeader(std::make_unique<TableHeaderComponent>());
 
     electrodeTable->getHeader().addColumn("#", SpikeDetectorTableModel::Columns::INDEX, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Name", SpikeDetectorTableModel::Columns::NAME, 140, 140, 140, TableHeaderComponent::notResizableOrSortable);
-    electrodeTable->getHeader().addColumn("Type", SpikeDetectorTableModel::Columns::TYPE, 70, 70, 70, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Type", SpikeDetectorTableModel::Columns::TYPE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Channels", SpikeDetectorTableModel::Columns::CHANNELS, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
@@ -304,6 +376,10 @@ PopupConfigurationWindow::~PopupConfigurationWindow()
 void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 {
 
+    std::cout << "Updating configuration window" << std::endl;
+    
+    std::cout << spikeChannels.size() << " spike channels found." << std::endl;
+    
     if (spikeChannels.size() > 0)
     {
         electrodeTable->setVisible(true);
@@ -332,16 +408,7 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
     
 }
 
-String PopupConfigurationWindow::getChannelName(int row)
-{
-    return "NAME"; //spikeChannelsForCurrentStream[row]->name;
-}
 
-void PopupConfigurationWindow::labelTextChanged(Label* label)
-{
-    EditableTextCustomComponent* l = (EditableTextCustomComponent*)label;
-    std::cout << "New name for electrode " << l->row << ": " << l->getText() << std::endl;
-}
 
 void PopupConfigurationWindow::sliderValueChanged(Slider* slider)
 {
@@ -352,27 +419,33 @@ void PopupConfigurationWindow::buttonClicked(Button* button)
 {
     if (button == plusButton.get())
     {
-        PopupMenu countMenu;
-        PopupMenu individualSpikeChannelMenu;
+        std::shared_ptr<PopupMenu> countMenu = std::make_shared<PopupMenu>();
+        //std::shared_ptr<PopupMenu> individualSpikeChannelMenu = std::make_shared<PopupMenu>();
+        
+        //OwnedArray<PopupMenu> multipleSpikeChannels;
 
         for (int i = 15; i > 0; i--)
         {
-            PopupMenu multipleSpikeChannelMenu;
+            PopupMenu* menu = new PopupMenu();
 
-            multipleSpikeChannelMenu.addItem(SpikeChannel::SINGLE + i * 3, "Single Electrodes");
-            multipleSpikeChannelMenu.addItem(SpikeChannel::STEREOTRODE + i * 3, "Stereotrodes");
-            multipleSpikeChannelMenu.addItem(SpikeChannel::TETRODE + i * 3, "Tetrodes");
+            menu->addItem(SpikeChannel::SINGLE + i * 3, "Single Electrodes");
+            menu->addItem(SpikeChannel::STEREOTRODE + i * 3, "Stereotrodes");
+            menu->addItem(SpikeChannel::TETRODE + i * 3, "Tetrodes");
+            
+            //multipleSpikeChannels.add(menu);
 
-            countMenu.addSubMenu(String(i+1), multipleSpikeChannelMenu);
+            countMenu->addSubMenu(String(i+1), *menu);
         }
 
-        individualSpikeChannelMenu.addItem(SpikeChannel::SINGLE, "Single Electrode");
-        individualSpikeChannelMenu.addItem(SpikeChannel::STEREOTRODE, "Stereotrode");
-        individualSpikeChannelMenu.addItem(SpikeChannel::TETRODE, "Tetrode");
+        PopupMenu* menu = new PopupMenu();
+        
+        menu->addItem(SpikeChannel::SINGLE, "Single Electrode");
+        menu->addItem(SpikeChannel::STEREOTRODE, "Stereotrode");
+        menu->addItem(SpikeChannel::TETRODE, "Tetrode");
 
-        countMenu.addSubMenu("1", individualSpikeChannelMenu);
+        countMenu->addSubMenu("1", *menu);
 
-        const int result = countMenu.show();
+        const int result = countMenu->show();
 
         if (result == 0)
             return;
