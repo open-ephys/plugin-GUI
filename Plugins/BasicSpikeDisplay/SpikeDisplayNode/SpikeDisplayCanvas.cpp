@@ -970,7 +970,7 @@ void WaveAxes::plotSpike(const SpikeEvent* s, Graphics& g)
     // prevent crashes when acquisition is not active,
     // or immediately after acquisition starts
     if (   (dataSize < 1)
-        || (dataSize > 500)
+        || (dataSize > 650)
         || (sampIdx + nSamples > dataSize)
         || (nSamples < 0))
     {
