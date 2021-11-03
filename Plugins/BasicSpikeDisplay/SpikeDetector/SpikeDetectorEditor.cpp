@@ -34,7 +34,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode)
 
 {
 
-    desiredWidth = 400;
+    desiredWidth = 250;
 
     configureButton = std::make_unique< UtilityButton>("configure", titleFont);
     configureButton->addListener(this);

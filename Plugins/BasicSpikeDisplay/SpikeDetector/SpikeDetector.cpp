@@ -214,6 +214,8 @@ void SpikeDetector::addSpikeChannel (const String& name, SpikeChannel::Type type
 
     };
     
+    LOGA("Added spike channel.");
+    
     spikeChannels.add(new SpikeChannel(settings));
     spikeChannels.getLast()->addProcessor(processorInfo.get());
 
