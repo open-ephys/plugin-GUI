@@ -136,10 +136,10 @@ VisualizerEditor::~VisualizerEditor()
     {
         AccessClass::getDataViewport()->destroyTab (tabIndex);
     }
+    
     if (dataWindow != nullptr)
         dataWindow->removeListener (this);
 
-    delete canvas;
 }
 
 
@@ -199,7 +199,7 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
     // Handle the buttons to open the canvas in a tab or window
     if (editor->canvas == nullptr)
     {
-        editor->canvas = editor->createNewCanvas();
+        editor->canvas.reset(editor->createNewCanvas());
         //TODO: Temporary hack to prevent canvas-less interface from crashing GUI on button clicks...
         if (editor->canvas == nullptr)
         {
@@ -225,7 +225,7 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
         {
             editor->makeNewWindow();
 
-            editor->dataWindow->setContentNonOwned (editor->canvas, false);
+            editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
             editor->dataWindow->setVisible (true);
             editor->dataWindow->addListener (editor);
         }
@@ -235,7 +235,7 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
 
             if (editor->windowSelector->getToggleState())
             {
-                editor->dataWindow->setContentNonOwned (editor->canvas, false);
+                editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
                 editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
                 //  canvas->refreshState();
             }
@@ -257,7 +257,7 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
             }
 
             // tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
-            editor->addTab (editor->tabText, editor->canvas);
+            editor->addTab (editor->tabText, editor->canvas.get());
         }
         else if (!editor->tabSelector->getToggleState() && editor->tabIndex > -1)
         {

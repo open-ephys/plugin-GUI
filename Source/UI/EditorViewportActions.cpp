@@ -304,6 +304,8 @@ LoadSignalChain::LoadSignalChain(EditorViewport* editorViewport_, std::unique_pt
  
 LoadSignalChain::~LoadSignalChain()
 {
+    if (newSettings == nullptr)
+        newSettings.release();
 }
     
 bool LoadSignalChain::perform()

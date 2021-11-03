@@ -178,13 +178,16 @@ public:
     var operator [](String name) const {return parameters[name]->getValue();}
     
     /** Adds a parameter to this object**/
-    void addParameter(Parameter* p) { parameters.addParameter(p); }
+    void addParameter(Parameter* p);
     
     /** Returns a pointer to a parameter with a given name**/
     Parameter* getParameter(String name) const { return parameters[name]; }
     
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
+    
+    /** Copies parameters from another InfoObject and clears the original ParameterCollection*/
+    void copyParameters(InfoObject* object);
     
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
@@ -229,14 +232,15 @@ public:
 
 	Group group;
 	Position position;
+    
+    ParameterCollection parameters;
+
 
 protected:
 	/** Constructor*/
 	InfoObject(Type type);
 
 private:
-    
-    ParameterCollection parameters;
 
 	const Type m_type;
 	
@@ -264,6 +268,8 @@ public :
 	float getSampleRate() const;
 	uint16 getStreamId() const;
 	String getStreamName() const;
+    
+    void setDataStream(DataStream* ds) {stream = ds;}
 
 protected:
 	DataStream* stream;

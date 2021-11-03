@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DataStream.h"
 #include "ProcessorInfo.h"
-
+#include "../Parameter/Parameter.h"
 
 HistoryObject::HistoryObject() { }
 
@@ -112,6 +112,9 @@ InfoObject::~InfoObject()
 {}
 
 InfoObject::InfoObject(const InfoObject& other) :
+    NamedObject(other),
+    HistoryObject(other),
+    MetadataObject(other),
     m_type(other.m_type),
     m_local_index(other.m_local_index),
     m_global_index(other.m_global_index),
@@ -123,7 +126,6 @@ InfoObject::InfoObject(const InfoObject& other) :
     group(other.group),
     position(other.position)
 {
-    
 }
 
 const InfoObject::Type InfoObject::getType() const
@@ -196,6 +198,66 @@ void InfoObject::addProcessor(ProcessorInfoObject* processor)
 bool InfoObject::isLocal() const
 {
     return m_isLocal;
+}
+
+void InfoObject::copyParameters(InfoObject* object)
+{
+    
+    if (object->getType() != getType())
+    {
+        std::cout << "Cannot copy parameters between different types of InfoObjects" << std::endl;
+        return;
+    }
+    
+    for (auto parameter : object->getParameters())
+    {
+        if (parameter->getType() == Parameter::INT_PARAM)
+        {
+            IntParameter* p = (IntParameter*) parameter;
+            addParameter(new IntParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
+        {
+            BooleanParameter* p = (BooleanParameter*) parameter;
+            addParameter(new BooleanParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::STRING_PARAM)
+        {
+            StringParameter* p = (StringParameter*) parameter;
+            addParameter(new StringParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+        {
+            SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
+            addParameter(new SelectedChannelsParameter(*p));
+            
+        }
+        else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
+        {
+            CategoricalParameter* p = (CategoricalParameter*) parameter;
+            addParameter(new CategoricalParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*) parameter;
+            addParameter(new FloatParameter(*p));
+        }
+    }
+    
+}
+
+void InfoObject::addParameter(Parameter* p)
+{
+     parameters.addParameter(p);
+    
+    if (getType() == InfoObject::DATASTREAM_INFO)
+        p->setDataStream((DataStream*) this);
+    else if (getType() == InfoObject::SPIKE_CHANNEL)
+        p->setSpikeChannel((SpikeChannel*) this);
+    else if (getType() == InfoObject::CONTINUOUS_CHANNEL)
+        p->setContinuousChannel((ContinuousChannel*) this);
+    else if (getType() == InfoObject::EVENT_CHANNEL)
+        p->setEventChannel((EventChannel*) this);
 }
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)

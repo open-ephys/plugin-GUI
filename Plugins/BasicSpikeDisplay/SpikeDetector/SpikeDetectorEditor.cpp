@@ -72,8 +72,8 @@ void SpikeDetectorEditor::updateSettings()
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
 
 
-    if (currentConfigWindow != nullptr)
-        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
+    //if (currentConfigWindow != nullptr)
+     //   currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
 
 }
 

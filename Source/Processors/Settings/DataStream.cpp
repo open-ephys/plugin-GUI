@@ -58,18 +58,21 @@ void DataStream::addChannel(InfoObject* channel)
 	{
 		continuousChannels.add((ContinuousChannel*)channel);
 		continuousChannels.getLast()->setLocalIndex(continuousChannels.size() - 1);
+        continuousChannels.getLast()->setDataStream(this);
 	}
 
 	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
 	{
 		eventChannels.add((EventChannel*)channel);
 		eventChannels.getLast()->setLocalIndex(eventChannels.size() - 1);
+        eventChannels.getLast()->setDataStream(this);
 	}
 
 	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
 	{
 		spikeChannels.add((SpikeChannel*)channel);
 		spikeChannels.getLast()->setLocalIndex(spikeChannels.size() - 1);
+        spikeChannels.getLast()->setDataStream(this);
 	}
 		
 }

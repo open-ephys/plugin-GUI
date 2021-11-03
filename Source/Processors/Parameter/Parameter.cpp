@@ -42,6 +42,24 @@ String Parameter::getParameterTypeString() const
     return String();
 }
 
+uint16 Parameter::getStreamId()
+{
+    if (dataStream != nullptr)
+        return dataStream->getStreamId();
+    
+    if (spikeChannel != nullptr)
+        return spikeChannel->getStreamId();
+    
+    if (continuousChannel != nullptr)
+        return continuousChannel->getStreamId();
+        
+    if (eventChannel != nullptr)
+        return eventChannel->getStreamId();
+    
+    return 0;
+        
+}
+
 BooleanParameter::BooleanParameter(GenericProcessor* processor,
     ParameterScope scope,
     const String& name,
@@ -188,7 +206,7 @@ void IntParameter::setNextValue(var newValue_)
     std::cout << "val: " << value << std::endl;
     std::cout << "minvalue: " << minValue << std::endl;
     std::cout << "maxvalue: " << maxValue << std::endl;
-    std::cout << "streamId: " << streamId << std::endl;
+    std::cout << "streamId: " << getStreamId() << std::endl;
 
     if (value < minValue)
         newValue = minValue;
@@ -300,7 +318,7 @@ void FloatParameter::setNextValue(var newValue_)
         std::cout << "val: " << value << std::endl;
         std::cout << "minvalue: " << minValue << std::endl;
         std::cout << "maxvalue: " << maxValue << std::endl;
-        std::cout << "streamId: " << streamId << std::endl;
+        std::cout << "streamId: " << getStreamId() << std::endl;
 
         if (value < minValue)
             newValue = minValue;

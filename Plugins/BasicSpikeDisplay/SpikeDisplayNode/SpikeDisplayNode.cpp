@@ -46,13 +46,15 @@ void SpikeDisplayNode::updateSettings()
 {
     electrodes.clear();
 
-	for (int i = 0; i < spikeChannels.size(); ++i)
+	for (auto spikeChannel : spikeChannels)
 	{
         
+        std::cout << "Adding new electrode display for channel " << spikeChannel->getName() << std::endl;
+        
 		Electrode* elec = new Electrode();
-		elec->numChannels = spikeChannels[i]->getNumChannels();
-		elec->bitVolts = spikeChannels[i]->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
-		elec->name = spikeChannels[i]->getName();
+		elec->numChannels = spikeChannel->getNumChannels();
+		elec->bitVolts = spikeChannel->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
+		elec->name = spikeChannel->getName();
 		elec->currentSpikeIndex = 0;
 		elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
@@ -201,12 +203,15 @@ void SpikeDisplayNode::process (AudioSampleBuffer& buffer)
 void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
 {
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
+    
+    std::cout << "Received spike" << std::endl;
+    
 	if (!newSpike) return;
 
 	int electrodeNum = newSpike->getChannelIndex();
 
 	Electrode* e = electrodes[electrodeNum];
-	// std::cout << electrodeNum << std::endl;
+	std::cout << electrodeNum << std::endl;
 
 	bool aboveThreshold = false;
 
@@ -218,13 +223,8 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPac
 		aboveThreshold = aboveThreshold | checkThreshold(i, e->displayThresholds[i], newSpike);
 	}
 
-	if (aboveThreshold)
+	if (true)
 	{
-		// save spike
-		if (false)
-		{
-			//CoreServices::RecordNode::writeSpike(newSpike, spikeInfo);
-		}
 		// add to buffer
 		if (e->currentSpikeIndex < displayBufferSize)
 		{
@@ -232,8 +232,6 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPac
 			e->mostRecentSpikes.set(e->currentSpikeIndex, newSpike.release());
 			e->currentSpikeIndex++;
 		}
-
-		
 	}
 }
 

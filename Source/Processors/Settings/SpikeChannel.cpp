@@ -30,6 +30,7 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	type(settings.type),
 	numPreSamples(settings.numPrePeakSamples),
 	numPostSamples(settings.numPostPeakSamples),
+    sendFullWaveform(settings.sendFullWaveform),
     currentSampleIndex(0),
     lastBufferIndex(0),
     useOverflowBuffer(false)
@@ -41,6 +42,8 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	for (int i = 0; i < settings.sourceChannels.size(); i++)
 	{
 		sourceChannels.add(settings.sourceChannels[i]);
+        channelIsEnabled.add(true);
+        globalChannelIndexes.add(sourceChannels[i]->getGlobalIndex());
 	}
 
 	jassert(sourceChannels.size() == getNumChannels(type));
@@ -74,6 +77,15 @@ void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannel
         std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
 	}
     
+}
+
+bool SpikeChannel::detectSpikesOnChannel(int chan) const
+{
+    
+    if (chan >= 0 && chan < getNumChannels())
+        return channelIsEnabled[chan];
+    else
+        return false;
 }
 
 void SpikeChannel::reset()
@@ -161,7 +173,10 @@ unsigned int SpikeChannel::getPostPeakSamples() const
 
 unsigned int SpikeChannel::getTotalSamples() const
 {
-	return numPostSamples + numPreSamples;
+    if (sendFullWaveform)
+        return numPostSamples + numPreSamples;
+    else
+        return 1;
 }
 
 unsigned int SpikeChannel::getNumChannels() const

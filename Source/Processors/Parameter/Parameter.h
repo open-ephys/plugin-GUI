@@ -41,6 +41,7 @@
 class SpikeChannel;
 class ContinuousChannel;
 class EventChannel;
+class DataStream;
 
 class PLUGIN_API Parameter
 {
@@ -100,10 +101,10 @@ public:
     ParameterScope getScope() const noexcept { return m_parameterScope; }
 
     /** Returns the streamId for this parameter (if available)*/
-    uint16 getStreamId() { return streamId; }
+    uint16 getStreamId();
 
     /** Sets the streamId for this parameter*/
-    void setStreamId(uint16 streamId_) { streamId = streamId_;  }
+    void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
     
     /** Returns the SpikeChannel for this parameter (if available)*/
     SpikeChannel* getSpikeChannel() { return spikeChannel; }
@@ -158,7 +159,7 @@ protected:
 
     GenericProcessor* processor;
     
-    uint16 streamId;
+    DataStream* dataStream;
     SpikeChannel* spikeChannel;
     EventChannel* eventChannel;
     ContinuousChannel* continuousChannel;

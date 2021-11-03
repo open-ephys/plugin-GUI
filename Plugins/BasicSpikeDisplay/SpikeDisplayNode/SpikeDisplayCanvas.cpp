@@ -795,7 +795,7 @@ float SpikePlot::getDisplayThresholdForChannel(int i)
 
 void SpikePlot::setDisplayThresholdForChannel(int i, float thresh)
 {
-    std::cout << "Setting threshold to " << thresh << std::endl;
+    //std::cout << "Setting threshold to " << thresh << std::endl;
     wAxes[i]->setDisplayThreshold(thresh);
 }
 
@@ -806,7 +806,7 @@ float SpikePlot::getRangeForChannel(int i)
 
 void SpikePlot::setRangeForChannel(int i, float range)
 {
-    std::cout << "Setting range to " << range << std::endl;
+    //std::cout << "Setting range to " << range << std::endl;
     wAxes[i]->setRange(range);
     rangeButtons[i]->setLabel(String(int(range)));
 }
@@ -898,7 +898,7 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
 void WaveAxes::setRange(float r)
 {
 
-    std::cout << "Setting range to " << r << std::endl;
+    //std::cout << "Setting range to " << r << std::endl;
 
     range = r;
 
@@ -970,7 +970,7 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
     // prevent crashes when acquisition is not active,
     // or immediately after acquisition starts
     if (   (dataSize < 1)
-        || (dataSize > 500)
+        || (dataSize > 640)
         || (sampIdx + nSamples > dataSize)
         || (nSamples < 0))
     {

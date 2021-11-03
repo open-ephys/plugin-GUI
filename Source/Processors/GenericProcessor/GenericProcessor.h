@@ -561,11 +561,8 @@ protected:
     If recording is active, this message will be recorded*/
     void broadcastMessage(String msg);
 
-    /** Add a spike by SpikeChannel index */
-	void addSpike(int channelIndex, const Spike* event, int sampleNum);
-
-    /** Add a spike on the specified SpikeChanel */
-	void addSpike(const SpikeChannel* channel, const Spike* event, int sampleNum);
+    /** Add a Spike event to the outgoing buffer */
+	void addSpike(const Spike* event, int sampleNum);
 
     // --------------------------------------------
     //     UPDATING SETTINGS
@@ -609,6 +606,9 @@ protected:
 
     /** An array of parameters that the user can modify.*/
     OwnedArray<Parameter> parameters;
+    
+    /** An array of parameter collections from deleted dataStreams*/
+    OwnedArray<ParameterCollection> savedDataStreamParameters;
     
     /** Used to quickly access parameters by name*/
     std::map<String, Parameter*> globalParameterMap;

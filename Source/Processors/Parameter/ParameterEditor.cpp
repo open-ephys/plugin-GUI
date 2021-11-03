@@ -59,11 +59,10 @@ void TextBoxParameterEditor::updateView()
     
     if (param != nullptr)
     {
-        std::cout << "Updating view: " << std::endl;
+        std::cout << "Updating view for " << param->getName() << std::endl;
         std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
         std::cout << "Value: " << int(param->getValue()) << std::endl;
 
-        
         valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
     }
 

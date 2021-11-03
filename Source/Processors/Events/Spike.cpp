@@ -24,20 +24,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Spike.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
-Spike::Spike(const SpikeChannel* channelInfo, 
-	juce::int64 timestamp, 
+Spike::Spike(const SpikeChannel* spikeChannel_,
+	juce::int64 timestamp,
 	Array<float> thresholds, 
 	HeapBlock<float>& data, 
 	uint16 sortedID)
 
 	: EventBase(SPIKE_EVENT, 
 		timestamp, 
-		channelInfo->getSourceNodeId(), 
-		channelInfo->getStreamId(), 
-		channelInfo->getLocalIndex()),
+		spikeChannel_->getSourceNodeId(),
+		spikeChannel_->getStreamId(),
+		spikeChannel_->getLocalIndex()),
 
 	m_thresholds(thresholds),
-	m_channelInfo(channelInfo),
+	spikeChannel(spikeChannel_),
 	m_sortedID(sortedID)
 {
 	m_data.swapWith(data);
@@ -46,10 +46,10 @@ Spike::Spike(const SpikeChannel* channelInfo,
 Spike::Spike(const Spike& other)
 	:EventBase(other),
 	m_thresholds(other.m_thresholds),
-	m_channelInfo(other.m_channelInfo),
+	spikeChannel(other.spikeChannel),
 	m_sortedID(other.m_sortedID)
 {
-	size_t size = m_channelInfo->getDataSize();
+	size_t size = spikeChannel->getDataSize();
 	m_data.malloc(size, sizeof(char));
 	memcpy(m_data.getData(), other.m_data.getData(), size);
 }
@@ -68,12 +68,12 @@ uint16 Spike::getSortedID() const
 
 const float* Spike::getDataPointer(int channel) const
 {
-	if ((channel < 0) || (channel >= m_channelInfo->getNumChannels()))
+	if ((channel < 0) || (channel >= spikeChannel->getNumChannels()))
 	{
 		jassertfalse;
 		return nullptr;
 	}
-	return (m_data.getData() + (channel * m_channelInfo->getTotalSamples()));
+	return (m_data.getData() + (channel * spikeChannel->getTotalSamples()));
 }
 
 float Spike::getThreshold(int chan) const
@@ -83,14 +83,14 @@ float Spike::getThreshold(int chan) const
 
 const SpikeChannel* Spike::getChannelInfo() const
 {
-	return m_channelInfo;
+	return spikeChannel;
 }
 
 void Spike::serialize(void* destinationBuffer, size_t bufferSize) const
 {
-	size_t dataSize = m_channelInfo->getDataSize();
+	size_t dataSize = spikeChannel->getDataSize();
 	size_t eventSize = dataSize + SPIKE_BASE_SIZE + m_thresholds.size() * sizeof(float);
-	size_t totalSize = eventSize + m_channelInfo->getTotalEventMetadataSize();
+	size_t totalSize = eventSize + spikeChannel->getTotalEventMetadataSize();
 	if (totalSize < bufferSize)
 	{
 		jassertfalse;
@@ -100,10 +100,10 @@ void Spike::serialize(void* destinationBuffer, size_t bufferSize) const
 	char* buffer = static_cast<char*>(destinationBuffer);
 
 	*(buffer + 0) = SPIKE_EVENT;
-	*(buffer + 1) = static_cast<char>(m_channelInfo->getChannelType());
-	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeId();
-	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getStreamId();
-	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getLocalIndex();
+	*(buffer + 1) = static_cast<char>(spikeChannel->getChannelType());
+	*(reinterpret_cast<uint16*>(buffer + 2)) = spikeChannel->getSourceNodeId();
+	*(reinterpret_cast<uint16*>(buffer + 4)) = spikeChannel->getStreamId();
+	*(reinterpret_cast<uint16*>(buffer + 6)) = spikeChannel->getLocalIndex();
 	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_timestamp;
 	*(reinterpret_cast<uint16*>(buffer + 16)) = m_sortedID;
 
@@ -288,7 +288,8 @@ SpikePtr Spike::deserialize(const EventPacket& packet, const SpikeChannel* chann
 
 Spike::Buffer::Buffer(const SpikeChannel* channelInfo)
 	: m_nChans(channelInfo->getNumChannels()),
-	m_nSamps(channelInfo->getTotalSamples())
+	  m_nSamps(channelInfo->getTotalSamples()),
+      spikeChannel(channelInfo)
 {
 	m_data.malloc(m_nChans*m_nSamps);
 }

@@ -447,6 +447,7 @@ void GenericEditor::update(bool isEnabled_)
 
         for (auto stream : p->getDataStreams())
         {
+            std::cout << "Selector adding stream with name " << stream->getName() << std::endl;
             streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
@@ -1066,8 +1067,9 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {
 
+    std::cout << "UPDATE SELECTED STREAM" << std::endl;
     selectedStream = streamId;
-    LOGD("Selected stream: ", selectedStream);
+    std::cout << "Selected stream: " << selectedStream << std::endl;
     
     if (streamId == 0)
         return;
@@ -1084,6 +1086,7 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
+            std::cout << "Updating parameter!" << std::endl;
             ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
         }
         

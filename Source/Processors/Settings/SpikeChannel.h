@@ -33,12 +33,15 @@ class ContinuousChannel;
 
 class PLUGIN_API Thresholder
 {
-    Thresholder();
-    virtual ~Thresholder();
+public:
+    Thresholder() { }
+    virtual ~Thresholder() { }
     
     virtual void setThreshold(int channel, float threshold) = 0;
     
     virtual float getThreshold(int channel) = 0;
+    
+    virtual Array<float>& getThresholds() = 0;
     
     virtual bool checkSample(int channel, float sample) = 0;
 };
@@ -69,6 +72,8 @@ public:
 
 		unsigned int numPrePeakSamples = 8;
 		unsigned int numPostPeakSamples = 32;
+        
+        bool sendFullWaveform = true;
 
 	};
 
@@ -109,6 +114,9 @@ public:
 
 	/** Gets the size in bytes of one channel of the spike object*/
 	size_t getChannelDataSize() const;
+    
+    /** Determines whether a particular continuous channel is used to detect spikes*/
+    bool detectSpikesOnChannel(int chan) const;
 
 	// ====== STATIC METHODS ========= //
 
@@ -136,21 +144,26 @@ public:
     /** Determines whether this electrode should use the overflow buffer*/
     bool useOverflowBuffer;
     
-    /** Used to check whether a spike should be triggered*/
+    /** Used to check whether a spike should be triggered */
     Thresholder* thresholder;
     
     /** Resets state after acquisition*/
     void reset();
+    
+    /** Holds the global channel index for each continuous channel*/
+    Array<int> globalChannelIndexes;
 
 private:
 
 	const Type type;
 
 	Array<const ContinuousChannel*> sourceChannels;
-	Array<bool> detectSpikesOnChannel;
+	Array<bool> channelIsEnabled;
 
 	unsigned int numPreSamples;
 	unsigned int numPostSamples;
+    
+    bool sendFullWaveform;
 
 };
 

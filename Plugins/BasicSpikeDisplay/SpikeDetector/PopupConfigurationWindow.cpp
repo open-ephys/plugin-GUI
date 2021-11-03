@@ -30,7 +30,6 @@
 void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
 {
     //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
-
     Label::mouseDown(event);
 }
 

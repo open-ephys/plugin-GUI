@@ -111,7 +111,7 @@ public:
     virtual void loadVisualizerParameters (XmlElement* xml);
 
     std::unique_ptr<DataWindow> dataWindow;
-    Visualizer* canvas;
+    std::unique_ptr<Visualizer> canvas;
 
     String tabText;
 

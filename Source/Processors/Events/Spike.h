@@ -77,14 +77,14 @@ public:
 	* in order to be reused.
 	* 
 	* Example:
-	* Spike::Buffer spikeBuffer(spikeChannel1);
+	* Spike::Buffer spikeBuffer(spikeChannelA);
 	* //  --> Individual data samples can then be added to the buffer object
 	* 
-	* Spike* spike = createSpike(channelInfo1, ..., spikeBuffer);
+	* Spike* spike = createSpike(spikeChannelA, ..., spikeBuffer);
 	* //  --> the spikeBuffer object is no longer valid
 	* 
 	* // re-initialize the buffer:
-	* spikeBuffer = SpikeBuffer(spikeChannel2);
+	* spikeBuffer = SpikeBuffer(spikeChannelB);
 	* 
 	*/
 
@@ -102,6 +102,8 @@ public:
 
 		//Caution advised with this method, as the pointer can become inaccessible
 		const float* getRawPointer();
+        
+        const SpikeChannel* spikeChannel;
 	private:
 		Buffer() = delete;
 		HeapBlock<float> m_data;
@@ -154,6 +156,9 @@ public:
 
 	/* Deserialize a Spike object from an event packet*/
 	static SpikePtr deserialize(const EventPacket& packet, const SpikeChannel* channelInfo);
+    
+    /* The SpikeChannel object associated with this spike */
+    const SpikeChannel* spikeChannel;
 private:
 
 	/* Prevent initialization of an empty Spike object*/
@@ -174,7 +179,7 @@ private:
 		uint16 sortedID = 0);
 
 	const Array<float> m_thresholds;
-	const SpikeChannel* m_channelInfo;
+	
 	const uint16 m_sortedID;
 	HeapBlock<float> m_data;
 	JUCE_LEAK_DETECTOR(Spike);

@@ -26,6 +26,27 @@
 
 #include <ProcessorHeaders.h>
 
+
+class AbsValueThresholder : public Thresholder
+{
+public:
+    AbsValueThresholder(int numChannels);
+    virtual ~AbsValueThresholder() { }
+    
+    void setThreshold(int channel, float threshold);
+    
+    float getThreshold(int channel);
+    
+    Array<float>& getThresholds() {return thresholds;}
+    
+    bool checkSample(int channel, float sample);
+    
+private:
+    
+    Array<float> thresholds;
+};
+
+
 /**
     Detects spikes in a continuous signal and outputs events containing the spike data.
 
@@ -39,7 +60,7 @@ public:
     SpikeDetector();
 
     /** Destructor*/
-    ~SpikeDetector();
+    ~SpikeDetector() { }
 
     /** Processes an incoming continuous buffer and places new spikes into the event buffer. */
     void process (AudioBuffer<float>& buffer) override;
@@ -77,8 +98,6 @@ public:
 
 private:
 
-    //StreamSettings<SpikeDetectorSettings> settings;
-
     // INTERNAL BUFFERS
     // =====================================================================
     /** Extra samples are placed in this buffer to allow seamless
@@ -88,20 +107,11 @@ private:
 
     float getDefaultThreshold() const;
 
-    float getSample(int& globalChannelIndex, int& sampleIndex, AudioBuffer<float>& buffer);
+    float getSample(int globalChannelIndex, int sampleIndex, AudioBuffer<float>& buffer);
 
-    //float getNextSample (int& chan);
-    //float getCurrentSample (int& chan);
-    //bool samplesAvailable (int nSamples);
-
-    void addWaveformToSpikeObject (Spike::Buffer& s,
-                                   int& peakIndex,
-                                   int& electrodeNumber,
-                                   int& currentChannel);
-
-    //uint16 currentStream;
-    //int currentElectrode;
-    //int currentChannelIndex;
+    void addWaveformToSpikeBuffer (Spike::Buffer& s,
+                                    int sampleIndex,
+                                   AudioBuffer<float>& buffer);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

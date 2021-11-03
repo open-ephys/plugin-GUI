@@ -47,7 +47,6 @@ SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)
 
 SpikeDisplayEditor::~SpikeDisplayEditor()
 {
-    deleteAllChildren();
 }
 
 void SpikeDisplayEditor::initializeButtons()
@@ -185,7 +184,7 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 void SpikeDisplayEditor::startRecording()
 {
 
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas;
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
 
     sdc->startRecording();
 
@@ -194,7 +193,7 @@ void SpikeDisplayEditor::startRecording()
 void SpikeDisplayEditor::stopRecording()
 {
 
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas;
+    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
 
     sdc->stopRecording();
 

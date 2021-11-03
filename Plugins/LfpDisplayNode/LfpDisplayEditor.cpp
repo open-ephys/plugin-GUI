@@ -168,14 +168,14 @@ void LfpDisplayEditor::buttonClicked(Button* button)
     {
         if (canvas != nullptr)
         {
-            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas;
+            LfpDisplayCanvas* c = (LfpDisplayCanvas*) canvas.get();
             c->syncDisplays();
         }
             
     }
     
     if (button->getRadioGroupId() == 201 && canvas != nullptr)
-        static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
+        static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
 }
 
@@ -206,7 +206,7 @@ void LfpDisplayEditor::removeBufferForDisplay(int splitID)
 {
     if (canvas != nullptr)
     {
-        LfpDisplayCanvas* cv = (LfpDisplayCanvas*) canvas;
+        LfpDisplayCanvas* cv = (LfpDisplayCanvas*) canvas.get();
 
         cv->removeBufferForDisplay(splitID);
     }
@@ -232,7 +232,7 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 		{
 			LOGD("Loading saved layout: ", xmlNode->getIntAttribute("SelectedLayout"));
 			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
-            static_cast<LfpDisplayCanvas*>(canvas)->setLayout(selectedLayout);
+            static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
             if (selectedLayout == SplitLayouts::SINGLE)
                 singleDisplay->setToggleState(true, dontSendNotification);
