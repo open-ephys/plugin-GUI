@@ -269,10 +269,8 @@ String OriginalRecording::getFileName(int channelIndex)
     
 	filename += String(static_cast<int>(ch->getSourceNodeID()));
 	filename += "_";
-	if (renameFiles)
-		filename += renamedPrefix + String(getDataChannel(channelIndex)->getCurrentNodeChannelIdx() + 1);
-	else
-		filename += ch->getName();
+
+	filename += String(getDataChannel(channelIndex)->getCurrentNodeChannelIdx() + 1);
 
 	if (experimentNumber > 1)
 	{
