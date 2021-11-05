@@ -26,6 +26,19 @@
 
 #include <ProcessorHeaders.h>
 
+class SpikeDetectorSettings
+{
+public:
+    /** Constructor -- initializes values*/
+    SpikeDetectorSettings();
+    
+    int nextAvailableChannel;
+    
+    int singleElectrodeCount;
+    int stereotrodeCount;
+    int tetrodeCount;
+
+};
 
 class AbsValueThresholder : public Thresholder
 {
@@ -113,7 +126,7 @@ private:
     
     //ParameterCollection mostRecentParameters;
     
-    int nextAvailableChannel;
+    StreamSettings<SpikeDetectorSettings> settings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

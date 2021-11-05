@@ -793,7 +793,19 @@ void GenericProcessor::update()
               if (similarStream != nullptr)
                   channelCount = similarStream->getChannelCount();
               
-              if (spikeChannel->numParameters() == 0)
+              for (auto param : spikeChannel->getParameters())
+              {
+              
+                  if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                   {
+                       
+                      SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
+                         
+                      p->setChannelCount(channelCount);
+                  }
+              }
+              
+              /*if (spikeChannel->numParameters() == 0)
               {
                   std::cout << "No parameters found, adding..." << std::endl;
                   
@@ -840,23 +852,14 @@ void GenericProcessor::update()
                           }
                       }
                   }
-              }
-              else
+              }*/
+              /*else
               {
                   for (auto param : availableParameters)
                   {
-                      if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-                      {
-                          
-                         if (param->getScope() == Parameter::SPIKE_CHANNEL_SCOPE)
-                         {
-                              SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
-                            
-                              p->setChannelCount(channelCount);
-                          }
-                     }
+                      
                   }
-              }
+              }*/
           }
     }
 

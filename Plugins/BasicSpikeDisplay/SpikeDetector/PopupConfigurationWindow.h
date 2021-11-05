@@ -84,8 +84,18 @@ public:
             newArray.add(newChannels[i]);
             std::cout << "Channel " << newChannels[i] << " selected" << std::endl;
         }
-            
         
+        String s = "[";
+        
+        for (auto chan : newArray)
+        {
+            s += String(int(chan)+1) + ",";
+        }
+        
+        s += "]";
+        
+        setText(s, dontSendNotification);
+            
         channels->setNextValue(newArray);
     
     }
@@ -109,6 +119,7 @@ public:
     {
         setEditable(false, true, false);
         addListener(this);
+        setColour(Label::textColourId, Colours::white);
     }
 
     void mouseDown(const juce::MouseEvent& event) override;

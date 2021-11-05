@@ -28,6 +28,14 @@
 
 #define OVERFLOW_BUFFER_SAMPLES 200
 
+SpikeDetectorSettings::SpikeDetectorSettings() :
+    nextAvailableChannel(0),
+    singleElectrodeCount(0),
+    stereotrodeCount(0),
+    tetrodeCount(0)
+{
+    
+}
 
 AbsValueThresholder::AbsValueThresholder(int numChannels) : Thresholder()
 {
@@ -61,34 +69,8 @@ bool AbsValueThresholder::checkSample(int channel, float sample)
     
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor ("Spike Detector"),
-      nextAvailableChannel(0)
+    : GenericProcessor ("Spike Detector")
 {
-    
-    addStringParameter(Parameter::SPIKE_CHANNEL_SCOPE,
-                            "name",
-                            "The name of a spike channel",
-                            "Default Name");
-    
-    addCategoricalParameter(Parameter::SPIKE_CHANNEL_SCOPE,
-                            "waveform_type",
-                            "The type of waveform packaged in each spike object",
-                            {"FULL","PEAK"},
-                            0);
-    
-    addFloatParameter(Parameter::SPIKE_CHANNEL_SCOPE,
-                      "threshold",
-                      "The threshold used for spike detection",
-                      -50.0f,
-                      -500.0f,
-                      0.0f,
-                      1.0f);
-    
-    addSelectedChannelsParameter(Parameter::SPIKE_CHANNEL_SCOPE,
-                     "local_channels",
-                     "The local channel indices (within a Data Stream) used for spike detection",
-                     4);
-    
     
 }
 
@@ -108,6 +90,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
+        std::cout << "Value changed." << std::endl;
         p->getSpikeChannel()->setName(p->getValueAsString());
         CoreServices::updateSignalChain(getEditor());
     }
@@ -150,11 +133,14 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 
 void SpikeDetector::updateSettings()
 {
+    settings.update(getDataStreams());
+    
 	if (getNumInputs() > 0)
 	{
 		overflowBuffer.setSize(getNumInputs(), OVERFLOW_BUFFER_SAMPLES);
 		overflowBuffer.clear();
 	}
+
 
 }
 
@@ -163,6 +149,7 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
 {
     
     Array<int> localChannels;
+    Array<var> selectedChannels;
     
     std::cout << "SpikeDetector adding spike channel." << std::endl;
     
@@ -170,18 +157,36 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
     
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
-        std::cout << nextAvailableChannel << " ";
-        localChannels.add(nextAvailableChannel++);
+        std::cout << settings[currentStream]->nextAvailableChannel << " ";
+        localChannels.add(settings[currentStream]->nextAvailableChannel++);
+        selectedChannels.add(settings[currentStream]->nextAvailableChannel-1);
     }
     
     std::cout << std::endl;
     
-    SpikeChannel::Settings settings
+    String name = SpikeChannel::getDefaultChannelPrefix(type);
+    
+    switch (type)
+    {
+        case SpikeChannel::SINGLE:
+            name += String(++settings[currentStream]->singleElectrodeCount);
+            break;
+        case SpikeChannel::STEREOTRODE:
+            name += String(++settings[currentStream]->stereotrodeCount);
+            break;
+        case SpikeChannel::TETRODE:
+            name += String(++settings[currentStream]->tetrodeCount);
+            break;
+    }
+    
+    SpikeChannel::Settings spikeChannelSettings
     {
         type,
 
-        "name",
-        "Spike detector spike channel",
+        name,
+        SpikeChannel::getDefaultChannelPrefix(type)
+            + " from Spike Detector "
+            + String(getNodeId()),
         SpikeChannel::getIdentifierFromType(type),
 
         localChannels
@@ -190,13 +195,45 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
     
     LOGA("Added spike channel.");
     
-    spikeChannels.add(new SpikeChannel(settings));
-    spikeChannels.getLast()->addProcessor(processorInfo.get());
-    spikeChannels.getLast()->setDataStream(getDataStream(currentStream), false);
+    spikeChannels.add(new SpikeChannel(spikeChannelSettings));
     
-    spikeChannels.getLast()->thresholder =
+    SpikeChannel* spikeChannel = spikeChannels.getLast();
+    
+    spikeChannel->addProcessor(processorInfo.get());
+    spikeChannel->setDataStream(getDataStream(currentStream), false);
+    
+    spikeChannel->thresholder =
         std::make_unique<AbsValueThresholder>(
             SpikeChannel::getNumChannels(type));
+    
+    spikeChannel->addParameter(new StringParameter(this,
+                            Parameter::SPIKE_CHANNEL_SCOPE,
+                            "name",
+                            "The name of a spike channel",
+                            name));
+    
+    spikeChannel->addParameter(new CategoricalParameter(this,
+                            Parameter::SPIKE_CHANNEL_SCOPE,
+                            "waveform_type",
+                            "The type of waveform packaged in each spike object",
+                            {"FULL","PEAK"},
+                            0));
+    
+    spikeChannel->addParameter(new FloatParameter(this,
+                       Parameter::SPIKE_CHANNEL_SCOPE,
+                      "threshold",
+                      "The threshold used for spike detection",
+                      -50.0f,
+                      -500.0f,
+                      -20.0f,
+                      1.0f));
+    
+    spikeChannel->addParameter(new SelectedChannelsParameter(this,
+                     Parameter::SPIKE_CHANNEL_SCOPE,
+                     "local_channels",
+                     "The local channel indices (within a Data Stream) used for spike detection",
+                     selectedChannels,
+                     spikeChannel->getNumChannels()));
 
 }
 
@@ -206,7 +243,7 @@ void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
  
     spikeChannels.removeObject(spikeChannel);
     
-    return true;
+    
 }
 
 

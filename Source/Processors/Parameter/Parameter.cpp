@@ -318,7 +318,6 @@ void FloatParameter::setNextValue(var newValue_)
         std::cout << "val: " << value << std::endl;
         std::cout << "minvalue: " << minValue << std::endl;
         std::cout << "maxvalue: " << maxValue << std::endl;
-        std::cout << "streamId: " << getStreamId() << std::endl;
 
         if (value < minValue)
             newValue = minValue;

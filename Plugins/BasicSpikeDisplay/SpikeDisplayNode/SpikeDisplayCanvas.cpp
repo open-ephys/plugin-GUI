@@ -86,32 +86,19 @@ void SpikeDisplayCanvas::endAnimation()
 void SpikeDisplayCanvas::update()
 {
 
-    //std::cout << "Updating SpikeDisplayCanvas" << std::endl;
+    std::cout << "Updating SpikeDisplayCanvas" << std::endl;
 
     int nPlots = processor->getNumElectrodes();
     processor->removeSpikePlots();
 
-    //std::cout << "Adding new plots" << std::endl;
-    if (nPlots != spikeDisplay->getNumPlots())
-    {
-        
-        //std::cout << "  Different number detected" << std::endl;
-        spikeDisplay->removePlots();
+    //std::cout << "  Different number detected" << std::endl;
+    spikeDisplay->removePlots();
 
-        for (int i = 0; i < nPlots; i++)
-        {
-            SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
-                                                       processor->getNameForElectrode(i));
-            processor->addSpikePlotForElectrode(sp, i);
-        }
-    }
-    else
+    for (int i = 0; i < nPlots; i++)
     {
-        //std::cout << "Same number detected" << std::endl;
-        for (int i = 0; i < nPlots; i++)
-        {
-            processor->addSpikePlotForElectrode(spikeDisplay->getSpikePlot(i), i);
-        }
+        SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
+                                                   processor->getNameForElectrode(i));
+        processor->addSpikePlotForElectrode(sp, i);
     }
 
     //std::cout << "Resized" << std::endl;

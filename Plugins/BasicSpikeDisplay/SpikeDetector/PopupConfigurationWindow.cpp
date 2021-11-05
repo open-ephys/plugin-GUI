@@ -104,6 +104,8 @@ void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
         waveformtype->setNextValue(1);
     else
         waveformtype->setNextValue(0);
+    
+    repaint();
 }
     
 void WaveformSelectorCustomComponent::paint(Graphics& g)
@@ -146,6 +148,21 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
     if (columnId == SpikeDetectorTableModel::Columns::DELETE)
     {
         std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
+        
+        Array<SpikeChannel*> channelsToDelete;
+        Array<SpikeChannel*> channelsToKeep;
+        
+        for (int i = 0; i < spikeChannels.size(); i++)
+        {
+            if (selectedRows.contains(i))
+                channelsToDelete.add(spikeChannels[i]);
+            else
+                channelsToKeep.add(spikeChannels[i]);
+        }
+        
+        update(channelsToKeep);
+        
+        editor->removeSpikeChannels(channelsToDelete);
     }
 
     //std::cout << std::endl;

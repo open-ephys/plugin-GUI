@@ -67,7 +67,7 @@ public:
     void addSpikeChannels(SpikeChannel::Type type, int count);
 
     /** Removes a spike channel based on a pointer to a SpikeChannel object*/
-    void removeSpikeChannel(SpikeChannel*);
+    void removeSpikeChannels(Array<SpikeChannel*> spikeChannelsToRemove);
     
 private:
 

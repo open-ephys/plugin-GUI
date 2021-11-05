@@ -155,6 +155,9 @@ public:
     /** Returns the value as a string**/
     virtual String getValueAsString() = 0;
     
+    /** Can be used to directly set the paramete value (but be careful with this)*/
+    var currentValue;
+    
 protected:
 
     GenericProcessor* processor;
@@ -165,7 +168,7 @@ protected:
     ContinuousChannel* continuousChannel;
 
     var newValue;
-    var currentValue;
+    
     var defaultValue;
 
 private:
