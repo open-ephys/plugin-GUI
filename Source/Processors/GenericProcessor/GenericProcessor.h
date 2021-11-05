@@ -587,7 +587,7 @@ protected:
     OwnedArray<DataStream> dataStreams;
 
     /** Copies DataStream settings from a source processor*/
-    void copyDataStreamSettings(const DataStream*);
+    int copyDataStreamSettings(const DataStream*, int continuousChannelGlobalIndex);
 
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();
@@ -603,9 +603,6 @@ protected:
 
     /** An array of default parameters for this processor.*/
     OwnedArray<Parameter> availableParameters;
-
-    /** An array of parameters that the user can modify.*/
-    OwnedArray<Parameter> parameters;
     
     /** An array of parameter collections from deleted dataStreams*/
     OwnedArray<ParameterCollection> savedDataStreamParameters;

@@ -62,6 +62,10 @@ public:
     
     int size() const {return parameters.size(); }
     
+    void setParameterOwner(Parameter* p, InfoObject* object);
+    
+    void clearParameterOwner(Parameter* p);
+    
     void clear();
     
 private:

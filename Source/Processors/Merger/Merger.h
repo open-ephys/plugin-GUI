@@ -62,7 +62,7 @@ public:
     void updateSettings() override;
 
     /** Called during updateSettings(), once for each input processor*/
-    void addSettingsFromSourceNode(GenericProcessor* sn);
+    int addSettingsFromSourceNode(GenericProcessor* sn, int globalIndex);
 
     /** Checks whether or not a particular stream should be sent to the Merger output */
     bool checkStream(const DataStream* stream);

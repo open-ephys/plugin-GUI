@@ -73,16 +73,16 @@ public:
 	const String getName() const;
 
 	/** Sets the object description*/
-	void setDescription(String& description);
+	void setDescription(const String& description);
 
 	/** Gets the object description */
-	const String getDescription() const;
+	const String& getDescription() const;
 
 	/** Sets a machine-readable identifier */
-	void setIdentifier(String& identifier);
+	void setIdentifier(const String& identifier);
 
 	/** Gets a machine-readable identifier */
-	const String getIdentifier() const;
+	const String& getIdentifier() const;
 
 	/** Checks whether object has a matching UUID (e.g. it was copied) */
 	bool operator==(const NamedObject& other) const;
@@ -264,12 +264,14 @@ class PLUGIN_API ChannelInfoObject :
 public :
 	ChannelInfoObject(InfoObject::Type type, DataStream* stream);
 	virtual ~ChannelInfoObject();
+    
+    ChannelInfoObject(const ChannelInfoObject& other);
 
 	float getSampleRate() const;
 	uint16 getStreamId() const;
 	String getStreamName() const;
     
-    void setDataStream(DataStream* ds) {stream = ds;}
+    virtual void setDataStream(DataStream* ds, bool addToStream = true);
 
 protected:
 	DataStream* stream;

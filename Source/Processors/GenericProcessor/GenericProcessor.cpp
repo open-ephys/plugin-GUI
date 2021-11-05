@@ -70,6 +70,10 @@ GenericProcessor::GenericProcessor(const String& name)
 
 GenericProcessor::~GenericProcessor()
 {
+    
+    std::cout << getName() << " being deleted." << std::endl;
+    std::cout << "Num parameters: " << availableParameters.size() << std::endl;
+    availableParameters.clear(true);
 }
 
 
@@ -434,13 +438,15 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-	std::cout << "Clearing settings"  << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << " " << std::endl;
+	std::cout << "Clearing settings for " << getName()  << std::endl;
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
     for (auto obj : continuousChannels)
     {
-        std::cout << obj->getName() << std::endl;
+        //std::cout << obj->getName() << std::endl;
         if (!obj->isLocal())
             delete obj;
         else
@@ -498,10 +504,12 @@ void GenericProcessor::clearSettings()
     configurationObjects.addArray(configurationObjectsToKeep);
 
     Array<DataStream*> dataStreamsToKeep;
+
     
     for (auto obj : dataStreams)
     {
         std::cout << obj->getName() << std::endl;
+        
         if (!obj->isLocal())
         {
             savedDataStreamParameters.add(new ParameterCollection());
@@ -526,7 +534,7 @@ void GenericProcessor::clearSettings()
 
 }
 
-void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
+int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
 	if (true)
@@ -580,7 +588,8 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
 		continuousChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(continuousChannels.getLast());
+		continuousChannels.getLast()->setDataStream(dataStreams.getLast(), true);
+        continuousChannels.getLast()->setGlobalIndex(continuousChannelGlobalIndex++);
 
 		//std::cout << "Output channel: " << continuousChannels.getLast()->getUniqueId().toString() << std::endl;
 
@@ -604,10 +613,11 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 
 		eventChannels.add(new EventChannel(*eventChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(eventChannels.getLast());
+		eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
 
-    std::cout << "Num spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "Num incoming spike channels: " << stream->getSpikeChannels().size() << std::endl;
     
 	for (auto spikeChannel : stream->getSpikeChannels())
 	{
@@ -623,10 +633,13 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 
 		spikeChannels.add(new SpikeChannel(*spikeChannel));
 		spikeChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(spikeChannels.getLast());
+        spikeChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
     
-    std::cout << "Num spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
+    
+    return continuousChannelGlobalIndex;
 }
 
 void GenericProcessor::updateDisplayName(String name)
@@ -650,6 +663,8 @@ void GenericProcessor::update()
         messageChannel.reset();
 		messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
         messageChannel->addProcessor(processorInfo.get());
+        
+        int continuousChannelGlobalIndex = 0;
 
 		if (!isMerger())
 		{
@@ -660,13 +675,13 @@ void GenericProcessor::update()
 
 				for (auto stream : splitter->getStreamsForDestNode(this))
 				{
-					copyDataStreamSettings(stream);
+					continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
 				}
 			}
 			else {
 				for (auto stream : sourceNode->getStreamsForDestNode(this))
 				{
-					copyDataStreamSettings(stream);
+					continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
 				}
 			}
 
@@ -760,14 +775,104 @@ void GenericProcessor::update()
             }
         }
 	}
+    
+    // update parameters for spike channels
+    
+    /// UPDATE PARAMETERS FOR SPIKE CHANNELS
+      for (auto spikeChannel : spikeChannels)
+      {
+          if (spikeChannel->isLocal())
+          {
+            
+              DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
+              
+              spikeChannel->setDataStream(similarStream, true);
+              
+              int channelCount = 0;
+              
+              if (similarStream != nullptr)
+                  channelCount = similarStream->getChannelCount();
+              
+              if (spikeChannel->numParameters() == 0)
+              {
+                  std::cout << "No parameters found, adding..." << std::endl;
+                  
+                  for (auto param : availableParameters)
+                  {
+                      if (param->getScope() == Parameter::SPIKE_CHANNEL_SCOPE)
+                      {
+                          if (param->getType() == Parameter::BOOLEAN_PARAM)
+                          {
+                              BooleanParameter* p = (BooleanParameter*)param;
+                              spikeChannel->addParameter(new BooleanParameter(*p));
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                           else if (param->getType() == Parameter::STRING_PARAM)
+                          {
+                              StringParameter* p = (StringParameter*)param;
+                              spikeChannel->addParameter(new StringParameter(*p));
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                          else if (param->getType() == Parameter::INT_PARAM)
+                          {
+                              IntParameter* p = (IntParameter*)param;
+                              spikeChannel->addParameter(new IntParameter(*p));
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                          else if (param->getType() == Parameter::FLOAT_PARAM)
+                          {
+                              StringParameter* p = (StringParameter*)param;
+                              spikeChannel->addParameter(new StringParameter(*p));
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                          else if (param->getType() == Parameter::CATEGORICAL_PARAM)
+                          {
+                              CategoricalParameter* p = (CategoricalParameter*)param;
+                              spikeChannel->addParameter(new CategoricalParameter(*p));
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                          else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                          {
+                              SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+                              spikeChannel->addParameter(new SelectedChannelsParameter(*p));
+                              p->setChannelCount(channelCount);
+                              p->setSpikeChannel(spikeChannel);
+                          }
+                      }
+                  }
+              }
+              else
+              {
+                  for (auto param : availableParameters)
+                  {
+                      if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                      {
+                          
+                         if (param->getScope() == Parameter::SPIKE_CHANNEL_SCOPE)
+                         {
+                              SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
+                            
+                              p->setChannelCount(channelCount);
+                          }
+                     }
+                  }
+              }
+          }
+    }
 
 	updateSettings(); // allow processors to change custom settings, 
 					  // including creation of streams / channels and
 					  // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
+    
+    std::cout << "After custom settings -- Num local spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
 
 	updateChannelIndexMaps();
+    
+    std::cout << "After channel index maps -- Num local spike channels: " << spikeChannels.size() << std::endl;
+    std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
 
 	m_needsToSendTimestampMessages.clear();
 	for (auto stream : getDataStreams())

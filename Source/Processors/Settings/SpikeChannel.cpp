@@ -26,8 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../GenericProcessor/GenericProcessor.h"
 
 SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
-	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, settings.stream),
+	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, nullptr),
 	type(settings.type),
+    localChannelIndexes(settings.localChannelIndexes),
 	numPreSamples(settings.numPrePeakSamples),
 	numPostSamples(settings.numPostPeakSamples),
     sendFullWaveform(settings.sendFullWaveform),
@@ -38,19 +39,120 @@ SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	setName(settings.name);
 	setDescription(settings.description);
 	setIdentifier(settings.identifier);
+}
 
-	for (int i = 0; i < settings.sourceChannels.size(); i++)
-	{
-		sourceChannels.add(settings.sourceChannels[i]);
-        channelIsEnabled.add(true);
-        globalChannelIndexes.add(sourceChannels[i]->getGlobalIndex());
-	}
 
-	jassert(sourceChannels.size() == getNumChannels(type));
+SpikeChannel::~SpikeChannel() { }
+
+SpikeChannel::SpikeChannel(const SpikeChannel& other)
+ : ChannelInfoObject(other),
+     type(other.type),
+     localChannelIndexes(other.localChannelIndexes),
+     numPreSamples(other.getPrePeakSamples()),
+     numPostSamples(other.getPostPeakSamples()),
+     sendFullWaveform(other.sendFullWaveform),
+     currentSampleIndex(0),
+     lastBufferIndex(0),
+     useOverflowBuffer(false),
+     lastStreamId(other.lastStreamId),
+     lastStreamName(other.lastStreamName),
+     lastStreamSampleRate(other.lastStreamSampleRate),
+     lastStreamChannelCount(other.lastStreamChannelCount)
+{
+    setName(other.getName());
+    setDescription(other.getDescription());
+    setIdentifier(other.getIdentifier());
+}
+
+
+void SpikeChannel::setDataStream(DataStream* dataStream, bool addToStream)
+{
+    stream = dataStream;
+    
+    channelIsEnabled.clear();
+    
+    Array<const ContinuousChannel*> newSourceChannels;
+    
+    Array<ContinuousChannel*> availableChannels;
+    
+    std::cout << "Setting data stream to " << dataStream->getName() << " (" << dataStream->getStreamId() << ")" << std::endl;
+    std::cout << "Num local channels in SpikeChannel: " << localChannelIndexes.size() << std::endl;
+    
+    
+    if (dataStream != nullptr)
+    {
+        availableChannels = dataStream->getContinuousChannels();
+        std::cout << "Num local channels in dataStream: " << dataStream->getChannelCount() << std::endl;
+    } else {
+        std::cout << "Num local channels in dataStream: 0" << std::endl;
+    }
+        
+    
+    for (int i = 0; i < getNumChannels(); i++)
+    {
+        if (i >= localChannelIndexes.size())
+        {
+            std::cout << "Adding continuous channel NULL (not enough available)" << std::endl;
+            channelIsEnabled.add(false);
+            newSourceChannels.add(nullptr);
+            continue;
+        }
+            
+        if (localChannelIndexes[i] < availableChannels.size())
+        {
+            std::cout << "Adding continuous channel " << availableChannels[localChannelIndexes[i]]->getName() << std::endl;
+            sourceChannels.add(availableChannels[localChannelIndexes[i]]);
+            channelIsEnabled.add(true);
+            continue;
+        }
+        
+        std::cout << "Adding continuous channel NULL (no data stream)" << std::endl;
+        channelIsEnabled.add(false);
+        newSourceChannels.add(nullptr);
+    }
+    
+    setSourceChannels(newSourceChannels);
+    
+    if (dataStream != nullptr)
+    {
+        lastStreamId = dataStream->getStreamId();
+        lastStreamName = dataStream->getName();
+        lastStreamSampleRate = dataStream->getSampleRate();
+        lastStreamChannelCount = dataStream->getChannelCount();
+        
+        if (addToStream)
+        {
+            std::cout << "Data stream adding spike channel" << std::endl;
+            dataStream->addChannel(this);
+        }
+            
+    }
 
 }
 
-SpikeChannel::~SpikeChannel() { }
+/** Find similar stream*/
+DataStream* SpikeChannel::findSimilarStream(OwnedArray<DataStream>& streams)
+{
+    for (auto stream : streams)
+    {
+        if (stream->getStreamId() == lastStreamId)
+            return stream;
+    }
+    
+    for (auto stream : streams)
+   {
+       if (stream->getName() == lastStreamName)
+           return stream;
+   }
+    
+    for (auto stream : streams)
+    {
+        if (stream->getSampleRate() == lastStreamSampleRate)
+            return stream;
+    }
+    
+    return nullptr;
+}
 
 
 SpikeChannel::Type SpikeChannel::getChannelType() const
@@ -67,14 +169,20 @@ const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannels)
 {
 
-	jassert(newChannels.size() == sourceChannels.size());
+	//jassert(newChannels.size() == sourceChannels.size());
 
 	sourceChannels.clear();
+    globalChannelIndexes.clear();
 
 	for (int i = 0; i < newChannels.size(); i++)
 	{
 		sourceChannels.add(newChannels[i]);
         std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
+        
+        if (newChannels[i] != nullptr)
+            globalChannelIndexes.add(newChannels[i]->getGlobalIndex());
+        else
+            globalChannelIndexes.add(-1);
 	}
     
 }

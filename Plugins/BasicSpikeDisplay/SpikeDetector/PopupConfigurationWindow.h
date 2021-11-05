@@ -100,6 +100,30 @@ private:
     juce::Colour textColour;
 };
 
+class ThresholdSelectorCustomComponent : public juce::Label,
+    public Label::Listener
+{
+public:
+    ThresholdSelectorCustomComponent(FloatParameter* threshold_)
+        : threshold(threshold_)
+    {
+        setEditable(false, true, false);
+        addListener(this);
+    }
+
+    void mouseDown(const juce::MouseEvent& event) override;
+    
+    void labelTextChanged(Label* label);
+
+    void setRowAndColumn(const int newRow, const int newColumn);
+
+    int row;
+
+private:
+    FloatParameter* threshold;
+    int columnId;
+    juce::Colour textColour;
+};
 
 class WaveformSelectorCustomComponent : public Component
 {
@@ -164,9 +188,7 @@ private:
 };
 
 
-class PopupConfigurationWindow : public Component,
-    public Slider::Listener,
-    public Button::Listener
+class PopupConfigurationWindow : public Component
 {
 
 public:
@@ -177,13 +199,6 @@ public:
 
     void update(Array<SpikeChannel*> spikeChannels);
 
-
-    void sliderValueChanged(Slider* slider);
-
-    void buttonClicked(Button* button);
-
-    std::unique_ptr<UtilityButton> plusButton;
-
     std::unique_ptr<Viewport> tableViewport;
 
     //std::unique_ptr<TableHeaderComponent> tableHeader;
@@ -192,6 +207,7 @@ public:
 
 private:
     SpikeDetectorEditor* editor;
+
 
 };
 

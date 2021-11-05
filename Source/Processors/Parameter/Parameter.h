@@ -379,6 +379,10 @@ public:
         return maxSelectableChannels;
     }
     
+    void setMaxSelectableChannels(int m_) {
+        maxSelectableChannels = m_;
+     }
+    
     /** Returns a vector of channel selection states (true or false)*/
     std::vector<bool> getChannelStates();
     

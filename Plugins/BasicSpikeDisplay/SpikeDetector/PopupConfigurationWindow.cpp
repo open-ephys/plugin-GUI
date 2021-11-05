@@ -46,6 +46,25 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
 }
 
 
+void ThresholdSelectorCustomComponent::mouseDown(const MouseEvent& event)
+{
+    //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
+    Label::mouseDown(event);
+}
+
+void ThresholdSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
+{
+    row = newRow;
+    columnId = newColumn;
+    setText(threshold->getValueAsString(), dontSendNotification);
+}
+
+void ThresholdSelectorCustomComponent::labelTextChanged(Label* label)
+{
+    threshold->setNextValue(label->getText().getFloatValue());
+}
+
+
 void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
     auto* channelSelector = new PopupChannelSelector(this, channels->getChannelStates());
@@ -140,18 +159,6 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
     bool isRowSelected,
     Component* existingComponentToUpdate)
 {
-
-    //if (columnId == columnId == SpikeDetectorTableModel::Columns::NAME)  // [8]
-    //{
-    //    auto* selectionBox = static_cast<SelectionColumnCustomComponent*> (existingComponentToUpdate);
-
-    //    if (selectionBox == nullptr)
-    //        selectionBox = new SelectionColumnCustomComponent(*this);
-
-     //   selectionBox->setRowAndColumn(rowNumber, columnId);
-     //   return selectionBox;
-    //}
-
     if (columnId == SpikeDetectorTableModel::Columns::NAME)
     {
         auto* textLabel = static_cast<EditableTextCustomComponent*> (existingComponentToUpdate);
@@ -166,13 +173,14 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
         textLabel->setRowAndColumn(rowNumber, columnId);
         
         return textLabel;
-    } else if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
+    }
+    else if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
     {
         auto* channelsLabel = static_cast<ChannelSelectorCustomComponent*> (existingComponentToUpdate);
 
         if (channelsLabel == nullptr)
         {
-            channelsLabel = new ChannelSelectorCustomComponent((SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("channels"));
+            channelsLabel = new ChannelSelectorCustomComponent((SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("local_channels"));
             
         }
 
@@ -180,19 +188,32 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
         channelsLabel->setRowAndColumn(rowNumber, columnId);
         
         return channelsLabel;
-    } else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
+    }
+    else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
     {
         auto* waveformButton = static_cast<WaveformSelectorCustomComponent*> (existingComponentToUpdate);
 
         if (waveformButton == nullptr)
         {
-            waveformButton = new WaveformSelectorCustomComponent((CategoricalParameter*) spikeChannels[rowNumber]->getParameter("waveform"));
+            waveformButton = new WaveformSelectorCustomComponent((CategoricalParameter*) spikeChannels[rowNumber]->getParameter("waveform_type"));
             
         }
 
         waveformButton->setRowAndColumn(rowNumber, columnId);
         
         return waveformButton;
+    } else if (columnId == SpikeDetectorTableModel::Columns::THRESHOLD)
+    {
+        auto* thresholdSelector = static_cast<ThresholdSelectorCustomComponent*> (existingComponentToUpdate);
+
+        if (thresholdSelector == nullptr)
+        {
+            thresholdSelector = new ThresholdSelectorCustomComponent((FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"));
+        }
+
+        thresholdSelector->setRowAndColumn(rowNumber, columnId);
+        
+        return thresholdSelector;
     }
 
     jassert(existingComponentToUpdate == nullptr);
@@ -358,17 +379,14 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
 
     addChildComponent(electrodeTable.get());
 
-    plusButton = std::make_unique<UtilityButton>("+", Font("Default", 16, Font::plain));
-    plusButton->addListener(this);
-    plusButton->setBounds(5, 5, 30, 30);
-    addAndMakeVisible(plusButton.get());
+
 
     update(spikeChannels);
 }
 
 PopupConfigurationWindow::~PopupConfigurationWindow()
 {
-
+    //countMenu.release();
 }
 
 
@@ -396,8 +414,6 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 
         setSize(530 + scrollBarWidth, (numRows + 1) * 30 + 45);
         electrodeTable->setBounds(5, 5, 520 + scrollBarWidth, (numRows + 1) * 30);
-        plusButton->setBounds(5, getHeight() - 35, 30, 30);
-
         electrodeTable->resized();
 
     }
@@ -405,54 +421,4 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
         electrodeTable->setVisible(false);
     }
     
-}
-
-
-
-void PopupConfigurationWindow::sliderValueChanged(Slider* slider)
-{
-
-}
-
-void PopupConfigurationWindow::buttonClicked(Button* button)
-{
-    if (button == plusButton.get())
-    {
-        std::shared_ptr<PopupMenu> countMenu = std::make_shared<PopupMenu>();
-        //std::shared_ptr<PopupMenu> individualSpikeChannelMenu = std::make_shared<PopupMenu>();
-        
-        //OwnedArray<PopupMenu> multipleSpikeChannels;
-
-        for (int i = 15; i > 0; i--)
-        {
-            PopupMenu* menu = new PopupMenu();
-
-            menu->addItem(SpikeChannel::SINGLE + i * 3, "Single Electrodes");
-            menu->addItem(SpikeChannel::STEREOTRODE + i * 3, "Stereotrodes");
-            menu->addItem(SpikeChannel::TETRODE + i * 3, "Tetrodes");
-            
-            //multipleSpikeChannels.add(menu);
-
-            countMenu->addSubMenu(String(i+1), *menu);
-        }
-
-        PopupMenu* menu = new PopupMenu();
-        
-        menu->addItem(SpikeChannel::SINGLE, "Single Electrode");
-        menu->addItem(SpikeChannel::STEREOTRODE, "Stereotrode");
-        menu->addItem(SpikeChannel::TETRODE, "Tetrode");
-
-        countMenu->addSubMenu("1", *menu);
-
-        const int result = countMenu->show();
-
-        if (result == 0)
-            return;
-
-        int numSpikeChannelsToAdd = (result - 1) / 3 + 1;
-        int channelType = (result -1) % 3 + 1;
-
-        editor->addSpikeChannels((SpikeChannel::Type) channelType, numSpikeChannelsToAdd);
-
-    }
 }

@@ -174,13 +174,13 @@ GenericProcessor* Merger::getSourceNode(int path)
     }
 }
 
-void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
+int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChannelGlobalIndex)
 {
 
     for (auto stream : sn->getStreamsForDestNode(this))
     {
         if (checkStream(stream))
-            copyDataStreamSettings(stream);
+            continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
     }
 
     for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
@@ -189,6 +189,8 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
         ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
         configurationObjects.add(ch);
     }
+    
+    return continuousChannelGlobalIndex;
 }
 
 bool Merger::checkStream(const DataStream* stream)
@@ -203,11 +205,13 @@ void Merger::updateSettings()
 {
     
     isEnabled = true;
+    
+    int continuousChannelGlobalIndex = 0;
 
     if (sourceNodeA != nullptr)
     {
         LOGD("   Merger source A found.");
-        addSettingsFromSourceNode(sourceNodeA);
+        continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeA, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeA->isEnabled;
     } else {
         mergeEventsA = true;
@@ -217,7 +221,7 @@ void Merger::updateSettings()
     if (sourceNodeB != nullptr)
     {
         LOGD("   Merger source B found.");
-        addSettingsFromSourceNode(sourceNodeB);
+        continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeB, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeB->isEnabled;
     } else {
         mergeEventsB = true;

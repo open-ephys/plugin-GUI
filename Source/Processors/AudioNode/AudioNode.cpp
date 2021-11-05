@@ -37,6 +37,7 @@ AudioNode::AudioNode()
 
 AudioNode::~AudioNode()
 {
+    std::cout << "AUDIO NODE BEING DELETED." << std::endl;
 }
 
 AudioProcessorEditor* AudioNode::createEditor()

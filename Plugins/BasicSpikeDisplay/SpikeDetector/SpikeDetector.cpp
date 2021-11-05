@@ -61,10 +61,40 @@ bool AbsValueThresholder::checkSample(int channel, float sample)
     
 
 SpikeDetector::SpikeDetector()
-    : GenericProcessor ("Spike Detector")
+    : GenericProcessor ("Spike Detector"),
+      nextAvailableChannel(0)
 {
     
+    addStringParameter(Parameter::SPIKE_CHANNEL_SCOPE,
+                            "name",
+                            "The name of a spike channel",
+                            "Default Name");
+    
+    addCategoricalParameter(Parameter::SPIKE_CHANNEL_SCOPE,
+                            "waveform_type",
+                            "The type of waveform packaged in each spike object",
+                            {"FULL","PEAK"},
+                            0);
+    
+    addFloatParameter(Parameter::SPIKE_CHANNEL_SCOPE,
+                      "threshold",
+                      "The threshold used for spike detection",
+                      -50.0f,
+                      -500.0f,
+                      0.0f,
+                      1.0f);
+    
+    addSelectedChannelsParameter(Parameter::SPIKE_CHANNEL_SCOPE,
+                     "local_channels",
+                     "The local channel indices (within a Data Stream) used for spike detection",
+                     4);
+    
+    
+}
 
+SpikeDetector::~SpikeDetector()
+{
+    //mostRecentParameters.clear();
 }
 
 
@@ -77,43 +107,43 @@ AudioProcessorEditor* SpikeDetector::createEditor()
 void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
+    {
+        p->getSpikeChannel()->setName(p->getValueAsString());
         CoreServices::updateSignalChain(getEditor());
+    }
     
-    else if (p->getName().equalsIgnoreCase("channels"))
+    else if (p->getName().equalsIgnoreCase("local_channels"))
     {
         
-        
         SelectedChannelsParameter* param = (SelectedChannelsParameter*) p;
-        SpikeChannel* spikeChannel = p->getSpikeChannel();
-        uint16 streamId = spikeChannel->getStreamId();
+
+        p->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
         
-        std::cout << "Channels changed for spike channel " << spikeChannel->getName() << " on stream " << streamId << std::endl;
-        
-        Array<const ContinuousChannel*> arr;
-        
-        for (auto i : param->getArrayValue())
-        {
-            const ContinuousChannel* chan = getDataStream(streamId)->getContinuousChannels()[int(i)];
-            std::cout << " --> Adding channel " << i << " : " << chan->getName() << std::endl;
-            arr.add(chan);
-        }
-            
-        
-        p->getSpikeChannel()->setSourceChannels(arr);
         CoreServices::updateSignalChain(getEditor());
-    } else if (p->getName().equalsIgnoreCase("waveform"))
+        
+        
+    } else if (p->getName().equalsIgnoreCase("waveform_type"))
     {
         
-        
-        SelectedChannelsParameter* param = (SelectedChannelsParameter*) p;
+        CategoricalParameter* param = (CategoricalParameter*) p;
         SpikeChannel* spikeChannel = p->getSpikeChannel();
-        uint16 streamId = spikeChannel->getStreamId();
-        
-        std::cout << "Waveform type changed for spike channel " << spikeChannel->getName() << " on stream " << streamId << std::endl;
-        
+
         // switch number of channels!!!
-        //p->getSpikeChannel()->setPrePostSamples(arr);
+        if (param->getSelectedIndex() == 0)
+            spikeChannel->sendFullWaveform = true;
+        else
+            spikeChannel->sendFullWaveform = false;
+
         CoreServices::updateSignalChain(getEditor());
+    }
+    else if (p->getName().equalsIgnoreCase("threshold"))
+    {
+        
+        FloatParameter* param = (FloatParameter*) p;
+        SpikeChannel* spikeChannel = p->getSpikeChannel();
+
+        for (int i = 0; i < spikeChannel->getNumChannels(); i++)
+            spikeChannel->thresholder->setThreshold(i, param->getFloatValue());
     }
         
 }
@@ -125,92 +155,36 @@ void SpikeDetector::updateSettings()
 		overflowBuffer.setSize(getNumInputs(), OVERFLOW_BUFFER_SAMPLES);
 		overflowBuffer.clear();
 	}
-    
-    spikeChannels.clear();
-    
-    {
-        for (int ch = 0; ch < 4; ch++)
-        {
-            std::cout << "Adding tetrode " << ch << std::endl;
-            
-            Array<const ContinuousChannel*> arr;
-            Array<var> channels;
-            int startChan = ch* 4;
-            for (int i= startChan; i < startChan+4; i++)
-            {
-                arr.add(continuousChannels[i]);
-                channels.add(i);
-            }
-                
-            
-            addSpikeChannel("Tetrode " + String(ch + 4), SpikeChannel::TETRODE, arr);
-            
-            spikeChannels.getLast()->addParameter(new StringParameter(this,
-                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
-                                                                      "name",
-                                                                      "the name of this spike channel",
-                                                                      "Tetrode " + String(ch + 4),
-                                                                      true));
-            
-            spikeChannels.getLast()->getParameter("name")->setSpikeChannel(spikeChannels.getLast());
-            
-            
-            
-            spikeChannels.getLast()->addParameter(new SelectedChannelsParameter(this,
-                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
-                                                                      "channels",
-                                                                      "the channels for this spike channel",
-                                                                      channels,
-                                                                      4,
-                                                                      true));
-            
-            spikeChannels.getLast()->getParameter("channels")->setSpikeChannel(spikeChannels.getLast());
-            SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannels.getLast()->getParameter("channels");
-            p->setChannelCount(continuousChannels.size());
-            
-            spikeChannels.getLast()->addParameter(new CategoricalParameter(this,
-                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
-                                                                      "waveform",
-                                                                      "the type of waveform to send",
-                                                                      {"FULL", "PEAK"},
-                                                                      0,
-                                                                      true));
-            
-            spikeChannels.getLast()->getParameter("waveform")->setSpikeChannel(spikeChannels.getLast());
-            
-            spikeChannels.getLast()->addParameter(new FloatParameter(this,
-                                                                      Parameter::SPIKE_CHANNEL_SCOPE,
-                                                                      "threshold",
-                                                                      "the threshold for this channel",
-                                                                      -50.0f,
-                                                                      -250.0f,
-                                                                      0.0f,
-                                                                      5.0f,
-                                                                      false));
-            
-            spikeChannels.getLast()->getParameter("threshold")->setSpikeChannel(spikeChannels.getLast());
-            
-            spikeChannels.getLast()->thresholder = new AbsValueThresholder(4);
-        }
-        
-    }
+
 }
 
 
-void SpikeDetector::addSpikeChannel (const String& name, SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels)
+void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStream)
 {
+    
+    Array<int> localChannels;
+    
+    std::cout << "SpikeDetector adding spike channel." << std::endl;
+    
+    std::cout << "Local channels: ";
+    
+    for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
+    {
+        std::cout << nextAvailableChannel << " ";
+        localChannels.add(nextAvailableChannel++);
+    }
+    
+    std::cout << std::endl;
     
     SpikeChannel::Settings settings
     {
         type,
 
-        name,
-        "a nice little channel",
+        "name",
+        "Spike detector spike channel",
         SpikeChannel::getIdentifierFromType(type),
 
-        getDataStream(sourceChannels[0]->getStreamId()),
-
-        sourceChannels
+        localChannels
 
     };
     
@@ -218,13 +192,12 @@ void SpikeDetector::addSpikeChannel (const String& name, SpikeChannel::Type type
     
     spikeChannels.add(new SpikeChannel(settings));
     spikeChannels.getLast()->addProcessor(processorInfo.get());
+    spikeChannels.getLast()->setDataStream(getDataStream(currentStream), false);
+    
+    spikeChannels.getLast()->thresholder =
+        std::make_unique<AbsValueThresholder>(
+            SpikeChannel::getNumChannels(type));
 
-}
-
-
-float SpikeDetector::getDefaultThreshold() const
-{
-    return -50.0f;
 }
 
 
