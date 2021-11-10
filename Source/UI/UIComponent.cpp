@@ -118,8 +118,16 @@
 UIComponent::~UIComponent()
 {
 	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
+	
 	if (timestampWindow)
 		delete timestampWindow;
+
+	if (pluginInstaller)
+	{
+		pluginInstaller->setVisible(false);
+		delete pluginInstaller;
+	}
+
 	AccessClass::shutdownBroadcaster();
 }
 
@@ -185,7 +193,12 @@ PluginManager* UIComponent::getPluginManager()
 
 PluginInstaller* UIComponent::getPluginInstaller()
 {
-    return pluginInstaller;
+    if (pluginInstaller == nullptr)
+	{
+		pluginInstaller = new PluginInstaller(this->mainWindow);
+		pluginInstaller->setVisible(false);
+	}
+	return pluginInstaller;
 }
 
 void UIComponent::buttonClicked(Button* button)

@@ -139,7 +139,7 @@ void PluginInstaller::createXmlFile()
 			child->removeChildElement(element, true);
 		}
 
-		if (! xml->writeToFile(file, juce::String()))
+		if (! xml->writeTo(file))
 		{
 			LOGE("Error! Couldn't write to installedPlugins.xml");
 		}
@@ -147,6 +147,90 @@ void PluginInstaller::createXmlFile()
 		elementsToRemove.clear();
 
 	}
+}
+
+
+void PluginInstaller::installPluginAndDependency(const String& plugin, String version)
+{
+	PluginInfoComponent tempInfoComponent;
+
+	/** Get list of plugins uploaded to bintray */
+	juce::String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+	juce::String response = URL(baseUrl).readEntireTextStream();
+
+	if(response.isEmpty())
+		LOGD("Unable to fetch plugins! Please check your internet connection and try again.")
+
+	var gatewayData;
+	Result result = JSON::parse(response, gatewayData);
+	
+	juce::String url = gatewayData.getProperty("download_url", var()).toString();
+	tempInfoComponent.setDownloadURL(url);
+
+	var pluginData = gatewayData.getProperty("plugins", var());
+
+	int pIndex;
+	for (int i = 0; i < pluginData.size(); i++)
+	{
+		if(pluginData[i].getProperty("name", "NULL").toString().equalsIgnoreCase(plugin))
+		{
+			pIndex = i;
+			break;
+		}
+	}
+    
+	auto platforms = pluginData[pIndex].getProperty("platforms", "none").getArray();
+
+	if (!platforms->contains(osType))
+	{
+		LOGD("*********** No platform specific package found for ", plugin);
+		return;
+	}
+
+	SelectedPluginInfo requiredPluginInfo;
+
+	requiredPluginInfo.pluginName = plugin;
+	requiredPluginInfo.displayName = pluginData[pIndex].getProperty("display_name", "NULL").toString();
+	requiredPluginInfo.type = pluginData[pIndex].getProperty("type", "NULL").toString();
+	requiredPluginInfo.latestVersion = pluginData[pIndex].getProperty("latest_version", "NULL");
+
+	auto allVersions = pluginData[pIndex].getProperty("versions", "NULL").getArray();
+
+	requiredPluginInfo.versions.clear();
+
+	requiredPluginInfo.dependencies.clear();
+	auto dependencies = pluginData[pIndex].getProperty("dependencies", "NULL").getArray();
+	for (juce::String dependency : *dependencies)
+	{
+		if(!dependency.equalsIgnoreCase("None"))
+		{
+			requiredPluginInfo.dependencies.add(dependency);
+			for (int i = 0; i < pluginData.size(); i++)
+			{
+				if(pluginData[i].getProperty("name", "NULL").toString().equalsIgnoreCase(dependency))
+				{
+					requiredPluginInfo.dependencyVersions.add(pluginData[i].getProperty("latest_version", "NULL").toString());
+					break;
+				}
+			}
+		}
+	}
+
+	tempInfoComponent.setPluginInfo(requiredPluginInfo, false);
+
+	for (int i = 0; i < requiredPluginInfo.dependencies.size(); i++)
+	{
+		tempInfoComponent.downloadPlugin(requiredPluginInfo.dependencies[i], 
+										 requiredPluginInfo.dependencyVersions[i], 
+										 true);
+	}
+	
+	// download the plugin
+	if(version.isEmpty())
+		version = requiredPluginInfo.latestVersion;
+
+	tempInfoComponent.downloadPlugin(requiredPluginInfo.pluginName, version, false);
+
 }
 
 
@@ -760,6 +844,11 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin In
 	downloadButton.setColour(TextButton::buttonColourId, Colours::skyblue);
 	downloadButton.addListener(this);
 
+	addChildComponent(uninstallButton);
+	uninstallButton.setButtonText("Uninstall");
+	uninstallButton.setColour(TextButton::buttonColourId, Colours::crimson);
+	uninstallButton.addListener(this);
+
 	addChildComponent(documentationButton);
 	documentationButton.setButtonText("Documentation");
 	documentationButton.setColour(TextButton::buttonColourId, Colours::lightgrey);
@@ -797,6 +886,7 @@ void PluginInfoComponent::resized()
 	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
 
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
+	uninstallButton.setBounds(getWidth() - (2 * (getWidth() * 0.25)) - 30, getHeight() - 60, getWidth() * 0.25, 30);
 	documentationButton.setBounds(20, getHeight() - 60, getWidth() * 0.25, 30);
 	
 	statusLabel.setBounds(10, (getHeight() / 2) - 15, getWidth() - 10, 30);
@@ -807,6 +897,10 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	if (button == &downloadButton)
 	{
 		this->runThread();
+	}
+	else if(button == &uninstallButton)
+	{
+		uninstallPlugin(pInfo.pluginName);
 	}
 	else if (button == &documentationButton)
 	{
@@ -859,6 +953,7 @@ void PluginInfoComponent::run()
 		pInfo.installedVersion = pInfo.selectedVersion;
 		downloadButton.setEnabled(false);
 		downloadButton.setButtonText("Installed");
+		uninstallButton.setVisible(true);
 
 		if(pInfo.latestVersion.equalsIgnoreCase(pInfo.latestVersion))
 		{
@@ -978,33 +1073,37 @@ void PluginInfoComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	}
 }
 
-void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p)
+void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p, bool shouldUpdateUI)
 {
 	pInfo = p;
-	pluginNameText.setText(pInfo.displayName, dontSendNotification);
-	developersText.setText(pInfo.developers, dontSendNotification);
-	lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
-	descriptionText.setText(pInfo.description, dontSendNotification);
-	if (pInfo.dependencies.isEmpty())
-		dependencyText.setText("None", dontSendNotification);
-	else
-		dependencyText.setText(pInfo.dependencies.joinIntoString(", "), dontSendNotification);
 
-	versionMenu.clear(dontSendNotification);
-
-	if (pInfo.versions.isEmpty())
+	if(shouldUpdateUI)
 	{
-		downloadButton.setEnabled(false);
-		downloadButton.setButtonText("Unavailable");
-	}
-	else
-	{
-		for (int i = 0; i < pInfo.versions.size(); i++)
-			versionMenu.addItem(pInfo.versions[i], i + 1);
+		pluginNameText.setText(pInfo.displayName, dontSendNotification);
+		developersText.setText(pInfo.developers, dontSendNotification);
+		lastUpdatedText.setText(pInfo.lastUpdated, dontSendNotification);
+		descriptionText.setText(pInfo.description, dontSendNotification);
+		if (pInfo.dependencies.isEmpty())
+			dependencyText.setText("None", dontSendNotification);
+		else
+			dependencyText.setText(pInfo.dependencies.joinIntoString(", "), dontSendNotification);
 
-		//set default selected version to the first entry in combo box
-		versionMenu.setSelectedId(1, sendNotification);
-		pInfo.selectedVersion = pInfo.versions[0];
+		versionMenu.clear(dontSendNotification);
+
+		if (pInfo.versions.isEmpty())
+		{
+			downloadButton.setEnabled(false);
+			downloadButton.setButtonText("Unavailable");
+		}
+		else
+		{
+			for (int i = 0; i < pInfo.versions.size(); i++)
+				versionMenu.addItem(pInfo.versions[i], i + 1);
+
+			//set default selected version to the first entry in combo box
+			versionMenu.setSelectedId(1, sendNotification);
+			pInfo.selectedVersion = pInfo.versions[0];
+		}
 	}
 }
 
@@ -1036,6 +1135,64 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 
 	downloadButton.setVisible(isEnabled);
 	documentationButton.setVisible(isEnabled);
+
+	if(pInfo.installedVersion.isNotEmpty())
+		uninstallButton.setVisible(isEnabled);
+}
+
+
+bool PluginInfoComponent::uninstallPlugin(const String& plugin)
+{
+	if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										pInfo.displayName + " is already in use. Please remove it from the signal chain and try again.");
+		
+		LOGD("Plugin present in signal chain! Please remove it before uninstalling the plugin.");
+		return false;	
+	}
+	
+	// Open installedPluings.xml file
+	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
+	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
+
+	XmlDocument doc(xmlFile);
+	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+	juce::String dllName;
+
+	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
+	{
+		LOGD("[PluginInstaller] InstalledPlugins.xml file not found.");
+		return false;
+	}
+	else
+	{	
+		auto pluginElement = xml->getFirstChildElement()->getChildByName(plugin);
+		dllName = pluginElement->getAttributeValue(1);
+		xml->getFirstChildElement()->removeChildElement(pluginElement, true);
+
+		if (! xml->writeTo(xmlFile))
+		{
+			LOGD("Error! Couldn't write to installedPlugins.xml");
+			return false;
+		}
+	}
+
+	//delete plugin file
+	fileStr = "plugins" + File::getSeparatorString() + dllName;
+	File pluginFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);;
+	pluginFile.deleteFile();
+
+	AccessClass::getProcessorList()->fillItemList();
+	AccessClass::getProcessorList()->repaint();
+
+	uninstallButton.setVisible(false);
+	downloadButton.setEnabled(true);
+	downloadButton.setButtonText("Install");
+
+	return true;
 }
 
 int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::String& version, bool isDependency) 
@@ -1216,7 +1373,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	if (!isDependency)
 	{
 		// Write installed plugin's info to XML file
-		if (! xml->writeToFile(xmlFile, juce::String()))
+		if (! xml->writeTo(xmlFile))
 		{
 			LOGE("Error! Couldn't write to installedPlugins.xml");
 			return 5;

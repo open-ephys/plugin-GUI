@@ -319,4 +319,16 @@ namespace CoreServices
 #define STR_DEF(s) XSTR_DEF(s)
 		return STR_DEF(JUCE_APP_VERSION);
 	}
+
+
+	namespace PluginInstaller
+	{
+		bool installPlugin(String plugin, String version)
+		{
+			getUIComponent()->getPluginInstaller()->installPluginAndDependency(plugin, version);
+
+			return true;
+		}
+	}
+
 };

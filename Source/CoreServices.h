@@ -171,6 +171,14 @@ PLUGIN_API File getSavedStateDirectory();
 /** Gets the GUI version */
 PLUGIN_API String getGUIVersion();
 
+
+namespace PluginInstaller
+{
+    /** Installs or updates a specific plugin with a specific version number.
+    * If version number is not specified, it will install the latest version */
+    PLUGIN_API bool installPlugin(String plugin, String version = String());
+}
+
 };
 
 

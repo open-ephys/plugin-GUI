@@ -26,6 +26,9 @@ public:
         commands. */
     ApplicationCommandManager commandManager;
 
+    /** Access method to install a plugin directly without intercating with the Plugin Installer interface*/
+    void installPluginAndDependency(const String& plugin, String version);
+
 private:
 
     /* Pointer to the main window so we can keep in bounds */
@@ -84,7 +87,7 @@ public:
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
     /** Sets selected plugin's info obtained from bintray**/
-    void setPluginInfo(const SelectedPluginInfo& p);
+    void setPluginInfo(const SelectedPluginInfo& p, bool shouldUpdateUI = true);
 
     /** Sets the status message with custom string and makes is visible/hidden **/
     void updateStatusMessage(const String& str, bool isVisible);
@@ -95,6 +98,8 @@ public:
     /** Called when the user hits the 'Download' button for a selected plugin **/
     int downloadPlugin(const String& plugin, const String& version,
                        bool isDependency);
+    
+    bool uninstallPlugin(const String& plugin);
     
     void setDownloadURL(const String& url);
 
@@ -115,6 +120,7 @@ private:
 
     TextButton downloadButton;
     TextButton documentationButton;
+    TextButton uninstallButton;
 
     ComboBox versionMenu;
 
