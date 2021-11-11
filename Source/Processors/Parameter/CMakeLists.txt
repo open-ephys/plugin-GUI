@@ -4,6 +4,8 @@
 add_sources(open-ephys 
 	Parameter.cpp
 	Parameter.h
+	ParameterCollection.cpp
+	ParameterCollection.h
 	ParameterEditor.cpp
 	ParameterEditor.h
 )
