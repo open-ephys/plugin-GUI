@@ -160,6 +160,17 @@ SpikeChannel::Type SpikeChannel::getChannelType() const
 	return type;
 }
 
+bool SpikeChannel::isValid() const
+{
+    for (auto ch : getSourceChannels())
+    {
+        if (ch == nullptr)
+            return false;
+    }
+    
+    return true;
+}
+
 
 const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 {

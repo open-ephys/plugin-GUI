@@ -870,12 +870,12 @@ void GenericProcessor::update()
 	LOGD("Updated custom settings.");
     
     std::cout << "After custom settings -- Num local spike channels: " << spikeChannels.size() << std::endl;
-    std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
+    //std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() //<< std::endl;
 
 	updateChannelIndexMaps();
     
     std::cout << "After channel index maps -- Num local spike channels: " << spikeChannels.size() << std::endl;
-    std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
+   // std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << //std::endl;
 
 	m_needsToSendTimestampMessages.clear();
 	for (auto stream : getDataStreams())

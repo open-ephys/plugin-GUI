@@ -87,6 +87,8 @@ void SpikeDisplayCanvas::update()
 {
 
     std::cout << "Updating SpikeDisplayCanvas" << std::endl;
+    
+    int scrollHeight = viewport->getViewPositionY();
 
     int nPlots = processor->getNumElectrodes();
     processor->removeSpikePlots();
@@ -103,6 +105,8 @@ void SpikeDisplayCanvas::update()
 
     //std::cout << "Resized" << std::endl;
     spikeDisplay->resized();
+    
+    viewport->setViewPosition(0, scrollHeight);
     
 }
 

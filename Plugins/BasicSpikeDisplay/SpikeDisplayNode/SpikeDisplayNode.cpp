@@ -48,24 +48,26 @@ void SpikeDisplayNode::updateSettings()
 
 	for (auto spikeChannel : spikeChannels)
 	{
-        
-        std::cout << "Adding new electrode display for channel " << spikeChannel->getName() << std::endl;
-        
-		Electrode* elec = new Electrode();
-		elec->numChannels = spikeChannel->getNumChannels();
-		elec->bitVolts = spikeChannel->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
-		elec->name = spikeChannel->getName();
-		elec->currentSpikeIndex = 0;
-		elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
-		for (int j = 0; j < elec->numChannels; ++j)
-		{
-			elec->displayThresholds.add(0);
-			elec->detectorThresholds.add(0);
-		}
+        if (spikeChannel->isValid())
+        {
+            std::cout << "Adding new electrode display for channel " << spikeChannel->getName() << std::endl;
+            
+            Electrode* elec = new Electrode();
+            elec->numChannels = spikeChannel->getNumChannels();
+            elec->bitVolts = spikeChannel->getChannelBitVolts(0); //lets assume all channels have the same bitvolts
+            elec->name = spikeChannel->getName();
+            elec->currentSpikeIndex = 0;
+            elec->mostRecentSpikes.ensureStorageAllocated(displayBufferSize);
 
-		electrodes.add(elec);
+            for (int j = 0; j < elec->numChannels; ++j)
+            {
+                elec->displayThresholds.add(0);
+                elec->detectorThresholds.add(0);
+            }
 
+            electrodes.add(elec);
+        }
 	}
 }
 

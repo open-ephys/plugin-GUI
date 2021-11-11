@@ -91,6 +91,9 @@ public:
 
 	/* Get the channel type (SINGLE, STEREOTRODE, TETRODE) */
 	Type getChannelType() const;
+    
+    /** Returns true if all continuous channels are available in the incoming stream */
+    bool isValid() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
 	const Array<const ContinuousChannel*>& getSourceChannels() const;
