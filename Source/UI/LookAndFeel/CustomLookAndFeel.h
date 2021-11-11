@@ -150,6 +150,10 @@ public:
     void drawProgressBar (Graphics&, ProgressBar&, int width, int height, 
                           double progress, const String& textToShow) override;
 
+    // ========= custom document window methods: ===========================
+    Button* createDocumentWindowButton (int) override;
+
+    void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
 private:
 

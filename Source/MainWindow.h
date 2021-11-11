@@ -28,6 +28,7 @@
 #include "UI/UIComponent.h"
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
+#include "UI/DefaultConfig.h"
 
 /**
   The main window for the GUI application.
@@ -65,6 +66,8 @@ public:
     /** Determines whether the ProcessorGraph http server is enabled. */
     bool shouldEnableHttpServer;
 
+    bool openDefaultConfigWindow;
+
     /** Ends the process() callbacks and disables all processors.*/
 	void shutDownGUI();
 
@@ -90,6 +93,9 @@ private:
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     std::unique_ptr<ProcessorGraph> processorGraph;
+
+    /** A weak reference to devfault config window. */
+    WeakReference<DefaultConfigWindow> defaultConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 

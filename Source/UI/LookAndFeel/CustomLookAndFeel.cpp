@@ -756,3 +756,138 @@ void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar,
         g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
     }
 }
+
+//==================================================================
+// DOCUMENT WINDOW METHODS :
+//==================================================================
+
+class CustomDocumentWindowButton   : public Button
+{
+public:
+    CustomDocumentWindowButton (const String& name, Colour c, const Path& normal, const Path& toggled)
+        : Button (name), colour (c), normalShape (normal), toggledShape (toggled)
+    {
+    }
+
+    void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+    {
+        auto background = Colours::darkgrey;
+
+        g.fillAll (background);
+
+        g.setColour ((! isEnabled() || shouldDrawButtonAsDown) ? colour.withAlpha (0.6f)
+                                                     : colour);
+
+        if (shouldDrawButtonAsHighlighted)
+        {
+            g.fillAll();
+            g.setColour (background);
+        }
+
+        auto& p = getToggleState() ? toggledShape : normalShape;
+
+        auto reducedRect = Justification (Justification::centred)
+                              .appliedToRectangle (Rectangle<int> (getHeight(), getHeight()), getLocalBounds())
+                              .toFloat()
+                              .reduced ((float) getHeight() * 0.3f);
+
+        g.fillPath (p, p.getTransformToScaleToFit (reducedRect, true));
+    }
+
+private:
+    Colour colour;
+    Path normalShape, toggledShape;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomDocumentWindowButton)
+};
+
+Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
+{
+    Path shape;
+    auto crossThickness = 0.15f;
+
+    if (buttonType == DocumentWindow::closeButton)
+    {
+        shape.addLineSegment ({ 0.0f, 0.0f, 1.0f, 1.0f }, crossThickness);
+        shape.addLineSegment ({ 1.0f, 0.0f, 0.0f, 1.0f }, crossThickness);
+
+        return new CustomDocumentWindowButton ("close", Colours::white, shape, shape);
+    }
+
+    if (buttonType == DocumentWindow::minimiseButton)
+    {
+        shape.addLineSegment ({ 0.0f, 0.5f, 1.0f, 0.5f }, crossThickness);
+
+        return new CustomDocumentWindowButton ("minimise", Colour (0xffaa8811), shape, shape);
+    }
+
+    if (buttonType == DocumentWindow::maximiseButton)
+    {
+        shape.addLineSegment ({ 0.5f, 0.0f, 0.5f, 1.0f }, crossThickness);
+        shape.addLineSegment ({ 0.0f, 0.5f, 1.0f, 0.5f }, crossThickness);
+
+        Path fullscreenShape;
+        fullscreenShape.startNewSubPath (45.0f, 100.0f);
+        fullscreenShape.lineTo (0.0f, 100.0f);
+        fullscreenShape.lineTo (0.0f, 0.0f);
+        fullscreenShape.lineTo (100.0f, 0.0f);
+        fullscreenShape.lineTo (100.0f, 45.0f);
+        fullscreenShape.addRectangle (45.0f, 45.0f, 100.0f, 100.0f);
+        PathStrokeType (30.0f).createStrokedPath (fullscreenShape, fullscreenShape);
+
+        return new CustomDocumentWindowButton ("maximise", Colour (0xff0A830A), shape, fullscreenShape);
+    }
+
+    jassertfalse;
+    return nullptr;
+}
+
+
+void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Graphics& g,
+                                                 int w, int h, int titleSpaceX, int titleSpaceW,
+                                                 const Image* icon, bool drawTitleTextOnLeft)
+{
+    if (w * h == 0)
+        return;
+
+    auto isActive = window.isActiveWindow();
+
+    g.setColour (Colours::darkgrey);
+    g.fillAll();
+
+    Font font ((float) h * 0.65f, Font::plain);
+    g.setFont (font);
+
+    auto textW = font.getStringWidth (window.getName());
+    auto iconW = 0;
+    auto iconH = 0;
+
+    if (icon != nullptr)
+    {
+        iconH = static_cast<int> (font.getHeight());
+        iconW = icon->getWidth() * iconH / icon->getHeight() + 4;
+    }
+
+    textW = jmin (titleSpaceW, textW + iconW);
+    auto textX = drawTitleTextOnLeft ? titleSpaceX
+                                     : jmax (titleSpaceX, (w - textW) / 2);
+
+    if (textX + textW > titleSpaceX + titleSpaceW)
+        textX = titleSpaceX + titleSpaceW - textW;
+
+    if (icon != nullptr)
+    {
+        g.setOpacity (isActive ? 1.0f : 0.6f);
+        g.drawImageWithin (*icon, textX, (h - iconH) / 2, iconW, iconH,
+                           RectanglePlacement::centred, false);
+        textX += iconW;
+        textW -= iconW;
+    }
+
+    if (window.isColourSpecified (DocumentWindow::textColourId) || isColourSpecified (DocumentWindow::textColourId))
+        g.setColour (window.findColour (DocumentWindow::textColourId));
+    else
+        g.setColour (Colours::whitesmoke);
+
+    g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
+}

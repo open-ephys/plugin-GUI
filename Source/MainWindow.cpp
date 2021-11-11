@@ -38,6 +38,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
+	openDefaultConfigWindow = false;
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -74,6 +75,11 @@ MainWindow::MainWindow(const File& fileToLoad)
     {
         ui->getEditorViewport()->loadState(fileToLoad);
     }
+	else if(openDefaultConfigWindow)
+	{
+		if(defaultConfigWindow == nullptr)
+			defaultConfigWindow = new DefaultConfigWindow(this);
+	}
 	else if (shouldReloadOnStartup)
 	{
 		File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
@@ -126,6 +132,11 @@ MainWindow::~MainWindow()
 	UIComponent* ui = (UIComponent*) getContentComponent();
 	ui->disableDataViewport();
 
+	if(defaultConfigWindow)
+	{
+		delete defaultConfigWindow;
+	}
+	
 	File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
 	File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
 	ui->getEditorViewport()->saveState(lastConfig);
@@ -227,6 +238,9 @@ void MainWindow::loadWindowBounds()
 	std::cout << std::endl;
 
 	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
+
+	if(!file.exists())
+		openDefaultConfigWindow = true;
 
 	XmlDocument doc(file);
 	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();

@@ -8,6 +8,8 @@ add_sources(open-ephys
 	CustomArrowButton.h
 	DataViewport.cpp
 	DataViewport.h
+	DefaultConfig.cpp
+	DefaultConfig.h
 	EditorViewport.cpp
 	EditorViewport.h
 	EditorViewportActions.cpp
