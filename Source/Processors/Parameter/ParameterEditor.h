@@ -138,6 +138,43 @@ private:
     int offset;
 };
 
+class SliderLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    SliderLookAndFeel() { }
+    ~SliderLookAndFeel() { }
+
+    Slider::SliderLayout getSliderLayout (Slider& slider) override;
+
+    void drawRotarySlider (Graphics&, int x, int y, int width, int height,
+                           float sliderPosProportional, float rotaryStartAngle,
+                           float rotaryEndAngle, Slider&) override;
+
+    Label* createSliderTextBox (Slider& slider) override;
+
+private:
+    Colour blue      = Colour::fromFloatRGBA (0.43f, 0.83f, 1.0f,  1.0f);
+    Colour offWhite  = Colour::fromFloatRGBA (0.83f, 0.84f, 0.9f,  1.0f);
+    Colour grey      = Colour::fromFloatRGBA (0.42f, 0.42f, 0.42f, 1.0f);
+    Colour blackGrey = Colour::fromFloatRGBA (0.2f,  0.2f,  0.2f,  1.0f);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SliderLookAndFeel);
+};
+
+class PLUGIN_API CustomSlider : public Slider
+{
+public:
+    CustomSlider();
+    ~CustomSlider();
+
+    void mouseDown (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
+    
+    SliderLookAndFeel sliderLookAndFeel;
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomSlider)
+};
 
 
 /**
@@ -152,16 +189,17 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
 public:
     SliderParameterEditor(Parameter* param);
     virtual ~SliderParameterEditor() { }
-
-    void sliderValueChanged(Slider* slider);
+    
+    void sliderValueChanged(Slider* slider) override;
 
     virtual void updateView() override;
 
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
-    std::unique_ptr<Slider> valueSlider;
+    std::unique_ptr<CustomSlider> slider;
+    
 };
 
 /**

@@ -33,8 +33,3 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
     addMaskChannelsParameterEditor("channels_to_filter", 10, 108);
 
 }
-
-FilterEditor::~FilterEditor()
-{
-    
-}

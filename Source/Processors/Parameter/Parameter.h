@@ -159,6 +159,9 @@ public:
     /** Can be used to directly set the paramete value (but be careful with this)*/
     var currentValue;
     
+    /** Returns a pointer to the processor this parameter is associated with**/
+    GenericProcessor* getProcessor() {return processor; }
+    
 protected:
 
     GenericProcessor* processor;
