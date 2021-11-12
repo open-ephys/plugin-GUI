@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
+#define defaultButtonColour Colour(180,180,180)
 
 PlayButton::PlayButton()
     : DrawableButton("PlayButton", DrawableButton::ImageFitted)
@@ -43,7 +44,7 @@ PlayButton::PlayButton()
     Path p;
     p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
     normal.setPath(p);
-    normal.setFill(Colours::grey);
+    normal.setFill(defaultButtonColour);
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
@@ -76,7 +77,7 @@ RecordButton::RecordButton()
     Path p;
     p.addEllipse(0.0,0.0,20.0,20.0);
     normal.setPath(p);
-    normal.setFill(Colours::grey);
+    normal.setFill(defaultButtonColour);
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
@@ -313,46 +314,32 @@ void Clock::stopRecording()
 }
 
 
-ControlPanelButton::ControlPanelButton(ControlPanel* cp_) : cp(cp_)
+ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
+    : cp(cp_),
+      open(false)
 {
-    open = false;
+    openPath.addTriangle(10.f, 14.398f,
+                         4.f, 4.f,
+                         16.f, 4.f);
+    
+    closedPath = Path(openPath);
+    openPath.applyTransform(AffineTransform::translation(4,4));
+    closedPath.applyTransform(AffineTransform::rotation(MathConstants<float>::pi/2, 10.f, 10.f));
 
     setTooltip("Show/hide recording options");
 }
 
-ControlPanelButton::~ControlPanelButton()
-{
-
-}
-
 void ControlPanelButton::paint(Graphics& g)
 {
-    //g.fillAll(Colour(58,58,58));
-
-    g.setColour(Colours::white);
-
-    Path p;
-
-    float h = getHeight();
-    float w = getWidth();
-
-    if (open)
-    {
-        p.addTriangle(0.5f*w, 0.8f*h,
-                      0.2f*w, 0.2f*h,
-                      0.8f*w, 0.2f*h);
-    }
-    else
-    {
-        p.addTriangle(0.8f*w, 0.8f*h,
-                      0.2f*w, 0.5f*h,
-                      0.8f*w, 0.2f*h);
-    }
+    
+    g.setColour(defaultButtonColour);
 
     PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
 
-    g.strokePath(p, pst);
-
+    if (open)
+        g.strokePath(openPath, pst);
+    else
+        g.strokePath(closedPath, pst);
 }
 
 
@@ -534,7 +521,7 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
         graph->updateConnections();
         graph->startAcquisition();
 
-        playButton->getNormalImage()->replaceColour(Colours::grey, Colours::yellow);
+        playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
 
         if (recordingShouldAlsoStart)
         {
@@ -567,7 +554,7 @@ void ControlPanel::stopAcquisition()
 
     audio->endCallbacks();
     
-    playButton->getNormalImage()->replaceColour(Colours::yellow, Colours::grey);
+    playButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
 
     refreshMeters();
 
@@ -884,6 +871,8 @@ void ControlPanel::startRecording()
     prependText->setEditable(false);
     appendText->setEditable(false);
     dateText->setColour(Label::textColourId, Colours::black);
+    
+    recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
 
     graph->setRecordState(true);
 
@@ -897,6 +886,8 @@ void ControlPanel::stopRecording()
     masterClock->stopRecording();
     newDirectoryButton->setEnabledState(true);
     backgroundColour = Colour (51, 51, 51);
+    
+    recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
 
     prependText->setEditable(true);
     appendText->setEditable(true);

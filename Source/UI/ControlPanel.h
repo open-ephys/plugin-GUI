@@ -225,7 +225,7 @@ class ControlPanelButton : public Component, public SettableTooltipClient
 {
 public:
     ControlPanelButton(ControlPanel* cp_);
-    ~ControlPanelButton();
+    ~ControlPanelButton() { }
 
     /** Returns the open/closed state of the ControlPanelButton.*/
     bool isOpen()
@@ -239,8 +239,6 @@ public:
     /** Sets the open/closed state of the ControlPanelButton.*/
     void setState(bool);
 
-
-
     /** Draws the button. */
     void paint(Graphics& g);
 
@@ -250,9 +248,10 @@ public:
 private:
 
     ControlPanel* cp;
+    
+    Path openPath, closedPath;
 
     bool open;
-
 
 };
 
