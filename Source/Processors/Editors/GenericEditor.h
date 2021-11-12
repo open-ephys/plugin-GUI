@@ -287,6 +287,9 @@ protected:
 
     /** Adds a selected channels editor for a parameter of a given name. */
     void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos);
+    
+    /** Adds a selected channels editor for a parameter of a given name. */
+    void addMaskChannelsParameterEditor(const String& name, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);

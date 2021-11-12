@@ -191,5 +191,31 @@ private:
     std::unique_ptr<UtilityButton> button;
 };
 
+/**
+    Creates a special editor for a MaskChannelsParameter
+
+    Displays all of the channels in the currently active DataStream,
+    and makes it possible to select them by clicking.
+
+*/
+class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
+    public Button::Listener,
+    public PopupChannelSelector::Listener
+{
+public:
+    MaskChannelsParameterEditor(Parameter* param);
+    virtual ~MaskChannelsParameterEditor() { }
+
+    void buttonClicked(Button* label);
+
+    virtual void updateView() override;
+
+    void channelStateChanged(Array<int> selectedChannels);
+
+    virtual void resized();
+
+private:
+    std::unique_ptr<UtilityButton> button;
+};
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

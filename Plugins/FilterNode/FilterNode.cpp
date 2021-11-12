@@ -71,7 +71,7 @@ FilterNode::FilterNode()
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
 
 }
 

@@ -54,7 +54,8 @@ public:
         STRING_PARAM,
         FLOAT_PARAM,
         INT_PARAM,
-        SELECTED_CHANNELS_PARAM
+        SELECTED_CHANNELS_PARAM,
+        MASK_CHANNELS_PARAM
     };
     
     enum ParameterScope
@@ -393,7 +394,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Sets the total number of available channels in this stream*/
-    void setChannelCount(int count) { channelCount = count; }
+    void setChannelCount(int count);
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -407,13 +408,51 @@ private:
 
     Array<var> parseSelectedString(const String& input);
 
+    int maxSelectableChannels;
+    int channelCount;
+};
+
+
+class PLUGIN_API MaskChannelsParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    MaskChannelsParameter(GenericProcessor* processor,
+        ParameterScope scope,
+        const String& name,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as an integer*/
+    Array<int> getArrayValue();
+    
+    /** Returns a vector of channel selection states (true or false)*/
+    std::vector<bool> getChannelStates();
+    
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override;
+
+    /** Sets the total number of available channels in this stream*/
+    void setChannelCount(int count);
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+private:
+
     String maskChannelsToString();
 
     Array<var> parseMaskString(const String& input);
 
-    int maxSelectableChannels;
     int channelCount;
 };
+
 
     /** Returns the default value of a parameter (can be boolean, int, or float).*/
     //var getDefaultValue() const noexcept;

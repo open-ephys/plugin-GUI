@@ -341,23 +341,20 @@ void GenericProcessor::addFloatParameter(
 
 }
 
-void GenericProcessor::addSelectedChannelsParameter(
+void GenericProcessor::addMaskChannelsParameter(
 	Parameter::ParameterScope scope,
     const String& name,
     const String& description,
-	int maxSelectedChannels,
 	bool deactivateDuringAcquisition)
 {
 
 	Array<var> defaultValue;
 
-	SelectedChannelsParameter* p =
-		new SelectedChannelsParameter(this,
+	MaskChannelsParameter* p =
+		new MaskChannelsParameter(this,
 			scope,
 			name,
 			description,
-			defaultValue,
-			maxSelectedChannels,
 			deactivateDuringAcquisition);
 
 	availableParameters.add(p);
@@ -367,6 +364,38 @@ void GenericProcessor::addSelectedChannelsParameter(
 		globalParameterMap[p->getName()] = p;
 	}
 }
+
+
+
+void GenericProcessor::addSelectedChannelsParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
+    int maxSelectedChannels,
+    bool deactivateDuringAcquisition)
+{
+
+    Array<var> defaultValue;
+
+    SelectedChannelsParameter* p =
+        new SelectedChannelsParameter(this,
+            scope,
+            name,
+            description,
+            defaultValue,
+            maxSelectedChannels,
+            deactivateDuringAcquisition);
+
+    availableParameters.add(p);
+
+    if (scope == Parameter::GLOBAL_SCOPE)
+    {
+        globalParameterMap[p->getName()] = p;
+    }
+}
+
+
+
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)
 {
@@ -696,7 +725,6 @@ void GenericProcessor::update()
 	else
 	{
 		// connect first processor in signal chain to message center
-
         messageChannel.reset();
 		messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
         messageChannel->addProcessor(processorInfo.get());
@@ -722,39 +750,46 @@ void GenericProcessor::update()
                     if (param->getType() == Parameter::BOOLEAN_PARAM)
                     {
                         BooleanParameter* p = (BooleanParameter*)param;
-                        stream->addParameter(new BooleanParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new BooleanParameter(*p));
                     }
                     else if (param->getType() == Parameter::STRING_PARAM)
                     {
                         StringParameter* p = (StringParameter*)param;
-                        stream->addParameter(new StringParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new StringParameter(*p));
                     }
                     else if (param->getType() == Parameter::INT_PARAM)
                     {
                         IntParameter* p = (IntParameter*)param;
-                        stream->addParameter(new IntParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new IntParameter(*p));
                     }
                     else if (param->getType() == Parameter::FLOAT_PARAM)
                     {
-                        StringParameter* p = (StringParameter*)param;
-                        stream->addParameter(new StringParameter(*p));
+                        FloatParameter* p = (FloatParameter*)param;
                         p->setDataStream(stream);
+                        stream->addParameter(new FloatParameter(*p));
                     }
                     else if (param->getType() == Parameter::CATEGORICAL_PARAM)
                     {
                         CategoricalParameter* p = (CategoricalParameter*)param;
-                        stream->addParameter(new CategoricalParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new CategoricalParameter(*p));
                     }
                     else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                        stream->addParameter(new SelectedChannelsParameter(*p));
                         p->setChannelCount(stream->getChannelCount());
                         p->setDataStream(stream);
+                        stream->addParameter(new SelectedChannelsParameter(*p));
+                    }
+                    else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                    {
+                        MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+                        p->setChannelCount(stream->getChannelCount());
+                        p->setDataStream(stream);
+                        stream->addParameter(new MaskChannelsParameter(*p));
                     }
                 }
             }
@@ -765,7 +800,6 @@ void GenericProcessor::update()
             {
                if (param->getScope() == Parameter::STREAM_SCOPE)
                {
-
                     if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
@@ -776,91 +810,30 @@ void GenericProcessor::update()
         }
 	}
     
-    // update parameters for spike channels
-    
-    /// UPDATE PARAMETERS FOR SPIKE CHANNELS
-      for (auto spikeChannel : spikeChannels)
+   /// UPDATE PARAMETERS FOR SPIKE CHANNELS
+   for (auto spikeChannel : spikeChannels)
+   {
+      if (spikeChannel->isLocal())
       {
-          if (spikeChannel->isLocal())
+        
+          DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
+          
+          spikeChannel->setDataStream(similarStream, true);
+          
+          int channelCount = similarStream != nullptr ?
+                             similarStream->getChannelCount() : 0;
+          
+          for (auto param : spikeChannel->getParameters())
           {
-            
-              DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
-              
-              spikeChannel->setDataStream(similarStream, true);
-              
-              int channelCount = 0;
-              
-              if (similarStream != nullptr)
-                  channelCount = similarStream->getChannelCount();
-              
-              for (auto param : spikeChannel->getParameters())
+              if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
               {
-              
-                  if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-                   {
-                       
-                      SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
-                         
-                      p->setChannelCount(channelCount);
-                  }
+                   
+                 SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
+                     
+                 p->setChannelCount(channelCount);
               }
-              
-              /*if (spikeChannel->numParameters() == 0)
-              {
-                  std::cout << "No parameters found, adding..." << std::endl;
-                  
-                  for (auto param : availableParameters)
-                  {
-                      if (param->getScope() == Parameter::SPIKE_CHANNEL_SCOPE)
-                      {
-                          if (param->getType() == Parameter::BOOLEAN_PARAM)
-                          {
-                              BooleanParameter* p = (BooleanParameter*)param;
-                              spikeChannel->addParameter(new BooleanParameter(*p));
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                           else if (param->getType() == Parameter::STRING_PARAM)
-                          {
-                              StringParameter* p = (StringParameter*)param;
-                              spikeChannel->addParameter(new StringParameter(*p));
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                          else if (param->getType() == Parameter::INT_PARAM)
-                          {
-                              IntParameter* p = (IntParameter*)param;
-                              spikeChannel->addParameter(new IntParameter(*p));
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                          else if (param->getType() == Parameter::FLOAT_PARAM)
-                          {
-                              StringParameter* p = (StringParameter*)param;
-                              spikeChannel->addParameter(new StringParameter(*p));
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                          else if (param->getType() == Parameter::CATEGORICAL_PARAM)
-                          {
-                              CategoricalParameter* p = (CategoricalParameter*)param;
-                              spikeChannel->addParameter(new CategoricalParameter(*p));
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                          else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-                          {
-                              SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                              spikeChannel->addParameter(new SelectedChannelsParameter(*p));
-                              p->setChannelCount(channelCount);
-                              p->setSpikeChannel(spikeChannel);
-                          }
-                      }
-                  }
-              }*/
-              /*else
-              {
-                  for (auto param : availableParameters)
-                  {
-                      
-                  }
-              }*/
           }
+       }
     }
 
 	updateSettings(); // allow processors to change custom settings, 
@@ -1523,7 +1496,7 @@ void GenericProcessor::loadFromXml()
                     getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
             }
             
-			/*if (xmlNode->hasTagName("STREAM"))
+			if (xmlNode->hasTagName("STREAM"))
 			{
 				if (availableStreams.size() > streamIndex)
 				{
@@ -1533,11 +1506,11 @@ void GenericProcessor::loadFromXml()
                     {
                         if (streamParams->hasTagName("PARAMETERS"))
                         {
-                            for (int i = 0; i < xmlNode->getNumAttributes(); i++)
+                            for (int i = 0; i < streamParams->getNumAttributes(); i++)
                             {
-                                Parameter* p = availableStreams[streamIndex]->getParameter(xmlNode->getAttributeName(i));
+                                Parameter* p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
                                 if (p != nullptr)
-                                    p->fromXml(xmlNode);
+                                    p->fromXml(streamParams);
                             }
                         }
                     }
@@ -1547,7 +1520,7 @@ void GenericProcessor::loadFromXml()
 				}
 
 				streamIndex++;
-			}*/
+			}
 		}
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)

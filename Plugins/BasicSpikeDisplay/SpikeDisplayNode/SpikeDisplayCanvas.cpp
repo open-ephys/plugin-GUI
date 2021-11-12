@@ -64,11 +64,6 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
 
 }
 
-SpikeDisplayCanvas::~SpikeDisplayCanvas()
-{
-    processor->removeSpikePlots();
-}
-
 void SpikeDisplayCanvas::beginAnimation()
 {
     std::cout << "SpikeDisplayCanvas beginning animation." << std::endl;

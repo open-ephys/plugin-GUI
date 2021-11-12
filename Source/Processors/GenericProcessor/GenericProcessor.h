@@ -303,6 +303,12 @@ public:
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
+    
+    /** Adds a mask channels parameter, which will later be accessed by name*/
+    void addMaskChannelsParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
     void addCategoricalParameter(Parameter::ParameterScope scope,

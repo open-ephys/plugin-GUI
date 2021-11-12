@@ -67,6 +67,13 @@ void ParameterCollection::copyParametersTo(InfoObject* obj)
             setParameterOwner(p, obj);
             
         }
+        else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
+        {
+            MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
+            obj->addParameter(new MaskChannelsParameter(*p));
+            setParameterOwner(p, obj);
+            
+        }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
             CategoricalParameter* p = (CategoricalParameter*) parameter;
@@ -135,6 +142,13 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
             addParameter(new SelectedChannelsParameter(*p));
+            clearParameterOwner(p);
+            
+        }
+        else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
+        {
+            MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
+            addParameter(new MaskChannelsParameter(*p));
             clearParameterOwner(p);
             
         }

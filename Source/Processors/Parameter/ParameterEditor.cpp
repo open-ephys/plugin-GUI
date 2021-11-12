@@ -227,7 +227,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
         valueSlider->setValue(p->getIntValue(), dontSendNotification);
     }
 
-    setBounds(0, 0, 100, 42);
+    setBounds(0, 0, 120, 42);
 
 }
 
@@ -239,8 +239,20 @@ void SliderParameterEditor::sliderValueChanged(Slider* slider)
 void SliderParameterEditor::updateView()
 {
     if (param != nullptr)
-        valueSlider->setValue(param->getValue(), dontSendNotification);
-    
+    {
+        if (param->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*)param;
+
+            valueSlider->setValue(p->getFloatValue(), dontSendNotification);
+        }
+        else {
+            IntParameter* p = (IntParameter*)param;
+
+            valueSlider->setValue(p->getIntValue(), dontSendNotification);
+        }
+    }
+        
     repaint();
 }
 
@@ -248,7 +260,7 @@ void SliderParameterEditor::resized()
 {
 
     parameterNameLabel->setBounds(0, 0, 80, 20);
-    valueSlider->setBounds(0, 22, 100, 18);
+    valueSlider->setBounds(0, 22, 120, 18);
 }
 
 
@@ -298,6 +310,58 @@ void SelectedChannelsParameterEditor::updateView()
 }
 
 void SelectedChannelsParameterEditor::resized()
+{
+    button->setBounds(0, 0, 80, 20);
+}
+
+
+
+MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
+{
+
+    button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));
+    button->addListener(this);
+    button->setClickingTogglesState(false);
+    button->setTooltip("Mask channels to filter within this stream");
+    addAndMakeVisible(button.get());
+
+    setBounds(0, 0, 80, 42);
+}
+
+void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
+{
+    Array<var> newArray;
+
+    for (int i = 0; i < newChannels.size(); i++)
+        newArray.add(newChannels[i]);
+    
+    param->setNextValue(newArray);
+
+}
+
+void MaskChannelsParameterEditor::buttonClicked(Button* button_)
+{
+
+    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+
+    auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
+
+    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+            button->getScreenBounds(),
+            nullptr);
+
+    //myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+}
+
+void MaskChannelsParameterEditor::updateView()
+{
+}
+
+void MaskChannelsParameterEditor::resized()
 {
     button->setBounds(0, 0, 80, 20);
 }

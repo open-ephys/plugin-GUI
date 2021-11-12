@@ -72,7 +72,7 @@ class SpikeDisplayCanvas : public Visualizer, public Button::Listener
 {
 public:
     SpikeDisplayCanvas(SpikeDisplayNode* n);
-    ~SpikeDisplayCanvas();
+    ~SpikeDisplayCanvas() { }
 
     void paint(Graphics& g);
 

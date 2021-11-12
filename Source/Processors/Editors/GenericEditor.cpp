@@ -124,6 +124,8 @@ void GenericEditor::addCheckBoxParameterEditor(const String& parameterName, int 
 
 void GenericEditor::addSliderParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
+    
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
     Parameter* param = getProcessor()->getParameter(parameterName);
 
@@ -143,9 +145,21 @@ void GenericEditor::addComboBoxParameterEditor(const String& parameterName, int 
 void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    
     Parameter* param = getProcessor()->getParameter(parameterName);
 
     addCustomParameterEditor(new SelectedChannelsParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addMaskChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
+
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new MaskChannelsParameterEditor(param), xPos_, yPos_);
 }
 
 
@@ -1080,6 +1094,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         
         Parameter* param = getProcessor()->getParameter(parameterName);
         
+        if (param == nullptr)
+            continue;
+        
         if (param->getScope() == Parameter::GLOBAL_SCOPE)
         {
             ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
@@ -1088,6 +1105,12 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         {
             std::cout << "Updating parameter!" << std::endl;
             ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
+            
+            if (getProcessor()->getDataStream(streamId)->getParameter(param->getName())->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+            {
+                SelectedChannelsParameter* p = (SelectedChannelsParameter*) getProcessor()->getDataStream(streamId)->getParameter(param->getName());
+                std::cout << "CHANNEL COUNT: " << p->getChannelStates().size() << std::endl;
+            }
         }
         
         ed->updateView();
