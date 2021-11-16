@@ -131,11 +131,6 @@ MainWindow::~MainWindow()
 	audioComponent->disconnectProcessorGraph();
 	UIComponent* ui = (UIComponent*) getContentComponent();
 	ui->disableDataViewport();
-
-	if(defaultConfigWindow)
-	{
-		delete defaultConfigWindow;
-	}
 	
 	File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
 	File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");

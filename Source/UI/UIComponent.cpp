@@ -128,6 +128,9 @@ UIComponent::~UIComponent()
 		delete pluginInstaller;
 	}
 
+	if(defaultConfigWindow)
+		delete defaultConfigWindow;
+
 	AccessClass::shutdownBroadcaster();
 }
 
@@ -422,6 +425,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, toggleHttpServer);
 		menu.addSeparator();
+		menu.addCommandItem(commandManager, openDefaultConfigWindow);
+		menu.addSeparator();
 		menu.addCommandItem(commandManager, openPluginInstaller);
 
 #if !JUCE_MAC
@@ -497,7 +502,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		showHelp,
 		resizeWindow,
 		openTimestampSelectionWindow,
-		openPluginInstaller
+		openPluginInstaller,
+		openDefaultConfigWindow
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -603,6 +609,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
 			result.addDefaultKeypress('P', ModifierKeys::commandModifier);
+			break;
+		
+		case openDefaultConfigWindow:
+			result.setInfo("Load a default config", "Load a default configuration", "General", 0);
+			result.addDefaultKeypress('D', ModifierKeys::commandModifier);
 			break;
 
 		case showHelp:
@@ -825,6 +836,12 @@ bool UIComponent::perform(const InvocationInfo& info)
 				}
 				pluginInstaller->setVisible(true);
 				pluginInstaller->toFront(true);
+				break;
+			}
+
+		case openDefaultConfigWindow:
+			{
+				defaultConfigWindow = new DefaultConfigWindow(this->mainWindow);
 				break;
 			}
 

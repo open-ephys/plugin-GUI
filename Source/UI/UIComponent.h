@@ -28,6 +28,7 @@
 #include "TimestampSourceSelection.h"
 #include "PluginInstaller.h"
 #include "MessageCenterButton.h"
+#include "DefaultConfig.h"
 
 class MainWindow;
 class ProcessorList;
@@ -43,6 +44,7 @@ class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
 class TimestampSourceSelectionWindow;
+class DefaultConfigWindow;
 
 /**
 
@@ -165,6 +167,8 @@ private:
 
     WeakReference<PluginInstaller> pluginInstaller;
 
+    WeakReference<DefaultConfigWindow> defaultConfigWindow;
+
     Viewport processorListViewport;
 
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
@@ -204,6 +208,7 @@ private:
         saveSignalChainAs       = 0x2014,
 		openTimestampSelectionWindow = 0x2015,
         openPluginInstaller     = 0x2016,
+        openDefaultConfigWindow = 0x2017,
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
         

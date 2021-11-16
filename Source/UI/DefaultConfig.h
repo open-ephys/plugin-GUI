@@ -45,6 +45,8 @@ private:
     /* Pointer to the main window so we can keep in bounds */
     DocumentWindow* parent;
 
+    DialogWindow* configWindow;
+
     DefaultConfigComponent* configComponent;
 
     WeakReference<DefaultConfigWindow>::Master masterReference;

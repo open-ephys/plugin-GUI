@@ -40,6 +40,13 @@ DefaultConfigWindow::DefaultConfigWindow(MainWindow* mainWindow)
 
 DefaultConfigWindow::~DefaultConfigWindow()
 {
+	if(configWindow != nullptr)
+	{
+		configWindow->exitModalState (0);
+
+		delete configWindow;
+	}
+	
 	masterReference.clear();
 }
 
@@ -63,7 +70,7 @@ void DefaultConfigWindow::launchWindow()
 	options.useNativeTitleBar             = false;
 	options.resizable 					  = false;
 
-	options.launchAsync();
+	configWindow = options.launchAsync();
 
 }
 
@@ -82,12 +89,11 @@ DefaultConfigComponent::DefaultConfigComponent()
 	configLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(configLabel.get());
 
-	File configsDir = CoreServices::getSavedStateDirectory().getChildFile("default-configs");
+	File configsDir = CoreServices::getSavedStateDirectory().getChildFile("configs");
 	auto configFiles = configsDir.findChildFiles(File::findFiles, true, "*.xml");
 
 	configSelector = std::make_unique<ComboBox>("Config Selector");
-	configSelector->setJustificationType(Justification::centred);
-	configSelector->setTextWhenNothingSelected("-------------");
+	configSelector->setJustificationType(Justification::centredLeft);
 	
 	int id = 1;
 
@@ -96,12 +102,13 @@ DefaultConfigComponent::DefaultConfigComponent()
 		configSelector->addItem(file.getFileNameWithoutExtension(), id);
 		id++;
 	}
-
+	configSelector->setSelectedId(1, dontSendNotification);
 	addAndMakeVisible(configSelector.get());
 
 	goButton = std::make_unique<TextButton>("Go");
 	goButton->setButtonText("Go!");
 	goButton->setColour(TextButton::buttonColourId, Colours::lightgreen);
+	goButton->addListener(this);
 	addAndMakeVisible(goButton.get());
 
 }
@@ -129,6 +136,17 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 {
 	if(button == goButton.get())
 	{
-		// AccessClass::getUIComponent()->getEditorViewport()->loadState();
+		// Get selected config file name with full path
+		String fileName = configSelector->getItemText(configSelector->getSelectedItemIndex());
+		String filePath = "configs" + File::getSeparatorString() + fileName + ".xml";
+		File configFile = CoreServices::getSavedStateDirectory().getChildFile(filePath);
+
+		// Load the config file
+		AccessClass::getUIComponent()->getEditorViewport()->loadState(configFile);
+
+		// Close config window after loading the config file
+		if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
+    		dw->exitModalState (0);
+
 	}
 }
