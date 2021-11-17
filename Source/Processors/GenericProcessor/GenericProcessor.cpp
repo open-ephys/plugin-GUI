@@ -1076,13 +1076,16 @@ int GenericProcessor::processEventBuffer()
 				processStartTimes[sourceStreamId] = initialTicks;
 					
 			}
-			//else {
-			//	std::cout << nodeId << " : " << " received event" << std::endl;
-			//}
-			//set the "recorded" bit on the first byte. This will go away when the probe system is implemented.
-			//doing a const cast is always a bad idea, but there's no better way to do this until whe change the event record system
-			//if (nodeId < 900) //If the processor is not a specialized one
-			//	*const_cast<uint8*>(dataptr + 0) = *(dataptr + 0) | 0x80;
+            else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+                     && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TTL))
+            {
+                uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
+                uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 16);
+                bool eventState = *reinterpret_cast<const bool*>(dataptr + 17);
+                
+                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+
+            }
 		}
 	}
 
@@ -1117,17 +1120,6 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 				if (eventChannel != nullptr)
 				{
 					handleEvent(eventChannel, message, meta.samplePosition);
-
-					if (eventChannel->getType() == EventChannel::Type::TTL)
-					{
-						// FIXME: Crashes for any sources that generate TTL events
-						
-						//getEditor()->setTTLState(sourceStreamId,
-						//		TTLEvent::getBit(message),
-						//		TTLEvent::getState(message)
-						//	);
-						
-					}
 				}
 
 			}
@@ -1168,6 +1160,20 @@ void GenericProcessor::addEvent(const Event* event, int sampleNum)
 	event->serialize(buffer, size);
 
 	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
+    
+    if (event->getBaseType() == Event::Type::PROCESSOR_EVENT)
+    {
+        if (event->getEventType() == EventChannel::Type::TTL)
+        {
+            
+            const uint8* dataptr = reinterpret_cast<const uint8*>(event->getRawDataPointer());
+            
+            getEditor()->setTTLState(event->getStreamId(),
+                                     *(dataptr),
+                                     *(dataptr+1));
+        }
+    }
+    
 }
 
 void GenericProcessor::addTTLChannel(String name)

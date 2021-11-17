@@ -526,8 +526,8 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
         uint8 ttlBit = events.channels[i];
         bool state = events.channelStates[i] > 0;
-        //FIXME: Needs to create event on the correct channel, not just index 1
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[1], events.timestamps[i], ttlBit, state);
+        //FIXME: Needs to create event on the correct channel, not just index 0
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
         //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(event, absoluteCurrentTimestamp); 
     }

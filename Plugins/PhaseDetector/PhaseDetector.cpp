@@ -114,10 +114,10 @@ void PhaseDetector::updateSettings()
 	for (auto stream : getDataStreams())
 	{
         // update "settings" objects
-        parameterValueChanged(getParameter(stream->getStreamId(), "phase"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "input_channel"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "output_bit"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "gate_bit"));
+        parameterValueChanged(stream->getParameter("phase"));
+        parameterValueChanged(stream->getParameter("input_channel"));
+        parameterValueChanged(stream->getParameter("output_bit"));
+        parameterValueChanged(stream->getParameter("gate_bit"));
 
         EventChannel::Settings s{
             EventChannel::Type::TTL,
@@ -250,7 +250,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
 
                 if (module->wasTriggered)
                 {
-                    if (module->samplesSinceTrigger > 1000)
+                    if (module->samplesSinceTrigger > 2000)
                     {
                         TTLEventPtr ptr = module->createEvent(
                             getTimestamp(module->triggerChannel) + i,

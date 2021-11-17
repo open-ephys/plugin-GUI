@@ -75,7 +75,7 @@ public:
 	int updateSettings(Array<EventChannel*> eventChannels);
 
     void setState(int bit, bool state);
-
+    
     void startAcquisition();
     void stopAcquisition();
 

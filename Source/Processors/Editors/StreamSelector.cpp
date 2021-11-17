@@ -124,8 +124,9 @@ void StreamInfoView::buttonClicked(Button* button)
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(3, 38, 15, 15);
-    delayMonitor->setBounds(38, 58, 60, 15);
+    enableButton->setBounds(3, 35, 15, 15);
+    delayMonitor->setBounds(88, 35, 60, 12);
+    ttlMonitor->setBounds(10, 59, 120, 12);
 }
 
 void StreamInfoView::paint(Graphics& g)
@@ -138,9 +139,7 @@ void StreamInfoView::paint(Graphics& g)
 
     g.setFont(12);
     g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
-    g.drawText("Enabled", 22, 40, 60, 12, Justification::left);
-
-    g.drawText("Delay:", 5, 60, 60, 12, Justification::left);
+    g.drawText("Enabled", 22, 38, 60, 12, Justification::left);
 
 }
 
