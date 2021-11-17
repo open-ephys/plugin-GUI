@@ -58,9 +58,15 @@ uint16 StreamInfoView::getStreamId() const
 
 void StreamInfoView::updateInfoString()
 {
+    
+    String channelString = " channel";
+    
+    if (stream->getChannelCount() > 1)
+        channelString += "s";
+    
     infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
         + "\n"
-        + String(stream->getChannelCount()) + " channels @ " +
+        + String(stream->getChannelCount()) + channelString + " @ " +
         String(stream->getSampleRate()) + " Hz";
 
 }

@@ -1626,7 +1626,7 @@ int GenericProcessor::getNumInputs() const
 { 
 	if (sourceNode != nullptr)
 	{
-		return sourceNode->continuousChannels.size();
+		return continuousChannels.size();
 	}
 	else {
 		return 0;

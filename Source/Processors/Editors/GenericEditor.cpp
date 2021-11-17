@@ -503,12 +503,14 @@ void GenericEditor::update(bool isEnabled_)
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
-    ttlMonitors[streamId]->setState(bit, state);
+    if (ttlMonitors.find(streamId) != ttlMonitors.end())
+        ttlMonitors[streamId]->setState(bit, state);
 }
 
 void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
 {
-    delayMonitors[streamId]->setDelay(latencyMs);
+    if (delayMonitors.find(streamId) != delayMonitors.end())
+        delayMonitors[streamId]->setDelay(latencyMs);
 }
 
 bool GenericEditor::getCollapsedState()
@@ -1130,7 +1132,8 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
     
     getProcessor()->setStreamEnabled(streamId, isEnabled);
 
-    //CoreServices::updateSignalChain(this);
+    if (isMerger() || isSplitter())
+        CoreServices::updateSignalChain(this);
 
 }
 

@@ -39,7 +39,7 @@ class ParameterEditor : public Component
 {
 public:
 
-    ParameterEditor(Parameter* param_) : param(param_) { }
+    ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) { }
 
     virtual ~ParameterEditor() { }
 
@@ -56,10 +56,12 @@ public:
         return param->shouldDeactivateDuringAcquisition();
     }
 
-    const String getParameterName() { return param->getName(); }
+    const String getParameterName() { return name; }
 
 protected:
     Parameter* param;
+    
+    String name;
 };
 
 /** 
