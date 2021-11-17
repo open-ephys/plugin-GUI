@@ -36,7 +36,7 @@
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
-#include "../../Processors/MessageCenter/MessageCenterEditor.h"
+#include "../MessageCenter/MessageCenterEditor.h"
 
 #include <exception>
 
@@ -686,51 +686,54 @@ void GenericProcessor::update()
 	processorInfo.reset();
 	processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
    
-	if (sourceNode != nullptr)
-	{
-		// copy settings from source node
-        messageChannel.reset();
-		messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
+    if (!isMerger()) // only has one source
+    {
+        if (sourceNode != nullptr)
+        {
+            int continuousChannelGlobalIndex = 0;
+
+            // copy settings from source node
+            messageChannel.reset();
+            messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+
+            if (sourceNode->isSplitter())
+            {
+                Splitter* splitter = (Splitter*) sourceNode;
+
+                for (auto stream : splitter->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
+            }
+            else {
+                for (auto stream : sourceNode->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
+            }
+
+            for (auto configurationObject : sourceNode->configurationObjects)
+            {
+                configurationObjects.add(new ConfigurationObject(*configurationObject));
+            }
+
+            isEnabled = sourceNode->isEnabled;
+                
+        }
+        else
+        {
+            // connect first processor in signal chain to message center
+            messageChannel.reset();
+            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+
+            LOGD(getNodeId(), " connected to Message Center");
+        }
+    } else {
         
-        int continuousChannelGlobalIndex = 0;
-
-		if (!isMerger())
-		{
-
-			if (sourceNode->isSplitter())
-			{
-				Splitter* splitter = (Splitter*)sourceNode;
-
-				for (auto stream : splitter->getStreamsForDestNode(this))
-				{
-					continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
-				}
-			}
-			else {
-				for (auto stream : sourceNode->getStreamsForDestNode(this))
-				{
-					continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
-				}
-			}
-
-			for (auto configurationObject : sourceNode->configurationObjects)
-			{
-				configurationObjects.add(new ConfigurationObject(*configurationObject));
-			}
-
-			isEnabled = sourceNode->isEnabled;
-		}
-	}
-	else
-	{
-		// connect first processor in signal chain to message center
-        messageChannel.reset();
-		messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
-
-		LOGD(getNodeId(), " connected to Message Center");
-	}
+        updateSettings(); // only for Merger
+    }
 
 	updateChannelIndexMaps();
 
@@ -836,9 +839,10 @@ void GenericProcessor::update()
        }
     }
 
-	updateSettings(); // allow processors to change custom settings, 
-					  // including creation of streams / channels and
-					  // setting isEnabled variable
+    if (!isMerger())
+        updateSettings(); // allow processors to change custom settings,
+                          // including creation of streams / channels and
+                          // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
     
@@ -1403,7 +1407,7 @@ const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 
 void GenericProcessor::saveToXml(XmlElement* xml)
 {
-	xml->setAttribute("NodeId", nodeId);
+	xml->setAttribute("nodeId", nodeId);
     
     XmlElement* paramsXml = xml->createNewChildElement("GLOBAL_PARAMETERS");
     

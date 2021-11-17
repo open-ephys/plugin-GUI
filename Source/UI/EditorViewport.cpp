@@ -1762,8 +1762,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     String error = "Opened ";
     error += currentFile.getFileName();
 
-    //delete xml;
-
     loadingConfig = false;
     
     return error;
