@@ -49,8 +49,6 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     addAndMakeVisible(ttlMonitor.get());
 }
 
-StreamInfoView::~StreamInfoView() {}
-
 uint16 StreamInfoView::getStreamId() const
 {
     return stream->getStreamId();
@@ -180,12 +178,6 @@ StreamSelector::StreamSelector(GenericEditor* ed_) :
     addAndMakeVisible(streamSelectorButton.get());
 
     scrollOffset.reset(4);
-}
-
-
-StreamSelector::~StreamSelector()
-{
-
 }
 
 StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
@@ -390,10 +382,6 @@ const DataStream* StreamSelector::getCurrentStream()
         return nullptr;
 }
 
-void StreamSelector::clear()
-{
-    streams.clear();
-}
 
 void StreamSelector::add(const DataStream* stream)
 {
