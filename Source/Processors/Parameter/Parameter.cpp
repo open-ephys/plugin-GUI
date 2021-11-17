@@ -475,7 +475,7 @@ MaskChannelsParameter::MaskChannelsParameter(GenericProcessor* processor_,
     const String& description,
     bool deactivateDuringAcquisition)
     : Parameter(processor_,
-        ParameterType::SELECTED_CHANNELS_PARAM,
+        ParameterType::MASK_CHANNELS_PARAM,
         scope,
         name,
         description,
@@ -588,6 +588,20 @@ Array<var> MaskChannelsParameter::parseMaskString(const String& input)
 
 void MaskChannelsParameter::setChannelCount(int count)
 {
+    
+    Array<var>* value = currentValue.getArray();
+    
+    if (channelCount < count)
+    {
+        for (int i = channelCount; i < count; i++)
+            value->add(i);
+        
+    } else if (channelCount > count)
+    {
+        for (int i = count; i < channelCount; i++)
+            value->remove(value->indexOf(var(i)));
+    }
+    
     channelCount = count;
     
     std::cout << getName() << " setting channel count to " << count << std::endl;

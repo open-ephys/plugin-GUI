@@ -466,12 +466,13 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
 void MaskChannelsParameterEditor::buttonClicked(Button* button_)
 {
 
-    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+    MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+    
+    std::vector<bool> channelStates = p->getChannelStates();
 
-    auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
+    auto* channelSelector = new PopupChannelSelector(this, channelStates);
 
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
-    channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),

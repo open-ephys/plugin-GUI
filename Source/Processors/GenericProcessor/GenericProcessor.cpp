@@ -827,6 +827,10 @@ void GenericProcessor::update()
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
                         p->setChannelCount(stream->getChannelCount());
+                    } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                    {
+                        MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
+                        p->setChannelCount(stream->getChannelCount());
                     }
                }
             }
