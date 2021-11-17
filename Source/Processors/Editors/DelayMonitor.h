@@ -38,6 +38,8 @@ public:
 	~DelayMonitor();
 
     void setDelay(float delayMs);
+    
+    void setEnabled(bool isEnabled);
 
     void paint(Graphics& g);
 
@@ -49,7 +51,10 @@ public:
 
 private:
     
-
+    bool isEnabled;
+    
+    Colour colour;
+    
     float delay;
 };
 

@@ -42,11 +42,18 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(enableButton.get());
 
-    delayMonitor = std::make_unique<DelayMonitor>();
-    addAndMakeVisible(delayMonitor.get());
+    if (!editor->isSplitter() && !editor->isMerger())
+    {
+        delayMonitor = std::make_unique<DelayMonitor>();
+        addAndMakeVisible(delayMonitor.get());
 
-    ttlMonitor = std::make_unique<TTLMonitor>();
-    addAndMakeVisible(ttlMonitor.get());
+        ttlMonitor = std::make_unique<TTLMonitor>();
+        addAndMakeVisible(ttlMonitor.get());
+        
+        enabledString = "Bypass";
+    } else {
+        enabledString = "Send downstream";
+    }
 }
 
 uint16 StreamInfoView::getStreamId() const
@@ -78,24 +85,31 @@ void StreamInfoView::setEnabled(bool state)
 {
     isEnabled = state;
 
-    if (isEnabled)
-        enableButton->setButtonText("x");
-    else
-        enableButton->setButtonText(" ");
-
+    enableButton->setToggleState(state, dontSendNotification);
     enableButton->repaint();
+    
+    if (delayMonitor != nullptr)
+        delayMonitor->setEnabled(state);
 }
 
 void StreamInfoView::startAcquisition()
 {
-    delayMonitor->startAcquisition();
-    ttlMonitor->startAcquisition();
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->startAcquisition();
+        ttlMonitor->startAcquisition();
+    }
+    
 }
 
 void StreamInfoView::stopAcquisition()
 {
-    delayMonitor->stopAcquisition();
-    ttlMonitor->stopAcquisition();
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->stopAcquisition();
+        ttlMonitor->stopAcquisition();
+    }
+    
 }
 
 void StreamInfoView::beginUpdate()
@@ -128,9 +142,14 @@ void StreamInfoView::buttonClicked(Button* button)
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(3, 35, 15, 15);
-    delayMonitor->setBounds(88, 35, 60, 12);
-    ttlMonitor->setBounds(10, 59, 120, 12);
+    enableButton->setBounds(6, 38, 12, 12);
+    
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->setBounds(88, 35, 60, 12);
+        ttlMonitor->setBounds(10, 59, 120, 12);
+    }
+    
 }
 
 void StreamInfoView::paint(Graphics& g)
@@ -143,7 +162,7 @@ void StreamInfoView::paint(Graphics& g)
 
     g.setFont(12);
     g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
-    g.drawText("Enabled", 22, 38, 60, 12, Justification::left);
+    g.drawText(enabledString, 22, 38, 120, 12, Justification::left);
 
 }
 
@@ -487,12 +506,15 @@ StreamEnableButton::StreamEnableButton(const String& name) :
 
 void StreamEnableButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState())
-        g.setColour(Colours::yellow);
-    else
-        g.setColour(Colours::darkgrey);
-
-    g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
+ 
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(), 1.0);
+    
+    if (!getToggleState())
+    {
+        g.drawLine(0, 0, getWidth(), getHeight(), 1.0);
+        g.drawLine(0, getHeight(), getWidth(), 0, 1.0);
+    }
 }
 
 

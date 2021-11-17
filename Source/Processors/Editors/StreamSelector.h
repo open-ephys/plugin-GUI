@@ -116,6 +116,7 @@ private:
     bool isEnabled;
 
     String infoString;
+    String enabledString;
 
     GenericEditor* editor;
 

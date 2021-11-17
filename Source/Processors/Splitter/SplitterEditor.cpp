@@ -223,7 +223,7 @@ bool SplitterEditor::checkStream(const DataStream* stream, Splitter::Output outp
 }
 
 
-void SplitterEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
+void SplitterEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, bool isLoading)
 {
 
     if (streamSelectorA->isVisible())
@@ -231,7 +231,8 @@ void SplitterEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
     else
         streamSelectorB->setStreamEnabledState(streamId, isEnabled);
 
-    CoreServices::updateSignalChain(this);
+    if (!isLoading)
+        CoreServices::updateSignalChain(this);
 }
 
 void SplitterEditor::updateSettings()

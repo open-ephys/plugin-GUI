@@ -1124,7 +1124,7 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
 void GenericEditor::selectedStreamHasChanged() { }
 
-void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled) 
+void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, bool isLoading)
 {
     
     if (streamSelector != nullptr)
@@ -1132,7 +1132,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
     
     getProcessor()->setStreamEnabled(streamId, isEnabled);
 
-    if (isMerger() || isSplitter())
+    if ((isMerger() || isSplitter()) && !isLoading)
         CoreServices::updateSignalChain(this);
 
 }

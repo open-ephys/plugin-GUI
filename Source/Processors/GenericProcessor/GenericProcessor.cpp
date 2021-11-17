@@ -1543,13 +1543,15 @@ void GenericProcessor::loadFromXml()
                             for (int i = 0; i < streamParams->getNumAttributes(); i++)
                             {
                                 Parameter* p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
+                                
                                 if (p != nullptr)
                                 {
                                     p->fromXml(streamParams);
                                     
                                     if (p->getName() == "enable_stream")
                                         getEditor()->streamEnabledStateChanged(availableStreams[streamIndex]->getStreamId(),
-                                                                               (bool) p->getValue());
+                                                                               (bool) p->getValue(),
+                                                                               true);
                                 }
                                     
                             }

@@ -24,7 +24,7 @@
 #include "DelayMonitor.h"
 
 
-DelayMonitor::DelayMonitor() : delay(0.0f)
+DelayMonitor::DelayMonitor() : delay(0.0f), isEnabled(true), colour(Colours::black)
 {
 }
 
@@ -36,6 +36,18 @@ DelayMonitor::~DelayMonitor()
 void DelayMonitor::setDelay(float delayMs)
 {
     delay = delayMs;
+}
+
+void DelayMonitor::setEnabled(bool state)
+{
+    isEnabled = state;
+    
+    if (isEnabled)
+        colour = Colours::black;
+    else
+        colour = Colours::grey;
+    
+    repaint();
 }
 
 void DelayMonitor::startAcquisition()
@@ -55,6 +67,7 @@ void DelayMonitor::timerCallback()
 
 void DelayMonitor::paint(Graphics& g)
 {
+    g.setColour(colour);
     g.setFont(12);
     g.drawText(String(delay, 2) + " ms", 0, 0, 60, 15, Justification::left);
 }
