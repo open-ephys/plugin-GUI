@@ -33,6 +33,8 @@
 
 #include "../Splitter/Splitter.h"
 
+#include "../Merger/Merger.h"
+
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
@@ -712,6 +714,14 @@ void GenericProcessor::update()
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
                 }
+            } else if (sourceNode->isMerger())
+            {
+                Merger* merger = (Merger*) sourceNode;
+
+                for (auto stream : merger->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
             }
             else {
                 for (auto stream : sourceNode->getStreamsForDestNode(this))
@@ -726,6 +736,9 @@ void GenericProcessor::update()
             }
 
             isEnabled = sourceNode->isEnabled;
+            
+            if (continuousChannelGlobalIndex == 0)
+                isEnabled = false;
                 
         }
         else

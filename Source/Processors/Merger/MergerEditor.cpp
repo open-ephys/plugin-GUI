@@ -363,29 +363,17 @@ void MergerEditor::switchSource(int source)
     }
 }
 
-/*bool MergerEditor::checkStream(const DataStream* stream)
+
+
+
+bool MergerEditor::checkStream(const DataStream* stream)
 {
 
-    std::cout << "Merger checking stream " << stream->getStreamId() << std::endl;
+    // buttons already exist:
+    return streamSelector->checkStream(stream);
 
-    incomingStreams.add(stream->getStreamId());
-   
-    for (auto button : streamButtons)
-    {
-        if (button->getStreamId() == stream->getStreamId())
-            return button->getToggleState();
-    }
+}
 
-    StreamSelectorButton* newButton = new StreamSelectorButton(stream);
-    std::cout << "Creating new stream button" << std::endl;
-
-    streamButtons.add(newButton);
-    newButton->addListener(this);
-
-    streamButtonHolder->add(newButton);
-
-
-}*/
 
 void MergerEditor::updateSettings()
 {

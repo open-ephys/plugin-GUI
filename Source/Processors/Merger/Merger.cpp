@@ -194,8 +194,7 @@ int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChanne
 
     for (auto stream : sn->getStreamsForDestNode(this))
     {
-        if (checkStream(stream))
-            continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+        continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
     }
 
     for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
@@ -208,11 +207,25 @@ int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChanne
     return continuousChannelGlobalIndex;
 }
 
+Array<const DataStream*> Merger::getStreamsForDestNode(GenericProcessor* node)
+{
+    Array<const DataStream*> outputStreams;
+
+    for (auto stream : dataStreams)
+    {
+        if (checkStream(stream))
+            outputStreams.add(stream);
+    }
+
+    return outputStreams;
+}
+
+
 bool Merger::checkStream(const DataStream* stream)
 {
     MergerEditor* ed = (MergerEditor*)getEditor();
 
-    return true; // ed->checkStream(stream);
+    return ed->checkStream(stream);
 }
 
 
