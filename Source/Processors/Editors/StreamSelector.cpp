@@ -417,7 +417,7 @@ void StreamSelector::beginUpdate()
     }
 }
 
-void StreamSelector::finishedUpdate()
+uint16 StreamSelector::finishedUpdate()
 {
 
     LOGD("END UPDATE --- NUM STREAMS: ", streams.size());
@@ -447,8 +447,15 @@ void StreamSelector::finishedUpdate()
     {
         viewedStreamIndex = streams.size() - 1;
     }
-
+    
+    viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
+    
+    streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+    streamSelectorButton->repaint();
+    
     resized();
+    
+    return streams[viewedStreamIndex]->getStream()->getStreamId();
 }
 
 void StreamSelector::remove(StreamInfoView* stream)

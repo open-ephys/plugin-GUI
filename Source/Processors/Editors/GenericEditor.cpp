@@ -470,7 +470,7 @@ void GenericEditor::update(bool isEnabled_)
 
         }
 
-        streamSelector->finishedUpdate();
+        selectedStream = streamSelector->finishedUpdate();
 
         if (numChannels == 0)
         {

@@ -58,7 +58,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 {
     //setEnabledState (false);
 
-	//Load pluIn file Sources
+	//Load plugin file sources
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
     for (int i = 0; i < numFileSources; ++i)
     {
@@ -326,6 +326,8 @@ void FileReader::setActiveRecording (int index)
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
 	input->seekTo(startSample);
+    
+    gotNewFile = true;
 
    
 }
@@ -364,23 +366,27 @@ void FileReader::updateSettings()
 
     if (gotNewFile)
     {
+        
+        dataStreams.clear();
+        continuousChannels.clear();
+        eventChannels.clear();
 
-        DataStream::Settings settings{
+        DataStream::Settings streamSettings{
 
-            "File Reader Stream",
+            input->getRecordName(input->getActiveRecord()),
             "A description of the File Reader Stream",
             "identifier",
             getDefaultSampleRate()
 
         };
         
-        dataStreams.add(new DataStream(settings));
+        dataStreams.add(new DataStream(streamSettings));
         dataStreams.getLast()->addProcessor(processorInfo.get());
 
         
         for (int i = 0; i < currentNumChannels; i++)
         {
-            ContinuousChannel::Settings settings2
+            ContinuousChannel::Settings channelSettings
             {
                 ContinuousChannel::Type::ELECTRODE,
                 "CH" + String(i + 1),
@@ -390,7 +396,7 @@ void FileReader::updateSettings()
                 dataStreams.getLast()
             };
             
-            continuousChannels.add(new ContinuousChannel(settings2));
+            continuousChannels.add(new ContinuousChannel(channelSettings));
             continuousChannels.getLast()->addProcessor(processorInfo.get());
         }
 

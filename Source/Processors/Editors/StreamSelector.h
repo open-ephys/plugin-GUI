@@ -131,7 +131,9 @@ public:
     void timerCallback();
 
     void beginUpdate();
-    void finishedUpdate();
+    
+    /** Signals that all streams have been copied, and returns ID of selected stream*/
+    uint16 finishedUpdate();
 
     int getNumStreams() { return streams.size(); }
 
