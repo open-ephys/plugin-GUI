@@ -75,6 +75,9 @@ public:
 
     /** Switch the currently displayed path */
     void switchIO() override;
+    
+    /** An upstream processor was deleted -- reorganize sources if necessary*/
+    void lostInput();
 
     /** Switches the currently viewed path to a particular input processor*/
     int switchToSourceNode(GenericProcessor* sn);

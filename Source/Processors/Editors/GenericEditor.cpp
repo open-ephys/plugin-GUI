@@ -1127,6 +1127,8 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled)
     
     if (streamSelector != nullptr)
         streamSelector->setStreamEnabledState(streamId, isEnabled);
+    
+    getProcessor()->setStreamEnabled(streamId, isEnabled);
 
     //CoreServices::updateSignalChain(this);
 

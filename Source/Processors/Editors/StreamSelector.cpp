@@ -117,6 +117,7 @@ void StreamInfoView::buttonClicked(Button* button)
 
         std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
 
+        repaint();
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);
     }
 }
@@ -448,14 +449,21 @@ uint16 StreamSelector::finishedUpdate()
         viewedStreamIndex = streams.size() - 1;
     }
     
-    viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
-    
-    streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
-    streamSelectorButton->repaint();
+    if (viewedStreamIndex > -1)
+    {
+        viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
+        
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->repaint();
+    }
+
     
     resized();
     
-    return streams[viewedStreamIndex]->getStream()->getStreamId();
+    if (viewedStreamIndex > -1)
+        return streams[viewedStreamIndex]->getStream()->getStreamId();
+    else
+        return 0;
 }
 
 void StreamSelector::remove(StreamInfoView* stream)

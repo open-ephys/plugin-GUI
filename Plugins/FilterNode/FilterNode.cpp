@@ -178,7 +178,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
     for (auto stream : getDataStreams())
     {
 
-        if (true) //getParameterValue(stream->getStreamId(), "stream_enabled"))
+        if ((*stream)["enable_stream"])
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 

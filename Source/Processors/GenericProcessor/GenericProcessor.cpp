@@ -62,9 +62,10 @@ GenericProcessor::GenericProcessor(const String& name)
 {
 	latencyMeter = std::make_unique<LatencyMeter>(this);
 
-	//addBooleanParameter("enable_stream",
-	//	"Determines whether or not processing is enabled for a particular stream",
-	//	true, true);
+	addBooleanParameter(Parameter::STREAM_SCOPE,
+        "enable_stream",
+		"Determines whether or not processing is enabled for a particular stream",
+		true, true);
 }
 
 
@@ -563,6 +564,12 @@ void GenericProcessor::clearSettings()
 
 }
 
+void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
+{
+    
+    getDataStream(streamId)->getParameter("enable_stream")->setNextValue(isEnabled);
+}
+
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
@@ -728,7 +735,7 @@ void GenericProcessor::update()
             messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
 
-            LOGD(getNodeId(), " connected to Message Center");
+            std::cout << getNodeId() << " connected to Message Center" << std::endl;
         }
     } else {
         
@@ -1514,7 +1521,14 @@ void GenericProcessor::loadFromXml()
                             {
                                 Parameter* p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
                                 if (p != nullptr)
+                                {
                                     p->fromXml(streamParams);
+                                    
+                                    if (p->getName() == "enable_stream")
+                                        getEditor()->streamEnabledStateChanged(availableStreams[streamIndex]->getStreamId(),
+                                                                               (bool) p->getValue());
+                                }
+                                    
                             }
                         }
                     }

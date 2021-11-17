@@ -594,6 +594,9 @@ protected:
 
     /** Copies DataStream settings from a source processor*/
     int copyDataStreamSettings(const DataStream*, int continuousChannelGlobalIndex);
+    
+    /** Sets whether or not a given stream is enabled*/
+    void setStreamEnabled(uint16 streamId, bool isEnabled);
 
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();

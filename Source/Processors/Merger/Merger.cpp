@@ -167,6 +167,18 @@ void Merger::switchIO()
 
 }
 
+void Merger::lostInput()
+{
+    if (sourceNodeA == nullptr && sourceNodeB != nullptr)
+    {
+        sourceNodeA = sourceNodeB;
+        sourceNodeB = nullptr;
+        
+        MergerEditor* ed = (MergerEditor*)getEditor();
+        ed->switchSource(0);
+    }
+}
+
 GenericProcessor* Merger::getSourceNode(int path)
 {
     if (path == 0)
@@ -218,8 +230,12 @@ void Merger::updateSettings()
         LOGD("   Merger source A found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeA, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeA->isEnabled;
-        messageChannel = std::make_unique<EventChannel>(*sourceNodeA->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
+        
+        if (sourceNodeA->getMessageChannel() != nullptr)
+        {
+            messageChannel = std::make_unique<EventChannel>(*sourceNodeA->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+        }
         
     } else {
         mergeEventsA = true;
@@ -232,15 +248,18 @@ void Merger::updateSettings()
         continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeB, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeB->isEnabled;
         
-        if (messageChannel == nullptr)
+        if (messageChannel == nullptr && sourceNodeB->getMessageChannel() != nullptr)
         {
-            messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
+            messageChannel = std::make_unique<EventChannel>(*sourceNodeB->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
         }
     } else {
         mergeEventsB = true;
         mergeContinuousB = true;
     }
+    
+    if (sourceNodeA == nullptr && sourceNodeB == nullptr)
+        isEnabled = false;
     
     if (messageChannel == nullptr)
     {

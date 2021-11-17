@@ -493,7 +493,7 @@ void MaskChannelsParameter::setNextValue(var newValue_)
     
     for (int i = 0; i < channelCount; i++)
     {
-        if (!newValue_.getArray()->contains(i))
+        if (newValue_.getArray()->contains(i))
             values.add(i);
     }
     
@@ -509,9 +509,9 @@ std::vector<bool> MaskChannelsParameter::getChannelStates()
     for (int i = 0; i < channelCount; i++)
     {
         if (currentValue.getArray()->contains(i))
-            states.push_back(false);
-        else
             states.push_back(true);
+        else
+            states.push_back(false);
     }
 
     return states;
