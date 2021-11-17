@@ -508,7 +508,7 @@ void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 
 void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
 {
-    //delayMonitors[streamId]->setDelay(latencyMs);
+    delayMonitors[streamId]->setDelay(latencyMs);
 }
 
 bool GenericEditor::getCollapsedState()
