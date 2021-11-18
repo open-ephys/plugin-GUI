@@ -27,10 +27,12 @@
 
 
 AudioMonitor::AudioMonitor()
-    : GenericProcessor ("Audio Monitor")
+    : GenericProcessor ("Audio Monitor"),
+      destBufferSampleRate(44100.0f),
+      estimatedSamples(1024)
 {
 
-    tempBuffer = std::make_unique<AudioSampleBuffer>(16, 1024);
+    tempBuffer = std::make_unique<AudioSampleBuffer>();
     
     addBooleanParameter(Parameter::GLOBAL_SCOPE,
                         String("mute_audio"),
@@ -73,6 +75,22 @@ AudioProcessorEditor* AudioMonitor::createEditor()
 void AudioMonitor::updateSettings()
 {
     updatePlaybackBuffer();
+    
+    for (auto stream : dataStreams)
+    {
+
+        Array<var>* activeChannels = stream->getParameter("selected_channels")->getValue().getArray();
+        
+        if (activeChannels->size() > 0)
+        {
+            selectedStream = stream->getStreamId();
+            
+            for (int i = 0; i < activeChannels->size(); i++)
+            {
+                updateFilter(i, selectedStream);
+            }
+        }
+    }
 }
 
 
