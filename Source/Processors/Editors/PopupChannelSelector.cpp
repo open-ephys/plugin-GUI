@@ -433,8 +433,11 @@ void PopupChannelSelector::buttonClicked(Button* button)
         if (button->getButtonText() == String("ALL"))
         {
             activeChannels.clear();
+            
+            for (auto* btn : channelButtons)
+                btn->setToggleState(false, NotificationType::dontSendNotification);
 
-            for (int i = 0; i < channelButtons.size(); i++)
+            for (int i = 0; i < maxSelectable; i++)
             {
                 channelButtons[i]->setToggleState(true, NotificationType::dontSendNotification);
                 activeChannels.add(channelButtons[i]->getId());

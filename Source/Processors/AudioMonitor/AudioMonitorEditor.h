@@ -105,9 +105,11 @@ public:
 
 private:
 
+    /** Pointer to the AudioMonitor object*/
     AudioMonitor* audioMonitor;
     
-    std::unique_ptr<juce::ComboBox> spikeChan; // to replace with ParameterEditor
+    /** ComboBox for monitoring incoming spike channels*/
+    std::unique_ptr<ComboBox> spikeChannelSelector;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitorEditor);
 };

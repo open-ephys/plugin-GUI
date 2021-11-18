@@ -419,6 +419,8 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
     auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
 
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    
+    std::cout << "Setting max selectable channels to " << p->getMaxSelectableChannels() << std::endl;
     channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
     CallOutBox& myBox

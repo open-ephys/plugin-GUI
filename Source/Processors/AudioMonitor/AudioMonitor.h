@@ -41,63 +41,68 @@
 class AudioMonitor : public GenericProcessor
 {
 public:
+    
+    /** Constructor */
     AudioMonitor();
-    ~AudioMonitor();
+    
+    /** Destructor*/
+    ~AudioMonitor() { }
 
+    /** Re-samples, filters, and copies selected channels*/
     void process (AudioBuffer<float>& buffer) override;
     
+    /** Creates the custom UI for the AudioMonitor*/
     AudioProcessorEditor* createEditor() override;
 
+    /** Specifies that two extra output channels should be added*/
     void updateSettings() override;
 
     /** Updates the audio buffer size*/
 	void updatePlaybackBuffer();
 
+    /** Updates the resampling ratio for each channel*/
     void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
+    
+    /** Called whenever a parameter's value is changed (called by GenericProcessor::setParameter())*/
+    void parameterValueChanged(Parameter* param) override;
 
      /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
-    bool startAcquisition() override;
-
-    void updateFilter(int i);
-    
-    //void setMonitoredChannels(Array<int> activeChannels);
-    //Array<int> getMonitoredChannels();
-
-    //std::vector<bool> dataChannelStates;
+    /** Updates the bandpass filter parameters, given the currently monitored stream*/
+    void updateFilter(int i, uint16 streamId);
 
 private:
+    
+    /** Re-sets the copy buffers prior to acquisition*/
     void recreateBuffers();
     
-    //Array<int> activeChannels;
-
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
 
-    std::map<int, int> numSamplesExpected;
-
-    std::map<int, int> samplesInBackupBuffer;
-    std::map<int, int> samplesInOverflowBuffer;
+    /** Per-channel buffer state information*/
+    std::map<int, double> samplesInBackupBuffer;
+    std::map<int, double> samplesInOverflowBuffer;
     std::map<int, double> sourceBufferSampleRate;
-    double destBufferSampleRate;
-	int estimatedSamples;
-
-    //bool isMuted;
-
-    //enum AudioOutputType {LEFT = 1, BOTH, RIGHT};
-
-    //AudioOutputType audioOutput; 
-
     std::map<int, bool> bufferSwap;
-
-    // sample rate, timebase, and ratio info:
+    
+    std::map<int, double> numSamplesExpected;
     std::map<int, double> ratio;
+    
+    double destBufferSampleRate;
+    double estimatedSamples;
 
-    // major objects:
-    OwnedArray<Dsp::Filter> filters;
+    /** 4 bandpass filters (1 per selected channel)*/
+    OwnedArray<Dsp::Filter> bandpassfilters;
+    
+    /** 4 antialiasing filters (1 per selected channel)*/
+    OwnedArray<Dsp::Filter> antialiasingfilters;
 
+    /** Holds the data for one channel, before it's copied to the output*/
     std::unique_ptr<AudioBuffer<float>> tempBuffer;
+    
+    /** Only one stream can be monitored at a time*/
+    uint16 selectedStream;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitor);
 };

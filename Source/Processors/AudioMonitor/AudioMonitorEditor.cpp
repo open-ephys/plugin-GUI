@@ -44,7 +44,7 @@ MonitorMuteButton::MonitorMuteButton(Parameter* param) : ParameterEditor(param)
     muteButton->setTooltip ("Mute audio");
 
     muteButton->addListener(this);
-    muteButton->setToggleState(false, false);
+    muteButton->setToggleState(false, dontSendNotification);
 
     addAndMakeVisible(muteButton);
 
@@ -79,15 +79,7 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     leftButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
     leftButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
     leftButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
-
-    bothButton = new TextButton("Both", "Output to both channels");
-    bothButton->setClickingTogglesState(true);
-    bothButton->setToggleState(true, dontSendNotification);
-    bothButton->setColour(TextButton::buttonColourId, Colour(0x0));
-    bothButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
-    bothButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
-    bothButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
-
+    
     rightButton = new TextButton("Right", "Output to right channel only");
     rightButton->setClickingTogglesState(true);
     rightButton->setToggleState(false, dontSendNotification);
@@ -95,6 +87,14 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     rightButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
     rightButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
     rightButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+    
+    bothButton = new TextButton("Both", "Output to both channels");
+    bothButton->setClickingTogglesState(true);
+    bothButton->setToggleState(false, dontSendNotification);
+    bothButton->setColour(TextButton::buttonColourId, Colour(0x0));
+    bothButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
+    bothButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
+    bothButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
 
     outputChannelButtonManager = std::make_unique<LinearButtonGroupManager>();
     outputChannelButtonManager->addButton(leftButton);
@@ -106,8 +106,9 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     outputChannelButtonManager->setColour(ButtonGroupManager::backgroundColourId, Colours::white);
     outputChannelButtonManager->setColour(ButtonGroupManager::outlineColourId, Colour(0x0));
     outputChannelButtonManager->setColour(LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
+    outputChannelButtonManager->setSelectedButtonIndex(1);
     addAndMakeVisible(outputChannelButtonManager.get());
-
+ 
     setBounds(0, 0, 140, 20);
 }
 
@@ -173,19 +174,19 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
     Parameter* outputParam = parentNode->getParameter("audio_output");
     addCustomParameterEditor(new AudioOutputSelector(outputParam), 20, 65);
 
-    spikeChan = std::make_unique<ComboBox>("Spike Channels");
-    spikeChan->setBounds(20, 100, 140, 20);
+    spikeChannelSelector = std::make_unique<ComboBox>("Spike Channels");
+    spikeChannelSelector->setBounds(20, 100, 140, 20);
 
     for (int i = 0; i < audioMonitor->getTotalSpikeChannels() ; i++)
 	{
-		spikeChan->addItem(audioMonitor->getSpikeChannel(i)->getName(), i + 1);
+		spikeChannelSelector->addItem(audioMonitor->getSpikeChannel(i)->getName(), i + 1);
 	}
     
-    spikeChan->setTextWhenNoChoicesAvailable("No spike channels");
-    spikeChan->setTextWhenNothingSelected("Select a Spike Channel");
+    spikeChannelSelector->setTextWhenNoChoicesAvailable("No spike channels");
+    spikeChannelSelector->setTextWhenNothingSelected("Select a Spike Channel");
 
 	//spikeChan->addListener(this);
-	addAndMakeVisible(spikeChan.get());
+	addAndMakeVisible(spikeChannelSelector.get());
 
     desiredWidth = 180;
 }
