@@ -71,6 +71,8 @@ public:
 
     /** Updates the bandpass filter parameters, given the currently monitored stream*/
     void updateFilter(int i, uint16 streamId);
+    
+    void handleBroadcastMessage(String message) override;
 
 private:
     

@@ -229,6 +229,44 @@ void AudioMonitor::updateFilter(int i, uint16 streamId)
 
 }
 
+void AudioMonitor::handleBroadcastMessage(String msg)
+{
+    
+    StringArray parts = StringArray::fromTokens(msg, " ", "");
+
+    if (parts[0].equalsIgnoreCase("AUDIO"))
+    {
+        if (parts.size() > 1)
+        {
+            String command = parts[1];
+
+            if (command.equalsIgnoreCase("SELECT"))
+            {
+                if (parts.size() == 4)
+                {
+                    uint16 streamId = parts[2].getIntValue();
+                    
+                    DataStream* stream = getDataStream(streamId);
+                    
+                    if (stream != nullptr)
+                    {
+                        
+                        int localChannel = parts[3].getIntValue() - 1;
+                        
+                        if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
+                        {
+                            Array<var> ch;
+                            ch.add(localChannel);
+                            
+                            stream->getParameter("selected_channels")->setNextValue(ch);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void AudioMonitor::process (AudioBuffer<float>& buffer)
 {
     

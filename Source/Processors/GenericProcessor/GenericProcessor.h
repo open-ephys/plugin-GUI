@@ -524,6 +524,9 @@ protected:
 
     /** Handles a configuration message sent to this processor, while acquisition is not active.*/
     virtual String handleConfigMessage(String msg);
+    
+    /** Handles a configuration message sent to this processor, while acquisition is not active.*/
+    virtual void handleBroadcastMessage(String msg) { }
 
 	/** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
@@ -678,6 +681,7 @@ private:
 	std::map<int,bool> m_needsToSendTimestampMessages;
 
 	MidiBuffer* m_currentMidiBuffer;
+    MidiBuffer messageCenterBuffer;
 
     typedef std::unordered_map<uint16, 
         std::unordered_map<uint16, 

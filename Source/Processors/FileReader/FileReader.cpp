@@ -465,7 +465,8 @@ String FileReader::handleConfigMessage(String msg)
 void FileReader::process(AudioBuffer<float>& buffer)
 {
 
-    checkForEvents();
+    //std::cout << "FILE READER PROCESS" << std::endl;
+    //checkForEvents();
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 

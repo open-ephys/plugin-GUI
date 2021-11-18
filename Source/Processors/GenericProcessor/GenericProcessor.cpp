@@ -705,6 +705,7 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
+            messageChannel->setDataStream(dataStreams.getLast());
 
             if (sourceNode->isSplitter())
             {
@@ -747,6 +748,7 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
+            messageChannel->setDataStream(dataStreams.getLast());
 
             std::cout << getNodeId() << " connected to Message Center" << std::endl;
         }
@@ -944,7 +946,8 @@ void GenericProcessor::updateChannelIndexMaps()
 		dataStreamMap[streamId] = stream;
 	}
 	
-	latencyMeter->update(getDataStreams());
+    if (latencyMeter != nullptr)
+        latencyMeter->update(getDataStreams());
 }
 
 String GenericProcessor::handleConfigMessage(String msg)
@@ -1017,8 +1020,8 @@ juce::uint64 GenericProcessor::getSourceTimestamp(uint16 streamId) const
 void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, uint16 streamId)
 {
 
-	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-	LOGDD("Setting timestamp to ", timestamp);
+	//MidiBuffer& eventBuffer = *m_currentMidiBuffer;
+    //std::cout << "Setting timestamp to " << timestamp << std::endl;
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, 
@@ -1028,22 +1031,22 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 		nSamples,
 		m_initialProcessTime);
 
-	eventBuffer.addEvent(data, dataSize, 0);
+	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
 	timestamps[streamId] = timestamp;
 	numSamples[streamId] = nSamples;
 	processStartTimes[streamId] = m_initialProcessTime;
 
-	if (m_needsToSendTimestampMessages[streamId] && nSamples > 0)
-	{
-		HeapBlock<char> data;
-		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, streamId, timestamp, false);
+	//if (m_needsToSendTimestampMessages[streamId] && nSamples > 0)
+	//{
+	//	HeapBlock<char> data;
+	//	size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, streamId, timestamp, false);
 
-		eventBuffer.addEvent(data, dataSize, 0);
+	//	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
-		m_needsToSendTimestampMessages[streamId] = false;
-	}
+	//	m_needsToSendTimestampMessages[streamId] = false;
+	//}
 }
 
 int GenericProcessor::getGlobalChannelIndex(uint16 streamId, int localIndex) const
@@ -1063,27 +1066,23 @@ int GenericProcessor::processEventBuffer()
 	//
 	int numRead = 0;
 
-	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-
-	if (eventBuffer.getNumEvents() > 0)
+	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-		MidiBuffer::Iterator i(eventBuffer);
-
-		const uint8* dataptr;
-		int dataSize;
-
-		int samplePosition = -1;
-
-		while (i.getNextEvent(dataptr, dataSize, samplePosition))
-		{
-
+        
+        for (const auto meta : *m_currentMidiBuffer)
+        {
+        
+            const auto message = meta.getMessage();
+            
+            const uint8* dataptr = message.getRawData();
+            
 			if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT 
 				&& static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::TIMESTAMP_AND_SAMPLES))
 			{
 				uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
 				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
-
+                
 				juce::int64 timestamp = *reinterpret_cast<const juce::int64*>(dataptr + 8);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 16);
 				juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
@@ -1101,7 +1100,14 @@ int GenericProcessor::processEventBuffer()
                 bool eventState = *reinterpret_cast<const bool*>(dataptr + 17);
                 
                 getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                
+            } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+            && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
+            {
 
+                TextEventPtr textEvent = TextEvent::deserialize(message, getMessageChannel());
+
+                handleBroadcastMessage(textEvent->getText());
             }
 		}
 	}
@@ -1132,15 +1138,19 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 			if (EventBase::getBaseType(message) == Event::Type::PROCESSOR_EVENT)
 			{
-				const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
-
-				if (eventChannel != nullptr)
-				{
-					handleEvent(eventChannel, message, meta.samplePosition);
-				}
+                
+                if (static_cast<SystemEvent::Type>(*(message.getRawData() + 1) != EventChannel::Type::TEXT))
+                {
+                    const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
+                    
+                    if (eventChannel != nullptr)
+                    {
+                        handleEvent(eventChannel, message, meta.samplePosition);
+                    }
+                }
 
 			}
-			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT 
+			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT
 				    && SystemEvent::getSystemEventType(message) == SystemEvent::Type::TIMESTAMP_SYNC_TEXT)
 			{
 				handleTimestampSyncTexts(message);
@@ -1272,10 +1282,19 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 		m_initialProcessTime = Time::getHighResolutionTicks();
 
 	m_currentMidiBuffer = &eventBuffer;
+    
+    //std::cout << getNodeId() << " process block." << std::endl;
 
 	processEventBuffer(); // extract buffer sizes and timestamps,
 
 	process(buffer);
+    
+    //if (isSource())
+   // {
+    //    m_currentMidiBuffer->addEvents(messageCenterBuffer, 0, 1, 1);
+    //    messageCenterBuffer.clear();
+    //}
+        
 
 	latencyMeter->setLatestLatency(processStartTimes);
 }
