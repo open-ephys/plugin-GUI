@@ -81,18 +81,18 @@ public:
 
         SystemStats::setApplicationCrashHandler(handleCrash);
 
-        customLookAndFeel = new CustomLookAndFeel();
-        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel);
+        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
+        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
 
         // signal chain to load
         if (!parameters.isEmpty())
         {
             File fileToLoad(File::getCurrentWorkingDirectory().getChildFile(parameters[0]));
-            mainWindow = new MainWindow(fileToLoad);
+            mainWindow = std::make_unique<MainWindow>(fileToLoad);
         }
         else
         {
-            mainWindow = new MainWindow();
+            mainWindow = std::make_unique<MainWindow>();
         }
     }
 
@@ -132,8 +132,8 @@ public:
     {}
 
 private:
-    ScopedPointer <MainWindow> mainWindow;
-    ScopedPointer <CustomLookAndFeel> customLookAndFeel;
+    std::unique_ptr <MainWindow> mainWindow;
+    std::unique_ptr <CustomLookAndFeel> customLookAndFeel;
     std::ofstream console_out;
 };
 

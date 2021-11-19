@@ -49,9 +49,6 @@ namespace AccessClass
 	*/
 void setUIComponent(UIComponent*);
 
-void shutdownBroadcaster();
-
-
 /** Returns a pointer to the application's EditorViewport. */
 EditorViewport* getEditorViewport();
 
@@ -83,6 +80,8 @@ GraphViewer* getGraphViewer();
 PluginManager* getPluginManager();
 
 ActionBroadcaster* getBroadcaster();
+
+void shutdownBroadcaster();
 
 //Methods to access some private members of GenericProcessors.
 //Like all of the AccessClass methods, this ones are meant to be
