@@ -265,7 +265,7 @@ void SliderLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, 
     auto radius = jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
     auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
     auto lineW = radius * 0.085f;
-    auto arcRadius = radius - lineW * 1.6f;
+    auto arcRadius = radius - lineW * 1.9f;
 
     Path backgroundArc;
     backgroundArc.addCentredArc (bounds.getCentreX(),
@@ -293,7 +293,7 @@ void SliderLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, 
     g.setColour (fill);
     g.strokePath (valueArc, PathStrokeType (lineW, PathStrokeType::curved, PathStrokeType::rounded));
 
-    auto thumbWidth = lineW * 2.0f;
+    auto thumbWidth = radius * 0.085f * 2.0f;
 
     Path thumb;
     thumb.addRectangle (-thumbWidth / 2, -thumbWidth / 2, thumbWidth, radius + lineW);
@@ -351,7 +351,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
         slider->setValue(p->getIntValue(), dontSendNotification);
     }
 
-    setBounds(0, 0, 120, 82);
+    setBounds(0, 0, 80, 65);
 
 }
 
@@ -382,9 +382,8 @@ void SliderParameterEditor::updateView()
 
 void SliderParameterEditor::resized()
 {
-
-    parameterNameLabel->setBounds(0, 0, 80, 20);
-    slider->setBounds(0, 22, 60, 60);
+    parameterNameLabel->setBounds(0, 0, 80, 15);
+    slider->setBounds(0, 15, 50, 50);
 }
 
 
@@ -394,7 +393,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));
     button->addListener(this);
     button->setClickingTogglesState(false);
-    button->setTooltip("Select channels to filter within this stream");
+    button->setTooltip(param->getDescription());
     addAndMakeVisible(button.get());
 
     setBounds(0, 0, 80, 42);
