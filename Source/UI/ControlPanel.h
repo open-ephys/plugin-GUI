@@ -54,8 +54,12 @@
 class PlayButton : public DrawableButton
 {
 public:
+    
+    /** Constructor*/
     PlayButton();
-    ~PlayButton();
+    
+    /** Destructor*/
+    ~PlayButton() { }
 };
 
 /**
@@ -76,8 +80,12 @@ public:
 class RecordButton : public DrawableButton
 {
 public:
+    
+    /** Constructor*/
     RecordButton();
-    ~RecordButton();
+    
+    /** Destructor*/
+    ~RecordButton() { }
 };
 
 /**
@@ -99,8 +107,12 @@ public:
 class CPUMeter : public Label
 {
 public:
+    
+    /** Constructor*/
     CPUMeter();
-    ~CPUMeter();
+    
+    /** Destructor*/
+    ~CPUMeter() { }
 
     /** Updates the load level displayed by the CPUMeter. Called by
          the ControlPanel. */
@@ -112,9 +124,7 @@ public:
 private:
 
     Font font;
-
     float cpu;
-    float lastCpu;
 
 };
 
@@ -131,11 +141,16 @@ private:
 
 */
 
-class DiskSpaceMeter : public Component, public SettableTooltipClient
+class DiskSpaceMeter : public Component,
+                       public SettableTooltipClient
 {
 public:
+    
+    /** Constructor*/
     DiskSpaceMeter();
-    ~DiskSpaceMeter();
+    
+    /** Destructor*/
+    ~DiskSpaceMeter() { }
 
     /** Updates the free disk space displayed by the DiskSpaceMeter. Called by
     	the ControlPanel. */
@@ -171,8 +186,12 @@ private:
 class Clock : public Component
 {
 public:
+    
+    /** Constructor*/
     Clock();
-    ~Clock();
+    
+    /** Destructor*/
+    ~Clock() { }
 
     /** Starts the acquisition (yellow) clock.*/
     void start();
@@ -224,7 +243,11 @@ private:
 class ControlPanelButton : public Component, public SettableTooltipClient
 {
 public:
+    
+    /** Constructor*/
     ControlPanelButton(ControlPanel* cp_);
+    
+    /** Destructor*/
     ~ControlPanelButton() { }
 
     /** Returns the open/closed state of the ControlPanelButton.*/
@@ -350,8 +373,6 @@ public:
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
 
-    void handleIncomdingMessages();
-
     /** Informs the Control Panel that recording has begun.*/
     void startRecording();
 
@@ -368,30 +389,28 @@ public:
     (so it knows when the data directory has changed).*/
     void updateChildComponents();
 
+    /** Record-engine functions*/
     void updateRecordEngineList();
-
     std::vector<RecordEngineManager*> getAvailableRecordEngines();
-
-	String getSelectedRecordEngineId();
-
+    String getSelectedRecordEngineId();
 	bool setSelectedRecordEngineId(String id);
 
-    ScopedPointer<RecordButton> recordButton;
-    ScopedPointer<ComboBox> recordSelector;
+    std::unique_ptr<RecordButton> recordButton;
+    std::unique_ptr<ComboBox> recordSelector;
 
 private:
-    ScopedPointer<PlayButton> playButton;
+    std::unique_ptr<PlayButton> playButton;
 
-    ScopedPointer<Clock> masterClock;
-    ScopedPointer<CPUMeter> cpuMeter;
-    ScopedPointer<DiskSpaceMeter> diskMeter;
-    ScopedPointer<FilenameComponent> filenameComponent;
-    ScopedPointer<UtilityButton> newDirectoryButton;
-    ScopedPointer<ControlPanelButton> cpb;
+    std::unique_ptr<Clock> masterClock;
+    std::unique_ptr<CPUMeter> cpuMeter;
+    std::unique_ptr<DiskSpaceMeter> diskMeter;
+    std::unique_ptr<FilenameComponent> filenameComponent;
+    std::unique_ptr<UtilityButton> newDirectoryButton;
+    std::unique_ptr<ControlPanelButton> cpb;
 
-    ScopedPointer<Label> prependText;
-    ScopedPointer<Label> dateText;
-    ScopedPointer<Label> appendText;
+    std::unique_ptr<Label> prependText;
+    std::unique_ptr<Label> dateText;
+    std::unique_ptr<Label> appendText;
 
     ProcessorGraph* graph;
     AudioComponent* audio;
@@ -414,7 +433,6 @@ private:
 
     bool keyPressed(const KeyPress& key);
 
-
     Font font;
 
     bool open;
@@ -427,7 +445,7 @@ private:
     Colour backgroundColour;
 
     OwnedArray<RecordEngineManager> recordEngines;
-    ScopedPointer<UtilityButton> recordOptionsButton;
+    std::unique_ptr<UtilityButton> recordOptionsButton;
     int lastEngineIndex;
 
 };

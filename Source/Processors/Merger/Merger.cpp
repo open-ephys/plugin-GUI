@@ -296,11 +296,9 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
         mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
     else
         mainNode->setAttribute("NodeB",	-1);
+    
+    mainNode->setAttribute("activePath", activePath);
 
-    mainNode->setAttribute("MergeEventsA", mergeEventsA);
-    mainNode->setAttribute("MergeContinuousA", mergeContinuousA);
-    mainNode->setAttribute("MergeEventsB", mergeEventsB);
-    mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
 void Merger::loadCustomParametersFromXml(XmlElement* xml)
@@ -344,11 +342,8 @@ void Merger::restoreConnections()
                             editor->switchSource(1);
                         }
                     }
-
-                    mergeEventsA = mergerSettings->getBoolAttribute("MergeEventsA");
-                    mergeEventsB = mergerSettings->getBoolAttribute("MergeEventsB");
-                    mergeContinuousA = mergerSettings->getBoolAttribute("MergeContinuousA");
-                    mergeContinuousB = mergerSettings->getBoolAttribute("MergeContinuousB");
+                    
+                    editor->switchSource(mergerSettings->getIntAttribute("activePath", 0));
                 }
             }
         }

@@ -64,10 +64,6 @@ PlayButton::PlayButton()
     setTooltip("Start/stop acquisition");
 }
 
-PlayButton::~PlayButton()
-{
-}
-
 RecordButton::RecordButton()
     : DrawableButton("RecordButton", DrawableButton::ImageFitted)
 {
@@ -92,31 +88,17 @@ RecordButton::RecordButton()
     setTooltip("Start/stop writing to disk");
 }
 
-RecordButton::~RecordButton()
-{
-}
 
-
-CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f), lastCpu(0.0f)
+CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f)
 {
 
     font = Font("Small Text", 12, Font::plain);
-
-    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    // Typeface::Ptr typeface = new CustomTypeface(mis);
-    // font = Font(typeface);
-    // font.setHeight(12);
-
+    
     setTooltip("CPU usage");
-}
-
-CPUMeter::~CPUMeter()
-{
 }
 
 void CPUMeter::updateCPU(float usage)
 {
-    lastCpu = cpu;
     cpu = usage;
 
     repaint();
@@ -127,7 +109,7 @@ void CPUMeter::paint(Graphics& g)
     g.fillAll(Colours::grey);
 
     g.setColour(Colours::yellow);
-    g.fillRect(0.0f,0.0f,getWidth()*cpu,float(getHeight()));
+    g.fillRect(0.0f, 0.0f, getWidth() * cpu, float(getHeight()));
 
     g.setColour(Colours::black);
     g.drawRect(0,0,getWidth(),getHeight(),1);
@@ -143,18 +125,8 @@ DiskSpaceMeter::DiskSpaceMeter()
 {
 
     font = Font("Small Text", 12, Font::plain);
-
-    // MemoryInputStream mis(BinaryData::silkscreenserialized, BinaryData::silkscreenserializedSize, false);
-    // Typeface::Ptr typeface = new CustomTypeface(mis);
-    // font = Font(typeface);
-    // font.setHeight(12);
-
+    
     setTooltip("Disk space available");
-}
-
-
-DiskSpaceMeter::~DiskSpaceMeter()
-{
 }
 
 void DiskSpaceMeter::updateDiskSpace(float percent)
@@ -174,37 +146,28 @@ void DiskSpaceMeter::paint(Graphics& g)
     {
         if (diskFree > 1.0)
             diskFree = 1.0; 
-        g.fillRect(0.0f,0.0f,getWidth()*diskFree,float(getHeight()));
+        g.fillRect(0.0f, 0.0f, getWidth() * diskFree, float(getHeight()));
     }
 
     g.setColour(Colours::black);
-    g.drawRect(0,0,getWidth(),getHeight(),1);
+    g.drawRect(0, 0, getWidth(), getHeight(), 1);
 
     g.setFont(font);
     g.drawSingleLineText("DF",75,12);
 
 }
 
-Clock::Clock() : isRunning(false), isRecording(false)
+Clock::Clock() : isRunning(false),
+                 isRecording(false)
 {
 
     clockFont = Font("Default Light", 30, Font::plain);
     clockFont.setHorizontalScale(0.95f);
 
-    // MemoryInputStream mis(BinaryData::cpmonolightserialized, BinaryData::cpmonolightserializedSize, false);
-    // Typeface::Ptr typeface = new CustomTypeface(mis);
-    // clockFont = Font(typeface);
-    // clockFont.setHeight(30);
-
     totalTime = 0;
     totalRecordTime = 0;
 
 }
-
-Clock::~Clock()
-{
-}
-
 
 void Clock::paint(Graphics& g)
 {
@@ -243,8 +206,8 @@ void Clock::drawTime(Graphics& g)
     if (isRecording)
     {
         g.setColour(Colours::black);
-        m = floor(totalRecordTime/60000.0);
-        s = floor((totalRecordTime - m*60000.0)/1000.0);
+        m = floor(totalRecordTime / 60000.0);
+        s = floor((totalRecordTime - m * 60000.0) / 1000.0);
 
     }
     else
@@ -255,8 +218,8 @@ void Clock::drawTime(Graphics& g)
         else
             g.setColour(Colours::white);
 
-        m = floor(totalTime/60000.0);
-        s = floor((totalTime - m*60000.0)/1000.0);
+        m = floor(totalTime / 60000.0);
+        s = floor((totalTime - m * 60000.0) / 1000.0);
     }
 
     String timeString = "";
@@ -267,7 +230,6 @@ void Clock::drawTime(Graphics& g)
     timeString += " s";
 
     g.setFont(clockFont);
-    //g.setFont(30);
     g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
 
 }
@@ -310,7 +272,6 @@ void Clock::stopRecording()
     {
         isRecording = false;
     }
-
 }
 
 
@@ -363,68 +324,54 @@ void ControlPanelButton::setState(bool b)
     repaint();
 }
 
-
-
-
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1)
 {
 
-    if (1)
-    {
-
-        font = Font("Paragraph", 13, Font::plain);
-
-        // MemoryInputStream mis(BinaryData::misoserialized, BinaryData::misoserializedSize, false);
-        // Typeface::Ptr typeface = new CustomTypeface(mis);
-        // font = Font(typeface);
-        // font.setHeight(15);
-    }
+    font = Font("Paragraph", 13, Font::plain);
 
     audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
     addAndMakeVisible(audioEditor);
 
-    playButton = new PlayButton();
+    playButton = std::make_unique<PlayButton>();
     playButton->addListener(this);
-    addAndMakeVisible(playButton);
+    addAndMakeVisible(playButton.get());
 
-    recordButton = new RecordButton();
+    recordButton = std::make_unique<RecordButton>();
     recordButton->addListener(this);
-    addAndMakeVisible(recordButton);
+    addAndMakeVisible(recordButton.get());
 
-    masterClock = new Clock();
-    addAndMakeVisible(masterClock);
+    masterClock = std::make_unique<Clock>();
+    addAndMakeVisible(masterClock.get());
 
-    cpuMeter = new CPUMeter();
-    addAndMakeVisible(cpuMeter);
+    cpuMeter = std::make_unique<CPUMeter>();
+    addAndMakeVisible(cpuMeter.get());
 
-    diskMeter = new DiskSpaceMeter();
-    addAndMakeVisible(diskMeter);
+    diskMeter = std::make_unique<DiskSpaceMeter>();
+    addAndMakeVisible(diskMeter.get());
 
-    cpb = new ControlPanelButton(this);
-    addAndMakeVisible(cpb);
+    cpb = std::make_unique<ControlPanelButton>(this);
+    addAndMakeVisible(cpb.get());
 
-    recordSelector = new ComboBox();
+    recordSelector = std::make_unique<ComboBox>();
     recordSelector->addListener(this);
-    
-    addChildComponent(recordSelector);
+    addChildComponent(recordSelector.get());
 
-    recordOptionsButton = new UtilityButton("R",Font("Small Text", 15, Font::plain));
+    recordOptionsButton = std::make_unique<UtilityButton>("R",Font("Small Text", 15, Font::plain));
     recordOptionsButton->setEnabledState(true);
     recordOptionsButton->addListener(this);
     recordOptionsButton->setTooltip("Configure options for selected record engine");
-    addChildComponent(recordOptionsButton);
+    addChildComponent(recordOptionsButton.get());
 
-    newDirectoryButton = new UtilityButton("+", Font("Small Text", 15, Font::plain));
+    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Small Text", 15, Font::plain));
     newDirectoryButton->setEnabledState(false);
     newDirectoryButton->addListener(this);
     newDirectoryButton->setTooltip("Start a new data directory");
-    addChildComponent(newDirectoryButton);
-
+    addChildComponent(newDirectoryButton.get());
 
     const File dataDirectory = CoreServices::getDefaultUserSaveDirectory();
 
-    filenameComponent = new FilenameComponent("folder selector",
+    filenameComponent = std::make_unique<FilenameComponent>("folder selector",
                                               dataDirectory.getFullPathName(),
                                               true,
                                               true,
@@ -432,26 +379,25 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
                                               "*",
                                               "",
                                               "");
-    addChildComponent(filenameComponent);
+    addChildComponent(filenameComponent.get());
 
-    prependText = new Label("Prepend","");
+    prependText = std::make_unique<Label>("Prepend","");
     prependText->setEditable(true);
     prependText->addListener(this);
     prependText->setColour(Label::backgroundColourId, Colours::lightgrey);
     prependText->setTooltip("Prepend to name of data directory");
+    addChildComponent(prependText.get());
 
-    addChildComponent(prependText);
-
-    dateText = new Label("Date","YYYY-MM-DD_HH-MM-SS");
+    dateText = std::make_unique<Label>("Date","YYYY-MM-DD_HH-MM-SS");
     dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
     dateText->setColour(Label::textColourId, Colours::grey);
-    addChildComponent(dateText);
+    addChildComponent(dateText.get());
 
-    appendText = new Label("Append","");
+    appendText = std::make_unique<Label>("Append","");
     appendText->setEditable(true);
     appendText->addListener(this);
     appendText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    addChildComponent(appendText);
+    addChildComponent(appendText.get());
     appendText->setTooltip("Append to name of data directory");
 
     refreshMeters();
@@ -900,7 +846,8 @@ void ControlPanel::stopRecording()
 void ControlPanel::buttonClicked(Button* button)
 
 {
-    if (button == newDirectoryButton && newDirectoryButton->getEnabledState())
+    if (button == newDirectoryButton.get()
+        && newDirectoryButton->getEnabledState())
     {
         for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
         {   
@@ -914,7 +861,7 @@ void ControlPanel::buttonClicked(Button* button)
         return;
     }
 
-    if (button == playButton)
+    if (button == playButton.get())
     {
         if (playButton->getToggleState())
         {
@@ -929,7 +876,7 @@ void ControlPanel::buttonClicked(Button* button)
         return;
     }
 
-    if (button == recordButton)
+    if (button == recordButton.get())
     {
         if (recordButton->getToggleState())
         {
@@ -956,7 +903,7 @@ void ControlPanel::buttonClicked(Button* button)
         }
     }
 
-    if (button == recordOptionsButton)
+    if (button == recordOptionsButton.get())
     {
         int id = recordSelector->getSelectedId()-1;
         if (id < 0) return;
@@ -1173,7 +1120,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         {
             for (int i = 0; i < recordEngines.size(); i++)
             {
-                forEachXmlChildElementWithTagName(*xmlNode,xmlEngine,"ENGINE")
+                forEachXmlChildElementWithTagName(*xmlNode, xmlEngine, "ENGINE")
                 {
                     if (xmlEngine->getStringAttribute("id") == recordEngines[i]->getID())
                         recordEngines[i]->loadParametersFromXml(xmlEngine);
