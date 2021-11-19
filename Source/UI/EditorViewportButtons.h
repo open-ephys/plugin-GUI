@@ -28,34 +28,6 @@
 
 /**
 
-  Allows the user to scroll through visible editors when
-  there are more than can fit within the boundaries of the
-  EditorViewport.
-
-  @see EditorViewport.
-
-*/
-
-class EditorScrollButton : public DrawableButton
-{
-public:
-    EditorScrollButton(int type);
-    ~EditorScrollButton();
-
-    void setActive(bool);
-
-    bool isActive;
-
-    enum type {LEFT, RIGHT};
-
-    int direction;
-
-    DrawablePath inactive, activeNormal, activeOver, activeDown;
-
-};
-
-/**
-
   Allows the user to scroll through signal chains when
   there are more than can fit within the boundaries of the
   EditorViewport.
@@ -67,17 +39,21 @@ public:
 class SignalChainScrollButton : public DrawableButton
 {
 public:
+    
+    /** Constructor*/
     SignalChainScrollButton(int type);
-    ~SignalChainScrollButton();
+    
+    /** Destructor*/
+    ~SignalChainScrollButton() { }
 
+    /** Sets whether the button can be used*/
     void setActive(bool);
 
     enum type {UP, DOWN};
 
+private:
     bool isActive;
-
     int direction;
-
     DrawablePath inactive, activeNormal, activeOver, activeDown;
 };
 

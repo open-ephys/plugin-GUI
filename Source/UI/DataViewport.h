@@ -48,8 +48,12 @@ class GenericEditor;
 class DataViewport : public TabbedComponent
 {
 public:
+    
+    /** Constructor*/
     DataViewport();
-    ~DataViewport();
+    
+    /** Destructor*/
+    ~DataViewport() { }
 
     /** Adds a new visualizer within a tab and returns the tab index.*/
     int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
