@@ -125,6 +125,19 @@ void AudioNode::process(AudioBuffer<float>& buffer)
             for (int i = 0; i < nInputs; i++) // cycle through them all
             {
 
+                /*if (i == 0)
+                {
+                    std::cout << "np.array([";
+                    for (int j = 0; j < valuesNeeded; j++)
+                    {
+                        std::cout << *buffer.getReadPointer(i, j) << ", ";
+                    }
+                    
+                    std::cout << "])";
+                    std::cout << std::endl;
+                    std::cout << "------------- " << std::endl;
+                }*/
+                
                 // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
                 // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
 

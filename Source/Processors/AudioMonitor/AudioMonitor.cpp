@@ -61,6 +61,7 @@ AudioMonitor::AudioMonitor()
         
         antialiasingfilters.add (new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
     }
+
 }
 
 
@@ -110,16 +111,13 @@ void AudioMonitor::updatePlaybackBuffer()
 
 void AudioMonitor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
-    //("Processor sample rate: ", getSampleRate());
-    std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
-    std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
+    //std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
+    //std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
     
-	if (sampleRate_ != destBufferSampleRate || estimatedSamplesPerBlock != estimatedSamples)
-	{
-		destBufferSampleRate = sampleRate_;
-		estimatedSamples = estimatedSamplesPerBlock;
-		recreateBuffers();
-	}
+	destBufferSampleRate = sampleRate_;
+    estimatedSamples = estimatedSamplesPerBlock;
+    recreateBuffers();
+
 }
 
 
@@ -141,9 +139,9 @@ void AudioMonitor::recreateBuffers()
         
         ratio.emplace(i, sourceBufferSampleRate[i]/destBufferSampleRate);
         
-        std::cout << "Incoming sample rate " << i << ": " << sourceBufferSampleRate[i] << std::endl;
-        std::cout << "Ratio " << i << ": " << ratio[i] << std::endl;
-        std::cout << "Samples expected " << i << ": " << numSamplesExpected[i] << std::endl;
+        //std::cout << "Incoming sample rate " << i << ": " << sourceBufferSampleRate[i] << std::endl;
+        //std::cout << "Ratio " << i << ": " << ratio[i] << std::endl;
+        //std::cout << "Samples expected " << i << ": " << numSamplesExpected[i] << std::endl;
     }
 
     samplesInBackupBuffer.clear();
@@ -211,8 +209,8 @@ void AudioMonitor::updateFilter(int i, uint16 streamId)
     Dsp::Params params1;
     params1[0] = getDataStream(streamId)->getSampleRate(); // sample rate
     params1[1] = 2;                          // order
-    params1[2] = (7000 + 300) / 2;     // center frequency
-    params1[3] = 7000 - 300;           // bandwidth
+    params1[2] = (7000 + 100) / 2;     // center frequency
+    params1[3] = 7000 - 100;           // bandwidth
 
     bandpassfilters[i]->setParams (params1);
     
@@ -284,7 +282,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
         for (auto stream : dataStreams)
         {
             
-            if (stream->getStreamId() == selectedStream)
+            if (stream->getStreamId() == selectedStream
+                && (*stream)["enable_stream"])
             {
                 
                 AudioSampleBuffer* overflowBuffer;
@@ -371,9 +370,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     double samplesAvailable = double(getNumSourceSamples(selectedStream));
                     
                     //std::cout << "Remaining samples: " << remainingSamples << std::endl;
-                    
                     //std::cout << "Samples available: " << samplesAvailable << std::endl;
-
 
                     double samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
                         remainingSamples :
@@ -415,19 +412,33 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
                     }
                     
-                   // std::cout << "Total copied: " << samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer << std::endl;
+                    //std::cout << "Total copied: " << samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer << std::endl;
 
+                    
+                    
                     // now that our tempBuffer is ready, we can filter it and copy it into the
                     // original buffer
-
-                   // LOGD("Ratio = ", ratio[channelIndex], ", gain = ", gain);
-                   // LOGD("Values needed = ", valuesNeeded, ", channel = ", channelIndex);
-
                     float* ptr = tempBuffer->getWritePointer(0);
                     
                     int totalCopied = int(samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer);
                     
+                    if (totalCopied == 0)
+                        continue;
+                    
                     bandpassfilters[i]->process(totalCopied, &ptr);
+                    
+                    /*if (i == 0)
+                    {
+                        std::cout << "np.array([";
+                        for (int j = 0; j < totalCopied; j++)
+                        {
+                            std::cout << *(tempBuffer->getReadPointer(0, j)) << ", ";
+                        }
+                        
+                        std::cout << "])";
+                        std::cout << std::endl;
+                        std::cout << "------------- " << std::endl;
+                    }*/
 
                     // initialize variables
                     int sourceBufferPos = 0;
@@ -437,6 +448,8 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
                     double destBufferPos;
                     int targetChannel;
+                    
+                    //std::cout << "Ratio: " << ratio[globalIndex] << std::endl;
 
                     if (int(getParameter("audio_output")->getValue()) == 0 || int(getParameter("audio_output")->getValue()) == 2)
                         targetChannel = totalBufferChannels - 2;
@@ -446,7 +459,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     // code modified from "juce_ResamplingAudioSource.cpp":
                     for (destBufferPos = 0; destBufferPos < valuesNeeded; destBufferPos++)
                     {
-                        float alpha = (float)subSampleOffset;
+                        float alpha = (float) subSampleOffset;
                         float invAlpha = 1.0f - alpha;
 
                         buffer.addFrom(targetChannel,    // destChannel
@@ -465,24 +478,44 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             1,                           // number of samples
                             alpha);                      // gain to apply to source
 
-                        subSampleOffset += ratio[i];
-
+                        subSampleOffset += ratio[globalIndex];
+                        
                         while (subSampleOffset >= 1.0)
                         {
-                            if (++sourceBufferPos >= sourceBufferSize)
-                                sourceBufferPos = 0;
+                            //if (++sourceBufferPos >= sourceBufferSize)
+                            //    sourceBufferPos = 0;
 
-                            nextPos = (sourceBufferPos + 1) % sourceBufferSize;
+                            ++sourceBufferPos;
+                            nextPos = (sourceBufferPos + 1); //% sourceBufferSize;
+                            
+                            if (nextPos >= sourceBufferSize)
+                                nextPos = sourceBufferPos;
+                            
                             subSampleOffset -= 1.0;
                         }
                     }
+                    
+                    //std::cout << "Source buffer pos: " << sourceBufferPos << std::endl;
                     
                     //std::cout << "After upsampling: " << valuesNeeded << std::endl;
                     
                     //std::cout << std::endl;
 
-                    ptr = buffer.getWritePointer(targetChannel);
-                    antialiasingfilters[i]->process(destBufferPos, &ptr);
+                    //ptr = buffer.getWritePointer(targetChannel);
+                    //antialiasingfilters[i]->process(destBufferPos, &ptr);
+                    
+                    /*if (i == 0)
+                    {
+                        std::cout << "np.array([";
+                        for (int j = 0; j < valuesNeeded; j++)
+                        {
+                            std::cout << *(buffer.getReadPointer(targetChannel, j)) << ", ";
+                        }
+                        
+                        std::cout << "])";
+                        std::cout << std::endl;
+                        std::cout << "------------- " << std::endl;
+                    }*/
                     
                 } // end cycling through channels
 

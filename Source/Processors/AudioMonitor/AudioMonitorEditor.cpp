@@ -107,6 +107,7 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     outputChannelButtonManager->setColour(ButtonGroupManager::outlineColourId, Colour(0x0));
     outputChannelButtonManager->setColour(LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
     outputChannelButtonManager->setSelectedButtonIndex(1);
+    bothButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(outputChannelButtonManager.get());
  
     setBounds(0, 0, 140, 20);
@@ -144,13 +145,16 @@ void AudioOutputSelector::updateView()
         if (int(param->getValue()) == 0)
         {
             leftButton->setToggleState(true, dontSendNotification);
+            outputChannelButtonManager->setSelectedButtonIndex(0);
         }
         else if (int(param->getValue()) == 1)
         {
             rightButton->setToggleState(true, dontSendNotification);
+            outputChannelButtonManager->setSelectedButtonIndex(2);
         }
         else {
             bothButton->setToggleState(true, dontSendNotification);
+            outputChannelButtonManager->setSelectedButtonIndex(1);
         }
     }
        
