@@ -529,6 +529,13 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
     
     updateViews(processorToUpdate, true);
     
+    if(!signalChainIsLoading)
+    {
+        EditorViewport* ev = AccessClass::getEditorViewport();
+        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+        ev->saveState(recoveryFile);
+    }
+    
 }
 
 void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphViewer)

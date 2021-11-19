@@ -575,7 +575,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
-	if (true)
+	if (false)
 	{
         std::cout << getName() << " " << getNodeId() << std::endl;
 		std::cout << "Copying stream " << stream->getName() << ":" << std::endl;
@@ -613,15 +613,18 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
 
-		/*std::cout << "Copying continuous channel: " << std::endl;
-		std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << continuousChannel->getName() << std::endl;
-		std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;*/
-
+        if (false)
+        {
+            std::cout << "Copying continuous channel: " << std::endl;
+            std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
+            std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
+            std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
+            std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
+            std::cout << "  Name: " << continuousChannel->getName() << std::endl;
+            std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
+            std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;
+        }
+		
 		//std::cout << "Input channel: " << continuousChannel->getUniqueId().toString() << std::endl;
 
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
@@ -654,28 +657,31 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 		eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
 
-    std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
-    std::cout << "Num incoming spike channels: " << stream->getSpikeChannels().size() << std::endl;
+    //std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num incoming spike channels: " << stream->getSpikeChannels().size() << std::endl;
     
 	for (auto spikeChannel : stream->getSpikeChannels())
 	{
 
-		std::cout << "Copying spike channel: " << std::endl;
-		std::cout << "  Source Node ID: " << spikeChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << spikeChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << spikeChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << spikeChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << spikeChannel->getName() << std::endl;
-		std::cout << "  ID: " << spikeChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << spikeChannel->getSampleRate() << std::endl;
+        if (false)
+        {
+            std::cout << "Copying spike channel: " << std::endl;
+            std::cout << "  Source Node ID: " << spikeChannel->getSourceNodeId() << std::endl;
+            std::cout << "  Source Node Name: " << spikeChannel->getSourceNodeName() << std::endl;
+            std::cout << "  Last Node ID: " << spikeChannel->getNodeId() << std::endl;
+            std::cout << "  Last Node Name: " << spikeChannel->getNodeName() << std::endl;
+            std::cout << "  Name: " << spikeChannel->getName() << std::endl;
+            std::cout << "  ID: " << spikeChannel->getStreamId() << std::endl;
+            std::cout << "  Sample rate: " << spikeChannel->getSampleRate() << std::endl;
+        }
 
 		spikeChannels.add(new SpikeChannel(*spikeChannel));
 		spikeChannels.getLast()->addProcessor(processorInfo.get());
         spikeChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
     
-    std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
-    std::cout << "Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
+    //std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
     
     return continuousChannelGlobalIndex;
 }

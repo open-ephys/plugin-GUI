@@ -140,6 +140,15 @@ void AudioNode::process(AudioBuffer<float>& buffer)
                 
                 // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
                 // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+                
+                for (int j = 0; j < valuesNeeded; j++)
+                {
+                    if (*buffer.getReadPointer(i, j) > 1000)
+                        *buffer.getWritePointer(i, j) = 1000;
+                    
+                    if (*buffer.getReadPointer(i, j) < -1000)
+                        *buffer.getWritePointer(i, j) = -1000;
+                }
 
                 gain = (volume * 0.01f) / (float(0x7fff) * 0.02);
 

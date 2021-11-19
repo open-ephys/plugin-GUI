@@ -119,12 +119,14 @@ InfoObject::InfoObject(const InfoObject& other) :
     m_local_index(other.m_local_index),
     m_global_index(other.m_global_index),
     m_sourceNodeId(other.m_sourceNodeId),
+    m_sourceNodeName(other.m_sourceNodeName),
     m_nodeId(other.m_nodeId),
     m_nodeName(other.m_nodeName),
     m_isLocal(false),
     m_isEnabled(other.m_isEnabled),
     group(other.group),
-    position(other.position)
+    position(other.position),
+    processorChain(other.processorChain)
 {
 }
 
