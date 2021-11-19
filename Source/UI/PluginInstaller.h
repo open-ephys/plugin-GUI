@@ -11,18 +11,16 @@ class PluginInstallerComponent;
 class PluginInstaller : public DocumentWindow
 {
 public:
-    /** Initializes the MainWindow, creates the AudioComponent, ProcessorGraph,
-        and UIComponent, and sets the window boundaries. */
+    /** Constructor */
     PluginInstaller(MainWindow* mainWindow);
 
-    /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
+    /** Destructor*/
     ~PluginInstaller();
 
-    /** Called when the user hits the close button of the MainWindow. This destroys
-        the MainWindow and closes the application. */
+    /** Called when the user hits the close button of the PluginInstaller. */
     void closeButtonPressed();
 
-    /** A JUCE class that allows the PluginManager to respond to keyboard and menubar
+    /** A JUCE class that allows the PluginInstaller to respond to keyboard and menubar
         commands. */
     ApplicationCommandManager commandManager;
 
@@ -40,9 +38,8 @@ private:
 
 };
 
-
 /*
-*   Struct for storing information of a plugin
+*   Struct for storing information about a plugin
 */
 
 struct SelectedPluginInfo
@@ -120,7 +117,18 @@ private:
 
     SelectedPluginInfo pInfo;
 
-    enum RetunCode {ZIP_NOTFOUND, SUCCESS, UNCMP_ERR, XML_MISSING, VER_EXISTS_ERR, XML_WRITE_ERR, LOAD_ERR, PLUGIN_IN_USE, RECNODE_IN_USE};
+    enum RetunCode
+    {
+        ZIP_NOTFOUND,
+        SUCCESS,
+        UNCMP_ERR,
+        XML_MISSING,
+        VER_EXISTS_ERR,
+        XML_WRITE_ERR,
+        LOAD_ERR,
+        PLUGIN_IN_USE,
+        RECNODE_IN_USE
+    };
 
     void run() override;
 
@@ -134,7 +142,6 @@ private:
 class PluginListBoxComponent : public Component,
                                public ListBoxModel,
                                public Thread
-                             //  public ThreadWithProgressWindow
 {
 public:
 
