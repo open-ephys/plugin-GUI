@@ -380,6 +380,23 @@ void StreamSelector::buttonClicked(Button* button)
         editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
 }
 
+int StreamSelector::getViewedIndex()
+{
+    
+    return viewedStreamIndex;
+}
+
+void StreamSelector::setViewedIndex(int i)
+{
+    if (i >= 0 && i < streams.size())
+    {
+        viewedStreamIndex = i;
+        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+    }
+        
+}
+
+
 void StreamSelector::paint(Graphics& g)
 {
     

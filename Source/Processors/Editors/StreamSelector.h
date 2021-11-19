@@ -194,6 +194,12 @@ public:
 
     /** Returns the total number of streams for this plugin*/
     int getNumStreams() { return streams.size(); }
+    
+    /** Returns the index of the stream that's currently in view*/
+    int getViewedIndex();
+    
+    /** Sets the stream that's currently in view*/
+    void setViewedIndex(int i);
 
     /** Used to enable and disable a given stream*/
     void setStreamEnabledState(uint16 streamId, bool isEnabled);

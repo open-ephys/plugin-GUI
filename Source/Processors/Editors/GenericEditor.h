@@ -229,9 +229,12 @@ public:
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
-
-    /**  Collapses an editor if it's open, and opens it if it's collpased*/
+    
+    /**  Sets the collapsed state for the editor*/
     void switchCollapsedState();
+
+    /**  Sets the collapsed state for the editor*/
+    void setCollapsedState(bool);
 
     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
     virtual void collapsedStateChanged();

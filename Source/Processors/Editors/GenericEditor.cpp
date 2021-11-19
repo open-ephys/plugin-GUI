@@ -491,14 +491,6 @@ void GenericEditor::update(bool isEnabled_)
     updateVisualizer(); // does nothing unless this method
                         // has been implemented
     
-    EditorViewport* ev = AccessClass::getEditorViewport();
-
-    if(!ev->loadingConfig)
-    {
-        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
-        ev->saveState(recoveryFile);
-    }
-
 }
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
@@ -520,11 +512,16 @@ bool GenericEditor::getCollapsedState()
 
 void GenericEditor::switchCollapsedState()
 {
+    setCollapsedState(!isCollapsed);
+}
+
+void GenericEditor::setCollapsedState(bool state)
+{
 
     if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
     {
 
-        if (isCollapsed)
+        if (!state && isCollapsed)
         {
             // open it up
 
@@ -539,20 +536,28 @@ void GenericEditor::switchCollapsedState()
             }
 
             isCollapsed = false;
+            
+            for (int i = 0; i < getNumChildComponents(); i++)
+            {
+                Component* c = getChildComponent(i);
+                c->setVisible(true);
+            }
 
         }
-        else
+        else if (state && !isCollapsed)
         {
             originalWidth = desiredWidth;
             desiredWidth = 25;
             isCollapsed = true;
+            
+            for (int i = 0; i < getNumChildComponents(); i++)
+            {
+                Component* c = getChildComponent(i);
+                c->setVisible(false);
+            }
         }
 
-        for (int i = 0; i < getNumChildComponents(); i++)
-        {
-            Component* c = getChildComponent(i);
-            c->setVisible(!isCollapsed);
-        }
+        
 
         collapsedStateChanged();
 
@@ -566,6 +571,9 @@ void GenericEditor::saveToXml(XmlElement* xml)
     xml->setAttribute("isCollapsed", isCollapsed);
     xml->setAttribute("isDrawerOpen", drawerOpen);
     xml->setAttribute("displayName", displayName);
+    
+    if (streamSelector != nullptr)
+        xml->setAttribute("activeStream", streamSelector->getViewedIndex());
 
     saveCustomParametersToXml(xml);
 
@@ -577,9 +585,7 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     bool isCollapsed = xml->getBoolAttribute("isCollapsed", false);
 
     if (isCollapsed)
-    {
-        switchCollapsedState();
-    }
+        setCollapsedState(true);
 
     if (!drawerOpen)
     {
@@ -598,8 +604,11 @@ void GenericEditor::loadFromXml(XmlElement* xml)
 
     displayName = xml->getStringAttribute("displayName", name);
     getProcessor()->updateDisplayName(displayName);
-
+    
     loadCustomParametersFromXml(xml);
+    
+    if (streamSelector != nullptr)
+        streamSelector->setViewedIndex(xml->getIntAttribute("activeStream", 0));
 
 }
 

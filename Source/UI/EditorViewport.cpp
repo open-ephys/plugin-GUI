@@ -70,11 +70,6 @@ EditorViewport::~EditorViewport()
     copyBuffer.clear();
 }
 
-void EditorViewport::resized()
-{
-  //  refreshEditors();
-}
-
 void EditorViewport::paint(Graphics& g)
 {
 
@@ -1200,6 +1195,18 @@ void SignalChainTabComponent::setEditorViewport(EditorViewport* ev)
     viewport->setViewedComponent(ev, true);
 }
 
+int SignalChainTabComponent::getScrollOffset()
+{
+    
+    return viewport->getViewPositionX();
+}
+
+void SignalChainTabComponent::setScrollOffset(int offset)
+{
+    //std::cout << "Setting scroll offset to " << offset << std::endl;
+    viewport->setViewPosition(offset, 0);
+}
+
 void SignalChainTabComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
@@ -1218,6 +1225,8 @@ void SignalChainTabComponent::paint(Graphics& g)
 void SignalChainTabComponent::resized()
 {
 
+    int scrollOffset = getScrollOffset();
+    
     int b = 2; // border
 
     downButton->setBounds(b, getHeight()-25-b, TAB_SIZE-b, 15);
@@ -1227,6 +1236,8 @@ void SignalChainTabComponent::resized()
     
     int width = editorViewport->getDesiredWidth() < getWidth()-TAB_SIZE ? getWidth() -TAB_SIZE : editorViewport->getDesiredWidth();
     editorViewport->setBounds(0, 0, width, getHeight());
+    
+    setScrollOffset(scrollOffset);
 }
 
 
@@ -1345,19 +1356,21 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     
     std::unique_ptr<XmlElement> xml = createSettingsXml();
 
-    if (! xml->writeToFile(currentFile, String()))
+    if (! xml->writeTo(currentFile))
         error = "Couldn't write to file ";
     else
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
 
-    if (xmlText != nullptr)
-    {
-        (*xmlText) = xml->createDocument(String());
-        if ((*xmlText).isEmpty())
-            (*xmlText) = "Couldn't create configuration xml";
-    }
+    //if (xmlText != nullptr)
+    //{
+     //   (*xmlText) = xml->createDocument(String());
+     //   if ((*xmlText).isEmpty())
+     //       (*xmlText) = "Couldn't create configuration xml";
+    //}
+    
+    std::cout << "Editor viewport saved state." << std::endl;
 
     return error;
     
@@ -1464,6 +1477,10 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
         allSplitters[i]->switchIO(splitterStates[i]);
     }
 
+    XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
+    editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
+    xml->addChildElement(editorViewportSettings);
+    
     XmlElement* audioSettings = new XmlElement("AUDIO");
 
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
@@ -1743,6 +1760,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         else if (element->hasTagName("AUDIO"))
         {
             AccessClass::getAudioComponent()->loadStateFromXml(element);
+        }
+        else if (element->hasTagName("EDITORVIEWPORT"))
+        {
+            signalChainTabComponent->setScrollOffset(element->getIntAttribute("scroll", 0));
         }
 		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
 		{

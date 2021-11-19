@@ -231,8 +231,6 @@ private:
 
     SignalChainTabComponent* signalChainTabComponent;
 
-    void resized();
-    
     bool shiftDown;
     
     OwnedArray<XmlElement> copyBuffer;
@@ -312,6 +310,9 @@ public:
     void setEditorViewport(EditorViewport*);
     
     enum directions {UP, DOWN};
+    
+    int getScrollOffset();
+    void setScrollOffset(int offset);
 
 private:
 
