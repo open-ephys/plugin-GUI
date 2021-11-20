@@ -1705,6 +1705,15 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                 if (processor->hasTagName("PROCESSOR"))
                 {
 
+                    auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
+                    String pName = processor->getStringAttribute("pluginName");
+
+                    if(!loadedPlugins.contains(pName))
+                    {
+                        LOGC(pName, " plugin not found in Processor List! Loooking for it on Artifactory...");
+                        CoreServices::PluginInstaller::installPlugin(pName);
+                    }
+                    
                     int insertionPt = processor->getIntAttribute("insertionPoint");
                     
                     p = createProcessorAtInsertionPoint(processor, insertionPt, false);
