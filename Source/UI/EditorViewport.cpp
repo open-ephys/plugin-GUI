@@ -70,11 +70,6 @@ EditorViewport::~EditorViewport()
     copyBuffer.clear();
 }
 
-void EditorViewport::resized()
-{
-  //  refreshEditors();
-}
-
 void EditorViewport::paint(Graphics& g)
 {
 
@@ -248,12 +243,8 @@ GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, 
     else
     {
         action->perform();
-
         orphanedActions.add(action);
-
         return action->processor;
-        
-
     }
     
 }
@@ -268,7 +259,6 @@ void EditorViewport::clearSignalChain()
         undoManager.beginNewTransaction();
         ClearSignalChain* action = new ClearSignalChain(this);
         undoManager.perform(action);
-        
     }
     else
     {
@@ -296,8 +286,6 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
             }
         }
     }
-        
-    
 }
 
 void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
@@ -311,10 +299,8 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
         {
             editor->setVisible(false);
         }
-
     }
 
-    
     editorArray.clear();
     
     for (auto editor : visibleEditors)
@@ -331,7 +317,6 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
 
 int EditorViewport::getDesiredWidth()
 {
-    
     int desiredWidth = 0;
     
     for (auto editor : editorArray)
@@ -346,8 +331,6 @@ void EditorViewport::refreshEditors()
 {
 
     int lastBound = BORDER_SIZE;
-
-    //LOGDD(insertionPoint);
 
     bool pastRightEdge = false;
 
@@ -381,6 +364,7 @@ void EditorViewport::refreshEditors()
         editor->setBounds(lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE*4);
         lastBound += (componentWidth + BORDER_SIZE);
     }
+    
     signalChainTabComponent->resized();
 }
 
@@ -410,9 +394,7 @@ void EditorViewport::moveSelection(const KeyPress& key)
                     editorArray[i]->deselect();
                 }
             }
-
         }
-
     }
     else if (key.getKeyCode() == key.rightKey)
     {
@@ -445,9 +427,7 @@ void EditorViewport::moveSelection(const KeyPress& key)
                     editorArray[i]->deselect();
                     i++;
                 }
-
             }
-
         }
     }
 
@@ -472,18 +452,8 @@ void EditorViewport::moveSelection(const KeyPress& key)
              {
                  editorArray[i]->select();
              }
-
          }
-
     }
-
-    // } else if (key.getKeyCode() == key.upKey) {
-
-    //     // move one tab up
-    // } else if (key.getKeyCode() == key.downKey) {
-
-    //     // move one tab down
-    // }
 }
 
 bool EditorViewport::keyPressed(const KeyPress& key)
@@ -629,7 +599,6 @@ void EditorViewport::paste()
                 insertionPoint = i + 1;
                 foundSelected = true;
             }
-                
         }
         
         LOGDD("Insertion point: ", insertionPoint);
@@ -642,7 +611,6 @@ void EditorViewport::paste()
             {
                 newProcessors.add(createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
                                                     insertionPoint++, true));
-                
             }
             
             for (auto p : newProcessors)
@@ -662,9 +630,7 @@ void EditorViewport::paste()
 
 void EditorViewport::undo()
 {
-    
     undoManager.undo();
-    
 }
 
 void EditorViewport::redo()
@@ -691,7 +657,6 @@ void EditorViewport::selectEditor(GenericEditor* editor)
 
 void EditorViewport::labelTextChanged(Label* label)
 {
-
     editorToUpdate->setDisplayName(label->getText());
 }
 
@@ -704,10 +669,6 @@ void EditorViewport::mouseDown(const MouseEvent& e)
     {
 
         if (e.eventComponent == editorArray[i])
-
-            // || e.eventComponent->getParentComponent() == editorArray[i] ||
-            //    e.eventComponent->getParentComponent()->getParentComponent() ==
-            //            editorArray[i])
         {
 
             if (e.getNumberOfClicks() == 2) // double-clicks toggle collapse state
@@ -771,21 +732,13 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     CallOutBox callOut(editorNamingLabel, rect1, nullptr);
                     editorToUpdate = editorArray[i];
                     callOut.runModalLoop();
-                    // editorNamingLabel.showEditor();
-                    //CallOutBox& myBox = CallOutBox::launchAsynchronously(&editorNamingLabel, rect1, nullptr);
 
                     return;
 
                 }
                 else if (result == 2)
                 {
-                    
-                    //Array<GenericProcessor*> processorsToRemove;
-
-                    //processorsToRemove.add(editorArray[i]->getProcessor());
-
                     deleteSelectedProcessors();
-                    
                     
                     return;
                 }
@@ -794,6 +747,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     editorArray[i]->switchCollapsedState();
                     refreshEditors();
                     return;
+                    
                 } else if (result == 4)
                 {
                     FileChooser fc("Choose the file name...",
@@ -865,52 +819,6 @@ void EditorViewport::mouseDown(const MouseEvent& e)
             }
 
             lastEditorClicked = editorArray[i];
-
-
-            //     Array<GenericEditor*> editorsToSelect;
-            //     bool foundSelected = false;
-
-            //     for (int j = i; j < editorArray.size(); j++)
-            //     {
-            //         editorsToSelect.add(editorArray[j]);
-
-            //         if (editorArray[j]->getSelectionState())
-            //         {
-            //             foundSelected = true;
-            //             break;
-            //         }
-            //     }
-
-            //     if (!foundSelected)
-            //         editorsToSelect.clear();
-
-            //     for (int j = 0; j < editorsToSelect.size(); j++)
-            //     {
-            //         editorsToSelect[j]->select();
-            //     }
-
-            //     for (int j = i; j > -1; j--)
-            //     {
-            //         editorsToSelect.add(editorArray[j]);
-            //         if (editorArray[j]->getSelectionState())
-            //         {
-            //             foundSelected = true;
-            //             break;
-            //         }
-            //     }
-
-            //     if (!foundSelected)
-            //         editorsToSelect.clear();
-
-            //     for (int j = 0; j < editorsToSelect.size(); j++)
-            //     {
-            //         editorsToSelect[j]->select();
-            //     }
-
-            //     break;
-
-            // }
-
         }
         else
         {
@@ -994,9 +902,10 @@ void EditorViewport::mouseUp(const MouseEvent& e)
         {
             undoManager.beginNewTransaction();
             
-             DeleteProcessor* action = new DeleteProcessor(
-                                                       editorArray           [indexOfMovingComponent]->getProcessor(),
-                                                           this);
+             DeleteProcessor* action =
+                    new DeleteProcessor(
+                        editorArray[indexOfMovingComponent]->getProcessor(),
+                        this);
              
              undoManager.perform(action);
             
@@ -1042,16 +951,11 @@ void EditorViewport::mouseExit(const MouseEvent& e)
 
     if (componentWantsToMove)
     {
-
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
 
         repaint();
-        //refreshEditors();
-
     }
-
-
 }
 
 
@@ -1065,9 +969,8 @@ bool EditorViewport::isSignalChainEmpty()
 
 }
 
-
 ///////////////////////////////////////////////////////////////////
-////////////////SIGNAL CHAIN TAB BUTTON////////////////////////////
+////////////////SIGNAL CHAIN TAB BUTTON///////////
 ///////////////////////////////////////////////////////////////////
 
 SignalChainTabButton::SignalChainTabButton(int index) : Button("Name"), num(index)
@@ -1200,6 +1103,17 @@ void SignalChainTabComponent::setEditorViewport(EditorViewport* ev)
     viewport->setViewedComponent(ev, true);
 }
 
+int SignalChainTabComponent::getScrollOffset()
+{
+    return viewport->getViewPositionX();
+}
+
+void SignalChainTabComponent::setScrollOffset(int offset)
+{
+    //std::cout << "Setting scroll offset to " << offset << std::endl;
+    viewport->setViewPosition(offset, 0);
+}
+
 void SignalChainTabComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
@@ -1218,6 +1132,8 @@ void SignalChainTabComponent::paint(Graphics& g)
 void SignalChainTabComponent::resized()
 {
 
+    int scrollOffset = getScrollOffset();
+    
     int b = 2; // border
 
     downButton->setBounds(b, getHeight()-25-b, TAB_SIZE-b, 15);
@@ -1227,6 +1143,8 @@ void SignalChainTabComponent::resized()
     
     int width = editorViewport->getDesiredWidth() < getWidth()-TAB_SIZE ? getWidth() -TAB_SIZE : editorViewport->getDesiredWidth();
     editorViewport->setBounds(0, 0, width, getHeight());
+    
+    setScrollOffset(scrollOffset);
 }
 
 
@@ -1241,7 +1159,6 @@ void SignalChainTabComponent::refreshTabs(int numberOfTabs_, int selectedTab_, b
             topTab = selectedTab - 3;
         else if (topTab > selectedTab && selectedTab != -1)
             topTab = selectedTab;
-        
     }
     
     for (int i = 0; i < signalChainTabButtonArray.size(); i++)
@@ -1267,7 +1184,6 @@ void SignalChainTabComponent::refreshTabs(int numberOfTabs_, int selectedTab_, b
     }
 
 }
-
 
 void SignalChainTabComponent::buttonClicked(Button* button)
 {
@@ -1345,19 +1261,14 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     
     std::unique_ptr<XmlElement> xml = createSettingsXml();
 
-    if (! xml->writeToFile(currentFile, String()))
+    if (! xml->writeTo(currentFile))
         error = "Couldn't write to file ";
     else
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
-
-    if (xmlText != nullptr)
-    {
-        (*xmlText) = xml->createDocument(String());
-        if ((*xmlText).isEmpty())
-            (*xmlText) = "Couldn't create configuration xml";
-    }
+    
+    std::cout << "Editor viewport saved state." << std::endl;
 
     return error;
     
@@ -1375,7 +1286,6 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     int saveOrder = 0;
     
     std::unique_ptr<XmlElement> xml = std::unique_ptr<XmlElement>(new XmlElement("SETTINGS"));
-    //std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>(xml_ptr);
 
     XmlElement* info = xml->createNewChildElement("INFO");
 
@@ -1464,6 +1374,10 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
         allSplitters[i]->switchIO(splitterStates[i]);
     }
 
+    XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
+    editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
+    xml->addChildElement(editorViewportSettings);
+    
     XmlElement* audioSettings = new XmlElement("AUDIO");
 
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
@@ -1573,7 +1487,7 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
         
         XmlElement* settings = createNodeXml(selectedEditor->getProcessor(), false);
         
-        if (! settings->writeToFile(fileToSave, String()))
+        if (! settings->writeTo(fileToSave))
             error = "Couldn't write to file ";
         else
             error = "Saved plugin settings to ";
@@ -1621,11 +1535,11 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
     String versionString;
 
-    forEachXmlChildElement(*xml, element)
+    for (auto* element : xml->getChildIterator())
     {
         if (element->hasTagName("INFO"))
         {
-            forEachXmlChildElement(*element, element2)
+            for (auto* element2 : element->getChildIterator())
             {
                 if (element2->hasTagName("VERSION"))
                 {
@@ -1693,15 +1607,12 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
     GenericProcessor* p;
 
-    forEachXmlChildElement(*xml, element)
+    for (auto* element : xml->getChildIterator())
     {
-
         if (element->hasTagName("SIGNALCHAIN"))
         {
-
-            forEachXmlChildElement(*element, processor)
+            for (auto* processor : element->getChildIterator())
             {
-
                 if (processor->hasTagName("PROCESSOR"))
                 {
 
@@ -1719,11 +1630,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                     p = createProcessorAtInsertionPoint(processor, insertionPt, false);
                     p->loadOrder = loadOrder++;
                     
-                    if (p->isSplitter()) //|| p->isMerger())
+                    if (p->isSplitter())
                     {
                         splitPoints.add(p);
                     }
-                
                 }
                 else if (processor->hasTagName("SWITCH"))
                 {
@@ -1733,7 +1643,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
                     for (int n = 0; n < splitPoints.size(); n++)
                     {
-
                         LOGDD("Trying split point ", n,  ", load order: ", splitPoints[n]->loadOrder);
 
                         if (splitPoints[n]->loadOrder == processorNum)
@@ -1753,6 +1662,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         {
             AccessClass::getAudioComponent()->loadStateFromXml(element);
         }
+        else if (element->hasTagName("EDITORVIEWPORT"))
+        {
+            signalChainTabComponent->setScrollOffset(element->getIntAttribute("scroll", 0));
+        }
 		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
 		{
 			int tsID = element->getIntAttribute("selected_index", -1);
@@ -1762,16 +1675,13 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
     }
 
-    AccessClass::getProcessorGraph()->restoreParameters();
-
-    AccessClass::getControlPanel()->loadStateFromXml(xml); // load the control panel settings
+    AccessClass::getProcessorGraph()->restoreParameters();  // loads the processor graph settings
+    AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
-    AccessClass::getUIComponent()->loadStateFromXml(xml);  // load the UI settings
+    AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
 
     String error = "Opened ";
     error += currentFile.getFileName();
-
-    //delete xml;
 
     loadingConfig = false;
     
@@ -1786,7 +1696,6 @@ void EditorViewport::deleteSelectedProcessors()
     
     for (auto editor : editors)
     {
-        //std::cout << "Editor name: " << editor->getName() << std::endl;
         if (editor->getSelectionState())
         {
             editorArray.remove(editorArray.indexOf(editor));
@@ -1817,7 +1726,7 @@ Plugin::Description EditorViewport::getDescriptionFromXml(XmlElement* settings, 
     return description;
 }
 
-GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* processor,
+GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
                                                                   int insertionPt,
                                                                   bool ignoreNodeId)
 {
@@ -1836,10 +1745,10 @@ GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* pr
         insertionPoint = insertionPt;
     }
     
-    Plugin::Description description = getDescriptionFromXml(processor, ignoreNodeId);
+    Plugin::Description description = getDescriptionFromXml(parametersAsXml, ignoreNodeId);
     
     GenericProcessor* p = addProcessor(description, insertionPoint);
-    p->parametersAsXml = processor;
+    p->parametersAsXml = parametersAsXml;
     
     return p;
 }

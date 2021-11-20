@@ -62,7 +62,7 @@ public:
     void updateSettings() override;
 
     /** Called during updateSettings(), once for each input processor*/
-    void addSettingsFromSourceNode(GenericProcessor* sn);
+    int addSettingsFromSourceNode(GenericProcessor* sn, int globalIndex);
 
     /** Checks whether or not a particular stream should be sent to the Merger output */
     bool checkStream(const DataStream* stream);
@@ -75,6 +75,9 @@ public:
 
     /** Switch the currently displayed path */
     void switchIO() override;
+    
+    /** An upstream processor was deleted -- reorganize sources if necessary*/
+    void lostInput();
 
     /** Switches the currently viewed path to a particular input processor*/
     int switchToSourceNode(GenericProcessor* sn);
@@ -84,6 +87,10 @@ public:
 
     /** Returns the source node for a particular path (0 or 1)*/
     GenericProcessor* getSourceNode(int);
+    
+    /** Return the streams to be sent to the selected destination node*/
+    Array<const DataStream*> getStreamsForDestNode(GenericProcessor* destNode) override;
+
 
     /** Called while loading the signal chain */
     void restoreConnections();

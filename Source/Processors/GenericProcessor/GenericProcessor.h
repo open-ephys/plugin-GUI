@@ -303,6 +303,12 @@ public:
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
+    
+    /** Adds a mask channels parameter, which will later be accessed by name*/
+    void addMaskChannelsParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
     void addCategoricalParameter(Parameter::ParameterScope scope,
@@ -518,6 +524,9 @@ protected:
 
     /** Handles a configuration message sent to this processor, while acquisition is not active.*/
     virtual String handleConfigMessage(String msg);
+    
+    /** Handles a configuration message sent to this processor, while acquisition is not active.*/
+    virtual void handleBroadcastMessage(String msg) { }
 
 	/** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
@@ -587,7 +596,10 @@ protected:
     OwnedArray<DataStream> dataStreams;
 
     /** Copies DataStream settings from a source processor*/
-    void copyDataStreamSettings(const DataStream*);
+    int copyDataStreamSettings(const DataStream*, int continuousChannelGlobalIndex);
+    
+    /** Sets whether or not a given stream is enabled*/
+    void setStreamEnabled(uint16 streamId, bool isEnabled);
 
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();
@@ -603,9 +615,6 @@ protected:
 
     /** An array of default parameters for this processor.*/
     OwnedArray<Parameter> availableParameters;
-
-    /** An array of parameters that the user can modify.*/
-    OwnedArray<Parameter> parameters;
     
     /** An array of parameter collections from deleted dataStreams*/
     OwnedArray<ParameterCollection> savedDataStreamParameters;
@@ -672,6 +681,7 @@ private:
 	std::map<int,bool> m_needsToSendTimestampMessages;
 
 	MidiBuffer* m_currentMidiBuffer;
+    MidiBuffer messageCenterBuffer;
 
     typedef std::unordered_map<uint16, 
         std::unordered_map<uint16, 

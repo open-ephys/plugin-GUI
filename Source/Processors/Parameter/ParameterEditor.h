@@ -39,7 +39,7 @@ class ParameterEditor : public Component
 {
 public:
 
-    ParameterEditor(Parameter* param_) : param(param_) { }
+    ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) { }
 
     virtual ~ParameterEditor() { }
 
@@ -56,10 +56,12 @@ public:
         return param->shouldDeactivateDuringAcquisition();
     }
 
-    const String getParameterName() { return param->getName(); }
+    const String getParameterName() { return name; }
 
 protected:
     Parameter* param;
+    
+    String name;
 };
 
 /** 
@@ -138,6 +140,43 @@ private:
     int offset;
 };
 
+class SliderLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    SliderLookAndFeel() { }
+    ~SliderLookAndFeel() { }
+
+    Slider::SliderLayout getSliderLayout (Slider& slider) override;
+
+    void drawRotarySlider (Graphics&, int x, int y, int width, int height,
+                           float sliderPosProportional, float rotaryStartAngle,
+                           float rotaryEndAngle, Slider&) override;
+
+    Label* createSliderTextBox (Slider& slider) override;
+
+private:
+    Colour blue      = Colour::fromFloatRGBA (0.43f, 0.83f, 1.0f,  1.0f);
+    Colour offWhite  = Colour::fromFloatRGBA (0.83f, 0.84f, 0.9f,  1.0f);
+    Colour grey      = Colour::fromFloatRGBA (0.42f, 0.42f, 0.42f, 1.0f);
+    Colour blackGrey = Colour::fromFloatRGBA (0.2f,  0.2f,  0.2f,  1.0f);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SliderLookAndFeel);
+};
+
+class PLUGIN_API CustomSlider : public Slider
+{
+public:
+    CustomSlider();
+    ~CustomSlider();
+
+    void mouseDown (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
+    
+    SliderLookAndFeel sliderLookAndFeel;
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomSlider)
+};
 
 
 /**
@@ -152,16 +191,17 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
 public:
     SliderParameterEditor(Parameter* param);
     virtual ~SliderParameterEditor() { }
-
-    void sliderValueChanged(Slider* slider);
+    
+    void sliderValueChanged(Slider* slider) override;
 
     virtual void updateView() override;
 
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
-    std::unique_ptr<Slider> valueSlider;
+    std::unique_ptr<CustomSlider> slider;
+    
 };
 
 /**
@@ -191,5 +231,31 @@ private:
     std::unique_ptr<UtilityButton> button;
 };
 
+/**
+    Creates a special editor for a MaskChannelsParameter
+
+    Displays all of the channels in the currently active DataStream,
+    and makes it possible to select them by clicking.
+
+*/
+class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
+    public Button::Listener,
+    public PopupChannelSelector::Listener
+{
+public:
+    MaskChannelsParameterEditor(Parameter* param);
+    virtual ~MaskChannelsParameterEditor() { }
+
+    void buttonClicked(Button* label);
+
+    virtual void updateView() override;
+
+    void channelStateChanged(Array<int> selectedChannels);
+
+    virtual void resized();
+
+private:
+    std::unique_ptr<UtilityButton> button;
+};
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

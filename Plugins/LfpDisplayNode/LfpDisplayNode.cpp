@@ -72,7 +72,7 @@ void LfpDisplayNode::updateSettings()
 
         if (displayBufferMap.count(streamId) == 0)
         {
-            String name = channel->getSourceNodeName();
+            String name = channel->getStreamName();
 
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
             displayBufferMap[streamId] = displayBuffers.getLast();

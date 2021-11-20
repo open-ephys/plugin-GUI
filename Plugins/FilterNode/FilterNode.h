@@ -70,7 +70,7 @@ public:
     FilterNode();
 
     /** The class destructor, used to deallocate memory. */
-    ~FilterNode();
+    ~FilterNode() { }
 
     /** Creates the FilterEditor. */
     AudioProcessorEditor* createEditor() override;

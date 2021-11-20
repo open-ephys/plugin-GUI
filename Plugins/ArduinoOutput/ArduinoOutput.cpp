@@ -122,9 +122,9 @@ void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket
         TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
 
         const int eventBit = ttl->getBit() + 1;
-        const uint16 eventStream = ttl->getStreamId();
+        DataStream* stream = getDataStream(ttl->getStreamId());
 
-        if (eventBit == int(getParameter(eventStream, "gate_bit")->getValue()))
+        if (eventBit == int((*stream)["gate_bit"]))
         {
             if (ttl->getState())
                 gateIsOpen = true;
@@ -134,19 +134,19 @@ void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket
 
         if (gateIsOpen)
         {
-            if (eventBit == int(getParameter(eventStream, "input_bit")->getValue()))
+            if (eventBit == int((*stream)["input_bit"])
             {
 
                 if (ttl->getState())
                 {
                     arduino.sendDigital(
-                        int(getParameter(eventStream, "output_channel")->getValue()),
+                        getParameter("output_pin")->getValue(),
                         ARD_LOW);
                 }
                 else
                 {
                     arduino.sendDigital(
-                        int(getParameter(eventStream, "output_channel")->getValue()),
+                        getParameter("output_pin")->getValue(),
                         ARD_HIGH);
                 }
             }

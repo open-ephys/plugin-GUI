@@ -47,6 +47,9 @@ public:
     {
         setEditable(false, true, false);
         addListener(this);
+        setColour(Label::textColourId, Colours::white);
+        setColour(Label::textWhenEditingColourId, Colours::yellow);
+        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
     }
 
     void mouseDown(const juce::MouseEvent& event) override;
@@ -54,13 +57,14 @@ public:
     void labelTextChanged(Label* label);
 
     void setRowAndColumn(const int newRow, const int newColumn);
+    
+    void setParameter(StringParameter* name_) { name = name_; }
 
     int row;
 
 private:
     StringParameter* name;
     int columnId;
-    juce::Colour textColour;
 };
 
 class ChannelSelectorCustomComponent : public juce::Label,
@@ -84,13 +88,25 @@ public:
             newArray.add(newChannels[i]);
             std::cout << "Channel " << newChannels[i] << " selected" << std::endl;
         }
-            
         
+        String s = "[";
+        
+        for (auto chan : newArray)
+        {
+            s += String(int(chan)+1) + ",";
+        }
+        
+        s += "]";
+        
+        setText(s, dontSendNotification);
+            
         channels->setNextValue(newArray);
     
     }
     
     void setRowAndColumn(const int newRow, const int newColumn);
+    
+    void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
 
     int row;
 
@@ -100,6 +116,35 @@ private:
     juce::Colour textColour;
 };
 
+class ThresholdSelectorCustomComponent : public juce::Label,
+    public Label::Listener
+{
+public:
+    ThresholdSelectorCustomComponent(FloatParameter* threshold_)
+        : threshold(threshold_)
+    {
+        setEditable(false, true, false);
+        addListener(this);
+        setColour(Label::textColourId, Colours::white);
+        setColour(Label::textWhenEditingColourId, Colours::yellow);
+        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
+    }
+
+    void mouseDown(const juce::MouseEvent& event) override;
+    
+    void labelTextChanged(Label* label) override;
+
+    void setRowAndColumn(const int newRow, const int newColumn);
+    
+    void setParameter(FloatParameter* threshold_) { threshold = threshold_; }
+
+    int row;
+
+private:
+    FloatParameter* threshold;
+    int columnId;
+    juce::Colour textColour;
+};
 
 class WaveformSelectorCustomComponent : public Component
 {
@@ -111,9 +156,11 @@ public:
 
     void mouseDown(const juce::MouseEvent& event) override;
     
-    void paint(Graphics& g);
+    void paint(Graphics& g) override;
     
     void setRowAndColumn(const int newRow, const int newColumn);
+    
+    void setParameter(CategoricalParameter* waveformtype_) { waveformtype = waveformtype_; }
 
     int row;
 
@@ -164,9 +211,7 @@ private:
 };
 
 
-class PopupConfigurationWindow : public Component,
-    public Slider::Listener,
-    public Button::Listener
+class PopupConfigurationWindow : public Component
 {
 
 public:
@@ -177,13 +222,6 @@ public:
 
     void update(Array<SpikeChannel*> spikeChannels);
 
-
-    void sliderValueChanged(Slider* slider);
-
-    void buttonClicked(Button* button);
-
-    std::unique_ptr<UtilityButton> plusButton;
-
     std::unique_ptr<Viewport> tableViewport;
 
     //std::unique_ptr<TableHeaderComponent> tableHeader;
@@ -192,6 +230,7 @@ public:
 
 private:
     SpikeDetectorEditor* editor;
+
 
 };
 

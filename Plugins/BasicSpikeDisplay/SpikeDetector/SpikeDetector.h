@@ -26,6 +26,19 @@
 
 #include <ProcessorHeaders.h>
 
+class SpikeDetectorSettings
+{
+public:
+    /** Constructor -- initializes values*/
+    SpikeDetectorSettings();
+    
+    int nextAvailableChannel;
+    
+    int singleElectrodeCount;
+    int stereotrodeCount;
+    int tetrodeCount;
+
+};
 
 class AbsValueThresholder : public Thresholder
 {
@@ -60,7 +73,7 @@ public:
     SpikeDetector();
 
     /** Destructor*/
-    ~SpikeDetector() { }
+    ~SpikeDetector();
 
     /** Processes an incoming continuous buffer and places new spikes into the event buffer. */
     void process (AudioBuffer<float>& buffer) override;
@@ -87,7 +100,7 @@ public:
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
     /** Adds a spike channel of a given type */
-    void addSpikeChannel (const String& name, SpikeChannel::Type type, Array<const ContinuousChannel*> sourceChannels);
+    void addSpikeChannel (SpikeChannel::Type type, uint16 currentStream);
 
     /** Removes a spike channel, based on a SpikeChannel pointer. */
     void removeSpikeChannel (SpikeChannel*);
@@ -105,13 +118,15 @@ private:
     AudioBuffer<float> overflowBuffer;
     // =====================================================================
 
-    float getDefaultThreshold() const;
-
     float getSample(int globalChannelIndex, int sampleIndex, AudioBuffer<float>& buffer);
 
     void addWaveformToSpikeBuffer (Spike::Buffer& s,
                                     int sampleIndex,
                                    AudioBuffer<float>& buffer);
+    
+    //ParameterCollection mostRecentParameters;
+    
+    StreamSettings<SpikeDetectorSettings> settings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

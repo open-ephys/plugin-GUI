@@ -587,16 +587,19 @@ TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChanne
 		return nullptr;
 	}
 
-	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+	//if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
+	//{
+        //std::cout << "Expected stream ID: " <<channelInfo->getStreamId() << std::endl;
+        // std::cout << "Found stream ID: " <<*reinterpret_cast<const uint16*>(buffer + 4) << std::endl;
+		//jassertfalse;
+		//return nullptr;
+	//}
+    
+	//if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
+	//{
+	//	jassertfalse;
+	//	return nullptr;
+	//}
 
 	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));

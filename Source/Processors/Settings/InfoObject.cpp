@@ -61,22 +61,22 @@ const String NamedObject::getName() const
 	return m_name;
 }
 
-void NamedObject::setDescription(String& description)
+void NamedObject::setDescription(const String& description)
 {
 	m_description = description;
 }
 
-const String NamedObject::getDescription() const
+const String& NamedObject::getDescription() const
 {
 	return m_description;
 }
 
-void NamedObject::setIdentifier(String& identifier)
+void NamedObject::setIdentifier(const String& identifier)
 {
 	m_identifier = identifier;
 }
 
-const String NamedObject::getIdentifier() const
+const String& NamedObject::getIdentifier() const
 {
 	return m_identifier;
 }
@@ -119,12 +119,14 @@ InfoObject::InfoObject(const InfoObject& other) :
     m_local_index(other.m_local_index),
     m_global_index(other.m_global_index),
     m_sourceNodeId(other.m_sourceNodeId),
+    m_sourceNodeName(other.m_sourceNodeName),
     m_nodeId(other.m_nodeId),
     m_nodeName(other.m_nodeName),
     m_isLocal(false),
     m_isEnabled(other.m_isEnabled),
     group(other.group),
-    position(other.position)
+    position(other.position),
+    processorChain(other.processorChain)
 {
 }
 
@@ -261,10 +263,9 @@ void InfoObject::addParameter(Parameter* p)
 }
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)
-	: InfoObject(type),
-	stream(dataStream)
+	: InfoObject(type)
 {
-	stream->addChannel(this); // sets local index
+    setDataStream(dataStream); // sets local index
 }
 
 ChannelInfoObject::~ChannelInfoObject()
@@ -272,19 +273,41 @@ ChannelInfoObject::~ChannelInfoObject()
 
 }
 
+ChannelInfoObject::ChannelInfoObject(const ChannelInfoObject& other)
+ : InfoObject(other)
+{
+}
+
 float ChannelInfoObject::getSampleRate() const
 {
-	return stream->getSampleRate();
+    if (stream != nullptr)
+        return stream->getSampleRate();
+    else
+        return 0.0f;
 }
 
 uint16 ChannelInfoObject::getStreamId() const
 {
-	return stream->getStreamId();
+    if (stream != nullptr)
+        return stream->getStreamId();
+    else
+        return 0;
 }
 
 String ChannelInfoObject::getStreamName() const
 {
-	return stream->getName();
+    if (stream != nullptr)
+        return stream->getName();
+    else
+        return "None";
+}
+
+void ChannelInfoObject::setDataStream(DataStream* ds, bool addToStream)
+{
+    stream = ds;
+    
+    if (stream != nullptr && addToStream)
+        stream->addChannel(this);
 }
 
 /*bool InfoObject::isEqual(const InfoObject& other) const

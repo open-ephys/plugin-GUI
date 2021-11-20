@@ -203,10 +203,10 @@ void IntParameter::setNextValue(var newValue_)
     //{
     int value = (int) newValue_;
 
-    std::cout << "val: " << value << std::endl;
-    std::cout << "minvalue: " << minValue << std::endl;
-    std::cout << "maxvalue: " << maxValue << std::endl;
-    std::cout << "streamId: " << getStreamId() << std::endl;
+    //std::cout << "val: " << value << std::endl;
+   // std::cout << "minvalue: " << minValue << std::endl;
+    //std::cout << "maxvalue: " << maxValue << std::endl;
+    //std::cout << "streamId: " << getStreamId() << std::endl;
 
     if (value < minValue)
         newValue = minValue;
@@ -215,7 +215,7 @@ void IntParameter::setNextValue(var newValue_)
     else
         newValue = value;
 
-    std::cout << "newvalue: " << value << std::endl;
+    //std::cout << "newvalue: " << value << std::endl;
     //}
 
     processor->parameterChangeRequest(this);
@@ -315,10 +315,9 @@ void FloatParameter::setNextValue(var newValue_)
     {
         int value = (float) newValue_;
 
-        std::cout << "val: " << value << std::endl;
-        std::cout << "minvalue: " << minValue << std::endl;
-        std::cout << "maxvalue: " << maxValue << std::endl;
-        std::cout << "streamId: " << getStreamId() << std::endl;
+       // std::cout << "val: " << value << std::endl;
+       // std::cout << "minvalue: " << minValue << std::endl;
+       // std::cout << "maxvalue: " << maxValue << std::endl;
 
         if (value < minValue)
             newValue = minValue;
@@ -327,7 +326,7 @@ void FloatParameter::setNextValue(var newValue_)
         else
             newValue = value;
 
-        std::cout << "newvalue: " << (float)newValue << std::endl;
+        //std::cout << "newvalue: " << (float)newValue << std::endl;
     }
 
     processor->parameterChangeRequest(this);
@@ -384,8 +383,6 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
         std::cout << "Not setting next value" << std::endl;
     }
     
-    
-
     processor->parameterChangeRequest(this);
 }
 
@@ -419,41 +416,20 @@ Array<int> SelectedChannelsParameter::getArrayValue()
 
 String SelectedChannelsParameter::getValueAsString()
 {
-    if (maxSelectableChannels < channelCount)
-        return selectedChannelsToString();
-    else
-        return maskChannelsToString();
+    return selectedChannelsToString();
 }
 
 void SelectedChannelsParameter::toXml(XmlElement* xml)
 {
-    if (maxSelectableChannels < channelCount)
-        xml->setAttribute("selectedChannels", selectedChannelsToString());
-    else
-        xml->setAttribute("maskChannels", maskChannelsToString());
+    xml->setAttribute(getName(), selectedChannelsToString());
 }
 
 void SelectedChannelsParameter::fromXml(XmlElement* xml)
 {
-    if (xml->hasAttribute("selectedChannels"))
-        currentValue = parseSelectedString(xml->getStringAttribute("selectedChannels", ""));
-    else if (xml->hasAttribute("maskChannels"))
-        currentValue = parseMaskString(xml->getStringAttribute("maskChannels", ""));
+    if (xml->hasAttribute(getName()))
+        currentValue = parseSelectedString(xml->getStringAttribute(getName(), ""));
 }
 
-String SelectedChannelsParameter::maskChannelsToString()
-{
-
-    String result = "";
-
-    for (int i = 0; i < channelCount; i++)
-    {
-        if (!currentValue.getArray()->contains(var(i)))
-            result += String(i + 1) + ",";
-    }
-
-    return result.substring(0, result.length() - 1);
-}
 
 String SelectedChannelsParameter::selectedChannelsToString()
 {
@@ -466,22 +442,6 @@ String SelectedChannelsParameter::selectedChannelsToString()
     }
 
     return result.substring(0, result.length() - 1);
-}
-
-Array<var> SelectedChannelsParameter::parseMaskString(const String& input)
-{
-
-    Array<var> maskChannels = parseSelectedString(input);
-
-    Array<var> selectedChannels;
-
-    for (int i = 0; i < channelCount; i++)
-    {
-        if (!maskChannels.contains(var(i)))
-            selectedChannels.add(i);
-    }
-
-    return selectedChannels;
 }
 
 Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
@@ -499,6 +459,153 @@ Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
     }
 
     return selectedChannels;
+}
+
+void SelectedChannelsParameter::setChannelCount(int count)
+{
+    channelCount = count;
+    
+    std::cout << getName() << " setting channel count to " << count << std::endl;
+    
+}
+
+MaskChannelsParameter::MaskChannelsParameter(GenericProcessor* processor_,
+    ParameterScope scope,
+    const String& name,
+    const String& description,
+    bool deactivateDuringAcquisition)
+    : Parameter(processor_,
+        ParameterType::MASK_CHANNELS_PARAM,
+        scope,
+        name,
+        description,
+        Array<var>(),
+        deactivateDuringAcquisition),
+    channelCount(0)
+{
+}
+
+void MaskChannelsParameter::setNextValue(var newValue_)
+{
+    std::cout << "Parameter received " << newValue_.getArray()->size() << " more channels" << std::endl;
+    
+    Array<var> values;
+    
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (newValue_.getArray()->contains(i))
+            values.add(i);
+    }
+    
+    newValue = values;
+
+    processor->parameterChangeRequest(this);
+}
+
+std::vector<bool> MaskChannelsParameter::getChannelStates()
+{
+    std::vector<bool> states;
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (currentValue.getArray()->contains(i))
+            states.push_back(true);
+        else
+            states.push_back(false);
+    }
+
+    return states;
+}
+
+
+Array<int> MaskChannelsParameter::getArrayValue()
+{
+    Array<int> out;
+
+    for (int i = 0; i < currentValue.getArray()->size(); i++)
+    {
+        out.add(currentValue[i]);
+    }
+
+    return out;
+}
+
+String MaskChannelsParameter::getValueAsString()
+{
+    return maskChannelsToString();
+}
+
+void MaskChannelsParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), maskChannelsToString());
+}
+
+void MaskChannelsParameter::fromXml(XmlElement* xml)
+{
+    if (xml->hasAttribute(getName()))
+        currentValue = parseMaskString(xml->getStringAttribute(getName(), ""));
+}
+
+String MaskChannelsParameter::maskChannelsToString()
+{
+
+    String result = "";
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (!currentValue.getArray()->contains(var(i)))
+            result += String(i + 1) + ",";
+    }
+
+    return result.substring(0, result.length() - 1);
+}
+
+Array<var> MaskChannelsParameter::parseMaskString(const String& input)
+{
+
+    StringArray channels = StringArray::fromTokens(input, ",", "");
+
+    Array<var> maskChannels;
+
+    for (int i = 0; i < channels.size(); i++)
+    {
+        int ch = channels[i].getIntValue() - 1;
+
+        maskChannels.add(ch);
+    }
+
+    Array<var> selectedChannels;
+
+    for (int i = 0; i < channelCount; i++)
+    {
+        if (!maskChannels.contains(var(i)))
+            selectedChannels.add(i);
+    }
+
+    return selectedChannels;
+}
+
+
+void MaskChannelsParameter::setChannelCount(int count)
+{
+    
+    Array<var>* value = currentValue.getArray();
+    
+    if (channelCount < count)
+    {
+        for (int i = channelCount; i < count; i++)
+            value->add(i);
+        
+    } else if (channelCount > count)
+    {
+        for (int i = count; i < channelCount; i++)
+            value->remove(value->indexOf(var(i)));
+    }
+    
+    channelCount = count;
+    
+    std::cout << getName() << " setting channel count to " << count << std::endl;
+    
 }
 
 

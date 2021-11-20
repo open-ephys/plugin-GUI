@@ -42,7 +42,7 @@ public:
     FilterEditor(GenericProcessor* parentNode);
     
     /** Destructor */
-    ~FilterEditor();
+    ~FilterEditor() { }
 
 private:
 

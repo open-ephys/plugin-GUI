@@ -60,6 +60,20 @@ TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
     return event;
 }
 
+
+TTLEventPtr PhaseDetectorSettings::clearOutputBit(int64 timestamp)
+{
+
+    TTLEventPtr event = TTLEvent::createTTLEvent(eventChannel,
+        timestamp,
+        lastOutputBit,
+        false);
+
+    outputBitChanged = false;
+
+    return event;
+}
+
 PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
 
@@ -98,7 +112,9 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     } 
     else if (param->getName().equalsIgnoreCase("output_bit"))
     {
+        settings[param->getStreamId()]->lastOutputBit = settings[param->getStreamId()]->outputBit;
         settings[param->getStreamId()]->outputBit = (int)param->getValue() - 1;
+        settings[param->getStreamId()]->outputBitChanged = true;
     }
     else if (param->getName().equalsIgnoreCase("gate_bit"))
     {
@@ -114,10 +130,10 @@ void PhaseDetector::updateSettings()
 	for (auto stream : getDataStreams())
 	{
         // update "settings" objects
-        parameterValueChanged(getParameter(stream->getStreamId(), "phase"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "input_channel"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "output_bit"));
-        parameterValueChanged(getParameter(stream->getStreamId(), "gate_bit"));
+        parameterValueChanged(stream->getParameter("phase"));
+        parameterValueChanged(stream->getParameter("input_channel"));
+        parameterValueChanged(stream->getParameter("output_bit"));
+        parameterValueChanged(stream->getParameter("gate_bit"));
 
         EventChannel::Settings s{
             EventChannel::Type::TTL,
@@ -250,7 +266,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
 
                 if (module->wasTriggered)
                 {
-                    if (module->samplesSinceTrigger > 1000)
+                    if (module->samplesSinceTrigger > 2000)
                     {
                         TTLEventPtr ptr = module->createEvent(
                             getTimestamp(module->triggerChannel) + i,
@@ -264,6 +280,15 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                     {
                         module->samplesSinceTrigger++;
                     }
+                }
+                
+                if (module->outputBitChanged)
+                {
+                    TTLEventPtr ptr = module->clearOutputBit(
+                        getTimestamp(module->triggerChannel) + i);
+
+                    addEvent(ptr, i);
+                    
                 }
             }
         }

@@ -529,6 +529,13 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
     
     updateViews(processorToUpdate, true);
     
+    if(!signalChainIsLoading)
+    {
+        EditorViewport* ev = AccessClass::getEditorViewport();
+        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+        ev->saveState(recoveryFile);
+    }
+    
 }
 
 void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphViewer)
@@ -1385,7 +1392,18 @@ bool ProcessorGraph::processorWithSameNameExists(const String& name)
 
 void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 {
-    GenericProcessor* originalSource = processor->getSourceNode();
+        
+    GenericProcessor* originalSource;
+            
+    if (processor->isMerger())
+    {
+        Merger* merger = (Merger*) processor;
+        
+        originalSource = merger->getSourceNode(merger->getPath());
+    } else {
+        originalSource = processor->getSourceNode();
+    }
+           
     GenericProcessor* originalDest = processor->getDestNode();
     
     if (originalSource != nullptr)
@@ -1432,8 +1450,8 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
             
         if (originalDest->isMerger())
         {
-            MergerEditor* editor = (MergerEditor*) originalDest->getEditor();
-            editor->switchSource();
+            Merger* merger = (Merger*) originalDest;
+            merger->lostInput();
         }
     } else {
         

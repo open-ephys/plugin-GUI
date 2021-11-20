@@ -81,6 +81,9 @@ public:
 
     /** Remove unused buttons */
     void updateSettings() override;
+    
+    bool checkStream(const DataStream* stream);
+
 
 private:
     

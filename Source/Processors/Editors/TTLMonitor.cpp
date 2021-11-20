@@ -30,7 +30,8 @@ TTLBitDisplay::TTLBitDisplay(Colour colour_, String tooltipString_)
     tooltipString(tooltipString_),
     state(false),
     changedSinceLastRedraw(true)
-{ 
+{
+
 }
 
 TTLBitDisplay::~TTLBitDisplay()
@@ -61,7 +62,7 @@ void TTLBitDisplay::paint(Graphics& g)
     else
         g.setColour(Colours::darkgrey);
 
-    g.fillRect(2, 2, getWidth()-4, getHeight()-4);
+    g.fillRect(1, 1, getWidth()-2, getHeight()-2);
 
     changedSinceLastRedraw = false;
 }
@@ -76,6 +77,20 @@ TTLMonitor::TTLMonitor()
     colours.add(Colour(48, 117, 255));
     colours.add(Colour(116, 227, 156));
     colours.add(Colour(82, 173, 0));
+    
+    displays.clear();
+
+    int xloc = 0;
+
+    const int maxBits = 10;
+    for (int bit = 0; bit < maxBits; bit++)
+    {
+        displays.add(new TTLBitDisplay(colours[bit % colours.size()],
+                "Bit " + String(bit+1)));
+        displays.getLast()->setBounds(xloc, 0, 12, 12);
+        addAndMakeVisible(displays.getLast());
+        xloc += 11;
+    }
 }
 
 TTLMonitor::~TTLMonitor()
@@ -85,49 +100,15 @@ TTLMonitor::~TTLMonitor()
 
 int TTLMonitor::updateSettings(Array<EventChannel*> eventChannels)
 {
-    
-    displays.clear();
 
-    int xloc = 0;
-    int yloc = 0;
-
-    for (auto eventChannel : eventChannels)
-    {
-        if (eventChannel->getType() == EventChannel::Type::TTL)
-        {
-            for (int bit = 0; bit < eventChannel->getMaxTTLBits(); bit++)
-            {
-                String name = eventChannel->getSourceNodeName() + " Bit " + String(bit);
-
-                displays.add(new TTLBitDisplay(colours[bit % colours.size()],
-                        name));
-                displays.getLast()->setBounds(xloc, yloc, 10, 10);
-                yloc += 10;
-
-                if (yloc > 100)
-                {
-                    xloc += 10;
-                    yloc = 0;
-                }
-            }
-        }
-
-        yloc += 5;
-
-        if (yloc > 100)
-        {
-            xloc += 10;
-            yloc = 0;
-        }
-    }
-
-    return xloc;
+    return 0;
 }
 
 void TTLMonitor::setState(int bit, bool state)
 {
     displays[bit]->setState(state);
 }
+
 
 void TTLMonitor::timerCallback()
 {

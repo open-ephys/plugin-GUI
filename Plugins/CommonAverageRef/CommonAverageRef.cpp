@@ -29,15 +29,27 @@
 
 CARSettings::CARSettings()
 {
-    m_avgBuffer = AudioBuffer<float>(1, 10000); // 1-dimensional buffer to hold the avg
+    m_avgBuffer = AudioBuffer<float>(1, 10000); // 1-dimensional buffer to hold the average
 }
 
 CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") 
 {
-    addSelectedChannelsParameter("affected_channels", "Channels from which the average is subtracted");
-    addSelectedChannelsParameter("reference_channels", "Channels to use as the reference");
-    addFloatParameter("gain_level", "Multiplier for reference value", 100.0f, 0.0f, 100.0f, 1.0f);
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+                                 "affected_channels",
+                                 "Channels from which the average is subtracted");
+    
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+                                 "reference_channels",
+                                 "Channels to use as the reference");
+    
+    addFloatParameter(Parameter::STREAM_SCOPE,
+                      "gain_level",
+                      "Multiplier for reference value",
+                      100.0f,
+                      0.0f,
+                      100.0f,
+                      1.0f);
 }
 
 
@@ -59,7 +71,7 @@ void CommonAverageRef::updateSettings()
     
 }
 
-void CommonAverageRef::process (AudioSampleBuffer& buffer)
+void CommonAverageRef::process (AudioBuffer<float>& buffer)
 {
 
     for (auto stream : getDataStreams())
@@ -67,8 +79,8 @@ void CommonAverageRef::process (AudioSampleBuffer& buffer)
         CARSettings* settings_ = settings[stream->getStreamId()];
 
         const int numSamples = getNumSourceSamples(stream->getStreamId());
-        const int numReferenceChannels = getParameterValue(stream->getStreamId(), "reference_channels").getArray()->size();
-        const int numAffectedChannels = getParameterValue(stream->getStreamId(), "affected_channels").getArray()->size();
+        const int numReferenceChannels = (*stream)["reference_channels"].getArray()->size();
+        const int numAffectedChannels = (*stream)["affected_channels"].getArray()->size();
 
         // There is no need to do any processing if either number of reference or affected channels is zero.
         if (!numReferenceChannels
@@ -81,7 +93,7 @@ void CommonAverageRef::process (AudioSampleBuffer& buffer)
 
         for (int i = 0; i < numReferenceChannels; ++i)
         {
-            int localIndex = getParameterValue(stream->getStreamId(), "reference_channels")[i];
+            int localIndex = (*stream)["reference_channels"][i];
             int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
             settings_->m_avgBuffer.addFrom(0,       // destChannel
@@ -95,11 +107,11 @@ void CommonAverageRef::process (AudioSampleBuffer& buffer)
 
         settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
 
-        const float gain = -1.0f * float(getParameterValue(stream->getStreamId(), "gain_level")) / 100.f;
+        const float gain = -1.0f * float((*stream)["gain_level"]) / 100.f;
 
         for (int i = 0; i < numAffectedChannels; ++i)
         {
-            int localIndex = getParameterValue(stream->getStreamId(), "affectedChannels")[i];
+            int localIndex = (*stream)["affected_channels"][i];
             int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
             buffer.addFrom(globalIndex,                // destChannel

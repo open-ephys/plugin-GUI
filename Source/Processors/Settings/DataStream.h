@@ -122,8 +122,6 @@ public:
 
 	DeviceInfo* device;
 
-	
-
 private:
 
 	Array<ContinuousChannel*> continuousChannels;

@@ -58,7 +58,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 {
     //setEnabledState (false);
 
-	//Load pluIn file Sources
+	//Load plugin file sources
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
     for (int i = 0; i < numFileSources; ++i)
     {
@@ -326,6 +326,8 @@ void FileReader::setActiveRecording (int index)
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
 	input->seekTo(startSample);
+    
+    gotNewFile = true;
 
    
 }
@@ -364,23 +366,27 @@ void FileReader::updateSettings()
 
     if (gotNewFile)
     {
+        
+        dataStreams.clear();
+        continuousChannels.clear();
+        eventChannels.clear();
 
-        DataStream::Settings settings{
+        DataStream::Settings streamSettings{
 
-            "File Reader Stream",
+            input->getRecordName(input->getActiveRecord()),
             "A description of the File Reader Stream",
             "identifier",
             getDefaultSampleRate()
 
         };
         
-        dataStreams.add(new DataStream(settings));
+        dataStreams.add(new DataStream(streamSettings));
         dataStreams.getLast()->addProcessor(processorInfo.get());
 
         
         for (int i = 0; i < currentNumChannels; i++)
         {
-            ContinuousChannel::Settings settings2
+            ContinuousChannel::Settings channelSettings
             {
                 ContinuousChannel::Type::ELECTRODE,
                 "CH" + String(i + 1),
@@ -390,7 +396,7 @@ void FileReader::updateSettings()
                 dataStreams.getLast()
             };
             
-            continuousChannels.add(new ContinuousChannel(settings2));
+            continuousChannels.add(new ContinuousChannel(channelSettings));
             continuousChannels.getLast()->addProcessor(processorInfo.get());
         }
 
@@ -459,7 +465,8 @@ String FileReader::handleConfigMessage(String msg)
 void FileReader::process(AudioBuffer<float>& buffer)
 {
 
-    checkForEvents();
+    //std::cout << "FILE READER PROCESS" << std::endl;
+    //checkForEvents();
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
@@ -520,8 +527,8 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
         uint8 ttlBit = events.channels[i];
         bool state = events.channelStates[i] > 0;
-        //FIXME: Needs to create event on the correct channel, not just index 1
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[1], events.timestamps[i], ttlBit, state);
+        //FIXME: Needs to create event on the correct channel, not just index 0
+        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
         //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(event, absoluteCurrentTimestamp); 
     }

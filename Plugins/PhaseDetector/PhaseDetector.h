@@ -43,10 +43,14 @@ public:
     /** Constructor -- sets default values*/
     PhaseDetectorSettings();
 
+    /** Destructor*/
     ~PhaseDetectorSettings() { }
 
     /** Creates an event for a particular stream*/
     TTLEventPtr createEvent(int64 timestamp, bool state);
+    
+    /** Clears the output bit*/
+    TTLEventPtr clearOutputBit(int64 timestamp);
 
     int samplesSinceTrigger;
 
@@ -54,6 +58,9 @@ public:
 
     bool isActive;
     bool wasTriggered;
+    
+    bool outputBitChanged;
+    int lastOutputBit;
 
     PhaseType currentPhase;
     DetectorType detectorType;

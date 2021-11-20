@@ -112,10 +112,10 @@ AudioComponent::AudioComponent() : isPlaying(false)
     LOGC("Audio device sample rate: ", sr);
     LOGC("Audio device buffer size: ", buffSize);
 
-    graphPlayer = new AudioProcessorPlayer();
+    graphPlayer = std::make_unique<AudioProcessorPlayer>();
 
     stopDevice(); // reduces the amount of background processing when
-    // device is not in use
+                  // device is not in use
 
 
 }
@@ -192,7 +192,7 @@ void AudioComponent::beginCallbacks()
         }
 
         LOGC("Adding audio callback.");
-        deviceManager.addAudioCallback(graphPlayer);
+        deviceManager.addAudioCallback(graphPlayer.get());
         isPlaying = true;
     }
     else
@@ -204,101 +204,12 @@ void AudioComponent::beginCallbacks()
 
 void AudioComponent::endCallbacks()
 {
-
-
-
-   /* int64 ms = Time::getCurrentTime().toMilliseconds();
-
-    while (Time::getCurrentTime().toMilliseconds() - ms < 250)
-    {
-        //pause to let things finish up
-
-    }
-
-    const MessageManagerLock mmLock; // add a lock to prevent crashes
-
-    MessageManagerLock mml(Thread::getCurrentThread());
-
-     if (mml.lockWasGained())
-      {
-         LOGD("AUDIO COMPONENT GOT MM LOCK!");
-       }
-      else {
-         LOGD("AUDIO COMPONENT FAILED TO GET MM LOCK!");
-      }
-
-    CriticalSection& audioCallbackLock = deviceManager.getAudioCallbackLock();
-
-    if (!audioCallbackLock.tryEnter())
-    {
-        LOGD("---> Failed to enter audio callback lock");
-
-        //int64 ms = Time::getCurrentTime().toMilliseconds();
-
-         //while (Time::getCurrentTime().toMilliseconds() - ms < 250)
-         //{
-              // pause to let things finish up
-//
-         // }
-
-       // endCallbacks();
-       // return;
-    }
-    else {
-        LOGD("---> Got audio callback lock.");
-    }
-
-    audioCallbackLock.exit();*/
-
     LOGC("Removing audio callback.");
-    deviceManager.removeAudioCallback(graphPlayer);
+    deviceManager.removeAudioCallback(graphPlayer.get());
     isPlaying = false;
 
     LOGC("Stopping device.");
     stopDevice();
-
-    //const MessageManagerLock mmLock; // add a lock to prevent crashes
-
-   // 
-
-    //if (mml.lockWasGained())
-    //{
-    //    LOGD("AUDIO COMPONENT GOT LOCK!");
-   // }
-   /// else {
-    //    endCallbacks();
-   // }
-
-   /* MessageManager* mm = MessageManager::getInstance();
-
-    if (mm->isThisTheMessageThread())
-    {
-        LOGD("THIS IS THE MESSAGE THREAD -- AUDIO COMPONENT");
-    }
-    else
-    {
-        LOGD("NOT THE MESSAGE THREAD -- AUDIO COMPONENT");
-    }*/
-
-
-    
-    // FIXME: Can hang here when stopping acquisition/recording
-    // -- seems to be related to ProcessorGraphHttpServer class
-
-   // AccessClass::getProcessorGraph()->disableHttpServer();
-
-    //
-    //
-
-
-
-    
-
-   // 
-
-    //AccessClass::getProcessorGraph()->enableHttpServer();
-
-
 }
 
 void AudioComponent::saveStateToXml(XmlElement* parent)
@@ -323,7 +234,7 @@ void AudioComponent::saveStateToXml(XmlElement* parent)
 
 void AudioComponent::loadStateFromXml(XmlElement* parent)
 {
-    forEachXmlChildElement(*parent, child)
+    for (auto* child : parent->getChildIterator())
     {
         if (!child->isTextElement())
         {

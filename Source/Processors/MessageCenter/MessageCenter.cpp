@@ -130,30 +130,36 @@ bool MessageCenter::stopAcquisition()
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
 
-    if (needsToSendTimestampMessage)
-    {
-		MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-		HeapBlock<char> data;
+    //if (needsToSendTimestampMessage)
+    //{
+	//	MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+	//	HeapBlock<char> data;
 
-		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
+	//	size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
 
-		eventBuffer.addEvent(data, dataSize, 0);
+	//	eventBuffer.addEvent(data, dataSize, 0);
 
-        needsToSendTimestampMessage = false;
-    }
+    //    needsToSendTimestampMessage = false;
+    //}
 
+    //m_currentMidiBuffer->clear();
+    
     if (newEventAvailable)
     {
 
         String eventString = messageCenterEditor->getOutgoingMessage();
 
 		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
+        
+        int64 ts = CoreServices::getGlobalTimestamp();
 
-		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0], CoreServices::getGlobalTimestamp(), eventString);
+		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0],
+                                                        ts,
+                                                        eventString);
 
-		addEvent(event, CoreServices::getGlobalTimestamp());
+		addEvent(event, 0);
 
-        LOGD("Message Center added ", eventString);
+        std::cout << "Message Center added " << eventString << " with timestamp " <<  ts << std::endl;
 
         newEventAvailable = false;
     }

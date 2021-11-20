@@ -33,10 +33,12 @@
 
 #include "../Splitter/Splitter.h"
 
+#include "../Merger/Merger.h"
+
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
-#include "../../Processors/MessageCenter/MessageCenterEditor.h"
+#include "../MessageCenter/MessageCenterEditor.h"
 
 #include <exception>
 
@@ -62,14 +64,19 @@ GenericProcessor::GenericProcessor(const String& name)
 {
 	latencyMeter = std::make_unique<LatencyMeter>(this);
 
-	//addBooleanParameter("enable_stream",
-	//	"Determines whether or not processing is enabled for a particular stream",
-	//	true, true);
+	addBooleanParameter(Parameter::STREAM_SCOPE,
+        "enable_stream",
+		"Determines whether or not processing is enabled for a particular stream",
+		true, true);
 }
 
 
 GenericProcessor::~GenericProcessor()
 {
+    
+    std::cout << getName() << " being deleted." << std::endl;
+    std::cout << "Num parameters: " << availableParameters.size() << std::endl;
+    availableParameters.clear(true);
 }
 
 
@@ -337,23 +344,20 @@ void GenericProcessor::addFloatParameter(
 
 }
 
-void GenericProcessor::addSelectedChannelsParameter(
+void GenericProcessor::addMaskChannelsParameter(
 	Parameter::ParameterScope scope,
     const String& name,
     const String& description,
-	int maxSelectedChannels,
 	bool deactivateDuringAcquisition)
 {
 
 	Array<var> defaultValue;
 
-	SelectedChannelsParameter* p =
-		new SelectedChannelsParameter(this,
+	MaskChannelsParameter* p =
+		new MaskChannelsParameter(this,
 			scope,
 			name,
 			description,
-			defaultValue,
-			maxSelectedChannels,
 			deactivateDuringAcquisition);
 
 	availableParameters.add(p);
@@ -363,6 +367,38 @@ void GenericProcessor::addSelectedChannelsParameter(
 		globalParameterMap[p->getName()] = p;
 	}
 }
+
+
+
+void GenericProcessor::addSelectedChannelsParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& description,
+    int maxSelectedChannels,
+    bool deactivateDuringAcquisition)
+{
+
+    Array<var> defaultValue;
+
+    SelectedChannelsParameter* p =
+        new SelectedChannelsParameter(this,
+            scope,
+            name,
+            description,
+            defaultValue,
+            maxSelectedChannels,
+            deactivateDuringAcquisition);
+
+    availableParameters.add(p);
+
+    if (scope == Parameter::GLOBAL_SCOPE)
+    {
+        globalParameterMap[p->getName()] = p;
+    }
+}
+
+
+
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)
 {
@@ -434,13 +470,15 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-	std::cout << "Clearing settings"  << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << " " << std::endl;
+	std::cout << "Clearing settings for " << getName()  << std::endl;
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
     for (auto obj : continuousChannels)
     {
-        std::cout << obj->getName() << std::endl;
+        //std::cout << obj->getName() << std::endl;
         if (!obj->isLocal())
             delete obj;
         else
@@ -498,10 +536,12 @@ void GenericProcessor::clearSettings()
     configurationObjects.addArray(configurationObjectsToKeep);
 
     Array<DataStream*> dataStreamsToKeep;
+
     
     for (auto obj : dataStreams)
     {
         std::cout << obj->getName() << std::endl;
+        
         if (!obj->isLocal())
         {
             savedDataStreamParameters.add(new ParameterCollection());
@@ -526,10 +566,16 @@ void GenericProcessor::clearSettings()
 
 }
 
-void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
+void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
+{
+    
+    getDataStream(streamId)->getParameter("enable_stream")->setNextValue(isEnabled);
+}
+
+int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
-	if (true)
+	if (false)
 	{
         std::cout << getName() << " " << getNodeId() << std::endl;
 		std::cout << "Copying stream " << stream->getName() << ":" << std::endl;
@@ -567,20 +613,24 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
 
-		/*std::cout << "Copying continuous channel: " << std::endl;
-		std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << continuousChannel->getName() << std::endl;
-		std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;*/
-
+        if (false)
+        {
+            std::cout << "Copying continuous channel: " << std::endl;
+            std::cout << "  Source Node ID: " << continuousChannel->getSourceNodeId() << std::endl;
+            std::cout << "  Source Node Name: " << continuousChannel->getSourceNodeName() << std::endl;
+            std::cout << "  Last Node ID: " << continuousChannel->getNodeId() << std::endl;
+            std::cout << "  Last Node Name: " << continuousChannel->getNodeName() << std::endl;
+            std::cout << "  Name: " << continuousChannel->getName() << std::endl;
+            std::cout << "  Stream ID: " << continuousChannel->getStreamId() << std::endl;
+            std::cout << "  Sample rate: " << continuousChannel->getSampleRate() << std::endl;
+        }
+		
 		//std::cout << "Input channel: " << continuousChannel->getUniqueId().toString() << std::endl;
 
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
 		continuousChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(continuousChannels.getLast());
+		continuousChannels.getLast()->setDataStream(dataStreams.getLast(), true);
+        continuousChannels.getLast()->setGlobalIndex(continuousChannelGlobalIndex++);
 
 		//std::cout << "Output channel: " << continuousChannels.getLast()->getUniqueId().toString() << std::endl;
 
@@ -604,29 +654,36 @@ void GenericProcessor::copyDataStreamSettings(const DataStream* stream)
 
 		eventChannels.add(new EventChannel(*eventChannel));
 		eventChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(eventChannels.getLast());
+		eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
 
-    std::cout << "Num spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num incoming spike channels: " << stream->getSpikeChannels().size() << std::endl;
     
 	for (auto spikeChannel : stream->getSpikeChannels())
 	{
 
-		std::cout << "Copying spike channel: " << std::endl;
-		std::cout << "  Source Node ID: " << spikeChannel->getSourceNodeId() << std::endl;
-		std::cout << "  Source Node Name: " << spikeChannel->getSourceNodeName() << std::endl;
-		std::cout << "  Last Node ID: " << spikeChannel->getNodeId() << std::endl;
-		std::cout << "  Last Node Name: " << spikeChannel->getNodeName() << std::endl;
-		std::cout << "  Name: " << spikeChannel->getName() << std::endl;
-		std::cout << "  ID: " << spikeChannel->getStreamId() << std::endl;
-		std::cout << "  Sample rate: " << spikeChannel->getSampleRate() << std::endl;
+        if (false)
+        {
+            std::cout << "Copying spike channel: " << std::endl;
+            std::cout << "  Source Node ID: " << spikeChannel->getSourceNodeId() << std::endl;
+            std::cout << "  Source Node Name: " << spikeChannel->getSourceNodeName() << std::endl;
+            std::cout << "  Last Node ID: " << spikeChannel->getNodeId() << std::endl;
+            std::cout << "  Last Node Name: " << spikeChannel->getNodeName() << std::endl;
+            std::cout << "  Name: " << spikeChannel->getName() << std::endl;
+            std::cout << "  ID: " << spikeChannel->getStreamId() << std::endl;
+            std::cout << "  Sample rate: " << spikeChannel->getSampleRate() << std::endl;
+        }
 
 		spikeChannels.add(new SpikeChannel(*spikeChannel));
 		spikeChannels.getLast()->addProcessor(processorInfo.get());
-		dataStreams.getLast()->addChannel(spikeChannels.getLast());
+        spikeChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
     
-    std::cout << "Num spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num local spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << std::endl;
+    
+    return continuousChannelGlobalIndex;
 }
 
 void GenericProcessor::updateDisplayName(String name)
@@ -644,50 +701,67 @@ void GenericProcessor::update()
 	processorInfo.reset();
 	processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
    
-	if (sourceNode != nullptr)
-	{
-		// copy settings from source node
-        messageChannel.reset();
-		messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
+    if (!isMerger()) // only has one source
+    {
+        if (sourceNode != nullptr)
+        {
+            int continuousChannelGlobalIndex = 0;
 
-		if (!isMerger())
-		{
+            // copy settings from source node
+            messageChannel.reset();
+            messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->setDataStream(dataStreams.getLast());
 
-			if (sourceNode->isSplitter())
-			{
-				Splitter* splitter = (Splitter*)sourceNode;
+            if (sourceNode->isSplitter())
+            {
+                Splitter* splitter = (Splitter*) sourceNode;
 
-				for (auto stream : splitter->getStreamsForDestNode(this))
-				{
-					copyDataStreamSettings(stream);
-				}
-			}
-			else {
-				for (auto stream : sourceNode->getStreamsForDestNode(this))
-				{
-					copyDataStreamSettings(stream);
-				}
-			}
+                for (auto stream : splitter->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
+            } else if (sourceNode->isMerger())
+            {
+                Merger* merger = (Merger*) sourceNode;
 
-			for (auto configurationObject : sourceNode->configurationObjects)
-			{
-				configurationObjects.add(new ConfigurationObject(*configurationObject));
-			}
+                for (auto stream : merger->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
+            }
+            else {
+                for (auto stream : sourceNode->getStreamsForDestNode(this))
+                {
+                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+                }
+            }
 
-			isEnabled = sourceNode->isEnabled;
-		}
-	}
-	else
-	{
-		// connect first processor in signal chain to message center
+            for (auto configurationObject : sourceNode->configurationObjects)
+            {
+                configurationObjects.add(new ConfigurationObject(*configurationObject));
+            }
 
-        messageChannel.reset();
-		messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
+            isEnabled = sourceNode->isEnabled;
+            
+            if (continuousChannelGlobalIndex == 0)
+                isEnabled = false;
+                
+        }
+        else
+        {
+            // connect first processor in signal chain to message center
+            messageChannel.reset();
+            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->setDataStream(dataStreams.getLast());
 
-		LOGD(getNodeId(), " connected to Message Center");
-	}
+            std::cout << getNodeId() << " connected to Message Center" << std::endl;
+        }
+    } else {
+        
+        updateSettings(); // only for Merger
+    }
 
 	updateChannelIndexMaps();
 
@@ -707,39 +781,46 @@ void GenericProcessor::update()
                     if (param->getType() == Parameter::BOOLEAN_PARAM)
                     {
                         BooleanParameter* p = (BooleanParameter*)param;
-                        stream->addParameter(new BooleanParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new BooleanParameter(*p));
                     }
                     else if (param->getType() == Parameter::STRING_PARAM)
                     {
                         StringParameter* p = (StringParameter*)param;
-                        stream->addParameter(new StringParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new StringParameter(*p));
                     }
                     else if (param->getType() == Parameter::INT_PARAM)
                     {
                         IntParameter* p = (IntParameter*)param;
-                        stream->addParameter(new IntParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new IntParameter(*p));
                     }
                     else if (param->getType() == Parameter::FLOAT_PARAM)
                     {
-                        StringParameter* p = (StringParameter*)param;
-                        stream->addParameter(new StringParameter(*p));
+                        FloatParameter* p = (FloatParameter*)param;
                         p->setDataStream(stream);
+                        stream->addParameter(new FloatParameter(*p));
                     }
                     else if (param->getType() == Parameter::CATEGORICAL_PARAM)
                     {
                         CategoricalParameter* p = (CategoricalParameter*)param;
-                        stream->addParameter(new CategoricalParameter(*p));
                         p->setDataStream(stream);
+                        stream->addParameter(new CategoricalParameter(*p));
                     }
                     else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                        stream->addParameter(new SelectedChannelsParameter(*p));
                         p->setChannelCount(stream->getChannelCount());
                         p->setDataStream(stream);
+                        stream->addParameter(new SelectedChannelsParameter(*p));
+                    }
+                    else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                    {
+                        MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+                        p->setChannelCount(stream->getChannelCount());
+                        p->setDataStream(stream);
+                        stream->addParameter(new MaskChannelsParameter(*p));
                     }
                 }
             }
@@ -750,24 +831,60 @@ void GenericProcessor::update()
             {
                if (param->getScope() == Parameter::STREAM_SCOPE)
                {
-
                     if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
+                        p->setChannelCount(stream->getChannelCount());
+                    } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                    {
+                        MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
                         p->setChannelCount(stream->getChannelCount());
                     }
                }
             }
         }
 	}
+    
+   /// UPDATE PARAMETERS FOR SPIKE CHANNELS
+   for (auto spikeChannel : spikeChannels)
+   {
+      if (spikeChannel->isLocal())
+      {
+        
+          DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
+          
+          spikeChannel->setDataStream(similarStream, true);
+          
+          int channelCount = similarStream != nullptr ?
+                             similarStream->getChannelCount() : 0;
+          
+          for (auto param : spikeChannel->getParameters())
+          {
+              if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+              {
+                   
+                 SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
+                     
+                 p->setChannelCount(channelCount);
+              }
+          }
+       }
+    }
 
-	updateSettings(); // allow processors to change custom settings, 
-					  // including creation of streams / channels and
-					  // setting isEnabled variable
+    if (!isMerger())
+        updateSettings(); // allow processors to change custom settings,
+                          // including creation of streams / channels and
+                          // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
+    
+    std::cout << "After custom settings -- Num local spike channels: " << spikeChannels.size() << std::endl;
+    //std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() //<< std::endl;
 
 	updateChannelIndexMaps();
+    
+    std::cout << "After channel index maps -- Num local spike channels: " << spikeChannels.size() << std::endl;
+   // std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << //std::endl;
 
 	m_needsToSendTimestampMessages.clear();
 	for (auto stream : getDataStreams())
@@ -835,7 +952,8 @@ void GenericProcessor::updateChannelIndexMaps()
 		dataStreamMap[streamId] = stream;
 	}
 	
-	latencyMeter->update(getDataStreams());
+    if (latencyMeter != nullptr)
+        latencyMeter->update(getDataStreams());
 }
 
 String GenericProcessor::handleConfigMessage(String msg)
@@ -908,8 +1026,8 @@ juce::uint64 GenericProcessor::getSourceTimestamp(uint16 streamId) const
 void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, uint16 streamId)
 {
 
-	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-	LOGDD("Setting timestamp to ", timestamp);
+	//MidiBuffer& eventBuffer = *m_currentMidiBuffer;
+    //std::cout << "Setting timestamp to " << timestamp << std::endl;
 
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, 
@@ -919,22 +1037,22 @@ void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSa
 		nSamples,
 		m_initialProcessTime);
 
-	eventBuffer.addEvent(data, dataSize, 0);
+	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
 	timestamps[streamId] = timestamp;
 	numSamples[streamId] = nSamples;
 	processStartTimes[streamId] = m_initialProcessTime;
 
-	if (m_needsToSendTimestampMessages[streamId] && nSamples > 0)
-	{
-		HeapBlock<char> data;
-		size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, streamId, timestamp, false);
+	//if (m_needsToSendTimestampMessages[streamId] && nSamples > 0)
+	//{
+	//	HeapBlock<char> data;
+	//	size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, streamId, timestamp, false);
 
-		eventBuffer.addEvent(data, dataSize, 0);
+	//	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
-		m_needsToSendTimestampMessages[streamId] = false;
-	}
+	//	m_needsToSendTimestampMessages[streamId] = false;
+	//}
 }
 
 int GenericProcessor::getGlobalChannelIndex(uint16 streamId, int localIndex) const
@@ -954,27 +1072,23 @@ int GenericProcessor::processEventBuffer()
 	//
 	int numRead = 0;
 
-	MidiBuffer& eventBuffer = *m_currentMidiBuffer;
-
-	if (eventBuffer.getNumEvents() > 0)
+	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-		MidiBuffer::Iterator i(eventBuffer);
-
-		const uint8* dataptr;
-		int dataSize;
-
-		int samplePosition = -1;
-
-		while (i.getNextEvent(dataptr, dataSize, samplePosition))
-		{
-
+        
+        for (const auto meta : *m_currentMidiBuffer)
+        {
+        
+            const auto message = meta.getMessage();
+            
+            const uint8* dataptr = message.getRawData();
+            
 			if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT 
 				&& static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::TIMESTAMP_AND_SAMPLES))
 			{
 				uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
 				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
-
+                
 				juce::int64 timestamp = *reinterpret_cast<const juce::int64*>(dataptr + 8);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 16);
 				juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
@@ -984,13 +1098,23 @@ int GenericProcessor::processEventBuffer()
 				processStartTimes[sourceStreamId] = initialTicks;
 					
 			}
-			//else {
-			//	std::cout << nodeId << " : " << " received event" << std::endl;
-			//}
-			//set the "recorded" bit on the first byte. This will go away when the probe system is implemented.
-			//doing a const cast is always a bad idea, but there's no better way to do this until whe change the event record system
-			//if (nodeId < 900) //If the processor is not a specialized one
-			//	*const_cast<uint8*>(dataptr + 0) = *(dataptr + 0) | 0x80;
+            else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+                     && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TTL))
+            {
+                uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
+                uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 16);
+                bool eventState = *reinterpret_cast<const bool*>(dataptr + 17);
+                
+                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                
+            } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+            && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
+            {
+
+                TextEventPtr textEvent = TextEvent::deserialize(message, getMessageChannel());
+
+                handleBroadcastMessage(textEvent->getText());
+            }
 		}
 	}
 
@@ -1020,26 +1144,19 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 			if (EventBase::getBaseType(message) == Event::Type::PROCESSOR_EVENT)
 			{
-				const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
-
-				if (eventChannel != nullptr)
-				{
-					handleEvent(eventChannel, message, meta.samplePosition);
-
-					if (eventChannel->getType() == EventChannel::Type::TTL)
-					{
-						// FIXME: Crashes for any sources that generate TTL events
-						
-						//getEditor()->setTTLState(sourceStreamId,
-						//		TTLEvent::getBit(message),
-						//		TTLEvent::getState(message)
-						//	);
-						
-					}
-				}
+                
+                if (static_cast<SystemEvent::Type>(*(message.getRawData() + 1) != EventChannel::Type::TEXT))
+                {
+                    const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
+                    
+                    if (eventChannel != nullptr)
+                    {
+                        handleEvent(eventChannel, message, meta.samplePosition);
+                    }
+                }
 
 			}
-			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT 
+			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT
 				    && SystemEvent::getSystemEventType(message) == SystemEvent::Type::TIMESTAMP_SYNC_TEXT)
 			{
 				handleTimestampSyncTexts(message);
@@ -1076,6 +1193,20 @@ void GenericProcessor::addEvent(const Event* event, int sampleNum)
 	event->serialize(buffer, size);
 
 	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
+    
+    if (event->getBaseType() == Event::Type::PROCESSOR_EVENT)
+    {
+        if (event->getEventType() == EventChannel::Type::TTL)
+        {
+            
+            const uint8* dataptr = reinterpret_cast<const uint8*>(event->getRawDataPointer());
+            
+            getEditor()->setTTLState(event->getStreamId(),
+                                     *(dataptr),
+                                     *(dataptr+1));
+        }
+    }
+    
 }
 
 void GenericProcessor::addTTLChannel(String name)
@@ -1157,10 +1288,19 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 		m_initialProcessTime = Time::getHighResolutionTicks();
 
 	m_currentMidiBuffer = &eventBuffer;
+    
+    //std::cout << getNodeId() << " process block." << std::endl;
 
 	processEventBuffer(); // extract buffer sizes and timestamps,
 
 	process(buffer);
+    
+    //if (isSource())
+   // {
+    //    m_currentMidiBuffer->addEvents(messageCenterBuffer, 0, 1, 1);
+    //    messageCenterBuffer.clear();
+    //}
+        
 
 	latencyMeter->setLatestLatency(processStartTimes);
 }
@@ -1322,7 +1462,7 @@ const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 
 void GenericProcessor::saveToXml(XmlElement* xml)
 {
-	xml->setAttribute("NodeId", nodeId);
+	xml->setAttribute("nodeId", nodeId);
     
     XmlElement* paramsXml = xml->createNewChildElement("GLOBAL_PARAMETERS");
     
@@ -1415,7 +1555,7 @@ void GenericProcessor::loadFromXml()
                     getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
             }
             
-			/*if (xmlNode->hasTagName("STREAM"))
+			if (xmlNode->hasTagName("STREAM"))
 			{
 				if (availableStreams.size() > streamIndex)
 				{
@@ -1425,11 +1565,20 @@ void GenericProcessor::loadFromXml()
                     {
                         if (streamParams->hasTagName("PARAMETERS"))
                         {
-                            for (int i = 0; i < xmlNode->getNumAttributes(); i++)
+                            for (int i = 0; i < streamParams->getNumAttributes(); i++)
                             {
-                                Parameter* p = availableStreams[streamIndex]->getParameter(xmlNode->getAttributeName(i));
+                                Parameter* p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
+                                
                                 if (p != nullptr)
-                                    p->fromXml(xmlNode);
+                                {
+                                    p->fromXml(streamParams);
+                                    
+                                    if (p->getName() == "enable_stream")
+                                        getEditor()->streamEnabledStateChanged(availableStreams[streamIndex]->getStreamId(),
+                                                                               (bool) p->getValue(),
+                                                                               true);
+                                }
+                                    
                             }
                         }
                     }
@@ -1439,7 +1588,7 @@ void GenericProcessor::loadFromXml()
 				}
 
 				streamIndex++;
-			}*/
+			}
 		}
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
@@ -1521,7 +1670,7 @@ int GenericProcessor::getNumInputs() const
 { 
 	if (sourceNode != nullptr)
 	{
-		return sourceNode->continuousChannels.size();
+		return continuousChannels.size();
 	}
 	else {
 		return 0;

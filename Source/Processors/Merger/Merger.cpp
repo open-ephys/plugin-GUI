@@ -30,6 +30,9 @@
 
 #include "../Settings/ConfigurationObject.h"
 
+#include "../MessageCenter/MessageCenterEditor.h"
+
+
 Merger::Merger()
     : GenericProcessor("Merger"),
       mergeEventsA(true), mergeContinuousA(true),
@@ -164,6 +167,18 @@ void Merger::switchIO()
 
 }
 
+void Merger::lostInput()
+{
+    if (sourceNodeA == nullptr && sourceNodeB != nullptr)
+    {
+        sourceNodeA = sourceNodeB;
+        sourceNodeB = nullptr;
+        
+        MergerEditor* ed = (MergerEditor*)getEditor();
+        ed->switchSource(0);
+    }
+}
+
 GenericProcessor* Merger::getSourceNode(int path)
 {
     if (path == 0)
@@ -174,13 +189,12 @@ GenericProcessor* Merger::getSourceNode(int path)
     }
 }
 
-void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
+int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChannelGlobalIndex)
 {
 
     for (auto stream : sn->getStreamsForDestNode(this))
     {
-        if (checkStream(stream))
-            copyDataStreamSettings(stream);
+        continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
     }
 
     for (int i = 0; i < sn->getTotalConfigurationObjects(); i++)
@@ -189,13 +203,29 @@ void Merger::addSettingsFromSourceNode(GenericProcessor* sn)
         ConfigurationObject* ch = new ConfigurationObject(*sourceChan);
         configurationObjects.add(ch);
     }
+    
+    return continuousChannelGlobalIndex;
 }
+
+Array<const DataStream*> Merger::getStreamsForDestNode(GenericProcessor* node)
+{
+    Array<const DataStream*> outputStreams;
+
+    for (auto stream : dataStreams)
+    {
+        if (checkStream(stream))
+            outputStreams.add(stream);
+    }
+
+    return outputStreams;
+}
+
 
 bool Merger::checkStream(const DataStream* stream)
 {
     MergerEditor* ed = (MergerEditor*)getEditor();
 
-    return true; // ed->checkStream(stream);
+    return ed->checkStream(stream);
 }
 
 
@@ -203,12 +233,23 @@ void Merger::updateSettings()
 {
     
     isEnabled = true;
+    
+    int continuousChannelGlobalIndex = 0;
+    
+    messageChannel.reset();
 
     if (sourceNodeA != nullptr)
     {
         LOGD("   Merger source A found.");
-        addSettingsFromSourceNode(sourceNodeA);
+        continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeA, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeA->isEnabled;
+        
+        if (sourceNodeA->getMessageChannel() != nullptr)
+        {
+            messageChannel = std::make_unique<EventChannel>(*sourceNodeA->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+        }
+        
     } else {
         mergeEventsA = true;
         mergeContinuousA = true;
@@ -217,11 +258,26 @@ void Merger::updateSettings()
     if (sourceNodeB != nullptr)
     {
         LOGD("   Merger source B found.");
-        addSettingsFromSourceNode(sourceNodeB);
+        continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeB, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeB->isEnabled;
+        
+        if (messageChannel == nullptr && sourceNodeB->getMessageChannel() != nullptr)
+        {
+            messageChannel = std::make_unique<EventChannel>(*sourceNodeB->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+        }
     } else {
         mergeEventsB = true;
         mergeContinuousB = true;
+    }
+    
+    if (sourceNodeA == nullptr && sourceNodeB == nullptr)
+        isEnabled = false;
+    
+    if (messageChannel == nullptr)
+    {
+        messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+        messageChannel->addProcessor(processorInfo.get());
     }
 
     LOGD("Number of merger outputs: ", getNumInputs());
@@ -240,11 +296,9 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
         mainNode->setAttribute("NodeB",	sourceNodeB->getNodeId());
     else
         mainNode->setAttribute("NodeB",	-1);
+    
+    mainNode->setAttribute("activePath", activePath);
 
-    mainNode->setAttribute("MergeEventsA", mergeEventsA);
-    mainNode->setAttribute("MergeContinuousA", mergeContinuousA);
-    mainNode->setAttribute("MergeEventsB", mergeEventsB);
-    mainNode->setAttribute("MergeContinuousB", mergeContinuousB);
 }
 
 void Merger::loadCustomParametersFromXml(XmlElement* xml)
@@ -259,38 +313,38 @@ void Merger::restoreConnections()
     {
         forEachXmlChildElement(*parametersAsXml, mainNode)
         {
-            if (mainNode->hasTagName("MERGER"))
+            if (mainNode->hasTagName("CUSTOM_PARAMETERS"))
             {
-               int nodeIdA = mainNode->getIntAttribute("NodeA");
-               int nodeIdB = mainNode->getIntAttribute("NodeB");
+                forEachXmlChildElement(*mainNode, mergerSettings)
+                {
+                   int nodeIdA = mergerSettings->getIntAttribute("NodeA");
+                   int nodeIdB = mergerSettings->getIntAttribute("NodeB");
 
-               ProcessorGraph* gr = AccessClass::getProcessorGraph();
-               Array<GenericProcessor*> p = gr->getListOfProcessors();
+                   ProcessorGraph* gr = AccessClass::getProcessorGraph();
+                   Array<GenericProcessor*> p = gr->getListOfProcessors();
 
-               for (int k = 0; k < p.size(); k++)
-               {
-                   if (p[k]->getNodeId() == nodeIdA)
+                   for (int k = 0; k < p.size(); k++)
                    {
-                      LOGD("Setting Merger source A to ", nodeIdA);
-                      switchIO(0);
-                      setMergerSourceNode(p[k]);
-                      p[k]->setDestNode(this);
-                      editor->switchSource(0);
-                   }
-                   else if (p[k]->getNodeId() == nodeIdB)
-                    {
-                        LOGD("Setting Merger source B to ", nodeIdB);
-                        switchIO(1);
-                        setMergerSourceNode(p[k]);
-                        p[k]->setDestNode(this);
-                        editor->switchSource(1);
+                       if (p[k]->getNodeId() == nodeIdA)
+                       {
+                          LOGD("Setting Merger source A to ", nodeIdA);
+                          switchIO(0);
+                          setMergerSourceNode(p[k]);
+                          p[k]->setDestNode(this);
+                          editor->switchSource(0);
+                       }
+                       else if (p[k]->getNodeId() == nodeIdB)
+                        {
+                            LOGD("Setting Merger source B to ", nodeIdB);
+                            switchIO(1);
+                            setMergerSourceNode(p[k]);
+                            p[k]->setDestNode(this);
+                            editor->switchSource(1);
+                        }
                     }
+                    
+                    editor->switchSource(mergerSettings->getIntAttribute("activePath", 0));
                 }
-
-                mergeEventsA = mainNode->getBoolAttribute("MergeEventsA");
-                mergeEventsB = mainNode->getBoolAttribute("MergeEventsB");
-                mergeContinuousA = mainNode->getBoolAttribute("MergeContinuousA");
-                mergeContinuousB = mainNode->getBoolAttribute("MergeContinuousB");
             }
         }
     }

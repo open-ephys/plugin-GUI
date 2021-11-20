@@ -65,10 +65,8 @@ public:
 		String name;
 		String description;
 		String identifier;
-
-		DataStream* stream;
-
-		Array<const ContinuousChannel*>& sourceChannels;
+        
+		Array<int> localChannelIndexes;
 
 		unsigned int numPrePeakSamples = 8;
 		unsigned int numPostPeakSamples = 32;
@@ -84,9 +82,18 @@ public:
 
 	/* Destructor*/
 	virtual ~SpikeChannel();
+    
+    /** Copy constructor*/
+    SpikeChannel(const SpikeChannel& spikeChannel);
+    
+    /** Sets the DataStream for this spike channel, which sets the global channel indexes (if available)*/
+    void setDataStream(DataStream* dataStream, bool addToStream = true) override;
 
 	/* Get the channel type (SINGLE, STEREOTRODE, TETRODE) */
 	Type getChannelType() const;
+    
+    /** Returns true if all continuous channels are available in the incoming stream */
+    bool isValid() const;
 
 	/** Returns an array with info about the channels from which the spikes originate */
 	const Array<const ContinuousChannel*>& getSourceChannels() const;
@@ -117,6 +124,34 @@ public:
     
     /** Determines whether a particular continuous channel is used to detect spikes*/
     bool detectSpikesOnChannel(int chan) const;
+    
+    /** Holds the current sample index for this electrode*/
+    int currentSampleIndex;
+    
+    /** Holds the current sample index for this electrode*/
+    int lastBufferIndex;
+
+    /** Determines whether this electrode should use the overflow buffer*/
+    bool useOverflowBuffer;
+    
+    /** Used to check whether a spike should be triggered */
+    std::unique_ptr<Thresholder> thresholder;
+    
+    /** Resets state after acquisition*/
+    void reset();
+    
+    /** Holds the global channel index for each continuous channel*/
+    Array<int> globalChannelIndexes;
+    
+    /** Holds the local channel index for each continuous channel*/
+    Array<int> localChannelIndexes;
+    
+    /** Find similar stream*/
+    DataStream* findSimilarStream(OwnedArray<DataStream>& streams);
+    
+    /** Determines whether channel sends the full waveform, or just the peak sample*/
+    bool sendFullWaveform;
+    
 
 	// ====== STATIC METHODS ========= //
 
@@ -134,26 +169,8 @@ public:
 
 	/** Generates a default channel name to use*/
 	static String getIdentifierFromType(Type channelType);
-    
-    /** Holds the current sample index for this electrode*/
-    int currentSampleIndex;
-    
-    /** Holds the current sample index for this electrode*/
-    int lastBufferIndex;
 
-    /** Determines whether this electrode should use the overflow buffer*/
-    bool useOverflowBuffer;
-    
-    /** Used to check whether a spike should be triggered */
-    Thresholder* thresholder;
-    
-    /** Resets state after acquisition*/
-    void reset();
-    
-    /** Holds the global channel index for each continuous channel*/
-    Array<int> globalChannelIndexes;
-
-private:
+protected:
 
 	const Type type;
 
@@ -163,7 +180,11 @@ private:
 	unsigned int numPreSamples;
 	unsigned int numPostSamples;
     
-    bool sendFullWaveform;
+
+    uint16 lastStreamId;
+    String lastStreamName;
+    float lastStreamSampleRate;
+    int lastStreamChannelCount;
 
 };
 

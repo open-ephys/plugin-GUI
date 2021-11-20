@@ -70,6 +70,8 @@ public:
 
     /** Sets whether dividers between buttons will be visible or not */
     void setShowDividers (bool isShow);
+    
+    void setSelectedButtonIndex(int index);
 
 
 private:

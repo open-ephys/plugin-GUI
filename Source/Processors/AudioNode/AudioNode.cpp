@@ -37,6 +37,7 @@ AudioNode::AudioNode()
 
 AudioNode::~AudioNode()
 {
+    std::cout << "AUDIO NODE BEING DELETED." << std::endl;
 }
 
 AudioProcessorEditor* AudioNode::createEditor()
@@ -90,7 +91,7 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 1)
     {
         // volume level
-        volume = newValue*0.1f;
+        volume = newValue;
 
     }
     else if (parameterIndex == 2)
@@ -120,19 +121,42 @@ void AudioNode::process(AudioBuffer<float>& buffer)
 
         if (nInputs > 0) // we have some channels
         {
-
+            
             for (int i = 0; i < nInputs; i++) // cycle through them all
             {
-                gain = volume / (float(0x7fff) * 0.2);
 
+                /*if (i == 0)
+                {
+                    std::cout << "np.array([";
+                    for (int j = 0; j < valuesNeeded; j++)
+                    {
+                        std::cout << *buffer.getReadPointer(i, j) << ", ";
+                    }
+                    
+                    std::cout << "])";
+                    std::cout << std::endl;
+                    std::cout << "------------- " << std::endl;
+                }*/
+                
                 // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
                 // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
+                
+                for (int j = 0; j < valuesNeeded; j++)
+                {
+                    if (*buffer.getReadPointer(i, j) > 1000)
+                        *buffer.getWritePointer(i, j) = 1000;
+                    
+                    if (*buffer.getReadPointer(i, j) < -1000)
+                        *buffer.getWritePointer(i, j) = -1000;
+                }
+
+                gain = (volume * 0.01f) / (float(0x7fff) * 0.02);
 
                 buffer.applyGain(i, 0, valuesNeeded, gain);
 
                 // Simple implementation of a "noise gate" on audio output
-                expander.process(buffer.getWritePointer(i), // expand the left/right channel
-                    buffer.getNumSamples());
+                //expander.process(buffer.getWritePointer(i), // expand the left/right channel
+                //    buffer.getNumSamples());
             } // end cycling through channels
 
         }

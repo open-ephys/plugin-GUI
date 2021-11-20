@@ -71,13 +71,8 @@ FilterNode::FilterNode()
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
 
-}
-
-FilterNode::~FilterNode()
-{
-    
 }
 
 AudioProcessorEditor* FilterNode::createEditor()
@@ -183,7 +178,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
     for (auto stream : getDataStreams())
     {
 
-        if (true) //getParameterValue(stream->getStreamId(), "stream_enabled"))
+        if ((*stream)["enable_stream"])
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 

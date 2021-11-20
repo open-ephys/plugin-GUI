@@ -35,7 +35,7 @@ DataViewport::DataViewport() :
 
     setTabBarDepth(tabDepth);
     setIndent(8); // gap to leave around the edge
-    // of the content component
+                  // of the content component
     setColour(TabbedComponent::outlineColourId,
               Colours::darkgrey);
     setColour(TabbedComponent::backgroundColourId,
@@ -43,24 +43,15 @@ DataViewport::DataViewport() :
 
 }
 
-DataViewport::~DataViewport()
-{
-
-}
-
-int DataViewport::addTabToDataViewport(String name, Component* component, GenericEditor* editor)
+int DataViewport::addTabToDataViewport(String name,
+                                       Component* component,
+                                       GenericEditor* editor)
 {
 
     if (tabArray.size() == 0)
         setVisible(true);
 
-    //int tabIndex = getTabbedButtonBar().getNumTabs();
     tabIndex++;
-
-    // Viewport* viewport = new Viewport();
-    // viewport->setViewedComponent(component, false);
-    //  viewport->setBounds(0,0,getWidth(), getHeight());
-    //  viewport->setVisible(true);
 
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
@@ -121,7 +112,7 @@ void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 
     if (!shutdown)
     {
-        //getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
+        //AccessClass::getEditorViewport()->makeEditorVisible(editorArray[newIndex]);
         getTopLevelComponent()->repaint();
     }
 }

@@ -54,7 +54,7 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /* Passes TEXT event messages to the DataThread, via handleMessage() */
-    void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int sampleNum) override;
+    void handleBroadcastMessage(String msg) override;
 
     /* Passes configuration messages to the DataThread, via handleConfigMessage() */
     String handleConfigMessage(String msg) override;

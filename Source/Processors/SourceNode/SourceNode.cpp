@@ -266,21 +266,16 @@ void SourceNode::connectionLost()
     startTimer(sourceCheckInterval); // timer to check for re-established connection
 }
 
-void SourceNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int sampleNum)
-{
-
-    if (Event::getProcessorId(packet) > 900)
-    {
-        TextEventPtr textEvent = TextEvent::deserialize(packet, eventInfo);
-        dataThread->handleMessage(textEvent->getText());
-    }
-
-}
-
 String SourceNode::handleConfigMessage(String msg)
 {
     return dataThread->handleConfigMessage(msg);
 }
+
+void SourceNode::handleBroadcastMessage(String msg)
+{
+    dataThread->handleMessage(msg);
+}
+
 
 void SourceNode::broadcastDataThreadMessage(String msg)
 {
@@ -290,8 +285,6 @@ void SourceNode::broadcastDataThreadMessage(String msg)
 void SourceNode::process(AudioBuffer<float>& buffer)
 {
 	int copiedChannels = 0;
-
-    checkForEvents();
 
 	for (int streamIdx = 0; streamIdx < inputBuffers.size(); streamIdx++)
 	{

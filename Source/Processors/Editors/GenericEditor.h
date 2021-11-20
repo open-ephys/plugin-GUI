@@ -229,9 +229,12 @@ public:
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
-
-    /**  Collapses an editor if it's open, and opens it if it's collpased*/
+    
+    /**  Sets the collapsed state for the editor*/
     void switchCollapsedState();
+
+    /**  Sets the collapsed state for the editor*/
+    void setCollapsedState(bool);
 
     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
     virtual void collapsedStateChanged();
@@ -258,7 +261,7 @@ public:
     virtual void selectedStreamHasChanged();
 
     /** Notifies editor that the selected stream has changed.*/
-    virtual void streamEnabledStateChanged(uint16 streamId, bool enabledState);
+    virtual void streamEnabledStateChanged(uint16 streamId, bool enabledState, bool isLoading = false);
 
     /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
     void setMeanLatencyMs(uint16 streamId, float latencyMs);
@@ -287,6 +290,9 @@ protected:
 
     /** Adds a selected channels editor for a parameter of a given name. */
     void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos);
+    
+    /** Adds a selected channels editor for a parameter of a given name. */
+    void addMaskChannelsParameterEditor(const String& name, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);

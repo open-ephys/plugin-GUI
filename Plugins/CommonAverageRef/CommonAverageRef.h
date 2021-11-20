@@ -74,7 +74,7 @@ public:
         number of continous samples in the current buffer (which may differ from the
         size of the buffer).
     */
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Called when upstream settings are changed.*/
     void updateSettings() override;

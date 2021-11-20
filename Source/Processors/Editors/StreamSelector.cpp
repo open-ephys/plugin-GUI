@@ -42,14 +42,19 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(enableButton.get());
 
-    delayMonitor = std::make_unique<DelayMonitor>();
-    addAndMakeVisible(delayMonitor.get());
+    if (!editor->isSplitter() && !editor->isMerger())
+    {
+        delayMonitor = std::make_unique<DelayMonitor>();
+        addAndMakeVisible(delayMonitor.get());
 
-    ttlMonitor = std::make_unique<TTLMonitor>();
-    addAndMakeVisible(ttlMonitor.get());
+        ttlMonitor = std::make_unique<TTLMonitor>();
+        addAndMakeVisible(ttlMonitor.get());
+        
+        enabledString = "Bypass";
+    } else {
+        enabledString = "Send downstream";
+    }
 }
-
-StreamInfoView::~StreamInfoView() {}
 
 uint16 StreamInfoView::getStreamId() const
 {
@@ -58,9 +63,15 @@ uint16 StreamInfoView::getStreamId() const
 
 void StreamInfoView::updateInfoString()
 {
+    
+    String channelString = " channel";
+    
+    if (stream->getChannelCount() > 1)
+        channelString += "s";
+    
     infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
         + "\n"
-        + String(stream->getChannelCount()) + " channels @ " +
+        + String(stream->getChannelCount()) + channelString + " @ " +
         String(stream->getSampleRate()) + " Hz";
 
 }
@@ -74,24 +85,31 @@ void StreamInfoView::setEnabled(bool state)
 {
     isEnabled = state;
 
-    if (isEnabled)
-        enableButton->setButtonText("x");
-    else
-        enableButton->setButtonText(" ");
-
+    enableButton->setToggleState(state, dontSendNotification);
     enableButton->repaint();
+    
+    if (delayMonitor != nullptr)
+        delayMonitor->setEnabled(state);
 }
 
 void StreamInfoView::startAcquisition()
 {
-    delayMonitor->startAcquisition();
-    ttlMonitor->startAcquisition();
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->startAcquisition();
+        ttlMonitor->startAcquisition();
+    }
+    
 }
 
 void StreamInfoView::stopAcquisition()
 {
-    delayMonitor->stopAcquisition();
-    ttlMonitor->stopAcquisition();
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->stopAcquisition();
+        ttlMonitor->stopAcquisition();
+    }
+    
 }
 
 void StreamInfoView::beginUpdate()
@@ -117,14 +135,21 @@ void StreamInfoView::buttonClicked(Button* button)
 
         std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
 
+        repaint();
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);
     }
 }
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(3, 38, 15, 15);
-    delayMonitor->setBounds(38, 58, 60, 15);
+    enableButton->setBounds(6, 38, 12, 12);
+    
+    if (delayMonitor != nullptr)
+    {
+        delayMonitor->setBounds(88, 35, 60, 12);
+        ttlMonitor->setBounds(10, 59, 120, 12);
+    }
+    
 }
 
 void StreamInfoView::paint(Graphics& g)
@@ -137,9 +162,7 @@ void StreamInfoView::paint(Graphics& g)
 
     g.setFont(12);
     g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
-    g.drawText("Enabled", 22, 40, 60, 12, Justification::left);
-
-    g.drawText("Delay:", 5, 60, 60, 12, Justification::left);
+    g.drawText(enabledString, 22, 38, 120, 12, Justification::left);
 
 }
 
@@ -174,12 +197,6 @@ StreamSelector::StreamSelector(GenericEditor* ed_) :
     addAndMakeVisible(streamSelectorButton.get());
 
     scrollOffset.reset(4);
-}
-
-
-StreamSelector::~StreamSelector()
-{
-
 }
 
 StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
@@ -363,6 +380,23 @@ void StreamSelector::buttonClicked(Button* button)
         editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
 }
 
+int StreamSelector::getViewedIndex()
+{
+    
+    return viewedStreamIndex;
+}
+
+void StreamSelector::setViewedIndex(int i)
+{
+    if (i >= 0 && i < streams.size())
+    {
+        viewedStreamIndex = i;
+        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+    }
+        
+}
+
+
 void StreamSelector::paint(Graphics& g)
 {
     
@@ -384,10 +418,6 @@ const DataStream* StreamSelector::getCurrentStream()
         return nullptr;
 }
 
-void StreamSelector::clear()
-{
-    streams.clear();
-}
 
 void StreamSelector::add(const DataStream* stream)
 {
@@ -417,7 +447,7 @@ void StreamSelector::beginUpdate()
     }
 }
 
-void StreamSelector::finishedUpdate()
+uint16 StreamSelector::finishedUpdate()
 {
 
     LOGD("END UPDATE --- NUM STREAMS: ", streams.size());
@@ -447,8 +477,22 @@ void StreamSelector::finishedUpdate()
     {
         viewedStreamIndex = streams.size() - 1;
     }
+    
+    if (viewedStreamIndex > -1)
+    {
+        viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
+        
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->repaint();
+    }
 
+    
     resized();
+    
+    if (viewedStreamIndex > -1)
+        return streams[viewedStreamIndex]->getStream()->getStreamId();
+    else
+        return 0;
 }
 
 void StreamSelector::remove(StreamInfoView* stream)
@@ -479,12 +523,15 @@ StreamEnableButton::StreamEnableButton(const String& name) :
 
 void StreamEnableButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState())
-        g.setColour(Colours::yellow);
-    else
-        g.setColour(Colours::darkgrey);
-
-    g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
+ 
+    g.setColour(Colours::black);
+    g.drawRect(0,0,getWidth(),getHeight(), 1.0);
+    
+    if (!getToggleState())
+    {
+        g.drawLine(0, 0, getWidth(), getHeight(), 1.0);
+        g.drawLine(0, getHeight(), getWidth(), 0, 1.0);
+    }
 }
 
 

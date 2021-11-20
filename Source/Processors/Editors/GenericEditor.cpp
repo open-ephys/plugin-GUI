@@ -124,6 +124,8 @@ void GenericEditor::addCheckBoxParameterEditor(const String& parameterName, int 
 
 void GenericEditor::addSliderParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
+    
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
     Parameter* param = getProcessor()->getParameter(parameterName);
 
@@ -143,9 +145,21 @@ void GenericEditor::addComboBoxParameterEditor(const String& parameterName, int 
 void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    
     Parameter* param = getProcessor()->getParameter(parameterName);
 
     addCustomParameterEditor(new SelectedChannelsParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addMaskChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
+{
+
+    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new MaskChannelsParameterEditor(param), xPos_, yPos_);
 }
 
 
@@ -456,7 +470,7 @@ void GenericEditor::update(bool isEnabled_)
 
         }
 
-        streamSelector->finishedUpdate();
+        selectedStream = streamSelector->finishedUpdate();
 
         if (numChannels == 0)
         {
@@ -477,24 +491,18 @@ void GenericEditor::update(bool isEnabled_)
     updateVisualizer(); // does nothing unless this method
                         // has been implemented
     
-    EditorViewport* ev = AccessClass::getEditorViewport();
-
-    if(!ev->loadingConfig)
-    {
-        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
-        ev->saveState(recoveryFile);
-    }
-
 }
 
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
-    ttlMonitors[streamId]->setState(bit, state);
+    if (ttlMonitors.find(streamId) != ttlMonitors.end())
+        ttlMonitors[streamId]->setState(bit, state);
 }
 
 void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
 {
-    //delayMonitors[streamId]->setDelay(latencyMs);
+    if (delayMonitors.find(streamId) != delayMonitors.end())
+        delayMonitors[streamId]->setDelay(latencyMs);
 }
 
 bool GenericEditor::getCollapsedState()
@@ -504,11 +512,16 @@ bool GenericEditor::getCollapsedState()
 
 void GenericEditor::switchCollapsedState()
 {
+    setCollapsedState(!isCollapsed);
+}
+
+void GenericEditor::setCollapsedState(bool state)
+{
 
     if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
     {
 
-        if (isCollapsed)
+        if (!state && isCollapsed)
         {
             // open it up
 
@@ -523,20 +536,28 @@ void GenericEditor::switchCollapsedState()
             }
 
             isCollapsed = false;
+            
+            for (int i = 0; i < getNumChildComponents(); i++)
+            {
+                Component* c = getChildComponent(i);
+                c->setVisible(true);
+            }
 
         }
-        else
+        else if (state && !isCollapsed)
         {
             originalWidth = desiredWidth;
             desiredWidth = 25;
             isCollapsed = true;
+            
+            for (int i = 0; i < getNumChildComponents(); i++)
+            {
+                Component* c = getChildComponent(i);
+                c->setVisible(false);
+            }
         }
 
-        for (int i = 0; i < getNumChildComponents(); i++)
-        {
-            Component* c = getChildComponent(i);
-            c->setVisible(!isCollapsed);
-        }
+        
 
         collapsedStateChanged();
 
@@ -550,6 +571,9 @@ void GenericEditor::saveToXml(XmlElement* xml)
     xml->setAttribute("isCollapsed", isCollapsed);
     xml->setAttribute("isDrawerOpen", drawerOpen);
     xml->setAttribute("displayName", displayName);
+    
+    if (streamSelector != nullptr)
+        xml->setAttribute("activeStream", streamSelector->getViewedIndex());
 
     saveCustomParametersToXml(xml);
 
@@ -561,9 +585,7 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     bool isCollapsed = xml->getBoolAttribute("isCollapsed", false);
 
     if (isCollapsed)
-    {
-        switchCollapsedState();
-    }
+        setCollapsedState(true);
 
     if (!drawerOpen)
     {
@@ -582,8 +604,11 @@ void GenericEditor::loadFromXml(XmlElement* xml)
 
     displayName = xml->getStringAttribute("displayName", name);
     getProcessor()->updateDisplayName(displayName);
-
+    
     loadCustomParametersFromXml(xml);
+    
+    if (streamSelector != nullptr)
+        streamSelector->setViewedIndex(xml->getIntAttribute("activeStream", 0));
 
 }
 
@@ -1080,6 +1105,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         
         Parameter* param = getProcessor()->getParameter(parameterName);
         
+        if (param == nullptr)
+            continue;
+        
         if (param->getScope() == Parameter::GLOBAL_SCOPE)
         {
             ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
@@ -1088,6 +1116,12 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         {
             std::cout << "Updating parameter!" << std::endl;
             ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
+            
+            if (getProcessor()->getDataStream(streamId)->getParameter(param->getName())->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+            {
+                SelectedChannelsParameter* p = (SelectedChannelsParameter*) getProcessor()->getDataStream(streamId)->getParameter(param->getName());
+                std::cout << "CHANNEL COUNT: " << p->getChannelStates().size() << std::endl;
+            }
         }
         
         ed->updateView();
@@ -1099,13 +1133,16 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
 void GenericEditor::selectedStreamHasChanged() { }
 
-void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled) 
+void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, bool isLoading)
 {
     
     if (streamSelector != nullptr)
         streamSelector->setStreamEnabledState(streamId, isEnabled);
+    
+    getProcessor()->setStreamEnabled(streamId, isEnabled);
 
-    //CoreServices::updateSignalChain(this);
+    if ((isMerger() || isSplitter()) && !isLoading)
+        CoreServices::updateSignalChain(this);
 
 }
 
