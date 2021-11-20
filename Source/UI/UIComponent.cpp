@@ -198,8 +198,7 @@ PluginInstaller* UIComponent::getPluginInstaller()
 {
     if (pluginInstaller == nullptr)
 	{
-		pluginInstaller = new PluginInstaller(this->mainWindow);
-		pluginInstaller->setVisible(false);
+		pluginInstaller = new PluginInstaller(this->mainWindow, false);
 	}
 	return pluginInstaller;
 }

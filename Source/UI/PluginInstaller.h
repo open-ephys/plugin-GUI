@@ -11,8 +11,8 @@ class PluginInstallerComponent;
 class PluginInstaller : public DocumentWindow
 {
 public:
-    /** Constructor */
-    PluginInstaller(MainWindow* mainWindow);
+    /** Creates and launches Plugin Installer window with its components */
+    PluginInstaller(MainWindow* mainWindow, bool loadComponents = true);
 
     /** Destructor*/
     ~PluginInstaller();

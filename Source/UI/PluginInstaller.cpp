@@ -40,7 +40,7 @@
 static juce::String osType;
 StringArray updatablePlugins;
 
-PluginInstaller::PluginInstaller(MainWindow* mainWindow)
+PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)
 : DocumentWindow(WINDOW_TITLE,
 		Colour(Colours::black),
 		DocumentWindow::closeButton)
@@ -48,10 +48,6 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 	MouseCursor::showWaitCursor();
 	parent = (DocumentWindow*)mainWindow;
-
-	setResizable(
-        true,  // isResizable
-		false); // useBottomCornerRisizer -- doesn't work very well
 
    // Identify the OS on which the GUI is running
 	SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
@@ -65,19 +61,20 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow)
 
 	//Initialize Plugin Installer Components
 
-	int x = parent->getX();
-	int y = parent->getY();
-	int w = parent->getWidth();
-	int h = parent->getHeight();
+	if(loadComponents)
+	{
+		int x = parent->getX();
+		int y = parent->getY();
+		int w = parent->getWidth();
+		int h = parent->getHeight();
 
-	setBounds(x + (0.5*w) - 444, y + 0.5*h - 240, 888, 480);
-
-	setUsingNativeTitleBar(true);
-	setContentOwned(new PluginInstallerComponent(), false);
-	setVisible(true);
-
-	// Constraining the window's size doesn't seem to work:
-	setResizeLimits(888, 480, 8192, 5120);
+		setBounds(x + (0.5*w) - 444, y + 0.5*h - 240, 888, 480);
+		setUsingNativeTitleBar(true);
+		setContentOwned(new PluginInstallerComponent(), false);
+		setVisible(true);
+		setResizable(true, false); // useBottomCornerRisizer -- doesn't work very well
+		setResizeLimits(888, 480, 8192, 5120);
+	}
 
 	createXmlFile();
 
