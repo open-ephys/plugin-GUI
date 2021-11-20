@@ -170,13 +170,22 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	var pluginData = gatewayData.getProperty("plugins", var());
 
 	int pIndex;
+	bool pluginFound = false;
+
 	for (int i = 0; i < pluginData.size(); i++)
 	{
-		if(pluginData[i].getProperty("name", "NULL").toString().equalsIgnoreCase(plugin))
+		if(pluginData[i].getProperty("display_name", "NULL").toString().equalsIgnoreCase(plugin))
 		{
 			pIndex = i;
+			pluginFound = true;
 			break;
 		}
+	}
+
+	if(!pluginFound)
+	{
+		LOGC("Automated Plugin Installation Failed! Plugin not found!")
+		return;
 	}
     
 	auto platforms = pluginData[pIndex].getProperty("platforms", "none").getArray();
@@ -187,10 +196,12 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 		return;
 	}
 
+	LOGC(plugin, " plugin found! Installing it now...")
+
 	SelectedPluginInfo requiredPluginInfo;
 
-	requiredPluginInfo.pluginName = plugin;
-	requiredPluginInfo.displayName = pluginData[pIndex].getProperty("display_name", "NULL").toString();
+	requiredPluginInfo.pluginName = pluginData[pIndex].getProperty("name", "NULL").toString();
+	requiredPluginInfo.displayName = plugin;
 	requiredPluginInfo.type = pluginData[pIndex].getProperty("type", "NULL").toString();
 	requiredPluginInfo.latestVersion = pluginData[pIndex].getProperty("latest_version", "NULL");
 
@@ -229,7 +240,12 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	if(version.isEmpty())
 		version = requiredPluginInfo.latestVersion;
 
-	tempInfoComponent.downloadPlugin(requiredPluginInfo.pluginName, version, false);
+	int code = tempInfoComponent.downloadPlugin(requiredPluginInfo.pluginName, version, false);
+
+	if(code == 1)
+		LOGC("Install sucessfull!!")
+	else
+		LOGC("Install failed!!");
 
 }
 
