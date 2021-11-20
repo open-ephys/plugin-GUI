@@ -86,6 +86,9 @@ public:
 	/** Fill item list **/
 	void fillItemList();
 
+    /** Get list of processors **/
+    Array<String> getItemList();
+
     void resized();
 
     /** Returns the height requested by the ProcessorList. Determines whether or not

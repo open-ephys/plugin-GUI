@@ -651,6 +651,27 @@ void ProcessorList::fillItemList()
 
 }
 
+
+Array<String> ProcessorList::getItemList()
+{
+
+	Array<String> listOfProcessors;
+    
+	for (int i = 0; i < 5; i++)
+	{
+        int numSubItems = baseItem->getSubItem(i)->getNumSubItems();
+
+		ProcessorListItem* subItem = baseItem->getSubItem(i);
+
+		for(int j = 0; j < numSubItems ; j++)
+		{
+			listOfProcessors.addIfNotAlreadyThere(subItem->getSubItem(j)->getName());
+		}
+	}
+
+	return listOfProcessors;
+}
+
 // ===================================================================
 
 ProcessorListItem::ProcessorListItem(const String& name_,
