@@ -134,7 +134,7 @@ void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket
 
         if (gateIsOpen)
         {
-            if (eventBit == int((*stream)["input_bit"])
+            if (eventBit == int((*stream)["input_bit"]))
             {
 
                 if (ttl->getState())

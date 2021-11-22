@@ -160,7 +160,7 @@ void FilterNode::parameterValueChanged(Parameter* param)
 {
     uint16 currentStream = param->getStreamId();
 
-    std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
+    //std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
     if (param->getName().equalsIgnoreCase("low_cut")
      || param->getName().equalsIgnoreCase("high_cut"))

@@ -262,7 +262,11 @@ class PLUGIN_API ChannelInfoObject :
 	public InfoObject
 {
 public :
+
+	/** Constructor */
 	ChannelInfoObject(InfoObject::Type type, DataStream* stream);
+
+	/** Destructor */
 	virtual ~ChannelInfoObject();
     
     ChannelInfoObject(const ChannelInfoObject& other);

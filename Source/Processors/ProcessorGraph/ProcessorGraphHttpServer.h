@@ -339,7 +339,7 @@ public:
                     return;
                 }
             
-               std::cout << "Got value: " << String(val) << std::endl;
+               //std::cout << "Got value: " << String(val) << std::endl;
  
                 if (val.isUndefined()) {
                     res.set_content("Request value could not be converted.", "text/plain");
@@ -413,7 +413,7 @@ public:
                            return;
                        }
                    
-                      std::cout << "Got value: " << String(val) << std::endl;
+                      //std::cout << "Got value: " << String(val) << std::endl;
         
                        if (val.isUndefined()) {
                            res.set_content("Request value could not be converted.", "text/plain");
