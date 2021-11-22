@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 class RangeEditor;
 class SelectButton;
@@ -36,7 +37,7 @@ Automatically creates an interactive pop-up editor for selecting channels.
 @see GenericEditor
 
 */
-class PopupChannelSelector :
+class PLUGIN_API PopupChannelSelector :
 	public Component,
 	public Button::Listener,
 	public TextEditor::Listener

@@ -169,7 +169,7 @@ void SpikeDetectorEditor::addSpikeChannels(SpikeChannel::Type type, int count)
 
 void SpikeDetectorEditor::removeSpikeChannels(Array<SpikeChannel*> spikeChannelsToRemove)
 {
-    std::cout << "Deleting electrode number " << index << std::endl;
+
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
     
     for (auto spikeChannel : spikeChannelsToRemove)
