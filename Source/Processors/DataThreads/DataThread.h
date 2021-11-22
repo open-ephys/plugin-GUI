@@ -52,7 +52,11 @@ class SourceNode;
 class PLUGIN_API DataThread : public Thread
 {
 public:
+
+    /** Constructor */
     DataThread (SourceNode* sn);
+
+    /** Destructor*/
     ~DataThread();
 
     // ---------------------

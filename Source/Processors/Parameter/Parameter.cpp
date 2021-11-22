@@ -260,14 +260,14 @@ StringParameter::StringParameter(GenericProcessor* processor,
 
 void StringParameter::setNextValue(var newValue_)
 {
-    newValue = (String) newValue_;
+    newValue = newValue_.toString();
 
     processor->parameterChangeRequest(this);
 }
 
 String StringParameter::getStringValue()
 {
-    return String(currentValue);
+    return currentValue.toString();
 }
 
 String StringParameter::getValueAsString()
@@ -277,7 +277,7 @@ String StringParameter::getValueAsString()
 
 void StringParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(getName(), (String) currentValue);
+    xml->setAttribute(getName(), currentValue.toString());
 }
 
 void StringParameter::fromXml(XmlElement* xml)

@@ -53,7 +53,7 @@ static void errorMsg(const char *file, int line, const char *msg) {
 #ifdef WIN32
     DWORD ret = GetLastError();
     if (ret) {
-        #fprintf(stderr, ": DLL Error 0x%x", ret);
+        fprintf(stderr, ": DLL Error 0x%x", ret);
 		LOGE(msg, stderr, ": DLL Error 0x%x", ret);
     }
 #elif defined(__APPLE__)

@@ -53,6 +53,7 @@ public:
 	{
 		float frequency = -1.0f;
 		float value = -1.0f;
+		bool measured = false;
 	};
 
 	struct Settings
