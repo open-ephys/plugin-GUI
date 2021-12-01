@@ -33,6 +33,7 @@
 #include "LookAndFeel/CustomLookAndFeel.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
+#include "FilenameConfigWindow.h"
 #include <queue>
 
 /**
@@ -49,6 +50,15 @@
   @see ControlPanel, ProcessorGraph
 
 */
+
+class FilenameEditorButton : public TextButton
+{
+public:
+
+    FilenameEditorButton();
+    ~FilenameEditorButton() {}
+};
+
 
 
 class PlayButton : public DrawableButton
@@ -298,7 +308,8 @@ class ControlPanel : public Component,
     public Button::Listener,
     public Timer,
     public Label::Listener,
-    public ComboBox::Listener
+    public ComboBox::Listener,
+    public ComponentListener
 
 {
 public:
@@ -353,19 +364,22 @@ public:
     void labelTextChanged(Label*);
 
     /** Used by RecordNode to set the filename. */
-    String getTextToPrepend();
+    //String getTextToPrepend();
 
     /** Used by RecordNode to set the filename. */
-    String getTextToAppend();
+    //String getTextToAppend();
 
     /** Manually set the text to be prepended to the recording directory */
-    void setPrependText(String text);
+    //void setPrependText(String text);
 
     /** Manually set the text to be appended to the recording directory */
-    void setAppendText(String text);
+    //void setAppendText(String text);
 
     /** Set date text. */
-    void setDateText(String);
+    //void setDateText(String);
+
+    /** Set filename text. */
+    void setFilenameText(String);
 
     /** Save settings. */
     void saveStateToXml(XmlElement*);
@@ -384,6 +398,9 @@ public:
 
     /** Sets the list of recently used directories for saving data. */
     void setRecentlyUsedFilenames (const StringArray& filenames);
+
+    /** Generates the next recording directory based on field settings **/  
+    String generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel);
 
     /** Adds the RecordNode as a listener of the FilenameComponent
     (so it knows when the data directory has changed).*/
@@ -408,9 +425,12 @@ private:
     std::unique_ptr<UtilityButton> newDirectoryButton;
     std::unique_ptr<ControlPanelButton> cpb;
 
-    std::unique_ptr<Label> prependText;
-    std::unique_ptr<Label> dateText;
-    std::unique_ptr<Label> appendText;
+    //std::unique_ptr<Label> prependText;
+    std::unique_ptr<FilenameEditorButton> filenameText;
+    Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
+    //std::unique_ptr<Label> appendText;
+
+    String generateDatetimeFromFormat(String format);
 
     ProcessorGraph* graph;
     AudioComponent* audio;
@@ -420,6 +440,7 @@ private:
 
     void resized();
 
+    void paintButton(Graphics& g);
     void buttonClicked(Button* button);
 
     void comboBoxChanged(ComboBox* combo);
@@ -447,6 +468,10 @@ private:
     OwnedArray<RecordEngineManager> recordEngines;
     std::unique_ptr<UtilityButton> recordOptionsButton;
     int lastEngineIndex;
+
+    /* Popup window for editing recording filename fields */
+    std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
+    void componentBeingDeleted(Component &component);
 
 };
 

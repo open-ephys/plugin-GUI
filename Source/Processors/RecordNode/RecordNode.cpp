@@ -104,45 +104,7 @@ std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
 
 String RecordNode::generateDirectoryName()
 {
-	Time calendar = Time::getCurrentTime();
-
-	Array<int> t;
-	t.add(calendar.getYear());
-	t.add(calendar.getMonth() + 1); // January = 0 
-	t.add(calendar.getDayOfMonth());
-	t.add(calendar.getHours());
-	t.add(calendar.getMinutes());
-	t.add(calendar.getSeconds());
-
-	//Any custom text to prepend;
-	String filename = AccessClass::getControlPanel()->getTextToPrepend();
-
-	String datestring = "";
-
-	for (int n = 0; n < t.size(); n++)
-	{
-		if (t[n] < 10)
-			datestring += "0";
-
-		datestring += t[n];
-
-		if (n == 2)
-			datestring += "_";
-		else if (n < 5)
-			datestring += "-";
-	}
-
-	AccessClass::getControlPanel()->setDateText(datestring);
-
-	if (filename.length() < 24) // this is a hack, to prevent ov
-		filename += datestring;
-	else
-		filename = filename.substring(0, filename.length() - 1);
-
-	filename += AccessClass::getControlPanel()->getTextToAppend();
-
-	return filename;
-
+	return AccessClass::getControlPanel()->generateFilenameFromFields(false, true);
 }
 
 // called by FifoMonitor

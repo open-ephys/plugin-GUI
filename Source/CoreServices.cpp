@@ -118,6 +118,7 @@ namespace CoreServices
 		getControlPanel()->labelTextChanged(NULL);
 	}
 
+	/*
 	void setRecordingDirectoryPrependText(String text)
 	{
 		getControlPanel()->setPrependText(text);
@@ -127,6 +128,7 @@ namespace CoreServices
 	{
 		getControlPanel()->setAppendText(text);
 	}
+	*/
 
 	std::vector<RecordEngineManager*> getAvailableRecordEngines()
 	{
