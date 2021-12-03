@@ -52,7 +52,10 @@ void TextBoxParameterEditor::labelTextChanged(Label* label)
 {
     std::cout << "Label text: " << label->getText() << std::endl;
 
-    param->setNextValue(label->getText().getFloatValue());
+    if(param->getType() == Parameter::FLOAT_PARAM)
+        param->setNextValue(label->getText().getFloatValue());
+    else
+        param->setNextValue(label->getText());
 }
 
 void TextBoxParameterEditor::updateView()
@@ -62,9 +65,12 @@ void TextBoxParameterEditor::updateView()
     {
         std::cout << "Updating view for " << param->getName() << std::endl;
         std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
-        std::cout << "Value: " << int(param->getValue()) << std::endl;
+        std::cout << "Value: " << param->getValue().toString() << std::endl;
 
-        valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
+        if(param->getType() == Parameter::FLOAT_PARAM)
+            valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
+        else
+            valueTextBox->setText(param->getValue().toString(), dontSendNotification);
     }
 
 }
