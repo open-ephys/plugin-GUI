@@ -27,7 +27,7 @@
 
 PlaceholderProcessor::PlaceholderProcessor (String pluginName, 
     String libraryName, 
-    int libraryVersion)
+    String libraryVersion)
     : GenericProcessor      (pluginName)
     , m_libName             (libraryName)
     , m_libVersion          (libraryVersion)

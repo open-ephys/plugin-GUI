@@ -85,7 +85,7 @@ public:
 	Plugin::FileSourceInfo getFileSourceInfo(int index) const;
 	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String()) const;
 	String getLibraryName(int index) const;
-	int getLibraryVersion(int index) const;
+	String getLibraryVersion(int index) const;
 	int getLibraryIndexFromPlugin(Plugin::Type type, int index);
 
 private:

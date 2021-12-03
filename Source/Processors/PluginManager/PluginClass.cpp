@@ -30,7 +30,7 @@ PluginClass::PluginClass()
 {
 	libName = String();
 	pluginName = String();
-	libVersion = -1;
+	libVersion = String();
     pluginType = Plugin::INVALID;
 }
 
@@ -101,7 +101,7 @@ String PluginClass::getPluginName() const
 	return pluginName;
 }
 
-int PluginClass::getLibVersion() const
+String PluginClass::getLibVersion() const
 {
 	return libVersion;
 }

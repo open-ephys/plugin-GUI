@@ -122,7 +122,7 @@ namespace Plugin
         int index = -1;
         String name = "Default";
         String libName = "DefaultLibrary";
-        int libVersion = 0;
+        String libVersion = "0.0.0";
         
         // built-in, processor, record engine, etc.
         Type type = Plugin::INVALID;
@@ -162,7 +162,7 @@ namespace Plugin
 	struct LibraryInfo
 	{
 		const char* name;
-		int libVersion;
+		const char* libVersion;
 		int apiVersion;
 		int numPlugins;
 	};

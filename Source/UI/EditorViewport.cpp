@@ -1716,7 +1716,7 @@ Plugin::Description EditorViewport::getDescriptionFromXml(XmlElement* settings, 
     description.processorType = (Plugin::Processor::Type) settings->getIntAttribute("processorType");
     description.index = settings->getIntAttribute("index");
     description.libName = settings->getStringAttribute("libraryName");
-    description.libVersion = settings->getIntAttribute("libraryVersion");
+    description.libVersion = settings->getStringAttribute("libraryVersion");
     
     if (!ignoreNodeId)
         description.nodeId = settings->getIntAttribute("nodeId");

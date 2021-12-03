@@ -23,7 +23,7 @@
 
 #include "PlaceholderProcessorEditor.h"
 
-PlaceholderProcessorEditor::PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, int lVer)
+PlaceholderProcessorEditor::PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, String lVer)
 	: GenericEditor(parentNode), processorName(pName), libName(lName), libVersion(lVer)
 {
 	notfoundLabel = new Label("Not found", "Plugin not found");

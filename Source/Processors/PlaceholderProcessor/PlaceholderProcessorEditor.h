@@ -30,13 +30,13 @@
 class PlaceholderProcessorEditor : public GenericEditor
 {
 public:
-	PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, int lVer);
+	PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, String lVer);
 	~PlaceholderProcessorEditor();
 
 private:
 	const String processorName;
 	const String libName;
-	const int libVersion;
+	const String libVersion;
 	ScopedPointer<Label> nameLabel;
 	ScopedPointer<Label> libLabel;
 	ScopedPointer<Label> notfoundLabel;

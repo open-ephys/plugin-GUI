@@ -98,7 +98,7 @@ namespace ProcessorManager
 		switch (index)
 		{
 		case -1:
-			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", 0);
+			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", "0.0.0");
             proc->setProcessorType(Plugin::Processor::INVALID);
 			break;
 		case 0:

@@ -49,7 +49,7 @@ public:
 	String getPluginName() const;
     
     /** Returns the library version*/
-	int getLibVersion() const;
+	String getLibVersion() const;
     
     /** Returns the type of this plugin*/
 	Plugin::Type getPluginType() const;
@@ -61,7 +61,7 @@ private:
 	String libName;
 	String pluginName;
 	Plugin::Type pluginType;
-	int libVersion;
+	String libVersion;
 	int pluginIndex;
 };
 

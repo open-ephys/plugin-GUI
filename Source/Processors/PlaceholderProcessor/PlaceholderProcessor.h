@@ -40,7 +40,7 @@ public:
     /** Constructor*/
     PlaceholderProcessor (String pluginName, 
         String libraryName, 
-        int libraryVersion);
+        String libraryVersion);
 
     /** Destructor*/
     ~PlaceholderProcessor();
@@ -61,7 +61,7 @@ private:
 
     const String m_libName;
 
-    const int m_libVersion;
+    const String m_libVersion;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaceholderProcessor);
 };

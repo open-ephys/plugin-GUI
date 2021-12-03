@@ -428,10 +428,10 @@ String PluginManager::getLibraryName(int index) const
 		return libArray[index].name;
 }
 
-int PluginManager::getLibraryVersion(int index) const
+String PluginManager::getLibraryVersion(int index) const
 {
 	if (index < 0 || index >= libArray.size())
-		return -1;
+		return String();
 	else
 		return libArray[index].libVersion;
 }
