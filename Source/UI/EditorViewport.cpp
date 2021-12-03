@@ -1621,8 +1621,12 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
                     if(!loadedPlugins.contains(pName))
                     {
-                        LOGC(pName, " plugin not found in Processor List! Loooking for it on Artifactory...");
-                        CoreServices::PluginInstaller::installPlugin(pName);
+                        LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
+
+                        String libName = processor->getStringAttribute("libraryName");
+                        String libVer = processor->getStringAttribute("libraryVersion")
+                                        + "-API" + String(PLUGIN_API_VER);
+                        CoreServices::PluginInstaller::installPlugin(libName, libVer);
                     }
                     
                     int insertionPt = processor->getIntAttribute("insertionPoint");
