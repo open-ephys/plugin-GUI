@@ -415,6 +415,9 @@ public:
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
 
+    std::unique_ptr<FilenameEditorButton> filenameText;
+    std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
+
 private:
     std::unique_ptr<PlayButton> playButton;
 
@@ -426,9 +429,11 @@ private:
     std::unique_ptr<ControlPanelButton> cpb;
 
     //std::unique_ptr<Label> prependText;
-    std::unique_ptr<FilenameEditorButton> filenameText;
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
     //std::unique_ptr<Label> appendText;
+
+    /* Popup window for editing recording filename fields */
+    void componentBeingDeleted(Component &component);
 
     String generateDatetimeFromFormat(String format);
 
@@ -468,10 +473,6 @@ private:
     OwnedArray<RecordEngineManager> recordEngines;
     std::unique_ptr<UtilityButton> recordOptionsButton;
     int lastEngineIndex;
-
-    /* Popup window for editing recording filename fields */
-    std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
-    void componentBeingDeleted(Component &component);
 
 };
 

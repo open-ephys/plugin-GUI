@@ -59,8 +59,6 @@ public:
     State state;
     String value;
 
-private:
-
     std::unique_ptr<Label> typeLabel;
     std::unique_ptr<Button> stateButton;
     std::unique_ptr<Label> valueLabel;
@@ -89,6 +87,12 @@ public:
     ~FilenameConfigWindow() {}
 
     Array<std::shared_ptr<FilenameFieldComponent>> fields;
+
+    /** Save settings. */
+    void saveStateToXml(XmlElement*);
+
+    /** Load settings. */
+    void loadStateFromXml(XmlElement*);
 
 };
 

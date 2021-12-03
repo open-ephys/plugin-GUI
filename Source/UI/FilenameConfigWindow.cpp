@@ -95,3 +95,54 @@ void FilenameFieldComponent::buttonClicked(Button* button)
     }
 
 }
+
+void FilenameConfigWindow::saveStateToXml(XmlElement* xml)
+{
+
+    XmlElement* state = xml->createNewChildElement ("FILENAMECONFIG");
+    for (auto field : fields)
+    {
+        XmlElement* currentField = state->createNewChildElement(String(field->types[field->type]).toUpperCase());
+        currentField->setAttribute ("state", field->state);
+        currentField->setAttribute ("value", field->value);
+    }
+
+}
+
+/** Load settings. */
+void FilenameConfigWindow::loadStateFromXml(XmlElement* xml)
+{
+
+    forEachXmlChildElement (*xml, xmlNode)
+    {
+        if (xmlNode->hasTagName ("FILENAMECONFIG"))
+        {
+
+            forEachXmlChildElement (*xmlNode, fieldNode)
+            {
+                FilenameFieldComponent::Type type;
+
+                if (fieldNode->hasTagName ("PREPEND"))
+                    type = FilenameFieldComponent::Type::PREPEND;
+                else if (fieldNode->hasTagName ("MAIN"))
+                    type = FilenameFieldComponent::Type::MAIN;
+                else 
+                    type = FilenameFieldComponent::Type::APPEND;
+
+                fields[type]->state = static_cast<FilenameFieldComponent::State>(fieldNode->getIntAttribute("state",0));
+                fields[type]->stateButton->setButtonText(fields[type]->states[fields[type]->state]);
+                fields[type]->value = fieldNode->getStringAttribute("value","");
+                fields[type]->valueLabel->setText(fields[type]->value, sendNotification);
+                if (fields[type]->state == FilenameFieldComponent::State::CUSTOM)
+                {
+                    fields[type]->valueLabel->setEditable(true, sendNotification);
+                    fields[type]->valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::white);
+                }
+
+            }
+
+        }
+
+    }
+
+}

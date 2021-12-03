@@ -398,7 +398,6 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addChildComponent(prependText.get());
     */
 
-    //TODO: These need to be default OR loaded from a previous config
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
         FilenameFieldComponent::Type::PREPEND, FilenameFieldComponent::State::AUTO, ""));
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
@@ -901,14 +900,6 @@ void ControlPanel::buttonClicked(Button* button)
         && newDirectoryButton->getEnabledState())
     {
 
-        if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM &&
-                getRecordingDirectory().getChildFile(filenameText->getButtonText()).exists())
-        {
-            //TODO: Show a popup indicating this action will overwrite an existing directory
-            std::cout << "***WARNING: Will overwrite an existing recording if this setting was used!!!" << std::endl;
-            return;
-        }
-
         for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
         {   
             node->newDirectoryNeeded = true;
@@ -1155,6 +1146,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     }
     */
 
+    filenameConfigWindow->saveStateToXml(xml);
+
 }
 
 void ControlPanel::loadStateFromXml(XmlElement* xml)
@@ -1199,6 +1192,9 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
     audioEditor->loadStateFromXml(xml);
 
+    filenameConfigWindow->loadStateFromXml(xml);
+    generateFilenameFromFields(true, true);
+
 }
 
 
@@ -1213,8 +1209,22 @@ void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
     filenameComponent->setRecentlyUsedFilenames(filenames);
 }
 
+static void forceFilenameEditor (int result, ControlPanel* panel)
+{
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::move(panel->filenameConfigWindow), 
+            panel->filenameText->getScreenBounds(),
+            nullptr);
+    myBox.addComponentListener(panel);
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+
+    return;
+}
+
 String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel)
 {
+
+    bool checkForExistingFilename = false;
 
     String filename = "";
 
@@ -1226,9 +1236,10 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
             continue; //don't add to the filename
 
         else if (field->state == FilenameFieldComponent::State::CUSTOM)
-
+        {
             filename += field->value; //Add filename field exactly as entered in popup window
-
+            checkForExistingFilename = true; 
+        }
         else //FilenameFieldComponent::State::AUTO
         {
 
@@ -1259,7 +1270,6 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
                         filename += field->value;
                     break;       
                 
-                
                 default:
                     break;
 
@@ -1267,6 +1277,23 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
 
         }
 
+    }
+
+    if (checkForExistingFilename && getRecordingDirectory().getChildFile(filename).exists())
+    {
+
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+            TRANS("Recording Directory Name Conflict"),
+            TRANS("The current custom recording directory name already exists and "
+                    "would overwrite existing data. ")
+                + newLine
+                + TRANS ("Please change the directory name: \"XYZ\"")
+                .replace ("XYZ", filename),
+            TRANS ("OK"),
+            filenameText.get(),
+            ModalCallbackFunction::create (forceFilenameEditor, this));
+
+        return filename;
     }
 
     if (updateControlPanel)
