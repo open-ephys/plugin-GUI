@@ -109,6 +109,22 @@ void SpikeDisplayNode::setParameter(int param, float val)
     {
         redrawRequested = true;
     }
+    else if (param == 10)
+    {
+        SpikeChannel* chan = spikeChannels[int(val)];
+
+        String msg = "AUDIO SELECT ";
+        msg += String(chan->getStreamId()) + " ";
+
+        for (auto ch : chan->localChannelIndexes)
+        {
+            msg += String(ch) + " ";
+        }
+
+        std::cout << "MESSAGE: " << msg << std::endl;
+        broadcastMessage(msg);
+
+    }
 }
 
 

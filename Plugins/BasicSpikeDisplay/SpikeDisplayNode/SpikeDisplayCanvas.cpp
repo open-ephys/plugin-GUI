@@ -549,6 +549,10 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) 
         rangeButtons.add(rangeButton);
     }
 
+    monitorButton = std::make_unique<UtilityButton>("MON", Font("Small Text", 8, Font::plain));
+    monitorButton->addListener(this);
+    addAndMakeVisible(monitorButton.get());
+
 }
 
 SpikePlot::~SpikePlot()
@@ -682,11 +686,19 @@ void SpikePlot::resized()
     for (int i = 0; i < nProjAx; i++)
         pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
 
-
+    monitorButton->setBounds(getWidth() - 40, 3, 35, 15);
 }
 
 void SpikePlot::buttonClicked(Button* button)
 {
+
+    if (button == monitorButton.get())
+    {
+        canvas->processor->setParameter(10, electrodeNumber);
+
+        return;
+    }
+
     UtilityButton* buttonThatWasClicked = (UtilityButton*) button;
 
     int index = rangeButtons.indexOf(buttonThatWasClicked);

@@ -105,6 +105,8 @@ public:
 
     void loadVisualizerParameters(XmlElement* xml);
 
+
+
 private:
 
     ScopedPointer<SpikeDisplay> spikeDisplay;
@@ -251,6 +253,9 @@ private:
     OwnedArray<ProjectionAxes> pAxes;
     OwnedArray<WaveAxes> wAxes;
     OwnedArray<UtilityButton> rangeButtons;
+
+    std::unique_ptr<UtilityButton> monitorButton;
+
     Array<float> ranges;
 
     void initLimits();

@@ -240,7 +240,7 @@ void AudioMonitor::handleBroadcastMessage(String msg)
 
             if (command.equalsIgnoreCase("SELECT"))
             {
-                if (parts.size() == 4)
+                if (parts.size() >= 4)
                 {
                     uint16 streamId = parts[2].getIntValue();
                     
