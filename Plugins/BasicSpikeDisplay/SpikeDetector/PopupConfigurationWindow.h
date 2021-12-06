@@ -38,14 +38,16 @@ class SpikeDetectorTableModel;
  //   SpikeDetector
 //}
 
+
 class EditableTextCustomComponent : public juce::Label,
     public Label::Listener
 {
 public:
-    EditableTextCustomComponent(StringParameter* name_)
-        : name(name_)
+    EditableTextCustomComponent(StringParameter* name_, bool acquisitionIsActive_)
+        : name(name_),
+          acquisitionIsActive(acquisitionIsActive_)
     {
-        setEditable(false, true, false);
+        setEditable(false, !acquisitionIsActive, false);
         addListener(this);
         setColour(Label::textColourId, Colours::white);
         setColour(Label::textWhenEditingColourId, Colours::yellow);
@@ -64,6 +66,7 @@ public:
 
 private:
     StringParameter* name;
+    bool acquisitionIsActive;
     int columnId;
 };
 
@@ -71,8 +74,9 @@ class ChannelSelectorCustomComponent : public juce::Label,
 public PopupChannelSelector::Listener
 {
 public:
-    ChannelSelectorCustomComponent(SelectedChannelsParameter* channels_)
-        : channels(channels_)
+    ChannelSelectorCustomComponent(SelectedChannelsParameter* channels_, bool acquisitionIsActive_)
+        : channels(channels_),
+          acquisitionIsActive(acquisitionIsActive_)
     {
         setEditable(false, false, false);
     }
@@ -114,14 +118,16 @@ private:
     SelectedChannelsParameter* channels;
     int columnId;
     juce::Colour textColour;
+    bool acquisitionIsActive;
 };
 
 class ThresholdSelectorCustomComponent : public juce::Label,
     public Label::Listener
 {
 public:
-    ThresholdSelectorCustomComponent(FloatParameter* threshold_)
-        : threshold(threshold_)
+    ThresholdSelectorCustomComponent(FloatParameter* threshold_, bool acquisitionIsActive_)
+        : threshold(threshold_),
+          acquisitionIsActive(acquisitionIsActive_)
     {
         setEditable(false, true, false);
         addListener(this);
@@ -135,22 +141,29 @@ public:
     void labelTextChanged(Label* label) override;
 
     void setRowAndColumn(const int newRow, const int newColumn);
+
+    void setThreshold(float value);
     
     void setParameter(FloatParameter* threshold_) { threshold = threshold_; }
+
+    void setTableModel(SpikeDetectorTableModel* table_) { table = table_; };
 
     int row;
 
 private:
+    SpikeDetectorTableModel* table;
     FloatParameter* threshold;
     int columnId;
     juce::Colour textColour;
+    bool acquisitionIsActive;
 };
 
 class WaveformSelectorCustomComponent : public Component
 {
 public:
-    WaveformSelectorCustomComponent(CategoricalParameter* waveformtype_)
-        : waveformtype(waveformtype_)
+    WaveformSelectorCustomComponent(CategoricalParameter* waveformtype_, bool acquisitionIsActive_)
+        : waveformtype(waveformtype_),
+          acquisitionIsActive(acquisitionIsActive_)
     {
     }
 
@@ -162,12 +175,18 @@ public:
     
     void setParameter(CategoricalParameter* waveformtype_) { waveformtype = waveformtype_; }
 
+    void setWaveformValue(int value);
+
+    void setTableModel(SpikeDetectorTableModel* table_) { table = table_; };
+
     int row;
 
 private:
     CategoricalParameter* waveformtype;
+    SpikeDetectorTableModel* table;
     int columnId;
     juce::Colour textColour;
+    bool acquisitionIsActive;
 };
 
 class SpikeDetectorTableModel : public TableListBoxModel
@@ -175,7 +194,9 @@ class SpikeDetectorTableModel : public TableListBoxModel
 
 public:
 
-    SpikeDetectorTableModel(SpikeDetectorEditor* editor, PopupConfigurationWindow* owner);
+    SpikeDetectorTableModel(SpikeDetectorEditor* editor, 
+                            PopupConfigurationWindow* owner,
+                            bool acquisitionIsActive);
 
     enum Columns {
         INDEX = 1,
@@ -198,15 +219,23 @@ public:
 
     void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
+    void broadcastWaveformTypeToSelectedRows(int rowThatWasClicked, int value);
+    void broadcastThresholdToSelectedRows(int rowThatWasClicked, float value);
+
     void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
     Array<SpikeChannel*> spikeChannels;
     TableListBox* table;
 private:
 
+    OwnedArray<WaveformSelectorCustomComponent> waveformComponents;
+    OwnedArray<ThresholdSelectorCustomComponent> thresholdComponents;
+
     SpikeDetectorEditor* editor;
     
     PopupConfigurationWindow* owner;
+
+    bool acquisitionIsActive;
 
 };
 
@@ -216,7 +245,9 @@ class PopupConfigurationWindow : public Component
 
 public:
     
-    PopupConfigurationWindow(SpikeDetectorEditor* editor, Array<SpikeChannel*> spikeChannels);
+    PopupConfigurationWindow(SpikeDetectorEditor* editor, 
+                             Array<SpikeChannel*> spikeChannels,
+                             bool acquisitionIsActive);
 
     ~PopupConfigurationWindow();
 
@@ -230,8 +261,6 @@ public:
 
 private:
     SpikeDetectorEditor* editor;
-
-
 };
 
 

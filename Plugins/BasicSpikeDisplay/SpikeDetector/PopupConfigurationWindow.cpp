@@ -46,7 +46,6 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
     name->setNextValue(label->getText());
 }
 
-
 void ThresholdSelectorCustomComponent::mouseDown(const MouseEvent& event)
 {
     //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
@@ -62,18 +61,29 @@ void ThresholdSelectorCustomComponent::setRowAndColumn(const int newRow, const i
 
 void ThresholdSelectorCustomComponent::labelTextChanged(Label* label)
 {
-    threshold->setNextValue(label->getText().getFloatValue());
+    table->broadcastThresholdToSelectedRows(row, label->getText().getFloatValue());
+}
+
+void ThresholdSelectorCustomComponent::setThreshold(float value)
+{
+    threshold->setNextValue(value);
+    //setText(String(value), dontSendNotification);
+
+    //repaint();
 }
 
 
 void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
+    if (acquisitionIsActive)
+        return;
+
     auto* channelSelector = new PopupChannelSelector(this, channels->getChannelStates());
     
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
     channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
 
-    CallOutBox& myBox
+     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             getScreenBounds(),
             nullptr);
@@ -81,8 +91,6 @@ void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     
 void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
-    
-    std::cout << "Setting row " << newRow << std::endl;
     
     Array<int> chans = channels->getArrayValue();
     
@@ -101,18 +109,32 @@ void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int
 
 void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
+    if (acquisitionIsActive)
+        return;
+
     if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
-        waveformtype->setNextValue(1);
+    {
+        table->broadcastWaveformTypeToSelectedRows(row, 1);
+    }
     else
-        waveformtype->setNextValue(0);
+    {
+        table->broadcastWaveformTypeToSelectedRows(row, 0);
+    }
     
     repaint();
+}
+
+void WaveformSelectorCustomComponent::setWaveformValue(int value)
+{
+
+    waveformtype->setNextValue(value);
+
+    //repaint();
 }
     
 void WaveformSelectorCustomComponent::paint(Graphics& g)
 {
  
-    std::cout << "NAME: " << waveformtype->getSpikeChannel()->getName() << std::endl;
     if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
         g.setColour(Colours::green);
     else
@@ -125,14 +147,16 @@ void WaveformSelectorCustomComponent::paint(Graphics& g)
     
 void WaveformSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
+    row = newRow;
     repaint();
 }
 
 
 
 SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_,
-    PopupConfigurationWindow* owner_)
-    : editor(editor_), owner(owner_)
+    PopupConfigurationWindow* owner_,
+    bool acquisitionIsActive_)
+    : editor(editor_), owner(owner_), acquisitionIsActive(acquisitionIsActive_)
 {
 
 }
@@ -147,7 +171,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
     //{
     //    std::cout << selectedRows[i] << " ";
     //}
-    if (columnId == SpikeDetectorTableModel::Columns::DELETE)
+    if (columnId == SpikeDetectorTableModel::Columns::DELETE && !acquisitionIsActive)
     {
         std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
         
@@ -171,6 +195,59 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
         std::cout << "Right click!" << std::endl;
 }
 
+void SpikeDetectorTableModel::broadcastWaveformTypeToSelectedRows(int rowThatWasClicked, int value)
+{
+    SparseSet<int> selectedRows = table->getSelectedRows();
+
+    for (int i = 0; i < spikeChannels.size(); i++)
+    {
+        if (selectedRows.contains(i) || i == rowThatWasClicked)
+        {
+            Component* c = refreshComponentForCell(i, SpikeDetectorTableModel::WAVEFORM, selectedRows.contains(i), nullptr);
+
+            jassert(c != nullptr);
+
+            WaveformSelectorCustomComponent* waveformButton = (WaveformSelectorCustomComponent*)c;
+
+            jassert(waveformButton != nullptr);
+
+            waveformComponents.add(waveformButton);
+
+            waveformButton->setWaveformValue(value);
+        }
+    }
+
+    table->updateContent();
+}
+
+
+void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasClicked, float value)
+{
+    SparseSet<int> selectedRows = table->getSelectedRows();
+
+    for (int i = 0; i < spikeChannels.size(); i++)
+    {
+        if (selectedRows.contains(i) || i == rowThatWasClicked)
+        {
+
+            std::cout << "Row " << i << ": " << " threshold = " << value << std::endl;
+            Component* c = refreshComponentForCell(i, SpikeDetectorTableModel::THRESHOLD, selectedRows.contains(i), nullptr);
+
+            jassert(c != nullptr);
+
+            ThresholdSelectorCustomComponent* thresholdSelector = (ThresholdSelectorCustomComponent*)c;
+
+            jassert(thresholdSelector != nullptr);
+
+            thresholdComponents.add(thresholdSelector);
+
+            thresholdSelector->setThreshold(value);
+        }
+    }
+
+    table->updateContent();
+}
+
 Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber, 
     int columnId, 
     bool isRowSelected,
@@ -182,7 +259,8 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
 
         if (textLabel == nullptr)
         {
-            textLabel = new EditableTextCustomComponent((StringParameter*) spikeChannels[rowNumber]->getParameter("name"));
+            textLabel = new EditableTextCustomComponent((StringParameter*) spikeChannels[rowNumber]->getParameter("name"),
+                                                        acquisitionIsActive);
         }
             
         textLabel->setColour(Label::textColourId, Colours::white);
@@ -197,7 +275,9 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
 
         if (channelsLabel == nullptr)
         {
-            channelsLabel = new ChannelSelectorCustomComponent((SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("local_channels"));
+            channelsLabel = new ChannelSelectorCustomComponent(
+                (SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("local_channels"),
+                acquisitionIsActive);
         }
 
         channelsLabel->setColour(Label::textColourId, Colours::white);
@@ -212,29 +292,37 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
 
         if (waveformButton == nullptr)
         {
-            waveformButton = new WaveformSelectorCustomComponent((CategoricalParameter*) spikeChannels[rowNumber]->getParameter("waveform_type"));
+            waveformButton = new WaveformSelectorCustomComponent(
+                (CategoricalParameter*) spikeChannels[rowNumber]->getParameter("waveform_type"),
+                acquisitionIsActive);
         }
 
         waveformButton->setParameter((CategoricalParameter*)spikeChannels[rowNumber]->getParameter("waveform_type"));
         waveformButton->setRowAndColumn(rowNumber, columnId);
+        waveformButton->setTableModel(this);
         
         return waveformButton;
+
     } else if (columnId == SpikeDetectorTableModel::Columns::THRESHOLD)
     {
         auto* thresholdSelector = static_cast<ThresholdSelectorCustomComponent*> (existingComponentToUpdate);
 
         if (thresholdSelector == nullptr)
         {
-            thresholdSelector = new ThresholdSelectorCustomComponent((FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"));
+            thresholdSelector = new ThresholdSelectorCustomComponent(
+                (FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"),
+                acquisitionIsActive);
         }
 
         thresholdSelector->setParameter((FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"));
         thresholdSelector->setRowAndColumn(rowNumber, columnId);
+        thresholdSelector->setTableModel(this);
         
         return thresholdSelector;
     }
 
     jassert(existingComponentToUpdate == nullptr);
+
     return nullptr;
 }
 
@@ -246,6 +334,9 @@ int SpikeDetectorTableModel::getNumRows()
 void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 {
     spikeChannels = spikeChannels_;
+
+    waveformComponents.clear();
+    thresholdComponents.clear();
     
     table->updateContent();
 }
@@ -330,42 +421,6 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
            
         g.drawText(channelString, 4, 4, width - 8, height - 8, Justification::centred);
     } 
-    else if (columnId == SpikeDetectorTableModel::Columns::THRESHOLD)
-    {
-       /* switch (spikeChannels[rowNumber]->thresholdType)
-        {
-        case SpikeChannelSettings::ThresholdType::FIXED:
-            g.setColour(Colours::blue);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
-            g.setColour(Colours::white);
-            g.drawText("FIXED", 4, 4, width - 8, height - 8, Justification::centred);
-            break;
-        case SpikeChannelSettings::ThresholdType::STD:
-            g.setColour(Colours::purple);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
-            g.setColour(Colours::white);
-            g.drawText("STD", 4, 4, width - 8, height - 8, Justification::centred);
-            break;
-        case SpikeChannelSettings::ThresholdType::DYNAMIC:
-            g.setColour(Colours::green);
-            g.fillRoundedRectangle(4, 4, width - 8, height - 8, 3);
-            g.setColour(Colours::white);
-            g.drawText("DYNAMIC", 4, 4, width - 8, height - 8, Justification::centred);
-            break;
-        }*/
-    }
-    else if (columnId == SpikeDetectorTableModel::Columns::WAVEFORM)
-    {
-        /*g.setColour(Colours::white);
-        if (spikeChannels[rowNumber]->sendFullWaveform)
-        {
-            g.drawText("FULL", 4, 4, width - 8, height - 8, Justification::centred);
-        }
-        else {
-            g.drawText("PEAK ONLY", 4, 4, width - 8, height - 8, Justification::centred);
-        }*/
-    }
-
     else if (columnId == SpikeDetectorTableModel::Columns::DELETE)
     {
         g.setColour(Colours::red);
@@ -376,13 +431,16 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
 }
 
 
-PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, Array<SpikeChannel*> spikeChannels) : editor(editor_)
+PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, 
+                                                   Array<SpikeChannel*> spikeChannels, 
+                                                   bool acquisitionIsActive) 
+    : editor(editor_)
 {
     //tableHeader.reset(new TableHeaderComponent());
 
     setSize(40, 40);
 
-    tableModel.reset(new SpikeDetectorTableModel(editor, this));
+    tableModel.reset(new SpikeDetectorTableModel(editor, this, acquisitionIsActive));
 
     electrodeTable = std::make_unique<TableListBox>("Electrode Table", tableModel.get());
     tableModel->table = electrodeTable.get();

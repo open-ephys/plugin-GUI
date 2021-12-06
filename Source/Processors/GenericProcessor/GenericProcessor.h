@@ -432,6 +432,8 @@ public:
 
     DataStream* getDataStream(uint16 streamId) const;
 
+    uint16 findSimilarStream(int sourceNodeId, String name, float sample_rate);
+
     virtual Array<const DataStream*> getStreamsForDestNode(GenericProcessor* processor);
 
     Array<const DataStream*> getDataStreams() const;

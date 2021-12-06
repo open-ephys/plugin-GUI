@@ -100,7 +100,9 @@ public:
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
     /** Adds a spike channel of a given type */
-    void addSpikeChannel (SpikeChannel::Type type, uint16 currentStream);
+    SpikeChannel* addSpikeChannel (SpikeChannel::Type type, 
+                          uint16 currentStream,
+                          String name = "");
 
     /** Removes a spike channel, based on a SpikeChannel pointer. */
     void removeSpikeChannel (SpikeChannel*);

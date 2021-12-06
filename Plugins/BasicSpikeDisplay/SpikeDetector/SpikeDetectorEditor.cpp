@@ -116,7 +116,8 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
         std::cout << spikeChannels.size() << " spike channels found." << std::endl;
 
         currentConfigWindow = new PopupConfigurationWindow(this,
-                                                           spikeChannels);
+                                                           spikeChannels,
+                                                           acquisitionIsActive);
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow), 
@@ -127,7 +128,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
         
         return;
     }
-    else if (button == plusButton.get())
+    else if (button == plusButton.get() && !acquisitionIsActive)
     {
         
         int numSpikeChannelsToAdd = spikeChannelCountLabel->getText().getIntValue();
@@ -169,7 +170,7 @@ void SpikeDetectorEditor::addSpikeChannels(SpikeChannel::Type type, int count)
 
 void SpikeDetectorEditor::removeSpikeChannels(Array<SpikeChannel*> spikeChannelsToRemove)
 {
-    std::cout << "Deleting electrode number " << index << std::endl;
+
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
     
     for (auto spikeChannel : spikeChannelsToRemove)

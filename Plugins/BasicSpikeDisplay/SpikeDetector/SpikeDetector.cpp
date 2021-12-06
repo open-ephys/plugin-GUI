@@ -145,12 +145,18 @@ void SpikeDetector::updateSettings()
 }
 
 
-void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStream)
+SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type, 
+                                     uint16 currentStream,
+                                     String name) //,
+                                     //Array<int> localChannels,
+                                    // int waveform_type,
+                                    // float threshold)
 {
     
-    Array<int> localChannels;
     Array<var> selectedChannels;
-    
+    Array<int> localChannels;
+    //bool useDefaultChannels = localChannels.size() > 0 ? false : true;
+
     std::cout << "SpikeDetector adding spike channel." << std::endl;
     
     std::cout << "Local channels: ";
@@ -158,16 +164,28 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
         std::cout << settings[currentStream]->nextAvailableChannel << " ";
-        localChannels.add(settings[currentStream]->nextAvailableChannel++);
-        selectedChannels.add(settings[currentStream]->nextAvailableChannel-1);
+
+        if (true)
+        {
+            localChannels.add(settings[currentStream]->nextAvailableChannel++);
+        }
+        else {
+            settings[currentStream]->nextAvailableChannel = localChannels[i] + 1;
+        }
+
+        selectedChannels.add(localChannels[i]);
     }
     
     std::cout << std::endl;
     
-    String name = SpikeChannel::getDefaultChannelPrefix(type);
-    
-    switch (type)
+    if (name.equalsIgnoreCase(""))
     {
+        std::cout << "Auto-generating name" << std::endl;
+
+        name = SpikeChannel::getDefaultChannelPrefix(type);
+
+        switch (type)
+        {
         case SpikeChannel::SINGLE:
             name += String(++settings[currentStream]->singleElectrodeCount);
             break;
@@ -177,6 +195,10 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
         case SpikeChannel::TETRODE:
             name += String(++settings[currentStream]->tetrodeCount);
             break;
+        }
+    }
+    else {
+        std::cout << "Using given name: " << name << std::endl;
     }
     
     SpikeChannel::Settings spikeChannelSettings
@@ -184,9 +206,11 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
         type,
 
         name,
+
         SpikeChannel::getDefaultChannelPrefix(type)
-            + " from Spike Detector "
+            + "from Spike Detector "
             + String(getNodeId()),
+
         SpikeChannel::getIdentifierFromType(type),
 
         localChannels
@@ -200,7 +224,9 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
     SpikeChannel* spikeChannel = spikeChannels.getLast();
     
     spikeChannel->addProcessor(processorInfo.get());
-    spikeChannel->setDataStream(getDataStream(currentStream), false);
+
+    if (currentStream > 0)
+        spikeChannel->setDataStream(getDataStream(currentStream), false);
     
     spikeChannel->thresholder =
         std::make_unique<AbsValueThresholder>(
@@ -234,6 +260,8 @@ void SpikeDetector::addSpikeChannel (SpikeChannel::Type type, uint16 currentStre
                      "The local channel indices (within a Data Stream) used for spike detection",
                      selectedChannels,
                      spikeChannel->getNumChannels()));
+
+    return spikeChannel;
 
 }
 
@@ -441,37 +469,64 @@ float SpikeDetector::getSample (int globalChannelIndex, int sampleIndex, AudioBu
 void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 {
 
-    /*for (auto stream : getDataStreams())
+    for (auto spikeChannel : spikeChannels)
     {
-        XmlElement* streamParams = xml->createNewChildElement("STREAM");
+        const uint16 streamId = spikeChannel->getStreamId();
 
-        settings[stream->getStreamId()]->toXml(streamParams);
-    }*/
+        XmlElement* spikeParamsXml = xml->createNewChildElement("SPIKE_CHANNEL");
+
+        // general settings
+        spikeParamsXml->setAttribute("name", spikeChannel->getName());
+        spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
+        spikeParamsXml->setAttribute("num_channels", (int) spikeChannel->getNumChannels());
+
+        // stream info
+        spikeParamsXml->setAttribute("sample_rate", spikeChannel->getSampleRate());
+        spikeParamsXml->setAttribute("stream_name", getDataStream(streamId)->getName());
+        spikeParamsXml->setAttribute("stream_source", getDataStream(streamId)->getSourceNodeId());
+
+        // parameters
+        spikeChannel->getParameter("local_channels")->toXml(spikeParamsXml);
+        spikeChannel->getParameter("threshold")->toXml(spikeParamsXml);
+        spikeChannel->getParameter("waveform_type")->toXml(spikeParamsXml);
+
+    }
 
 }
 
 
 void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 {
-    /*int streamIndex = 0;
 
     Array<const DataStream*> availableStreams = getDataStreams();
 
-    forEachXmlChildElement(*parametersAsXml, streamParams)
+    for (auto* spikeParamsXml : xml->getChildIterator())
     {
-        if (streamParams->hasTagName("STREAM"))
+        if (spikeParamsXml->hasTagName("SPIKE_CHANNEL"))
         {
+            String name = spikeParamsXml->getStringAttribute("name", "");
 
-            if (availableStreams.size() > streamIndex)
-            {
-                settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
-            }
-            else {
-                LOGD("Did not find stream!");
-            }
+            std::cout << "SPIKE CHANNEL NAME: " << name << std::endl;
 
-            streamIndex++;
+            double sample_rate = spikeParamsXml->getDoubleAttribute("sample_rate", 0.0f);
+            String stream_name = spikeParamsXml->getStringAttribute("stream_name", "");
+            int stream_source = spikeParamsXml->getIntAttribute("stream_source", 0);
+
+            SpikeChannel::Type type = SpikeChannel::typeFromNumChannels(spikeParamsXml->getIntAttribute("num_channels", 1));
+
+            uint16 streamId = findSimilarStream(stream_source, stream_name, sample_rate);
+
+            SpikeChannel* spikeChannel = addSpikeChannel(type, streamId, name);
+
+            spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
+            
+            SelectedChannelsParameter* param = (SelectedChannelsParameter*)spikeChannel->getParameter("local_channels");
+            param->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
+
+            spikeChannel->getParameter("threshold")->fromXml(spikeParamsXml);
+            spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
+
         }
-    }*/
+    }
 }
 

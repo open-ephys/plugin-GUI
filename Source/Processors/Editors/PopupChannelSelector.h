@@ -27,16 +27,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 
-class RangeEditor;
-class SelectButton;
-class ChannelButton;
+#include "../PluginManager/OpenEphysPlugin.h"
+
+enum Select { ALL, NONE, RANGE };
+
+class PopupChannelSelector;
+
+class PLUGIN_API ChannelButton : public Button
+{
+public:
+	ChannelButton(int id, PopupChannelSelector* parent);
+	~ChannelButton();
+	int getId() { return id; };
+private:
+	void mouseDown(const MouseEvent& event);
+	void mouseDrag(const MouseEvent& event);
+	void mouseUp(const MouseEvent& event);
+
+	int id;
+	PopupChannelSelector* parent;
+	int width;
+	int height;
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+};
+
+class PLUGIN_API SelectButton : public Button
+{
+public:
+	SelectButton(const String& name);
+	~SelectButton();
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+};
+
+class PLUGIN_API RangeEditor : public TextEditor
+{
+public:
+	RangeEditor(const String& name, const Font& font);
+	~RangeEditor();
+private:
+	;
+};
+
 
 /**
 Automatically creates an interactive pop-up editor for selecting channels.
 @see GenericEditor
 
 */
-class PopupChannelSelector :
+class PLUGIN_API PopupChannelSelector :
 	public Component,
 	public Button::Listener,
 	public TextEditor::Listener
@@ -104,44 +143,6 @@ private:
 	Array<int> activeChannels;
 };
 
-
-enum Select { ALL, NONE, RANGE };
-
-class ChannelButton : public Button	
-{
-public:
-	ChannelButton(int id, PopupChannelSelector* parent);
-	~ChannelButton();
-    int getId() { return id; };
-private:
-	void mouseDown(const MouseEvent &event);
-	void mouseDrag(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
-
-	int id; 
-	PopupChannelSelector* parent;
-    int width;
-    int height;
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-};
-
-class SelectButton : public Button	
-{
-public:
-	SelectButton(const String& name);
-	~SelectButton();
-private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-};
-
-class RangeEditor : public TextEditor
-{
-public:
-	RangeEditor(const String& name, const Font& font);
-	~RangeEditor();
-private:
-	;
-};
 
 
 #endif  // ___POPUPCHANNELSELECTOR_H_E47DE5C__

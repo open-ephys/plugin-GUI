@@ -1408,6 +1408,45 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 	return dataStreamMap.at(streamId);
 }
 
+uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate)
+{
+    if (dataStreams.size() > 0)
+    {
+        for (auto stream : dataStreams)
+        {
+            if (stream->getSourceNodeId() == sourceNodeId
+                && stream->getName() == name 
+                && stream->getSampleRate() == sample_rate)
+            {
+                // perfect match
+                return stream->getStreamId();
+            }
+        }
+
+        for (auto stream : dataStreams)
+        {
+            if (stream->getName() == name
+                && stream->getSampleRate() == sample_rate)
+            {
+                // name and sample rate match
+                return stream->getStreamId();
+            }
+        }
+
+        for (auto stream : dataStreams)
+        {
+            if (stream->getSampleRate() == sample_rate)
+            {
+                // sample rate match
+                return stream->getStreamId();
+            }
+        }
+    }
+
+    // no streams with any matching characteristics
+    return 0;
+}
+
 const ConfigurationObject* GenericProcessor::getConfigurationObject(int index) const
 {
 	return configurationObjects[index];
@@ -1485,7 +1524,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 		for (auto param : stream->getParameters())
             param->toXml(streamParamsXml);
         
-        for (auto eventChannel : stream->getEventChannels())
+        /*for (auto eventChannel : stream->getEventChannels())
         {
             if (eventChannel->numParameters() > 0)
             {
@@ -1509,20 +1548,8 @@ void GenericProcessor::saveToXml(XmlElement* xml)
                 for (auto param : continuousChannel->getParameters())
                     param->toXml(continuousParamsXml);
             }
-        }
-        
-        for (auto spikeChannel : stream->getSpikeChannels())
-        {
-            if (spikeChannel->numParameters() > 0)
-            {
-                XmlElement* spikeParamsXml = streamXml->createNewChildElement("SPIKE_CHANNEL");
-                spikeParamsXml->setAttribute("name",spikeChannel->getName());
-                spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
-                
-                for (auto param : spikeChannel->getParameters())
-                    param->toXml(spikeParamsXml);
-            }
-        }
+        }*/
+
 	}
 
 	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));

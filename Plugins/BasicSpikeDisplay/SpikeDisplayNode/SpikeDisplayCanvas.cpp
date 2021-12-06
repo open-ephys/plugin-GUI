@@ -1013,7 +1013,7 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
     g.drawText(String(roundFloatToInt(displayThresholdLevel)),2,h,25,10,Justification::left, false);
 
     // draw detector threshold (not editable)
-    if (spikesInverted)
+    if (!spikesInverted)
         h = getHeight()*(0.5f - detectorThresholdLevel/range);
     else
         h = getHeight()*(0.5f + detectorThresholdLevel/range);

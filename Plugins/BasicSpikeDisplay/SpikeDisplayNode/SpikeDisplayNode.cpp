@@ -206,14 +206,14 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPac
 {
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
     
-    std::cout << "Received spike" << std::endl;
+    //std::cout << "Received spike" << std::endl;
     
 	if (!newSpike) return;
 
 	int electrodeNum = newSpike->getChannelIndex();
 
 	Electrode* e = electrodes[electrodeNum];
-	std::cout << electrodeNum << std::endl;
+	//std::cout << electrodeNum << std::endl;
 
 	bool aboveThreshold = false;
 
