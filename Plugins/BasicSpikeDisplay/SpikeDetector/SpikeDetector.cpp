@@ -347,103 +347,109 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
     // cycle through streams
     for (auto spikeChannel : spikeChannels)
     {
-        const uint16 streamId = spikeChannel->getStreamId();
-        
-        const int nSamples = getNumSourceSamples(streamId);
 
-        int sampleIndex = spikeChannel->currentSampleIndex - 1;
-        
-        // cycle through samples
-        while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES / 2)
+        if (spikeChannel->isLocal())
         {
-            ++sampleIndex;
 
-            // cycle through channels
-            for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+            const uint16 streamId = spikeChannel->getStreamId();
+
+            const int nSamples = getNumSourceSamples(streamId);
+
+            int sampleIndex = spikeChannel->currentSampleIndex - 1;
+
+            // cycle through samples
+            while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES / 2)
             {
-                // check whether spike detection is active
-                if (spikeChannel->detectSpikesOnChannel(ch))
+                ++sampleIndex;
+
+                // cycle through channels
+                for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
                 {
-                    
-                    int currentChannel = spikeChannel->globalChannelIndexes[ch];
-
-                    float currentSample = getSample(currentChannel, sampleIndex, buffer);
-
-                    if (spikeChannel->thresholder->checkSample(ch, currentSample))
+                    // check whether spike detection is active
+                    if (spikeChannel->detectSpikesOnChannel(ch))
                     {
 
-                        // find the peak
-                        int peakIndex = sampleIndex;
+                        int currentChannel = spikeChannel->globalChannelIndexes[ch];
 
-                        while (getSample(currentChannel, sampleIndex, buffer) >
-                               getSample(currentChannel, sampleIndex + 1, buffer)
-                            && sampleIndex < peakIndex + spikeChannel->getPostPeakSamples())
+                        float currentSample = getSample(currentChannel, sampleIndex, buffer);
+
+                        if (spikeChannel->thresholder->checkSample(ch, currentSample))
                         {
-                            ++sampleIndex;
-                        }
 
-                        peakIndex = sampleIndex;
+                            // find the peak
+                            int peakIndex = sampleIndex;
 
-                        sampleIndex -= (spikeChannel->getPrePeakSamples() + 1);
-                        
-                        // create a buffer to hold the spike data
-                        Spike::Buffer spikeBuffer(spikeChannel);
+                            while (getSample(currentChannel, sampleIndex, buffer) >
+                                getSample(currentChannel, sampleIndex + 1, buffer)
+                                && sampleIndex < peakIndex + spikeChannel->getPostPeakSamples())
+                            {
+                                ++sampleIndex;
+                            }
 
-                        // add the waveform
-                        addWaveformToSpikeBuffer(spikeBuffer,
+                            peakIndex = sampleIndex;
+
+                            sampleIndex -= (spikeChannel->getPrePeakSamples() + 1);
+
+                            // create a buffer to hold the spike data
+                            Spike::Buffer spikeBuffer(spikeChannel);
+
+                            // add the waveform
+                            addWaveformToSpikeBuffer(spikeBuffer,
                                 sampleIndex,
                                 buffer);
 
-                        // get the spike timestamp (aligned to the peak index)
-                        int64 timestamp = getSourceTimestamp(streamId) + peakIndex;
+                            // get the spike timestamp (aligned to the peak index)
+                            int64 timestamp = getSourceTimestamp(streamId) + peakIndex;
 
-                        // create a spike object
-                        SpikePtr newSpike = Spike::createSpike(spikeChannel,
-                                                               timestamp,
-                                                               spikeChannel->thresholder->getThresholds(),
-                                                               spikeBuffer);
+                            // create a spike object
+                            SpikePtr newSpike = Spike::createSpike(spikeChannel,
+                                timestamp,
+                                spikeChannel->thresholder->getThresholds(),
+                                spikeBuffer);
 
-                        spikeCount++;
-                        
-                        // add spike to the outgoing EventBuffer
-                        addSpike(newSpike, peakIndex);
-                        
-                        // advance the sample index
-                        sampleIndex = peakIndex + spikeChannel->getPostPeakSamples();
-                        
-                        break; // quit channels "for" loop
-                    }
-                    
-                } // if detectSpikesOnChannel
-                
-            } // cycle through channels
+                            spikeCount++;
 
-        } // while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES)
-    
-        spikeChannel->currentSampleIndex = sampleIndex - nSamples; // should be negative
+                            // add spike to the outgoing EventBuffer
+                            addSpike(newSpike, peakIndex);
 
-        //std::cout << spikeChannel->currentSampleIndex << std::endl;
+                            // advance the sample index
+                            sampleIndex = peakIndex + spikeChannel->getPostPeakSamples();
 
-        if (nSamples > OVERFLOW_BUFFER_SAMPLES)
-        {
-            for (int j = 0; j < spikeChannel->getNumChannels(); ++j)
+                            break; // quit channels "for" loop
+                        }
+
+                    } // if detectSpikesOnChannel
+
+                } // cycle through channels
+
+            } // while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES)
+
+            spikeChannel->currentSampleIndex = sampleIndex - nSamples; // should be negative
+
+            //std::cout << spikeChannel->currentSampleIndex << std::endl;
+
+            if (nSamples > OVERFLOW_BUFFER_SAMPLES)
             {
-                overflowBuffer.copyFrom(spikeChannel->globalChannelIndexes[j],
-                      0,
-                      buffer,
-                     spikeChannel->globalChannelIndexes[j],
-                     nSamples - OVERFLOW_BUFFER_SAMPLES,
-                     OVERFLOW_BUFFER_SAMPLES);
+                for (int j = 0; j < spikeChannel->getNumChannels(); ++j)
+                {
+                    overflowBuffer.copyFrom(spikeChannel->globalChannelIndexes[j],
+                        0,
+                        buffer,
+                        spikeChannel->globalChannelIndexes[j],
+                        nSamples - OVERFLOW_BUFFER_SAMPLES,
+                        OVERFLOW_BUFFER_SAMPLES);
+                }
+
+                spikeChannel->useOverflowBuffer = true;
+                //spikeChannel->currentSampleIndex = -OVERFLOW_BUFFER_SAMPLES / 2;
+            }
+            else
+            {
+                spikeChannel->useOverflowBuffer = false;
+                //spikeChannel->currentSampleIndex = 0;
             }
 
-            spikeChannel->useOverflowBuffer = true;
-            //spikeChannel->currentSampleIndex = -OVERFLOW_BUFFER_SAMPLES / 2;
-        }
-        else
-        {
-            spikeChannel->useOverflowBuffer = false;
-            //spikeChannel->currentSampleIndex = 0;
-        }
+        } // local channels
     
     } // spikeChannel loop
     
@@ -471,25 +477,28 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 
     for (auto spikeChannel : spikeChannels)
     {
-        const uint16 streamId = spikeChannel->getStreamId();
 
-        XmlElement* spikeParamsXml = xml->createNewChildElement("SPIKE_CHANNEL");
+        if (spikeChannel->isLocal())
+        {
+            const uint16 streamId = spikeChannel->getStreamId();
 
-        // general settings
-        spikeParamsXml->setAttribute("name", spikeChannel->getName());
-        spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
-        spikeParamsXml->setAttribute("num_channels", (int) spikeChannel->getNumChannels());
+            XmlElement* spikeParamsXml = xml->createNewChildElement("SPIKE_CHANNEL");
 
-        // stream info
-        spikeParamsXml->setAttribute("sample_rate", spikeChannel->getSampleRate());
-        spikeParamsXml->setAttribute("stream_name", getDataStream(streamId)->getName());
-        spikeParamsXml->setAttribute("stream_source", getDataStream(streamId)->getSourceNodeId());
+            // general settings
+            spikeParamsXml->setAttribute("name", spikeChannel->getName());
+            spikeParamsXml->setAttribute("description", spikeChannel->getDescription());
+            spikeParamsXml->setAttribute("num_channels", (int)spikeChannel->getNumChannels());
 
-        // parameters
-        spikeChannel->getParameter("local_channels")->toXml(spikeParamsXml);
-        spikeChannel->getParameter("threshold")->toXml(spikeParamsXml);
-        spikeChannel->getParameter("waveform_type")->toXml(spikeParamsXml);
+            // stream info
+            spikeParamsXml->setAttribute("sample_rate", spikeChannel->getSampleRate());
+            spikeParamsXml->setAttribute("stream_name", getDataStream(streamId)->getName());
+            spikeParamsXml->setAttribute("stream_source", getDataStream(streamId)->getSourceNodeId());
 
+            // parameters
+            spikeChannel->getParameter("local_channels")->toXml(spikeParamsXml);
+            spikeChannel->getParameter("threshold")->toXml(spikeParamsXml);
+            spikeChannel->getParameter("waveform_type")->toXml(spikeParamsXml);
+        }
     }
 
 }
