@@ -84,6 +84,9 @@ public:
     /** Parameter changed */
     void parameterValueChanged(Parameter* p) override;
 
+    /** Called when acquisition is started*/
+    bool startAcquisition() override;
+
     /** Called after acquisition is finished. */
     bool stopAcquisition() override;
 
@@ -129,6 +132,9 @@ private:
     //ParameterCollection mostRecentParameters;
     
     StreamSettings<SpikeDetectorSettings> settings;
+
+    int totalCallbacks;
+    int spikeCount;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

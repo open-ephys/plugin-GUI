@@ -47,19 +47,16 @@ public:
 
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
-    void setParameter (int parameterIndex, float newValue) override;
+    void setParameter(int, float) override;
 
-	void handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition) override;
+	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& spike, int samplePosition) override;
 
     void updateSettings() override;
 
     bool startAcquisition()   override;
     bool stopAcquisition()  override;
-
-    void startRecording()   override;
-    void stopRecording()    override;
 
     String getNameForElectrode (int i) const;
     int getNumberOfChannelsForElectrode (int i) const;
@@ -91,6 +88,9 @@ private:
     };
 
     OwnedArray<Electrode> electrodes;
+
+    int spikeCount;
+    int totalCallbacks;
 
     int displayBufferSize;
     bool redrawRequested;

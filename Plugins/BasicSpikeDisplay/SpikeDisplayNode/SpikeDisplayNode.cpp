@@ -82,6 +82,10 @@ bool SpikeDisplayNode::startAcquisition()
 	}
 
     editor->enable();
+
+    totalCallbacks = 0;
+    spikeCount = 0;
+
     return true;
 }
 
@@ -92,7 +96,19 @@ bool SpikeDisplayNode::stopAcquisition()
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
     editor->disable();
 
+    //std::cout << "Received " << spikeCount << " in " << totalCallbacks << " callbacks." << std::endl;
+
     return true;
+}
+
+
+void SpikeDisplayNode::setParameter(int param, float val)
+{
+
+    if (param == 2)   // redraw
+    {
+        redrawRequested = true;
+    }
 }
 
 
@@ -145,32 +161,11 @@ int SpikeDisplayNode::getNumElectrodes() const
 }
 
 
-void SpikeDisplayNode::startRecording()
-{
-    setParameter (1, 0.0f); // need to use the 'setParameter' method to interact with 'process'
-}
-
-
-void SpikeDisplayNode::stopRecording()
-{
-    setParameter (0, 0.0f); // need to use the 'setParameter' method to interact with 'process'
-}
-
-
-void SpikeDisplayNode::setParameter (int param, float val)
-{
-    //std::cout<<"SpikeDisplayNode got Param:"<< param<< " with value:"<<val<<std::endl;
-
-    if (param == 2)   // redraw
-    {
-        redrawRequested = true;
-    }
-}
-
-
-void SpikeDisplayNode::process (AudioSampleBuffer& buffer)
+void SpikeDisplayNode::process (AudioBuffer<float>& buffer)
 {
     checkForEvents (true); // automatically calls 'handleEvent
+
+    totalCallbacks++;
 
     if (redrawRequested)
     {
@@ -202,15 +197,23 @@ void SpikeDisplayNode::process (AudioSampleBuffer& buffer)
 }
 
 
-void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
+void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& spike, int samplePosition)
 {
-	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
+	SpikePtr newSpike = Spike::deserialize(spike, spikeInfo);
     
     //std::cout << "Received spike" << std::endl;
     
 	if (!newSpike) return;
 
 	int electrodeNum = newSpike->getChannelIndex();
+
+    spikeCount++;
+
+    //const float* data = newSpike->getDataPointer();
+
+    //float peak = data[9];
+
+    //std::cout << peak << std::endl;
 
 	Electrode* e = electrodes[electrodeNum];
 	//std::cout << electrodeNum << std::endl;

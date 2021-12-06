@@ -288,7 +288,13 @@ Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
     return channels;
 }
 
+bool SpikeDetector::startAcquisition()
+{
+    totalCallbacks = 0;
+    spikeCount = 0;
 
+    return true;
+}
 
 bool SpikeDetector::stopAcquisition()
 {
@@ -297,6 +303,8 @@ bool SpikeDetector::stopAcquisition()
     {
         spikeChannel->reset();
     }
+
+    //std::cout << "Detected " << spikeCount << " spikes in " << totalCallbacks << " callbacks." << std::endl;
 
     return true;
 }
@@ -334,6 +342,7 @@ void SpikeDetector::addWaveformToSpikeBuffer (Spike::Buffer& s,
 
 void SpikeDetector::process (AudioSampleBuffer& buffer)
 {
+    totalCallbacks++;
 
     // cycle through streams
     for (auto spikeChannel : spikeChannels)
@@ -344,37 +353,24 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
         int sampleIndex = spikeChannel->currentSampleIndex - 1;
         
-       //std::cout << "Checking " << spikeChannel->getName() << std::endl;
-        
         // cycle through samples
         while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES / 2)
         {
             ++sampleIndex;
-            
-            //std::cout << "Checking sample " << sampleIndex << std::endl;
 
             // cycle through channels
             for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
             {
-                
-                //std::cout << "Checking channel " << ch << std::endl;
-                
                 // check whether spike detection is active
                 if (spikeChannel->detectSpikesOnChannel(ch))
                 {
                     
-                    //std::cout << "Active " << ch << std::endl;
-                    
                     int currentChannel = spikeChannel->globalChannelIndexes[ch];
-                    
-                    //std::cout << "Global channel " << currentChannel << std::endl;
 
                     float currentSample = getSample(currentChannel, sampleIndex, buffer);
 
                     if (spikeChannel->thresholder->checkSample(ch, currentSample))
                     {
-                        
-                        //std::cout << "Above thresh " << currentChannel << std::endl;
 
                         // find the peak
                         int peakIndex = sampleIndex;
@@ -406,12 +402,12 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                                                                timestamp,
                                                                spikeChannel->thresholder->getThresholds(),
                                                                spikeBuffer);
+
+                        spikeCount++;
                         
                         // add spike to the outgoing EventBuffer
                         addSpike(newSpike, peakIndex);
                         
-                        //std::cout << "Added spike object" << std::endl;
-
                         // advance the sample index
                         sampleIndex = peakIndex + spikeChannel->getPostPeakSamples();
                         
@@ -424,7 +420,9 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
         } // while (sampleIndex < nSamples - OVERFLOW_BUFFER_SAMPLES)
     
-        spikeChannel->lastBufferIndex = sampleIndex - nSamples; // should be negative
+        spikeChannel->currentSampleIndex = sampleIndex - nSamples; // should be negative
+
+        //std::cout << spikeChannel->currentSampleIndex << std::endl;
 
         if (nSamples > OVERFLOW_BUFFER_SAMPLES)
         {
@@ -439,10 +437,12 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
             }
 
             spikeChannel->useOverflowBuffer = true;
+            //spikeChannel->currentSampleIndex = -OVERFLOW_BUFFER_SAMPLES / 2;
         }
         else
         {
             spikeChannel->useOverflowBuffer = false;
+            //spikeChannel->currentSampleIndex = 0;
         }
     
     } // spikeChannel loop
