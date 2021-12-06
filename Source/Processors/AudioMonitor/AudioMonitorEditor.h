@@ -94,7 +94,8 @@ private:
 
 */
 
-class AudioMonitorEditor : public GenericEditor
+class AudioMonitorEditor : public GenericEditor,
+                           public ComboBox::Listener
 {
 public:
     /** Constructor */
@@ -103,6 +104,12 @@ public:
     /** Destructor */
     virtual ~AudioMonitorEditor() { }
 
+    /** Called when spike channel ComboBox is updated*/
+    void comboBoxChanged(ComboBox* comboBox);
+
+    /** Populates spikeChannelSelector*/
+    void selectedStreamHasChanged() override;
+
 private:
 
     /** Pointer to the AudioMonitor object*/
@@ -110,6 +117,9 @@ private:
     
     /** ComboBox for monitoring incoming spike channels*/
     std::unique_ptr<ComboBox> spikeChannelSelector;
+
+    /** Array of spike channels for the current stream*/
+    Array<SpikeChannel*> spikeChannels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitorEditor);
 };

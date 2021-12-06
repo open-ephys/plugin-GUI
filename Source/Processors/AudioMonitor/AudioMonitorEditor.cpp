@@ -189,8 +189,50 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
     spikeChannelSelector->setTextWhenNoChoicesAvailable("No spike channels");
     spikeChannelSelector->setTextWhenNothingSelected("Select a Spike Channel");
 
-	//spikeChan->addListener(this);
+	spikeChannelSelector->addListener(this);
 	addAndMakeVisible(spikeChannelSelector.get());
 
     desiredWidth = 180;
+}
+
+void AudioMonitorEditor::selectedStreamHasChanged()
+{
+    const DataStream* stream = getProcessor()->getDataStream(selectedStream);
+
+    spikeChannels = stream->getSpikeChannels();
+
+    spikeChannelSelector->clear();
+
+    int id = 1;
+
+    spikeChannelSelector->addItem("No spike channel", id++);
+
+    for (auto spikeChannel : spikeChannels)
+    {
+        spikeChannelSelector->addItem(spikeChannel->getName(), id++);
+    }
+}
+
+void AudioMonitorEditor::comboBoxChanged(ComboBox* comboBox)
+{
+
+    const DataStream* stream = getProcessor()->getDataStream(selectedStream);
+
+    if (comboBox->getSelectedId() > 1)
+    {
+
+        Array<int> selectedChannels = spikeChannels[comboBox->getSelectedId() - 2]->localChannelIndexes;
+
+        Array<var> inds;
+
+        for (int ch : selectedChannels)
+        {
+            inds.add(ch);
+        }
+
+        stream->getParameter("selected_channels")->setNextValue(inds);
+    }
+    else {
+        stream->getParameter("selected_channels")->setNextValue(Array<var>());
+    }
 }
