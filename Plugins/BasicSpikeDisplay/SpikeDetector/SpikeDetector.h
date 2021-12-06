@@ -87,6 +87,37 @@ private:
     int skipSamples = 50;
 };
 
+class DynamicThresholder : public Thresholder
+{
+public:
+    DynamicThresholder(int numChannels);
+    virtual ~DynamicThresholder() { }
+
+    void setThreshold(int channel, float threshold);
+    float getThreshold(int channel);
+
+    Array<float>& getThresholds() { return thresholds; }
+
+    void computeSigma(int channel);
+
+    bool checkSample(int channel, float sample);
+
+private:
+
+    Array<float> thresholds;
+    Array<float> sigmaLevels;
+    OwnedArray< std::vector<float>> sampleBuffer;
+    Array<int> bufferIndex;
+
+    int bufferSize = 4000;
+
+    float scalar = 0.6745f;
+
+    int index;
+    int skipSamples = 50;
+};
+
+
 
 /**
     Detects spikes in a continuous signal and outputs events containing the spike data.
