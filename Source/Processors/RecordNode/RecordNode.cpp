@@ -722,6 +722,8 @@ void RecordNode::stopRecording()
 	else
 		getEditor()->setBackgroundColor(Colour(255, 0, 0));
 
+	receivedSoftwareTime = false;
+
 }
 
 bool RecordNode::getRecordingStatus() const
@@ -818,6 +820,19 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
 
+			if (!receivedSoftwareTime)
+			{
+				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+				HeapBlock<char> data;
+
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
+
+				handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+				receivedSoftwareTime = true;
+
+			}
+
 			ContinuousChannel* chan = continuousChannels[channelMap[ch]];
 
 			uint64 streamId = ((ChannelInfoObject*)chan)->getStreamId();
@@ -827,6 +842,20 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			{
 				numSamples = getNumSamples(channelMap[ch]);
 				timestamp = getTimestamp(channelMap[ch]);
+
+				if (!setFirstBlock)
+				{
+
+					MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+					HeapBlock<char> data;
+
+					GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
+
+					size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
+
+					handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+				}
 			}
 
 			bool shouldWrite = validBlocks[ch];
