@@ -36,7 +36,11 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
-    valueTextBox = std::make_unique<Label>("Parameter value", String(int(param->getValue())));
+    if(param->getType() == Parameter::FLOAT_PARAM)
+        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())));
+    else
+        valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
+
     valueTextBox->setFont(Font("Default", 15, Font::plain));
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
