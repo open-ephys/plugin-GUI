@@ -46,6 +46,8 @@
 
 #include "ProcessorGraphHttpServer.h"
 
+std::map< ChannelKey, bool> ProcessorGraph::bufferLookupMap;
+
 ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(false)
 {
 
@@ -827,47 +829,132 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
 
 }
 
+void ProcessorGraph::updateBufferMap(int inputNodeId,
+    int inputIndex,
+    int outputNodeId,
+    int outputIndex,
+    bool isNeededLater)
+{
+    ChannelKey key;
+    key.inputNodeId = inputNodeId;
+    key.inputIndex = inputIndex;
+    key.outputNodeId = outputNodeId;
+    key.outputIndex = outputIndex;
+
+    bufferLookupMap.insert(std::make_pair(key, isNeededLater));
+}
+
 bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
     int inputIndex,
     int outputNodeId,
-    int outputIndex)
+    int outputIndex,
+    bool* isValid)
 
 {
     LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
 
-    GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
+    ChannelKey key;
+    key.inputNodeId = inputNodeId;
+    key.inputIndex = inputIndex;
+    key.outputNodeId = outputNodeId;
+    key.outputIndex = outputIndex;
+
+    auto search = bufferLookupMap.find(key);
+
+    if (search != bufferLookupMap.end())
+    {
+        *isValid = true;
+        return bufferLookupMap[key];
+    }
+
+    /*GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
     GenericProcessor* outputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(outputNodeId);
 
+    if (inputProcessor != nullptr && outputProcessor != nullptr)
+      
+    {
+        if (inputProcessor->isSource() && inputIndex == -1 && inputProcessor == outputProcessor)
+        {
+            bufferLookupMap.insert(std::make_pair(key, true));
+            *isValid = true;
+            return true;
+        }
+        
+    }*/
+
+    *isValid = false;
+
+    return false;
+
+
+    /*GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
+    GenericProcessor* outputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(outputNodeId);
 
     if (inputNodeId == AUDIO_NODE_ID)
     {
+        LOGG("inputNodeId == AUDIO_NODE_ID");
+
         if (outputIndex == midiChannelIndex)
         {
+
+            LOGG("outputIndex == midiChannelIndex");
+
             if (outputNodeId < AUDIO_NODE_ID)
             {
+
+                LOGG("outputNodeId < AUDIO_NODE_ID");
+
                 if (outputProcessor->getDestNode() != nullptr)
                 {
+
+                    LOGG("outputProcessor->getDestNode() != nullptr");
+
                     return true;
                         
                 }
                 else {
+
+                    LOGG("outputProcessor->getDestNode() == nullptr");
                     return false;
                 }
             }
             else
-                 return false;
+            {
+                LOGG("outputNodeId >= AUDIO_NODE_ID");
+
+                return false;
+            }
+                 
         }
             
         else {
+
+            LOGG("outputIndex != midiChannelIndex");
+
             if (outputNodeId < AUDIO_NODE_ID)
             {
+
+                LOGG("outputNodeId < AUDIO_NODE_ID");
+
                 if (inputIndex == -1)
+                {
+                    LOGG("inputIndex == -1");
+
                     return true;
+                }
+                    
                 else
+                {
+                    LOGG("inputIndex != -1");
+
                     return false;
+                }
+                   
             }
             else
             {
+                LOGG("outputNodeId >= AUDIO_NODE_ID");
+
                 return true;
             }
                 
@@ -876,14 +963,31 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
     }
     else if (inputNodeId == OUTPUT_NODE_ID)
     {
+
+        LOGG("inputNodeId == OUTPUT_NODE_ID");
+
         if (outputNodeId == AUDIO_NODE_ID)
+        {
+
+            LOGG("outputNodeId == AUDIO_NODE_ID");
+
             return true;
+        }
+            
         else
         {
+
+            LOGG("outputNodeId != AUDIO_NODE_ID");
+
             if (outputNodeId < AUDIO_NODE_ID)
             {
+
+                LOGG("outputNodeId < AUDIO_NODE_ID");
+
                 if (outputProcessor->getDestNode() != nullptr)
                 {
+
+                    LOGG("outputProcessor->getDestNode() != nullptr");
 
                     return true;
                     //if (outputProcessor->getDestNode()->isSplitter())
@@ -903,9 +1007,14 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
                        
                 }
                 else {
+
+                    LOGG("outputProcessor->getDestNode() == nullptr");
+
                     return false;
                 }
             }
+
+            LOGG("outputNodeId >= AUDIO_NODE_ID");
 
             return false;
         }
@@ -913,35 +1022,77 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
     }
     else if (inputNodeId == MESSAGE_CENTER_ID)
     {
+
+        LOGG("inputNodeId == MESSAGE_CENTER_ID");
+
         if (outputIndex == midiChannelIndex)
+        {
+
+            LOGG("outputIndex == midiChannelIndex");
+
             return true;
+        }
+           
         else
+        {
+
+            LOGG("outputIndex != midiChannelIndex");
+
             return false;
+        }
+            
     }
     else {
+
+        LOGG("inputNodeId != MESSAGE_CENTER_ID, AUDIO_NODE_ID, OUTPUT_NODE_ID");
         
         if (outputNodeId == MESSAGE_CENTER_ID)
         {
+
+            LOGG("outputNodeId == MESSAGE_CENTER_ID");
+
             if (inputProcessor->getDestNode() != nullptr)
             {
+
+                LOGG("inputProcessor->getDestNode() != nullptr");
+
                 if (inputProcessor->getDestNode()->isMerger())
                 {
+
+                    LOGG("inputProcessor->getDestNode()->isMerger()");
+
                     Merger* merger = (Merger*)inputProcessor->getDestNode();
 
                     if (merger->getSourceNode(0) == inputProcessor)
                     {
+
+                        LOGG("merger->getSourceNode(0) == inputProcessor");
+
                         return true;
                     }
                     else {
+
+                        LOGG("merger->getSourceNode(0) != inputProcessor");
+
                         return false;
                     }
                 }
                 else {
 
+                    LOGG("!inputProcessor->getDestNode()->isMerger()");
+
                     if (inputProcessor->isMerger())
+                    {
+                        LOGG("inputProcessor->isMerger()");
                         return true;
+                    }
+                       
                     else
+                    {
+                        LOGG("!inputProcessor->isMerger()");
                         return false;
+                    }
+                        
                 }
             }
             
@@ -950,69 +1101,173 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
         if (inputIndex == -1)
         {
 
+            LOGG("inputIndex == -1");
+
             if (outputProcessor->isMerger() || outputProcessor->isSplitter())
+            {
+                LOGG("outputProcessor->isMerger() || outputProcessor->isSplitter()");
                 return false;
+            }
+                
+
+            if (inputProcessor->isSplitter() && outputIndex == midiChannelIndex)
+            {
+
+                LOGG("inputProcessor->isSplitter() && outputIndex == midiChannelIndex");
+
+                if (outputProcessor->getDestNode() != nullptr)
+                {
+
+                    LOGG("outputProcessor->getDestNode() != nullptr");
+
+                    if (outputProcessor->getDestNode()->isSplitter())
+                    {
+                        LOGG("outputProcessor->getDestNode()->isSplitter()");
+                        return true;
+                    }
+                        
+                }
+
+                LOGG("outputProcessor->getDestNode() == nullptr");
+
+                return false;
+            }
+                
 
             if (outputProcessor->isAudioMonitor())
             {
+
+                LOGG("outputProcessor->isAudioMonitor()");
+
                 if (outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex)
+                {
+                    LOGG("outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex");
                     return true;
+                }
+                    
             }
                 
             if (outputProcessor->getDestNode() == nullptr)
+            {
+                LOGG("outputProcessor->getDestNode() == nullptr");
                 return false;
+            }
+                
             else
             {
+                LOGG("outputProcessor->getDestNode() != nullptr");
+
                 if (outputProcessor->getDestNode()->isSplitter())
                 {
+                    LOGG("outputProcessor->getDestNode()->isSplitter()");
+
                     Splitter* splitter = (Splitter*)outputProcessor->getDestNode();
 
                     if (splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr)
-                        return false;
+                    {
+                        LOGG("splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr");
+
+                        if (inputNodeId == outputNodeId || inputProcessor->isSplitter())
+                        {
+                            LOGG("inputNodeId == outputNodeId || inputProcessor->isSplitter()");
+                            return true;
+                        }
+                        else {
+                            LOGG("inputNodeId != outputNodeId");
+                            return false;
+                        }
+                        
+                    }
+                        
                 }
+
+                LOGG("!outputProcessor->getDestNode()->isSplitter()");
 
                 return true;
             }
         }
         else {
 
+            LOGG("inputIndex != -1");
+
             if (outputProcessor->getDestNode() != nullptr)
             {
+
+                LOGG("outputProcessor->getDestNode() != nullptr");
+
                 if (!outputProcessor->getDestNode()->isSplitter())
                 {
+                    LOGG("!outputProcessor->getDestNode()->isSplitter()");
+
                     return false;
                 }
                 else
                 {
+                    LOGG("outputProcessor->getDestNode()->isSplitter()");
+
                     Splitter* splitter = (Splitter*)outputProcessor->getDestNode();
 
                     //std::cout << "DESTNODE0: " << splitter->getDestNode(0)->getNodeId() << std::endl;
                     //std::cout << "DESTNODE1: " << splitter->getDestNode(1)->getNodeId() << std::endl;
 
                     if (splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr)
-                        return false;
+                    {
+                        LOGG("splitter->getDestNode(0) == nullptr || splitter->getDestNode(1) == nullptr");
 
+                        if (inputNodeId == outputNodeId)
+                        {
+                            LOGG("inputNodeId == outputNodeId");
+                            return true;
+                        }
+                            
+                        else
+                        {
+                            LOGG("inputNodeId != outputNodeId1");
+                            return false;
+                        }
+                            
+                    }
+                        
                     if (splitter->getDestNode(0) == inputProcessor)
+                    {
+                        LOGG("splitter->getDestNode(0) == inputProcessor");
                         return true;
+                    }
+                        
                     else
+                    {
+                        LOGG("splitter->getDestNode(0) != inputProcessor");
                         return false;
+                    }
+                        
                 }
                     
             }
 
             if (inputProcessor->getDestNode() == nullptr)
+            {
+                LOGG("inputProcessor->getDestNode() == nullptr");
                 return false;
+               
+            }
+                
 
             if (outputProcessor->isAudioMonitor())
             {
+                LOGG("outputProcessor->isAudioMonitor()");
                 if (outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex)
+                {
+
+                    LOGG("outputIndex >= outputProcessor->getNumInputChannels() && outputIndex != midiChannelIndex");
                     return false;
+                }
+                    
             }
 
         }
     }
 
-    return true;
+    return true;*/
 }
 
 int ProcessorGraph::getStreamIdForChannel(Node& node, int channel)
@@ -1088,6 +1343,8 @@ void ProcessorGraph::clearConnections()
         addConnection(Connection(src, dest));
 
     }
+
+    bufferLookupMap.clear();
 
 }
 
