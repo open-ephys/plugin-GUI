@@ -1243,32 +1243,28 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
         else //FilenameFieldComponent::State::AUTO
         {
 
+            if (usePlaceholderText)
+            {
+                filename += field->value;
+                continue;
+            }
+
             switch (field->type)
             {
 
                 case FilenameFieldComponent::Type::PREPEND:
 
-                    if (usePlaceholderText)
-                        filename += field->value;
-                    else 
-                        filename += generatePrepend(field->value);
-
+                    filename += generatePrepend(field->value);
                     break;
 
                 case FilenameFieldComponent::Type::MAIN:
 
-                    if (usePlaceholderText)
-                        filename += field->value;
-                    else
-                        filename += generateDatetimeFromFormat(field->value);
+                    filename += generateDatetimeFromFormat(field->value);
                     break;
 
                 case FilenameFieldComponent::Type::APPEND:
 
-                    if (usePlaceholderText)
-                        filename += field->value;
-                    else 
-                        filename += generateAppend(field->value);
+                    filename += generateAppend(field->value);
                     break;       
                 
                 default:
