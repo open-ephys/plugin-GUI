@@ -178,6 +178,8 @@ public:
 
     ScopedPointer<PlaybackButton>       playbackButton;
 
+    void setRecording(int index);
+
 private:
     void clearEditor();
 

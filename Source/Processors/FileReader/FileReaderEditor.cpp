@@ -849,6 +849,11 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
 }
 
+void FileReaderEditor::setRecording(int index)
+{
+    recordSelector->setSelectedItemIndex(index, sendNotification);
+}
+
 void FileReaderEditor::timerCallback()
 {
     setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));

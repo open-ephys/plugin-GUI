@@ -467,6 +467,23 @@ void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
 String FileReader::handleConfigMessage(String msg)
 {
+
+    StringArray tokens;
+    tokens.addTokens (msg, "=", "\"");
+
+    if (tokens.size() != 2) return "Invalid msg";
+
+    if (tokens[0] == "file")
+        static_cast<FileReaderEditor*> (getEditor())->setFile(tokens[1]);
+    else if (tokens[0] == "index")
+        static_cast<FileReaderEditor*> (getEditor())->setRecording(std::stoi(tokens[1].toStdString()));
+    else if (tokens[0] == "start")
+        static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
+    else if (tokens[0] == "stop")
+        static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
+    else
+        std::cout << "Invalid key" << std::endl;
+
     return "File Reader received config: " + msg;
 }
 
